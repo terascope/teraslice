@@ -1,8 +1,9 @@
 
 import 'jest-extended';
 import { debugLogger } from '@terascope/utils';
-import { Parser, TypeConfig, FieldType } from '../../src';
-import { UtilsTranslateQueryOptions } from '../../src/translator/interfaces';
+import { Parser } from '../../src';
+import { UtilsTranslateQueryOptions } from '../../src/translator';
+import { TypeConfig, FieldType } from '../../src/interfaces';
 
 describe('geo-distance', () => {
     const typeConfig: TypeConfig = { location: FieldType.Geo };
