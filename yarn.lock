@@ -1304,7 +1304,7 @@
   dependencies:
     "@turf/helpers" "6.x"
 
-"@turf/bbox@^6.0.1":
+"@turf/bbox@6.x", "@turf/bbox@^6.0.1":
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/@turf/bbox/-/bbox-6.0.1.tgz#b966075771475940ee1c16be2a12cf389e6e923a"
   integrity sha512-EGgaRLettBG25Iyx7VyUINsPpVj1x3nFQFiGS3ER8KCI1MximzNLsam3eXRabqQDjyAKyAE1bJ4EZEpGvspQxw==
@@ -1347,6 +1347,15 @@
   integrity sha512-WU08Ph8j0J2jVGlQCKChXoCtI50BB3yEH21V++V0T4cR1T27HKCxkehV2sYMwTierfMBgjwSwDIsxnR4/2mWXg==
   dependencies:
     "@turf/helpers" "6.x"
+
+"@turf/line-to-polygon@^6.0.1":
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/@turf/line-to-polygon/-/line-to-polygon-6.0.1.tgz#0f33ba14344fa86bde7cc9b78a8dbc53348fd26c"
+  integrity sha512-MO97h57gAP0nn7SrmOPkCTK44KoR1rUgiLVflUSfX/cT1My5xcFufakKL/5Qq8+B2JW8Q4kN6NFcgAeoO514tw==
+  dependencies:
+    "@turf/bbox" "6.x"
+    "@turf/helpers" "6.x"
+    "@turf/invariant" "6.x"
 
 "@turf/meta@6.x":
   version "6.0.2"

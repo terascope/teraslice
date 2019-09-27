@@ -36,6 +36,17 @@ export default [
         },
     ],
     [
+        "'foo'",
+        'a quoted string',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            field: null,
+            quoted: true,
+            value: 'foo',
+        },
+    ],
+    [
         '\\"foo\\"',
         'an escaped quoted string',
         {
@@ -131,8 +142,8 @@ export default [
             type: ASTType.Term,
             field_type: FieldType.String,
             field: 'foo',
-            quoted: false,
-            value: "'bar'",
+            quoted: true,
+            value: 'bar',
         },
         {
             foo: FieldType.String

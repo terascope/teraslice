@@ -12,9 +12,27 @@ export default [
         [true, false],
     ],
     [
+        'can do basic geoDistance function call matches',
+        'location:geoDistance(point:"33.435518,-111.873616" distance:5000m)',
+        [{ location: '33.435967,-111.867710' }, { location: '22.435967,-150.867710' }],
+        [true, false],
+    ],
+    [
         'can do basic matches with funky spaces in geopoints in a boundingbox query',
         'location:(_geo_box_top_left_:" 33.906320,  -112.758421" _geo_box_bottom_right_:"32.813646,-111.058902")',
         [{ location: '33.435967,  -111.867710 ' }, { location: '22.435967,-150.867710' }],
+        [true, false],
+    ],
+    [
+        'can do geoBox function call matches',
+        'location:geoBox(top_left:" 33.906320, -112.758421", bottom_right:"32.813646,-111.058902")',
+        [{ location: '33.435967,  -111.867710 ' }, { location: '22.435967,-150.867710' }],
+        [true, false],
+    ],
+    [
+        'can do geoPolygon function call matches',
+        'location: geoPolygon(points:["70.43,140.43", "81.3,123.4", "89.3,154.4"])',
+        [{ location: '83.435967,144.867710' }, { location: '-22.435967,-150.867710' }],
         [true, false],
     ],
     [

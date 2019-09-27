@@ -340,4 +340,20 @@ export default [
             }
         ]
     }],
+    ['some_ref:("A")', 'single value field group',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            field: 'some_ref',
+            quoted: true,
+            value: 'A',
+        }],
+    ["some_ref:('A')", 'single value field group',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            field: 'some_ref',
+            quoted: true,
+            value: 'A',
+        }],
 ] as TestCase[];
