@@ -1,6 +1,6 @@
 
 import { Logger } from '@terascope/utils';
-import { UtilsTranslateQueryOptions, AnyQuery, AnyQuerySort } from '../translator';
+import { UtilsTranslateQueryOptions, AnyQuery, AnyQuerySort } from '../translator/interfaces';
 import {
     GeoPoint,
     GeoDistanceUnit,
