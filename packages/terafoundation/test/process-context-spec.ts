@@ -1,12 +1,12 @@
 import 'jest-extended';
-import { singleContext } from '../src';
+import { ProcessContext } from '../src';
 
-describe('Terafoundation (singleContext)', () => {
+describe('Terafoundation (ProcessContext)', () => {
     it('should be able to return a valid context', () => {
-        const context = singleContext({
+        const context = new ProcessContext({
             name: 'example',
         } as any, {
-            sysconfig: {
+            configfile: {
                 terafoundation: {
                     environment: process.env.NODE_ENV,
                 }
@@ -32,10 +32,14 @@ describe('Terafoundation (singleContext)', () => {
     });
 
     it('should throw an error when given an invalid system config', () => {
-        expect(() => { singleContext({ a: true } as any, { sysconfig: 'invalid' } as any); }).toThrowError('Terafoundation requires a valid system configuration');
+        expect(() => {
+            new ProcessContext({ a: true } as any, { sysconfig: 'invalid' } as any);
+        }).toThrowError('Terafoundation requires a valid system configuration');
     });
 
     it('should throw an error when given an invalid application config', () => {
-        expect(() => { singleContext('invalid' as any); }).toThrowError('Terafoundation requires a valid application configuration');
+        expect(() => {
+            new ProcessContext('invalid' as any);
+        }).toThrowError('Terafoundation requires a valid application configuration');
     });
 });

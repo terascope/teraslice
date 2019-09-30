@@ -3,6 +3,7 @@
 'use strict';
 
 const util = require('util');
+const { ClusterContext } = require('terafoundation');
 
 const { safeEncode, safeDecode } = require('./lib/utils/encoding_utils');
 
@@ -46,7 +47,7 @@ if (['execution_controller', 'worker'].includes(assignment)) {
         },
     });
 
-    require('terafoundation').clusterContext(terasliceConfig);
+    new ClusterContext(terasliceConfig);
 }
 
 function deprecatedUseOf(name) {

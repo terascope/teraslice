@@ -33,7 +33,6 @@
         "bunyan": "^1.8.12",
         "convict": "^4.4.1",
         "elasticsearch": "^15.4.1",
-        "ip": "^1.1.5",
         "js-yaml": "^3.13.1",
         "mongoose": "~5.7.0",
         "node-statsd": "0.1.1",

@@ -4,7 +4,7 @@ import {
     TSError, isFunction, isPlainObject, isEmpty
 } from '@terascope/utils';
 import { getConnectorSchema } from './connector-utils';
-import sysSchema from './system_schema';
+import sysSchema from './schema';
 import * as i from './interfaces';
 
 function validateConfig(
@@ -49,10 +49,14 @@ function extractSchema<S>(fn: any, sysconfig: i.FoundationSysConfig<S>): any {
  * @param sysconfig unvalidated sysconfig
 */
 export default function validateConfigs<S = {}, A = {}, D extends string = string>(
-    cluster: i.WorkerCluster|i.MasterCluster,
+    cluster: i.Cluster,
     config: i.FoundationConfig<S, A, D>,
     sysconfig: i.FoundationSysConfig<S>
 ): i.FoundationSysConfig<S> {
+    if (!isPlainObject(config) || isEmpty(config)) {
+        throw new Error('Terafoundation requires a valid application configuration');
+    }
+
     if (!isPlainObject(sysconfig) || isEmpty(sysconfig)) {
         throw new Error('Terafoundation requires a valid system configuration');
     }

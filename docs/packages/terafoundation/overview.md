@@ -19,11 +19,9 @@ Here are a few tasks it can help you with:
 <!--Service (JavaScript)-->
 ```js
 const worker = require('./worker');
-const { clusterContext } = require('terafoundation');
-// OR using the default export
-// const clusterContext = require('terafoundation').default;
+const { ClusterContext } = require('terafoundation');
 
-clusterContext({
+new ClusterContext({
     name: 'testserver',
     worker
 });
@@ -40,14 +38,14 @@ module.exports = function worker(context) {
 ```
 <!--END_DOCUSAURUS_CODE_TABS-->
 
-### Single Context Example
+### Single Process Example
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--Service (TypeScript)-->
 ```ts
-import { singleContext } from 'terafoundation';
+import { ProcessContext } from 'terafoundation';
 
-const context = singleContext({
+const context = new ProcessContext({
     name: 'testserver',
 });
 
@@ -55,9 +53,9 @@ const context = singleContext({
 ```
 <!--Service (JavaScript)-->
 ```js
-const { singleContext } = require('terafoundation');
+const { ProcessContext } = require('terafoundation');
 
-const context = singleContext({
+const context = new ProcessContext({
     name: 'testserver',
 });
 
@@ -81,7 +79,9 @@ const context = singleContext({
 ### Complex example
 
 ```js
-const foundation = require('terafoundation')({
+const { ClusterContext } = require('terafoundation')
+
+new ClusterContext({
     name: 'teraslice',
     shutdownMessaging: true,
     worker: worker,
@@ -98,7 +98,7 @@ const foundation = require('terafoundation')({
     config_schema: config_schema,
     schema_formats: schema_formats,
     cluster_name: cluster_name
-  });
+});
 ```
 
 You may pass in multiple different type of child process that behave differently. To use them you must specify them on the descriptors. After this you may create them using `context.foundation.startWorkers` api to create that specific worker type. The descriptor is primarily needed for child worker restarts

@@ -1,17 +1,17 @@
 import 'jest-extended';
 import os from 'os';
-import { WorkerCluster } from '../src';
+import { Cluster } from '../src';
 import validateConfigs from '../src/validate-configs';
 
 describe('Validate Configs', () => {
     describe('when using mainly defaults', () => {
-        const cluster: WorkerCluster = {
+        const cluster: Cluster = {
             isWorker: true,
             isMaster: false,
             worker: {
                 id: 'someid'
             }
-        };
+        } as any;
 
         const configFile = {
             terafoundation: {
@@ -89,7 +89,11 @@ describe('Validate Configs', () => {
         };
 
         it('should return a valid config', () => {
-            const validatedConfig = validateConfigs({} as any, {} as any, configFile as any);
+            const validatedConfig = validateConfigs(
+                { foo: 'bar' } as any,
+                { foo: 'bar' } as any,
+                configFile as any
+            );
             expect(validatedConfig).toMatchObject({
                 terafoundation: {
                     log_level: [
@@ -178,7 +182,11 @@ describe('Validate Configs', () => {
         };
 
         it('should return a valid config', () => {
-            const validatedConfig = validateConfigs({} as any, {} as any, configFile as any);
+            const validatedConfig = validateConfigs(
+                { foo: 'bar' } as any,
+                { foo: 'bar' } as any,
+                configFile as any
+            );
             expect(validatedConfig).toMatchObject({
                 terafoundation: {
                     connectors: {

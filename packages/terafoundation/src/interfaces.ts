@@ -11,7 +11,7 @@ export type FoundationConfig<S = {}, A = {}, D extends string = string> = {
     config_schema?: any;
     schema_formats?: Format[];
     default_config_file?: string;
-    cluster_name?: (sysconfig: FoundationSysConfig<S>) => string;
+    cluster_name?: string|((sysconfig: FoundationSysConfig<S>) => string);
     script?: (context: FoundationContext<S, A, D>) => void;
     descriptors?: Record<D, string>;
     master: (context: FoundationContext<S, A, D>, config: FoundationConfig<S, A, D>) => void;
@@ -71,22 +71,12 @@ export interface FoundationWorker extends NodeJSWorker {
     assignment: string;
 }
 
-export type MasterCluster = Overwrite<NodeJSCluster, {
-    isWorker: false;
-    isMaster: true;
+export type Cluster = Overwrite<NodeJSCluster, {
     fork(env?: any): FoundationWorker;
     workers: {
         [id: string]: FoundationWorker;
     };
 }>;
-
-export interface WorkerCluster {
-    isWorker: true;
-    isMaster: false;
-    worker: {
-        id: string;
-    };
-}
 
 export type FoundationSysConfig<S> = {
     _nodeName: string;
@@ -110,7 +100,7 @@ export type FoundationContext<S = {}, A = {}, D extends string = string> = {
     platform: string;
     assignment: D;
     cluster_name?: string;
-    cluster: WorkerCluster|MasterCluster;
+    cluster: Cluster;
 }
 
 export type ParsedArgs<S> = {

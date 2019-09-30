@@ -7,7 +7,7 @@ export default function masterModule<S = {}, A = {}, D extends string = string>(
     moduleConfig: i.FoundationConfig<S, A, D>
 ): void {
     const { logger } = context;
-    const cluster = context.cluster as i.MasterCluster;
+    const cluster = context.cluster as i.Cluster;
     const configWorkers = context.sysconfig.terafoundation.workers;
     let startWorkers = true;
     const events = context.foundation.getEventEmitter();

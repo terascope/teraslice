@@ -1,8 +1,10 @@
 'use strict';
 
-const { singleContext } = require('terafoundation');
+const { ProcessContext } = require('terafoundation');
 const { getTerasliceConfig } = require('../../config');
 
 module.exports = function makeTerafoundationContext({ sysconfig } = {}) {
-    return singleContext(getTerasliceConfig(), { sysconfig });
+    return new ProcessContext(getTerasliceConfig(), {
+        configfile: sysconfig
+    });
 };

@@ -1,7 +1,4 @@
-import singleContext from './single-context';
-import clusterContext from './cluster-context';
-
+export * from './process-context';
+export * from './cluster-context';
+export * from './core-context';
 export * from './interfaces';
-export { singleContext, clusterContext };
-
-export default clusterContext;

@@ -1,48 +1,90 @@
+import _cluster from 'cluster';
+import { get, getFullErrorStack } from '@terascope/utils';
 import { getArgs } from './sysconfig';
 import validateConfigs from './validate-configs';
 import * as i from './interfaces';
+import { CoreContext, handleStdStreams } from './core-context';
 import master from './master';
-import api from './api';
+
+const cluster: i.Cluster = (_cluster as any);
 
 // this module is not really testable
 /* istanbul ignore next */
 /**
  * A Cluster Context (with worker processes), useful for scaling
 */
-export default function clusterContext<S = {}, A = {}, D extends string = string>(
-    config: i.FoundationConfig<S, A, D>
-): i.FoundationContext<S, A, D> {
-    const cluster = require('cluster');
-    let context: i.FoundationContext<S, A, D>;
+export class ClusterContext<
+    S = {},
+    A = {},
+    D extends string = string
+> extends CoreContext<S, A, D> {
+    constructor(config: i.FoundationConfig<S, A, D>) {
+        const parsedArgs = getArgs<S>(
+            config.name,
+            config.default_config_file
+        );
 
-    const name = config.name ? config.name : 'terafoundation';
+        const sysconfig = validateConfigs(cluster, config, parsedArgs.configfile);
 
-    const parsedArgs = getArgs<S>(config.name, config.default_config_file);
+        super(config, cluster, sysconfig);
 
-    const sysconfig = validateConfigs<S, A, D>(cluster, config, parsedArgs.configfile);
+        handleStdStreams();
 
-    // set by initAPI
+        process.on('uncaughtException', (err) => {
+            this._errorHandler(err);
+        });
+        process.on('unhandledRejection', (err) => {
+            this._errorHandler(err);
+        });
 
-    function errorHandler(err: any) {
+        if (config.script) {
+            /**
+             * Run a script only
+             */
+            config.script(this);
+        } else if (this.cluster.isMaster) {
+            /**
+             * Use cluster to start multiple workers
+             */
+            master(this, config);
+        } else {
+            /**
+             * Start a worker process
+             */
+            let keyFound = false;
+            if (config.descriptors) {
+                Object.keys(config.descriptors).forEach((key) => {
+                    if (process.env.assignment === key) {
+                        keyFound = true;
+                        config[key](this);
+                    }
+                });
+                // if no key was explicitly set then default to worker
+                if (!keyFound) {
+                    config.worker(this);
+                }
+            } else {
+                config.worker(this);
+            }
+        }
+    }
+
+    private _errorHandler(err: any) {
         // eslint-disable-next-line no-console
-        const logErr = context.logger
-            ? context.logger.error.bind(context.logger)
+        const logErr = this.logger
+            ? this.logger.error.bind(this.logger)
             : console.error;
 
         if (cluster.isMaster) {
-            logErr(`Error in master with pid: ${process.pid}`);
+            logErr(
+                getFullErrorStack(err),
+                `Error in master with pid: ${process.pid}`
+            );
         } else {
-            logErr(`Error in worker: ${cluster.worker.id} pid: ${process.pid}`);
-        }
-
-        if (err.message) {
-            logErr(err.message);
-        } else {
-            logErr(err);
-        }
-
-        if (err.stack) {
-            logErr(err.stack);
+            logErr(
+                getFullErrorStack(err),
+                `Error in worker: ${get(this.cluster, 'worker.id')} pid: ${process.pid}`
+            );
         }
 
         // log saving to disk is async, using hack to give time to flush
@@ -50,73 +92,4 @@ export default function clusterContext<S = {}, A = {}, D extends string = string
             process.exit(-1);
         }, 600);
     }
-
-    function findWorkerCode() {
-        let keyFound = false;
-        if (config.descriptors) {
-            Object.keys(config.descriptors).forEach((key) => {
-                if (process.env.assignment === key) {
-                    keyFound = true;
-                    config[key](context);
-                }
-            });
-            // if no key was explicitly set then default to worker
-            if (!keyFound) {
-                config.worker(context);
-            }
-        } else {
-            config.worker(context);
-        }
-    }
-
-    process.on('uncaughtException', errorHandler);
-    process.on('unhandledRejection', errorHandler);
-
-    // See https://github.com/trentm/node-bunyan/issues/246
-    function handleStdError(err: any) {
-        if (err.code === 'EPIPE' || err.code === 'ERR_STREAM_DESTROYED') {
-        // ignore
-        } else {
-            throw err;
-        }
-    }
-
-    process.stdout.on('error', handleStdError);
-    process.stderr.on('error', handleStdError);
-
-    let clusterName: string|undefined;
-    if (typeof config.cluster_name === 'function') {
-        clusterName = config.cluster_name(sysconfig);
-    }
-
-    /*
-    * Service configuration context
-    */
-    context = {
-        sysconfig,
-        cluster,
-        name,
-        arch: process.arch,
-        platform: process.platform,
-        cluster_name: clusterName
-    } as i.FoundationContext<S, A, D>;
-
-    // Initialize the API
-    api(context);
-
-    // Bootstrap the top level logger
-    context.apis.foundation.makeLogger(context.name, context.name);
-
-    if (config.script) {
-        config.script(context);
-        /**
-         * Use cluster to start multiple workers
-         */
-    } else if (context.cluster.isMaster) {
-        master(context, config);
-    } else {
-        findWorkerCode();
-    }
-
-    return context;
 }
