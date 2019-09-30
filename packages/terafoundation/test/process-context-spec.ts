@@ -33,13 +33,13 @@ describe('Terafoundation (ProcessContext)', () => {
 
     it('should throw an error when given an invalid system config', () => {
         expect(() => {
-            new ProcessContext({ a: true } as any, { sysconfig: 'invalid' } as any);
+            new ProcessContext({ a: true } as any, { configfile: 'invalid' } as any);
         }).toThrowError('Terafoundation requires a valid system configuration');
     });
 
     it('should throw an error when given an invalid application config', () => {
         expect(() => {
-            new ProcessContext('invalid' as any);
+            new ProcessContext('invalid' as any, { } as any);
         }).toThrowError('Terafoundation requires a valid application configuration');
     });
 });
