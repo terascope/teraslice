@@ -6,7 +6,13 @@ import * as i from './interfaces';
 
 
 /**
- * A Single Process Context
+ * A Single Process Context, this should be used when running
+ * in a single process instance/container. This context doesn't
+ * support some of the multiple worker/assignment variations
+ * that `ClusterContext` does, like `master` or `worker`.
+ *
+ * @todo add process event handler listeners in initialize method
+ * @todo add shutdown handler logic with shutdown method
 */
 export class ProcessContext<
     S = {},

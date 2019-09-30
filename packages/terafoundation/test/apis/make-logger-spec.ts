@@ -1,6 +1,8 @@
 import 'jest-extended';
 import api from '../../src/api';
 
+process.env.USE_DEBUG_LOGGER = 'false';
+
 describe('makeLogger foundation API', () => {
     it('should create a logger', async () => {
         const context = {

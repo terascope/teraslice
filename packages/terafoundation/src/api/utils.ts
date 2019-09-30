@@ -4,7 +4,6 @@ import bunyan from 'bunyan';
 import * as ts from '@terascope/utils';
 import * as i from '../interfaces';
 
-const useDebugLogger = ts.toBoolean(process.env.USE_DEBUG_LOGGER);
 
 type LogLevelObj = {
     [type in i.LogType]: i.LogLevelType;
@@ -27,6 +26,7 @@ function getLogLevel(level: i.LogLevelConfig): LogLevelObj {
 }
 
 export function createRootLogger(context: i.FoundationContext<{}>): ts.Logger {
+    const useDebugLogger = ts.toBoolean(process.env.USE_DEBUG_LOGGER);
     const filename = context.name;
     const name = context.assignment || filename;
     const foundationConfig = context.sysconfig.terafoundation;

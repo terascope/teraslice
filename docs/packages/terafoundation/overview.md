@@ -21,6 +21,7 @@ Here are a few tasks it can help you with:
 const worker = require('./worker');
 const { ClusterContext } = require('terafoundation');
 
+// the context should automatically run the worker
 new ClusterContext({
     name: 'testserver',
     worker

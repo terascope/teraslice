@@ -1,5 +1,5 @@
 import _cluster from 'cluster';
-import { get, getFullErrorStack } from '@terascope/utils';
+import * as ts from '@terascope/utils';
 import { getArgs } from './sysconfig';
 import validateConfigs from './validate-configs';
 import * as i from './interfaces';
@@ -30,15 +30,11 @@ export class ClusterContext<
         );
 
         super(config, cluster, sysconfig);
+        this._errorHandler = this._errorHandler.bind(this);
 
         handleStdStreams();
-
-        process.on('uncaughtException', (err) => {
-            this._errorHandler(err);
-        });
-        process.on('unhandledRejection', (err) => {
-            this._errorHandler(err);
-        });
+        process.on('uncaughtException', this._errorHandler);
+        process.on('unhandledRejection', this._errorHandler);
 
         if (config.script) {
             /**
@@ -50,7 +46,7 @@ export class ClusterContext<
              * Use cluster to start multiple workers
              */
             master(this, config);
-            if (config.master) {
+            if (ts.isFunction(config.master)) {
                 config.master(this, config);
             }
         } else {
@@ -83,13 +79,13 @@ export class ClusterContext<
 
         if (cluster.isMaster) {
             logErr(
-                getFullErrorStack(err),
+                ts.getFullErrorStack(err),
                 `Error in master with pid: ${process.pid}`
             );
         } else {
             logErr(
-                getFullErrorStack(err),
-                `Error in worker: ${get(this.cluster, 'worker.id')} pid: ${process.pid}`
+                ts.getFullErrorStack(err),
+                `Error in worker: ${ts.get(this.cluster, 'worker.id')} pid: ${process.pid}`
             );
         }
 
