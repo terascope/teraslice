@@ -4,7 +4,7 @@ import * as i from './interfaces';
 
 export default function masterModule<S = {}, A = {}, D extends string = string>(
     context: i.FoundationContext<S, A, D>,
-    moduleConfig: i.FoundationConfig<S, A, D>
+    config: i.FoundationConfig<S, A, D>
 ): void {
     const { logger } = context;
     const cluster = context.cluster as i.Cluster;
@@ -12,7 +12,7 @@ export default function masterModule<S = {}, A = {}, D extends string = string>(
     let startWorkers = true;
     const events = context.foundation.getEventEmitter();
 
-    if (moduleConfig.start_workers === false) {
+    if (config.start_workers === false) {
         startWorkers = false;
     }
 
@@ -57,7 +57,7 @@ export default function masterModule<S = {}, A = {}, D extends string = string>(
                 if (funcRun > 1) return;
 
                 // use process.isConnected() to ensure the process will receive the IPC message
-                if (moduleConfig.shutdownMessaging && worker.isConnected()) {
+                if (config.shutdownMessaging && worker.isConnected()) {
                     worker.send({ message: 'shutdown' });
                 } else {
                     worker.kill();

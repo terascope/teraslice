@@ -3,7 +3,6 @@
 'use strict';
 
 const util = require('util');
-const { ClusterContext } = require('terafoundation');
 
 const { safeEncode, safeDecode } = require('./lib/utils/encoding_utils');
 
@@ -29,6 +28,7 @@ if (['execution_controller', 'worker'].includes(assignment)) {
     process.env.assignment = 'node_master';
     process.env.NODE_TYPE = 'node_master';
 
+    const { ClusterContext } = require('terafoundation');
     const nodeMaster = require('./lib/cluster/node_master');
     const { getTerasliceConfig } = require('./lib/config');
 

@@ -40,11 +40,9 @@ export function getDefaultConfigFile() {
 }
 
 export function getArgs<S = {}>(
-    scriptName: string,
     defaultConfigFile?: string,
 ): i.ParsedArgs<S> {
     const { argv } = yargs.usage('Usage: $0 [options]')
-        .scriptName(scriptName)
         .version()
         .alias('v', 'version')
         .help()

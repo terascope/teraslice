@@ -14,7 +14,7 @@ export type FoundationConfig<S = {}, A = {}, D extends string = string> = {
     cluster_name?: string|((sysconfig: FoundationSysConfig<S>) => string);
     script?: (context: FoundationContext<S, A, D>) => void;
     descriptors?: Record<D, string>;
-    master: (context: FoundationContext<S, A, D>, config: FoundationConfig<S, A, D>) => void;
+    master?: (context: FoundationContext<S, A, D>, config: FoundationConfig<S, A, D>) => void;
     start_workers?: boolean;
     shutdownMessaging?: boolean;
     worker: (context: FoundationContext<S, A, D>) => void;

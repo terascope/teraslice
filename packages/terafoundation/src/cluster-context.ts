@@ -20,11 +20,14 @@ export class ClusterContext<
 > extends CoreContext<S, A, D> {
     constructor(config: i.FoundationConfig<S, A, D>) {
         const parsedArgs = getArgs<S>(
-            config.name,
             config.default_config_file
         );
 
-        const sysconfig = validateConfigs(cluster, config, parsedArgs.configfile);
+        const sysconfig = validateConfigs(
+            cluster,
+            config,
+            parsedArgs.configfile
+        );
 
         super(config, cluster, sysconfig);
 
@@ -47,6 +50,9 @@ export class ClusterContext<
              * Use cluster to start multiple workers
              */
             master(this, config);
+            if (config.master) {
+                config.master(this, config);
+            }
         } else {
             /**
              * Start a worker process
@@ -54,7 +60,7 @@ export class ClusterContext<
             let keyFound = false;
             if (config.descriptors) {
                 Object.keys(config.descriptors).forEach((key) => {
-                    if (process.env.assignment === key) {
+                    if (this.assignment === key) {
                         keyFound = true;
                         config[key](this);
                     }

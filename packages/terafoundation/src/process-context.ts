@@ -25,7 +25,6 @@ export class ProcessContext<
         } as any;
 
         const parsedArgs = overrideArgs || getArgs<S>(
-            config.name,
             config.default_config_file
         );
 
