@@ -23,7 +23,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/data-types": "^0.5.10",
+        "@terascope/data-types": "^0.5.11",
         "@terascope/utils": "^0.20.1",
         "ajv": "^6.10.0",
         "nanoid": "^2.0.3",
