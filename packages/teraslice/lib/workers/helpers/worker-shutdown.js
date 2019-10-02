@@ -37,7 +37,7 @@ function shutdownHandler(context, shutdownFn) {
 
     const isK8s = get(context, 'sysconfig.teraslice.cluster_manager_type') === 'kubernetes';
     const isProcessRestart = process.env.process_restart;
-    const allowNonZeroExitCode = isK8s || assignment !== 'exectution_controller';
+    const allowNonZeroExitCode = !isK8s || assignment !== 'execution_controller';
     const api = {
         exiting: false,
         exit
