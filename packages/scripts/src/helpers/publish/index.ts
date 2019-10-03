@@ -10,6 +10,7 @@ import {
     dockerBuild,
     dockerPush
 } from '../scripts';
+import * as config from '../config';
 import { getRootInfo } from '../misc';
 import signale from '../signale';
 
@@ -41,7 +42,7 @@ async function npmPublish(pkgInfo: PackageInfo, options: PublishOptions) {
         signale.info(`[DRY RUN] - skipping publish for package ${pkgInfo.name}@v${pkgInfo.version}`);
         await yarnRun('prepublishOnly', [], pkgInfo.dir);
     } else {
-        await yarnPublish(pkgInfo);
+        await yarnPublish(pkgInfo, config.NPM_PUBLISH_TAG);
     }
 }
 

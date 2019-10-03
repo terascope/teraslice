@@ -28,3 +28,4 @@ export const REPORT_COVERAGE = reportCov != null || reportCov !== ''
     : isCI;
 
 export const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org/';
+export const NPM_PUBLISH_TAG = 'latest';
