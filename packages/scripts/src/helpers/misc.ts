@@ -50,7 +50,7 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
             root: isRoot,
             type: 'monorepo',
             docker: {
-                registry: `terascope/${folderName}`,
+                registries: [`terascope/${folderName}`],
                 cache_layers: [],
             },
             npm: {

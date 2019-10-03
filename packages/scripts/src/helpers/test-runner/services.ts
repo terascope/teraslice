@@ -3,11 +3,14 @@ import got from 'got';
 import semver from 'semver';
 import { debugLogger, pRetry, TSError } from '@terascope/utils';
 import {
-    dockerRun, DockerRunOptions, getContainerInfo, dockerStop
+    dockerRun,
+    DockerRunOptions,
+    getContainerInfo,
+    dockerStop
 } from '../scripts';
 import { TestOptions } from './interfaces';
 import { TestSuite } from '../interfaces';
-import { HOST_IP } from '../config';
+import * as config from '../config';
 import signale from '../signale';
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -15,30 +18,32 @@ const logger = debugLogger('ts-scripts:cmd:test');
 type Service = TestSuite.Elasticsearch | TestSuite.Kafka;
 const services: { [service in Service]: DockerRunOptions } = {
     [TestSuite.Elasticsearch]: {
-        image: 'blacktop/elasticsearch',
-        name: 'ts_test_elasticsearch',
+        image: config.ELASTICSEARCH_DOCKER_IMAGE,
+        name: config.ELASTICSEARCH_NAME,
         tmpfs: ['/usr/share/elasticsearch/data'],
-        ports: ['49200:49200', '49300:9300'],
+        ports: [`${config.ELASTICSEARCH_PORT}:${config.ELASTICSEARCH_PORT}`],
         env: {
-            ES_JAVA_OPTS: '-Xms256m -Xmx256m',
+            ES_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
             'network.host': '0.0.0.0',
-            'http.port': '49200',
+            'http.port': config.ELASTICSEARCH_PORT,
             'discovery.type': 'single-node',
         },
+        network: config.USE_SERVICE_NETWORK
     },
     [TestSuite.Kafka]: {
-        image: 'blacktop/kafka',
-        name: 'ts_test_kafka',
+        image: config.KAFKA_DOCKER_IMAGE,
+        name: config.KAFKA_NAME,
         tmpfs: ['/tmp/kafka-logs'],
-        ports: ['49092:49092', '42181:2181'],
+        ports: [`${config.KAFKA_PORT}:${config.KAFKA_PORT}`],
         env: {
-            KAFKA_HEAP_OPTS: '-Xms256m -Xmx256m',
+            KAFKA_HEAP_OPTS: config.SERVICE_HEAP_OPTS,
             KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true',
-            KAFKA_ADVERTISED_HOST_NAME: HOST_IP,
-            KAFKA_ADVERTISED_PORT: '49092',
-            KAFKA_PORT: '49092',
+            KAFKA_ADVERTISED_HOST_NAME: config.HOST_IP,
+            KAFKA_ADVERTISED_PORT: config.KAFKA_PORT,
+            KAFKA_PORT: config.KAFKA_PORT,
             KAFKA_NUM_PARTITIONS: '2',
         },
+        network: config.USE_SERVICE_NETWORK
     },
 };
 
@@ -53,7 +58,10 @@ export async function ensureServices(suite: TestSuite, options: TestOptions): Pr
         }
 
         if (suite === TestSuite.E2E) {
-            const fns = await Promise.all([ensureElasticsearch(options), ensureKafka(options)]);
+            const fns = await Promise.all([
+                ensureElasticsearch(options),
+                ensureKafka(options)
+            ]);
             return () => {
                 fns.forEach((fn) => fn());
             };
@@ -93,13 +101,14 @@ async function stopService(service: Service) {
 }
 
 async function checkElasticsearch(options: TestOptions, retries: number): Promise<void> {
+    const elasticsearchHost = config.ELASTICSEARCH_HOST;
     return pRetry(
         async () => {
-            logger.debug(`checking elasticsearch at ${options.elasticsearchHost}`);
+            logger.debug(`checking elasticsearch at ${elasticsearchHost}`);
 
             let body: any;
             try {
-                ({ body } = await got(options.elasticsearchHost, {
+                ({ body } = await got(elasticsearchHost, {
                     json: true,
                     throwHttpErrors: true,
                     retry: 0,
@@ -113,7 +122,7 @@ async function checkElasticsearch(options: TestOptions, retries: number): Promis
             logger.debug('got response from elasticsearch service', body);
 
             if (!body || !body.version || !body.version.number) {
-                throw new TSError(`Invalid response from elasticsearch at ${options.elasticsearchHost}`, {
+                throw new TSError(`Invalid response from elasticsearch at ${elasticsearchHost}`, {
                     retryable: true,
                 });
             }
@@ -123,12 +132,12 @@ async function checkElasticsearch(options: TestOptions, retries: number): Promis
 
             const satifies = semver.satisfies(actual, `^${expected}`);
             if (satifies) {
-                signale.debug(`elasticsearch@${actual} is running at ${options.elasticsearchHost}`);
+                signale.debug(`elasticsearch@${actual} is running at ${elasticsearchHost}`);
                 return;
             }
 
             throw new TSError(
-                `Elasticsearch at ${options.elasticsearchHost} does not satify required version of ${expected}, got ${actual}`,
+                `Elasticsearch at ${elasticsearchHost} does not satify required version of ${expected}, got ${actual}`,
                 {
                     retryable: false,
                 }
@@ -169,6 +178,6 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     };
 }
 
-async function checkKafka(options: TestOptions) {
-    signale.debug(`kafka should be running at ${options.kafkaBroker}`);
+async function checkKafka(_options: TestOptions) {
+    signale.debug(`kafka should be running at ${config.KAFKA_BROKER}`);
 }
