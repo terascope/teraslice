@@ -7,7 +7,7 @@ import {
 import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
 import signale from './signale';
-import { NPM_DEFAULT_REGISTRY } from './config';
+import * as config from './config';
 
 const logger = debugLogger('ts-scripts:cmd');
 
@@ -72,7 +72,10 @@ export async function exec(opts: ExecOpts, log = true): Promise<string> {
 
 export async function fork(opts: ExecOpts): Promise<void> {
     try {
-        const env: ExecEnv = { FORCE_COLOR: '1', ...opts.env };
+        const env: ExecEnv = {
+            FORCE_COLOR: config.FORCE_COLOR,
+            ...opts.env
+        };
         const _opts: ExecOpts = { stdio: 'inherit', ...opts };
         _opts.env = env;
         await _exec(_opts);
@@ -354,7 +357,7 @@ export function mapToArgs(input: ArgsMap): string[] {
 
 export async function getLatestNPMVersion(
     name: string,
-    registry: string = NPM_DEFAULT_REGISTRY
+    registry: string = config.NPM_DEFAULT_REGISTRY
 ): Promise<string> {
     const subprocess = await execa(
         'npm',
@@ -367,7 +370,7 @@ export async function getLatestNPMVersion(
     return subprocess.stdout;
 }
 
-export async function yarnPublish(pkgInfo: PackageInfo, tag = 'latest') {
+export async function yarnPublish(pkgInfo: PackageInfo, tag = config.NPM_PUBLISH_TAG) {
     await fork({
         cmd: 'yarn',
         args: [
