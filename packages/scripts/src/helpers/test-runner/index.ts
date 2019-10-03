@@ -178,7 +178,8 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
     }
 
     const rootInfo = getRootInfo();
-    const image = `${rootInfo.terascope.docker.registry}:e2e`;
+    const [registry] = rootInfo.terascope.docker.registries;
+    const image = `${registry}:e2e`;
     if (!errors.length) {
         try {
             await utils.buildDockerImage(image);

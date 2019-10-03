@@ -238,11 +238,13 @@ function getCacheFrom(): string[] {
     const layers = rootInfo.terascope.docker.cache_layers || [];
     if (!layers.length) return [];
     const cacheFrom: { [name: string]: string } = {};
+    const [registry] = rootInfo.terascope.docker.registries;
+
     layers.forEach(({ from, name }) => {
         if (cacheFrom[from] == null) {
             cacheFrom[from] = from;
         }
-        cacheFrom[name] = `${rootInfo.terascope.docker.registry}:dev-${name}`;
+        cacheFrom[name] = `${registry}:dev-${name}`;
     });
     return Object.values(cacheFrom);
 }

@@ -49,39 +49,42 @@ async function publishToDocker(options: PublishOptions) {
     const imagesToPush = [];
     let imageToBuild = '';
     const rootInfo = getRootInfo();
-    const { registry } = rootInfo.terascope.docker;
 
-    if (options.type === PublishType.Latest) {
-        imageToBuild = `${registry}:latest`;
-    } else if (options.type === PublishType.Tag) {
-        const mainPkgInfo = getMainPackageInfo();
-        if (!mainPkgInfo) {
-            throw new Error('At least one package must be specified with `terascope.main`');
+    const { registries } = rootInfo.terascope.docker;
+
+    for (const registry of registries) {
+        if (options.type === PublishType.Latest) {
+            imageToBuild = `${registry}:latest`;
+        } else if (options.type === PublishType.Tag) {
+            const mainPkgInfo = getMainPackageInfo();
+            if (!mainPkgInfo) {
+                throw new Error('At least one package must be specified with `terascope.main`');
+            }
+            const image = `${registry}:v${mainPkgInfo.version}`;
+            const exists = await remoteDockerImageExists(image);
+            if (exists) {
+                throw new Error(`Docker Image ${image} already exists`);
+            }
+            imageToBuild = image;
+        } else if (options.type === PublishType.Dev) {
+            imageToBuild = `${registry}:dev`;
+        } else if (options.type === PublishType.Daily) {
+            const tag = await formatDailyTag();
+            imageToBuild = `${registry}:${tag}`;
         }
-        const image = `${registry}:v${mainPkgInfo.version}`;
-        const exists = await remoteDockerImageExists(image);
-        if (exists) {
-            throw new Error(`Docker Image ${image} already exists`);
-        }
-        imageToBuild = image;
-    } else if (options.type === PublishType.Dev) {
-        imageToBuild = `${registry}:dev`;
-    } else if (options.type === PublishType.Daily) {
-        const tag = await formatDailyTag();
-        imageToBuild = `${registry}:${tag}`;
+
+        const startTime = Date.now();
+        signale.pending(`building docker for ${options.type} release`);
+
+        const cacheLayersToPush = await buildCacheLayers(registry);
+        imagesToPush.push(...cacheLayersToPush);
+
+        signale.debug(`building docker image ${imageToBuild}`);
+        await dockerBuild(imageToBuild, cacheLayersToPush);
+        imagesToPush.push(imageToBuild);
+
+        signale.success(`built docker image ${imageToBuild}, took ${ms(Date.now() - startTime)}`);
     }
-
-    const startTime = Date.now();
-    signale.pending(`building docker for ${options.type} release`);
-
-    const cacheLayersToPush = await buildCacheLayers();
-    imagesToPush.push(...cacheLayersToPush);
-
-    signale.debug(`building docker image ${imageToBuild}`);
-    await dockerBuild(imageToBuild, cacheLayersToPush);
-    imagesToPush.push(imageToBuild);
-
-    signale.success(`built docker image ${imageToBuild}, took ${ms(Date.now() - startTime)}`);
 
     if (options.dryRun) {
         signale.info(`[DRY RUN] - skipping publish of docker images ${imagesToPush.join(', ')}`);
