@@ -1,4 +1,5 @@
 import ms from 'ms';
+import { get } from '@terascope/utils';
 import { PackageInfo } from '../interfaces';
 import { listPackages, getMainPackageInfo } from '../packages';
 import { PublishAction, PublishOptions, PublishType } from './interfaces';
@@ -41,7 +42,8 @@ async function npmPublish(pkgInfo: PackageInfo, options: PublishOptions) {
         signale.info(`[DRY RUN] - skipping publish for package ${pkgInfo.name}@v${pkgInfo.version}`);
         await yarnRun('prepublishOnly', [], pkgInfo.dir);
     } else {
-        await yarnPublish(pkgInfo);
+        const registry: string|undefined = get(pkgInfo, 'publishConfig.registry');
+        await yarnPublish(pkgInfo, registry);
     }
 }
 

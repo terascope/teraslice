@@ -31,4 +31,4 @@ export const REPORT_COVERAGE = reportCov != null || reportCov !== ''
 export const JEST_MAX_WORKERS = process.env.JEST_MAX_WORKERS || undefined;
 
 export const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org/';
-export const NPM_PUBLISH_TAG = 'latest';
+export const NPM_PUBLISH_TAG = process.env.NPM_PUBLISH_TAG || 'latest';

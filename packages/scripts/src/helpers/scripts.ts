@@ -370,7 +370,7 @@ export async function getLatestNPMVersion(
     return subprocess.stdout;
 }
 
-export async function yarnPublish(pkgInfo: PackageInfo, tag = config.NPM_PUBLISH_TAG) {
+export async function yarnPublish(pkgInfo: PackageInfo, registry = config.NPM_DEFAULT_REGISTRY) {
     await fork({
         cmd: 'yarn',
         args: [
@@ -379,8 +379,10 @@ export async function yarnPublish(pkgInfo: PackageInfo, tag = config.NPM_PUBLISH
             '--new-version',
             pkgInfo.version,
             '--no-git-tag-version',
+            '--registry',
+            registry,
             '--tag',
-            tag
+            config.NPM_PUBLISH_TAG
         ],
         cwd: pkgInfo.dir,
     });
