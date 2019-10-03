@@ -167,6 +167,14 @@ export async function getContainerInfo(name: string): Promise<any> {
     return JSON.parse(result);
 }
 
+export async function dockerNetworkExists(name: string): Promise<boolean> {
+    const subprocess = await execa.command(
+        `docker network ls --format='{{json .Name}}' | grep '"${name}"'`,
+        { reject: false }
+    );
+    return subprocess.exitCode > 0;
+}
+
 export async function remoteDockerImageExists(image: string): Promise<boolean> {
     const result = await execa.command(`docker pull ${image}`, { reject: false });
     return result.exitCode === 0;
@@ -178,6 +186,7 @@ export type DockerRunOptions = {
     ports?: (number | string)[];
     tmpfs?: string[];
     env?: ExecEnv;
+    network?: string;
 };
 
 export async function dockerRun(opt: DockerRunOptions, tag = 'latest'): Promise<() => void> {
@@ -208,6 +217,14 @@ export async function dockerRun(opt: DockerRunOptions, tag = 'latest'): Promise<
 
     if (opt.tmpfs && opt.tmpfs.length) {
         args.push('--tmpfs', opt.tmpfs.join(','));
+    }
+
+    if (opt.network) {
+        const exists = await dockerNetworkExists(opt.network);
+        if (!exists) {
+            throw new Error(`Docker network ${opt.network} does not exist`);
+        }
+        args.push('--network', opt.network);
     }
 
     args.push('--name', opt.name);

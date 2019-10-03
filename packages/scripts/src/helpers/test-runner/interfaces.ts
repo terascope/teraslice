@@ -8,10 +8,8 @@ export type TestOptions = {
     reportCoverage: boolean;
     suite?: TestSuite;
     useExistingServices: boolean;
-    elasticsearchHost: string;
     elasticsearchVersion: string;
     elasticsearchAPIVersion: string;
-    kafkaBroker: string;
     kafkaVersion: string;
     jestArgs?: string[];
 };
