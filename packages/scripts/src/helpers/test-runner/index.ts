@@ -131,16 +131,15 @@ async function runTestSuite(
         try {
             await runJest(getRootDir(), args, env, options.jestArgs);
         } catch (err) {
+            const names = pkgs.map((pkgInfo) => pkgInfo.name).join(', ');
             if (pkgs.length > 1) {
-                const error = new TSError(err, {
-                    message: `At least one of these tests failed ${pkgs.map((pkgInfo) => pkgInfo.name).join(', ')} failed`,
-                });
-                errors.push(getFullErrorStack(error));
+                errors.push(
+                    `At least one of these tests failed ${names} failed, caused by ${err.message}`
+                );
             } else {
-                const error = new TSError(err, {
-                    message: `Test ${pkgs.map((pkgInfo) => pkgInfo.name).join(', ')} failed`,
-                });
-                errors.push(getFullErrorStack(error));
+                errors.push(
+                    `Test ${names} failed, caused by ${err.message}`
+                );
             }
 
             await utils.globalTeardown(options, pkgs.map(({ name, dir }) => ({ name, dir })));
@@ -201,10 +200,7 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         try {
             await runJest(e2eDir, utils.getArgs(options), env, options.jestArgs);
         } catch (err) {
-            const error = new TSError(err, {
-                message: `Test suite "${suite}" failed`,
-            });
-            errors.push(getFullErrorStack(error));
+            errors.push(`Test suite "${suite}" failed, caused by ${err.message}`);
         }
 
         signale.timeEnd(timeLabel);
