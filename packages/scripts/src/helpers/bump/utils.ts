@@ -66,11 +66,12 @@ export function getBumpCommitMessage(
     const bumpResult = { ...result };
     const main = Object.entries(result).find(([, info]) => info.main);
     if (main) {
-        const [name] = main;
+        const [name, { to }] = main;
         delete bumpResult[name];
-        messages.push(`release: (${release}) ${name}`);
+        messages.push(`release: (${release}) ${name}@${to}`);
     }
-    const names = Object.keys(bumpResult);
+
+    const names = Object.entries(bumpResult).map(([name, { to }]) => `${name}@${to}`);
     if (names.length) {
         messages.push(`bump: (${release}) ${names.join(', ')}`);
     }

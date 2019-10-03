@@ -157,7 +157,7 @@ describe('Bump Utils', () => {
 
             it('should be able to get a readable commit message', () => {
                 const message = getBumpCommitMessage(result, options.release);
-                expect(message).toBe('bump: (minor) package-util-1, package-dep-1');
+                expect(message).toBe('bump: (minor) package-util-1@3.1.0, package-dep-1@2.1.0');
             });
         });
 
@@ -247,7 +247,7 @@ describe('Bump Utils', () => {
 
             it('should be able to get a readable commit message', () => {
                 const message = getBumpCommitMessage(result, options.release);
-                expect(message).toBe('bump: (patch) package-util-1');
+                expect(message).toBe('bump: (patch) package-util-1@3.0.1');
             });
         });
     });
@@ -339,7 +339,7 @@ describe('Bump Utils', () => {
 
         it('should be able to get a readable commit message', () => {
             const message = getBumpCommitMessage(result, options.release);
-            expect(message).toBe('release: (preminor) package-main AND bump: (preminor) package-dep-2');
+            expect(message).toBe('release: (preminor) package-main@1.1.0-rc.0 AND bump: (preminor) package-dep-2@2.1.0-rc.0');
         });
     });
 });
