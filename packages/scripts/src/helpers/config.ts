@@ -2,7 +2,11 @@ import isCI from 'is-ci';
 import { address } from 'ip';
 import { toBoolean } from '@terascope/utils';
 
-export const FORCE_COLOR = process.env.FORCE_COLOR || '1';
+const forceColor = process.env.FORCE_COLOR || '1';
+export const FORCE_COLOR = toBoolean(forceColor)
+    ? '1'
+    : '0';
+
 export const HOST_IP = process.env.HOST_IP || address();
 export const USE_EXISTING_SERVICES = toBoolean(process.env.USE_EXISTING_SERVICES);
 export const SERVICE_HEAP_OPTS = process.env.SERVICE_HEAP_OPTS || '-Xms256m -Xmx256m';

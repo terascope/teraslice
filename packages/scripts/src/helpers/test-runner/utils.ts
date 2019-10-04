@@ -29,7 +29,9 @@ export function getArgs(options: TestOptions): ArgsMap {
     args.forceExit = '';
     args.passWithNoTests = '';
     args.coverage = 'true';
-    args.color = '';
+    if (config.FORCE_COLOR === '1') {
+        args.color = '';
+    }
 
     if (options.bail) {
         args.bail = '';
@@ -66,7 +68,7 @@ export function getEnv(options: TestOptions, suite?: TestSuite): ExecEnv {
     const env: ExecEnv = {
         HOST_IP: config.HOST_IP,
         NODE_ENV: 'test',
-        FORCE_COLOR: '1',
+        FORCE_COLOR: config.FORCE_COLOR,
     };
 
     const isE2E = suite === TestSuite.E2E;
