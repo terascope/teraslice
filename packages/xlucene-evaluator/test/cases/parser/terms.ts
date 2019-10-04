@@ -3,58 +3,82 @@ import { TestCase } from './interfaces';
 
 export default [
     [
-        'bar',
-        'an unquoted string',
+        'id:some"thing"else',
+        'an inner double quoted string string',
         {
             type: ASTType.Term,
             field_type: FieldType.String,
             quoted: false,
-            field: null,
-            value: 'bar',
+            field: 'id',
+            value: 'some"thing"else',
         },
     ],
     [
-        'foo bar',
-        'an unquoted string',
+        "id:some'other'thing",
+        'an inner single quoted string string',
         {
             type: ASTType.Term,
             field_type: FieldType.String,
             quoted: false,
-            field: null,
-            value: 'foo bar',
+            field: 'id',
+            value: "some'other'thing",
         },
     ],
     [
-        '"foo"',
-        'a quoted string',
+        // eslint-disable-next-line quotes
+        "id:some\\\"thing\\\"else",
+        'an inner quoted string string',
         {
             type: ASTType.Term,
             field_type: FieldType.String,
-            field: null,
+            quoted: false,
+            field: 'id',
+            value: 'some\\"thing\\"else',
+        },
+    ],
+    [
+        'id:"some \\"thing\\" else"',
+        'an inner quoted string with spaces',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
             quoted: true,
-            value: 'foo',
+            field: 'id',
+            value: 'some \\"thing\\" else',
         },
     ],
+
     [
-        "'foo'",
-        'a quoted string',
+        'id:"some thing else"',
+        'a quoted multiword string with spaces',
         {
             type: ASTType.Term,
             field_type: FieldType.String,
-            field: null,
             quoted: true,
-            value: 'foo',
+            field: 'id',
+            value: 'some thing else',
         },
     ],
     [
-        '\\"foo\\"',
-        'an escaped quoted string',
+        'id:"some \\"thing\\" else"',
+        'an inner doublequoted string with spaces with outer single quoted',
         {
             type: ASTType.Term,
             field_type: FieldType.String,
-            field: null,
-            quoted: false,
-            value: '\\"foo\\"',
+            quoted: true,
+            field: 'id',
+            value: 'some \\"thing\\" else',
+        },
+    ],
+    [
+        "id:'some \\\"thing\\\" else'",
+        'an inner doublequoted string with spaces with outer double quoted',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: true,
+            field: 'id',
+            value: 'some \\"thing\\" else',
         },
     ],
     [

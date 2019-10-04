@@ -614,7 +614,7 @@ RestrictedTermChar
   / Dot / CharWithoutWS
 
 CharWithoutWS "term"
-    = [^ \t\r\n\f\{\}\(\)\|"/\\/^~\[\]\&\!\?\=\<\>]
+    = [^ \t\r\n\f\{\}\(\)\|/\\/^~\[\]\&\!\?\=\<\>]
 
 QuotedTerm
   = '"' chars:DoubleStringChar* '"' { return chars.join(''); }
@@ -670,6 +670,7 @@ ReservedChar
   / "]"
   / "^"
   / "\""
+  / "'"
   / "?"
   / FieldChar
   / Escape
