@@ -34,7 +34,7 @@ const services: { [service in Service]: DockerRunOptions } = {
     },
     [TestSuite.Kafka]: {
         image: config.KAFKA_DOCKER_IMAGE,
-        name: `${config.TEST_NAMESPACE}_${config.ELASTICSEARCH_NAME}`,
+        name: `${config.TEST_NAMESPACE}_${config.KAFKA_NAME}`,
         tmpfs: config.SERVICES_USE_TMPFS
             ? ['/tmp/kafka-logs']
             : undefined,
