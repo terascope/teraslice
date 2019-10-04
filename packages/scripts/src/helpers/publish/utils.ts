@@ -15,7 +15,11 @@ export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType)
     if (pkgInfo.private) return false;
 
     const registry: string|undefined = get(pkgInfo, 'publishConfig.registry');
-    const remote = await getLatestNPMVersion(pkgInfo.name, registry);
+    const remote = await getLatestNPMVersion(
+        pkgInfo.name,
+        getPublishTag(pkgInfo.version),
+        registry
+    );
     const local = pkgInfo.version;
 
     if (semver.gt(local, remote)) {
@@ -45,6 +49,15 @@ export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType)
 
     signale.warn(`* local version of ${pkgInfo.name}@v${local} is behind, expected v${remote}`);
     return false;
+}
+
+export function getPublishTag(version: string): string {
+    const parsed = semver.parse(version);
+    if (!parsed) {
+        throw new Error(`Unable to publish invalid version "${version}"`);
+    }
+    if (parsed.prerelease.length) return 'prelease';
+    return 'latest';
 }
 
 function padNumber(n: number): string {

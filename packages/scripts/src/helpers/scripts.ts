@@ -1,7 +1,6 @@
 import path from 'path';
 import execa from 'execa';
 import fse from 'fs-extra';
-import semver from 'semver';
 import {
     debugLogger, pDelay, isString, get
 } from '@terascope/utils';
@@ -358,22 +357,33 @@ export function mapToArgs(input: ArgsMap): string[] {
 
 export async function getLatestNPMVersion(
     name: string,
+    tag = 'latest',
     registry: string = config.NPM_DEFAULT_REGISTRY
 ): Promise<string> {
     const subprocess = await execa(
         'npm',
-        ['--registry', registry, 'info', name, 'version'],
+        [
+            '--json',
+            '--registry',
+            registry,
+            'info',
+            name,
+            'dist-tags'
+        ],
         { reject: false }
     );
 
     if (subprocess.exitCode > 0) return '0.0.0';
 
-    return subprocess.stdout;
+    const output: Record<string, string> = JSON.parse(subprocess.stdout);
+    return output[tag];
 }
 
-export async function yarnPublish(pkgInfo: PackageInfo, registry = config.NPM_DEFAULT_REGISTRY) {
-    const tag = _getPublishTag(pkgInfo.version);
-
+export async function yarnPublish(
+    pkgInfo: PackageInfo,
+    tag = 'latest',
+    registry = config.NPM_DEFAULT_REGISTRY
+) {
     await fork({
         cmd: 'yarn',
         args: [
@@ -389,13 +399,4 @@ export async function yarnPublish(pkgInfo: PackageInfo, registry = config.NPM_DE
         ],
         cwd: pkgInfo.dir,
     });
-}
-
-function _getPublishTag(version: string): string {
-    const parsed = semver.parse(version);
-    if (!parsed) {
-        throw new Error(`Unable to publish invalid version "${version}"`);
-    }
-    if (parsed.prerelease.length) return 'prelease';
-    return 'latest';
 }
