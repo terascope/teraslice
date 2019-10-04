@@ -15,6 +15,8 @@ import signale from '../signale';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
+const disableXPackSecurity = !config.ELASTICSEARCH_DOCKER_IMAGE.includes('blacktop');
+
 type Service = TestSuite.Elasticsearch | TestSuite.Kafka;
 const services: { [service in Service]: DockerRunOptions } = {
     [TestSuite.Elasticsearch]: {
@@ -29,6 +31,9 @@ const services: { [service in Service]: DockerRunOptions } = {
             'network.host': '0.0.0.0',
             'http.port': config.ELASTICSEARCH_PORT,
             'discovery.type': 'single-node',
+            ...disableXPackSecurity && {
+                'xpack.security.enabled': 'false'
+            }
         },
         network: config.USE_SERVICE_NETWORK
     },
