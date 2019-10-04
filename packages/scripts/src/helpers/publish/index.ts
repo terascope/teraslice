@@ -3,7 +3,12 @@ import { get } from '@terascope/utils';
 import { PackageInfo } from '../interfaces';
 import { listPackages, getMainPackageInfo } from '../packages';
 import { PublishAction, PublishOptions, PublishType } from './interfaces';
-import { shouldNPMPublish, formatDailyTag, buildCacheLayers } from './utils';
+import {
+    shouldNPMPublish,
+    formatDailyTag,
+    buildCacheLayers,
+    getPublishTag
+} from './utils';
 import {
     yarnPublish,
     yarnRun,
@@ -15,7 +20,7 @@ import { getRootInfo } from '../misc';
 import signale from '../signale';
 
 export async function publish(action: PublishAction, options: PublishOptions) {
-    signale.info(`publishing to ${action}`);
+    signale.info(`publishing to ${action}`, { dryRun: options.dryRun });
 
     if (action === PublishAction.NPM) {
         return publishToNPM(options);
@@ -38,12 +43,14 @@ async function npmPublish(pkgInfo: PackageInfo, options: PublishOptions) {
     const shouldPublish = await shouldNPMPublish(pkgInfo, options.type);
     if (!shouldPublish) return;
 
+    const tag = getPublishTag(pkgInfo.version);
+
     if (options.dryRun) {
-        signale.info(`[DRY RUN] - skipping publish for package ${pkgInfo.name}@v${pkgInfo.version}`);
+        signale.info(`[DRY RUN] - skipping publish for package ${pkgInfo.name}@v${pkgInfo.version} (${tag})`);
         await yarnRun('prepublishOnly', [], pkgInfo.dir);
     } else {
         const registry: string|undefined = get(pkgInfo, 'publishConfig.registry');
-        await yarnPublish(pkgInfo, registry);
+        await yarnPublish(pkgInfo, tag, registry);
     }
 }
 

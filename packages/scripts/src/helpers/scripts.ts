@@ -357,20 +357,33 @@ export function mapToArgs(input: ArgsMap): string[] {
 
 export async function getLatestNPMVersion(
     name: string,
+    tag = 'latest',
     registry: string = config.NPM_DEFAULT_REGISTRY
 ): Promise<string> {
     const subprocess = await execa(
         'npm',
-        ['--registry', registry, 'info', name, 'version'],
+        [
+            '--json',
+            '--registry',
+            registry,
+            'info',
+            name,
+            'dist-tags'
+        ],
         { reject: false }
     );
 
     if (subprocess.exitCode > 0) return '0.0.0';
 
-    return subprocess.stdout;
+    const output: Record<string, string> = JSON.parse(subprocess.stdout);
+    return output[tag];
 }
 
-export async function yarnPublish(pkgInfo: PackageInfo, registry = config.NPM_DEFAULT_REGISTRY) {
+export async function yarnPublish(
+    pkgInfo: PackageInfo,
+    tag = 'latest',
+    registry = config.NPM_DEFAULT_REGISTRY
+) {
     await fork({
         cmd: 'yarn',
         args: [
@@ -382,7 +395,7 @@ export async function yarnPublish(pkgInfo: PackageInfo, registry = config.NPM_DE
             '--registry',
             registry,
             '--tag',
-            config.NPM_PUBLISH_TAG
+            tag
         ],
         cwd: pkgInfo.dir,
     });
