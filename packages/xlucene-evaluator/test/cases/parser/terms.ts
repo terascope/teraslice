@@ -374,4 +374,83 @@ export default [
             value: 'bar',
         },
     ],
+    [
+        'id:some"thing"else',
+        'an inner double quoted string string',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: false,
+            field: 'id',
+            value: 'some"thing"else',
+        },
+    ],
+    [
+        "id:some'other'thing",
+        'an inner single quoted string string',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: false,
+            field: 'id',
+            value: "some'other'thing",
+        },
+    ],
+    [
+        // eslint-disable-next-line quotes
+        "id:some\\\"thing\\\"else",
+        'an inner quoted string string',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: false,
+            field: 'id',
+            value: 'some\\"thing\\"else',
+        },
+    ],
+    [
+        'id:"some \\"thing\\" else"',
+        'an inner quoted string with spaces',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: true,
+            field: 'id',
+            value: 'some \\"thing\\" else',
+        },
+    ],
+
+    [
+        'id:"some thing else"',
+        'a quoted multiword string with spaces',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: true,
+            field: 'id',
+            value: 'some thing else',
+        },
+    ],
+    [
+        'id:"some \\"thing\\" else"',
+        'an inner doublequoted string with spaces with outer single quoted',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: true,
+            field: 'id',
+            value: 'some \\"thing\\" else',
+        },
+    ],
+    [
+        "id:'some \\\"thing\\\" else'",
+        'an inner doublequoted string with spaces with outer double quoted',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: true,
+            field: 'id',
+            value: 'some \\"thing\\" else',
+        },
+    ],
 ] as TestCase[];
