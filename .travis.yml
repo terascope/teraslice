@@ -6,15 +6,14 @@ node_js:
 
 cache:
   npm: false
-  yarn: false
+  yarn: true
   directories:
-    - '$TRAVIS_BUILD_DIR/.yarn-cache'
     - '$TRAVIS_BUILD_DIR/.eslintcache'
 
 before_install: . ./scripts/ci-setup.sh
 install:
     # Install the dependencies
-    - yarn
+    - yarn --forzen-lockfile --ignore-optional
     # Build setup the build
     - yarn quick:setup
 

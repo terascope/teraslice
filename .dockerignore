@@ -14,7 +14,9 @@
 **/dist
 **/build
 **/.cache
+**/.*cache
 .cache
+.*cache
 .vscode
 assets
 autoload
