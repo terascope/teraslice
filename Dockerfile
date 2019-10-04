@@ -53,17 +53,11 @@ FROM base AS deps
 COPY package.json yarn.lock lerna.json .yarnrc /app/source/
 COPY packages /app/source/packages
 
-# Build just the production node_modules and copy them over
-RUN yarn \
-    --prod=true \
-    --frozen-lockfile \
-    --ignore-optional \
-    && cp -Rp node_modules /app/node_modules
-
 ENV NODE_ENV development
 
 # install both dev and production dependencies
 RUN yarn \
+    --no-cache \
     --prod=false \
     --frozen-lockfile \
     --ignore-optional
@@ -100,7 +94,7 @@ COPY scripts /app/source/scripts
 # copy the compiled packages
 COPY --from=deps /app/source/packages /app/source/packages
 # copy the production node_modules
-COPY --from=deps /app/node_modules /app/source/node_modules
+COPY --from=deps /app/source/node_modules /app/source/node_modules
 
 # verify teraslice is installed right
 RUN node -e "require('teraslice')"
