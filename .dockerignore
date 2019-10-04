@@ -24,17 +24,4 @@ packages/*/assets
 packages/*/autoload
 packages/*/bench
 
-# exclude packages that are not needed inside the docker image
-packages/chunked-file-reader
-packages/data-types
-packages/docker-compose-js
-packages/elasticsearch-store
-packages/eslint-config
 packages/generator-teraslice
-packages/scripts
-packages/teraslice-client-js
-packages/teraslice-cli
-packages/teraslice-state-store
-packages/teraslice-test-harness
-packages/ts-transforms
-packages/xlucene-evaluator
