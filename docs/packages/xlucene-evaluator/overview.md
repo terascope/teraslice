@@ -56,7 +56,7 @@ const data5 = { location: '33.435967,-111.867710', some: 'key', bytes: 123432 };
 const data6 = { location: '22.435967,-150.867710', other: 'key', bytes: 123432 };
 const data7 = { location: '22.435967,-150.867710', bytes: 100 };
 
-const matcher4 = new DocumentMatcher('location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902") OR (some:/ke.*/ OR bytes:>=10000)', {
+const matcher4 = new DocumentMatcher('location:geoBox(top_left_:"33.906320,-112.758421", bottom_right:"32.813646,-111.058902") OR (some:/ke.*/ OR bytes:>=10000)', {
     type_config: {
         location: 'geo',
         bytes: 'integer',
@@ -209,32 +209,51 @@ dateTypeMatcher2.match(data7) // false
 
 #### Geo
 
-Has support for geo based queries. It expects all geopoints to be in the`lat,lon` format. If you specify a `_geo_box_top_left_ and _geo_box_bottom_right_` it creates a bounding box and checks to see if the point. If you specify `_geo_point_ and _geo_distance_` it checks to see if the incoming geopoint is within distance of that point.
+Has support for geo based queries. It expects all geopoints to be in the `lat,lon` format.
+
+There are 3 "geo functions" that are availabe for use:
+- `geoDistance` which checks if a point is within range
+    - `point` = geopoint,
+    - `distance` = distance from point specified
+
+        distance may be set to:
+
+        - meters (can abbreviate to `m`)
+        - yards (can abbreviate to `yd`)
+        - kilometers (can abbreviate to `km`)
+        - nauticalmiles (can abbreviate to `NM` or `nmi`)
+        - miles (can abbreviate to `mi`)
+        - inches (can abbreviate to `in`)
+        - millimeters (can abbreviate to `mm`)
+        - centimeters (can abbreviate to `cm`)
+        - feet (can abbreviate to `ft`)
+
+- `geoBox` runs a geo bounding box query, checks if point is within box
+    - `top_left` geopoint
+    - `bottom_right` geopoint
+
+- `geoPolygon` runs a geo polygon query, checks if point is within polygon shape
+    - `points` list of geopoints that make up the polygon
+
 
 NOTE: since geo syntax is a grammar primitive no types are needed, it can automatically infer it.
 
-distance may be set to:
-
-- meters
-- yards
-- kilometers
-- nauticalmiles
-- miles
-- inches
-- millimeters
-- centimeters
-- feet
 
 ```js
 const data1 = { location: '33.435967,-111.867710' };
 const data2 = { location: '22.435967,-150.867710' };
 
-const geoBoundingBoxTypeMatcher = new DocumentMatcher('location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902")');
+const geoBoundingBoxTypeMatcher = new DocumentMatcher('location: geoBox(top_left:"33.906320,-112.758421", bottom_right:"32.813646,-111.058902")');
 
 geoBoundingBoxTypeMatcher.match(data1); // true
 geoBoundingBoxTypeMatcher.match(data2); // false
 
-const geoDistanceTypeMatcher = new DocumentMatcher('location:(_geo_point_:"33.435518,-111.873616" _geo_distance_:5000m)');
+const geoDistanceTypeMatcher = new DocumentMatcher('location:geoDistance(point:"33.435518,-111.873616" distance:"5000m")');
+
+geoDistanceTypeMatcher.match(data1) // true
+geoDistanceTypeMatcher.match(data2) // false
+
+const geoDistanceTypeMatcher = new DocumentMatcher('location:geoPolygon(points:["32.536967,-113.968710", "33.435967,-111.867710", "33.435967,-109.867710"])');
 
 geoDistanceTypeMatcher.match(data1) // true
 geoDistanceTypeMatcher.match(data2) // false

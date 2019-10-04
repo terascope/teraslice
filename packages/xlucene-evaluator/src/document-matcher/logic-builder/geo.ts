@@ -8,6 +8,8 @@ import { lineString } from '@turf/helpers';
 import { parseGeoPoint } from '../../utils';
 import { GeoDistance, GeoBoundingBox } from '../../parser';
 
+// TODO: we can delete this file when we remove old geo grammer syntax
+
 const testGeoPolygon = (polygon: any) => (fieldData: string) => {
     const point = parseGeoPoint(fieldData, false);
     if (!point) return false;

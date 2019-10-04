@@ -51,7 +51,11 @@ export function listPackages(): i.PackageInfo[] {
 }
 
 export function getMainPackageInfo(): i.PackageInfo | undefined {
-    return listPackages().find((pkgInfo) => pkgInfo.terascope.main);
+    return listPackages().find(isMainPackage);
+}
+
+export function isMainPackage(pkgInfo: i.PackageInfo) {
+    return get(pkgInfo, 'terascope.main', false);
 }
 
 export function addPackageConfig(pkgInfo: i.PackageInfo): void {
@@ -75,6 +79,14 @@ export function readPackageInfo(folderPath: string): i.PackageInfo {
     return pkgJSON;
 }
 
+/** A stricter version of `getPkgInfo` */
+export function findPackageByName(packages: i.PackageInfo[], name: string): i.PackageInfo {
+    const found = packages.find((info) => info.name === name);
+    if (!found) {
+        throw new Error(`Unable to find package ${name}`);
+    }
+    return found;
+}
 
 export function getPkgInfo(name: string): i.PackageInfo {
     const found = listPackages().find((info) => [info.name, info.folderName].includes(name));

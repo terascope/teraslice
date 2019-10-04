@@ -25,8 +25,8 @@ const cmd: CommandModule = {
             })
             .option('deps', {
                 alias: 'd',
-                description: "Bump the child dependencies, (ignores the monorepo's main package)",
-                default: false,
+                description: "Bump the child dependencies recursively, (ignores the monorepo's main package)",
+                default: true,
                 type: 'boolean',
             })
             .option('release', {
@@ -53,7 +53,8 @@ const cmd: CommandModule = {
     },
     async handler(argv) {
         await syncAll({ verify: true });
-        return bumpPackages(argv.packages as PackageInfo[], {
+        return bumpPackages({
+            packages: argv.packages as PackageInfo[],
             preId: argv['prelease-id'] as string | undefined,
             release: argv.release as ReleaseType,
             deps: Boolean(argv.deps),

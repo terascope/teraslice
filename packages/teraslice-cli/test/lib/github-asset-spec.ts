@@ -1,5 +1,12 @@
 
+import tmp from 'tmp';
+import fs from 'fs-extra';
+import decompress from 'decompress';
+import path from 'path';
 import GithubAsset from '../../src/helpers/github-asset';
+import { GithubServer } from '../servers';
+
+const server = new GithubServer();
 
 describe('GithubAsset', () => {
     let config: any;
@@ -15,15 +22,7 @@ describe('GithubAsset', () => {
         testAsset = new GithubAsset(config);
     });
 
-    // FIXME: I feel like I should do something here, not sure if this is the
-    // right thing.  Maybe I don't even need beforeEach, but it guarantees clean
-    // starting state right?
-    afterEach(() => {
-        config = {};
-        testAsset = {};
-    });
-
-    test('should have expected properties', () => {
+    it('should have expected properties', () => {
         expect(testAsset).toEqual({
             arch: config.arch,
             assetString: config.assetString,
@@ -35,66 +34,113 @@ describe('GithubAsset', () => {
         });
     });
 
-    test('should know the nodeMajorVersion', () => {
-        expect(testAsset.nodeMajorVersion()).toEqual('8');
-    });
-});
-
-describe('GithubAsset static methods', () => {
-    test('->filterRelease', () => {
-        // @ts-ignore
-        expect(GithubAsset.filterRelease({ foo: 'foo' })).toBeTrue();
-        // @ts-ignore
-        expect(GithubAsset.filterRelease({ foo: 'foo', draft: true })).toBeFalse();
-        // @ts-ignore
-        expect(GithubAsset.filterRelease({ foo: 'foo', prerelease: true })).toBeFalse();
-        // @ts-ignore
-        expect(GithubAsset.filterRelease({ foo: 'foo', draft: true, prerelease: true })).toBeFalse();
+    it('should know the nodeMajorVersion', () => {
+        expect(testAsset.nodeMajorVersion).toEqual('8');
     });
 
-    test('->genFilterAsset', () => {
-        const filter = GithubAsset.genFilterAsset('8', 'linux', 'x64');
-        expect(filter({ name: 'file-asset-node-8-linux-x64.zip' })).toBeTrue();
-        expect(filter({ name: 'file-asset-node-10-linux-x64.zip' })).toBeFalse();
-    });
-});
+    describe('Downloading', () => {
+        let tmpDir: tmp.DirResult;
 
-describe('parseAssetString', () => {
-    test('should accept strings like \'terascope/file-assets\'', () => {
-        expect(GithubAsset.parseAssetString('terascope/file-assets')).toEqual(
-            {
-                user: 'terascope',
-                name: 'file-assets',
-                version: undefined
-            }
-        );
+        beforeEach(() => {
+            server.init();
+            tmpDir = tmp.dirSync({ unsafeCleanup: true });
+        });
+
+        afterEach(() => {
+            server.close();
+            tmpDir.removeCallback();
+        });
+
+        it('can download assets', async () => {
+            const testConfig = {
+                arch: 'x64',
+                assetString: 'terascope/elasticsearch-assets',
+                nodeVersion: 'v10.16.3',
+                platform: 'linux'
+            };
+
+            const github = new GithubAsset(testConfig);
+
+            const assetPath = await github.download(tmpDir.name);
+            const zipExists = await fs.pathExists(assetPath);
+
+            expect(zipExists).toEqual(true);
+
+            await decompress(assetPath, tmpDir.name);
+
+            const jsonPath = path.join(tmpDir.name, 'testAsset/asset/asset.json');
+            const { name, version } = await fs.readJSON(jsonPath);
+
+            expect(name).toEqual('elasticsearch');
+            // the zipped asset in fixtures has this version despite differences
+            // in the assets release data
+            expect(version).toEqual('1.0.0');
+        });
+
+        it('can download specific versions of assets', async () => {
+            const testConfig = {
+                arch: 'x64',
+                assetString: 'terascope/elasticsearch-assets@v9.9.9',
+                nodeVersion: 'v8.16.1',
+                platform: 'linux'
+            };
+
+            const github = new GithubAsset(testConfig);
+
+            const assetPath = await github.download(tmpDir.name);
+            const zipExists = await fs.pathExists(assetPath);
+
+            expect(zipExists).toEqual(true);
+
+            await decompress(assetPath, tmpDir.name);
+
+            const jsonPath = path.join(tmpDir.name, 'testAsset/asset/asset.json');
+            const { name, version } = await fs.readJSON(jsonPath);
+
+            expect(name).toEqual('elasticsearch-test');
+            expect(version).toEqual('9.9.9');
+        });
     });
 
-    test('should accept strings like \'terascope/file-assets@v2.0.0\'', () => {
-        expect(GithubAsset.parseAssetString('terascope/file-assets@v2.0.0')).toEqual(
-            {
-                user: 'terascope',
-                name: 'file-assets',
-                version: 'v2.0.0'
-            }
-        );
-    });
+    describe('GithubAsset static methods', () => {
+        describe('parseAssetString', () => {
+            it('should accept strings like \'terascope/file-assets\'', () => {
+                expect(GithubAsset.parseAssetString('terascope/file-assets')).toEqual(
+                    {
+                        user: 'terascope',
+                        name: 'file-assets',
+                        version: undefined
+                    }
+                );
+            });
 
-    test('should reject strings like \'r/n@v@\'', () => {
-        expect(() => {
-            GithubAsset.parseAssetString('r/n@v@');
-        }).toThrow();
-    });
+            it('should accept strings like \'terascope/file-assets@v2.0.0\'', () => {
+                expect(GithubAsset.parseAssetString('terascope/file-assets@v2.0.0')).toEqual(
+                    {
+                        user: 'terascope',
+                        name: 'file-assets',
+                        version: 'v2.0.0'
+                    }
+                );
+            });
 
-    test('should reject strings like \'r/n/n2\'', () => {
-        expect(() => {
-            GithubAsset.parseAssetString('r/n/n2');
-        }).toThrow();
-    });
+            it('should reject strings like \'r/n@v@\'', () => {
+                expect(() => {
+                    GithubAsset.parseAssetString('r/n@v@');
+                }).toThrow();
+            });
 
-    test('should reject strings like \'r\'', () => {
-        expect(() => {
-            GithubAsset.parseAssetString('r');
-        }).toThrow();
+            it('should reject strings like \'r/n/n2\'', () => {
+                expect(() => {
+                    GithubAsset.parseAssetString('r/n/n2');
+                }).toThrow();
+            });
+
+            it('should reject strings like \'r\'', () => {
+                expect(() => {
+                    GithubAsset.parseAssetString('r');
+                }).toThrow();
+            });
+        });
     });
 });

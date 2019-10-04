@@ -1,7 +1,6 @@
 
 import 'jest-extended';
 import nock from 'nock';
-import { JobConfig } from '@terascope/job-components';
 import Job from '../src/job';
 import Jobs from '../src/jobs';
 import { JobsGetResponse, ExecutionStatus } from '../src/interfaces';
@@ -77,7 +76,7 @@ describe('Teraslice Jobs', () => {
         });
 
         describe('when submitting with a valid jobSpec', () => {
-            const jobSpec: JobConfig = {
+            const jobSpec = {
                 operations: [{ _op: 'operation' }]
             };
 
@@ -99,7 +98,7 @@ describe('Teraslice Jobs', () => {
         });
 
         describe('when submitting with a valid and start is set false', () => {
-            const jobSpec: JobConfig = {
+            const jobSpec = {
                 operations: [{ _op: 'operation' }]
             };
 
@@ -119,7 +118,7 @@ describe('Teraslice Jobs', () => {
         });
 
         describe('when submitting and the request fails', () => {
-            const jobSpec: JobConfig = {
+            const jobSpec = {
                 operations: [{ _op: 'operation' }]
             };
 

@@ -1,7 +1,8 @@
 import { SearchParams } from 'elasticsearch';
 import { AnyObject } from '@terascope/utils';
 import { SortOrder, ElasticsearchDSLOptions } from '../translator/interfaces';
-import { TypeConfig, GeoDistanceUnit, ParserOptions } from '../parser';
+import { ParserOptions } from '../parser';
+import { TypeConfig, GeoDistanceUnit } from '../interfaces';
 
 export interface RestrictSearchQueryOptions extends ElasticsearchDSLOptions {
     /**

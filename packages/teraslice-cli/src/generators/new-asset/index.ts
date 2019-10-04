@@ -1,9 +1,9 @@
 
 import path from 'path';
-import _ from 'lodash';
 import Generator from 'yeoman-generator';
 import ProcessorGenerator from '../new-processor';
 import { getTemplatePath } from '../utils';
+import { kebabCase } from '../../helpers/utils';
 
 export default class extends Generator {
     answers!: any;
@@ -27,7 +27,7 @@ export default class extends Generator {
                     }
                     return true;
                 },
-                filter: (value: string) => _.kebabCase(value)
+                filter: (value: string) => kebabCase(value)
             },
             {
                 type: 'input',

@@ -2,8 +2,13 @@ import geoHash from 'latlon-geohash';
 import {
     trim, toNumber, isPlainObject, parseNumberList, isNumber
 } from '@terascope/utils';
-import { Range, GeoPoint, GeoDistanceUnit } from './parser/interfaces';
-import { GeoDistanceObj, GeoPointInput } from './interfaces';
+import { Range } from './parser/interfaces';
+import {
+    GeoDistanceObj,
+    GeoPointInput,
+    GeoPoint,
+    GeoDistanceUnit
+} from './interfaces';
 
 export function isInfiniteValue(input?: number|string) {
     return input === '*' || input === Number.NEGATIVE_INFINITY || input === Number.POSITIVE_INFINITY;
@@ -73,6 +78,7 @@ export const GEO_DISTANCE_UNITS: { readonly [key: string]: GeoDistanceUnit } = {
 
 export function parseGeoDistance(str: string): GeoDistanceObj {
     const matches = trim(str).match(/(\d+)(.*)$/);
+
     if (!matches || !matches.length) {
         throw new Error(`Incorrect geo distance parameter provided: ${str}`);
     }

@@ -61,4 +61,31 @@ describe('Parser', () => {
             }).toThrowWithMessage(TSError, errMsg);
         });
     });
+
+    describe('when given a invalid function query "location: something(hello: "world")', () => {
+        it('should throw an error', () => {
+            const errMsg = 'Failure to parse xlucene query "location: something(hello:"world")", caused by Error: Could not find an xlucene function with name "something"';
+            expect(() => {
+                new Parser('location: something(hello:"world")');
+            }).toThrowWithMessage(TSError, errMsg);
+        });
+    });
+
+    describe('when given a invalid function query "location:geoBox()", it can still parse syntax but break at validation', () => {
+        it('should throw an error', () => {
+            const errMsg = 'Failure to parse xlucene query "location:geoBox()", caused by Error: geoBox query needs to specify a "topLeft" parameter';
+            expect(() => {
+                new Parser('location:geoBox()');
+            }).toThrowWithMessage(TSError, errMsg);
+        });
+    });
+
+    describe('when given a invalid function query "location:geoPolygon(points:[["123.43,223.43", "102.3,123.4"], "99.3,154.4" ])", it can still parse array of arrays but break validation', () => {
+        it('should throw an error', () => {
+            const errMsg = 'Failure to parse xlucene query "location:geoPolygon(points:[["123.43,223.43", "102.3,123.4"], "99.3,154.4" ])", caused by Error: points parameter must be an array of string values';
+            expect(() => {
+                new Parser('location:geoPolygon(points:[["123.43,223.43", "102.3,123.4"], "99.3,154.4" ])');
+            }).toThrowWithMessage(TSError, errMsg);
+        });
+    });
 });

@@ -2,9 +2,11 @@ import { Logger } from '@terascope/utils';
 import { parseGeoDistance, parseGeoPoint } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
+import xluceneFunctions from './functions';
+import { TypeConfig, FieldType } from '../interfaces';
 
 export default function makeContext(args: any) {
-    let typeConfig: i.TypeConfig;
+    let typeConfig: TypeConfig;
     let logger: Logger;
     // eslint-disable-next-line
     ({ typeConfig = {}, logger } = args);
@@ -47,12 +49,12 @@ export default function makeContext(args: any) {
     // peg grammar because this is based off configuration passed
     // in and cannot be inferred by the syntax
 
-    function getFieldType(field: string): i.FieldType|undefined {
+    function getFieldType(field: string): FieldType|undefined {
         if (!field) return;
         return typeConfig[field];
     }
 
-    const inferredFieldTypes = [i.FieldType.String];
+    const inferredFieldTypes = [FieldType.String];
     function isInferredTermType(field: string): boolean {
         const fieldType = getFieldType(field);
         if (!fieldType) return false;
@@ -67,7 +69,7 @@ export default function makeContext(args: any) {
             field_type: fieldType,
         };
 
-        if (fieldType === i.FieldType.String) {
+        if (fieldType === FieldType.String) {
             term.quoted = false;
             term.value = `${value}`;
             return term;
@@ -76,6 +78,13 @@ export default function makeContext(args: any) {
         logger.warn(`Unsupported field inferred field type ${fieldType} for field ${field}`);
         term.value = value;
         return term;
+    }
+
+    function parseFunction(field: string, name: string, params: i.Term[]) {
+        // TODO: get better types name
+        const fnType = xluceneFunctions[name];
+        if (fnType == null) throw new Error(`Could not find an xlucene function with name "${name}"`);
+        return fnType.create(field, params, { logger, typeConfig });
     }
 
     function coerceTermType(node: any, _field?: string) {
@@ -89,7 +98,7 @@ export default function makeContext(args: any) {
             `coercing field "${field}":${node.value} type of ${node.field_type} to ${fieldType}`
         );
 
-        if (fieldType === i.FieldType.Boolean) {
+        if (fieldType === FieldType.Boolean) {
             node.field_type = fieldType;
             delete node.quoted;
             delete node.restricted;
@@ -102,7 +111,7 @@ export default function makeContext(args: any) {
             return;
         }
 
-        if (fieldType === i.FieldType.Integer) {
+        if (fieldType === FieldType.Integer) {
             node.field_type = fieldType;
             delete node.quoted;
             delete node.restricted;
@@ -110,7 +119,7 @@ export default function makeContext(args: any) {
             return;
         }
 
-        if (fieldType === i.FieldType.Float) {
+        if (fieldType === FieldType.Float) {
             node.field_type = fieldType;
             delete node.quoted;
             delete node.restricted;
@@ -118,7 +127,7 @@ export default function makeContext(args: any) {
             return;
         }
 
-        if (fieldType === i.FieldType.String) {
+        if (fieldType === FieldType.String) {
             node.field_type = fieldType;
             node.qouted = false;
             node.value = `${node.value}`;
@@ -133,5 +142,6 @@ export default function makeContext(args: any) {
         parseInferredTermType,
         isInferredTermType,
         propagateDefaultField,
+        parseFunction
     };
 }
