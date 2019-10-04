@@ -23,6 +23,9 @@ terafoundation:
             dev_es_s4_gmove:
                 host: 
                     - "es-s4-gmoves.tera1.lan"
+            dev_es_gen1:
+                host:
+                    - "es_gen1.tera1.terascope.io:9231"
 
         kafka:
             homeslice:
