@@ -73,7 +73,7 @@ export function getEnv(options: TestOptions, suite?: TestSuite): ExecEnv {
 
     if (!suite || suite === TestSuite.Elasticsearch || isE2E) {
         Object.assign(env, {
-            TEST_INDEX_PREFIX: 'teratest_',
+            TEST_INDEX_PREFIX: `${config.TEST_NAMESPACE}_`,
             ELASTICSEARCH_HOST: config.ELASTICSEARCH_HOST,
             ELASTICSEARCH_VERSION: options.elasticsearchVersion,
             ELASTICSEARCH_API_VERSION: options.elasticsearchAPIVersion,

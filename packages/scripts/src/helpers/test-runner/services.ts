@@ -19,7 +19,7 @@ type Service = TestSuite.Elasticsearch | TestSuite.Kafka;
 const services: { [service in Service]: DockerRunOptions } = {
     [TestSuite.Elasticsearch]: {
         image: config.ELASTICSEARCH_DOCKER_IMAGE,
-        name: config.ELASTICSEARCH_NAME,
+        name: `${config.TEST_NAMESPACE}_${config.ELASTICSEARCH_NAME}`,
         tmpfs: ['/usr/share/elasticsearch/data'],
         ports: [`${config.ELASTICSEARCH_PORT}:${config.ELASTICSEARCH_PORT}`],
         env: {
@@ -32,7 +32,7 @@ const services: { [service in Service]: DockerRunOptions } = {
     },
     [TestSuite.Kafka]: {
         image: config.KAFKA_DOCKER_IMAGE,
-        name: config.KAFKA_NAME,
+        name: `${config.TEST_NAMESPACE}_${config.ELASTICSEARCH_NAME}`,
         tmpfs: ['/tmp/kafka-logs'],
         ports: [`${config.KAFKA_PORT}:${config.KAFKA_PORT}`],
         env: {
