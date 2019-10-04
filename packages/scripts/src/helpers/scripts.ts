@@ -1,6 +1,7 @@
 import path from 'path';
 import execa from 'execa';
 import fse from 'fs-extra';
+import semver from 'semver';
 import {
     debugLogger, pDelay, isString, get
 } from '@terascope/utils';
@@ -371,6 +372,8 @@ export async function getLatestNPMVersion(
 }
 
 export async function yarnPublish(pkgInfo: PackageInfo, registry = config.NPM_DEFAULT_REGISTRY) {
+    const tag = _getPublishTag(pkgInfo.version);
+
     await fork({
         cmd: 'yarn',
         args: [
@@ -382,8 +385,17 @@ export async function yarnPublish(pkgInfo: PackageInfo, registry = config.NPM_DE
             '--registry',
             registry,
             '--tag',
-            config.NPM_PUBLISH_TAG
+            tag
         ],
         cwd: pkgInfo.dir,
     });
+}
+
+function _getPublishTag(version: string): string {
+    const parsed = semver.parse(version);
+    if (!parsed) {
+        throw new Error(`Unable to publish invalid version "${version}"`);
+    }
+    if (parsed.prerelease.length) return 'prelease';
+    return 'latest';
 }

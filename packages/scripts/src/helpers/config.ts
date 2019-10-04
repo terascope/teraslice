@@ -28,12 +28,9 @@ export const KAFKA_BROKER = `${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
 export const KAFKA_VERSION = process.env.KAFKA_VERSION || '2.1';
 export const KAFKA_DOCKER_IMAGE = process.env.KAFKA_DOCKER_IMAGE || 'blacktop/kafka';
 
-const reportCov = process.env.REPORT_COVERAGE;
-export const REPORT_COVERAGE = reportCov != null || reportCov !== ''
-    ? toBoolean(reportCov)
-    : isCI;
+const reportCov = process.env.REPORT_COVERAGE || `${isCI}`;
+export const REPORT_COVERAGE = toBoolean(reportCov);
 
 export const JEST_MAX_WORKERS = process.env.JEST_MAX_WORKERS || undefined;
 
 export const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org/';
-export const NPM_PUBLISH_TAG = process.env.NPM_PUBLISH_TAG || 'latest';
