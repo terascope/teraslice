@@ -95,7 +95,7 @@ async function runTestSuite(
     const errors: string[] = [];
 
     // jest or our tests have a memory leak, limiting this seems to help
-    const MAX_CHUNK_SIZE = isCI ? 5 : 10;
+    const MAX_CHUNK_SIZE = isCI ? 7 : 10;
     const CHUNK_SIZE = options.debug ? 1 : MAX_CHUNK_SIZE;
 
     if (options.watch && pkgInfos.length > MAX_CHUNK_SIZE) {

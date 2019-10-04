@@ -50,36 +50,24 @@ RUN npm init --yes > /dev/null \
 # the deps image should contain all of dev code
 FROM base AS deps
 
-COPY .yarn-cache .yarn-cache
 COPY package.json yarn.lock lerna.json .yarnrc /app/source/
 COPY packages /app/source/packages
-
-# Build just the production node_modules and copy them over
-RUN yarn \
-    --prod=true \
-    --frozen-lockfile \
-    --no-progress \
-    --prefer-offline \
-    --no-emoji \
-    && cp -Rp node_modules /app/node_modules
 
 ENV NODE_ENV development
 
 # install both dev and production dependencies
 RUN yarn \
+    --no-cache \
     --prod=false \
     --frozen-lockfile \
-    --no-progress \
-    --prefer-offline \
-    --ignore-optional \
-    --no-emoji
+    --ignore-optional
 
 # Prepare the node modules for isntallation
 COPY types /app/source/types
 COPY tsconfig.json /app/source/
 
 # Build the packages
-RUN yarn lerna link --force-local && yarn lerna run build
+RUN yarn quick:setup
 
 # the prod image should small
 FROM base
@@ -106,7 +94,7 @@ COPY scripts /app/source/scripts
 # copy the compiled packages
 COPY --from=deps /app/source/packages /app/source/packages
 # copy the production node_modules
-COPY --from=deps /app/node_modules /app/source/node_modules
+COPY --from=deps /app/source/node_modules /app/source/node_modules
 
 # verify teraslice is installed right
 RUN node -e "require('teraslice')"

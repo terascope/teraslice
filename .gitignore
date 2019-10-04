@@ -31,8 +31,8 @@ builds/*
 # cache directory
 .cache
 .eslintcache
-.yarn-cache/*
-!.yarn-cache/.gitkeep
+.yarn-cache
+.jest-cache
 
 # Dependency directory
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
