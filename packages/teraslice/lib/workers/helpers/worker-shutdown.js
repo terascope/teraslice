@@ -36,8 +36,11 @@ function shutdownHandler(context, shutdownFn) {
         || 'unknown-assignment';
 
     const isK8s = get(context, 'sysconfig.teraslice.cluster_manager_type') === 'kubernetes';
+    // this is native clustering only
     const isProcessRestart = process.env.process_restart;
-    const allowNonZeroExitCode = isK8s || assignment !== 'exectution_controller';
+    // everything but the k8s execution_controller should not be allowed be allowed to
+    // set a non-zero exit code (to avoid being restarted)
+    const allowNonZeroExitCode = !(isK8s && assignment === 'execution_controller');
     const api = {
         exiting: false,
         exit
@@ -155,6 +158,7 @@ function shutdownHandler(context, shutdownFn) {
     process.stderr.on('error', handleStdError);
 
     // event is fired from terafoundation when an error occurs during instantiation of a client
+    // **DEPRECATED:** This handler should be removed on teraslice v1
     events.once('client:initialization:error', (err) => {
         logger.error(err, `${assignment} received a client initialization error, ${exitingIn()}`);
         setStatusCode(1);

@@ -7,7 +7,7 @@ import {
 import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
 import signale from './signale';
-import { NPM_DEFAULT_REGISTRY } from './config';
+import * as config from './config';
 
 const logger = debugLogger('ts-scripts:cmd');
 
@@ -72,7 +72,10 @@ export async function exec(opts: ExecOpts, log = true): Promise<string> {
 
 export async function fork(opts: ExecOpts): Promise<void> {
     try {
-        const env: ExecEnv = { FORCE_COLOR: '1', ...opts.env };
+        const env: ExecEnv = {
+            FORCE_COLOR: config.FORCE_COLOR,
+            ...opts.env
+        };
         const _opts: ExecOpts = { stdio: 'inherit', ...opts };
         _opts.env = env;
         await _exec(_opts);
@@ -167,6 +170,14 @@ export async function getContainerInfo(name: string): Promise<any> {
     return JSON.parse(result);
 }
 
+export async function dockerNetworkExists(name: string): Promise<boolean> {
+    const subprocess = await execa.command(
+        `docker network ls --format='{{json .Name}}' | grep '"${name}"'`,
+        { reject: false }
+    );
+    return subprocess.exitCode > 0;
+}
+
 export async function remoteDockerImageExists(image: string): Promise<boolean> {
     const result = await execa.command(`docker pull ${image}`, { reject: false });
     return result.exitCode === 0;
@@ -178,6 +189,7 @@ export type DockerRunOptions = {
     ports?: (number | string)[];
     tmpfs?: string[];
     env?: ExecEnv;
+    network?: string;
 };
 
 export async function dockerRun(opt: DockerRunOptions, tag = 'latest'): Promise<() => void> {
@@ -208,6 +220,14 @@ export async function dockerRun(opt: DockerRunOptions, tag = 'latest'): Promise<
 
     if (opt.tmpfs && opt.tmpfs.length) {
         args.push('--tmpfs', opt.tmpfs.join(','));
+    }
+
+    if (opt.network) {
+        const exists = await dockerNetworkExists(opt.network);
+        if (!exists) {
+            throw new Error(`Docker network ${opt.network} does not exist`);
+        }
+        args.push('--network', opt.network);
     }
 
     args.push('--name', opt.name);
@@ -337,7 +357,7 @@ export function mapToArgs(input: ArgsMap): string[] {
 
 export async function getLatestNPMVersion(
     name: string,
-    registry: string = NPM_DEFAULT_REGISTRY
+    registry: string = config.NPM_DEFAULT_REGISTRY
 ): Promise<string> {
     const subprocess = await execa(
         'npm',
@@ -350,7 +370,7 @@ export async function getLatestNPMVersion(
     return subprocess.stdout;
 }
 
-export async function yarnPublish(pkgInfo: PackageInfo) {
+export async function yarnPublish(pkgInfo: PackageInfo, registry = config.NPM_DEFAULT_REGISTRY) {
     await fork({
         cmd: 'yarn',
         args: [
@@ -358,7 +378,11 @@ export async function yarnPublish(pkgInfo: PackageInfo) {
             '--non-interactive',
             '--new-version',
             pkgInfo.version,
-            '--no-git-tag-version'
+            '--no-git-tag-version',
+            '--registry',
+            registry,
+            '--tag',
+            config.NPM_PUBLISH_TAG
         ],
         cwd: pkgInfo.dir,
     });

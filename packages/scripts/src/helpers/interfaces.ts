@@ -52,7 +52,7 @@ export type RootPackageInfo = {
         root: boolean;
         type: 'monorepo';
         docker: {
-            registry: string;
+            registries: string[];
             cache_layers: ({ from: string; name: string })[];
         };
         npm: {

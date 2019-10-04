@@ -19,7 +19,7 @@ import {
 import { TestOptions, GroupedPackages } from './interfaces';
 import { PackageInfo, TestSuite } from '../interfaces';
 import { getRootInfo } from '../misc';
-import { HOST_IP } from '../config';
+import * as config from '../config';
 import signale from '../signale';
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -41,6 +41,9 @@ export function getArgs(options: TestOptions): ArgsMap {
         args.runInBand = '';
     } else {
         args.silent = '';
+        if (config.JEST_MAX_WORKERS) {
+            args.maxWorkers = config.JEST_MAX_WORKERS;
+        }
     }
 
     if (options.watch) {
@@ -61,7 +64,7 @@ export function getArgs(options: TestOptions): ArgsMap {
 
 export function getEnv(options: TestOptions, suite?: TestSuite): ExecEnv {
     const env: ExecEnv = {
-        HOST_IP,
+        HOST_IP: config.HOST_IP,
         NODE_ENV: 'test',
         FORCE_COLOR: '1',
     };
@@ -71,7 +74,7 @@ export function getEnv(options: TestOptions, suite?: TestSuite): ExecEnv {
     if (!suite || suite === TestSuite.Elasticsearch || isE2E) {
         Object.assign(env, {
             TEST_INDEX_PREFIX: 'teratest_',
-            ELASTICSEARCH_HOST: options.elasticsearchHost,
+            ELASTICSEARCH_HOST: config.ELASTICSEARCH_HOST,
             ELASTICSEARCH_VERSION: options.elasticsearchVersion,
             ELASTICSEARCH_API_VERSION: options.elasticsearchAPIVersion,
         });
@@ -79,7 +82,7 @@ export function getEnv(options: TestOptions, suite?: TestSuite): ExecEnv {
 
     if (!suite || suite === TestSuite.Kafka || isE2E) {
         Object.assign(env, {
-            KAFKA_BROKER: options.kafkaBroker,
+            KAFKA_BROKER: config.KAFKA_BROKER,
             KAFKA_VERSION: options.kafkaVersion,
         });
     }
@@ -235,11 +238,13 @@ function getCacheFrom(): string[] {
     const layers = rootInfo.terascope.docker.cache_layers || [];
     if (!layers.length) return [];
     const cacheFrom: { [name: string]: string } = {};
+    const [registry] = rootInfo.terascope.docker.registries;
+
     layers.forEach(({ from, name }) => {
         if (cacheFrom[from] == null) {
             cacheFrom[from] = from;
         }
-        cacheFrom[name] = `${rootInfo.terascope.docker.registry}:dev-${name}`;
+        cacheFrom[name] = `${registry}:dev-${name}`;
     });
     return Object.values(cacheFrom);
 }

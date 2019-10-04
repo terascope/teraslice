@@ -14,10 +14,8 @@ type Options = {
     bail: boolean;
     suite?: TestSuite;
     'report-coverage': boolean;
-    'elasticsearch-host': string;
     'elasticsearch-version': string;
     'elasticsearch-api-version': string;
-    'kafka-broker': string;
     'kafka-version': string;
     'use-existing-services': boolean;
     packages?: PackageInfo[];
@@ -68,11 +66,6 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'boolean',
                 default: config.USE_EXISTING_SERVICES,
             })
-            .option('elasticsearch-host', {
-                description: 'The elasticsearch URL to use when needed (usually for --suite elasticsearch or e2e)',
-                type: 'string',
-                default: config.ELASTICSEARCH_HOST,
-            })
             .option('elasticsearch-version', {
                 description: 'The elasticsearch version to use',
                 type: 'string',
@@ -82,11 +75,6 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 description: 'The elasticsearch client API version to use',
                 type: 'string',
                 default: config.ELASTICSEARCH_API_VERSION,
-            })
-            .option('kafka-broker', {
-                description: 'The kafka brokers to use when needed (usually for --suite kafka or e2e)',
-                type: 'string',
-                default: config.KAFKA_BROKER,
             })
             .option('kafka-version', {
                 description: 'The kafka version to use',
@@ -119,10 +107,8 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             bail,
             suite: argv.suite,
             useExistingServices: argv['use-existing-services'],
-            elasticsearchHost: argv['elasticsearch-host'],
             elasticsearchVersion: argv['elasticsearch-version'],
             elasticsearchAPIVersion: argv['elasticsearch-api-version'],
-            kafkaBroker: argv['kafka-broker'],
             kafkaVersion: argv['kafka-version'],
             all: !argv.packages || !argv.packages.length,
             reportCoverage: argv['report-coverage'],
