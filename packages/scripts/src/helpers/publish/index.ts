@@ -15,7 +15,7 @@ import { getRootInfo } from '../misc';
 import signale from '../signale';
 
 export async function publish(action: PublishAction, options: PublishOptions) {
-    signale.info(`publishing to ${action}`);
+    signale.info(`publishing to ${action}`, { dryRun: options.dryRun });
 
     if (action === PublishAction.NPM) {
         return publishToNPM(options);
