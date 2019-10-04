@@ -38,6 +38,7 @@ export type PackageConfig = {
 };
 
 export type RootPackageInfo = {
+    version: string;
     dir: string;
     folderName: string;
     name: string;
@@ -51,7 +52,7 @@ export type RootPackageInfo = {
         root: boolean;
         type: 'monorepo';
         docker: {
-            registry: string;
+            registries: string[];
             cache_layers: ({ from: string; name: string })[];
         };
         npm: {

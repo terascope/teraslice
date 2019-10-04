@@ -1,36 +1,27 @@
+
 import { Logger } from '@terascope/utils';
+import { UtilsTranslateQueryOptions, AnyQuery, AnyQuerySort } from '../translator/interfaces';
+import {
+    GeoPoint,
+    GeoDistanceUnit,
+    TypeConfig,
+    FieldType
+} from '../interfaces';
 
 export interface ParserOptions {
     type_config?: TypeConfig;
     logger?: Logger;
 }
 
-export type GeoDistanceUnit = 'miles'|'yards'|'feet'|'inch'|'kilometers'|'meters'|'centimeters'|'millimeters'|'nauticalmiles';
-
-export enum FieldType {
-    Geo = 'geo',
-    Date = 'date',
-    IP = 'ip',
-    String = 'string',
-    Integer = 'integer',
-    Float = 'float',
-    Boolean = 'boolean',
-    Object = 'object'
-}
-
-export interface TypeConfig {
-    [field: string]: FieldType;
-}
-
 export type AST = EmptyAST & LogicalGroup & Term
 & Conjunction & Negation & FieldGroup
 & Exists & Range & GeoDistance
-& GeoBoundingBox & Regexp & Wildcard;
+& GeoBoundingBox & Regexp & Wildcard & FunctionNode;
 
 export type AnyAST = EmptyAST | LogicalGroup | Term
 | Conjunction | Negation | FieldGroup
 | Exists | Range | GeoDistance
-| GeoBoundingBox | Regexp | Wildcard;
+| GeoBoundingBox | Regexp | Wildcard | FunctionNode;
 
 export type GroupLike = FieldGroup|LogicalGroup;
 export type GroupLikeType = ASTType.LogicalGroup|ASTType.FieldGroup;
@@ -40,14 +31,15 @@ export interface GroupLikeAST {
     flow: Conjunction[];
 }
 
-export type TermLike = Term|Regexp|Range|Wildcard|GeoBoundingBox|GeoDistance;
+export type TermLike = Term|Regexp|Range|Wildcard|GeoBoundingBox|GeoDistance|FunctionNode;
 export type TermLikeType =
     ASTType.Term|
     ASTType.Regexp|
     ASTType.Range|
     ASTType.Wildcard|
     ASTType.GeoBoundingBox|
-    ASTType.GeoDistance;
+    ASTType.GeoDistance|
+    ASTType.Function
 
 export interface TermLikeAST {
     type: TermLikeType;
@@ -67,6 +59,7 @@ export enum ASTType {
     Regexp = 'regexp',
     Wildcard = 'wildcard',
     Empty = 'empty',
+    Function = 'function'
 }
 
 export interface EmptyAST {
@@ -92,6 +85,7 @@ export interface NumberDataType {
 export interface StringDataType {
     field_type: FieldType.String;
     value: string;
+    quoted: boolean;
 }
 
 export interface BooleanDataType {
@@ -142,16 +136,18 @@ export interface GeoDistance extends GeoPoint, TermLikeAST {
     unit: GeoDistanceUnit;
 }
 
-export interface GeoPoint {
-    lat: number;
-    lon: number;
-}
-
 export interface GeoBoundingBox extends TermLikeAST {
     type: ASTType.GeoBoundingBox;
     field_type: FieldType.Geo;
     top_left: GeoPoint;
     bottom_right: GeoPoint;
+}
+
+export interface FunctionNode extends TermLikeAST {
+    type: ASTType.Function;
+    name: string;
+    description?: string;
+    instance: FunctionMethods;
 }
 
 export interface Regexp extends StringDataType, TermLikeAST {
@@ -164,4 +160,29 @@ export interface Wildcard extends StringDataType, TermLikeAST {
 
 export interface Term extends AnyDataType, TermLikeAST {
     type: ASTType.Term;
+}
+
+export interface FunctionConfig {
+    logger: Logger;
+    typeConfig: TypeConfig;
+}
+
+export interface FunctionDefinition {
+    version: string;
+    name: string;
+    create: (
+        field: string,
+        params: any,
+        config: FunctionConfig
+    ) => FunctionMethods;
+}
+
+export interface FunctionMethodsResults {
+    query: AnyQuery;
+    sort?: AnyQuerySort;
+}
+
+export interface FunctionMethods {
+    match(arg: any): boolean;
+    toElasticsearchQuery(options: UtilsTranslateQueryOptions): FunctionMethodsResults;
 }

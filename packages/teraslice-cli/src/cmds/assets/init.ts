@@ -33,7 +33,6 @@ export = {
     async handler(argv) {
         const cliConfig = new Config(argv);
         const assetBaseDir = cliConfig.args.baseDir;
-
         // if just adding a new processor AssetBaseDir needs to have an asset dir
         if (argv.proc && !fs.pathExistsSync(path.join(assetBaseDir, 'asset'))) {
             reply.fatal('Execute the command in the base directory of an asset or use the --base-dir with the asset\'s full path');

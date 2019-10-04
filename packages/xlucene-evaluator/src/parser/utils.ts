@@ -1,5 +1,6 @@
 import { isString, isEmpty } from '@terascope/utils';
 import * as i from './interfaces';
+import { FieldType } from '../interfaces';
 
 export function isLogicalGroup(node: any): node is i.LogicalGroup {
     return node && node.type === i.ASTType.LogicalGroup;
@@ -33,6 +34,10 @@ export function isGeoBoundingBox(node: any): node is i.GeoBoundingBox {
     return node && node.type === i.ASTType.GeoBoundingBox;
 }
 
+export function isFunctionExpression(node: any): node is i.FunctionNode {
+    return node && node.type === i.ASTType.Function;
+}
+
 export function isRegexp(node: any): node is i.Regexp {
     return node && node.type === i.ASTType.Regexp;
 }
@@ -53,7 +58,7 @@ export function isStringDataType(node: any): node is i.StringDataType {
     return node && node.field_type === 'string';
 }
 
-export const numberDataTypes: i.FieldType[] = [i.FieldType.Integer, i.FieldType.Float];
+export const numberDataTypes: FieldType[] = [FieldType.Integer, FieldType.Float];
 
 export function isNumberDataType(node: any): node is i.NumberDataType {
     return node && numberDataTypes.includes(node.field_type);
@@ -81,6 +86,7 @@ export const termTypes: i.ASTType[] = [
     i.ASTType.Wildcard,
     i.ASTType.GeoDistance,
     i.ASTType.GeoBoundingBox,
+    i.ASTType.Function
 ];
 
 export function isTermType(node: any): node is i.TermLike {

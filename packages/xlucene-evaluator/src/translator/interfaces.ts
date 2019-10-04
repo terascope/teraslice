@@ -1,31 +1,35 @@
 import { Logger } from '@terascope/utils';
-import * as p from '../parser';
+import {
+    GeoPoint,
+    GeoDistanceUnit,
+    TypeConfig
+} from '../interfaces';
 
 export type SortOrder = 'asc'|'desc';
 
 export type TranslatorOptions = {
     logger?: Logger;
-    type_config?: p.TypeConfig;
+    type_config?: TypeConfig;
     default_geo_field?: string;
     default_geo_sort_order?: SortOrder;
-    default_geo_sort_unit?: p.GeoDistanceUnit|string;
+    default_geo_sort_unit?: GeoDistanceUnit|string;
 };
 
 export type UtilsTranslateQueryOptions = {
     logger: Logger;
     default_geo_field?: string;
-    geo_sort_point?: p.GeoPoint;
+    geo_sort_point?: GeoPoint;
     geo_sort_order: SortOrder;
-    geo_sort_unit: p.GeoDistanceUnit;
+    geo_sort_unit: GeoDistanceUnit;
 };
 
 export type ElasticsearchDSLOptions = {
     /**
      * If a default_geo_field is set, this is required to enable sorting
     */
-    geo_sort_point?: p.GeoPoint;
+    geo_sort_point?: GeoPoint;
     geo_sort_order?: SortOrder;
-    geo_sort_unit?: p.GeoDistanceUnit;
+    geo_sort_unit?: GeoDistanceUnit;
 };
 
 export type BoolQuery = {
@@ -59,13 +63,18 @@ export interface ExistsQuery {
 export interface GeoQuery {
     geo_bounding_box?: {
         [field: string]: {
-            top_left: p.GeoPoint | string;
-            bottom_right: p.GeoPoint | string;
+            top_left: GeoPoint | string;
+            bottom_right: GeoPoint | string;
         };
     };
     geo_distance?: {
         distance: string;
-        [field: string]: p.GeoPoint | string;
+        [field: string]: GeoPoint | string;
+    };
+    geo_polygon?: {
+        [field: string]: {
+            points: GeoPoint[] | string[];
+        };
     };
 }
 
@@ -135,7 +144,7 @@ export type MatchAllQuery = {
 };
 
 export type GeoDistanceSort = {
-    [field: string]: SortOrder|p.GeoDistanceUnit|{
+    [field: string]: SortOrder | GeoDistanceUnit | {
         lat: number;
         lon: number;
     };

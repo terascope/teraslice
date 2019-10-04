@@ -19,7 +19,7 @@ import {
 import { TestOptions, GroupedPackages } from './interfaces';
 import { PackageInfo, TestSuite } from '../interfaces';
 import { getRootInfo } from '../misc';
-import { HOST_IP } from '../config';
+import * as config from '../config';
 import signale from '../signale';
 
 const logger = debugLogger('ts-scripts:cmd:test');
@@ -29,7 +29,9 @@ export function getArgs(options: TestOptions): ArgsMap {
     args.forceExit = '';
     args.passWithNoTests = '';
     args.coverage = 'true';
-    args.color = '';
+    if (config.FORCE_COLOR === '1') {
+        args.color = '';
+    }
 
     if (options.bail) {
         args.bail = '';
@@ -41,6 +43,9 @@ export function getArgs(options: TestOptions): ArgsMap {
         args.runInBand = '';
     } else {
         args.silent = '';
+        if (config.JEST_MAX_WORKERS) {
+            args.maxWorkers = config.JEST_MAX_WORKERS;
+        }
     }
 
     if (options.watch) {
@@ -61,17 +66,17 @@ export function getArgs(options: TestOptions): ArgsMap {
 
 export function getEnv(options: TestOptions, suite?: TestSuite): ExecEnv {
     const env: ExecEnv = {
-        HOST_IP,
+        HOST_IP: config.HOST_IP,
         NODE_ENV: 'test',
-        FORCE_COLOR: '1',
+        FORCE_COLOR: config.FORCE_COLOR,
     };
 
     const isE2E = suite === TestSuite.E2E;
 
     if (!suite || suite === TestSuite.Elasticsearch || isE2E) {
         Object.assign(env, {
-            TEST_INDEX_PREFIX: 'teratest_',
-            ELASTICSEARCH_HOST: options.elasticsearchHost,
+            TEST_INDEX_PREFIX: `${config.TEST_NAMESPACE}_`,
+            ELASTICSEARCH_HOST: config.ELASTICSEARCH_HOST,
             ELASTICSEARCH_VERSION: options.elasticsearchVersion,
             ELASTICSEARCH_API_VERSION: options.elasticsearchAPIVersion,
         });
@@ -79,7 +84,7 @@ export function getEnv(options: TestOptions, suite?: TestSuite): ExecEnv {
 
     if (!suite || suite === TestSuite.Kafka || isE2E) {
         Object.assign(env, {
-            KAFKA_BROKER: options.kafkaBroker,
+            KAFKA_BROKER: config.KAFKA_BROKER,
             KAFKA_VERSION: options.kafkaVersion,
         });
     }
@@ -129,7 +134,7 @@ export function onlyUnitTests(pkgInfos: PackageInfo[]): boolean {
     return pkgInfos.every((pkgInfo) => pkgInfo.terascope.testSuite === TestSuite.Unit);
 }
 
-export function groupBySuite(pkgInfos: PackageInfo[]): GroupedPackages {
+export function groupBySuite(pkgInfos: PackageInfo[], options: TestOptions): GroupedPackages {
     const groups: GroupedPackages = {
         [TestSuite.Unit]: [],
         [TestSuite.Elasticsearch]: [],
@@ -141,6 +146,16 @@ export function groupBySuite(pkgInfos: PackageInfo[]): GroupedPackages {
         const suite = pkgInfo.terascope.testSuite || TestSuite.Disabled;
         if (suite === TestSuite.Disabled) continue;
         groups[suite].push(pkgInfo);
+    }
+
+    const isWatchAll = !options.suite && options.watch;
+    const isNotAll = !options.all;
+    if ((isNotAll || isWatchAll) && groups[TestSuite.Elasticsearch].length) {
+        groups[TestSuite.Elasticsearch] = [
+            ...groups[TestSuite.Unit],
+            ...groups[TestSuite.Elasticsearch]
+        ];
+        groups[TestSuite.Unit] = [];
     }
 
     return groups;
@@ -225,11 +240,13 @@ function getCacheFrom(): string[] {
     const layers = rootInfo.terascope.docker.cache_layers || [];
     if (!layers.length) return [];
     const cacheFrom: { [name: string]: string } = {};
+    const [registry] = rootInfo.terascope.docker.registries;
+
     layers.forEach(({ from, name }) => {
         if (cacheFrom[from] == null) {
             cacheFrom[from] = from;
         }
-        cacheFrom[name] = `${rootInfo.terascope.docker.registry}:dev-${name}`;
+        cacheFrom[name] = `${registry}:dev-${name}`;
     });
     return Object.values(cacheFrom);
 }

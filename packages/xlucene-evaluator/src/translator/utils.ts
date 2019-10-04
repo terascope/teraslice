@@ -71,6 +71,22 @@ export function translateQuery(
         if (p.isGeoDistance(node)) {
             return buildGeoDistanceQuery(node);
         }
+
+        if (p.isFunctionExpression(node)) {
+            const { query, sort: sortQuery } = node.instance.toElasticsearchQuery(options);
+            // TODO: review how sort works in this module
+            if (sortQuery != null) {
+                if (!sort) {
+                    sort = sortQuery;
+                } else if (Array.isArray(sort)) {
+                    sort.push(sortQuery);
+                } else {
+                    sort = [sort, sortQuery];
+                }
+            }
+
+            return query;
+        }
     }
 
     function buildMultiMatchQuery(node: p.TermLikeAST, query: string): i.MultiMatchQuery {

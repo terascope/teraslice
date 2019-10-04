@@ -15,7 +15,11 @@ export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType)
     if (pkgInfo.private) return false;
 
     const registry: string|undefined = get(pkgInfo, 'publishConfig.registry');
-    const remote = await getLatestNPMVersion(pkgInfo.name, registry);
+    const remote = await getLatestNPMVersion(
+        pkgInfo.name,
+        getPublishTag(pkgInfo.version),
+        registry
+    );
     const local = pkgInfo.version;
 
     if (semver.gt(local, remote)) {
@@ -47,6 +51,15 @@ export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType)
     return false;
 }
 
+export function getPublishTag(version: string): string {
+    const parsed = semver.parse(version);
+    if (!parsed) {
+        throw new Error(`Unable to publish invalid version "${version}"`);
+    }
+    if (parsed.prerelease.length) return 'prelease';
+    return 'latest';
+}
+
 function padNumber(n: number): string {
     if (n < 10) return `0${n}`;
     return `${n}`;
@@ -69,7 +82,7 @@ export async function formatDailyTag() {
     return `daily-${date}-${hash}`;
 }
 
-export async function buildCacheLayers(): Promise<string[]> {
+export async function buildCacheLayers(registry: string): Promise<string[]> {
     const rootInfo = getRootInfo();
     const layers = rootInfo.terascope.docker.cache_layers;
     if (!layers.length) return [];
@@ -79,7 +92,7 @@ export async function buildCacheLayers(): Promise<string[]> {
         if (cacheFrom[from] == null) {
             cacheFrom[from] = from;
         }
-        cacheFrom[name] = `${rootInfo.terascope.docker.registry}:dev-${name}`;
+        cacheFrom[name] = `${registry}:dev-${name}`;
     });
 
     const layersToPull = Object.values(cacheFrom);

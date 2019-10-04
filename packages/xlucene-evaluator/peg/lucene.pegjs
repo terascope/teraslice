@@ -7,6 +7,7 @@
         parseInferredTermType,
         isInferredTermType,
         propagateDefaultField,
+        parseFunction
     } = makeContext(options.contextArg);
 }
 
@@ -15,8 +16,8 @@
 start
     = ws* negate:NegationExpression ws* EOF { return negate }
     / ws* logic:LogicalGroup ws* EOF { return logic; }
-    / ws* term:UnqoutedTermType ws* EOF { return term; }
     / ws* term:TermExpression ws* EOF { return term; }
+    / ws* term:UnqoutedTermType ws* EOF { return term; }
     / ws* group:ParensGroup ws* EOF { return group; }
     / ws* EOF {
         return {
@@ -168,7 +169,9 @@ BaseTermExpression
             field,
         }
     }
-    / GeoTermExpression
+    / FunctionExpression
+    // for backwards compatability
+    / OldGeoTermExpression
     / FieldGroup
     / field:FieldName ws* FieldSeparator ws* term:InferredTermType {
         const node = { ...term, field };
@@ -217,8 +220,59 @@ FieldOrQuotedTermExpression
         }
     }
 
-GeoTermExpression
-    = field:FieldName ws* FieldSeparator ws* ParensStart ws* term:GeoTermType ws* ParensEnd {
+FunctionExpression
+    = field:FieldName ws* FieldSeparator ws* term:FunctionTerm {
+        const { name, params } = term;
+
+        return {
+            type: i.ASTType.Function,
+            name,
+            instance: parseFunction(field, name, params),
+            field,
+        };
+    }
+
+FunctionTerm
+    = name:RestrictedString ws* ParensStart ws* fnArgs:FunctionParams? ws* ParensEnd {
+        const params = fnArgs || [];
+        return { params, name };
+    }
+
+FunctionParams
+    = param:ListExpression ws* Comma* ws* params:FunctionParams? {
+         if (params) return [param, ...params]
+         return [param]
+    }
+    / param:TermExpression ws* Comma* ws* params:FunctionParams? {
+         if (params) return [param, ...params]
+         return [param]
+    }
+
+// We are not currectly allowing this to be used across the whole system other than for geo points
+// If we were to use this across the system ListItem would become a grammar "type"
+// Im keeping it contained for now until we see how this evolves for general use
+
+ListExpression
+    = field:FieldName ws* FieldSeparator ws* ListStart ws* list: ListItem ws* ListEnd {
+        return {
+            field,
+            value: list
+        }
+    }
+
+ListItem
+    = item:TermExpression ws* Comma* ws* items:ListItem? {
+         if (items) return [item, ...items]
+         return [item]
+    }
+    / ListStart ws* list: ListItem ws* ListEnd ws* Comma* ws* items:ListItem? {
+        // needs to recursive check to see if value is list
+         if (items) return [list, ...items]
+         return [list]
+    }
+
+OldGeoTermExpression
+    = field:FieldName ws* FieldSeparator ws* ParensStart ws* term:OldGeoTermType ws* ParensEnd {
         return {
             ...term,
             field,
@@ -226,9 +280,13 @@ GeoTermExpression
     }
 
 ParensStringType
-    = ParensStart ws* term:UnqoutedStringType ws* ParensEnd {
+    = ParensStart ws* term:QuotedStringType ws* ParensEnd {
         return term;
     }
+    / ParensStart ws* term:UnqoutedStringType ws* ParensEnd {
+        return term;
+    }
+
 
 UnqoutedTermType
     = term:UnqoutedStringType {
@@ -272,29 +330,29 @@ RightRangeExpression
         }
     }
 
-GeoTermType
-    = point:GeoPoint ws* distance:GeoDistance {
+OldGeoTermType
+    = point:OldGeoPoint ws* distance:OldGeoDistance {
         return {
             type: i.ASTType.GeoDistance,
             ...point,
             ...distance
         }
     }
-    / distance:GeoDistance ws* point:GeoPoint {
+    / distance:OldGeoDistance ws* point:OldGeoPoint {
         return {
             type: i.ASTType.GeoDistance,
             ...point,
             ...distance
         }
     }
-    / topLeft:GeoTopLeft ws* bottomRight:GeoBottomRight {
+    / topLeft:OldGeoTopLeft ws* bottomRight:OldGeoBottomRight {
         return {
             type: i.ASTType.GeoBoundingBox,
             ...topLeft,
             ...bottomRight
         }
     }
-    / bottomRight:GeoBottomRight ws* topLeft:GeoTopLeft  {
+    / bottomRight:OldGeoBottomRight ws* topLeft:OldGeoTopLeft  {
         return {
             type: i.ASTType.GeoBoundingBox,
             ...topLeft,
@@ -333,7 +391,7 @@ NegativeInfinityType
     = '*' {
         return {
             type: i.ASTType.Term,
-            field_type: i.FieldType.Integer,
+            field_type: FieldType.Integer,
             value: Number.NEGATIVE_INFINITY
         }
     }
@@ -342,7 +400,7 @@ PostiveInfinityType
     = '*' {
         return {
             type: i.ASTType.Term,
-            field_type: i.FieldType.Integer,
+            field_type: FieldType.Integer,
             value: Number.POSITIVE_INFINITY
         }
     }
@@ -351,7 +409,7 @@ FloatType
     = value:Float {
         return {
             type: i.ASTType.Term,
-            field_type: i.FieldType.Float,
+            field_type: FieldType.Float,
             value
         }
     }
@@ -360,7 +418,7 @@ IntegerType
     = value:Integer {
         return {
             type: i.ASTType.Term,
-            field_type: i.FieldType.Integer,
+            field_type: FieldType.Integer,
             value
         }
     }
@@ -369,7 +427,7 @@ BooleanType
   = value:Boolean {
       return {
         type: i.ASTType.Term,
-        field_type: i.FieldType.Boolean,
+        field_type: FieldType.Boolean,
         value
       }
   }
@@ -378,7 +436,7 @@ RegexpType
     = value:Regex {
         return {
             type: i.ASTType.Regexp,
-            field_type: i.FieldType.String,
+            field_type: FieldType.String,
             value
         }
     }
@@ -387,7 +445,7 @@ WildcardType
   = value:Wildcard {
        return {
            type: i.ASTType.Wildcard,
-           field_type: i.FieldType.String,
+           field_type: FieldType.String,
            value
        };
     }
@@ -396,7 +454,7 @@ QuotedStringType
     = value:QuotedTerm {
         return {
             type: i.ASTType.Term,
-            field_type: i.FieldType.String,
+            field_type: FieldType.String,
             quoted: true,
             value
         };
@@ -406,7 +464,7 @@ UnqoutedStringType
     = value:UnquotedTerm {
        return {
            type: i.ASTType.Term,
-           field_type: i.FieldType.String,
+           field_type: FieldType.String,
            quoted: false,
            value
        };
@@ -416,7 +474,7 @@ RestrictedStringType
     = value:RestrictedString {
        return {
            type: i.ASTType.Term,
-           field_type: i.FieldType.String,
+           field_type: FieldType.String,
            restricted: true,
            quoted: false,
            value
@@ -426,28 +484,28 @@ RestrictedStringType
 FieldName
     = chars:FieldChar+ { return chars.join('') }
 
-GeoPoint
-    = GeoPointKeyword ws* FieldSeparator ws* term:QuotedStringType {
+OldGeoPoint
+    = OldGeoPointKeyword ws* FieldSeparator ws* term:QuotedStringType {
         return parseGeoPoint(term.value);
     }
 
-GeoDistance
-    = GeoDistanceKeyword ws* FieldSeparator ws* term:GeoDistanceType {
+OldGeoDistance
+    = OldGeoDistanceKeyword ws* FieldSeparator ws* term:OldGeoDistanceType {
         return parseGeoDistance(term.value);
     }
 
-GeoDistanceType
+OldGeoDistanceType
     = RestrictedStringType / QuotedStringType
 
-GeoTopLeft
-    = GeoTopLeftKeyword ws* FieldSeparator ws* term:QuotedStringType {
+OldGeoTopLeft
+    = OldGeoTopLeftKeyword ws* FieldSeparator ws* term:QuotedStringType {
          return {
              top_left: parseGeoPoint(term.value)
          }
     }
 
-GeoBottomRight
-    = GeoBottomRightKeyword ws* FieldSeparator ws* term:QuotedStringType {
+OldGeoBottomRight
+    = OldGeoBottomRightKeyword ws* FieldSeparator ws* term:QuotedStringType {
          return {
              bottom_right: parseGeoPoint(term.value)
          }
@@ -478,20 +536,22 @@ Float
   = float:$(Digit* Dot Digit+) &NumReservedChar { return parseFloat(float) }
 
 /** keywords **/
-GeoPointKeyword
-    = '_geo_point_'
-
-GeoDistanceKeyword
-    = '_geo_distance_'
-
-GeoTopLeftKeyword
-    = '_geo_box_top_left_'
-
-GeoBottomRightKeyword
-    = '_geo_box_bottom_right_'
 
 ExistsKeyword
     = '_exists_'
+
+// These will be depreciated
+OldGeoPointKeyword
+    = '_geo_point_'
+
+OldGeoDistanceKeyword
+    = '_geo_distance_'
+
+OldGeoTopLeftKeyword
+    = '_geo_box_top_left_'
+
+OldGeoBottomRightKeyword
+    = '_geo_box_bottom_right_'
 
 Boolean
   = 'true' { return true }
@@ -521,6 +581,15 @@ ParensStart
 ParensEnd
     = ')'
 
+ListStart
+    = '['
+
+ListEnd
+    = ']'
+
+Comma
+    = ','
+
 WildcardCharSet "wildcard"
   = $([^\?\*\( ]* ('?' / '*')+ [^\?\*\) ]*)
 
@@ -545,13 +614,14 @@ RestrictedTermChar
   / Dot / CharWithoutWS
 
 CharWithoutWS "term"
-    = [^ \t\r\n\f\{\}\(\)\|"/\\/^~\[\]\&\!\?\=\<\>]
+    = [^ \t\r\n\f\{\}\(\)\|/\\/^~\[\]\&\!\?\=\<\>]
 
 QuotedTerm
   = '"' chars:DoubleStringChar* '"' { return chars.join(''); }
+  / "'" chars:DoubleStringChar* "'" { return chars.join(''); }
 
 DoubleStringChar
-  = !('"' / Escape) char:. { return char; }
+  = !('"' / "'" / Escape) char:. { return char; }
   / Escape sequence:ReservedChar { return '\\' + sequence; }
 
 RegexStringChar
@@ -600,6 +670,7 @@ ReservedChar
   / "]"
   / "^"
   / "\""
+  / "'"
   / "?"
   / FieldChar
   / Escape

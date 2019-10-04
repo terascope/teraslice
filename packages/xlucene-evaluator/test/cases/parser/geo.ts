@@ -4,19 +4,7 @@ import { TestCase } from './interfaces';
 export default [
     [
         'location:(_geo_point_:"33.435518,-111.873616" _geo_distance_:5000m)',
-        'a geo distance query with point first',
-        {
-            type: ASTType.GeoDistance,
-            field: 'location',
-            lat: 33.435518,
-            lon: -111.873616,
-            distance: 5000,
-            unit: 'meters',
-        },
-    ],
-    [
-        'location:(_geo_point_:"33.435518,-111.873616" _geo_distance_:"5000m")',
-        'a quoted geo point',
+        'a geo distance query with point double quoted in the old way (_geo_point_)',
         {
             type: ASTType.GeoDistance,
             field: 'location',
@@ -28,7 +16,7 @@ export default [
     ],
     [
         'location:(_geo_distance_:5000m _geo_point_:"33.435518,-111.873616")',
-        'a geo distance query with distance second',
+        'old quoted geo point with space between fn name and parens',
         {
             type: ASTType.GeoDistance,
             field: 'location',
@@ -40,7 +28,7 @@ export default [
     ],
     [
         'location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902")',
-        'a geo point query top left and bottom right',
+        'a geo point query top left and bottom right in the old way',
         {
             type: ASTType.GeoBoundingBox,
             field: 'location',
@@ -56,7 +44,7 @@ export default [
     ],
     [
         'location:(_geo_box_bottom_right_:"32.813646,-111.058902" _geo_box_top_left_:"33.906320,-112.758421")',
-        'a geo point query bottom right and top left',
+        'an old geo point query bottom right and top left',
         {
             type: ASTType.GeoBoundingBox,
             field: 'location',
@@ -70,4 +58,31 @@ export default [
             },
         },
     ],
+    [
+        'location:geoDistance(point:"33.435518,-111.873616", distance:"5000m", third: "data")',
+        'a geo distance query with point double quoted',
+        {
+            type: ASTType.Function,
+            field: 'location',
+            name: 'geoDistance'
+        },
+    ],
+    [
+        'location:geoBox(bottom_right:"32.813646,-111.058902" top_left:"33.906320,-112.758421")',
+        'a geo point query bottom right and top left',
+        {
+            type: ASTType.Function,
+            field: 'location',
+            name: 'geoBox'
+        },
+    ],
+    [
+        'location:geoPolygon(points:["123.43,223.43", "102.3,123.4", "99.3,154.4"])',
+        'a geo polygon query',
+        {
+            type: ASTType.Function,
+            field: 'location',
+            name: 'geoPolygon'
+        },
+    ]
 ] as TestCase[];
