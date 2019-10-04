@@ -20,7 +20,9 @@ const services: { [service in Service]: DockerRunOptions } = {
     [TestSuite.Elasticsearch]: {
         image: config.ELASTICSEARCH_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.ELASTICSEARCH_NAME}`,
-        tmpfs: ['/usr/share/elasticsearch/data'],
+        tmpfs: config.SERVICES_USE_TMPFS
+            ? ['/usr/share/elasticsearch/data']
+            : undefined,
         ports: [`${config.ELASTICSEARCH_PORT}:${config.ELASTICSEARCH_PORT}`],
         env: {
             ES_JAVA_OPTS: config.SERVICE_HEAP_OPTS,
@@ -33,7 +35,9 @@ const services: { [service in Service]: DockerRunOptions } = {
     [TestSuite.Kafka]: {
         image: config.KAFKA_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.ELASTICSEARCH_NAME}`,
-        tmpfs: ['/tmp/kafka-logs'],
+        tmpfs: config.SERVICES_USE_TMPFS
+            ? ['/tmp/kafka-logs']
+            : undefined,
         ports: [`${config.KAFKA_PORT}:${config.KAFKA_PORT}`],
         env: {
             KAFKA_HEAP_OPTS: config.SERVICE_HEAP_OPTS,

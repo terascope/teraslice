@@ -9,6 +9,7 @@ export const FORCE_COLOR = toBoolean(forceColor)
 
 export const HOST_IP = process.env.HOST_IP || address();
 export const USE_EXISTING_SERVICES = toBoolean(process.env.USE_EXISTING_SERVICES);
+export const SERVICES_USE_TMPFS = toBoolean(process.env.SERVICES_USE_TMPFS || 'true');
 export const SERVICE_HEAP_OPTS = process.env.SERVICE_HEAP_OPTS || '-Xms256m -Xmx256m';
 export const USE_SERVICE_NETWORK = process.env.USE_SERVICE_NETWORK || undefined;
 export const TEST_NAMESPACE = process.env.TEST_NAMESPACE || 'ts_test';
