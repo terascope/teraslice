@@ -3,6 +3,28 @@ import { TestCase } from './interfaces';
 
 export default [
     [
+        "'foo'",
+        'single quoted value',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: true,
+            field: null,
+            value: 'foo',
+        },
+    ],
+    [
+        '"foo"',
+        'double quoted value',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: true,
+            field: null,
+            value: 'foo',
+        },
+    ],
+    [
         'id:some"thing"else',
         'an inner double quoted string string',
         {

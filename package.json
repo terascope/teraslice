@@ -83,8 +83,7 @@
                     "from": "base",
                     "name": "connectors"
                 }
-            ],
-            "registry": "terascope/teraslice"
+            ]
         },
         "npm": {
             "registry": "https://registry.npmjs.org/"
