@@ -128,6 +128,7 @@ export default class ESCachedStateStorage {
         if (!docArray.length) return;
 
         const { uncached, duplicates } = this._updateCache(docArray, fn);
+
         if (uncached.length) {
             // es search for keys not in cache
             await bPromise.map(uncached, (chunked) => this._esMGet(chunked, fn), {
