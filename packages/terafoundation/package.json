@@ -1,6 +1,6 @@
 {
     "name": "terafoundation",
-    "version": "0.12.5",
+    "version": "0.13.0",
     "description": "A Clustering and Foundation tool for Terascope Tools",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/terafoundation#readme",
     "bugs": {
@@ -10,12 +10,18 @@
     "license": "Apache-2.0",
     "author": "Terascope, LLC <info@terascope.io>",
     "files": [
-        "*.js",
-        "lib/**/*",
-        "examples/**/*"
+        "dist/src/**/*"
     ],
-    "main": "./index.js",
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
+    "directories": {
+        "lib": "dist/src",
+        "test": "test"
+    },
     "scripts": {
+        "build": "tsc --build",
+        "build:watch": "yarn build --watch",
+        "prepublishOnly": "yarn build",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
@@ -27,7 +33,6 @@
         "bunyan": "^1.8.12",
         "convict": "^4.4.1",
         "elasticsearch": "^15.4.1",
-        "ip": "^1.1.5",
         "js-yaml": "^3.13.1",
         "mongoose": "~5.7.0",
         "node-statsd": "0.1.1",
@@ -36,13 +41,21 @@
         "shortid": "^2.2.14",
         "yargs": "^14.0.0"
     },
-    "devDependencies": {},
+    "devDependencies": {
+        "@types/bunyan": "^1.8.6",
+        "@types/elasticsearch": "^5.0.35",
+        "@types/js-yaml": "^3.12.1",
+        "@types/mongoose": "^5.5.18",
+        "@types/redis": "^2.8.13",
+        "@types/shortid": "^0.0.29"
+    },
     "publishConfig": {
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
     "displayName": "Terafoundation",
     "terascope": {
+        "enableTypedoc": true,
         "testSuite": "unit"
     }
 }

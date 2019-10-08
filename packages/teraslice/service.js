@@ -28,6 +28,7 @@ if (['execution_controller', 'worker'].includes(assignment)) {
     process.env.assignment = 'node_master';
     process.env.NODE_TYPE = 'node_master';
 
+    const { ClusterContext } = require('terafoundation');
     const nodeMaster = require('./lib/cluster/node_master');
     const { getTerasliceConfig } = require('./lib/config');
 
@@ -46,7 +47,7 @@ if (['execution_controller', 'worker'].includes(assignment)) {
         },
     });
 
-    require('terafoundation')(terasliceConfig);
+    new ClusterContext(terasliceConfig);
 }
 
 function deprecatedUseOf(name) {
