@@ -38,7 +38,10 @@ LogicalGroup
     }
 
 ParensGroup
-    = ParensStart ws* group:LogicalGroup ws* ParensEnd {
+    = ParensStart ws* group:ParensGroup ws* ParensEnd {
+        return group;
+    }
+    / ParensStart ws* group:LogicalGroup ws* ParensEnd {
         return group;
     }
 
