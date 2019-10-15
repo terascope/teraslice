@@ -28,11 +28,12 @@ describe('String Utils', () => {
             ['hello\\.', 'hello\\.'],
             ['hello.', 'hello\\.'],
             [' . ? ', '\\ \\.\\ \\?\\ '],
+            ['something-xy40\\" value 8008', 'something-xy40\\"\\ value\\ 8008'],
             ['\\\\.', '\\\\.'],
             ['\\ ', '\\ '],
             ['', ''],
         ])('should convert %j to %j', (input: string, expected: string) => {
-            expect(escapeString(input, ['.', '?', ' '])).toEqual(expected);
+            expect(escapeString(input, ['.', '?', ' ', "'", '"'])).toEqual(expected);
         });
     });
 
