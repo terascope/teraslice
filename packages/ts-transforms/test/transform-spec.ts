@@ -855,6 +855,27 @@ describe('can transform matches', () => {
         });
     });
 
+    it('other_match_required regression test', async () => {
+        const config: WatcherConfig = {
+            rules: [getPath('warnRules.txt')],
+        };
+
+        const data = DataEntity.makeArray([
+            { some: 'data', field: 'hello', otherField: 'world' },
+            { some: 'data', field: 'hello' },
+        ]);
+
+        const finalData = DataEntity.makeArray([
+            { final: 'hello', lastField: 'world' },
+        ]);
+
+        const test = await opTest.init(config);
+        const results = await test.run(data);
+
+        expect(results).toBeArrayOfSize(1);
+        expect(results).toEqual(finalData);
+    });
+
     it('can run a regression test1', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules23.txt')],
@@ -1052,5 +1073,20 @@ describe('can transform matches', () => {
         expect(results).toEqual([
             { output: 'value', count: 20 }
         ]);
+    });
+
+    it('missing fields test', async () => {
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules40.txt')],
+        };
+
+        const data = [
+            new DataEntity({ badField: 'value' }),
+        ];
+
+        const test = await opTest.init(config, [Plugins]);
+        const results = await test.run(data);
+
+        expect(results).toEqual([]);
     });
 });

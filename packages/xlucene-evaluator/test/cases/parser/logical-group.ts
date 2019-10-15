@@ -27,7 +27,7 @@ export default [
         },
     ],
     [
-        'a:1 AND b:1',
+        '(a:1 AND b:1)',
         'a simple AND conjunction',
         {
             type: ASTType.LogicalGroup,
@@ -583,6 +583,65 @@ export default [
     [
         '(a:1) AND (b:1)',
         'a simple AND with parens conjunction',
+        {
+            type: ASTType.LogicalGroup,
+            flow: [
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field: 'a',
+                            value: 1,
+                        },
+                        {
+                            type: ASTType.Term,
+                            field: 'b',
+                            value: 1,
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
+    [
+        '((field: value OR field2:value))',
+        'double parens expression',
+        {
+            type: ASTType.LogicalGroup,
+            flow: [
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field_type: FieldType.String,
+                            restricted: true,
+                            quoted: false,
+                            value: 'value',
+                            field: 'field'
+                        }
+                    ]
+                },
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field_type: FieldType.String,
+                            restricted: true,
+                            quoted: false,
+                            value: 'value',
+                            field: 'field2'
+                        }
+                    ]
+                }
+            ]
+        },
+    ],
+    [
+        '((a:1) AND (b:1))',
+        'double parens AND with parens conjunction',
         {
             type: ASTType.LogicalGroup,
             flow: [

@@ -6,6 +6,7 @@ import isPlainObject from 'is-plain-object';
 
 /** Check in input has a key */
 export function has(data: object, key: any) {
+    if (key == null || data == null) return false;
     return key in data;
 }
 

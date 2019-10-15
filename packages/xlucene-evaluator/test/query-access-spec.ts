@@ -364,5 +364,34 @@ describe('QueryAccess', () => {
                 }
             });
         });
+
+        it('can process quoted values correctly', () => {
+            const q = 'foo:"something-xy40\\" value 8008"';
+            const result = queryAccess.restrictSearchQuery(q);
+
+            expect(result).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                match_phrase: {
+                                    foo: {
+                                        query: 'something-xy40" value 8008'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                _sourceInclude: [
+                    'foo',
+                    'moo'
+                ],
+                _sourceExclude: [
+                    'bar',
+                    'baz'
+                ]
+            });
+        });
     });
 });
