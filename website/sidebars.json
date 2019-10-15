@@ -97,7 +97,8 @@
                 "type": "subcategory",
                 "label": "terafoundation",
                 "ids": [
-                    "packages/terafoundation/overview"
+                    "packages/terafoundation/overview",
+                    "packages/terafoundation/api/overview"
                 ]
             },
             {

@@ -31,7 +31,7 @@ sidebar_label: Default Memfseditor
 
 ▸ **commit**(`callback`: Callback): *void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:87
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:87
 
 **Parameters:**
 
@@ -43,7 +43,7 @@ Name | Type |
 
 ▸ **commit**(`filters`: any[], `callback`: Callback): *void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:88
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:88
 
 **Parameters:**
 
@@ -56,7 +56,7 @@ Name | Type |
 
 ▸ **commit**(`callback`: Callback): *void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:87
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:87
 
 **Parameters:**
 
@@ -68,7 +68,7 @@ Name | Type |
 
 ▸ **commit**(`filters`: any[], `callback`: Callback): *void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:88
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:88
 
 **Parameters:**
 
@@ -85,7 +85,7 @@ ___
 
 ▸ **copy**(`from`: string, `to`: string, `options?`: undefined | __type, `context?`: undefined | __type, `templateOptions?`: undefined | __type): *void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:83
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:83
 
 **Parameters:**
 
@@ -93,15 +93,15 @@ Name | Type |
 ------ | ------ |
 `from` | string |
 `to` | string |
-`options?` | undefined \| __type |
-`context?` | undefined \| __type |
-`templateOptions?` | undefined \| __type |
+`options?` | undefined &#124; __type |
+`context?` | undefined &#124; __type |
+`templateOptions?` | undefined &#124; __type |
 
 **Returns:** *void*
 
 ▸ **copy**(`from`: string, `to`: string, `options?`: undefined | __type, `context?`: undefined | __type, `templateOptions?`: undefined | __type): *void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:83
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:83
 
 **Parameters:**
 
@@ -109,9 +109,9 @@ Name | Type |
 ------ | ------ |
 `from` | string |
 `to` | string |
-`options?` | undefined \| __type |
-`context?` | undefined \| __type |
-`templateOptions?` | undefined \| __type |
+`options?` | undefined &#124; __type |
+`context?` | undefined &#124; __type |
+`templateOptions?` | undefined &#124; __type |
 
 **Returns:** *void*
 
@@ -121,7 +121,7 @@ ___
 
 ▸ **copyTpl**(`from`: string, `to`: string, `context`: __type, `templateOptions?`: undefined | __type, `copyOptions?`: undefined | __type): *void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:84
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:84
 
 **Parameters:**
 
@@ -130,14 +130,14 @@ Name | Type |
 `from` | string |
 `to` | string |
 `context` | __type |
-`templateOptions?` | undefined \| __type |
-`copyOptions?` | undefined \| __type |
+`templateOptions?` | undefined &#124; __type |
+`copyOptions?` | undefined &#124; __type |
 
 **Returns:** *void*
 
 ▸ **copyTpl**(`from`: string, `to`: string, `context`: __type, `templateOptions?`: undefined | __type, `copyOptions?`: undefined | __type): *void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:84
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:84
 
 **Parameters:**
 
@@ -146,8 +146,8 @@ Name | Type |
 `from` | string |
 `to` | string |
 `context` | __type |
-`templateOptions?` | undefined \| __type |
-`copyOptions?` | undefined \| __type |
+`templateOptions?` | undefined &#124; __type |
+`copyOptions?` | undefined &#124; __type |
 
 **Returns:** *void*
 
@@ -157,27 +157,27 @@ ___
 
 ▸ **delete**(`filepath`: string, `options?`: undefined | __type): *void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:82
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:82
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `filepath` | string |
-`options?` | undefined \| __type |
+`options?` | undefined &#124; __type |
 
 **Returns:** *void*
 
 ▸ **delete**(`filepath`: string, `options?`: undefined | __type): *void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:82
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:82
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `filepath` | string |
-`options?` | undefined \| __type |
+`options?` | undefined &#124; __type |
 
 **Returns:** *void*
 
@@ -187,7 +187,7 @@ ___
 
 ▸ **exists**(`filepath`: string): *boolean*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:86
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:86
 
 **Parameters:**
 
@@ -199,7 +199,7 @@ Name | Type |
 
 ▸ **exists**(`filepath`: string): *boolean*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:86
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:86
 
 **Parameters:**
 
@@ -215,7 +215,7 @@ ___
 
 ▸ **extendJSON**(`filepath`: string, `contents`: __type, `replacer?`: undefined | function, `space?`: undefined | number): *void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:81
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:81
 
 **Parameters:**
 
@@ -223,14 +223,14 @@ Name | Type |
 ------ | ------ |
 `filepath` | string |
 `contents` | __type |
-`replacer?` | undefined \| function |
-`space?` | undefined \| number |
+`replacer?` | undefined &#124; function |
+`space?` | undefined &#124; number |
 
 **Returns:** *void*
 
 ▸ **extendJSON**(`filepath`: string, `contents`: __type, `replacer?`: undefined | function, `space?`: undefined | number): *void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:81
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:81
 
 **Parameters:**
 
@@ -238,8 +238,8 @@ Name | Type |
 ------ | ------ |
 `filepath` | string |
 `contents` | __type |
-`replacer?` | undefined \| function |
-`space?` | undefined \| number |
+`replacer?` | undefined &#124; function |
+`space?` | undefined &#124; number |
 
 **Returns:** *void*
 
@@ -249,7 +249,7 @@ ___
 
 ▸ **move**(`from`: string, `to`: string, `options?`: undefined | __type): *void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:85
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:85
 
 **Parameters:**
 
@@ -257,13 +257,13 @@ Name | Type |
 ------ | ------ |
 `from` | string |
 `to` | string |
-`options?` | undefined \| __type |
+`options?` | undefined &#124; __type |
 
 **Returns:** *void*
 
 ▸ **move**(`from`: string, `to`: string, `options?`: undefined | __type): *void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:85
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:85
 
 **Parameters:**
 
@@ -271,7 +271,7 @@ Name | Type |
 ------ | ------ |
 `from` | string |
 `to` | string |
-`options?` | undefined \| __type |
+`options?` | undefined &#124; __type |
 
 **Returns:** *void*
 
@@ -281,27 +281,27 @@ ___
 
 ▸ **read**(`filepath`: string, `options?`: undefined | __type): *string*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:77
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:77
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `filepath` | string |
-`options?` | undefined \| __type |
+`options?` | undefined &#124; __type |
 
 **Returns:** *string*
 
 ▸ **read**(`filepath`: string, `options?`: undefined | __type): *string*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:77
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:77
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `filepath` | string |
-`options?` | undefined \| __type |
+`options?` | undefined &#124; __type |
 
 **Returns:** *string*
 
@@ -311,27 +311,27 @@ ___
 
 ▸ **readJSON**(`filepath`: string, `defaults?`: undefined | __type): *any*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:78
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:78
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `filepath` | string |
-`defaults?` | undefined \| __type |
+`defaults?` | undefined &#124; __type |
 
 **Returns:** *any*
 
 ▸ **readJSON**(`filepath`: string, `defaults?`: undefined | __type): *any*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:78
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:78
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `filepath` | string |
-`defaults?` | undefined \| __type |
+`defaults?` | undefined &#124; __type |
 
 **Returns:** *any*
 
@@ -341,7 +341,7 @@ ___
 
 ▸ **write**(`filepath`: string, `contents`: string): *void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:79
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:79
 
 **Parameters:**
 
@@ -354,7 +354,7 @@ Name | Type |
 
 ▸ **write**(`filepath`: string, `contents`: string): *void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:79
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:79
 
 **Parameters:**
 
@@ -371,7 +371,7 @@ ___
 
 ▸ **writeJSON**(`filepath`: string, `contents`: __type, `replacer?`: undefined | function, `space?`: undefined | number): *void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:80
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:80
 
 **Parameters:**
 
@@ -379,14 +379,14 @@ Name | Type |
 ------ | ------ |
 `filepath` | string |
 `contents` | __type |
-`replacer?` | undefined \| function |
-`space?` | undefined \| number |
+`replacer?` | undefined &#124; function |
+`space?` | undefined &#124; number |
 
 **Returns:** *void*
 
 ▸ **writeJSON**(`filepath`: string, `contents`: __type, `replacer?`: undefined | function, `space?`: undefined | number): *void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:80
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:80
 
 **Parameters:**
 
@@ -394,7 +394,7 @@ Name | Type |
 ------ | ------ |
 `filepath` | string |
 `contents` | __type |
-`replacer?` | undefined \| function |
-`space?` | undefined \| number |
+`replacer?` | undefined &#124; function |
+`space?` | undefined &#124; number |
 
 **Returns:** *void*

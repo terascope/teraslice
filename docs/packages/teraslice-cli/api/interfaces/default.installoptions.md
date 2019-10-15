@@ -24,9 +24,9 @@ sidebar_label: Default Installoptions
 
 • **bower**? : *boolean | object*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:52
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:52
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:52
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:52
 
 whether to run `bower install` or can be options to pass to `dargs` as arguments
 whether to run `bower install` or can be options to pass to `dargs` as arguments
@@ -37,9 +37,9 @@ ___
 
 • **npm**? : *boolean | object*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:48
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:48
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:48
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:48
 
 whether to run `npm install` or can be options to pass to `dargs` as arguments
 whether to run `npm install` or can be options to pass to `dargs` as arguments
@@ -50,9 +50,9 @@ ___
 
 • **skipMessage**? : *undefined | false | true*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:60
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:60
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:60
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:60
 
 whether to log the used commands
 whether to log the used commands
@@ -63,9 +63,9 @@ ___
 
 • **yarn**? : *boolean | object*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:56
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:56
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:56
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:56
 
 whether to run `yarn install` or can be options to pass to `dargs` as arguments
 whether to run `yarn install` or can be options to pass to `dargs` as arguments
