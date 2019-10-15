@@ -27,10 +27,10 @@ export default abstract class BaseType {
             if (!ts.isTest) {
                 console.warn('[WARNING]: typed nested objects are not supported when converting to graphql\n');
             }
-            return { type: `${base}: JSON`, custom_type: 'scalar JSON' };
+            return { type: `${base}: JSONObject`, custom_type: 'scalar JSONObject' };
         }
 
-        if (type !== 'JSON' && this.config.array) {
+        if (type !== 'JSONObject' && this.config.array) {
             return { type: `${this.field}: [${type}]`, custom_type: customType };
         }
         return { type: `${this.field}: ${type}`, custom_type: customType };
