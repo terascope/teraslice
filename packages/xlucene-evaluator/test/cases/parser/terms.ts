@@ -90,7 +90,7 @@ export default [
             field_type: FieldType.String,
             field: 'foo',
             quoted: true,
-            value: '\\"',
+            value: '"',
         },
         {
             foo: FieldType.String
@@ -416,7 +416,7 @@ export default [
             field_type: FieldType.String,
             quoted: true,
             field: 'id',
-            value: 'some \\"thing\\" else',
+            value: 'some "thing" else',
         },
     ],
 
@@ -439,18 +439,18 @@ export default [
             field_type: FieldType.String,
             quoted: true,
             field: 'id',
-            value: 'some \\"thing\\" else',
+            value: 'some "thing" else',
         },
     ],
     [
-        "id:'some \\\"thing\\\" else'",
+        'id:\'some \\"thing\\" else\'',
         'an inner doublequoted string with spaces with outer double quoted',
         {
             type: ASTType.Term,
             field_type: FieldType.String,
             quoted: true,
             field: 'id',
-            value: 'some \\"thing\\" else',
+            value: 'some "thing" else',
         },
     ],
 ] as TestCase[];

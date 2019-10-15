@@ -193,7 +193,7 @@ export function translateQuery(
                 const matchPhraseQuery: i.MatchPhraseQuery = {
                     match_phrase: {
                         [field]: {
-                            query: `${node.value}`,
+                            query: node.value,
                         },
                     },
                 };
@@ -206,7 +206,7 @@ export function translateQuery(
                 match: {
                     [field]: {
                         operator: 'and',
-                        query: `${node.value}`,
+                        query: node.value,
                     },
                 },
             };
