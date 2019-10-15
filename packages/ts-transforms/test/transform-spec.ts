@@ -1074,4 +1074,19 @@ describe('can transform matches', () => {
             { output: 'value', count: 20 }
         ]);
     });
+
+    it('missing fields test', async () => {
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules40.txt')],
+        };
+
+        const data = [
+            new DataEntity({ badField: 'value' }),
+        ];
+
+        const test = await opTest.init(config, [Plugins]);
+        const results = await test.run(data);
+
+        expect(results).toEqual([]);
+    });
 });
