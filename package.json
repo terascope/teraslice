@@ -36,13 +36,6 @@
             "path": "git-cz"
         }
     },
-    "resolutions": {
-        "debug": "^4.1.1",
-        "ms": "^2.1.2",
-        "rxjs": "^6.5.3",
-        "typescript": "^3.5.4",
-        "@types/lodash": "^4.14.137"
-    },
     "dependencies": {},
     "devDependencies": {
         "@types/bluebird": "^3.5.27",
@@ -62,6 +55,13 @@
         "lerna": "^3.16.4",
         "lerna-alias": "^3.0.2",
         "ts-jest": "^24.0.2",
+        "typescript": "^3.5.4"
+    },
+    "resolutions": {
+        "@types/lodash": "^4.14.137",
+        "debug": "^4.1.1",
+        "ms": "^2.1.2",
+        "rxjs": "^6.5.3",
         "typescript": "^3.5.4"
     },
     "engines": {
