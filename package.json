@@ -20,7 +20,6 @@
         "build:pkg": "./scripts/build-pkg.sh",
         "build:watch": "yarn run build --watch",
         "bump": "ts-scripts bump",
-        "changelog": "conventional-changelog -p eslint -i CHANGELOG.md --same-file",
         "cleanup": "yarn build:fix",
         "docs": "ts-scripts docs",
         "lint": "yarn lint:es && yarn sync --verify",
@@ -31,11 +30,6 @@
         "start": "node service.js",
         "sync": "ts-scripts sync",
         "test": "ts-scripts test"
-    },
-    "config": {
-        "commitizen": {
-            "path": "git-cz"
-        }
     },
     "dependencies": {},
     "devDependencies": {
