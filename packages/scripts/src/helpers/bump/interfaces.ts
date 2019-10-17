@@ -22,4 +22,5 @@ export enum BumpType {
     Dev = 'dev',
     Prod = 'prod',
     Peer = 'peer',
+    Resolution = 'resolution'
 }

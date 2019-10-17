@@ -1,7 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import fse from 'fs-extra';
-import { uniq, fastCloneDeep, get } from '@terascope/utils';
+import {
+    uniq, fastCloneDeep, get, trim
+} from '@terascope/utils';
 // @ts-ignore
 import QueryGraph from '@lerna/query-graph';
 import sortPackageJson from 'sort-package-json';
@@ -183,4 +185,8 @@ export function getDocPath(pkgInfo: i.PackageInfo, withFileName: boolean, withEx
         );
     }
     return docPath;
+}
+
+export function fixDepPkgName(name: string) {
+    return trim(name).replace(/^\*\*\//, '').trim();
 }

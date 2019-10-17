@@ -1,8 +1,8 @@
 import semver, { ReleaseType } from 'semver';
 import { BumpPackageOptions, BumpPkgInfo, BumpType } from './interfaces';
+import { isMainPackage, findPackageByName } from '../packages';
 import { PackageInfo } from '../interfaces';
 import signale from '../signale';
-import { isMainPackage, findPackageByName } from '../packages';
 
 export function getPackagesToBump(
     packages: PackageInfo[],
@@ -16,6 +16,7 @@ export function getPackagesToBump(
 
     function _bumpDeps(pkgInfo: PackageInfo) {
         const bumpInfo = result[pkgInfo.name]!;
+
         for (const depPkg of packages) {
             const main = isMainPackage(depPkg);
             if (depPkg.dependencies && depPkg.dependencies[pkgInfo.name]) {
@@ -27,15 +28,24 @@ export function getPackagesToBump(
                     name: depPkg.name,
                 });
             }
+
             if (depPkg.devDependencies && depPkg.devDependencies[pkgInfo.name]) {
                 bumpInfo.deps.push({
                     type: BumpType.Dev,
                     name: depPkg.name,
                 });
             }
+
             if (depPkg.peerDependencies && depPkg.peerDependencies[pkgInfo.name]) {
                 bumpInfo.deps.push({
                     type: BumpType.Peer,
+                    name: depPkg.name,
+                });
+            }
+
+            if (depPkg.resolutions && depPkg.resolutions[pkgInfo.name]) {
+                bumpInfo.deps.push({
+                    type: BumpType.Resolution,
                     name: depPkg.name,
                 });
             }
@@ -90,7 +100,7 @@ export function bumpPackagesList(
         pkgInfo.version = bumpInfo.to;
         for (const depBumpInfo of bumpInfo.deps) {
             const depPkgInfo = findPackageByName(packages, depBumpInfo.name);
-            const key: string = getDepKeyFromType(depBumpInfo.type);
+            const key = getDepKeyFromType(depBumpInfo.type);
 
             signale.log(`---> Updating ${depBumpInfo.type} dependency ${pkgInfo.name}'s version of ${name} to ${bumpInfo.to}`);
             depPkgInfo[key][name] = `^${bumpInfo.to}`;
@@ -98,10 +108,11 @@ export function bumpPackagesList(
     }
 }
 
-function getDepKeyFromType(type: BumpType) {
+function getDepKeyFromType(type: BumpType): string {
     if (type === BumpType.Prod) return 'dependencies';
     if (type === BumpType.Dev) return 'devDependencies';
     if (type === BumpType.Peer) return 'peerDependencies';
+    if (type === BumpType.Resolution) return 'resolutions';
     throw new Error(`Unknown BumpType ${type} given`);
 }
 
