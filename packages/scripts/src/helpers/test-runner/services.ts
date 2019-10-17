@@ -36,7 +36,7 @@ const services: { [service in Service]: DockerRunOptions } = {
                 'xpack.security.enabled': 'false'
             }
         },
-        network: config.USE_SERVICE_NETWORK
+        network: config.DOCKER_NETWORK_NAME
     },
     [TestSuite.Kafka]: {
         image: config.KAFKA_DOCKER_IMAGE,
@@ -53,7 +53,7 @@ const services: { [service in Service]: DockerRunOptions } = {
             KAFKA_PORT: config.KAFKA_PORT,
             KAFKA_NUM_PARTITIONS: '2',
         },
-        network: config.USE_SERVICE_NETWORK
+        network: config.DOCKER_NETWORK_NAME
     },
 };
 
@@ -127,6 +127,10 @@ async function stopService(service: Service) {
 
 async function checkElasticsearch(options: TestOptions, retries: number): Promise<void> {
     const elasticsearchHost = config.ELASTICSEARCH_HOST;
+
+    const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
+    if (dockerGateways.includes(config.ELASTICSEARCH_HOSTNAME)) return;
+
     return pRetry(
         async () => {
             logger.debug(`checking elasticsearch at ${elasticsearchHost}`);
