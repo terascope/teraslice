@@ -1,11 +1,12 @@
 import path from 'path';
 import semver from 'semver';
-import { getFirstChar, uniq } from '@terascope/utils';
-import { PackageInfo, RootPackageInfo } from '../interfaces';
+import { getFirstChar, uniq, trim } from '@terascope/utils';
+import { getDocPath, updatePkgJSON, fixDepPkgName } from '../packages';
 import { updateReadme, ensureOverview } from '../docs/overview';
-import { getDocPath, updatePkgJSON } from '../packages';
+import { PackageInfo, RootPackageInfo } from '../interfaces';
 import { formatList, getRootDir } from '../misc';
 import { getChangedFiles } from '../scripts';
+import { DepKey } from './interfaces';
 import signale from '../signale';
 
 const topLevelFiles: readonly string[] = [
@@ -100,10 +101,16 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
         return external;
     }
 
-    type DepKey = 'dependencies'|'devDependencies'|'peerDependencies';
     function forDeps(pkgInfo: PackageInfo|RootPackageInfo, key: DepKey): void {
         const deps = pkgInfo[key] || {};
-        for (const [name, version] of Object.entries(deps)) {
+        for (let [name, version] of Object.entries(deps)) {
+            const originalName = name;
+            name = fixDepPkgName(name);
+            if (originalName !== name) {
+                delete deps[originalName];
+            }
+            version = trim(version);
+
             const val = getVersion(version, false);
             const latest = getLatest(name, val);
             if (latest == null) continue;
@@ -130,21 +137,21 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
     }
 
     for (const pkgInfo of packages) {
-        forDeps(pkgInfo, 'dependencies');
-        forDeps(pkgInfo, 'devDependencies');
-        forDeps(pkgInfo, 'peerDependencies');
+        for (const key of Object.values(DepKey)) {
+            forDeps(pkgInfo, key);
+        }
     }
 
     // go through it again to get the version updated everywhere
     for (const pkgInfo of packages) {
-        forDeps(pkgInfo, 'dependencies');
-        forDeps(pkgInfo, 'devDependencies');
-        forDeps(pkgInfo, 'peerDependencies');
+        for (const key of Object.values(DepKey)) {
+            forDeps(pkgInfo, key);
+        }
     }
 
-    forDeps(rootInfo, 'dependencies');
-    forDeps(rootInfo, 'devDependencies');
-    forDeps(rootInfo, 'peerDependencies');
+    for (const key of Object.values(DepKey)) {
+        forDeps(rootInfo, key);
+    }
 
     return packages;
 }

@@ -10,6 +10,10 @@ describe('Sync Helpers', () => {
                 {
                     name: 'package-1',
                     version: '1.0.0',
+                    resolutions: {
+                        'other-1': '^1.0.0',
+                        '**/ex-1': '^0.3.3'
+                    },
                     dependencies: {
                         'ex-1': '^0.2.0',
                         'fixed-1': 'not-semver-reference',
@@ -58,6 +62,10 @@ describe('Sync Helpers', () => {
                 expect(pkg).toEqual({
                     name: 'package-1',
                     version: '1.0.0',
+                    resolutions: {
+                        'other-1': '^1.0.0',
+                        'ex-1': '^3.0.0'
+                    },
                     dependencies: {
                         'ex-1': '^3.0.0',
                         'fixed-1': 'not-semver-reference',
