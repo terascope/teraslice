@@ -41,8 +41,7 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
     }
 
     if (errors.length) {
-        process.stderr.write('\n\n');
-        signale.error(`${errorMsg}`);
+        signale.error(`\n${errorMsg}`);
 
         const exitCode = (process.exitCode || 0) > 0 ? process.exitCode : 1;
         process.exit(exitCode);
@@ -131,16 +130,7 @@ async function runTestSuite(
         try {
             await runJest(getRootDir(), args, env, options.jestArgs);
         } catch (err) {
-            const names = pkgs.map((pkgInfo) => pkgInfo.name).join(', ');
-            if (pkgs.length > 1) {
-                errors.push(
-                    `At least one of these tests failed ${names} failed, caused by ${err.message}`
-                );
-            } else {
-                errors.push(
-                    `Test ${names} failed, caused by ${err.message}`
-                );
-            }
+            errors.push(err.message);
 
             await utils.globalTeardown(options, pkgs.map(({ name, dir }) => ({ name, dir })));
 
@@ -201,7 +191,7 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         try {
             await runJest(e2eDir, utils.getArgs(options), env, options.jestArgs);
         } catch (err) {
-            errors.push(`Test suite "${suite}" failed, caused by ${err.message}`);
+            errors.push(err.message);
         }
 
         signale.timeEnd(timeLabel);
