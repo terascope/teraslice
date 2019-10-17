@@ -56,7 +56,6 @@
         "@types/lodash": "^4.14.137",
         "debug": "^4.1.1",
         "ms": "^2.1.2",
-        "rxjs": "^6.5.3",
         "typescript": "^3.5.4"
     },
     "engines": {
