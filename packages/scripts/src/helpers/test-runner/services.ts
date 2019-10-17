@@ -12,6 +12,7 @@ import { TestOptions } from './interfaces';
 import { TestSuite } from '../interfaces';
 import * as config from '../config';
 import signale from '../signale';
+import { getRootInfo } from '../misc';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -56,6 +57,12 @@ const services: { [service in Service]: DockerRunOptions } = {
     },
 };
 
+function isServiceEnabled(service: TestSuite.Elasticsearch|TestSuite.Kafka): boolean {
+    const rootInfo = getRootInfo();
+    const testServices = rootInfo.terascope.tests.services;
+    return testServices.includes(service);
+}
+
 export async function ensureServices(suite: TestSuite, options: TestOptions): Promise<() => void> {
     try {
         if (suite === TestSuite.Elasticsearch) {
@@ -86,6 +93,10 @@ export async function ensureServices(suite: TestSuite, options: TestOptions): Pr
 
 export async function ensureKafka(options: TestOptions): Promise<() => void> {
     let fn = () => {};
+    if (!isServiceEnabled(TestSuite.Kafka)) {
+        signale.warn('Kafka service is not enabled in root package config');
+        return fn;
+    }
     fn = await startService(options, TestSuite.Kafka);
     await checkKafka(options);
     return fn;
@@ -93,6 +104,11 @@ export async function ensureKafka(options: TestOptions): Promise<() => void> {
 
 export async function ensureElasticsearch(options: TestOptions): Promise<() => void> {
     let fn = () => {};
+    if (!isServiceEnabled(TestSuite.Elasticsearch)) {
+        signale.warn('Elasticsearch service is not enabled in root package config');
+        return fn;
+    }
+
     fn = await startService(options, TestSuite.Elasticsearch);
     await checkElasticsearch(options, 10);
     return fn;

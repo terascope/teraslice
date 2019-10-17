@@ -77,6 +77,12 @@
     "terascope": {
         "root": true,
         "type": "monorepo",
+        "tests": {
+            "services": [
+                "elasticsearch",
+                "kafka"
+            ]
+        },
         "docker": {
             "registries": [
                 "terascope/teraslice"

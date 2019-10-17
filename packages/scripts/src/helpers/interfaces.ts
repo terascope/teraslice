@@ -54,6 +54,9 @@ export type RootPackageInfo = {
     terascope: {
         root: boolean;
         type: 'monorepo';
+        tests: {
+            services: (TestSuite.Elasticsearch|TestSuite.Kafka)[];
+        };
         docker: {
             registries: string[];
             cache_layers: ({ from: string; name: string })[];
