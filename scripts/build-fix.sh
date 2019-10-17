@@ -92,6 +92,11 @@ cleanup_packages() {
             echoerr "* removing $package/build"
             rm -rf "$package/build"
         fi
+
+        if [ -d "$package/node_modules" ]; then
+            echoerr "* removing $package/node_modules"
+            rm -rf "$package/node_modules"
+        fi
     done
 
     return 0
@@ -137,6 +142,10 @@ post_cleanup() {
     prompt "Do you want to rebuild the packages?" &&
         echoerr "* running yarn setup" &&
         yarn setup
+
+     prompt "Do you want to run lint:fix?" &&
+        echoerr "* running yarn lint:fix" &&
+        yarn lint:fix
 }
 
 main() {

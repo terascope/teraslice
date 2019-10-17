@@ -5,6 +5,8 @@ import assert from 'yeoman-assert';
 // @ts-ignore
 import helpers from 'yeoman-test';
 
+jest.setTimeout(10000);
+
 describe('new asset generator should', () => {
     const testAssetBasePath = path.join(__dirname, '..', 'fixtures', 'generate-new-asset');
     const rootAssetPath = path.join(testAssetBasePath, 'generated-asset', 'new_asset');

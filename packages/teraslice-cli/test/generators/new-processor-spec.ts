@@ -5,6 +5,8 @@ import assert from 'yeoman-assert';
 // @ts-ignore
 import helpers from 'yeoman-test';
 
+jest.setTimeout(10000);
+
 describe('processor generator with no new flag', () => {
     const exampleAssetBasePath = path.join(__dirname, '..', 'fixtures', 'generate-new-processor');
     const processPath = path.join(exampleAssetBasePath, 'example-asset', 'asset');
