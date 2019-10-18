@@ -827,7 +827,8 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                     .then((results) => results)
                     .catch((err) => {
                         // It's not really an error if it's just that the index is already there
-                        if (parseError(err).match(/index_already_exists_exception/) === null) {
+                        const errStr = parseError(err, true);
+                        if (!errStr.includes('already_exists_exception')) {
                             const error = new TSError(err, {
                                 reason: `Could not create index: ${index}`,
                             });
@@ -926,7 +927,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         _time
     ) {
         // eslint-disable-line
-        const giveupAfter = Date.now() + (_time || 3000);
+        const giveupAfter = Date.now() + (_time || 10000);
         return new Promise((resolve, reject) => {
             const attemptToCreateIndex = () => {
                 _createIndex(newIndex, migrantIndexName, mapping, recordType, clusterName)
@@ -943,6 +944,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                                 connection,
                             },
                         });
+
                         logger.error(error);
 
                         logger.info(`Attempting to connect to elasticsearch: ${clientName}`);
