@@ -1,6 +1,6 @@
 {
     "name": "@terascope/scripts",
-    "version": "0.7.0",
+    "version": "0.7.1",
     "description": "A collection of terascope monorepo scripts",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/scripts#readme",
     "bugs": {
@@ -28,7 +28,7 @@
     },
     "dependencies": {
         "@lerna/query-graph": "^3.14.0",
-        "@terascope/utils": "^0.20.2",
+        "@terascope/utils": "^0.20.3",
         "@types/is-ci": "^2.0.0",
         "codecov": "^3.5.0",
         "execa": "^2.0.4",
