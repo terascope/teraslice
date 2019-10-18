@@ -91,9 +91,10 @@ describe('Objects', () => {
             expect(has(0 as any, 'hi')).toBeFalse();
             expect(has(1 as any, 'hi')).toBeFalse();
             expect(has(NaN as any, 'hi')).toBeFalse();
+            expect(has((() => {}) as any, 'hi')).toBeFalse();
         });
 
-        it('should handle an non-string/number/symbol keys safely', () => {
+        it('should handle an non-(string/number/symbol) keys safely', () => {
             expect(has({ a: 'b' }, null as any)).toBeFalse();
             expect(has({ a: 'b' }, undefined as any)).toBeFalse();
             expect(has({ }, null as any)).toBeFalse();
@@ -101,6 +102,7 @@ describe('Objects', () => {
             expect(has({ a: 'b' }, {} as any)).toBeFalse();
             expect(has({ a: 'b' }, [] as any)).toBeFalse();
             expect(has({ a: 'b' }, NaN)).toBeFalse();
+            expect(has({ a: 'b' }, (() => {}) as any)).toBeFalse();
         });
     });
 });
