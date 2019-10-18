@@ -34,7 +34,7 @@ describe('Objects', () => {
     describe('has', () => {
         const symbol = Symbol('__hello__');
 
-        it('should an object correctly', () => {
+        it('should handle a object correctly', () => {
             expect(has({ hi: true }, 'hi')).toBeTrue();
             expect(has({ hi: false }, 'hi')).toBeTrue();
             expect(has({ '': 'hi' }, '')).toBeTrue();
@@ -62,7 +62,7 @@ describe('Objects', () => {
             expect(has(map, {} as any)).toBeFalse();
         });
 
-        it('should an array correctly', () => {
+        it('should handle a array correctly', () => {
             expect(has(['hi', 'hello'], 0)).toBeTrue();
             expect(has(['hi', 'hello'], 'hi')).toBeFalse();
             expect(has(['hi', 'hello'], 1)).toBeTrue();
