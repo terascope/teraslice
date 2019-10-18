@@ -5,8 +5,12 @@ import cloneDeep from 'lodash.clonedeep';
 import isPlainObject from 'is-plain-object';
 
 /** Check in input has a key */
-export function has(data: object, key: any) {
-    if (key == null || data == null) return false;
+export function has(data: object, key: string|number|symbol): boolean {
+    if (data == null || typeof data !== 'object') return false;
+    if (data instanceof Set || data instanceof Map) {
+        if (key in data) return true;
+        return data.has(key);
+    }
     return key in data;
 }
 

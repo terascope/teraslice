@@ -529,7 +529,7 @@ describe('elasticsearch-state-storage', () => {
     });
 
     describe('when testing a large data set', () => {
-        jest.setTimeout(10000);
+        jest.setTimeout(15000);
 
         beforeEach(() => setup());
         afterEach(() => teardown());
