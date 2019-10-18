@@ -1,10 +1,10 @@
 import os from 'os';
 import convict from 'convict';
 import {
-    TSError, isFunction, isPlainObject, isEmpty
+    TSError, isFunction, isPlainObject, isEmpty, concat
 } from '@terascope/utils';
 import { getConnectorSchema } from './connector-utils';
-import sysSchema from './schema';
+import foundationSchema from './schema';
 import * as i from './interfaces';
 
 function validateConfig(
@@ -32,7 +32,7 @@ function validateConfig(
     }
 }
 
-function extractSchema<S>(fn: any, sysconfig: i.FoundationSysConfig<S>): any {
+function extractSchema<S>(fn: any, sysconfig: i.FoundationSysConfig<S>): Record<string, any> {
     if (isFunction(fn)) {
         return fn(sysconfig);
     }
@@ -62,6 +62,7 @@ export default function validateConfigs<S = {}, A = {}, D extends string = strin
     }
 
     const schema = extractSchema(config.config_schema, sysconfig);
+    schema.terafoundation = foundationSchema;
     const result: any = {};
 
     if (config.schema_formats) {
@@ -70,31 +71,29 @@ export default function validateConfigs<S = {}, A = {}, D extends string = strin
         });
     }
 
-    for (const [namespace, namespaceConfig] of Object.entries(sysconfig)) {
-        // terafoundation
-        if (namespace === 'terafoundation') {
-            result[namespace] = validateConfig(cluster, sysSchema, namespaceConfig);
-            result[namespace].connectors = {};
+    const schemaKeys = concat(Object.keys(schema), Object.keys(sysconfig));
+    for (const schemaKey of schemaKeys) {
+        const subSchema = schema[schemaKey] || {};
+        const subConfig = sysconfig[schemaKey] || {};
 
-            const connectors: Record<string, any> = sysconfig[namespace].connectors || {};
+        result[schemaKey] = validateConfig(cluster, subSchema, subConfig);
+
+        if (schemaKey === 'terafoundation') {
+            result[schemaKey].connectors = {};
+
+            const connectors: Record<string, any> = subConfig.connectors || {};
             for (const [connector, connectorConfig] of Object.entries(connectors)) {
-                const innerSchema = getConnectorSchema(connector);
-                result[namespace].connectors[connector] = {};
+                const connectorSchema = getConnectorSchema(connector);
+                result[schemaKey].connectors[connector] = {};
 
-                for (const [endpoint, endpointConfig] of Object.entries(connectorConfig)) {
-                    result[namespace].connectors[connector][endpoint] = validateConfig(
+                for (const [connection, connectionConfig] of Object.entries(connectorConfig)) {
+                    result[schemaKey].connectors[connector][connection] = validateConfig(
                         cluster,
-                        innerSchema,
-                        endpointConfig as any
+                        connectorSchema,
+                        connectionConfig as any
                     );
                 }
             }
-        } else {
-            result[namespace] = validateConfig(
-                cluster,
-                schema[namespace],
-                namespaceConfig as any
-            );
         }
     }
 

@@ -334,7 +334,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
                     .then((results) => results)
                     .catch((err) => {
                         // It's not really an error if it's just that the index is already there
-                        if (parseError(err).match(/already_exists_exception/)) {
+                        if (parseError(err).includes('already_exists_exception')) {
                             return true;
                         }
 
