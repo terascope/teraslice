@@ -1600,9 +1600,8 @@
     "@types/lodash" "*"
 
 "@types/lodash@*", "@types/lodash@^4.14.137":
-  version "4.14.137"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.137.tgz#8a4804937dc6462274ffcc088df8f14fc1b368e2"
-  integrity "sha1-ikgEk33GRiJ0/8wIjfjxT8GzaOI= sha512-g4rNK5SRKloO+sUGbuO7aPtwbwzMgjK+bm9BBhLD7jGUiGR7zhwYEhSln/ihgYQBeIJ5j7xjyaYzrWTcu3UotQ=="
+  version "4.14.144"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.144.tgz#12e57fc99064bce45e5ab3c8bc4783feb75eab8e"
 
 "@types/mem-fs@*":
   version "1.1.2"
@@ -1626,9 +1625,8 @@
     "@types/node" "*"
 
 "@types/mongoose@^5.5.18":
-  version "5.5.18"
-  resolved "https://registry.yarnpkg.com/@types/mongoose/-/mongoose-5.5.18.tgz#1dcf0efaeb5a813f8311561d098f7259e0761775"
-  integrity "sha1-Hc8O+utagT+DEVYdCY9yWeB2F3U= sha512-YWTNSehI+TvuqzEzr7nhzYRbwraq43bZao4XZc/T2ViGmzX06Wy9XPHCHAZ2vsuiZ9Vh9tiGomRt7MjzTihn+w=="
+  version "5.5.22"
+  resolved "https://registry.yarnpkg.com/@types/mongoose/-/mongoose-5.5.22.tgz#e5a507ba81e41480f9de564917bb250faba00bc4"
   dependencies:
     "@types/mongodb" "*"
     "@types/node" "*"
@@ -2303,9 +2301,8 @@ auto-bind@^2.1.0:
     "@types/react" "^16.8.12"
 
 awesome-phonenumber@^2.15.0:
-  version "2.18.1"
-  resolved "https://registry.yarnpkg.com/awesome-phonenumber/-/awesome-phonenumber-2.18.1.tgz#3b500d5b4791e8672945c26cac0469b065e9410b"
-  integrity "sha1-O1ANW0eR6GcpRcJsrARpsGXpQQs= sha512-zpiBAiSq8ThxHIyvq0HCdxwrHIb1i7svtVBTWFTZL2ed+8qGNostyy1jZhlnOWhODDPhzJAEfCRo0YTon1o+hA=="
+  version "2.20.0"
+  resolved "https://registry.yarnpkg.com/awesome-phonenumber/-/awesome-phonenumber-2.20.0.tgz#a0d086a9ffc92dc13cd1886f66fc1b383652e3a5"
 
 aws-sdk@^2.513.0:
   version "2.549.0"
