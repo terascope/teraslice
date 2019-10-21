@@ -76,7 +76,6 @@ describe('Translator', () => {
                 it('should translate the query correctly', () => {
                     const translator = new Translator(query, options);
                     const result = translator.toElasticsearchDSL(toESOptions);
-
                     const actual = property && property !== '.' ? get(result, property) : result;
                     logger.trace(
                         'test result',

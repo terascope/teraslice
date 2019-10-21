@@ -188,20 +188,6 @@ export function translateQuery(
         const field = getTermField(node);
 
         if (isString(node.value)) {
-            // @ts-ignore
-            if (node.quoted) {
-                const matchPhraseQuery: i.MatchPhraseQuery = {
-                    match_phrase: {
-                        [field]: {
-                            query: node.value,
-                        },
-                    },
-                };
-
-                logger.trace('built match phrase query', { node, matchPhraseQuery });
-                return matchPhraseQuery;
-            }
-
             const matchQuery: i.MatchQuery = {
                 match: {
                     [field]: {

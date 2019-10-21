@@ -620,11 +620,15 @@ CharWithoutWS "term"
     = [^ \t\r\n\f\{\}\(\)\|/\\/^~\[\]\&\!\?\=\<\>]
 
 QuotedTerm
-  = '"' chars:QuotedStringChar* '"' { return chars.join(''); }
-  / "'" chars:QuotedStringChar* "'" { return chars.join(''); }
+  = '"' chars:DoubleQuotedStringChar* '"' { return chars.join(''); }
+  / "'" chars:SingleQuotedStringChar* "'" {  return chars.join(''); }
 
-QuotedStringChar
-  = !('"' / "'" / Escape) char:. { return char; }
+DoubleQuotedStringChar
+  = !('"' / Escape) char:. {return char; }
+  / Escape sequence:ReservedChar { return sequence; }
+
+SingleQuotedStringChar
+  = !("'" / Escape) char:. { return char; }
   / Escape sequence:ReservedChar { return sequence; }
 
 RegexStringChar
