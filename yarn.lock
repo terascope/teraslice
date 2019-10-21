@@ -2302,9 +2302,8 @@ auto-bind@^2.1.0:
     "@types/react" "^16.8.12"
 
 awesome-phonenumber@^2.15.0:
-  version "2.18.1"
-  resolved "https://registry.yarnpkg.com/awesome-phonenumber/-/awesome-phonenumber-2.18.1.tgz#3b500d5b4791e8672945c26cac0469b065e9410b"
-  integrity "sha1-O1ANW0eR6GcpRcJsrARpsGXpQQs= sha512-zpiBAiSq8ThxHIyvq0HCdxwrHIb1i7svtVBTWFTZL2ed+8qGNostyy1jZhlnOWhODDPhzJAEfCRo0YTon1o+hA=="
+  version "2.20.0"
+  resolved "https://registry.yarnpkg.com/awesome-phonenumber/-/awesome-phonenumber-2.20.0.tgz#a0d086a9ffc92dc13cd1886f66fc1b383652e3a5"
 
 aws-sdk@^2.513.0:
   version "2.549.0"
