@@ -374,8 +374,9 @@ describe('QueryAccess', () => {
                     query: {
                         constant_score: {
                             filter: {
-                                match_phrase: {
+                                match: {
                                     foo: {
+                                        operator: 'and',
                                         query: 'something-xy40" value 8008'
                                     }
                                 }

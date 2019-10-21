@@ -118,9 +118,22 @@ export default [
         'field.subfield:"value=something=*"',
         'query.constant_score.filter',
         {
-            match_phrase: {
+            match: {
                 'field.subfield': {
+                    operator: 'and',
                     query: 'value=something=*',
+                },
+            },
+        },
+    ],
+    [
+        "foo:'\"bar\"'",
+        'query.constant_score.filter',
+        {
+            match: {
+                foo: {
+                    operator: 'and',
+                    query: '"bar"',
                 },
             },
         },

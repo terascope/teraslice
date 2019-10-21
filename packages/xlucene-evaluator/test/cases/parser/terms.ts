@@ -453,4 +453,38 @@ export default [
             value: 'some "thing" else',
         },
     ],
+    [
+        "foo:'\"bar\"'",
+        'double quoted escaped value at start and end',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: true,
+            field: 'foo',
+            value: '"bar"',
+        },
+    ],
+
+    [
+        "foo:'\"ba\\'r\"'",
+        'value with single quotes at the start, middle and end',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: true,
+            field: 'foo',
+            value: '"ba\'r"',
+        },
+    ],
+    [
+        'foo:"\\"bar\\""',
+        'double quoted escaped value at start and end',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: true,
+            field: 'foo',
+            value: '"bar"',
+        },
+    ],
 ] as TestCase[];
