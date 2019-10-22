@@ -621,14 +621,16 @@ CharWithoutWS "term"
 
 QuotedTerm
   = '"' chars:DoubleQuotedStringChar* '"' { return chars.join(''); }
-  / "'" chars:SingleQuotedStringChar* "'" {  return chars.join(''); }
+  / "'" chars:SingleQuotedStringChar* "'" { return chars.join(''); }
 
 DoubleQuotedStringChar
-  = !('"' / Escape) char:. {return char; }
-  / Escape sequence:ReservedChar { return sequence; }
+  = !('"' / Escape) char:. { return char; }
+  / Escape Escape {  return '\\\\'; }
+  / Escape sequence:ReservedChar {  return sequence; }
 
 SingleQuotedStringChar
   = !("'" / Escape) char:. { return char; }
+  / Escape Escape {  return '\\\\'; }
   / Escape sequence:ReservedChar { return sequence; }
 
 RegexStringChar

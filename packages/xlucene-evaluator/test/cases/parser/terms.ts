@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 import { FieldType, ASTType } from '../../../src';
 import { TestCase } from './interfaces';
 
@@ -485,6 +486,28 @@ export default [
             quoted: true,
             field: 'foo',
             value: '"bar"',
+        },
+    ],
+    [
+        `field:'/value\\\\'`,
+        'value with ending double escaped',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: true,
+            field: 'field',
+            value: `/value\\\\`,
+        },
+    ],
+    [
+        `field:"/value\\\\"`,
+        'quoted value with ending double escaped',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: true,
+            field: 'field',
+            value: `/value\\\\`,
         },
     ],
 ] as TestCase[];
