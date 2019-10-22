@@ -8,7 +8,15 @@ export async function generateReadme(pkgInfo: PackageInfo): Promise<string> {
     const rootInfo = getRootInfo();
 
     const docsPath = getDocPath(pkgInfo, true, false);
-    const issuesUrl = `${rootInfo.bugs.url}?q=is%3Aopen+is%3Aissue+label%3Apkg%2F${pkgInfo.folderName}`;
+    let issuesUrl: string;
+    let encodedLabel = pkgInfo.folderName === 'e2e' ? `${pkgInfo.folderName}` : `pkg%2F${pkgInfo.folderName}`
+    const isGithub = rootInfo.bugs.url.includes('github');
+    if (isGithub) {
+        issuesUrl = `${rootInfo.bugs.url}?q=is%3Aopen+is%3Aissue+label%3A${encodedLabel}`;
+    } else {
+        // work with gitlab too
+        issuesUrl = `${rootInfo.bugs.url}?state=opened&label_name[]=${encodedLabel}`
+    }
 
     return `<!-- THIS FILE IS AUTO-GENERATED, EDIT ${docsPath}.md -->
 
@@ -18,7 +26,7 @@ export async function generateReadme(pkgInfo: PackageInfo): Promise<string> {
 
 This a package within the [${rootInfo.displayName}](${rootInfo.homepage}) monorepo. See our [documentation](${
     rootInfo.documentation
-}/${docsPath}) for more information or the [issues](${issuesUrl}) associated with this package
+}/${isGithub ? docsPath : `${docsPath}.md`}) for more information or the [issues](${issuesUrl}) associated with this package
 
 ## Contributing
 
