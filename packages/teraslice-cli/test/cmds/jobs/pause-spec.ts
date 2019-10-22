@@ -2,7 +2,7 @@
 import yargs from 'yargs';
 import pause from '../../../src/cmds/jobs/pause';
 
-describe('pause', () => {
+describe('jobs pause', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
             const yargsCmd = yargs.command(

@@ -1,8 +1,7 @@
-
 import yargs from 'yargs';
 import list from '../../../src/cmds/controllers/list';
 
-describe('list', () => {
+describe('controllers list', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
             const yargsCmd = yargs.command(

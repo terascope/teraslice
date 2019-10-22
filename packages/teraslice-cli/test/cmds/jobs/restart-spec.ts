@@ -2,7 +2,7 @@
 import yargs from 'yargs';
 import restart from '../../../src/cmds/jobs/restart';
 
-describe('restart', () => {
+describe('jobs restart', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
             const yargsCmd = yargs.command(

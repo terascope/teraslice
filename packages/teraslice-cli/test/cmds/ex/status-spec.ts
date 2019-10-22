@@ -2,7 +2,7 @@
 import yargs from 'yargs';
 import status from '../../../src/cmds/ex/status';
 
-describe('status', () => {
+describe('ex status', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
             const yargsCmd = yargs.command(

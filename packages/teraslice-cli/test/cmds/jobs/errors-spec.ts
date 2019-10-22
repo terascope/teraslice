@@ -2,7 +2,7 @@
 import yargs from 'yargs';
 import errors from '../../../src/cmds/jobs/errors';
 
-describe('errors', () => {
+describe('jobs errors', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
             const yargsCmd = yargs.command(
