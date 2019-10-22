@@ -6,6 +6,7 @@ export type BumpPackageOptions = {
     packages: PackageInfo[];
     deps: boolean;
     preId?: string;
+    noReset?: boolean;
 };
 
 export type BumpPkgInfo = {

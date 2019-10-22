@@ -6,7 +6,8 @@ import { getRootInfo } from '../misc';
 import * as utils from './utils';
 
 export async function syncAll(options: SyncOptions) {
-    await utils.verifyCommitted(options.verify);
+    await utils.verifyCommitted(options);
+
     const files: string[] = [];
 
     const pkgInfos = listPackages();
@@ -19,11 +20,11 @@ export async function syncAll(options: SyncOptions) {
     }
 
     await updateSidebarJSON();
-    await utils.verify(files, options.verify);
+    await utils.verify(files, options);
 }
 
 export async function syncPackages(pkgInfos: PackageInfo[], options: SyncOptions) {
-    await utils.verifyCommitted(options.verify);
+    await utils.verifyCommitted(options);
 
     const files: string[] = [];
 
@@ -37,5 +38,5 @@ export async function syncPackages(pkgInfos: PackageInfo[], options: SyncOptions
         })
     );
 
-    await utils.verify(files, options.verify);
+    await utils.verify(files, options);
 }

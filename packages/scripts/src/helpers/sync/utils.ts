@@ -6,7 +6,7 @@ import { updateReadme, ensureOverview } from '../docs/overview';
 import { PackageInfo, RootPackageInfo } from '../interfaces';
 import { formatList, getRootDir } from '../misc';
 import { getChangedFiles } from '../scripts';
-import { DepKey } from './interfaces';
+import { DepKey, SyncOptions } from './interfaces';
 import signale from '../signale';
 
 const topLevelFiles: readonly string[] = [
@@ -15,41 +15,48 @@ const topLevelFiles: readonly string[] = [
     'yarn.lock'
 ];
 
-export async function verifyCommitted(throwOutOfSync: boolean) {
+let prevChanged: string[] = [];
+
+export async function verifyCommitted(options: SyncOptions) {
     const changed = await getChangedFiles(
         ...topLevelFiles,
         'docs',
         'packages',
     );
+    prevChanged = [...changed];
 
+    if (options.quiet) return;
     if (!changed.length) return;
-    if (throwOutOfSync) {
+
+    if (options.verify) {
         console.error(`
 Before running this command make sure to commit, or stage, the following files:
 ${formatList(changed)}
 `);
         process.exit(1);
-    } else {
-        signale.warn(`Found ${changed.length} previously uncommitted files`);
     }
 }
 
-export async function verify(files: string[], throwOutOfSync: boolean) {
+export async function verify(files: string[], options: SyncOptions) {
     const changed = await getChangedFiles(...uniq([
         ...topLevelFiles,
         ...files,
     ]));
 
-    if (!changed.length) return;
+    const diff = changed.filter((file) => !prevChanged.includes(file));
+    prevChanged = [];
+    if (!diff.length) return;
 
-    const certainty = throwOutOfSync ? 'made' : 'may have';
     console.error(`
-This command ${certainty} changes to the following files:
-${formatList(changed)}
+This command made changes to the following files:
+${formatList(diff)}
 `);
-    signale.warn('Make sure to run yarn and commit your changes');
 
-    if (throwOutOfSync) {
+    if (!options.quiet) {
+        signale.warn('Make sure to run yarn and commit your changes');
+    }
+
+    if (options.verify) {
         process.exit(1);
     }
 }

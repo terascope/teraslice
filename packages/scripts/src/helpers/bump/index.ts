@@ -9,7 +9,7 @@ export async function bumpPackages(options: BumpPackageOptions) {
     const rootInfo = getRootInfo();
     const packages: PackageInfo[] = [...listPackages(), rootInfo as any];
 
-    const packagesToBump = utils.getPackagesToBump(packages, options);
+    const packagesToBump = await utils.getPackagesToBump(packages, options);
     utils.bumpPackagesList(packagesToBump, packages);
 
     const commitMsg = utils.getBumpCommitMessage(packagesToBump, options.release);

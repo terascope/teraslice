@@ -14,7 +14,7 @@
         "benchmark": "lerna run --concurrency=1 --no-prefix --stream benchmark",
         "prebuild": "lerna run prebuild",
         "build": "tsc --build",
-        "build:all": "yarn build:cleanup && env FORCE_COLOR=1 lerna run build",
+        "build:all": "yarn build:cleanup && env FORCE_COLOR=1 yarn lerna run build",
         "build:cleanup": "./scripts/build-cleanup.sh",
         "build:fix": "./scripts/build-fix.sh",
         "build:pkg": "./scripts/build-pkg.sh",
@@ -26,7 +26,7 @@
         "lint:es": "eslint --cache --ext .js,.jsx,.ts,.tsx .",
         "lint:fix": "yarn lint:es --fix && yarn sync",
         "quick:setup": "yarn lerna link --force-local && yarn build",
-        "setup": "lerna bootstrap --force-local && yarn build:cleanup dist && yarn build",
+        "setup": "yarn && yarn lerna link --force-local && yarn build:cleanup && yarn build && yarn sync -q",
         "start": "node service.js",
         "sync": "ts-scripts sync",
         "test": "ts-scripts test"

@@ -223,6 +223,7 @@ function printAndGetEnv(suite: TestSuite, options: TestOptions) {
     if (options.debug || isCI) {
         const envStr = Object
             .entries(env)
+            .filter(([_, val]) => val != null && val !== '')
             .map(([key, val]) => `${key}: "${val}"`)
             .join(', ');
 

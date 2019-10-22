@@ -82,7 +82,7 @@ export function getEnv(options: TestOptions, suite?: TestSuite): ExecEnv {
         });
     }
 
-    if (isE2E) {
+    if (config.DOCKER_NETWORK_NAME) {
         Object.assign(env, {
             DOCKER_NETWORK_NAME: config.DOCKER_NETWORK_NAME
         });
