@@ -1,4 +1,3 @@
-
 import yargs from 'yargs';
 import tmp from 'tmp';
 import path from 'path';
@@ -13,7 +12,7 @@ function wasApiCalled(arr: string[], endpoint: string) {
     return true;
 }
 
-describe('deploy', () => {
+describe('assets deploy', () => {
     let yargsCmd: yargs.Argv<{}>
     beforeEach(() => {
         yargsCmd = yargs.command(

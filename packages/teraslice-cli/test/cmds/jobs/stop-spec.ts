@@ -2,7 +2,7 @@
 import yargs from 'yargs';
 import stop from '../../../src/cmds/jobs/stop';
 
-describe('stop', () => {
+describe('jobs stop', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
             const yargsCmd = yargs.command(

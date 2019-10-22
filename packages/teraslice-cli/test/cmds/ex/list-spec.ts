@@ -2,7 +2,7 @@
 import yargs from 'yargs';
 import list from '../../../src/cmds/ex/list';
 
-describe('list', () => {
+describe('ex list', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
             const yargsCmd = yargs.command(

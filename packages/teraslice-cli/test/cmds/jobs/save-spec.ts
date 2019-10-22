@@ -2,7 +2,7 @@
 import yargs from 'yargs';
 import save from '../../../src/cmds/jobs/save';
 
-describe('save', () => {
+describe('jobs save', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
             const yargsCmd = yargs.command(

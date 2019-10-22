@@ -2,7 +2,7 @@
 import yargs from 'yargs';
 import run from '../../../src/cmds/jobs/run';
 
-describe('run', () => {
+describe('jobs run', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
             const yargsCmd = yargs.command(

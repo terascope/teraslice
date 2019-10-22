@@ -1,8 +1,7 @@
-
 import yargs from 'yargs';
 import stats from '../../../src/cmds/controllers/stats';
 
-describe('stats', () => {
+describe('controller stats', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
             const yargsCmd = yargs.command(

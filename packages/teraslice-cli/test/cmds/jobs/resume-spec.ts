@@ -2,7 +2,7 @@
 import yargs from 'yargs';
 import resume from '../../../src/cmds/jobs/resume';
 
-describe('resume', () => {
+describe('jobs resume', () => {
     describe('-> parse', () => {
         it('should parse properly with an id specifed', () => {
             const yargsCmd = yargs.command(
