@@ -1,6 +1,6 @@
 {
     "name": "teraslice-client-js",
-    "version": "0.8.4",
+    "version": "0.8.5",
     "description": "A Node.js client for teraslice jobs, assets, and cluster references.",
     "keywords": [
         "elasticsearch",
