@@ -26,7 +26,7 @@
         "@terascope/data-types": "^0.6.1",
         "@terascope/utils": "^0.20.3",
         "ajv": "^6.10.0",
-        "nanoid": "^2.0.3",
+        "nanoid": "^2.1.4",
         "rambda": "^3.0.0",
         "xlucene-evaluator": "^0.11.4"
     },
