@@ -1,27 +1,27 @@
 import semver, { ReleaseType } from 'semver';
 import { BumpPackageOptions, BumpPkgInfo, BumpType } from './interfaces';
-import { isMainPackage, findPackageByName } from '../packages';
+import { isMainPackage, findPackageByName, getRemotePackageVersion } from '../packages';
 import { PackageInfo } from '../interfaces';
 import signale from '../signale';
 
-export function getPackagesToBump(
+export async function getPackagesToBump(
     packages: PackageInfo[],
     options: BumpPackageOptions
-): Record<string, BumpPkgInfo> {
+): Promise<Record<string, BumpPkgInfo>> {
     const result: Record<string, BumpPkgInfo> = {};
 
     for (const pkgInfo of options.packages) {
-        _bumpPackage(pkgInfo);
+        await _bumpPackage(pkgInfo);
     }
 
-    function _bumpDeps(pkgInfo: PackageInfo) {
+    async function _bumpDeps(pkgInfo: PackageInfo) {
         const bumpInfo = result[pkgInfo.name]!;
 
         for (const depPkg of packages) {
             const main = isMainPackage(depPkg);
             if (depPkg.dependencies && depPkg.dependencies[pkgInfo.name]) {
                 if (options.deps && !main) {
-                    _bumpPackage(depPkg);
+                    await _bumpPackage(depPkg);
                 }
                 bumpInfo.deps.push({
                     type: BumpType.Prod,
@@ -52,7 +52,9 @@ export function getPackagesToBump(
         }
     }
 
-    function _bumpPackage(pkgInfo: PackageInfo) {
+    async function _bumpPackage(pkgInfo: PackageInfo) {
+        await _resetVersion(pkgInfo);
+
         const from = pkgInfo.version;
         const to = bumpVersion(pkgInfo, options.release, options.preId);
         const main = isMainPackage(pkgInfo);
@@ -62,7 +64,17 @@ export function getPackagesToBump(
             main,
             deps: []
         };
-        _bumpDeps(pkgInfo);
+        await _bumpDeps(pkgInfo);
+    }
+
+    async function _resetVersion(pkgInfo: PackageInfo) {
+        if (options.noReset) return;
+
+        const remote = await getRemotePackageVersion(pkgInfo);
+        if (pkgInfo.version !== remote) {
+            signale.warn(`${pkgInfo.name} is not in-sync with the remote NPM version, resetting to v${remote} before bumping`);
+            pkgInfo.version = remote;
+        }
     }
 
     return result;
