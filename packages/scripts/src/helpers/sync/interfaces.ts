@@ -1,5 +1,6 @@
 export type SyncOptions = {
     verify: boolean;
+    quiet?: boolean;
 };
 
 export enum DepKey {
