@@ -28,8 +28,8 @@ export function trimAndToUpper(input?: string): string {
 }
 
 /** Escape characters in string and avoid double escaping */
-export function escapeString(str: string|number): string {
-    return jsStringEscape(`${str || ''}`);
+export function escapeString(input: string|number): string {
+    return jsStringEscape(`${input}`);
 }
 
 /** Unescape characters in string and avoid double escaping */

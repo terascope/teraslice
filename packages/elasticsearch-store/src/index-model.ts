@@ -404,7 +404,3 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
 type AnyInput<T> = { [P in keyof T]?: T[P] | any };
 
 type JoinBy = 'AND' | 'OR';
-
-function escapeValue(val: any) {
-    return `"${ts.escapeString(val)}"`;
-}
