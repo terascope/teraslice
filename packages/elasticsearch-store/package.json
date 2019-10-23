@@ -1,6 +1,6 @@
 {
     "name": "elasticsearch-store",
-    "version": "0.12.5",
+    "version": "0.12.6",
     "description": "An API for managing an elasticsearch index, with versioning and migration support.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/elasticsearch-store#readme",
     "bugs": {
@@ -28,7 +28,7 @@
         "ajv": "^6.10.0",
         "nanoid": "^2.1.4",
         "rambda": "^3.0.0",
-        "xlucene-evaluator": "^0.11.6"
+        "xlucene-evaluator": "^0.11.7"
     },
     "devDependencies": {
         "elasticsearch": "^15.4.1"

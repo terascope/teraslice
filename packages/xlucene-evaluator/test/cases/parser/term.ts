@@ -388,6 +388,72 @@ export default [
         },
     ],
     [
+        'field:"valueSomething(abcd70576983)"',
+        'a double qouted value with unescaped parens',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: true,
+            field: 'field',
+            value: "valueSomething(abcd70576983)",
+        },
+    ],
+    [
+        '"hi(hello)howdy"',
+        'a field-less double qouted value with unescaped parens',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: true,
+            field: null,
+            value: "hi(hello)howdy",
+        },
+    ],
+    [
+        "field:' hello(123) there'",
+        'a single qouted value with unescaped parens',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: true,
+            field: 'field',
+            value: " hello(123) there",
+        },
+    ],
+    [
+        "' :(hello)'",
+        'a field-less single qouted value with unescaped parens',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: true,
+            field: null,
+            value: " :(hello)",
+        },
+    ],
+    [
+        "example: '+ -  ( ) { } [ ] ^ \\' \" ? & | / ~ * OR NOT'",
+        'a single qouted value with all of the reserved characters',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: true,
+            field: 'example',
+            value: "+ -  ( ) { } [ ] ^ ' \" ? & | / ~ * OR NOT",
+        },
+    ],
+    [
+        'example: "+ -  ( ) { } [ ] ^ \' \\" ? & | / ~ * OR NOT" ',
+        'a double qouted value with all of the reserved characters',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: true,
+            field: 'example',
+            value: "+ -  ( ) { } [ ] ^ ' \" ? & | / ~ * OR NOT",
+        },
+    ],
+    [
         "id:some'other'thing",
         'an inner single quoted string string',
         {
