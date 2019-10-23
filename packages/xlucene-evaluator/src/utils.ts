@@ -1,13 +1,16 @@
 import geoHash from 'latlon-geohash';
 import {
-    trim, toNumber, isPlainObject, parseNumberList, isNumber
+    trim, toNumber, isPlainObject, parseNumberList, isNumber, AnyObject, escapeString, uniq
 } from '@terascope/utils';
 import { Range } from './parser/interfaces';
 import {
     GeoDistanceObj,
     GeoPointInput,
     GeoPoint,
-    GeoDistanceUnit
+    GeoDistanceUnit,
+    JoinBy,
+    TypeConfig,
+    FieldType
 } from './interfaces';
 
 export function isInfiniteValue(input?: number|string) {
@@ -149,4 +152,53 @@ export function parseGeoPoint(point: GeoPointInput, throwInvalid = true): GeoPoi
         };
     }
     return null;
+}
+
+export type CreateJoinQueryOptions = {
+    typeConfig?: TypeConfig;
+    fieldParams?: Record<string, string>;
+    joinBy?: JoinBy;
+    arrayJoinBy?: JoinBy;
+};
+
+export function createJoinQuery(input: AnyObject, options: CreateJoinQueryOptions = {}) {
+    const {
+        fieldParams = {},
+        joinBy = 'AND',
+        arrayJoinBy = 'AND',
+        typeConfig = {}
+    } = options;
+
+    return Object.entries(input)
+        .filter(([_field, val]) => {
+            if (val == null) return false;
+            return true;
+        })
+        .map(([field, val]) => {
+            const fieldParam: any = fieldParams[field];
+            let value: string;
+            if (typeConfig[field] === FieldType.Geo) {
+                const distance = fieldParam || '100m';
+                const { lat, lon } = parseGeoPoint(val);
+                return `${field}:geoDistance(point:"${lat},${lon}" distance:"${distance}")`;
+            }
+
+            if (Array.isArray(val)) {
+                if (val.length > 1) {
+                    value = `(${uniq(val)
+                        .map(escapeValue)
+                        .join(` ${arrayJoinBy} `)})`;
+                } else {
+                    value = escapeValue(val);
+                }
+            } else {
+                value = escapeValue(val);
+            }
+            return `${field}: ${value}`;
+        })
+        .join(` ${joinBy} `);
+}
+
+function escapeValue(val: any) {
+    return `"${escapeString(val)}"`;
 }

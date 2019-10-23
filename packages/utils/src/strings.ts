@@ -1,3 +1,4 @@
+import jsStringEscape from 'js-string-escape';
 
 /** A simplified implemation of lodash isString */
 export function isString(val: any): val is string {
@@ -27,21 +28,8 @@ export function trimAndToUpper(input?: string): string {
 }
 
 /** Escape characters in string and avoid double escaping */
-export function escapeString(str = '', chars: string[]): string {
-    const len = str.length;
-    let escaped = '';
-
-    for (let i = 0; i < len; i++) {
-        const char = str.charAt(i);
-        const prev = i > 0 ? str.charAt(i - 1) : '';
-        if (chars.includes(char) && prev !== '\\') {
-            escaped += `\\${char}`;
-        } else {
-            escaped += char;
-        }
-    }
-
-    return escaped;
+export function escapeString(str: string|number): string {
+    return jsStringEscape(`${str || ''}`);
 }
 
 /** Unescape characters in string and avoid double escaping */

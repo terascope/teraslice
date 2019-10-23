@@ -37,3 +37,5 @@ export enum FieldType {
 export interface TypeConfig {
     [field: string]: FieldType;
 }
+
+export type JoinBy = 'AND'|'OR';

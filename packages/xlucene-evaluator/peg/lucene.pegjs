@@ -620,18 +620,27 @@ CharWithoutWS "term"
     = [^ \t\r\n\f\{\}\(\)\|/\\/^~\[\]\&\!\?\=\<\>]
 
 QuotedTerm
-  = '"' chars:DoubleQuotedStringChar* '"' { return chars.join(''); }
-  / "'" chars:SingleQuotedStringChar* "'" { return chars.join(''); }
+  = '"' chars:DoubleStringCharacter* '"' { return chars.join(''); }
+  / "'" chars:SingleStringCharacter* "'" { return chars.join(''); }
 
-DoubleQuotedStringChar
-  = !('"' / Escape) char:. { return char; }
-  / Escape Escape {  return '\\\\'; }
-  / Escape sequence:ReservedChar {  return sequence; }
+DoubleStringCharacter
+  = !('"' / "\\") char:. { return char; }
+  / "\\" sequence:EscapeSequence { return sequence; }
 
-SingleQuotedStringChar
-  = !("'" / Escape) char:. { return char; }
-  / Escape Escape {  return '\\\\'; }
-  / Escape sequence:ReservedChar { return sequence; }
+SingleStringCharacter
+  = !("'" / "\\") char:. { return char; }
+  / "\\" sequence:EscapeSequence { return sequence; }
+
+EscapeSequence
+  = "'"
+  / '"'
+  / "\\"
+  / "b"  { return "\b";   }
+  / "f"  { return "\f";   }
+  / "n"  { return "\n";   }
+  / "r"  { return "\r";   }
+  / "t"  { return "\t";   }
+  / "v"  { return "\x0B"; }
 
 RegexStringChar
   = !('/' / Escape) char:. { return char; }
