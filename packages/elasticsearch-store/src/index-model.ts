@@ -393,11 +393,14 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     }
 
     protected _createJoinQuery(fields: AnyInput<T>, joinBy: JoinBy = 'AND', arrayJoinBy: JoinBy = 'OR'): string {
-        return createJoinQuery(fields, {
+        const result = createJoinQuery(fields, {
             joinBy,
             arrayJoinBy,
             typeConfig: this.xluceneTypeConfig
         });
+        if (result) return result;
+
+        return `${ts.getFirst(Object.keys(fields))}: "__undefined__"`;
     }
 }
 

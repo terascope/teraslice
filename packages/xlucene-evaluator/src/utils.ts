@@ -1,6 +1,14 @@
 import geoHash from 'latlon-geohash';
 import {
-    trim, toNumber, isPlainObject, parseNumberList, isNumber, AnyObject, escapeString, uniq
+    trim,
+    toNumber,
+    isPlainObject,
+    parseNumberList,
+    isNumber,
+    AnyObject,
+    escapeString,
+    uniq,
+    withoutNil
 } from '@terascope/utils';
 import { Range } from './parser/interfaces';
 import {
@@ -161,7 +169,7 @@ export type CreateJoinQueryOptions = {
     arrayJoinBy?: JoinBy;
 };
 
-export function createJoinQuery(input: AnyObject, options: CreateJoinQueryOptions = {}) {
+export function createJoinQuery(input: AnyObject, options: CreateJoinQueryOptions = {}): string {
     const {
         fieldParams = {},
         joinBy = 'AND',
@@ -169,11 +177,10 @@ export function createJoinQuery(input: AnyObject, options: CreateJoinQueryOption
         typeConfig = {}
     } = options;
 
-    return Object.entries(input)
-        .filter(([_field, val]) => {
-            if (val == null) return false;
-            return true;
-        })
+    const obj = withoutNil(input);
+    if (!Object.keys(obj).length) return '';
+
+    return Object.entries(obj)
         .map(([field, val]) => {
             const fieldParam: any = fieldParams[field];
             let value: string;
@@ -196,7 +203,8 @@ export function createJoinQuery(input: AnyObject, options: CreateJoinQueryOption
             }
             return `${field}: ${value}`;
         })
-        .join(` ${joinBy} `);
+        .join(` ${joinBy} `)
+        .trim();
 }
 
 function escapeValue(val: any) {
