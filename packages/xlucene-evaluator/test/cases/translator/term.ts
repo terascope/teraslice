@@ -1,3 +1,4 @@
+import { escapeString } from '@terascope/utils';
 import { TestCase } from './interfaces';
 
 export default [
@@ -134,6 +135,18 @@ export default [
                 foo: {
                     operator: 'and',
                     query: '"bar"',
+                },
+            },
+        },
+    ],
+    [
+        `word:"${escapeString('/value\\\\')}"`,
+        'query.constant_score.filter',
+        {
+            match: {
+                word: {
+                    operator: 'and',
+                    query: '/value\\\\',
                 },
             },
         },

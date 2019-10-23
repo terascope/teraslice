@@ -1,4 +1,5 @@
 /* eslint-disable quotes */
+import { escapeString } from '@terascope/utils';
 import { FieldType, ASTType } from '../../../src';
 import { TestCase } from './interfaces';
 
@@ -398,29 +399,16 @@ export default [
         },
     ],
     [
-        // eslint-disable-next-line quotes
-        "id:some\\\"thing\\\"else",
-        'an inner quoted string string',
+        `id:${escapeString('some\\"thing\\"else')}`,
+        'an unqouted string with qoutes inside',
         {
             type: ASTType.Term,
             field_type: FieldType.String,
             quoted: false,
             field: 'id',
-            value: 'some\\"thing\\"else',
+            value: 'some\\\\\\"thing\\\\\\"else',
         },
     ],
-    [
-        'id:"some \\"thing\\" else"',
-        'an inner quoted string with spaces',
-        {
-            type: ASTType.Term,
-            field_type: FieldType.String,
-            quoted: true,
-            field: 'id',
-            value: 'some "thing" else',
-        },
-    ],
-
     [
         'id:"some thing else"',
         'a quoted multiword string with spaces',
@@ -433,25 +421,25 @@ export default [
         },
     ],
     [
-        'id:"some \\"thing\\" else"',
-        'an inner doublequoted string with spaces with outer single quoted',
+        `id:"${escapeString('some \\"thing\\" else')}"`,
+        'a double qouted value with escaped double qoutes',
         {
             type: ASTType.Term,
             field_type: FieldType.String,
             quoted: true,
             field: 'id',
-            value: 'some "thing" else',
+            value: 'some \\"thing\\" else',
         },
     ],
     [
-        'id:\'some \\"thing\\" else\'',
-        'an inner doublequoted string with spaces with outer double quoted',
+        `id:'${escapeString('some\\ \\"thing\\" else')}'`,
+        'a single qouted value with escaped double qoutes and spaces',
         {
             type: ASTType.Term,
             field_type: FieldType.String,
             quoted: true,
             field: 'id',
-            value: 'some "thing" else',
+            value: 'some\\ \\"thing\\" else',
         },
     ],
     [
@@ -465,16 +453,15 @@ export default [
             value: '"bar"',
         },
     ],
-
     [
-        "foo:'\"ba\\'r\"'",
+        `foo:'${escapeString(`"ba\\'r"`)}'`,
         'value with single quotes at the start, middle and end',
         {
             type: ASTType.Term,
             field_type: FieldType.String,
             quoted: true,
             field: 'foo',
-            value: '"ba\'r"',
+            value: '"ba\\\'r"',
         },
     ],
     [
@@ -489,8 +476,8 @@ export default [
         },
     ],
     [
-        `field:'/value\\\\'`,
-        'value with ending double escaped',
+        `field:'${escapeString('/value\\\\')}'`,
+        'single qouted value with ending double escape',
         {
             type: ASTType.Term,
             field_type: FieldType.String,
@@ -500,8 +487,8 @@ export default [
         },
     ],
     [
-        `field:"/value\\\\"`,
-        'quoted value with ending double escaped',
+        `field:"${escapeString('/value\\\\')}"`,
+        'double quoted value with ending double escape',
         {
             type: ASTType.Term,
             field_type: FieldType.String,

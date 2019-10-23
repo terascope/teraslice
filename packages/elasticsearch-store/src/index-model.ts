@@ -1,6 +1,6 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { QueryAccess } from 'xlucene-evaluator';
+import { QueryAccess, createJoinQuery } from 'xlucene-evaluator';
 import IndexStore from './index-store';
 import * as utils from './utils';
 import * as i from './interfaces';
@@ -393,37 +393,17 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
     }
 
     protected _createJoinQuery(fields: AnyInput<T>, joinBy: JoinBy = 'AND', arrayJoinBy: JoinBy = 'OR'): string {
-        return Object.entries(fields)
-            .map(([field, val]) => {
-                if (val == null) {
-                    throw new ts.TSError(`${this.name} missing value for field "${field}"`, {
-                        statusCode: 422,
-                    });
-                }
-                let value: string;
-                if (Array.isArray(val)) {
-                    if (val.length > 1) {
-                        value = `(${ts
-                            .uniq(val)
-                            .map(escapeValue)
-                            .join(` ${arrayJoinBy} `)})`;
-                    } else {
-                        value = escapeValue(val);
-                    }
-                } else {
-                    value = escapeValue(val);
-                }
-                return `${field}: ${value}`;
-            })
-            .join(` ${joinBy} `);
+        const result = createJoinQuery(fields, {
+            joinBy,
+            arrayJoinBy,
+            typeConfig: this.xluceneTypeConfig
+        });
+        if (result) return result;
+
+        return `${ts.getFirst(Object.keys(fields))}: "__undefined__"`;
     }
 }
 
 type AnyInput<T> = { [P in keyof T]?: T[P] | any };
 
 type JoinBy = 'AND' | 'OR';
-
-const escapeChars: string[] = ['"', '(', ')'];
-function escapeValue(val: any) {
-    return `"${ts.escapeString(`${val}`, escapeChars)}"`;
-}
