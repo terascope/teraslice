@@ -172,11 +172,16 @@ BaseTermExpression
             field,
         }
     }
+    / field:FieldName ws* FieldSeparator ws* term:(RegexpType/QuotedStringType) {
+        const node = { ...term, field };
+        coerceTermType(node);
+        return node;
+    }
     / FunctionExpression
     // for backwards compatability
     / OldGeoTermExpression
     / FieldGroup
-    / field:FieldName ws* FieldSeparator ws* term:InferredTermType {
+    / field:FieldName ws* FieldSeparator ws* term:(ParensStringType/WildcardType) {
         const node = { ...term, field };
         coerceTermType(node);
         return node;
@@ -190,7 +195,7 @@ BaseTermExpression
             field,
         };
     }
-    / field:FieldName ws* FieldSeparator ws* term:TermType {
+    / field:FieldName ws* FieldSeparator ws* term:(BooleanType / FloatType / IntegerType / RestrictedStringType) {
         const node = { ...term, field };
         coerceTermType(node);
         return node;
@@ -375,16 +380,12 @@ RangeTermType
     / QuotedStringType
     / RestrictedStringType
 
-// Syntax inferred term types
-InferredTermType
+// Term type that probably are right
+TermType
     = RegexpType
     / QuotedStringType
     / ParensStringType
     / WildcardType
-
-// Term type that probably are right
-TermType
-    = InferredTermType
     / BooleanType
     / FloatType
     / IntegerType
