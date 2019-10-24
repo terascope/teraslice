@@ -84,7 +84,7 @@ The configuration `source` and `target` are set to `this.source` and `this.targe
 **Example:**
 
 ```js
-const _  = require('lodash');
+const _ = require('lodash');
 const { TransformOpBase } = require('ts-transforms');
 
 class JsonParse extends TransformOpBase {
@@ -120,7 +120,7 @@ The configuration `source` and `target` are set to `this.source` and `this.targe
 **Example:**
 
 ```js
-const _  = require('lodash');
+const _ = require('lodash');
 const validator = require('validator');
 const { ValidationOpBase } = require('ts-transforms');
 

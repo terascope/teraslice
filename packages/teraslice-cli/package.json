@@ -1,6 +1,6 @@
 {
     "name": "teraslice-cli",
-    "version": "0.8.8",
+    "version": "0.8.9",
     "description": "Command line manager for teraslice jobs, assets, and cluster references.",
     "keywords": [
         "teraslice"
@@ -37,7 +37,7 @@
     },
     "dependencies": {
         "@terascope/fetch-github-release": "^0.6.0",
-        "@terascope/utils": "^0.20.4",
+        "@terascope/utils": "^0.20.5",
         "archiver": "^3.0.0",
         "bluebird": "^3.5.5",
         "chalk": "^2.4.2",
@@ -51,7 +51,7 @@
         "request": "^2.88.0",
         "request-promise": "^4.2.4",
         "signale": "^1.4.0",
-        "teraslice-client-js": "^0.8.6",
+        "teraslice-client-js": "^0.8.7",
         "tmp": "^0.1.0",
         "tty-table": "^2.7.4",
         "yargs": "^14.2.0",

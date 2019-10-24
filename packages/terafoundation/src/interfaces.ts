@@ -18,7 +18,7 @@ export type FoundationConfig<S = {}, A = {}, D extends string = string> = {
         context: FoundationContext<S, A, D>,
         config: FoundationConfig<S, A, D>
     ) => void|Promise<void>;
-    worker: (
+    worker?: (
         context: FoundationContext<S, A, D>
     ) => void|Promise<void>;
     start_workers?: boolean;

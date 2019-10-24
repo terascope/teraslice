@@ -62,3 +62,10 @@ export interface EmptyObject {}
 export interface AnyObject {
     [prop: string]: any;
 }
+
+/**
+ * A deep partial object
+*/
+export type PartialDeep<T> = {
+    [ P in keyof T ]?: PartialDeep<T[ P ]>;
+}
