@@ -26,6 +26,12 @@ terafoundation:
             dev_es_gen1:
                 host:
                     - "es_gen1.tera1.terascope.io:9231"
+            dev_es_bgpevents:
+                host:
+                    - "es-bgpevents.gen2.tera1.lan"
+            dev_networks:
+                host:
+                    - es-networks.gen2.tera1.lan
 
         kafka:
             homeslice:
@@ -34,12 +40,18 @@ terafoundation:
             dev_kafka_gen1:
                 brokers:
                     - "10.210.3.221:9092"
+                    - "10.210.3.222:9092"
+                    - "10.210.3.223:9092"
+                    - "10.210.3.227:9092"
+                    - "10.210.3.228:9092"
+                    - "10.210.3.229:9092"
             dev_kafka_data1:
                 brokers:
                     - "10.210.3.224:9092"
             dev_kafka_data4:
                 brokers:
                     - "10.210.7.216:9092"
+                    - "10.210.7.219:9092"
             dev_kafka_data3:
                 brokers:
                     - "10.210.7.222:9092"
