@@ -6,6 +6,7 @@ import { coercePkgArg } from '../helpers/args';
 
 type Options = {
     verify: boolean;
+    quiet?: boolean;
     packages?: PackageInfo[];
 }
 
@@ -19,6 +20,12 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'boolean',
                 default: isCI,
             })
+            .option('quiet', {
+                alias: 'q',
+                description: 'This will disable out-of-sync warnings',
+                type: 'boolean',
+                default: false,
+            })
             .positional('packages', {
                 description: 'Run scripts for one or more a package',
                 type: 'string',
@@ -27,11 +34,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 },
             });
     },
-    handler({ packages, verify }) {
+    handler({ packages, verify, quiet }) {
         if (packages && packages.length) {
-            return syncPackages(packages, { verify });
+            return syncPackages(packages, { verify, quiet });
         }
-        return syncAll({ verify });
+        return syncAll({ verify, quiet });
     },
 };
 

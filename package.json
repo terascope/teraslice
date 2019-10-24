@@ -1,6 +1,6 @@
 {
     "name": "teraslice-workspace",
-    "version": "0.57.2",
+    "version": "0.58.2",
     "private": true,
     "homepage": "https://github.com/terascope/teraslice",
     "bugs": {
@@ -14,19 +14,19 @@
         "benchmark": "lerna run --concurrency=1 --no-prefix --stream benchmark",
         "prebuild": "lerna run prebuild",
         "build": "tsc --build",
-        "build:all": "yarn build:cleanup && env FORCE_COLOR=1 lerna run build",
+        "build:all": "yarn build:cleanup && env FORCE_COLOR=1 yarn lerna run build",
         "build:cleanup": "./scripts/build-cleanup.sh",
+        "build:fix": "./scripts/build-fix.sh",
         "build:pkg": "./scripts/build-pkg.sh",
         "build:watch": "yarn run build --watch",
         "bump": "ts-scripts bump",
-        "changelog": "conventional-changelog -p eslint -i CHANGELOG.md --same-file",
-        "cleanup": "./scripts/cleanup.sh",
+        "cleanup": "yarn build:fix",
         "docs": "ts-scripts docs",
         "lint": "yarn lint:es && yarn sync --verify",
         "lint:es": "eslint --cache --ext .js,.jsx,.ts,.tsx .",
         "lint:fix": "yarn lint:es --fix && yarn sync",
         "quick:setup": "yarn lerna link --force-local && yarn build",
-        "setup": "lerna bootstrap --force-local && yarn build:cleanup dist && yarn build",
+        "setup": "yarn && yarn lerna link --force-local && yarn build:cleanup && yarn build && yarn sync -q",
         "start": "node service.js",
         "sync": "ts-scripts sync",
         "test": "ts-scripts test"
@@ -40,24 +40,30 @@
         }
     },
     "devDependencies": {
-        "@types/bluebird": "^3.5.27",
+        "@types/bluebird": "^3.5.28",
         "@types/convict": "^4.2.1",
-        "@types/elasticsearch": "^5.0.34",
-        "@types/fs-extra": "^8.0.0",
-        "@types/jest": "^24.0.18",
+        "@types/elasticsearch": "^5.0.35",
+        "@types/fs-extra": "^8.0.1",
+        "@types/jest": "^24.0.19",
         "@types/lodash": "^4.14.137",
         "@types/lodash.clonedeep": "^4.5.6",
         "@types/nanoid": "^2.0.0",
-        "@types/node": "^12.7.2",
+        "@types/node": "^12.11.2",
         "@types/uuid": "^3.4.4",
         "eslint": "^6.4.0",
         "jest": "^24.9.0",
         "jest-extended": "^0.11.2",
         "jest-watch-typeahead": "^0.4.0",
-        "lerna": "^3.16.4",
+        "lerna": "^3.18.3",
         "lerna-alias": "^3.0.2",
         "ts-jest": "^24.0.2",
-        "typescript": "^3.5.3"
+        "typescript": "^3.5.4"
+    },
+    "resolutions": {
+        "@types/lodash": "^4.14.137",
+        "debug": "^4.1.1",
+        "ms": "^2.1.2",
+        "typescript": "^3.5.4"
     },
     "engines": {
         "node": ">=8.16.0",
@@ -72,6 +78,12 @@
     "terascope": {
         "root": true,
         "type": "monorepo",
+        "tests": {
+            "services": [
+                "elasticsearch",
+                "kafka"
+            ]
+        },
         "docker": {
             "registries": [
                 "terascope/teraslice"

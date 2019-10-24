@@ -10,7 +10,6 @@ export default class SHA1Encode extends TransformOpBase {
     }
 
     encode(data: string) {
-        // @ts-ignore
         return crypto.createHash('sha1').update(data).digest('hex');
     }
 

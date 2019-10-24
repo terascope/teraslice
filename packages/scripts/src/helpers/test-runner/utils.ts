@@ -82,6 +82,12 @@ export function getEnv(options: TestOptions, suite?: TestSuite): ExecEnv {
         });
     }
 
+    if (config.DOCKER_NETWORK_NAME) {
+        Object.assign(env, {
+            DOCKER_NETWORK_NAME: config.DOCKER_NETWORK_NAME
+        });
+    }
+
     if (!suite || suite === TestSuite.Kafka || isE2E) {
         Object.assign(env, {
             KAFKA_BROKER: config.KAFKA_BROKER,

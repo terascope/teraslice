@@ -13,6 +13,9 @@ describe('Bump Utils', () => {
         {
             name: 'package-main',
             version: '1.0.0',
+            resolutions: {
+                'package-dep-2': '^2.0.0'
+            },
             dependencies: {
                 'package-dep-1': '^2.0.0'
             },
@@ -65,12 +68,13 @@ describe('Bump Utils', () => {
             const options: BumpPackageOptions = {
                 release: 'minor',
                 deps: true,
+                noReset: true,
                 packages: [cloneDeep(pkgUtil1!)]
             };
             let result: Record<string, BumpPkgInfo>;
 
-            beforeAll(() => {
-                result = getPackagesToBump(testPackages, options);
+            beforeAll(async () => {
+                result = await getPackagesToBump(testPackages, options);
             });
 
             it('should return a list of correctly bump packages', () => {
@@ -110,6 +114,9 @@ describe('Bump Utils', () => {
                     {
                         name: 'package-main',
                         version: '1.0.0',
+                        resolutions: {
+                            'package-dep-2': '^2.0.0'
+                        },
                         dependencies: {
                             'package-dep-1': '^2.1.0'
                         },
@@ -166,12 +173,13 @@ describe('Bump Utils', () => {
             const options: BumpPackageOptions = {
                 release: 'patch',
                 deps: false,
+                noReset: true,
                 packages: [cloneDeep(pkgUtil1!)]
             };
             let result: Record<string, BumpPkgInfo>;
 
-            beforeAll(() => {
-                result = getPackagesToBump(testPackages, options);
+            beforeAll(async () => {
+                result = await getPackagesToBump(testPackages, options);
             });
 
             it('should return a list of correctly bump packages', () => {
@@ -200,6 +208,9 @@ describe('Bump Utils', () => {
                     {
                         name: 'package-main',
                         version: '1.0.0',
+                        resolutions: {
+                            'package-dep-2': '^2.0.0'
+                        },
                         dependencies: {
                             'package-dep-1': '^2.0.0'
                         },
@@ -261,12 +272,13 @@ describe('Bump Utils', () => {
             release: 'preminor',
             preId: 'rc',
             deps: true,
+            noReset: true,
             packages: [cloneDeep(pkgMain!), cloneDeep(pkgDep2!)]
         };
         let result: Record<string, BumpPkgInfo>;
 
-        beforeAll(() => {
-            result = getPackagesToBump(testPackages, options);
+        beforeAll(async () => {
+            result = await getPackagesToBump(testPackages, options);
         });
 
         it('should return a list of correctly bump packages', () => {
@@ -281,7 +293,12 @@ describe('Bump Utils', () => {
                     from: '2.0.0',
                     to: '2.1.0-rc.0',
                     main: false,
-                    deps: []
+                    deps: [
+                        {
+                            type: BumpType.Resolution,
+                            name: 'package-main'
+                        }
+                    ]
                 },
             });
         });
@@ -292,6 +309,9 @@ describe('Bump Utils', () => {
                 {
                     name: 'package-main',
                     version: '1.1.0-rc.0',
+                    resolutions: {
+                        'package-dep-2': '^2.1.0-rc.0'
+                    },
                     dependencies: {
                         'package-dep-1': '^2.0.0'
                     },

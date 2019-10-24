@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { trim, uniq, isEmpty } from '@terascope/utils';
 import { listPackages, getPkgNames } from './packages';
 import { formatList } from './misc';
 import { PackageInfo } from './interfaces';
@@ -40,11 +41,11 @@ export function makeArray(input: string | string[] | undefined): string[] {
     if (!input) return [];
     if (Array.isArray(input)) {
         const arr = input
-            .filter(Boolean)
-            .map((str: string) => str.trim())
+            .filter((val) => !isEmpty(val))
+            .map(trim)
             .filter(Boolean);
-        return [...new Set(arr)];
+        return uniq(arr);
     }
     if (typeof input !== 'string') return [];
-    return [input.trim()];
+    return [trim(input)];
 }

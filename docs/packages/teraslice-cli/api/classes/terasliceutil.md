@@ -34,7 +34,7 @@ sidebar_label: TerasliceUtil
 
 \+ **new TerasliceUtil**(`cliConfig`: any): *[TerasliceUtil](terasliceutil.md)*
 
-*Defined in [helpers/teraslice-util.ts:6](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-cli/src/helpers/teraslice-util.ts#L6)*
+*Defined in [helpers/teraslice-util.ts:6](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/teraslice-cli/src/helpers/teraslice-util.ts#L6)*
 
 **Parameters:**
 
@@ -50,7 +50,7 @@ Name | Type |
 
 • **config**: *any*
 
-*Defined in [helpers/teraslice-util.ts:6](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-cli/src/helpers/teraslice-util.ts#L6)*
+*Defined in [helpers/teraslice-util.ts:6](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/teraslice-cli/src/helpers/teraslice-util.ts#L6)*
 
 ## Accessors
 
@@ -58,7 +58,7 @@ Name | Type |
 
 • **get client**(): *TerasliceClient*
 
-*Defined in [helpers/teraslice-util.ts:11](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-cli/src/helpers/teraslice-util.ts#L11)*
+*Defined in [helpers/teraslice-util.ts:11](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/teraslice-cli/src/helpers/teraslice-util.ts#L11)*
 
 **Returns:** *TerasliceClient*
 
@@ -68,7 +68,7 @@ Name | Type |
 
 ▸ **info**(): *Promise‹RootResponse›*
 
-*Defined in [helpers/teraslice-util.ts:15](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-cli/src/helpers/teraslice-util.ts#L15)*
+*Defined in [helpers/teraslice-util.ts:15](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/teraslice-cli/src/helpers/teraslice-util.ts#L15)*
 
 **Returns:** *Promise‹RootResponse›*
 
@@ -78,6 +78,6 @@ ___
 
 ▸ **type**(): *Promise‹string›*
 
-*Defined in [helpers/teraslice-util.ts:19](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-cli/src/helpers/teraslice-util.ts#L19)*
+*Defined in [helpers/teraslice-util.ts:19](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/teraslice-cli/src/helpers/teraslice-util.ts#L19)*
 
 **Returns:** *Promise‹string›*

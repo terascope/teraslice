@@ -1,0 +1,2 @@
+{ "source": "field1", "target": "encoded", "tag": "EncodeMe" }
+{ "follow": "EncodeMe", "post_process": "sha1encode" }

@@ -2,7 +2,7 @@
 import yargs from 'yargs';
 import workers from '../../../src/cmds/jobs/workers';
 
-describe('workers', () => {
+describe('jobs workers', () => {
     describe('-> parse', () => {
         it('should parse properly with an id and add count', () => {
             const yargsCmd = yargs.command(

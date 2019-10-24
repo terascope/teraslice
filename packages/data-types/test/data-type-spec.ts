@@ -137,8 +137,7 @@ describe('DataType', () => {
             const results = dataType.toGraphQL();
 
             const schema = formatSchema(`
-                scalar DateTime
-                scalar JSON
+                scalar JSONObject
 
                 type GeoPointType {
                     lat: String!
@@ -148,9 +147,9 @@ describe('DataType', () => {
                 type myType {
                     hello: String
                     location: GeoPointType
-                    date: DateTime
+                    date: String
                     ip: String
-                    example_obj: JSON
+                    example_obj: JSONObject
                     someNum: Int
                 }
             `);
@@ -172,10 +171,10 @@ describe('DataType', () => {
             const dataType = new DataType(typeConfig, 'ObjType');
             expect(dataType.toGraphQL()).toEqual(
                 formatSchema(`
-                    scalar JSON
+                    scalar JSONObject
 
                     type ObjType {
-                        example: JSON
+                        example: JSONObject
                     }
                 `)
             );
@@ -195,8 +194,6 @@ describe('DataType', () => {
 
             const results = new DataType(typeConfig, 'myType').toGraphQL({ typeName: 'otherType' });
             const schema = formatSchema(`
-                scalar DateTime
-
                 type GeoPointType {
                     lat: String!
                     lon: String!
@@ -205,7 +202,7 @@ describe('DataType', () => {
                 type otherType {
                     hello: String
                     location: GeoPointType
-                    date: DateTime
+                    date: String
                     ip: String
                     someNum: Int
                 }
@@ -262,12 +259,10 @@ describe('DataType', () => {
 
             const results = DataType.mergeGraphQLDataTypes(types);
             const schema = formatSchema(`
-                scalar DateTime
-
                 type firstType {
                     hello: String
                     location: GeoPointType
-                    date: DateTime
+                    date: String
                     ip: String
                     someNum: Int
                 }
@@ -329,8 +324,7 @@ describe('DataType', () => {
             });
 
             const schema = formatSchema(`
-                scalar DateTime
-                scalar JSON
+                scalar JSONObject
 
                 type Info {
                     id: String
@@ -341,7 +335,7 @@ describe('DataType', () => {
                 type ChildType {
                     hello: String
                     location: GeoPointType
-                    date: DateTime
+                    date: String
                     ip: String
                     long_number: Int
                     # references and virtual fields
@@ -357,8 +351,8 @@ describe('DataType', () => {
                 type ParentType {
                     location: GeoPointType
                     other_location: GeoPointType
-                    obj: JSON
-                    some_date: DateTime
+                    obj: JSONObject
+                    some_date: String
                     # references and virtual fields
                     info(query: String): Info
                     children: ChildType

@@ -13,25 +13,56 @@ Here are a few tasks it can help you with:
 - Framework to create a number of general or special child workers
 - Schema validations for app configurations
 
-### Basic Example
+### Cluster Context Example
 
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Service (JavaScript)-->
 ```js
-//service.js
 const worker = require('./worker');
-const foundation = require('terafoundation')({
-    name: 'testserver',
-    worker: worker
-});
+const { ClusterContext } = require('terafoundation');
 
-//worker.js
-module.exports = function(context)
-const logger = context.logger
+// the context should automatically run the worker
+new ClusterContext({
+    name: 'testserver',
+    worker
+});
+```
+<!--Worker (JavaScript)-->
+```js
+module.exports = function worker(context) {
+    const logger = context.logger;
     const count = 0;
     while (true) {
-        logger.info(count++)
+        logger.info(count++);
     }
 }
 ```
+<!--END_DOCUSAURUS_CODE_TABS-->
+
+### Single Process Example
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Service (TypeScript)-->
+```ts
+import { ProcessContext } from 'terafoundation';
+
+const context = new ProcessContext({
+    name: 'testserver',
+});
+
+// do something with the context
+```
+<!--Service (JavaScript)-->
+```js
+const { ProcessContext } = require('terafoundation');
+
+const context = new ProcessContext({
+    name: 'testserver',
+});
+
+// do something with the context
+```
+<!--END_DOCUSAURUS_CODE_TABS-->
 
 ## terafoundation call time settings
 
@@ -49,7 +80,9 @@ const logger = context.logger
 ### Complex example
 
 ```js
-const foundation = require('terafoundation')({
+const { ClusterContext } = require('terafoundation')
+
+new ClusterContext({
     name: 'teraslice',
     shutdownMessaging: true,
     worker: worker,
@@ -66,7 +99,7 @@ const foundation = require('terafoundation')({
     config_schema: config_schema,
     schema_formats: schema_formats,
     cluster_name: cluster_name
-  });
+});
 ```
 
 You may pass in multiple different type of child process that behave differently. To use them you must specify them on the descriptors. After this you may create them using `context.foundation.startWorkers` api to create that specific worker type. The descriptor is primarily needed for child worker restarts

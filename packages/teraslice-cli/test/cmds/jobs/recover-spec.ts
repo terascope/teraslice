@@ -2,7 +2,7 @@
 import yargs from 'yargs';
 import recover from '../../../src/cmds/jobs/recover';
 
-describe('recover', () => {
+describe('jobs recover', () => {
     describe('-> parse', () => {
         it('should parse properly with an id specifed', () => {
             const yargsCmd = yargs.command(

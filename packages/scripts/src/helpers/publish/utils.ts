@@ -1,7 +1,5 @@
 import semver from 'semver';
-import { get } from '@terascope/utils';
 import {
-    getLatestNPMVersion,
     getCommitHash,
     dockerPull,
     dockerBuild
@@ -10,16 +8,12 @@ import { PublishType } from './interfaces';
 import { PackageInfo } from '../interfaces';
 import { getRootInfo } from '../misc';
 import signale from '../signale';
+import { getRemotePackageVersion } from '../packages';
 
 export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType): Promise<boolean> {
     if (pkgInfo.private) return false;
 
-    const registry: string|undefined = get(pkgInfo, 'publishConfig.registry');
-    const remote = await getLatestNPMVersion(
-        pkgInfo.name,
-        getPublishTag(pkgInfo.version),
-        registry
-    );
+    const remote = await getRemotePackageVersion(pkgInfo);
     const local = pkgInfo.version;
 
     if (semver.gt(local, remote)) {
@@ -51,14 +45,6 @@ export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType)
     return false;
 }
 
-export function getPublishTag(version: string): string {
-    const parsed = semver.parse(version);
-    if (!parsed) {
-        throw new Error(`Unable to publish invalid version "${version}"`);
-    }
-    if (parsed.prerelease.length) return 'prelease';
-    return 'latest';
-}
 
 function padNumber(n: number): string {
     if (n < 10) return `0${n}`;
