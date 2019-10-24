@@ -1,6 +1,4 @@
 /* eslint-disable max-classes-per-file */
-import _ from 'lodash';
-
 import OperationBase from './lib/base';
 import TransformOpBase from './lib/transforms/base';
 import ValidationOpBase from './lib/validations/base';
@@ -85,7 +83,7 @@ class OperationsManager {
         const operations = pluginList.reduce((plugins, PluginClass) => {
             const plugin = new PluginClass();
             const pluginOps = plugin.init();
-            _.assign(plugins, pluginOps);
+            Object.assign(plugins, pluginOps);
             return plugins;
         }, {});
 

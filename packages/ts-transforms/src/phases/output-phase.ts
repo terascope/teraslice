@@ -1,6 +1,4 @@
-
-import { DataEntity, AnyObject } from '@terascope/utils';
-import _ from 'lodash';
+import { DataEntity, AnyObject, unset } from '@terascope/utils';
 import { hasKeys } from './utils';
 import { WatcherConfig, OutputValidation } from '../interfaces';
 import PhaseBase from './base';
@@ -22,8 +20,8 @@ export default class OutputPhase extends PhaseBase {
         super(opConfig);
         this.restrictOutput = outputConfig.restrictOutput;
         this.matchRequirements = outputConfig.matchRequirements;
-        this.hasRequirements = _.keys(this.matchRequirements).length > 0;
-        this.hasRestrictedOutput = _.keys(this.restrictOutput).length > 0;
+        this.hasRequirements = Object.keys(this.matchRequirements).length > 0;
+        this.hasRestrictedOutput = Object.keys(this.restrictOutput).length > 0;
     }
 
     requiredExtractions(data: DataEntity[]) {
@@ -61,7 +59,7 @@ export default class OutputPhase extends PhaseBase {
 
 function removeKeys(doc: DataEntity, dict: AnyObject) {
     for (const key in dict) {
-        if (doc[key]) _.unset(doc, key);
+        if (doc[key]) unset(doc, key);
     }
 }
 
