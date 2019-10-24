@@ -67,7 +67,7 @@ export interface TestContextOptions<S> {
     name?: string;
     assignment?: any;
     clients?: TestClientConfig[];
-    sysconfig?: S;
+    sysconfig?: ts.PartialDeep<i.FoundationSysConfig<S>>;
 }
 
 export class TestContext<
@@ -83,6 +83,7 @@ export class TestContext<
                         default: {},
                     },
                 },
+                ...ts.get(options.sysconfig, 'terafoundation', {})
             },
             ...options.sysconfig
         };
