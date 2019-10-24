@@ -1,3 +1,4 @@
+import { escapeString } from '@terascope/utils';
 import { TestCase } from './interfaces';
 
 export default [
@@ -118,9 +119,34 @@ export default [
         'field.subfield:"value=something=*"',
         'query.constant_score.filter',
         {
-            match_phrase: {
+            match: {
                 'field.subfield': {
+                    operator: 'and',
                     query: 'value=something=*',
+                },
+            },
+        },
+    ],
+    [
+        "foo:'\"bar\"'",
+        'query.constant_score.filter',
+        {
+            match: {
+                foo: {
+                    operator: 'and',
+                    query: '"bar"',
+                },
+            },
+        },
+    ],
+    [
+        `word:"${escapeString('/value\\\\')}"`,
+        'query.constant_score.filter',
+        {
+            match: {
+                word: {
+                    operator: 'and',
+                    query: '/value\\\\',
                 },
             },
         },

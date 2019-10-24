@@ -148,6 +148,7 @@ function getExtraArgs(): string[] {
 }
 
 function resolveJestArg(arg: string): string[] {
+    if (arg == null || arg === '') return [];
     if (fs.existsSync(arg)) {
         return ['--testPathPattern', arg];
     }

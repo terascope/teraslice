@@ -22,30 +22,26 @@ describe('String Utils', () => {
         });
     });
 
+    const escapeTests: (string[])[] = [
+        ['hello', 'hello'],
+        ['hello.', 'hello.'],
+        ['hello\\.', 'hello\\\\.'],
+        [' \' " ', ' \\\' \\" '],
+        ['something-xy40\\" value \\\' 8008', 'something-xy40\\\\\\" value \\\\\\\' 8008'],
+        ['\\\\.', '\\\\\\\\.'],
+        ['\\ ', '\\\\ '],
+        ['/value\\\\', '/value\\\\\\\\'],
+        ['', ''],
+    ];
+
     describe('escapeString', () => {
-        test.each([
-            ['hello', 'hello'],
-            ['hello\\.', 'hello\\.'],
-            ['hello.', 'hello\\.'],
-            [' . ? ', '\\ \\.\\ \\?\\ '],
-            ['\\\\.', '\\\\.'],
-            ['\\ ', '\\ '],
-            ['', ''],
-        ])('should convert %j to %j', (input: string, expected: string) => {
-            expect(escapeString(input, ['.', '?', ' '])).toEqual(expected);
+        test.each(escapeTests)('should convert %j to %j', (input: string, expected: string) => {
+            expect(escapeString(input)).toEqual(expected);
         });
     });
 
     describe('unescapeString', () => {
-        test.each([
-            ['hello', 'hello'],
-            ['hello\\.', 'hello.'],
-            ['hello.', 'hello.'],
-            [' . ? ', ' . ? '],
-            ['\\\\.', '\\.'],
-            ['\\ ', ' '],
-            ['', ''],
-        ])('should convert %j to %j', (input: string, expected: string) => {
+        test.each(escapeTests)('should convert the original string %j to %j', (expected: string, input: string) => {
             expect(unescapeString(input)).toEqual(expected);
         });
     });

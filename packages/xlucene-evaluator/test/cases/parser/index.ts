@@ -6,14 +6,14 @@ import logicalGroup from './logical-group';
 import negation from './negation';
 import range from './range';
 import regexp from './regexp';
-import terms from './terms';
+import term from './term';
 import wildcard from './wildcard';
 import geo from './geo';
 
 export * from './interfaces';
 export default {
     empty,
-    terms,
+    term,
     exists,
     regexp,
     wildcard,

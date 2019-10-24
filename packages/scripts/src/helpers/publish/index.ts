@@ -1,13 +1,12 @@
 import ms from 'ms';
 import { get } from '@terascope/utils';
 import { PackageInfo } from '../interfaces';
-import { listPackages, getMainPackageInfo } from '../packages';
+import { listPackages, getMainPackageInfo, getPublishTag } from '../packages';
 import { PublishAction, PublishOptions, PublishType } from './interfaces';
 import {
     shouldNPMPublish,
     formatDailyTag,
     buildCacheLayers,
-    getPublishTag
 } from './utils';
 import {
     yarnPublish,

@@ -38,6 +38,14 @@ export class TSError extends Error {
      */
     context: TSErrorContext;
 
+    static [Symbol.hasInstance](instance: any): boolean {
+        if (instance == null) return false;
+        if (instance.message == null || instance.stack == null) return false;
+        if (instance.statusCode == null) return false;
+        if (typeof instance.cause !== 'function') return false;
+        return true;
+    }
+
     constructor(input: any, config: TSErrorConfig = {}) {
         const { fatalError = false } = config;
 

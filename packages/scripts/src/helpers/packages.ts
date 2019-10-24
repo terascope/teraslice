@@ -1,10 +1,14 @@
 import fs from 'fs';
 import path from 'path';
 import fse from 'fs-extra';
-import { uniq, fastCloneDeep, get } from '@terascope/utils';
+import semver from 'semver';
+import {
+    uniq, fastCloneDeep, get, trim
+} from '@terascope/utils';
 // @ts-ignore
 import QueryGraph from '@lerna/query-graph';
 import sortPackageJson from 'sort-package-json';
+import { getLatestNPMVersion } from './scripts';
 import * as misc from './misc';
 import * as i from './interfaces';
 
@@ -183,4 +187,28 @@ export function getDocPath(pkgInfo: i.PackageInfo, withFileName: boolean, withEx
         );
     }
     return docPath;
+}
+
+export function fixDepPkgName(name: string) {
+    return trim(name).replace(/^\*\*\//, '').trim();
+}
+
+export async function getRemotePackageVersion(pkgInfo: i.PackageInfo): Promise<string> {
+    if (pkgInfo.private) return pkgInfo.version;
+
+    const registry: string|undefined = get(pkgInfo, 'publishConfig.registry');
+    return getLatestNPMVersion(
+        pkgInfo.name,
+        getPublishTag(pkgInfo.version),
+        registry
+    );
+}
+
+export function getPublishTag(version: string): string {
+    const parsed = semver.parse(version);
+    if (!parsed) {
+        throw new Error(`Unable to publish invalid version "${version}"`);
+    }
+    if (parsed.prerelease.length) return 'prelease';
+    return 'latest';
 }

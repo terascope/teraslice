@@ -35,6 +35,9 @@
             "path": "packages/queue"
         },
         {
+            "path": "packages/terafoundation"
+        },
+        {
             "path": "packages/job-components"
         },
         {

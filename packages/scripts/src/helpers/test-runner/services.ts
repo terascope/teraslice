@@ -12,6 +12,7 @@ import { TestOptions } from './interfaces';
 import { TestSuite } from '../interfaces';
 import * as config from '../config';
 import signale from '../signale';
+import { getRootInfo } from '../misc';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -35,7 +36,7 @@ const services: { [service in Service]: DockerRunOptions } = {
                 'xpack.security.enabled': 'false'
             }
         },
-        network: config.USE_SERVICE_NETWORK
+        network: config.DOCKER_NETWORK_NAME
     },
     [TestSuite.Kafka]: {
         image: config.KAFKA_DOCKER_IMAGE,
@@ -52,9 +53,15 @@ const services: { [service in Service]: DockerRunOptions } = {
             KAFKA_PORT: config.KAFKA_PORT,
             KAFKA_NUM_PARTITIONS: '2',
         },
-        network: config.USE_SERVICE_NETWORK
+        network: config.DOCKER_NETWORK_NAME
     },
 };
+
+function isServiceEnabled(service: TestSuite.Elasticsearch|TestSuite.Kafka): boolean {
+    const rootInfo = getRootInfo();
+    const testServices = rootInfo.terascope.tests.services;
+    return testServices.includes(service);
+}
 
 export async function ensureServices(suite: TestSuite, options: TestOptions): Promise<() => void> {
     try {
@@ -86,6 +93,10 @@ export async function ensureServices(suite: TestSuite, options: TestOptions): Pr
 
 export async function ensureKafka(options: TestOptions): Promise<() => void> {
     let fn = () => {};
+    if (!isServiceEnabled(TestSuite.Kafka)) {
+        signale.warn('Kafka service is not enabled in root package config');
+        return fn;
+    }
     fn = await startService(options, TestSuite.Kafka);
     await checkKafka(options);
     return fn;
@@ -93,6 +104,11 @@ export async function ensureKafka(options: TestOptions): Promise<() => void> {
 
 export async function ensureElasticsearch(options: TestOptions): Promise<() => void> {
     let fn = () => {};
+    if (!isServiceEnabled(TestSuite.Elasticsearch)) {
+        signale.warn('Elasticsearch service is not enabled in root package config');
+        return fn;
+    }
+
     fn = await startService(options, TestSuite.Elasticsearch);
     await checkElasticsearch(options, 10);
     return fn;
@@ -111,6 +127,10 @@ async function stopService(service: Service) {
 
 async function checkElasticsearch(options: TestOptions, retries: number): Promise<void> {
     const elasticsearchHost = config.ELASTICSEARCH_HOST;
+
+    const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
+    if (dockerGateways.includes(config.ELASTICSEARCH_HOSTNAME)) return;
+
     return pRetry(
         async () => {
             logger.debug(`checking elasticsearch at ${elasticsearchHost}`);

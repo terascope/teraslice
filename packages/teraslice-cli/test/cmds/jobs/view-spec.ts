@@ -2,7 +2,7 @@
 import yargs from 'yargs';
 import view from '../../../src/cmds/jobs/view';
 
-describe('view', () => {
+describe('jobs view', () => {
     describe('-> parse', () => {
         it('should parse properly with an id specifed', () => {
             const yargsCmd = yargs.command(

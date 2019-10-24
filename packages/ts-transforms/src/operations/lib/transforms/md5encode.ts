@@ -10,7 +10,6 @@ export default class MD5Encode extends TransformOpBase {
     }
 
     encode(data: string) {
-        // @ts-ignore
         return crypto.createHash('md5').update(data).digest('hex');
     }
 

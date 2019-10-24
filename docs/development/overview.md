@@ -9,7 +9,7 @@ sidebar_label: Overview
 # Clone the package
 git clone https://github.com/terascope/teraslice.git && cd teraslice
 # Install, link and compile packages together
-yarn && yarn setup
+yarn setup
 ```
 
 ### Running Teraslice

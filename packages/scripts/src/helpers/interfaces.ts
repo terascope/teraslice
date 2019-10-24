@@ -12,6 +12,9 @@ export type PackageInfo = {
         registry: string;
     };
     terascope: PackageConfig;
+    resolutions: {
+        [pattern: string]: string;
+    };
     dependencies: {
         [pkg: string]: string;
     };
@@ -51,6 +54,9 @@ export type RootPackageInfo = {
     terascope: {
         root: boolean;
         type: 'monorepo';
+        tests: {
+            services: (TestSuite.Elasticsearch|TestSuite.Kafka)[];
+        };
         docker: {
             registries: string[];
             cache_layers: ({ from: string; name: string })[];
@@ -58,6 +64,9 @@ export type RootPackageInfo = {
         npm: {
             registry: string;
         };
+    };
+    resolutions: {
+        [pattern: string]: string;
     };
     dependencies?: {
         [pkg: string]: string;

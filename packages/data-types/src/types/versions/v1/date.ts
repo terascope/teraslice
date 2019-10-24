@@ -8,7 +8,7 @@ export default class DateType extends BaseType {
     }
 
     toGraphQL() {
-        return this._formatGql('DateTime', 'scalar DateTime');
+        return this._formatGql('String');
     }
 
     toXlucene() {

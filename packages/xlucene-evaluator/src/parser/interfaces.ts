@@ -86,6 +86,7 @@ export interface StringDataType {
     field_type: FieldType.String;
     value: string;
     quoted: boolean;
+    restricted?: boolean;
 }
 
 export interface BooleanDataType {

@@ -1,48 +1,60 @@
 import semver, { ReleaseType } from 'semver';
 import { BumpPackageOptions, BumpPkgInfo, BumpType } from './interfaces';
+import { isMainPackage, findPackageByName, getRemotePackageVersion } from '../packages';
 import { PackageInfo } from '../interfaces';
 import signale from '../signale';
-import { isMainPackage, findPackageByName } from '../packages';
 
-export function getPackagesToBump(
+export async function getPackagesToBump(
     packages: PackageInfo[],
     options: BumpPackageOptions
-): Record<string, BumpPkgInfo> {
+): Promise<Record<string, BumpPkgInfo>> {
     const result: Record<string, BumpPkgInfo> = {};
 
     for (const pkgInfo of options.packages) {
-        _bumpPackage(pkgInfo);
+        await _bumpPackage(pkgInfo);
     }
 
-    function _bumpDeps(pkgInfo: PackageInfo) {
+    async function _bumpDeps(pkgInfo: PackageInfo) {
         const bumpInfo = result[pkgInfo.name]!;
+
         for (const depPkg of packages) {
             const main = isMainPackage(depPkg);
             if (depPkg.dependencies && depPkg.dependencies[pkgInfo.name]) {
                 if (options.deps && !main) {
-                    _bumpPackage(depPkg);
+                    await _bumpPackage(depPkg);
                 }
                 bumpInfo.deps.push({
                     type: BumpType.Prod,
                     name: depPkg.name,
                 });
             }
+
             if (depPkg.devDependencies && depPkg.devDependencies[pkgInfo.name]) {
                 bumpInfo.deps.push({
                     type: BumpType.Dev,
                     name: depPkg.name,
                 });
             }
+
             if (depPkg.peerDependencies && depPkg.peerDependencies[pkgInfo.name]) {
                 bumpInfo.deps.push({
                     type: BumpType.Peer,
                     name: depPkg.name,
                 });
             }
+
+            if (depPkg.resolutions && depPkg.resolutions[pkgInfo.name]) {
+                bumpInfo.deps.push({
+                    type: BumpType.Resolution,
+                    name: depPkg.name,
+                });
+            }
         }
     }
 
-    function _bumpPackage(pkgInfo: PackageInfo) {
+    async function _bumpPackage(pkgInfo: PackageInfo) {
+        await _resetVersion(pkgInfo);
+
         const from = pkgInfo.version;
         const to = bumpVersion(pkgInfo, options.release, options.preId);
         const main = isMainPackage(pkgInfo);
@@ -52,7 +64,17 @@ export function getPackagesToBump(
             main,
             deps: []
         };
-        _bumpDeps(pkgInfo);
+        await _bumpDeps(pkgInfo);
+    }
+
+    async function _resetVersion(pkgInfo: PackageInfo) {
+        if (options.noReset) return;
+
+        const remote = await getRemotePackageVersion(pkgInfo);
+        if (pkgInfo.version !== remote) {
+            signale.warn(`${pkgInfo.name} is not in-sync with the remote NPM version, resetting to v${remote} before bumping`);
+            pkgInfo.version = remote;
+        }
     }
 
     return result;
@@ -90,7 +112,7 @@ export function bumpPackagesList(
         pkgInfo.version = bumpInfo.to;
         for (const depBumpInfo of bumpInfo.deps) {
             const depPkgInfo = findPackageByName(packages, depBumpInfo.name);
-            const key: string = getDepKeyFromType(depBumpInfo.type);
+            const key = getDepKeyFromType(depBumpInfo.type);
 
             signale.log(`---> Updating ${depBumpInfo.type} dependency ${pkgInfo.name}'s version of ${name} to ${bumpInfo.to}`);
             depPkgInfo[key][name] = `^${bumpInfo.to}`;
@@ -98,10 +120,11 @@ export function bumpPackagesList(
     }
 }
 
-function getDepKeyFromType(type: BumpType) {
+function getDepKeyFromType(type: BumpType): string {
     if (type === BumpType.Prod) return 'dependencies';
     if (type === BumpType.Dev) return 'devDependencies';
     if (type === BumpType.Peer) return 'peerDependencies';
+    if (type === BumpType.Resolution) return 'resolutions';
     throw new Error(`Unknown BumpType ${type} given`);
 }
 

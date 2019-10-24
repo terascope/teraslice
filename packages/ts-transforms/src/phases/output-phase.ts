@@ -1,10 +1,12 @@
 
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, AnyObject } from '@terascope/utils';
 import _ from 'lodash';
 import { hasKeys } from './utils';
 import { WatcherConfig, OutputValidation } from '../interfaces';
 import PhaseBase from './base';
 import { OperationsManager } from '../operations';
+
+type Filter = (key: string) => boolean;
 
 export default class OutputPhase extends PhaseBase {
     private restrictOutput: object;
@@ -57,13 +59,13 @@ export default class OutputPhase extends PhaseBase {
     }
 }
 
-function removeKeys(doc: DataEntity, dict: any) {
+function removeKeys(doc: DataEntity, dict: AnyObject) {
     for (const key in dict) {
         if (doc[key]) _.unset(doc, key);
     }
 }
 
-function restrictFields(data: DataEntity[], restrictOutput: any) {
+function restrictFields(data: DataEntity[], restrictOutput: AnyObject) {
     const restrictedData: DataEntity[] = [];
     for (const doc of data) {
         removeKeys(doc, restrictOutput);
@@ -72,26 +74,17 @@ function restrictFields(data: DataEntity[], restrictOutput: any) {
     return restrictedData;
 }
 
-function isKeyMatchRequiredFn(matchRequirements: any) {
-    return function isKeyMatchRequired(key: string, docSelectorData: object) {
-        let bool = false;
-        const requiredKey = matchRequirements[key];
-
-        if (requiredKey !== undefined) {
-            if (requiredKey === '*') bool = true;
-            if (requiredKey !== '*' && docSelectorData[requiredKey]) bool = true;
-        }
-
-        return bool;
+function isKeyMatchRequiredFn(matchRequirements: AnyObject) {
+    return function isKeyMatchRequired(key: string,) {
+        return matchRequirements[key] !== undefined;
     };
 }
 
-function checkDoc(doc: DataEntity, fn: any) {
-    const docSelectorData = doc.getMetadata('selectors');
+function checkDoc(doc: DataEntity, fn: Filter) {
     let otherExtractionsFound = false;
     let requireExtractionsFound = false;
     for (const key in doc) {
-        if (fn(key, docSelectorData)) {
+        if (fn(key)) {
             requireExtractionsFound = true;
         } else {
             otherExtractionsFound = true;

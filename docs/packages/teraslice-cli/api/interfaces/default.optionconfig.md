@@ -25,9 +25,9 @@ sidebar_label: Default Optionconfig
 
 • **alias**? : *undefined | string*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:70
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:70
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:70
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:70
 
 ___
 
@@ -35,9 +35,9 @@ ___
 
 • **default**? : *any*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:71
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:71
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:71
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:71
 
 ___
 
@@ -45,9 +45,9 @@ ___
 
 • **description**? : *undefined | string*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:72
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:72
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:72
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:72
 
 ___
 
@@ -55,9 +55,9 @@ ___
 
 • **hide**? : *undefined | false | true*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:73
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:73
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:73
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:73
 
 ___
 
@@ -65,6 +65,6 @@ ___
 
 • **type**? : *BooleanConstructor | StringConstructor | NumberConstructor*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:74
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:74
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/yeoman-generator/index.d.ts:74
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:74

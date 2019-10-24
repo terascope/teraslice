@@ -6,6 +6,7 @@ export type BumpPackageOptions = {
     packages: PackageInfo[];
     deps: boolean;
     preId?: string;
+    noReset?: boolean;
 };
 
 export type BumpPkgInfo = {
@@ -22,4 +23,5 @@ export enum BumpType {
     Dev = 'dev',
     Prod = 'prod',
     Peer = 'peer',
+    Resolution = 'resolution'
 }
