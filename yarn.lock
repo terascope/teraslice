@@ -1653,9 +1653,9 @@
   integrity "sha1-5IbQ2XOW15vu3QpuM/RTT/a0lz4= sha512-f5j5b/Gf71L+dbqxIpQ4Z2WlmI/mPJ0fOkGGmFgtb6sAu97EPczzbS3/tJKxmcYDj55OX6ssqwDAWOHIYDRDGA=="
 
 "@types/prompts@^2.0.1":
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/@types/prompts/-/prompts-2.0.1.tgz#afae5a8b0616a33cd31557bec74e2fd4a32f4afe"
-  integrity "sha1-r65aiwYWozzTFVe+x04v1KMvSv4= sha512-AhtMcmETelF8wFDV1ucbChKhLgsc+ytXZXkNz/nnTAMSDeqsjALknEFxi7ZtLgS/G8bV2rp90LhDW5SGACimIQ=="
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@types/prompts/-/prompts-2.0.2.tgz#ff214681f9b20bd9678a3e4ef0785315881f0de1"
+  integrity sha512-Jx+tWZ2UORJT0cZZ0hT0MuQR8qDVc34sRLz225XpdZzC5EH8+uLNqXn/i920GSvONHlbzWcmLZteLYBbpWAQ+w==
 
 "@types/redis@^2.8.13":
   version "2.8.14"
