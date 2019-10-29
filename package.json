@@ -31,9 +31,6 @@
         "sync": "ts-scripts sync",
         "test": "ts-scripts test"
     },
-    "dependencies": {
-        "terafoundation_kafka_connector": "~0.4.2"
-    },
     "config": {
         "commitizen": {
             "path": "git-cz"
