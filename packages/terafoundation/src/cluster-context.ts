@@ -63,10 +63,10 @@ export class ClusterContext<
                 });
                 // if no key was explicitly set then default to worker
                 if (!keyFound) {
-                    config.worker(this);
+                    config.worker!(this);
                 }
             } else {
-                config.worker(this);
+                config.worker!(this);
             }
         }
     }

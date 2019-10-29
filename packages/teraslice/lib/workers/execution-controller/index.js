@@ -184,11 +184,6 @@ class ExecutionController {
 
         this.client.onExecutionPause(() => this.pause());
         this.client.onExecutionResume(() => this.resume());
-        this.client.onServerShutdown(() => {
-            this.logger.warn('Cluster Master shutdown, exiting...');
-            this.executionAnalytics.sendingAnalytics = false;
-            this._endExecution();
-        });
 
         this.server.onSliceSuccess((workerId, response) => {
             process.nextTick(() => {
