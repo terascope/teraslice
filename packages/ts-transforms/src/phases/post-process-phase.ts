@@ -1,5 +1,3 @@
-
-import _ from 'lodash';
 import { DataEntity } from '@terascope/utils';
 import { hasKeys } from './utils';
 import { OperationsManager } from '../operations';
@@ -25,7 +23,8 @@ export default class PostProcessPhase extends PhaseBase {
             const Op = opsManager.getTransform(opName as string);
             return new Op(config);
         }
-        _.forOwn(configList, (operationList, key) => {
+
+        Object.entries(configList).forEach(([key, operationList]) => {
             this.phase[key] = operationList.map(loadOp);
         });
 

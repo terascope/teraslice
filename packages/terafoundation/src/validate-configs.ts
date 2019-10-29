@@ -1,7 +1,7 @@
 import os from 'os';
 import convict from 'convict';
 import {
-    TSError, isFunction, isPlainObject, isEmpty, concat
+    TSError, isFunction, isPlainObject, isEmpty, concat, PartialDeep
 } from '@terascope/utils';
 import { getConnectorSchema } from './connector-utils';
 import foundationSchema from './schema';
@@ -32,7 +32,10 @@ function validateConfig(
     }
 }
 
-function extractSchema<S>(fn: any, sysconfig: i.FoundationSysConfig<S>): Record<string, any> {
+function extractSchema<S>(
+    fn: any,
+    sysconfig: PartialDeep<i.FoundationSysConfig<S>>
+): Record<string, any> {
     if (isFunction(fn)) {
         return fn(sysconfig);
     }
@@ -51,7 +54,7 @@ function extractSchema<S>(fn: any, sysconfig: i.FoundationSysConfig<S>): Record<
 export default function validateConfigs<S = {}, A = {}, D extends string = string>(
     cluster: i.Cluster,
     config: i.FoundationConfig<S, A, D>,
-    sysconfig: i.FoundationSysConfig<S>
+    sysconfig: PartialDeep<i.FoundationSysConfig<S>>
 ): i.FoundationSysConfig<S> {
     if (!isPlainObject(config) || isEmpty(config)) {
         throw new Error('Terafoundation requires a valid application configuration');

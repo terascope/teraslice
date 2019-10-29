@@ -1,7 +1,6 @@
 'use strict';
 
-const _ = require('lodash');
-const { makeISODate } = require('@terascope/utils');
+const { makeISODate, get, has } = require('@terascope/utils');
 const { makeLogger } = require('../helpers/terafoundation');
 
 class ExecutionAnalytics {
@@ -10,7 +9,7 @@ class ExecutionAnalytics {
         this.events = context.apis.foundation.getSystemEvents();
         this.executionContext = executionContext;
         this.client = client;
-        this.analyticsRate = _.get(context, 'sysconfig.teraslice.analytics_rate');
+        this.analyticsRate = get(context, 'sysconfig.teraslice.analytics_rate');
         this._handlers = {};
         this._pushing = false;
 
@@ -44,8 +43,17 @@ class ExecutionAnalytics {
 
         this._registerHandlers();
 
-        this.isRunning = false;
+        this._started = false;
         this.isShutdown = false;
+    }
+
+    /**
+     * Used to determine if the analytics should be sent
+    */
+    get isRunning() {
+        if (this.isShutdown) return false;
+        if (!this._started) return false;
+        return this.client.ready;
     }
 
     start() {
@@ -61,7 +69,7 @@ class ExecutionAnalytics {
             stats: this.getAnalytics()
         }));
 
-        this.isRunning = true;
+        this._started = true;
 
         this.analyticsInterval = setInterval(() => {
             if (!this.isRunning) return;
@@ -75,7 +83,7 @@ class ExecutionAnalytics {
     }
 
     increment(key) {
-        if (!_.has(this.executionAnalytics, key)) {
+        if (!has(this.executionAnalytics, key)) {
             this.logger.warn(`"${key}" is not a valid analytics property`);
             return;
         }
@@ -91,16 +99,15 @@ class ExecutionAnalytics {
     }
 
     getAnalytics() {
-        return _.clone(this.executionAnalytics);
+        return Object.assign({}, this.executionAnalytics);
     }
 
     async shutdown(timeout) {
-        this.isRunning = false;
         this.isShutdown = true;
 
         clearInterval(this.analyticsInterval);
 
-        _.forEach(this._handlers, (handler, event) => {
+        Object.entries(this._handlers).forEach(([event, handler]) => {
             this.events.removeListener(event, handler);
             this._handlers[event] = null;
         });
@@ -118,13 +125,13 @@ class ExecutionAnalytics {
         const diffs = {};
         const copy = {};
 
-        _.forOwn(this.pushedAnalytics, (value, field) => {
+        Object.entries(this.pushedAnalytics).forEach(([field, value]) => {
             diffs[field] = analytics[field] - value;
             copy[field] = analytics[field];
         });
 
         const response = await this.client.sendClusterAnalytics(diffs, timeout);
-        const recorded = _.get(response, 'payload.recorded', false);
+        const recorded = get(response, 'payload.recorded', false);
 
         this._pushing = false;
 
@@ -175,7 +182,7 @@ class ExecutionAnalytics {
             this.set('queuing_complete', makeISODate());
         };
 
-        _.forEach(this._handlers, (handler, event) => {
+        Object.entries(this._handlers).forEach(([event, handler]) => {
             this.events.on(event, handler);
         });
     }

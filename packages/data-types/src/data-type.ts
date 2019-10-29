@@ -1,5 +1,4 @@
 import * as ts from '@terascope/utils';
-import set from 'lodash.set';
 import defaultsDeep from 'lodash.defaultsdeep';
 import { formatSchema } from './graphql-helper';
 import * as i from './interfaces';
@@ -82,17 +81,17 @@ export class DataType {
             const { mapping, analyzer, tokenizer } = type.toESMapping(version);
             if (mapping) {
                 for (const [key, config] of Object.entries(mapping)) {
-                    set(esMapping, ['mappings', indexType, 'properties', key], config);
+                    ts.set(esMapping, ['mappings', indexType, 'properties', key], config);
                 }
             }
             if (analyzer) {
                 for (const [key, config] of Object.entries(analyzer)) {
-                    set(esMapping, ['settings', 'analysis', 'analyzer', key], config);
+                    ts.set(esMapping, ['settings', 'analysis', 'analyzer', key], config);
                 }
             }
             if (tokenizer) {
                 for (const [key, config] of Object.entries(tokenizer)) {
-                    set(esMapping, ['settings', 'analysis', 'tokenizer', key], config);
+                    ts.set(esMapping, ['settings', 'analysis', 'tokenizer', key], config);
                 }
             }
         }

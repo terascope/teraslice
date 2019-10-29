@@ -1,8 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import yargs from 'yargs';
-import set from 'lodash.set';
-import { TSError, get } from '@terascope/utils';
+import { TSError, get, set } from '@terascope/utils';
 import { DataType, DataTypeConfig } from './index';
 import { ESMapping } from './interfaces';
 import { validateDataTypeConfig } from './utils';
