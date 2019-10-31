@@ -56,6 +56,6 @@
     "displayName": "Terafoundation",
     "terascope": {
         "enableTypedoc": true,
-        "testSuite": "unit-a"
+        "testSuite": "unit-b"
     }
 }
