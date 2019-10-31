@@ -82,8 +82,8 @@ ENV NODE_ENV production
 
 COPY --from=connectors /app/connectors/node_modules /app/node_modules
 
-# verify node-rdkafka is installed right
-RUN node -e "require('node-rdkafka')"
+# verify @terascope/node-rdkafka is installed right
+RUN node -e "require('@terascope/node-rdkafka')"
 
 COPY service.js package.json lerna.json yarn.lock .yarnrc /app/source/
 COPY scripts /app/source/scripts
