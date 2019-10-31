@@ -38,6 +38,6 @@
     },
     "displayName": "Generator Teraslice",
     "terascope": {
-        "testSuite": "unit"
+        "testSuite": "unit-a"
     }
 }

@@ -50,19 +50,7 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
             root: isRoot,
             type: 'monorepo',
             tests: {
-                suites: {
-                    e2e: [
-                        Service.Elasticsearch,
-                        Service.Kafka
-                    ],
-                    elasticsearch: [
-                        Service.Elasticsearch
-                    ],
-                    kafka: [
-                        Service.Kafka
-                    ],
-                    unit: []
-                }
+                suites: {}
             },
             docker: {
                 registries: [`terascope/${folderName}`],

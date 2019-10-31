@@ -53,10 +53,10 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
-    "displayName": "Xlucene Evaluator",
+    "displayName": "xLucene Evaluator",
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,
-        "testSuite": "unit"
+        "testSuite": "unit-b"
     }
 }

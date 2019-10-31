@@ -36,6 +36,6 @@
     "displayName": "Terascope ESLint Config",
     "terascope": {
         "enableTypedoc": false,
-        "testSuite": "unit"
+        "testSuite": "unit-a"
     }
 }

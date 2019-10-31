@@ -282,7 +282,6 @@ export async function dockerRun(opt: DockerRunOptions, tag = 'latest'): Promise<
 
         if (done && !subprocess.killed) return;
 
-        signale.debug(`killing "${opt.name}" docker container`);
         subprocess.kill();
     };
 }

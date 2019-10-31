@@ -12,7 +12,7 @@ import { TypesManager } from './types';
  *
  * - Elasticsearch Mappings
  * - GraphQL Schemas
- * - Xlucene
+ * - xLucene
  */
 export class DataType {
     name!: string;

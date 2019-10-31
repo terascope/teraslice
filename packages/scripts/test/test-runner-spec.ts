@@ -12,7 +12,7 @@ describe('Test Runner Helpers', () => {
         it('should be able to filter by a suite', () => {
             const options: any = {
                 all: false,
-                suite: 'unit',
+                suite: 'unit-a',
             };
             const filtered = filterBySuite(packages, options);
             const suites = filtered.map((pkgInfo) => pkgInfo.terascope.testSuite);
@@ -46,13 +46,19 @@ describe('Test Runner Helpers', () => {
                     suite: 'elasticsearch',
                 } as any);
 
-                const unitTests = filterBySuite(packages, {
+                const unitATests = filterBySuite(packages, {
                     all: true,
-                    suite: 'unit',
+                    suite: 'unit-a',
+                } as any);
+
+                const unitBTests = filterBySuite(packages, {
+                    all: true,
+                    suite: 'unit-b',
                 } as any);
 
                 const unitAndESPackages = [
-                    ...unitTests,
+                    ...unitATests,
+                    ...unitBTests,
                     ...elasticsearchTests,
                 ];
 
@@ -61,27 +67,34 @@ describe('Test Runner Helpers', () => {
                     watch: true
                 } as any);
 
-                expect(mapInfo(grouped.unit)).toBeArrayOfSize(0);
+                expect(mapInfo(grouped['unit-a'])).toBeArrayOfSize(0);
+                expect(mapInfo(grouped['unit-b'])).toBeArrayOfSize(0);
                 expect(mapInfo(grouped.elasticsearch)).toEqual(
                     mapInfo(unitAndESPackages)
                 );
             });
         });
 
-        describe('when a unit test and none-unit test, it should group them together', () => {
-            it('should be able group elasticsearch and unit together', () => {
+        describe('when a unit-a test and none-unit-a test, it should group them together', () => {
+            it('should be able group elasticsearch and unit-a together', () => {
                 const elasticsearchTests = filterBySuite(packages, {
                     all: false,
                     suite: 'elasticsearch',
                 } as any).slice(0, 2);
 
-                const unitTests = filterBySuite(packages, {
+                const unitATests = filterBySuite(packages, {
                     all: false,
-                    suite: 'unit',
+                    suite: 'unit-a',
+                } as any).slice(0, 2);
+
+                const unitBTests = filterBySuite(packages, {
+                    all: false,
+                    suite: 'unit-b',
                 } as any).slice(0, 2);
 
                 const unitAndESPackages = [
-                    ...unitTests,
+                    ...unitATests,
+                    ...unitBTests,
                     ...elasticsearchTests,
                 ];
 
@@ -89,7 +102,7 @@ describe('Test Runner Helpers', () => {
                     all: false,
                 } as any);
 
-                expect(mapInfo(grouped.unit)).toBeArrayOfSize(0);
+                expect(mapInfo(grouped['unit-a'])).toBeArrayOfSize(0);
                 expect(mapInfo(grouped.elasticsearch)).toEqual(
                     mapInfo(unitAndESPackages)
                 );

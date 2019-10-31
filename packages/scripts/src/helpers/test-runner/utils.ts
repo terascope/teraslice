@@ -159,9 +159,11 @@ export function groupBySuite(
     const isWatchAll = !options.suite && options.watch;
     const isNotAll = !options.all;
 
-    const bundleSuite = Service.Elasticsearch;
+    const bundleSuite = groups[Service.Elasticsearch]
+        ? Service.Elasticsearch
+        : Object.keys(groups)[0];
 
-    if ((isNotAll || isWatchAll) && groups[bundleSuite].length) {
+    if ((isNotAll || isWatchAll) && bundleSuite && groups[bundleSuite].length) {
         groups[bundleSuite] = flatten(Object.values(groups));
         for (const suite of Object.keys(groups)) {
             if (suite !== bundleSuite) {
