@@ -60,6 +60,8 @@ async function publishToDocker(options: PublishOptions) {
 
     const { registries } = rootInfo.terascope.docker;
 
+    let cacheLayersToPush: string[]|undefined;
+
     for (const registry of registries) {
         if (options.type === PublishType.Latest) {
             imageToBuild = `${registry}:latest`;
@@ -84,8 +86,10 @@ async function publishToDocker(options: PublishOptions) {
         const startTime = Date.now();
         signale.pending(`building docker for ${options.type} release`);
 
-        const cacheLayersToPush = await buildCacheLayers(registry);
-        imagesToPush.push(...cacheLayersToPush);
+        if (!cacheLayersToPush) {
+            cacheLayersToPush = await buildCacheLayers(registry);
+            imagesToPush.push(...cacheLayersToPush);
+        }
 
         signale.debug(`building docker image ${imageToBuild}`);
         await dockerBuild(imageToBuild, cacheLayersToPush);
