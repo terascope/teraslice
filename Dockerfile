@@ -42,10 +42,7 @@ RUN npm init --yes > /dev/null \
     && npm install \
     --quiet \
     --no-package-lock \
-    'terafoundation_kafka_connector@~0.4.2' \
-    # clean up node-rdkafka
-    && rm -rf node_modules/node-rdkafka/docs \
-    node_modules/node-rdkafka/deps/librdkafka
+    'terafoundation_kafka_connector@~0.5.1'
 
 # the deps image should contain all of dev code
 FROM base AS deps
