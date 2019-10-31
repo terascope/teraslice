@@ -30,7 +30,6 @@ export type ElasticSearchTypes =
     | 'ip_range'
     | 'date'
     | 'geo_point'
-    | 'geo_shape'
     | 'object';
 
 export type AvailableType =
@@ -43,7 +42,6 @@ export type AvailableType =
     | 'Float'
     | 'Geo'
     | 'GeoPoint'
-    | 'GeoShape'
     | 'Hostname'
     | 'Integer'
     | 'IPRange'
@@ -69,7 +67,6 @@ export const AvailableTypes: AvailableType[] = [
     'Float',
     'Geo',
     'GeoPoint',
-    'GeoShape',
     'Hostname',
     'Integer',
     'IPRange',

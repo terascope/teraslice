@@ -10,12 +10,12 @@ export default class GeoPointType extends BaseType {
     // TODO: need notion of injecting custom types, what about duplicates
     toGraphQL() {
         const customType = `
-            type GeoPointType {
+            type DTGeoPointV1 {
                 lat: String!
                 lon: String!
             }
         `;
-        return this._formatGql('GeoPointType', customType);
+        return this._formatGql('DTGeoPointV1', customType);
     }
 
     toXlucene() {
