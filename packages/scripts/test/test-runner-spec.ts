@@ -1,50 +1,32 @@
 import 'jest-extended';
 import { listPackages } from '../src/helpers/packages';
-import { onlyUnitTests, filterBySuite, groupBySuite } from '../src/helpers/test-runner/utils';
-import { TestSuite, PackageInfo } from '../src/helpers/interfaces';
+import { filterBySuite, groupBySuite } from '../src/helpers/test-runner/utils';
+import { PackageInfo } from '../src/helpers/interfaces';
+import { getAvailableTestSuites } from '../src/helpers/misc';
 
 describe('Test Runner Helpers', () => {
+    const availableSuites = getAvailableTestSuites();
     const packages = listPackages();
-
-    describe('->onlyUnitTest', () => {
-        it('should return false any of the packages are not unit tests', () => {
-            const suites = [TestSuite.Unit, TestSuite.Elasticsearch];
-            const filtered = packages.filter((pkgInfo) => {
-                const suite = pkgInfo.terascope.testSuite!;
-                return suites.includes(suite);
-            });
-            expect(onlyUnitTests(filtered)).toBeFalse();
-        });
-
-        it('should return true if all of the packages are unit tests', () => {
-            const suites = [TestSuite.Unit];
-            const filtered = packages.filter((pkgInfo) => {
-                const suite = pkgInfo.terascope.testSuite!;
-                return suites.includes(suite);
-            });
-            expect(onlyUnitTests(filtered)).toBeTrue();
-        });
-    });
 
     describe('->filterBySuite', () => {
         it('should be able to filter by a suite', () => {
             const options: any = {
                 all: false,
-                suite: TestSuite.Unit,
+                suite: 'unit',
             };
             const filtered = filterBySuite(packages, options);
             const suites = filtered.map((pkgInfo) => pkgInfo.terascope.testSuite);
-            expect(suites).not.toContain(TestSuite.E2E);
-            expect(suites).not.toContain(TestSuite.Elasticsearch);
-            expect(suites).not.toContain(TestSuite.Disabled);
-            expect(suites).not.toContain(TestSuite.Kafka);
+            expect(suites).not.toContain('e2e');
+            expect(suites).not.toContain('elasticsearch');
+            expect(suites).not.toContain('disabled');
+            expect(suites).not.toContain('kafka');
         });
     });
 
     describe('->groupBySuite', () => {
         describe('when running all tests', () => {
             it('should be able to group by suite', () => {
-                const grouped = groupBySuite(packages, {
+                const grouped = groupBySuite(packages, availableSuites, {
                     all: true,
                 } as any);
                 for (const [suite, group] of Object.entries(grouped)) {
@@ -61,12 +43,12 @@ describe('Test Runner Helpers', () => {
             it('should be able group elasticsearch and unit together', () => {
                 const elasticsearchTests = filterBySuite(packages, {
                     all: true,
-                    suite: TestSuite.Elasticsearch,
+                    suite: 'elasticsearch',
                 } as any);
 
                 const unitTests = filterBySuite(packages, {
                     all: true,
-                    suite: TestSuite.Unit,
+                    suite: 'unit',
                 } as any);
 
                 const unitAndESPackages = [
@@ -74,13 +56,13 @@ describe('Test Runner Helpers', () => {
                     ...elasticsearchTests,
                 ];
 
-                const grouped = groupBySuite(packages, {
+                const grouped = groupBySuite(packages, availableSuites, {
                     all: true,
                     watch: true
                 } as any);
 
-                expect(mapInfo(grouped[TestSuite.Unit])).toBeArrayOfSize(0);
-                expect(mapInfo(grouped[TestSuite.Elasticsearch])).toEqual(
+                expect(mapInfo(grouped.unit)).toBeArrayOfSize(0);
+                expect(mapInfo(grouped.elasticsearch)).toEqual(
                     mapInfo(unitAndESPackages)
                 );
             });
@@ -90,12 +72,12 @@ describe('Test Runner Helpers', () => {
             it('should be able group elasticsearch and unit together', () => {
                 const elasticsearchTests = filterBySuite(packages, {
                     all: false,
-                    suite: TestSuite.Elasticsearch,
+                    suite: 'elasticsearch',
                 } as any).slice(0, 2);
 
                 const unitTests = filterBySuite(packages, {
                     all: false,
-                    suite: TestSuite.Unit,
+                    suite: 'unit',
                 } as any).slice(0, 2);
 
                 const unitAndESPackages = [
@@ -103,12 +85,12 @@ describe('Test Runner Helpers', () => {
                     ...elasticsearchTests,
                 ];
 
-                const grouped = groupBySuite(unitAndESPackages, {
+                const grouped = groupBySuite(unitAndESPackages, availableSuites, {
                     all: false,
                 } as any);
 
-                expect(mapInfo(grouped[TestSuite.Unit])).toBeArrayOfSize(0);
-                expect(mapInfo(grouped[TestSuite.Elasticsearch])).toEqual(
+                expect(mapInfo(grouped.unit)).toBeArrayOfSize(0);
+                expect(mapInfo(grouped.elasticsearch)).toEqual(
                     mapInfo(unitAndESPackages)
                 );
             });
@@ -119,7 +101,7 @@ describe('Test Runner Helpers', () => {
 /**
  * Used for more readable test failures
 */
-function mapInfo(pkgInfos: PackageInfo[]): { name: string; suite?: TestSuite }[] {
+function mapInfo(pkgInfos: PackageInfo[]): { name: string; suite?: string }[] {
     return pkgInfos.map((pkgInfo) => ({
         name: pkgInfo.name,
         suite: pkgInfo.terascope.testSuite

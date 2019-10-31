@@ -71,10 +71,19 @@
         "root": true,
         "type": "monorepo",
         "tests": {
-            "services": [
-                "elasticsearch",
-                "kafka"
-            ]
+            "suites": {
+                "e2e": [
+                    "elasticsearch",
+                    "kafka"
+                ],
+                "elasticsearch": [
+                    "elasticsearch"
+                ],
+                "kafka": [
+                    "kafka"
+                ],
+                "unit": []
+            }
         },
         "docker": {
             "registries": [

@@ -11,10 +11,11 @@ import {
     writeHeader,
     formatList,
     getRootDir,
-    getRootInfo
+    getRootInfo,
+    getAvailableTestSuites
 } from '../misc';
 import { ensureServices } from './services';
-import { PackageInfo, TestSuite } from '../interfaces';
+import { PackageInfo } from '../interfaces';
 import { TestOptions } from './interfaces';
 import { runJest } from '../scripts';
 import * as utils from './utils';
@@ -52,7 +53,7 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
 }
 
 async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
-    if (options.suite === TestSuite.E2E) {
+    if (options.suite === 'e2e') {
         return runE2ETest(options);
     }
 
@@ -62,14 +63,15 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
         return [];
     }
 
-    const grouped = utils.groupBySuite(filtered, options);
+    const availableSuites = getAvailableTestSuites();
+    const grouped = utils.groupBySuite(filtered, availableSuites, options);
 
     const errors: string[] = [];
     for (const [suite, pkgs] of Object.entries(grouped)) {
-        if (!pkgs.length || suite === TestSuite.E2E) continue;
+        if (!pkgs.length || suite === 'e2e') continue;
 
         try {
-            const suiteErrors: string[] = await runTestSuite(suite as TestSuite, pkgs, options);
+            const suiteErrors: string[] = await runTestSuite(suite, pkgs, options);
             if (suiteErrors.length) {
                 errors.push(...suiteErrors);
                 if (options.bail) {
@@ -86,11 +88,11 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
 }
 
 async function runTestSuite(
-    suite: TestSuite,
+    suite: string,
     pkgInfos: PackageInfo[],
     options: TestOptions
 ): Promise<string[]> {
-    if (suite === TestSuite.E2E) return [];
+    if (suite === 'e2e') return [];
     const errors: string[] = [];
 
     // jest or our tests have a memory leak, limiting this seems to help
@@ -153,7 +155,7 @@ async function runTestSuite(
 async function runE2ETest(options: TestOptions): Promise<string[]> {
     let cleanup = () => {};
     const errors: string[] = [];
-    const suite = TestSuite.E2E;
+    const suite = 'e2e';
     let startedTest = false;
 
     const e2eDir = getE2EDir();
@@ -218,7 +220,7 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
     return errors;
 }
 
-function printAndGetEnv(suite: TestSuite, options: TestOptions) {
+function printAndGetEnv(suite: string, options: TestOptions) {
     const env = utils.getEnv(options, suite);
     if (options.debug || isCI) {
         const envStr = Object

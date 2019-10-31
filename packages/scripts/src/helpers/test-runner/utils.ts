@@ -6,7 +6,8 @@ import {
     debugLogger,
     get,
     TSError,
-    isFunction
+    isFunction,
+    flatten
 } from '@terascope/utils';
 import {
     ArgsMap,
@@ -17,8 +18,8 @@ import {
     dockerBuild
 } from '../scripts';
 import { TestOptions, GroupedPackages } from './interfaces';
-import { PackageInfo, TestSuite } from '../interfaces';
-import { getRootInfo } from '../misc';
+import { PackageInfo, Service } from '../interfaces';
+import { getRootInfo, getServicesForSuite } from '../misc';
 import * as config from '../config';
 import signale from '../signale';
 
@@ -55,7 +56,7 @@ export function getArgs(options: TestOptions): ArgsMap {
         args.notify = '';
     }
 
-    if (options.suite === TestSuite.E2E) {
+    if (options.suite === 'e2e') {
         args.runInBand = '';
         args.coverage = 'false';
         args.bail = '';
@@ -64,16 +65,16 @@ export function getArgs(options: TestOptions): ArgsMap {
     return args;
 }
 
-export function getEnv(options: TestOptions, suite?: TestSuite): ExecEnv {
+export function getEnv(options: TestOptions, suite?: string): ExecEnv {
     const env: ExecEnv = {
         HOST_IP: config.HOST_IP,
         NODE_ENV: 'test',
         FORCE_COLOR: config.FORCE_COLOR,
     };
 
-    const isE2E = suite === TestSuite.E2E;
+    const launchServices: Service[] = suite ? getServicesForSuite(suite) : [];
 
-    if (!suite || suite === TestSuite.Elasticsearch || isE2E) {
+    if (launchServices.includes(Service.Elasticsearch)) {
         Object.assign(env, {
             TEST_INDEX_PREFIX: `${config.TEST_NAMESPACE}_`,
             ELASTICSEARCH_HOST: config.ELASTICSEARCH_HOST,
@@ -88,7 +89,7 @@ export function getEnv(options: TestOptions, suite?: TestSuite): ExecEnv {
         });
     }
 
-    if (!suite || suite === TestSuite.Kafka || isE2E) {
+    if (launchServices.includes(Service.Kafka)) {
         Object.assign(env, {
             KAFKA_BROKER: config.KAFKA_BROKER,
             KAFKA_VERSION: options.kafkaVersion,
@@ -136,32 +137,37 @@ export function filterBySuite(pkgInfos: PackageInfo[], options: TestOptions): Pa
     });
 }
 
-export function onlyUnitTests(pkgInfos: PackageInfo[]): boolean {
-    return pkgInfos.every((pkgInfo) => pkgInfo.terascope.testSuite === TestSuite.Unit);
-}
-
-export function groupBySuite(pkgInfos: PackageInfo[], options: TestOptions): GroupedPackages {
-    const groups: GroupedPackages = {
-        [TestSuite.Unit]: [],
-        [TestSuite.Elasticsearch]: [],
-        [TestSuite.Kafka]: [],
-        [TestSuite.E2E]: [],
-    };
+export function groupBySuite(
+    pkgInfos: PackageInfo[],
+    availableSuites: string[],
+    options: TestOptions
+): GroupedPackages {
+    const groups: GroupedPackages = {};
 
     for (const pkgInfo of pkgInfos) {
-        const suite = pkgInfo.terascope.testSuite || TestSuite.Disabled;
-        if (suite === TestSuite.Disabled) continue;
+        const suite = pkgInfo.terascope.testSuite;
+        if (!suite || suite === 'disabled') continue;
+        if (suite === 'e2e') continue;
+        if (!availableSuites.includes(suite)) {
+            signale.warn(`${pkgInfo.name} is using ${suite} which is not known, add it to the root package.json`);
+        }
+
+        if (!groups[suite]) groups[suite] = [];
         groups[suite].push(pkgInfo);
     }
 
     const isWatchAll = !options.suite && options.watch;
     const isNotAll = !options.all;
-    if ((isNotAll || isWatchAll) && groups[TestSuite.Elasticsearch].length) {
-        groups[TestSuite.Elasticsearch] = [
-            ...groups[TestSuite.Unit],
-            ...groups[TestSuite.Elasticsearch]
-        ];
-        groups[TestSuite.Unit] = [];
+
+    const bundleSuite = Service.Elasticsearch;
+
+    if ((isNotAll || isWatchAll) && groups[bundleSuite].length) {
+        groups[bundleSuite] = flatten(Object.values(groups));
+        for (const suite of Object.keys(groups)) {
+            if (suite !== bundleSuite) {
+                groups[suite] = [];
+            }
+        }
     }
 
     return groups;
@@ -225,7 +231,7 @@ export async function logE2E(dir: string, failed: boolean): Promise<void> {
 
 const abc = 'abcdefghijklmnopqrstuvwxyz';
 
-export async function reportCoverage(suite: TestSuite, chunkIndex: number) {
+export async function reportCoverage(suite: string, chunkIndex: number) {
     const id = abc[chunkIndex] || 'any';
 
     signale.info('* reporting coverage');

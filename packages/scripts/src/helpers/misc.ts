@@ -4,7 +4,7 @@ import fse from 'fs-extra';
 import defaultsDeep from 'lodash.defaultsdeep';
 import { isPlainObject, get } from '@terascope/utils';
 import sortPackageJson from 'sort-package-json';
-import { PackageInfo, RootPackageInfo } from './interfaces';
+import { PackageInfo, RootPackageInfo, Service } from './interfaces';
 import { NPM_DEFAULT_REGISTRY } from './config';
 import signale from './signale';
 
@@ -50,7 +50,19 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
             root: isRoot,
             type: 'monorepo',
             tests: {
-                services: []
+                suites: {
+                    e2e: [
+                        Service.Elasticsearch,
+                        Service.Kafka
+                    ],
+                    elasticsearch: [
+                        Service.Elasticsearch
+                    ],
+                    kafka: [
+                        Service.Kafka
+                    ],
+                    unit: []
+                }
             },
             docker: {
                 registries: [`terascope/${folderName}`],
@@ -69,6 +81,21 @@ export function getRootInfo(): RootPackageInfo {
     if (_rootInfo) return _rootInfo;
     _rootInfo = _getRootInfo(path.join(getRootDir(), 'package.json'))!;
     return _rootInfo;
+}
+
+export function getAvailableTestSuites(): string[] {
+    return Object.keys(getRootInfo().terascope.tests.suites);
+}
+
+export function getServicesForSuite(suite: string): Service[] {
+    const services = getRootInfo().terascope.tests.suites[suite] || [];
+    const invalidServices = services.filter((name) => !Object.values(Service).includes(name));
+    if (invalidServices.length) {
+        const actual = invalidServices.join(', ');
+        const expected = Object.values(Service).join(', ');
+        throw new Error(`Unsupported service(s) ${actual}, expected ${expected}`);
+    }
+    return services;
 }
 
 export function getName(input: string): string {
