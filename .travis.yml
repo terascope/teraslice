@@ -1,6 +1,8 @@
 # set the dist to bionic
 dist: bionic
 language: node_js
+node_js: '10.16'
+
 cache:
   npm: false
   yarn: false
@@ -23,28 +25,34 @@ jobs:
   include:
     - stage: "Verify"
       name: 'Verify Build'
-      node_js:
-        - '10.16'
-        - '12.13'
-
+      node_js: '10.16'
       # run on any pull_request
       if: branch = master AND type IN (pull_request)
       script: yarn lint
 
     - stage: "Tests"
       name: 'Unit Test Suite (node 10)'
+      node_js: '10.16'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
-      script: yarn --silent test --suite unit
+      script: yarn --silent test --suite unit-a
+
+    - name: 'Unit Test Suite (node 12)'
+      node_js: '12.13'
+      # run only on pull-requests or cron
+      if: branch = master AND type IN (pull_request, cron)
+      script: yarn --silent test --suite unit-b
 
     - script:
       name: 'ES Test Suite (elasticsearch 5) (node 10)'
+      node_js: '10.16'
       # run only on pull-requests
       if: branch = master AND type IN (pull_request)
       script: yarn --silent test --suite elasticsearch --elasticsearch-version 5.6 --elasticsearch-api-version 5.6 --report-coverage false
 
     - script:
       name: 'ES Test Suite (elasticsearch 6) (node 12)'
+      node_js: '12.13'
       # run only on pull-requests and cron
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite elasticsearch --elasticsearch-version 6.8 --elasticsearch-api-version 6.5

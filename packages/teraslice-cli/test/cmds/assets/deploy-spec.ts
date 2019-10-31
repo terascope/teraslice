@@ -85,7 +85,6 @@ describe('assets deploy', () => {
         it('should deploy a versioned asset', async () => {
             const argv = yargsCmd.parse(`deploy localhost --config-dir ${configDir} terascope/elasticsearch-assets@v9.9.9`)
             await handler(argv);
-            console.log('what is scope here', teraNock)
             expect(wasApiCalled(teraNock.activeMocks(), '/v1/assets')).toBeTrue;
         });
     });
