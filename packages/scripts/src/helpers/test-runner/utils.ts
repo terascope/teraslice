@@ -223,9 +223,9 @@ async function getE2ELogs(dir: string, env: ExecEnv): Promise<string> {
 export async function logE2E(dir: string, failed: boolean): Promise<void> {
     if (failed) {
         const errLogs = await getE2ELogs(dir, {
-            LOG_LEVEL: 'WARN',
-            RAW_LOGS: 'false',
-            FORCE_COLOR: '1',
+            LOG_LEVEL: 'INFO',
+            RAW_LOGS: isCI ? 'true' : 'false',
+            FORCE_COLOR: isCI ? '0' : '1',
         });
         process.stderr.write(`${errLogs}\n`);
     }
