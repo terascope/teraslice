@@ -140,7 +140,6 @@ async function resetLogs() {
 
 async function globalTeardown(shouldThrow) {
     process.stdout.write('\n');
-    signale.time('tear down');
     const errors = [];
 
     await compose
@@ -153,7 +152,6 @@ async function globalTeardown(shouldThrow) {
     await cleanupIndex(`${TEST_INDEX_PREFIX}*`).catch((err) => errors.push(err));
     await fse.remove(path.join(__dirname, '../.config')).catch((err) => errors.push(err));
 
-    signale.timeEnd('tear down');
     if (shouldThrow && errors.length === 1) {
         throw errors[0];
     } else if (errors.length) {

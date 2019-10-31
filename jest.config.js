@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const isCI = require('is-ci');
 
 const packagesPath = path.join(__dirname, 'packages');
 const projects = fs
@@ -23,6 +24,11 @@ const projects = fs
         return false;
     })
     .map((pkgName) => `<rootDir>/packages/${pkgName}`);
+
+const coverageReporters = ['lcov', 'html'];
+if (!isCI) {
+    coverageReporters.push('text-summary');
+}
 
 module.exports = {
     rootDir: '.',
@@ -58,7 +64,7 @@ module.exports = {
         '!<rootDir>/packages/**/dist/**',
         '!<rootDir>/packages/**/coverage/**'
     ],
-    coverageReporters: ['lcov', 'text-summary', 'html'],
+    coverageReporters,
     coverageDirectory: '<rootDir>/coverage',
     preset: 'ts-jest'
 };
