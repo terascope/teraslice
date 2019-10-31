@@ -108,8 +108,8 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
     return env;
 }
 
-export function setEnv(options: TestOptions) {
-    const env = getEnv(options);
+export function setEnv(options: TestOptions, suite?: string) {
+    const env = getEnv(options, suite);
     for (const [key, value] of Object.entries(env)) {
         process.env[key] = value;
     }
@@ -175,12 +175,13 @@ export function groupBySuite(
     return groups;
 }
 
-export async function globalTeardown(options: TestOptions, pkgs: { name: string; dir: string }[]) {
-    for (const { name, dir } of pkgs) {
+type TeardownPkgsArg = { name: string; dir: string; suite?: string }[];
+export async function globalTeardown(options: TestOptions, pkgs: TeardownPkgsArg) {
+    for (const { name, dir, suite } of pkgs) {
         const filePath = path.join(dir, 'test/global.teardown.js');
         if (fse.existsSync(filePath)) {
             const cwd = process.cwd();
-            setEnv(options);
+            setEnv(options, suite);
             signale.debug(`Running ${path.relative(process.cwd(), filePath)}`);
             process.chdir(dir);
 

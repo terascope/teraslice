@@ -134,7 +134,11 @@ async function runTestSuite(
         } catch (err) {
             errors.push(err.message);
 
-            await utils.globalTeardown(options, pkgs.map(({ name, dir }) => ({ name, dir })));
+            await utils.globalTeardown(options, pkgs.map((pkg) => ({
+                name: pkg.name,
+                dir: pkg.dir,
+                suite: pkg.terascope.testSuite
+            })));
 
             if (options.bail) {
                 break;
