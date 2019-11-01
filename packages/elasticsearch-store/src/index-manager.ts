@@ -78,7 +78,7 @@ export default class IndexManager {
         }
 
         const esVersion = utils.getESVersion(this.client);
-        logger.debug(`Using elasticsearch version ${esVersion}`);
+        logger.trace(`Using elasticsearch version ${esVersion}`);
 
         const mapping: any = utils.getIndexMapping(config);
 

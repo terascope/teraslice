@@ -84,7 +84,8 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
             });
 
             const validate = ajv.compile(schema);
-            this.validateRecord = (input: T | I, strictMode: boolean = strict === true) => {
+            const defaultStrictMode = strict === true;
+            this.validateRecord = (input: T | I, strictMode = defaultStrictMode) => {
                 if (validate(input)) return;
 
                 if (strictMode) {
