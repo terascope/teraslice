@@ -112,16 +112,23 @@ export default class IndexManager {
 
         logger.debug(`Creating "${indexName}"...`, body);
 
-        await this.client.indices.create(
-            utils.fixMappingRequest(
-                this.client,
-                {
-                    index: indexName,
-                    body,
-                },
-                false
-            )
-        );
+        try {
+            await this.client.indices.create(
+                utils.fixMappingRequest(
+                    this.client,
+                    {
+                        index: indexName,
+                        body,
+                    },
+                    false
+                )
+            );
+        } catch (err) {
+            const errStr = ts.parseError(err, true);
+            if (!errStr.includes('already_exists_exception')) {
+                throw err;
+            }
+        }
 
         logger.trace(`Checking index availability for "${indexName}"...`);
 
