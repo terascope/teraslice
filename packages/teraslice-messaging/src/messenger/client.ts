@@ -118,7 +118,7 @@ export class Client extends Core {
 
             const onError = (err: any) => {
                 // it still connecting so this is probably okay
-                this.logger.debug(`${toString(err)} when connecting to ${this.serverName} at ${this.hostUrl}`);
+                this.logger.warn(`${toString(err)} when connecting to ${this.serverName} at ${this.hostUrl}`);
             };
 
             const cleanup = () => {

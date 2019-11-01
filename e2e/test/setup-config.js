@@ -58,7 +58,6 @@ module.exports = async function setupTerasliceConfig() {
             workers: WORKERS_PER_NODE,
             port: 45678,
             name: CLUSTER_NAME,
-            hostname: HOST_IP,
             master_hostname: HOST_IP,
             index_settings: {
                 analytics: {
