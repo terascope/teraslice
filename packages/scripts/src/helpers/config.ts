@@ -28,7 +28,10 @@ export const KAFKA_PORT = process.env.KAFKA_PORT || '49092';
 export const KAFKA_BROKER = `${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
 export const KAFKA_VERSION = process.env.KAFKA_VERSION || '2.3';
 export const KAFKA_DOCKER_IMAGE = process.env.KAFKA_DOCKER_IMAGE || 'blacktop/kafka';
-export const DEV_TAG = process.env.TRAVIS_BRANCH || process.env.CI_COMMIT_REF_SLUG || 'local';
+export const DEV_TAG = process.env.TRAVIS_PULL_REQUEST_BRANCH
+    || process.env.TRAVIS_BRANCH
+    || process.env.CI_COMMIT_REF_SLUG
+    || 'local';
 
 const reportCov = process.env.REPORT_COVERAGE || `${isCI}`;
 export const REPORT_COVERAGE = toBoolean(reportCov);
