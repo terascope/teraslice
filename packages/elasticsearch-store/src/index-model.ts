@@ -157,6 +157,21 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> {
         return record;
     }
 
+    async findAllBy(
+        fields: AnyInput<T>,
+        joinBy?: JoinBy,
+        options?: i.FindOptions<T>,
+        queryAccess?: QueryAccess<T>
+    ): Promise<T[]> {
+        const query = this._createJoinQuery(fields, joinBy);
+
+        return this._find(
+            query,
+            options,
+            queryAccess
+        );
+    }
+
     async findById(
         id: string,
         options?: i.FindOneOptions<T>,
