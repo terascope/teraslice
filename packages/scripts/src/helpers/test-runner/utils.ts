@@ -14,14 +14,14 @@ import {
     ExecEnv,
     exec,
     fork,
-    dockerPull,
     dockerBuild
 } from '../scripts';
 import { TestOptions, GroupedPackages } from './interfaces';
 import { PackageInfo, Service } from '../interfaces';
-import { getRootInfo, getServicesForSuite } from '../misc';
+import { getServicesForSuite } from '../misc';
 import * as config from '../config';
 import signale from '../signale';
+import { pullDevDockerImage } from '../publish/utils';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -248,34 +248,14 @@ export async function reportCoverage(suite: string, chunkIndex: number) {
     }
 }
 
-function getCacheFrom(): string[] {
-    if (!isCI) return [];
-
-    const rootInfo = getRootInfo();
-    const layers = rootInfo.terascope.docker.cache_layers || [];
-    if (!layers.length) return [];
-    const cacheFrom: { [name: string]: string } = {};
-    const [registry] = rootInfo.terascope.docker.registries;
-
-    layers.forEach(({ from, name }) => {
-        if (cacheFrom[from] == null) {
-            cacheFrom[from] = from;
-        }
-        cacheFrom[name] = `${registry}:dev-${name}`;
-    });
-    return Object.values(cacheFrom);
-}
-
 export async function buildDockerImage(target: string): Promise<void> {
     const startTime = Date.now();
     signale.pending(`building docker image ${target}`);
 
-    const cacheFrom = getCacheFrom();
-    if (cacheFrom.length) {
-        signale.debug(`pulling images ${cacheFrom}`);
-        await Promise.all(cacheFrom.map(dockerPull));
+    if (!isCI) {
+        await pullDevDockerImage();
     }
 
-    await dockerBuild(target, cacheFrom);
+    await dockerBuild(target);
     signale.success(`built docker image ${target}, took ${ms(Date.now() - startTime)}`);
 }

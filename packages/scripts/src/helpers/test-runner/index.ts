@@ -216,7 +216,11 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
     }
 
     if (startedTest && errors.length) {
-        await utils.globalTeardown(options, [{ name: suite, dir: e2eDir }]);
+        await utils.globalTeardown(options, [{
+            name: suite,
+            dir: e2eDir,
+            suite,
+        }]);
     }
 
     cleanup();

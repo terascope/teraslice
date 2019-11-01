@@ -5,7 +5,7 @@ import defaultsDeep from 'lodash.defaultsdeep';
 import { isPlainObject, get } from '@terascope/utils';
 import sortPackageJson from 'sort-package-json';
 import { PackageInfo, RootPackageInfo, Service } from './interfaces';
-import { NPM_DEFAULT_REGISTRY } from './config';
+import { NPM_DEFAULT_REGISTRY, DEV_TAG } from './config';
 import signale from './signale';
 
 let rootDir: string | undefined;
@@ -54,7 +54,6 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
             },
             docker: {
                 registries: [`terascope/${folderName}`],
-                cache_layers: [],
             },
             npm: {
                 registry: NPM_DEFAULT_REGISTRY
@@ -84,6 +83,12 @@ export function getServicesForSuite(suite: string): Service[] {
         throw new Error(`Unsupported service(s) ${actual}, expected ${expected}`);
     }
     return services;
+}
+
+export function getDevDockerImage(): string {
+    const rootInfo = getRootInfo();
+    const [registry] = rootInfo.terascope.docker.registries;
+    return `${registry}:dev-${DEV_TAG}`;
 }
 
 export function getName(input: string): string {

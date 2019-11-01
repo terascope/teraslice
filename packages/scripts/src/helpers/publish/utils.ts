@@ -2,13 +2,12 @@ import semver from 'semver';
 import {
     getCommitHash,
     dockerPull,
-    dockerBuild
 } from '../scripts';
 import { PublishType } from './interfaces';
 import { PackageInfo } from '../interfaces';
-import { getRootInfo } from '../misc';
 import signale from '../signale';
 import { getRemotePackageVersion } from '../packages';
+import { getDevDockerImage } from '../misc';
 
 export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType): Promise<boolean> {
     if (pkgInfo.private) return false;
@@ -68,41 +67,15 @@ export async function formatDailyTag() {
     return `daily-${date}-${hash}`;
 }
 
-export async function buildCacheLayers(registry: string): Promise<string[]> {
-    const rootInfo = getRootInfo();
-    const layers = rootInfo.terascope.docker.cache_layers;
-    if (!layers.length) return [];
+export async function pullDevDockerImage(): Promise<string> {
+    const cacheFrom = getDevDockerImage();
 
-    const cacheFrom: { [name: string]: string } = {};
-    layers.forEach(({ from, name }) => {
-        if (cacheFrom[from] == null) {
-            cacheFrom[from] = from;
-        }
-        cacheFrom[name] = `${registry}:dev-${name}`;
-    });
-
-    const layersToPull = Object.values(cacheFrom);
-    if (layersToPull.length) {
-        signale.debug(`pulling cache layers: ${layersToPull.join(', ')}`);
-        await Promise.all(layersToPull.map(dockerPull));
+    signale.debug(`pulling cache image: ${cacheFrom}`);
+    try {
+        await dockerPull(cacheFrom);
+    } catch (_err) {
+        process.exitCode = 0;
     }
 
-    const imagesToPush: string[] = [];
-
-    const caches: string[] = [];
-    for (const { from, name } of layers) {
-        if (cacheFrom[from]) {
-            caches.push(cacheFrom[from]);
-        }
-        if (cacheFrom[name]) {
-            caches.push(cacheFrom[name]);
-        }
-
-        const image = cacheFrom[name];
-        signale.debug(`building cache layer ${image}`);
-        await dockerBuild(image, caches, name);
-        imagesToPush.push(cacheFrom[name]);
-    }
-
-    return imagesToPush;
+    return cacheFrom;
 }

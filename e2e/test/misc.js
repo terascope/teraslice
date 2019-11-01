@@ -139,7 +139,6 @@ async function resetLogs() {
 }
 
 async function globalTeardown(shouldThrow) {
-    process.stdout.write('\n');
     const errors = [];
 
     await compose

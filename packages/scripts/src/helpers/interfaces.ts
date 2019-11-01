@@ -58,7 +58,6 @@ export type RootPackageInfo = {
         };
         docker: {
             registries: string[];
-            cache_layers: ({ from: string; name: string })[];
         };
         npm: {
             registry: string;
