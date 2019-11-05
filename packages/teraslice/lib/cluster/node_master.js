@@ -2,7 +2,6 @@
 
 const ms = require('ms');
 const _ = require('lodash');
-const Promise = require('bluebird');
 const { Mutex } = require('async-mutex');
 const { getFullErrorStack } = require('@terascope/utils');
 const { makeLogger } = require('../workers/helpers/terafoundation');
@@ -47,7 +46,8 @@ module.exports = async function nodeMaster(context) {
         const startTime = Date.now();
         pendingAllocations += count;
         sendNodeStateNow();
-        logger.info(`allocating ${count} workers...`);
+        const locked = mutex.isLocked() ? ' (locked)' : '';
+        logger.info(`allocating ${count} workers...${locked}`);
 
         return mutex.runExclusive(async () => {
             try {
@@ -274,13 +274,12 @@ module.exports = async function nodeMaster(context) {
         return job.assets || [];
     }
 
-    function loadAssetsIfNeeded(job, exId) {
+    async function loadAssetsIfNeeded(job, exId) {
         const assets = getAssetsFromJob(job);
-        if (assets.length > 0) {
-            logger.info(`node ${context.sysconfig._nodeName} is checking assets for job, exId: ${exId}`);
-            return spawnAssetLoader(assets, context);
-        }
-        return Promise.resolve();
+        if (!assets.length) return;
+
+        logger.info(`node ${context.sysconfig._nodeName} is checking assets for job, exId: ${exId}`);
+        await spawnAssetLoader(assets, context);
     }
 
     function shutdownWorkers(signal, filterFn) {
