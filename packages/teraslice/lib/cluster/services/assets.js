@@ -33,7 +33,7 @@ module.exports = function assetsService(context) {
     });
 
     app.post('/assets', (req, res) => {
-        logger.info('loading an asset');
+        logger.debug('loading an asset');
         const results = [];
 
         req.on('data', (buff) => {

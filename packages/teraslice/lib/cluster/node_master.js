@@ -111,7 +111,7 @@ module.exports = async function nodeMaster(context) {
         event: 'cluster:execution_controller:create',
         callback: (createSlicerRequest) => {
             const createSlicerMsg = createSlicerRequest.payload;
-            logger.info(`Starting execution_controller for execution ${createSlicerMsg.ex_id}...`);
+            logger.info(`starting execution_controller for execution ${createSlicerMsg.ex_id}...`);
 
             allocateWorkers(1, createSlicerMsg, () => {
                 const controllerContext = {
@@ -141,10 +141,10 @@ module.exports = async function nodeMaster(context) {
         callback: (createWorkerRequest) => {
             const createWorkerMsg = createWorkerRequest.payload;
             const requestedWorkers = createWorkerMsg.workers;
-            logger.info(`Starting ${requestedWorkers} workers for execution ${createWorkerMsg.ex_id}...`);
+            logger.info(`starting ${requestedWorkers} workers for execution ${createWorkerMsg.ex_id}...`);
 
             if (!canAllocateWorkers(requestedWorkers)) {
-                logger.warn(`Worker is overallocated, maximum number of workers of ${configWorkerLimit}`);
+                logger.warn(`worker is overallocated, maximum number of workers of ${configWorkerLimit}`);
                 messaging.respond(createWorkerRequest, {
                     payload: {
                         createdWorkers: 0,
@@ -159,8 +159,8 @@ module.exports = async function nodeMaster(context) {
                 // if there is an over allocation, send back rest to be enqueued
                 if (configWorkerLimit < numOfCurrentWorkers + requestedWorkers) {
                     newWorkers = configWorkerLimit - numOfCurrentWorkers;
-                    logger.warn(`Worker allocation request would exceed maximum number of workers of ${configWorkerLimit}`);
-                    logger.warn(`Reducing allocation to ${newWorkers} workers.`);
+                    logger.warn(`worker allocation request would exceed maximum number of workers of ${configWorkerLimit}`);
+                    logger.warn(`reducing allocation to ${newWorkers} workers.`);
                 }
 
                 let workers = [];
@@ -196,7 +196,7 @@ module.exports = async function nodeMaster(context) {
 
     // this fires when entire server will be shutdown
     events.once('terafoundation:shutdown', () => {
-        logger.debug('Received shutdown notice from terafoundation');
+        logger.debug('received shutdown notice from terafoundation');
 
         const filterFn = () => context.cluster.workers;
         const isActionCompleteFn = () => _.isEmpty(getNodeState().active);
