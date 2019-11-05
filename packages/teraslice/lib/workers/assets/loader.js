@@ -27,7 +27,18 @@ class AssetLoader {
         // no need to load assets
         if (isEmpty(this.assets)) return [];
 
-        this.logger.info('Loading assets...');
+        const { assignment } = this.context;
+        const isWorker = assignment && assignment !== 'cluster_master';
+
+        // A worker should already have the assets loaded,
+        // so we should only log at info level if it gets here
+        // If it is not worker this message isn't important so it
+        // should be a debug log message
+        if (isWorker) {
+            this.logger.info('Loading assets...', this.assets);
+        } else {
+            this.logger.debug('Loading assets...', this.assets);
+        }
 
         this.assetStore = await makeAssetStore(this.context);
 
@@ -56,8 +67,7 @@ class AssetLoader {
 
         const matches = JSON.stringify(actualIds) === JSON.stringify(this.assets);
 
-        const { assignment } = this.context;
-        if (!matches && assignment && assignment !== 'cluster_master') {
+        if (!matches && isWorker) {
             this.logger.warn(
                 `asset loader expected any array of the asset ids but got ${JSON.stringify(this.assets)}`
             );
