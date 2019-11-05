@@ -12,12 +12,13 @@ import {
     formatList,
     getRootDir,
     getRootInfo,
-    getAvailableTestSuites
+    getAvailableTestSuites,
+    getDevDockerImage
 } from '../misc';
 import { ensureServices } from './services';
 import { PackageInfo } from '../interfaces';
 import { TestOptions } from './interfaces';
-import { runJest } from '../scripts';
+import { runJest, dockerPush } from '../scripts';
 import * as utils from './utils';
 import signale from '../signale';
 import { getE2EDir } from '../packages';
@@ -221,6 +222,16 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
             dir: e2eDir,
             suite,
         }]);
+    }
+
+    if (startedTest && isCI) {
+        const devDockerImage = getDevDockerImage();
+        try {
+            signale.info(`pushing ${devDockerImage}...`);
+            await dockerPush(devDockerImage);
+        } catch (err) {
+            signale.warn(err, `failure to push ${devDockerImage}`);
+        }
     }
 
     cleanup();
