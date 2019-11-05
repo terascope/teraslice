@@ -1,8 +1,12 @@
 'use strict';
 
 
-const _ = require('lodash');
-const { TSError, pRetry } = require('@terascope/utils');
+const {
+    TSError,
+    pRetry,
+    get,
+    includes
+} = require('@terascope/utils');
 const uuid = require('uuid');
 const Promise = require('bluebird');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
@@ -96,6 +100,9 @@ module.exports = function executionStorage(context) {
                 // when the status is a terminal status, it cannot be set to again
                 if (_isTerminalStatus(status)) {
                     const error = new TSError(`Cannot update terminal job status of "${status}" to "${desiredStatus}"`, {
+                        context: {
+                            isOkay: status === 'stopped' && desiredStatus === 'completed'
+                        },
                         statusCode: 422
                     });
                     return Promise.reject(error);
@@ -122,6 +129,11 @@ module.exports = function executionStorage(context) {
             }
             await update(exId, statusObj);
         } catch (err) {
+            const isOkay = get(err, 'context.isOkay', false);
+            if (isOkay) {
+                logger.warn(err.message);
+                return exId;
+            }
             throw new TSError(err, {
                 statusCode: 422,
                 reason: `Unable to set execution ${exId} status code to ${status}`
@@ -161,19 +173,19 @@ module.exports = function executionStorage(context) {
     }
 
     function _isValidStatus(status) {
-        return _.includes(VALID_STATUS, status);
+        return includes(VALID_STATUS, status);
     }
 
     function _isRunningStatus(status) {
-        return _.includes(RUNNING_STATUS, status);
+        return includes(RUNNING_STATUS, status);
     }
 
     function _isTerminalStatus(status) {
-        return _.includes(TERMINAL_STATUS, status);
+        return includes(TERMINAL_STATUS, status);
     }
 
     function _isInitStatus(status) {
-        return _.includes(INIT_STATUS, status);
+        return includes(INIT_STATUS, status);
     }
 
     const api = {
