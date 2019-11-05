@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `MatchQuery`
+title: xLucene Evaluator: `MatchQuery`
 sidebar_label: MatchQuery
 ---
 
@@ -21,7 +21,7 @@ sidebar_label: MatchQuery
 
 • **match**: *object*
 
-*Defined in [translator/interfaces.ts:79](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/interfaces.ts#L79)*
+*Defined in [translator/interfaces.ts:88](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/translator/interfaces.ts#L88)*
 
 #### Type declaration:
 

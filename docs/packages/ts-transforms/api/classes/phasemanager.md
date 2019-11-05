@@ -1,5 +1,5 @@
 ---
-title: Ts Transforms: `PhaseManager`
+title: TS Transforms: `PhaseManager`
 sidebar_label: PhaseManager
 ---
 
@@ -9,9 +9,9 @@ sidebar_label: PhaseManager
 
 * **PhaseManager**
 
-  * [Transform](transform.md)
+  ↳ [Transform](transform.md)
 
-  * [Matcher](matcher.md)
+  ↳ [Matcher](matcher.md)
 
 ## Index
 
@@ -35,7 +35,7 @@ sidebar_label: PhaseManager
 
 \+ **new PhaseManager**(`opConfig`: [PhaseConfig](../interfaces/phaseconfig.md), `logger`: Logger): *[PhaseManager](phasemanager.md)*
 
-*Defined in [phases/phase-manager.ts:17](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/phases/phase-manager.ts#L17)*
+*Defined in [phases/phase-manager.ts:17](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/phases/phase-manager.ts#L17)*
 
 **Parameters:**
 
@@ -52,7 +52,7 @@ Name | Type | Default |
 
 • **isMatcher**: *boolean*
 
-*Defined in [phases/phase-manager.ts:17](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/phases/phase-manager.ts#L17)*
+*Defined in [phases/phase-manager.ts:17](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/phases/phase-manager.ts#L17)*
 
 ___
 
@@ -60,7 +60,7 @@ ___
 
 • **sequence**: *[PhaseBase](phasebase.md)[]*
 
-*Defined in [phases/phase-manager.ts:16](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/phases/phase-manager.ts#L16)*
+*Defined in [phases/phase-manager.ts:16](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/phases/phase-manager.ts#L16)*
 
 ## Methods
 
@@ -68,7 +68,7 @@ ___
 
 ▸ **init**(`Plugins?`: [PluginList](../overview.md#pluginlist)): *Promise‹void›*
 
-*Defined in [phases/phase-manager.ts:27](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/phases/phase-manager.ts#L27)*
+*Defined in [phases/phase-manager.ts:27](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/phases/phase-manager.ts#L27)*
 
 **Parameters:**
 
@@ -84,7 +84,7 @@ ___
 
 ▸ **run**(`input`: object[]): *DataEntity[]*
 
-*Defined in [phases/phase-manager.ts:45](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/phases/phase-manager.ts#L45)*
+*Defined in [phases/phase-manager.ts:45](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/phases/phase-manager.ts#L45)*
 
 **Parameters:**
 

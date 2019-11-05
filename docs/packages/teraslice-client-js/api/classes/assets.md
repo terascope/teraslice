@@ -9,7 +9,7 @@ sidebar_label: Assets
 
 * [Client](client.md)
 
-  * **Assets**
+  ↳ **Assets**
 
 ## Index
 
@@ -41,7 +41,7 @@ sidebar_label: Assets
 
 *Overrides [Client](client.md).[constructor](client.md#constructor)*
 
-*Defined in [assets.ts:25](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/assets.ts#L25)*
+*Defined in [assets.ts:25](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/assets.ts#L25)*
 
 **Parameters:**
 
@@ -59,7 +59,7 @@ Name | Type |
 
 *Inherited from [Client](client.md).[_config](client.md#protected-_config)*
 
-*Defined in [client.ts:11](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L11)*
+*Defined in [client.ts:11](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L11)*
 
 ## Methods
 
@@ -69,7 +69,7 @@ Name | Type |
 
 *Overrides [Client](client.md).[delete](client.md#delete)*
 
-*Defined in [assets.ts:39](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/assets.ts#L39)*
+*Defined in [assets.ts:39](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/assets.ts#L39)*
 
 **Parameters:**
 
@@ -88,7 +88,7 @@ ___
 
 *Overrides [Client](client.md).[get](client.md#get)*
 
-*Defined in [assets.ts:53](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/assets.ts#L53)*
+*Defined in [assets.ts:53](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/assets.ts#L53)*
 
 **Parameters:**
 
@@ -104,7 +104,7 @@ ___
 
 ▸ **getAsset**(`name`: string, `version`: string, `searchOptions`: [SearchOptions](../overview.md#searchoptions)): *Promise‹[AssetsGetResponse](../overview.md#assetsgetresponse)›*
 
-*Defined in [assets.ts:58](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/assets.ts#L58)*
+*Defined in [assets.ts:58](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/assets.ts#L58)*
 
 **Parameters:**
 
@@ -122,7 +122,7 @@ ___
 
 ▸ **list**(`query`: [SearchQuery](../overview.md#searchquery), `searchOptions`: [SearchOptions](../overview.md#searchoptions)): *Promise‹[AssetsGetResponse](../overview.md#assetsgetresponse)›*
 
-*Defined in [assets.ts:45](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/assets.ts#L45)*
+*Defined in [assets.ts:45](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/assets.ts#L45)*
 
 **Parameters:**
 
@@ -137,20 +137,20 @@ ___
 
 ### `Protected` makeOptions
 
-▸ **makeOptions**(`query`: any, `options`: [RequestOptions](../interfaces/requestoptions.md) | [SearchOptions](../overview.md#searchoptions)): *[RequestOptions](../interfaces/requestoptions.md) & object | object & object*
+▸ **makeOptions**(`query`: any, `options`: [RequestOptions](../interfaces/requestoptions.md) | [SearchOptions](../overview.md#searchoptions)): *[RequestOptions](../interfaces/requestoptions.md)‹› & object | object & object*
 
 *Inherited from [Client](client.md).[makeOptions](client.md#protected-makeoptions)*
 
-*Defined in [client.ts:87](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L87)*
+*Defined in [client.ts:87](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L87)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `query` | any |
-`options` | [RequestOptions](../interfaces/requestoptions.md) \| [SearchOptions](../overview.md#searchoptions) |
+`options` | [RequestOptions](../interfaces/requestoptions.md) &#124; [SearchOptions](../overview.md#searchoptions) |
 
-**Returns:** *[RequestOptions](../interfaces/requestoptions.md) & object | object & object*
+**Returns:** *[RequestOptions](../interfaces/requestoptions.md)‹› & object | object & object*
 
 ___
 
@@ -160,7 +160,7 @@ ___
 
 *Inherited from [Client](client.md).[parse](client.md#protected-parse)*
 
-*Defined in [client.ts:82](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L82)*
+*Defined in [client.ts:82](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L82)*
 
 **Parameters:**
 
@@ -178,7 +178,7 @@ ___
 
 *Overrides [Client](client.md).[post](client.md#post)*
 
-*Defined in [assets.ts:33](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/assets.ts#L33)*
+*Defined in [assets.ts:33](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/assets.ts#L33)*
 
 **Parameters:**
 
@@ -197,7 +197,7 @@ ___
 
 *Inherited from [Client](client.md).[put](client.md#put)*
 
-*Defined in [client.ts:40](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L40)*
+*Defined in [client.ts:40](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L40)*
 
 **Parameters:**
 
@@ -215,7 +215,7 @@ ___
 
 ▸ **txt**(`name`: string, `version`: string, `query`: [TxtSearchParams](../interfaces/txtsearchparams.md), `searchOptions`: [SearchOptions](../overview.md#searchoptions)): *Promise‹[AssetsGetResponse](../overview.md#assetsgetresponse)›*
 
-*Defined in [assets.ts:65](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/assets.ts#L65)*
+*Defined in [assets.ts:65](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/assets.ts#L65)*
 
 **Parameters:**
 

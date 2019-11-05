@@ -1,5 +1,5 @@
 ---
-title: Ts Transforms: `ExtractionPipline`
+title: TS Transforms: `ExtractionPipline`
 sidebar_label: ExtractionPipline
 ---
 

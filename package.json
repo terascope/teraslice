@@ -1,6 +1,6 @@
 {
     "name": "teraslice-workspace",
-    "version": "0.58.3",
+    "version": "0.59.0",
     "private": true,
     "homepage": "https://github.com/terascope/teraslice",
     "bugs": {
@@ -37,28 +37,28 @@
         "@types/convict": "^4.2.1",
         "@types/elasticsearch": "^5.0.35",
         "@types/fs-extra": "^8.0.1",
-        "@types/jest": "^24.0.19",
+        "@types/jest": "^24.0.21",
         "@types/lodash": "^4.14.137",
         "@types/nanoid": "^2.0.0",
-        "@types/node": "^12.11.2",
-        "@types/uuid": "^3.4.4",
-        "eslint": "^6.4.0",
+        "@types/node": "^12.12.5",
+        "@types/uuid": "^3.4.6",
+        "eslint": "^6.6.0",
         "jest": "^24.9.0",
         "jest-extended": "^0.11.2",
         "jest-watch-typeahead": "^0.4.0",
         "lerna": "^3.18.3",
         "lerna-alias": "^3.0.2",
         "ts-jest": "^24.0.2",
-        "typescript": "^3.5.4"
+        "typescript": "^3.7.2"
     },
     "resolutions": {
         "@types/lodash": "^4.14.137",
         "debug": "^4.1.1",
         "ms": "^2.1.2",
-        "typescript": "^3.5.4"
+        "typescript": "^3.7.2"
     },
     "engines": {
-        "node": ">=8.16.0",
+        "node": ">=10.16.0",
         "yarn": ">=1.16.0"
     },
     "os": [
@@ -71,24 +71,24 @@
         "root": true,
         "type": "monorepo",
         "tests": {
-            "services": [
-                "elasticsearch",
-                "kafka"
-            ]
+            "suites": {
+                "e2e": [
+                    "elasticsearch",
+                    "kafka"
+                ],
+                "elasticsearch": [
+                    "elasticsearch"
+                ],
+                "kafka": [
+                    "kafka"
+                ],
+                "unit-a": [],
+                "unit-b": []
+            }
         },
         "docker": {
             "registries": [
                 "terascope/teraslice"
-            ],
-            "cache_layers": [
-                {
-                    "from": "node:10.16.3-alpine",
-                    "name": "base"
-                },
-                {
-                    "from": "base",
-                    "name": "connectors"
-                }
             ]
         },
         "npm": {

@@ -13,6 +13,6 @@ sidebar_label: OnExecutionAnalyticsFn
 
 ▸ (): *Promise‹[ExecutionAnalytics](executionanalytics.md)› | [ExecutionAnalytics](executionanalytics.md)*
 
-*Defined in [cluster-master/interfaces.ts:61](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L61)*
+*Defined in [cluster-master/interfaces.ts:61](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L61)*
 
 **Returns:** *Promise‹[ExecutionAnalytics](executionanalytics.md)› | [ExecutionAnalytics](executionanalytics.md)*

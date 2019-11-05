@@ -1,21 +1,16 @@
 # set the dist to bionic
 dist: bionic
 language: node_js
-node_js:
-  - '10.16'
+node_js: '10.16'
 
 cache:
   npm: false
-  yarn: true
+  yarn: false
   directories:
     - '$TRAVIS_BUILD_DIR/.eslintcache'
 
 before_install: . ./scripts/ci-setup.sh
-install:
-    # Install the dependencies
-    - yarn --forzen-lockfile --ignore-optional
-    # Build setup the build
-    - yarn quick:setup
+install: yarn setup
 
 # set up build matrix
 # specify jobs (stages are serial, and scripts are parallel within a stage)
@@ -25,40 +20,50 @@ jobs:
 
   include:
     - stage: "Verify"
-      name: 'Verify Build (node 10)'
+      name: 'Verify Build'
+      node_js: '10.16'
       # run on any pull_request
       if: branch = master AND type IN (pull_request)
       script: yarn lint
 
     - stage: "Tests"
       name: 'Unit Test Suite (node 10)'
+      node_js: '10.16'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
-      script: yarn test --suite unit
+      script: yarn --silent test --suite unit-a
+
+    - name: 'Unit Test Suite (node 12)'
+      node_js: '12.13'
+      # run only on pull-requests or cron
+      if: branch = master AND type IN (pull_request, cron)
+      script: yarn --silent test --suite unit-b
 
     - script:
       name: 'ES Test Suite (elasticsearch 5) (node 10)'
+      node_js: '10.16'
       # run only on pull-requests
       if: branch = master AND type IN (pull_request)
-      script: yarn test --suite elasticsearch --elasticsearch-version 5.6 --elasticsearch-api-version 5.6 --report-coverage false
+      script: yarn --silent test --suite elasticsearch --elasticsearch-version 5.6 --elasticsearch-api-version 5.6 --report-coverage false
 
     - script:
-      name: 'ES Test Suite (elasticsearch 6) (node 10)'
+      name: 'ES Test Suite (elasticsearch 6) (node 12)'
+      node_js: '12.13'
       # run only on pull-requests and cron
       if: branch = master AND type IN (pull_request, cron)
-      script: yarn test --suite elasticsearch --elasticsearch-version 6.8 --elasticsearch-api-version 6.5
+      script: yarn --silent test --suite elasticsearch --elasticsearch-version 6.8 --elasticsearch-api-version 6.5
 
     - script:
       name: 'ES Test Suite (elasticsearch 7) (node 10)'
       # run only on pull-requests
       if: branch = master AND type IN (pull_request)
-      script: yarn test --suite elasticsearch --elasticsearch-version 7.2 --elasticsearch-api-version 7.0 --report-coverage false
+      script: yarn --silent test --suite elasticsearch --elasticsearch-version 7.2 --elasticsearch-api-version 7.0 --report-coverage false
 
     - script:
       name: 'End-to-End Test Suite (elasticsearch 6) (node 10)'
       # run only on pull-requests and cron
       if: branch = master AND type IN (pull_request, cron) AND fork = false
-      script: yarn test --suite e2e --elasticsearch-version 6.8 --elasticsearch-api-version 6.5 --kafka-version 2.1
+      script: yarn --silent test --suite e2e --elasticsearch-version 6.8 --elasticsearch-api-version 6.5 --kafka-version 2.3
 
     - stage: "Releases"
       name: 'Publish packages, docs and expiremental docker image'

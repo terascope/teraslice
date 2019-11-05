@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `RangeQuery`
+title: xLucene Evaluator: `RangeQuery`
 sidebar_label: RangeQuery
 ---
 
@@ -21,7 +21,7 @@ sidebar_label: RangeQuery
 
 • **range**: *object*
 
-*Defined in [translator/interfaces.ts:108](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/interfaces.ts#L108)*
+*Defined in [translator/interfaces.ts:117](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/translator/interfaces.ts#L117)*
 
 #### Type declaration:
 

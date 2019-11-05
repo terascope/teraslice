@@ -22,7 +22,7 @@ sidebar_label: StopQuery
 
 • **blocking**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:291](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L291)*
+*Defined in [interfaces.ts:291](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L291)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **timeout**? : *undefined | number*
 
-*Defined in [interfaces.ts:290](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L290)*
+*Defined in [interfaces.ts:290](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L290)*

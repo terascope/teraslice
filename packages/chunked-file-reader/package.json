@@ -32,6 +32,6 @@
     },
     "displayName": "Chunked File Reader",
     "terascope": {
-        "testSuite": "unit"
+        "testSuite": "unit-a"
     }
 }

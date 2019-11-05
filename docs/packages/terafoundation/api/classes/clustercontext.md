@@ -19,7 +19,7 @@ A Cluster Context (with worker processes), useful for scaling
 
 * [CoreContext](corecontext.md)‹S, A, D›
 
-  * **ClusterContext**
+  ↳ **ClusterContext**
 
 ## Implements
 
@@ -52,7 +52,7 @@ A Cluster Context (with worker processes), useful for scaling
 
 *Overrides [CoreContext](corecontext.md).[constructor](corecontext.md#constructor)*
 
-*Defined in [cluster-context.ts:20](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/terafoundation/src/cluster-context.ts#L20)*
+*Defined in [cluster-context.ts:20](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/cluster-context.ts#L20)*
 
 **Parameters:**
 
@@ -70,7 +70,7 @@ Name | Type |
 
 *Inherited from [CoreContext](corecontext.md).[apis](corecontext.md#apis)*
 
-*Defined in [core-context.ts:16](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/terafoundation/src/core-context.ts#L16)*
+*Defined in [core-context.ts:16](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/core-context.ts#L16)*
 
 ___
 
@@ -80,7 +80,7 @@ ___
 
 *Inherited from [CoreContext](corecontext.md).[arch](corecontext.md#arch)*
 
-*Defined in [core-context.ts:20](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/terafoundation/src/core-context.ts#L20)*
+*Defined in [core-context.ts:20](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/core-context.ts#L20)*
 
 ___
 
@@ -90,7 +90,7 @@ ___
 
 *Inherited from [CoreContext](corecontext.md).[assignment](corecontext.md#assignment)*
 
-*Defined in [core-context.ts:22](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/terafoundation/src/core-context.ts#L22)*
+*Defined in [core-context.ts:22](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/core-context.ts#L22)*
 
 ___
 
@@ -100,7 +100,7 @@ ___
 
 *Inherited from [CoreContext](corecontext.md).[cluster](corecontext.md#cluster)*
 
-*Defined in [core-context.ts:14](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/terafoundation/src/core-context.ts#L14)*
+*Defined in [core-context.ts:14](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/core-context.ts#L14)*
 
 ___
 
@@ -110,7 +110,7 @@ ___
 
 *Inherited from [CoreContext](corecontext.md).[cluster_name](corecontext.md#optional-cluster_name)*
 
-*Defined in [core-context.ts:23](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/terafoundation/src/core-context.ts#L23)*
+*Defined in [core-context.ts:23](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/core-context.ts#L23)*
 
 ___
 
@@ -120,7 +120,7 @@ ___
 
 *Inherited from [CoreContext](corecontext.md).[foundation](corecontext.md#foundation)*
 
-*Defined in [core-context.ts:17](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/terafoundation/src/core-context.ts#L17)*
+*Defined in [core-context.ts:17](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/core-context.ts#L17)*
 
 ___
 
@@ -130,7 +130,7 @@ ___
 
 *Inherited from [CoreContext](corecontext.md).[logger](corecontext.md#logger)*
 
-*Defined in [core-context.ts:18](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/terafoundation/src/core-context.ts#L18)*
+*Defined in [core-context.ts:18](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/core-context.ts#L18)*
 
 ___
 
@@ -140,17 +140,17 @@ ___
 
 *Inherited from [CoreContext](corecontext.md).[name](corecontext.md#name)*
 
-*Defined in [core-context.ts:19](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/terafoundation/src/core-context.ts#L19)*
+*Defined in [core-context.ts:19](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/core-context.ts#L19)*
 
 ___
 
 ###  platform
 
-• **platform**: *"aix" | "android" | "darwin" | "freebsd" | "linux" | "openbsd" | "sunos" | "win32" | "cygwin"* =  process.platform
+• **platform**: *"aix" | "android" | "darwin" | "freebsd" | "linux" | "openbsd" | "sunos" | "win32" | "cygwin" | "netbsd"* =  process.platform
 
 *Inherited from [CoreContext](corecontext.md).[platform](corecontext.md#platform)*
 
-*Defined in [core-context.ts:21](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/terafoundation/src/core-context.ts#L21)*
+*Defined in [core-context.ts:21](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/core-context.ts#L21)*
 
 ___
 
@@ -160,4 +160,4 @@ ___
 
 *Inherited from [CoreContext](corecontext.md).[sysconfig](corecontext.md#sysconfig)*
 
-*Defined in [core-context.ts:15](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/terafoundation/src/core-context.ts#L15)*
+*Defined in [core-context.ts:15](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/core-context.ts#L15)*

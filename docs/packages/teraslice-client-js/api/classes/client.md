@@ -9,15 +9,15 @@ sidebar_label: Client
 
 * **Client**
 
-  * [Assets](assets.md)
+  ↳ [Assets](assets.md)
 
-  * [Cluster](cluster.md)
+  ↳ [Cluster](cluster.md)
 
-  * [Ex](ex.md)
+  ↳ [Ex](ex.md)
 
-  * [Job](job.md)
+  ↳ [Job](job.md)
 
-  * [Jobs](jobs.md)
+  ↳ [Jobs](jobs.md)
 
 ## Index
 
@@ -44,7 +44,7 @@ sidebar_label: Client
 
 \+ **new Client**(`config`: [ClientConfig](../interfaces/clientconfig.md)): *[Client](client.md)*
 
-*Defined in [client.ts:11](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L11)*
+*Defined in [client.ts:11](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L11)*
 
 **Parameters:**
 
@@ -60,7 +60,7 @@ Name | Type | Default |
 
 • **_config**: *[ClientConfig](../interfaces/clientconfig.md)*
 
-*Defined in [client.ts:11](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L11)*
+*Defined in [client.ts:11](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L11)*
 
 ## Methods
 
@@ -68,7 +68,7 @@ Name | Type | Default |
 
 ▸ **delete**(`endpoint`: string, `options?`: [SearchOptions](../overview.md#searchoptions)): *Promise‹any›*
 
-*Defined in [client.ts:44](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L44)*
+*Defined in [client.ts:44](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L44)*
 
 **Parameters:**
 
@@ -85,7 +85,7 @@ ___
 
 ▸ **get**(`endpoint`: string, `options?`: [SearchOptions](../overview.md#searchoptions)): *Promise‹any›*
 
-*Defined in [client.ts:32](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L32)*
+*Defined in [client.ts:32](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L32)*
 
 **Parameters:**
 
@@ -100,18 +100,18 @@ ___
 
 ### `Protected` makeOptions
 
-▸ **makeOptions**(`query`: any, `options`: [RequestOptions](../interfaces/requestoptions.md) | [SearchOptions](../overview.md#searchoptions)): *[RequestOptions](../interfaces/requestoptions.md) & object | object & object*
+▸ **makeOptions**(`query`: any, `options`: [RequestOptions](../interfaces/requestoptions.md) | [SearchOptions](../overview.md#searchoptions)): *[RequestOptions](../interfaces/requestoptions.md)‹› & object | object & object*
 
-*Defined in [client.ts:87](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L87)*
+*Defined in [client.ts:87](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L87)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `query` | any |
-`options` | [RequestOptions](../interfaces/requestoptions.md) \| [SearchOptions](../overview.md#searchoptions) |
+`options` | [RequestOptions](../interfaces/requestoptions.md) &#124; [SearchOptions](../overview.md#searchoptions) |
 
-**Returns:** *[RequestOptions](../interfaces/requestoptions.md) & object | object & object*
+**Returns:** *[RequestOptions](../interfaces/requestoptions.md)‹› & object | object & object*
 
 ___
 
@@ -119,7 +119,7 @@ ___
 
 ▸ **parse**(`results`: any): *any*
 
-*Defined in [client.ts:82](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L82)*
+*Defined in [client.ts:82](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L82)*
 
 **Parameters:**
 
@@ -135,7 +135,7 @@ ___
 
 ▸ **post**(`endpoint`: string, `data`: any, `options?`: [RequestOptions](../interfaces/requestoptions.md)): *Promise‹any›*
 
-*Defined in [client.ts:36](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L36)*
+*Defined in [client.ts:36](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L36)*
 
 **Parameters:**
 
@@ -153,7 +153,7 @@ ___
 
 ▸ **put**(`endpoint`: string, `data`: any, `options?`: [RequestOptions](../interfaces/requestoptions.md)): *Promise‹any›*
 
-*Defined in [client.ts:40](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L40)*
+*Defined in [client.ts:40](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L40)*
 
 **Parameters:**
 

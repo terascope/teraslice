@@ -26,18 +26,15 @@ export type PackageInfo = {
     };
 };
 
-export enum TestSuite {
+export enum Service {
     Kafka = 'kafka',
     Elasticsearch = 'elasticsearch',
-    Unit = 'unit',
-    E2E = 'e2e',
-    Disabled = 'disabled',
 }
 
 export type PackageConfig = {
     main?: boolean;
     enableTypedoc?: boolean;
-    testSuite?: TestSuite;
+    testSuite?: string;
 };
 
 export type RootPackageInfo = {
@@ -55,11 +52,12 @@ export type RootPackageInfo = {
         root: boolean;
         type: 'monorepo';
         tests: {
-            services: (TestSuite.Elasticsearch|TestSuite.Kafka)[];
+            suites: {
+                [suite: string]: Service[];
+            };
         };
         docker: {
             registries: string[];
-            cache_layers: ({ from: string; name: string })[];
         };
         npm: {
             registry: string;

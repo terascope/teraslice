@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `ExistsQuery`
+title: xLucene Evaluator: `ExistsQuery`
 sidebar_label: ExistsQuery
 ---
 
@@ -21,6 +21,6 @@ sidebar_label: ExistsQuery
 
 • **exists**: *object*
 
-*Defined in [translator/interfaces.ts:54](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/interfaces.ts#L54)*
+*Defined in [translator/interfaces.ts:58](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/translator/interfaces.ts#L58)*
 
 #### Type declaration:

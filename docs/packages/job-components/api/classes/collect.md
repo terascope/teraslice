@@ -7,9 +7,9 @@ sidebar_label: Collect
 
 ## Hierarchy
 
-  * [BatchProcessor](batchprocessor.md)‹[CollectConfig](../interfaces/collectconfig.md)›
+  ↳ [BatchProcessor](batchprocessor.md)‹[CollectConfig](../interfaces/collectconfig.md)›
 
-  * **Collect**
+  ↳ **Collect**
 
 ## Implements
 
@@ -51,7 +51,7 @@ sidebar_label: Collect
 
 *Overrides [OperationCore](operationcore.md).[constructor](operationcore.md#constructor)*
 
-*Defined in [builtin/collect/processor.ts:7](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/builtin/collect/processor.ts#L7)*
+*Defined in [builtin/collect/processor.ts:7](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/builtin/collect/processor.ts#L7)*
 
 **Parameters:**
 
@@ -69,7 +69,7 @@ Name | Type |
 
 • **collector**: *Collector‹DataEntity›*
 
-*Defined in [builtin/collect/processor.ts:7](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/builtin/collect/processor.ts#L7)*
+*Defined in [builtin/collect/processor.ts:7](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/builtin/collect/processor.ts#L7)*
 
 ___
 
@@ -79,7 +79,7 @@ ___
 
 *Inherited from [Core](core.md).[context](core.md#context)*
 
-*Defined in [operations/core/core.ts:10](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/core.ts#L10)*
+*Defined in [operations/core/core.ts:10](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/core/core.ts#L10)*
 
 ___
 
@@ -89,7 +89,7 @@ ___
 
 *Inherited from [OperationCore](operationcore.md).[deadLetterAction](operationcore.md#deadletteraction)*
 
-*Defined in [operations/core/operation-core.ts:28](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/operation-core.ts#L28)*
+*Defined in [operations/core/operation-core.ts:28](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/core/operation-core.ts#L28)*
 
 ___
 
@@ -99,7 +99,7 @@ ___
 
 *Inherited from [Core](core.md).[events](core.md#events)*
 
-*Defined in [operations/core/core.ts:13](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/core.ts#L13)*
+*Defined in [operations/core/core.ts:13](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/core/core.ts#L13)*
 
 ___
 
@@ -109,7 +109,7 @@ ___
 
 *Inherited from [Core](core.md).[executionConfig](core.md#executionconfig)*
 
-*Defined in [operations/core/core.ts:11](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/core.ts#L11)*
+*Defined in [operations/core/core.ts:11](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/core/core.ts#L11)*
 
 ___
 
@@ -119,7 +119,7 @@ ___
 
 *Inherited from [Core](core.md).[logger](core.md#logger)*
 
-*Defined in [operations/core/core.ts:12](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/core.ts#L12)*
+*Defined in [operations/core/core.ts:12](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/core/core.ts#L12)*
 
 ___
 
@@ -129,7 +129,7 @@ ___
 
 *Inherited from [OperationCore](operationcore.md).[opConfig](operationcore.md#opconfig)*
 
-*Defined in [operations/core/operation-core.ts:27](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/operation-core.ts#L27)*
+*Defined in [operations/core/operation-core.ts:27](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/core/operation-core.ts#L27)*
 
 ## Methods
 
@@ -139,7 +139,7 @@ ___
 
 *Inherited from [OperationCore](operationcore.md).[createAPI](operationcore.md#createapi)*
 
-*Defined in [operations/core/operation-core.ts:51](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/operation-core.ts#L51)*
+*Defined in [operations/core/operation-core.ts:51](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/core/operation-core.ts#L51)*
 
 Create an API and add it to the operation lifecycle
 
@@ -164,7 +164,7 @@ ___
 
 *Inherited from [OperationCore](operationcore.md).[getAPI](operationcore.md#getapi)*
 
-*Defined in [operations/core/operation-core.ts:58](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/operation-core.ts#L58)*
+*Defined in [operations/core/operation-core.ts:58](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/core/operation-core.ts#L58)*
 
 Get a reference to an existing API
 
@@ -190,7 +190,7 @@ ___
 
 *Overrides [ProcessorCore](processorcore.md).[handle](processorcore.md#abstract-handle)*
 
-*Defined in [operations/batch-processor.ts:15](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/batch-processor.ts#L15)*
+*Defined in [operations/batch-processor.ts:15](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/batch-processor.ts#L15)*
 
 **Parameters:**
 
@@ -210,7 +210,7 @@ ___
 
 *Overrides [Core](core.md).[initialize](core.md#abstract-initialize)*
 
-*Defined in [operations/core/operation-core.ts:40](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/operation-core.ts#L40)*
+*Defined in [operations/core/operation-core.ts:40](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/core/operation-core.ts#L40)*
 
 **Returns:** *Promise‹void›*
 
@@ -218,11 +218,11 @@ ___
 
 ###  onBatch
 
-▸ **onBatch**(`batch`: DataEntity[]): *Promise‹DataEntity‹object, object›[]›*
+▸ **onBatch**(`batch`: DataEntity[]): *Promise‹DataEntity‹object, __type›[]›*
 
 *Overrides [BatchProcessor](batchprocessor.md).[onBatch](batchprocessor.md#abstract-onbatch)*
 
-*Defined in [builtin/collect/processor.ts:14](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/builtin/collect/processor.ts#L14)*
+*Defined in [builtin/collect/processor.ts:14](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/builtin/collect/processor.ts#L14)*
 
 **Parameters:**
 
@@ -230,7 +230,7 @@ Name | Type |
 ------ | ------ |
 `batch` | DataEntity[] |
 
-**Returns:** *Promise‹DataEntity‹object, object›[]›*
+**Returns:** *Promise‹DataEntity‹object, __type›[]›*
 
 ___
 
@@ -240,7 +240,7 @@ ___
 
 *Inherited from [OperationCore](operationcore.md).[rejectRecord](operationcore.md#rejectrecord)*
 
-*Defined in [operations/core/operation-core.ts:96](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/operation-core.ts#L96)*
+*Defined in [operations/core/operation-core.ts:96](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/core/operation-core.ts#L96)*
 
 Reject a record using the dead letter action
 
@@ -272,7 +272,7 @@ ___
 
 *Overrides [OperationCore](operationcore.md).[shutdown](operationcore.md#shutdown)*
 
-*Defined in [builtin/collect/processor.ts:20](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/builtin/collect/processor.ts#L20)*
+*Defined in [builtin/collect/processor.ts:20](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/builtin/collect/processor.ts#L20)*
 
 **Returns:** *Promise‹void›*
 
@@ -284,7 +284,7 @@ ___
 
 *Inherited from [OperationCore](operationcore.md).[tryRecord](operationcore.md#tryrecord)*
 
-*Defined in [operations/core/operation-core.ts:71](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/operation-core.ts#L71)*
+*Defined in [operations/core/operation-core.ts:71](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/core/operation-core.ts#L71)*
 
 Try catch a transformation on a record and place any failed records in a dead letter queue
 

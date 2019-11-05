@@ -24,7 +24,7 @@ sidebar_label: ESGetParams
 
 • **_sourceIncludes**? : *string[]*
 
-*Defined in [elasticsearch-state-storage/index.ts:326](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L326)*
+*Defined in [elasticsearch-state-storage/index.ts:326](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L326)*
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [elasticsearch-state-storage/index.ts:325](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L325)*
+*Defined in [elasticsearch-state-storage/index.ts:325](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L325)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **index**: *string*
 
-*Defined in [elasticsearch-state-storage/index.ts:323](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L323)*
+*Defined in [elasticsearch-state-storage/index.ts:323](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L323)*
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **type**: *string*
 
-*Defined in [elasticsearch-state-storage/index.ts:324](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L324)*
+*Defined in [elasticsearch-state-storage/index.ts:324](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L324)*

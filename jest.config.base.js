@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const isCI = require('is-ci');
 const { jest: lernaAliases } = require('lerna-alias');
 
 module.exports = (projectDir) => {
@@ -11,6 +12,10 @@ module.exports = (projectDir) => {
     const packageRoot = name === 'e2e' ? '<rootDir>/e2e' : `<rootDir>/${workspaceName}/${name}`;
     const isTypescript = fs.existsSync(path.join(projectDir, 'tsconfig.json'));
 
+    const coverageReporters = ['lcov', 'html'];
+    if (!isCI) {
+        coverageReporters.push('text-summary');
+    }
     const config = {
         rootDir,
         name: `${workspaceName}/${name}`,
@@ -31,7 +36,7 @@ module.exports = (projectDir) => {
         collectCoverage: true,
         coveragePathIgnorePatterns: ['/node_modules/', '/test/'],
         watchPathIgnorePatterns: [],
-        coverageReporters: ['lcov', 'html', 'text-summary'],
+        coverageReporters,
         coverageDirectory: `${packageRoot}/coverage`,
         preset: 'ts-jest',
         watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname']

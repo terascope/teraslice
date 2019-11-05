@@ -1,6 +1,6 @@
 <!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/xlucene-evaluator/overview.md -->
 
-# Xlucene Evaluator
+# xLucene Evaluator
 
 > Flexible Lucene-like evalutor and language parser
 

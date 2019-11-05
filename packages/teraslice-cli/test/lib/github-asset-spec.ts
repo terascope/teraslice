@@ -1,8 +1,8 @@
-
 import tmp from 'tmp';
 import fs from 'fs-extra';
 import decompress from 'decompress';
 import path from 'path';
+import nock from 'nock';
 import GithubAsset from '../../src/helpers/github-asset';
 import { GithubServer } from '../servers';
 
@@ -47,7 +47,7 @@ describe('GithubAsset', () => {
         });
 
         afterEach(() => {
-            server.close();
+            nock.cleanAll();
             tmpDir.removeCallback();
         });
 

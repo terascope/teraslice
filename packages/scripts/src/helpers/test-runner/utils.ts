@@ -1,4 +1,3 @@
-import ms from 'ms';
 import path from 'path';
 import isCI from 'is-ci';
 import fse from 'fs-extra';
@@ -6,19 +5,18 @@ import {
     debugLogger,
     get,
     TSError,
-    isFunction
+    isFunction,
+    flatten
 } from '@terascope/utils';
 import {
     ArgsMap,
     ExecEnv,
     exec,
     fork,
-    dockerPull,
-    dockerBuild
 } from '../scripts';
 import { TestOptions, GroupedPackages } from './interfaces';
-import { PackageInfo, TestSuite } from '../interfaces';
-import { getRootInfo } from '../misc';
+import { PackageInfo, Service } from '../interfaces';
+import { getServicesForSuite } from '../misc';
 import * as config from '../config';
 import signale from '../signale';
 
@@ -55,7 +53,7 @@ export function getArgs(options: TestOptions): ArgsMap {
         args.notify = '';
     }
 
-    if (options.suite === TestSuite.E2E) {
+    if (options.suite === 'e2e') {
         args.runInBand = '';
         args.coverage = 'false';
         args.bail = '';
@@ -64,16 +62,16 @@ export function getArgs(options: TestOptions): ArgsMap {
     return args;
 }
 
-export function getEnv(options: TestOptions, suite?: TestSuite): ExecEnv {
+export function getEnv(options: TestOptions, suite?: string): ExecEnv {
     const env: ExecEnv = {
         HOST_IP: config.HOST_IP,
         NODE_ENV: 'test',
         FORCE_COLOR: config.FORCE_COLOR,
     };
 
-    const isE2E = suite === TestSuite.E2E;
+    const launchServices: Service[] = suite ? getServicesForSuite(suite) : [];
 
-    if (!suite || suite === TestSuite.Elasticsearch || isE2E) {
+    if (launchServices.includes(Service.Elasticsearch)) {
         Object.assign(env, {
             TEST_INDEX_PREFIX: `${config.TEST_NAMESPACE}_`,
             ELASTICSEARCH_HOST: config.ELASTICSEARCH_HOST,
@@ -88,7 +86,7 @@ export function getEnv(options: TestOptions, suite?: TestSuite): ExecEnv {
         });
     }
 
-    if (!suite || suite === TestSuite.Kafka || isE2E) {
+    if (launchServices.includes(Service.Kafka)) {
         Object.assign(env, {
             KAFKA_BROKER: config.KAFKA_BROKER,
             KAFKA_VERSION: options.kafkaVersion,
@@ -107,8 +105,8 @@ export function getEnv(options: TestOptions, suite?: TestSuite): ExecEnv {
     return env;
 }
 
-export function setEnv(options: TestOptions) {
-    const env = getEnv(options);
+export function setEnv(options: TestOptions, suite?: string) {
+    const env = getEnv(options, suite);
     for (const [key, value] of Object.entries(env)) {
         process.env[key] = value;
     }
@@ -136,43 +134,51 @@ export function filterBySuite(pkgInfos: PackageInfo[], options: TestOptions): Pa
     });
 }
 
-export function onlyUnitTests(pkgInfos: PackageInfo[]): boolean {
-    return pkgInfos.every((pkgInfo) => pkgInfo.terascope.testSuite === TestSuite.Unit);
-}
-
-export function groupBySuite(pkgInfos: PackageInfo[], options: TestOptions): GroupedPackages {
-    const groups: GroupedPackages = {
-        [TestSuite.Unit]: [],
-        [TestSuite.Elasticsearch]: [],
-        [TestSuite.Kafka]: [],
-        [TestSuite.E2E]: [],
-    };
+export function groupBySuite(
+    pkgInfos: PackageInfo[],
+    availableSuites: string[],
+    options: TestOptions
+): GroupedPackages {
+    const groups: GroupedPackages = {};
 
     for (const pkgInfo of pkgInfos) {
-        const suite = pkgInfo.terascope.testSuite || TestSuite.Disabled;
-        if (suite === TestSuite.Disabled) continue;
+        const suite = pkgInfo.terascope.testSuite;
+        if (!suite || suite === 'disabled') continue;
+        if (suite === 'e2e') continue;
+        if (!availableSuites.includes(suite)) {
+            signale.warn(`${pkgInfo.name} is using ${suite} which is not known, add it to the root package.json`);
+        }
+
+        if (!groups[suite]) groups[suite] = [];
         groups[suite].push(pkgInfo);
     }
 
     const isWatchAll = !options.suite && options.watch;
     const isNotAll = !options.all;
-    if ((isNotAll || isWatchAll) && groups[TestSuite.Elasticsearch].length) {
-        groups[TestSuite.Elasticsearch] = [
-            ...groups[TestSuite.Unit],
-            ...groups[TestSuite.Elasticsearch]
-        ];
-        groups[TestSuite.Unit] = [];
+
+    const bundleSuite = groups[Service.Elasticsearch]
+        ? Service.Elasticsearch
+        : Object.keys(groups)[0];
+
+    if ((isNotAll || isWatchAll) && bundleSuite && groups[bundleSuite].length) {
+        groups[bundleSuite] = flatten(Object.values(groups));
+        for (const suite of Object.keys(groups)) {
+            if (suite !== bundleSuite) {
+                groups[suite] = [];
+            }
+        }
     }
 
     return groups;
 }
 
-export async function globalTeardown(options: TestOptions, pkgs: { name: string; dir: string }[]) {
-    for (const { name, dir } of pkgs) {
+type TeardownPkgsArg = { name: string; dir: string; suite?: string }[];
+export async function globalTeardown(options: TestOptions, pkgs: TeardownPkgsArg) {
+    for (const { name, dir, suite } of pkgs) {
         const filePath = path.join(dir, 'test/global.teardown.js');
         if (fse.existsSync(filePath)) {
             const cwd = process.cwd();
-            setEnv(options);
+            setEnv(options, suite);
             signale.debug(`Running ${path.relative(process.cwd(), filePath)}`);
             process.chdir(dir);
 
@@ -215,9 +221,9 @@ async function getE2ELogs(dir: string, env: ExecEnv): Promise<string> {
 export async function logE2E(dir: string, failed: boolean): Promise<void> {
     if (failed) {
         const errLogs = await getE2ELogs(dir, {
-            LOG_LEVEL: 'WARN',
-            RAW_LOGS: 'false',
-            FORCE_COLOR: '1',
+            LOG_LEVEL: 'INFO',
+            RAW_LOGS: isCI ? 'true' : 'false',
+            FORCE_COLOR: isCI ? '0' : '1',
         });
         process.stderr.write(`${errLogs}\n`);
     }
@@ -225,7 +231,7 @@ export async function logE2E(dir: string, failed: boolean): Promise<void> {
 
 const abc = 'abcdefghijklmnopqrstuvwxyz';
 
-export async function reportCoverage(suite: TestSuite, chunkIndex: number) {
+export async function reportCoverage(suite: string, chunkIndex: number) {
     const id = abc[chunkIndex] || 'any';
 
     signale.info('* reporting coverage');
@@ -237,36 +243,4 @@ export async function reportCoverage(suite: TestSuite, chunkIndex: number) {
     } catch (err) {
         signale.error(err);
     }
-}
-
-function getCacheFrom(): string[] {
-    if (!isCI) return [];
-
-    const rootInfo = getRootInfo();
-    const layers = rootInfo.terascope.docker.cache_layers || [];
-    if (!layers.length) return [];
-    const cacheFrom: { [name: string]: string } = {};
-    const [registry] = rootInfo.terascope.docker.registries;
-
-    layers.forEach(({ from, name }) => {
-        if (cacheFrom[from] == null) {
-            cacheFrom[from] = from;
-        }
-        cacheFrom[name] = `${registry}:dev-${name}`;
-    });
-    return Object.values(cacheFrom);
-}
-
-export async function buildDockerImage(target: string): Promise<void> {
-    const startTime = Date.now();
-    signale.pending(`building docker image ${target}`);
-
-    const cacheFrom = getCacheFrom();
-    if (cacheFrom.length) {
-        signale.debug(`pulling images ${cacheFrom}`);
-        await Promise.all(cacheFrom.map(dockerPull));
-    }
-
-    await dockerBuild(target, cacheFrom);
-    signale.success(`built docker image ${target}, took ${ms(Date.now() - startTime)}`);
 }

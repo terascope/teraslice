@@ -5,7 +5,7 @@ services:
         ports:
             - '45678:45678'
         scale: 1
-        restart: 'on-failure'
+        restart: 'no'
         stop_grace_period: 30s
         environment:
             - TERAFOUNDATION_CONFIG=/app/config/teraslice-master.json
@@ -18,8 +18,10 @@ services:
     teraslice-worker:
         image: terascope/teraslice:e2e
         scale: 2
-        restart: 'on-failure'
+        restart: 'no'
         stop_grace_period: 30s
+        links:
+            - teraslice-master
         environment:
             - TERAFOUNDATION_CONFIG=/app/config/teraslice-worker.json
             - NODE_OPTIONS=--max-old-space-size=256

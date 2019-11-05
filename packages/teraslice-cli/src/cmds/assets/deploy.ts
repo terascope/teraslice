@@ -34,7 +34,7 @@ export = {
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.conflicts('asset', ['build', 'file']);
         yargs.conflicts('replace', 'skip-upload');
-        yargs.example('$0 assets deploy ts-test1','Deploys to cluster at aliase ts-test1. This supposes that you are in a dir with an asset/asset.json to deploy');
+        yargs.example('$0 assets deploy ts-test1', 'Deploys to cluster at aliase ts-test1. This supposes that you are in a dir with an asset/asset.json to deploy');
         yargs.example('$0 assets deploy ts-test1 --build', 'zips up the current asset and deploys it');
         yargs.example('$0 assets deploy ts-test1 terascope/file-assets', 'deploys the latest github asset terascope/file-assets to cluster ts-test1');
         yargs.example('$0 assets deploy ts-test1 terascope/file-assets@v1.2.3', 'deploys the version v1.2.3 github asset terascope/file-assets to cluster ts-test1');
@@ -49,7 +49,7 @@ export = {
         const cliConfig = new Config(argv);
         const terasliceClient = getTerasliceClient(cliConfig);
 
-        let clusterInfo:Partial<GithubAssetConfig> = {};
+        let clusterInfo: Partial<GithubAssetConfig> = {};
 
         if (cliConfig.args.file) {
             // assetPath explicitly from a user provided file (-f/--file)
@@ -73,13 +73,16 @@ export = {
                     platform: cliConfig.args.platform,
                     nodeVersion: cliConfig.args.nodeVersion,
                     assetString: cliConfig.args.asset
-                }
+                };
                 // TODO: We should prevent people from uploading the wrong arch
                 // if cluster.info() is available
             } else {
                 try {
                     const clusterInfoResponse = await terasliceClient.cluster.info();
-                    clusterInfo = Object.assign({}, clusterInfoResponse,  { nodeVersion: clusterInfoResponse.node_version, assetString: cliConfig.args.asset })
+                    clusterInfo = Object.assign({}, clusterInfoResponse, {
+                        nodeVersion: clusterInfoResponse.node_version,
+                        assetString: cliConfig.args.asset
+                    });
                 } catch (err) {
                     reply.fatal(`Unable to get cluster information from ${cliConfig.args.clusterAlias}: ${err.stack}`);
                 }
@@ -121,7 +124,7 @@ export = {
 
                 const clusterAssetData = await terasliceClient.assets.getAsset(asset.name);
                 const assetToReplace = clusterAssetData
-                    .filter((clusterAsset:any) => clusterAsset.version === asset.version)[0];
+                    .filter((clusterAsset: any) => clusterAsset.version === asset.version)[0];
 
                 if (_.has(assetToReplace, 'id')) {
                     const response = await terasliceClient.assets.delete(assetToReplace.id);

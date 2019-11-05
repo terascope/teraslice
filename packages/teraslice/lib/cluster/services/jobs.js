@@ -1,9 +1,14 @@
 'use strict';
 
 const Promise = require('bluebird');
-const _ = require('lodash');
 const util = require('util');
-const { TSError } = require('@terascope/utils');
+const {
+    TSError,
+    uniq,
+    get,
+    cloneDeep,
+    isEmpty
+} = require('@terascope/utils');
 const { JobValidator } = require('@terascope/job-components');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 const spawnAssetsLoader = require('../../workers/assets/spawn');
@@ -16,7 +21,7 @@ module.exports = function jobsService(context) {
 
     const jobValidator = new JobValidator(context, {
         terasliceOpPath,
-        assetPath: _.get(context, 'sysconfig.teraslice.assets_directory'),
+        assetPath: get(context, 'sysconfig.teraslice.assets_directory'),
     });
 
     let jobStore;
@@ -108,7 +113,7 @@ module.exports = function jobsService(context) {
 
     function getLatestExecution(jobId, _query, allowZero) {
         const allowZeroResults = allowZero || false;
-        let query = `job_id: ${jobId}`;
+        let query = `job_id: "${jobId}"`;
         if (_query) query = _query;
         return executionService
             .searchExecutionContexts(query, null, 1, '_created:desc')
@@ -125,9 +130,9 @@ module.exports = function jobsService(context) {
     function _getActiveExecution(jobId, allowZeroResults) {
         const str = executionService
             .terminalStatusList()
-            .map((state) => ` _status:${state} `)
+            .map((state) => ` _status:"${state}" `)
             .join('OR');
-        const query = `job_id: ${jobId} AND _context:ex NOT (${str.trim()})`;
+        const query = `job_id:"${jobId}" AND _context:ex NOT (${str.trim()})`;
         return getLatestExecution(jobId, query, allowZeroResults);
     }
 
@@ -167,10 +172,10 @@ module.exports = function jobsService(context) {
     }
 
     function _ensureAssets(jobConfig) {
-        const jobAssets = jobConfig.assets;
+        const jobAssets = uniq(jobConfig.assets || []);
         return new Promise((resolve, reject) => {
-            if (_.isEmpty(jobAssets)) {
-                resolve(jobConfig);
+            if (isEmpty(jobAssets)) {
+                resolve(cloneDeep(jobConfig));
             } else {
                 // convert asset references to their id's
                 spawnAssetsLoader(jobAssets)
@@ -187,7 +192,7 @@ module.exports = function jobsService(context) {
 
                         // need to normalize asset identifiers to their id form
                         // but not mutate original job_spec
-                        const parsedAssetJob = _.cloneDeep(jobConfig);
+                        const parsedAssetJob = cloneDeep(jobConfig);
                         parsedAssetJob.assets = assetIds;
                         resolve(parsedAssetJob);
                     })

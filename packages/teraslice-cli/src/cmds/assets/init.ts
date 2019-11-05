@@ -1,8 +1,8 @@
 
-import { CMD } from '../../interfaces';
 import path from 'path';
 import fs from 'fs-extra';
 import yeoman from 'yeoman-environment';
+import { CMD } from '../../interfaces';
 
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
@@ -26,7 +26,7 @@ export = {
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         // @ts-ignore
         yargs.example('$0 asset init');
-         // @ts-ignore
+        // @ts-ignore
         yargs.example('$0 asset init --processor');
         return yargs;
     },

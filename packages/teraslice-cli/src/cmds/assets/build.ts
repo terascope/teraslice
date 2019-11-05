@@ -18,11 +18,11 @@ export = {
         // @ts-ignore
         yargs.example('$0 assets build');
         // build asset found in specified src-dir
-         // @ts-ignore
+        // @ts-ignore
         yargs.example('$0 assets build --src-dir /path/to/myAsset/');
         return yargs;
     },
-    async handler (argv) {
+    async handler(argv) {
         const cliConfig = new Config(argv);
         try {
             const asset = new AssetSrc(cliConfig.args.srcDir);

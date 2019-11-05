@@ -11,7 +11,7 @@ sidebar_label: default
 
 * Generator
 
-  * **default**
+  ↳ **default**
 
 ## Index
 
@@ -141,7 +141,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/
 
 *Overrides void*
 
-*Defined in [generators/new-processor/index.ts:8](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/teraslice-cli/src/generators/new-processor/index.ts#L8)*
+*Defined in [generators/new-processor/index.ts:8](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/generators/new-processor/index.ts#L8)*
 
 **Parameters:**
 
@@ -158,9 +158,9 @@ Name | Type |
 
 • **answers**: *any*
 
-*Defined in [generators/new-processor/index.ts:8](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/teraslice-cli/src/generators/new-processor/index.ts#L8)*
+*Defined in [generators/new-processor/index.ts:8](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/generators/new-processor/index.ts#L8)*
 
-*Defined in [generators/new-asset/index.ts:9](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/teraslice-cli/src/generators/new-asset/index.ts#L9)*
+*Defined in [generators/new-asset/index.ts:9](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/generators/new-asset/index.ts#L9)*
 
 ___
 
@@ -270,7 +270,7 @@ ___
 
 • **useYarn**? : *undefined | false | true*
 
-*Defined in [generators/new-asset/index.ts:10](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/teraslice-cli/src/generators/new-asset/index.ts#L10)*
+*Defined in [generators/new-asset/index.ts:10](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/generators/new-asset/index.ts#L10)*
 
 ___
 
@@ -296,7 +296,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:9
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:18
 
 ## Methods
 
@@ -304,7 +304,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:
 
 ▸ **addExampleProcessor**(): *void*
 
-*Defined in [generators/new-asset/index.ts:81](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/teraslice-cli/src/generators/new-asset/index.ts#L81)*
+*Defined in [generators/new-asset/index.ts:81](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/generators/new-asset/index.ts#L81)*
 
 **Returns:** *void*
 
@@ -318,7 +318,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:11
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:20
 
 **Parameters:**
 
@@ -441,7 +441,7 @@ ___
 
 ▸ **createProcessor**(): *void*
 
-*Defined in [generators/new-processor/index.ts:50](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/teraslice-cli/src/generators/new-processor/index.ts#L50)*
+*Defined in [generators/new-processor/index.ts:50](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/generators/new-processor/index.ts#L50)*
 
 **Returns:** *void*
 
@@ -451,7 +451,7 @@ ___
 
 ▸ **default**(): *void*
 
-*Defined in [generators/new-asset/index.ts:44](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/teraslice-cli/src/generators/new-asset/index.ts#L44)*
+*Defined in [generators/new-asset/index.ts:44](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/generators/new-asset/index.ts#L44)*
 
 **Returns:** *void*
 
@@ -539,7 +539,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:23
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:32
 
 **Parameters:**
 
@@ -560,7 +560,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:24
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:33
 
 **Returns:** *Array‹string | symbol›*
 
@@ -574,7 +574,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:20
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:29
 
 **Returns:** *number*
 
@@ -598,7 +598,7 @@ ___
 
 ▸ **install**(): *void*
 
-*Defined in [generators/new-asset/index.ts:90](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/teraslice-cli/src/generators/new-asset/index.ts#L90)*
+*Defined in [generators/new-asset/index.ts:90](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/generators/new-asset/index.ts#L90)*
 
 **Returns:** *void*
 
@@ -647,7 +647,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:25
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:34
 
 **Parameters:**
 
@@ -667,7 +667,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:21
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:30
 
 **Parameters:**
 
@@ -734,7 +734,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:17
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:26
 
 **Parameters:**
 
@@ -762,7 +762,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:12
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:21
 
 **Parameters:**
 
@@ -790,7 +790,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:13
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:22
 
 **Parameters:**
 
@@ -849,7 +849,7 @@ ___
 
 ▸ **paths**(): *void*
 
-*Defined in [generators/new-processor/index.ts:46](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/teraslice-cli/src/generators/new-processor/index.ts#L46)*
+*Defined in [generators/new-processor/index.ts:46](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/generators/new-processor/index.ts#L46)*
 
 **Returns:** *void*
 
@@ -863,7 +863,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:14
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:23
 
 **Parameters:**
 
@@ -891,7 +891,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:15
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:24
 
 **Parameters:**
 
@@ -939,7 +939,7 @@ ___
 
 ▸ **prompting**(): *Promise‹void›*
 
-*Defined in [generators/new-processor/index.ts:17](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/teraslice-cli/src/generators/new-processor/index.ts#L17)*
+*Defined in [generators/new-processor/index.ts:17](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/generators/new-processor/index.ts#L17)*
 
 **Returns:** *Promise‹void›*
 
@@ -953,7 +953,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:22
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:31
 
 **Parameters:**
 
@@ -993,7 +993,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:18
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:27
 
 **Parameters:**
 
@@ -1013,7 +1013,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:16
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:25
 
 **Parameters:**
 
@@ -1117,7 +1117,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:19
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:28
 
 **Parameters:**
 
@@ -1261,7 +1261,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:8
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:17
 
 **`deprecated`** since v4.0.0
 

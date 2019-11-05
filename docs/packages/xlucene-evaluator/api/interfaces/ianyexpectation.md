@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `IAnyExpectation`
+title: xLucene Evaluator: `IAnyExpectation`
 sidebar_label: IAnyExpectation
 ---
 
@@ -21,4 +21,4 @@ sidebar_label: IAnyExpectation
 
 • **type**: *"any"*
 
-Defined in parser/peg-engine.ts:37
+Defined in parser/peg-engine.ts:38

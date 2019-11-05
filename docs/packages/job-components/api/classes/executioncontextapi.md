@@ -42,7 +42,7 @@ The following functionality is included:
 
 \+ **new ExecutionContextAPI**(`context`: [Context](../interfaces/context.md), `executionConfig`: [ExecutionConfig](../interfaces/executionconfig.md)): *[ExecutionContextAPI](executioncontextapi.md)*
 
-*Defined in [execution-context/api.ts:25](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/execution-context/api.ts#L25)*
+*Defined in [execution-context/api.ts:25](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/execution-context/api.ts#L25)*
 
 **Parameters:**
 
@@ -59,7 +59,7 @@ Name | Type |
 
 • **get apis**(): *Readonly‹[JobAPIInstances](../interfaces/jobapiinstances.md)›*
 
-*Defined in [execution-context/api.ts:39](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/execution-context/api.ts#L39)*
+*Defined in [execution-context/api.ts:39](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/execution-context/api.ts#L39)*
 
 **Returns:** *Readonly‹[JobAPIInstances](../interfaces/jobapiinstances.md)›*
 
@@ -69,7 +69,7 @@ ___
 
 • **get registry**(): *object*
 
-*Defined in [execution-context/api.ts:35](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/execution-context/api.ts#L35)*
+*Defined in [execution-context/api.ts:35](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/execution-context/api.ts#L35)*
 
 For backwards compatibility
 
@@ -81,7 +81,7 @@ For backwards compatibility
 
 ▸ **addToRegistry**(`name`: string, `API`: [APIConstructor](../overview.md#apiconstructor)): *void*
 
-*Defined in [execution-context/api.ts:44](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/execution-context/api.ts#L44)*
+*Defined in [execution-context/api.ts:44](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/execution-context/api.ts#L44)*
 
 Add an API constructor to the registry
 
@@ -100,7 +100,7 @@ ___
 
 ▸ **getAPI**<**T**>(`name`: string): *T*
 
-*Defined in [execution-context/api.ts:92](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/execution-context/api.ts#L92)*
+*Defined in [execution-context/api.ts:92](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/execution-context/api.ts#L92)*
 
 Get a reference to a specific operation API,
 the must be initialized and created
@@ -123,7 +123,7 @@ ___
 
 ▸ **getObserver**<**T**>(`name`: string): *T*
 
-*Defined in [execution-context/api.ts:77](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/execution-context/api.ts#L77)*
+*Defined in [execution-context/api.ts:77](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/execution-context/api.ts#L77)*
 
 Get a reference to a specific operation API,
 the must be initialized and created
@@ -146,7 +146,7 @@ ___
 
 ▸ **initAPI**<**T**>(`name`: string, ...`params`: any[]): *Promise‹T›*
 
-*Defined in [execution-context/api.ts:109](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/execution-context/api.ts#L109)*
+*Defined in [execution-context/api.ts:109](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/execution-context/api.ts#L109)*
 
 Create an instance of the API
 
@@ -167,9 +167,9 @@ ___
 
 ###  makeLogger
 
-▸ **makeLogger**(`moduleName`: string, `extra`: AnyObject): *Logger*
+▸ **makeLogger**(`moduleName`: string, `extra`: AnyObject): *Logger‹›*
 
-*Defined in [execution-context/api.ts:137](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/execution-context/api.ts#L137)*
+*Defined in [execution-context/api.ts:137](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/execution-context/api.ts#L137)*
 
 Make a logger with a the job_id and ex_id in the logger context
 
@@ -180,4 +180,4 @@ Name | Type | Default |
 `moduleName` | string | - |
 `extra` | AnyObject |  {} |
 
-**Returns:** *Logger*
+**Returns:** *Logger‹›*

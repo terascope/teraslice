@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `FieldGroup`
+title: xLucene Evaluator: `FieldGroup`
 sidebar_label: FieldGroup
 ---
 
@@ -9,7 +9,7 @@ sidebar_label: FieldGroup
 
 * [GroupLikeAST](grouplikeast.md)
 
-  * **FieldGroup**
+  ↳ **FieldGroup**
 
 ## Index
 
@@ -25,7 +25,7 @@ sidebar_label: FieldGroup
 
 • **field**: *string*
 
-*Defined in [parser/interfaces.ts:118](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L118)*
+*Defined in [parser/interfaces.ts:113](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L113)*
 
 ___
 
@@ -35,7 +35,7 @@ ___
 
 *Inherited from [GroupLikeAST](grouplikeast.md).[flow](grouplikeast.md#flow)*
 
-*Defined in [parser/interfaces.ts:40](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L40)*
+*Defined in [parser/interfaces.ts:31](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L31)*
 
 ___
 
@@ -45,4 +45,4 @@ ___
 
 *Overrides [GroupLikeAST](grouplikeast.md).[type](grouplikeast.md#type)*
 
-*Defined in [parser/interfaces.ts:117](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L117)*
+*Defined in [parser/interfaces.ts:112](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L112)*

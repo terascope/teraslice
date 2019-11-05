@@ -5,19 +5,24 @@ sidebar_label: DataEntityMetadata
 
 # Interface: DataEntityMetadata
 
+DataEntities have conventional metadata properties
+that can track source, destination and other process
+information.
+
+**NOTE** Time values are set in UNIX Epoch time,
+to reduce memory footput, the DataEntity has convenience
+apis for getting and setting the time given and handling
+the conversion between unix milliseconds to Date format.
+
 ## Hierarchy
 
 * **DataEntityMetadata**
-
-## Indexable
-
-* \[ **prop**: *string*\]: any
 
 ## Index
 
 ### Properties
 
-* [_createTime](dataentitymetadata.md#_createtime)
+* [_createTime](dataentitymetadata.md#optional-_createtime)
 * [_eventTime](dataentitymetadata.md#optional-_eventtime)
 * [_ingestTime](dataentitymetadata.md#optional-_ingesttime)
 * [_key](dataentitymetadata.md#optional-_key)
@@ -25,13 +30,16 @@ sidebar_label: DataEntityMetadata
 
 ## Properties
 
-###  _createTime
+### `Optional` _createTime
 
-• **_createTime**: *number*
+• **_createTime**? : *undefined | number*
 
-*Defined in [entities/interfaces.ts:14](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/entities/interfaces.ts#L14)*
+*Defined in [entities/interfaces.ts:41](https://github.com/terascope/teraslice/blob/d8feecc03/packages/utils/src/entities/interfaces.ts#L41)*
 
 The time at which this entity was created
+(this is automatically set on DataEntity creation)
+
+**`readonly`** 
 
 ___
 
@@ -39,7 +47,7 @@ ___
 
 • **_eventTime**? : *undefined | number*
 
-*Defined in [entities/interfaces.ts:26](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/entities/interfaces.ts#L26)*
+*Defined in [entities/interfaces.ts:53](https://github.com/terascope/teraslice/blob/d8feecc03/packages/utils/src/entities/interfaces.ts#L53)*
 
 The time associated with this data entity,
 usually off of a specific field on source data or message
@@ -50,7 +58,7 @@ ___
 
 • **_ingestTime**? : *undefined | number*
 
-*Defined in [entities/interfaces.ts:17](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/entities/interfaces.ts#L17)*
+*Defined in [entities/interfaces.ts:44](https://github.com/terascope/teraslice/blob/d8feecc03/packages/utils/src/entities/interfaces.ts#L44)*
 
 The time at which the data was ingested into the source data
 
@@ -58,9 +66,9 @@ ___
 
 ### `Optional` _key
 
-• **_key**? : *undefined | string*
+• **_key**? : *string | number*
 
-*Defined in [entities/interfaces.ts:29](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/entities/interfaces.ts#L29)*
+*Defined in [entities/interfaces.ts:56](https://github.com/terascope/teraslice/blob/d8feecc03/packages/utils/src/entities/interfaces.ts#L56)*
 
 A unique key for the data which will be can be used to key the data
 
@@ -70,6 +78,6 @@ ___
 
 • **_processTime**? : *undefined | number*
 
-*Defined in [entities/interfaces.ts:20](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/entities/interfaces.ts#L20)*
+*Defined in [entities/interfaces.ts:47](https://github.com/terascope/teraslice/blob/d8feecc03/packages/utils/src/entities/interfaces.ts#L47)*
 
 The time at which the data was consumed by the reader

@@ -207,6 +207,7 @@ module.exports = async () => {
     await misc.globalTeardown(false);
     await misc.resetLogs();
 
+    process.stdout.write('\n');
     signale.time('global setup');
 
     await Promise.all([setupTerasliceConfig(), downloadAssets()]);

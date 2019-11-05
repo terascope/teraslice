@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `DocumentMatcher`
+title: xLucene Evaluator: `DocumentMatcher`
 sidebar_label: DocumentMatcher
 ---
 
@@ -25,7 +25,7 @@ sidebar_label: DocumentMatcher
 
 \+ **new DocumentMatcher**(`query`: string, `options`: [DocumentMatcherOptions](../interfaces/documentmatcheroptions.md)): *[DocumentMatcher](documentmatcher.md)*
 
-*Defined in [document-matcher/index.ts:10](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/document-matcher/index.ts#L10)*
+*Defined in [document-matcher/index.ts:10](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/document-matcher/index.ts#L10)*
 
 **Parameters:**
 
@@ -42,7 +42,7 @@ Name | Type | Default |
 
 ▸ **match**(`doc`: object): *boolean*
 
-*Defined in [document-matcher/index.ts:25](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/document-matcher/index.ts#L25)*
+*Defined in [document-matcher/index.ts:25](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/document-matcher/index.ts#L25)*
 
 **Parameters:**
 

@@ -13,7 +13,7 @@ sidebar_label: RecursiveArray
 
 * Array‹T | [RecursiveArray](recursivearray.md)‹T››
 
-  * **RecursiveArray**
+  ↳ **RecursiveArray**
 
 ## Indexable
 
@@ -66,7 +66,7 @@ sidebar_label: RecursiveArray
 
 • **Array**: *ArrayConstructor*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1368
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1385
 
 ___
 
@@ -76,7 +76,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1209
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1215
 
 Gets or sets the length of the array. This is a number one higher than the highest element defined in an array.
 
@@ -88,7 +88,7 @@ Gets or sets the length of the array. This is a number one higher than the highe
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:52
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.iterable.d.ts:60
 
 Iterator
 
@@ -102,7 +102,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts:94
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts:94
 
 Returns an object whose properties have the value 'true'
 when they will be absent when used in a 'with' statement.
@@ -117,7 +117,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1231
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1237
 
 Combines two or more arrays.
 
@@ -125,7 +125,7 @@ Combines two or more arrays.
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`...items` | ConcatArray‹T \| [RecursiveArray](recursivearray.md)‹T››[] | Additional items to add to the end of array1.  |
+`...items` | ConcatArray‹T &#124; [RecursiveArray](recursivearray.md)‹T››[] | Additional items to add to the end of array1.  |
 
 **Returns:** *T | [RecursiveArray](recursivearray.md)‹T›[]*
 
@@ -133,7 +133,7 @@ Name | Type | Description |
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1236
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1242
 
 Combines two or more arrays.
 
@@ -141,7 +141,7 @@ Combines two or more arrays.
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`...items` | T \| ConcatArray‹T›[] | Additional items to add to the end of array1.  |
+`...items` | T &#124; ConcatArray‹T›[] | Additional items to add to the end of array1.  |
 
 **Returns:** *T | [RecursiveArray](recursivearray.md)‹T›[]*
 
@@ -153,7 +153,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts:64
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.core.d.ts:64
 
 Returns the this object after copying a section of the array identified by start and end
 to the same array starting at position target
@@ -164,7 +164,7 @@ Name | Type | Description |
 ------ | ------ | ------ |
 `target` | number | If target is negative, it is treated as length+target where length is the length of the array. |
 `start` | number | If start is negative, it is treated as length+start. If end is negative, it is treated as length+end. |
-`end?` | undefined \| number | If not specified, length of the this object is used as its default value.  |
+`end?` | undefined &#124; number | If not specified, length of the this object is used as its default value.  |
 
 **Returns:** *this*
 
@@ -176,7 +176,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:57
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.iterable.d.ts:65
 
 Returns an iterable of key, value pairs for every entry in the array
 
@@ -190,7 +190,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1296
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1310
 
 Determines whether all the members of an array satisfy the specified test.
 
@@ -198,7 +198,9 @@ Determines whether all the members of an array satisfy the specified test.
 
 ▪ **callbackfn**: *function*
 
-A function that accepts up to three arguments. The every method calls the callbackfn function for each element in array1 until the callbackfn returns false, or until the end of the array.
+A function that accepts up to three arguments. The every method calls
+the callbackfn function for each element in the array until the callbackfn returns a value
+which is coercible to the Boolean value false, or until the end of the array.
 
 ▸ (`value`: T | [RecursiveArray](recursivearray.md)‹T›, `index`: number, `array`: T | [RecursiveArray](recursivearray.md)‹T›[]): *unknown*
 
@@ -206,13 +208,14 @@ A function that accepts up to three arguments. The every method calls the callba
 
 Name | Type |
 ------ | ------ |
-`value` | T \| [RecursiveArray](recursivearray.md)‹T› |
+`value` | T &#124; [RecursiveArray](recursivearray.md)‹T› |
 `index` | number |
-`array` | T \| [RecursiveArray](recursivearray.md)‹T›[] |
+`array` | T &#124; [RecursiveArray](recursivearray.md)‹T›[] |
 
 ▪`Optional`  **thisArg**: *any*
 
-An object to which the this keyword can refer in the callbackfn function. If thisArg is omitted, undefined is used as the this value.
+An object to which the this keyword can refer in the callbackfn function.
+If thisArg is omitted, undefined is used as the this value.
 
 **Returns:** *boolean*
 
@@ -224,7 +227,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts:53
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.core.d.ts:53
 
 Returns the this object after filling the section identified by start and end with value
 
@@ -232,9 +235,9 @@ Returns the this object after filling the section identified by start and end wi
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`value` | T \| [RecursiveArray](recursivearray.md)‹T› | value to fill array section with |
-`start?` | undefined \| number | index to start filling the array at. If start is negative, it is treated as length+start where length is the length of the array. |
-`end?` | undefined \| number | index to stop filling the array at. If end is negative, it is treated as length+end.  |
+`value` | T &#124; [RecursiveArray](recursivearray.md)‹T› | value to fill array section with |
+`start?` | undefined &#124; number | index to start filling the array at. If start is negative, it is treated as length+start where length is the length of the array. |
+`end?` | undefined &#124; number | index to stop filling the array at. If end is negative, it is treated as length+end.  |
 
 **Returns:** *this*
 
@@ -246,7 +249,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1320
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1337
 
 Returns the elements of an array that meet the condition specified in a callback function.
 
@@ -266,9 +269,9 @@ A function that accepts up to three arguments. The filter method calls the callb
 
 Name | Type |
 ------ | ------ |
-`value` | T \| [RecursiveArray](recursivearray.md)‹T› |
+`value` | T &#124; [RecursiveArray](recursivearray.md)‹T› |
 `index` | number |
-`array` | T \| [RecursiveArray](recursivearray.md)‹T›[] |
+`array` | T &#124; [RecursiveArray](recursivearray.md)‹T›[] |
 
 ▪`Optional`  **thisArg**: *any*
 
@@ -280,7 +283,7 @@ An object to which the this keyword can refer in the callbackfn function. If thi
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1326
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1343
 
 Returns the elements of an array that meet the condition specified in a callback function.
 
@@ -296,9 +299,9 @@ A function that accepts up to three arguments. The filter method calls the callb
 
 Name | Type |
 ------ | ------ |
-`value` | T \| [RecursiveArray](recursivearray.md)‹T› |
+`value` | T &#124; [RecursiveArray](recursivearray.md)‹T› |
 `index` | number |
-`array` | T \| [RecursiveArray](recursivearray.md)‹T›[] |
+`array` | T &#124; [RecursiveArray](recursivearray.md)‹T›[] |
 
 ▪`Optional`  **thisArg**: *any*
 
@@ -314,7 +317,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts:31
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.core.d.ts:31
 
 Returns the value of the first element in the array where predicate is true, and undefined
 otherwise.
@@ -338,9 +341,9 @@ immediately returns that element value. Otherwise, find returns undefined.
 Name | Type |
 ------ | ------ |
 `this` | void |
-`value` | T \| [RecursiveArray](recursivearray.md)‹T› |
+`value` | T &#124; [RecursiveArray](recursivearray.md)‹T› |
 `index` | number |
-`obj` | T \| [RecursiveArray](recursivearray.md)‹T›[] |
+`obj` | T &#124; [RecursiveArray](recursivearray.md)‹T›[] |
 
 ▪`Optional`  **thisArg**: *any*
 
@@ -353,7 +356,7 @@ predicate. If it is not provided, undefined is used instead.
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts:32
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.core.d.ts:32
 
 **Parameters:**
 
@@ -365,9 +368,9 @@ Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/n
 
 Name | Type |
 ------ | ------ |
-`value` | T \| [RecursiveArray](recursivearray.md)‹T› |
+`value` | T &#124; [RecursiveArray](recursivearray.md)‹T› |
 `index` | number |
-`obj` | T \| [RecursiveArray](recursivearray.md)‹T›[] |
+`obj` | T &#124; [RecursiveArray](recursivearray.md)‹T›[] |
 
 ▪`Optional`  **thisArg**: *any*
 
@@ -381,7 +384,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.core.d.ts:43
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.core.d.ts:43
 
 Returns the index of the first element in the array where predicate is true, and -1
 otherwise.
@@ -400,9 +403,9 @@ findIndex immediately returns that element index. Otherwise, findIndex returns -
 
 Name | Type |
 ------ | ------ |
-`value` | T \| [RecursiveArray](recursivearray.md)‹T› |
+`value` | T &#124; [RecursiveArray](recursivearray.md)‹T› |
 `index` | number |
-`obj` | T \| [RecursiveArray](recursivearray.md)‹T›[] |
+`obj` | T &#124; [RecursiveArray](recursivearray.md)‹T›[] |
 
 ▪`Optional`  **thisArg**: *any*
 
@@ -419,7 +422,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1308
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1325
 
 Performs the specified action for each element in an array.
 
@@ -435,9 +438,9 @@ A function that accepts up to three arguments. forEach calls the callbackfn func
 
 Name | Type |
 ------ | ------ |
-`value` | T \| [RecursiveArray](recursivearray.md)‹T› |
+`value` | T &#124; [RecursiveArray](recursivearray.md)‹T› |
 `index` | number |
-`array` | T \| [RecursiveArray](recursivearray.md)‹T›[] |
+`array` | T &#124; [RecursiveArray](recursivearray.md)‹T›[] |
 
 ▪`Optional`  **thisArg**: *any*
 
@@ -453,7 +456,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2016.array.include.d.ts:27
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2016.array.include.d.ts:27
 
 Determines whether an array includes a certain element, returning true or false as appropriate.
 
@@ -461,8 +464,8 @@ Determines whether an array includes a certain element, returning true or false 
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`searchElement` | T \| [RecursiveArray](recursivearray.md)‹T› | The element to search for. |
-`fromIndex?` | undefined \| number | The position in this array at which to begin searching for searchElement.  |
+`searchElement` | T &#124; [RecursiveArray](recursivearray.md)‹T› | The element to search for. |
+`fromIndex?` | undefined &#124; number | The position in this array at which to begin searching for searchElement.  |
 
 **Returns:** *boolean*
 
@@ -474,7 +477,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1284
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1295
 
 Returns the index of the first occurrence of a value in an array.
 
@@ -482,8 +485,8 @@ Returns the index of the first occurrence of a value in an array.
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`searchElement` | T \| [RecursiveArray](recursivearray.md)‹T› | The value to locate in the array. |
-`fromIndex?` | undefined \| number | The array index at which to begin the search. If fromIndex is omitted, the search starts at index 0.  |
+`searchElement` | T &#124; [RecursiveArray](recursivearray.md)‹T› | The value to locate in the array. |
+`fromIndex?` | undefined &#124; number | The array index at which to begin the search. If fromIndex is omitted, the search starts at index 0.  |
 
 **Returns:** *number*
 
@@ -495,7 +498,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1241
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1247
 
 Adds all the elements of an array separated by the specified separator string.
 
@@ -503,7 +506,7 @@ Adds all the elements of an array separated by the specified separator string.
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`separator?` | undefined \| string | A string used to separate one element of an array from the next in the resulting String. If omitted, the array elements are separated with a comma.  |
+`separator?` | undefined &#124; string | A string used to separate one element of an array from the next in the resulting String. If omitted, the array elements are separated with a comma.  |
 
 **Returns:** *string*
 
@@ -515,7 +518,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:62
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.iterable.d.ts:70
 
 Returns an iterable of keys in the array
 
@@ -529,7 +532,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1290
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1301
 
 Returns the index of the last occurrence of a specified value in an array.
 
@@ -537,8 +540,8 @@ Returns the index of the last occurrence of a specified value in an array.
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`searchElement` | T \| [RecursiveArray](recursivearray.md)‹T› | The value to locate in the array. |
-`fromIndex?` | undefined \| number | The array index at which to begin the search. If fromIndex is omitted, the search starts at the last index in the array.  |
+`searchElement` | T &#124; [RecursiveArray](recursivearray.md)‹T› | The value to locate in the array. |
+`fromIndex?` | undefined &#124; number | The array index at which to begin the search. If fromIndex is omitted, the search starts at the last index in the array.  |
 
 **Returns:** *number*
 
@@ -550,7 +553,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1314
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1331
 
 Calls a defined callback function on each element of an array, and returns an array that contains the results.
 
@@ -570,9 +573,9 @@ A function that accepts up to three arguments. The map method calls the callback
 
 Name | Type |
 ------ | ------ |
-`value` | T \| [RecursiveArray](recursivearray.md)‹T› |
+`value` | T &#124; [RecursiveArray](recursivearray.md)‹T› |
 `index` | number |
-`array` | T \| [RecursiveArray](recursivearray.md)‹T›[] |
+`array` | T &#124; [RecursiveArray](recursivearray.md)‹T›[] |
 
 ▪`Optional`  **thisArg**: *any*
 
@@ -588,7 +591,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1221
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1227
 
 Removes the last element from an array and returns it.
 
@@ -602,7 +605,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1226
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1232
 
 Appends new elements to an array, and returns the new length of the array.
 
@@ -610,7 +613,7 @@ Appends new elements to an array, and returns the new length of the array.
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`...items` | T \| [RecursiveArray](recursivearray.md)‹T›[] | New elements of the Array.  |
+`...items` | T &#124; [RecursiveArray](recursivearray.md)‹T›[] | New elements of the Array.  |
 
 **Returns:** *number*
 
@@ -622,7 +625,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1332
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1349
 
 Calls the specified callback function for all the elements in an array. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function.
 
@@ -638,10 +641,10 @@ A function that accepts up to four arguments. The reduce method calls the callba
 
 Name | Type |
 ------ | ------ |
-`previousValue` | T \| [RecursiveArray](recursivearray.md)‹T› |
-`currentValue` | T \| [RecursiveArray](recursivearray.md)‹T› |
+`previousValue` | T &#124; [RecursiveArray](recursivearray.md)‹T› |
+`currentValue` | T &#124; [RecursiveArray](recursivearray.md)‹T› |
 `currentIndex` | number |
-`array` | T \| [RecursiveArray](recursivearray.md)‹T›[] |
+`array` | T &#124; [RecursiveArray](recursivearray.md)‹T›[] |
 
 **Returns:** *T | [RecursiveArray](recursivearray.md)‹T›*
 
@@ -649,7 +652,7 @@ Name | Type |
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1333
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1350
 
 **Parameters:**
 
@@ -661,10 +664,10 @@ Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/n
 
 Name | Type |
 ------ | ------ |
-`previousValue` | T \| [RecursiveArray](recursivearray.md)‹T› |
-`currentValue` | T \| [RecursiveArray](recursivearray.md)‹T› |
+`previousValue` | T &#124; [RecursiveArray](recursivearray.md)‹T› |
+`currentValue` | T &#124; [RecursiveArray](recursivearray.md)‹T› |
 `currentIndex` | number |
-`array` | T \| [RecursiveArray](recursivearray.md)‹T›[] |
+`array` | T &#124; [RecursiveArray](recursivearray.md)‹T›[] |
 
 ▪ **initialValue**: *T | [RecursiveArray](recursivearray.md)‹T›*
 
@@ -674,7 +677,7 @@ Name | Type |
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1339
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1356
 
 Calls the specified callback function for all the elements in an array. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function.
 
@@ -695,9 +698,9 @@ A function that accepts up to four arguments. The reduce method calls the callba
 Name | Type |
 ------ | ------ |
 `previousValue` | U |
-`currentValue` | T \| [RecursiveArray](recursivearray.md)‹T› |
+`currentValue` | T &#124; [RecursiveArray](recursivearray.md)‹T› |
 `currentIndex` | number |
-`array` | T \| [RecursiveArray](recursivearray.md)‹T›[] |
+`array` | T &#124; [RecursiveArray](recursivearray.md)‹T›[] |
 
 ▪ **initialValue**: *U*
 
@@ -713,7 +716,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1345
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1362
 
 Calls the specified callback function for all the elements in an array, in descending order. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function.
 
@@ -729,10 +732,10 @@ A function that accepts up to four arguments. The reduceRight method calls the c
 
 Name | Type |
 ------ | ------ |
-`previousValue` | T \| [RecursiveArray](recursivearray.md)‹T› |
-`currentValue` | T \| [RecursiveArray](recursivearray.md)‹T› |
+`previousValue` | T &#124; [RecursiveArray](recursivearray.md)‹T› |
+`currentValue` | T &#124; [RecursiveArray](recursivearray.md)‹T› |
 `currentIndex` | number |
-`array` | T \| [RecursiveArray](recursivearray.md)‹T›[] |
+`array` | T &#124; [RecursiveArray](recursivearray.md)‹T›[] |
 
 **Returns:** *T | [RecursiveArray](recursivearray.md)‹T›*
 
@@ -740,7 +743,7 @@ Name | Type |
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1346
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1363
 
 **Parameters:**
 
@@ -752,10 +755,10 @@ Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/n
 
 Name | Type |
 ------ | ------ |
-`previousValue` | T \| [RecursiveArray](recursivearray.md)‹T› |
-`currentValue` | T \| [RecursiveArray](recursivearray.md)‹T› |
+`previousValue` | T &#124; [RecursiveArray](recursivearray.md)‹T› |
+`currentValue` | T &#124; [RecursiveArray](recursivearray.md)‹T› |
 `currentIndex` | number |
-`array` | T \| [RecursiveArray](recursivearray.md)‹T›[] |
+`array` | T &#124; [RecursiveArray](recursivearray.md)‹T›[] |
 
 ▪ **initialValue**: *T | [RecursiveArray](recursivearray.md)‹T›*
 
@@ -765,7 +768,7 @@ Name | Type |
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1352
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1369
 
 Calls the specified callback function for all the elements in an array, in descending order. The return value of the callback function is the accumulated result, and is provided as an argument in the next call to the callback function.
 
@@ -786,9 +789,9 @@ A function that accepts up to four arguments. The reduceRight method calls the c
 Name | Type |
 ------ | ------ |
 `previousValue` | U |
-`currentValue` | T \| [RecursiveArray](recursivearray.md)‹T› |
+`currentValue` | T &#124; [RecursiveArray](recursivearray.md)‹T› |
 `currentIndex` | number |
-`array` | T \| [RecursiveArray](recursivearray.md)‹T›[] |
+`array` | T &#124; [RecursiveArray](recursivearray.md)‹T›[] |
 
 ▪ **initialValue**: *U*
 
@@ -804,7 +807,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1245
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1251
 
 Reverses the elements in an Array.
 
@@ -818,7 +821,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1249
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1255
 
 Removes the first element from an array and returns it.
 
@@ -832,7 +835,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1255
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1261
 
 Returns a section of an array.
 
@@ -840,8 +843,8 @@ Returns a section of an array.
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`start?` | undefined \| number | The beginning of the specified portion of the array. |
-`end?` | undefined \| number | The end of the specified portion of the array.  |
+`start?` | undefined &#124; number | The beginning of the specified portion of the array. |
+`end?` | undefined &#124; number | The end of the specified portion of the array. This is exclusive of the element at the index 'end'.  |
 
 **Returns:** *T | [RecursiveArray](recursivearray.md)‹T›[]*
 
@@ -853,7 +856,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1302
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1319
 
 Determines whether the specified callback function returns true for any element of an array.
 
@@ -861,7 +864,9 @@ Determines whether the specified callback function returns true for any element 
 
 ▪ **callbackfn**: *function*
 
-A function that accepts up to three arguments. The some method calls the callbackfn function for each element in array1 until the callbackfn returns true, or until the end of the array.
+A function that accepts up to three arguments. The some method calls
+the callbackfn function for each element in the array until the callbackfn returns a value
+which is coercible to the Boolean value true, or until the end of the array.
 
 ▸ (`value`: T | [RecursiveArray](recursivearray.md)‹T›, `index`: number, `array`: T | [RecursiveArray](recursivearray.md)‹T›[]): *unknown*
 
@@ -869,13 +874,14 @@ A function that accepts up to three arguments. The some method calls the callbac
 
 Name | Type |
 ------ | ------ |
-`value` | T \| [RecursiveArray](recursivearray.md)‹T› |
+`value` | T &#124; [RecursiveArray](recursivearray.md)‹T› |
 `index` | number |
-`array` | T \| [RecursiveArray](recursivearray.md)‹T›[] |
+`array` | T &#124; [RecursiveArray](recursivearray.md)‹T›[] |
 
 ▪`Optional`  **thisArg**: *any*
 
-An object to which the this keyword can refer in the callbackfn function. If thisArg is omitted, undefined is used as the this value.
+An object to which the this keyword can refer in the callbackfn function.
+If thisArg is omitted, undefined is used as the this value.
 
 **Returns:** *boolean*
 
@@ -887,7 +893,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1260
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1271
 
 Sorts an array.
 
@@ -895,7 +901,7 @@ Sorts an array.
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`compareFn?` | undefined \| function | The name of the function used to determine the order of the elements. If omitted, the elements are sorted in ascending, ASCII character order.  |
+`compareFn?` | undefined &#124; function | Function used to determine the order of the elements. It is expected to return a negative value if first argument is less than second argument, zero if they're equal and a positive value otherwise. If omitted, the elements are sorted in ascending, ASCII character order. ```ts [11,2,22,1].sort((a, b) => a - b) ```  |
 
 **Returns:** *this*
 
@@ -907,7 +913,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1266
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1277
 
 Removes elements from an array and, if necessary, inserts new elements in their place, returning the deleted elements.
 
@@ -916,7 +922,7 @@ Removes elements from an array and, if necessary, inserts new elements in their 
 Name | Type | Description |
 ------ | ------ | ------ |
 `start` | number | The zero-based location in the array from which to start removing elements. |
-`deleteCount?` | undefined \| number | The number of elements to remove.  |
+`deleteCount?` | undefined &#124; number | The number of elements to remove.  |
 
 **Returns:** *T | [RecursiveArray](recursivearray.md)‹T›[]*
 
@@ -924,7 +930,7 @@ Name | Type | Description |
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1273
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1284
 
 Removes elements from an array and, if necessary, inserts new elements in their place, returning the deleted elements.
 
@@ -934,7 +940,7 @@ Name | Type | Description |
 ------ | ------ | ------ |
 `start` | number | The zero-based location in the array from which to start removing elements. |
 `deleteCount` | number | The number of elements to remove. |
-`...items` | T \| [RecursiveArray](recursivearray.md)‹T›[] | Elements to insert into the array in place of the deleted elements.  |
+`...items` | T &#124; [RecursiveArray](recursivearray.md)‹T›[] | Elements to insert into the array in place of the deleted elements.  |
 
 **Returns:** *T | [RecursiveArray](recursivearray.md)‹T›[]*
 
@@ -946,7 +952,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1217
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1223
 
 Returns a string representation of an array. The elements are converted to string using their toLocalString methods.
 
@@ -960,7 +966,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1213
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1219
 
 Returns a string representation of an array.
 
@@ -974,7 +980,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:1278
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:1289
 
 Inserts new elements at the start of an array.
 
@@ -982,7 +988,7 @@ Inserts new elements at the start of an array.
 
 Name | Type | Description |
 ------ | ------ | ------ |
-`...items` | T \| [RecursiveArray](recursivearray.md)‹T›[] | Elements to insert at the start of the Array.  |
+`...items` | T &#124; [RecursiveArray](recursivearray.md)‹T›[] | Elements to insert at the start of the Array.  |
 
 **Returns:** *number*
 
@@ -994,7 +1000,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:67
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.iterable.d.ts:75
 
 Returns an iterable of values in the array
 

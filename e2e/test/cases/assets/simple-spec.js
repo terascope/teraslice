@@ -5,8 +5,6 @@ const misc = require('../../misc');
 const wait = require('../../wait');
 const { resetState, submitAndStart } = require('../../helpers');
 
-const { waitForJobStatus } = wait;
-
 describe('assets', () => {
     beforeAll(() => resetState());
 
@@ -119,7 +117,7 @@ describe('assets', () => {
         jobSpec.assets = ['ex1:0.1.1', 'elasticsearch'];
         const { workers } = jobSpec;
 
-        const assetResponse = await teraslice.assets.get('ex1/0.1.1');
+        const assetResponse = await teraslice.assets.getAsset('ex1', '0.1.1');
         const assetId = assetResponse[0].id;
 
         const job = await submitAndStart(jobSpec);
