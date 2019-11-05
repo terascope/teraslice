@@ -468,10 +468,15 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
 
             body.query.bool.must.push({ range: dateObj });
         }
-
+        // TODO: deprecate this logic and remove in the future
         // elasticsearch _id based query
         if (msg.key) {
             body.query.bool.must.push({ wildcard: { _uid: msg.key } });
+        }
+
+        if (msg.wildcard) {
+            const { field, value } = msg.wildcard;
+            body.query.bool.must.push({ wildcard: { [field]: value } });
         }
 
         // elasticsearch lucene based query
