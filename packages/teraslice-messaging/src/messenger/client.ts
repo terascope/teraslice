@@ -115,10 +115,19 @@ export class Client extends Core {
 
         await new Promise((resolve, reject) => {
             let connectTimeout: any;
-
+            const connectToStr = `${this.serverName} at ${this.hostUrl}`;
             const onError = (err: any) => {
-                // it still connecting so this is probably okay
-                this.logger.warn(`${toString(err)} when connecting to ${this.serverName} at ${this.hostUrl}`);
+                const errStr = toString(err);
+                if (errStr.includes('xhr poll error')) {
+                    // it still connecting so this is probably okay
+                    this.logger.debug(`${errStr} when connecting to ${connectToStr}`);
+                } else {
+                    this.logger.warn(`${errStr} when connecting to ${connectToStr}`);
+                }
+            };
+
+            const onTimeoutError = (timeout: number) => {
+                this.logger.warn(`timeout of ${ms(timeout)} when connecting to ${connectToStr}`);
             };
 
             const cleanup = () => {
@@ -127,7 +136,7 @@ export class Client extends Core {
                     connectTimeout = undefined;
                 }
                 this.socket.removeListener('connect_error', onError);
-                this.socket.removeListener('connect_timeout', onError);
+                this.socket.removeListener('connect_timeout', onTimeoutError);
                 this.socket.removeListener('connect', onConnect);
             };
 
@@ -137,16 +146,16 @@ export class Client extends Core {
             }
 
             this.socket.once('connect_error', onError);
-            this.socket.once('connect_timeout', onError);
+            this.socket.once('connect_timeout', onTimeoutError);
             this.socket.once('connect', onConnect);
             this.socket.connect();
 
             connectTimeout = setTimeout(() => {
                 cleanup();
-                reject(new Error(`Unable to connect to ${this.serverName} at ${this.hostUrl} after ${ms(this.connectTimeout)}`));
+                reject(new Error(`Unable to connect to ${connectToStr} after ${ms(this.connectTimeout)}`));
             }, this.connectTimeout);
 
-            this.logger.debug(`attempting to ${this.serverName} at ${this.hostUrl}`);
+            this.logger.debug(`attempting to ${connectToStr}`);
         });
 
         this.socket.on('reconnecting', () => {
@@ -171,7 +180,7 @@ export class Client extends Core {
         });
 
         this.socket.on('disconnect', (reason: string) => {
-            this.logger.info(`client ${this.clientId} disconnected`, { reason });
+            this.logger.info(`client ${this.clientId} disconnected`, reason ? { reason } : undefined);
             this.ready = false;
         });
 
