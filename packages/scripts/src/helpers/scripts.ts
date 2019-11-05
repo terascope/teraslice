@@ -366,30 +366,6 @@ export function mapToArgs(input: ArgsMap): string[] {
     return args.filter((str) => str != null && str !== '');
 }
 
-export async function getLatestNPMVersion(
-    name: string,
-    tag = 'latest',
-    registry: string = config.NPM_DEFAULT_REGISTRY
-): Promise<string> {
-    const subprocess = await execa(
-        'npm',
-        [
-            '--json',
-            '--registry',
-            registry,
-            'info',
-            name,
-            'dist-tags'
-        ],
-        { reject: false }
-    );
-
-    if (subprocess.exitCode > 0) return '0.0.0';
-
-    const output: Record<string, string> = JSON.parse(subprocess.stdout);
-    return output[tag];
-}
-
 export async function yarnPublish(
     pkgInfo: PackageInfo,
     tag = 'latest',

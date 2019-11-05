@@ -7,8 +7,8 @@ import {
 } from '@terascope/utils';
 // @ts-ignore
 import QueryGraph from '@lerna/query-graph';
+import packageJson from 'package-json';
 import sortPackageJson from 'sort-package-json';
-import { getLatestNPMVersion } from './scripts';
 import * as misc from './misc';
 import * as i from './interfaces';
 
@@ -196,12 +196,24 @@ export function fixDepPkgName(name: string) {
 export async function getRemotePackageVersion(pkgInfo: i.PackageInfo): Promise<string> {
     if (pkgInfo.private) return pkgInfo.version;
 
-    const registry: string|undefined = get(pkgInfo, 'publishConfig.registry');
-    return getLatestNPMVersion(
-        pkgInfo.name,
-        getPublishTag(pkgInfo.version),
-        registry
-    );
+    const registryUrl: string|undefined = get(pkgInfo, 'publishConfig.registry');
+    const tag = getPublishTag(pkgInfo.version);
+
+    try {
+        const { version } = await packageJson(pkgInfo.name, {
+            version: tag,
+            registryUrl
+        });
+        return version as string;
+    } catch (err) {
+        if (err instanceof packageJson.VersionNotFoundError) {
+            return pkgInfo.version;
+        }
+        if (err instanceof packageJson.PackageNotFoundError) {
+            return '0.1.0';
+        }
+        throw err;
+    }
 }
 
 export function getPublishTag(version: string): string {

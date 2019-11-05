@@ -73,7 +73,7 @@ export async function getPackagesToBump(
         if (get(pkgInfo, 'terascope.root', false)) return;
 
         const remote = await getRemotePackageVersion(pkgInfo);
-        if (remote !== '0.0.0' && pkgInfo.version !== remote) {
+        if (remote !== '0.1.0' && pkgInfo.version !== remote) {
             signale.warn(`${pkgInfo.name} is not in-sync with the remote NPM version, resetting to v${remote} before bumping`);
             pkgInfo.version = remote;
         }
