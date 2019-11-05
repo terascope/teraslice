@@ -47,7 +47,7 @@
         "yargs": "^14.2.0"
     },
     "devDependencies": {
-        "@types/got": "^9.6.7",
+        "@types/got": "^9.6.8",
         "@types/ip": "^1.1.0",
         "@types/lodash.defaultsdeep": "^4.6.6",
         "@types/ms": "^0.7.30",
