@@ -22,7 +22,7 @@ sidebar_label: GraphQLType
 
 • **custom_type**? : *undefined | string*
 
-*Defined in [interfaces.ts:111](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/interfaces.ts#L111)*
+*Defined in [interfaces.ts:111](https://github.com/terascope/teraslice/blob/d8feecc03/packages/data-types/src/interfaces.ts#L111)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **type**: *string*
 
-*Defined in [interfaces.ts:110](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/interfaces.ts#L110)*
+*Defined in [interfaces.ts:110](https://github.com/terascope/teraslice/blob/d8feecc03/packages/data-types/src/interfaces.ts#L110)*

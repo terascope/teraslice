@@ -1,5 +1,5 @@
 ---
-title: Ts Transforms: `OperationsMapping`
+title: TS Transforms: `OperationsMapping`
 sidebar_label: OperationsMapping
 ---
 

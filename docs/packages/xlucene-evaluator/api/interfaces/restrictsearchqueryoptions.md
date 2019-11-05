@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `RestrictSearchQueryOptions`
+title: xLucene Evaluator: `RestrictSearchQueryOptions`
 sidebar_label: RestrictSearchQueryOptions
 ---
 
@@ -9,7 +9,7 @@ sidebar_label: RestrictSearchQueryOptions
 
 * object
 
-  * **RestrictSearchQueryOptions**
+  ↳ **RestrictSearchQueryOptions**
 
 ## Index
 
@@ -27,7 +27,7 @@ sidebar_label: RestrictSearchQueryOptions
 
 • **elasticsearch_version**? : *undefined | number*
 
-*Defined in [query-access/interfaces.ts:17](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/query-access/interfaces.ts#L17)*
+*Defined in [query-access/interfaces.ts:18](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/query-access/interfaces.ts#L18)*
 
 The elasticsearch version (to format the request properly)
 
@@ -41,17 +41,17 @@ ___
 
 *Inherited from void*
 
-*Defined in [translator/interfaces.ts:27](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/interfaces.ts#L27)*
+*Defined in [translator/interfaces.ts:31](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/translator/interfaces.ts#L31)*
 
 ___
 
 ### `Optional` geo_sort_point
 
-• **geo_sort_point**? : *p.GeoPoint*
+• **geo_sort_point**? : *[GeoPoint](geopoint.md)*
 
 *Inherited from void*
 
-*Defined in [translator/interfaces.ts:26](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/interfaces.ts#L26)*
+*Defined in [translator/interfaces.ts:30](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/translator/interfaces.ts#L30)*
 
 If a default_geo_field is set, this is required to enable sorting
 
@@ -59,11 +59,11 @@ ___
 
 ### `Optional` geo_sort_unit
 
-• **geo_sort_unit**? : *p.GeoDistanceUnit*
+• **geo_sort_unit**? : *[GeoDistanceUnit](../overview.md#geodistanceunit)*
 
 *Inherited from void*
 
-*Defined in [translator/interfaces.ts:28](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/interfaces.ts#L28)*
+*Defined in [translator/interfaces.ts:32](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/translator/interfaces.ts#L32)*
 
 ___
 
@@ -71,7 +71,7 @@ ___
 
 • **params**? : *Partial‹SearchParams›*
 
-*Defined in [query-access/interfaces.ts:12](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/query-access/interfaces.ts#L12)*
+*Defined in [query-access/interfaces.ts:13](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/query-access/interfaces.ts#L13)*
 
 Elasticsearch search parameters
 _sourceInclude and _sourceExclude will be filtered based

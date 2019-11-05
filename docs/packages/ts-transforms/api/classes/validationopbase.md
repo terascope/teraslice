@@ -1,5 +1,5 @@
 ---
-title: Ts Transforms: `ValidationOpBase`
+title: TS Transforms: `ValidationOpBase`
 sidebar_label: ValidationOpBase
 ---
 
@@ -13,29 +13,29 @@ sidebar_label: ValidationOpBase
 
 * [OperationBase](operationbase.md)
 
-  * **ValidationOpBase**
+  ↳ **ValidationOpBase**
 
-  * [Geolocation](geolocation.md)
+  ↳ [Geolocation](geolocation.md)
 
-  * [StringValidation](stringvalidation.md)
+  ↳ [StringValidation](stringvalidation.md)
 
-  * [NumberValidation](numbervalidation.md)
+  ↳ [NumberValidation](numbervalidation.md)
 
-  * [BooleanValidation](booleanvalidation.md)
+  ↳ [BooleanValidation](booleanvalidation.md)
 
-  * [Url](url.md)
+  ↳ [Url](url.md)
 
-  * [Email](email.md)
+  ↳ [Email](email.md)
 
-  * [Ip](ip.md)
+  ↳ [Ip](ip.md)
 
-  * [MacAddress](macaddress.md)
+  ↳ [MacAddress](macaddress.md)
 
-  * [Uuid](uuid.md)
+  ↳ [Uuid](uuid.md)
 
-  * [ISDN](isdn.md)
+  ↳ [ISDN](isdn.md)
 
-  * [Validator](validator.md)
+  ↳ [Validator](validator.md)
 
 ## Index
 
@@ -71,7 +71,7 @@ sidebar_label: ValidationOpBase
 
 *Overrides [OperationBase](operationbase.md).[constructor](operationbase.md#constructor)*
 
-*Defined in [operations/lib/validations/base.ts:6](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/validations/base.ts#L6)*
+*Defined in [operations/lib/validations/base.ts:6](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/validations/base.ts#L6)*
 
 **Parameters:**
 
@@ -89,7 +89,7 @@ Name | Type |
 
 *Inherited from [OperationBase](operationbase.md).[config](operationbase.md#config)*
 
-*Defined in [operations/lib/base.ts:10](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L10)*
+*Defined in [operations/lib/base.ts:10](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L10)*
 
 ___
 
@@ -99,7 +99,7 @@ ___
 
 *Inherited from [OperationBase](operationbase.md).[destination](operationbase.md#protected-destination)*
 
-*Defined in [operations/lib/base.ts:11](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L11)*
+*Defined in [operations/lib/base.ts:11](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L11)*
 
 ___
 
@@ -109,7 +109,7 @@ ___
 
 *Inherited from [OperationBase](operationbase.md).[hasTarget](operationbase.md#protected-hastarget)*
 
-*Defined in [operations/lib/base.ts:12](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L12)*
+*Defined in [operations/lib/base.ts:12](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L12)*
 
 ___
 
@@ -119,7 +119,7 @@ ___
 
 *Inherited from [OperationBase](operationbase.md).[source](operationbase.md#protected-source)*
 
-*Defined in [operations/lib/base.ts:8](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L8)*
+*Defined in [operations/lib/base.ts:8](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L8)*
 
 ___
 
@@ -129,7 +129,7 @@ ___
 
 *Inherited from [OperationBase](operationbase.md).[target](operationbase.md#protected-target)*
 
-*Defined in [operations/lib/base.ts:9](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L9)*
+*Defined in [operations/lib/base.ts:9](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L9)*
 
 ___
 
@@ -139,7 +139,7 @@ ___
 
 *Inherited from [OperationBase](operationbase.md).[cardinality](operationbase.md#static-cardinality)*
 
-*Defined in [operations/lib/base.ts:14](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L14)*
+*Defined in [operations/lib/base.ts:14](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L14)*
 
 ## Methods
 
@@ -147,7 +147,7 @@ ___
 
 ▸ **normalize**(`data`: any, `_doc`: DataEntity): *any*
 
-*Defined in [operations/lib/validations/base.ts:15](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/validations/base.ts#L15)*
+*Defined in [operations/lib/validations/base.ts:15](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/validations/base.ts#L15)*
 
 **Parameters:**
 
@@ -166,7 +166,7 @@ ___
 
 *Inherited from [OperationBase](operationbase.md).[removeField](operationbase.md#removefield)*
 
-*Defined in [operations/lib/base.ts:51](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L51)*
+*Defined in [operations/lib/base.ts:51](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L51)*
 
 **Parameters:**
 
@@ -185,7 +185,7 @@ ___
 
 *Inherited from [OperationBase](operationbase.md).[removeSource](operationbase.md#removesource)*
 
-*Defined in [operations/lib/base.ts:47](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L47)*
+*Defined in [operations/lib/base.ts:47](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L47)*
 
 **Parameters:**
 
@@ -199,9 +199,9 @@ ___
 
 ###  run
 
-▸ **run**(`doc`: DataEntity): *DataEntity | null*
+▸ **run**(`doc`: DataEntity): *DataEntity*
 
-*Defined in [operations/lib/validations/base.ts:17](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/validations/base.ts#L17)*
+*Defined in [operations/lib/validations/base.ts:17](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/validations/base.ts#L17)*
 
 **Parameters:**
 
@@ -209,7 +209,7 @@ Name | Type |
 ------ | ------ |
 `doc` | DataEntity |
 
-**Returns:** *DataEntity | null*
+**Returns:** *DataEntity*
 
 ___
 
@@ -219,7 +219,7 @@ ___
 
 *Inherited from [OperationBase](operationbase.md).[set](operationbase.md#set)*
 
-*Defined in [operations/lib/base.ts:39](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L39)*
+*Defined in [operations/lib/base.ts:39](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L39)*
 
 **Parameters:**
 
@@ -238,7 +238,7 @@ ___
 
 *Inherited from [OperationBase](operationbase.md).[setField](operationbase.md#setfield)*
 
-*Defined in [operations/lib/base.ts:43](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L43)*
+*Defined in [operations/lib/base.ts:43](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L43)*
 
 **Parameters:**
 
@@ -256,13 +256,13 @@ ___
 
 ▸ **validate**(`data`: T | null | undefined): *boolean*
 
-*Defined in [operations/lib/validations/base.ts:13](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/validations/base.ts#L13)*
+*Defined in [operations/lib/validations/base.ts:13](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/validations/base.ts#L13)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`data` | T \| null \| undefined |
+`data` | T &#124; null &#124; undefined |
 
 **Returns:** *boolean*
 
@@ -274,7 +274,7 @@ ___
 
 *Inherited from [OperationBase](operationbase.md).[validateConfig](operationbase.md#protected-validateconfig)*
 
-*Defined in [operations/lib/base.ts:23](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L23)*
+*Defined in [operations/lib/base.ts:23](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L23)*
 
 **Parameters:**
 

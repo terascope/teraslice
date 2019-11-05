@@ -1,5 +1,5 @@
 ---
-title: Ts Transforms: `Loader`
+title: TS Transforms: `Loader`
 sidebar_label: Loader
 ---
 
@@ -25,7 +25,7 @@ sidebar_label: Loader
 
 \+ **new Loader**(`opConfig`: [WatcherConfig](../interfaces/watcherconfig.md), `logger`: Logger): *[Loader](loader.md)*
 
-*Defined in [loader/loader.ts:11](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/loader/loader.ts#L11)*
+*Defined in [loader/loader.ts:11](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/loader/loader.ts#L11)*
 
 **Parameters:**
 
@@ -42,7 +42,7 @@ Name | Type |
 
 ▸ **load**(`opsManager`: OperationsManager): *Promise‹[ValidationResults](../interfaces/validationresults.md)›*
 
-*Defined in [loader/loader.ts:18](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/loader/loader.ts#L18)*
+*Defined in [loader/loader.ts:18](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/loader/loader.ts#L18)*
 
 **Parameters:**
 

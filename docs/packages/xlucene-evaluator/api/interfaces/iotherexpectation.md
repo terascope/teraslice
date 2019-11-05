@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `IOtherExpectation`
+title: xLucene Evaluator: `IOtherExpectation`
 sidebar_label: IOtherExpectation
 ---
 
@@ -22,7 +22,7 @@ sidebar_label: IOtherExpectation
 
 • **description**: *string*
 
-Defined in parser/peg-engine.ts:46
+Defined in parser/peg-engine.ts:47
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **type**: *"other"*
 
-Defined in parser/peg-engine.ts:45
+Defined in parser/peg-engine.ts:46

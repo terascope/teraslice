@@ -16,20 +16,20 @@ const postAssetResponse: AssetsPostResponse = {
     _id: 'assset_test_id'
 };
 
+/**
+ * @jsnoble FIXME: this is not a good way to test. This doesn't tests that the correct
+ * data was sent and the api is too limiting.
+ * Why not just nock directly? Also using `http://localhost:5678` is missleading and
+ * can lead to requests hitting a local teraslice if misconfigured
+*/
 export default class TerasliceServer {
     init() {
         const scope = nock('http://localhost:5678')
-            .get('/')
-            .reply(200, rootResponse)
             .get('/v1/')
             .reply(200, rootResponse)
             .post('/v1/assets')
             .reply(201, postAssetResponse);
 
         return scope;
-    }
-
-    close() {
-        nock.cleanAll();
     }
 }

@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `GeoDistanceObj`
+title: xLucene Evaluator: `GeoDistanceObj`
 sidebar_label: GeoDistanceObj
 ---
 
@@ -22,7 +22,7 @@ sidebar_label: GeoDistanceObj
 
 • **distance**: *number*
 
-*Defined in [interfaces.ts:16](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/interfaces.ts#L16)*
+*Defined in [interfaces.ts:15](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/interfaces.ts#L15)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **unit**: *[GeoDistanceUnit](../overview.md#geodistanceunit)*
 
-*Defined in [interfaces.ts:17](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/interfaces.ts#L17)*
+*Defined in [interfaces.ts:16](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/interfaces.ts#L16)*

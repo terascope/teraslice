@@ -11,7 +11,7 @@ A simple object with any values
 
 * **AnyObject**
 
-  * [TSErrorContext](tserrorcontext.md)
+  ↳ [TSErrorContext](tserrorcontext.md)
 
 ## Indexable
 

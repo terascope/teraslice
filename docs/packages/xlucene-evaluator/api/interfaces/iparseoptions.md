@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `IParseOptions`
+title: xLucene Evaluator: `IParseOptions`
 sidebar_label: IParseOptions
 ---
 
@@ -27,7 +27,7 @@ sidebar_label: IParseOptions
 
 • **filename**? : *undefined | string*
 
-Defined in parser/peg-engine.ts:4326
+Defined in parser/peg-engine.ts:5291
 
 ___
 
@@ -35,7 +35,7 @@ ___
 
 • **startRule**? : *undefined | string*
 
-Defined in parser/peg-engine.ts:4327
+Defined in parser/peg-engine.ts:5292
 
 ___
 
@@ -43,4 +43,4 @@ ___
 
 • **tracer**? : *any*
 
-Defined in parser/peg-engine.ts:4328
+Defined in parser/peg-engine.ts:5293

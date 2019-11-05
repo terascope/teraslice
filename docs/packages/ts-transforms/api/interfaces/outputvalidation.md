@@ -1,5 +1,5 @@
 ---
-title: Ts Transforms: `OutputValidation`
+title: TS Transforms: `OutputValidation`
 sidebar_label: OutputValidation
 ---
 
@@ -22,7 +22,7 @@ sidebar_label: OutputValidation
 
 • **matchRequirements**: *[MatchRequirements](matchrequirements.md)*
 
-*Defined in [interfaces.ts:162](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/interfaces.ts#L162)*
+*Defined in [interfaces.ts:162](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/interfaces.ts#L162)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **restrictOutput**: *RestrictOutput*
 
-*Defined in [interfaces.ts:161](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/interfaces.ts#L161)*
+*Defined in [interfaces.ts:161](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/interfaces.ts#L161)*

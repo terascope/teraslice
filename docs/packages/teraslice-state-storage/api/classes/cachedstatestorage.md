@@ -13,7 +13,7 @@ sidebar_label: CachedStateStorage
 
 * EventEmitter
 
-  * **CachedStateStorage**
+  ↳ **CachedStateStorage**
 
 ## Index
 
@@ -58,7 +58,7 @@ sidebar_label: CachedStateStorage
 
 \+ **new CachedStateStorage**(`config`: [CacheConfig](../interfaces/cacheconfig.md)): *[CachedStateStorage](cachedstatestorage.md)*
 
-*Defined in [cached-state-storage/index.ts:10](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L10)*
+*Defined in [cached-state-storage/index.ts:10](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L10)*
 
 **Parameters:**
 
@@ -76,7 +76,7 @@ Name | Type |
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:9
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:18
 
 ## Methods
 
@@ -88,7 +88,7 @@ Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/no
 
 *Overrides void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:11
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:20
 
 **Parameters:**
 
@@ -112,7 +112,7 @@ ___
 
 ▸ **clear**(): *void*
 
-*Defined in [cached-state-storage/index.ts:63](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L63)*
+*Defined in [cached-state-storage/index.ts:63](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L63)*
 
 **Returns:** *void*
 
@@ -122,7 +122,7 @@ ___
 
 ▸ **count**(): *number*
 
-*Defined in [cached-state-storage/index.ts:44](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L44)*
+*Defined in [cached-state-storage/index.ts:44](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L44)*
 
 **Returns:** *number*
 
@@ -136,13 +136,13 @@ ___
 
 *Overrides void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:23
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:32
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`event` | string \| symbol |
+`event` | string &#124; symbol |
 `...args` | any[] |
 
 **Returns:** *boolean*
@@ -157,7 +157,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:24
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:33
 
 **Returns:** *Array‹string | symbol›*
 
@@ -165,15 +165,15 @@ ___
 
 ###  get
 
-▸ **get**(`key`: string): *T | undefined*
+▸ **get**(`key`: string | number): *T | undefined*
 
-*Defined in [cached-state-storage/index.ts:19](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L19)*
+*Defined in [cached-state-storage/index.ts:19](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L19)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`key` | string |
+`key` | string &#124; number |
 
 **Returns:** *T | undefined*
 
@@ -187,7 +187,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:20
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:29
 
 **Returns:** *number*
 
@@ -195,15 +195,15 @@ ___
 
 ###  has
 
-▸ **has**(`key`: string): *boolean*
+▸ **has**(`key`: string | number): *boolean*
 
-*Defined in [cached-state-storage/index.ts:59](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L59)*
+*Defined in [cached-state-storage/index.ts:59](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L59)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`key` | string |
+`key` | string &#124; number |
 
 **Returns:** *boolean*
 
@@ -217,13 +217,13 @@ ___
 
 *Overrides void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:25
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:34
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`type` | string \| symbol |
+`type` | string &#124; symbol |
 
 **Returns:** *number*
 
@@ -237,13 +237,13 @@ ___
 
 *Overrides void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:21
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:30
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`event` | string \| symbol |
+`event` | string &#124; symbol |
 
 **Returns:** *Function[]*
 
@@ -251,15 +251,15 @@ ___
 
 ###  mget
 
-▸ **mget**(`keyArray`: string[]): *[MGetCacheResponse](../interfaces/mgetcacheresponse.md)*
+▸ **mget**(`keyArray`: string | number[]): *[MGetCacheResponse](../interfaces/mgetcacheresponse.md)*
 
-*Defined in [cached-state-storage/index.ts:23](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L23)*
+*Defined in [cached-state-storage/index.ts:23](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L23)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`keyArray` | string[] |
+`keyArray` | string &#124; number[] |
 
 **Returns:** *[MGetCacheResponse](../interfaces/mgetcacheresponse.md)*
 
@@ -269,7 +269,7 @@ ___
 
 ▸ **mset**(`docArray`: [SetTuple](../interfaces/settuple.md)‹T›[]): *void*
 
-*Defined in [cached-state-storage/index.ts:38](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L38)*
+*Defined in [cached-state-storage/index.ts:38](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L38)*
 
 **Parameters:**
 
@@ -289,7 +289,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:17
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:26
 
 **Parameters:**
 
@@ -317,7 +317,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:12
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:21
 
 **Parameters:**
 
@@ -345,7 +345,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:13
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:22
 
 **Parameters:**
 
@@ -373,7 +373,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:14
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:23
 
 **Parameters:**
 
@@ -401,7 +401,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:15
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:24
 
 **Parameters:**
 
@@ -429,13 +429,13 @@ ___
 
 *Overrides void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:22
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:31
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`event` | string \| symbol |
+`event` | string &#124; symbol |
 
 **Returns:** *Function[]*
 
@@ -449,13 +449,13 @@ ___
 
 *Overrides void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:18
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:27
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`event?` | string \| symbol |
+`event?` | string &#124; symbol |
 
 **Returns:** *this*
 
@@ -469,7 +469,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:16
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:25
 
 **Parameters:**
 
@@ -491,15 +491,15 @@ ___
 
 ###  set
 
-▸ **set**(`key`: string, `value`: T): *void*
+▸ **set**(`key`: string | number, `value`: T): *void*
 
-*Defined in [cached-state-storage/index.ts:31](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L31)*
+*Defined in [cached-state-storage/index.ts:31](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L31)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`key` | string |
+`key` | string &#124; number |
 `value` | T |
 
 **Returns:** *void*
@@ -514,7 +514,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:19
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:28
 
 **Parameters:**
 
@@ -530,7 +530,7 @@ ___
 
 ▸ **values**(`fn`: [ValuesFn](../overview.md#valuesfn)‹T›): *Promise‹void›*
 
-*Defined in [cached-state-storage/index.ts:48](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L48)*
+*Defined in [cached-state-storage/index.ts:48](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L48)*
 
 **Parameters:**
 
@@ -548,7 +548,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/events.d.ts:8
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:17
 
 **`deprecated`** since v4.0.0
 
@@ -557,6 +557,6 @@ Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/no
 Name | Type |
 ------ | ------ |
 `emitter` | EventEmitter |
-`event` | string \| symbol |
+`event` | string &#124; symbol |
 
 **Returns:** *number*

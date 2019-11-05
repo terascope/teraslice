@@ -1,10 +1,13 @@
 'use strict';
 
-const _ = require('lodash');
 const path = require('path');
-const fs = require('fs-extra');
-const Promise = require('bluebird');
-const { getFullErrorStack, TSError, pDelay } = require('@terascope/utils');
+const fs = require('fs');
+const {
+    get,
+    isEmpty,
+    getFullErrorStack,
+    pDelay
+} = require('@terascope/utils');
 const makeTerafoundationContext = require('../context/terafoundation-context');
 const makeAssetStore = require('../../cluster/storage/assets');
 const { safeDecode } = require('../../utils/encoding_utils');
@@ -16,73 +19,67 @@ class AssetLoader {
         this.context = context;
         this.logger = makeLogger(context, 'asset_loader');
         this.assets = assets;
-        this.assetsDirectory = _.get(context, 'sysconfig.teraslice.assets_directory');
+        this.assetsDirectory = get(context, 'sysconfig.teraslice.assets_directory');
         this.isShuttingDown = false;
     }
 
     async load() {
-        const { context, assets, assetsDirectory } = this;
-
         // no need to load assets
-        if (_.isEmpty(assets)) return [];
+        if (isEmpty(this.assets)) return [];
 
-        this.logger.info('Loading assets...');
+        const { assignment } = this.context;
+        const isWorker = assignment && assignment !== 'cluster_master';
 
-        this.assetStore = await makeAssetStore(context);
-
-        let idArray = [];
-
-        try {
-            idArray = await this.assetStore.parseAssetsArray(assets);
-        } catch (err) {
-            throw new TSError(err);
+        // A worker should already have the assets loaded,
+        // so we should only log at info level if it gets here
+        // If it is not worker this message isn't important so it
+        // should be a debug log message
+        if (isWorker) {
+            this.logger.info('Loading assets...', this.assets);
+        } else {
+            this.logger.debug('Loading assets...', this.assets);
         }
 
-        await Promise.all(
+        this.assetStore = await makeAssetStore(this.context);
+
+        const idArray = await this.assetStore.parseAssetsArray(this.assets);
+
+        const actualIds = await Promise.all(
             idArray.map(async (assetIdentifier) => {
-                const downloaded = await fs.pathExists(path.join(assetsDirectory, assetIdentifier));
+                const assetDir = path.join(this.assetsDirectory, assetIdentifier);
+                const downloaded = fs.existsSync(assetDir);
                 // need to return the id to the assets array sent back
-                if (downloaded) return { id: assetIdentifier };
+                if (downloaded) return assetIdentifier;
 
                 const assetRecord = await this.assetStore.get(assetIdentifier);
                 this.logger.info(`loading assets: ${assetIdentifier}`);
+
                 const buff = Buffer.from(assetRecord.blob, 'base64');
-                return saveAsset(this.logger, assetsDirectory, assetIdentifier, buff);
+                const saveResult = await saveAsset(
+                    this.logger,
+                    this.assetsDirectory,
+                    assetIdentifier,
+                    buff
+                );
+                return saveResult.id;
             })
         );
 
-        try {
-            await this.shutdown();
-        } catch (err) {
-            this.logger.error(err, 'assets loading shutdown error');
+        const matches = JSON.stringify(actualIds) === JSON.stringify(this.assets);
+
+        if (!matches && isWorker) {
+            this.logger.warn(
+                `asset loader expected any array of the asset ids but got ${JSON.stringify(this.assets)}`
+            );
         }
 
         return idArray;
-    }
-
-    async shutdown() {
-        if (this.isShuttingDown) return;
-        this.isShuttingDown = true;
-
-        if (this.assetStore) {
-            await this.assetStore.shutdown(true);
-        }
     }
 }
 
 async function loadAssets(context, assets) {
     const assetLoader = new AssetLoader(context, assets);
-    try {
-        return assetLoader.load();
-    } catch (err) {
-        /* istanbul ignore next */
-        try {
-            await assetLoader.shutdown();
-        } catch (shutdownErr) {
-            return [];
-        }
-        return [];
-    }
+    return assetLoader.load();
 }
 
 if (require.main === module) {

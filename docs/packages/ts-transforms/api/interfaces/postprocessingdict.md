@@ -1,5 +1,5 @@
 ---
-title: Ts Transforms: `PostProcessingDict`
+title: TS Transforms: `PostProcessingDict`
 sidebar_label: PostProcessingDict
 ---
 

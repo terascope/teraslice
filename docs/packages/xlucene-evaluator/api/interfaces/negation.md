@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `Negation`
+title: xLucene Evaluator: `Negation`
 sidebar_label: Negation
 ---
 
@@ -22,7 +22,7 @@ sidebar_label: Negation
 
 • **node**: *[AST](../overview.md#ast)*
 
-*Defined in [parser/interfaces.ts:113](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L113)*
+*Defined in [parser/interfaces.ts:108](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L108)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **type**: *[Negation](../enums/asttype.md#negation)*
 
-*Defined in [parser/interfaces.ts:112](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L112)*
+*Defined in [parser/interfaces.ts:107](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L107)*

@@ -22,6 +22,7 @@ export async function verifyCommitted(options: SyncOptions) {
         ...topLevelFiles,
         'docs',
         'packages',
+        'e2e'
     );
     prevChanged = [...changed];
 

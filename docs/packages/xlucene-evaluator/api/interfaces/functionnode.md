@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `FunctionNode`
+title: xLucene Evaluator: `FunctionNode`
 sidebar_label: FunctionNode
 ---
 
@@ -9,7 +9,7 @@ sidebar_label: FunctionNode
 
 * [TermLikeAST](termlikeast.md)
 
-  * **FunctionNode**
+  ↳ **FunctionNode**
 
 ## Index
 
@@ -27,7 +27,7 @@ sidebar_label: FunctionNode
 
 • **description**? : *undefined | string*
 
-*Defined in [parser/interfaces.ts:150](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/xlucene-evaluator/src/parser/interfaces.ts#L150)*
+*Defined in [parser/interfaces.ts:150](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L150)*
 
 ___
 
@@ -37,7 +37,7 @@ ___
 
 *Inherited from [TermLikeAST](termlikeast.md).[field](termlikeast.md#field)*
 
-*Defined in [parser/interfaces.ts:46](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/xlucene-evaluator/src/parser/interfaces.ts#L46)*
+*Defined in [parser/interfaces.ts:46](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L46)*
 
 ___
 
@@ -45,7 +45,7 @@ ___
 
 • **instance**: *[FunctionMethods](functionmethods.md)*
 
-*Defined in [parser/interfaces.ts:151](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/xlucene-evaluator/src/parser/interfaces.ts#L151)*
+*Defined in [parser/interfaces.ts:151](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L151)*
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [parser/interfaces.ts:149](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/xlucene-evaluator/src/parser/interfaces.ts#L149)*
+*Defined in [parser/interfaces.ts:149](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L149)*
 
 ___
 
@@ -63,4 +63,4 @@ ___
 
 *Overrides [TermLikeAST](termlikeast.md).[type](termlikeast.md#type)*
 
-*Defined in [parser/interfaces.ts:148](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/xlucene-evaluator/src/parser/interfaces.ts#L148)*
+*Defined in [parser/interfaces.ts:148](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L148)*

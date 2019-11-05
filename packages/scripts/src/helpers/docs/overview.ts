@@ -1,7 +1,7 @@
 import path from 'path';
 import fse from 'fs-extra';
-import { PackageInfo, TestSuite } from '../interfaces';
-import { getRootDir, writeIfChanged, getRootInfo } from '../misc';
+import { PackageInfo } from '../interfaces';
+import { writeIfChanged, getRootInfo } from '../misc';
 import { getDocPath } from '../packages';
 
 export async function generateReadme(pkgInfo: PackageInfo): Promise<string> {
@@ -66,5 +66,5 @@ export async function ensureOverview(pkgInfo: PackageInfo): Promise<void> {
 }
 
 function isE2E(pkgInfo: PackageInfo) {
-    return pkgInfo.terascope.testSuite === TestSuite.E2E;
+    return pkgInfo.folderName === 'e2e';
 }

@@ -2,7 +2,8 @@ import fs from 'fs';
 import isCI from 'is-ci';
 import { CommandModule } from 'yargs';
 import { toBoolean, castArray } from '@terascope/utils';
-import { TestSuite, PackageInfo, GlobalCMDOptions } from '../helpers/interfaces';
+import { PackageInfo, GlobalCMDOptions } from '../helpers/interfaces';
+import { getAvailableTestSuites } from '../helpers/misc';
 import * as config from '../helpers/config';
 import { listPackages } from '../helpers/packages';
 import { runTests } from '../helpers/test-runner';
@@ -12,7 +13,7 @@ type Options = {
     debug: boolean;
     watch: boolean;
     bail: boolean;
-    suite?: TestSuite;
+    suite?: string;
     'report-coverage': boolean;
     'elasticsearch-version': string;
     'elasticsearch-api-version': string;
@@ -56,10 +57,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .option('suite', {
                 alias: 's',
                 description: 'Run a test given a particular suite. Defaults to running all',
-                choices: Object.values(TestSuite).filter((suite) => suite !== TestSuite.Disabled),
-                coerce(arg): TestSuite {
-                    return arg;
-                },
+                choices: getAvailableTestSuites(),
             })
             .option('use-existing-services', {
                 description: 'If true no services will be launched',

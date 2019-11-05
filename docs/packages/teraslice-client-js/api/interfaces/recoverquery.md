@@ -21,4 +21,4 @@ sidebar_label: RecoverQuery
 
 • **cleanup**? : *"all" | "errors"*
 
-*Defined in [interfaces.ts:274](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L274)*
+*Defined in [interfaces.ts:274](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L274)*

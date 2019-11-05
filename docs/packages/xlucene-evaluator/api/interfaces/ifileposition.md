@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `IFilePosition`
+title: xLucene Evaluator: `IFilePosition`
 sidebar_label: IFilePosition
 ---
 
@@ -23,7 +23,7 @@ sidebar_label: IFilePosition
 
 • **column**: *number*
 
-Defined in parser/peg-engine.ts:13
+Defined in parser/peg-engine.ts:14
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **line**: *number*
 
-Defined in parser/peg-engine.ts:12
+Defined in parser/peg-engine.ts:13
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 • **offset**: *number*
 
-Defined in parser/peg-engine.ts:11
+Defined in parser/peg-engine.ts:12

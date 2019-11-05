@@ -1,5 +1,5 @@
 ---
-title: Ts Transforms: `BoolValidationResult`
+title: TS Transforms: `BoolValidationResult`
 sidebar_label: BoolValidationResult
 ---
 
@@ -22,7 +22,7 @@ sidebar_label: BoolValidationResult
 
 • **bool**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:130](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/interfaces.ts#L130)*
+*Defined in [interfaces.ts:130](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/interfaces.ts#L130)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **isValid**: *boolean*
 
-*Defined in [interfaces.ts:129](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/interfaces.ts#L129)*
+*Defined in [interfaces.ts:129](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/interfaces.ts#L129)*

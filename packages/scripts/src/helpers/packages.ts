@@ -166,7 +166,7 @@ function getSortedPkgJSON<T extends object>(pkgInfo: T): T {
 
 export function getDocPath(pkgInfo: i.PackageInfo, withFileName: boolean, withExt = true): string {
     const suite = pkgInfo.terascope.testSuite;
-    if (suite === i.TestSuite.E2E) {
+    if (suite === 'e2e') {
         const e2eDevDocs = path.join('docs/development');
         fse.ensureDirSync(e2eDevDocs);
         if (withFileName) {

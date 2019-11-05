@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `TermQuery`
+title: xLucene Evaluator: `TermQuery`
 sidebar_label: TermQuery
 ---
 
@@ -21,7 +21,7 @@ sidebar_label: TermQuery
 
 • **term**: *object*
 
-*Defined in [translator/interfaces.ts:96](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/interfaces.ts#L96)*
+*Defined in [translator/interfaces.ts:105](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/translator/interfaces.ts#L105)*
 
 #### Type declaration:
 

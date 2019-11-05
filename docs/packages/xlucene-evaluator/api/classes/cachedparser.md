@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `CachedParser`
+title: xLucene Evaluator: `CachedParser`
 sidebar_label: CachedParser
 ---
 
@@ -26,7 +26,7 @@ sidebar_label: CachedParser
 
 \+ **new CachedParser**(): *[CachedParser](cachedparser.md)*
 
-*Defined in [parser/cached-parser.ts:7](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/cached-parser.ts#L7)*
+*Defined in [parser/cached-parser.ts:7](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/cached-parser.ts#L7)*
 
 **Returns:** *[CachedParser](cachedparser.md)*
 
@@ -34,9 +34,9 @@ sidebar_label: CachedParser
 
 ###  make
 
-▸ **make**(`query`: string, `options?`: [ParserOptions](../interfaces/parseroptions.md)): *[Parser](parser.md)*
+▸ **make**(`query`: string, `options?`: [ParserOptions](../interfaces/parseroptions.md)): *[Parser](parser.md)‹›*
 
-*Defined in [parser/cached-parser.ts:12](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/cached-parser.ts#L12)*
+*Defined in [parser/cached-parser.ts:12](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/cached-parser.ts#L12)*
 
 **Parameters:**
 
@@ -45,7 +45,7 @@ Name | Type |
 `query` | string |
 `options?` | [ParserOptions](../interfaces/parseroptions.md) |
 
-**Returns:** *[Parser](parser.md)*
+**Returns:** *[Parser](parser.md)‹›*
 
 ___
 
@@ -53,6 +53,6 @@ ___
 
 ▸ **reset**(): *void*
 
-*Defined in [parser/cached-parser.ts:24](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/cached-parser.ts#L24)*
+*Defined in [parser/cached-parser.ts:24](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/cached-parser.ts#L24)*
 
 **Returns:** *void*

@@ -1,6 +1,6 @@
 <!-- THIS FILE IS AUTO-GENERATED, EDIT docs/packages/ts-transforms/overview.md -->
 
-# Ts Transforms
+# TS Transforms
 
 > An ETL framework built upon xlucene-evaluator
 

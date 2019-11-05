@@ -1,19 +1,13 @@
 import yargs from 'yargs';
 import tmp from 'tmp';
 import path from 'path';
-import { TerasliceServer, GithubServer } from '../../servers';
+import nock from 'nock';
+import { GithubServer } from '../../servers';
 
 import deploy from '../../../src/cmds/assets/deploy';
-import nock from 'nock';
-
-function wasApiCalled(arr: string[], endpoint: string) {
-    const results = arr.find((str) => str.includes(endpoint))
-    if (results != null) return false;
-    return true;
-}
 
 describe('assets deploy', () => {
-    let yargsCmd: yargs.Argv<{}>
+    let yargsCmd: yargs.Argv<{}>;
     beforeEach(() => {
         yargsCmd = yargs.command(
             // @ts-ignore
@@ -36,7 +30,6 @@ describe('assets deploy', () => {
         });
 
         it('should parse options properly', () => {
-
             const yargsResult = yargsCmd.parse(
                 'deploy ts-test1 terascope/file-assets --arch x64 --config-dir somedir --node-version 6 --quiet true --src-dir sourceDir'
             );
@@ -44,7 +37,7 @@ describe('assets deploy', () => {
             expect(yargsResult.arch).toEqual('x64');
             expect(yargsResult['config-dir']).toEqual('somedir');
             expect(yargsResult['node-version']).toEqual('6');
-            expect(yargsResult['quiet']).toEqual(true);
+            expect(yargsResult.quiet).toEqual(true);
             expect(yargsResult['src-dir']).toEqual('sourceDir');
         });
     });
@@ -53,40 +46,77 @@ describe('assets deploy', () => {
         const assetPath = path.join(__dirname, '../../fixtures/regularAsset.zip');
         const configDir = path.join(__dirname, '../../fixtures/config_dir');
         const githubServer = new GithubServer();
-        const terasliceServer = new TerasliceServer();
         const { handler } = deploy;
         let tmpDir: tmp.DirResult;
         let teraNock: nock.Scope;
 
+        /**
+         * FIXME The mocking here is pretty bad.
+        */
+
         beforeEach(() => {
             githubServer.init();
-            teraNock = terasliceServer.init();
+            teraNock = nock('http://localhost:5678');
+
             tmpDir = tmp.dirSync({ unsafeCleanup: true });
         });
 
         afterEach(() => {
-            githubServer.close();
-            terasliceServer.init();
+            nock.cleanAll();
             tmpDir.removeCallback();
         });
 
         it('should deploy a file', async () => {
-            const argv = yargsCmd.parse(`deploy localhost --config-dir ${configDir}  -f ${assetPath}`)
+            const argv = yargsCmd.parse(`deploy localhost --config-dir ${configDir}  -f ${assetPath}`);
+
+            teraNock.post('/v1/assets').reply(201, {
+                _id: 'assset_test_id'
+            });
+
             await handler(argv);
-            expect(wasApiCalled(teraNock.activeMocks(), '/v1/assets')).toBeTrue;
+            teraNock.done();
         });
 
         it('should deploy an asset', async () => {
-            const argv = yargsCmd.parse(`deploy localhost --config-dir ${configDir} terascope/elasticsearch-assets`)
+            const argv = yargsCmd.parse(`deploy localhost --config-dir ${configDir} terascope/elasticsearch-assets`);
+            teraNock
+                .get('/v1/')
+                .reply(200, {
+                    arch: 'x64',
+                    clustering_type: 'native',
+                    name: 'teracluster',
+                    node_version: 'v10.15.3',
+                    platform: 'darwin',
+                    teraslice_version: 'v0.56.3'
+                })
+                .post('/v1/assets')
+                .reply(201, {
+                    _id: 'assset_test_id'
+                });
+
             await handler(argv);
-            expect(wasApiCalled(teraNock.activeMocks(), '/v1/assets')).toBeTrue;
+            teraNock.done();
         });
 
         it('should deploy a versioned asset', async () => {
-            const argv = yargsCmd.parse(`deploy localhost --config-dir ${configDir} terascope/elasticsearch-assets@v9.9.9`)
+            const argv = yargsCmd.parse(`deploy localhost --config-dir ${configDir} terascope/elasticsearch-assets@v9.9.9`);
+            teraNock
+                .get('/v1/')
+                .reply(200, {
+                    arch: 'x64',
+                    clustering_type: 'native',
+                    name: 'teracluster',
+                    node_version: 'v10.15.3',
+                    platform: 'darwin',
+                    teraslice_version: 'v0.56.3'
+                })
+                .post('/v1/assets')
+                .reply(201, {
+                    _id: 'assset_test_id'
+                });
+
             await handler(argv);
-            console.log('what is scope here', teraNock)
-            expect(wasApiCalled(teraNock.activeMocks(), '/v1/assets')).toBeTrue;
+            teraNock.done();
         });
     });
 });

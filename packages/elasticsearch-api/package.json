@@ -28,6 +28,6 @@
     },
     "displayName": "Elasticsearch API",
     "terascope": {
-        "testSuite": "unit"
+        "testSuite": "unit-a"
     }
 }

@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `WildcardQuery`
+title: xLucene Evaluator: `WildcardQuery`
 sidebar_label: WildcardQuery
 ---
 
@@ -21,7 +21,7 @@ sidebar_label: WildcardQuery
 
 • **wildcard**: *object*
 
-*Defined in [translator/interfaces.ts:102](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/interfaces.ts#L102)*
+*Defined in [translator/interfaces.ts:111](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/translator/interfaces.ts#L111)*
 
 #### Type declaration:
 

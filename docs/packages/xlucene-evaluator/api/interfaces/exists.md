@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `Exists`
+title: xLucene Evaluator: `Exists`
 sidebar_label: Exists
 ---
 
@@ -22,7 +22,7 @@ sidebar_label: Exists
 
 • **field**: *string*
 
-*Defined in [parser/interfaces.ts:123](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L123)*
+*Defined in [parser/interfaces.ts:118](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L118)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **type**: *[Exists](../enums/asttype.md#exists)*
 
-*Defined in [parser/interfaces.ts:122](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L122)*
+*Defined in [parser/interfaces.ts:117](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L117)*

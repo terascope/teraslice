@@ -33,8 +33,4 @@ export default class GithubServer {
         }
         return scope;
     }
-
-    close() {
-        nock.cleanAll();
-    }
 }

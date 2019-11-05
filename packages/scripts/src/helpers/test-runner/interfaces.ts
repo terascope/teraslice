@@ -1,4 +1,4 @@
-import { TestSuite, PackageInfo } from '../interfaces';
+import { PackageInfo } from '../interfaces';
 
 export type TestOptions = {
     bail: boolean;
@@ -6,7 +6,7 @@ export type TestOptions = {
     watch: boolean;
     all: boolean;
     reportCoverage: boolean;
-    suite?: TestSuite;
+    suite?: string;
     useExistingServices: boolean;
     elasticsearchVersion: string;
     elasticsearchAPIVersion: string;
@@ -15,8 +15,5 @@ export type TestOptions = {
 };
 
 export type GroupedPackages = {
-    [TestSuite.E2E]: PackageInfo[];
-    [TestSuite.Unit]: PackageInfo[];
-    [TestSuite.Elasticsearch]: PackageInfo[];
-    [TestSuite.Kafka]: PackageInfo[];
+    [suite: string]: PackageInfo[];
 };

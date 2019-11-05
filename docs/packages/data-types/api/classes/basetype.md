@@ -9,49 +9,49 @@ sidebar_label: BaseType
 
 * **BaseType**
 
-  * [BooleanType](booleantype.md)
+  ↳ [BooleanType](booleantype.md)
 
-  * [DateType](datetype.md)
+  ↳ [DateType](datetype.md)
 
-  * [GeoType](geotype.md)
+  ↳ [GeoType](geotype.md)
 
-  * [IPType](iptype.md)
+  ↳ [IPType](iptype.md)
 
-  * [IpRangeType](iprangetype.md)
+  ↳ [IpRangeType](iprangetype.md)
 
-  * [Byte](byte.md)
+  ↳ [Byte](byte.md)
 
-  * [Double](double.md)
+  ↳ [Double](double.md)
 
-  * [Float](float.md)
+  ↳ [Float](float.md)
 
-  * [Integer](integer.md)
+  ↳ [Integer](integer.md)
 
-  * [Keyword](keyword.md)
+  ↳ [Keyword](keyword.md)
 
-  * [Long](long.md)
+  ↳ [Long](long.md)
 
-  * [Short](short.md)
+  ↳ [Short](short.md)
 
-  * [Text](text.md)
+  ↳ [Text](text.md)
 
-  * [ObjectType](objecttype.md)
+  ↳ [ObjectType](objecttype.md)
 
-  * [KeywordTokens](keywordtokens.md)
+  ↳ [KeywordTokens](keywordtokens.md)
 
-  * [Hostname](hostname.md)
+  ↳ [Hostname](hostname.md)
 
-  * [Domain](domain.md)
+  ↳ [Domain](domain.md)
 
-  * [KeywordCaseInsensitive](keywordcaseinsensitive.md)
+  ↳ [KeywordCaseInsensitive](keywordcaseinsensitive.md)
 
-  * [KeywordTokensCaseInsensitive](keywordtokenscaseinsensitive.md)
+  ↳ [KeywordTokensCaseInsensitive](keywordtokenscaseinsensitive.md)
 
-  * [KeywordPathAnalyzer](keywordpathanalyzer.md)
+  ↳ [KeywordPathAnalyzer](keywordpathanalyzer.md)
 
-  * [NgramTokens](ngramtokens.md)
+  ↳ [NgramTokens](ngramtokens.md)
 
-  * [Boundary](boundary.md)
+  ↳ [Boundary](boundary.md)
 
 ## Index
 
@@ -77,7 +77,7 @@ sidebar_label: BaseType
 
 \+ **new BaseType**(`field`: string, `config`: [FieldTypeConfig](../overview.md#fieldtypeconfig)): *[BaseType](basetype.md)*
 
-*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/types/versions/base-type.ts#L7)*
+*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/d8feecc03/packages/data-types/src/types/versions/base-type.ts#L7)*
 
 **Parameters:**
 
@@ -94,7 +94,7 @@ Name | Type |
 
 • **config**: *[FieldTypeConfig](../overview.md#fieldtypeconfig)*
 
-*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/types/versions/base-type.ts#L7)*
+*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/d8feecc03/packages/data-types/src/types/versions/base-type.ts#L7)*
 
 ___
 
@@ -102,7 +102,7 @@ ___
 
 • **field**: *string*
 
-*Defined in [types/versions/base-type.ts:6](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/types/versions/base-type.ts#L6)*
+*Defined in [types/versions/base-type.ts:6](https://github.com/terascope/teraslice/blob/d8feecc03/packages/data-types/src/types/versions/base-type.ts#L6)*
 
 ## Methods
 
@@ -110,14 +110,14 @@ ___
 
 ▸ **_formatGql**(`type`: string, `customType?`: undefined | string): *object*
 
-*Defined in [types/versions/base-type.ts:21](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/types/versions/base-type.ts#L21)*
+*Defined in [types/versions/base-type.ts:21](https://github.com/terascope/teraslice/blob/d8feecc03/packages/data-types/src/types/versions/base-type.ts#L21)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `type` | string |
-`customType?` | undefined \| string |
+`customType?` | undefined &#124; string |
 
 **Returns:** *object*
 
@@ -127,13 +127,13 @@ ___
 
 ▸ **toESMapping**(`version?`: undefined | number): *[TypeESMapping](../interfaces/typeesmapping.md)*
 
-*Defined in [types/versions/base-type.ts:17](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/types/versions/base-type.ts#L17)*
+*Defined in [types/versions/base-type.ts:17](https://github.com/terascope/teraslice/blob/d8feecc03/packages/data-types/src/types/versions/base-type.ts#L17)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`version?` | undefined \| number |
+`version?` | undefined &#124; number |
 
 **Returns:** *[TypeESMapping](../interfaces/typeesmapping.md)*
 
@@ -143,7 +143,7 @@ ___
 
 ▸ **toGraphQL**(): *[GraphQLType](../interfaces/graphqltype.md)*
 
-*Defined in [types/versions/base-type.ts:18](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/types/versions/base-type.ts#L18)*
+*Defined in [types/versions/base-type.ts:18](https://github.com/terascope/teraslice/blob/d8feecc03/packages/data-types/src/types/versions/base-type.ts#L18)*
 
 **Returns:** *[GraphQLType](../interfaces/graphqltype.md)*
 
@@ -153,6 +153,6 @@ ___
 
 ▸ **toXlucene**(): *TypeConfig*
 
-*Defined in [types/versions/base-type.ts:19](https://github.com/terascope/teraslice/blob/0ae31df4/packages/data-types/src/types/versions/base-type.ts#L19)*
+*Defined in [types/versions/base-type.ts:19](https://github.com/terascope/teraslice/blob/d8feecc03/packages/data-types/src/types/versions/base-type.ts#L19)*
 
 **Returns:** *TypeConfig*

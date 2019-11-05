@@ -14,7 +14,7 @@ async function writeDocFile(filePath: string, { title, sidebarLabel }: { title: 
     // remove header
     contents = contents
         .split('\n')
-        .slice(isOverview(filePath) ? 3 : 4)
+        .slice(isOverview(filePath) ? 3 : 2)
         .join('\n')
         .trim();
 
