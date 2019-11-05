@@ -1,12 +1,7 @@
 'use strict';
 
 
-const {
-    TSError,
-    pRetry,
-    get,
-    includes
-} = require('@terascope/utils');
+const { TSError, pRetry, includes } = require('@terascope/utils');
 const uuid = require('uuid');
 const Promise = require('bluebird');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
@@ -97,12 +92,15 @@ module.exports = function executionStorage(context) {
                     return Promise.reject(error);
                 }
 
+                // if it is set to stop but the execution finishes before it can stop
+                // it is okay to set it to completed
+                if (status === 'stopped' && desiredStatus === 'completed') {
+                    return Promise.resolve(status);
+                }
+
                 // when the status is a terminal status, it cannot be set to again
                 if (_isTerminalStatus(status)) {
                     const error = new TSError(`Cannot update terminal job status of "${status}" to "${desiredStatus}"`, {
-                        context: {
-                            isOkay: status === 'stopped' && desiredStatus === 'completed'
-                        },
                         statusCode: 422
                     });
                     return Promise.reject(error);
@@ -129,11 +127,6 @@ module.exports = function executionStorage(context) {
             }
             await update(exId, statusObj);
         } catch (err) {
-            const isOkay = get(err, 'context.isOkay', false);
-            if (isOkay) {
-                logger.warn(err.message);
-                return exId;
-            }
             throw new TSError(err, {
                 statusCode: 422,
                 reason: `Unable to set execution ${exId} status code to ${status}`
