@@ -1,5 +1,5 @@
 ---
-title: Ts Transforms: `PluginClassType`
+title: TS Transforms: `PluginClassType`
 sidebar_label: PluginClassType
 ---
 
@@ -25,7 +25,7 @@ sidebar_label: PluginClassType
 
 • **init**: *function*
 
-*Defined in [interfaces.ts:84](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/interfaces.ts#L84)*
+*Defined in [interfaces.ts:84](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/interfaces.ts#L84)*
 
 #### Type declaration:
 

@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `IEndExpectation`
+title: xLucene Evaluator: `IEndExpectation`
 sidebar_label: IEndExpectation
 ---
 
@@ -21,4 +21,4 @@ sidebar_label: IEndExpectation
 
 • **type**: *"end"*
 
-Defined in parser/peg-engine.ts:41
+Defined in parser/peg-engine.ts:42

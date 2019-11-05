@@ -9,7 +9,7 @@ sidebar_label: SchemaModule
 
 * **SchemaModule**
 
-  * [APIModule](apimodule.md)
+  ↳ [APIModule](apimodule.md)
 
 ## Index
 
@@ -23,4 +23,4 @@ sidebar_label: SchemaModule
 
 • **Schema**: *[SchemaConstructor](../overview.md#schemaconstructor)*
 
-*Defined in [operations/interfaces.ts:59](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/interfaces.ts#L59)*
+*Defined in [operations/interfaces.ts:59](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/interfaces.ts#L59)*

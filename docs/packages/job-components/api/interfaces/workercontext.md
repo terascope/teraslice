@@ -9,7 +9,7 @@ sidebar_label: WorkerContext
 
 * [Context](context.md)
 
-  * **WorkerContext**
+  ↳ **WorkerContext**
 
 ## Index
 
@@ -33,7 +33,7 @@ sidebar_label: WorkerContext
 
 *Overrides [Context](context.md).[apis](context.md#apis)*
 
-*Defined in [interfaces/context.ts:138](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/interfaces/context.ts#L138)*
+*Defined in [interfaces/context.ts:138](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/context.ts#L138)*
 
 ___
 
@@ -43,7 +43,7 @@ ___
 
 *Inherited from [Context](context.md).[arch](context.md#arch)*
 
-*Defined in [interfaces/context.ts:144](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/interfaces/context.ts#L144)*
+*Defined in [interfaces/context.ts:144](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/context.ts#L144)*
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 *Overrides [Context](context.md).[assignment](context.md#assignment)*
 
-*Defined in [interfaces/context.ts:139](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/interfaces/context.ts#L139)*
+*Defined in [interfaces/context.ts:139](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/context.ts#L139)*
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 *Inherited from [Context](context.md).[cluster](context.md#cluster)*
 
-*Defined in [interfaces/context.ts:151](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/interfaces/context.ts#L151)*
+*Defined in [interfaces/context.ts:151](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/context.ts#L151)*
 
 ___
 
@@ -73,7 +73,7 @@ ___
 
 *Inherited from [Context](context.md).[foundation](context.md#foundation)*
 
-*Defined in [interfaces/context.ts:146](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/interfaces/context.ts#L146)*
+*Defined in [interfaces/context.ts:146](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/context.ts#L146)*
 
 ___
 
@@ -83,7 +83,7 @@ ___
 
 *Inherited from [Context](context.md).[logger](context.md#logger)*
 
-*Defined in [interfaces/context.ts:147](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/interfaces/context.ts#L147)*
+*Defined in [interfaces/context.ts:147](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/context.ts#L147)*
 
 ___
 
@@ -93,7 +93,7 @@ ___
 
 *Inherited from [Context](context.md).[name](context.md#name)*
 
-*Defined in [interfaces/context.ts:148](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/interfaces/context.ts#L148)*
+*Defined in [interfaces/context.ts:148](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/context.ts#L148)*
 
 ___
 
@@ -103,7 +103,7 @@ ___
 
 *Inherited from [Context](context.md).[platform](context.md#platform)*
 
-*Defined in [interfaces/context.ts:149](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/interfaces/context.ts#L149)*
+*Defined in [interfaces/context.ts:149](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/context.ts#L149)*
 
 ___
 
@@ -113,4 +113,4 @@ ___
 
 *Inherited from [Context](context.md).[sysconfig](context.md#sysconfig)*
 
-*Defined in [interfaces/context.ts:150](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/interfaces/context.ts#L150)*
+*Defined in [interfaces/context.ts:150](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/context.ts#L150)*

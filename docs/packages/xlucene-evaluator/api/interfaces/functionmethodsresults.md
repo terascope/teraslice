@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `FunctionMethodsResults`
+title: xLucene Evaluator: `FunctionMethodsResults`
 sidebar_label: FunctionMethodsResults
 ---
 
@@ -22,7 +22,7 @@ sidebar_label: FunctionMethodsResults
 
 • **query**: *[AnyQuery](../overview.md#anyquery)*
 
-*Defined in [parser/interfaces.ts:182](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/xlucene-evaluator/src/parser/interfaces.ts#L182)*
+*Defined in [parser/interfaces.ts:182](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L182)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **sort**? : *[AnyQuerySort](../overview.md#anyquerysort)*
 
-*Defined in [parser/interfaces.ts:183](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/xlucene-evaluator/src/parser/interfaces.ts#L183)*
+*Defined in [parser/interfaces.ts:183](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L183)*

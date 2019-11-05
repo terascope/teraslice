@@ -5,7 +5,7 @@ sidebar_label: DataEncoding
 
 # Enumeration: DataEncoding
 
-available data encoding types
+Available data encoding types for a DataEntity
 
 ## Index
 
@@ -20,7 +20,7 @@ available data encoding types
 
 • **JSON**: = "json"
 
-*Defined in [entities/interfaces.ts:39](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/entities/interfaces.ts#L39)*
+*Defined in [entities/interfaces.ts:63](https://github.com/terascope/teraslice/blob/d8feecc03/packages/utils/src/entities/interfaces.ts#L63)*
 
 ___
 
@@ -28,4 +28,4 @@ ___
 
 • **RAW**: = "raw"
 
-*Defined in [entities/interfaces.ts:40](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/entities/interfaces.ts#L40)*
+*Defined in [entities/interfaces.ts:64](https://github.com/terascope/teraslice/blob/d8feecc03/packages/utils/src/entities/interfaces.ts#L64)*

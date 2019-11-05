@@ -9,9 +9,9 @@ sidebar_label: LegacyOperation
 
 * **LegacyOperation**
 
-  * [LegacyReader](legacyreader.md)
+  ↳ [LegacyReader](legacyreader.md)
 
-  * [LegacyProcessor](legacyprocessor.md)
+  ↳ [LegacyProcessor](legacyprocessor.md)
 
 ## Index
 
@@ -30,7 +30,7 @@ sidebar_label: LegacyOperation
 
 • **crossValidation**? : *[crossValidationFn](../overview.md#crossvalidationfn)*
 
-*Defined in [interfaces/operations.ts:13](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/interfaces/operations.ts#L13)*
+*Defined in [interfaces/operations.ts:13](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/operations.ts#L13)*
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 • **selfValidation**? : *[selfValidationFn](../overview.md#selfvalidationfn)*
 
-*Defined in [interfaces/operations.ts:14](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/interfaces/operations.ts#L14)*
+*Defined in [interfaces/operations.ts:14](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/operations.ts#L14)*
 
 ## Methods
 
@@ -46,7 +46,7 @@ ___
 
 ▸ **schema**(`context?`: [Context](context.md)): *[Schema](operationmodule.md#schema)‹any›*
 
-*Defined in [interfaces/operations.ts:15](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/interfaces/operations.ts#L15)*
+*Defined in [interfaces/operations.ts:15](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/operations.ts#L15)*
 
 **Parameters:**
 

@@ -9,7 +9,7 @@ sidebar_label: RequestOptions
 
 * GotOptions‹"utf8"›
 
-  * **RequestOptions**
+  ↳ **RequestOptions**
 
 ## Index
 
@@ -72,7 +72,7 @@ sidebar_label: RequestOptions
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/http.d.ts:85
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:85
 
 ___
 
@@ -84,7 +84,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/got/index.d.ts:219
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:220
 
 ___
 
@@ -94,7 +94,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/http.d.ts:83
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:83
 
 ___
 
@@ -104,7 +104,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/got/index.d.ts:209
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:210
 
 ___
 
@@ -112,7 +112,7 @@ ___
 
 • **body**? : *any*
 
-*Defined in [interfaces.ts:42](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L42)*
+*Defined in [interfaces.ts:42](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L42)*
 
 ___
 
@@ -122,7 +122,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/tls.d.ts:359
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:359
 
 ___
 
@@ -132,7 +132,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/got/index.d.ts:220
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:221
 
 ___
 
@@ -142,7 +142,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/tls.d.ts:358
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:358
 
 ___
 
@@ -152,7 +152,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/tls.d.ts:360
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:360
 
 ___
 
@@ -162,7 +162,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/tls.d.ts:363
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:363
 
 ___
 
@@ -172,7 +172,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/got/index.d.ts:210
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:211
 
 ___
 
@@ -182,7 +182,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/http.d.ts:89
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:89
 
 ___
 
@@ -192,7 +192,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/tls.d.ts:364
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:364
 
 ___
 
@@ -202,7 +202,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/got/index.d.ts:216
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:217
 
 ___
 
@@ -212,7 +212,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/http.d.ts:77
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:77
 
 ___
 
@@ -222,7 +222,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/tls.d.ts:365
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:365
 
 ___
 
@@ -232,7 +232,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/tls.d.ts:362
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:362
 
 ___
 
@@ -242,7 +242,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/got/index.d.ts:211
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:212
 
 ___
 
@@ -252,7 +252,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/http.d.ts:75
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:75
 
 ___
 
@@ -262,7 +262,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/got/index.d.ts:215
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:216
 
 ___
 
@@ -272,7 +272,7 @@ ___
 
 *Overrides void*
 
-*Defined in [interfaces.ts:43](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L43)*
+*Defined in [interfaces.ts:43](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L43)*
 
 ___
 
@@ -282,7 +282,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/tls.d.ts:361
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:361
 
 ___
 
@@ -292,7 +292,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/http.d.ts:73
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:73
 
 ___
 
@@ -302,7 +302,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/http.d.ts:74
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:74
 
 ___
 
@@ -310,7 +310,7 @@ ___
 
 • **json**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:44](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L44)*
+*Defined in [interfaces.ts:44](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L44)*
 
 ___
 
@@ -320,7 +320,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/tls.d.ts:356
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:356
 
 ___
 
@@ -330,7 +330,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/http.d.ts:78
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:78
 
 ___
 
@@ -340,7 +340,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/tls.d.ts:377
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:377
 
 Optionally set the maximum TLS version to allow. One
 of `'TLSv1.3'`, `'TLSv1.2'`, `'TLSv1.1'`, or `'TLSv1'`. Cannot be specified along with the
@@ -357,7 +357,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/http.d.ts:80
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:80
 
 ___
 
@@ -367,7 +367,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/tls.d.ts:388
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:388
 
 Optionally set the minimum TLS version to allow. One
 of `'TLSv1.3'`, `'TLSv1.2'`, `'TLSv1.1'`, or `'TLSv1'`. Cannot be specified along with the
@@ -386,7 +386,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/tls.d.ts:357
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:357
 
 ___
 
@@ -396,7 +396,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/http.d.ts:81
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:81
 
 ___
 
@@ -406,7 +406,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/tls.d.ts:355
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:355
 
 ___
 
@@ -416,7 +416,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/http.d.ts:76
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:76
 
 ___
 
@@ -426,7 +426,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/http.d.ts:72
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:72
 
 ___
 
@@ -436,7 +436,7 @@ ___
 
 *Overrides void*
 
-*Defined in [interfaces.ts:45](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L45)*
+*Defined in [interfaces.ts:45](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L45)*
 
 ___
 
@@ -446,7 +446,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/https.d.ts:10
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/https.d.ts:10
 
 ___
 
@@ -456,7 +456,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/got/index.d.ts:221
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:222
 
 ___
 
@@ -466,7 +466,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/got/index.d.ts:214
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:215
 
 ___
 
@@ -476,7 +476,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/tls.d.ts:366
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:366
 
 ___
 
@@ -486,7 +486,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/tls.d.ts:367
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:367
 
 ___
 
@@ -496,7 +496,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/https.d.ts:11
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/https.d.ts:11
 
 ___
 
@@ -506,7 +506,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/tls.d.ts:368
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:368
 
 ___
 
@@ -516,7 +516,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/http.d.ts:87
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:87
 
 ___
 
@@ -526,7 +526,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/node/http.d.ts:79
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:79
 
 ___
 
@@ -536,7 +536,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/got/index.d.ts:218
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:219
 
 ___
 
@@ -548,7 +548,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/got/index.d.ts:213
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:214
 
 ___
 
@@ -558,4 +558,4 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/@types/got/index.d.ts:217
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:218

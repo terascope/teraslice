@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `BooleanDataType`
+title: xLucene Evaluator: `BooleanDataType`
 sidebar_label: BooleanDataType
 ---
 
@@ -22,7 +22,7 @@ sidebar_label: BooleanDataType
 
 • **field_type**: *[Boolean](../enums/fieldtype.md#boolean)*
 
-*Defined in [parser/interfaces.ts:98](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L98)*
+*Defined in [parser/interfaces.ts:93](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L93)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **value**: *boolean*
 
-*Defined in [parser/interfaces.ts:99](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L99)*
+*Defined in [parser/interfaces.ts:94](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L94)*

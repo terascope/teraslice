@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `FunctionMethods`
+title: xLucene Evaluator: `FunctionMethods`
 sidebar_label: FunctionMethods
 ---
 
@@ -22,7 +22,7 @@ sidebar_label: FunctionMethods
 
 ▸ **match**(`arg`: any): *boolean*
 
-*Defined in [parser/interfaces.ts:187](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/xlucene-evaluator/src/parser/interfaces.ts#L187)*
+*Defined in [parser/interfaces.ts:187](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L187)*
 
 **Parameters:**
 
@@ -38,7 +38,7 @@ ___
 
 ▸ **toElasticsearchQuery**(`options`: [UtilsTranslateQueryOptions](../overview.md#utilstranslatequeryoptions)): *[FunctionMethodsResults](functionmethodsresults.md)*
 
-*Defined in [parser/interfaces.ts:188](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/xlucene-evaluator/src/parser/interfaces.ts#L188)*
+*Defined in [parser/interfaces.ts:188](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L188)*
 
 **Parameters:**
 

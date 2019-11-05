@@ -26,7 +26,7 @@ sidebar_label: RootResponse
 
 • **arch**: *string*
 
-*Defined in [interfaces.ts:55](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L55)*
+*Defined in [interfaces.ts:55](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L55)*
 
 ___
 
@@ -34,7 +34,7 @@ ___
 
 • **clustering_type**: *ClusterManagerType*
 
-*Defined in [interfaces.ts:56](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L56)*
+*Defined in [interfaces.ts:56](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L56)*
 
 ___
 
@@ -42,7 +42,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [interfaces.ts:57](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L57)*
+*Defined in [interfaces.ts:57](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L57)*
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 • **node_version**: *string*
 
-*Defined in [interfaces.ts:58](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L58)*
+*Defined in [interfaces.ts:58](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L58)*
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 • **platform**: *string*
 
-*Defined in [interfaces.ts:59](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L59)*
+*Defined in [interfaces.ts:59](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L59)*
 
 ___
 
@@ -66,4 +66,4 @@ ___
 
 • **teraslice_version**: *string*
 
-*Defined in [interfaces.ts:60](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L60)*
+*Defined in [interfaces.ts:60](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L60)*

@@ -1,5 +1,5 @@
 ---
-title: Ts Transforms: `MatchRequirements`
+title: TS Transforms: `MatchRequirements`
 sidebar_label: MatchRequirements
 ---
 

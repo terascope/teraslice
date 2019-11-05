@@ -9,7 +9,7 @@ sidebar_label: FoundationWorker
 
 * Worker
 
-  * **FoundationWorker**
+  ↳ **FoundationWorker**
 
 ## Index
 
@@ -54,7 +54,7 @@ sidebar_label: FoundationWorker
 
 • **__process_restart**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:72](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/terafoundation/src/interfaces.ts#L72)*
+*Defined in [interfaces.ts:72](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/interfaces.ts#L72)*
 
 ___
 
@@ -62,7 +62,7 @@ ___
 
 • **assignment**: *string*
 
-*Defined in [interfaces.ts:74](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/terafoundation/src/interfaces.ts#L74)*
+*Defined in [interfaces.ts:74](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/interfaces.ts#L74)*
 
 ___
 
@@ -100,7 +100,7 @@ ___
 
 • **service_context**: *any*
 
-*Defined in [interfaces.ts:73](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/terafoundation/src/interfaces.ts#L73)*
+*Defined in [interfaces.ts:73](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/interfaces.ts#L73)*
 
 ___
 
@@ -110,7 +110,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:9
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:18
 
 ## Methods
 
@@ -445,7 +445,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:24
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:33
 
 **Returns:** *Array‹string | symbol›*
 
@@ -459,7 +459,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:20
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:29
 
 **Returns:** *number*
 
@@ -515,7 +515,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:25
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:34
 
 **Parameters:**
 
@@ -535,7 +535,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:21
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:30
 
 **Parameters:**
 
@@ -555,7 +555,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:17
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:26
 
 **Parameters:**
 
@@ -1231,7 +1231,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:22
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:31
 
 **Parameters:**
 
@@ -1251,7 +1251,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:18
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:27
 
 **Parameters:**
 
@@ -1271,7 +1271,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:16
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:25
 
 **Parameters:**
 
@@ -1319,7 +1319,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:19
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:28
 
 **Parameters:**
 
@@ -1337,7 +1337,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:8
+Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:17
 
 **`deprecated`** since v4.0.0
 

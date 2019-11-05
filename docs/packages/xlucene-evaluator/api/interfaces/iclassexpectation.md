@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `IClassExpectation`
+title: xLucene Evaluator: `IClassExpectation`
 sidebar_label: IClassExpectation
 ---
 
@@ -24,7 +24,7 @@ sidebar_label: IClassExpectation
 
 • **ignoreCase**: *boolean*
 
-Defined in parser/peg-engine.ts:33
+Defined in parser/peg-engine.ts:34
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **inverted**: *boolean*
 
-Defined in parser/peg-engine.ts:32
+Defined in parser/peg-engine.ts:33
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **parts**: *[IClassParts](iclassparts.md)*
 
-Defined in parser/peg-engine.ts:31
+Defined in parser/peg-engine.ts:32
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **type**: *"class"*
 
-Defined in parser/peg-engine.ts:30
+Defined in parser/peg-engine.ts:31

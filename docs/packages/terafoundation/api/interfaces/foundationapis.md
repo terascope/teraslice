@@ -24,7 +24,7 @@ sidebar_label: FoundationAPIs
 
 ▸ **getConnection**(`config`: [ConnectionConfig](connectionconfig.md)): *object*
 
-*Defined in [interfaces.ts:46](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/terafoundation/src/interfaces.ts#L46)*
+*Defined in [interfaces.ts:46](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/interfaces.ts#L46)*
 
 **Parameters:**
 
@@ -40,7 +40,7 @@ ___
 
 ▸ **getSystemEvents**(): *EventEmitter*
 
-*Defined in [interfaces.ts:45](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/terafoundation/src/interfaces.ts#L45)*
+*Defined in [interfaces.ts:45](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/interfaces.ts#L45)*
 
 **Returns:** *EventEmitter*
 
@@ -50,7 +50,7 @@ ___
 
 ▸ **makeLogger**(`metadata?`: Record‹string, string›): *Logger*
 
-*Defined in [interfaces.ts:42](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/terafoundation/src/interfaces.ts#L42)*
+*Defined in [interfaces.ts:42](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/interfaces.ts#L42)*
 
 Create a child logger
 
@@ -64,7 +64,7 @@ Name | Type |
 
 ▸ **makeLogger**(`name`: string, `filename`: string): *Logger*
 
-*Defined in [interfaces.ts:44](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/terafoundation/src/interfaces.ts#L44)*
+*Defined in [interfaces.ts:44](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/interfaces.ts#L44)*
 
 Create the root logger (usually done automatically)
 
@@ -83,7 +83,7 @@ ___
 
 ▸ **startWorkers**(`num`: number, `envOptions`: Record‹string, string›): *void*
 
-*Defined in [interfaces.ts:47](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/terafoundation/src/interfaces.ts#L47)*
+*Defined in [interfaces.ts:47](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/interfaces.ts#L47)*
 
 **Parameters:**
 
