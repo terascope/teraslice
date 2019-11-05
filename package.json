@@ -49,13 +49,13 @@
         "lerna": "^3.18.3",
         "lerna-alias": "^3.0.2",
         "ts-jest": "^24.0.2",
-        "typescript": "^3.5.4"
+        "typescript": "^3.7.2"
     },
     "resolutions": {
         "@types/lodash": "^4.14.137",
         "debug": "^4.1.1",
         "ms": "^2.1.2",
-        "typescript": "^3.5.4"
+        "typescript": "^3.7.2"
     },
     "engines": {
         "node": ">=10.16.0",
