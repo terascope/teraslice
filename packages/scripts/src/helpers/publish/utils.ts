@@ -1,7 +1,11 @@
+import ms from 'ms';
+import isCI from 'is-ci';
 import semver from 'semver';
+import { TSError } from '@terascope/utils';
 import {
     getCommitHash,
     dockerPull,
+    dockerBuild,
 } from '../scripts';
 import { PublishType } from './interfaces';
 import { PackageInfo } from '../interfaces';
@@ -68,14 +72,30 @@ export async function formatDailyTag() {
 }
 
 export async function pullDevDockerImage(): Promise<string> {
-    const cacheFrom = getDevDockerImage();
+    const startTime = Date.now();
+    const devImage = getDevDockerImage();
 
-    signale.debug(`pulling cache image: ${cacheFrom}`);
-    try {
-        await dockerPull(cacheFrom);
-    } catch (_err) {
-        process.exitCode = 0;
+    let pulled = false;
+
+    signale.pending(`building docker image ${devImage}`);
+
+    if (isCI) {
+        try {
+            await dockerPull(devImage);
+            pulled = true;
+        } catch (err) {
+            // do nothing
+        }
     }
 
-    return cacheFrom;
+    try {
+        await dockerBuild(devImage, pulled ? [devImage] : []);
+    } catch (err) {
+        throw new TSError(err, {
+            message: `Failed to build ${devImage} docker image`,
+        });
+    }
+
+    signale.success(`built docker image ${devImage}, took ${ms(Date.now() - startTime)}`);
+    return devImage;
 }

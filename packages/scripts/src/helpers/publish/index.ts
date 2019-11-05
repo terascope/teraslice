@@ -1,5 +1,5 @@
 import ms from 'ms';
-import { get } from '@terascope/utils';
+import { get, concat } from '@terascope/utils';
 import { PackageInfo } from '../interfaces';
 import { listPackages, getMainPackageInfo, getPublishTag } from '../packages';
 import { PublishAction, PublishOptions, PublishType } from './interfaces';
@@ -59,7 +59,9 @@ async function publishToDocker(options: PublishOptions) {
 
     const { registries } = rootInfo.terascope.docker;
 
-    let devImage: string|undefined;
+    const cacheFrom: string[] = [];
+    cacheFrom.push(await pullDevDockerImage());
+
     for (const registry of registries) {
         let imageToBuild = '';
 
@@ -86,16 +88,8 @@ async function publishToDocker(options: PublishOptions) {
         const startTime = Date.now();
         signale.pending(`building docker for ${options.type} release`);
 
-        if (!devImage) {
-            devImage = await pullDevDockerImage();
-
-            if (!imagesToPush.includes(devImage)) {
-                imagesToPush.push(devImage);
-            }
-        }
-
         signale.debug(`building docker image ${imageToBuild}`);
-        await dockerBuild(imageToBuild, [devImage]);
+        await dockerBuild(imageToBuild, cacheFrom);
 
         if (!imagesToPush.includes(imageToBuild)) {
             imagesToPush.push(imageToBuild);
@@ -108,6 +102,9 @@ async function publishToDocker(options: PublishOptions) {
         signale.info(`[DRY RUN] - skipping publish of docker images ${imagesToPush.join(', ')}`);
     } else {
         signale.info(`publishing docker images ${imagesToPush.join(', ')}`);
-        await Promise.all(imagesToPush.map(dockerPush));
+        await Promise.all(concat(
+            imagesToPush,
+            cacheFrom,
+        ).map(dockerPush));
     }
 }

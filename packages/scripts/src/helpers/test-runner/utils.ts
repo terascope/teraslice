@@ -1,4 +1,3 @@
-import ms from 'ms';
 import path from 'path';
 import isCI from 'is-ci';
 import fse from 'fs-extra';
@@ -14,14 +13,12 @@ import {
     ExecEnv,
     exec,
     fork,
-    dockerBuild
 } from '../scripts';
 import { TestOptions, GroupedPackages } from './interfaces';
 import { PackageInfo, Service } from '../interfaces';
 import { getServicesForSuite } from '../misc';
 import * as config from '../config';
 import signale from '../signale';
-import { pullDevDockerImage } from '../publish/utils';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -246,17 +243,4 @@ export async function reportCoverage(suite: string, chunkIndex: number) {
     } catch (err) {
         signale.error(err);
     }
-}
-
-export async function buildDockerImage(target: string): Promise<void> {
-    const startTime = Date.now();
-    signale.pending(`building docker image ${target}`);
-
-    const cacheFrom: string[] = [];
-    if (isCI) {
-        cacheFrom.push(await pullDevDockerImage());
-    }
-
-    await dockerBuild(target, cacheFrom);
-    signale.success(`built docker image ${target}, took ${ms(Date.now() - startTime)}`);
 }
