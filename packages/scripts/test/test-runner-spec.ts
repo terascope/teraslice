@@ -57,8 +57,8 @@ describe('Test Runner Helpers', () => {
                 } as any);
 
                 const unitAndESPackages = [
-                    ...unitATests,
                     ...unitBTests,
+                    ...unitATests,
                     ...elasticsearchTests,
                 ];
 
