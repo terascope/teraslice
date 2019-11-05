@@ -252,10 +252,11 @@ export async function buildDockerImage(target: string): Promise<void> {
     const startTime = Date.now();
     signale.pending(`building docker image ${target}`);
 
+    const cacheFrom: string[] = [];
     if (isCI) {
-        await pullDevDockerImage();
+        cacheFrom.push(await pullDevDockerImage());
     }
 
-    await dockerBuild(target);
+    await dockerBuild(target, cacheFrom);
     signale.success(`built docker image ${target}, took ${ms(Date.now() - startTime)}`);
 }

@@ -95,7 +95,7 @@ async function publishToDocker(options: PublishOptions) {
         }
 
         signale.debug(`building docker image ${imageToBuild}`);
-        await dockerBuild(imageToBuild);
+        await dockerBuild(imageToBuild, [devImage]);
 
         if (!imagesToPush.includes(imageToBuild)) {
             imagesToPush.push(imageToBuild);
