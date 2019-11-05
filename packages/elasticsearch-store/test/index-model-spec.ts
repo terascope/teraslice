@@ -69,12 +69,12 @@ describe('IndexModel', () => {
     });
 
     beforeAll(async () => {
-        await cleanupIndexStore(indexModel.store);
+        await cleanupIndexStore(indexModel);
         return indexModel.initialize();
     });
 
     afterAll(async () => {
-        await cleanupIndexStore(indexModel.store);
+        await cleanupIndexStore(indexModel);
         return indexModel.shutdown();
     });
 
@@ -83,7 +83,7 @@ describe('IndexModel', () => {
         let fetched: ExampleRecord;
 
         beforeAll(async () => {
-            created = await indexModel.create({
+            created = await indexModel.createRecord({
                 client_id: 1,
                 name: 'Billy',
                 type: 'billy',
@@ -143,7 +143,7 @@ describe('IndexModel', () => {
             expect.hasAssertions();
 
             try {
-                await indexModel.create({
+                await indexModel.createRecord({
                     client_id: 1,
                     name: 'Billy',
                     type: 'billy',
@@ -163,7 +163,7 @@ describe('IndexModel', () => {
         });
 
         it('should be able to create the same name in different client', async () => expect(
-            indexModel.create({
+            indexModel.createRecord({
                 client_id: 2,
                 name: 'Billy',
                 type: 'billy',
@@ -185,7 +185,7 @@ describe('IndexModel', () => {
 
             try {
                 // @ts-ignore
-                await indexModel.create({});
+                await indexModel.createRecord({});
             } catch (err) {
                 expect(err.message).toEqual('IndexModel requires field name');
                 expect(err).toBeInstanceOf(TSError);
@@ -223,7 +223,7 @@ describe('IndexModel', () => {
             expect.hasAssertions();
 
             const name = 'fooooobarrr';
-            await indexModel.create({
+            await indexModel.createRecord({
                 name,
                 client_id: 1,
                 type: 'foobar',
@@ -231,7 +231,7 @@ describe('IndexModel', () => {
             });
 
             try {
-                await indexModel.update({
+                await indexModel.updateRecord({
                     ...created,
                     type: 'billy',
                     name,
@@ -248,7 +248,7 @@ describe('IndexModel', () => {
 
             try {
                 // @ts-ignore
-                await indexModel.update({});
+                await indexModel.updateRecord({});
             } catch (err) {
                 expect(err.message).toEqual('IndexModel update requires id');
                 expect(err).toBeInstanceOf(TSError);
@@ -291,7 +291,7 @@ describe('IndexModel', () => {
         it('should be able to update the record', async () => {
             const updateInput = { ...fetched, name: 'Hello' };
 
-            const updateResult = await indexModel.update(updateInput);
+            const updateResult = await indexModel.updateRecord(updateInput);
             expect(updateResult).not.toBe(updateInput);
 
             const result = await indexModel.findById(fetched.id);
@@ -303,7 +303,7 @@ describe('IndexModel', () => {
         it('should be able to correctly handle a partial update', async () => {
             const updateInput = { id: fetched.id, config: { foo: 1 } };
 
-            await indexModel.update(updateInput);
+            await indexModel.updateRecord(updateInput);
 
             const result = await indexModel.findById(fetched.id);
             expect(result).toHaveProperty('config', {
@@ -330,7 +330,7 @@ describe('IndexModel', () => {
     describe('when creating mulitple records', () => {
         beforeAll(async () => {
             await Promise.all(
-                times(5, (n) => indexModel.create({
+                times(5, (n) => indexModel.createRecord({
                     client_id: 1,
                     type: 'joe',
                     name: `Joe ${n}`,
@@ -339,7 +339,7 @@ describe('IndexModel', () => {
             );
 
             await Promise.all(
-                times(5, (n) => indexModel.create({
+                times(5, (n) => indexModel.createRecord({
                     client_id: 2,
                     type: 'bob',
                     name: `Bob ${n}`,
@@ -355,7 +355,7 @@ describe('IndexModel', () => {
             });
 
             it('should be able to find all of the Bobs', async () => {
-                const result = await indexModel.find('name:Bob*', {
+                const result = await indexModel.search('name:Bob*', {
                     size: 6,
                 });
 
@@ -369,7 +369,7 @@ describe('IndexModel', () => {
             });
 
             it('should be able to find all of the Joes', async () => {
-                const result = await indexModel.find('name:Joe*', { size: 6 });
+                const result = await indexModel.search('name:Joe*', { size: 6 });
 
                 expect(result).toBeArrayOfSize(5);
 
@@ -399,7 +399,7 @@ describe('IndexModel', () => {
             });
 
             it('should be able to find 2 of the Joes', async () => {
-                const result = await indexModel.find('name:Joe*', { size: 2 });
+                const result = await indexModel.search('name:Joe*', { size: 2 });
 
                 expect(result).toBeArrayOfSize(2);
 
@@ -409,7 +409,7 @@ describe('IndexModel', () => {
             });
 
             it('should be able to sort by name', async () => {
-                const result = await indexModel.find('name:(Bob* OR Joe*)', {
+                const result = await indexModel.search('name:(Bob* OR Joe*)', {
                     size: 11,
                     sort: 'name:desc',
                     includes: ['name', 'updated'],
@@ -427,7 +427,7 @@ describe('IndexModel', () => {
             });
 
             it('should be able to limit the fields returned', async () => {
-                const result = await indexModel.find('name:Joe*', {
+                const result = await indexModel.search('name:Joe*', {
                     size: 1,
                     includes: ['name'],
                 });
@@ -443,7 +443,7 @@ describe('IndexModel', () => {
             });
 
             it('should be able to find no Ninjas', async () => {
-                const result = await indexModel.find('name:"Ninja"', {
+                const result = await indexModel.search('name:"Ninja"', {
                     size: 2,
                 });
 
@@ -457,7 +457,7 @@ describe('IndexModel', () => {
                     includes: ['name'],
                 });
 
-                const count = await indexModel.count('name:Bob*', queryAccess);
+                const count = await indexModel.count('name:Bob*', {}, queryAccess);
                 expect(count).toBe(5);
             });
 
@@ -466,7 +466,7 @@ describe('IndexModel', () => {
                     includes: ['id', 'name'],
                 });
 
-                const findResult = await indexModel.find('name:Bob*', {
+                const findResult = await indexModel.search('name:Bob*', {
                     size: 3,
                     includes: ['id'],
                 });
@@ -490,7 +490,9 @@ describe('IndexModel', () => {
                     excludes: ['created'],
                 });
 
-                const result = await indexModel.find('name:Bob*', { size: 6 }, queryAccess);
+                const result = await indexModel.search('name:Bob*', {
+                    size: 6
+                }, queryAccess);
 
                 expect(result).toBeArrayOfSize(5);
                 for (const record of result) {
@@ -509,7 +511,7 @@ describe('IndexModel', () => {
                 });
 
                 const NOT_NAME = 'Bob 1';
-                const result = await indexModel.find(`NOT name:"${NOT_NAME}"`, { size: 6 }, queryAccess);
+                const result = await indexModel.search(`NOT name:"${NOT_NAME}"`, { size: 6 }, queryAccess);
 
                 expect(result).toBeArrayOfSize(4);
                 for (const record of result) {

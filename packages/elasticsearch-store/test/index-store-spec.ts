@@ -143,18 +143,18 @@ describe('IndexStore', () => {
 
             it('should be able to update the record', async () => {
                 await indexStore.update(
+                    record.test_id,
                     {
                         doc: {
                             test_number: 4231,
                         },
                     },
-                    record.test_id
                 );
 
                 const updated = await indexStore.get(record.test_id);
                 expect(updated).toHaveProperty('test_number', 4231);
 
-                await indexStore.update({ doc: record }, record.test_id);
+                await indexStore.update(record.test_id, { doc: record });
             });
 
             it('should throw when updating a record that does not exist', async () => {
@@ -162,12 +162,12 @@ describe('IndexStore', () => {
 
                 try {
                     await indexStore.update(
+                        'wrong-id',
                         {
                             doc: {
                                 test_number: 1,
                             },
                         },
-                        'wrong-id'
                     );
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
@@ -211,13 +211,15 @@ describe('IndexStore', () => {
                 }
             });
 
-            it('should be able to remove the record', () => indexStore.remove(record.test_id));
+            it('should be able to remove the record', async () => {
+                await indexStore.deleteById(record.test_id);
+            });
 
             it('should throw when trying to remove a record that does not exist', async () => {
                 expect.hasAssertions();
 
                 try {
-                    await indexStore.remove('wrong-id');
+                    await indexStore.deleteById('wrong-id');
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
                     expect(err.message).toInclude('Not Found');
@@ -346,7 +348,7 @@ describe('IndexStore', () => {
                 });
                 const xluceneResult = await indexStore.search(q, {
                     size: 200,
-                    _sourceInclude: ['test_id', 'test_boolean'],
+                    includes: ['test_id', 'test_boolean'],
                     sort: 'test_number:asc',
                 });
 
@@ -638,12 +640,12 @@ describe('IndexStore', () => {
 
             it('should be able to update a record with a proper field', async () => {
                 const result = await indexStore.update(
+                    expected[2].test_id,
                     {
                         doc: {
                             test_number: 77777,
                         },
-                    },
-                    expected[2].test_id
+                    }
                 );
 
                 expect(result).toBeNil();

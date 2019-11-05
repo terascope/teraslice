@@ -1,7 +1,12 @@
 import Ajv from 'ajv';
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { TypeConfig, CachedTranslator } from 'xlucene-evaluator';
+import {
+    TypeConfig,
+    CachedTranslator,
+    createJoinQuery,
+    QueryAccess
+} from 'xlucene-evaluator';
 import IndexManager from './index-manager';
 import * as i from './interfaces';
 import * as utils from './utils';
@@ -14,6 +19,7 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
     readonly config: i.IndexConfig;
     readonly indexQuery: string;
     readonly manager: IndexManager;
+    readonly name: string;
     refreshByDefault = true;
     readonly xluceneTypeConfig: TypeConfig | undefined;
 
@@ -39,6 +45,7 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
 
         this.client = client;
         this.config = config;
+        this.name = utils.toInstanceName(this.config.name);
         this.manager = new IndexManager(client);
 
         this.indexQuery = this.manager.formatIndexName(config);
@@ -154,8 +161,12 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
     }
 
     /** Count records by a given Lucene Query */
-    async count(query: string, params?: PartialParam<es.CountParams, 'q' | 'body'>): Promise<number> {
-        const p = Object.assign({}, params, this._translateQuery(query));
+    async count(
+        query: string,
+        params: PartialParam<es.CountParams, 'q' | 'body'> = {},
+        queryAccess?: QueryAccess<T>
+    ): Promise<number> {
+        const p = Object.assign({}, params, this._translateQuery(query, queryAccess));
 
         return this._count(p);
     }
@@ -171,7 +182,7 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
     /**
      * Create a document with an id
      *
-     * @returns a boolean to indicate whether the document was created
+     * @returns the created record
      */
     async createWithId(doc: T | I, id: string, params?: PartialParam<es.CreateDocumentParams, 'id' | 'body'>) {
         return this.create(doc, Object.assign({}, params, { id }));
@@ -180,19 +191,18 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
     /**
      * Create a document but will throw if doc already exists
      *
-     * @returns a boolean to indicate whether the document was created
+     * @returns the created record
      */
     async create(doc: T | I, params?: PartialParam<es.CreateDocumentParams, 'body'>): Promise<T> {
-        this.validateRecord(doc, true);
+        const record = this._preProcess(doc as T);
+        this.validateRecord(record, true);
 
         const defaults = { refresh: this.refreshByDefault };
         const p = this.getDefaultParams(defaults, params, { body: doc });
 
         return ts.pRetry(async () => {
-            const result = await this.client.create(p);
-            // @ts-ignore
+            const result = await this.client.create(p) as any;
             result._source = doc;
-            // @ts-ignore
             return this._toRecord(result);
         }, utils.getRetryConfig());
     }
@@ -294,7 +304,7 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
     /**
      * Deletes a document for a given id
      */
-    async remove(id: string, params?: PartialParam<es.DeleteDocumentParams>) {
+    async deleteById(id: string, params?: PartialParam<es.DeleteDocumentParams>) {
         const p = this.getDefaultParams(
             {
                 refresh: this.refreshByDefault,
@@ -306,6 +316,15 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
         );
 
         await ts.pRetry(() => this.client.delete(p), utils.getRetryConfig());
+    }
+
+    /**
+     * Delete multiple documents by id
+    */
+    async deleteAll(ids: string[]): Promise<void> {
+        if (!ids || !ids.length) return;
+
+        await Promise.all(ts.uniq(ids).map((id) => this.deleteById(id)));
     }
 
     /**
@@ -323,10 +342,201 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
         }
     }
 
+    /** Update a document with a given id */
+    async update(id: string, body: { script: any }|{ doc: Partial<T> }, params?: PartialParam<es.UpdateDocumentParams, 'body' | 'id'>): Promise<void> {
+        return this._update(id, body, params);
+    }
+
+    protected async _update(id: string, body: any, params?: PartialParam<es.UpdateDocumentParams, 'body' | 'id'>): Promise<void> {
+        const defaults = {
+            refresh: this.refreshByDefault,
+            retryOnConflict: 3,
+        };
+
+        const p = this.getDefaultParams(defaults, params, {
+            id,
+            body: body.doc
+                ? { doc: this._preProcess(body.doc) }
+                : body
+        });
+
+        await ts.pRetry(() => this.client.update(p), utils.getRetryConfig());
+    }
+
+    /** Safely apply updates to a document by applying the latest changes */
+    async updatePartial(
+        id: string,
+        applyChanges: ApplyPartialUpdates<T>,
+        retriesOnConlfict = 3
+    ): Promise<void> {
+        return this._updatePartial(id, applyChanges, retriesOnConlfict);
+    }
+
+    private async _updatePartial(
+        id: string,
+        applyChanges: ApplyPartialUpdates<T>,
+        retries = 3
+    ): Promise<void> {
+        try {
+            const existing = await this.get(id);
+            await this.indexWithId(await applyChanges(existing), id);
+        } catch (error) {
+            // if there is a version conflict
+            if (error.statusCode === 409 && error.message.includes('version conflict')) {
+                return this._updatePartial(id, applyChanges, retries - 1);
+            }
+            throw error;
+        }
+    }
+
+    getDefaultParams(...params: any[]) {
+        return Object.assign(
+            {
+                index: this.indexQuery,
+                type: this.config.name,
+            },
+            ...params
+        );
+    }
+
+    async countBy(fields: AnyInput<T>, joinBy?: JoinBy, arrayJoinBy?: JoinBy): Promise<number> {
+        return this.count(this.createJoinQuery(fields, joinBy, arrayJoinBy));
+    }
+
+    async exists(id: string[] | string): Promise<boolean> {
+        const ids = ts.castArray(id);
+        if (!ids.length) return true;
+
+        const count = await this.countBy({
+            id: ids,
+        } as AnyInput<T>);
+
+        return count === ids.length;
+    }
+
+    async findBy(
+        fields: AnyInput<T>,
+        joinBy?: JoinBy,
+        options?: i.FindOneOptions<T>,
+        queryAccess?: QueryAccess<T>
+    ) {
+        const query = this.createJoinQuery(fields, joinBy);
+
+        const results = await this.search(
+            query,
+            {
+                ...options,
+                size: 1,
+            },
+            queryAccess
+        );
+
+        const record = ts.getFirst(results);
+        if (record == null) {
+            throw new ts.TSError(`Unable to find ${this.name} by ${query}`, {
+                statusCode: 404,
+            });
+        }
+
+        return record;
+    }
+
+    async findAllBy(
+        fields: AnyInput<T>,
+        joinBy?: JoinBy,
+        options?: i.FindOptions<T>,
+        queryAccess?: QueryAccess<T>
+    ): Promise<T[]> {
+        const query = this.createJoinQuery(fields, joinBy);
+
+        return this.search(
+            query,
+            options,
+            queryAccess
+        );
+    }
+
+    async findById(
+        id: string,
+        options?: i.FindOneOptions<T>,
+        queryAccess?: QueryAccess<T>
+    ): Promise<T> {
+        const fields = { id };
+        return this.findBy(fields, 'AND', options, queryAccess);
+    }
+
+    async findAndApply(
+        updates: Partial<T> | undefined,
+        options?: i.FindOneOptions<T>,
+        queryAccess?: QueryAccess<T>
+    ): Promise<Partial<T>> {
+        if (!updates) {
+            throw new ts.TSError(`Invalid input for ${this.name}`, {
+                statusCode: 422,
+            });
+        }
+
+        const { id } = updates;
+        if (!id) return { ...updates };
+
+        const current = await this.findById(id, options, queryAccess);
+        return { ...current, ...updates };
+    }
+
+    async findAll(
+        input: string[] | string | undefined,
+        options?: i.FindOneOptions<T>,
+        queryAccess?: QueryAccess<T>
+    ): Promise<T[]> {
+        const ids: string[] = ts.parseList(input);
+        if (!ids || !ids.length) return [];
+
+        const query = this.createJoinQuery({ id: ids } as AnyInput<T>);
+
+        const result = await this.search(
+            query,
+            {
+                ...options,
+                size: ids.length,
+            },
+            queryAccess
+        );
+
+        if (result.length !== ids.length) {
+            const foundIds = result.map((doc) => doc.id);
+            const notFoundIds = ids.filter((id) => !foundIds.includes(id));
+            throw new ts.TSError(`Unable to find ${this.name}'s ${notFoundIds.join(', ')}`, {
+                statusCode: 404,
+            });
+        }
+
+        // maintain sort order
+        return ids.map((id) => result.find((doc) => doc.id === id)!);
+    }
+
     /** Search with a given Lucene Query */
-    async search(query: string, params?: PartialParam<SearchParams<T>>): Promise<T[]> {
-        const p = Object.assign({}, params, this._translateQuery(query));
-        return this._search(p);
+    async search(q = '', options: i.FindOptions<T> = {}, queryAccess?: QueryAccess<T>): Promise<T[]> {
+        const params: Partial<es.SearchParams> = {
+            size: options.size,
+            sort: options.sort,
+            from: options.from,
+            _sourceExclude: options.excludes as string[],
+            _sourceInclude: options.includes as string[],
+        };
+
+        let records: T[];
+        if (queryAccess) {
+            const p = queryAccess.restrictSearchQuery(q, {
+                params,
+                elasticsearch_version: utils.getESVersion(this.client)
+            });
+            records = await this._search(p);
+        } else {
+            const p = Object.assign({}, params, this._translateQuery(q));
+            records = await this._search(p);
+        }
+
+        return records.map((record) => this._postProcess(record));
     }
 
     /** Search an Elasticsearch Query DSL */
@@ -375,57 +585,73 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
         return results.hits.hits.map(this._toRecord);
     }
 
-    /** Update a document with a given id */
-    update(body: { script: any }, id: string, params?: PartialParam<es.UpdateDocumentParams, 'body' | 'id'>): Promise<void>;
-    update(body: { doc: Partial<T> }, id: string, params?: PartialParam<es.UpdateDocumentParams, 'body' | 'id'>): Promise<void>;
-    async update(body: any, id: string, params?: PartialParam<es.UpdateDocumentParams, 'body' | 'id'>): Promise<void> {
-        const defaults = {
-            refresh: this.refreshByDefault,
-            retryOnConflict: 3,
-        };
-
-        const p = this.getDefaultParams(defaults, params, {
-            id,
-            body,
+    createJoinQuery(fields: AnyInput<T>, joinBy: JoinBy = 'AND', arrayJoinBy: JoinBy = 'OR'): string {
+        const result = createJoinQuery(fields, {
+            joinBy,
+            arrayJoinBy,
+            typeConfig: this.xluceneTypeConfig
         });
+        if (result) return result;
 
-        await ts.pRetry(() => this.client.update(p), utils.getRetryConfig());
+        return `${ts.getFirst(Object.keys(fields))}: "__undefined__"`;
     }
 
-    /** Safely apply updates to a document by applying the latest changes */
-    async updatePartial(
+    protected async _appendToArray(
         id: string,
-        applyChanges: ApplyPartialUpdates<T>,
-        retriesOnConlfict = 3
+        field: keyof T,
+        values: string[] | string
     ): Promise<void> {
-        return this._updatePartial(id, applyChanges, retriesOnConlfict);
-    }
+        const valueArray = values && ts.uniq(ts.castArray(values)).filter((v) => !!v);
+        if (!valueArray || !valueArray.length) return;
 
-    private async _updatePartial(
-        id: string,
-        applyChanges: ApplyPartialUpdates<T>,
-        retries = 3
-    ): Promise<void> {
-        try {
-            const existing = await this.get(id);
-            await this.indexWithId(await applyChanges(existing), id);
-        } catch (error) {
-            // if there is a version conflict
-            if (error.statusCode === 409 && error.message.includes('version conflict')) {
-                return this._updatePartial(id, applyChanges, retries - 1);
-            }
-            throw error;
-        }
-    }
-
-    getDefaultParams(...params: any[]) {
-        return Object.assign(
-            {
-                index: this.indexQuery,
-                type: this.config.name,
+        await this._update(id, {
+            script: {
+                source: `
+                    for(int i = 0; i < params.values.length; i++) {
+                        if (!ctx._source["${field}"].contains(params.values[i])) {
+                            ctx._source["${field}"].add(params.values[i])
+                        }
+                    }
+                `,
+                lang: 'painless',
+                params: {
+                    values: valueArray,
+                },
             },
-            ...params
-        );
+        });
+    }
+
+    protected async _removeFromArray(
+        id: string,
+        field: keyof T,
+        values: string[] | string
+    ): Promise<void> {
+        const valueArray = values && ts.uniq(ts.castArray(values)).filter((v) => !!v);
+        if (!valueArray || !valueArray.length) return;
+
+        try {
+            await this._update(id, {
+                script: {
+                    source: `
+                        for(int i = 0; i < params.values.length; i++) {
+                            if (ctx._source["${field}"].contains(params.values[i])) {
+                                int itemIndex = ctx._source["${field}"].indexOf(params.values[i]);
+                                ctx._source["${field}"].remove(itemIndex)
+                            }
+                        }
+                    `,
+                    lang: 'painless',
+                    params: {
+                        values: valueArray,
+                    },
+                },
+            });
+        } catch (err) {
+            if (err && err.statusCode === 404) {
+                return;
+            }
+            throw err;
+        }
     }
 
     private async _bulk(records: BulkRequest<I>[], body: any) {
@@ -444,24 +670,39 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
         }
     }
 
-    private _toRecord(result: RecordResponse<T>): T {
+    protected _toRecord(result: RecordResponse<T>): T {
+        const doc = this._postProcess(result._source);
         this.validateRecord(result._source);
 
-        const entity = ts.DataEntity.make<T>(result._source, {
+        const entity = ts.DataEntity.make<T>(doc, {
             _key: result._id,
             _processTime: Date.now(),
-            _ingestTime: this._getIngestTime(result._source),
-            _eventTime: this._getEventTime(result._source),
+            _ingestTime: this._getIngestTime(doc),
+            _eventTime: this._getEventTime(doc),
             _index: result._index,
             _type: result._type,
             _version: result._version,
         });
 
-        // @ts-ignore because it easier to assume it isn't a data-entity
-        return entity as T;
+        return (entity as any) as T;
     }
 
-    private _translateQuery(query: string) {
+    /**
+     * Run additional validation after retrieving the record from elasticsearch
+    */
+    protected _postProcess(doc: T): T {
+        return doc;
+    }
+
+    /**
+     * Run additional validation before updating or creating the record
+    */
+    protected _preProcess(doc: T): T {
+        return doc;
+    }
+
+    private _translateQuery(q: string, queryAccess?: QueryAccess<T>) {
+        const query: string = queryAccess ? queryAccess.restrict(q) : q;
         const translator = this._translator.make(query, {
             type_config: this.xluceneTypeConfig,
             logger: this._logger
@@ -514,3 +755,6 @@ es.SearchParams,
 
 type ApplyPartialUpdates<T> = (existing: T) => Promise<T> | T;
 type ValidateFn<T> = (input: T, strictMode?: boolean) => void;
+
+export type AnyInput<T> = { [P in keyof T]?: T[P] | any };
+export type JoinBy = 'AND' | 'OR';
