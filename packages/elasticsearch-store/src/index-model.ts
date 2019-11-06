@@ -74,11 +74,15 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
     /**
      * Fetch a record by any unique ID
     */
-    async fetchRecord(anyId: any, options?: i.FindOneOptions<T>, queryAccess?: QueryAccess<T>) {
+    async fetchRecord(
+        anyId: string|number,
+        options?: i.FindOneOptions<T>,
+        queryAccess?: QueryAccess<T>
+    ) {
         const fields: Partial<T> = {};
 
         for (const field of this._uniqueFields) {
-            fields[field] = anyId;
+            fields[field] = anyId as any;
         }
 
         return this.findBy(fields, 'OR', options, queryAccess);
@@ -92,24 +96,24 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
             _updated: ts.makeISODate(),
         } as T;
 
-        const _key = await utils.makeId();
-        docInput._key = _key;
+        const id = await utils.makeId();
+        docInput._key = id;
 
         const doc = this._sanitizeRecord(docInput);
 
         await this._ensureUnique(doc);
-        return this.createWithId(doc, _key);
+        return this.createWithId(doc, id);
     }
 
     async updateRecord(record: i.UpdateRecordInput<T>) {
-        const { _key } = record;
-        if (!_key || !ts.isString(_key)) {
+        const { _key: id } = record;
+        if (!id || !ts.isString(id)) {
             throw new ts.TSError(`${this.name} update requires _key`, {
                 statusCode: 422,
             });
         }
 
-        return this.updatePartial(_key, async (existing) => {
+        return this.updatePartial(id, async (existing) => {
             const doc = this._sanitizeRecord({
                 ...existing,
                 ...record,
