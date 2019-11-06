@@ -105,8 +105,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
         return this.createWithId(id, doc);
     }
 
-    async updateRecord(record: i.UpdateRecordInput<T>): Promise<T> {
-        const { _key: id } = record;
+    async updateRecord(id: string, record: i.UpdateRecordInput<T>): Promise<T> {
         if (!id || !ts.isString(id)) {
             throw new ts.TSError(`${this.name} update requires _key`, {
                 statusCode: 422,
@@ -118,6 +117,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
                 ...existing,
                 ...record,
                 _updated: ts.makeISODate(),
+                _key: id
             } as T);
 
             await this._ensureUnique(doc, existing);

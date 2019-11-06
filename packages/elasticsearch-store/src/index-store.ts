@@ -437,7 +437,7 @@ export default class IndexStore<T extends Record<string, any>> {
                 size: 1,
             },
             queryAccess,
-            true
+            false
         );
 
         const record = ts.getFirst(results);
@@ -462,7 +462,7 @@ export default class IndexStore<T extends Record<string, any>> {
             query,
             { size: 10000, ...options },
             queryAccess,
-            true
+            false
         );
     }
 
@@ -514,7 +514,7 @@ export default class IndexStore<T extends Record<string, any>> {
                 size: ids.length,
             },
             queryAccess,
-            true
+            false
         );
 
         if (result.length !== ids.length) {

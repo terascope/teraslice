@@ -209,7 +209,6 @@ export type UpdateRecordInput<T extends IndexModelRecord> =
     Partial<Omit<T, keyof IndexModelRecord>>
     & {
         client_id?: number;
-        _key: string;
     };
 
 export interface IndexModelConfig<T extends IndexModelRecord> {

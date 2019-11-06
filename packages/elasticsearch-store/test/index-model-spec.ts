@@ -234,8 +234,7 @@ describe('IndexModel', () => {
             });
 
             try {
-                await indexModel.updateRecord({
-                    ...created,
+                await indexModel.updateRecord(created._key, {
                     type: 'billy',
                     name,
                 });
@@ -294,7 +293,7 @@ describe('IndexModel', () => {
         it('should be able to update the record', async () => {
             const updateInput = { ...fetched, name: 'Hello' };
 
-            const updateResult = await indexModel.updateRecord(updateInput);
+            const updateResult = await indexModel.updateRecord(fetched._key, updateInput);
             expect(updateResult).not.toBe(updateInput);
 
             const result = await indexModel.findById(fetched._key);
@@ -304,9 +303,9 @@ describe('IndexModel', () => {
         });
 
         it('should be able to correctly handle a partial update', async () => {
-            const updateInput = { _key: fetched._key, config: { foo: 1 } };
+            const updateInput = { config: { foo: 1 } };
 
-            await indexModel.updateRecord(updateInput);
+            await indexModel.updateRecord(fetched._key, updateInput);
 
             const result = await indexModel.findById(fetched._key);
             expect(result).toHaveProperty('config', {
