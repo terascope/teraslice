@@ -168,11 +168,11 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
     ): Promise<number> {
         const p = Object.assign({}, params, this._translateQuery(query, queryAccess));
 
-        return this._count(p);
+        return this.countRequest(p);
     }
 
     /** Count records by a given Elasticsearch Query DSL */
-    async _count(params: es.CountParams): Promise<number> {
+    async countRequest(params: es.CountParams): Promise<number> {
         return ts.pRetry(async () => {
             const { count } = await this.client.count(this.getDefaultParams(params));
             return count;
@@ -343,21 +343,20 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
     }
 
     /** Update a document with a given id */
-    async update(id: string, body: { script: any }|{ doc: Partial<T> }, params?: PartialParam<es.UpdateDocumentParams, 'body' | 'id'>): Promise<void> {
-        return this._update(id, body, params);
-    }
-
-    protected async _update(id: string, body: any, params?: PartialParam<es.UpdateDocumentParams, 'body' | 'id'>): Promise<void> {
+    async update(id: string, body: UpdateBody<T>, params?: PartialParam<es.UpdateDocumentParams, 'body' | 'id'>): Promise<void> {
         const defaults = {
             refresh: this.refreshByDefault,
             retryOnConflict: 3,
         };
 
+        const _body = body as any;
+        if (_body.doc) {
+            _body.doc = this._preProcess(_body.doc);
+        }
+
         const p = this.getDefaultParams(defaults, params, {
             id,
-            body: body.doc
-                ? { doc: this._preProcess(body.doc) }
-                : body
+            body: _body
         });
 
         await ts.pRetry(() => this.client.update(p), utils.getRetryConfig());
@@ -369,21 +368,13 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
         applyChanges: ApplyPartialUpdates<T>,
         retriesOnConlfict = 3
     ): Promise<void> {
-        return this._updatePartial(id, applyChanges, retriesOnConlfict);
-    }
-
-    private async _updatePartial(
-        id: string,
-        applyChanges: ApplyPartialUpdates<T>,
-        retries = 3
-    ): Promise<void> {
         try {
             const existing = await this.get(id);
             await this.indexWithId(await applyChanges(existing), id);
         } catch (error) {
             // if there is a version conflict
             if (error.statusCode === 409 && error.message.includes('version conflict')) {
-                return this._updatePartial(id, applyChanges, retries - 1);
+                return this.updatePartial(id, applyChanges, retriesOnConlfict - 1);
             }
             throw error;
         }
@@ -524,23 +515,21 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
             _sourceInclude: options.includes as string[],
         };
 
-        let records: T[];
+        let searchParams: Partial<es.SearchParams>;
         if (queryAccess) {
-            const p = queryAccess.restrictSearchQuery(q, {
+            searchParams = queryAccess.restrictSearchQuery(q, {
                 params,
                 elasticsearch_version: utils.getESVersion(this.client)
             });
-            records = await this._search(p);
         } else {
-            const p = Object.assign({}, params, this._translateQuery(q));
-            records = await this._search(p);
+            searchParams = Object.assign({}, params, this._translateQuery(q));
         }
 
-        return records.map((record) => this._postProcess(record));
+        return this.searchRequest(searchParams);
     }
 
-    /** Search an Elasticsearch Query DSL */
-    async _search(params: PartialParam<SearchParams<T>>): Promise<T[]> {
+    /** Search using the underyling Elasticsearch Query DSL */
+    async searchRequest(params: PartialParam<SearchParams<T>>): Promise<T[]> {
         const esVersion = utils.getESVersion(this.client);
         if (esVersion >= 7) {
             const p: any = params;
@@ -604,7 +593,7 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
         const valueArray = values && ts.uniq(ts.castArray(values)).filter((v) => !!v);
         if (!valueArray || !valueArray.length) return;
 
-        await this._update(id, {
+        await this.update(id, {
             script: {
                 source: `
                     for(int i = 0; i < params.values.length; i++) {
@@ -630,7 +619,7 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
         if (!valueArray || !valueArray.length) return;
 
         try {
-            await this._update(id, {
+            await this.update(id, {
                 script: {
                     source: `
                         for(int i = 0; i < params.values.length; i++) {
@@ -758,3 +747,4 @@ type ValidateFn<T> = (input: T, strictMode?: boolean) => void;
 
 export type AnyInput<T> = { [P in keyof T]?: T[P] | any };
 export type JoinBy = 'AND' | 'OR';
+export type UpdateBody<T> = ({ doc: Partial<T> })|({ script: any });

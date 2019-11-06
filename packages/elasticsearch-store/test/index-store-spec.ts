@@ -340,7 +340,7 @@ describe('IndexStore', () => {
 
             xit('compare xlucene query', async () => {
                 const q = '_exists_:test_number OR test_number:<0 OR test_number:100000 NOT test_keyword:other-keyword';
-                const realResult = await indexStore._search({
+                const realResult = await indexStore.searchRequest({
                     q,
                     _sourceInclude: ['test_id', 'test_boolean'],
                     sort: 'test_number:asc',
@@ -352,7 +352,7 @@ describe('IndexStore', () => {
                     sort: 'test_number:asc',
                 });
 
-                await indexStore._search({
+                await indexStore.searchRequest({
                     body: {
                         query: {
                             constant_score: {
@@ -411,7 +411,7 @@ describe('IndexStore', () => {
             });
 
             xit('test lucene query', async () => {
-                const result = await indexStore._search({
+                const result = await indexStore.searchRequest({
                     q: '*rec?rd',
                     size: 200,
                     _sourceInclude: ['test_id', 'test_number'],
