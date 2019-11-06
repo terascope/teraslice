@@ -96,34 +96,34 @@ describe('IndexModel', () => {
                 },
             });
 
-            fetched = await indexModel.findById(created.id);
+            fetched = await indexModel.findById(created._key);
         });
 
-        it('should have created the record', () => {
+        it('should have _created the record', () => {
             expect(created).toEqual(fetched);
         });
 
         it('should be able to find the record with restrictions', async () => {
             const queryAccess = new QueryAccess({
-                excludes: ['updated'],
+                excludes: ['_updated'],
             });
-            const result = await indexModel.findById(fetched.id, queryAccess);
+            const result = await indexModel.findById(fetched._key, {}, queryAccess);
 
             expect(result).toHaveProperty('name');
-            expect(result).toHaveProperty('created');
-            expect(result).not.toHaveProperty('updated');
+            expect(result).toHaveProperty('_created');
+            expect(result).not.toHaveProperty('_updated');
         });
 
         describe('when preventing query injection', () => {
-            const valueTestCases = ['a" OR id:* OR id:"a'];
-            const oneOfTestCases = ['a") OR id:* OR id:("a'];
+            const valueTestCases = ['a" OR _key:* OR _key:"a'];
+            const oneOfTestCases = ['a") OR _key:* OR _key:("a'];
 
             test.each([valueTestCases])('should be able to query findById with %s', async (query) => {
                 await expect(indexModel.findById(query)).rejects.toThrow(/Unable to find/);
             });
 
             test.each([valueTestCases])('should be able to query countBy with %s', async (query) => {
-                await expect(indexModel.countBy({ id: query })).resolves.toBe(0);
+                await expect(indexModel.countBy({ _key: query })).resolves.toBe(0);
             });
 
             test.each([valueTestCases])('should be able to query findByAnyId with %s', async (query) => {
@@ -207,11 +207,14 @@ describe('IndexModel', () => {
                 });
             });
 
-            describe('when given an object with a id', () => {
-                it('should resolve the full record', () => expect(indexModel.findAndApply({ id: fetched.id })).resolves.toEqual(fetched));
+            describe('when given an object with a _key', () => {
+                it('should resolve the full record', async () => {
+                    const result = await indexModel.findAndApply({ _key: fetched._key });
+                    expect(result).toEqual(fetched);
+                });
             });
 
-            describe('when given an object without an id', () => {
+            describe('when given an object without an _key', () => {
                 it('should resolve the partial record record', () => {
                     const input = { config: {} };
                     return expect(indexModel.findAndApply(input)).resolves.toEqual(input);
@@ -243,23 +246,23 @@ describe('IndexModel', () => {
             }
         });
 
-        it('should not be able to update without an id', async () => {
+        it('should not be able to update without an _key', async () => {
             expect.hasAssertions();
 
             try {
                 // @ts-ignore
                 await indexModel.updateRecord({});
             } catch (err) {
-                expect(err.message).toEqual('IndexModel update requires id');
+                expect(err.message).toEqual('IndexModel update requires _key');
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.statusCode).toEqual(422);
             }
         });
 
         it('should have the required properties', () => {
-            expect(fetched).toHaveProperty('id');
-            expect(fetched).toHaveProperty('updated');
-            expect(fetched).toHaveProperty('created');
+            expect(fetched).toHaveProperty('_key');
+            expect(fetched).toHaveProperty('_updated');
+            expect(fetched).toHaveProperty('_created');
         });
 
         it('should be able to find by name since it is treated a name', async () => {
@@ -282,7 +285,7 @@ describe('IndexModel', () => {
             try {
                 await indexModel.findByAnyId('WrongBilly');
             } catch (err) {
-                expect(err.message).toEqual('Unable to find IndexModel by id: "WrongBilly" OR name: "WrongBilly"');
+                expect(err.message).toEqual('Unable to find IndexModel by _key: "WrongBilly" OR name: "WrongBilly"');
                 expect(err.statusCode).toEqual(404);
                 expect(err).toBeInstanceOf(TSError);
             }
@@ -294,27 +297,27 @@ describe('IndexModel', () => {
             const updateResult = await indexModel.updateRecord(updateInput);
             expect(updateResult).not.toBe(updateInput);
 
-            const result = await indexModel.findById(fetched.id);
+            const result = await indexModel.findById(fetched._key);
             expect(result).toHaveProperty('name', 'Hello');
 
-            expect(new Date(result.updated)).toBeAfter(new Date(fetched.updated));
+            expect(new Date(result._updated)).toBeAfter(new Date(fetched._updated));
         });
 
         it('should be able to correctly handle a partial update', async () => {
-            const updateInput = { id: fetched.id, config: { foo: 1 } };
+            const updateInput = { _key: fetched._key, config: { foo: 1 } };
 
             await indexModel.updateRecord(updateInput);
 
-            const result = await indexModel.findById(fetched.id);
+            const result = await indexModel.findById(fetched._key);
             expect(result).toHaveProperty('config', {
                 foo: 1,
             });
         });
 
         it('should be able to delete the record', async () => {
-            await indexModel.deleteById(fetched.id);
+            await indexModel.deleteById(fetched._key);
 
-            return expect(indexModel.findById(fetched.id)).rejects.toThrowError(/Unable to find IndexModel/);
+            return expect(indexModel.findById(fetched._key)).rejects.toThrowError(/Unable to find IndexModel/);
         });
     });
 
@@ -361,9 +364,9 @@ describe('IndexModel', () => {
 
                 expect(result).toBeArrayOfSize(5);
                 for (const record of result) {
-                    expect(record).toHaveProperty('id');
-                    expect(record).toHaveProperty('created');
-                    expect(record).toHaveProperty('updated');
+                    expect(record).toHaveProperty('_key');
+                    expect(record).toHaveProperty('_created');
+                    expect(record).toHaveProperty('_updated');
                     expect(record.name).toStartWith('Bob');
                 }
             });
@@ -374,9 +377,9 @@ describe('IndexModel', () => {
                 expect(result).toBeArrayOfSize(5);
 
                 for (const record of result) {
-                    expect(record).toHaveProperty('id');
-                    expect(record).toHaveProperty('created');
-                    expect(record).toHaveProperty('updated');
+                    expect(record).toHaveProperty('_key');
+                    expect(record).toHaveProperty('_created');
+                    expect(record).toHaveProperty('_updated');
                     expect(record.name).toStartWith('Joe');
                 }
             });
@@ -391,9 +394,9 @@ describe('IndexModel', () => {
                 expect(result).toBeArrayOfSize(3);
 
                 for (const record of result) {
-                    expect(record).toHaveProperty('id');
-                    expect(record).toHaveProperty('created');
-                    expect(record).toHaveProperty('updated');
+                    expect(record).toHaveProperty('_key');
+                    expect(record).toHaveProperty('_created');
+                    expect(record).toHaveProperty('_updated');
                     expect(record.name).toStartWith('Joe');
                 }
             });
@@ -412,7 +415,7 @@ describe('IndexModel', () => {
                 const result = await indexModel.search('name:(Bob* OR Joe*)', {
                     size: 11,
                     sort: 'name:desc',
-                    includes: ['name', 'updated'],
+                    includes: ['name', '_updated'],
                 });
 
                 expect(result).toBeArrayOfSize(10);
@@ -435,9 +438,9 @@ describe('IndexModel', () => {
                 expect(result).toBeArrayOfSize(1);
 
                 for (const record of result) {
-                    expect(record).not.toHaveProperty('id');
-                    expect(record).not.toHaveProperty('created');
-                    expect(record).not.toHaveProperty('updated');
+                    expect(record).not.toHaveProperty('_key');
+                    expect(record).not.toHaveProperty('_created');
+                    expect(record).not.toHaveProperty('_updated');
                     expect(record.name).toStartWith('Joe');
                 }
             });
@@ -463,31 +466,31 @@ describe('IndexModel', () => {
 
             it('should be able to find all by ids', async () => {
                 const queryAccess = new QueryAccess({
-                    includes: ['id', 'name'],
+                    includes: ['_key', 'name'],
                 });
 
                 const findResult = await indexModel.search('name:Bob*', {
                     size: 3,
-                    includes: ['id'],
+                    includes: ['_key'],
                 });
 
-                const ids = findResult.map((doc) => doc.id);
+                const ids = findResult.map((doc) => doc._key);
 
                 const result = await indexModel.findAll(ids, queryAccess);
 
                 expect(result).toBeArrayOfSize(3);
                 for (const record of result) {
                     expect(record).not.toBeNil();
-                    expect(record).toHaveProperty('id');
+                    expect(record).toHaveProperty('_key');
                     expect(record).toHaveProperty('name');
-                    expect(record).not.toHaveProperty('created');
+                    expect(record).not.toHaveProperty('_created');
                 }
             });
 
             it('should be able to search for all of the Bobs', async () => {
                 const queryAccess = new QueryAccess({
                     constraint: 'name:Bob*',
-                    excludes: ['created'],
+                    excludes: ['_created'],
                 });
 
                 const result = await indexModel.search('name:Bob*', {
@@ -497,9 +500,9 @@ describe('IndexModel', () => {
                 expect(result).toBeArrayOfSize(5);
                 for (const record of result) {
                     expect(record).not.toBeNil();
-                    expect(record).toHaveProperty('id');
-                    expect(record).not.toHaveProperty('created');
-                    expect(record).toHaveProperty('updated');
+                    expect(record).toHaveProperty('_key');
+                    expect(record).not.toHaveProperty('_created');
+                    expect(record).toHaveProperty('_updated');
                     expect(record.name).toStartWith('Bob');
                 }
             });
@@ -507,7 +510,7 @@ describe('IndexModel', () => {
             it('should be able to use NOT query when finding bobs', async () => {
                 const queryAccess = new QueryAccess({
                     constraint: 'name:Bob*',
-                    excludes: ['created'],
+                    excludes: ['_created'],
                 });
 
                 const NOT_NAME = 'Bob 1';

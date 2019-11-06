@@ -51,11 +51,11 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
 
         const indexConfig: i.IndexConfig<T> = {
             ...baseConfig,
-            id_field: 'id',
-            ingest_time_field: 'created',
-            event_time_field: 'updated',
+            id_field: '_key',
+            ingest_time_field: '_created',
+            event_time_field: '_updated',
             logger: options.logger,
-            default_sort: 'updated:desc',
+            default_sort: '_updated:desc',
         };
 
         super(client, indexConfig);
@@ -63,7 +63,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
         const debugLoggerName = `elasticsearch-store:index-model:${this.name}`;
         this.logger = options.logger || ts.debugLogger(debugLoggerName);
 
-        this._uniqueFields = ts.concat('id', modelConfig.unique_fields);
+        this._uniqueFields = ts.concat('_key', modelConfig.unique_fields);
         this._sanitizeFields = modelConfig.sanitize_fields || {};
     }
 
@@ -80,32 +80,32 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
     async createRecord(record: i.CreateRecordInput<T>): Promise<T> {
         const docInput = {
             ...record,
-            created: ts.makeISODate(),
-            updated: ts.makeISODate(),
+            _created: ts.makeISODate(),
+            _updated: ts.makeISODate(),
         } as T;
 
-        const id = await utils.makeId();
-        docInput.id = id;
+        const _key = await utils.makeId();
+        docInput._key = _key;
 
         const doc = this._sanitizeRecord(docInput);
 
         await this._ensureUnique(doc);
-        return this.createWithId(doc, id);
+        return this.createWithId(doc, _key);
     }
 
     async updateRecord(record: i.UpdateRecordInput<T>) {
-        const { id } = record;
-        if (!id || !ts.isString(id)) {
-            throw new ts.TSError(`${this.name} update requires id`, {
+        const { _key } = record;
+        if (!_key || !ts.isString(_key)) {
+            throw new ts.TSError(`${this.name} update requires _key`, {
                 statusCode: 422,
             });
         }
 
-        return this.updatePartial(id, async (existing) => {
+        return this.updatePartial(_key, async (existing) => {
             const doc = this._sanitizeRecord({
                 ...existing,
                 ...record,
-                updated: ts.makeISODate(),
+                _updated: ts.makeISODate(),
             } as T);
 
             await this._ensureUnique(doc, existing);
@@ -139,7 +139,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
 
     protected async _ensureUnique(record: T, existing?: T) {
         for (const field of this._uniqueFields) {
-            if (field === 'id') continue;
+            if (field === '_key') continue;
             if (field === 'client_id') continue;
             if (!existing && record[field] == null) {
                 throw new ts.TSError(`${this.name} requires field ${field}`, {

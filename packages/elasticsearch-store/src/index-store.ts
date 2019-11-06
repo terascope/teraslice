@@ -452,7 +452,9 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
         options?: i.FindOneOptions<T>,
         queryAccess?: QueryAccess<T>
     ): Promise<T> {
-        const fields = { id };
+        const fields = {
+            [this.config.id_field!]: id
+        } as AnyInput<T>;
         return this.findBy(fields, 'AND', options, queryAccess);
     }
 
@@ -467,7 +469,7 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
             });
         }
 
-        const { id } = updates;
+        const id = updates[this.config.id_field as any];
         if (!id) return { ...updates };
 
         const current = await this.findById(id, options, queryAccess);
@@ -482,7 +484,9 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
         const ids: string[] = ts.parseList(input);
         if (!ids || !ids.length) return [];
 
-        const query = this.createJoinQuery({ id: ids } as AnyInput<T>);
+        const query = this.createJoinQuery({
+            [this.config.id_field!]: ids
+        } as AnyInput<T>);
 
         const result = await this.search(
             query,
@@ -494,7 +498,7 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
         );
 
         if (result.length !== ids.length) {
-            const foundIds = result.map((doc) => doc.id);
+            const foundIds = result.map((doc) => doc[this.config.id_field as string]);
             const notFoundIds = ids.filter((id) => !foundIds.includes(id));
             throw new ts.TSError(`Unable to find ${this.name}'s ${notFoundIds.join(', ')}`, {
                 statusCode: 404,
@@ -502,7 +506,7 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
         }
 
         // maintain sort order
-        return ids.map((id) => result.find((doc) => doc.id === id)!);
+        return ids.map((id) => result.find((doc) => doc[this.config.id_field as string] === id)!);
     }
 
     /** Search with a given Lucene Query */
