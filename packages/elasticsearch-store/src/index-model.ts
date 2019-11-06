@@ -105,7 +105,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
         return this.createWithId(id, doc);
     }
 
-    async updateRecord(record: i.UpdateRecordInput<T>) {
+    async updateRecord(record: i.UpdateRecordInput<T>): Promise<T> {
         const { _key: id } = record;
         if (!id || !ts.isString(id)) {
             throw new ts.TSError(`${this.name} update requires _key`, {

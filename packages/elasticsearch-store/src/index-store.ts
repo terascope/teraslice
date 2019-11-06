@@ -174,7 +174,7 @@ export default class IndexStore<T extends Record<string, any>> {
 
     /** Count records by a given Lucene Query */
     async count(
-        query: string,
+        query = '',
         params: PartialParam<es.CountParams, 'q' | 'body'> = {},
         queryAccess?: QueryAccess<T>
     ): Promise<number> {
@@ -381,10 +381,13 @@ export default class IndexStore<T extends Record<string, any>> {
         id: string,
         applyChanges: ApplyPartialUpdates<T>,
         retriesOnConlfict = 3
-    ): Promise<void> {
+    ): Promise<T> {
         try {
             const existing = await this.get(id);
-            await this.indexWithId(id, await applyChanges(existing));
+            return await this.indexWithId(
+                id,
+                await applyChanges(existing)
+            );
         } catch (error) {
             // if there is a version conflict
             if (error.statusCode === 409 && error.message.includes('version conflict')) {
@@ -457,7 +460,7 @@ export default class IndexStore<T extends Record<string, any>> {
 
         return this.search(
             query,
-            options,
+            { size: 10000, ...options },
             queryAccess,
             true
         );
