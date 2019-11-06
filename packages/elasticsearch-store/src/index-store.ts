@@ -416,7 +416,7 @@ export default class IndexStore<T extends Record<string, any>> {
         if (!ids.length) return true;
 
         const count = await this.countBy({
-            id: ids,
+            [this.config.id_field!]: ids,
         } as AnyInput<T>);
 
         return count === ids.length;
