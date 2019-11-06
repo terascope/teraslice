@@ -56,7 +56,7 @@ describe('IndexStore', () => {
     describe('when constructed without a data schema', () => {
         const _client = makeClient();
 
-        const indexStore = new IndexStore<SimpleRecord, SimpleRecordInput>(_client, config);
+        const indexStore = new IndexStore<SimpleRecord>(_client, config);
 
         beforeAll(async () => {
             await cleanupIndexStore(indexStore);
@@ -91,13 +91,13 @@ describe('IndexStore', () => {
                 _updated: new Date().toISOString(),
             };
 
-            beforeAll(() => indexStore.createWithId(record, record.test_id));
+            beforeAll(() => indexStore.createWithId(record.test_id, record));
 
             it('should not be able to create a record again', async () => {
                 expect.hasAssertions();
 
                 try {
-                    await indexStore.createWithId(record, record.test_id);
+                    await indexStore.createWithId(record.test_id, record);
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
                     expect(err.message).toInclude('Document Already Exists');
@@ -105,7 +105,7 @@ describe('IndexStore', () => {
                 }
             });
 
-            it('should be able to index the same record', () => indexStore.indexWithId(record, record.test_id));
+            it('should be able to index the same record', () => indexStore.indexWithId(record.test_id, record));
 
             it('should be able to index the record without an id', async () => {
                 const lonelyRecord: SimpleRecordInput = {
@@ -131,7 +131,7 @@ describe('IndexStore', () => {
                     test_boolean: false,
                 };
 
-                await indexStore.indexWithId(otherRecord, otherRecord.test_id);
+                await indexStore.indexWithId(otherRecord.test_id, otherRecord);
 
                 const count = await indexStore.count(`test_id: ${otherRecord.test_id}`);
                 expect(count).toBe(1);
@@ -268,7 +268,7 @@ describe('IndexStore', () => {
 
             beforeAll(async () => {
                 await Promise.all(
-                    records.map((record) => indexStore.createWithId(record, record.test_id, {
+                    records.map((record) => indexStore.createWithId(record.test_id, record, {
                         refresh: false,
                     }))
                 );
@@ -509,7 +509,7 @@ describe('IndexStore', () => {
             },
         });
 
-        const indexStore = new IndexStore<SimpleRecord, SimpleRecordInput>(
+        const indexStore = new IndexStore<SimpleRecord>(
             _client,
             configWithDataSchema
         );
@@ -593,9 +593,9 @@ describe('IndexStore', () => {
                     input.map((record, i) => {
                         if (inputType === 'input') {
                             if (i === 0) {
-                                return indexStore.createWithId(record, record.test_id);
+                                return indexStore.createWithId(record.test_id, record);
                             }
-                            return indexStore.indexWithId(record, record.test_id, {
+                            return indexStore.indexWithId(record.test_id, record, {
                                 refresh: false,
                             });
                         }

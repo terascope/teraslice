@@ -196,7 +196,7 @@ export default class IndexStore<T extends Record<string, any>> {
      *
      * @returns the created record
      */
-    async createWithId(doc: Partial<T>, id: string, params?: PartialParam<es.CreateDocumentParams, 'id' | 'body'>) {
+    async createWithId(id: string, doc: Partial<T>, params?: PartialParam<es.CreateDocumentParams, 'id' | 'body'>) {
         return this.create(doc, Object.assign({}, params, { id }));
     }
 
@@ -279,7 +279,7 @@ export default class IndexStore<T extends Record<string, any>> {
     /**
      * A convenience method for indexing a document with an ID
      */
-    async indexWithId(doc: T | Partial<T>, id: string, params?: PartialParam<es.IndexDocumentParams<T>, 'index' | 'type' | 'id'>) {
+    async indexWithId(id: string, doc: T | Partial<T>, params?: PartialParam<es.IndexDocumentParams<T>, 'index' | 'type' | 'id'>) {
         return this.index(doc, Object.assign({}, params, { id }));
     }
 
@@ -384,7 +384,7 @@ export default class IndexStore<T extends Record<string, any>> {
     ): Promise<void> {
         try {
             const existing = await this.get(id);
-            await this.indexWithId(await applyChanges(existing), id);
+            await this.indexWithId(id, await applyChanges(existing));
         } catch (error) {
             // if there is a version conflict
             if (error.statusCode === 409 && error.message.includes('version conflict')) {

@@ -102,7 +102,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
         const doc = this._sanitizeRecord(docInput);
 
         await this._ensureUnique(doc);
-        return this.createWithId(doc, id);
+        return this.createWithId(id, doc);
     }
 
     async updateRecord(record: i.UpdateRecordInput<T>) {
