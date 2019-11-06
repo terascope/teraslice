@@ -32,7 +32,6 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
             data_schema: {
                 schema: utils.addDefaultSchema(modelConfig.schema),
                 strict: modelConfig.strict_mode !== false,
-                log_level: modelConfig.strict_mode === false ? 'trace' : 'warn',
                 all_formatters: true,
             },
             index_settings: {
@@ -65,9 +64,17 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
 
         this._uniqueFields = ts.concat('_key', modelConfig.unique_fields);
         this._sanitizeFields = modelConfig.sanitize_fields || {};
+
+        this.readHooks.add((doc) => {
+            if (doc._deleted) return false;
+            return doc;
+        });
     }
 
-    async findByAnyId(anyId: any, options?: i.FindOneOptions<T>, queryAccess?: QueryAccess<T>) {
+    /**
+     * Fetch a record by any unique ID
+    */
+    async fetchRecord(anyId: any, options?: i.FindOneOptions<T>, queryAccess?: QueryAccess<T>) {
         const fields: Partial<T> = {};
 
         for (const field of this._uniqueFields) {
@@ -80,6 +87,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
     async createRecord(record: i.CreateRecordInput<T>): Promise<T> {
         const docInput = {
             ...record,
+            _deleted: false,
             _created: ts.makeISODate(),
             _updated: ts.makeISODate(),
         } as T;
@@ -111,6 +119,26 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
             await this._ensureUnique(doc, existing);
             return doc;
         });
+    }
+
+    /**
+     * Soft deletes a record by ID
+     */
+    async deleteRecord(id: string) {
+        await this.update(id, {
+            doc: {
+                _deleted: true
+            } as Partial<T>
+        });
+    }
+
+    /**
+     * Soft deletes records by ID
+     */
+    async deleteRecords(ids: string[]): Promise<void> {
+        if (!ids || !ids.length) return;
+
+        await Promise.all(ts.uniq(ids).map((id) => this.deleteRecord(id)));
     }
 
     protected _sanitizeRecord(record: T): T {

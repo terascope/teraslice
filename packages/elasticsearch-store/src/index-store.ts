@@ -14,7 +14,7 @@ import * as utils from './utils';
 /**
  * @todo add the ability to enable/disable refresh by default
  */
-export default class IndexStore<T extends Record<string, any>, I extends Partial<T> = T> {
+export default class IndexStore<T extends Record<string, any>> {
     readonly client: es.Client;
     readonly config: i.IndexConfig;
     readonly indexQuery: string;
@@ -23,11 +23,12 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
     refreshByDefault = true;
     readonly xluceneTypeConfig: TypeConfig | undefined;
 
-    validateRecord: ValidateFn<I | T>;
+    readonly writeHooks = new Set<WriteHook<T>>();
+    readonly readHooks = new Set<ReadHook<T>>();
     private _interval: any;
 
     private readonly _logger: ts.Logger;
-    private readonly _collector: ts.Collector<BulkRequest<I>>;
+    private readonly _collector: ts.Collector<BulkRequest<Partial<T>>>;
     private readonly _bulkMaxWait: number = 10000;
     private readonly _bulkMaxSize: number = 500;
     private readonly _getEventTime: (input: T) => number;
@@ -75,7 +76,6 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
                 all_formatters: allFormatters,
                 schema,
                 strict,
-                log_level: logLevel = 'warn'
             } = config.data_schema;
 
             const ajv = new Ajv({
@@ -91,23 +91,35 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
             });
 
             const validate = ajv.compile(schema);
-            const defaultStrictMode = strict === true;
-            this.validateRecord = (input: T | I, strictMode = defaultStrictMode) => {
-                if (validate(input)) return;
+            const strictMode = strict === true;
 
-                if (strictMode) {
+            this.writeHooks.add((input, critical) => {
+                if (validate(input)) return input;
+
+                if (critical) {
                     utils.throwValidationError(validate.errors);
-                } else if (logLevel === 'warn' || logLevel === 'error') {
-                    this._logger[logLevel]('Invalid record', input, utils.getErrorMessages(validate.errors || []));
-                } else if (logLevel === 'debug' || logLevel === 'trace') {
-                    this._logger[logLevel]('Record validation warnings', input, utils.getErrorMessages(validate.errors || []));
+                } else if (strictMode) {
+                    this._logger.warn('Invalid record', input, utils.getErrorMessages(validate.errors || []));
+                } else {
+                    this._logger.trace('Record validation warnings', input, utils.getErrorMessages(validate.errors || []));
                 }
-            };
-        } else {
-            this.validateRecord = () => {};
+                return input;
+            });
+
+            this.readHooks.add((input, critical) => {
+                if (validate(input)) return input;
+
+                if (critical || strictMode) {
+                    utils.throwValidationError(validate.errors);
+                } else if (critical) {
+                    this._logger.warn('Invalid record', input, utils.getErrorMessages(validate.errors || []));
+                } else {
+                    this._logger.trace('Record validation warnings', input, utils.getErrorMessages(validate.errors || []));
+                }
+                return input;
+            });
         }
 
-        this._toRecord = this._toRecord.bind(this);
         this._getIngestTime = utils.getTimeByField(this.config.ingest_time_field as string);
         this._getEventTime = utils.getTimeByField(this.config.event_time_field as string);
     }
@@ -121,7 +133,7 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
      * @todo we need to add concurrency support for sending multiple bulk requests in flight
      */
     async bulk(action: 'delete', id?: string): Promise<void>;
-    async bulk(action: 'index' | 'create', doc?: I, id?: string): Promise<void>;
+    async bulk(action: 'index' | 'create', doc?: Partial<T>, id?: string): Promise<void>;
     async bulk(action: 'update', doc?: Partial<T>, id?: string): Promise<void>;
     async bulk(action: i.BulkAction, ...args: any[]) {
         const metadata: BulkRequestMetadata = {};
@@ -130,18 +142,18 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
             _type: this.config.name,
         };
 
-        let data: BulkRequestData<I> = null;
+        let data: BulkRequestData<Partial<T>> = null;
         let id: string;
 
         if (action !== 'delete') {
-            this.validateRecord(args[0]);
             if (action === 'update') {
+                const doc = this._runWriteHooks(args[0], false);
                 /**
                  * TODO: Support more of the update formats
                  */
-                data = { doc: args[0] };
+                data = { doc };
             } else {
-                ([data] = args);
+                data = this._runWriteHooks(args[0], true);
             }
             // eslint-disable-next-line prefer-destructuring
             id = args[1];
@@ -184,7 +196,7 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
      *
      * @returns the created record
      */
-    async createWithId(doc: T | I, id: string, params?: PartialParam<es.CreateDocumentParams, 'id' | 'body'>) {
+    async createWithId(doc: Partial<T>, id: string, params?: PartialParam<es.CreateDocumentParams, 'id' | 'body'>) {
         return this.create(doc, Object.assign({}, params, { id }));
     }
 
@@ -193,18 +205,17 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
      *
      * @returns the created record
      */
-    async create(doc: T | I, params?: PartialParam<es.CreateDocumentParams, 'body'>): Promise<T> {
-        const record = this._preProcess(doc as T);
-        this.validateRecord(record, true);
-
+    async create(doc: Partial<T>, params?: PartialParam<es.CreateDocumentParams, 'body'>): Promise<T> {
+        const record = this._runWriteHooks(doc, true);
         const defaults = { refresh: this.refreshByDefault };
-        const p = this.getDefaultParams(defaults, params, { body: doc });
+        const p = this.getDefaultParams(defaults, params, { body: record });
 
-        return ts.pRetry(async () => {
-            const result = await this.client.create(p) as any;
-            result._source = doc;
-            return this._toRecord(result);
-        }, utils.getRetryConfig());
+        const result = await ts.pRetry(
+            () => this.client.create(p) as any,
+            utils.getRetryConfig()
+        );
+        result._source = record;
+        return this._toRecord(result);
     }
 
     async flush(flushAll = false) {
@@ -227,10 +238,11 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
     async get(id: string, params?: PartialParam<es.GetParams>): Promise<T> {
         const p = this.getDefaultParams(params, { id });
 
-        return ts.pRetry(async () => {
-            const result = await this.client.get<T>(p);
-            return this._toRecord(result);
-        }, utils.getRetryConfig());
+        const result = await ts.pRetry(
+            () => this.client.get(p) as Promise<RecordResponse<T>>,
+            utils.getRetryConfig()
+        );
+        return this._toRecord(result);
     }
 
     /**
@@ -251,12 +263,12 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
     /**
      * Index a document
      */
-    async index(doc: T | I, params?: PartialParam<es.IndexDocumentParams<T>, 'body'>): Promise<T> {
-        this.validateRecord(doc, true);
+    async index(doc: T | Partial<T>, params?: PartialParam<es.IndexDocumentParams<T>, 'body'>): Promise<T> {
+        const body = this._runWriteHooks(doc, true);
 
         const defaults = { refresh: this.refreshByDefault };
         const p = this.getDefaultParams(defaults, params, {
-            body: doc,
+            body,
         });
 
         const result = await ts.pRetry(() => this.client.index(p), utils.getRetryConfig());
@@ -267,7 +279,7 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
     /**
      * A convenience method for indexing a document with an ID
      */
-    async indexWithId(doc: T | I, id: string, params?: PartialParam<es.IndexDocumentParams<T>, 'index' | 'type' | 'id'>) {
+    async indexWithId(doc: T | Partial<T>, id: string, params?: PartialParam<es.IndexDocumentParams<T>, 'index' | 'type' | 'id'>) {
         return this.index(doc, Object.assign({}, params, { id }));
     }
 
@@ -279,7 +291,8 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
             const result = await this.client.mget<T>(p);
             return result.docs || [];
         }, utils.getRetryConfig());
-        return docs.map(this._toRecord);
+
+        return this._toRecords(docs, true);
     }
 
     /** @see IndexManager#migrateIndex */
@@ -351,7 +364,8 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
 
         const _body = body as any;
         if (_body.doc) {
-            _body.doc = this._preProcess(_body.doc);
+            const doc = this._runWriteHooks(_body.doc, false);
+            _body.doc = doc;
         }
 
         const p = this.getDefaultParams(defaults, params, {
@@ -419,7 +433,8 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
                 ...options,
                 size: 1,
             },
-            queryAccess
+            queryAccess,
+            true
         );
 
         const record = ts.getFirst(results);
@@ -443,7 +458,8 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
         return this.search(
             query,
             options,
-            queryAccess
+            queryAccess,
+            true
         );
     }
 
@@ -494,7 +510,8 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
                 ...options,
                 size: ids.length,
             },
-            queryAccess
+            queryAccess,
+            true
         );
 
         if (result.length !== ids.length) {
@@ -510,7 +527,12 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
     }
 
     /** Search with a given Lucene Query */
-    async search(q = '', options: i.FindOptions<T> = {}, queryAccess?: QueryAccess<T>): Promise<T[]> {
+    async search(
+        q = '',
+        options: i.FindOptions<T> = {},
+        queryAccess?: QueryAccess<T>,
+        critical?: boolean
+    ): Promise<T[]> {
         const params: Partial<es.SearchParams> = {
             size: options.size,
             sort: options.sort,
@@ -529,11 +551,14 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
             searchParams = Object.assign({}, params, this._translateQuery(q));
         }
 
-        return this.searchRequest(searchParams);
+        return this.searchRequest(searchParams, critical);
     }
 
     /** Search using the underyling Elasticsearch Query DSL */
-    async searchRequest(params: PartialParam<SearchParams<T>>): Promise<T[]> {
+    async searchRequest(
+        params: PartialParam<SearchParams<T>>,
+        critical?: boolean
+    ): Promise<T[]> {
         const esVersion = utils.getESVersion(this.client);
         if (esVersion >= 7) {
             const p: any = params;
@@ -575,7 +600,7 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
             }
         }
 
-        return results.hits.hits.map(this._toRecord);
+        return this._toRecords(results.hits.hits, critical);
     }
 
     createJoinQuery(fields: AnyInput<T>, joinBy: JoinBy = 'AND', arrayJoinBy: JoinBy = 'OR'): string {
@@ -647,7 +672,7 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
         }
     }
 
-    private async _bulk(records: BulkRequest<I>[], body: any) {
+    private async _bulk(records: BulkRequest<Partial<T>>[], body: any) {
         const result: i.BulkResponse = await ts.pRetry(
             () => this.client.bulk({ body }),
             { ...utils.getRetryConfig(), retries: 0 }
@@ -663,35 +688,61 @@ export default class IndexStore<T extends Record<string, any>, I extends Partial
         }
     }
 
-    protected _toRecord(result: RecordResponse<T>): T {
-        const doc = this._postProcess(result._source);
-        this.validateRecord(result._source);
+    protected _toRecord(result: RecordResponse<T>, critical = true): T {
+        const doc = this._runReadHooks(this._makeDataEntity(result), critical);
+        if (!doc && critical) {
+            throw new ts.TSError('Record Missing', {
+                statusCode: 410
+            });
+        }
+        return doc as T;
+    }
 
-        const entity = ts.DataEntity.make<T>(doc, {
+    protected _toRecords(results: RecordResponse<T>[], critical = false): T[] {
+        return results.map((result) => this._toRecord(result, critical)).filter(Boolean);
+    }
+
+    private _makeDataEntity(result: RecordResponse<T>): T {
+        return ts.DataEntity.make<T>(result._source, {
             _key: result._id,
             _processTime: Date.now(),
-            _ingestTime: this._getIngestTime(doc),
-            _eventTime: this._getEventTime(doc),
+            _ingestTime: this._getIngestTime(result._source),
+            _eventTime: this._getEventTime(result._source),
             _index: result._index,
             _type: result._type,
             _version: result._version,
-        });
-
-        return (entity as any) as T;
+        }) as any;
     }
 
     /**
      * Run additional validation after retrieving the record from elasticsearch
     */
-    protected _postProcess(doc: T): T {
-        return doc;
+    private _runReadHooks(doc: T, critical: boolean): T|false {
+        let _doc = doc;
+        for (const hook of this.readHooks) {
+            const result = hook(_doc, critical);
+            if (result == null) {
+                throw new Error('Expected read hook to return a doc or false');
+            }
+            if (result === false) return false;
+            _doc = result;
+        }
+        return _doc;
     }
 
     /**
      * Run additional validation before updating or creating the record
     */
-    protected _preProcess(doc: T): T {
-        return doc;
+    private _runWriteHooks(doc: T|Partial<T>, critical: boolean): T {
+        let _doc = doc;
+        for (const hook of this.writeHooks) {
+            const result = hook(_doc, critical);
+            if (result == null) {
+                throw new Error('Expected write hook to return a doc or to throw');
+            }
+            _doc = result;
+        }
+        return _doc as T;
     }
 
     private _translateQuery(q: string, queryAccess?: QueryAccess<T>) {
@@ -747,8 +798,10 @@ es.SearchParams,
 >;
 
 type ApplyPartialUpdates<T> = (existing: T) => Promise<T> | T;
-type ValidateFn<T> = (input: T, strictMode?: boolean) => void;
 
 export type AnyInput<T> = { [P in keyof T]?: T[P] | any };
 export type JoinBy = 'AND' | 'OR';
 export type UpdateBody<T> = ({ doc: Partial<T> })|({ script: any });
+
+export type WriteHook<T> = (doc: Partial<T>, critical: boolean) => T|Partial<T>;
+export type ReadHook<T> = (doc: T, critical: boolean) => T|false;

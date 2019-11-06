@@ -127,7 +127,7 @@ describe('IndexModel', () => {
             });
 
             test.each([valueTestCases])('should be able to query findByAnyId with %s', async (query) => {
-                await expect(indexModel.findByAnyId(query)).rejects.toThrow(/Unable to find/);
+                await expect(indexModel.fetchRecord(query)).rejects.toThrow(/Unable to find/);
             });
 
             test.each([oneOfTestCases])('should be able to query findAll with %s', async (query) => {
@@ -266,7 +266,7 @@ describe('IndexModel', () => {
         });
 
         it('should be able to find by name since it is treated a name', async () => {
-            const result = await indexModel.findByAnyId('Billy');
+            const result = await indexModel.fetchRecord('Billy');
             expect(result).toEqual(fetched);
         });
 
@@ -283,7 +283,7 @@ describe('IndexModel', () => {
             expect.hasAssertions();
 
             try {
-                await indexModel.findByAnyId('WrongBilly');
+                await indexModel.fetchRecord('WrongBilly');
             } catch (err) {
                 expect(err.message).toEqual('Unable to find IndexModel by _key: "WrongBilly" OR name: "WrongBilly"');
                 expect(err.statusCode).toEqual(404);
@@ -314,6 +314,18 @@ describe('IndexModel', () => {
             });
         });
 
+        it('should be able to soft delete the record', async () => {
+            expect.hasAssertions();
+            await indexModel.deleteRecord(fetched._key);
+
+            try {
+                await indexModel.findById(fetched._key);
+            } catch (err) {
+                expect(err.message).toInclude('Record Missing');
+                expect(err.statusCode).toEqual(410);
+            }
+        });
+
         it('should be able to delete the record', async () => {
             await indexModel.deleteById(fetched._key);
 
@@ -322,7 +334,10 @@ describe('IndexModel', () => {
     });
 
     describe('when giving an invalid input into findAll', () => {
-        it('should NOT fail when given an empty array', async () => expect(indexModel.findAll([])).resolves.toBeArrayOfSize(0));
+        it('should NOT fail when given an empty array', async () => {
+            const result = await indexModel.findAll([]);
+            expect(result).toBeArrayOfSize(0);
+        });
 
         it('should NOT fail when given an array of falsey values', async () => {
             const input: any = ['', undefined, null];

@@ -16,6 +16,9 @@ export const mapping: ESTypeMappings = {
         client_id: {
             type: 'integer',
         },
+        _deleted: {
+            type: 'boolean',
+        },
         _created: {
             type: 'date',
         },
@@ -37,6 +40,10 @@ export const schema = {
             multipleOf: 1.0,
             minimum: 0,
             default: 1,
+        },
+        _deleted: {
+            type: 'boolean',
+            default: false
         },
         _created: {
             format: 'date-time',
