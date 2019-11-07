@@ -482,13 +482,13 @@ export default class IndexStore<T extends Record<string, any>> {
         options?: i.FindOneOptions<T>,
         queryAccess?: QueryAccess<T>
     ): Promise<Partial<T>> {
-        if (!updates) {
+        if (ts.isEmpty(updates) || !ts.isPlainObject(updates)) {
             throw new ts.TSError(`Invalid input for ${this.name}`, {
                 statusCode: 422,
             });
         }
 
-        const id = updates[this.config.id_field as any];
+        const id = updates![this.config.id_field as any];
         if (!id) return { ...updates };
 
         const current = await this.findById(id, options, queryAccess);
