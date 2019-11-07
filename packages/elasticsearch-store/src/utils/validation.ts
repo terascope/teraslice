@@ -10,12 +10,17 @@ export function isValidName(name: string) {
     return ts.isString(name) && name && !name.includes('-');
 }
 
-export function validateId(id: any, action: string): id is string|number {
+export function validateId(id: any, action: string, throwError = true): id is string {
     if (ts.isString(id) && id) return true;
-    if (ts.isInteger(id)) return true;
-    throw new ts.TSError(`Invalid ID given to ${action}, expected string or integer, got ${ts.getTypeOf(id)}`, {
+    if (!throwError) return false;
+
+    throw new ts.TSError(`Invalid ID given to ${action}, expected string, got ${ts.getTypeOf(id)}`, {
         statusCode: 400
     });
+}
+
+export function validateIds(ids: any, action: string): string[] {
+    return ts.uniq(ts.castArray(ids)).filter((id) => validateId(id, action, false));
 }
 
 export function isValidNamespace(namespace: string) {

@@ -376,7 +376,7 @@ export default class IndexStore<T extends Record<string, any>> {
     }
 
     async exists(id: string[] | string): Promise<boolean> {
-        const ids = ts.castArray(id);
+        const ids = utils.validateIds(id, 'exists');
         if (!ids.length) return true;
 
         const count = await this.countBy({
@@ -461,37 +461,37 @@ export default class IndexStore<T extends Record<string, any>> {
     }
 
     async findAll(
-        input: string[] | string | undefined,
+        ids: string[] | string | undefined,
         options?: i.FindOneOptions<T>,
         queryAccess?: QueryAccess<T>
     ): Promise<T[]> {
-        const ids: string[] = ts.parseList(input);
-        if (!ids || !ids.length) return [];
+        const _ids = utils.validateIds(ids, 'exists');
+        if (!_ids.length) return [];
 
         const query = this.createJoinQuery({
-            [this.config.id_field!]: ids
+            [this.config.id_field!]: _ids
         } as AnyInput<T>);
 
         const result = await this.search(
             query,
             {
                 ...options,
-                size: ids.length,
+                size: _ids.length,
             },
             queryAccess,
             false
         );
 
-        if (result.length !== ids.length) {
+        if (result.length !== _ids.length) {
             const foundIds = result.map((doc) => doc[this.config.id_field as string]);
-            const notFoundIds = ids.filter((id) => !foundIds.includes(id));
+            const notFoundIds = _ids.filter((id) => !foundIds.includes(id));
             throw new ts.TSError(`Unable to find ${this.name}'s ${notFoundIds.join(', ')}`, {
                 statusCode: 404,
             });
         }
 
         // maintain sort order
-        return ids.map((id) => result.find((doc) => doc[this.config.id_field as string] === id)!);
+        return _ids.map((id) => result.find((doc) => doc[this.config.id_field as string] === id)!);
     }
 
     /** Search with a given Lucene Query */

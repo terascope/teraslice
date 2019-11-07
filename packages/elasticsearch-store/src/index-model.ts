@@ -75,7 +75,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
      * Fetch a record by any unique ID
     */
     async fetchRecord(
-        anyId: string|number,
+        anyId: string,
         options?: i.FindOneOptions<T>,
         queryAccess?: QueryAccess<T>
     ) {
