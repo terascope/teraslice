@@ -154,8 +154,8 @@ export default class IndexStore<T extends Record<string, any>> {
      *
      * @returns the created record
      */
-    async createWithId(id: string, doc: Partial<T>, params?: PartialParam<es.CreateDocumentParams, 'id' | 'body'>) {
-        utils.validateId(id, 'createWithId');
+    async createById(id: string, doc: Partial<T>, params?: PartialParam<es.CreateDocumentParams, 'id' | 'body'>) {
+        utils.validateId(id, 'createById');
         return this.create(doc, Object.assign({}, params, { id }));
     }
 
@@ -239,8 +239,8 @@ export default class IndexStore<T extends Record<string, any>> {
     /**
      * A convenience method for indexing a document with an ID
      */
-    async indexWithId(id: string, doc: T | Partial<T>, params?: PartialParam<es.IndexDocumentParams<T>, 'index' | 'type' | 'id'>) {
-        utils.validateId(id, 'indexWithId');
+    async indexById(id: string, doc: T | Partial<T>, params?: PartialParam<es.IndexDocumentParams<T>, 'index' | 'type' | 'id'>) {
+        utils.validateId(id, 'indexById');
         return this.index(doc, Object.assign({}, params, { id }));
     }
 
@@ -348,7 +348,7 @@ export default class IndexStore<T extends Record<string, any>> {
         utils.validateId('updatePartial', id);
         try {
             const existing = await this.get(id);
-            return await this.indexWithId(
+            return await this.indexById(
                 id,
                 await applyChanges(existing)
             );

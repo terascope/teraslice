@@ -89,13 +89,13 @@ describe('IndexStore', () => {
                 _updated: new Date().toISOString(),
             };
 
-            beforeAll(() => indexStore.createWithId(record.test_id, record));
+            beforeAll(() => indexStore.createById(record.test_id, record));
 
             it('should not be able to create a record again', async () => {
                 expect.hasAssertions();
 
                 try {
-                    await indexStore.createWithId(record.test_id, record);
+                    await indexStore.createById(record.test_id, record);
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
                     expect(err.message).toInclude('Document Already Exists');
@@ -103,7 +103,7 @@ describe('IndexStore', () => {
                 }
             });
 
-            it('should be able to index the same record', () => indexStore.indexWithId(record.test_id, record));
+            it('should be able to index the same record', () => indexStore.indexById(record.test_id, record));
 
             it('should be able to index the record without an id', async () => {
                 const lonelyRecord: SimpleRecordInput = {
@@ -129,7 +129,7 @@ describe('IndexStore', () => {
                     test_boolean: false,
                 };
 
-                await indexStore.indexWithId(otherRecord.test_id, otherRecord);
+                await indexStore.indexById(otherRecord.test_id, otherRecord);
 
                 const count = await indexStore.count(`test_id: ${otherRecord.test_id}`);
                 expect(count).toBe(1);
@@ -265,7 +265,7 @@ describe('IndexStore', () => {
 
             beforeAll(async () => {
                 await Promise.all(
-                    records.map((record) => indexStore.createWithId(record.test_id, record, {
+                    records.map((record) => indexStore.createById(record.test_id, record, {
                         refresh: false,
                     }))
                 );
@@ -534,7 +534,7 @@ describe('IndexStore', () => {
             };
 
             try {
-                await indexStore.indexWithId(record.test_id!, record);
+                await indexStore.indexById(record.test_id!, record);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.message).toMatch(/(test_keyword|_created)/);
@@ -589,9 +589,9 @@ describe('IndexStore', () => {
                     input.map((record, i) => {
                         if (inputType === 'input') {
                             if (i === 0) {
-                                return indexStore.createWithId(record.test_id, record);
+                                return indexStore.createById(record.test_id, record);
                             }
-                            return indexStore.indexWithId(record.test_id, record, {
+                            return indexStore.indexById(record.test_id, record, {
                                 refresh: false,
                             });
                         }
