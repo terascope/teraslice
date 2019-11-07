@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `ParserOptions`
+title: xLucene Evaluator: `ParserOptions`
 sidebar_label: ParserOptions
 ---
 
@@ -9,9 +9,9 @@ sidebar_label: ParserOptions
 
 * **ParserOptions**
 
-  * [DocumentMatcherOptions](documentmatcheroptions.md)
+  ↳ [DocumentMatcherOptions](documentmatcheroptions.md)
 
-  * [QueryAccessOptions](queryaccessoptions.md)
+  ↳ [QueryAccessOptions](queryaccessoptions.md)
 
 ## Index
 
@@ -26,7 +26,7 @@ sidebar_label: ParserOptions
 
 • **logger**? : *Logger*
 
-*Defined in [parser/interfaces.ts:5](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L5)*
+*Defined in [parser/interfaces.ts:13](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L13)*
 
 ___
 
@@ -34,4 +34,4 @@ ___
 
 • **type_config**? : *[TypeConfig](typeconfig.md)*
 
-*Defined in [parser/interfaces.ts:4](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L4)*
+*Defined in [parser/interfaces.ts:12](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L12)*

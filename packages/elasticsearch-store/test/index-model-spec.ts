@@ -11,6 +11,7 @@ import { TEST_INDEX_PREFIX } from './helpers/config';
 describe('IndexModel', () => {
     interface ExampleRecord extends IndexModelRecord {
         name: string;
+        type: string;
         config: AnyObject;
     }
 
@@ -28,6 +29,9 @@ describe('IndexModel', () => {
                         },
                     },
                 },
+                type: {
+                    type: 'keyword',
+                },
                 config: {
                     type: 'object',
                     enabled: false,
@@ -37,6 +41,9 @@ describe('IndexModel', () => {
         schema: {
             properties: {
                 name: {
+                    type: 'string',
+                },
+                type: {
                     type: 'string',
                 },
                 config: {
@@ -79,6 +86,7 @@ describe('IndexModel', () => {
             created = await indexModel.create({
                 client_id: 1,
                 name: 'Billy',
+                type: 'billy',
                 config: {
                     foo: 1,
                     bar: 1,
@@ -138,6 +146,7 @@ describe('IndexModel', () => {
                 await indexModel.create({
                     client_id: 1,
                     name: 'Billy',
+                    type: 'billy',
                     config: {
                         foo: 2,
                         bar: 2,
@@ -157,6 +166,7 @@ describe('IndexModel', () => {
             indexModel.create({
                 client_id: 2,
                 name: 'Billy',
+                type: 'billy',
                 config: {
                     foo: 2,
                     bar: 2,
@@ -216,12 +226,14 @@ describe('IndexModel', () => {
             await indexModel.create({
                 name,
                 client_id: 1,
+                type: 'foobar',
                 config: {},
             });
 
             try {
                 await indexModel.update({
                     ...created,
+                    type: 'billy',
                     name,
                 });
             } catch (err) {
@@ -252,6 +264,15 @@ describe('IndexModel', () => {
 
         it('should be able to find by name since it is treated a name', async () => {
             const result = await indexModel.findByAnyId('Billy');
+            expect(result).toEqual(fetched);
+        });
+
+        it('should be able to find one record by specific fields', async () => {
+            const result = await indexModel.findBy({
+                name: 'Billy',
+                client_id: 1,
+                type: 'billy'
+            });
             expect(result).toEqual(fetched);
         });
 
@@ -311,6 +332,7 @@ describe('IndexModel', () => {
             await Promise.all(
                 times(5, (n) => indexModel.create({
                     client_id: 1,
+                    type: 'joe',
                     name: `Joe ${n}`,
                     config: {},
                 }))
@@ -318,7 +340,8 @@ describe('IndexModel', () => {
 
             await Promise.all(
                 times(5, (n) => indexModel.create({
-                    client_id: 1,
+                    client_id: 2,
+                    type: 'bob',
                     name: `Bob ${n}`,
                     config: {},
                 }))
@@ -349,6 +372,23 @@ describe('IndexModel', () => {
                 const result = await indexModel.find('name:Joe*', { size: 6 });
 
                 expect(result).toBeArrayOfSize(5);
+
+                for (const record of result) {
+                    expect(record).toHaveProperty('id');
+                    expect(record).toHaveProperty('created');
+                    expect(record).toHaveProperty('updated');
+                    expect(record.name).toStartWith('Joe');
+                }
+            });
+
+            it('should be able to find all by specific fields', async () => {
+                const result = await indexModel.findAllBy(
+                    { type: 'joe', client_id: 1 },
+                    'AND',
+                    { size: 3 }
+                );
+
+                expect(result).toBeArrayOfSize(3);
 
                 for (const record of result) {
                     expect(record).toHaveProperty('id');

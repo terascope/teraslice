@@ -1,5 +1,5 @@
 ---
-title: Ts Transforms: `TransformOpBase`
+title: TS Transforms: `TransformOpBase`
 sidebar_label: TransformOpBase
 ---
 
@@ -9,39 +9,39 @@ sidebar_label: TransformOpBase
 
 * [OperationBase](operationbase.md)
 
-  * **TransformOpBase**
+  ↳ **TransformOpBase**
 
-  * [Join](join.md)
+  ↳ [Join](join.md)
 
-  * [Base64Decode](base64decode.md)
+  ↳ [Base64Decode](base64decode.md)
 
-  * [UrlDecode](urldecode.md)
+  ↳ [UrlDecode](urldecode.md)
 
-  * [HexDecode](hexdecode.md)
+  ↳ [HexDecode](hexdecode.md)
 
-  * [JsonParse](jsonparse.md)
+  ↳ [JsonParse](jsonparse.md)
 
-  * [Lowercase](lowercase.md)
+  ↳ [Lowercase](lowercase.md)
 
-  * [Uppercase](uppercase.md)
+  ↳ [Uppercase](uppercase.md)
 
-  * [MakeArray](makearray.md)
+  ↳ [MakeArray](makearray.md)
 
-  * [Dedup](dedup.md)
+  ↳ [Dedup](dedup.md)
 
-  * [Trim](trim.md)
+  ↳ [Trim](trim.md)
 
-  * [Base64Encode](base64encode.md)
+  ↳ [Base64Encode](base64encode.md)
 
-  * [UrlEncode](urlencode.md)
+  ↳ [UrlEncode](urlencode.md)
 
-  * [HexEncode](hexencode.md)
+  ↳ [HexEncode](hexencode.md)
 
-  * [MD5Encode](md5encode.md)
+  ↳ [MD5Encode](md5encode.md)
 
-  * [SHA1Encode](sha1encode.md)
+  ↳ [SHA1Encode](sha1encode.md)
 
-  * [Sha2Encode](sha2encode.md)
+  ↳ [Sha2Encode](sha2encode.md)
 
 ## Index
 
@@ -76,7 +76,7 @@ sidebar_label: TransformOpBase
 
 *Inherited from [OperationBase](operationbase.md).[constructor](operationbase.md#constructor)*
 
-*Defined in [operations/lib/base.ts:14](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L14)*
+*Defined in [operations/lib/base.ts:14](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L14)*
 
 **Parameters:**
 
@@ -94,7 +94,7 @@ Name | Type |
 
 *Inherited from [OperationBase](operationbase.md).[config](operationbase.md#config)*
 
-*Defined in [operations/lib/base.ts:10](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L10)*
+*Defined in [operations/lib/base.ts:10](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L10)*
 
 ___
 
@@ -104,7 +104,7 @@ ___
 
 *Inherited from [OperationBase](operationbase.md).[destination](operationbase.md#protected-destination)*
 
-*Defined in [operations/lib/base.ts:11](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L11)*
+*Defined in [operations/lib/base.ts:11](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L11)*
 
 ___
 
@@ -114,7 +114,7 @@ ___
 
 *Inherited from [OperationBase](operationbase.md).[hasTarget](operationbase.md#protected-hastarget)*
 
-*Defined in [operations/lib/base.ts:12](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L12)*
+*Defined in [operations/lib/base.ts:12](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L12)*
 
 ___
 
@@ -124,7 +124,7 @@ ___
 
 *Inherited from [OperationBase](operationbase.md).[source](operationbase.md#protected-source)*
 
-*Defined in [operations/lib/base.ts:8](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L8)*
+*Defined in [operations/lib/base.ts:8](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L8)*
 
 ___
 
@@ -134,7 +134,7 @@ ___
 
 *Inherited from [OperationBase](operationbase.md).[target](operationbase.md#protected-target)*
 
-*Defined in [operations/lib/base.ts:9](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L9)*
+*Defined in [operations/lib/base.ts:9](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L9)*
 
 ___
 
@@ -144,15 +144,15 @@ ___
 
 *Inherited from [OperationBase](operationbase.md).[cardinality](operationbase.md#static-cardinality)*
 
-*Defined in [operations/lib/base.ts:14](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L14)*
+*Defined in [operations/lib/base.ts:14](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L14)*
 
 ## Methods
 
 ### `Protected` execute
 
-▸ **execute**(`doc`: DataEntity, `fn`: Function): *DataEntity‹object, object›*
+▸ **execute**(`doc`: DataEntity, `fn`: Function): *DataEntity‹object, __type›*
 
-*Defined in [operations/lib/transforms/base.ts:6](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/transforms/base.ts#L6)*
+*Defined in [operations/lib/transforms/base.ts:6](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/transforms/base.ts#L6)*
 
 **Parameters:**
 
@@ -161,7 +161,7 @@ Name | Type |
 `doc` | DataEntity |
 `fn` | Function |
 
-**Returns:** *DataEntity‹object, object›*
+**Returns:** *DataEntity‹object, __type›*
 
 ___
 
@@ -171,7 +171,7 @@ ___
 
 *Inherited from [OperationBase](operationbase.md).[removeField](operationbase.md#removefield)*
 
-*Defined in [operations/lib/base.ts:51](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L51)*
+*Defined in [operations/lib/base.ts:51](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L51)*
 
 **Parameters:**
 
@@ -190,7 +190,7 @@ ___
 
 *Inherited from [OperationBase](operationbase.md).[removeSource](operationbase.md#removesource)*
 
-*Defined in [operations/lib/base.ts:47](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L47)*
+*Defined in [operations/lib/base.ts:47](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L47)*
 
 **Parameters:**
 
@@ -206,7 +206,7 @@ ___
 
 ▸ **run**(`data`: DataEntity): *null | DataEntity*
 
-*Defined in [operations/lib/transforms/base.ts:39](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/transforms/base.ts#L39)*
+*Defined in [operations/lib/transforms/base.ts:39](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/transforms/base.ts#L39)*
 
 **Parameters:**
 
@@ -224,7 +224,7 @@ ___
 
 *Inherited from [OperationBase](operationbase.md).[set](operationbase.md#set)*
 
-*Defined in [operations/lib/base.ts:39](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L39)*
+*Defined in [operations/lib/base.ts:39](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L39)*
 
 **Parameters:**
 
@@ -243,7 +243,7 @@ ___
 
 *Inherited from [OperationBase](operationbase.md).[setField](operationbase.md#setfield)*
 
-*Defined in [operations/lib/base.ts:43](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L43)*
+*Defined in [operations/lib/base.ts:43](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L43)*
 
 **Parameters:**
 
@@ -263,7 +263,7 @@ ___
 
 *Inherited from [OperationBase](operationbase.md).[validateConfig](operationbase.md#protected-validateconfig)*
 
-*Defined in [operations/lib/base.ts:23](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L23)*
+*Defined in [operations/lib/base.ts:23](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L23)*
 
 **Parameters:**
 

@@ -28,6 +28,6 @@
     },
     "displayName": "Teraslice Op Test Harness",
     "terascope": {
-        "testSuite": "unit"
+        "testSuite": "unit-a"
     }
 }

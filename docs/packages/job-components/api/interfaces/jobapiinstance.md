@@ -23,7 +23,7 @@ sidebar_label: JobAPIInstance
 
 • **instance**: *[APICore](../classes/apicore.md)*
 
-*Defined in [execution-context/interfaces.ts:32](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/execution-context/interfaces.ts#L32)*
+*Defined in [execution-context/interfaces.ts:32](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/execution-context/interfaces.ts#L32)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **opAPI**? : *[OpAPI](../overview.md#opapi)*
 
-*Defined in [execution-context/interfaces.ts:33](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/execution-context/interfaces.ts#L33)*
+*Defined in [execution-context/interfaces.ts:33](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/execution-context/interfaces.ts#L33)*
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 • **type**: *[OperationAPIType](../overview.md#operationapitype)*
 
-*Defined in [execution-context/interfaces.ts:34](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/execution-context/interfaces.ts#L34)*
+*Defined in [execution-context/interfaces.ts:34](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/execution-context/interfaces.ts#L34)*

@@ -28,13 +28,13 @@
     },
     "dependencies": {
         "@terascope/utils": "^0.20.5",
-        "aws-sdk": "^2.554.0",
+        "aws-sdk": "^2.563.0",
         "bluebird": "^3.5.5",
         "bunyan": "^1.8.12",
         "convict": "^4.4.1",
         "elasticsearch": "^15.4.1",
         "js-yaml": "^3.13.1",
-        "mongoose": "~5.7.6",
+        "mongoose": "~5.7.8",
         "node-statsd": "0.1.1",
         "node-webhdfs": "^1.0.2",
         "redis": "^2.8.0",
@@ -45,7 +45,7 @@
         "@types/bunyan": "^1.8.6",
         "@types/elasticsearch": "^5.0.35",
         "@types/js-yaml": "^3.12.1",
-        "@types/mongoose": "^5.5.18",
+        "@types/mongoose": "^5.5.29",
         "@types/redis": "^2.8.13",
         "@types/shortid": "^0.0.29"
     },
@@ -56,6 +56,6 @@
     "displayName": "Terafoundation",
     "terascope": {
         "enableTypedoc": true,
-        "testSuite": "unit"
+        "testSuite": "unit-b"
     }
 }

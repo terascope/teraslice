@@ -11,15 +11,18 @@ import {
     writeHeader,
     formatList,
     getRootDir,
-    getRootInfo
+    getRootInfo,
+    getAvailableTestSuites,
+    getDevDockerImage
 } from '../misc';
 import { ensureServices } from './services';
-import { PackageInfo, TestSuite } from '../interfaces';
+import { PackageInfo } from '../interfaces';
 import { TestOptions } from './interfaces';
-import { runJest } from '../scripts';
+import { runJest, dockerPush, dockerTag } from '../scripts';
 import * as utils from './utils';
 import signale from '../signale';
 import { getE2EDir } from '../packages';
+import { pullDevDockerImage } from '../publish/utils';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -52,7 +55,7 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
 }
 
 async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
-    if (options.suite === TestSuite.E2E) {
+    if (options.suite === 'e2e') {
         return runE2ETest(options);
     }
 
@@ -62,14 +65,15 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
         return [];
     }
 
-    const grouped = utils.groupBySuite(filtered, options);
+    const availableSuites = getAvailableTestSuites();
+    const grouped = utils.groupBySuite(filtered, availableSuites, options);
 
     const errors: string[] = [];
     for (const [suite, pkgs] of Object.entries(grouped)) {
-        if (!pkgs.length || suite === TestSuite.E2E) continue;
+        if (!pkgs.length || suite === 'e2e') continue;
 
         try {
-            const suiteErrors: string[] = await runTestSuite(suite as TestSuite, pkgs, options);
+            const suiteErrors: string[] = await runTestSuite(suite, pkgs, options);
             if (suiteErrors.length) {
                 errors.push(...suiteErrors);
                 if (options.bail) {
@@ -86,11 +90,11 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
 }
 
 async function runTestSuite(
-    suite: TestSuite,
+    suite: string,
     pkgInfos: PackageInfo[],
     options: TestOptions
 ): Promise<string[]> {
-    if (suite === TestSuite.E2E) return [];
+    if (suite === 'e2e') return [];
     const errors: string[] = [];
 
     // jest or our tests have a memory leak, limiting this seems to help
@@ -132,7 +136,11 @@ async function runTestSuite(
         } catch (err) {
             errors.push(err.message);
 
-            await utils.globalTeardown(options, pkgs.map(({ name, dir }) => ({ name, dir })));
+            await utils.globalTeardown(options, pkgs.map((pkg) => ({
+                name: pkg.name,
+                dir: pkg.dir,
+                suite: pkg.terascope.testSuite
+            })));
 
             if (options.bail) {
                 break;
@@ -153,7 +161,7 @@ async function runTestSuite(
 async function runE2ETest(options: TestOptions): Promise<string[]> {
     let cleanup = () => {};
     const errors: string[] = [];
-    const suite = TestSuite.E2E;
+    const suite = 'e2e';
     let startedTest = false;
 
     const e2eDir = getE2EDir();
@@ -167,17 +175,16 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         errors.push(getFullErrorStack(err));
     }
 
-    const rootInfo = getRootInfo();
-    const [registry] = rootInfo.terascope.docker.registries;
-    const image = `${registry}:e2e`;
     if (!errors.length) {
+        const rootInfo = getRootInfo();
+        const [registry] = rootInfo.terascope.docker.registries;
+        const e2eImage = `${registry}:e2e`;
+
         try {
-            await utils.buildDockerImage(image);
+            const devImage = await pullDevDockerImage();
+            await dockerTag(devImage, e2eImage);
         } catch (err) {
-            const error = new TSError(err, {
-                message: `Failed to build ${image} docker image`,
-            });
-            errors.push(getFullErrorStack(error));
+            errors.push(getFullErrorStack(err));
         }
     }
 
@@ -210,7 +217,21 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
     }
 
     if (startedTest && errors.length) {
-        await utils.globalTeardown(options, [{ name: suite, dir: e2eDir }]);
+        await utils.globalTeardown(options, [{
+            name: suite,
+            dir: e2eDir,
+            suite,
+        }]);
+    }
+
+    if (startedTest && isCI) {
+        const devDockerImage = getDevDockerImage();
+        try {
+            signale.info(`pushing ${devDockerImage}...`);
+            await dockerPush(devDockerImage);
+        } catch (err) {
+            signale.warn(err, `failure to push ${devDockerImage}`);
+        }
     }
 
     cleanup();
@@ -218,7 +239,7 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
     return errors;
 }
 
-function printAndGetEnv(suite: TestSuite, options: TestOptions) {
+function printAndGetEnv(suite: string, options: TestOptions) {
     const env = utils.getEnv(options, suite);
     if (options.debug || isCI) {
         const envStr = Object

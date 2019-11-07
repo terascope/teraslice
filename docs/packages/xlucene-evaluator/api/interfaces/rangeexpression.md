@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `RangeExpression`
+title: xLucene Evaluator: `RangeExpression`
 sidebar_label: RangeExpression
 ---
 
@@ -24,7 +24,7 @@ sidebar_label: RangeExpression
 
 • **gt**? : *string | number*
 
-*Defined in [translator/interfaces.ts:123](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/interfaces.ts#L123)*
+*Defined in [translator/interfaces.ts:132](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/translator/interfaces.ts#L132)*
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **gte**? : *string | number*
 
-*Defined in [translator/interfaces.ts:121](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/interfaces.ts#L121)*
+*Defined in [translator/interfaces.ts:130](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/translator/interfaces.ts#L130)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **lt**? : *string | number*
 
-*Defined in [translator/interfaces.ts:124](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/interfaces.ts#L124)*
+*Defined in [translator/interfaces.ts:133](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/translator/interfaces.ts#L133)*
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **lte**? : *string | number*
 
-*Defined in [translator/interfaces.ts:122](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/interfaces.ts#L122)*
+*Defined in [translator/interfaces.ts:131](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/translator/interfaces.ts#L131)*

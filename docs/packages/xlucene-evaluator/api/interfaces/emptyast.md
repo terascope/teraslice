@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `EmptyAST`
+title: xLucene Evaluator: `EmptyAST`
 sidebar_label: EmptyAST
 ---
 
@@ -21,4 +21,4 @@ sidebar_label: EmptyAST
 
 • **type**: *[Empty](../enums/asttype.md#empty)*
 
-*Defined in [parser/interfaces.ts:73](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L73)*
+*Defined in [parser/interfaces.ts:66](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L66)*

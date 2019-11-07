@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `FunctionConfig`
+title: xLucene Evaluator: `FunctionConfig`
 sidebar_label: FunctionConfig
 ---
 
@@ -22,7 +22,7 @@ sidebar_label: FunctionConfig
 
 • **logger**: *Logger*
 
-*Defined in [parser/interfaces.ts:167](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/xlucene-evaluator/src/parser/interfaces.ts#L167)*
+*Defined in [parser/interfaces.ts:167](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L167)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **typeConfig**: *[TypeConfig](typeconfig.md)*
 
-*Defined in [parser/interfaces.ts:168](https://github.com/terascope/teraslice/blob/ddd3f0a43/packages/xlucene-evaluator/src/parser/interfaces.ts#L168)*
+*Defined in [parser/interfaces.ts:168](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L168)*

@@ -9,7 +9,7 @@ sidebar_label: WorkerOperations
 
 * Set‹[WorkerOperationLifeCycle](workeroperationlifecycle.md)›
 
-  * **WorkerOperations**
+  ↳ **WorkerOperations**
 
 ## Index
 
@@ -37,7 +37,7 @@ sidebar_label: WorkerOperations
 
 • **Set**: *SetConstructor*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:71
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.collection.d.ts:71
 
 ___
 
@@ -47,7 +47,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts:138
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts:138
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:64
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.collection.d.ts:64
 
 ## Methods
 
@@ -67,7 +67,7 @@ Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/n
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:163
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.iterable.d.ts:171
 
 Iterates over values in the set.
 
@@ -81,7 +81,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:59
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.collection.d.ts:59
 
 **Parameters:**
 
@@ -99,7 +99,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:60
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.collection.d.ts:60
 
 **Returns:** *void*
 
@@ -111,7 +111,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:61
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.collection.d.ts:61
 
 **Parameters:**
 
@@ -129,7 +129,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:167
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.iterable.d.ts:175
 
 Returns an iterable of [v,v] pairs for every value `v` in the set.
 
@@ -143,7 +143,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:62
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.collection.d.ts:62
 
 **Parameters:**
 
@@ -171,7 +171,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.collection.d.ts:63
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.collection.d.ts:63
 
 **Parameters:**
 
@@ -189,7 +189,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:171
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.iterable.d.ts:179
 
 Despite its name, returns an iterable of the values in the set,
 
@@ -203,7 +203,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es2015.iterable.d.ts:176
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.iterable.d.ts:184
 
 Returns an iterable of values in the set.
 

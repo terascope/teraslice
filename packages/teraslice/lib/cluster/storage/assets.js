@@ -5,7 +5,7 @@ const path = require('path');
 const fse = require('fs-extra');
 const crypto = require('crypto');
 const Promise = require('bluebird');
-const { TSError, pDelay } = require('@terascope/utils');
+const { TSError, pDelay, uniq } = require('@terascope/utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 const { saveAsset } = require('../../utils/file_utils');
@@ -104,7 +104,7 @@ module.exports = async function assetsStore(context) {
 
         // if no version specified get latest
         if (metaData.length === 1 || metaData[1] === 'latest') {
-            return search(`name:${metaData[0]}`, null, 1, sort, fields)
+            return search(`name:"${metaData[0]}"`, null, 1, sort, fields)
                 .then((assetRecord) => {
                     const record = assetRecord.hits.hits[0];
                     if (!record) {
@@ -116,7 +116,7 @@ module.exports = async function assetsStore(context) {
         }
 
         // has wildcard in version
-        return search(`name:${metaData[0]} AND version:${metaData[1]}`, null, 10000, sort, fields)
+        return search(`name:"${metaData[0]}" AND version:"${metaData[1]}"`, null, 10000, sort, fields)
             .then((assetRecords) => {
                 const records = assetRecords.hits.hits.map((record) => ({
                     id: record._id,
@@ -145,7 +145,7 @@ module.exports = async function assetsStore(context) {
     }
 
     function parseAssetsArray(assetsArray) {
-        return Promise.all(assetsArray.map(_getAssetId));
+        return Promise.all(uniq(assetsArray).map(_getAssetId));
     }
 
     function _compareVersions(prev, curr, wildcardPlacement, versionSlice, versionWithWildcard) {

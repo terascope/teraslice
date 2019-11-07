@@ -147,16 +147,28 @@ export async function runJest(
 }
 
 export async function dockerPull(image: string): Promise<void> {
-    await exec({
-        cmd: 'docker',
-        args: ['pull', image],
-    });
+    try {
+        await exec({
+            cmd: 'docker',
+            args: ['pull', image],
+        });
+    } catch (err) {
+        process.exitCode = 0;
+        throw err;
+    }
 }
 
 export async function dockerStop(name: string): Promise<void> {
     await exec({
         cmd: 'docker',
         args: ['stop', name],
+    });
+}
+
+export async function dockerTag(from: string, to: string): Promise<void> {
+    await exec({
+        cmd: 'docker',
+        args: ['tag', from, to],
     });
 }
 
@@ -282,7 +294,6 @@ export async function dockerRun(opt: DockerRunOptions, tag = 'latest'): Promise<
 
         if (done && !subprocess.killed) return;
 
-        signale.debug(`killing "${opt.name}" docker container`);
         subprocess.kill();
     };
 }
@@ -353,30 +364,6 @@ export function mapToArgs(input: ArgsMap): string[] {
         }
     }
     return args.filter((str) => str != null && str !== '');
-}
-
-export async function getLatestNPMVersion(
-    name: string,
-    tag = 'latest',
-    registry: string = config.NPM_DEFAULT_REGISTRY
-): Promise<string> {
-    const subprocess = await execa(
-        'npm',
-        [
-            '--json',
-            '--registry',
-            registry,
-            'info',
-            name,
-            'dist-tags'
-        ],
-        { reject: false }
-    );
-
-    if (subprocess.exitCode > 0) return '0.0.0';
-
-    const output: Record<string, string> = JSON.parse(subprocess.stdout);
-    return output[tag];
 }
 
 export async function yarnPublish(

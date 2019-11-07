@@ -13,24 +13,24 @@ sidebar_label: WorkerShutdownFn
 
 ▸ (`error?`: undefined | null): *void*
 
-*Defined in [cluster-master/interfaces.ts:69](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L69)*
+*Defined in [cluster-master/interfaces.ts:69](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L69)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`error?` | undefined \| null |
+`error?` | undefined &#124; null |
 
 **Returns:** *void*
 
 ▸ (`error?`: undefined | null): *void*
 
-*Defined in [execution-controller/interfaces.ts:33](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L33)*
+*Defined in [execution-controller/interfaces.ts:33](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L33)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`error?` | undefined \| null |
+`error?` | undefined &#124; null |
 
 **Returns:** *void*

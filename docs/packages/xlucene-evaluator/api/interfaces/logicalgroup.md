@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `LogicalGroup`
+title: xLucene Evaluator: `LogicalGroup`
 sidebar_label: LogicalGroup
 ---
 
@@ -9,7 +9,7 @@ sidebar_label: LogicalGroup
 
 * [GroupLikeAST](grouplikeast.md)
 
-  * **LogicalGroup**
+  ↳ **LogicalGroup**
 
 ## Index
 
@@ -26,7 +26,7 @@ sidebar_label: LogicalGroup
 
 *Inherited from [GroupLikeAST](grouplikeast.md).[flow](grouplikeast.md#flow)*
 
-*Defined in [parser/interfaces.ts:40](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L40)*
+*Defined in [parser/interfaces.ts:31](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L31)*
 
 ___
 
@@ -36,4 +36,4 @@ ___
 
 *Overrides [GroupLikeAST](grouplikeast.md).[type](grouplikeast.md#type)*
 
-*Defined in [parser/interfaces.ts:103](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L103)*
+*Defined in [parser/interfaces.ts:98](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L98)*

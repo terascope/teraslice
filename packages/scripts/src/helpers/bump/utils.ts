@@ -1,4 +1,5 @@
 import semver, { ReleaseType } from 'semver';
+import { get } from '@terascope/utils';
 import { BumpPackageOptions, BumpPkgInfo, BumpType } from './interfaces';
 import { isMainPackage, findPackageByName, getRemotePackageVersion } from '../packages';
 import { PackageInfo } from '../interfaces';
@@ -69,9 +70,10 @@ export async function getPackagesToBump(
 
     async function _resetVersion(pkgInfo: PackageInfo) {
         if (options.noReset) return;
+        if (get(pkgInfo, 'terascope.root', false)) return;
 
         const remote = await getRemotePackageVersion(pkgInfo);
-        if (pkgInfo.version !== remote) {
+        if (remote !== '0.1.0' && pkgInfo.version !== remote) {
             signale.warn(`${pkgInfo.name} is not in-sync with the remote NPM version, resetting to v${remote} before bumping`);
             pkgInfo.version = remote;
         }

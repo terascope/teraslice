@@ -25,6 +25,6 @@
     },
     "displayName": "Error Parser",
     "terascope": {
-        "testSuite": "unit"
+        "testSuite": "unit-b"
     }
 }

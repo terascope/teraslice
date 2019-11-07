@@ -1,5 +1,5 @@
 ---
-title: Ts Transforms: `PhaseBase`
+title: TS Transforms: `PhaseBase`
 sidebar_label: PhaseBase
 ---
 
@@ -9,13 +9,13 @@ sidebar_label: PhaseBase
 
 * **PhaseBase**
 
-  * [SelectionPhase](selectionphase.md)
+  ↳ [SelectionPhase](selectionphase.md)
 
-  * [ExtractionPhase](extractionphase.md)
+  ↳ [ExtractionPhase](extractionphase.md)
 
-  * [PostProcessPhase](postprocessphase.md)
+  ↳ [PostProcessPhase](postprocessphase.md)
 
-  * [OutputPhase](outputphase.md)
+  ↳ [OutputPhase](outputphase.md)
 
 ## Index
 
@@ -39,7 +39,7 @@ sidebar_label: PhaseBase
 
 \+ **new PhaseBase**(`opConfig`: [WatcherConfig](../interfaces/watcherconfig.md)): *[PhaseBase](phasebase.md)*
 
-*Defined in [phases/base.ts:7](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/phases/base.ts#L7)*
+*Defined in [phases/base.ts:7](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/phases/base.ts#L7)*
 
 **Parameters:**
 
@@ -55,7 +55,7 @@ Name | Type |
 
 • **hasProcessing**: *boolean*
 
-*Defined in [phases/base.ts:6](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/phases/base.ts#L6)*
+*Defined in [phases/base.ts:6](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/phases/base.ts#L6)*
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 • **opConfig**: *[WatcherConfig](../interfaces/watcherconfig.md)*
 
-*Defined in [phases/base.ts:7](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/phases/base.ts#L7)*
+*Defined in [phases/base.ts:7](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/phases/base.ts#L7)*
 
 ___
 
@@ -71,7 +71,7 @@ ___
 
 • **phase**: *[OperationsPipline](../interfaces/operationspipline.md)*
 
-*Defined in [phases/base.ts:5](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/phases/base.ts#L5)*
+*Defined in [phases/base.ts:5](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/phases/base.ts#L5)*
 
 ## Methods
 
@@ -79,7 +79,7 @@ ___
 
 ▸ **run**(`data`: DataEntity[]): *DataEntity[]*
 
-*Defined in [phases/base.ts:15](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/phases/base.ts#L15)*
+*Defined in [phases/base.ts:15](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/phases/base.ts#L15)*
 
 **Parameters:**
 

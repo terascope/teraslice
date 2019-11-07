@@ -1,14 +1,17 @@
+import ms from 'ms';
+import isCI from 'is-ci';
 import semver from 'semver';
+import { TSError } from '@terascope/utils';
 import {
     getCommitHash,
     dockerPull,
-    dockerBuild
+    dockerBuild,
 } from '../scripts';
 import { PublishType } from './interfaces';
 import { PackageInfo } from '../interfaces';
-import { getRootInfo } from '../misc';
 import signale from '../signale';
 import { getRemotePackageVersion } from '../packages';
+import { getDevDockerImage } from '../misc';
 
 export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType): Promise<boolean> {
     if (pkgInfo.private) return false;
@@ -68,41 +71,31 @@ export async function formatDailyTag() {
     return `daily-${date}-${hash}`;
 }
 
-export async function buildCacheLayers(registry: string): Promise<string[]> {
-    const rootInfo = getRootInfo();
-    const layers = rootInfo.terascope.docker.cache_layers;
-    if (!layers.length) return [];
+export async function pullDevDockerImage(): Promise<string> {
+    const startTime = Date.now();
+    const devImage = getDevDockerImage();
 
-    const cacheFrom: { [name: string]: string } = {};
-    layers.forEach(({ from, name }) => {
-        if (cacheFrom[from] == null) {
-            cacheFrom[from] = from;
+    let pulled = false;
+
+    signale.pending(`building docker image ${devImage}`);
+
+    if (isCI) {
+        try {
+            await dockerPull(devImage);
+            pulled = true;
+        } catch (err) {
+            // do nothing
         }
-        cacheFrom[name] = `${registry}:dev-${name}`;
-    });
-
-    const layersToPull = Object.values(cacheFrom);
-    if (layersToPull.length) {
-        signale.debug(`pulling cache layers: ${layersToPull.join(', ')}`);
-        await Promise.all(layersToPull.map(dockerPull));
     }
 
-    const imagesToPush: string[] = [];
-
-    const caches: string[] = [];
-    for (const { from, name } of layers) {
-        if (cacheFrom[from]) {
-            caches.push(cacheFrom[from]);
-        }
-        if (cacheFrom[name]) {
-            caches.push(cacheFrom[name]);
-        }
-
-        const image = cacheFrom[name];
-        signale.debug(`building cache layer ${image}`);
-        await dockerBuild(image, caches, name);
-        imagesToPush.push(cacheFrom[name]);
+    try {
+        await dockerBuild(devImage, pulled ? [devImage] : []);
+    } catch (err) {
+        throw new TSError(err, {
+            message: `Failed to build ${devImage} docker image`,
+        });
     }
 
-    return imagesToPush;
+    signale.success(`built docker image ${devImage}, took ${ms(Date.now() - startTime)}`);
+    return devImage;
 }

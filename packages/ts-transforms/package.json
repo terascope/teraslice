@@ -38,7 +38,7 @@
         "@terascope/utils": "^0.20.5",
         "@types/graphlib": "^2.1.5",
         "@types/shortid": "^0.0.29",
-        "awesome-phonenumber": "^2.15.0",
+        "awesome-phonenumber": "^2.21.0",
         "graphlib": "^2.1.7",
         "jexl": "^2.2.1",
         "shortid": "^2.2.14",
@@ -61,10 +61,10 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
-    "displayName": "Ts Transforms",
+    "displayName": "TS Transforms",
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,
-        "testSuite": "unit"
+        "testSuite": "unit-b"
     }
 }

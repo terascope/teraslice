@@ -1,8 +1,7 @@
 'use strict';
 
 
-const _ = require('lodash');
-const { TSError, pRetry } = require('@terascope/utils');
+const { TSError, pRetry, includes } = require('@terascope/utils');
 const uuid = require('uuid');
 const Promise = require('bluebird');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
@@ -93,6 +92,12 @@ module.exports = function executionStorage(context) {
                     return Promise.reject(error);
                 }
 
+                // if it is set to stop but the execution finishes before it can stop
+                // it is okay to set it to completed
+                if (status === 'stopped' && desiredStatus === 'completed') {
+                    return Promise.resolve(status);
+                }
+
                 // when the status is a terminal status, it cannot be set to again
                 if (_isTerminalStatus(status)) {
                     const error = new TSError(`Cannot update terminal job status of "${status}" to "${desiredStatus}"`, {
@@ -161,19 +166,19 @@ module.exports = function executionStorage(context) {
     }
 
     function _isValidStatus(status) {
-        return _.includes(VALID_STATUS, status);
+        return includes(VALID_STATUS, status);
     }
 
     function _isRunningStatus(status) {
-        return _.includes(RUNNING_STATUS, status);
+        return includes(RUNNING_STATUS, status);
     }
 
     function _isTerminalStatus(status) {
-        return _.includes(TERMINAL_STATUS, status);
+        return includes(TERMINAL_STATUS, status);
     }
 
     function _isInitStatus(status) {
-        return _.includes(INIT_STATUS, status);
+        return includes(INIT_STATUS, status);
     }
 
     const api = {

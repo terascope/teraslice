@@ -1,5 +1,5 @@
 ---
-title: Ts Transforms: `OperationBase`
+title: TS Transforms: `OperationBase`
 sidebar_label: OperationBase
 ---
 
@@ -9,9 +9,9 @@ sidebar_label: OperationBase
 
 * **OperationBase**
 
-  * [TransformOpBase](transformopbase.md)
+  ↳ [TransformOpBase](transformopbase.md)
 
-  * [ValidationOpBase](validationopbase.md)
+  ↳ [ValidationOpBase](validationopbase.md)
 
 ## Index
 
@@ -42,7 +42,7 @@ sidebar_label: OperationBase
 
 \+ **new OperationBase**(`config`: [OperationConfig](../overview.md#operationconfig)): *[OperationBase](operationbase.md)*
 
-*Defined in [operations/lib/base.ts:14](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L14)*
+*Defined in [operations/lib/base.ts:14](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L14)*
 
 **Parameters:**
 
@@ -58,7 +58,7 @@ Name | Type |
 
 • **config**: *[OperationConfig](../overview.md#operationconfig)*
 
-*Defined in [operations/lib/base.ts:10](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L10)*
+*Defined in [operations/lib/base.ts:10](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L10)*
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 • **destination**: *string | string[]*
 
-*Defined in [operations/lib/base.ts:11](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L11)*
+*Defined in [operations/lib/base.ts:11](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L11)*
 
 ___
 
@@ -74,7 +74,7 @@ ___
 
 • **hasTarget**: *boolean*
 
-*Defined in [operations/lib/base.ts:12](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L12)*
+*Defined in [operations/lib/base.ts:12](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L12)*
 
 ___
 
@@ -82,7 +82,7 @@ ___
 
 • **source**: *string | string[]*
 
-*Defined in [operations/lib/base.ts:8](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L8)*
+*Defined in [operations/lib/base.ts:8](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L8)*
 
 ___
 
@@ -90,7 +90,7 @@ ___
 
 • **target**: *string | string[]*
 
-*Defined in [operations/lib/base.ts:9](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L9)*
+*Defined in [operations/lib/base.ts:9](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L9)*
 
 ___
 
@@ -98,7 +98,7 @@ ___
 
 ▪ **cardinality**: *[InputOutputCardinality](../overview.md#inputoutputcardinality)* = "one-to-one"
 
-*Defined in [operations/lib/base.ts:14](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L14)*
+*Defined in [operations/lib/base.ts:14](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L14)*
 
 ## Methods
 
@@ -106,7 +106,7 @@ ___
 
 ▸ **removeField**(`doc`: DataEntity, `field`: string): *void*
 
-*Defined in [operations/lib/base.ts:51](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L51)*
+*Defined in [operations/lib/base.ts:51](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L51)*
 
 **Parameters:**
 
@@ -123,7 +123,7 @@ ___
 
 ▸ **removeSource**(`doc`: DataEntity): *void*
 
-*Defined in [operations/lib/base.ts:47](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L47)*
+*Defined in [operations/lib/base.ts:47](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L47)*
 
 **Parameters:**
 
@@ -139,7 +139,7 @@ ___
 
 ▸ **set**(`doc`: DataEntity, `data`: any): *void*
 
-*Defined in [operations/lib/base.ts:39](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L39)*
+*Defined in [operations/lib/base.ts:39](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L39)*
 
 **Parameters:**
 
@@ -156,7 +156,7 @@ ___
 
 ▸ **setField**(`doc`: DataEntity, `field`: string, `data`: any): *void*
 
-*Defined in [operations/lib/base.ts:43](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L43)*
+*Defined in [operations/lib/base.ts:43](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L43)*
 
 **Parameters:**
 
@@ -174,7 +174,7 @@ ___
 
 ▸ **validateConfig**(`config`: [OperationConfig](../overview.md#operationconfig)): *void*
 
-*Defined in [operations/lib/base.ts:23](https://github.com/terascope/teraslice/blob/0ae31df4/packages/ts-transforms/src/operations/lib/base.ts#L23)*
+*Defined in [operations/lib/base.ts:23](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/base.ts#L23)*
 
 **Parameters:**
 

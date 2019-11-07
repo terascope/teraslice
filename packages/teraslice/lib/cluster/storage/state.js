@@ -115,7 +115,7 @@ module.exports = async function stateStorage(context) {
     }
 
     async function executionStartingSlice(exId, slicerId) {
-        const startQuery = `ex_id:${exId} AND slicer_id:${slicerId}`;
+        const startQuery = `ex_id:"${exId}" AND slicer_id:"${slicerId}"`;
         const recoveryData = {};
 
         await waitForClient();
@@ -136,7 +136,7 @@ module.exports = async function stateStorage(context) {
     }
 
     async function recoverSlices(exId, slicerId, cleanupType) {
-        let retryQuery = `ex_id:${exId} AND slicer_id:${slicerId}`;
+        let retryQuery = `ex_id:"${exId}" AND slicer_id:"${slicerId}"`;
 
         if (cleanupType && cleanupType === 'errors') {
             retryQuery = `${retryQuery} AND state:error`;

@@ -9,7 +9,7 @@ sidebar_label: JobKubernetesProcess
 
 * [KubernetesProcess](kubernetesprocess.md)
 
-  * **JobKubernetesProcess**
+  ↳ **JobKubernetesProcess**
 
 ## Index
 
@@ -33,7 +33,7 @@ sidebar_label: JobKubernetesProcess
 
 *Inherited from [KubernetesProcess](kubernetesprocess.md).[assets](kubernetesprocess.md#assets)*
 
-*Defined in [interfaces.ts:148](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L148)*
+*Defined in [interfaces.ts:148](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L148)*
 
 ___
 
@@ -43,7 +43,7 @@ ___
 
 *Inherited from [KubernetesProcess](kubernetesprocess.md).[assignment](kubernetesprocess.md#assignment)*
 
-*Defined in [interfaces.ts:143](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L143)*
+*Defined in [interfaces.ts:143](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L143)*
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 *Inherited from [KubernetesProcess](kubernetesprocess.md).[ex_id](kubernetesprocess.md#ex_id)*
 
-*Defined in [interfaces.ts:145](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L145)*
+*Defined in [interfaces.ts:145](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L145)*
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 *Inherited from [KubernetesProcess](kubernetesprocess.md).[image](kubernetesprocess.md#image)*
 
-*Defined in [interfaces.ts:149](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L149)*
+*Defined in [interfaces.ts:149](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L149)*
 
 ___
 
@@ -73,7 +73,7 @@ ___
 
 *Inherited from [KubernetesProcess](kubernetesprocess.md).[job_id](kubernetesprocess.md#job_id)*
 
-*Defined in [interfaces.ts:146](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L146)*
+*Defined in [interfaces.ts:146](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L146)*
 
 ___
 
@@ -81,7 +81,7 @@ ___
 
 • **node_id**: *string*
 
-*Defined in [interfaces.ts:73](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L73)*
+*Defined in [interfaces.ts:73](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L73)*
 
 ___
 
@@ -91,7 +91,7 @@ ___
 
 *Inherited from [KubernetesProcess](kubernetesprocess.md).[pod_ip](kubernetesprocess.md#pod_ip)*
 
-*Defined in [interfaces.ts:147](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L147)*
+*Defined in [interfaces.ts:147](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L147)*
 
 ___
 
@@ -101,7 +101,7 @@ ___
 
 *Inherited from [KubernetesProcess](kubernetesprocess.md).[pod_name](kubernetesprocess.md#pod_name)*
 
-*Defined in [interfaces.ts:144](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L144)*
+*Defined in [interfaces.ts:144](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L144)*
 
 ___
 
@@ -111,4 +111,4 @@ ___
 
 *Inherited from [KubernetesProcess](kubernetesprocess.md).[worker_id](kubernetesprocess.md#worker_id)*
 
-*Defined in [interfaces.ts:142](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/interfaces.ts#L142)*
+*Defined in [interfaces.ts:142](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L142)*

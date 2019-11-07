@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `AnyDataType`
+title: xLucene Evaluator: `AnyDataType`
 sidebar_label: AnyDataType
 ---
 
@@ -9,7 +9,7 @@ sidebar_label: AnyDataType
 
 * **AnyDataType**
 
-  * [Term](term.md)
+  ↳ [Term](term.md)
 
 ## Index
 
@@ -24,7 +24,7 @@ sidebar_label: AnyDataType
 
 • **field_type**: *[FieldType](../enums/fieldtype.md)*
 
-*Defined in [parser/interfaces.ts:83](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L83)*
+*Defined in [parser/interfaces.ts:76](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L76)*
 
 The field type here may be the field type specified
 in the type_config
@@ -35,4 +35,4 @@ ___
 
 • **value**: *string | number | boolean*
 
-*Defined in [parser/interfaces.ts:84](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L84)*
+*Defined in [parser/interfaces.ts:77](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L77)*

@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `GeoQuery`
+title: xLucene Evaluator: `GeoQuery`
 sidebar_label: GeoQuery
 ---
 
@@ -15,6 +15,7 @@ sidebar_label: GeoQuery
 
 * [geo_bounding_box](geoquery.md#optional-geo_bounding_box)
 * [geo_distance](geoquery.md#optional-geo_distance)
+* [geo_polygon](geoquery.md#optional-geo_polygon)
 
 ## Properties
 
@@ -22,7 +23,7 @@ sidebar_label: GeoQuery
 
 • **geo_bounding_box**? : *undefined | object*
 
-*Defined in [translator/interfaces.ts:60](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/interfaces.ts#L60)*
+*Defined in [translator/interfaces.ts:64](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/translator/interfaces.ts#L64)*
 
 ___
 
@@ -30,4 +31,12 @@ ___
 
 • **geo_distance**? : *undefined | object*
 
-*Defined in [translator/interfaces.ts:66](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/translator/interfaces.ts#L66)*
+*Defined in [translator/interfaces.ts:70](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/translator/interfaces.ts#L70)*
+
+___
+
+### `Optional` geo_polygon
+
+• **geo_polygon**? : *undefined | object*
+
+*Defined in [translator/interfaces.ts:74](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/translator/interfaces.ts#L74)*

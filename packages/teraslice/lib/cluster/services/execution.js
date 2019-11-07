@@ -361,6 +361,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
         delete execution._has_errors;
         delete execution._slicer_stats;
         delete execution._failureReason;
+        delete execution.recovered_execution;
         delete execution.recovered_slice_state;
         delete execution._failureReason;
 

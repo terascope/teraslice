@@ -30,7 +30,7 @@ sidebar_label: JobValidator
 
 \+ **new JobValidator**(`context`: [Context](../interfaces/context.md), `options`: object): *[JobValidator](jobvalidator.md)*
 
-*Defined in [job-validator.ts:16](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/job-validator.ts#L16)*
+*Defined in [job-validator.ts:16](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/job-validator.ts#L16)*
 
 **Parameters:**
 
@@ -47,7 +47,7 @@ Name | Type | Default |
 
 • **schema**: *convict.Schema‹any›*
 
-*Defined in [job-validator.ts:14](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/job-validator.ts#L14)*
+*Defined in [job-validator.ts:14](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/job-validator.ts#L14)*
 
 ## Methods
 
@@ -55,7 +55,7 @@ Name | Type | Default |
 
 ▸ **hasSchema**(`obj`: any, `name`: string): *void*
 
-*Defined in [job-validator.ts:86](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/job-validator.ts#L86)*
+*Defined in [job-validator.ts:86](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/job-validator.ts#L86)*
 
 **Parameters:**
 
@@ -72,7 +72,7 @@ ___
 
 ▸ **validateConfig**(`jobSpec`: [JobConfig](../overview.md#jobconfig)): *[ValidatedJobConfig](../interfaces/validatedjobconfig.md)*
 
-*Defined in [job-validator.ts:28](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/job-validator.ts#L28)*
+*Defined in [job-validator.ts:28](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/job-validator.ts#L28)*
 
 Validate the job configuration, including the Operations and APIs configuration
 

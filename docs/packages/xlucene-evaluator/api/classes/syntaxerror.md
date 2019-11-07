@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `SyntaxError`
+title: xLucene Evaluator: `SyntaxError`
 sidebar_label: SyntaxError
 ---
 
@@ -9,7 +9,7 @@ sidebar_label: SyntaxError
 
 * Error
 
-  * **SyntaxError**
+  ↳ **SyntaxError**
 
 ## Index
 
@@ -37,7 +37,7 @@ sidebar_label: SyntaxError
 
 \+ **new SyntaxError**(`message`: string, `expected`: [Expectation](../overview.md#expectation)[], `found`: string | null, `location`: [IFileRange](../interfaces/ifilerange.md)): *[SyntaxError](syntaxerror.md)*
 
-Defined in parser/peg-engine.ts:146
+Defined in parser/peg-engine.ts:147
 
 **Parameters:**
 
@@ -45,7 +45,7 @@ Name | Type |
 ------ | ------ |
 `message` | string |
 `expected` | [Expectation](../overview.md#expectation)[] |
-`found` | string \| null |
+`found` | string &#124; null |
 `location` | [IFileRange](../interfaces/ifilerange.md) |
 
 **Returns:** *[SyntaxError](syntaxerror.md)*
@@ -56,7 +56,7 @@ Name | Type |
 
 • **expected**: *[Expectation](../overview.md#expectation)[]*
 
-Defined in parser/peg-engine.ts:143
+Defined in parser/peg-engine.ts:144
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **found**: *string | null*
 
-Defined in parser/peg-engine.ts:144
+Defined in parser/peg-engine.ts:145
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 • **location**: *[IFileRange](../interfaces/ifilerange.md)*
 
-Defined in parser/peg-engine.ts:145
+Defined in parser/peg-engine.ts:146
 
 ___
 
@@ -82,7 +82,7 @@ ___
 
 *Overrides void*
 
-Defined in parser/peg-engine.ts:142
+Defined in parser/peg-engine.ts:143
 
 ___
 
@@ -92,7 +92,7 @@ ___
 
 *Overrides void*
 
-Defined in parser/peg-engine.ts:146
+Defined in parser/peg-engine.ts:147
 
 ___
 
@@ -104,7 +104,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:975
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:975
 
 ___
 
@@ -112,7 +112,7 @@ ___
 
 ▪ **Error**: *ErrorConstructor*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:984
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:984
 
 ## Methods
 
@@ -120,13 +120,13 @@ Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/n
 
 ▸ **buildMessage**(`expected`: [Expectation](../overview.md#expectation)[], `found`: string | null): *string*
 
-Defined in parser/peg-engine.ts:52
+Defined in parser/peg-engine.ts:53
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `expected` | [Expectation](../overview.md#expectation)[] |
-`found` | string \| null |
+`found` | string &#124; null |
 
 **Returns:** *string*
