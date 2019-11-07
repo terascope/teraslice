@@ -140,15 +140,6 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
         return true;
     }
 
-    /**
-     * Soft deletes records by ID
-     */
-    async deleteRecords(ids: string[]): Promise<void> {
-        if (!ids || !ids.length) return;
-
-        await Promise.all(ts.uniq(ids).map((id) => this.deleteRecord(id)));
-    }
-
     async countRecords(
         fields: AnyInput<T>,
         clientId?: number,

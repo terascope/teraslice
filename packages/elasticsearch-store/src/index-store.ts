@@ -294,15 +294,6 @@ export default class IndexStore<T extends Record<string, any>> {
     }
 
     /**
-     * Delete multiple documents by id
-    */
-    async deleteAll(ids: string[]): Promise<void> {
-        if (!ids || !ids.length) return;
-
-        await Promise.all(ts.uniq(ids).map((id) => this.deleteById(id)));
-    }
-
-    /**
      * Shutdown, flush any pending requests and cleanup
      */
     async shutdown() {
