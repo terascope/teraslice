@@ -250,7 +250,7 @@ describe('IndexModel', () => {
             try {
                 await indexModel.updateRecord(undefined as any, {} as any);
             } catch (err) {
-                expect(err.message).toStartWith('Invalid ID given to updateRecord, expected string or integer');
+                expect(err.message).toStartWith('Invalid ID given to updateRecord, expected string');
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.statusCode).toEqual(400);
             }
