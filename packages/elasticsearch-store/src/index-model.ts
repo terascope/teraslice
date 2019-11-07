@@ -184,6 +184,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
                 ...(record.client_id && {
                     client_id: [record.client_id, 0],
                 }),
+                _deleted: false
             } as AnyInput<T>);
 
             if (count > 0) {

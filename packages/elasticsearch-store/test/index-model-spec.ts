@@ -139,46 +139,60 @@ describe('IndexModel', () => {
             });
         });
 
-        it('should not be able to create the record with conflicts', async () => {
-            expect.hasAssertions();
+        describe('when testing uniqueness', () => {
+            const name = 'SomeBody';
+            let id: string;
 
-            try {
-                await indexModel.createRecord({
-                    client_id: 1,
-                    name: 'Billy',
-                    type: 'billy',
-                    config: {
-                        foo: 2,
-                        bar: 2,
-                        baz: {
-                            a: 2,
-                        },
-                    },
+            beforeAll(async () => {
+                id = (await indexModel.createRecord({
+                    client_id: 5,
+                    name,
+                    type: name,
+                    config: {},
+                }))._key;
+            });
+
+            it('should NOT be able to create a record with the same name and client', async () => {
+                try {
+                    await indexModel.createRecord({
+                        client_id: 5,
+                        name,
+                        type: name,
+                        config: {},
+                    });
+                } catch (err) {
+                    expect(err.message).toEqual('ExampleModel requires name to be unique');
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.statusCode).toEqual(409);
+                }
+            });
+
+            it('should be able to create the same name in different client', async () => {
+                await expect(indexModel.createRecord({
+                    client_id: 6,
+                    name,
+                    type: name,
+                    config: {},
+                })).resolves.toMatchObject({
+                    name,
+                    client_id: 6,
                 });
-            } catch (err) {
-                expect(err.message).toEqual('ExampleModel requires name to be unique');
-                expect(err).toBeInstanceOf(TSError);
-                expect(err.statusCode).toEqual(409);
-            }
-        });
+            });
 
-        it('should be able to create the same name in different client', async () => expect(
-            indexModel.createRecord({
-                client_id: 2,
-                name: 'Billy',
-                type: 'billy',
-                config: {
-                    foo: 2,
-                    bar: 2,
-                    baz: {
-                        a: 2,
-                    },
-                },
-            })
-        ).resolves.toMatchObject({
-            client_id: 2,
-            name: 'Billy',
-        }));
+            it('should be to soft delete the record and create a new one with the same name', async () => {
+                await indexModel.deleteRecord(id);
+
+                await expect(indexModel.createRecord({
+                    client_id: 5,
+                    name,
+                    type: name,
+                    config: {},
+                })).resolves.toMatchObject({
+                    name,
+                    client_id: 5,
+                });
+            });
+        });
 
         it('should not be able to create the record without a name', async () => {
             expect.hasAssertions();
