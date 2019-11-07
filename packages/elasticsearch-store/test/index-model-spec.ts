@@ -180,7 +180,7 @@ describe('IndexModel', () => {
             });
 
             it('should be to soft delete the record and create a new one with the same name', async () => {
-                await indexModel.deleteRecord(id);
+                await expect(indexModel.deleteRecord(id)).resolves.toBeTrue();
 
                 await expect(indexModel.createRecord({
                     client_id: 5,
@@ -327,7 +327,8 @@ describe('IndexModel', () => {
 
         it('should be able to soft delete the record', async () => {
             expect.hasAssertions();
-            await indexModel.deleteRecord(fetched._key);
+            await expect(indexModel.deleteRecord(fetched._key)).resolves.toBeTrue();
+            await expect(indexModel.deleteRecord(fetched._key)).resolves.toBeFalse();
 
             try {
                 await indexModel.findById(fetched._key);
@@ -335,9 +336,11 @@ describe('IndexModel', () => {
                 expect(err.message).toInclude('Record Missing');
                 expect(err.statusCode).toEqual(410);
             }
+
+            return expect(indexModel.recordExists(fetched._key)).resolves.toBeFalse();
         });
 
-        it('should be able to delete the record', async () => {
+        it('should be able to hard delete the record', async () => {
             await indexModel.deleteById(fetched._key);
 
             return expect(indexModel.findById(fetched._key)).rejects.toThrowError(/Unable to find ExampleModel/);

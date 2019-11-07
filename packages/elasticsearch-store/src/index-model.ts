@@ -1,6 +1,6 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { QueryAccess } from 'xlucene-evaluator';
+import { QueryAccess, JoinBy } from 'xlucene-evaluator';
 import IndexStore, { AnyInput } from './index-store';
 import * as utils from './utils';
 import * as i from './interfaces';
@@ -125,14 +125,19 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
     /**
      * Soft deletes a record by ID
      */
-    async deleteRecord(id: string) {
+    async deleteRecord(id: string, clientId?: number): Promise<boolean> {
         utils.validateId(id, 'deleteRecord');
+
+        const exists = await this.recordExists(id, clientId);
+        if (!exists) return false;
 
         await this.update(id, {
             doc: {
                 _deleted: true
             } as Partial<T>
         });
+
+        return true;
     }
 
     /**
@@ -142,6 +147,32 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
         if (!ids || !ids.length) return;
 
         await Promise.all(ts.uniq(ids).map((id) => this.deleteRecord(id)));
+    }
+
+    async countRecords(
+        fields: AnyInput<T>,
+        clientId?: number,
+        joinBy?: JoinBy,
+        arrayJoinBy?: JoinBy
+    ): Promise<number> {
+        return this.countBy({
+            ...fields,
+            ...(clientId && clientId > 0 && {
+                client_id: [clientId, 0],
+            }),
+            _deleted: false
+        }, joinBy, arrayJoinBy);
+    }
+
+    async recordExists(id: string[] | string, clientId?: number): Promise<boolean> {
+        const ids = utils.validateIds(id, 'recordExists');
+        if (!ids.length) return true;
+
+        const count = await this.countRecords({
+            [this.config.id_field!]: ids,
+        } as AnyInput<T>, clientId);
+
+        return count === ids.length;
     }
 
     protected _sanitizeRecord(record: T): T {
@@ -179,13 +210,9 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
             }
             if (existing && existing[field] === record[field]) continue;
 
-            const count = await this.countBy({
+            const count = await this.countRecords({
                 [field]: record[field],
-                ...(record.client_id && {
-                    client_id: [record.client_id, 0],
-                }),
-                _deleted: false
-            } as AnyInput<T>);
+            } as AnyInput<T>, record.client_id);
 
             if (count > 0) {
                 throw new ts.TSError(`${this.name} requires ${field} to be unique`, {
