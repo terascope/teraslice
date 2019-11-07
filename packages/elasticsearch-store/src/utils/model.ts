@@ -52,7 +52,7 @@ export const schema = {
             format: 'date-time',
         },
     },
-    required: ['_key', 'client_id', '_created', '_updated'],
+    required: ['_key', 'client_id'],
 };
 
 export function addDefaultMapping(input: ESTypeMappings): ESTypeMappings {
