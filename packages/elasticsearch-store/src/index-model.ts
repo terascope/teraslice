@@ -79,6 +79,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
         options?: i.FindOneOptions<T>,
         queryAccess?: QueryAccess<T>
     ) {
+        utils.validateId(anyId, 'fetchRecord');
         const fields: Partial<T> = {};
 
         for (const field of this._uniqueFields) {
@@ -106,11 +107,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
     }
 
     async updateRecord(id: string, record: i.UpdateRecordInput<T>): Promise<T> {
-        if (!id || !ts.isString(id)) {
-            throw new ts.TSError(`${this.name} update requires _key`, {
-                statusCode: 422,
-            });
-        }
+        utils.validateId(id, 'updateRecord');
 
         return this.updatePartial(id, async (existing) => {
             const doc = this._sanitizeRecord({
@@ -129,6 +126,8 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
      * Soft deletes a record by ID
      */
     async deleteRecord(id: string) {
+        utils.validateId(id, 'deleteRecord');
+
         await this.update(id, {
             doc: {
                 _deleted: true

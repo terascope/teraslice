@@ -17,7 +17,7 @@ describe('IndexModel', () => {
 
     const client = makeClient();
     const exampleConfig: IndexModelConfig<ExampleRecord> = {
-        name: 'index_model',
+        name: 'example_model',
         mapping: {
             properties: {
                 name: {
@@ -156,7 +156,7 @@ describe('IndexModel', () => {
                     },
                 });
             } catch (err) {
-                expect(err.message).toEqual('IndexModel requires name to be unique');
+                expect(err.message).toEqual('ExampleModel requires name to be unique');
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.statusCode).toEqual(409);
             }
@@ -184,10 +184,9 @@ describe('IndexModel', () => {
             expect.hasAssertions();
 
             try {
-                // @ts-ignore
-                await indexModel.createRecord({});
+                await indexModel.createRecord({} as any);
             } catch (err) {
-                expect(err.message).toEqual('IndexModel requires field name');
+                expect(err.message).toEqual('ExampleModel requires field name');
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.statusCode).toEqual(422);
             }
@@ -200,7 +199,7 @@ describe('IndexModel', () => {
                     try {
                         await indexModel.findAndApply(undefined);
                     } catch (err) {
-                        expect(err.message).toEqual('Invalid input for IndexModel');
+                        expect(err.message).toEqual('Invalid input for ExampleModel');
                         expect(err).toBeInstanceOf(TSError);
                         expect(err.statusCode).toEqual(422);
                     }
@@ -239,7 +238,7 @@ describe('IndexModel', () => {
                     name,
                 });
             } catch (err) {
-                expect(err.message).toEqual('IndexModel requires name to be unique');
+                expect(err.message).toEqual('ExampleModel requires name to be unique');
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.statusCode).toEqual(409);
             }
@@ -249,12 +248,11 @@ describe('IndexModel', () => {
             expect.hasAssertions();
 
             try {
-                // @ts-ignore
-                await indexModel.updateRecord({});
+                await indexModel.updateRecord(undefined as any, {} as any);
             } catch (err) {
-                expect(err.message).toEqual('IndexModel update requires _key');
+                expect(err.message).toStartWith('Invalid ID given to updateRecord, expected string or integer');
                 expect(err).toBeInstanceOf(TSError);
-                expect(err.statusCode).toEqual(422);
+                expect(err.statusCode).toEqual(400);
             }
         });
 
@@ -284,7 +282,7 @@ describe('IndexModel', () => {
             try {
                 await indexModel.fetchRecord('WrongBilly');
             } catch (err) {
-                expect(err.message).toEqual('Unable to find IndexModel by _key: "WrongBilly" OR name: "WrongBilly"');
+                expect(err.message).toEqual('Unable to find ExampleModel by _key: "WrongBilly" OR name: "WrongBilly"');
                 expect(err.statusCode).toEqual(404);
                 expect(err).toBeInstanceOf(TSError);
             }
@@ -328,7 +326,7 @@ describe('IndexModel', () => {
         it('should be able to delete the record', async () => {
             await indexModel.deleteById(fetched._key);
 
-            return expect(indexModel.findById(fetched._key)).rejects.toThrowError(/Unable to find IndexModel/);
+            return expect(indexModel.findById(fetched._key)).rejects.toThrowError(/Unable to find ExampleModel/);
         });
     });
 
@@ -542,15 +540,13 @@ describe('IndexModel', () => {
 
     describe('when appending to an array', () => {
         it('should return early if given empty values', async () => {
-            // @ts-ignore
-            await indexModel._appendToArray('example', 'name', []);
+            await indexModel.appendToArray('example', 'name', []);
         });
     });
 
     describe('when removing from an array', () => {
         it('should return early if given empty values', async () => {
-            // @ts-ignore
-            await indexModel._removeFromArray('example', 'name', []);
+            await indexModel.removeFromArray('example', 'name', []);
         });
     });
 });

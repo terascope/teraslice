@@ -23,15 +23,13 @@ describe('Elasticsearch Store Utils', () => {
 
         it('should return false when given missing map', () => {
             expect(
-                // @ts-ignore
                 isSimpleIndex({
                     version: 'v1',
-                })
+                } as any)
             ).toBeFalse();
         });
 
         it('should return false when given a templated index', () => {
-            // @ts-ignore
             expect(
                 isSimpleIndex({
                     mapping: { properties: {} },
@@ -55,10 +53,9 @@ describe('Elasticsearch Store Utils', () => {
 
         it('should return false when given missing map', () => {
             expect(
-                // @ts-ignore
                 isTemplatedIndex({
                     version: 'v1',
-                })
+                } as any)
             ).toBeFalse();
         });
 
@@ -73,7 +70,6 @@ describe('Elasticsearch Store Utils', () => {
         });
 
         it('should return true when given a timeseries index', () => {
-            // @ts-ignore
             expect(
                 isTemplatedIndex({
                     mapping: {
@@ -102,15 +98,13 @@ describe('Elasticsearch Store Utils', () => {
 
         it('should return false when given missing map', () => {
             expect(
-                // @ts-ignore
                 isTimeSeriesIndex({
                     version: 1,
-                })
+                } as any)
             ).toBeFalse();
         });
 
         it('should return false when given a templated index', () => {
-            // @ts-ignore
             expect(
                 isTimeSeriesIndex({
                     mapping: { properties: {} },
@@ -121,14 +115,13 @@ describe('Elasticsearch Store Utils', () => {
         });
 
         it('should return true when given a timeseries index', () => {
-            // @ts-ignore
             expect(
                 isTimeSeriesIndex({
                     mapping: { properties: {} },
                     template: true,
                     timeseries: true,
                     version: 1,
-                })
+                } as any)
             ).toBeTrue();
         });
     });
@@ -140,8 +133,7 @@ describe('Elasticsearch Store Utils', () => {
         describe('when passed an invalid config object', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    // @ts-ignore
-                    validateIndexConfig();
+                    validateIndexConfig(undefined as any);
                 }).toThrowWithMessage(TSError, /IndexConfig cannot be empty/);
             });
         });
@@ -214,7 +206,6 @@ describe('Elasticsearch Store Utils', () => {
             it('should throw if a string is used for the Index Schema version', () => {
                 expect(() => {
                     validateIndexConfig({
-                        // @ts-ignore
                         index_schema: {
                             mapping: { properties: {} },
                             version: '8',
@@ -245,7 +236,6 @@ describe('Elasticsearch Store Utils', () => {
                             mapping: { properties: {} },
                             version: 8,
                         },
-                        // @ts-ignore
                         version: '8',
                         index: 'hello',
                     });

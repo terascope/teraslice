@@ -14,7 +14,7 @@ export function throwValidationError(errors: ErrorLike[] | null | undefined): st
     const errorMsg = getErrorMessages(errors);
 
     const error = new ts.TSError(errorMsg, {
-        statusCode: 422,
+        statusCode: 400,
     });
 
     Error.captureStackTrace(error, throwValidationError);

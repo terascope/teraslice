@@ -1,4 +1,3 @@
-import Ajv from 'ajv';
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import {
@@ -72,52 +71,9 @@ export default class IndexStore<T extends Record<string, any>> {
         }
 
         if (config.data_schema != null) {
-            const {
-                all_formatters: allFormatters,
-                schema,
-                strict,
-            } = config.data_schema;
-
-            const ajv = new Ajv({
-                useDefaults: true,
-                format: allFormatters ? 'full' : 'fast',
-                allErrors: true,
-                coerceTypes: true,
-                logger: {
-                    log: this._logger.trace,
-                    warn: this._logger.debug,
-                    error: this._logger.warn,
-                },
-            });
-
-            const validate = ajv.compile(schema);
-            const strictMode = strict === true;
-
-            this.writeHooks.add((input, critical) => {
-                if (validate(input)) return input;
-
-                if (critical) {
-                    utils.throwValidationError(validate.errors);
-                } else if (strictMode) {
-                    this._logger.warn('Invalid record', input, utils.getErrorMessages(validate.errors || []));
-                } else {
-                    this._logger.trace('Record validation warnings', input, utils.getErrorMessages(validate.errors || []));
-                }
-                return input;
-            });
-
-            this.readHooks.add((input, critical) => {
-                if (validate(input)) return input;
-
-                if (critical || strictMode) {
-                    utils.throwValidationError(validate.errors);
-                } else if (critical) {
-                    this._logger.warn('Invalid record', input, utils.getErrorMessages(validate.errors || []));
-                } else {
-                    this._logger.trace('Record validation warnings', input, utils.getErrorMessages(validate.errors || []));
-                }
-                return input;
-            });
+            const validator = utils.makeDataValidator(config.data_schema, this._logger);
+            this.writeHooks.add(validator);
+            this.readHooks.add(validator);
         }
 
         this._getIngestTime = utils.getTimeByField(this.config.ingest_time_field as string);
@@ -161,8 +117,10 @@ export default class IndexStore<T extends Record<string, any>> {
             ([id] = args);
         }
 
-        // @ts-ignore because metadata[action] will never be undefined
-        if (id) metadata[action]._id = id;
+        if (id) {
+            utils.validateId(id, `bulk->${action}`);
+            metadata[action]!._id = id;
+        }
 
         this._collector.add({
             data,
@@ -197,6 +155,7 @@ export default class IndexStore<T extends Record<string, any>> {
      * @returns the created record
      */
     async createWithId(id: string, doc: Partial<T>, params?: PartialParam<es.CreateDocumentParams, 'id' | 'body'>) {
+        utils.validateId(id, 'createWithId');
         return this.create(doc, Object.assign({}, params, { id }));
     }
 
@@ -236,6 +195,7 @@ export default class IndexStore<T extends Record<string, any>> {
 
     /** Get a single document */
     async get(id: string, params?: PartialParam<es.GetParams>): Promise<T> {
+        utils.validateId(id, 'get');
         const p = this.getDefaultParams(params, { id });
 
         const result = await ts.pRetry(
@@ -280,6 +240,7 @@ export default class IndexStore<T extends Record<string, any>> {
      * A convenience method for indexing a document with an ID
      */
     async indexWithId(id: string, doc: T | Partial<T>, params?: PartialParam<es.IndexDocumentParams<T>, 'index' | 'type' | 'id'>) {
+        utils.validateId(id, 'indexWithId');
         return this.index(doc, Object.assign({}, params, { id }));
     }
 
@@ -318,6 +279,7 @@ export default class IndexStore<T extends Record<string, any>> {
      * Deletes a document for a given id
      */
     async deleteById(id: string, params?: PartialParam<es.DeleteDocumentParams>) {
+        utils.validateId(id, 'deleteById');
         const p = this.getDefaultParams(
             {
                 refresh: this.refreshByDefault,
@@ -357,6 +319,7 @@ export default class IndexStore<T extends Record<string, any>> {
 
     /** Update a document with a given id */
     async update(id: string, body: UpdateBody<T>, params?: PartialParam<es.UpdateDocumentParams, 'body' | 'id'>): Promise<void> {
+        utils.validateId(id, 'update');
         const defaults = {
             refresh: this.refreshByDefault,
             retryOnConflict: 3,
@@ -382,6 +345,7 @@ export default class IndexStore<T extends Record<string, any>> {
         applyChanges: ApplyPartialUpdates<T>,
         retriesOnConlfict = 3
     ): Promise<T> {
+        utils.validateId('updatePartial', id);
         try {
             const existing = await this.get(id);
             return await this.indexWithId(
@@ -437,7 +401,7 @@ export default class IndexStore<T extends Record<string, any>> {
                 size: 1,
             },
             queryAccess,
-            false
+            true
         );
 
         const record = ts.getFirst(results);
@@ -471,6 +435,7 @@ export default class IndexStore<T extends Record<string, any>> {
         options?: i.FindOneOptions<T>,
         queryAccess?: QueryAccess<T>
     ): Promise<T> {
+        utils.validateId(id, 'findById');
         const fields = {
             [this.config.id_field!]: id
         } as AnyInput<T>;
@@ -584,8 +549,7 @@ export default class IndexStore<T extends Record<string, any>> {
             )
         ), utils.getRetryConfig());
 
-        // @ts-ignore because failures doesn't exist in definition
-        const { failures, failed } = results._shards;
+        const { failures, failed } = results._shards as any;
 
         if (failed) {
             const failureTypes = failures.flatMap((shard: any) => shard.reason.type);
@@ -617,11 +581,16 @@ export default class IndexStore<T extends Record<string, any>> {
         return `${ts.getFirst(Object.keys(fields))}: "__undefined__"`;
     }
 
-    protected async _appendToArray(
+    /**
+     * Append values from an array on a record.
+     * Use with caution, this may not work in all cases.
+    */
+    async appendToArray(
         id: string,
         field: keyof T,
         values: string[] | string
     ): Promise<void> {
+        utils.validateId(id, 'appendToArray');
         const valueArray = values && ts.uniq(ts.castArray(values)).filter((v) => !!v);
         if (!valueArray || !valueArray.length) return;
 
@@ -642,11 +611,16 @@ export default class IndexStore<T extends Record<string, any>> {
         });
     }
 
-    protected async _removeFromArray(
+    /**
+     * Remove values from an array on a record.
+     * Use with caution, this may not work in all cases.
+    */
+    async removeFromArray(
         id: string,
         field: keyof T,
         values: string[] | string
     ): Promise<void> {
+        utils.validateId(id, 'removeFromArray');
         const valueArray = values && ts.uniq(ts.castArray(values)).filter((v) => !!v);
         if (!valueArray || !valueArray.length) return;
 

@@ -17,8 +17,7 @@ describe('IndexStore', () => {
     describe('when constructed with nothing', () => {
         it('should throw an error', () => {
             expect(() => {
-                // @ts-ignore
-                new IndexStore();
+                new IndexStore(undefined as any, undefined as any);
             }).toThrowWithMessage(TSError, 'IndexStore requires elasticsearch client');
         });
     });
@@ -26,8 +25,7 @@ describe('IndexStore', () => {
     describe('when constructed without a config', () => {
         it('should throw an error', () => {
             expect(() => {
-                // @ts-ignore
-                new IndexStore(client);
+                new IndexStore(client as any, undefined as any);
             }).toThrowError();
         });
     });
@@ -177,8 +175,7 @@ describe('IndexStore', () => {
             });
 
             it('should be able to get the record by id', async () => {
-                // @ts-ignore
-                const r = (await indexStore.get(record.test_id)) as DataEntity<T>;
+                const r: DataEntity<SimpleRecord> = (await indexStore.get(record.test_id)) as any;
 
                 expect(DataEntity.isDataEntity(r)).toBeTrue();
                 expect(r).toEqual(record);
@@ -529,20 +526,19 @@ describe('IndexStore', () => {
         it('should fail when given an invalid record', async () => {
             expect.hasAssertions();
 
-            const record = {
+            const record: Partial<SimpleRecord> = {
                 test_id: 'invalid-record-id',
-                test_boolean: Buffer.from('wrong'),
-                test_number: '123',
+                test_boolean: Buffer.from('wrong') as any,
+                test_number: '123' as any,
                 _created: 'wrong-date',
             };
 
             try {
-                // @ts-ignore
-                await indexStore.indexWithId(record, record.test_id);
+                await indexStore.indexWithId(record.test_id!, record);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.message).toMatch(/(test_keyword|_created)/);
-                expect(err.statusCode).toEqual(422);
+                expect(err.statusCode).toEqual(400);
             }
         });
 
