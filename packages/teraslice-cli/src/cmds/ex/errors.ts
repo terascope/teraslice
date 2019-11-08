@@ -40,7 +40,7 @@ export = {
             opts.from = cliConfig.args.from;
             opts.sort = cliConfig.args.sort;
             opts.size = cliConfig.args.size;
-            response = await teraslice.client.ex.errors(cliConfig.args.id, opts);
+            response = await teraslice.client.executions.wrap(cliConfig.args.id).errors(opts);
         } catch (err) {
             reply.fatal(`Error getting ex errors list on ${cliConfig.args.clusterAlias}\n${err}`);
         }

@@ -90,7 +90,7 @@ export default class Jobs {
 
         const statusList = _.split(this.config.args.status, ',');
         for (const jobStatus of statusList) {
-            const exResult = await this.teraslice.client.ex.list(jobStatus);
+            const exResult = await this.teraslice.client.executions.list(jobStatus);
             const jobsTemp = await this.controllerStatus(exResult, jobStatus, controllers);
             _.each(jobsTemp, (job) => {
                 this.jobsList.push(job);
@@ -119,7 +119,7 @@ export default class Jobs {
         }
 
         for (const jobStatus of statusList) {
-            const exResult = await this.teraslice.client.ex.list(jobStatus);
+            const exResult = await this.teraslice.client.executions.list(jobStatus);
             const jobsTemp = await this.controllerStatus(exResult, jobStatus, controllers);
             _.each(jobsTemp, (job) => {
                 jobs.push(job);
