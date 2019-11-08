@@ -31,8 +31,10 @@ export default class Jobs extends Client {
         return this.get('/jobs', this.makeOptions(query, searchOptions));
     }
 
-    // Wraps the job_id with convenience functions for accessing
-    // the state on the server.
+    /**
+     * Wraps the job_id with convenience functions for accessing
+     * the state on the server.
+    */
     wrap(jobId: string) {
         return new Job(this._config, jobId);
     }
