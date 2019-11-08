@@ -43,7 +43,7 @@ jobs:
       name: 'ES Test Suite (elasticsearch 5) (node 10)'
       node_js: '10.16'
       # run only on pull-requests
-      if: branch = master AND type IN (pull_request)
+      if: branch = master AND type IN (pull_request) AND commit_message !~ /^WIP/
       script: yarn --silent test --suite elasticsearch --elasticsearch-version 5.6 --elasticsearch-api-version 5.6 --report-coverage false
 
     - script:
@@ -56,7 +56,7 @@ jobs:
     - script:
       name: 'ES Test Suite (elasticsearch 7) (node 10)'
       # run only on pull-requests
-      if: branch = master AND type IN (pull_request)
+      if: branch = master AND type IN (pull_request) AND commit_message !~ /^WIP/
       script: yarn --silent test --suite elasticsearch --elasticsearch-version 7.2 --elasticsearch-api-version 7.0 --report-coverage false
 
     - script:
@@ -66,6 +66,16 @@ jobs:
       script: yarn --silent test --suite e2e --elasticsearch-version 6.8 --elasticsearch-api-version 6.5 --kafka-version 2.3
 
     - stage: "Releases"
+      name: 'Publish pre-release packages'
+      # Run a push to master and when the commit message includes a prerelease bump
+      if: branch = master AND commit_message =~ /^bump:.*(prerelease|preminor|prepatch|prerelease)/
+      script: true
+      deploy:
+          - provider: script
+            skip_cleanup: true
+            script: yarn ts-scripts publish -t dev npm
+
+    - script:
       name: 'Publish packages, docs and expiremental docker image'
       # run a push to master
       if: tag IS blank AND branch = master AND type NOT IN (pull_request, cron)
