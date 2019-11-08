@@ -20,7 +20,7 @@ class TerasliceClient {
         this.executions = new Executions(config);
     }
 
-    get ex() {
+    protected get ex() {
         throw new Error('TerasliceClient->ex is now removed in favor of executions and ex (wrapper) like a jobs/job');
     }
 }
