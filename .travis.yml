@@ -68,7 +68,7 @@ jobs:
     - stage: "Releases"
       name: 'Publish pre-release packages'
       # Run a push to master and when the commit message includes a prerelease bump
-      if: branch = master AND commit_message =~ /^bump:.*(prerelease|preminor|prepatch|prerelease)/
+      if: branch = master AND commit_message =~ /bump:.*\((prerelease|preminor|prepatch|prerelease)\).*/
       script: true
       deploy:
           - provider: script
