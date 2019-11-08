@@ -1,5 +1,3 @@
-
-import _ from 'lodash';
 import TerasliceUtil from './teraslice-util';
 import Reply from '../cmds/lib/reply';
 
