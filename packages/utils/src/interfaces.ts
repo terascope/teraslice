@@ -69,3 +69,13 @@ export interface AnyObject {
 export type PartialDeep<T> = {
     [ P in keyof T ]?: PartialDeep<T[ P ]>;
 }
+
+/**
+ * Remove types from T that are assignable to U
+*/
+export type Diff<T, U> = T extends U ? never : T;
+
+/**
+ * Remove types from T that are NOT assignable to U
+*/
+export type Filter<T, U> = T extends U ? T : never;

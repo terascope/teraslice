@@ -21,7 +21,7 @@ export interface RestrictSearchQueryOptions extends ElasticsearchDSLOptions {
 export interface QueryAccessConfig<T extends AnyObject = AnyObject> {
     excludes?: (keyof T)[];
     includes?: (keyof T)[];
-    constraint?: string;
+    constraint?: string|string[];
     prevent_prefix_wildcard?: boolean;
     allow_implicit_queries?: boolean;
     allow_empty_queries?: boolean;
