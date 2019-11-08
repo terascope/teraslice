@@ -441,9 +441,14 @@ class ExecutionController {
         // wait for paused
         await pWhilst(() => this.isPaused && !this.isShuttdown, () => pDelay(100));
 
+        // set the execution as running
         await Promise.all([
             this.stores.exStore.setStatus(this.exId, 'running'),
             this.client.sendAvailable(),
+        ]);
+
+        // this will block until done
+        await Promise.all([
             this._runDispatch(),
             this.scheduler.run()
         ]);

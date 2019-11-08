@@ -65,6 +65,7 @@ async function generateTestData() {
                     .split('-')
                     .slice(0, 2)
                     .join('.')}`;
+
                 const time = date.getTime();
                 const pastDate = new Date(time - 600000);
 
