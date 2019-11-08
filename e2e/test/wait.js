@@ -90,16 +90,16 @@ async function scaleWorkersAndWait(workersToAdd = 0) {
 }
 
 /*
- * Wait for 'workerCount' workers to be joined on job 'jobId'.  `iterations`
+ * Wait for 'workerCount' workers to be joined on execution 'jobId'.  `iterations`
  * is passed to forValue and indicates how many times the condition will be
  * tested for.
  * TODO: Implement a more generic function that waits for states other than
  * 'joined'
  */
-function forWorkersJoined(jobId, workerCount, iterations) {
+function forWorkersJoined(exId, workerCount, iterations) {
     async function _forWorkersJoined() {
         const controllers = await misc.teraslice().cluster.controllers();
-        const controller = _.find(controllers, (s) => s.job_id === jobId);
+        const controller = _.find(controllers, (s) => s.ex_id === exId);
         if (!controller) return 0;
         return controller.workers_joined;
     }
@@ -134,14 +134,14 @@ function waitForClusterState(timeoutMs = 120000) {
     return _waitForClusterState();
 }
 
-async function waitForJobStatus(job, status, interval = 100, endDelay = 50) {
-    const jobId = job._jobId;
+async function waitForExStatus(ex, status, interval = 100, endDelay = 50) {
+    const exId = ex._exId;
     const start = Date.now();
 
     async function logExErrors() {
         try {
-            const errors = await job.errors();
-            signale.warn(`waitForStatus: ${jobId} errors`, printObj(errors));
+            const errors = await ex.errors();
+            signale.warn(`waitForStatus: ${exId} errors`, printObj(errors));
             return null;
         } catch (err) {
             return null;
@@ -161,25 +161,25 @@ async function waitForJobStatus(job, status, interval = 100, endDelay = 50) {
 
     async function logExStatus(lastStatus) {
         try {
-            const exStatus = await job.get(`/jobs/${jobId}/ex`);
-            if (_.isEmpty(exStatus)) return null;
+            const config = await ex.config();
+            if (_.isEmpty(config)) return null;
 
-            const reasons = _.pick(exStatus, ['_failureReason', '_hasErrors']);
+            const reasons = _.pick(config, ['_failureReason', '_hasErrors']);
 
-            const slicerStats = _.pick(exStatus._slicer_stats, [
+            const slicerStats = _.pick(config._slicer_stats, [
                 'queued',
                 'failed',
                 'processed',
                 'job_duration'
             ]);
 
-            signale.warn(`Job Status Failure:
-                job: "${exStatus.job_id}";
-                job name: "${exStatus.name}";
-                ex: "${exStatus.ex_id}";
-                workers: ${exStatus.workers};
-                slicers: ${exStatus.slicers};
-                status: expected "${exStatus._status || lastStatus}" to equal "${status}";
+            signale.warn(`Ex Status Failure:
+                job: "${config.job_id}";
+                job name: "${config.name}";
+                ex: "${config.ex_id}";
+                workers: ${config.workers};
+                slicers: ${config.slicers};
+                status: expected "${config._status || lastStatus}" to equal "${status}";
                 slicer stats: ${printObj(slicerStats)};
                 failed after: ${Date.now() - start}ms;
                 failure reasons: ${printObj(reasons)};
@@ -192,7 +192,7 @@ async function waitForJobStatus(job, status, interval = 100, endDelay = 50) {
     }
 
     try {
-        const result = await job.waitForStatus(status, interval, 2 * 60 * 1000);
+        const result = await ex.waitForStatus(status, interval, 2 * 60 * 1000);
         if (endDelay) {
             // since most of the time we are chaining this with other actions
             // make sure we avoid unrealistic test conditions by giving the
@@ -201,7 +201,7 @@ async function waitForJobStatus(job, status, interval = 100, endDelay = 50) {
         }
         return result;
     } catch (err) {
-        err.message = `Job: ${jobId}: ${err.message}`;
+        err.message = `Execution: ${ex}: ${err.message}`;
 
         await Promise.all([
             logExErrors(err.lastStatus),
@@ -242,7 +242,7 @@ module.exports = {
     forWorkers,
     scaleWorkersAndWait,
     forWorkersJoined,
-    waitForJobStatus,
+    waitForExStatus,
     waitForIndexCount,
     waitForClusterState
 };

@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const misc = require('../../misc');
-const { waitForJobStatus } = require('../../wait');
+const { waitForExStatus } = require('../../wait');
 const { resetState, testJobLifeCycle, runEsJob } = require('../../helpers');
 
 const teraslice = misc.teraslice();
@@ -30,15 +30,12 @@ describe('reindex', () => {
         jobSpec.operations[0].index = misc.getExampleIndex(100);
         jobSpec.operations[1].index = specIndex;
 
-        const job = await teraslice.jobs.submit(jobSpec);
-        expect(job).toBeDefined();
-        expect(job.id()).toBeDefined();
-
-        await waitForJobStatus(job, 'completed');
+        const ex = await teraslice.executions.submit(jobSpec);
+        await waitForExStatus(ex, 'completed');
 
         // the job should  be marked as completed but no new index
         // as there are no records
-        await misc.indexStats('test-reindex-bad-query').catch((errResponse) => {
+        await misc.indexStats(specIndex).catch((errResponse) => {
             const reason = _.get(errResponse, 'body.error.reason');
             expect(reason).toEqual('no such index');
         });
@@ -84,11 +81,8 @@ describe('reindex', () => {
         jobSpec.operations[1].index = specIndex;
 
         const promises = _.times(iterations, async () => {
-            const job = await teraslice.jobs.submit(jobSpec);
-            expect(job).toBeDefined();
-            expect(job.id()).toBeDefined();
-
-            return waitForJobStatus(job, 'completed');
+            const ex = await teraslice.executions.submit(jobSpec);
+            return waitForExStatus(ex, 'completed');
         });
 
         await Promise.all(promises);

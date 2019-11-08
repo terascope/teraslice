@@ -5,7 +5,7 @@ const _ = require('lodash');
 const Promise = require('bluebird');
 const uuid = require('uuid/v4');
 const signale = require('./signale');
-const { waitForClusterState, waitForJobStatus } = require('./wait');
+const { waitForClusterState, waitForExStatus } = require('./wait');
 const setupTerasliceConfig = require('./setup-config');
 const downloadAssets = require('./download-assets');
 const { resetState } = require('./helpers');
@@ -44,95 +44,80 @@ async function generateTestData() {
     const startTime = Date.now();
     signale.pending('Generating example data...');
 
-    function populateStateForRecoveryTests(textExId, indexName) {
-        if (generateOnly) return Promise.resolve();
+    async function populateStateForRecoveryTests(textExId, indexName) {
+        if (generateOnly) return;
 
         const exId = jobList.shift();
-        if (!exId) return Promise.resolve();
+        if (!exId) return;
 
         const recoveryStartTime = Date.now();
         signale.info(`Populating recovery state for exId: ${textExId}`);
 
         const client = misc.es();
-        return misc
+        const exConfig = await misc
             .teraslice()
-            .cluster.get(`/ex/${exId}`)
-            .then((exConfig) => {
-                exConfig.ex_id = textExId;
-                const date = new Date();
-                const iso = date.toISOString();
-                const index = `${misc.CLUSTER_NAME}__state-${iso
-                    .split('-')
-                    .slice(0, 2)
-                    .join('.')}`;
-
-                const time = date.getTime();
-                const pastDate = new Date(time - 600000);
-
-                exConfig.operations[1].index = indexName;
-                exConfig._status = 'failed';
-                exConfig._created = pastDate;
-                exConfig._updated = pastDate;
-
-                const errored = {
-                    _created: iso,
-                    _updated: iso,
-                    slice_id: uuid(),
-                    slicer_order: 1,
-                    slicer_id: 0,
-                    request: 100,
-                    state: 'error',
-                    ex_id: textExId
-                };
-
-                const notCompleted = {
-                    _created: iso,
-                    _updated: iso,
-                    slice_id: uuid(),
-                    slicer_order: 2,
-                    slicer_id: 0,
-                    request: 100,
-                    state: 'start',
-                    ex_id: textExId
-                };
-
-                return Promise.all([
-                    client.index({
-                        index,
-                        type: 'state',
-                        id: errored.slice_id,
-                        body: errored
-                    }),
-                    client.index({
-                        index,
-                        type: 'state',
-                        id: notCompleted.slice_id,
-                        body: notCompleted
-                    }),
-                    client.index({
-                        index: `${misc.CLUSTER_NAME}__ex`,
-                        type: 'ex',
-                        id: exConfig.ex_id,
-                        body: exConfig
-                    })
-                ]);
+            .cluster.get(`/ex/${exId}`);
+        exConfig.ex_id = textExId;
+        const date = new Date();
+        const iso = date.toISOString();
+        const index = `${misc.CLUSTER_NAME}__state-${iso.split('-')
+            .slice(0, 2)
+            .join('.')}`;
+        const time = date.getTime();
+        const pastDate = new Date(time - 600000);
+        exConfig.operations[1].index = indexName;
+        exConfig._status = 'failed';
+        exConfig._created = pastDate;
+        exConfig._updated = pastDate;
+        const errored = {
+            _created: iso,
+            _updated: iso,
+            slice_id: uuid(),
+            slicer_order: 1,
+            slicer_id: 0,
+            request: 100,
+            state: 'error',
+            ex_id: textExId
+        };
+        const notCompleted = {
+            _created: iso,
+            _updated: iso,
+            slice_id: uuid(),
+            slicer_order: 2,
+            slicer_id: 0,
+            request: 100,
+            state: 'start',
+            ex_id: textExId
+        };
+        await Promise.all([
+            client.index({
+                index,
+                type: 'state',
+                id: errored.slice_id,
+                body: errored
+            }),
+            client.index({
+                index,
+                type: 'state',
+                id: notCompleted.slice_id,
+                body: notCompleted
+            }),
+            client.index({
+                index: `${misc.CLUSTER_NAME}__ex`,
+                type: 'ex',
+                id: exConfig.ex_id,
+                body: exConfig
             })
-            .then(() => {
-                signale.info(
-                    `Populated recovery state for exId: ${textExId}`,
-                    getElapsed(recoveryStartTime)
-                );
-            });
+        ]);
+        signale.info(`Populated recovery state for exId: ${textExId}`, getElapsed(recoveryStartTime));
     }
 
-    function postJob(jobSpec) {
-        return misc
+    async function postJob(jobSpec) {
+        const ex = await misc
             .teraslice()
-            .jobs.submit(jobSpec)
-            .then((job) => job.exId().then((exId) => {
-                jobList.push(exId);
-                return job;
-            }));
+            .executions.submit(jobSpec);
+        jobList.push(ex.id());
+        return ex;
     }
 
     async function generate(count, hex) {
@@ -177,8 +162,8 @@ async function generateTestData() {
                     jobSpec.operations[0].id_start_key = letter;
                     return postJob(jobSpec);
                 });
-                const jobs = _.castArray(result);
-                await Promise.map(jobs, (job) => waitForJobStatus(job, 'completed'));
+                const executions = _.castArray(result);
+                await Promise.map(executions, (ex) => waitForExStatus(ex, 'completed'));
             } else {
                 await postJob(jobSpec);
             }

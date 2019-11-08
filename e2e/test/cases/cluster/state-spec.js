@@ -7,29 +7,29 @@ const wait = require('../../wait');
 const signale = require('../../signale');
 const { resetState, submitAndStart } = require('../../helpers');
 
-const { waitForJobStatus, scaleWorkersAndWait } = wait;
+const { waitForExStatus, scaleWorkersAndWait } = wait;
 
 describe('cluster state', () => {
     beforeAll(() => resetState());
 
     const teraslice = misc.teraslice();
 
-    function findWorkers(nodes, type, jobId) {
+    function findWorkers(nodes, type, exId) {
         return _.filter(nodes, (worker) => {
-            if (jobId) {
+            if (exId) {
                 if (type) {
-                    return worker.assignment === type && worker.job_id === jobId;
+                    return worker.assignment === type && worker.ex_id === exId;
                 }
 
-                return worker.job_id === jobId;
+                return worker.ex_id === exId;
             }
 
             return worker.assignment === type;
         });
     }
 
-    function checkState(state, type, jobId) {
-        return _.flatten(_.map(state, (node) => findWorkers(node.active, type, jobId))).length;
+    function checkState(state, type, exId) {
+        return _.flatten(_.map(state, (node) => findWorkers(node.active, type, exId))).length;
     }
 
     function verifyClusterMaster(state) {
@@ -99,13 +99,13 @@ describe('cluster state', () => {
         jobSpec.operations[0].size = 100;
         jobSpec.operations[1].index = specIndex;
 
-        const job = await submitAndStart(jobSpec, 5000);
+        const ex = await submitAndStart(jobSpec, 5000);
         await Promise.delay(1000);
-        const jobId = job.id();
+        const exId = ex.id();
 
         const state = await teraslice.cluster.state();
 
-        const complete = waitForJobStatus(job, 'completed');
+        const complete = waitForExStatus(ex, 'completed');
         const nodes = Object.keys(state);
 
         nodes.forEach((node) => {
@@ -116,9 +116,9 @@ describe('cluster state', () => {
             // The node with more than one worker should have the actual worker
             // and there should only be one.
             if (state[node].active.length > 2) {
-                expect(findWorkers(state[node].active, 'worker', jobId)).toBeArrayOfSize(1);
+                expect(findWorkers(state[node].active, 'worker', exId)).toBeArrayOfSize(1);
             }
-            expect(checkState(state, null, jobId)).toBe(2);
+            expect(checkState(state, null, exId)).toBe(2);
         });
 
         await complete;
@@ -136,14 +136,14 @@ describe('cluster state', () => {
         jobSpec.operations[0].size = 20;
         jobSpec.operations[1].index = specIndex;
 
-        const job = await submitAndStart(jobSpec, 5000);
+        const ex = await submitAndStart(jobSpec, 5000);
         await Promise.delay(1000);
-        const jobId = job.id();
+        const exId = ex.id();
 
         const state = await teraslice.cluster.state();
         const nodes = Object.keys(state);
 
-        const complete = waitForJobStatus(job, 'completed');
+        const complete = waitForExStatus(ex, 'completed');
 
         nodes.forEach((node) => {
             expect(state[node].total).toBe(misc.WORKERS_PER_NODE);
@@ -151,9 +151,9 @@ describe('cluster state', () => {
             expect(state[node].available).toBeWithin(0, misc.WORKERS_PER_NODE + 1);
 
             // Both nodes should have at least one worker.
-            expect(findWorkers(state[node].active, 'worker', jobId).length).toBeGreaterThan(0);
+            expect(findWorkers(state[node].active, 'worker', exId).length).toBeGreaterThan(0);
 
-            expect(checkState(state, null, jobId)).toBe(5);
+            expect(checkState(state, null, exId)).toBe(5);
         });
 
         await complete;

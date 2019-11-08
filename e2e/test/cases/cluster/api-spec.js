@@ -5,12 +5,13 @@ const _ = require('lodash');
 const misc = require('../../misc');
 const { resetState } = require('../../helpers');
 
-const { waitForJobStatus } = require('../../wait');
+const { waitForExStatus } = require('../../wait');
 
 describe('cluster api', () => {
     beforeAll(() => resetState());
 
     const teraslice = misc.teraslice();
+
     it('submitted jobs are not saved in validated form', async () => {
         const assetPath = 'test/fixtures/assets/example_asset_1.zip';
         const testStream = fs.createReadStream(assetPath);
@@ -69,9 +70,11 @@ describe('cluster api', () => {
 
         const job = await teraslice.jobs.submit(jobSpec);
         const jobId = job.id();
-        await waitForJobStatus(job, 'completed', 100, 1000);
-        const ex = await teraslice.cluster.get(`/jobs/${jobId}/ex`);
-        const exId = ex.ex_id;
+
+        const { ex_id: exId } = await job.execution();
+        const ex = teraslice.executions.wrap(exId);
+
+        await waitForExStatus(ex, 'completed', 100, 1000);
 
         const result = await Promise.all([
             didError(teraslice.cluster.post(`/jobs/${jobId}/_stop`)),
