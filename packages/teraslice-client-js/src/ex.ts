@@ -21,13 +21,13 @@ import {
     StateErrors,
     RequestOptions,
     RecoverQuery,
-    ExecutionIDResponse,
     ControllerState,
     ClusterState,
     WorkerJobProcesses,
     ClusterProcess,
     ChangeWorkerResponse,
-    ChangeWorkerQueryParams
+    ChangeWorkerQueryParams,
+    JobIDResponse
 } from './interfaces';
 
 export default class Ex extends Client {
@@ -63,9 +63,17 @@ export default class Ex extends Client {
     async recover(
         query: RecoverQuery = {},
         searchOptions: SearchOptions = {}
-    ): Promise<ExecutionIDResponse> {
+    ): Promise<Ex> {
         const options = this.makeOptions(query, searchOptions);
-        return this.post(`/ex/${this._exId}/_recover`, null, options);
+        const result: JobIDResponse = await this.post(`/ex/${this._exId}/_recover`, null, options);
+
+        // support older version of teraslice
+        if (!result.ex_id) {
+            const { ex_id: exId } = await this.get(`/jobs/${result.job_id}/ex`);
+            return new Ex(this._config, exId);
+        }
+
+        return new Ex(this._config, result.ex_id);
     }
 
     async status(requestOptions?: RequestOptions): Promise<ExecutionStatus> {

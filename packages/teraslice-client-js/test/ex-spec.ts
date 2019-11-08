@@ -198,50 +198,62 @@ describe('Teraslice Ex', () => {
 
     describe('->recover', () => {
         describe('when called with nothing', () => {
-            const data = { ex_id: 'example' };
-
             beforeEach(() => {
                 scope.post('/ex/some-ex-id/_recover')
-                    .reply(200, data);
+                    .reply(200, { job_id: 'new-job-id' });
+
+                scope.get('/jobs/new-job-id/ex')
+                    .reply(200, {
+                        ex_id: 'new-ex-id',
+                        job_id: 'new-job-id'
+                    });
             });
 
             it('should resolve json results from Teraslice', async () => {
                 const ex = new Ex({ baseUrl }, 'some-ex-id');
-                const results = await ex.recover();
-                expect(results).toEqual(data);
+                const instance = await ex.recover();
+
+                expect(instance).toBeInstanceOf(Ex);
+                expect(instance.id()).toEqual('new-ex-id');
             });
         });
 
         describe('when called with a query', () => {
-            const data = { key: 'some-ex-key' };
-
             beforeEach(() => {
                 scope.post('/ex/some-ex-id/_recover')
                     .query({ cleanup: 'errors' })
-                    .reply(200, data);
+                    .reply(200, {
+                        job_id: 'some-job-key',
+                        ex_id: 'some-ex-key'
+                    });
             });
 
             it('should resolve json results from Teraslice', async () => {
                 const ex = new Ex({ baseUrl }, 'some-ex-id');
-                const results = await ex.recover({ cleanup: 'errors' });
-                expect(results).toEqual(data);
+                const instance = await ex.recover({ cleanup: 'errors' });
+
+                expect(instance).toBeInstanceOf(Ex);
+                expect(instance.id()).toEqual('some-ex-key');
             });
         });
 
         describe('when called with a query and options', () => {
-            const data = { key: 'some-other-key' };
-
             beforeEach(() => {
                 scope.post('/ex/some-ex-id/_recover')
                     .matchHeader('Random-Header', 'true')
                     .query({ cleanup: 'errors' })
-                    .reply(200, data);
+                    .reply(200, {
+                        job_id: 'some-job-key',
+                        ex_id: 'some-ex-key'
+                    });
             });
 
             it('should resolve json results from Teraslice', async () => {
                 const ex = new Ex({ baseUrl }, 'some-ex-id');
-                const results = await ex.recover({ cleanup: 'errors' }, requestOptions);
-                expect(results).toEqual(data);
+                const instance = await ex.recover({ cleanup: 'errors' }, requestOptions);
+
+                expect(instance).toBeInstanceOf(Ex);
+                expect(instance.id()).toEqual('some-ex-key');
             });
         });
     });

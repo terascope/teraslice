@@ -20,12 +20,7 @@ export default class Executions {
     }
 
     async recover() {
-        const response = await this.teraslice.client.executions.wrap(this.config.args.id).recover();
-        if (_.has(response, 'ex_id')) {
-            reply.info(`> ex_id ${this.config.args.id} recovered`);
-        } else {
-            // @ts-ignore
-            reply.info(response);
-        }
+        const instance = await this.teraslice.client.executions.wrap(this.config.args.id).recover();
+        reply.info(`> ex_id ${this.config.args.id} recovered to ex_id: ${instance.id()}`);
     }
 }

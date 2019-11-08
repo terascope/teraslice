@@ -114,10 +114,9 @@ async function testJobLifeCycle(jobSpec, delay = 3000) {
         throw err;
     }
 
-    await ex.recover();
-    await waitForStatus('completed');
-
-    return ex;
+    const newEx = await ex.recover();
+    wait.waitForExStatus(newEx, 'completed');
+    return newEx;
 }
 
 module.exports = {
