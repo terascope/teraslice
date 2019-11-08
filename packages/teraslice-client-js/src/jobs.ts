@@ -7,7 +7,8 @@ import {
     JobConfiguration,
     SearchOptions,
     JobSearchParams,
-    JobListStatusQuery
+    JobListStatusQuery,
+    JobIDResponse
 } from './interfaces';
 
 export default class Jobs extends Client {
@@ -19,7 +20,7 @@ export default class Jobs extends Client {
 
     async submit(jobSpec: JobConfig, shouldNotStart?: boolean): Promise<Job> {
         if (!jobSpec) throw new TSError('submit requires a jobSpec');
-        const job = await this.post('/jobs', jobSpec, { query: { start: !shouldNotStart } });
+        const job: JobIDResponse = await this.post('/jobs', jobSpec, { query: { start: !shouldNotStart } });
         return this.wrap(job.job_id);
     }
 

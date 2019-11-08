@@ -14,6 +14,7 @@ import {
     SearchOptions,
     StateErrors,
     Execution,
+    JobIDResponse,
 } from './interfaces';
 
 type ListOptions = undefined | string | SearchQuery;
@@ -30,7 +31,12 @@ export default class Executions extends Client {
     */
     async submit(jobSpec: JobConfig, shouldNotStart?: boolean): Promise<Ex> {
         if (!jobSpec) throw new TSError('submit requires a jobSpec');
-        const job = await this.post('/jobs', jobSpec, { query: { start: !shouldNotStart } });
+        const job: JobIDResponse = await this.post('/jobs', jobSpec, { query: { start: !shouldNotStart } });
+        // support older version of teraslice
+        if (!job.ex_id) {
+            const { ex_id: exId } = await this.get(`/jobs/${job.job_id}/ex`);
+            return this.wrap(exId);
+        }
         return this.wrap(job.ex_id);
     }
 

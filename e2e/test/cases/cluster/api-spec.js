@@ -18,7 +18,7 @@ describe('cluster api', () => {
         const jobSpec = misc.newJob('generator-asset');
 
         await teraslice.assets.post(testStream);
-        const job = await teraslice.jobs.submit(jobSpec, 'shouldNotStart');
+        const job = await teraslice.jobs.submit(jobSpec, true);
         const jobConfig = await job.config();
 
         _.forOwn(jobSpec, (value, key) => {
@@ -34,7 +34,7 @@ describe('cluster api', () => {
         alteredJob.workers = 3;
         delete alteredJob.slicers;
 
-        const job = await teraslice.jobs.submit(jobSpec, 'shouldNotStart');
+        const job = await teraslice.jobs.submit(jobSpec, true);
 
         const jobId = job.id();
 

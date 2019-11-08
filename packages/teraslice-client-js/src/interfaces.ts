@@ -171,6 +171,7 @@ export interface JobConfiguration extends ValidatedJobConfig {
 
 export interface JobIDResponse {
     job_id: string;
+    ex_id?: string;
 }
 
 /*
