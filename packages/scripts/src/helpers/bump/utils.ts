@@ -74,7 +74,7 @@ export async function getPackagesToBump(
 
         const remote = await getRemotePackageVersion(pkgInfo);
         if (remote !== '0.1.0' && pkgInfo.version !== remote) {
-            signale.warn(`${pkgInfo.name} is not in-sync with the remote NPM version, resetting to v${remote} before bumping`);
+            signale.warn(`${pkgInfo.name} is not in-sync with the remote NPM version, resetting to v${remote} before bumping to v${pkgInfo.version}`);
             pkgInfo.version = remote;
         }
     }
@@ -96,9 +96,16 @@ export function getBumpCommitMessage(
     }
 
     const names = Object.entries(bumpResult).map(([name, { to }]) => `${name}@${to}`);
-    if (names.length) {
+
+    const limit = 3;
+
+    if (names.length >= limit) {
+        const remaining = names.length - limit;
+        messages.push(`bump: (${release}) ${names.slice(0, limit).join(', ')} (${remaining} more) ...`);
+    } else {
         messages.push(`bump: (${release}) ${names.join(', ')}`);
     }
+
     return messages.join(' AND ');
 }
 
