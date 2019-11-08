@@ -1,7 +1,6 @@
 import { isString, TSError, isPlainObject } from '@terascope/job-components';
 import { STATUS_CODES } from 'http';
 import { URL } from 'url';
-import path from 'path';
 import got from 'got';
 import { ClientConfig, SearchOptions, RequestOptions } from './interfaces';
 
@@ -90,13 +89,15 @@ export default class Client {
     }
 }
 
-function getAPIEndpoint(endpoint: string, apiVersion: string) {
+function getAPIEndpoint(uri: string, apiVersion: string) {
+    // remove start and ending slash
+    const endpoint = uri ? uri.trim().replace(/(^\/)|(\/$)/, '') : '';
     if (!apiVersion) return endpoint;
     const txtIndex = endpoint.indexOf('txt');
     const isTxt = txtIndex < 2 && txtIndex > -1;
     if (isTxt) return endpoint;
     if (endpoint.indexOf(apiVersion) > -1) return endpoint;
-    return path.join(apiVersion, endpoint);
+    return `${apiVersion}/${endpoint}`;
 }
 
 function getErrorFromResponse(response: any) {
