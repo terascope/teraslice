@@ -1,14 +1,26 @@
 
-import { polygon, lineString } from '@turf/helpers';
-// @ts-ignore
-import lineToPolygon from '@turf/line-to-polygon';
-import { geoMatcher } from './helpers';
+import { TSError } from '@terascope/utils';
+import { polyHasPoint, makePolygon, polyToPoly } from './helpers';
 import { parseGeoPoint } from '../../../utils';
 import * as i from '../../interfaces';
-import { AnyQuery } from '../../../translator';
+import { AnyQuery, GeoShapeRelation, GeoShapeType } from '../../../translator/interfaces';
+import { FieldType } from '../../../interfaces';
 
 function validate(params: i.Term[]) {
     const geoPointsParam = params.find((node) => node.field === 'points');
+    const geoRelationParam = params.find((node) => node.field === 'relation');
+    let relation: GeoShapeRelation;
+
+    if (geoRelationParam) {
+        const relationKeys = Object.values(GeoShapeRelation);
+        if (!relationKeys.includes(geoRelationParam.value as GeoShapeRelation)) {
+            throw new TSError(`relation parameter "${geoRelationParam.value}" is not a valid relation value`);
+        }
+        relation = geoRelationParam.value as GeoShapeRelation;
+    } else {
+        relation = GeoShapeRelation.Within;
+    }
+
     if (geoPointsParam == null) throw new Error('geoPolygon query needs to specify a "points" parameter');
     if (!Array.isArray(geoPointsParam.value)) throw new Error('points parameter must be an array');
 
@@ -19,41 +31,69 @@ function validate(params: i.Term[]) {
 
     if (points.length < 3) throw new Error('geoPolygon points parameter must have at least three points');
 
-    return points;
+    return { points, relation };
 }
 
 const geoPolygon: i.FunctionDefinition = {
     name: 'geoPolygon',
     version: '1',
-    create(field: string, params: any, { logger }) {
+    create(field: string, params: any, { logger, typeConfig }) {
         if (!field || field === '*') throw new Error('field for geoPolygon cannot be empty or "*"');
-        const points = validate(params);
+        const { points, relation } = validate(params);
+        const type = typeConfig[field];
+        // can remove the second check when "geo" if fully deprecated
+        const targetIsGeoPoint = type === FieldType.GeoPoint
+            || type === FieldType.Geo
+            || type === undefined;
 
-        function toElasticsearchQuery() {
-            const query: AnyQuery = {};
-            query.geo_polygon = {
-                [field]: {
-                    points
+        function ESPolyToPointQuery() {
+            const query: AnyQuery = {
+                geo_polygon: {
+                    [field]: {
+                        points
+                    }
                 }
             };
-            logger.trace('built geo polygon query', { query });
+
+            logger.trace('built geo polygon to point query', { query });
 
             return { query };
         }
 
-        function matcher() {
-            const polyPoints = points.map((obj) => [obj.lon, obj.lat]);
-            const line = lineString(polyPoints);
-            const matcherPolygon = lineToPolygon(line);
+        function ESPolyToPolyQuery() {
+            const coordinates = [points.map((point) => [point.lon, point.lat])];
+            const query: AnyQuery = {
+                geo_shape: {
+                    [field]: {
+                        shape: {
+                            type: GeoShapeType.Polygon,
+                            coordinates
+                        },
+                        relation
+                    }
+                }
+            };
+            logger.trace('built geo polygon to polygon query', { query });
 
+            return { query };
+        }
+
+        function polyToPointMatcher() {
+            const polygon = makePolygon(points);
             // Nothing matches so return false
             if (polygon == null) return () => false;
-            return geoMatcher(matcherPolygon);
+            return polyHasPoint(polygon);
+        }
+
+        function polyToPolyMatcher() {
+            const polygon = makePolygon(points);
+            if (polygon == null) return () => false;
+            return polyToPoly(polygon, relation);
         }
 
         return {
-            match: matcher(),
-            toElasticsearchQuery
+            match: targetIsGeoPoint ? polyToPointMatcher() : polyToPolyMatcher(),
+            toElasticsearchQuery: targetIsGeoPoint ? ESPolyToPointQuery : ESPolyToPolyQuery
         };
     }
 };

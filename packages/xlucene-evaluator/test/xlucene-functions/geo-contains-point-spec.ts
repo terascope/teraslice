@@ -1,12 +1,11 @@
-
 import 'jest-extended';
 import { debugLogger } from '@terascope/utils';
-import { Parser, } from '../../src';
-import { UtilsTranslateQueryOptions } from '../../src/translator';
+import { Parser } from '../../src';
+import { UtilsTranslateQueryOptions } from '../../src/translator/interfaces';
 import { TypeConfig, FieldType } from '../../src/interfaces';
 
-describe('geoBox', () => {
-    const typeConfig: TypeConfig = { location: FieldType.Geo };
+describe('geoContainsPoint', () => {
+    const typeConfig: TypeConfig = { location: FieldType.GeoJSON };
     const options: UtilsTranslateQueryOptions = {
         logger: debugLogger('test'),
         geo_sort_order: 'asc',
@@ -14,7 +13,8 @@ describe('geoBox', () => {
     };
 
     it('can make a function ast', () => {
-        const query = 'location:geoBox(bottom_right:"32.813646,-111.058902" top_left:"33.906320,-112.758421")';
+        const query = 'location:geoContainsPoint(point:"36.03133177633187,-116.3671875")';
+
         const {
             ast: {
                 name, type, field, instance
@@ -23,7 +23,7 @@ describe('geoBox', () => {
             type_config: typeConfig
         });
 
-        expect(name).toEqual('geoBox');
+        expect(name).toEqual('geoContainsPoint');
         expect(type).toEqual('function');
         expect(field).toEqual('location');
         expect(instance.match).toBeFunction();
@@ -35,27 +35,22 @@ describe('geoBox', () => {
             expect.hasAssertions();
 
             const results = {
-                geo_bounding_box: {
+                geo_shape: {
                     location: {
-                        top_left: {
-                            lat: 33.90632,
-                            lon: -112.758421
+                        shape: {
+                            type: 'point',
+                            coordinates: [-116.3671875, 36.03133177633187]
                         },
-                        bottom_right: {
-                            lat: 32.813646,
-                            lon: -111.058902
-                        }
+                        relation: 'intersects'
                     }
                 }
             };
 
             const queries = [
-                'location:geoBox(bottom_right:"32.813646,-111.058902" top_left:"33.906320,-112.758421")',
-                'location: geoBox(bottom_right:"32.813646,-111.058902" top_left:"33.906320,-112.758421")',
-                'location:geoBox (bottom_right:"32.813646,-111.058902" top_left:"33.906320,-112.758421")',
-                'location:geoBox(bottom_right:"32.813646, -111.058902", top_left:"33.906320,-112.758421")',
-                "location:geoBox(bottom_right:'32.813646,-111.058902', top_left:'33.906320,-112.758421')",
-                'location:geoBox( top_left:"33.906320,-112.758421", bottom_right:"32.813646,-111.058902")',
+                'location:geoContainsPoint(point:"36.03133177633187,-116.3671875")',
+                'location: geoContainsPoint(point:     "36.03133177633187,-116.3671875")',
+                'location:geoContainsPoint(point:"36.03133177633187,        -116.3671875")',
+                'location:geoContainsPoint(       point:"36.03133177633187,        -116.3671875")',
             ];
 
             const astResults = queries
@@ -71,17 +66,24 @@ describe('geoBox', () => {
 
     describe('matcher', () => {
         it('can match results', () => {
-            const query = 'location:geoBox(bottom_right:"32.813646,-111.058902" top_left:"33.906320,-112.758421")';
+            const query = 'location:geoContainsPoint(point:"36.03133177633187,-116.3671875")';
 
             const { ast: { instance: { match } } } = new Parser(query, {
                 type_config: typeConfig
             });
 
-            const geoPoint1 = '33,-112';
-            const geoPoint2 = '20,100';
+            const geoPoints1 = [
+                '40.713955826286046, -119.53125',
+                '35.17380831799959, -120.58593749999999',
+                '31.052933985705163, -116.3671875',
+                '35.460669951495305,-110.74218749999999',
+                '40.17887331434696,-112.1484375',
+                '40.713955826286046, -119.53125'
+            ];
+            const geoPoints2 = ['50,100', '60,100', '55,75'];
 
-            expect(match(geoPoint1)).toEqual(true);
-            expect(match(geoPoint2)).toEqual(false);
+            expect(match(geoPoints1)).toEqual(true);
+            expect(match(geoPoints2)).toEqual(false);
         });
     });
 });

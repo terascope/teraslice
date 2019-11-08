@@ -73,10 +73,36 @@ export interface GeoQuery {
     };
     geo_polygon?: {
         [field: string]: {
-            points: GeoPoint[] | string[];
+            points: GeoPoint[] | string[] | CoordinateTuple[];
+        };
+    };
+    geo_shape?: {
+        [field: string]: {
+            shape: {
+                type: GeoShapeType;
+                coordinates: CoordinatesRecursive;
+            };
+            relation: GeoShapeRelation;
         };
     };
 }
+
+export enum GeoShapeRelation {
+    Intersects = 'intersects',
+    Disjoint = 'disjoint',
+    Within = 'within',
+    Contains = 'contains'
+}
+
+export enum GeoShapeType {
+    Point = 'point',
+    Polygon = 'polygon',
+    MultiPolygon = 'multipolygon',
+    Envelope = 'envelope'
+}
+// TODO: see if we can better recursively do this
+export type CoordinatesRecursive = any[];
+export type CoordinateTuple = [number, number];
 
 export interface RegExprQuery {
     regexp: {

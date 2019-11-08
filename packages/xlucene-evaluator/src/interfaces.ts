@@ -31,7 +31,9 @@ export enum FieldType {
     Integer = 'integer',
     Float = 'float',
     Boolean = 'boolean',
-    Object = 'object'
+    Object = 'object',
+    GeoPoint = 'geoPoint',
+    GeoJSON = 'geoJSON'
 }
 
 export interface TypeConfig {
