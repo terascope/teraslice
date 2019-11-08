@@ -16,20 +16,20 @@ import {
     ClusterState,
     ClusterProcess,
     ControllerState,
-    JobsGetResponse,
     StateErrors,
     WorkerJobProcesses,
     SearchOptions,
     ChangeWorkerResponse,
     RequestOptions,
     ExecutionIDResponse,
-    ExecutionGetResponse,
     RecoverQuery,
     ResumeResponse,
     StoppedResponse,
     PausedResponse,
     JobIDResponse,
-    StopQuery
+    StopQuery,
+    Execution,
+    JobConfiguration
 } from './interfaces';
 import Client from './client';
 
@@ -100,7 +100,7 @@ export default class Job extends Client {
         return this.post(`/jobs/${this._jobId}/_recover`, null, options);
     }
 
-    async execution(requestOptions: RequestOptions = {}): Promise<ExecutionGetResponse> {
+    async execution(requestOptions: RequestOptions = {}): Promise<Execution> {
         return this.get(`/jobs/${this._jobId}/ex`, requestOptions);
     }
 
@@ -178,7 +178,7 @@ export default class Job extends Client {
         return checkStatus();
     }
 
-    async config(requestOptions: RequestOptions = {}): Promise<JobsGetResponse> {
+    async config(requestOptions: RequestOptions = {}): Promise<JobConfiguration> {
         return this.get(`/jobs/${this._jobId}`, requestOptions);
     }
 

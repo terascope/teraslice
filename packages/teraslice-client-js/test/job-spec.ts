@@ -3,8 +3,8 @@ import nock from 'nock';
 import Job from '../src/job';
 import {
     ExecutionStatus,
+    Execution,
     ClusterStateNative,
-    ExecutionGetResponse,
     WorkerJobProcesses
 } from '../src/interfaces';
 
@@ -80,7 +80,7 @@ describe('Teraslice Job', () => {
     };
     const date = new Date().toISOString();
 
-    const executionResults: ExecutionGetResponse = [
+    const executionResults: Execution[] = [
         {
             analytics: false,
             assets: [],

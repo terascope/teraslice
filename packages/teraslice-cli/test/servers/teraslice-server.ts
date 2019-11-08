@@ -1,6 +1,6 @@
 
 import nock from 'nock';
-import { RootResponse, AssetsPostResponse } from 'teraslice-client-js';
+import { RootResponse, AssetIDResponse } from 'teraslice-client-js';
 
 // TODO: take note of node_version
 const rootResponse: RootResponse = {
@@ -12,7 +12,7 @@ const rootResponse: RootResponse = {
     teraslice_version: 'v0.56.3'
 };
 
-const postAssetResponse: AssetsPostResponse = {
+const postAssetResponse: AssetIDResponse = {
     _id: 'assset_test_id'
 };
 

@@ -4,7 +4,7 @@ import Client from './client';
 import Job from './job';
 import {
     ClientConfig,
-    JobsGetResponse,
+    JobConfiguration,
     SearchOptions,
     JobSearchParams,
     JobListStatusQuery
@@ -17,7 +17,7 @@ export default class Jobs extends Client {
         autoBind(this);
     }
 
-    async submit(jobSpec: JobConfig, shouldNotStart?: boolean) {
+    async submit(jobSpec: JobConfig, shouldNotStart?: boolean): Promise<Job> {
         if (!jobSpec) throw new TSError('submit requires a jobSpec');
         const job = await this.post('/jobs', jobSpec, { query: { start: !shouldNotStart } });
         return this.wrap(job.job_id);
@@ -26,7 +26,7 @@ export default class Jobs extends Client {
     async list(
         status?: JobListStatusQuery,
         searchOptions: SearchOptions = {}
-    ): Promise<JobsGetResponse> {
+    ): Promise<JobConfiguration[]> {
         const query = _parseListOptions(status);
         return this.get('/jobs', this.makeOptions(query, searchOptions));
     }

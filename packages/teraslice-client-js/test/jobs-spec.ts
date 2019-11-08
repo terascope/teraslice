@@ -3,7 +3,7 @@ import 'jest-extended';
 import nock from 'nock';
 import Job from '../src/job';
 import Jobs from '../src/jobs';
-import { JobsGetResponse, ExecutionStatus } from '../src/interfaces';
+import { ExecutionStatus, JobConfiguration } from '../src/interfaces';
 
 describe('Teraslice Jobs', () => {
     let jobs: Jobs;
@@ -23,7 +23,7 @@ describe('Teraslice Jobs', () => {
 
     const date = new Date().toISOString();
 
-    const list: JobsGetResponse = [
+    const list: JobConfiguration[] = [
         {
             analytics: false,
             assets: [],

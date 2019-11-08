@@ -7,7 +7,6 @@ import {
     SearchQuery,
     PostData,
     AssetIDResponse,
-    AssetsGetResponse,
     SearchOptions,
     RequestOptions,
     TxtSearchParams,
@@ -45,21 +44,16 @@ export default class Assets extends Client {
     async list(
         query: SearchQuery = {},
         searchOptions: SearchOptions = {}
-    ): Promise<AssetsGetResponse> {
+    ): Promise<Asset[]> {
         const options = Object.assign({}, searchOptions, { query });
-        return super.get('/assets', options);
+        return this.get('/assets', options);
     }
 
-    async get(name: string): Promise<AssetsGetResponse> {
-        const pathing = path.join('/assets', name);
-        return super.get(pathing);
-    }
-
-    async getAsset(name: string, version = '', searchOptions: SearchOptions = {}): Promise<AssetsGetResponse> {
+    async getAsset(name: string, version = '', searchOptions: SearchOptions = {}): Promise<Asset[]> {
         if (!name || !isString(name)) throw new TSError('name is required, and must be of type string');
         if (version && !isString(version)) throw new TSError('version if provided must be of type string');
         const pathing = path.join('/assets', name, version);
-        return super.get(pathing, searchOptions);
+        return this.get(pathing, searchOptions);
     }
 
     async txt(
@@ -67,7 +61,7 @@ export default class Assets extends Client {
         version = '',
         query: TxtSearchParams = {},
         searchOptions: SearchOptions = {}
-    ): Promise<AssetsGetResponse> {
+    ): Promise<string> {
         if (name && !isString(name)) throw new TSError('name must be of type string');
         if (version && !isString(version)) throw new TSError('version must be of type string');
 

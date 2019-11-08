@@ -1,6 +1,8 @@
 import {
     isString,
     isPlainObject,
+    JobConfig,
+    TSError,
 } from '@terascope/job-components';
 import autoBind from 'auto-bind';
 import Client from './client';
@@ -11,7 +13,7 @@ import {
     SearchQuery,
     SearchOptions,
     StateErrors,
-    ExecutionGetResponse,
+    Execution,
 } from './interfaces';
 
 type ListOptions = undefined | string | SearchQuery;
@@ -23,7 +25,16 @@ export default class Executions extends Client {
         autoBind(this);
     }
 
-    async list(options?: ListOptions): Promise<ExecutionGetResponse> {
+    /**
+     * Similar to jobs.submit but returns an instance of Ex not a Job
+    */
+    async submit(jobSpec: JobConfig, shouldNotStart?: boolean): Promise<Ex> {
+        if (!jobSpec) throw new TSError('submit requires a jobSpec');
+        const job = await this.post('/jobs', jobSpec, { query: { start: !shouldNotStart } });
+        return this.wrap(job.ex_id);
+    }
+
+    async list(options?: ListOptions): Promise<Execution[]> {
         const query = _parseListOptions(options);
         return this.get('/ex', { query } as SearchOptions);
     }
@@ -49,7 +60,7 @@ export default class Executions extends Client {
      * Wraps the execution id with convenience functions for accessing
      * the state on the server.
     */
-    wrap(exId: string) {
+    wrap(exId: string): Ex {
         return new Ex(this._config, exId);
     }
 }
