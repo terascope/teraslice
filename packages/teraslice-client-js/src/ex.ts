@@ -136,7 +136,6 @@ export default class Ex extends Client {
             failed: true,
             rejected: true,
             completed: true,
-            stopped: true,
         };
 
         const startTime = Date.now();

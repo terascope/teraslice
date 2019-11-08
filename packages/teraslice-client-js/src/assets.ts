@@ -1,5 +1,4 @@
 import { TSError, isEmpty, isString } from '@terascope/job-components';
-import util from 'util';
 import path from 'path';
 import autoBind from 'auto-bind';
 import Client from './client';
@@ -14,17 +13,9 @@ import {
     Asset
 } from './interfaces';
 
-type GetFn = (name: string) => Promise<Asset[]>;
-
-function deprecateMethod(fn: GetFn) {
-    const msg = 'the "get" method is being deprecated, please use the "getAsset" or "txt" method instead';
-    return util.deprecate(fn, msg);
-}
-
 export default class Assets extends Client {
     constructor(config: ClientConfig) {
         super(config);
-        this.get = deprecateMethod(this.get);
         // @ts-ignore
         autoBind(this);
     }

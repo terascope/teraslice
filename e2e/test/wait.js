@@ -201,7 +201,7 @@ async function waitForExStatus(ex, status, interval = 100, endDelay = 50) {
         }
         return result;
     } catch (err) {
-        err.message = `Execution: ${ex}: ${err.message}`;
+        err.message = `Execution: ${ex.id()}: ${err.message}`;
 
         await Promise.all([
             logExErrors(err.lastStatus),

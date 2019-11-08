@@ -125,7 +125,6 @@ export default class Job extends Client {
             failed: true,
             rejected: true,
             completed: true,
-            stopped: true,
         };
 
         const startTime = Date.now();
