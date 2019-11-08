@@ -81,6 +81,7 @@ describe('Teraslice Jobs', () => {
             };
 
             const response = {
+                ex_id: 'some-ex-id',
                 job_id: 'some-job-id'
             };
 
@@ -92,7 +93,7 @@ describe('Teraslice Jobs', () => {
 
             it('should resolve an instanceof a Job', async () => {
                 const job = await jobs.submit(jobSpec);
-                expect(job instanceof Job).toBeTrue();
+                expect(job).toBeInstanceOf(Job);
                 expect(job.id()).toEqual(response.job_id);
             });
         });
@@ -102,7 +103,10 @@ describe('Teraslice Jobs', () => {
                 operations: [{ _op: 'operation' }]
             };
 
-            const response = { job_id: 'some-job-id' };
+            const response = {
+                ex_id: 'some-ex-id',
+                job_id: 'some-job-id'
+            };
 
             beforeEach(() => {
                 scope.post('/jobs', jobSpec)
@@ -112,7 +116,7 @@ describe('Teraslice Jobs', () => {
 
             it('should resolve an instanceof a Job', async () => {
                 const job = await jobs.submit(jobSpec, true);
-                expect(job instanceof Job).toBeTrue();
+                expect(job).toBeInstanceOf(Job);
                 expect(job.id()).toEqual(response.job_id);
             });
         });

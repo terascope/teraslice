@@ -1,13 +1,14 @@
 
 import nock from 'nock';
+import Ex from '../src/ex';
 import Executions from '../src/executions';
 
 describe('Teraslice Executions', () => {
-    let ex: Executions;
+    let executions: Executions;
     let scope: nock.Scope;
 
     beforeEach(() => {
-        ex = new Executions({
+        executions = new Executions({
             baseUrl: 'http://teraslice.example.dev'
         });
         scope = nock('http://teraslice.example.dev/v1');
@@ -15,6 +16,101 @@ describe('Teraslice Executions', () => {
 
     afterEach(() => {
         nock.cleanAll();
+    });
+
+    describe('->submit', () => {
+        describe('when submitting without a jobSpec', () => {
+            it('should fail', async () => {
+                expect.hasAssertions();
+                try {
+                    // @ts-ignore
+                    await executions.submit();
+                } catch (err) {
+                    expect(err.message).toEqual('submit requires a jobSpec');
+                }
+            });
+        });
+
+        describe('when submitting with a valid jobSpec', () => {
+            const jobSpec = {
+                operations: [{ _op: 'operation' }]
+            };
+
+            beforeEach(() => {
+                scope.post('/jobs', jobSpec)
+                    .query({ start: true })
+                    .reply(202, {
+                        ex_id: 'some-execution-id',
+                        job_id: 'some-job-id'
+                    });
+            });
+
+            it('should resolve an instanceof a Job', async () => {
+                const instance = await executions.submit(jobSpec);
+                expect(instance).toBeInstanceOf(Ex);
+                expect(instance.id()).toEqual('some-execution-id');
+            });
+        });
+
+        describe('when submitting with a valid and start is set false', () => {
+            const jobSpec = {
+                operations: [{ _op: 'operation' }]
+            };
+
+            beforeEach(() => {
+                scope.post('/jobs', jobSpec)
+                    .query({ start: false })
+                    .reply(202, { job_id: 'some-job-id', ex_id: 'foobar' });
+            });
+
+            it('should resolve an instanceof a Job', async () => {
+                const instance = await executions.submit(jobSpec, true);
+                expect(instance).toBeInstanceOf(Ex);
+                expect(instance.id()).toEqual('foobar');
+            });
+        });
+
+        describe('when submitting and the request fails', () => {
+            const jobSpec = {
+                operations: [{ _op: 'operation' }]
+            };
+
+            beforeEach(() => {
+                scope.post('/jobs', jobSpec)
+                    .query({ start: true })
+                    .reply(500, 'Unable to process request');
+            });
+
+            it('should reject with the error message from the server', async () => {
+                expect.hasAssertions();
+                try {
+                    await executions.submit(jobSpec);
+                } catch (err) {
+                    expect(err.message).toEqual('Unable to process request');
+                }
+            });
+        });
+
+        describe('when submitting without operations', () => {
+            const jobSpec = {
+                some_job: true
+            };
+
+            beforeEach(() => {
+                scope.post('/jobs', jobSpec)
+                    .query({ start: true })
+                    .reply(400, 'No job was posted');
+            });
+
+            it('should have a message of No job was posted', async () => {
+                expect.hasAssertions();
+                try {
+                    await executions.submit(jobSpec as any);
+                } catch (err) {
+                    expect(err.message).toEqual('No job was posted');
+                }
+            });
+        });
     });
 
     describe('->list', () => {
@@ -35,7 +131,7 @@ describe('Teraslice Executions', () => {
             });
 
             it('should resolve json results from Teraslice', async () => {
-                const results = await ex.list();
+                const results = await executions.list();
                 expect(results).toEqual(data);
             });
         });
@@ -57,7 +153,7 @@ describe('Teraslice Executions', () => {
             });
 
             it('should resolve json results from Teraslice', async () => {
-                const results = await ex.list('hello');
+                const results = await executions.list('hello');
                 expect(results).toEqual(data);
             });
         });
@@ -79,7 +175,7 @@ describe('Teraslice Executions', () => {
             });
 
             it('should resolve json results from Teraslice', async () => {
-                const results = await ex.list({ anything: true });
+                const results = await executions.list({ anything: true });
                 expect(results).toEqual(data);
             });
         });
@@ -119,7 +215,7 @@ describe('Teraslice Executions', () => {
             });
 
             it('should resolve json results from Teraslice', async () => {
-                const results = await ex.errors({ size: 10 });
+                const results = await executions.errors({ size: 10 });
                 expect(results).toEqual(errors);
             });
         });
@@ -157,7 +253,7 @@ describe('Teraslice Executions', () => {
             });
 
             it('should resolve json results from Teraslice', async () => {
-                const results = await ex.errors('foo', { from: 10, });
+                const results = await executions.errors('foo', { from: 10, });
                 expect(results).toEqual(errors);
             });
         });
