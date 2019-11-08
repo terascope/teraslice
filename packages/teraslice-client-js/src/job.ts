@@ -141,7 +141,7 @@ export default class Job extends Client {
                 uri = `/ex/${ex.ex_id}`;
                 result = ex._status;
             } catch (err) {
-                if (toString(err).includes('TIMEDOUT')) {
+                if (/(timeout|timedout)/i.test(toString(err))) {
                     await pDelay(intervalMs);
                     return checkStatus();
                 }

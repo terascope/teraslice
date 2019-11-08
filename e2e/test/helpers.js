@@ -102,7 +102,7 @@ async function testJobLifeCycle(jobSpec, delay = 3000) {
     try {
         await p;
     } catch (err) {
-        const alreadyCompletedErr = 'cannot reach the target status, "stopped", because it is in the terminal state, "completed"';
+        const alreadyCompletedErr = 'status failed to change from status "stopped" to "completed"';
         const errStr = _.toString(err);
         if (errStr.includes(alreadyCompletedErr)) {
             signale.warn(

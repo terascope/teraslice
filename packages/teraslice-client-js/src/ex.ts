@@ -149,7 +149,7 @@ export default class Ex extends Client {
             try {
                 result = await this.status(options);
             } catch (err) {
-                if (toString(err).includes('TIMEDOUT')) {
+                if (/(timeout|timedout)/i.test(toString(err))) {
                     await pDelay(intervalMs);
                     return checkStatus();
                 }
