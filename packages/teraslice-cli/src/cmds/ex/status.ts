@@ -22,7 +22,7 @@ export = {
         const teraslice = new TerasliceUtil(cliConfig);
 
         try {
-            response = await teraslice.client.ex.status(cliConfig.args.id);
+            response = await teraslice.client.executions.wrap(cliConfig.args.id).status();
         } catch (err) {
             reply.fatal(`Error getting ex_id:${cliConfig.args.id} on ${cliConfig.args.clusterAlias}\n${err}`);
         }

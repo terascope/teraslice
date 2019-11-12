@@ -216,11 +216,11 @@ export async function getRemotePackageVersion(pkgInfo: i.PackageInfo): Promise<s
     }
 }
 
-export function getPublishTag(version: string): string {
+export function getPublishTag(version: string): 'prerelease'|'latest' {
     const parsed = semver.parse(version);
     if (!parsed) {
         throw new Error(`Unable to publish invalid version "${version}"`);
     }
-    if (parsed.prerelease.length) return 'prelease';
+    if (parsed.prerelease.length) return 'prerelease';
     return 'latest';
 }

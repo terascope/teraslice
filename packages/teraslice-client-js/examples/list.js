@@ -10,8 +10,8 @@ const client = new TerasliceClient({
 
 client.jobs.list().then(console.log);
 
-client.ex.list('completed').then(console.log);
+client.executions.list('completed').then(console.log);
 
-client.ex.list('running').then(console.log);
+client.executions.list('running').then(console.log);
 
-client.ex.list('pending').then(console.log);
+client.executions.list('pending').then(console.log);

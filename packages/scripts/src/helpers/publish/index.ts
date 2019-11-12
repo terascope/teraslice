@@ -30,7 +30,7 @@ export async function publish(action: PublishAction, options: PublishOptions) {
 }
 
 async function publishToNPM(options: PublishOptions) {
-    if (![PublishType.Latest, PublishType.Tag].includes(options.type)) {
+    if (![PublishType.Latest, PublishType.Tag, PublishType.Dev].includes(options.type)) {
         throw new Error(`NPM publish does NOT support publish type "${options.type}"`);
     }
     for (const pkgInfo of listPackages()) {

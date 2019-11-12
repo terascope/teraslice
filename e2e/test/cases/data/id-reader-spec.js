@@ -52,11 +52,11 @@ xdescribe('id reader', () => {
         expect(count).toBe(500);
     });
 
-    it('should complete after lifecycle changes', async () => {
+    it('should be able to recover and continue while using the id_reader', async () => {
         const jobSpec = misc.newJob('id');
-        const specIndex = misc.newSpecIndex('id_reader');
+        const specIndex = misc.newSpecIndex('id-reader');
         // Job needs to be able to run long enough to cycle
-        jobSpec.name = 'reindex by id (with restart)';
+        jobSpec.name = 'id-reader (with recovery)';
         jobSpec.operations[0].index = misc.getExampleIndex(1000);
         jobSpec.operations[1].index = specIndex;
 

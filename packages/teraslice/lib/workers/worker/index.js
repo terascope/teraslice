@@ -90,6 +90,9 @@ class Worker {
         if (this.metrics != null) {
             await this.metrics.initialize();
         }
+
+        const { exId } = this.executionContext;
+        this.logger.info(`execution: ${exId} initialized worker`);
     }
 
     async run() {

@@ -3,7 +3,7 @@ import nock from 'nock';
 import path from 'path';
 import fs from 'fs';
 import Assets from '../src/assets';
-import { AssetIDResponse, AssetsGetResponse, Asset } from '../src/interfaces';
+import { AssetIDResponse, Asset } from '../src/interfaces';
 
 describe('Teraslice Assets', () => {
     let assets: Assets;
@@ -84,7 +84,7 @@ describe('Teraslice Assets', () => {
     });
 
     describe('->list', () => {
-        const assetList: AssetsGetResponse = [
+        const assetList: Asset[] = [
             assetVersion1,
             assetVersion2
         ];
