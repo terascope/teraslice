@@ -108,9 +108,10 @@ async function testJobLifeCycle(jobSpec, delay = 3000) {
     try {
         await p;
     } catch (err) {
-        const alreadyCompletedErr = 'status failed to change from status "stopped" to "completed"';
+        const terminalErr = 'status failed to change from status "stopped" to "completed"';
+        const failedStatusErr = 'starget status, "completed", because it is in the terminal state, "stopped"';
         const errStr = _.toString(err);
-        if (errStr.includes(alreadyCompletedErr)) {
+        if (errStr.includes(terminalErr) || errStr.includes(failedStatusErr)) {
             signale.warn(
                 `${errStr} - however since this can be race condition, we don't want to fail the test`
             );

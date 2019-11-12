@@ -3,7 +3,8 @@ import {
     TSError,
     toString,
     pDelay,
-    Assignment
+    Assignment,
+    toHumanTime
 } from '@terascope/job-components';
 import autoBind from 'auto-bind';
 import Client from './client';
@@ -144,6 +145,7 @@ export default class Ex extends Client {
             failed: true,
             rejected: true,
             completed: true,
+            stopped: true,
         };
 
         const startTime = Date.now();
@@ -181,7 +183,7 @@ export default class Ex extends Client {
             const elapsed = Date.now() - startTime;
             if (timeoutMs > 0 && elapsed >= timeoutMs) {
                 throw new TSError(
-                    `Execution status failed to change from status "${result}" to "${target}" within ${timeoutMs}ms`,
+                    `Execution status failed to change from status "${result}" to "${target}" within ${toHumanTime(timeoutMs)}`,
                     { context: { lastStatus: result } }
                 );
             }

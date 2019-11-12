@@ -609,7 +609,7 @@ describe('Teraslice Job', () => {
                         _status: ExecutionStatus.running
                     });
 
-                scope.get('/ex/example-ex-id')
+                scope.get('/jobs/some-job-id/ex')
                     .reply(200, {
                         ex_id: 'example-ex-id',
                         _status: ExecutionStatus.completed
@@ -632,7 +632,7 @@ describe('Teraslice Job', () => {
                         _status: ExecutionStatus.initializing
                     });
 
-                scope.get('/ex/example-ex-id')
+                scope.get('/jobs/some-job-id/ex')
                     .times(11)
                     .reply(200, {
                         ex_id: 'example-ex-id',
@@ -676,7 +676,7 @@ describe('Teraslice Job', () => {
 
         describe('when called and returns a terminal status', () => {
             beforeEach(() => {
-                scope.get('/jobs/some-job-id/ex')
+                scope.get('/jobs/other-job-id/ex')
                     .reply(200, {
                         ex_id: 'example-ex-id',
                         _status: ExecutionStatus.failed
@@ -685,7 +685,7 @@ describe('Teraslice Job', () => {
 
             it('should reject with a terminal status error', async () => {
                 expect.hasAssertions();
-                const job = new Job({ baseUrl }, 'some-job-id');
+                const job = new Job({ baseUrl }, 'other-job-id');
                 try {
                     await job.waitForStatus(ExecutionStatus.completed, 100, 1000);
                 } catch (err) {

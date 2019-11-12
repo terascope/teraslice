@@ -7,6 +7,7 @@ import {
     toString,
     TSError,
     Assignment,
+    toHumanTime,
 } from '@terascope/job-components';
 import {
     ClientConfig,
@@ -128,17 +129,20 @@ export default class Job extends Client {
         };
 
         const startTime = Date.now();
-        let uri = `/jobs/${this._jobId}/ex`;
         const options = Object.assign({}, {
             json: true,
             timeout: intervalMs < 1000 ? 1000 : intervalMs,
         }, requestOptions);
+        let exId: string;
 
         const checkStatus = async (): Promise<ExecutionStatus> => {
             let result;
             try {
-                const ex = await this.get(uri, options);
-                uri = `/ex/${ex.ex_id}`;
+                const ex = await this.get(`/jobs/${this._jobId}/ex`, options);
+                if (exId && ex.ex_id !== exId) {
+                    console.warn(`[WARNING] the execution ${ex.ex_id} has changed from ${exId}`);
+                }
+                exId = ex.ex_id;
                 result = ex._status;
             } catch (err) {
                 if (/(timeout|timedout)/i.test(toString(err))) {
@@ -165,7 +169,7 @@ export default class Job extends Client {
             const elapsed = Date.now() - startTime;
             if (timeoutMs > 0 && elapsed >= timeoutMs) {
                 throw new TSError(
-                    `Job status failed to change from status "${result}" to "${target}" within ${timeoutMs}ms`,
+                    `Job status failed to change from status "${result}" to "${target}" within ${toHumanTime(timeoutMs)}`,
                     { context: { lastStatus: result } }
                 );
             }
