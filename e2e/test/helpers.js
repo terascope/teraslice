@@ -84,9 +84,15 @@ async function runEsJob(jobSpec, index, delay) {
  * Test pause
  */
 async function testJobLifeCycle(jobSpec, delay = 3000) {
-    const ex = await submitAndStart(jobSpec, delay);
+    let ex;
+    const waitForStatus = async (status) => wait.waitForExStatus(ex, status, 50, 0);
 
-    const waitForStatus = (status) => wait.waitForExStatus(ex, status, 50, 0);
+    if (delay) {
+        misc.injectDelay(jobSpec, delay);
+    }
+
+    ex = await executions.submit(jobSpec);
+    await waitForStatus('running');
 
     let p = waitForStatus('paused');
     ex.pause();
@@ -114,9 +120,9 @@ async function testJobLifeCycle(jobSpec, delay = 3000) {
         throw err;
     }
 
-    const newEx = await ex.recover();
-    wait.waitForExStatus(newEx, 'completed');
-    return newEx;
+    ex = await ex.recover();
+    await waitForStatus('completed');
+    return ex;
 }
 
 module.exports = {

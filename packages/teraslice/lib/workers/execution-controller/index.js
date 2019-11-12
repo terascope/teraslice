@@ -245,7 +245,9 @@ class ExecutionController {
             this.slicerAnalytics = makeSliceAnalytics(this.context, this.executionContext);
         }
 
-        this.logger.debug(`execution ${this.exId} is initialized`);
+        await this.scheduler.initialize();
+
+        this.logger.info(`execution: ${this.exId} initialized execution_controller`);
 
         this.isInitialized = true;
     }
@@ -432,22 +434,22 @@ class ExecutionController {
     }
 
     async _runExecution() {
+        // wait for paused
+        await pWhilst(() => this.isPaused && !this.isShuttdown, () => pDelay(100));
+
         this.logger.info(`starting execution ${this.exId}...`);
         this.startTime = Date.now();
 
         this.isStarted = true;
         this._verifyStores();
 
-        // wait for paused
-        await pWhilst(() => this.isPaused && !this.isShuttdown, () => pDelay(100));
-
-        // set the execution as running
+        // notify that the execution is good-to-go
         await Promise.all([
-            this.stores.exStore.setStatus(this.exId, 'running'),
             this.client.sendAvailable(),
+            this.stores.exStore.setStatus(this.exId, 'running'),
         ]);
 
-        // this will block until done
+        // start creating / dispatching slices, this will block until done
         await Promise.all([
             this._runDispatch(),
             this.scheduler.run()
