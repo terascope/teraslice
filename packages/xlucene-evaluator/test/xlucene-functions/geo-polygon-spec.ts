@@ -2,8 +2,10 @@
 import 'jest-extended';
 import { debugLogger } from '@terascope/utils';
 import { Parser } from '../../src';
-import { UtilsTranslateQueryOptions, GeoShapeType, GeoShapeRelation } from '../../src/translator/interfaces';
-import { TypeConfig, FieldType } from '../../src/interfaces';
+import { UtilsTranslateQueryOptions } from '../../src/translator/interfaces';
+import {
+    TypeConfig, FieldType, GeoShapeType, GeoShapeRelation
+} from '../../src/interfaces';
 
 describe('geoPolygon', () => {
     describe('with typeconfig field set to GeoPoint', () => {

@@ -1,10 +1,10 @@
 
 import { point } from '@turf/helpers';
-// @ts-ignore
 import { polygonHasPoint } from './helpers';
 import { parseGeoPoint } from '../../../utils';
 import * as i from '../../interfaces';
-import { AnyQuery, GeoShapeRelation, GeoShapeType } from '../../../translator/interfaces';
+import { AnyQuery, ESGeoShapeType } from '../../../translator/interfaces';
+import { GeoShapeRelation } from '../../../interfaces';
 
 function validate(params: i.Term[]) {
     const geoPointParam = params.find((node) => node.field === 'point');
@@ -26,7 +26,7 @@ const geoContainsPoint: i.FunctionDefinition = {
                 geo_shape: {
                     [field]: {
                         shape: {
-                            type: GeoShapeType.Point,
+                            type: ESGeoShapeType.Point,
                             coordinates: [lon, lat]
                         },
                         relation: GeoShapeRelation.Intersects

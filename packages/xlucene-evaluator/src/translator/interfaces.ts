@@ -2,7 +2,9 @@ import { Logger } from '@terascope/utils';
 import {
     GeoPoint,
     GeoDistanceUnit,
-    TypeConfig
+    TypeConfig,
+    GeoShapeRelation,
+    CoordinateTuple,
 } from '../interfaces';
 
 export type SortOrder = 'asc'|'desc';
@@ -60,6 +62,29 @@ export interface ExistsQuery {
     };
 }
 
+export enum ESGeoShapeType {
+    Point = 'point',
+    Polygon = 'polygon',
+    MultiPolygon = 'multipolygon'
+}
+
+export type ESGeoShapePoint = {
+    type: ESGeoShapeType.Point;
+    coordinates: CoordinateTuple;
+}
+
+export type ESGeoShapePolygon = {
+    type: ESGeoShapeType.Polygon;
+    coordinates: CoordinateTuple[][];
+}
+
+export type ESGeoShapeMultiPolygon = {
+    type: ESGeoShapeType.MultiPolygon;
+    coordinates: CoordinateTuple[][][];
+}
+
+export type ESGeoShape = ESGeoShapePoint | ESGeoShapePolygon | ESGeoShapeMultiPolygon
+
 export interface GeoQuery {
     geo_bounding_box?: {
         [field: string]: {
@@ -78,31 +103,11 @@ export interface GeoQuery {
     };
     geo_shape?: {
         [field: string]: {
-            shape: {
-                type: GeoShapeType;
-                coordinates: CoordinatesRecursive;
-            };
+            shape: ESGeoShape;
             relation: GeoShapeRelation;
         };
     };
 }
-
-export enum GeoShapeRelation {
-    Intersects = 'intersects',
-    Disjoint = 'disjoint',
-    Within = 'within',
-    Contains = 'contains'
-}
-
-export enum GeoShapeType {
-    Point = 'point',
-    Polygon = 'polygon',
-    MultiPolygon = 'multipolygon',
-    Envelope = 'envelope'
-}
-// TODO: see if we can better recursively do this
-export type CoordinatesRecursive = any[];
-export type CoordinateTuple = [number, number];
 
 export interface RegExprQuery {
     regexp: {

@@ -21,6 +21,38 @@ export interface GeoPoint {
     lon: number;
 }
 
+export enum GeoShapeRelation {
+    Intersects = 'intersects',
+    Disjoint = 'disjoint',
+    Within = 'within',
+    Contains = 'contains'
+}
+
+export enum GeoShapeType {
+    Point = 'Point',
+    Polygon = 'Polygon',
+    MultiPolygon = 'MultiPolygon',
+}
+
+export type GeoShapePoint = {
+    type: GeoShapeType.Point;
+    coordinates: CoordinateTuple;
+}
+
+export type GeoShapePolygon = {
+    type: GeoShapeType.Polygon;
+    coordinates: CoordinateTuple[][];
+}
+
+export type GeoShapeMultiPolygon = {
+    type: GeoShapeType.MultiPolygon;
+    coordinates: CoordinateTuple[][][];
+}
+
+export type GeoShape = GeoShapePoint | GeoShapePolygon | GeoShapeMultiPolygon;
+
+export type CoordinateTuple = [number, number];
+
 export type GeoDistanceUnit = 'miles'|'yards'|'feet'|'inch'|'kilometers'|'meters'|'centimeters'|'millimeters'|'nauticalmiles';
 
 export enum FieldType {

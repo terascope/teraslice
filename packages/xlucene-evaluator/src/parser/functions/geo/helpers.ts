@@ -14,25 +14,24 @@ import { lineString } from '@turf/helpers';
 // @ts-ignore
 import lineToPolygon from '@turf/line-to-polygon';
 import { parseGeoPoint } from '../../../utils';
-import { GeoPoint } from '../../../interfaces';
-import { GeoShapeRelation } from '../../../translator/interfaces';
+import { GeoShapeRelation, GeoPoint, CoordinateTuple } from '../../../interfaces';
 
 export function polyHasPoint(polygon: any) {
     return (fieldData: string) => {
         const point = parseGeoPoint(fieldData, false);
         if (!point) return false;
-        return pointInPolygon([point.lon, point.lat], polygon);
+        return pointInPolygon(makeCoordinatesFromGeoPoint(point), polygon);
     };
 }
 
 export function makeCircle(point: GeoPoint, distance: number, config: any) {
-    return createCircle([point.lon, point.lat], distance, config);
+    return createCircle(makeCoordinatesFromGeoPoint(point), distance, config);
 }
 
 export function makeBBox(point1: GeoPoint, point2: GeoPoint) {
     const line = lineString([
-        [point1.lon, point1.lat],
-        [point2.lon, point2.lat]
+        makeCoordinatesFromGeoPoint(point1),
+        makeCoordinatesFromGeoPoint(point2)
     ]);
     const box = bbox(line);
 
@@ -61,7 +60,7 @@ function rawPointsToPolygon(fieldData: string[]) {
 }
 
 export function makePolygon(points: GeoPoint[]) {
-    const polyPoints = points.map((obj) => [obj.lon, obj.lat]);
+    const polyPoints = points.map(makeCoordinatesFromGeoPoint);
     const line = lineString(polyPoints);
     return lineToPolygon(line);
 }
@@ -106,4 +105,8 @@ const relationOptions = {
 
 export function getRelationFn(relation: GeoShapeRelation, queryPolygon: any) {
     return relationOptions[relation](queryPolygon);
+}
+
+export function makeCoordinatesFromGeoPoint(point: GeoPoint): CoordinateTuple {
+    return [point.lon, point.lat];
 }

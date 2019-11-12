@@ -1,10 +1,14 @@
 
 import { TSError } from '@terascope/utils';
-import { polyHasPoint, makePolygon, polyToPoly } from './helpers';
+import {
+    polyHasPoint, makePolygon, polyToPoly, makeCoordinatesFromGeoPoint
+} from './helpers';
 import { parseGeoPoint } from '../../../utils';
 import * as i from '../../interfaces';
-import { AnyQuery, GeoShapeRelation, GeoShapeType } from '../../../translator/interfaces';
-import { FieldType } from '../../../interfaces';
+import { AnyQuery, ESGeoShapeType } from '../../../translator/interfaces';
+import {
+    FieldType, GeoShapeRelation, CoordinateTuple
+} from '../../../interfaces';
 
 function validate(params: i.Term[]) {
     const geoPointsParam = params.find((node) => node.field === 'points');
@@ -61,12 +65,12 @@ const geoPolygon: i.FunctionDefinition = {
         }
 
         function ESPolyToPolyQuery() {
-            const coordinates = [points.map((point) => [point.lon, point.lat])];
+            const coordinates: CoordinateTuple[][] = [points.map(makeCoordinatesFromGeoPoint)];
             const query: AnyQuery = {
                 geo_shape: {
                     [field]: {
                         shape: {
-                            type: GeoShapeType.Polygon,
+                            type: ESGeoShapeType.Polygon,
                             coordinates
                         },
                         relation
