@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import GeoPointType from '../../../src/types/versions/v1/geopoint';
+import GeoPointType from '../../../src/types/versions/v1/geo-point';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('GeoPoint V1', () => {
@@ -45,7 +45,7 @@ describe('GeoPoint V1', () => {
 
     it('can get proper xlucene properties', () => {
         const xlucene = new GeoPointType(field, typeConfig).toXlucene();
-        const results = { [field]: 'geo' };
+        const results = { [field]: 'geoPoint' };
 
         expect(xlucene).toEqual(results);
     });

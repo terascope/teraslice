@@ -19,6 +19,6 @@ export default class GeoPointType extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: FieldType.Geo };
+        return { [this.field]: FieldType.GeoPoint };
     }
 }
