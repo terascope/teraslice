@@ -188,9 +188,11 @@ type JoinGeoShape = GeoShape | ESGeoShape;
 
 const relationList = Object.values(GeoShapeRelation);
 
-// TODO: change all FieldType.Geo to FieldType.GeoPoint
-
-function makeXluceneGeoDistanceQuery(field: string, value: GeoPointInput, fieldParam?: string) {
+export function makeXluceneGeoDistanceQuery(
+    field: string,
+    value: GeoPointInput,
+    fieldParam?: string
+) {
     const distance = fieldParam ? escapeValue(fieldParam) : '"100m"';
     const results = parseGeoPoint(value, false);
     if (!results) return '';
@@ -198,7 +200,7 @@ function makeXluceneGeoDistanceQuery(field: string, value: GeoPointInput, fieldP
     return `${field}:geoDistance(point:"${lat},${lon}" distance:${distance})`;
 }
 
-function makeXlucenePolyContainsPoint(field: string, value: GeoPointInput) {
+export function makeXlucenePolyContainsPoint(field: string, value: GeoPointInput) {
     const results = parseGeoPoint(value, false);
     if (!results) return '';
     const { lat, lon } = results;
@@ -218,16 +220,26 @@ function makeList(list: any[]) {
     return wrap(list.map(coordinateToXlucene));
 }
 
-function makeXlucenePolyQuery(field: string, value: CoordinateTuple[][], fieldParam?: string) {
-    let points: string;
+function geoPolyQuery(field: string, list: string, fieldParam?: string) {
+    if (fieldParam && relationList.includes(fieldParam as GeoShapeRelation)) {
+        return `${field}:geoPolygon(points:${list} relation: "${fieldParam}")`;
+    }
+    return `${field}:geoPolygon(points:${list})`;
+}
+
+export function makeXlucenePolyQuery(
+    field: string,
+    value: CoordinateTuple[][],
+    fieldParam?: string
+) {
     // there there is more than one, the other polygons listed are holes
     if (value.length > 1) {
-        points = wrap(value.map(makeList));
-    } else {
-        points = makeList(value[0]);
+        return value.map(makeList)
+            .map((points) => geoPolyQuery(field, points, fieldParam))
+            .join(' AND NOT ');
     }
-    if (fieldParam && relationList.includes(fieldParam as GeoShapeRelation)) return `${field}:geoPolygon(points:${points} relation: "${fieldParam}")`;
-    return `${field}:geoPolygon(points:${points})`;
+    const points = makeList(value[0]);
+    return geoPolyQuery(field, points, fieldParam);
 }
 
 function isGeoShapePoint(shape: JoinGeoShape): shape is GeoShapePoint {
@@ -243,45 +255,32 @@ function isGeoShapeMultiPolygon(shape: JoinGeoShape): shape is GeoShapeMultiPoly
 }
 
 function createGeoQuery(field: string, value: any, targetType: FieldType, fieldParam?: string) {
-    if (isGeoPointType(targetType)) {
-        if (isGeoJSONData(value)) {
-            if (isGeoShapePolygon(value)) {
-                return makeXlucenePolyQuery(field, value.coordinates, fieldParam);
-            }
-
-            if (isGeoShapeMultiPolygon(value)) {
-                return value.coordinates.map((coordinates) => makeXlucenePolyQuery(field, coordinates, fieldParam)).join(' OR ');
-            }
-
-            if (isGeoShapePoint(value)) {
-                // geoShape point is [lon, lat] need to return [lat, lon]
-                const data = [value.coordinates[1], value.coordinates[0]];
-                return makeXluceneGeoDistanceQuery(field, data, fieldParam);
-            }
-            // We do not support any other geoJSON types;
-            return '';
-        }
-        // incoming value is a geo-point and we compare to another geo-point by geoDistance query
-        return makeXluceneGeoDistanceQuery(field, value, fieldParam);
-    }
-
-    if (isGeoJSONType(targetType)) {
+    if (isGeoJSONData(value)) {
         if (isGeoShapePolygon(value)) {
             return makeXlucenePolyQuery(field, value.coordinates, fieldParam);
         }
 
         if (isGeoShapeMultiPolygon(value)) {
-            return value.coordinates.map((coordinates) => makeXlucenePolyQuery(field, coordinates, fieldParam)).join(' OR ');
+            return `(${value.coordinates.map((coordinates) => `(${makeXlucenePolyQuery(field, coordinates, fieldParam)})`).join(' OR ')})`;
         }
 
         if (isGeoShapePoint(value)) {
             // geoShape point is [lon, lat] need to return [lat, lon]
             const data = [value.coordinates[1], value.coordinates[0]];
+            if (isGeoPointType(targetType)) {
+                return makeXluceneGeoDistanceQuery(field, data, fieldParam);
+            }
             return makeXlucenePolyContainsPoint(field, data);
         }
-        return makeXlucenePolyContainsPoint(field, value);
+        // We do not support any other geoJSON types;
+        return '';
     }
-    // Not valid geo join, return empty string
+
+    // incoming value is a geo-point and we compare to another geo-point by geoDistance query
+    if (isGeoPointType(targetType)) return makeXluceneGeoDistanceQuery(field, value, fieldParam);
+
+    if (isGeoJSONType(targetType)) return makeXlucenePolyContainsPoint(field, value);
+    // if here then return a noop
     return '';
 }
 

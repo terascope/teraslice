@@ -1,12 +1,15 @@
 /* eslint-disable no-useless-escape */
-/* eslint-disable quotes */
 import 'jest-extended';
 import * as utils from '../src/utils';
 import {
-    FieldType, GeoShapeType, GeoShapePoint, GeoShapePolygon, GeoShapeMultiPolygon, GeoShapeRelation
+    FieldType,
+    GeoShapeType,
+    GeoShapePoint,
+    GeoShapePolygon,
+    GeoShapeMultiPolygon,
+    GeoShapeRelation
 } from '../src/interfaces';
 
-// TODO: make test for polygon with holes
 
 describe('Utils', () => {
     it('should have GEO_DISTANCE_UNITS', () => {
@@ -160,7 +163,7 @@ describe('Utils', () => {
             };
             const results = createJoinQuery(input, options);
 
-            expect(results).toEqual('location:geoPolygon(points:["10, 10","10, 50","50, 50","50, 10"]) OR location:geoPolygon(points:["-10, -10","-10, -50","-50, -50","-50, -10"])');
+            expect(results).toEqual('((location:geoPolygon(points:["10, 10","10, 50","50, 50","50, 10"])) OR (location:geoPolygon(points:["-10, -10","-10, -50","-50, -50","-50, -10"])))');
         });
 
         it('unrecognized geoJSON input with field type is set to "geoPoint" will return an empty string', () => {
@@ -264,7 +267,122 @@ describe('Utils', () => {
             };
             const results = createJoinQuery(input, options);
 
-            expect(results).toEqual('location:geoPolygon(points:["10, 10","10, 50","50, 50","50, 10"]) OR location:geoPolygon(points:["-10, -10","-10, -50","-50, -50","-50, -10"])');
+            expect(results).toEqual('((location:geoPolygon(points:["10, 10","10, 50","50, 50","50, 10"])) OR (location:geoPolygon(points:["-10, -10","-10, -50","-50, -50","-50, -10"])))');
+        });
+
+        it('can make a geoPolygon join if field type is set to "geoJSON" with geoJSON polygon data with holes', () => {
+            const data: GeoShapePolygon = {
+                type: GeoShapeType.Polygon,
+                coordinates: [
+                    [[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],
+                    [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]
+                ]
+            };
+            const input = {
+                location: data
+            };
+            const options: utils.CreateJoinQueryOptions = {
+                typeConfig: { location: FieldType.GeoJSON }
+            };
+            const results = createJoinQuery(input, options);
+            const resultQuery = 'location:geoPolygon(points:["0, 100","0, 101","1, 101","1, 100","0, 100"]) AND NOT location:geoPolygon(points:["0.2, 100.2","0.2, 100.8","0.8, 100.8","0.8, 100.2","0.2, 100.2"])';
+            expect(results).toEqual(resultQuery);
+        });
+
+        it('can make a geoPolygon join if field type is set to "GeoPoint" with geoJSON polygon data with holes and relation set to disjoint', () => {
+            const data: GeoShapePolygon = {
+                type: GeoShapeType.Polygon,
+                coordinates: [
+                    [[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],
+                    [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]
+                ]
+            };
+            const input = {
+                location: data
+            };
+            const options: utils.CreateJoinQueryOptions = {
+                fieldParams: { location: GeoShapeRelation.Within },
+                typeConfig: { location: FieldType.GeoPoint }
+            };
+            const results = createJoinQuery(input, options);
+            const resultQuery = 'location:geoPolygon(points:["0, 100","0, 101","1, 101","1, 100","0, 100"] relation: "within") AND NOT location:geoPolygon(points:["0.2, 100.2","0.2, 100.8","0.8, 100.8","0.8, 100.2","0.2, 100.2"] relation: "within")';
+            expect(results).toEqual(resultQuery);
+        });
+
+        it('can make a geoPolygon join if field type is set to "GeoPoint" with geoJSON multipolygon data that has holes', () => {
+            const data: GeoShapeMultiPolygon = {
+                type: GeoShapeType.MultiPolygon,
+                coordinates: [
+                    [
+                        [[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]],
+                        [[20, 20], [40, 20], [40, 40], [20, 40], [20, 20]]
+                    ],
+                    [
+                        [[-10, -10], [-50, -10], [-50, -50], [-10, -50], [-10, -10]],
+                        [[-20, -20], [-40, -20], [-40, -40], [-20, -40], [-20, -20]]
+                    ]
+                ]
+            };
+            const input = {
+                location: data
+            };
+            const options: utils.CreateJoinQueryOptions = {
+                typeConfig: { location: FieldType.GeoPoint }
+            };
+            const results = createJoinQuery(input, options);
+            const firstPolyQuery = 'location:geoPolygon(points:["10, 10","10, 50","50, 50","50, 10","10, 10"]) AND NOT location:geoPolygon(points:["20, 20","20, 40","40, 40","40, 20","20, 20"])';
+            const secondPolyQuery = 'location:geoPolygon(points:["-10, -10","-10, -50","-50, -50","-50, -10","-10, -10"]) AND NOT location:geoPolygon(points:["-20, -20","-20, -40","-40, -40","-40, -20","-20, -20"])';
+            const resultsQuery = `((${firstPolyQuery}) OR (${secondPolyQuery}))`;
+
+            expect(results).toEqual(resultsQuery);
+        });
+
+        it('can make a geoPolygon join if field type is set to "geoJSON" with geoJSON polygon data with holes and relation set to disjoint', () => {
+            const data: GeoShapePolygon = {
+                type: GeoShapeType.Polygon,
+                coordinates: [
+                    [[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],
+                    [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]
+                ]
+            };
+            const input = {
+                location: data
+            };
+            const options: utils.CreateJoinQueryOptions = {
+                fieldParams: { location: GeoShapeRelation.Within },
+                typeConfig: { location: FieldType.GeoJSON }
+            };
+            const results = createJoinQuery(input, options);
+            const resultQuery = 'location:geoPolygon(points:["0, 100","0, 101","1, 101","1, 100","0, 100"] relation: "within") AND NOT location:geoPolygon(points:["0.2, 100.2","0.2, 100.8","0.8, 100.8","0.8, 100.2","0.2, 100.2"] relation: "within")';
+            expect(results).toEqual(resultQuery);
+        });
+
+        it('can make a geoPolygon join if field type is set to "geoJSON" with geoJSON multipolygon data that has holes', () => {
+            const data: GeoShapeMultiPolygon = {
+                type: GeoShapeType.MultiPolygon,
+                coordinates: [
+                    [
+                        [[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]],
+                        [[20, 20], [40, 20], [40, 40], [20, 40], [20, 20]]
+                    ],
+                    [
+                        [[-10, -10], [-50, -10], [-50, -50], [-10, -50], [-10, -10]],
+                        [[-20, -20], [-40, -20], [-40, -40], [-20, -40], [-20, -20]]
+                    ]
+                ]
+            };
+            const input = {
+                location: data
+            };
+            const options: utils.CreateJoinQueryOptions = {
+                typeConfig: { location: FieldType.GeoJSON }
+            };
+            const results = createJoinQuery(input, options);
+            const firstPolyQuery = 'location:geoPolygon(points:["10, 10","10, 50","50, 50","50, 10","10, 10"]) AND NOT location:geoPolygon(points:["20, 20","20, 40","40, 40","40, 20","20, 20"])';
+            const secondPolyQuery = 'location:geoPolygon(points:["-10, -10","-10, -50","-50, -50","-50, -10","-10, -10"]) AND NOT location:geoPolygon(points:["-20, -20","-20, -40","-40, -40","-40, -20","-20, -20"])';
+            const resultsQuery = `((${firstPolyQuery}) OR (${secondPolyQuery}))`;
+
+            expect(results).toEqual(resultsQuery);
         });
     });
 });
