@@ -2,7 +2,7 @@
 import 'jest-extended';
 import { debugLogger } from '@terascope/utils';
 import { Parser } from '../../src';
-import { UtilsTranslateQueryOptions } from '../../src/translator/interfaces';
+import { UtilsTranslateQueryOptions, ESGeoShapeType } from '../../src/translator/interfaces';
 import {
     TypeConfig, FieldType, GeoShapeType, GeoShapeRelation
 } from '../../src/interfaces';
@@ -104,6 +104,21 @@ describe('geoPolygon', () => {
             geo_sort_unit: 'meters',
         };
 
+        function makePoint() {
+            return `"${Math.random() * 90}, ${Math.random() * 180}"`;
+        }
+
+        it('can parse really long polygons', () => {
+            const list: string[] = [];
+
+            for (let i = 0; i < 8000; i++) {
+                list.push(makePoint());
+            }
+            const query = `location:geoPolygon(points:[${list.join(', ')}])`;
+
+            expect(() => new Parser(query, { type_config: typeConfig })).not.toThrow();
+        });
+
         it('can make a function ast', () => {
             const query = 'location:geoPolygon(points:["70.43,140.43", "81.3,123.4", "89.3,154.4"])';
 
@@ -130,7 +145,7 @@ describe('geoPolygon', () => {
                     geo_shape: {
                         location: {
                             shape: {
-                                type: GeoShapeType.Polygon,
+                                type: ESGeoShapeType.Polygon,
                                 coordinates: [[[140.43, 70.43], [123.4, 81.3], [154.4, 89.3]]]
                             },
                             relation: GeoShapeRelation.Within
@@ -162,7 +177,7 @@ describe('geoPolygon', () => {
                     geo_shape: {
                         location: {
                             shape: {
-                                type: GeoShapeType.Polygon,
+                                type: ESGeoShapeType.Polygon,
                                 coordinates: [[[140.43, 70.43], [123.4, 81.3], [154.4, 89.3]]]
                             },
                             relation: GeoShapeRelation.Within
@@ -183,7 +198,7 @@ describe('geoPolygon', () => {
                     geo_shape: {
                         location: {
                             shape: {
-                                type: GeoShapeType.Polygon,
+                                type: ESGeoShapeType.Polygon,
                                 coordinates: [[[140.43, 70.43], [123.4, 81.3], [154.4, 89.3]]]
                             },
                             relation: GeoShapeRelation.Intersects
@@ -204,7 +219,7 @@ describe('geoPolygon', () => {
                     geo_shape: {
                         location: {
                             shape: {
-                                type: GeoShapeType.Polygon,
+                                type: ESGeoShapeType.Polygon,
                                 coordinates: [[[140.43, 70.43], [123.4, 81.3], [154.4, 89.3]]]
                             },
                             relation: GeoShapeRelation.Contains
@@ -225,7 +240,7 @@ describe('geoPolygon', () => {
                     geo_shape: {
                         location: {
                             shape: {
-                                type: GeoShapeType.Polygon,
+                                type: ESGeoShapeType.Polygon,
                                 coordinates: [[[140.43, 70.43], [123.4, 81.3], [154.4, 89.3]]]
                             },
                             relation: GeoShapeRelation.Disjoint
