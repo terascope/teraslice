@@ -8,6 +8,14 @@ const peg = require('pegjs');
 const tspegjs = require('ts-pegjs');
 
 function generate() {
+    try {
+        const cleanCords = require.resolve('@turf/clean-coords');
+        fs.unlinkSync(cleanCords.replace('index.js', 'index.ts'));
+        console.error('removed @turf/clean-coords/index.ts');
+    } catch (err) {
+        // ignore me
+    }
+
     const input = path.join(__dirname, '..', 'peg', 'lucene.pegjs');
     const output = path.join(__dirname, '..', 'src', 'parser', 'peg-engine.ts');
 
