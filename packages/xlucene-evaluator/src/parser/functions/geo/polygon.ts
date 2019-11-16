@@ -1,7 +1,7 @@
 
 import { TSError } from '@terascope/utils';
 import {
-    polyHasPoint, makePolygon, polyToPoly, makeCoordinatesFromGeoPoint
+    polyHasPoint, makePolygon, polyHasShape, makeCoordinatesFromGeoPoint
 } from './helpers';
 import { parseGeoPoint } from '../../../utils';
 import * as i from '../../interfaces';
@@ -50,7 +50,7 @@ const geoPolygon: i.FunctionDefinition = {
             || type === FieldType.Geo
             || type === undefined;
 
-        function ESPolyToPointQuery() {
+        function esPolyToPointQuery() {
             const query: AnyQuery = {
                 geo_polygon: {
                     [field]: {
@@ -64,7 +64,7 @@ const geoPolygon: i.FunctionDefinition = {
             return { query };
         }
 
-        function ESPolyToPolyQuery() {
+        function esPolyToPolyQuery() {
             const coordinates: CoordinateTuple[][] = [points.map(makeCoordinatesFromGeoPoint)];
             const query: AnyQuery = {
                 geo_shape: {
@@ -82,22 +82,22 @@ const geoPolygon: i.FunctionDefinition = {
             return { query };
         }
 
-        function polyToPointMatcher() {
+        function polyToGeoPointMatcher() {
             const polygon = makePolygon(points);
             // Nothing matches so return false
             if (polygon == null) return () => false;
             return polyHasPoint(polygon);
         }
 
-        function polyToPolyMatcher() {
+        function polyToSGeoShapeMatcher() {
             const polygon = makePolygon(points);
             if (polygon == null) return () => false;
-            return polyToPoly(polygon, relation);
+            return polyHasShape(polygon, relation);
         }
 
         return {
-            match: targetIsGeoPoint ? polyToPointMatcher() : polyToPolyMatcher(),
-            toElasticsearchQuery: targetIsGeoPoint ? ESPolyToPointQuery : ESPolyToPolyQuery
+            match: targetIsGeoPoint ? polyToGeoPointMatcher() : polyToSGeoShapeMatcher(),
+            toElasticsearchQuery: targetIsGeoPoint ? esPolyToPointQuery : esPolyToPolyQuery
         };
     }
 };

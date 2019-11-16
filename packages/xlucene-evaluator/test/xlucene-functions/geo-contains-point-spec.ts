@@ -1,8 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import 'jest-extended';
 import { debugLogger } from '@terascope/utils';
 import { Parser } from '../../src';
 import { UtilsTranslateQueryOptions } from '../../src/translator/interfaces';
-import { TypeConfig, FieldType } from '../../src/interfaces';
+import {
+    TypeConfig, FieldType, GeoShapeType, CoordinateTuple
+} from '../../src/interfaces';
+import { coordinateToXlucene } from '../../src/utils';
 
 describe('geoContainsPoint', () => {
     const typeConfig: TypeConfig = { location: FieldType.GeoJSON };
@@ -65,25 +69,97 @@ describe('geoContainsPoint', () => {
     });
 
     describe('matcher', () => {
-        it('can match results', () => {
-            const query = 'location:geoContainsPoint(point:"36.03133177633187,-116.3671875")';
+        const pointInPoly: CoordinateTuple = [15, 15];
+        const pointOutOfPoly: CoordinateTuple = [30, 30];
+
+        const multiPolygon = {
+            type: GeoShapeType.MultiPolygon,
+            coordinates: [
+                [
+                    [[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]],
+                    [[20, 20], [40, 20], [40, 40], [20, 40], [20, 20]]
+                ],
+                [
+                    [[-10, -10], [-50, -10], [-50, -50], [-10, -50], [-10, -10]],
+                    [[-20, -20], [-40, -20], [-40, -40], [-20, -40], [-20, -20]]
+                ]
+            ]
+        };
+
+        const polygon = {
+            type: GeoShapeType.Polygon,
+            coordinates: [
+                [[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]],
+            ]
+        };
+
+        const nonMatchingPolygon = {
+            type: GeoShapeType.Polygon,
+            coordinates: [
+                [[-10, -10], [-50, -10], [-50, -50], [-10, -50], [-10, -10]],
+                [[-20, -20], [-40, -20], [-40, -40], [-20, -40], [-20, -20]]
+            ]
+        };
+
+        const polygonWithHoles = {
+            type: GeoShapeType.Polygon,
+            coordinates: [
+                [[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]],
+                [[20, 20], [40, 20], [40, 40], [20, 40], [20, 20]]
+            ]
+        };
+
+        const matchingPoint = {
+            type: GeoShapeType.Point,
+            coordinates: pointInPoly
+        };
+
+        const nonMatchingPoint = {
+            type: GeoShapeType.Point,
+            coordinates: pointOutOfPoly
+        };
+
+        it('point can match against a polygon', () => {
+            const query = `location:geoContainsPoint(point:${coordinateToXlucene(pointInPoly)})`;
 
             const { ast: { instance: { match } } } = new Parser(query, {
                 type_config: typeConfig
             });
 
-            const geoPoints1 = [
-                '40.713955826286046, -119.53125',
-                '35.17380831799959, -120.58593749999999',
-                '31.052933985705163, -116.3671875',
-                '35.460669951495305,-110.74218749999999',
-                '40.17887331434696,-112.1484375',
-                '40.713955826286046, -119.53125'
-            ];
-            const geoPoints2 = ['50,100', '60,100', '55,75'];
+            expect(match(polygon)).toEqual(true);
+            expect(match(nonMatchingPolygon)).toEqual(false);
+        });
 
-            expect(match(geoPoints1)).toEqual(true);
-            expect(match(geoPoints2)).toEqual(false);
+        it('point can match against a polygon with holes', () => {
+            const query = `location:geoContainsPoint(point:${coordinateToXlucene(pointInPoly)})`;
+
+            const { ast: { instance: { match } } } = new Parser(query, {
+                type_config: typeConfig
+            });
+
+            expect(match(polygonWithHoles)).toEqual(true);
+            expect(match(nonMatchingPolygon)).toEqual(false);
+        });
+
+        it('point can match against a multipolygon', () => {
+            const query = `location:geoContainsPoint(point:${coordinateToXlucene(pointInPoly)})`;
+
+            const { ast: { instance: { match } } } = new Parser(query, {
+                type_config: typeConfig
+            });
+
+            expect(match(multiPolygon)).toEqual(true);
+        });
+
+        it('point can match against a geo_shape point', () => {
+            const query = `location:geoContainsPoint(point:${coordinateToXlucene(pointInPoly)})`;
+
+            const { ast: { instance: { match } } } = new Parser(query, {
+                type_config: typeConfig
+            });
+
+            expect(match(matchingPoint)).toEqual(true);
+            expect(match(nonMatchingPoint)).toEqual(false);
         });
     });
 });

@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import 'jest-extended';
 import { debugLogger } from '@terascope/utils';
 import { Parser } from '../../src';
 import { UtilsTranslateQueryOptions, ESGeoShapeType } from '../../src/translator/interfaces';
 import {
-    TypeConfig, FieldType, GeoShapeType, GeoShapeRelation
+    TypeConfig, FieldType, GeoShapeRelation, GeoShapeType, CoordinateTuple
 } from '../../src/interfaces';
 
 describe('geoPolygon', () => {
@@ -80,7 +81,7 @@ describe('geoPolygon', () => {
         });
 
         describe('matcher', () => {
-            it('can match results', () => {
+            it('can match points to polygon results', () => {
                 const query = 'location: geoPolygon(points:["70.43,140.43", "81.3,123.4", "89.3,154.4"])';
 
                 const { ast: { instance: { match } } } = new Parser(query, {
@@ -258,13 +259,64 @@ describe('geoPolygon', () => {
         });
 
         describe('matcher', () => {
-            const queryPoints = ['10,10', '10,50', '50,50', '50,10'];
-            const containPoints = ['0,0', '0,100', '60,100', '60,0'];
-            const withinPoints = ['20,20', '20,30', '30,20'];
-            const disjointPoints = ['-10,-10', '-10,-50', '-50,-50', '-50,-10'];
-            const intersetPoints = ['0,0', '15,15', '0,15', '15,0'];
+            const pointInPoly: CoordinateTuple = [15, 15];
+            const pointOutOfPoly: CoordinateTuple = [-30, -30];
+            const queryPoints = ['10,10', '10,50', '50,50', '50,10', '10,10'];
+            const containPoints = {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[0, 0], [0, 100], [60, 100], [60, 0], [0, 0]]]
+            };
+            const withinPoints = {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[20, 20], [20, 30], [30, 30], [30, 20], [20, 20]]]
+            };
+            const disjointPoints = {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]
+            };
+            const intersetPoints = {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[0, 0], [15, 15], [0, 15], [15, 0], [0, 0]]]
+            };
 
-            it('default relations matches within', () => {
+            const matchingPoint = {
+                type: GeoShapeType.Point,
+                coordinates: pointInPoly
+            };
+
+            const nonMatchingPoint = {
+                type: GeoShapeType.Point,
+                coordinates: pointOutOfPoly
+            };
+
+            const multiPolygon = {
+                type: GeoShapeType.MultiPolygon,
+                coordinates: [
+                    [
+                        [[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]],
+                    ],
+                    [
+                        [[-10, -10], [-50, -10], [-50, -50], [-10, -50], [-10, -10]],
+                    ]
+                ]
+            };
+
+            const multiPolygonWithHoles = {
+                type: GeoShapeType.MultiPolygon,
+                coordinates: [
+                    [
+                        [[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]],
+                        [[20, 20], [40, 20], [40, 40], [20, 40], [20, 20]]
+                    ],
+                    [
+                        [[-10, -10], [-50, -10], [-50, -50], [-10, -50], [-10, -10]],
+                        [[-20, -20], [-40, -20], [-40, -40], [-20, -40], [-20, -20]]
+                    ]
+                ]
+            };
+
+
+            it('poly v poly default relations matches within', () => {
                 const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)})`;
 
                 const { ast: { instance: { match } } } = new Parser(query, {
@@ -277,7 +329,7 @@ describe('geoPolygon', () => {
                 expect(match(intersetPoints)).toEqual(false);
             });
 
-            it('relations set to within', () => {
+            it('poly v poly relations set to within', () => {
                 const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)} relation: ${GeoShapeRelation.Within})`;
 
                 const { ast: { instance: { match } } } = new Parser(query, {
@@ -290,7 +342,7 @@ describe('geoPolygon', () => {
                 expect(match(intersetPoints)).toEqual(false);
             });
 
-            it('relations set to contains', () => {
+            it('poly v poly relations set to contains', () => {
                 const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)} relation: ${GeoShapeRelation.Contains})`;
 
                 const { ast: { instance: { match } } } = new Parser(query, {
@@ -303,7 +355,7 @@ describe('geoPolygon', () => {
                 expect(match(intersetPoints)).toEqual(false);
             });
 
-            it('relations set to intersets', () => {
+            it('poly v poly relations set to intersets', () => {
                 const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)} relation: ${GeoShapeRelation.Intersects})`;
 
                 const { ast: { instance: { match } } } = new Parser(query, {
@@ -316,7 +368,7 @@ describe('geoPolygon', () => {
                 expect(match(intersetPoints)).toEqual(true);
             });
 
-            it('relations set to disjoint', () => {
+            it('poly v poly relations set to disjoint', () => {
                 const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)} relation: ${GeoShapeRelation.Disjoint})`;
 
                 const { ast: { instance: { match } } } = new Parser(query, {
@@ -327,6 +379,130 @@ describe('geoPolygon', () => {
                 expect(match(containPoints)).toEqual(false);
                 expect(match(disjointPoints)).toEqual(true);
                 expect(match(intersetPoints)).toEqual(false);
+            });
+
+            it('poly v geo_shape point with default relation (within)', () => {
+                const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)})`;
+
+                const { ast: { instance: { match } } } = new Parser(query, {
+                    type_config: typeConfig
+                });
+
+                expect(match(matchingPoint)).toEqual(true);
+                expect(match(nonMatchingPoint)).toEqual(false);
+            });
+
+            it('poly v geo_shape point with contains relation', () => {
+                const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)} relation: ${GeoShapeRelation.Contains})`;
+
+                const { ast: { instance: { match } } } = new Parser(query, {
+                    type_config: typeConfig
+                });
+
+                expect(match(matchingPoint)).toEqual(false);
+                expect(match(nonMatchingPoint)).toEqual(false);
+            });
+
+            it('poly v geo_shape point with intersects relation', () => {
+                const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)} relation: ${GeoShapeRelation.Intersects})`;
+
+                const { ast: { instance: { match } } } = new Parser(query, {
+                    type_config: typeConfig
+                });
+
+                expect(match(matchingPoint)).toEqual(false);
+                expect(match(nonMatchingPoint)).toEqual(false);
+            });
+
+            it('poly v geo_shape point with disjoint relation', () => {
+                const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)} relation: ${GeoShapeRelation.Disjoint})`;
+
+                const { ast: { instance: { match } } } = new Parser(query, {
+                    type_config: typeConfig
+                });
+
+                expect(match(matchingPoint)).toEqual(false);
+                expect(match(nonMatchingPoint)).toEqual(true);
+            });
+
+            it('poly v multipolygon and default relation (within)', () => {
+                const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)})`;
+
+                const { ast: { instance: { match } } } = new Parser(query, {
+                    type_config: typeConfig
+                });
+
+                expect(match(multiPolygon)).toEqual(false);
+            });
+
+            it('poly v multipolygon with contains relation', () => {
+                const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)} relation: ${GeoShapeRelation.Contains})`;
+
+                const { ast: { instance: { match } } } = new Parser(query, {
+                    type_config: typeConfig
+                });
+
+                expect(match(multiPolygon)).toEqual(false);
+            });
+
+            it('poly v multipolygon with intersects relation', () => {
+                const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)} relation: ${GeoShapeRelation.Intersects})`;
+
+                const { ast: { instance: { match } } } = new Parser(query, {
+                    type_config: typeConfig
+                });
+
+                expect(match(multiPolygon)).toEqual(false);
+            });
+
+            it('poly v multipolygon with disjoint relation', () => {
+                const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)} relation: ${GeoShapeRelation.Disjoint})`;
+
+                const { ast: { instance: { match } } } = new Parser(query, {
+                    type_config: typeConfig
+                });
+
+                expect(match(multiPolygon)).toEqual(false);
+            });
+
+            it('poly v multipolygon with holes and default relation (within)', () => {
+                const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)})`;
+
+                const { ast: { instance: { match } } } = new Parser(query, {
+                    type_config: typeConfig
+                });
+
+                expect(match(multiPolygonWithHoles)).toEqual(false);
+            });
+
+            it('poly v multipolygon with holes and contains relation', () => {
+                const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)} relation: ${GeoShapeRelation.Contains})`;
+
+                const { ast: { instance: { match } } } = new Parser(query, {
+                    type_config: typeConfig
+                });
+
+                expect(match(multiPolygonWithHoles)).toEqual(false);
+            });
+
+            it('poly v multipolygon with holes and intersects relation', () => {
+                const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)} relation: ${GeoShapeRelation.Intersects})`;
+
+                const { ast: { instance: { match } } } = new Parser(query, {
+                    type_config: typeConfig
+                });
+
+                expect(match(multiPolygonWithHoles)).toEqual(false);
+            });
+
+            it('poly v multipolygon with holes and disjoint relation', () => {
+                const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)} relation: ${GeoShapeRelation.Disjoint})`;
+
+                const { ast: { instance: { match } } } = new Parser(query, {
+                    type_config: typeConfig
+                });
+
+                expect(match(multiPolygonWithHoles)).toEqual(false);
             });
         });
     });

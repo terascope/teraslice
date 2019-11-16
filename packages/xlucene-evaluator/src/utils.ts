@@ -20,14 +20,14 @@ import {
     TypeConfig,
     FieldType,
     CoordinateTuple,
-    GeoShape,
-    GeoShapeType,
-    GeoShapePoint,
-    GeoShapePolygon,
-    GeoShapeMultiPolygon,
     GeoShapeRelation
 } from './interfaces';
-import { ESGeoShapeType, ESGeoShape } from './translator/interfaces';
+import {
+    isGeoJSONData,
+    isGeoShapePolygon,
+    isGeoShapeMultiPolygon,
+    isGeoShapePoint
+} from './parser/functions/geo/helpers';
 
 
 export function isInfiniteValue(input?: number|string) {
@@ -178,14 +178,6 @@ export type CreateJoinQueryOptions = {
     arrayJoinBy?: JoinBy;
 };
 
-function isGeoJSONData(input: any): input is GeoShape {
-    return input.coordinates != null
-        && Array.isArray(input.coordinates)
-        && input.type != null;
-}
-
-type JoinGeoShape = GeoShape | ESGeoShape;
-
 const relationList = Object.values(GeoShapeRelation);
 
 export function makeXluceneGeoDistanceQuery(
@@ -207,17 +199,17 @@ export function makeXlucenePolyContainsPoint(field: string, value: GeoPointInput
     return `${field}:geoContainsPoint(point:"${lat},${lon}")`;
 }
 
-function coordinateToXlucene(cord: CoordinateTuple) {
+export function coordinateToXlucene(cord: CoordinateTuple) {
     // tuple is [lon, lat], need to return "lat, lon"
     return `"${cord[1]}, ${cord[0]}"`;
 }
 
-function wrap(arr: any[]) {
+function makeArrayString(arr: any[]) {
     return `[${arr}]`;
 }
 
 function makeList(list: any[]) {
-    return wrap(list.map(coordinateToXlucene));
+    return makeArrayString(list.map(coordinateToXlucene));
 }
 
 function geoPolyQuery(field: string, list: string, fieldParam?: string) {
@@ -240,18 +232,6 @@ export function makeXlucenePolyQuery(
     }
     const points = makeList(value[0]);
     return geoPolyQuery(field, points, fieldParam);
-}
-
-function isGeoShapePoint(shape: JoinGeoShape): shape is GeoShapePoint {
-    return shape.type === GeoShapeType.Point || shape.type === ESGeoShapeType.Point;
-}
-
-function isGeoShapePolygon(shape: JoinGeoShape): shape is GeoShapePolygon {
-    return shape.type === GeoShapeType.Polygon || shape.type === ESGeoShapeType.Polygon;
-}
-
-function isGeoShapeMultiPolygon(shape: JoinGeoShape): shape is GeoShapeMultiPolygon {
-    return shape.type === GeoShapeType.MultiPolygon || shape.type === ESGeoShapeType.MultiPolygon;
 }
 
 function createGeoQuery(field: string, value: any, targetType: FieldType, fieldParam?: string) {

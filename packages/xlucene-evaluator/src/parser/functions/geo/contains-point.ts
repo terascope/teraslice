@@ -1,6 +1,6 @@
 
 import { point } from '@turf/helpers';
-import { polygonHasPoint } from './helpers';
+import { pointInGeoShape } from './helpers';
 import { parseGeoPoint } from '../../../utils';
 import * as i from '../../interfaces';
 import { AnyQuery, ESGeoShapeType } from '../../../translator/interfaces';
@@ -41,7 +41,7 @@ const geoContainsPoint: i.FunctionDefinition = {
 
         function matcher() {
             const turfPoint = point([lon, lat]);
-            return polygonHasPoint(turfPoint);
+            return pointInGeoShape(turfPoint);
         }
 
         return {
