@@ -1,6 +1,6 @@
 import isCI from 'is-ci';
 import { address } from 'ip';
-import { toBoolean } from '@terascope/utils';
+import { toBoolean, toSafeString } from '@terascope/utils';
 
 const forceColor = process.env.FORCE_COLOR || '1';
 export const FORCE_COLOR = toBoolean(forceColor)
@@ -28,10 +28,15 @@ export const KAFKA_PORT = process.env.KAFKA_PORT || '49092';
 export const KAFKA_BROKER = `${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
 export const KAFKA_VERSION = process.env.KAFKA_VERSION || '2.3';
 export const KAFKA_DOCKER_IMAGE = process.env.KAFKA_DOCKER_IMAGE || 'blacktop/kafka';
-export const DEV_TAG = process.env.TRAVIS_PULL_REQUEST_BRANCH
+
+// make sure the string doesn't contain unwanted characters
+export const DEV_TAG = toSafeString((
+    process.env.TRAVIS_PULL_REQUEST_BRANCH
     || process.env.TRAVIS_BRANCH
     || process.env.CI_COMMIT_REF_SLUG
-    || 'local';
+    || 'local'
+// convert dependabot/npm_and_yarn/dep-x.x.x to dependabot
+).split('/')[0]);
 
 const reportCov = process.env.REPORT_COVERAGE || `${isCI}`;
 export const REPORT_COVERAGE = toBoolean(reportCov);
