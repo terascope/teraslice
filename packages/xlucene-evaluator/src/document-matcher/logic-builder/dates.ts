@@ -1,5 +1,5 @@
-
-import dateFns from 'date-fns';
+import isWithinInterval from 'date-fns/isWithinInterval';
+import parseDate from 'date-fns/parseJSON';
 import { Term, Range } from '../../parser';
 import { isInfiniteMax, isInfiniteMin, parseRange } from '../../utils';
 import { DateInput } from '../interfaces';
@@ -50,9 +50,14 @@ function validateRangeValues(node: Range) {
 
 export function dateRange(node: Range) {
     const { minValue, maxValue } = validateRangeValues(node);
+    const start = parseDate(minValue);
+    const end = parseDate(maxValue);
 
     return function dateRangeTerm(date: string) {
-        return dateFns.isWithinRange(date, minValue as DateInput, maxValue as DateInput);
+        return isWithinInterval(parseDate(date), {
+            start,
+            end
+        });
     };
 }
 
