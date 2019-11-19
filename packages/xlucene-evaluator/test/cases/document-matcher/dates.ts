@@ -135,7 +135,7 @@ export default [
         { _created: FieldType.Date }
     ],
     [
-        'can can handle ">=", with type changes',
+        'can handle ">=", with type changes',
         '_created:>="2018-10-18T18:13:20.683Z"',
         [
             { _created: 'Thu Oct 18 2018 22:13:20 GMT-0700' },
@@ -154,7 +154,7 @@ export default [
         { _created: FieldType.Date }
     ],
     [
-        'can can handle "<", with type changes',
+        'can handle "<", with type changes',
         '_created:<"Thu Oct 18 2018 11:13:20 GMT-0700"',
         [
             { _created: 'Thu Oct 18 2018 22:13:20 GMT-0700' },
@@ -174,7 +174,7 @@ export default [
         { _created: FieldType.Date }
     ],
     [
-        'can can handle "<=", with type changes',
+        'can handle "<=", with type changes',
         '_created:<="2018-10-18T18:13:20.683Z"',
         [
             { _created: 'Thu Oct 18 2018 22:13:20 GMT-0700' },
@@ -193,7 +193,7 @@ export default [
         { _created: FieldType.Date }
     ],
     [
-        'can can handle "[]", with type changes',
+        'can handle "[]", with type changes',
         '_created:[2018-10-18T18:13:20.683Z TO *]',
         [
             { _created: 'Thu Oct 18 2018 22:13:20 GMT-0700' },
@@ -212,7 +212,7 @@ export default [
         { _created: FieldType.Date }
     ],
     [
-        'can can handle "{}", with type changes',
+        'can handle "{}", with type changes',
         '_created:{"2018-10-10" TO "Thu Oct 18 2018 11:13:20 GMT-0700"}',
         [
             { _created: 'Thu Oct 18 2018 22:13:20 GMT-0700' },
@@ -231,7 +231,7 @@ export default [
         { _created: FieldType.Date }
     ],
     [
-        'can can handle mixed"[}", with type changes',
+        'can handle mixed"[}", with type changes',
         '_created:{2018-10-18T18:13:20.000Z TO 2018-10-18T18:13:20.783Z]',
         [
             { _created: '2018-10-18T18:13:20.000Z' },

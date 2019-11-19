@@ -6,8 +6,6 @@ node_js: '10.16'
 cache:
   npm: false
   yarn: false
-  directories:
-    - '$TRAVIS_BUILD_DIR/.eslintcache'
 
 before_install: . ./scripts/ci-setup.sh
 install: yarn setup
@@ -24,6 +22,12 @@ jobs:
       node_js: '10.16'
       # run on any pull_request
       if: branch = master AND type IN (pull_request)
+      # only cache on verify build
+      cache:
+        npm: false
+        yarn: false
+        directories:
+          - '$TRAVIS_BUILD_DIR/.eslintcache'
       script: yarn lint
 
     - stage: "Tests"

@@ -123,16 +123,16 @@ async function runTestSuite(
 
         if (!pkgs.length) continue;
         if (pkgs.length === 1) {
-            writePkgHeader('Running test', pkgs, true);
+            writePkgHeader('Running test', pkgs, false);
         } else {
-            writeHeader(`Running batch of ${pkgs.length} tests`, true);
+            writeHeader(`Running batch of ${pkgs.length} tests`, false);
         }
 
         const args = utils.getArgs(options);
         args.projects = pkgs.map((pkgInfo) => path.join('packages', pkgInfo.folderName));
 
         try {
-            await runJest(getRootDir(), args, env, options.jestArgs);
+            await runJest(getRootDir(), args, env, options.jestArgs, options.debug);
         } catch (err) {
             errors.push(err.message);
 
@@ -196,7 +196,7 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         const env = printAndGetEnv(suite, options);
 
         try {
-            await runJest(e2eDir, utils.getArgs(options), env, options.jestArgs);
+            await runJest(e2eDir, utils.getArgs(options), env, options.jestArgs, options.debug);
         } catch (err) {
             errors.push(err.message);
         }
