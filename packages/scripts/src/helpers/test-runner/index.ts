@@ -123,9 +123,9 @@ async function runTestSuite(
 
         if (!pkgs.length) continue;
         if (pkgs.length === 1) {
-            writePkgHeader('Running test', pkgs, true);
+            writePkgHeader('Running test', pkgs, false);
         } else {
-            writeHeader(`Running batch of ${pkgs.length} tests`, true);
+            writeHeader(`Running batch of ${pkgs.length} tests`, false);
         }
 
         const args = utils.getArgs(options);
