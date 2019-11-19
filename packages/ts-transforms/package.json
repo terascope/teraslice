@@ -45,12 +45,12 @@
         "valid-url": "^1.0.9",
         "validator": "^11.0.0",
         "xlucene-evaluator": "^0.12.0",
-        "yargs": "^15.0.1"
+        "yargs": "^15.0.2"
     },
     "devDependencies": {
         "@types/jexl": "^2.1.0",
         "@types/valid-url": "^1.0.2",
-        "@types/validator": "^10.11.3",
+        "@types/validator": "^12.0.0",
         "@types/yargs": "^13.0.3",
         "execa": "^3.2.0"
     },

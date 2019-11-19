@@ -54,7 +54,7 @@
         "teraslice-client-js": "^0.9.0",
         "tmp": "^0.1.0",
         "tty-table": "^2.8.1",
-        "yargs": "^15.0.1",
+        "yargs": "^15.0.2",
         "yeoman-environment": "^2.4.0",
         "yeoman-generator": "^4.2.0",
         "yo": "^3.1.0"

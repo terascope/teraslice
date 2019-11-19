@@ -45,7 +45,7 @@
         "sort-package-json": "^1.22.1",
         "typedoc": "^0.15.0",
         "typedoc-plugin-markdown": "^2.2.11",
-        "yargs": "^15.0.1"
+        "yargs": "^15.0.2"
     },
     "devDependencies": {
         "@types/got": "^9.6.8",

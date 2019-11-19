@@ -39,7 +39,7 @@
         "node-webhdfs": "^1.0.2",
         "redis": "^2.8.0",
         "shortid": "^2.2.14",
-        "yargs": "^15.0.1"
+        "yargs": "^15.0.2"
     },
     "devDependencies": {
         "@types/bunyan": "^1.8.6",
