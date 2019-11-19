@@ -273,7 +273,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
                 .then(() => {
                     logger.debug('enqueueing execution to be processed', ex);
                     pendingExecutionQueue.enqueue(ex);
-                    return { job_id: ex.job_id };
+                    return { job_id: ex.job_id, ex_id: job.ex_id };
                 })
                 .catch((err) => {
                     const error = new TSError(err, {

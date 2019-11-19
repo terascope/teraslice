@@ -46,7 +46,7 @@ RUN npm init --yes > /dev/null \
     && npm install \
     --quiet \
     --no-package-lock \
-    'terafoundation_kafka_connector@~0.5.1'
+    'terafoundation_kafka_connector@~0.5.3'
 
 RUN apk del .build-deps
 
@@ -90,8 +90,8 @@ RUN yarn quick:setup
 # [BUILD THE PRODUCTION IMAGE]
 ENV NODE_ENV production
 
-# verify @terascope/node-rdkafka is installed right
-RUN node -e "require('@terascope/node-rdkafka')"
+# verify node-rdkafka is installed right
+RUN node -e "require('node-rdkafka')"
 
 COPY service.js /app/source/
 

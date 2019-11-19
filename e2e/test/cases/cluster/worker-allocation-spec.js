@@ -4,7 +4,7 @@ const misc = require('../../misc');
 const wait = require('../../wait');
 const { resetState, submitAndStart } = require('../../helpers');
 
-const { waitForJobStatus } = wait;
+const { waitForExStatus } = wait;
 
 async function workersTest(workers, workersExpected, records) {
     const jobSpec = misc.newJob('reindex');
@@ -21,7 +21,7 @@ async function workersTest(workers, workersExpected, records) {
     const runningWorkers = await job.workers();
     expect(runningWorkers).toBeArrayOfSize(workersExpected);
 
-    await waitForJobStatus(job, 'completed');
+    await waitForExStatus(job, 'completed');
 
     const workerCount = await wait.forLength(job.workers, 0);
     expect(workerCount).toBe(0);

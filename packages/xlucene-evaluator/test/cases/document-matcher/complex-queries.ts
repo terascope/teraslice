@@ -57,7 +57,7 @@ export default [
         { date: 'date' },
     ],
     [
-        'can can complex queries part1',
+        'can handle complex queries range queries part1',
         'some:key AND (_created:>="2018-10-18T18:13:20.683Z" && bytes:(>=150000 AND <=1232322))',
         [
             { _created: '2018-10-18T18:13:20.683Z', some: 'key', bytes: 1232322 },
@@ -75,7 +75,7 @@ export default [
         { _created: 'date', _updated: 'date' },
     ],
     [
-        'can can complex queries part2',
+        'can handle complex queries range queries part2',
         '_exists_:other OR (_created:["2018-04-02" TO "2018-10-19"] OR bytes:<200)',
         [
             { _created: '2018-10-18T18:13:20.683Z', some: 'key', bytes: 1232322 },
@@ -93,7 +93,7 @@ export default [
         { _created: 'date', _updated: 'date' },
     ],
     [
-        'can can complex queries part3',
+        'can handle complex queries range queries part3',
         'some:key AND ((_created:>="2018-10-18T18:13:20.683Z" && bytes:(>=150000 AND <=1232322)) OR _updated:>="2018-10-18T18:13:20.683Z")',
         [
             { _created: '2018-10-18T18:13:20.683Z', some: 'key', bytes: 1232322 },
@@ -111,7 +111,7 @@ export default [
         { _created: 'date', _updated: 'date' },
     ],
     [
-        'can can complex queries part4',
+        'can complex queries part4',
         'date:[2018-10-10T19:30:00Z TO *] AND field1.subfield:value AND field2:(1 OR 2 OR 5 OR 20 OR 50 OR 60) AND NOT (field3:15 AND field4:sometext) AND NOT field5:value2',
         [
             {
@@ -196,7 +196,7 @@ export default [
         { date: 'date' },
     ],
     [
-        'can can complex queries part5',
+        'can complex queries part5',
         'date1:[2018-09-10T00:00:00Z TO 2018-10-10T23:39:01Z] AND ip_field:[192.168.196.145 TO 192.168.196.195] AND date2:[2018-09-10T00:00:00Z TO 2018-10-10T23:39:01Z] AND field1:1',
         [
             {
@@ -234,7 +234,7 @@ export default [
         { date1: FieldType.Date, ip_field: FieldType.IP, date2: FieldType.Date },
     ],
     [
-        'can can complex queries part6',
+        'can complex queries part6',
         'field1:m?-?????*.blahblah AND ip_field:[192.168.196.145 TO 192.168.196.195] AND date:[2018-09-30T23:20:01Z TO *]',
         [
             { field1: 12343, ip_field: '192.168.196.145', date: '2048-09-30T23:20:01Z' },

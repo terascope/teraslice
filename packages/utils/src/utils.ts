@@ -8,11 +8,12 @@ import {
 } from './strings';
 
 /** Check if an input is empty, similar to lodash.isEmpty */
-export function isEmpty(val?: any): boolean {
-    if (val == null) return true;
-    if (val.size != null) return !val.size;
-    if (typeof val === 'object') return !Object.keys(val).length;
-    if (val.length != null) return !val.length;
+export function isEmpty<T>(val?: T): val is undefined {
+    const _val = val as any;
+    if (!_val) return true;
+    if (typeof _val.size === 'number') return !_val.size;
+    if (typeof _val.length === 'number') return !_val.length;
+    if (typeof val === 'object') return !Object.keys(_val).length;
 
     return true;
 }

@@ -3,7 +3,7 @@ import 'jest-extended';
 import nock from 'nock';
 import Job from '../src/job';
 import Jobs from '../src/jobs';
-import { JobsGetResponse, ExecutionStatus } from '../src/interfaces';
+import { ExecutionStatus, JobConfiguration } from '../src/interfaces';
 
 describe('Teraslice Jobs', () => {
     let jobs: Jobs;
@@ -23,7 +23,7 @@ describe('Teraslice Jobs', () => {
 
     const date = new Date().toISOString();
 
-    const list: JobsGetResponse = [
+    const list: JobConfiguration[] = [
         {
             analytics: false,
             assets: [],
@@ -81,6 +81,7 @@ describe('Teraslice Jobs', () => {
             };
 
             const response = {
+                ex_id: 'some-ex-id',
                 job_id: 'some-job-id'
             };
 
@@ -92,7 +93,7 @@ describe('Teraslice Jobs', () => {
 
             it('should resolve an instanceof a Job', async () => {
                 const job = await jobs.submit(jobSpec);
-                expect(job instanceof Job).toBeTrue();
+                expect(job).toBeInstanceOf(Job);
                 expect(job.id()).toEqual(response.job_id);
             });
         });
@@ -102,7 +103,10 @@ describe('Teraslice Jobs', () => {
                 operations: [{ _op: 'operation' }]
             };
 
-            const response = { job_id: 'some-job-id' };
+            const response = {
+                ex_id: 'some-ex-id',
+                job_id: 'some-job-id'
+            };
 
             beforeEach(() => {
                 scope.post('/jobs', jobSpec)
@@ -112,7 +116,7 @@ describe('Teraslice Jobs', () => {
 
             it('should resolve an instanceof a Job', async () => {
                 const job = await jobs.submit(jobSpec, true);
-                expect(job instanceof Job).toBeTrue();
+                expect(job).toBeInstanceOf(Job);
                 expect(job.id()).toEqual(response.job_id);
             });
         });

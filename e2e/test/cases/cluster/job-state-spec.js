@@ -1,7 +1,7 @@
 'use strict';
 
 const Promise = require('bluebird');
-const { waitForJobStatus } = require('../../wait');
+const { waitForExStatus } = require('../../wait');
 const { resetState } = require('../../helpers');
 const misc = require('../../misc');
 
@@ -15,20 +15,20 @@ describe('job state', () => {
         const jobSpec2 = misc.newJob('generator');
         jobSpec2.operations[1].name = 'second_generator';
 
-        const [job1, job2] = await Promise.all([
-            teraslice.jobs.submit(jobSpec1),
-            teraslice.jobs.submit(jobSpec2)
+        const [ex1, ex2] = await Promise.all([
+            teraslice.executions.submit(jobSpec1),
+            teraslice.executions.submit(jobSpec2)
         ]);
 
-        await waitForJobStatus(job1, 'running');
-        await job1.pause();
-        await waitForJobStatus(job1, 'paused');
-        await job1.resume();
-        await waitForJobStatus(job1, 'running');
+        await waitForExStatus(ex1, 'running');
+        await ex1.pause();
+        await waitForExStatus(ex1, 'paused');
+        await ex1.resume();
+        await waitForExStatus(ex1, 'running');
 
         await Promise.all([
-            job1.stop({ blocking: true }),
-            job2.stop({ blocking: true }),
+            ex1.stop({ blocking: true }),
+            ex2.stop({ blocking: true }),
         ]);
     });
 });

@@ -1,5 +1,4 @@
-
-import _ from 'lodash';
+import { pDelay, includes } from '@terascope/utils';
 import { CMD } from '../../interfaces';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
@@ -35,20 +34,21 @@ export = {
                 break;
             }
             try {
-                response = await teraslice.client.ex.stop(cliConfig.args.id);
+                response = await teraslice.client.executions.wrap(cliConfig.args.id).stop();
                 stopTimedOut = true;
                 if (response.status === 'stopped') {
                     reply.green(`> ex_id: ${cliConfig.args.id} stopped`);
                 }
             } catch (err) {
                 reply.error(`> Stopping ex_id had an error [${err.message}]`);
-                if (_.includes(err.message, ' no active execution context was found')) {
+                if (includes(err.message, ' no active execution context was found')) {
                     stopTimedOut = true;
                 } else {
                     stopTimedOut = false;
                 }
             }
-            await _.delay(() => {}, 500);
+
+            await pDelay(500);
             waitCountStop += 1;
         }
     }

@@ -359,7 +359,8 @@ describe('Bump Utils', () => {
 
         it('should be able to get a readable commit message', () => {
             const message = getBumpCommitMessage(result, options.release);
-            expect(message).toBe('release: (preminor) package-main@1.1.0-rc.0 AND bump: (preminor) package-dep-2@2.1.0-rc.0');
+            expect(message).toBe(`release: (preminor) package-main@1.1.0-rc.0\\
+bump: (preminor) package-dep-2@2.1.0-rc.0`);
         });
     });
 });

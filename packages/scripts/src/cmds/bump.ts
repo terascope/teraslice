@@ -18,8 +18,8 @@ const cmd: CommandModule = {
             .example('$0 bump', '-r minor example // 0.5.0 => 0.6.0')
             .example('$0 bump', '-r prepatch example // 0.20.0 => 0.20.1-rc.0')
             .example('$0 bump', '-r premajor example // 0.15.0 => 1.0.0-rc.0')
-            .example('$0 bump', '-r prelease example // 0.20.1-rc.0 => 0.20.1-rc.1')
-            .option('prelease-id', {
+            .example('$0 bump', '-r prerelease example // 0.20.1-rc.0 => 0.20.1-rc.1')
+            .option('prerelease-id', {
                 default: 'rc',
                 description: 'Specify the prerelease identifier, defaults to RC',
             })
@@ -55,7 +55,7 @@ const cmd: CommandModule = {
         await syncAll({ verify: true });
         return bumpPackages({
             packages: argv.packages as PackageInfo[],
-            preId: argv['prelease-id'] as string | undefined,
+            preId: argv['prerelease-id'] as string | undefined,
             release: argv.release as ReleaseType,
             deps: Boolean(argv.deps),
         });

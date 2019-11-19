@@ -11,7 +11,7 @@ const _logger = ts.debugLogger('xlucene-query-access');
 export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     readonly excludes: (keyof T)[];
     readonly includes: (keyof T)[];
-    readonly constraint?: string;
+    readonly constraints?: string[];
     readonly preventPrefixWildcard: boolean;
     readonly allowImplicitQueries: boolean;
     readonly defaultGeoField?: string;
@@ -38,7 +38,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
         this.excludes = excludes;
         this.includes = includes;
-        this.constraint = constraint;
+        this.constraints = ts.castArray(constraint).filter(Boolean) as string[];
         this.allowEmpty = Boolean(allowEmpty);
         this.preventPrefixWildcard = Boolean(config.prevent_prefix_wildcard);
         this.allowImplicitQueries = Boolean(config.allow_implicit_queries);
@@ -86,7 +86,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
                     }
                 });
             }
-            return this.constraint || '';
+            return addConstraints(this.constraints, '');
         }
 
         parser.forTermTypes((node: p.TermLikeAST) => {
@@ -136,11 +136,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             }
         });
 
-        if (this.constraint) {
-            return `(${this.constraint}) AND (${q})`;
-        }
-
-        return q;
+        return addConstraints(this.constraints, q);
     }
 
     /**
@@ -255,4 +251,11 @@ function startsWithWildcard(input?: string | number) {
     if (!ts.isString(input)) return false;
 
     return ['*', '?'].includes(ts.getFirstChar(input));
+}
+
+function addConstraints(constraints?: string[], query?: string): string {
+    const queries = ts.concat(constraints || [], [query]).filter(Boolean) as string[];
+    if (queries.length === 0) return '';
+    if (queries.length === 1) return queries[0];
+    return `(${queries.join(') AND (')})`;
 }

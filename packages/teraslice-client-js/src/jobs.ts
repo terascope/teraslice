@@ -4,10 +4,11 @@ import Client from './client';
 import Job from './job';
 import {
     ClientConfig,
-    JobsGetResponse,
+    JobConfiguration,
     SearchOptions,
     JobSearchParams,
-    JobListStatusQuery
+    JobListStatusQuery,
+    JobIDResponse
 } from './interfaces';
 
 export default class Jobs extends Client {
@@ -17,22 +18,24 @@ export default class Jobs extends Client {
         autoBind(this);
     }
 
-    async submit(jobSpec: JobConfig, shouldNotStart?: boolean) {
+    async submit(jobSpec: JobConfig, shouldNotStart?: boolean): Promise<Job> {
         if (!jobSpec) throw new TSError('submit requires a jobSpec');
-        const job = await this.post('/jobs', jobSpec, { query: { start: !shouldNotStart } });
+        const job: JobIDResponse = await this.post('/jobs', jobSpec, { query: { start: !shouldNotStart } });
         return this.wrap(job.job_id);
     }
 
     async list(
         status?: JobListStatusQuery,
         searchOptions: SearchOptions = {}
-    ): Promise<JobsGetResponse> {
+    ): Promise<JobConfiguration[]> {
         const query = _parseListOptions(status);
         return this.get('/jobs', this.makeOptions(query, searchOptions));
     }
 
-    // Wraps the job_id with convenience functions for accessing
-    // the state on the server.
+    /**
+     * Wraps the job_id with convenience functions for accessing
+     * the state on the server.
+    */
     wrap(jobId: string) {
         return new Job(this._config, jobId);
     }
