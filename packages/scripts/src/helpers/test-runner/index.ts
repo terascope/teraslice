@@ -132,7 +132,7 @@ async function runTestSuite(
         args.projects = pkgs.map((pkgInfo) => path.join('packages', pkgInfo.folderName));
 
         try {
-            await runJest(getRootDir(), args, env, options.jestArgs);
+            await runJest(getRootDir(), args, env, options.jestArgs, options.debug);
         } catch (err) {
             errors.push(err.message);
 
@@ -196,7 +196,7 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         const env = printAndGetEnv(suite, options);
 
         try {
-            await runJest(e2eDir, utils.getArgs(options), env, options.jestArgs);
+            await runJest(e2eDir, utils.getArgs(options), env, options.jestArgs, options.debug);
         } catch (err) {
             errors.push(err.message);
         }
