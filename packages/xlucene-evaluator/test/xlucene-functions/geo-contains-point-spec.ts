@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import 'jest-extended';
 import { debugLogger } from '@terascope/utils';
 import { Parser } from '../../src';

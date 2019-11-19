@@ -8,7 +8,7 @@ import { GeoShapeRelation } from '../../../interfaces';
 
 function validate(params: i.Term[]) {
     const geoPointParam = params.find((node) => node.field === 'point');
-    if (geoPointParam == null) throw new Error('geoDistance query needs to specify a "point" parameter');
+    if (geoPointParam == null) throw new Error('geoContainsPoint query needs to specify a "point" parameter');
     const pointData = parseGeoPoint(geoPointParam.value as string);
 
     return { lat: pointData.lat, lon: pointData.lon };
@@ -18,7 +18,7 @@ const geoContainsPoint: i.FunctionDefinition = {
     name: 'geoContainsPoint',
     version: '1',
     create(field: string, params: any, { logger }) {
-        if (!field || field === '*') throw new Error('field for geoPolygon cannot be empty or "*"');
+        if (!field || field === '*') throw new Error('field for geoContainsPoint cannot be empty or "*"');
         const { lat, lon } = validate(params);
 
         function toElasticsearchQuery() {
@@ -34,7 +34,7 @@ const geoContainsPoint: i.FunctionDefinition = {
                 }
             };
 
-            logger.trace('built geo polygon query', { query });
+            logger.trace('built geo shape query', { query });
 
             return { query };
         }
