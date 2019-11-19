@@ -97,16 +97,18 @@ export function getBumpCommitMessage(
 
     const names = Object.entries(bumpResult).map(([name, { to }]) => `${name}@${to}`);
 
-    const limit = 3;
-
-    if (names.length >= limit) {
-        const remaining = names.length - limit;
-        messages.push(`bump: (${release}) ${names.slice(0, limit).join(', ')} (${remaining} more) ...`);
+    const limit = 2;
+    const remaining = names.length - limit;
+    if (remaining > 0) {
+        const focusNames = names.slice(0, limit);
+        messages.push(`bump: (${release}) ${focusNames.join(', ')} (${remaining} more) ...`);
+        const moreNames = names.slice(limit).map((name) => `  - ${name}`);
+        messages.push(...moreNames);
     } else {
         messages.push(`bump: (${release}) ${names.join(', ')}`);
     }
 
-    return messages.join(' AND ');
+    return messages.join('\\\n');
 }
 
 /** This mutates the packages param */
