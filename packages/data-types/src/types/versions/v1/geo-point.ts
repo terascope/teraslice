@@ -2,8 +2,7 @@ import { FieldType } from 'xlucene-evaluator';
 import BaseType from '../base-type';
 import { ElasticSearchTypes } from '../../../interfaces';
 
-// TODO: This type is deprecated, not sure how to properly indicate it.
-export default class GeoType extends BaseType {
+export default class GeoPointType extends BaseType {
     toESMapping(_version?: number) {
         return { mapping: { [this.field]: { type: 'geo_point' as ElasticSearchTypes } } };
     }
@@ -11,15 +10,15 @@ export default class GeoType extends BaseType {
     // TODO: need notion of injecting custom types, what about duplicates
     toGraphQL() {
         const customType = `
-            type GeoPointType {
+            type DTGeoPointV1 {
                 lat: String!
                 lon: String!
             }
         `;
-        return this._formatGql('GeoPointType', customType);
+        return this._formatGql('DTGeoPointV1', customType);
     }
 
     toXlucene() {
-        return { [this.field]: FieldType.Geo };
+        return { [this.field]: FieldType.GeoPoint };
     }
 }

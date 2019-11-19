@@ -1,8 +1,5 @@
 
-import bbox from '@turf/bbox';
-import bboxPolygon from '@turf/bbox-polygon';
-import { lineString } from '@turf/helpers';
-import { geoMatcher } from './helpers';
+import { polyHasPoint, makeBBox } from './helpers';
 import * as i from '../../interfaces';
 import { parseGeoPoint } from '../../../utils';
 import { AnyQuery } from '../../../translator';
@@ -41,20 +38,10 @@ const geoBox: i.FunctionDefinition = {
         }
 
         function matcher() {
-            const topLeft = [top_left.lon, top_left.lat];
-            const bottomRight = [bottom_right.lon, bottom_right.lat];
-
-            const line = lineString([
-                topLeft,
-                bottomRight,
-            ]);
-
-            const box = bbox(line);
-            const polygon = bboxPolygon(box);
-
+            const polygon = makeBBox(top_left, bottom_right);
             // Nothing matches so return false
             if (polygon == null) return () => false;
-            return geoMatcher(polygon);
+            return polyHasPoint(polygon);
         }
 
         return {

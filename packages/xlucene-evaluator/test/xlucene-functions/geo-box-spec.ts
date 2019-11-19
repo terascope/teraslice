@@ -5,8 +5,8 @@ import { Parser, } from '../../src';
 import { UtilsTranslateQueryOptions } from '../../src/translator';
 import { TypeConfig, FieldType } from '../../src/interfaces';
 
-describe('geo-box', () => {
-    const typeConfig: TypeConfig = { location: FieldType.Geo };
+describe('geoBox', () => {
+    const typeConfig: TypeConfig = { location: FieldType.GeoPoint };
     const options: UtilsTranslateQueryOptions = {
         logger: debugLogger('test'),
         geo_sort_order: 'asc',
