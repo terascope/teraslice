@@ -143,7 +143,9 @@ async function checkElasticsearch(options: TestOptions, retries: number): Promis
 
             const satifies = semver.satisfies(actual, `^${expected}`);
             if (satifies) {
-                signale.debug(`elasticsearch@${actual} is running at ${elasticsearchHost}`);
+                if (options.debug) {
+                    signale.debug(`elasticsearch@${actual} is running at ${elasticsearchHost}`);
+                }
                 return;
             }
 
@@ -172,7 +174,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
 
     await stopService(service);
 
-    const fn = await dockerRun(services[service], version);
+    const fn = await dockerRun(services[service], version, options.debug);
 
     signale.success(`started ${service}@${version} service, took ~${ms(Date.now() - startTime)}`);
 
@@ -189,6 +191,8 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     };
 }
 
-async function checkKafka(_options: TestOptions) {
-    signale.debug(`kafka should be running at ${config.KAFKA_BROKER}`);
+async function checkKafka(options: TestOptions) {
+    if (options.debug) {
+        signale.debug(`kafka should be running at ${config.KAFKA_BROKER}`);
+    }
 }

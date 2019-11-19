@@ -211,7 +211,7 @@ export type DockerRunOptions = {
     network?: string;
 };
 
-export async function dockerRun(opt: DockerRunOptions, tag = 'latest'): Promise<() => void> {
+export async function dockerRun(opt: DockerRunOptions, tag = 'latest', debug?: boolean): Promise<() => void> {
     const args: string[] = ['run', '--rm'];
     if (!opt.image) {
         throw new Error('Missing required image option');
@@ -256,7 +256,9 @@ export async function dockerRun(opt: DockerRunOptions, tag = 'latest'): Promise<
     let stderr: any;
     let done = true;
 
-    signale.debug(`executing: docker ${args.join(' ')}`);
+    if (debug) {
+        signale.debug(`executing: docker ${args.join(' ')}`);
+    }
     const subprocess = execa('docker', args);
     if (!subprocess || !subprocess.stderr) {
         throw new Error('Failed to execute docker run');
