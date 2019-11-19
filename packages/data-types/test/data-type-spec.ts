@@ -111,7 +111,7 @@ describe('DataType', () => {
             const xluceneConfig = new DataType(typeConfig).toXlucene();
             expect(xluceneConfig).toEqual({
                 hello: 'string',
-                location: 'geoPoint',
+                location: 'geo-point',
                 date: 'date',
                 ip: 'ip',
                 someNum: 'integer',

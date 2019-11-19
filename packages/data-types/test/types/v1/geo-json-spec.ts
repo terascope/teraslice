@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import GeoPointType from '../../../src/types/versions/v1/geo-point';
+import GeoJSONType from '../../../src/types/versions/v1/geo-json';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('GeoPoint V1', () => {
@@ -9,14 +9,14 @@ describe('GeoPoint V1', () => {
     it('can requires a field and proper configs', () => {
         try {
             // @ts-ignore
-            new GeoPointType();
+            new GeoJSONType();
             throw new Error('it should have errored with no configs');
         } catch (err) {
             expect(err).toBeInstanceOf(TSError);
             expect(err.message).toInclude('A field must be provided and must be of type string');
         }
 
-        const type = new GeoPointType(field, typeConfig);
+        const type = new GeoJSONType(field, typeConfig);
         expect(type).toBeDefined();
         expect(type.toESMapping).toBeDefined();
         expect(type.toGraphQL).toBeDefined();
@@ -24,28 +24,30 @@ describe('GeoPoint V1', () => {
     });
 
     it('can get proper ES Mappings', () => {
-        const esMapping = new GeoPointType(field, typeConfig).toESMapping();
-        const results = { mapping: { [field]: { type: 'geo_point' } } };
+        const esMapping = new GeoJSONType(field, typeConfig).toESMapping();
+        const results = {
+            mapping: {
+                [field]: {
+                    type: 'geo_shape',
+                    tree: 'quadtree',
+                    strategy: 'recursive'
+                }
+            }
+        };
 
         expect(esMapping).toEqual(results);
     });
 
     it('can get proper graphQl types', () => {
-        const {
-            type: graphQlTypes,
-            custom_type: customType
-        } = new GeoPointType(field, typeConfig).toGraphQL();
-        const results = `${field}: DTGeoPointV1`;
+        const { type: graphQlTypes } = new GeoJSONType(field, typeConfig).toGraphQL();
+        const results = `${field}: GeoJSON`;
 
         expect(graphQlTypes).toEqual(results);
-        expect(customType).toInclude('type DTGeoPointV1 {');
-        expect(customType).toInclude('lat: String!');
-        expect(customType).toInclude('lon: String!');
     });
 
     it('can get proper xlucene properties', () => {
-        const xlucene = new GeoPointType(field, typeConfig).toXlucene();
-        const results = { [field]: 'geo-point' };
+        const xlucene = new GeoJSONType(field, typeConfig).toXlucene();
+        const results = { [field]: 'geo-json' };
 
         expect(xlucene).toEqual(results);
     });
