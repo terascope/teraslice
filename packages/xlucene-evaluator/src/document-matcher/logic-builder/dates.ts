@@ -1,68 +1,83 @@
 import isWithinInterval from 'date-fns/isWithinInterval';
-import parseDate from 'date-fns/parseJSON';
+import toDate from 'date-fns/toDate';
+import isEqual from 'date-fns/isEqual';
+import parseISODate from 'date-fns/parseISO';
+import subMilliseconds from 'date-fns/subMilliseconds';
+import addMilliseconds from 'date-fns/addMilliseconds';
+import { getValidDate, isInteger, isString } from '@terascope/utils';
 import { Term, Range } from '../../parser';
 import { isInfiniteMax, isInfiniteMin, parseRange } from '../../utils';
-import { DateInput } from '../interfaces';
 
 // TODO: handle datemath
 
 export function compareTermDates(node: Term) {
-    const nodeTermTime = convert(node.value as string);
-    if (!nodeTermTime) throw new Error(`was not able to convert ${node.value} to a date value`);
+    const nodeTermTime = convertDate(node.value, 0, true);
     return function dateTerm(date: string) {
-        return convert(date) === nodeTermTime;
+        const result = convertDate(date, 0, false);
+        if (!result) return false;
+        return isEqual(result, nodeTermTime);
     };
 }
 
-export function getRangeValues(node: Range) {
+function getRangeValues(node: Range): { start: Date; end: Date } {
     const rangeQuery = parseRange(node);
-    const incMin = rangeQuery.gte != null;
-    const incMax = rangeQuery.lte != null;
-    const minValue = rangeQuery.gte || rangeQuery.gt || '*';
-    const maxValue = rangeQuery.lte || rangeQuery.lt || '*';
+    let incMin = rangeQuery.gte == null ? 1 : 0;
+    let incMax = rangeQuery.lte == null ? -1 : 0;
+
+    let minValue: any = rangeQuery.gte || rangeQuery.gt || '*';
+    let maxValue: any = rangeQuery.lte || rangeQuery.lt || '*';
+
+    if (isInfiniteMin(minValue)) {
+        incMin = 0;
+        minValue = new Date(-8640000000000000);
+    }
+
+    if (isInfiniteMax(maxValue)) {
+        incMax = 0;
+        maxValue = new Date(8640000000000000);
+    }
+
+    const start = convertDate(minValue, incMin, true);
+    const end = convertDate(maxValue, incMax, true);
 
     return {
-        incMin, incMax, minValue, maxValue
+        start,
+        end
     };
-}
-
-function validateRangeValues(node: Range) {
-    const values = getRangeValues(node);
-    const { incMin, incMax } = values;
-    let { minValue, maxValue } = values;
-
-    // javascript min/max date allowable http://www.ecma-international.org/ecma-262/5.1/#sec-15.9.1.1
-    if (isInfiniteMin(minValue)) minValue = -8640000000000000;
-    if (isInfiniteMax(maxValue)) maxValue = 8640000000000000;
-
-    if (!incMin) {
-        const convertedValue = convert(minValue);
-        if (!convertedValue) throw new Error(`was not able to convert ${minValue} to a date value`);
-        minValue = convertedValue + 1;
-    }
-    if (!incMax) {
-        const convertedValue = convert(maxValue);
-        if (!convertedValue) throw new Error(`was not able to convert ${maxValue} to a date value`);
-        maxValue = convertedValue - 1;
-    }
-    return { minValue, maxValue };
 }
 
 export function dateRange(node: Range) {
-    const { minValue, maxValue } = validateRangeValues(node);
-    const start = parseDate(minValue);
-    const end = parseDate(maxValue);
+    const interval = getRangeValues(node);
+    // verify it won't fail
+    isWithinInterval(new Date(), interval);
 
-    return function dateRangeTerm(date: string) {
-        return isWithinInterval(parseDate(date), {
-            start,
-            end
-        });
+    return function dateRangeTerm(date: string): boolean {
+        const result = convertDate(date, 0, false);
+        if (!result) return false;
+
+        try {
+            return isWithinInterval(result, interval);
+        } catch (err) {
+            return false;
+        }
     };
 }
 
-function convert(value: DateInput): number | null {
-    const results = new Date(value).getTime();
-    if (results) return results;
-    return null;
+function convertDate(val: any, inclusive: number, throwErr: false): Date|undefined;
+function convertDate(val: any, inclusive: number, throwErr: true): Date;
+function convertDate(val: any, inclusive: number, throwErr: boolean): Date|undefined {
+    const result: any = getValidDate(val);
+    if (result) return handleInclusive(result, inclusive);
+
+    if (isInteger(val)) return handleInclusive(toDate(val), inclusive);
+    if (isString(val)) return handleInclusive(parseISODate(val), inclusive);
+
+    if (throwErr) throw new Error(`Invalid date format ${val}`);
+    return undefined;
+}
+
+function handleInclusive(date: Date, inclusive: number): Date {
+    if (inclusive === 0) return date;
+    if (inclusive < 0) return subMilliseconds(date, inclusive);
+    return addMilliseconds(date, inclusive);
 }
