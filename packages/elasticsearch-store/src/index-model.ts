@@ -35,8 +35,8 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
                 all_formatters: true,
             },
             index_settings: {
-                'index.number_of_shards': ts.isProd ? 5 : 1,
-                'index.number_of_replicas': ts.isProd ? 1 : 0,
+                'index.number_of_shards': ts.isTest ? 1 : 5,
+                'index.number_of_replicas': ts.isTest ? 0 : 2,
                 analysis: {
                     analyzer: {
                         lowercase_keyword_analyzer: {
