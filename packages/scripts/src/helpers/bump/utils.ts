@@ -104,7 +104,7 @@ export function getBumpCommitMessage(
         messages.push(`bump: (${release}) ${focusNames.join(', ')} (${remaining} more) ...`);
         const moreNames = names.slice(limit).map((name) => `  - ${name}`);
         messages.push(...moreNames);
-    } else {
+    } else if (names.length) {
         messages.push(`bump: (${release}) ${names.join(', ')}`);
     }
 
