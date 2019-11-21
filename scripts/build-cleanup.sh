@@ -8,7 +8,13 @@ main() {
         if [ -z "$remove_only" ] || [ "$remove_only" == "dist" ]; then
             local dist_dir="$cwd/packages/$package/dist"
             if [ -d "$dist_dir" ]; then
-                rm -rf "${dist_dir:?}"/*
+                # delete all files except the dist/src/index
+                # to avoid reloading vscode
+                find "$dist_dir" \
+                    -not -path '*src/index*' \
+                    -and \
+                    -not -name 'dist' \
+                    -print0 | xargs rm -r --
             fi
         fi
 
