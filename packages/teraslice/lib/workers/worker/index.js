@@ -169,16 +169,16 @@ class Worker {
         } catch (err) {
             this.logger.error(err, `slice ${sliceId} run error`);
 
-            if (isFatalError(err)) {
-                throw err;
-            }
-
             if (!sentSliceComplete) {
                 await this._sendSliceComplete({
                     slice: this.slice.slice,
                     analytics: this.slice.analyticsData,
                     error: getFullErrorStack(err)
                 });
+            }
+
+            if (isFatalError(err)) {
+                throw err;
             }
         }
 
