@@ -27,7 +27,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@lerna/query-graph": "^3.18.0",
+        "@lerna/query-graph": "^3.18.5",
         "@terascope/utils": "^0.20.6",
         "@types/is-ci": "^2.0.0",
         "codecov": "^3.5.0",
