@@ -1,4 +1,5 @@
 import isPlainObject from 'is-plain-object';
+import { Logger } from './logger-interface';
 import STATUS_CODES from './status-codes';
 import { AnyObject } from './interfaces';
 import { getFirst } from './arrays';
@@ -208,6 +209,24 @@ export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInf
         statusCode,
         code,
     };
+}
+
+/**
+ * Safely log an error (with the error first Logger syntax)
+*/
+export function logError(logger: Logger, err: any, ...messages: any[]) {
+    if (typeof err === 'string') {
+        logger.error(new TSError(err), ...messages);
+        return;
+    }
+
+    if (isError(err)) {
+        logger.error(err, ...messages);
+        return;
+    }
+
+    // make sure we don't lose the stack
+    logger.error(new TSError(err), ...messages, `invalid message format ${utils.getTypeOf(err)} error`);
 }
 
 function createErrorContext(input: any, config: TSErrorConfig = {}) {

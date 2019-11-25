@@ -5,7 +5,7 @@ const _ = require('lodash');
 const pWhilst = require('p-whilst');
 const Messaging = require('@terascope/teraslice-messaging');
 const {
-    TSError, get, pDelay, getFullErrorStack
+    TSError, get, pDelay, getFullErrorStack, logError
 } = require('@terascope/utils');
 const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
 const { makeStateStore, makeExStore } = require('../../cluster/storage');
@@ -202,7 +202,7 @@ class ExecutionController {
                 this.events.emit('slice:failure', response);
 
                 if (this.scheduler.canComplete()) {
-                    this.setFailingStatus();
+                    this.setFailingStatus('slice failure event');
                 } else if (this.scheduler.isRecovering()) {
                     this._terminalError(new Error('Slice failed while recovering'));
                 } else {
@@ -222,7 +222,7 @@ class ExecutionController {
             // this is updating the opConfig for elasticsearch start and/or end dates for ex,
             // this assumes elasticsearch is first
             this.stores.exStore.update(this.exId, { operations: update }).catch((err) => {
-                this.logger.error(err, 'slicer event execution update failure');
+                logError(this.logger, err, 'slicer event execution update failure');
             });
         };
 
@@ -233,7 +233,7 @@ class ExecutionController {
         };
 
         this._handlers['recovery:failure'] = (err) => {
-            this.logger.error(err, 'recovery finished due to failure');
+            logError(this.logger, err, 'recovery finished due to failure');
             this._terminalError(err);
         };
 
@@ -260,7 +260,7 @@ class ExecutionController {
         try {
             await this._runExecution();
         } catch (err) {
-            this.logger.error(err, 'Run execution error');
+            logError(this.logger, err, 'Run execution error');
         }
 
         this.events.emit('worker:shutdown');
@@ -274,7 +274,7 @@ class ExecutionController {
         try {
             await Promise.all([this.client.sendExecutionFinished(), this._waitForWorkersToExit()]);
         } catch (err) {
-            this.logger.error(err, 'Failure sending execution finished');
+            logError(this.logger, err, 'Failure sending execution finished');
         }
 
         this.logger.debug(`execution ${this.exId} is done`);
@@ -302,10 +302,10 @@ class ExecutionController {
         await pDelay(100);
     }
 
-    async setFailingStatus() {
+    async setFailingStatus(reason) {
         const { exStore } = this.stores;
 
-        const errMsg = `execution ${this.exId} has encountered a processing error`;
+        const errMsg = `execution ${this.exId} has encountered a processing error, reason: ${reason}`;
         this.logger.error(errMsg);
 
         const executionStats = this.executionAnalytics.getAnalytics();
@@ -313,7 +313,7 @@ class ExecutionController {
         try {
             await exStore.setStatus(this.exId, 'failing', errorMeta);
         } catch (err) {
-            this.logger.error(err, 'Failure to set execution status to "failing"');
+            logError(this.logger, err, 'Failure to set execution status to "failing"');
         }
     }
 
@@ -336,7 +336,7 @@ class ExecutionController {
         try {
             await exStore.setStatus(this.exId, 'failed', errorMeta);
         } catch (_err) {
-            this.logger.error(_err, 'failure setting status to failed');
+            logError(this.logger, _err, 'failure setting status to failed');
         }
 
         this.logger.fatal(`execution ${this.exId} is ended because of slice failure`);
@@ -517,7 +517,7 @@ class ExecutionController {
                     });
                     dispatch.length = 0;
 
-                    Promise.all(promises).catch((err) => this.logger.error(err, 'failure to dispatch slices'));
+                    Promise.all(promises).catch((err) => logError(this.logger, err, 'failure to dispatch slices'));
                 });
             }
 
@@ -575,7 +575,7 @@ class ExecutionController {
                 this._removePendingDispatch();
             })
             .catch((err) => {
-                this.logger.error(err, 'error dispatching slice');
+                logError(this.logger, err, 'error dispatching slice');
                 this._removePendingDispatch();
                 this._removePendingSlice();
             });
@@ -837,9 +837,12 @@ class ExecutionController {
             return true;
         }
 
-        await this.client.sendExecutionFinished(error.message);
+        try {
+            await this.client.sendExecutionFinished(error.message);
+        } finally {
+            logError(this.logger, error, 'Unable to verify execution on initialization');
+        }
 
-        this.logger.warn('Unable to verify execution on initialization', error.stack);
         return false;
     }
 
@@ -912,7 +915,7 @@ class ExecutionController {
             errorCount = analyticsData.failed;
             processedCount = analyticsData.processed;
 
-            await this.setFailingStatus();
+            await this.setFailingStatus('slice failure watch dog');
 
             this.sliceFailureInterval = setInterval(() => {
                 const currentAnalyticsData = this.executionAnalytics.getAnalytics();
@@ -932,7 +935,11 @@ class ExecutionController {
                             this.exId
                         } will be set back to 'running' state`
                     );
-                    this.stores.exStore.setStatus(this.exId, 'running');
+
+                    this.stores.exStore.setStatus(this.exId, 'running')
+                        .catch((err) => {
+                            logError(this.logger, err, 'failure to status back to running after running');
+                        });
                     return;
                 }
 

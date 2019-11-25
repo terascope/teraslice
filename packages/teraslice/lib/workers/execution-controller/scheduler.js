@@ -1,7 +1,7 @@
 'use strict';
 
 const {
-    noop, pDelay, get, toString, makeISODate
+    noop, pDelay, get, toString, makeISODate, logError
 } = require('@terascope/utils');
 const pWhilst = require('p-whilst');
 const Queue = require('@terascope/queue');
@@ -192,7 +192,7 @@ class Scheduler {
             try {
                 await this.recover.shutdown();
             } catch (err) {
-                this.logger.error(err, 'failed to shutdown recovery');
+                logError(this.logger, err, 'failed to shutdown recovery');
             }
         }
 
@@ -333,7 +333,7 @@ class Scheduler {
                 })
                 .catch((err) => {
                     _handling = false;
-                    this.logger.error(err, 'failure to run slicers');
+                    logError(this.logger, err, 'failure to run slicers');
                 });
         }, 3);
 
@@ -395,7 +395,7 @@ class Scheduler {
             if (lifecycle === 'once') {
                 throw err;
             } else {
-                this.logger.error(err, 'failure creating slices');
+                logError(this.logger, err, 'failure creating slices');
             }
         }
     }

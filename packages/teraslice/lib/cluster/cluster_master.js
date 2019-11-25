@@ -4,7 +4,7 @@ const Promise = require('bluebird');
 const _ = require('lodash');
 const express = require('express');
 const request = require('request');
-const { pDelay } = require('@terascope/utils');
+const { pDelay, logError } = require('@terascope/utils');
 const { ClusterMaster } = require('@terascope/teraslice-messaging');
 const { makeLogger } = require('../workers/helpers/terafoundation');
 const ExecutionService = require('./services/execution');
@@ -99,7 +99,7 @@ module.exports = function _clusterMaster(context) {
                 logger.info('cluster master is ready!');
                 running = true;
             } catch (err) {
-                logger.error(err, 'error during service initialization');
+                logError(logger, err, 'error during service initialization');
                 running = false;
                 throw err;
             }

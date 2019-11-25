@@ -1,6 +1,6 @@
 'use strict';
 
-const { TSError, getTypeOf } = require('@terascope/utils');
+const { TSError, getTypeOf, logError } = require('@terascope/utils');
 const { makeLogger } = require('../helpers/terafoundation');
 const { logOpStats } = require('../helpers/op-analytics');
 
@@ -123,11 +123,11 @@ class Slice {
     }
 
     async _markFailed(err) {
-        const { stateStore, slice, logger } = this;
+        const { stateStore, slice } = this;
 
         await stateStore.updateState(slice, 'error', err);
 
-        logger.error(err, `slice state for ${this.executionContext.exId} has been marked as error`);
+        logError(this.logger, err, `slice state for ${this.executionContext.exId} has been marked as error`);
 
         await this._onSliceFailure(slice);
 
