@@ -28,7 +28,7 @@
     },
     "dependencies": {
         "@terascope/utils": "^0.20.7",
-        "aws-sdk": "^2.574.0",
+        "aws-sdk": "^2.579.0",
         "bluebird": "^3.5.5",
         "bunyan": "^1.8.12",
         "convict": "^4.4.1",
