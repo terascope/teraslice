@@ -1,7 +1,7 @@
 'use strict';
 
 const {
-    get, pDelay, pRaceWithTimeout, isError
+    get, pDelay, pRaceWithTimeout, isError, getTypeof
 } = require('@terascope/utils');
 const ms = require('ms');
 const { makeLogger } = require('./terafoundation');
@@ -58,6 +58,21 @@ function shutdownHandler(context, shutdownFn) {
         process.exit(0);
     }
 
+    function logError(err, message) {
+        if (typeof err === 'string') {
+            logger.error(new Error(err), message);
+            return;
+        }
+
+        if (isError(err)) {
+            logger.error(err, message);
+            return;
+        }
+
+        // make sure we don't lose the stack
+        logger.error(new Error(toString(err)), `${message}, got ${getTypeof(err)} error`);
+    }
+
     async function flushLogs() {
         try {
             await logger.flush();
@@ -66,7 +81,7 @@ function shutdownHandler(context, shutdownFn) {
             const code = process.exitCode || 0;
             logger.debug(`flushed logs successfully, will exit with code ${code}`);
         } catch (err) {
-            logger.error(err, 'flush error on shutdown');
+            logError(err, 'flush error on shutdown');
         }
     }
 
@@ -86,11 +101,10 @@ function shutdownHandler(context, shutdownFn) {
     }
 
     async function shutdownWithTimeout(event, err) {
-        const logError = (_err) => {
-            logger.error(_err, 'shutdown error after timeout');
-        };
         const timeout = shutdownTimeout - 2000;
-        await pRaceWithTimeout(callShutdownFn(event, err), timeout, logError);
+        await pRaceWithTimeout(callShutdownFn(event, err), timeout, (timeoutErr) => {
+            logError(timeoutErr, 'shutdown error after timeout');
+        });
     }
 
     async function exit(event, err) {
@@ -103,7 +117,7 @@ function shutdownHandler(context, shutdownFn) {
             await shutdownWithTimeout(event, err);
             logger.info(`${assignment} shutdown took ${ms(Date.now() - startTime)}`);
         } catch (error) {
-            logger.error(error, `${assignment} while shutting down`);
+            logError(error, `${assignment} while shutting down`);
         } finally {
             await flushLogs();
             if (allowNonZeroExitCode) {
@@ -134,13 +148,13 @@ function shutdownHandler(context, shutdownFn) {
     });
 
     process.on('uncaughtException', (err) => {
-        logger.error(err, `${assignment} received an uncaughtException, ${exitingIn()}`);
+        logError(err, `${assignment} received an uncaughtException, ${exitingIn()}`);
         setStatusCode(1);
         exit('uncaughtException', err);
     });
 
     process.once('unhandledRejection', (err) => {
-        logger.error(err, `${assignment} received an unhandledRejection, ${exitingIn()}`);
+        logError(err, `${assignment} received an unhandledRejection, ${exitingIn()}`);
         setStatusCode(1);
         exit('unhandledRejection', err);
     });
@@ -160,7 +174,7 @@ function shutdownHandler(context, shutdownFn) {
     // event is fired from terafoundation when an error occurs during instantiation of a client
     // **DEPRECATED:** This handler should be removed on teraslice v1
     events.once('client:initialization:error', (err) => {
-        logger.error(err, `${assignment} received a client initialization error, ${exitingIn()}`);
+        logError(err, `${assignment} received a client initialization error, ${exitingIn()}`);
         setStatusCode(1);
         exit('client:initialization:error', err);
     });
@@ -168,7 +182,7 @@ function shutdownHandler(context, shutdownFn) {
     events.once('worker:shutdown:complete', (err) => {
         setStatusCode(0);
         if (err) {
-            logger.error(err, `${assignment} shutdown error, ${exitingIn()}`);
+            logError(err, `${assignment} shutdown error, ${exitingIn()}`);
         } else {
             logger.info(`${assignment} shutdown, ${exitingIn()}`);
         }
