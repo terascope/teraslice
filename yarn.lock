@@ -7891,10 +7891,10 @@ mkdirp@*, mkdirp@0.5.1, mkdirp@0.x, mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~0.5.1:
   dependencies:
     minimist "0.0.8"
 
-mnemonist@^0.30.0:
-  version "0.30.0"
-  resolved "https://registry.yarnpkg.com/mnemonist/-/mnemonist-0.30.0.tgz#c8c37f4425b8abcf7aa04a34199af254b398a90f"
-  integrity "sha1-yMN/RCW4q896oEo0GZryVLOYqQ8= sha512-g9rbX4ug7am8oW3jnM7adaFaj5vv5PeOaMPNUwjKQQaTyY+qPQHTmUF59/ZOfQdtTknkjA7+7RhtmL2C0mtwPA=="
+mnemonist@^0.31.3:
+  version "0.31.3"
+  resolved "https://registry.yarnpkg.com/mnemonist/-/mnemonist-0.31.3.tgz#bb2857ad8c00891c23684af67d7ad39676780178"
+  integrity sha512-COyTIeUNrltQ5e08mxkJmzagJF6c6vwYl2dI6DtsH8qtutFEgoIsJ/jqXtS57M52DreGKVtOusINzDRk2r3YMA==
   dependencies:
     obliterator "^1.5.0"
 
