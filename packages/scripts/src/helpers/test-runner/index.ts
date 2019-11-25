@@ -107,11 +107,15 @@ async function runTestSuite(
         );
     }
 
-    writeHeader(`Running test suite "${suite}"`, false);
+    const chunked = chunk(pkgInfos, CHUNK_SIZE);
+
+    // don't log unless this useful information (more than one package)
+    if (chunked.length > 1 && chunked[0].length > 1) {
+        writeHeader(`Running test suite "${suite}"`, false);
+    }
 
     const cleanup = await ensureServices(suite, options);
 
-    const chunked = chunk(pkgInfos, CHUNK_SIZE);
     const timeLabel = `test suite "${suite}"`;
     signale.time(timeLabel);
 
