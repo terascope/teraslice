@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import path from 'path';
 import execa from 'execa';
 import fse from 'fs-extra';
