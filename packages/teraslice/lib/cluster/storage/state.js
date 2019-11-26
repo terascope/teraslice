@@ -79,7 +79,8 @@ module.exports = async function stateStorage(context) {
             state
         };
 
-        if (state === 'error') {
+        // it will usaully just be error
+        if (state === 'error' || error) {
             if (error) {
                 record.error = getFullErrorStack(error);
             } else {
