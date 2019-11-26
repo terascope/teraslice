@@ -2,11 +2,6 @@ import { Slicer, AnyObject, SlicerRecoveryData } from '@terascope/job-components
 
 export default class Counter extends Slicer<AnyObject> {
     count = 0;
-    // @ts-ignore
-    constructor(...args) {
-        // @ts-ignore
-        super(...args);
-    }
 
     async initialize(recoveryData: SlicerRecoveryData[]) {
         super.initialize(recoveryData);
@@ -15,7 +10,6 @@ export default class Counter extends Slicer<AnyObject> {
             this.count = lastSlice.request.count;
         }
     }
-
 
     isRecoverable() {
         return true;
