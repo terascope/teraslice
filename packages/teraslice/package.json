@@ -33,7 +33,7 @@
     },
     "dependencies": {
         "@terascope/elasticsearch-api": "^2.2.2",
-        "@terascope/job-components": "^0.23.11",
+        "@terascope/job-components": "^0.24.0",
         "@terascope/queue": "^1.1.7",
         "@terascope/teraslice-messaging": "^0.4.11",
         "@terascope/utils": "^0.20.7",
@@ -64,7 +64,7 @@
         "uuid": "^3.3.3"
     },
     "devDependencies": {
-        "@terascope/teraslice-op-test-harness": "^1.7.13",
+        "@terascope/teraslice-op-test-harness": "^1.8.0",
         "archiver": "^3.0.0",
         "bufferstreams": "^3.0.0",
         "chance": "^1.1.3",
