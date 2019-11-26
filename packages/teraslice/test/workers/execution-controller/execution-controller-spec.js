@@ -188,12 +188,12 @@ describe('ExecutionController', () => {
                 exController.logger.error = logErr;
 
                 const stats = exController.executionAnalytics.getAnalytics();
-                await exController.setFailingStatus();
+                await exController.setFailingStatus('some reason');
 
                 expect(setStatus).toHaveBeenCalledWith(testContext.exId, 'failing', errMeta);
                 expect(executionMetaData).toHaveBeenCalledWith(
                     stats,
-                    `execution ${testContext.exId} has encountered a processing error`
+                    `execution ${testContext.exId} has encountered a processing error, reason: some reason`
                 );
                 expect(logErr).toHaveBeenCalledTimes(2);
             });

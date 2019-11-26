@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const { TSError } = require('@terascope/utils');
+const { TSError, logError } = require('@terascope/utils');
 const Promise = require('bluebird');
 const { makeLogger } = require('../../../../../workers/helpers/terafoundation');
 const K8sResource = require('./k8sResource');
@@ -63,7 +63,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
                 // log though.  This only gets used to show slicer info through
                 // the API.  We wouldn't want to disrupt the cluster master
                 // for rare failures to reach the k8s API.
-                logger.error(err, 'Error listing teraslice pods in k8s');
+                logError(logger, err, 'Error listing teraslice pods in k8s');
             });
     }
 

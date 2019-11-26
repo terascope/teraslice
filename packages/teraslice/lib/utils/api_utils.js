@@ -1,8 +1,13 @@
 'use strict';
 
-const _ = require('lodash');
 const Table = require('easy-table');
-const { parseErrorInfo, parseList } = require('@terascope/utils');
+const {
+    parseErrorInfo,
+    parseList,
+    logError,
+    isString,
+    get,
+} = require('@terascope/utils');
 
 function makeTable(req, defaults, data, mappingFn) {
     const query = fieldsQuery(req.query, defaults);
@@ -15,8 +20,8 @@ function makeTable(req, defaults, data, mappingFn) {
     }
 
     return Table.print(data, (item, cell) => {
-        const fn = mappingFn ? mappingFn(item) : (field) => _.get(item, field, emptyChar);
-        _.each(query, (field) => {
+        const fn = mappingFn ? mappingFn(item) : (field) => get(item, field, emptyChar);
+        query.forEach((field) => {
             cell(field, fn(field));
         });
     }, (table) => {
@@ -46,7 +51,7 @@ function handleRequest(req, res, defaultErrorMsg = 'Failure to process request',
     return async (fn) => {
         try {
             const result = await fn();
-            if (_.isString(result)) {
+            if (isString(result)) {
                 res.status(successCode).send(result);
             } else {
                 res.status(successCode).json(result);
@@ -58,9 +63,9 @@ function handleRequest(req, res, defaultErrorMsg = 'Failure to process request',
             });
 
             if (statusCode >= 500) {
-                req.logger.error(err);
+                logError(req.logger, err);
             } else {
-                req.logger.error(message);
+                logError(req.logger, message);
             }
 
             sendError(res, statusCode, message);
@@ -89,7 +94,7 @@ function makePrometheus(stats, defaultLabels = {}) {
     };
 
     let returnString = '';
-    _.forEach(stats.controllers, (value, key) => {
+    Object.entries(stats.controllers).forEach(([key, value]) => {
         const name = metricMapping[key];
         if (name !== '') {
             returnString += `# TYPE ${name} counter\n`;
@@ -114,7 +119,7 @@ function makePrometheusLabels(defaults, custom) {
 }
 
 function isPrometheusRequest(req) {
-    const acceptHeader = _.get(req, 'headers.accept', '');
+    const acceptHeader = get(req, 'headers.accept', '');
     return acceptHeader && acceptHeader.indexOf('application/openmetrics-text;') > -1;
 }
 
@@ -124,9 +129,11 @@ function getSearchOptions(req, defaultSort = '_updated:desc') {
 }
 
 function logRequest(req) {
-    const queryInfo = _.map(req.query, (val, key) => `${key}: ${val}`).join(', ');
+    const queryInfo = Object.entries(req.query)
+        .map(([key, val]) => `${key}: ${val}`)
+        .join(', ');
     const { method, path } = req;
-    req.logger.trace(`${_.toUpper(method)} ${path} endpoint has been called, ${queryInfo}`);
+    req.logger.trace(`${method.toUpperCase()} ${path} endpoint has been called, ${queryInfo}`);
 }
 
 module.exports = {

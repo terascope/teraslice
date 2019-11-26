@@ -1,6 +1,6 @@
 'use strict';
 
-const { TSError, parseError } = require('@terascope/utils');
+const { TSError, getTypeOf, logError } = require('@terascope/utils');
 const { makeLogger } = require('../helpers/terafoundation');
 const { logOpStats } = require('../helpers/op-analytics');
 
@@ -36,7 +36,8 @@ class Slice {
             result = await this.executionContext.runSlice();
             sliceSuccess = true;
             await this._markCompleted();
-        } catch (err) {
+        } catch (_err) {
+            const err = _err || new Error(`Unknown slice error, got ${getTypeOf(_err)} error`);
             // avoid incorrectly marking
             // the slice as failed when it fails
             // to mark it as "complete"
@@ -122,13 +123,11 @@ class Slice {
     }
 
     async _markFailed(err) {
-        const { stateStore, slice, logger } = this;
+        const { stateStore, slice } = this;
 
-        const errMsg = err ? parseError(err, true) : new Error('Unknown error occurred');
+        await stateStore.updateState(slice, 'error', err);
 
-        await stateStore.updateState(slice, 'error', errMsg);
-
-        logger.error(err, `slice state for ${this.executionContext.exId} has been marked as error`);
+        logError(this.logger, err, `slice state for ${this.executionContext.exId} has been marked as error`);
 
         await this._onSliceFailure(slice);
 

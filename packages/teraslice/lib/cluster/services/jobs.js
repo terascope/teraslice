@@ -6,6 +6,7 @@ const {
     TSError,
     uniq,
     get,
+    logError,
     cloneDeep,
     isEmpty
 } = require('@terascope/utils');
@@ -150,7 +151,7 @@ module.exports = function jobsService(context) {
 
     function shutdown() {
         return jobStore.shutdown().catch((err) => {
-            logger.error(err, 'Error while shutting down job stores');
+            logError(logger, err, 'Error while shutting down job stores');
             // no matter what we need to shutdown
             return true;
         });
