@@ -7,6 +7,7 @@ import {
     TestClientConfig,
     FetcherCore,
     SlicerCore,
+    SlicerRecoveryData
 } from '@terascope/job-components';
 import SlicerTestHarness from './slicer-test-harness';
 import WorkerTestHarness from './worker-test-harness';
@@ -60,7 +61,7 @@ export default class JobTestHarness {
      * @param recoveryData is an array of starting points to recover from
      * the retry data is only passed to slicer
     */
-    async initialize(recoveryData?: object[]) {
+    async initialize(recoveryData?: SlicerRecoveryData[]) {
         await this.slicerHarness.initialize(recoveryData);
         await this.workerHarness.initialize();
     }

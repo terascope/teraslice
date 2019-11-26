@@ -13,6 +13,7 @@ import {
     ExecutionStats,
     SlicerCore,
     TSError,
+    SlicerRecoveryData
 } from '@terascope/job-components';
 import BaseTestHarness from './base-test-harness';
 import { JobHarnessOptions } from './interfaces';
@@ -48,7 +49,7 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
      * Initialize the Operations on the ExecutionContext
      * @param recoveryData is an array of starting points to recover from
     */
-    async initialize(recoveryData: object[] = []) {
+    async initialize(recoveryData: SlicerRecoveryData[] = []) {
         await super.initialize();
         // teraslice checks to see if slicer is recoverable
         // should throw test recoveryData if slicer is not recoverable
