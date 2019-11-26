@@ -57,7 +57,7 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
         if (recoveryData.length > 0) {
             if (!this.executionContext.slicer().isRecoverable()) throw new TSError('Slicer is not recoverable, please create the isRecoverable method and return true to enable recovery');
             recoveryData.forEach((slice) => {
-                const data = get(slice, 'lastSlice.request');
+                const data = get(slice, 'lastSlice');
                 if (data == null) throw new Error('recoveryData is malformed');
             });
         }

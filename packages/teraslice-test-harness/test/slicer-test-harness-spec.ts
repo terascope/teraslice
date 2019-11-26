@@ -41,13 +41,8 @@ describe('SlicerTestHarness', () => {
 
         it('should throw if given recoveryData since slicer is not recoverable', async () => {
             expect.assertions(1);
-            const lastSlice = {
-                slice_id: 'someId',
-                slicer_id: 0,
-                slicer_order: 345,
-                request: { some: 'stuff' },
-                _created: new Date().toISOString()
-            };
+            const lastSlice = { some: 'stuff' };
+
             try {
                 await slicerHarness.initialize([{ lastSlice }]);
             } catch (err) {
@@ -94,11 +89,7 @@ describe('SlicerTestHarness', () => {
         ];
 
         const lastSlice = {
-            slice_id: 'someId',
-            slicer_id: 0,
-            slicer_order: 345,
-            request: { count: 25 },
-            _created: new Date().toISOString()
+            count: 25
         };
 
         beforeEach(() => {
@@ -117,16 +108,11 @@ describe('SlicerTestHarness', () => {
 
         it('should throw if recovery data is malformed', async () => {
             expect.assertions(2);
-            const badRecoveryData = {
-                slice_id: 'someId',
-                slicer_id: 0,
-                slicer_order: 345,
-                _created: new Date().toISOString()
-            };
+            const badRecoveryData = { some: 'stuff' };
 
             try {
                 // @ts-ignore
-                await slicerHarness.initialize([{ lastSlice: badRecoveryData }]);
+                await slicerHarness.initialize([badRecoveryData]);
             } catch (err) {
                 expect(err).toBeDefined();
             }
