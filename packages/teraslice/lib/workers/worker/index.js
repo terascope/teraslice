@@ -4,6 +4,7 @@ const {
     get,
     getFullErrorStack,
     isFatalError,
+    logError,
     pWhile
 } = require('@terascope/utils');
 const { ExecutionController, formatURL } = require('@terascope/teraslice-messaging');
@@ -105,7 +106,7 @@ class Worker {
                 await this.runOnce();
             } catch (err) {
                 process.exitCode = 1;
-                this.logger.error(err, 'Worker must shutdown due to fatal error');
+                logError(this.logger, err, 'Worker must shutdown due to fatal error');
                 this.forceShutdown = true;
             } finally {
                 running = false;
@@ -167,11 +168,7 @@ class Worker {
 
             await this.executionContext.onSliceFinished(sliceId);
         } catch (err) {
-            this.logger.error(err, `slice ${sliceId} run error`);
-
-            if (isFatalError(err)) {
-                throw err;
-            }
+            logError(this.logger, err, `slice ${sliceId} run error`);
 
             if (!sentSliceComplete) {
                 await this._sendSliceComplete({
@@ -179,6 +176,10 @@ class Worker {
                     analytics: this.slice.analyticsData,
                     error: getFullErrorStack(err)
                 });
+            }
+
+            if (isFatalError(err)) {
+                throw err;
             }
         }
 

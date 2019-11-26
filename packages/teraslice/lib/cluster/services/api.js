@@ -5,7 +5,7 @@ const { Router } = require('express');
 const Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const request = require('request');
-const { parseErrorInfo, parseList } = require('@terascope/utils');
+const { parseErrorInfo, parseList, logError } = require('@terascope/utils');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 const {
     makePrometheus,
@@ -468,7 +468,7 @@ module.exports = async function makeAPI(context, app, options) {
                         }
                     })
                     .catch((err) => {
-                        logger.error(err);
+                        logError(logger, err, 'failure waiting for stop');
                         setTimeout(checkExecution, 3000);
                     });
             }
