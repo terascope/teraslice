@@ -115,6 +115,30 @@ describe('SlicerTestHarness', () => {
             await slicerHarness.initialize([{ lastSlice }]);
         });
 
+        it('should throw if recovery data is malformed', async () => {
+            expect.assertions(2);
+            const badRecoveryData = {
+                slice_id: 'someId',
+                slicer_id: 0,
+                slicer_order: 345,
+                _created: new Date().toISOString()
+            };
+
+            try {
+                // @ts-ignore
+                await slicerHarness.initialize([{ lastSlice: badRecoveryData }]);
+            } catch (err) {
+                expect(err).toBeDefined();
+            }
+
+            try {
+                // @ts-ignore
+                await slicerHarness.initialize(['asdfasdfasdf']);
+            } catch (err) {
+                expect(err).toBeDefined();
+            }
+        });
+
         it('can recovery to previous count', async () => {
             const expectedResults = { count: 26 };
 
