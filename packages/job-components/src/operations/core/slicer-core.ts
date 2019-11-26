@@ -27,7 +27,7 @@ export default abstract class SlicerCore<T = OpConfig>
     implements SlicerOperationLifeCycle {
     // ...
     protected stats: ExecutionStats;
-    protected recoveryData: object[];
+    protected recoveryData: SlicerRecoveryData[];
     protected readonly opConfig: Readonly<OpConfig & T>;
     private readonly queue: Queue<Slice>;
 
@@ -58,6 +58,9 @@ export default abstract class SlicerCore<T = OpConfig>
      * @param recoveryData is the data to recover from
      */
     async initialize(recoveryData: SlicerRecoveryData[]): Promise<void> {
+        if (recoveryData?.length > 0 && !this.isRecoverable()) {
+            throw new Error('cannot provide recovery data to a slicer that is not recoverable. Please create the isRecoverable method and have it return true if recovery is desired');
+        }
         this.recoveryData = recoveryData;
         this.context.logger.trace(`${this.executionConfig.name}->${this.opConfig._op} is initializing...`, recoveryData);
     }
