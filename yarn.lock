@@ -9196,10 +9196,10 @@ quickselect@^1.0.1:
   resolved "https://registry.yarnpkg.com/quickselect/-/quickselect-1.1.1.tgz#852e412ce418f237ad5b660d70cffac647ae94c2"
   integrity sha512-qN0Gqdw4c4KGPsBOQafj6yj/PA6c/L63f6CaZ/DCF/xF4Esu3jVmKLUDYxghFx8Kb/O7y9tI7x2RjTSXwdK1iQ==
 
-rambda@~3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/rambda/-/rambda-3.0.1.tgz#d35c6eba5f101510ecf98fc444164c411be6e6a3"
-  integrity sha512-wwH5lCnWHriTYAmyj12gmiVu7AaFZOanBp/iXsyTR8meZ9kaLOrwfSSwAx3dUK6Lk++0z5zh0MHV/HdSvw7gzQ==
+rambda@~4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/rambda/-/rambda-4.4.0.tgz#c300335e2c0a560f0d6334c200728cd753c5cce4"
+  integrity sha512-NbQBX5LOfSIHnLQww+QPiHqllTTnKqPLs0pqwBcVctkPh+o0AHCJ985rwGVS9OgaT+GGKI1lOIX3aTQnqXjoPA==
 
 range-parser@~1.2.1:
   version "1.2.1"
