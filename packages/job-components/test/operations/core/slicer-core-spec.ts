@@ -29,23 +29,14 @@ describe('SlicerCore', () => {
         it('should resolve undefined', () => expect(slicer.initialize([])).resolves.toBeUndefined());
 
         it('should throw if slicer is not recoverable but given recoveryData', async () => {
-            expect.hasAssertions();
-            const errMsg = 'cannot provide recovery data to a slicer that is not recoverable. Please create the isRecoverable method and have it return true if recovery is desired';
-            try {
-                await slicer.initialize([
-                    {
-                        lastSlice: {
-                            slice_id: 'someId',
-                            slicer_id: 0,
-                            slicer_order: 34,
-                            _created: 'someTime',
-                            request: { some: 'data' },
-                        }
-                    }
-                ]);
-            } catch (err) {
-                expect(err.message).toEqual(errMsg);
-            }
+            const context = new TestContext('teraslice-operations2');
+            const exConfig = newTestExecutionConfig();
+            exConfig.recovered_execution = 'someexID';
+            exConfig.operations.push({
+                _op: 'example-op',
+            });
+            const opConfig = exConfig.operations[0];
+            expect(() => new ExampleSlicerCore(context as WorkerContext, opConfig, exConfig)).toThrowWithMessage(Error, 'Slicer is not recoverable');
         });
     });
 

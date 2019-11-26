@@ -37,7 +37,6 @@ export default abstract class SlicerCore<T = OpConfig>
         });
 
         super(context, executionConfig, logger);
-
         this.opConfig = opConfig;
         this.queue = new Queue();
         this.recoveryData = [];
@@ -51,6 +50,10 @@ export default abstract class SlicerCore<T = OpConfig>
                 failed: 0,
             },
         };
+
+        if (this.executionConfig.recovered_execution && !this.isRecoverable()) {
+            throw new Error('Slicer is not recoverable');
+        }
     }
 
     /**
@@ -58,9 +61,6 @@ export default abstract class SlicerCore<T = OpConfig>
      * @param recoveryData is the data to recover from
      */
     async initialize(recoveryData: SlicerRecoveryData[]): Promise<void> {
-        if (recoveryData?.length > 0 && !this.isRecoverable()) {
-            throw new Error('cannot provide recovery data to a slicer that is not recoverable. Please create the isRecoverable method and have it return true if recovery is desired');
-        }
         this.recoveryData = recoveryData;
         this.context.logger.trace(`${this.executionConfig.name}->${this.opConfig._op} is initializing...`, recoveryData);
     }
