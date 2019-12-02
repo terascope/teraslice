@@ -42,7 +42,7 @@
         "@types/nanoid": "^2.0.0",
         "@types/node": "^12.12.14",
         "@types/uuid": "^3.4.6",
-        "eslint": "^6.7.1",
+        "eslint": "^6.7.2",
         "jest": "^24.9.0",
         "jest-extended": "^0.11.2",
         "jest-watch-typeahead": "^0.4.0",
