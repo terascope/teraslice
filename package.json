@@ -40,7 +40,7 @@
         "@types/jest": "^24.0.23",
         "@types/lodash": "^4.14.149",
         "@types/nanoid": "^2.0.0",
-        "@types/node": "^12.12.11",
+        "@types/node": "^12.12.14",
         "@types/uuid": "^3.4.6",
         "eslint": "^6.7.1",
         "jest": "^24.9.0",
