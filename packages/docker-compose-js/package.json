@@ -21,7 +21,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "bluebird": "^3.5.5",
+        "bluebird": "^3.7.2",
         "debug": "^4.1.1"
     },
     "devDependencies": {},
