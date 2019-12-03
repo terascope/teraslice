@@ -25,12 +25,12 @@ function validate(params: i.Term[]) {
         relation = GeoShapeRelation.Within;
     }
 
-    if (geoPointsParam == null) throw new Error('geoPolygon query needs to specify a "points" parameter');
-    if (!Array.isArray(geoPointsParam.value)) throw new Error('points parameter must be an array');
+    if (geoPointsParam == null) throw new TSError('geoPolygon query needs to specify a "points" parameter');
+    if (!Array.isArray(geoPointsParam.value)) throw new TSError('points parameter must be an array');
 
     const points = geoPointsParam.value.map((node) => {
-        if (!node.value) throw new Error('points parameter must be an array of string values');
-        return parseGeoPoint(node.value);
+        const value = node.value || node;
+        return parseGeoPoint(value);
     });
 
     if (points.length < 3) throw new Error('geoPolygon points parameter must have at least three points');

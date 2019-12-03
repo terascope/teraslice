@@ -140,33 +140,35 @@ export function parseGeoPoint(point: GeoPointInput): GeoPoint;
 export function parseGeoPoint(point: GeoPointInput, throwInvalid: true): GeoPoint;
 export function parseGeoPoint(point: GeoPointInput, throwInvalid: false): GeoPoint | null;
 export function parseGeoPoint(point: GeoPointInput, throwInvalid = true): GeoPoint | null {
-    let results = null;
+    let lat: number | undefined;
+    let lon: number | undefined;
 
     if (typeof point === 'string') {
         if (point.match(',')) {
-            results = parseNumberList(point);
+            [lat, lon] = parseNumberList(point);
         } else {
             try {
-                results = Object.values(geoHash.decode(point));
+                [lat, lon] = Object.values(geoHash.decode(point));
             } catch (err) {
                 // do nothing
             }
         }
     } else if (Array.isArray(point)) {
-        results = parseNumberList(point);
+        // array of points are meant to be lon/lat format
+        [lon, lat] = parseNumberList(point);
     } else if (isPlainObject(point)) {
-        results = getLonAndLat(point, throwInvalid);
+        [lat, lon] = getLonAndLat(point, throwInvalid);
     }
 
-    if (throwInvalid && (!results || results.length !== 2)) {
+    if (throwInvalid && (!lat || !lon)) {
         throw new TSError(`incorrect point given to parse, point:${point}`);
     }
 
     // data incoming is lat,lon and we must return lon,lat
-    if (results) {
+    if (lat && lon) {
         return {
-            lat: results[0],
-            lon: results[1],
+            lat,
+            lon
         };
     }
     return null;
@@ -246,12 +248,10 @@ function createGeoQuery(field: string, value: any, targetType: FieldType, fieldP
         }
 
         if (isGeoShapePoint(value)) {
-            // geoShape point is [lon, lat] need to return [lat, lon]
-            const data = [value.coordinates[1], value.coordinates[0]];
             if (isGeoPointType(targetType)) {
-                return makeXluceneGeoDistanceQuery(field, data, fieldParam);
+                return makeXluceneGeoDistanceQuery(field, value.coordinates, fieldParam);
             }
-            return makeXlucenePolyContainsPoint(field, data);
+            return makeXlucenePolyContainsPoint(field, value.coordinates);
         }
         // We do not support any other geoJSON types;
         return '';
