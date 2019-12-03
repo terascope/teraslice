@@ -8,7 +8,8 @@ import {
     AnyObject,
     escapeString,
     uniq,
-    withoutNil
+    withoutNil,
+    TSError
 } from '@terascope/utils';
 import { Range } from './parser/interfaces';
 import {
@@ -158,7 +159,7 @@ export function parseGeoPoint(point: GeoPointInput, throwInvalid = true): GeoPoi
     }
 
     if (throwInvalid && (!results || results.length !== 2)) {
-        throw new Error(`incorrect point given to parse, point:${point}`);
+        throw new TSError(`incorrect point given to parse, point:${point}`);
     }
 
     // data incoming is lat,lon and we must return lon,lat

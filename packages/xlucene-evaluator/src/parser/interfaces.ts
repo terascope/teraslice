@@ -8,9 +8,14 @@ import {
     FieldType
 } from '../interfaces';
 
+export interface Variables {
+    [key: string]: string | number | boolean | string[] | number[] | boolean[];
+}
+
 export interface ParserOptions {
     type_config?: TypeConfig;
     logger?: Logger;
+    variables?: Variables;
 }
 
 export type AST = EmptyAST & LogicalGroup & Term

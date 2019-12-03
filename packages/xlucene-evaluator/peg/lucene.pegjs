@@ -7,7 +7,8 @@
         parseInferredTermType,
         isInferredTermType,
         propagateDefaultField,
-        parseFunction
+        parseFunction,
+        getVariable
     } = makeContext(options.contextArg);
 }
 
@@ -164,6 +165,7 @@ BaseTermExpression
             field,
         }
     }
+    / RestrictedVariableExpression
     / field:FieldName ws* FieldSeparator ws* range:RangeExpression {
         coerceTermType(range.left, field);
         coerceTermType(range.right, field);
@@ -197,6 +199,25 @@ BaseTermExpression
     }
     / field:FieldName ws* FieldSeparator ws* term:(BooleanType / FloatType / IntegerType / RestrictedStringType) {
         const node = { ...term, field };
+        coerceTermType(node);
+        return node;
+    }
+
+VariableExpression
+    = field:FieldName ws* FieldSeparator ws* VariableSign chars:VariableChar+ {
+        const key = chars.join('');
+        const value = getVariable(key);
+        const node = { value, field, type: i.ASTType.Term };
+        coerceTermType(node);
+        return node;
+    }
+
+RestrictedVariableExpression
+    = field:FieldName ws* FieldSeparator ws* VariableSign chars:VariableChar+ {
+        const key = chars.join('');
+        const value = getVariable(key);
+        if (Array.isArray(value)) throw new Error(`variable $${key} is set to an Array value, which usage is only allowed with xlucene function expressions`);
+        const node = { value, field, type: i.ASTType.Term };
         coerceTermType(node);
         return node;
     }
@@ -251,11 +272,14 @@ FunctionParams
          if (params) return [param, ...params]
          return [param]
     }
-    / param:TermExpression ws* Comma* ws* params:FunctionParams? {
+    / param:FunctionTermExpression ws* Comma* ws* params:FunctionParams? {
          if (params) return [param, ...params]
          return [param]
     }
 
+FunctionTermExpression
+    = VariableExpression
+    / TermExpression
 // We are not currectly allowing this to be used across the whole system other than for geo points
 // If we were to use this across the system ListItem would become a grammar "type"
 // Im keeping it contained for now until we see how this evolves for general use
@@ -599,6 +623,9 @@ WildcardCharSet "wildcard"
 FieldChar "field"
   = [_a-zA-Z0-9-\.\?\*]
 
+VariableChar
+  = [_a-zA-Z0-9-\.\?\*]
+
 FieldSeparator ""
   = ':'
 
@@ -669,6 +696,9 @@ OneToNine "a character between 1-9"
 
 Digit "a character between 0-9"
     = [0-9]
+
+VariableSign
+    = '$'
 
 NumReservedChar
   = " "

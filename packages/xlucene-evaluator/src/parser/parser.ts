@@ -22,8 +22,10 @@ export class Parser {
 
         this.query = trim(query || '');
 
+        const variables = options.variables ? utils.validateVariables(options.variables) : {};
         const contextArg = {
             typeConfig: options.type_config,
+            variables,
             logger: this.logger
         };
 

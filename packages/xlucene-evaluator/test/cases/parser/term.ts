@@ -563,4 +563,53 @@ export default [
             value: `/value\\\\`,
         },
     ],
+    [
+        `field:$bar`,
+        'variable with value is a string',
+        {
+            value: 'someValue',
+            field: 'field',
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: false,
+        },
+        {
+            field: 'string'
+        },
+        {
+            bar: 'someValue'
+        }
+    ],
+    [
+        `field:$bar`,
+        'variable with value is a boolean',
+        {
+            value: false,
+            field: 'field',
+            type: ASTType.Term,
+            field_type: FieldType.Boolean,
+        },
+        {
+            field: 'boolean'
+        },
+        {
+            bar: false
+        }
+    ],
+    [
+        `field:$bar`,
+        'variable with value is a number',
+        {
+            value: 2345,
+            field: 'field',
+            type: ASTType.Term,
+            field_type: FieldType.Integer,
+        },
+        {
+            field: 'integer'
+        },
+        {
+            bar: 2345
+        }
+    ],
 ] as TestCase[];

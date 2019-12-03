@@ -1,4 +1,4 @@
-import { Logger } from '@terascope/utils';
+import { Logger, TSError } from '@terascope/utils';
 import { parseGeoDistance, parseGeoPoint } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
@@ -7,9 +7,11 @@ import { TypeConfig, FieldType } from '../interfaces';
 
 export default function makeContext(args: any) {
     let typeConfig: TypeConfig;
+    let variables: i.Variables;
+
     let logger: Logger;
     // eslint-disable-next-line
-    ({ typeConfig = {}, logger } = args);
+    ({ typeConfig = {}, variables = {}, logger } = args);
     if (!typeConfig || !logger) {
         throw new Error('Peg Engine given invalid context');
     }
@@ -52,6 +54,12 @@ export default function makeContext(args: any) {
     function getFieldType(field: string): FieldType|undefined {
         if (!field) return;
         return typeConfig[field];
+    }
+
+    function getVariable(value: string) {
+        const variable = variables[value];
+        if (variable === undefined) throw new TSError(`could not find a variable set with key "${value}"`);
+        return variable;
     }
 
     const inferredFieldTypes = [FieldType.String];
@@ -129,7 +137,7 @@ export default function makeContext(args: any) {
 
         if (fieldType === FieldType.String) {
             node.field_type = fieldType;
-            node.qouted = false;
+            node.quoted = false;
             node.value = `${node.value}`;
         }
     }
@@ -142,6 +150,7 @@ export default function makeContext(args: any) {
         parseInferredTermType,
         isInferredTermType,
         propagateDefaultField,
-        parseFunction
+        parseFunction,
+        getVariable
     };
 }

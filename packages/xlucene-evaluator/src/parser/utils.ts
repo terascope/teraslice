@@ -1,4 +1,9 @@
-import { isString, isEmpty } from '@terascope/utils';
+import {
+    isString,
+    isEmpty,
+    isPlainObject,
+    TSError
+} from '@terascope/utils';
 import * as i from './interfaces';
 import { FieldType } from '../interfaces';
 
@@ -98,4 +103,12 @@ export const groupTypes: i.ASTType[] = [i.ASTType.LogicalGroup, i.ASTType.FieldG
 
 export function isGroupLike(node: any): node is i.GroupLikeAST {
     return node && groupTypes.includes(node.type);
+}
+
+export function validateVariables(obj: i.Variables): i.Variables {
+    if (!isPlainObject(obj)) throw new TSError('variables option must be an object');
+    for (const [, value] of Object.entries(obj)) {
+        if (isPlainObject(value)) throw new TSError('a value in a variable cannot be set to an object');
+    }
+    return obj;
 }

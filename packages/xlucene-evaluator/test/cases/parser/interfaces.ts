@@ -1,4 +1,4 @@
-import { AST, TypeConfig } from '../../../src';
+import { AST, TypeConfig, Variables } from '../../../src';
 
 export type TestCase = [
     // when give query %s
@@ -8,5 +8,6 @@ export type TestCase = [
     // toMatchObject(%j)
     AST,
     // Type config to pass in
-    TypeConfig?
+    TypeConfig?,
+    Variables?
 ];
