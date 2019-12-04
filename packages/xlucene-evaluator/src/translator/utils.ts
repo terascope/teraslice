@@ -1,7 +1,23 @@
-import { TSError, isString } from '@terascope/utils';
+import { TSError, isString, toString } from '@terascope/utils';
 import * as p from '../parser';
 import * as i from './interfaces';
-import { parseRange } from '../utils';
+import { parseRange, buildRangeQueryString } from '../utils';
+import { isWildCardString } from '../document-matcher/logic-builder/string';
+
+type WildCardQueryResults = i.WildcardQuery | i.MultiMatchQuery | i.QueryString
+
+type TermQueryResults =
+    | i.TermQuery
+    | i.MatchQuery
+    | i.MatchPhraseQuery
+    | i.MultiMatchQuery
+    | i.QueryString
+
+type RangeQueryResults =
+    | i.RangeQuery
+    | i.MultiMatchQuery
+    | i.QueryString
+    | undefined
 
 export function translateQuery(
     parser: p.Parser,
@@ -156,7 +172,7 @@ export function translateQuery(
         return geoQuery;
     }
 
-    function buildRangeQuery(node: p.Range): i.RangeQuery | i.MultiMatchQuery | undefined {
+    function buildRangeQuery(node: p.Range): RangeQueryResults {
         if (isMultiMatch(node)) {
             if (!node.right) {
                 return;
@@ -166,6 +182,12 @@ export function translateQuery(
         }
 
         const field = getTermField(node);
+
+        if (isWildCardString(field)) {
+            const rangeString = buildRangeQueryString(node);
+            if (rangeString == null) return;
+            return buildQueryString(field, rangeString, node);
+        }
 
         const rangeQuery: i.RangeQuery = {
             range: {
@@ -177,15 +199,17 @@ export function translateQuery(
         return rangeQuery;
     }
 
-    function buildTermQuery(
-        node: p.Term
-    ): i.TermQuery | i.MatchQuery | i.MatchPhraseQuery | i.MultiMatchQuery {
+    function buildTermQuery(node: p.Term): TermQueryResults {
         if (isMultiMatch(node)) {
             const query = `${node.value}`;
             return buildMultiMatchQuery(node, query);
         }
 
         const field = getTermField(node);
+
+        if (isWildCardString(field)) {
+            return buildQueryString(field, toString(node.value), node);
+        }
 
         if (isString(node.value)) {
             const matchQuery: i.MatchQuery = {
@@ -211,13 +235,17 @@ export function translateQuery(
         return termQuery;
     }
 
-    function buildWildcardQuery(node: p.Wildcard): i.WildcardQuery | i.MultiMatchQuery {
+    function buildWildcardQuery(node: p.Wildcard): WildCardQueryResults {
         if (isMultiMatch(node)) {
             const query = `${node.value}`;
             return buildMultiMatchQuery(node, query);
         }
 
         const field = getTermField(node);
+
+        if (isWildCardString(field)) {
+            return buildQueryString(field, node.value, node);
+        }
 
         const wildcardQuery: i.WildcardQuery = {
             wildcard: {
@@ -229,13 +257,29 @@ export function translateQuery(
         return wildcardQuery;
     }
 
-    function buildRegExprQuery(node: p.Regexp): i.RegExprQuery | i.MultiMatchQuery {
+    function buildQueryString(field: string, value: string, node: any) {
+        const queryString = {
+            query_string: {
+                fields: [field],
+                query: value
+            }
+        };
+        logger.trace('built wildcard query', { node, queryString });
+        return queryString;
+    }
+
+    function buildRegExprQuery(node: p.Regexp): i.RegExprQuery | i.MultiMatchQuery | i.QueryString {
         if (isMultiMatch(node)) {
             const query = `${node.value}`;
             return buildMultiMatchQuery(node, query);
         }
 
         const field = getTermField(node);
+
+        if (isWildCardString(field)) {
+            // parsing strips off the outer /, so we need to put it back in
+            return buildQueryString(field, `/${node.value}/`, node);
+        }
 
         const regexQuery: i.RegExprQuery = {
             regexp: {

@@ -104,11 +104,11 @@ export default [
         },
     ],
     [
-        'nested.*:hello-there',
+        'nested.field:hello-there',
         'query.constant_score.filter',
         {
             match: {
-                'nested.*': {
+                'nested.field': {
                     operator: 'and',
                     query: 'hello-there',
                 },
@@ -148,6 +148,56 @@ export default [
                     operator: 'and',
                     query: '/value\\\\',
                 },
+            },
+        },
+    ],
+    [
+        'field_*:something',
+        'query.constant_score.filter',
+        {
+            query_string: {
+                fields: ['field_*'],
+                query: 'something',
+            },
+        },
+    ],
+    [
+        'field_*:>=100',
+        'query.constant_score.filter',
+        {
+            query_string: {
+                fields: ['field_*'],
+                query: '[100 TO *]',
+            },
+        },
+    ],
+    [
+        'field_*:<100',
+        'query.constant_score.filter',
+        {
+            query_string: {
+                fields: ['field_*'],
+                query: '[* TO 100}',
+            },
+        },
+    ],
+    [
+        'field_*:wor?d',
+        'query.constant_score.filter',
+        {
+            query_string: {
+                fields: ['field_*'],
+                query: 'wor?d',
+            },
+        },
+    ],
+    [
+        'field_*:/wo.*d/',
+        'query.constant_score.filter',
+        {
+            query_string: {
+                fields: ['field_*'],
+                query: '/wo.*d/',
             },
         },
     ],

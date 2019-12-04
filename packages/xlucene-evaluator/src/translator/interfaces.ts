@@ -54,7 +54,8 @@ export type AnyQuery =
     | ExistsQuery
     | RegExprQuery
     | RangeQuery
-    | MultiMatchQuery;
+    | MultiMatchQuery
+    | QueryString;
 
 export interface ExistsQuery {
     exists: {
@@ -112,6 +113,13 @@ export interface GeoQuery {
 export interface RegExprQuery {
     regexp: {
         [field: string]: string;
+    };
+}
+
+export interface QueryString {
+    query_string: {
+        fields: string[];
+        query: string;
     };
 }
 
