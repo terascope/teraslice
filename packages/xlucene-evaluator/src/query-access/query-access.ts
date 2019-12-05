@@ -31,6 +31,9 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             constraint,
             allow_empty_queries: allowEmpty = true,
         } = config;
+        const typeConfig = options.type_config;
+        if (ts.isEmpty(typeConfig)) throw new Error('type_config must be provided');
+        this.typeConfig = typeConfig;
 
         this.logger = options.logger != null
             ? options.logger.child({ module: 'xlucene-query-access' })
@@ -45,7 +48,6 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         this.defaultGeoField = config.default_geo_field;
         this.defaultGeoSortOrder = config.default_geo_sort_order;
         this.defaultGeoSortUnit = config.default_geo_sort_unit;
-        this.typeConfig = options.type_config || {};
     }
 
     clearCache() {
@@ -161,7 +163,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             type_config: this.typeConfig,
             logger: this.logger
         });
-
+        // TODO: restrict typeconfig here and pass in
         const translator = this._translator.make(parsed, {
             type_config: this.typeConfig,
             logger: this.logger,
@@ -237,11 +239,13 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
     private _isFieldExcluded(field: string): boolean {
         if (!this.excludes.length) return false;
+        // TODO handle cases where * is in the field
         return this.excludes.some((str) => ts.startsWith(field, str as string));
     }
 
     private _isFieldIncluded(field: string): boolean {
         if (!this.includes.length) return false;
+        // TODO handle cases where * is in the field
         return !this.includes.some((str) => ts.startsWith(field, str as string));
     }
 }
