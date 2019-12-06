@@ -69,6 +69,15 @@ if (hasTypescript) {
             rules: rules.react,
         },
         {
+            // overrides just for spec files
+            files: ['*-spec.js', '*-spec.ts', '*-spec.tsx', '*-spec.jsx'],
+            plugins: ['jest'],
+            env: {
+                'jest/globals': true
+            },
+            rules: rules.jest,
+        },
+        {
             // overrides just for typescript files
             files: ['*.ts'],
             extends: ['plugin:@typescript-eslint/recommended', 'airbnb-base'],
