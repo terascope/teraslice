@@ -27,11 +27,6 @@ module.exports = Object.assign({}, jsRules, {
     'no-dupe-class-members': 'off',
     'lines-between-class-members': 'off',
 
-    // better miss handling of promises linting
-    '@typescript-eslint/no-misused-promises': ['error', {
-        checksVoidReturn: false
-    }],
-
     // The following rules make compatibility between eslint rules and typescript rules
     'consistent-return': 'off',
     'brace-style': 'off',

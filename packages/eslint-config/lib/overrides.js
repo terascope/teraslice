@@ -1,7 +1,5 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
 const rules = require('./rules');
 
 let hasTypescript;
@@ -14,35 +12,6 @@ try {
 
 const overrides = [];
 if (hasTypescript) {
-    const project = [];
-    try {
-        const pkg = JSON.parse(fs.readFileSync('./package.json'));
-
-        if (fs.existsSync('./tsconfig.json')) {
-            project.push('./tsconfig.json');
-        }
-
-        if (pkg.workspaces) {
-            pkg.workspaces
-                .forEach((workspace) => {
-                    project.push(
-                        ...getTSProjects(workspace)
-                            .map((ref) => `./${ref}`)
-                    );
-                });
-        }
-    } catch (err) {
-        // do nothing
-    }
-
-    if (!project.length) {
-        const projectOnlyRules = ['@typescript-eslint/no-misused-promises'];
-        projectOnlyRules.forEach((rule) => {
-            delete rules.typescript[rule];
-            delete rules.react[rule];
-        });
-    }
-
     overrides.push(
         {
             // overrides just for react files
@@ -59,7 +28,6 @@ if (hasTypescript) {
             parserOptions: {
                 ecmaVersion: 8,
                 sourceType: 'module',
-                project: project.length ? project : undefined,
                 ecmaFeatures: {
                     modules: true,
                     jsx: true,
@@ -77,7 +45,6 @@ if (hasTypescript) {
             parserOptions: {
                 ecmaVersion: 8,
                 sourceType: 'module',
-                project: project.length ? project : undefined,
                 ecmaFeatures: {
                     modules: true,
                     jsx: false,
@@ -95,26 +62,6 @@ if (hasTypescript) {
             rules: rules.jest,
         },
     );
-}
-
-function getTSProjects(workspace) {
-    const folderPath = workspace.replace(/\*$/, '');
-    if (!fs.existsSync(folderPath)) return [];
-    const tsconfigPath = path.join(folderPath, 'tsconfig.json');
-    if (fs.existsSync(tsconfigPath)) {
-        return [tsconfigPath];
-    }
-    if (fs.existsSync(path.join(folderPath, 'package.json'))) {
-        return [];
-    }
-    return fs
-        .readdirSync(folderPath)
-        .filter((pkgName) => {
-            const pkgDir = path.join(folderPath, pkgName);
-            const tsConfigPath = path.join(pkgDir, 'tsconfig.json');
-            return fs.existsSync(tsConfigPath);
-        })
-        .map((pkgName) => path.join(folderPath, pkgName, 'tsconfig.json'));
 }
 
 module.exports = overrides;
