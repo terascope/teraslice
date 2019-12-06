@@ -134,14 +134,7 @@ describe('getConnection foundation API', () => {
         expect(mongodb.connect).toHaveBeenCalledTimes(1);
     });
 
-    it.todo('should return the default s3 connection', () => {
-        // const { foundation } = context.apis;
-        // const config = { type: 's3' };
-        // const { client } = foundation.getConnection(config);
-
-        // expect(client).toEqual(awsClient);
-        // expect(aws.S3).toHaveBeenCalledTimes(1);
-    });
+    it.todo('should return the default s3 connection');
 
     it('should return the default redis connection', () => {
         const { foundation } = context.apis;
