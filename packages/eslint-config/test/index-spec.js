@@ -27,7 +27,7 @@ describe('ESLint Config Index', () => {
         expect(Index).toHaveProperty('overrides');
         expect(Index.overrides).toBeArray();
         expect(Index.overrides[0]).toMatchObject({
-            files: ['.jsx', '*.tsx'],
+            files: ['*.jsx', '*.tsx'],
             extends: ['plugin:@typescript-eslint/recommended', 'airbnb'],
             parser: '@typescript-eslint/parser',
             env: {

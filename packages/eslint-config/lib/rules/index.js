@@ -1,13 +1,13 @@
 'use strict';
 
-const javascript = require('./javascript');
-const typescript = require('./typescript');
-const react = require('./react');
-const jest = require('./jest');
+const javascriptRules = require('./javascript');
+const typescriptRules = require('./typescript');
+const reactRules = require('./react');
+const jestRules = require('./jest');
 
 module.exports = {
-    javascript,
-    typescript,
-    react,
-    jest,
+    javascript: javascriptRules,
+    typescript: typescriptRules,
+    react: reactRules,
+    jest: jestRules,
 };
