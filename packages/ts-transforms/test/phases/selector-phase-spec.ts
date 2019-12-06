@@ -1,4 +1,3 @@
-
 import path from 'path';
 import { DataEntity, debugLogger } from '@terascope/utils';
 import {

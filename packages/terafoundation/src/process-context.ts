@@ -4,7 +4,6 @@ import { CoreContext } from './core-context';
 import { getArgs } from './sysconfig';
 import * as i from './interfaces';
 
-
 /**
  * A Single Process Context, this should be used when running
  * in a single process instance/container. This context doesn't

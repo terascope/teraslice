@@ -1,4 +1,3 @@
-
 import { CMD } from '../../interfaces';
 
 export = {

@@ -764,7 +764,6 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         return Object.assign({}, defaultParams, params);
     }
 
-
     function _migrate(index, migrantIndexName, mapping, recordType, clusterName) {
         const reindexQuery = {
             slices: 4,

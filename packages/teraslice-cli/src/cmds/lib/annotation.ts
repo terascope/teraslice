@@ -1,4 +1,3 @@
-
 // @ts-ignore
 import request from 'request-promise';
 import Reply from './reply';

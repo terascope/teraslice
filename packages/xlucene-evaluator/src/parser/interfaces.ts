@@ -1,4 +1,3 @@
-
 import { Logger } from '@terascope/utils';
 import { UtilsTranslateQueryOptions, AnyQuery, AnyQuerySort } from '../translator/interfaces';
 import {

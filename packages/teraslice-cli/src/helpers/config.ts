@@ -1,4 +1,3 @@
-
 import fs from 'fs';
 import _ from 'lodash';
 import { has } from '@terascope/utils';

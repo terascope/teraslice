@@ -36,7 +36,6 @@ class K8s {
         }
     }
 
-
     /**
      * Returns the k8s NamespaceList object
      * @return {Promise} [description]
@@ -53,7 +52,6 @@ class K8s {
         }
         return namespaces.body;
     }
-
 
     /**
     * returns list of k8s objects matching provided selector
@@ -100,7 +98,6 @@ class K8s {
 
         return response.body;
     }
-
 
     /**
      * posts manifest to k8s
@@ -171,7 +168,6 @@ class K8s {
         return response.body;
     }
 
-
     /**
      * Deletes k8s object of specified objType
      * @param  {String} name     Name of the deployment to delete
@@ -219,7 +215,6 @@ class K8s {
         return response.body;
     }
 
-
     /**
      * Delete all of the deployments and services related to the specified exId
      * @param  {String}  exId ID of the execution
@@ -236,7 +231,6 @@ class K8s {
             this._deleteObjByExId(exId, 'execution_controller', 'services')
         ]);
     }
-
 
     /**
      * Finds the k8s object by nodeType and exId and then deletes it

@@ -1,4 +1,3 @@
-
 import graphlib from 'graphlib';
 import { Logger, cloneDeep, has } from '@terascope/utils';
 import shortid from 'shortid';

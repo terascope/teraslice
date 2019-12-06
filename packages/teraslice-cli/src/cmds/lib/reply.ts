@@ -1,4 +1,3 @@
-
 import chalk from 'chalk';
 import { toString, get } from '@terascope/utils';
 

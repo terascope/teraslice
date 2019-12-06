@@ -39,6 +39,14 @@ module.exports = {
         'error',
         { allowTernary: true, allowShortCircuit: true },
     ],
+    'no-multiple-empty-lines': [
+        'error',
+        {
+            max: 1,
+            maxBOF: 0,
+            maxEOF: 0
+        }
+    ],
     'import/prefer-default-export': 'off',
     'no-empty-function': 'off',
     'prefer-object-spread': 'off',

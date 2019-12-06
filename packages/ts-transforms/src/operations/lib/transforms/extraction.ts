@@ -1,4 +1,3 @@
-
 import {
     DataEntity, matchAll, get, set, AnyObject, TSError
 } from '@terascope/utils';

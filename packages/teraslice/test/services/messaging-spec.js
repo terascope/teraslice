@@ -321,6 +321,10 @@ describe('messaging module', () => {
         testContext.cleanup();
     });
 
+    // This test is broken but it works.
+    // We may not need a test for this because this messaging service
+    // should be replaced with @terascope/teraslice-messaging.
+    // eslint-disable-next-line jest/no-disabled-tests
     xit('can send transactional and non-transactional messages', async () => {
         const testContext = getContext({ env: { assignment: 'cluster_master' } });
         const eventEmitter = testContext.apis.foundation.getSystemEvents();

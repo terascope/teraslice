@@ -138,7 +138,7 @@ describe('Elasticsearch Store Utils', () => {
             });
         });
 
-        describe('when passed an empty name', () => {
+        describe('when passed no name', () => {
             it('should throw an error', () => {
                 expect(() => {
                     validateIndexConfig({});

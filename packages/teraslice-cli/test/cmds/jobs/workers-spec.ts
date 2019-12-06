@@ -1,4 +1,3 @@
-
 import yargs from 'yargs';
 import workers from '../../../src/cmds/jobs/workers';
 

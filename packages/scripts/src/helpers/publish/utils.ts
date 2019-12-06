@@ -66,7 +66,6 @@ export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType)
     return false;
 }
 
-
 function padNumber(n: number): string {
     if (n < 10) return `0${n}`;
     return `${n}`;

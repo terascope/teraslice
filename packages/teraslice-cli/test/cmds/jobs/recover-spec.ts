@@ -1,4 +1,3 @@
-
 import yargs from 'yargs';
 import recover from '../../../src/cmds/jobs/recover';
 

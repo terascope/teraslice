@@ -1,4 +1,3 @@
-
 import yargs from 'yargs';
 import list from '../../../src/cmds/nodes/list';
 

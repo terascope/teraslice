@@ -1,4 +1,3 @@
-
 import signale from 'signale';
 import { has, parseErrorInfo } from '@terascope/utils';
 import TerasliceClient from 'teraslice-client-js';

@@ -1,4 +1,3 @@
-
 import shortid from 'shortid';
 import { Logger, set } from '@terascope/utils';
 import { OperationConfigInput, OperationConfig } from '../interfaces';

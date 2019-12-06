@@ -1,4 +1,3 @@
-
 import yargs from 'yargs';
 import stop from '../../../src/cmds/ex/stop';
 

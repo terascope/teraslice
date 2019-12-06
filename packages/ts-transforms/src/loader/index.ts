@@ -1,4 +1,3 @@
-
 import Loader from './loader';
 import RulesLoader from './rules-loader';
 import RulesParser from './rules-parser';

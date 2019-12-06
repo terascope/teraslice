@@ -1,4 +1,3 @@
-
 import { startsWith, TSError } from '@terascope/utils';
 
 export default class Url {

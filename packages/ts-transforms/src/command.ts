@@ -1,4 +1,3 @@
-
 import yargs from 'yargs';
 import path from 'path';
 import fs from 'fs';
@@ -187,7 +186,6 @@ async function transformIO(manager: PhaseManager) {
                 process.stderr.write('\n');
                 console.time('execution-time');
             }
-
 
             rl.on('line', (str: string) => {
                 const obj = parseLine(str);
