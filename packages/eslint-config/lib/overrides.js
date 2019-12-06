@@ -46,7 +46,7 @@ if (hasTypescript) {
     overrides.push(
         {
             // overrides just for react files
-            files: ['.jsx', '*.tsx'],
+            files: ['*.jsx', '*.tsx'],
             extends: ['plugin:@typescript-eslint/recommended', 'airbnb'],
             plugins: ['@typescript-eslint'],
             parser: '@typescript-eslint/parser',
@@ -91,19 +91,17 @@ if (hasTypescript) {
 function getTSProjects(workspace) {
     const folderPath = workspace.replace(/\*$/, '');
     if (!fs.existsSync(folderPath)) return [];
+    const tsconfigPath = path.join(folderPath, 'tsconfig.json');
+    if (fs.existsSync(tsconfigPath)) {
+        return [tsconfigPath];
+    }
     if (fs.existsSync(path.join(folderPath, 'package.json'))) {
-        const tsconfigPath = path.join(folderPath, 'tsconfig.json');
-        if (fs.existsSync(tsconfigPath)) {
-            return [tsconfigPath];
-        }
         return [];
     }
     return fs
         .readdirSync(folderPath)
         .filter((pkgName) => {
             const pkgDir = path.join(folderPath, pkgName);
-
-            if (!fs.statSync(pkgDir).isDirectory()) return false;
             const tsConfigPath = path.join(pkgDir, 'tsconfig.json');
             return fs.existsSync(tsConfigPath);
         })
