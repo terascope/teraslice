@@ -261,20 +261,92 @@ describe('QueryAccess', () => {
     });
 
     describe('when using a field wildcard', () => {
-        const queryAccess = new QueryAccess({
-            excludes: ['field_'],
-        }, {
-            type_config: {
-                field_one: FieldType.String,
-                field_two: FieldType.String,
-            }
-        });
-        // TODO ensure typeconfig
-        xit('should throw if excludes field wildcard query', () => {
+        it('should not throw if includes matches field wildcard', () => {
+            const queryAccess = new QueryAccess({
+                includes: ['field_'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                }
+            });
+
             const query = 'field_*:bar';
-            expect(queryAccess.restrict(query)).toThrow();
+            expect(() => queryAccess.restrict(query)).not.toThrow();
+        });
+
+        it('should throw if includes does not match all fields', () => {
+            const queryAccess = new QueryAccess({
+                includes: ['field_'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                    foo: FieldType.String
+                }
+            });
+
+            const query = 'field_*:bar AND foo:bar';
+            expect(() => queryAccess.restrict(query)).toThrow();
+        });
+
+        it('should not throw if type_config field has valid matching fields', () => {
+            const queryAccess = new QueryAccess({
+                includes: ['field_one'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                }
+            });
+
+            const query = 'field_*:bar';
+            expect(() => queryAccess.restrict(query)).not.toThrow();
+        });
+
+        it('should throw if excludes matches all fields wildcard query', () => {
+            const queryAccess = new QueryAccess({
+                excludes: ['field_'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                }
+            });
+
+            const query = 'field_*:bar';
+            expect(() => queryAccess.restrict(query)).toThrow();
+        });
+
+        it('should not throw if field wildcard query is not restricted on all variants', () => {
+            const queryAccess = new QueryAccess({
+                excludes: ['field_two'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                }
+            });
+
+            const query = 'field_*:bar';
+            expect(queryAccess.restrict(query)).toEqual(query);
+        });
+
+        it('should throw if excludes contains all variants for field wildcard query', () => {
+            const queryAccess = new QueryAccess({
+                excludes: ['field_one', 'field_two'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                }
+            });
+
+            const query = 'field_*:bar';
+            expect(() => queryAccess.restrict(query)).toThrow();
         });
     });
+
     describe('when using a constraint that is not restricted', () => {
         const constraint = 'foo:bar';
         const queryAccess = new QueryAccess({

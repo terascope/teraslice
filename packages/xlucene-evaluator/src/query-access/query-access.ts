@@ -5,6 +5,7 @@ import * as p from '../parser';
 import { CachedTranslator, SortOrder } from '../translator';
 import * as i from './interfaces';
 import { GeoDistanceUnit, TypeConfig } from '../interfaces';
+import { isWildCardString, parseWildCard, matchString } from '../document-matcher/logic-builder/string';
 
 const _logger = ts.debugLogger('xlucene-query-access');
 
@@ -239,13 +240,31 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
     private _isFieldExcluded(field: string): boolean {
         if (!this.excludes.length) return false;
-        // TODO handle cases where * is in the field
+
+        if (isWildCardString(field)) {
+            const regex = parseWildCard(field);
+            const results: string[] = [];
+            // collect all pertinent typeConfig fields to wildcard
+            for (const [key] of Object.entries(this.typeConfig)) {
+                if (matchString(key, regex)) results.push(key);
+            }
+            // check if excludes matches with targeted typeConfig Fields
+            const excludesMatch = results.filter(
+                (typeField) => this.excludes.some((str) => ts.startsWith(typeField, str as string))
+            );
+            // if they are the same then all matched typeConfig fields are excluded
+            const bool = results.length === excludesMatch.length;
+            return bool;
+        }
         return this.excludes.some((str) => ts.startsWith(field, str as string));
     }
 
     private _isFieldIncluded(field: string): boolean {
         if (!this.includes.length) return false;
-        // TODO handle cases where * is in the field
+        if (isWildCardString(field)) {
+            const regex = parseWildCard(field);
+            return !this.includes.some((str) => matchString(str, regex));
+        }
         return !this.includes.some((str) => ts.startsWith(field, str as string));
     }
 }

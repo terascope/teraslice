@@ -264,7 +264,7 @@ export function translateQuery(
                 query: value
             }
         };
-        logger.trace('built wildcard query', { node, queryString });
+        logger.trace('built query string query', { node, queryString });
         return queryString;
     }
 
