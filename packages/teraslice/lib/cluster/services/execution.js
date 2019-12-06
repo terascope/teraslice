@@ -107,7 +107,6 @@ module.exports = function executionService(context, { clusterMasterServer }) {
             });
     }
 
-
     function _iterateState(cb) {
         return _.chain(getClusterState())
             .filter((node) => node.state === 'connected')
@@ -509,7 +508,6 @@ module.exports = function executionService(context, { clusterMasterServer }) {
                 return Promise.reject(error);
             });
     }
-
 
     return makeExStore(context)
         .then((ex) => {

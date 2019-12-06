@@ -1,4 +1,3 @@
-
 import path from 'path';
 import { debugLogger, isPlainObject, has } from '@terascope/utils';
 import { RulesLoader, OperationConfigInput } from '../../src';

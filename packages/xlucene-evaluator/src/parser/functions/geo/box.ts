@@ -1,4 +1,3 @@
-
 import { polyHasPoint, makeBBox } from './helpers';
 import * as i from '../../interfaces';
 import { parseGeoPoint } from '../../../utils';

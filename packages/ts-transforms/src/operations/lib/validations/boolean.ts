@@ -1,4 +1,3 @@
-
 import { isBoolean } from '@terascope/utils';
 import { PostProcessConfig, BoolValidationResult } from '../../../interfaces';
 import ValidationOpBase from './base';

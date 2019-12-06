@@ -188,8 +188,7 @@ xdescribe(processorName, () => {
             asset: 'test_script'
         };
         try {
-            const checkData = await harness.runAsync(data, opConfig, context);
-            fail(checkData);
+            await expect(harness.runAsync(data, opConfig, context)).toReject();
         } catch (error) {
             const errorLines = error.toString().split('\n');
             expect(errorLines[0].trim()).toEqual('Traceback (most recent call last):');
@@ -211,8 +210,7 @@ xdescribe(processorName, () => {
             asset: 'test_script'
         };
         try {
-            const checkData = await harness.runAsync(data, opConfig, context);
-            fail(checkData);
+            await expect(harness.runAsync(data, opConfig, context)).toReject();
         } catch (error) {
             expect(error.code).toEqual('ENOENT');
             expect(error.errno).toEqual('ENOENT');

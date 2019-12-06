@@ -1,4 +1,3 @@
-
 import bbox from '@turf/bbox';
 import bboxPolygon from '@turf/bbox-polygon';
 // @ts-ignore

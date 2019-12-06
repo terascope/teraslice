@@ -1,4 +1,3 @@
-
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 import { CMD } from '../../interfaces';

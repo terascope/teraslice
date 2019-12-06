@@ -1,4 +1,3 @@
-
 import { debugLogger } from '@terascope/utils';
 import { BooleanCB, DocumentMatcherOptions } from './interfaces';
 import logicBuilder from './logic-builder';

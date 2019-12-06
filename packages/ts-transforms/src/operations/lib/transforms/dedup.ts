@@ -1,4 +1,3 @@
-
 import { DataEntity, get, uniq } from '@terascope/utils';
 import TransformOpBase from './base';
 import { PostProcessConfig } from '../../../interfaces';

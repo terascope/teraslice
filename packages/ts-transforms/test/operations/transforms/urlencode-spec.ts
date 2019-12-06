@@ -1,4 +1,3 @@
-
 import { DataEntity } from '@terascope/utils';
 import { UrlEncode } from '../../../src/operations';
 

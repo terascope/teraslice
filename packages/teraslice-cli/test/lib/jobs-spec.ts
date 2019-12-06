@@ -1,4 +1,3 @@
-
 import path from 'path';
 import Jobs from '../../src/helpers/jobs';
 

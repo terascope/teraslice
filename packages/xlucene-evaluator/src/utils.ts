@@ -29,7 +29,6 @@ import {
     isGeoShapePoint
 } from './parser/functions/geo/helpers';
 
-
 export function isInfiniteValue(input?: number|string) {
     return input === '*' || input === Number.NEGATIVE_INFINITY || input === Number.POSITIVE_INFINITY;
 }

@@ -1,4 +1,3 @@
-
 import path from 'path';
 import fs from 'fs-extra';
 import yeoman from 'yeoman-environment';

@@ -108,5 +108,4 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
     return logger;
 }
 
-
 export { Logger };

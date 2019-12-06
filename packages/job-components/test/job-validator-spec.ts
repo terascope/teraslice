@@ -38,25 +38,6 @@ describe('JobValidator', () => {
             expect(validJob.assets).toBeDefined();
         });
 
-        it('will properly read an operation', () => {
-            const jobSpec: JobConfig = {
-                name: 'test',
-                assets: ['fixtures'],
-                operations: [
-                    {
-                        _op: 'example-reader',
-                    },
-                    {
-                        _op: 'noop',
-                    },
-                ],
-            };
-
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).not.toThrowError();
-        });
-
         it('will throw based off op validation errors', () => {
         // if subslice_by_key, then it needs type specified or it will error
             const jobSpec: JobConfig = {

@@ -1,4 +1,3 @@
-
 import convict from 'convict';
 import { cloneDeep } from '@terascope/utils';
 import {

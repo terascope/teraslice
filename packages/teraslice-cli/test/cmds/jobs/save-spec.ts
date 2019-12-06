@@ -1,4 +1,3 @@
-
 import yargs from 'yargs';
 import save from '../../../src/cmds/jobs/save';
 

@@ -1,4 +1,3 @@
-
 import 'jest-extended';
 import nock from 'nock';
 import Job from '../src/job';

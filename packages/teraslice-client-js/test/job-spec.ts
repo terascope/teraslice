@@ -456,7 +456,7 @@ describe('Teraslice Job', () => {
             });
         });
 
-        describe('when called and the state has workers', () => {
+        describe('when called and the state has workers (with headers)', () => {
             beforeEach(() => {
                 scope.get('/cluster/state')
                     .matchHeader('Some-Header', 'yes')
@@ -577,7 +577,7 @@ describe('Teraslice Job', () => {
             });
         });
 
-        describe('when called and it matches on the first try', () => {
+        describe('when called and it matches on the first try (with headers)', () => {
             const searchOptions = { headers: { 'Some-Header': 'yes' } };
 
             beforeEach(() => {

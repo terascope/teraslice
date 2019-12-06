@@ -1,4 +1,3 @@
-
 export = {
     args: (yargs: any) => {
         yargs

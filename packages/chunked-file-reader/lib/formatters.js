@@ -31,7 +31,6 @@ function _toRecords(rawData, delimiter, slice) {
     return outputData.split(delimiter).splice(1);
 }
 
-
 // No parsing, leaving to reader or a downstream op.
 function raw(incomingData, logger, opConfig, metadata, slice) {
     const data = _toRecords(incomingData, opConfig.line_delimiter, slice);

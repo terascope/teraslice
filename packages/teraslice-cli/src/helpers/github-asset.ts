@@ -1,4 +1,3 @@
-
 import fs from 'fs-extra';
 import { TSError } from '@terascope/utils';
 import downloadRelease from '@terascope/fetch-github-release';

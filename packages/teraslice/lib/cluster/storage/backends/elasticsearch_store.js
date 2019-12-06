@@ -82,7 +82,6 @@ module.exports = function elasticsearchStorage(backendConfig) {
             esQuery.body = query;
         }
 
-
         if (fields) {
             const esVersion = elasticsearch.getESVersion();
             if (esVersion > 6) {

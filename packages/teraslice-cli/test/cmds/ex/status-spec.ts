@@ -1,4 +1,3 @@
-
 import yargs from 'yargs';
 import status from '../../../src/cmds/ex/status';
 

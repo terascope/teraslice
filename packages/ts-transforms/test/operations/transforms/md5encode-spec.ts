@@ -1,4 +1,3 @@
-
 import { DataEntity } from '@terascope/utils';
 import crypto from 'crypto';
 import { Md5Encode } from '../../../src/operations';

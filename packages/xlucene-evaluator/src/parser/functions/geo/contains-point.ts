@@ -1,4 +1,3 @@
-
 import { point } from '@turf/helpers';
 import { pointInGeoShape } from './helpers';
 import { parseGeoPoint } from '../../../utils';
