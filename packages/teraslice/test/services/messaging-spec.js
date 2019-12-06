@@ -321,7 +321,7 @@ describe('messaging module', () => {
         testContext.cleanup();
     });
 
-    xit('can send transactional and non-transactional messages', async () => {
+    it.todo('can send transactional and non-transactional messages', async () => {
         const testContext = getContext({ env: { assignment: 'cluster_master' } });
         const eventEmitter = testContext.apis.foundation.getSystemEvents();
         const messaging = messagingModule(testContext, logger);

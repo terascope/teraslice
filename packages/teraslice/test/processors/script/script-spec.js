@@ -8,6 +8,7 @@ const harness = opHarness(processor);
 
 const processorName = 'script processor';
 
+// eslint-disable-next-line
 xdescribe(processorName, () => {
     const assetPath = path.relative(process.cwd(), path.join(__dirname, './test_scripts'));
 

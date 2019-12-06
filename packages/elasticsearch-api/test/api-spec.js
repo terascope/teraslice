@@ -521,13 +521,6 @@ describe('elasticsearch-api', () => {
         return expect(results).toBeTruthy();
     });
 
-    it('can call nodeStats', async () => {
-        const api = esApi(client, logger);
-
-        const results = await api.nodeStats();
-        return expect(results).toBeTruthy();
-    });
-
     it('can warn window size with version', () => {
         const api = esApi(client, logger, { index: 'some_index' });
 
