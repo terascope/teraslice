@@ -1,4 +1,3 @@
-
 import { isPlainObject } from '@terascope/utils';
 import { BooleanCB } from '../interfaces';
 

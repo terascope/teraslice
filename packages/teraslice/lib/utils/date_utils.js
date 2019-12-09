@@ -43,7 +43,6 @@ function dateOptions(value) {
     throw new Error(`the time descriptor of "${value}" for the interval is malformed`);
 }
 
-
 function timeseriesIndex(timeseriesFormat, index, dateStr) {
     const timestamp = new Date().toISOString();
     const formatter = { daily: 10, monthly: 7, yearly: 4 };

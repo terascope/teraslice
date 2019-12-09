@@ -493,7 +493,6 @@ module.exports = function messaging(context, logger) {
         return emitIpcMessage(emitFn);
     }
 
-
     // all child processes need to set up a process listener on the 'message' event
     if (config.clients.ipcClient) {
         process.on('message', handleIpcMessages());

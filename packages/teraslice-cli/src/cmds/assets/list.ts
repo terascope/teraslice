@@ -1,4 +1,3 @@
-
 import { CMD } from '../../interfaces';
 import Reply from '../lib/reply';
 import Config from '../../helpers/config';

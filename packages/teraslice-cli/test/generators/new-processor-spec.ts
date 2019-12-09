@@ -1,4 +1,3 @@
-
 import path from 'path';
 import fs from 'fs-extra';
 import assert from 'yeoman-assert';

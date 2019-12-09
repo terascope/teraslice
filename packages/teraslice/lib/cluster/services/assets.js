@@ -158,7 +158,6 @@ module.exports = function assetsService(context) {
         });
     }
 
-
     const { port } = process.env;
     return {
         async initialize() {

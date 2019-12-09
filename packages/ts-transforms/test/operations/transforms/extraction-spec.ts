@@ -86,7 +86,7 @@ describe('transform operator', () => {
         expect(results10).toEqual({ otherField: ['data', 'otherData'] });
     });
 
-    it('can transform data end = ', () => {
+    it('can transform data end =', () => {
         const opConfig = {
             source: 'someField',
             target: 'otherField',
@@ -401,7 +401,6 @@ describe('transform operator', () => {
         const results = test.run(data);
         expect(results).toEqual({ my_key: 20 });
     });
-
 
     it('can use expr to manipulate data', () => {
         const opConfig = {

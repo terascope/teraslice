@@ -1,4 +1,3 @@
-
 import { TSError, uniq } from '@terascope/utils';
 import {
     polyHasPoint, makePolygon, polyHasShape, makeCoordinatesFromGeoPoint

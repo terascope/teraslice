@@ -1,4 +1,3 @@
-
 import 'jest-extended';
 import { debugLogger } from '@terascope/utils';
 import { Parser } from '../../src';
@@ -315,7 +314,6 @@ describe('geoPolygon', () => {
                     ]
                 ]
             };
-
 
             it('poly v poly default relations matches within', () => {
                 const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)})`;

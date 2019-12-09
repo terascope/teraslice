@@ -1,4 +1,3 @@
-
 import { polyHasPoint, makeCircle } from './helpers';
 import { parseGeoPoint, parseGeoDistance } from '../../../utils';
 import * as i from '../../interfaces';

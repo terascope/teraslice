@@ -1,4 +1,3 @@
-
 import 'jest-extended';
 import { debugLogger } from '@terascope/utils';
 import { Parser, } from '../../src';

@@ -1,4 +1,3 @@
-
 import {
     DataEntity, set, get, flattenDeep
 } from '@terascope/utils';

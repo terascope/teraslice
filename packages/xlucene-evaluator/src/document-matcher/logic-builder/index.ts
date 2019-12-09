@@ -1,4 +1,3 @@
-
 import _ from 'lodash';
 import fp from 'lodash/fp';
 import { geoDistance, geoBoundingBox } from './geo';

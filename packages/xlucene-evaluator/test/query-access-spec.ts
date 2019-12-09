@@ -160,7 +160,7 @@ describe('QueryAccess', () => {
             expect(result).toEqual(query);
         });
 
-        it('should throw if field is not included', () => {
+        it('should throw if field is not included with other term', () => {
             const query = 'hello:world AND bar:foo';
 
             expect(() => queryAccess.restrict(query)).toThrow();
@@ -208,7 +208,7 @@ describe('QueryAccess', () => {
             expect(queryAccess.restrict(query)).toEqual(query);
         });
 
-        it('should allow field listed if included', () => {
+        it('should allow field listed if included with range query', () => {
             const query = 'bar:[0 TO *] OR star:(0 OR 2)';
 
             expect(queryAccess.restrict(query)).toEqual(query);

@@ -1,4 +1,3 @@
-
 import NoOp from './noop';
 import Double from './double';
 
