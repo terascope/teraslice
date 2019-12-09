@@ -10,7 +10,6 @@ import {
 } from '../../../interfaces';
 import { isWildCardString, parseWildCard, matchString } from '../../../document-matcher/logic-builder/string';
 
-
 function validate(params: i.Term[]) {
     const geoPointsParam = params.find((node) => node.field === 'points');
     const geoRelationParam = params.find((node) => node.field === 'relation');
@@ -65,7 +64,6 @@ const geoPolygon: i.FunctionDefinition = {
         const targetIsGeoPoint = type === FieldType.GeoPoint
                 || type === FieldType.Geo
                 || type === undefined;
-
 
         function esPolyToPointQuery(field: string) {
             const query: AnyQuery = {
