@@ -32,7 +32,7 @@
         "bluebird": "^3.7.2",
         "bunyan": "^1.8.12",
         "convict": "^4.4.1",
-        "elasticsearch": "^15.4.1",
+        "elasticsearch": "^16.5.0",
         "js-yaml": "^3.13.1",
         "mongoose": "~5.7.12",
         "node-statsd": "0.1.1",

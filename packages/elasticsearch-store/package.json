@@ -31,7 +31,7 @@
     },
     "devDependencies": {
         "@terascope/data-types": "^0.7.1",
-        "elasticsearch": "^15.4.1"
+        "elasticsearch": "^16.5.0"
     },
     "publishConfig": {
         "access": "public",

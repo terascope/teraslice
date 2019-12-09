@@ -29,7 +29,7 @@
         "@terascope/fetch-github-release": "^0.6.0",
         "bluebird": "^3.7.2",
         "bunyan": "^1.8.12",
-        "elasticsearch": "^15.4.1",
+        "elasticsearch": "^16.5.0",
         "fs-extra": "^8.1.0",
         "is-ci": "^2.0.0",
         "jest": "^24.9.0",
