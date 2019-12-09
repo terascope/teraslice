@@ -17,11 +17,11 @@ function validate(params: i.Term[]) {
 const geoContainsPoint: i.FunctionDefinition = {
     name: 'geoContainsPoint',
     version: '1',
-    create(field: string, params: any, { logger }) {
-        if (!field || field === '*') throw new Error('field for geoContainsPoint cannot be empty or "*"');
+    create(_field: string, params: any, { logger }) {
+        if (!_field || _field === '*') throw new Error('field for geoContainsPoint cannot be empty or "*"');
         const { lat, lon } = validate(params);
 
-        function toElasticsearchQuery() {
+        function toElasticsearchQuery(field: string) {
             const query: AnyQuery = {
                 geo_shape: {
                     [field]: {

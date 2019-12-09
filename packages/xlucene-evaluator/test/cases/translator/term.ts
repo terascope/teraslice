@@ -153,52 +153,126 @@ export default [
     ],
     [
         'field_*:something',
-        'query.constant_score.filter',
-        {
-            query_string: {
-                fields: ['field_*'],
-                query: 'something',
+        'query.constant_score.filter.bool.should',
+        [
+            {
+                match: {
+                    field_one: {
+                        operator: 'and',
+                        query: 'something'
+                    }
+                }
             },
-        },
+            {
+                match: {
+                    field_two: {
+                        operator: 'and',
+                        query: 'something'
+                    }
+                }
+            }
+        ],
+        {
+            type_config: {
+                field_one: 'string',
+                field_two: 'string'
+            }
+        }
     ],
     [
         'field_*:>=100',
-        'query.constant_score.filter',
-        {
-            query_string: {
-                fields: ['field_*'],
-                query: '[100 TO *]',
+        'query.constant_score.filter.bool.should',
+        [
+            {
+                range: {
+                    field_one: {
+                        gte: 100
+                    }
+                }
             },
-        },
+            {
+                range: {
+                    field_two: {
+                        gte: 100
+                    }
+                }
+            }
+        ],
+        {
+            type_config: {
+                field_one: 'integer',
+                field_two: 'integer'
+            }
+        }
     ],
     [
         'field_*:<100',
-        'query.constant_score.filter',
-        {
-            query_string: {
-                fields: ['field_*'],
-                query: '[* TO 100}',
+        'query.constant_score.filter.bool.should',
+        [
+            {
+                range: {
+                    field_one: {
+                        lt: 100
+                    }
+                }
             },
-        },
+            {
+                range: {
+                    field_two: {
+                        lt: 100
+                    }
+                }
+            }
+        ],
+        {
+            type_config: {
+                field_one: 'integer',
+                field_two: 'integer'
+            }
+        }
     ],
     [
         'field_*:wor?d',
-        'query.constant_score.filter',
-        {
-            query_string: {
-                fields: ['field_*'],
-                query: 'wor?d',
+        'query.constant_score.filter.bool.should',
+        [
+            {
+                wildcard: {
+                    field_one: 'wor?d'
+                }
             },
-        },
+            {
+                wildcard: {
+                    field_two: 'wor?d'
+                }
+            }
+        ],
+        {
+            type_config: {
+                field_one: 'string',
+                field_two: 'string'
+            }
+        }
     ],
     [
         'field_*:/wo.*d/',
-        'query.constant_score.filter',
-        {
-            query_string: {
-                fields: ['field_*'],
-                query: '/wo.*d/',
+        'query.constant_score.filter.bool.should',
+        [
+            {
+                regexp: {
+                    field_one: 'wo.*d'
+                }
             },
-        },
+            {
+                regexp: {
+                    field_two: 'wo.*d'
+                }
+            }
+        ],
+        {
+            type_config: {
+                field_one: 'string',
+                field_two: 'string'
+            }
+        }
     ],
 ] as TestCase[];

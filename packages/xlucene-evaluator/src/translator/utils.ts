@@ -1,29 +1,27 @@
-import { TSError, isString, toString } from '@terascope/utils';
+import { TSError, isString, isEmpty } from '@terascope/utils';
 import * as p from '../parser';
 import * as i from './interfaces';
-import { parseRange, buildRangeQueryString } from '../utils';
-import { isWildCardString } from '../document-matcher/logic-builder/string';
+import { parseRange } from '../utils';
+import { parseWildCard, matchString } from '../document-matcher/logic-builder/string';
 
-type WildCardQueryResults = i.WildcardQuery | i.MultiMatchQuery | i.QueryString
+type WildCardQueryResults = i.WildcardQuery | i.MultiMatchQuery
 
 type TermQueryResults =
     | i.TermQuery
     | i.MatchQuery
     | i.MatchPhraseQuery
     | i.MultiMatchQuery
-    | i.QueryString
 
 type RangeQueryResults =
     | i.RangeQuery
     | i.MultiMatchQuery
-    | i.QueryString
     | undefined
 
 export function translateQuery(
     parser: p.Parser,
     options: i.UtilsTranslateQueryOptions
 ): i.ElasticsearchDSLResult {
-    const { logger } = options;
+    const { logger, type_config: typeConfig } = options;
     let sort: i.AnyQuerySort|i.AnyQuerySort[]|undefined;
 
     function buildAnyQuery(node: p.AST): i.AnyQuery | undefined {
@@ -63,7 +61,22 @@ export function translateQuery(
         logger.error(error);
     }
 
-    function buildTermLevelQuery(node: p.TermLikeAST): i.AnyQuery | undefined {
+    function buildTermLevelQuery(node: p.TermLikeAST): i.AnyQuery | i.BoolQuery | undefined {
+        if (p.isWildcardField(node)) {
+            if (isEmpty(typeConfig)) throw new TSError(`type_config needs to be provided with fields related to ${node.field}`);
+            const regex = parseWildCard(node.field as string);
+            const should = Object.keys(typeConfig)
+                .filter((field) => matchString(field, regex))
+                .map((field) => Object.assign({}, node, { field }))
+                .map((newNode) => buildTermLevelQuery(newNode)) as i.AnyQuery[];
+
+            return {
+                bool: {
+                    should
+                }
+            };
+        }
+
         if (p.isTerm(node)) {
             return buildTermQuery(node);
         }
@@ -89,7 +102,10 @@ export function translateQuery(
         }
 
         if (p.isFunctionExpression(node)) {
-            const { query, sort: sortQuery } = node.instance.toElasticsearchQuery(options);
+            const { query, sort: sortQuery } = node.instance.toElasticsearchQuery(
+                getTermField(node),
+                options
+            );
             // TODO: review how sort works in this module
             if (sortQuery != null) {
                 if (!sort) {
@@ -182,13 +198,6 @@ export function translateQuery(
         }
 
         const field = getTermField(node);
-
-        if (isWildCardString(field)) {
-            const rangeString = buildRangeQueryString(node);
-            if (rangeString == null) return;
-            return buildQueryString(field, rangeString, node);
-        }
-
         const rangeQuery: i.RangeQuery = {
             range: {
                 [field]: parseRange(node, true),
@@ -206,10 +215,6 @@ export function translateQuery(
         }
 
         const field = getTermField(node);
-
-        if (isWildCardString(field)) {
-            return buildQueryString(field, toString(node.value), node);
-        }
 
         if (isString(node.value)) {
             const matchQuery: i.MatchQuery = {
@@ -242,11 +247,6 @@ export function translateQuery(
         }
 
         const field = getTermField(node);
-
-        if (isWildCardString(field)) {
-            return buildQueryString(field, node.value, node);
-        }
-
         const wildcardQuery: i.WildcardQuery = {
             wildcard: {
                 [field]: node.value,
@@ -257,30 +257,13 @@ export function translateQuery(
         return wildcardQuery;
     }
 
-    function buildQueryString(field: string, value: string, node: any) {
-        const queryString = {
-            query_string: {
-                fields: [field],
-                query: value
-            }
-        };
-        logger.trace('built query string query', { node, queryString });
-        return queryString;
-    }
-
-    function buildRegExprQuery(node: p.Regexp): i.RegExprQuery | i.MultiMatchQuery | i.QueryString {
+    function buildRegExprQuery(node: p.Regexp): i.RegExprQuery | i.MultiMatchQuery {
         if (isMultiMatch(node)) {
             const query = `${node.value}`;
             return buildMultiMatchQuery(node, query);
         }
 
         const field = getTermField(node);
-
-        if (isWildCardString(field)) {
-            // parsing strips off the outer /, so we need to put it back in
-            return buildQueryString(field, `/${node.value}/`, node);
-        }
-
         const regexQuery: i.RegExprQuery = {
             regexp: {
                 [field]: node.value,

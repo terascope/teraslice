@@ -10,7 +10,7 @@ const _logger = debugLogger('xlucene-translator');
 export class Translator {
     readonly query: string;
     logger: Logger;
-    readonly typeConfig?: TypeConfig;
+    readonly typeConfig: TypeConfig;
     private readonly _parser: Parser;
     private _defaultGeoField?: string;
     private _defaultGeoSortOrder: 'asc'|'desc' = 'asc';
@@ -21,7 +21,7 @@ export class Translator {
             ? options.logger.child({ module: 'xlucene-translator' })
             : _logger;
 
-        this.typeConfig = options.type_config;
+        this.typeConfig = options.type_config || {};
         if (isString(input)) {
             this._parser = new Parser(input, {
                 type_config: this.typeConfig,
@@ -47,6 +47,7 @@ export class Translator {
     toElasticsearchDSL(opts: i.ElasticsearchDSLOptions = {}): i.ElasticsearchDSLResult {
         const result = utils.translateQuery(this._parser, {
             logger: this.logger,
+            type_config: this.typeConfig,
             default_geo_field: this._defaultGeoField,
             geo_sort_point: opts.geo_sort_point,
             geo_sort_order: opts.geo_sort_order || this._defaultGeoSortOrder,

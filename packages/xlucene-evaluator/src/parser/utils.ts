@@ -1,6 +1,7 @@
 import { isString, isEmpty } from '@terascope/utils';
 import * as i from './interfaces';
 import { FieldType } from '../interfaces';
+import { isWildCardString } from '../document-matcher/logic-builder/string';
 
 export function isLogicalGroup(node: any): node is i.LogicalGroup {
     return node && node.type === i.ASTType.LogicalGroup;
@@ -44,6 +45,10 @@ export function isRegexp(node: any): node is i.Regexp {
 
 export function isWildcard(node: any): node is i.Wildcard {
     return node && node.type === i.ASTType.Wildcard;
+}
+
+export function isWildcardField(node: any) {
+    return node && isWildCardString(node.field);
 }
 
 export function isTerm(node: any): node is i.Term {

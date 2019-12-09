@@ -32,7 +32,8 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             constraint,
             allow_empty_queries: allowEmpty = true,
         } = config;
-        const typeConfig = options.type_config;
+
+        const typeConfig = config.type_config || options.type_config || {};
         if (ts.isEmpty(typeConfig)) throw new Error('type_config must be provided');
         this.typeConfig = typeConfig;
 
@@ -142,6 +143,18 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         return addConstraints(this.constraints, q);
     }
 
+    private restrictTypeConfig(): TypeConfig {
+        const config = this.typeConfig;
+        const parsedConfig: TypeConfig = {};
+
+        for (const [key, value] of Object.entries(config)) {
+            const isExcluded = this.excludes.some((str) => ts.startsWith(key, str as string));
+            if (!isExcluded) parsedConfig[key] = value;
+        }
+
+        return parsedConfig;
+    }
+
     /**
      * Converts a restricted xlucene query to an elasticsearch search query
      *
@@ -164,9 +177,10 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             type_config: this.typeConfig,
             logger: this.logger
         });
-        // TODO: restrict typeconfig here and pass in
+        const parsedTypeConfig = this.restrictTypeConfig();
+
         const translator = this._translator.make(parsed, {
-            type_config: this.typeConfig,
+            type_config: parsedTypeConfig,
             logger: this.logger,
             default_geo_field: this.defaultGeoField,
             default_geo_sort_order: this.defaultGeoSortOrder,
@@ -253,18 +267,20 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
                 (typeField) => this.excludes.some((str) => ts.startsWith(typeField, str as string))
             );
             // if they are the same then all matched typeConfig fields are excluded
-            const bool = results.length === excludesMatch.length;
-            return bool;
+            return results.length === excludesMatch.length;
         }
+
         return this.excludes.some((str) => ts.startsWith(field, str as string));
     }
 
     private _isFieldIncluded(field: string): boolean {
         if (!this.includes.length) return false;
+
         if (isWildCardString(field)) {
             const regex = parseWildCard(field);
             return !this.includes.some((str) => matchString(str, regex));
         }
+
         return !this.includes.some((str) => ts.startsWith(field, str as string));
     }
 }

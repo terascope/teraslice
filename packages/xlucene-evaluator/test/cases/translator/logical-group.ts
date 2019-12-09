@@ -30,6 +30,34 @@ export default [
         ],
     ],
     [
+        'some:query AND other:thing',
+        'query.constant_score.filter.bool.should',
+        [
+            {
+                bool: {
+                    filter: [
+                        {
+                            match: {
+                                some: {
+                                    query: 'query',
+                                    operator: 'and',
+                                },
+                            },
+                        },
+                        {
+                            match: {
+                                other: {
+                                    query: 'thing',
+                                    operator: 'and',
+                                },
+                            },
+                        },
+                    ],
+                },
+            },
+        ],
+    ],
+    [
         'NOT value:awesome AND other:thing',
         'query.constant_score.filter.bool.should[0].bool',
         {

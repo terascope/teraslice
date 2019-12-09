@@ -259,7 +259,7 @@ describe('QueryAccess', () => {
             });
         });
     });
-
+    // TODO: write test showing restriction of type_config
     describe('when using a field wildcard', () => {
         it('should not throw if includes matches field wildcard', () => {
             const queryAccess = new QueryAccess({

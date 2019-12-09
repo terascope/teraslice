@@ -24,13 +24,13 @@ function validate(params: i.Term[]) {
 const geoDistance: i.FunctionDefinition = {
     name: 'geoDistance',
     version: '1',
-    create(field: string, params: any, { logger }) {
-        if (!field || field === '*') throw new Error('field for geoDistance cannot be empty or "*"');
+    create(_field: string, params: any, { logger }) {
+        if (!_field || _field === '*') throw new Error('field for geoDistance cannot be empty or "*"');
         const {
             lat, lon, distance, unit: paramUnit
         } = validate(params);
 
-        function toElasticsearchQuery(options: UtilsTranslateQueryOptions) {
+        function toElasticsearchQuery(field: string, options: UtilsTranslateQueryOptions) {
             const unit = paramUnit || options.geo_sort_unit;
             const order = options.geo_sort_order;
 

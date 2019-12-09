@@ -236,6 +236,7 @@ FunctionExpression
             type: i.ASTType.Function,
             name,
             instance: parseFunction(field, name, params),
+            params,
             field,
         };
     }

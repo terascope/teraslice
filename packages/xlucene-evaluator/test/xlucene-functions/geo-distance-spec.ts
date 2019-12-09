@@ -11,6 +11,7 @@ describe('geoDistance', () => {
         logger: debugLogger('test'),
         geo_sort_order: 'asc',
         geo_sort_unit: 'meters',
+        type_config: {}
     };
 
     it('can make a function ast', () => {
@@ -66,7 +67,7 @@ describe('geoDistance', () => {
 
             const astResults = queries
                 .map((query) => new Parser(query, { type_config: typeConfig }))
-                .map((parser) => parser.ast.instance.toElasticsearchQuery(options));
+                .map((parser) => parser.ast.instance.toElasticsearchQuery('location', options));
 
             astResults.forEach((ast) => {
                 expect(ast.query).toEqual(results);
