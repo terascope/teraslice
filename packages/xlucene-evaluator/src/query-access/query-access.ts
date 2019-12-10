@@ -4,8 +4,8 @@ import * as ts from '@terascope/utils';
 import * as p from '../parser';
 import { CachedTranslator, SortOrder } from '../translator';
 import * as i from './interfaces';
-import { GeoDistanceUnit, TypeConfig } from '../interfaces';
-import { isWildCardString, parseWildCard, matchString } from '../document-matcher/logic-builder/string';
+import { GeoDistanceUnit, TypeConfig, FieldType } from '../interfaces';
+import { parseWildCard, matchString } from '../document-matcher/logic-builder/string';
 
 const _logger = ts.debugLogger('xlucene-query-access');
 
@@ -20,6 +20,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     readonly defaultGeoSortUnit?: GeoDistanceUnit|string;
     readonly allowEmpty: boolean;
     readonly typeConfig: TypeConfig;
+    readonly parsedTypeConfig: TypeConfig;
     logger: ts.Logger;
 
     private readonly _parser: p.CachedParser = new p.CachedParser();
@@ -35,7 +36,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
         const typeConfig = config.type_config || options.type_config || {};
         if (ts.isEmpty(typeConfig)) throw new Error('type_config must be provided');
-        this.typeConfig = typeConfig;
+        this.typeConfig = { ...typeConfig };
 
         this.logger = options.logger != null
             ? options.logger.child({ module: 'xlucene-query-access' })
@@ -50,6 +51,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         this.defaultGeoField = config.default_geo_field;
         this.defaultGeoSortOrder = config.default_geo_sort_order;
         this.defaultGeoSortUnit = config.default_geo_sort_unit;
+        this.parsedTypeConfig = this._restrictTypeConfig();
     }
 
     clearCache() {
@@ -107,17 +109,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
                 });
             }
 
-            if (this._isFieldExcluded(node.field)) {
-                throw new ts.TSError(`Field ${node.field} in query is restricted`, {
-                    statusCode: 403,
-                    context: {
-                        q,
-                        safe: true
-                    }
-                });
-            }
-
-            if (this._isFieldIncluded(node.field)) {
+            if (this._isFieldRestricted(node.field)) {
                 throw new ts.TSError(`Field ${node.field} in query is restricted`, {
                     statusCode: 403,
                     context: {
@@ -143,13 +135,25 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         return addConstraints(this.constraints, q);
     }
 
-    private restrictTypeConfig(): TypeConfig {
-        const config = this.typeConfig;
+    private _restrictTypeConfig(): TypeConfig {
         const parsedConfig: TypeConfig = {};
 
-        for (const [key, value] of Object.entries(config)) {
-            const isExcluded = this.excludes.some((str) => ts.startsWith(key, str as string));
-            if (!isExcluded) parsedConfig[key] = value;
+        for (const [typeField, value] of Object.entries(this.typeConfig)) {
+            const excluded = this.excludes.filter((restrictField) => matchTypeField(
+                typeField,
+                restrictField as string
+            ));
+            if (excluded.length) continue;
+
+            if (this.includes.length) {
+                const included = this.includes.filter((restrictField) => matchTypeField(
+                    typeField,
+                    restrictField as string
+                ));
+                if (!included.length) continue;
+            }
+
+            parsedConfig[typeField] = value;
         }
 
         return parsedConfig;
@@ -177,10 +181,9 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             type_config: this.typeConfig,
             logger: this.logger
         });
-        const parsedTypeConfig = this.restrictTypeConfig();
 
         const translator = this._translator.make(parsed, {
-            type_config: parsedTypeConfig,
+            type_config: this.parsedTypeConfig,
             logger: this.logger,
             default_geo_field: this.defaultGeoField,
             default_geo_sort_order: this.defaultGeoSortOrder,
@@ -252,38 +255,63 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         return restricted;
     }
 
-    private _isFieldExcluded(field: string): boolean {
-        if (!this.excludes.length) return false;
+    private _isFieldRestricted(field: string): boolean {
+        return !Object.entries(this.parsedTypeConfig).some(([typeField, fieldType]) => {
+            if (fieldType === FieldType.Object) return false;
+            const parts = typeField.split('.');
 
-        if (isWildCardString(field)) {
-            const regex = parseWildCard(field);
-            // collect all pertinent typeConfig fields to wildcard
-            const typeFields = Object.keys(this.typeConfig)
-                .filter((key) => matchString(key, regex));
-            // check if excludes matches with targeted typeConfig Fields
-            const excludesMatch = typeFields.filter(
-                (typeField) => this.excludes.some((str) => ts.startsWith(typeField, str as string))
-            );
-            // if they are the same then all matched typeConfig fields are excluded
-            return typeFields.length === excludesMatch.length;
+            if (parts.length > 1) {
+                const firstPart = parts.slice(0, -1).join('.');
+                if (this.typeConfig[firstPart] === FieldType.Object) {
+                    return matchFieldObject(typeField, field);
+                }
+            }
+            return matchField(typeField, field);
+        });
+    }
+}
+
+function matchFieldObject(typeField: string, field: string) {
+    const wildcardQuery = parseWildCard(field).replace(/\$$/, '');
+    let s = '';
+    for (const part of typeField.split('.')) {
+        s += part;
+        if (matchString(s, wildcardQuery)) {
+            return true;
         }
 
-        return this.excludes.some((str) => ts.startsWith(field, str as string));
+        s += '.';
     }
+    return false;
+}
 
-    private _isFieldIncluded(field: string): boolean {
-        if (!this.includes.length) return false;
-
-        if (isWildCardString(field)) {
-            const regex = parseWildCard(field);
-            const typeFields = Object.keys(this.typeConfig)
-                .filter((key) => matchString(key, regex));
-
-            return !this.includes.some((str) => typeFields.includes(str as string));
+function matchField(typeField: string, field: string) {
+    let s = '';
+    for (const part of field.split('.')) {
+        s += part;
+        const wildcardQuery = parseWildCard(s);
+        if (matchString(typeField, wildcardQuery)) {
+            return true;
         }
 
-        return !this.includes.some((str) => field === str);
+        s += '.';
     }
+
+    return false;
+}
+
+function matchTypeField(typeField: string, restrictField: string) {
+    let s = '';
+    for (const part of typeField.split('.')) {
+        s += part;
+
+        if (s === restrictField) {
+            return true;
+        }
+
+        s += '.';
+    }
+    return false;
 }
 
 function startsWithWildcard(input?: string | number) {

@@ -25,7 +25,10 @@ export function findWildcardField(field: string, cb: BooleanCB) {
 }
 
 export function parseWildCard(term: string): string {
-    return term.replace(/\*/g, '.*').replace(/\?/g, '[^\\n\\r\\s]');
+    return term
+        .replace('.', '\\.{0,1}')
+        .replace(/\*/g, '.*')
+        .replace(/\?/g, '[^\\n\\r\\s]');
 }
 
 export function isWildCardString(term: string): boolean {
