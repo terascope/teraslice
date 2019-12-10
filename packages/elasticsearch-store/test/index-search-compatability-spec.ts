@@ -8,7 +8,7 @@ import {
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
 import { TEST_INDEX_PREFIX } from './helpers/config';
 
-describe('IndexModel', () => {
+describe('IndexSearchCompatability', () => {
     const mapping: ESTypeMapping = {
         properties: {
             id: { type: 'keyword' },

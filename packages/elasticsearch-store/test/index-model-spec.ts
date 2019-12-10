@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { Client } from 'elasticsearch';
-import { QueryAccess, FieldType } from 'xlucene-evaluator';
+import { QueryAccess } from 'xlucene-evaluator';
 import { times, TSError, AnyObject } from '@terascope/utils';
 import {
     IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions
