@@ -106,7 +106,13 @@ describe('IndexModel', () => {
         it('should be able to find the record with restrictions', async () => {
             const queryAccess = new QueryAccess({
                 excludes: ['_updated'],
-            }, { type_config: { type: FieldType.String, name: FieldType.String, config: FieldType.Object } });
+            }, {
+                type_config: {
+                    type: FieldType.String,
+                    name: FieldType.String,
+                    config: FieldType.Object
+                }
+            });
             const result = await indexModel.findById(fetched._key, {}, queryAccess);
 
             expect(result).toHaveProperty('name');
