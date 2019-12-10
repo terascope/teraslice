@@ -1,12 +1,18 @@
 import 'jest-extended';
 import { SearchParams } from 'elasticsearch';
 import { TSError } from '@terascope/utils';
-import { QueryAccess } from '../src';
+import { QueryAccess, FieldType } from '../src';
 
 describe('QueryAccess', () => {
+    describe('when constructed without type_config', () => {
+        it('should throw an error', () => {
+            expect(() => new QueryAccess({})).toThrowError('type_config must be provided');
+        });
+    });
+
     describe('when constructed without exclude', () => {
         it('should set an empty array', () => {
-            const queryAccess = new QueryAccess({});
+            const queryAccess = new QueryAccess({}, { type_config: { foo: FieldType.String } });
 
             expect(queryAccess.excludes).toBeArrayOfSize(0);
         });
@@ -15,6 +21,21 @@ describe('QueryAccess', () => {
     describe('when constructed with exclusive fields', () => {
         const queryAccess = new QueryAccess({
             excludes: ['bar', 'moo', 'baa.maa', 'a.b'],
+        }, {
+            type_config: {
+                foo: FieldType.String,
+                bar: FieldType.String,
+                moo: FieldType.String,
+                baa: FieldType.Object,
+                'baa.maa': FieldType.String,
+                'baa.chaa': FieldType.String,
+                a: FieldType.Object,
+                'a.b': FieldType.Object,
+                'a.b.c': FieldType.String,
+                'a.c': FieldType.Object,
+                'a.c.b': FieldType.String,
+                mood: FieldType.String
+            }
         });
 
         describe('when passed queries with foo in field', () => {
@@ -23,6 +44,28 @@ describe('QueryAccess', () => {
 
                 const result = queryAccess.restrict(query);
                 expect(result).toEqual(query);
+            });
+        });
+
+        describe('when passed a query which prefix matches excluded field', () => {
+            it('should not throw', () => {
+                const query = 'mood:example';
+                const result = queryAccess.restrict(query);
+
+                expect(result).toEqual(query);
+            });
+
+            it('can restrict types', () => {
+                const expected = {
+                    baa: FieldType.Object,
+                    a: FieldType.Object,
+                    foo: FieldType.String,
+                    mood: FieldType.String,
+                    'baa.chaa': FieldType.String,
+                    'a.c': FieldType.Object,
+                    'a.c.b': FieldType.String,
+                };
+                expect(queryAccess.parsedTypeConfig).toEqual(expected);
             });
         });
 
@@ -93,7 +136,13 @@ describe('QueryAccess', () => {
 
     describe('when constructed with include fields', () => {
         const queryAccess = new QueryAccess({
-            includes: ['bar', 'star'],
+            includes: ['bar', 'star', 'baz'],
+        }, {
+            type_config: {
+                bar: FieldType.Integer,
+                star: FieldType.Integer,
+                baz: FieldType.String
+            }
         });
 
         it('should throw if field is not included', () => {
@@ -118,6 +167,13 @@ describe('QueryAccess', () => {
             expect(() => queryAccess.restrict(query)).toThrowError('Implicit fields are restricted, please specify the field');
         });
 
+        it('should not throw if given baz.text', () => {
+            expect.hasAssertions();
+            const query = 'baz.text:foo';
+
+            expect(() => queryAccess.restrict(query)).not.toThrow();
+        });
+
         it('should throw when using *', () => {
             expect.hasAssertions();
 
@@ -133,6 +189,10 @@ describe('QueryAccess', () => {
 
             const result = new QueryAccess({
                 allow_implicit_queries: true,
+            }, {
+                type_config: {
+                    bar: FieldType.String,
+                }
             }).restrict(query);
 
             expect(result).toEqual(query);
@@ -147,6 +207,10 @@ describe('QueryAccess', () => {
         it('should throw if passed an empty query', () => {
             expect(() => new QueryAccess({
                 allow_empty_queries: false,
+            }, {
+                type_config: {
+                    bar: FieldType.String,
+                }
             }).restrict('')).toThrowWithMessage(TSError, 'Empty queries are restricted');
         });
 
@@ -154,6 +218,10 @@ describe('QueryAccess', () => {
             expect(
                 new QueryAccess({
                     allow_empty_queries: true,
+                }, {
+                    type_config: {
+                        bar: FieldType.String,
+                    }
                 }).restrict('')
             ).toEqual('');
         });
@@ -163,6 +231,12 @@ describe('QueryAccess', () => {
                 new QueryAccess({
                     allow_empty_queries: true,
                     constraint: 'foo:bar',
+                }, {
+                    type_config: {
+                        foo: FieldType.String,
+                        bar: FieldType.Integer,
+                        star: FieldType.Integer
+                    }
                 }).restrict('')
             ).toEqual('foo:bar');
         });
@@ -183,6 +257,10 @@ describe('QueryAccess', () => {
             it('should be able to default to constraint query', () => {
                 const result = new QueryAccess({
                     constraint: 'foo:bar',
+                }, {
+                    type_config: {
+                        foo: FieldType.String,
+                    }
                 }).restrict('');
                 expect(result).toEqual('foo:bar');
             });
@@ -195,6 +273,10 @@ describe('QueryAccess', () => {
 
                 const result = new QueryAccess({
                     constraint: 'foo:bar',
+                }, {
+                    type_config: {
+                        foo: FieldType.String,
+                    }
                 }).restrict(query);
                 expect(result).toEqual('foo:bar');
             });
@@ -207,9 +289,157 @@ describe('QueryAccess', () => {
 
                 const result = new QueryAccess({
                     constraint: 'foo:bar',
+                }, {
+                    type_config: {
+                        foo: FieldType.String,
+                    }
                 }).restrict(query);
                 expect(result).toEqual('foo:bar');
             });
+        });
+    });
+
+    describe('when using a field wildcard', () => {
+        it('should not throw if includes matches field wildcard', () => {
+            const queryAccess = new QueryAccess({
+                includes: ['field_one', 'field_two'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                }
+            });
+
+            const query = 'field_*:bar';
+            expect(() => queryAccess.restrict(query)).not.toThrow();
+        });
+
+        it('should throw if includes does not match all fields', () => {
+            const queryAccess = new QueryAccess({
+                includes: ['field_one', 'field_two'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                    foo: FieldType.String
+                }
+            });
+
+            const query = 'field_*:bar AND foo:bar';
+            expect(() => queryAccess.restrict(query)).toThrow();
+        });
+
+        it('should not throw if type_config field has valid matching fields', () => {
+            const queryAccess = new QueryAccess({
+                includes: ['field_one'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                }
+            });
+
+            const query = 'field_*:bar';
+            expect(() => queryAccess.restrict(query)).not.toThrow();
+        });
+
+        it('should throw if excludes matches all fields wildcard query', () => {
+            const queryAccess = new QueryAccess({
+                excludes: ['field_one', 'field_two'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                }
+            });
+
+            const query = 'field_*:bar';
+            expect(() => queryAccess.restrict(query)).toThrow();
+        });
+
+        it('should not throw if field wildcard query is not restricted on all variants', () => {
+            const queryAccess = new QueryAccess({
+                excludes: ['field_two'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                }
+            });
+
+            const query = 'field_*:bar';
+            expect(queryAccess.restrict(query)).toEqual(query);
+        });
+
+        it('should throw if excludes contains all variants for field wildcard query', () => {
+            const queryAccess = new QueryAccess({
+                excludes: ['field_one', 'field_two'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                }
+            });
+
+            const query = 'field_*:bar';
+            expect(() => queryAccess.restrict(query)).toThrow();
+        });
+
+        it('should not throw if includes matches first path', () => {
+            const queryAccess = new QueryAccess({
+                includes: ['foo'],
+            }, {
+                type_config: {
+                    foo: FieldType.Object,
+                    'foo.a': FieldType.String
+                }
+            });
+
+            const query = 'foo.*:bar';
+            expect(() => queryAccess.restrict(query)).not.toThrow();
+        });
+
+        it('should throw if excludes matches first path', () => {
+            const queryAccess = new QueryAccess({
+                excludes: ['foo.bar'],
+            }, {
+                type_config: {
+                    foo: FieldType.Object,
+                    'foo.bar': FieldType.String,
+                    'foo.baz': FieldType.String,
+                }
+            });
+
+            const query = 'foo.*:bar';
+            expect(() => queryAccess.restrict(query)).not.toThrow();
+        });
+
+        it('should throw if it matches prefix in includes', () => {
+            const queryAccess = new QueryAccess({
+                includes: ['field_'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                }
+            });
+
+            const query = 'field_*:bar';
+            expect(() => queryAccess.restrict(query)).toThrow();
+        });
+
+        it('should throw if it matches prefix in excludes', () => {
+            const queryAccess = new QueryAccess({
+                excludes: ['field'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                }
+            });
+
+            const query = 'field_*:bar';
+            expect(() => queryAccess.restrict(query)).not.toThrow();
         });
     });
 
@@ -217,6 +447,11 @@ describe('QueryAccess', () => {
         const constraint = 'foo:bar';
         const queryAccess = new QueryAccess({
             constraint,
+        }, {
+            type_config: {
+                foo: FieldType.String,
+                hello: FieldType.String
+            }
         });
 
         it('should append the constraint on the returned query', () => {
@@ -230,6 +465,11 @@ describe('QueryAccess', () => {
         const queryAccess = new QueryAccess({
             constraint,
             excludes: ['hello'],
+        }, {
+            type_config: {
+                foo: FieldType.String,
+                hello: FieldType.String,
+            }
         });
 
         it('should return the query', () => {
@@ -242,6 +482,12 @@ describe('QueryAccess', () => {
     describe('when resticting prefix wildcards', () => {
         const queryAccess = new QueryAccess({
             prevent_prefix_wildcard: true,
+        }, {
+            type_config: {
+                bar: FieldType.String,
+                hello: FieldType.String,
+                bytes: FieldType.Integer
+            }
         });
 
         describe.each([['hello:*world'], ['hello:?world']])('when using a query of "%s"', (query) => {
@@ -268,6 +514,13 @@ describe('QueryAccess', () => {
             default_geo_sort_unit: 'mm',
             excludes: ['bar', 'baz'],
             includes: ['foo', 'moo'],
+        }, {
+            type_config: {
+                moo: FieldType.GeoPoint,
+                bar: FieldType.String,
+                baz: FieldType.String,
+                foo: FieldType.String,
+            }
         });
 
         it('should be able to return a restricted query', () => {

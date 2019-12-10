@@ -184,5 +184,8 @@ export interface FunctionMethodsResults {
 
 export interface FunctionMethods {
     match(arg: any): boolean;
-    toElasticsearchQuery(options: UtilsTranslateQueryOptions): FunctionMethodsResults;
+    toElasticsearchQuery(
+        field: string,
+        options: UtilsTranslateQueryOptions
+    ): FunctionMethodsResults;
 }

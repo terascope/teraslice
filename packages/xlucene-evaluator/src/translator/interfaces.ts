@@ -19,6 +19,7 @@ export type TranslatorOptions = {
 
 export type UtilsTranslateQueryOptions = {
     logger: Logger;
+    type_config: TypeConfig;
     default_geo_field?: string;
     geo_sort_point?: GeoPoint;
     geo_sort_order: SortOrder;
@@ -54,7 +55,7 @@ export type AnyQuery =
     | ExistsQuery
     | RegExprQuery
     | RangeQuery
-    | MultiMatchQuery;
+    | MultiMatchQuery
 
 export interface ExistsQuery {
     exists: {

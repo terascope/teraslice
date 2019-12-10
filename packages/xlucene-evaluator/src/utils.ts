@@ -8,9 +8,9 @@ import {
     AnyObject,
     escapeString,
     uniq,
-    withoutNil
+    withoutNil,
 } from '@terascope/utils';
-import { Range } from './parser/interfaces';
+import { Range, RangeNode } from './parser/interfaces';
 import {
     GeoDistanceObj,
     GeoPointInput,
@@ -63,6 +63,33 @@ export function parseRange(node: Range, excludeInfinite = false): ParsedRange {
         }
     }
     return results;
+}
+
+function isGreaterThan(node: RangeNode) {
+    if (node.operator === 'gte' || node.operator === 'gt') return true;
+    return false;
+}
+
+export function buildRangeQueryString(node: Range): string | undefined {
+    if (node.right) {
+        const leftBrace = node.left.operator === 'gte' ? '[' : '{';
+        const rightBrace = node.right.operator === 'lte' ? ']' : '}';
+        return `${leftBrace}${node.left.value} TO ${node.right.value}${rightBrace}`;
+    }
+    // cannot have a single value infinity range query
+    if (isInfiniteValue(node.left.value)) return;
+    // queryString cannot use ranges like >=1000, must convert to equivalent [1000 TO *]
+    if (isGreaterThan(node.left)) {
+        if (node.left.operator === 'gte') {
+            return `[${node.left.value} TO *]`;
+        }
+        return `{${node.left.value} TO *]`;
+    }
+
+    if (node.left.operator === 'lte') {
+        return `[* TO ${node.left.value}]`;
+    }
+    return `[* TO ${node.left.value}}`;
 }
 
 export const GEO_DISTANCE_UNITS: { readonly [key: string]: GeoDistanceUnit } = {

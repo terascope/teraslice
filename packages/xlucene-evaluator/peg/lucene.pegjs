@@ -236,6 +236,7 @@ FunctionExpression
             type: i.ASTType.Function,
             name,
             instance: parseFunction(field, name, params),
+            params,
             field,
         };
     }
@@ -427,7 +428,7 @@ IntegerType
     }
 
 BooleanType
-  = value:Boolean {
+  = value:Boolean &(EOF / ws+ / ParensEnd / ']') {
       return {
         type: i.ASTType.Term,
         field_type: FieldType.Boolean,

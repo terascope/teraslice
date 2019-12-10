@@ -19,12 +19,12 @@ function validate(params: i.Term[]) {
 const geoBox: i.FunctionDefinition = {
     name: 'geoBox',
     version: '1',
-    create(field: string, params: any, { logger }) {
-        if (!field || field === '*') throw new Error('field for geoBox cannot be empty or "*"');
+    create(_field: string, params: any, { logger }) {
+        if (!_field || _field === '*') throw new Error('field for geoBox cannot be empty or "*"');
         // eslint-disable-next-line @typescript-eslint/camelcase
         const { top_left, bottom_right } = validate(params);
 
-        function toElasticsearchQuery() {
+        function toElasticsearchQuery(field: string) {
             const query: AnyQuery = {};
             query.geo_bounding_box = {};
             query.geo_bounding_box[field] = {

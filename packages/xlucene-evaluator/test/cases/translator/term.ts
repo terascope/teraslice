@@ -1,5 +1,6 @@
 import { escapeString } from '@terascope/utils';
 import { TestCase } from './interfaces';
+import { FieldType } from '../../../src/interfaces';
 
 export default [
     [
@@ -104,11 +105,11 @@ export default [
         },
     ],
     [
-        'nested.*:hello-there',
+        'nested.field:hello-there',
         'query.constant_score.filter',
         {
             match: {
-                'nested.*': {
+                'nested.field': {
                     operator: 'and',
                     query: 'hello-there',
                 },
@@ -150,5 +151,186 @@ export default [
                 },
             },
         },
+    ],
+    [
+        'field_*:something',
+        'query.constant_score.filter.bool.should',
+        [
+            {
+                match: {
+                    field_one: {
+                        operator: 'and',
+                        query: 'something'
+                    }
+                }
+            },
+            {
+                match: {
+                    field_two: {
+                        operator: 'and',
+                        query: 'something'
+                    }
+                }
+            }
+        ],
+        {
+            type_config: {
+                field_one: 'string',
+                field_two: 'string'
+            }
+        }
+    ],
+    [
+        'field_*:>=100',
+        'query.constant_score.filter.bool.should',
+        [
+            {
+                range: {
+                    field_one: {
+                        gte: 100
+                    }
+                }
+            },
+            {
+                range: {
+                    field_two: {
+                        gte: 100
+                    }
+                }
+            }
+        ],
+        {
+            type_config: {
+                field_one: 'integer',
+                field_two: 'integer'
+            }
+        }
+    ],
+    [
+        'field_*:<100',
+        'query.constant_score.filter.bool.should',
+        [
+            {
+                range: {
+                    field_one: {
+                        lt: 100
+                    }
+                }
+            },
+            {
+                range: {
+                    field_two: {
+                        lt: 100
+                    }
+                }
+            }
+        ],
+        {
+            type_config: {
+                field_one: 'integer',
+                field_two: 'integer'
+            }
+        }
+    ],
+    [
+        'field_*:wor?d',
+        'query.constant_score.filter.bool.should',
+        [
+            {
+                wildcard: {
+                    field_one: 'wor?d'
+                }
+            },
+            {
+                wildcard: {
+                    field_two: 'wor?d'
+                }
+            }
+        ],
+        {
+            type_config: {
+                field_one: 'string',
+                field_two: 'string'
+            }
+        }
+    ],
+    [
+        'field_*:/wo.*d/',
+        'query.constant_score.filter.bool.should',
+        [
+            {
+                regexp: {
+                    field_one: 'wo.*d'
+                }
+            },
+            {
+                regexp: {
+                    field_two: 'wo.*d'
+                }
+            }
+        ],
+        {
+            type_config: {
+                field_one: 'string',
+                field_two: 'string'
+            }
+        }
+    ],
+    [
+        'field_*:geoDistance(point:"33.435518,-111.873616", distance:"500m")',
+        'query.constant_score.filter.bool.should',
+        [{
+            geo_distance: {
+                distance: '500meters',
+                field_one: {
+                    lat: 33.435518,
+                    lon: -111.873616,
+                }
+            }
+        },
+        {
+            geo_distance: {
+                distance: '500meters',
+                field_two: {
+                    lat: 33.435518,
+                    lon: -111.873616,
+                }
+            }
+        }
+        ],
+        {
+            type_config: {
+                field_one: FieldType.GeoPoint,
+                field_two: FieldType.GeoPoint
+            }
+        }
+    ],
+    [
+        'field_*:["alpha" TO "omega"]',
+        'query.constant_score.filter.bool.should',
+        [
+            {
+                range: {
+                    field_one: {
+                        gte: 'alpha',
+                        lte: 'omega'
+                    }
+                }
+            },
+            {
+                range: {
+                    field_two: {
+                        gte: 'alpha',
+                        lte: 'omega'
+                    }
+                }
+            }
+        ],
+        {
+            type_config: {
+                field_one: FieldType.GeoPoint,
+                field_two: FieldType.GeoPoint
+            }
+        }
     ],
 ] as TestCase[];

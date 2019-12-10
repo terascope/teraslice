@@ -1,4 +1,4 @@
-import { TSError } from '@terascope/utils';
+import { TSError, uniq } from '@terascope/utils';
 import {
     polyHasPoint, makePolygon, polyHasShape, makeCoordinatesFromGeoPoint
 } from './helpers';
@@ -8,6 +8,7 @@ import { AnyQuery, ESGeoShapeType } from '../../../translator/interfaces';
 import {
     FieldType, GeoShapeRelation, CoordinateTuple
 } from '../../../interfaces';
+import { isWildCardString, parseWildCard, matchString } from '../../../document-matcher/logic-builder/string';
 
 function validate(params: i.Term[]) {
     const geoPointsParam = params.find((node) => node.field === 'points');
@@ -40,16 +41,31 @@ function validate(params: i.Term[]) {
 const geoPolygon: i.FunctionDefinition = {
     name: 'geoPolygon',
     version: '1',
-    create(field: string, params: any, { logger, typeConfig }) {
-        if (!field || field === '*') throw new Error('field for geoPolygon cannot be empty or "*"');
+    create(_field: string, params: any, { logger, typeConfig }) {
+        if (!_field || _field === '*') throw new Error('field for geoPolygon cannot be empty or "*"');
         const { points, relation } = validate(params);
-        const type = typeConfig[field];
-        // can remove the second check when "geo" if fully deprecated
-        const targetIsGeoPoint = type === FieldType.GeoPoint
-            || type === FieldType.Geo
-            || type === undefined;
+        let type: string;
 
-        function esPolyToPointQuery() {
+        if (isWildCardString(_field)) {
+            const regex = parseWildCard(_field);
+            const results: string[] = [];
+            // collect all pertinent typeConfig fields to wildcard
+            for (const [key] of Object.entries(typeConfig)) {
+                if (matchString(key, regex)) results.push(typeConfig[key]);
+            }
+            const types = uniq(results);
+            if (types.length > 1) throw new TSError(`Cannot query geoPolygon against different field types ${JSON.stringify(types)}`);
+            [type] = types;
+        } else {
+            type = typeConfig[_field];
+            // can remove the second check when "geo" if fully deprecated
+        }
+
+        const targetIsGeoPoint = type === FieldType.GeoPoint
+                || type === FieldType.Geo
+                || type === undefined;
+
+        function esPolyToPointQuery(field: string) {
             const query: AnyQuery = {
                 geo_polygon: {
                     [field]: {
@@ -63,7 +79,7 @@ const geoPolygon: i.FunctionDefinition = {
             return { query };
         }
 
-        function esPolyToPolyQuery() {
+        function esPolyToPolyQuery(field: string) {
             const coordinates: CoordinateTuple[][] = [points.map(makeCoordinatesFromGeoPoint)];
             const query: AnyQuery = {
                 geo_shape: {
