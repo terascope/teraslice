@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { Client } from 'elasticsearch';
-import { QueryAccess } from 'xlucene-evaluator';
+import { QueryAccess, FieldType } from 'xlucene-evaluator';
 import { times, TSError, AnyObject } from '@terascope/utils';
 import {
     IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions
@@ -106,7 +106,7 @@ describe('IndexModel', () => {
         it('should be able to find the record with restrictions', async () => {
             const queryAccess = new QueryAccess({
                 excludes: ['_updated'],
-            });
+            }, { type_config: { type: FieldType.String, name: FieldType.String, config: FieldType.Object } });
             const result = await indexModel.findById(fetched._key, {}, queryAccess);
 
             expect(result).toHaveProperty('name');
@@ -487,6 +487,11 @@ describe('IndexModel', () => {
             it('should be able to count all of the Bobs', async () => {
                 const queryAccess = new QueryAccess({
                     includes: ['name'],
+                    type_config: {
+                        type: FieldType.String,
+                        name: FieldType.String,
+                        config: FieldType.Object
+                    }
                 });
 
                 const count = await indexModel.count('name:Bob*', {}, queryAccess);
@@ -496,6 +501,11 @@ describe('IndexModel', () => {
             it('should be able to find all by ids', async () => {
                 const queryAccess = new QueryAccess({
                     includes: ['_key', 'name'],
+                    type_config: {
+                        type: FieldType.String,
+                        name: FieldType.String,
+                        config: FieldType.Object
+                    }
                 });
 
                 const findResult = await indexModel.search('name:Bob*', {
@@ -520,6 +530,11 @@ describe('IndexModel', () => {
                 const queryAccess = new QueryAccess({
                     constraint: 'name:Bob*',
                     excludes: ['_created'],
+                    type_config: {
+                        type: FieldType.String,
+                        name: FieldType.String,
+                        config: FieldType.Object
+                    }
                 });
 
                 const result = await indexModel.search('name:Bob*', {
@@ -540,6 +555,11 @@ describe('IndexModel', () => {
                 const queryAccess = new QueryAccess({
                     constraint: 'name:Bob*',
                     excludes: ['_created'],
+                    type_config: {
+                        type: FieldType.String,
+                        name: FieldType.String,
+                        config: FieldType.Object
+                    }
                 });
 
                 const NOT_NAME = 'Bob 1';
