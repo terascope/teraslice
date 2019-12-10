@@ -263,7 +263,7 @@ describe('QueryAccess', () => {
     describe('when using a field wildcard', () => {
         it('should not throw if includes matches field wildcard', () => {
             const queryAccess = new QueryAccess({
-                includes: ['field_'],
+                includes: ['field_one', 'field_two'],
             }, {
                 type_config: {
                     field_one: FieldType.String,
@@ -277,7 +277,7 @@ describe('QueryAccess', () => {
 
         it('should throw if includes does not match all fields', () => {
             const queryAccess = new QueryAccess({
-                includes: ['field_'],
+                includes: ['field_one', 'field_two'],
             }, {
                 type_config: {
                     field_one: FieldType.String,
@@ -306,7 +306,7 @@ describe('QueryAccess', () => {
 
         it('should throw if excludes matches all fields wildcard query', () => {
             const queryAccess = new QueryAccess({
-                excludes: ['field_'],
+                excludes: ['field_one', 'field_two'],
             }, {
                 type_config: {
                     field_one: FieldType.String,
@@ -335,6 +335,34 @@ describe('QueryAccess', () => {
         it('should throw if excludes contains all variants for field wildcard query', () => {
             const queryAccess = new QueryAccess({
                 excludes: ['field_one', 'field_two'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                }
+            });
+
+            const query = 'field_*:bar';
+            expect(() => queryAccess.restrict(query)).toThrow();
+        });
+
+        it('should throw if it matches prefix in includes', () => {
+            const queryAccess = new QueryAccess({
+                includes: ['field_'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                }
+            });
+
+            const query = 'field_*:bar';
+            expect(() => queryAccess.restrict(query)).toThrow();
+        });
+
+        it('should throw if it matches prefix in excludes', () => {
+            const queryAccess = new QueryAccess({
+                excludes: ['field_'],
             }, {
                 type_config: {
                     field_one: FieldType.String,

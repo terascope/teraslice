@@ -257,17 +257,15 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
         if (isWildCardString(field)) {
             const regex = parseWildCard(field);
-            const results: string[] = [];
             // collect all pertinent typeConfig fields to wildcard
-            for (const [key] of Object.entries(this.typeConfig)) {
-                if (matchString(key, regex)) results.push(key);
-            }
+            const typeFields = Object.keys(this.typeConfig)
+                .filter((key) => matchString(key, regex));
             // check if excludes matches with targeted typeConfig Fields
-            const excludesMatch = results.filter(
+            const excludesMatch = typeFields.filter(
                 (typeField) => this.excludes.some((str) => ts.startsWith(typeField, str as string))
             );
             // if they are the same then all matched typeConfig fields are excluded
-            return results.length === excludesMatch.length;
+            return typeFields.length === excludesMatch.length;
         }
 
         return this.excludes.some((str) => ts.startsWith(field, str as string));
@@ -278,10 +276,13 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
         if (isWildCardString(field)) {
             const regex = parseWildCard(field);
-            return !this.includes.some((str) => matchString(str, regex));
+            const typeFields = Object.keys(this.typeConfig)
+                .filter((key) => matchString(key, regex));
+
+            return !this.includes.some((str) => typeFields.includes(str as string));
         }
 
-        return !this.includes.some((str) => ts.startsWith(field, str as string));
+        return !this.includes.some((str) => field === str);
     }
 }
 
