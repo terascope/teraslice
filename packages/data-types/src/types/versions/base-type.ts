@@ -3,8 +3,8 @@ import * as ts from '@terascope/utils';
 import { TypeESMapping, GraphQLType, FieldTypeConfig } from '../../interfaces';
 
 export default abstract class BaseType {
-    protected field: string;
-    protected config: FieldTypeConfig;
+    readonly field: string;
+    readonly config: FieldTypeConfig;
 
     constructor(field: string, config: FieldTypeConfig) {
         if (!field || !ts.isString(field)) {
