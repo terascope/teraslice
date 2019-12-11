@@ -2,7 +2,6 @@ import {
     GraphQLScalarType, ASTNode, buildSchema, printSchema
 } from 'graphql';
 import { Kind, StringValueNode } from 'graphql/language';
-import { TSError } from '@terascope/utils';
 import { mapping } from './types/versions/mapping';
 
 const allTypes = Object.assign({}, ...Object.values(mapping));
@@ -16,41 +15,48 @@ function parseValue(value: any) {
 }
 
 function parseLiteral(ast: ASTNode) {
-    if (ast.kind !== Kind.OBJECT) throw new TSError('Type Config "field" key must be set to an object');
+    if (ast.kind !== Kind.OBJECT) throw new Error('Type Config "field" key must be set to an object');
 
     return ast.fields.reduce((accum, curr) => {
         const fieldName = curr.name.value;
-        if (
-            curr.value.kind !== Kind.OBJECT
-            || curr.value.fields.length > 1
-        ) {
-            throw new TSError(`Field ${fieldName} must be set to an object`);
+        console.error(JSON.stringify(curr.value, null, 4));
+        if (curr.value.kind !== Kind.OBJECT) {
+            throw new Error(`Field ${fieldName} must be set to an object`);
         }
 
-        const [field] = curr.value.fields;
-
-        const { value: keyName } = field.name;
-        const { value: keyValue } = field.value as StringValueNode;
-
-        if (keyName === 'type') {
-            if (!keyValue || !allTypes[keyValue]) {
-                throw new TSError(`${keyName}: ${keyValue} is not a valid type`);
+        curr.value.fields.forEach((field) => {
+            if (!field || field.kind !== Kind.OBJECT_FIELD) {
+                throw new Error(`Field ${fieldName} must be an object`);
             }
-        }
 
-        if (keyName === 'description') {
-            if (keyValue != null && typeof keyValue !== 'string') {
-                throw new TSError(`${keyName}: ${keyValue} is not a valid string`);
+            const { value: keyName } = field.name;
+            const valueNode = field.value;
+            const keyValue = (valueNode as StringValueNode).value;
+
+            if (keyName === 'type') {
+                if (valueNode.kind !== Kind.STRING || !allTypes[valueNode.value]) {
+                    throw new Error(`${keyName}: ${keyValue} is not a valid type`);
+                }
             }
-        }
 
-        if (keyName === 'array') {
-            if (keyValue != null && typeof keyValue !== 'boolean') {
-                throw new TSError(`${keyName}: ${keyValue} is not a valid boolean`);
+            if (keyName === 'description') {
+                if (valueNode.kind !== Kind.STRING && valueNode.kind !== Kind.NULL) {
+                    throw new Error(`${keyName}: ${keyValue} is not a valid string`);
+                }
             }
-        }
 
-        accum[fieldName] = { [keyName]: keyValue };
+            if (keyName === 'array') {
+                if (valueNode.kind !== Kind.BOOLEAN && valueNode.kind !== Kind.NULL) {
+                    throw new Error(`${keyName}: ${keyValue} is not a valid boolean`);
+                }
+            }
+
+            accum[fieldName] = {
+                ...accum[fieldName],
+                [keyName]: keyValue
+            };
+        });
+
         return accum;
     }, {});
 }
