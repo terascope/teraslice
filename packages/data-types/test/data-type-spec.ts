@@ -124,17 +124,19 @@ describe('DataType', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    hello: { type: 'Text' },
-                    location: { type: 'GeoPoint' },
+                    hello: { type: 'Text', description: 'hello test' },
+                    location: { type: 'GeoPoint', description: 'location test' },
                     date: { type: 'Date' },
-                    ip: { type: 'IP' },
-                    example_obj: { type: 'Object' },
-                    someNum: { type: 'Long' },
+                    ip: { type: 'IP', description: 'ip test' },
+                    example_obj: { type: 'Object', description: 'example obj test' },
+                    someNum: { type: 'Long', description: 'some number test' },
                 },
             };
 
-            const dataType = new DataType(typeConfig, 'myType');
-            const results = dataType.toGraphQL();
+            const dataType = new DataType(typeConfig, 'myType', 'default description');
+            const results = dataType.toGraphQL({
+                description: 'My test data type'
+            });
 
             const schema = formatSchema(`
                 scalar JSONObject
@@ -144,12 +146,18 @@ describe('DataType', () => {
                     lon: String!
                 }
 
+                # My test data type
                 type myType {
+                    # hello test
                     hello: String
+                    # location test
                     location: DTGeoPointV1
                     date: String
+                    # ip test
                     ip: String
+                    # example obj test
                     example_obj: JSONObject
+                    # some number test
                     someNum: Int
                 }
             `);
@@ -168,11 +176,12 @@ describe('DataType', () => {
                 },
             };
 
-            const dataType = new DataType(typeConfig, 'ObjType');
+            const dataType = new DataType(typeConfig, 'ObjType', 'nested field test description');
             expect(dataType.toGraphQL()).toEqual(
                 formatSchema(`
                     scalar JSONObject
 
+                    # nested field test description
                     type ObjType {
                         example: JSONObject
                     }

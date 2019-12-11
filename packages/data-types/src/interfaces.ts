@@ -9,6 +9,7 @@ export type GraphQLTypesResult = {
 
 export type GraphQLOptions = {
     typeName?: string;
+    description?: string;
     references?: string[];
 };
 
@@ -87,11 +88,12 @@ export const AvailableTypes: AvailableType[] = [
 ];
 
 export type AvailableVersion = 1;
-export const AvailableVersions: AvailableVersion[] = [1];
+export const AvailableVersions: readonly AvailableVersion[] = [1];
 
 export type FieldTypeConfig = {
     type: AvailableType;
     array?: boolean;
+    description?: string;
 };
 
 type ActualType = {
