@@ -1,6 +1,5 @@
 'use strict';
 
-
 const { TSError, pRetry, includes } = require('@terascope/utils');
 const uuid = require('uuid');
 const Promise = require('bluebird');

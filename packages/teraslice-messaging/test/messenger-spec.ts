@@ -405,6 +405,7 @@ describe('Messenger', () => {
             });
         });
 
+        // eslint-disable-next-line jest/no-disabled-tests
         xdescribe('when the client responds with an error', () => {
             let responseMsg: Message | object | undefined;
             let responseErr: Error | undefined;

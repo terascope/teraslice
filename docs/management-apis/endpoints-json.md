@@ -181,6 +181,7 @@ Setting start to false will just store the job and not automatically enqueue it,
 ```sh
 $ curl -XPOST 'localhost:5678/v1/jobs' -d@job.json
 {
+    "ex_id": "81c4441d-afd8-4d4a-a0f5-749a99527b08",
     "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd"
 }
 ```
@@ -327,6 +328,7 @@ Issues a start command, this will start a fresh new job associated with the job 
 $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_start'
 {
     "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd"
+    "ex_id": "0b5309f9-35d7-444a-be97-55e4de4aef41"
 }
 ```
 
@@ -385,7 +387,8 @@ THIS API ENDPOINT IS BEING DEPRECATED: issues a recover command, this can only b
 ```sh
 $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_recover'
 {
-    "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd"
+    "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
+    "ex_id": "07d63d57-49fb-46e5-9d75-52cf8540dc5a"
 }
 ```
 
@@ -705,6 +708,7 @@ Issues a recover command, this can only be run if the execution is stopped, the 
 ```sh
 $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_recover?cleanup=errors'
 {
+    "ex_id": "9766fd8c-8c3e-4318-9d2c-1673662175e9",
     "job_id": "863678b3-daf3-4ea9-8cb0-88b846cd7e57"
 }
 ```

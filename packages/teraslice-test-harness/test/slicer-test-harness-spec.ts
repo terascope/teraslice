@@ -7,6 +7,7 @@ import {
 import { SlicerTestHarness } from '../src';
 
 describe('SlicerTestHarness', () => {
+    const assetDir = path.join(__dirname, 'fixtures');
     const clients = [
         {
             type: 'example',
@@ -38,6 +39,17 @@ describe('SlicerTestHarness', () => {
 
         it('should be able to call initialize', () => expect(slicerHarness.initialize()).resolves.toBeNil());
 
+        it('should throw if given recoveryData since slicer is not recoverable', async () => {
+            expect.assertions(1);
+            const lastSlice = { some: 'stuff' };
+
+            try {
+                await slicerHarness.initialize([{ lastSlice }]);
+            } catch (err) {
+                expect(err).toBeDefined();
+            }
+        });
+
         it('should have a slicer', () => {
             expect(slicerHarness.slicer()).toBeInstanceOf(Slicer);
         });
@@ -60,5 +72,66 @@ describe('SlicerTestHarness', () => {
         });
 
         it('should be able to call shutdown', () => expect(slicerHarness.shutdown()).resolves.toBeNil());
+    });
+
+    describe('when given a slicer that is recoverable', () => {
+        let slicerHarness: SlicerTestHarness;
+
+        const job = newTestJobConfig();
+        job.analytics = true;
+        job.operations = [
+            {
+                _op: 'recoverable-reader',
+            },
+            {
+                _op: 'noop',
+            }
+        ];
+
+        const lastSlice = {
+            count: 25
+        };
+
+        beforeEach(() => {
+            slicerHarness = new SlicerTestHarness(job, {
+                assetDir
+            });
+        });
+
+        afterEach(async () => {
+            await slicerHarness.shutdown();
+        });
+
+        it('should not throw if given recovery data', async () => {
+            await slicerHarness.initialize([{ lastSlice }]);
+        });
+
+        it('should throw if recovery data is malformed', async () => {
+            expect.assertions(2);
+            const badRecoveryData = { some: 'stuff' };
+
+            try {
+                // @ts-ignore
+                await slicerHarness.initialize([badRecoveryData]);
+            } catch (err) {
+                expect(err).toBeDefined();
+            }
+
+            try {
+                // @ts-ignore
+                await slicerHarness.initialize(['asdfasdfasdf']);
+            } catch (err) {
+                expect(err).toBeDefined();
+            }
+        });
+
+        it('can recovery to previous count', async () => {
+            const expectedResults = { count: 26 };
+
+            await slicerHarness.initialize([{ lastSlice }]);
+
+            const [results] = await slicerHarness.createSlices();
+            expect(results).toEqual(expectedResults);
+        });
     });
 });

@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const { TSError } = require('@terascope/utils');
 const { Client, config } = require('kubernetes-client');
 
 class K8s {
@@ -14,20 +15,9 @@ class K8s {
             });
         } else if (process.env.KUBERNETES_SERVICE_HOST && process.env.KUBERNETES_SERVICE_PORT) {
             // configures the client when running inside k8s
-            try {
-                this.client = new Client({ config: config.getInCluster() });
-            } catch (e) {
-                logger.error(e, 'Unable to create k8s Client using getInCluster');
-                // throw e;
-            }
+            this.client = new Client({ config: config.getInCluster() });
         } else {
-            // configures the client from ~/.kube/config when running outside k8s
-            try {
-                this.client = new Client({ config: config.fromKubeconfig() });
-            } catch (e) {
-                logger.error(e, 'Unable to create k8s Client using fromKubeconfig');
-                // throw e;
-            }
+            this.client = new Client({ config: config.fromKubeconfig() });
         }
     }
 
@@ -39,12 +29,12 @@ class K8s {
         try {
             await this.client.loadSpec();
         } catch (err) {
-            const error = new Error(`Failure calling k8s loadSpec: ${err.stack}`);
-            this.logger.error(error);
+            const error = new TSError(err, {
+                reason: 'Failure calling k8s loadSpec'
+            });
             throw error;
         }
     }
-
 
     /**
      * Returns the k8s NamespaceList object
@@ -55,13 +45,13 @@ class K8s {
         try {
             namespaces = await this.client.api.v1.namespaces.get();
         } catch (err) {
-            const error = new Error(`Failure getting in namespaces: ${err.stack}`);
-            this.logger.error(error);
+            const error = new TSError(err, {
+                reason: 'Failure getting in namespaces'
+            });
             throw error;
         }
         return namespaces.body;
     }
-
 
     /**
     * returns list of k8s objects matching provided selector
@@ -109,7 +99,6 @@ class K8s {
         return response.body;
     }
 
-
     /**
      * posts manifest to k8s
      * @param  {Object} manifest     service manifest
@@ -131,12 +120,10 @@ class K8s {
                     .jobs.post({ body: manifest });
             } else {
                 const error = new Error(`Invalid manifestType: ${manifestType}`);
-                this.logger.error(error);
                 return Promise.reject(error);
             }
         } catch (e) {
             const err = new Error(`Request k8s.post of ${manifestType} with body ${JSON.stringify(manifest)} failed: ${e}`);
-            this.logger.error(err);
             return Promise.reject(err);
         }
 
@@ -180,7 +167,6 @@ class K8s {
 
         return response.body;
     }
-
 
     /**
      * Deletes k8s object of specified objType
@@ -229,7 +215,6 @@ class K8s {
         return response.body;
     }
 
-
     /**
      * Delete all of the deployments and services related to the specified exId
      * @param  {String}  exId ID of the execution
@@ -246,7 +231,6 @@ class K8s {
             this._deleteObjByExId(exId, 'execution_controller', 'services')
         ]);
     }
-
 
     /**
      * Finds the k8s object by nodeType and exId and then deletes it

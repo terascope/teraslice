@@ -1,4 +1,3 @@
-
 import { spawnSync } from 'child_process';
 import _ from 'lodash';
 import fs from 'fs-extra';

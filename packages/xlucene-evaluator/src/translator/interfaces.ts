@@ -2,7 +2,9 @@ import { Logger } from '@terascope/utils';
 import {
     GeoPoint,
     GeoDistanceUnit,
-    TypeConfig
+    TypeConfig,
+    GeoShapeRelation,
+    CoordinateTuple,
 } from '../interfaces';
 
 export type SortOrder = 'asc'|'desc';
@@ -17,6 +19,7 @@ export type TranslatorOptions = {
 
 export type UtilsTranslateQueryOptions = {
     logger: Logger;
+    type_config: TypeConfig;
     default_geo_field?: string;
     geo_sort_point?: GeoPoint;
     geo_sort_order: SortOrder;
@@ -52,13 +55,36 @@ export type AnyQuery =
     | ExistsQuery
     | RegExprQuery
     | RangeQuery
-    | MultiMatchQuery;
+    | MultiMatchQuery
 
 export interface ExistsQuery {
     exists: {
         field: string;
     };
 }
+
+export enum ESGeoShapeType {
+    Point = 'point',
+    Polygon = 'polygon',
+    MultiPolygon = 'multipolygon'
+}
+
+export type ESGeoShapePoint = {
+    type: ESGeoShapeType.Point;
+    coordinates: CoordinateTuple;
+}
+
+export type ESGeoShapePolygon = {
+    type: ESGeoShapeType.Polygon;
+    coordinates: CoordinateTuple[][];
+}
+
+export type ESGeoShapeMultiPolygon = {
+    type: ESGeoShapeType.MultiPolygon;
+    coordinates: CoordinateTuple[][][];
+}
+
+export type ESGeoShape = ESGeoShapePoint | ESGeoShapePolygon | ESGeoShapeMultiPolygon
 
 export interface GeoQuery {
     geo_bounding_box?: {
@@ -73,7 +99,13 @@ export interface GeoQuery {
     };
     geo_polygon?: {
         [field: string]: {
-            points: GeoPoint[] | string[];
+            points: GeoPoint[] | string[] | CoordinateTuple[];
+        };
+    };
+    geo_shape?: {
+        [field: string]: {
+            shape: ESGeoShape;
+            relation: GeoShapeRelation;
         };
     };
 }

@@ -1,4 +1,3 @@
-
 import { DataEntity } from '@terascope/utils';
 import crypto from 'crypto';
 import { Sha1Encode } from '../../../src/operations';

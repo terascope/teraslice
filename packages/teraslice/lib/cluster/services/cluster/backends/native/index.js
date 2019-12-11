@@ -390,7 +390,6 @@ module.exports = function nativeClustering(context, clusterMasterServer, executi
             });
     }
 
-
     function allocateSlicer(job) {
         let retryCount = 0;
         const errorNodes = {};

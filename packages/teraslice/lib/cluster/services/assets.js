@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const express = require('express');
 const Promise = require('bluebird');
-const { TSError, parseErrorInfo } = require('@terascope/utils');
+const { TSError, parseErrorInfo, logError } = require('@terascope/utils');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 const makeAssetsStore = require('../storage/assets');
 const {
@@ -51,14 +51,14 @@ module.exports = function assetsService(context) {
                 })
                 .catch((err) => {
                     const { statusCode, message } = parseErrorInfo(err);
-                    logger.error(err);
+                    logError(logger, err, 'failure streaming assets');
                     sendError(res, statusCode, message);
                 });
         });
 
         req.on('error', (err) => {
             const { statusCode, message } = parseErrorInfo(err);
-            logger.error(err);
+            logError(logger, err, 'failure writing asset');
             res.status(statusCode).send(message);
         });
     });
@@ -157,7 +157,6 @@ module.exports = function assetsService(context) {
             });
         });
     }
-
 
     const { port } = process.env;
     return {

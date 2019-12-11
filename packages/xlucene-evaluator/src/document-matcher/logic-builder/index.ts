@@ -1,13 +1,9 @@
-
 import _ from 'lodash';
 import fp from 'lodash/fp';
 import { geoDistance, geoBoundingBox } from './geo';
 import { compareTermDates, dateRange } from './dates';
 import {
-    regexp,
-    wildcard,
-    isWildCard,
-    findWildcardField
+    regexp, wildcard, findWildcardField, isWildCardString
 } from './string';
 import { BooleanCB } from '../interfaces';
 import { ipTerm, ipRange } from './ip';
@@ -28,7 +24,7 @@ function makeGetFn(field?: string) {
 }
 
 function logicNode(field: string|undefined, cb: BooleanCB) {
-    if (field && isWildCard(field)) {
+    if (field && isWildCardString(field)) {
         return findWildcardField(field, cb);
     }
     const get = makeGetFn(field);

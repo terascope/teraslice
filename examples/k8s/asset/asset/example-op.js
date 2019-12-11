@@ -9,7 +9,6 @@ function schema() {
     };
 }
 
-
 module.exports = {
     newProcessor,
     schema

@@ -80,7 +80,6 @@ export type WorkerJobProcesses = Overwrite<JobProcesses, { assignment: 'worker' 
 /*
     ASSETS
 */
-
 export interface Asset {
     _created: string;
     version: string;
@@ -97,14 +96,6 @@ export interface AssetStatusResponse {
 export interface AssetIDResponse {
     _id: string;
 }
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface AssetsPostResponse extends AssetIDResponse {}
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface AssetsDeleteResponse extends AssetIDResponse {}
-export type AssetsTxtResponse = string;
-export type AssetsGetResponse = Asset[];
-export type AssetsPutResponse = Asset;
 
 /*
     Cluster State Native
@@ -180,11 +171,8 @@ export interface JobConfiguration extends ValidatedJobConfig {
 
 export interface JobIDResponse {
     job_id: string;
+    ex_id?: string;
 }
-
-export type JobsTxtResponse = string;
-export type JobsGetResponse = JobConfiguration[];
-export type JobsPutResponse = JobConfiguration;
 
 /*
     Cluster Stats
@@ -261,10 +249,6 @@ export interface Execution extends ExecutionConfig {
 export interface ExecutionIDResponse {
     ex_id: string;
 }
-
-export type ExecutionTxtResponse = string;
-export type ExecutionGetResponse = Execution[];
-export type ExecutionPutResponse = Execution;
 
 /*
     Lifecyle Response

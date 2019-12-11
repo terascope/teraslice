@@ -1,6 +1,6 @@
 {
     "name": "teraslice-workspace",
-    "version": "0.59.0",
+    "version": "0.60.2",
     "private": true,
     "homepage": "https://github.com/terascope/teraslice",
     "bugs": {
@@ -37,22 +37,22 @@
         "@types/convict": "^4.2.1",
         "@types/elasticsearch": "^5.0.35",
         "@types/fs-extra": "^8.0.1",
-        "@types/jest": "^24.0.21",
-        "@types/lodash": "^4.14.137",
+        "@types/jest": "^24.0.23",
+        "@types/lodash": "^4.14.149",
         "@types/nanoid": "^2.0.0",
-        "@types/node": "^12.12.5",
+        "@types/node": "^12.12.14",
         "@types/uuid": "^3.4.6",
-        "eslint": "^6.6.0",
+        "eslint": "^6.7.2",
         "jest": "^24.9.0",
         "jest-extended": "^0.11.2",
         "jest-watch-typeahead": "^0.4.0",
-        "lerna": "^3.18.3",
+        "lerna": "^3.19.0",
         "lerna-alias": "^3.0.2",
-        "ts-jest": "^24.0.2",
+        "ts-jest": "^24.2.0",
         "typescript": "^3.7.2"
     },
     "resolutions": {
-        "@types/lodash": "^4.14.137",
+        "@types/lodash": "^4.14.149",
         "debug": "^4.1.1",
         "ms": "^2.1.2",
         "typescript": "^3.7.2"

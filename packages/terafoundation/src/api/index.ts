@@ -135,7 +135,6 @@ export default function registerApis(context: i.FoundationContext) {
         }
     }
 
-
     // This exposes the registerAPI function to the rest of the system.
     context.apis = {
         registerAPI

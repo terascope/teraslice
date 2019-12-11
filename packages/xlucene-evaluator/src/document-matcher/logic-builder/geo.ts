@@ -1,4 +1,3 @@
-
 import pointInPolygon from '@turf/boolean-point-in-polygon';
 // @ts-ignore
 import createCircle from '@turf/circle';

@@ -2,7 +2,6 @@ import * as ts from '@terascope/utils';
 import registerApis from './api';
 import * as i from './interfaces';
 
-
 /**
  * CoreContext
 */

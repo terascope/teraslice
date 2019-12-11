@@ -3,7 +3,9 @@
 const _ = require('lodash');
 const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
-const { TSError, parseError, getFullErrorStack } = require('@terascope/utils');
+const {
+    TSError, parseError, getFullErrorStack, logError
+} = require('@terascope/utils');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 const makeExStore = require('../storage/execution');
 
@@ -66,7 +68,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
                     await exStore.verifyStatusUpdate(exId, status);
                     await setExecutionStatus(exId, status);
                 } catch (err) {
-                    logger.error(err);
+                    logError(logger, err, 'failure setting execution to stopped');
                 } finally {
                     resolve(true);
                 }
@@ -104,7 +106,6 @@ module.exports = function executionService(context, { clusterMasterServer }) {
                 return true;
             });
     }
-
 
     function _iterateState(cb) {
         return _.chain(getClusterState())
@@ -273,7 +274,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
                 .then(() => {
                     logger.debug('enqueueing execution to be processed', ex);
                     pendingExecutionQueue.enqueue(ex);
-                    return { job_id: ex.job_id };
+                    return { job_id: ex.job_id, ex_id: job.ex_id };
                 })
                 .catch((err) => {
                     const error = new TSError(err, {
@@ -291,7 +292,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
 
     function getExecutionContext(exId) {
         return exStore.get(exId)
-            .catch((err) => logger.error(err, `error getting execution context for ex: ${exId}`));
+            .catch((err) => logError(logger, err, `error getting execution context for ex: ${exId}`));
     }
 
     function getRunningExecutions(exId) {
@@ -498,7 +499,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
             .error((err) => {
                 // TODO: verify whats coming here
                 if (parseError(err).includes('no such index')) {
-                    logger.error(err, 'initialization failed loading state from Elasticsearch');
+                    logError(logger, err, 'initialization failed loading state from Elasticsearch');
                 }
 
                 const error = new TSError(err, {
@@ -507,7 +508,6 @@ module.exports = function executionService(context, { clusterMasterServer }) {
                 return Promise.reject(error);
             });
     }
-
 
     return makeExStore(context)
         .then((ex) => {

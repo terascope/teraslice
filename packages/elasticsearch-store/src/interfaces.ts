@@ -134,11 +134,6 @@ export interface DataSchema {
     strict?: boolean;
 
     /**
-     * When logging invalid record, optionally set the log level
-     */
-    log_level?: Logger.LogLevel | 'none';
-
-    /**
      * If enabled this will allow the use of some of
      * the slower but more correct JSON Schema's formatters:
      *
@@ -183,7 +178,7 @@ export interface IndexModelRecord {
     /**
      * A unique ID for the record - nanoid 12 digit
      */
-    id: string;
+    _key: string;
 
     /**
      * The mutli-tenant ID representing the client
@@ -191,14 +186,19 @@ export interface IndexModelRecord {
     client_id: number;
 
     /**
+     * Indicates whether the record is deleted or not
+     */
+    _deleted?: boolean;
+
+    /**
      * Updated date
      */
-    updated: string;
+    _updated: string;
 
     /**
      * Creation date
      */
-    created: string;
+    _created: string;
 }
 
 export type CreateRecordInput<T extends IndexModelRecord> = Omit<T, keyof IndexModelRecord> & {
@@ -209,7 +209,6 @@ export type UpdateRecordInput<T extends IndexModelRecord> =
     Partial<Omit<T, keyof IndexModelRecord>>
     & {
         client_id?: number;
-        id: string;
     };
 
 export interface IndexModelConfig<T extends IndexModelRecord> {

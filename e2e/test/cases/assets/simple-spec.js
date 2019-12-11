@@ -31,12 +31,12 @@ describe('assets', () => {
         // assigned by teraslice and not it's name.
         jobSpec.assets = [result._id, 'elasticsearch'];
 
-        const job = await submitAndStart(jobSpec);
+        const ex = await submitAndStart(jobSpec);
 
-        const r = await wait.forWorkersJoined(job.id(), workers, 25);
+        const r = await wait.forWorkersJoined(ex.id(), workers, 25);
         expect(r).toEqual(workers);
 
-        await job.stop({ blocking: true });
+        await ex.stop({ blocking: true });
     }
 
     it('after uploading an asset, it can be deleted', async () => {
@@ -101,15 +101,15 @@ describe('assets', () => {
         const assetResponse = await teraslice.assets.post(fileStream);
         const assetId = assetResponse._id;
 
-        const job = await submitAndStart(jobSpec);
+        const ex = await submitAndStart(jobSpec);
 
-        const waitResponse = await wait.forWorkersJoined(job.id(), workers, 25);
+        const waitResponse = await wait.forWorkersJoined(ex.id(), workers, 25);
         expect(waitResponse).toEqual(workers);
 
-        const execution = await job.execution();
+        const execution = await ex.config();
         expect(execution.assets[0]).toEqual(assetId);
 
-        await job.stop({ blocking: true });
+        await ex.stop({ blocking: true });
     });
 
     it('can directly ask for the new asset to be used', async () => {
@@ -120,14 +120,14 @@ describe('assets', () => {
         const assetResponse = await teraslice.assets.getAsset('ex1', '0.1.1');
         const assetId = assetResponse[0].id;
 
-        const job = await submitAndStart(jobSpec);
+        const ex = await submitAndStart(jobSpec);
 
-        const waitResponse = await wait.forWorkersJoined(job.id(), workers, 25);
+        const waitResponse = await wait.forWorkersJoined(ex.id(), workers, 25);
         expect(waitResponse).toEqual(workers);
 
-        const execution = await job.execution();
+        const execution = await ex.config();
         expect(execution.assets[0]).toEqual(assetId);
 
-        await job.stop({ blocking: true });
+        await ex.stop({ blocking: true });
     });
 });

@@ -1,7 +1,8 @@
 'use strict';
 
-const _ = require('lodash');
-const Promise = require('bluebird');
+const {
+    logError, get, isEmpty, isPlainObject
+} = require('@terascope/utils');
 const { shutdownHandler } = require('./lib/workers/helpers/worker-shutdown');
 const { safeDecode } = require('./lib/utils/encoding_utils');
 const makeExecutionContext = require('./lib/workers/context/execution-context');
@@ -15,7 +16,7 @@ class Service {
         this.context = context;
 
         this.logger = this.context.logger;
-        this.shutdownTimeout = _.get(
+        this.shutdownTimeout = get(
             this.context,
             'sysconfig.teraslice.shutdown_timeout',
             60 * 1000
@@ -49,18 +50,18 @@ class Service {
 
     shutdown(err) {
         if (err) {
-            this.logger.error(err, 'Teraslice Worker shutting down due to failure!');
+            logError(this.logger, err, 'Teraslice Worker shutting down due to failure!');
         }
         this.shutdownHandler.exit('error', err);
     }
 
     _getExecutionConfigFromEnv() {
-        if (_.isEmpty(process.env.EX)) {
+        if (isEmpty(process.env.EX)) {
             throw new Error('TerasliceWorker is missing process.env.EX');
         }
         const ex = safeDecode(process.env.EX);
 
-        if (_.isEmpty(ex) || !_.isPlainObject(ex)) {
+        if (isEmpty(ex) || !isPlainObject(ex)) {
             throw new Error('TerasliceWorker is missing a valid process.env.EX');
         }
 

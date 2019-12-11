@@ -1,4 +1,3 @@
-
 import { DataEntity } from '@terascope/utils';
 import { PostProcessConfig } from '../../../interfaces';
 import TransformOpBase from './base';
@@ -9,7 +8,7 @@ export default class UrlEncode extends TransformOpBase {
     }
 
     encode(data: string) {
-        return encodeURI(data);
+        return encodeURIComponent(data);
     }
 
     run(record: DataEntity): DataEntity {

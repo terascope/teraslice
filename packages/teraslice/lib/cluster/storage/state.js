@@ -8,6 +8,7 @@ const {
     isRetryableError,
     parseErrorInfo,
     isTest,
+    getFullErrorStack,
 } = require('@terascope/utils');
 const { timeseriesIndex } = require('../../utils/date_utils');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
@@ -78,8 +79,13 @@ module.exports = async function stateStorage(context) {
             state
         };
 
-        if (error) {
-            record.error = toString(error);
+        // it will usaully just be error
+        if (state === 'error' || error) {
+            if (error) {
+                record.error = getFullErrorStack(error);
+            } else {
+                record.error = new Error('Unkown slice error').stack;
+            }
         }
 
         let notFoundErrCount = 0;

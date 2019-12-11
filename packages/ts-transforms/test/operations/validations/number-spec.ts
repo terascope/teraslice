@@ -1,4 +1,3 @@
-
 import { DataEntity } from '@terascope/utils';
 import { NumberValidation } from '../../../src/operations';
 
@@ -88,7 +87,7 @@ describe('number validation', () => {
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
     });
 
-    it('can can convert the field', async () => {
+    it('can convert the field', async () => {
         const opConfig = {
             source: 'file.bytes', target: 'file.bytes', __id: 'someId', follow: 'otherId'
         };

@@ -27,7 +27,7 @@ export default abstract class SlicerCore<T = OpConfig>
     implements SlicerOperationLifeCycle {
     // ...
     protected stats: ExecutionStats;
-    protected recoveryData: object[];
+    protected recoveryData: SlicerRecoveryData[];
     protected readonly opConfig: Readonly<OpConfig & T>;
     private readonly queue: Queue<Slice>;
 
@@ -37,7 +37,6 @@ export default abstract class SlicerCore<T = OpConfig>
         });
 
         super(context, executionConfig, logger);
-
         this.opConfig = opConfig;
         this.queue = new Queue();
         this.recoveryData = [];
@@ -51,6 +50,10 @@ export default abstract class SlicerCore<T = OpConfig>
                 failed: 0,
             },
         };
+
+        if (this.executionConfig.recovered_execution && !this.isRecoverable()) {
+            throw new Error('Slicer is not recoverable');
+        }
     }
 
     /**

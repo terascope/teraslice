@@ -107,11 +107,15 @@ async function runTestSuite(
         );
     }
 
-    writeHeader(`Running test suite "${suite}"`, false);
+    const chunked = chunk(pkgInfos, CHUNK_SIZE);
+
+    // don't log unless this useful information (more than one package)
+    if (chunked.length > 1 && chunked[0].length > 1) {
+        writeHeader(`Running test suite "${suite}"`, false);
+    }
 
     const cleanup = await ensureServices(suite, options);
 
-    const chunked = chunk(pkgInfos, CHUNK_SIZE);
     const timeLabel = `test suite "${suite}"`;
     signale.time(timeLabel);
 
@@ -123,16 +127,16 @@ async function runTestSuite(
 
         if (!pkgs.length) continue;
         if (pkgs.length === 1) {
-            writePkgHeader('Running test', pkgs, true);
+            writePkgHeader('Running test', pkgs, false);
         } else {
-            writeHeader(`Running batch of ${pkgs.length} tests`, true);
+            writeHeader(`Running batch of ${pkgs.length} tests`, false);
         }
 
         const args = utils.getArgs(options);
         args.projects = pkgs.map((pkgInfo) => path.join('packages', pkgInfo.folderName));
 
         try {
-            await runJest(getRootDir(), args, env, options.jestArgs);
+            await runJest(getRootDir(), args, env, options.jestArgs, options.debug);
         } catch (err) {
             errors.push(err.message);
 
@@ -196,7 +200,7 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         const env = printAndGetEnv(suite, options);
 
         try {
-            await runJest(e2eDir, utils.getArgs(options), env, options.jestArgs);
+            await runJest(e2eDir, utils.getArgs(options), env, options.jestArgs, options.debug);
         } catch (err) {
             errors.push(err.message);
         }

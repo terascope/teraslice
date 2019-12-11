@@ -101,7 +101,7 @@ describe('DataType', () => {
                 version: LATEST_VERSION,
                 fields: {
                     hello: { type: 'Text' },
-                    location: { type: 'Geo' },
+                    location: { type: 'GeoPoint' },
                     date: { type: 'Date' },
                     ip: { type: 'IP' },
                     someNum: { type: 'Long' },
@@ -111,7 +111,7 @@ describe('DataType', () => {
             const xluceneConfig = new DataType(typeConfig).toXlucene();
             expect(xluceneConfig).toEqual({
                 hello: 'string',
-                location: 'geo',
+                location: 'geo-point',
                 date: 'date',
                 ip: 'ip',
                 someNum: 'integer',
@@ -125,7 +125,7 @@ describe('DataType', () => {
                 version: LATEST_VERSION,
                 fields: {
                     hello: { type: 'Text' },
-                    location: { type: 'Geo' },
+                    location: { type: 'GeoPoint' },
                     date: { type: 'Date' },
                     ip: { type: 'IP' },
                     example_obj: { type: 'Object' },
@@ -139,14 +139,14 @@ describe('DataType', () => {
             const schema = formatSchema(`
                 scalar JSONObject
 
-                type GeoPointType {
+                type DTGeoPointV1 {
                     lat: String!
                     lon: String!
                 }
 
                 type myType {
                     hello: String
-                    location: GeoPointType
+                    location: DTGeoPointV1
                     date: String
                     ip: String
                     example_obj: JSONObject
@@ -185,7 +185,7 @@ describe('DataType', () => {
                 version: LATEST_VERSION,
                 fields: {
                     hello: { type: 'Text' },
-                    location: { type: 'Geo' },
+                    location: { type: 'GeoPoint' },
                     date: { type: 'Date' },
                     ip: { type: 'IP' },
                     someNum: { type: 'Long' },
@@ -194,14 +194,14 @@ describe('DataType', () => {
 
             const results = new DataType(typeConfig, 'myType').toGraphQL({ typeName: 'otherType' });
             const schema = formatSchema(`
-                type GeoPointType {
+                type DTGeoPointV1 {
                     lat: String!
                     lon: String!
                 }
 
                 type otherType {
                     hello: String
-                    location: GeoPointType
+                    location: DTGeoPointV1
                     date: String
                     ip: String
                     someNum: Int
@@ -216,7 +216,7 @@ describe('DataType', () => {
                 version: LATEST_VERSION,
                 fields: {
                     hello: { type: 'Text' },
-                    location: { type: 'Geo' },
+                    location: { type: 'GeoPoint' },
                     date: { type: 'Date' },
                     ip: { type: 'IP' },
                     someNum: { type: 'Long' },
@@ -238,7 +238,7 @@ describe('DataType', () => {
                 version: LATEST_VERSION,
                 fields: {
                     hello: { type: 'Text' },
-                    location: { type: 'Geo' },
+                    location: { type: 'GeoPoint' },
                     date: { type: 'Date' },
                     ip: { type: 'IP' },
                     someNum: { type: 'Long' },
@@ -249,8 +249,8 @@ describe('DataType', () => {
                 version: LATEST_VERSION,
                 fields: {
                     hello: { type: 'Text' },
-                    location: { type: 'Geo' },
-                    otherLocation: { type: 'Geo' },
+                    location: { type: 'GeoPoint' },
+                    otherLocation: { type: 'GeoPoint' },
                     bool: { type: 'Boolean' },
                 },
             };
@@ -261,21 +261,21 @@ describe('DataType', () => {
             const schema = formatSchema(`
                 type firstType {
                     hello: String
-                    location: GeoPointType
+                    location: DTGeoPointV1
                     date: String
                     ip: String
                     someNum: Int
                 }
 
-                type GeoPointType {
+                type DTGeoPointV1 {
                     lat: String!
                     lon: String!
                 }
 
                 type secondType {
                     hello: String
-                    location: GeoPointType
-                    otherLocation: GeoPointType
+                    location: DTGeoPointV1
+                    otherLocation: DTGeoPointV1
                     bool: Boolean
                 }
             `);
@@ -295,7 +295,7 @@ describe('DataType', () => {
                 version: LATEST_VERSION,
                 fields: {
                     hello: { type: 'Text' },
-                    location: { type: 'Geo' },
+                    location: { type: 'GeoPoint' },
                     date: { type: 'Date' },
                     ip: { type: 'IP' },
                     long_number: { type: 'Long' },
@@ -305,8 +305,8 @@ describe('DataType', () => {
             const parentTypeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    location: { type: 'Geo' },
-                    other_location: { type: 'Geo' },
+                    location: { type: 'GeoPoint' },
+                    other_location: { type: 'GeoPoint' },
                     obj: { type: 'Object' },
                     some_date: { type: 'Date' },
                 },
@@ -334,7 +334,7 @@ describe('DataType', () => {
 
                 type ChildType {
                     hello: String
-                    location: GeoPointType
+                    location: DTGeoPointV1
                     date: String
                     ip: String
                     long_number: Int
@@ -343,14 +343,14 @@ describe('DataType', () => {
                     num_parents: Int
                 }
 
-                type GeoPointType {
+                type DTGeoPointV1 {
                     lat: String!
                     lon: String!
                 }
 
                 type ParentType {
-                    location: GeoPointType
-                    other_location: GeoPointType
+                    location: DTGeoPointV1
+                    other_location: DTGeoPointV1
                     obj: JSONObject
                     some_date: String
                     # references and virtual fields
@@ -369,7 +369,7 @@ describe('DataType', () => {
                 version: LATEST_VERSION,
                 fields: {
                     hello: { type: 'Text' },
-                    location: { type: 'Geo' },
+                    location: { type: 'GeoPoint' },
                     date: { type: 'Date' },
                     ip: { type: 'IP' },
                     someNum: { type: 'Long' },
@@ -388,7 +388,7 @@ describe('DataType', () => {
                 version: LATEST_VERSION,
                 fields: {
                     hello: { type: 'Text' },
-                    location: { type: 'Geo' },
+                    location: { type: 'GeoPoint' },
                     date: { type: 'Date' },
                     ip: { type: 'IP' },
                     someNum: { type: 'Long' },
@@ -424,7 +424,7 @@ describe('DataType', () => {
                 version: LATEST_VERSION,
                 fields: {
                     hello: { type: 'KeywordTokensCaseInsensitive' },
-                    location: { type: 'Geo' },
+                    location: { type: 'GeoPoint' },
                     date: { type: 'Date' },
                     ip: { type: 'IP' },
                     someNum: { type: 'Long' },

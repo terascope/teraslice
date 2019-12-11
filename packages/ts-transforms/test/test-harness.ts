@@ -1,4 +1,3 @@
-
 import { debugLogger, DataEntity } from '@terascope/utils';
 import {
     Matcher, Transform, PhaseManager, WatcherConfig, PluginList

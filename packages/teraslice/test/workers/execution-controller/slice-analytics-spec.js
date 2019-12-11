@@ -126,8 +126,8 @@ describe('slice_analytics', () => {
     it('analyzeStats will log results', () => {
         analytics.analyzeStats();
         expect(logMessages.shift()).toEqual('calculating statistics');
-        expect(logMessages.shift().includes('operation config1')).toEqual(true);
-        expect(logMessages.shift().includes('operation config2')).toEqual(true);
-        expect(logMessages.shift().includes('operation config3')).toEqual(true);
+        expect(logMessages.shift()).toContain('operation config1');
+        expect(logMessages.shift()).toContain('operation config2');
+        expect(logMessages.shift()).toContain('operation config3');
     });
 });

@@ -134,10 +134,7 @@ describe('IndexManager->indexSetup()', () => {
         });
 
         it('should be able upsert the same template safely', async () => {
-            // @ts-ignore
-            const { mapping } = config.index_schema;
-            // @ts-ignore
-            const { version } = config.index_schema;
+            const { mapping, version } = config.index_schema!;
 
             const mappings = {};
             mappings[config.name] = mapping;

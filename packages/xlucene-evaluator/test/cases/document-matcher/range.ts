@@ -1,4 +1,3 @@
-
 const ageData = [
     { age: 33 },
     { age: 8 },

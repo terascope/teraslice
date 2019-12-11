@@ -2,8 +2,7 @@ import isCidr from 'is-cidr';
 // @ts-ignore TODO we should add types
 import ip6addr from 'ip6addr';
 import { isIPv6, isIP } from 'net';
-import { getRangeValues } from './dates';
-import { isInfiniteMin, isInfiniteMax } from '../../utils';
+import { isInfiniteMin, isInfiniteMax, parseRange } from '../../utils';
 import { Term, Range } from '../../parser';
 
 const MIN_IPV4_IP = '0.0.0.0';
@@ -11,6 +10,18 @@ const MAX_IPV4_IP = '255.255.255.255';
 
 const MIN_IPV6_IP = '::';
 const MAX_IPV6_IP = 'ffff.ffff.ffff.ffff.ffff.ffff.ffff.ffff';
+
+function getRangeValues(node: Range) {
+    const rangeQuery = parseRange(node);
+    const incMin = rangeQuery.gte != null;
+    const incMax = rangeQuery.lte != null;
+    const minValue = rangeQuery.gte || rangeQuery.gt || '*';
+    const maxValue = rangeQuery.lte || rangeQuery.lt || '*';
+
+    return {
+        incMin, incMax, minValue, maxValue
+    };
+}
 
 export function ipTerm(node: Term) {
     const argeCidr = isCidr(node.value as string);

@@ -17,8 +17,7 @@ describe('IndexStore', () => {
     describe('when constructed with nothing', () => {
         it('should throw an error', () => {
             expect(() => {
-                // @ts-ignore
-                new IndexStore();
+                new IndexStore(undefined as any, undefined as any);
             }).toThrowWithMessage(TSError, 'IndexStore requires elasticsearch client');
         });
     });
@@ -26,8 +25,7 @@ describe('IndexStore', () => {
     describe('when constructed without a config', () => {
         it('should throw an error', () => {
             expect(() => {
-                // @ts-ignore
-                new IndexStore(client);
+                new IndexStore(client as any, undefined as any);
             }).toThrowError();
         });
     });
@@ -56,7 +54,7 @@ describe('IndexStore', () => {
     describe('when constructed without a data schema', () => {
         const _client = makeClient();
 
-        const indexStore = new IndexStore<SimpleRecord, SimpleRecordInput>(_client, config);
+        const indexStore = new IndexStore<SimpleRecord>(_client, config);
 
         beforeAll(async () => {
             await cleanupIndexStore(indexStore);
@@ -91,13 +89,13 @@ describe('IndexStore', () => {
                 _updated: new Date().toISOString(),
             };
 
-            beforeAll(() => indexStore.createWithId(record, record.test_id));
+            beforeAll(() => indexStore.createById(record.test_id, record));
 
             it('should not be able to create a record again', async () => {
                 expect.hasAssertions();
 
                 try {
-                    await indexStore.createWithId(record, record.test_id);
+                    await indexStore.createById(record.test_id, record);
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
                     expect(err.message).toInclude('Document Already Exists');
@@ -105,7 +103,7 @@ describe('IndexStore', () => {
                 }
             });
 
-            it('should be able to index the same record', () => indexStore.indexWithId(record, record.test_id));
+            it('should be able to index the same record', () => indexStore.indexById(record.test_id, record));
 
             it('should be able to index the record without an id', async () => {
                 const lonelyRecord: SimpleRecordInput = {
@@ -131,7 +129,7 @@ describe('IndexStore', () => {
                     test_boolean: false,
                 };
 
-                await indexStore.indexWithId(otherRecord, otherRecord.test_id);
+                await indexStore.indexById(otherRecord.test_id, otherRecord);
 
                 const count = await indexStore.count(`test_id: ${otherRecord.test_id}`);
                 expect(count).toBe(1);
@@ -143,18 +141,18 @@ describe('IndexStore', () => {
 
             it('should be able to update the record', async () => {
                 await indexStore.update(
+                    record.test_id,
                     {
                         doc: {
                             test_number: 4231,
                         },
                     },
-                    record.test_id
                 );
 
                 const updated = await indexStore.get(record.test_id);
                 expect(updated).toHaveProperty('test_number', 4231);
 
-                await indexStore.update({ doc: record }, record.test_id);
+                await indexStore.update(record.test_id, { doc: record });
             });
 
             it('should throw when updating a record that does not exist', async () => {
@@ -162,12 +160,12 @@ describe('IndexStore', () => {
 
                 try {
                     await indexStore.update(
+                        'wrong-id',
                         {
                             doc: {
                                 test_number: 1,
                             },
                         },
-                        'wrong-id'
                     );
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
@@ -177,8 +175,7 @@ describe('IndexStore', () => {
             });
 
             it('should be able to get the record by id', async () => {
-                // @ts-ignore
-                const r = (await indexStore.get(record.test_id)) as DataEntity<T>;
+                const r: DataEntity<SimpleRecord> = (await indexStore.get(record.test_id)) as any;
 
                 expect(DataEntity.isDataEntity(r)).toBeTrue();
                 expect(r).toEqual(record);
@@ -211,13 +208,15 @@ describe('IndexStore', () => {
                 }
             });
 
-            it('should be able to remove the record', () => indexStore.remove(record.test_id));
+            it('should be able to remove the record', async () => {
+                await indexStore.deleteById(record.test_id);
+            });
 
             it('should throw when trying to remove a record that does not exist', async () => {
                 expect.hasAssertions();
 
                 try {
-                    await indexStore.remove('wrong-id');
+                    await indexStore.deleteById('wrong-id');
                 } catch (err) {
                     expect(err).toBeInstanceOf(TSError);
                     expect(err.message).toInclude('Not Found');
@@ -266,7 +265,7 @@ describe('IndexStore', () => {
 
             beforeAll(async () => {
                 await Promise.all(
-                    records.map((record) => indexStore.createWithId(record, record.test_id, {
+                    records.map((record) => indexStore.createById(record.test_id, record, {
                         refresh: false,
                     }))
                 );
@@ -336,9 +335,10 @@ describe('IndexStore', () => {
                 }
             });
 
+            // eslint-disable-next-line
             xit('compare xlucene query', async () => {
                 const q = '_exists_:test_number OR test_number:<0 OR test_number:100000 NOT test_keyword:other-keyword';
-                const realResult = await indexStore._search({
+                const realResult = await indexStore.searchRequest({
                     q,
                     _sourceInclude: ['test_id', 'test_boolean'],
                     sort: 'test_number:asc',
@@ -346,11 +346,11 @@ describe('IndexStore', () => {
                 });
                 const xluceneResult = await indexStore.search(q, {
                     size: 200,
-                    _sourceInclude: ['test_id', 'test_boolean'],
+                    includes: ['test_id', 'test_boolean'],
                     sort: 'test_number:asc',
                 });
 
-                await indexStore._search({
+                await indexStore.searchRequest({
                     body: {
                         query: {
                             constant_score: {
@@ -408,8 +408,9 @@ describe('IndexStore', () => {
                 console.dir(xluceneResult);
             });
 
+            // eslint-disable-next-line
             xit('test lucene query', async () => {
-                const result = await indexStore._search({
+                const result = await indexStore.searchRequest({
                     q: '*rec?rd',
                     size: 200,
                     _sourceInclude: ['test_id', 'test_number'],
@@ -507,7 +508,7 @@ describe('IndexStore', () => {
             },
         });
 
-        const indexStore = new IndexStore<SimpleRecord, SimpleRecordInput>(
+        const indexStore = new IndexStore<SimpleRecord>(
             _client,
             configWithDataSchema
         );
@@ -527,20 +528,19 @@ describe('IndexStore', () => {
         it('should fail when given an invalid record', async () => {
             expect.hasAssertions();
 
-            const record = {
+            const record: Partial<SimpleRecord> = {
                 test_id: 'invalid-record-id',
-                test_boolean: Buffer.from('wrong'),
-                test_number: '123',
+                test_boolean: Buffer.from('wrong') as any,
+                test_number: '123' as any,
                 _created: 'wrong-date',
             };
 
             try {
-                // @ts-ignore
-                await indexStore.indexWithId(record, record.test_id);
+                await indexStore.indexById(record.test_id!, record);
             } catch (err) {
                 expect(err).toBeInstanceOf(TSError);
                 expect(err.message).toMatch(/(test_keyword|_created)/);
-                expect(err.statusCode).toEqual(422);
+                expect(err.statusCode).toEqual(400);
             }
         });
 
@@ -591,9 +591,9 @@ describe('IndexStore', () => {
                     input.map((record, i) => {
                         if (inputType === 'input') {
                             if (i === 0) {
-                                return indexStore.createWithId(record, record.test_id);
+                                return indexStore.createById(record.test_id, record);
                             }
-                            return indexStore.indexWithId(record, record.test_id, {
+                            return indexStore.indexById(record.test_id, record, {
                                 refresh: false,
                             });
                         }
@@ -638,12 +638,12 @@ describe('IndexStore', () => {
 
             it('should be able to update a record with a proper field', async () => {
                 const result = await indexStore.update(
+                    expected[2].test_id,
                     {
                         doc: {
                             test_number: 77777,
                         },
-                    },
-                    expected[2].test_id
+                    }
                 );
 
                 expect(result).toBeNil();

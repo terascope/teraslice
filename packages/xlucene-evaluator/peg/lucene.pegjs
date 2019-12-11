@@ -236,6 +236,7 @@ FunctionExpression
             type: i.ASTType.Function,
             name,
             instance: parseFunction(field, name, params),
+            params,
             field,
         };
     }
@@ -261,22 +262,21 @@ FunctionParams
 // Im keeping it contained for now until we see how this evolves for general use
 
 ListExpression
-    = field:FieldName ws* FieldSeparator ws* ListStart ws* list: ListItem ws* ListEnd {
+    = field:FieldName ws* FieldSeparator ws* ListStart ws* list:ListItem* ws* ListEnd {
+        const value = list && list.length > 0 ? list : [];
         return {
             field,
-            value: list
+            value
         }
     }
 
 ListItem
-    = item:TermExpression ws* Comma* ws* items:ListItem? {
-         if (items) return [item, ...items]
-         return [item]
+    = ws* Comma* item:TermExpression ws* Comma* ws* {
+         return item
     }
-    / ListStart ws* list: ListItem ws* ListEnd ws* Comma* ws* items:ListItem? {
+    /  ws* Comma* ListStart ws* list:ListItem* ws* ListEnd ws* Comma* ws* {
         // needs to recursive check to see if value is list
-         if (items) return [list, ...items]
-         return [list]
+         return list
     }
 
 OldGeoTermExpression
@@ -428,7 +428,7 @@ IntegerType
     }
 
 BooleanType
-  = value:Boolean {
+  = value:Boolean &(EOF / ws+ / ParensEnd / ']') {
       return {
         type: i.ASTType.Term,
         field_type: FieldType.Boolean,

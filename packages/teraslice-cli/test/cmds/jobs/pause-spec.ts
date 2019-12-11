@@ -1,4 +1,3 @@
-
 import yargs from 'yargs';
 import pause from '../../../src/cmds/jobs/pause';
 

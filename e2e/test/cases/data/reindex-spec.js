@@ -1,10 +1,9 @@
 'use strict';
 
 const _ = require('lodash');
-const Promise = require('bluebird');
 const misc = require('../../misc');
-const { waitForJobStatus } = require('../../wait');
-const { resetState, testJobLifeCycle, runEsJob } = require('../../helpers');
+const { waitForExStatus } = require('../../wait');
+const { resetState, runEsJob } = require('../../helpers');
 
 const teraslice = misc.teraslice();
 
@@ -31,15 +30,12 @@ describe('reindex', () => {
         jobSpec.operations[0].index = misc.getExampleIndex(100);
         jobSpec.operations[1].index = specIndex;
 
-        const job = await teraslice.jobs.submit(jobSpec);
-        expect(job).toBeDefined();
-        expect(job.id()).toBeDefined();
-
-        await waitForJobStatus(job, 'completed');
+        const ex = await teraslice.executions.submit(jobSpec);
+        await waitForExStatus(ex, 'completed');
 
         // the job should  be marked as completed but no new index
         // as there are no records
-        await misc.indexStats('test-reindex-bad-query').catch((errResponse) => {
+        await misc.indexStats(specIndex).catch((errResponse) => {
             const reason = _.get(errResponse, 'body.error.reason');
             expect(reason).toEqual('no such index');
         });
@@ -59,41 +55,6 @@ describe('reindex', () => {
         // exceptions?
     });
 
-    it('should complete after lifecycle changes', async () => {
-        const jobSpec = misc.newJob('reindex');
-        jobSpec.name = 'reindex after lifecycle changes';
-        const specIndex = misc.newSpecIndex('reindex');
-
-        // Job needs to be able to run long enough to cycle
-        jobSpec.operations[0].index = misc.getExampleIndex(1000);
-        jobSpec.operations[1].index = specIndex;
-
-        await testJobLifeCycle(jobSpec);
-
-        const stats = await misc.indexStats(specIndex);
-        expect(stats.count).toBe(1000);
-    });
-
-    it('can support different recovery mode cleanup=errors', async () => {
-        const errorStates = '/ex/testex-errors/_recover?cleanup=errors';
-
-        const { job_id: jobId } = await teraslice.cluster.post(errorStates);
-        const job = teraslice.jobs.wrap(jobId);
-        await waitForJobStatus(job, 'completed');
-        const stats = await misc.indexStats('test-recovery-100');
-        expect(stats.count).toEqual(100);
-    });
-
-    it('can support different recovery mode cleanup=all', async () => {
-        const allStates = '/ex/testex-all/_recover?cleanup=all';
-
-        const { job_id: jobId } = await teraslice.cluster.post(allStates);
-        const job = teraslice.jobs.wrap(jobId);
-        await waitForJobStatus(job, 'completed');
-        const stats = await misc.indexStats('test-recovery-200');
-        expect(stats.count).toEqual(200);
-    });
-
     it('should support idempotency', async () => {
         const iterations = 3;
 
@@ -105,11 +66,8 @@ describe('reindex', () => {
         jobSpec.operations[1].index = specIndex;
 
         const promises = _.times(iterations, async () => {
-            const job = await teraslice.jobs.submit(jobSpec);
-            expect(job).toBeDefined();
-            expect(job.id()).toBeDefined();
-
-            return waitForJobStatus(job, 'completed');
+            const ex = await teraslice.executions.submit(jobSpec);
+            return waitForExStatus(ex, 'completed');
         });
 
         await Promise.all(promises);

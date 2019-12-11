@@ -9,7 +9,8 @@ const {
     parseError,
     isTest,
     pDelay,
-    pRetry
+    pRetry,
+    logError
 } = require('@terascope/utils');
 const pWhilst = require('p-whilst');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
@@ -80,7 +81,6 @@ module.exports = function elasticsearchStorage(backendConfig) {
         } else {
             esQuery.body = query;
         }
-
 
         if (fields) {
             const esVersion = elasticsearch.getESVersion();
@@ -378,7 +378,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
     // Periodically flush the bulkQueue so we don't end up with cached data lingering.
     flushInterval = setInterval(() => {
         _flush().catch((err) => {
-            logger.error(err, 'background flush failure');
+            logError(logger, err, 'background flush failure');
             return null;
         });
         // stager the interval to avoid collisions
@@ -452,8 +452,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
                     return;
                 }
 
-                logger.error(error);
-                logger.info(`Attempting to connect to elasticsearch: ${clientName}`);
+                logError(logger, error, `Failed attempt connecting to elasticsearch: ${clientName} (will retry)`);
                 let running = false;
 
                 const checking = setInterval(() => {

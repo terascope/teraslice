@@ -1,7 +1,6 @@
 'use strict';
 
-const Promise = require('bluebird');
-const { get } = require('@terascope/utils');
+const { get, logError } = require('@terascope/utils');
 const { shutdownHandler } = require('./lib/workers/helpers/worker-shutdown');
 const makeTerafoundationContext = require('./lib/workers/context/terafoundation-context');
 const makeClusterMaster = require('./lib/cluster/cluster_master');
@@ -37,7 +36,7 @@ class Service {
 
     shutdown(err) {
         if (err) {
-            this.logger.error(err, 'Cluster Worker shutting down due to failure!');
+            logError(this.logger, err, 'Cluster Worker shutting down due to failure!');
         }
         this.shutdownHandler.exit('error', err);
     }

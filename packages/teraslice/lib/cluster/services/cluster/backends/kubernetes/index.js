@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const { TSError } = require('@terascope/utils');
+const { TSError, logError } = require('@terascope/utils');
 const Promise = require('bluebird');
 const { makeLogger } = require('../../../../../workers/helpers/terafoundation');
 const K8sResource = require('./k8sResource');
@@ -63,7 +63,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
                 // log though.  This only gets used to show slicer info through
                 // the API.  We wouldn't want to disrupt the cluster master
                 // for rare failures to reach the k8s API.
-                logger.error(err, 'Error listing teraslice pods in k8s');
+                logError(logger, err, 'Error listing teraslice pods in k8s');
             });
     }
 
@@ -79,7 +79,6 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         //   https://github.com/terascope/teraslice/issues/744
         return true;
     }
-
 
     /**
      * Creates k8s Service and Job for the Teraslice Execution Controller
@@ -151,7 +150,6 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
             });
     }
 
-
     // FIXME: These functions should probably do something with the response
     // NOTE: I find is strange that the expected return value here is
     //        effectively the same as the function inputs
@@ -160,14 +158,12 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         return { action: 'add', ex_id: executionContext.ex_id, workerNum: numWorkers };
     }
 
-
     // NOTE: This is passed exId instead of executionContext like addWorkers and
     // removeWorkers.  I don't know why, just dealing with it.
     async function removeWorkers(exId, numWorkers) {
         await k8s.scaleExecution(exId, numWorkers, 'remove');
         return { action: 'remove', ex_id: exId, workerNum: numWorkers };
     }
-
 
     async function setWorkers(executionContext, numWorkers) {
         await k8s.scaleExecution(executionContext.ex_id, numWorkers, 'set');

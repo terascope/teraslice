@@ -19,6 +19,7 @@ module.exports = Object.assign({}, jsRules, {
     '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/explicit-member-accessibility': 'off',
     '@typescript-eslint/no-empty-function': 'off',
+
     // we SHOULD really have this but we've become depedent on it
     '@typescript-eslint/ban-ts-ignore': 'off',
 
@@ -28,13 +29,40 @@ module.exports = Object.assign({}, jsRules, {
 
     // The following rules make compatibility between eslint rules and typescript rules
     'consistent-return': 'off',
+    'brace-style': 'off',
+    '@typescript-eslint/brace-style': [
+        'error',
+        '1tbs',
+        {
+            allowSingleLine: true
+        }
+    ],
+    'no-extra-parens': 'off',
+    '@typescript-eslint/no-extra-parens': [
+        'off',
+        'all',
+        {
+            conditionalAssign: true,
+            nestedBinaryExpressions: false,
+            returnAssign: false,
+            ignoreJSX: 'all',
+            enforceForArrowConditionals: false
+        }
+    ],
+    'func-call-spacing': 'off',
+    '@typescript-eslint/func-call-spacing': ['error', 'never'],
     indent: 'off',
     '@typescript-eslint/indent': ['error', INDENT],
     'no-underscore-dangle': 'off',
     'no-useless-constructor': 'off',
     '@typescript-eslint/prefer-for-of': ['error'],
     camelcase: 'off',
-    '@typescript-eslint/camelcase': ['error', { properties: 'never' }],
+    '@typescript-eslint/camelcase': ['error', {
+        properties: 'never'
+    }],
+    '@typescript-eslint/class-name-casing': ['error', {
+        allowUnderscorePrefix: true
+    }],
     'no-use-before-define': 'off',
     '@typescript-eslint/no-use-before-define': ['error', {
         functions: false,

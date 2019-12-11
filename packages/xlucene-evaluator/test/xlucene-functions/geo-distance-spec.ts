@@ -1,16 +1,16 @@
-
 import 'jest-extended';
 import { debugLogger } from '@terascope/utils';
 import { Parser } from '../../src';
 import { UtilsTranslateQueryOptions } from '../../src/translator';
 import { TypeConfig, FieldType } from '../../src/interfaces';
 
-describe('geo-distance', () => {
-    const typeConfig: TypeConfig = { location: FieldType.Geo };
+describe('geoDistance', () => {
+    const typeConfig: TypeConfig = { location: FieldType.GeoPoint };
     const options: UtilsTranslateQueryOptions = {
         logger: debugLogger('test'),
         geo_sort_order: 'asc',
         geo_sort_unit: 'meters',
+        type_config: {}
     };
 
     it('can make a function ast', () => {
@@ -66,7 +66,7 @@ describe('geo-distance', () => {
 
             const astResults = queries
                 .map((query) => new Parser(query, { type_config: typeConfig }))
-                .map((parser) => parser.ast.instance.toElasticsearchQuery(options));
+                .map((parser) => parser.ast.instance.toElasticsearchQuery('location', options));
 
             astResults.forEach((ast) => {
                 expect(ast.query).toEqual(results);

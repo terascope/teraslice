@@ -1,7 +1,7 @@
 'use strict';
 
 const {
-    noop, pDelay, get, toString, makeISODate
+    noop, pDelay, get, toString, makeISODate, logError
 } = require('@terascope/utils');
 const pWhilst = require('p-whilst');
 const Queue = require('@terascope/queue');
@@ -37,17 +37,38 @@ class Scheduler {
         this._processSlicers();
     }
 
+    /**
+     * Initialize the recovery instance or the execution context,
+     * if recovery is initialized, the execution context will not be
+     * initialized until the execution if finished and the cleanup
+     * type is set.
+    */
+    async initialize() {
+        if (this.recoverExecution) {
+            await this._initializeRecovery();
+        } else {
+            await this._initializeExecution();
+        }
+    }
+
+    /**
+     * Run the execution, this will block until complete (or failed)
+    */
     async run() {
         if (this.recoverExecution) {
-            await this._recoverSlices();
+            this.logger.info(`execution: ${this.exId} is starting in recovery mode`);
+            this.ready = true;
+            this.start();
+
+            await this._waitForRecovery();
+            await this._recoveryComplete();
 
             if (this.recover.exitAfterComplete()) {
                 return;
             }
-        }
 
-        this.events.emit('slicers:registered', this.executionContext.slicer().slicers);
-        await this.executionContext.initialize(this.startingPoints);
+            await this._initializeExecution();
+        }
 
         this.ready = true;
 
@@ -171,7 +192,7 @@ class Scheduler {
             try {
                 await this.recover.shutdown();
             } catch (err) {
-                this.logger.error(err, 'failed to shutdown recovery');
+                logError(this.logger, err, 'failed to shutdown recovery');
             }
         }
 
@@ -312,7 +333,7 @@ class Scheduler {
                 })
                 .catch((err) => {
                     _handling = false;
-                    this.logger.error(err, 'failure to run slicers');
+                    logError(this.logger, err, 'failure to run slicers');
                 });
         }, 3);
 
@@ -374,25 +395,22 @@ class Scheduler {
             if (lifecycle === 'once') {
                 throw err;
             } else {
-                this.logger.error(err, 'failure creating slices');
+                logError(this.logger, err, 'failure creating slices');
             }
         }
     }
 
-    async _recoverSlices() {
+    async _initializeRecovery() {
         this.recover = this.recover
             || makeExecutionRecovery(this.context, this.stateStore, this.executionContext);
 
         await this.recover.initialize();
-
         this.events.emit('slicers:registered', 1);
+    }
 
-        this.logger.info(`execution: ${this.exId} is starting in recovery mode`);
-        this.ready = true;
-        this.start();
-
-        await this._waitForRecovery();
-        await this._recoveryComplete();
+    async _initializeExecution() {
+        await this.executionContext.initialize(this.startingPoints);
+        this.events.emit('slicers:registered', this.executionContext.slicer().slicers);
     }
 
     async _waitForRecovery() {

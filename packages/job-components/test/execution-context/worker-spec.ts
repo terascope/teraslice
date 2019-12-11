@@ -57,15 +57,12 @@ describe('WorkerExecutionContext', () => {
                 terasliceOpPath,
             });
 
-            expect(executionContext).toHaveProperty('status', 'initializing');
             await executionContext.initialize();
-            expect(executionContext).toHaveProperty('status', 'idle');
         });
 
         afterAll(async () => {
             events.removeAllListeners();
             await executionContext.shutdown();
-            expect(executionContext).toHaveProperty('status', 'shutdown');
         });
 
         it('should have correct properties', () => {

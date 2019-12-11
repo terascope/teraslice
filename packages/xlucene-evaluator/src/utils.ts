@@ -8,9 +8,9 @@ import {
     AnyObject,
     escapeString,
     uniq,
-    withoutNil
+    withoutNil,
 } from '@terascope/utils';
-import { Range } from './parser/interfaces';
+import { Range, RangeNode } from './parser/interfaces';
 import {
     GeoDistanceObj,
     GeoPointInput,
@@ -18,8 +18,16 @@ import {
     GeoDistanceUnit,
     JoinBy,
     TypeConfig,
-    FieldType
+    FieldType,
+    CoordinateTuple,
+    GeoShapeRelation
 } from './interfaces';
+import {
+    isGeoJSONData,
+    isGeoShapePolygon,
+    isGeoShapeMultiPolygon,
+    isGeoShapePoint
+} from './parser/functions/geo/helpers';
 
 export function isInfiniteValue(input?: number|string) {
     return input === '*' || input === Number.NEGATIVE_INFINITY || input === Number.POSITIVE_INFINITY;
@@ -55,6 +63,33 @@ export function parseRange(node: Range, excludeInfinite = false): ParsedRange {
         }
     }
     return results;
+}
+
+function isGreaterThan(node: RangeNode) {
+    if (node.operator === 'gte' || node.operator === 'gt') return true;
+    return false;
+}
+
+export function buildRangeQueryString(node: Range): string | undefined {
+    if (node.right) {
+        const leftBrace = node.left.operator === 'gte' ? '[' : '{';
+        const rightBrace = node.right.operator === 'lte' ? ']' : '}';
+        return `${leftBrace}${node.left.value} TO ${node.right.value}${rightBrace}`;
+    }
+    // cannot have a single value infinity range query
+    if (isInfiniteValue(node.left.value)) return;
+    // queryString cannot use ranges like >=1000, must convert to equivalent [1000 TO *]
+    if (isGreaterThan(node.left)) {
+        if (node.left.operator === 'gte') {
+            return `[${node.left.value} TO *]`;
+        }
+        return `{${node.left.value} TO *]`;
+    }
+
+    if (node.left.operator === 'lte') {
+        return `[* TO ${node.left.value}]`;
+    }
+    return `[* TO ${node.left.value}}`;
 }
 
 export const GEO_DISTANCE_UNITS: { readonly [key: string]: GeoDistanceUnit } = {
@@ -169,6 +204,104 @@ export type CreateJoinQueryOptions = {
     arrayJoinBy?: JoinBy;
 };
 
+const relationList = Object.values(GeoShapeRelation);
+
+export function makeXluceneGeoDistanceQuery(
+    field: string,
+    value: GeoPointInput,
+    fieldParam?: string
+) {
+    const distance = fieldParam ? escapeValue(fieldParam) : '"100m"';
+    const results = parseGeoPoint(value, false);
+    if (!results) return '';
+    const { lat, lon } = results;
+    return `${field}:geoDistance(point:"${lat},${lon}" distance:${distance})`;
+}
+
+export function makeXlucenePolyContainsPoint(field: string, value: GeoPointInput) {
+    const results = parseGeoPoint(value, false);
+    if (!results) return '';
+    const { lat, lon } = results;
+    return `${field}:geoContainsPoint(point:"${lat},${lon}")`;
+}
+
+export function coordinateToXlucene(cord: CoordinateTuple) {
+    // tuple is [lon, lat], need to return "lat, lon"
+    return `"${cord[1]}, ${cord[0]}"`;
+}
+
+function makeArrayString(arr: any[]) {
+    return `[${arr}]`;
+}
+
+function makeList(list: any[]) {
+    return makeArrayString(list.map(coordinateToXlucene));
+}
+
+function geoPolyQuery(field: string, list: string, fieldParam?: string) {
+    if (fieldParam && relationList.includes(fieldParam as GeoShapeRelation)) {
+        return `${field}:geoPolygon(points:${list} relation: "${fieldParam}")`;
+    }
+    return `${field}:geoPolygon(points:${list})`;
+}
+
+export function makeXlucenePolyQuery(
+    field: string,
+    value: CoordinateTuple[][],
+    fieldParam?: string
+) {
+    // there there is more than one, the other polygons listed are holes
+    if (value.length > 1) {
+        return value.map(makeList)
+            .map((points) => geoPolyQuery(field, points, fieldParam))
+            .join(' AND NOT ');
+    }
+    const points = makeList(value[0]);
+    return geoPolyQuery(field, points, fieldParam);
+}
+
+function createGeoQuery(field: string, value: any, targetType: FieldType, fieldParam?: string) {
+    if (isGeoJSONData(value)) {
+        if (isGeoShapePolygon(value)) {
+            return makeXlucenePolyQuery(field, value.coordinates, fieldParam);
+        }
+
+        if (isGeoShapeMultiPolygon(value)) {
+            return `(${value.coordinates.map((coordinates) => `(${makeXlucenePolyQuery(field, coordinates, fieldParam)})`).join(' OR ')})`;
+        }
+
+        if (isGeoShapePoint(value)) {
+            // geoShape point is [lon, lat] need to return [lat, lon]
+            const data = [value.coordinates[1], value.coordinates[0]];
+            if (isGeoPointType(targetType)) {
+                return makeXluceneGeoDistanceQuery(field, data, fieldParam);
+            }
+            return makeXlucenePolyContainsPoint(field, data);
+        }
+        // We do not support any other geoJSON types;
+        return '';
+    }
+
+    // incoming value is a geo-point and we compare to another geo-point by geoDistance query
+    if (isGeoPointType(targetType)) return makeXluceneGeoDistanceQuery(field, value, fieldParam);
+
+    if (isGeoJSONType(targetType)) return makeXlucenePolyContainsPoint(field, value);
+    // if here then return a noop
+    return '';
+}
+
+function isGeoQuery(type: FieldType) {
+    return isGeoPointType(type) || isGeoJSONType(type);
+}
+
+function isGeoPointType(type: FieldType) {
+    return type === FieldType.Geo || type === FieldType.GeoPoint;
+}
+
+function isGeoJSONType(type: FieldType) {
+    return type === FieldType.GeoJSON;
+}
+
 export function createJoinQuery(input: AnyObject, options: CreateJoinQueryOptions = {}): string {
     const {
         fieldParams = {},
@@ -182,12 +315,10 @@ export function createJoinQuery(input: AnyObject, options: CreateJoinQueryOption
 
     return Object.entries(obj)
         .map(([field, val]) => {
-            const fieldParam: any = fieldParams[field];
             let value: string;
-            if (typeConfig[field] === FieldType.Geo) {
-                const distance = fieldParam || '100m';
-                const { lat, lon } = parseGeoPoint(val);
-                return `${field}:geoDistance(point:"${lat},${lon}" distance:"${distance}")`;
+
+            if (isGeoQuery(typeConfig[field])) {
+                return createGeoQuery(field, val, typeConfig[field], fieldParams[field]);
             }
 
             if (Array.isArray(val)) {

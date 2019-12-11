@@ -10,7 +10,7 @@ import {
 import { PublishType } from './interfaces';
 import { PackageInfo } from '../interfaces';
 import signale from '../signale';
-import { getRemotePackageVersion } from '../packages';
+import { getRemotePackageVersion, getPublishTag, isMainPackage } from '../packages';
 import { getDevDockerImage } from '../misc';
 
 export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType): Promise<boolean> {
@@ -18,19 +18,38 @@ export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType)
 
     const remote = await getRemotePackageVersion(pkgInfo);
     const local = pkgInfo.version;
+    const isMain = isMainPackage(pkgInfo);
+    const isPrelease = getPublishTag(local) === 'prerelease';
+    const options: semver.Options = { includePrerelease: true };
 
-    if (semver.gt(local, remote)) {
+    if (semver.gt(local, remote, options)) {
         if (type === PublishType.Tag) {
-            if (pkgInfo.terascope.main) {
+            if (isMain) {
                 signale.info(`* publishing main package ${pkgInfo.name}@${remote}->${local}`);
                 return true;
             }
 
-            signale.debug(`* skipping ${pkgInfo.name} because of tag release`);
+            signale.debug(`* skipping ${pkgInfo.name} because it is not a tag release`);
             return false;
         }
 
-        if (pkgInfo.terascope.main) {
+        // TODO: This doesn't seem to be work right
+        if (type === PublishType.Dev) {
+            if (isMain && !isPrelease) {
+                signale.info('* skipping main package until tag release');
+                return true;
+            }
+
+            if (isPrelease) {
+                signale.info(`* publishing prerelease of package ${pkgInfo.name}@${remote}->${local}`);
+                return true;
+            }
+
+            signale.debug(`* skipping ${pkgInfo.name} because it is not a prerelease`);
+            return false;
+        }
+
+        if (isMain) {
             signale.info(`* skipping main package ${pkgInfo.name}@${remote}->${local} until tag release`);
             return false;
         }
@@ -39,15 +58,13 @@ export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType)
         return true;
     }
 
-    if (semver.eq(local, remote)) {
-        signale.debug(`* skipping package ${pkgInfo.name}@v${local}`);
+    if (semver.eq(local, remote, options)) {
         return false;
     }
 
     signale.warn(`* local version of ${pkgInfo.name}@v${local} is behind, expected v${remote}`);
     return false;
 }
-
 
 function padNumber(n: number): string {
     if (n < 10) return `0${n}`;

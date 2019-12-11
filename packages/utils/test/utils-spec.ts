@@ -51,6 +51,7 @@ describe('Utils', () => {
         });
 
         // TODO: We may need to add support for this?
+        // eslint-disable-next-line jest/no-disabled-tests
         xit('should handle a json base64 encoded Buffer', () => {
             const input = Buffer.from(JSON.stringify({ foo: 'bar' }), 'base64');
             expect(parseJSON(input)).toEqual({ foo: 'bar' });
