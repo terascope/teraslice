@@ -26,8 +26,8 @@ export default class TjmUtil {
         }
     }
 
-    async stop() {
-        const terminalStatuses = [
+    async stop(): Promise<void> {
+        const terminalStatuses: string[] = [
             'stopped',
             'completed',
             'terminated',
@@ -37,7 +37,7 @@ export default class TjmUtil {
         ];
 
         try {
-            const status = await this.client.jobs.wrap(this.job.jobId).status();
+            const status: string = await this.client.jobs.wrap(this.job.jobId).status();
 
             if (status === 'stopping') {
                 reply.green(`job: ${this.job.name} is stopping, wait for job to stop`);
