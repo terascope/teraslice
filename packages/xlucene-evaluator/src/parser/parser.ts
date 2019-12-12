@@ -40,7 +40,6 @@ export class Parser {
             const astJSON = JSON.stringify(this.ast, null, 4);
             this.logger.trace(`parsed ${this.query ? this.query : "''"} to `, astJSON);
         } catch (err) {
-            console.error(err);
             if (err && err.message.includes('Expected ,')) {
                 err.message = err.message.replace('Expected ,', 'Expected');
             }

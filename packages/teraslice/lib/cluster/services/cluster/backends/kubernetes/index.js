@@ -80,7 +80,6 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         return true;
     }
 
-
     /**
      * Creates k8s Service and Job for the Teraslice Execution Controller
      * (formerly slicer).  This currently works by creating a service with a
@@ -151,7 +150,6 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
             });
     }
 
-
     // FIXME: These functions should probably do something with the response
     // NOTE: I find is strange that the expected return value here is
     //        effectively the same as the function inputs
@@ -160,14 +158,12 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         return { action: 'add', ex_id: executionContext.ex_id, workerNum: numWorkers };
     }
 
-
     // NOTE: This is passed exId instead of executionContext like addWorkers and
     // removeWorkers.  I don't know why, just dealing with it.
     async function removeWorkers(exId, numWorkers) {
         await k8s.scaleExecution(exId, numWorkers, 'remove');
         return { action: 'remove', ex_id: exId, workerNum: numWorkers };
     }
-
 
     async function setWorkers(executionContext, numWorkers) {
         await k8s.scaleExecution(executionContext.ex_id, numWorkers, 'set');

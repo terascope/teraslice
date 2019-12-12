@@ -1,10 +1,9 @@
-
 import { DataEntity } from '@terascope/utils';
 import { UrlEncode } from '../../../src/operations';
 
 describe('UrlEncode operator', () => {
     function encode(str: string) {
-        return encodeURI(str);
+        return encodeURIComponent(str);
     }
 
     it('can instantiate', () => {

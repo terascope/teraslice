@@ -1,4 +1,3 @@
-
 import { DataEntity } from '@terascope/utils';
 import { BooleanValidation } from '../../../src/operations';
 

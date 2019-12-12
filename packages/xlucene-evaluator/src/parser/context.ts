@@ -106,6 +106,15 @@ export default function makeContext(args: any) {
             `coercing field "${field}":${node.value} type of ${node.field_type} to ${fieldType}`
         );
 
+        // in the case of tokenized fields we should update the
+        // node to indicate so non-term level queries can be performed
+        if (utils.isTermType(node) && field.includes('.') && !typeConfig[field]) {
+            const parentField = field.split('.').slice(0, -1);
+            if (typeConfig[parentField] && typeConfig[parentField] !== FieldType.Object) {
+                node.tokenizer = parentField;
+            }
+        }
+
         if (fieldType === FieldType.Boolean) {
             node.field_type = fieldType;
             delete node.quoted;

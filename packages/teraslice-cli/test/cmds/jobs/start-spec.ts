@@ -1,4 +1,3 @@
-
 import yargs from 'yargs';
 import start from '../../../src/cmds/jobs/start';
 

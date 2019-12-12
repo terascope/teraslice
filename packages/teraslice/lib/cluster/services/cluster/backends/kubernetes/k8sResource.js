@@ -70,7 +70,6 @@ class K8sResource {
         const shutdownTimeoutMs = _.get(this.terasliceConfig, 'shutdown_timeout', 60000);
         const shutdownTimeoutSeconds = Math.round(shutdownTimeoutMs / 1000);
 
-
         const config = {
             // assetsDirectory: _.get(this.terasliceConfig, 'assets_directory', ''),
             // assetsVolume: _.get(this.terasliceConfig, 'assets_volume', ''),

@@ -1,4 +1,3 @@
-
 import { Logger } from '@terascope/utils';
 import RulesLoader from './rules-loader';
 import RulesParser from './rules-parser';

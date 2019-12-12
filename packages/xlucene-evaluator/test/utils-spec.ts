@@ -10,7 +10,6 @@ import {
     GeoShapeRelation
 } from '../src/interfaces';
 
-
 describe('Utils', () => {
     it('should have GEO_DISTANCE_UNITS', () => {
         expect(utils.GEO_DISTANCE_UNITS).toBeObject();
@@ -82,7 +81,7 @@ describe('Utils', () => {
             expect(results).toEqual('location:geoDistance(point:"60,90" distance:"100m")');
         });
 
-        it('can add additional fieldParams for geoDistance ', () => {
+        it('can add additional fieldParams for geoDistance', () => {
             const input = { location: '60,90' };
             const options: utils.CreateJoinQueryOptions = {
                 fieldParams: { location: '50km' },

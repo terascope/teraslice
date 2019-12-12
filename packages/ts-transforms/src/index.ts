@@ -1,4 +1,3 @@
-
 import {
     OperationsManager, OperationBase, TransformOpBase, ValidationOpBase
 } from './operations';

@@ -1,4 +1,3 @@
-
 import { DataEntity } from '@terascope/utils';
 import { Base64Decode } from '../../../src/operations';
 

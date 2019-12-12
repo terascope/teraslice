@@ -10,6 +10,7 @@ const { resetState, testJobLifeCycle, runEsJob } = require('../../helpers');
  *  - https://github.com/terascope/teraslice/issues/68
  *  - https://github.com/terascope/elasticsearch-assets/issues/12
  */
+// eslint-disable-next-line jest/no-disabled-tests
 xdescribe('id reader', () => {
     beforeAll(() => resetState());
 

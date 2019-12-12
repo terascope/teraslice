@@ -1,4 +1,3 @@
-
 import { Logger } from '@terascope/utils';
 import { UtilsTranslateQueryOptions, AnyQuery, AnyQuerySort } from '../translator/interfaces';
 import {
@@ -49,6 +48,7 @@ export type TermLikeType =
 export interface TermLikeAST {
     type: TermLikeType;
     field: Field;
+    tokenizer?: boolean;
 }
 
 export enum ASTType {
@@ -190,5 +190,8 @@ export interface FunctionMethodsResults {
 
 export interface FunctionMethods {
     match(arg: any): boolean;
-    toElasticsearchQuery(options: UtilsTranslateQueryOptions): FunctionMethodsResults;
+    toElasticsearchQuery(
+        field: string,
+        options: UtilsTranslateQueryOptions
+    ): FunctionMethodsResults;
 }

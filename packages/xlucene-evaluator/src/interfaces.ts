@@ -1,4 +1,3 @@
-
 type GeoPointArr = [number, number];
 type GeoPointStr = string;
 type GeoObjShort = {lat: string | number; lon: string | number};

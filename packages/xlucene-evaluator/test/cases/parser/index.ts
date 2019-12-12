@@ -1,4 +1,3 @@
-
 import empty from './empty';
 import exists from './exists';
 import fieldGroup from './field-group';

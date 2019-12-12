@@ -1,4 +1,3 @@
-
 import path from 'path';
 import TerasliceUtil from '../../src/helpers/teraslice-util';
 

@@ -1,4 +1,3 @@
-
 import 'jest-extended';
 import { debugLogger } from '@terascope/utils';
 import { Parser } from '../../src';
@@ -14,6 +13,7 @@ describe('geoPolygon', () => {
             logger: debugLogger('test'),
             geo_sort_order: 'asc',
             geo_sort_unit: 'meters',
+            type_config: {}
         };
 
         it('can make a function ast', () => {
@@ -70,7 +70,7 @@ describe('geoPolygon', () => {
 
                 const astResults = queries
                     .map((query) => new Parser(query, { type_config: typeConfig }))
-                    .map((parser) => parser.ast.instance.toElasticsearchQuery(options));
+                    .map((parser) => parser.ast.instance.toElasticsearchQuery('location', options));
 
                 astResults.forEach((ast) => {
                     expect(ast.query).toEqual(results);
@@ -102,6 +102,7 @@ describe('geoPolygon', () => {
             logger: debugLogger('test'),
             geo_sort_order: 'asc',
             geo_sort_unit: 'meters',
+            type_config: {}
         };
 
         function makePoint() {
@@ -164,7 +165,7 @@ describe('geoPolygon', () => {
 
                 const astResults = queries
                     .map((query) => new Parser(query, { type_config: typeConfig }))
-                    .map((parser) => parser.ast.instance.toElasticsearchQuery(options));
+                    .map((parser) => parser.ast.instance.toElasticsearchQuery('location', options));
 
                 astResults.forEach((ast) => {
                     expect(ast.query).toEqual(results);
@@ -187,7 +188,7 @@ describe('geoPolygon', () => {
                 const query = `location: geoPolygon(points:["70.43,140.43", "81.3,123.4", "89.3,154.4"], relation: "${GeoShapeRelation.Within}")`;
 
                 const parser = new Parser(query, { type_config: typeConfig });
-                const results = parser.ast.instance.toElasticsearchQuery(options);
+                const results = parser.ast.instance.toElasticsearchQuery('location', options);
 
                 expect(results.query).toEqual(expectedResults);
                 expect(results.sort).toBeUndefined();
@@ -208,7 +209,7 @@ describe('geoPolygon', () => {
                 const query = `location: geoPolygon(points:["70.43,140.43", "81.3,123.4", "89.3,154.4"], relation: "${GeoShapeRelation.Intersects}")`;
 
                 const parser = new Parser(query, { type_config: typeConfig });
-                const results = parser.ast.instance.toElasticsearchQuery(options);
+                const results = parser.ast.instance.toElasticsearchQuery('location', options);
 
                 expect(results.query).toEqual(expectedResults);
                 expect(results.sort).toBeUndefined();
@@ -229,7 +230,7 @@ describe('geoPolygon', () => {
                 const query = `location: geoPolygon(points:["70.43,140.43", "81.3,123.4", "89.3,154.4"], relation: "${GeoShapeRelation.Contains}")`;
 
                 const parser = new Parser(query, { type_config: typeConfig });
-                const results = parser.ast.instance.toElasticsearchQuery(options);
+                const results = parser.ast.instance.toElasticsearchQuery('location', options);
 
                 expect(results.query).toEqual(expectedResults);
                 expect(results.sort).toBeUndefined();
@@ -250,7 +251,7 @@ describe('geoPolygon', () => {
                 const query = `location: geoPolygon(points:["70.43,140.43", "81.3,123.4", "89.3,154.4"], relation: "${GeoShapeRelation.Disjoint}")`;
 
                 const parser = new Parser(query, { type_config: typeConfig });
-                const results = parser.ast.instance.toElasticsearchQuery(options);
+                const results = parser.ast.instance.toElasticsearchQuery('location', options);
 
                 expect(results.query).toEqual(expectedResults);
                 expect(results.sort).toBeUndefined();
@@ -313,7 +314,6 @@ describe('geoPolygon', () => {
                     ]
                 ]
             };
-
 
             it('poly v poly default relations matches within', () => {
                 const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)})`;

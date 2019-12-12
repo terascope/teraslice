@@ -1,4 +1,3 @@
-
 import {
     DataEntity, set, unset, isString
 } from '@terascope/utils';

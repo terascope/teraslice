@@ -335,6 +335,7 @@ describe('IndexStore', () => {
                 }
             });
 
+            // eslint-disable-next-line
             xit('compare xlucene query', async () => {
                 const q = '_exists_:test_number OR test_number:<0 OR test_number:100000 NOT test_keyword:other-keyword';
                 const realResult = await indexStore.searchRequest({
@@ -407,6 +408,7 @@ describe('IndexStore', () => {
                 console.dir(xluceneResult);
             });
 
+            // eslint-disable-next-line
             xit('test lucene query', async () => {
                 const result = await indexStore.searchRequest({
                     q: '*rec?rd',

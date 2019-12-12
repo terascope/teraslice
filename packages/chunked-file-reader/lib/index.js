@@ -2,7 +2,6 @@
 
 const chunkFormatter = require('./formatters');
 
-
 function _averageRecordSize(array) {
     return Math.floor(array.reduce((accum, str) => accum + str.length, 0) / array.length);
 }
@@ -31,7 +30,6 @@ function getOffsets(size, total, delimiter) {
     }
     return chunks;
 }
-
 
 // This function will grab the chunk of data specified by the slice plus an
 // extra margin if the slice does not end with the delimiter.
