@@ -4,6 +4,7 @@ terafoundation:
     connectors:
         elasticsearch:
             default:
+                apiVersion: "5.6"
                 host:
                     - "elasticsearch:9200"
 teraslice:
