@@ -568,6 +568,23 @@ describe('k8sResource', () => {
         });
     });
 
+    describe('worker deployments with job labels', () => {
+        it('generates k8s resources with labels', () => {
+            execution.labels = [
+                ['key1', 'value1'],
+                ['key2', 'value2']
+            ];
+
+            const kr = new K8sResource(
+                'deployments', 'worker', terasliceConfig, execution
+            );
+
+            // console.log(yaml.dump(kr.resource));
+            expect(kr.resource.metadata.labels['job.teraslice.terascope.io/key1']).toEqual('value1');
+            expect(kr.resource.metadata.labels['job.teraslice.terascope.io/key2']).toEqual('value2');
+        });
+    });
+
     describe('execution_controller job', () => {
         it('has valid resource object.', () => {
             const kr = new K8sResource(

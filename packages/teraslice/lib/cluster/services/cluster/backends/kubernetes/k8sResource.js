@@ -22,6 +22,7 @@ class K8sResource {
      */
     constructor(resourceType, resourceName, terasliceConfig, execution) {
         this.execution = execution;
+        this.jobLabelPrefix = 'job.teraslice.terascope.io';
         this.nodeType = resourceName;
         this.terasliceConfig = terasliceConfig;
 
@@ -36,6 +37,8 @@ class K8sResource {
         this.templateGenerator = this._makeTemplate(resourceType, resourceName);
         this.templateConfig = this._makeConfig();
         this.resource = this.templateGenerator(this.templateConfig);
+
+        this._setJobLabels();
 
         // services don't have pod templates that need modification by these
         // methods
@@ -118,6 +121,17 @@ class K8sResource {
             this.resource.spec.template.spec.containers[0].volumeMounts.push({
                 name: this.terasliceConfig.assets_volume,
                 mountPath: this.terasliceConfig.assets_directory
+            });
+        }
+    }
+
+    _setJobLabels() {
+        if (this.execution.labels != null) {
+            _.forEach(this.execution.labels, (label) => {
+                const key = `${this.jobLabelPrefix}/${label[0]}`;
+                const value = label[1];
+                this.resource.metadata.labels[key] = value;
+                this.resource.spec.template.metadata.labels[key] = value;
             });
         }
     }
