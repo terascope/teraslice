@@ -216,6 +216,8 @@ RestrictedVariableExpression
     = field:FieldName ws* FieldSeparator ws* VariableSign chars:VariableChar+ {
         const key = chars.join('');
         const value = getVariable(key);
+        // create logical group node
+        // created quoted node for each value
         if (Array.isArray(value)) throw new Error(`variable $${key} is set to an Array value, which usage is only allowed with xlucene function expressions`);
         const node = { value, field, type: i.ASTType.Term };
         coerceTermType(node);

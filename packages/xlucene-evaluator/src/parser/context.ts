@@ -59,6 +59,7 @@ export default function makeContext(args: any) {
     function getVariable(value: string) {
         const variable = variables[value];
         if (variable === undefined) throw new TSError(`could not find a variable set with key "${value}"`);
+        if (Array.isArray(variable)) return variable.slice();
         return variable;
     }
 
