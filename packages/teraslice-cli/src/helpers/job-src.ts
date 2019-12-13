@@ -18,6 +18,7 @@ export default class JobFile {
     version: string;
     jobId!: string;
     name!: string;
+    id!: string;
     clusterUrl!: string;
     content: any;
 
@@ -40,6 +41,7 @@ export default class JobFile {
         }
 
         this.jobId = this.content.__metadata.cli.job_id;
+        this.id = this.content.__metadata.cli.job_id;
         this.clusterUrl = this.content.__metadata.cli.cluster;
         this.name = this.content.name;
     }

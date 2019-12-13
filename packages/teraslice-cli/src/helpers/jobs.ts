@@ -95,6 +95,7 @@ export default class Jobs {
         let currentStatus = await jobFunctions.status();
         if (this.config.args.start) {
             // make sure job is not already active
+            // @ts-ignore
             if (['running', 'failing'].includes(currentStatus)) {
                 reply.yellow(`< job:${this.config.args.id} already active with status ${currentStatus}`);
             }

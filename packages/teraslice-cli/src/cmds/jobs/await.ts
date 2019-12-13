@@ -15,9 +15,8 @@ const cmd: CMD = {
         yargs.options('timeout', yargsOptions.buildOption('await-timeout'));
         yargs.options('start', yargsOptions.buildOption('start'));
         yargs.strict()
-            .example('$0 jobs start cluster1 99999999-9999-9999-9999-999999999999')
-            .example('$0 jobs start cluster1 99999999-9999-9999-9999-999999999999 --yes')
-            .example('$0 jobs start cluster1 --all');
+            .example('$0 jobs await CLUSTER_ALIAS JOBID --status completed --timeout 10000')
+            .example('$0 jobs await CLUSTER_ALIAS JOBID --status completed --timeout 10000 --start')
         return yargs;
     },
     async handler(argv): Promise<void> {
