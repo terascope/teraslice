@@ -325,3 +325,23 @@ export function pRaceWithTimeout(
     const _promises = Array.isArray(promises) ? promises : [promises];
     return pRace([..._promises, pTimeout], logError);
 }
+
+/**
+ * An alternative to Bluebird.defer: http://bluebirdjs.com/docs/api/deferred-migration.html
+ * Considered bad practice in most cases, use the Promise constructor
+*/
+export function pDefer() {
+    let resolve: (value?: unknown) => void;
+    let reject: (reason?: any) => void;
+
+    const promise = new Promise((res, rej) => {
+        resolve = res;
+        reject = rej;
+    });
+
+    return {
+        resolve: resolve!,
+        reject: reject!,
+        promise
+    };
+}
