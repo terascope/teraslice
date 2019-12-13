@@ -5,6 +5,7 @@ const { Router } = require('express');
 const Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const request = require('request');
+const { RecoveryCleanupType } = require('@terascope/job-components');
 const { parseErrorInfo, parseList, logError } = require('@terascope/utils');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 const {
@@ -164,17 +165,18 @@ module.exports = async function makeAPI(context, app, options) {
     });
 
     v1routes.post(['/jobs/:jobId/_recover', '/ex/:exId/_recover'], (req, res) => {
-        const { cleanup } = req.query;
+        const { cleanup: cleanupType } = req.query;
 
-        if (cleanup && !(cleanup === 'all' || cleanup === 'errors')) {
-            sendError(res, 400, 'if cleanup is specified it must be set to "all" or "errors"');
+        if (cleanupType && !RecoveryCleanupType[cleanupType]) {
+            const types = Object.values(RecoveryCleanupType);
+            sendError(res, 400, `if cleanup is specified it must be set to ${types.join(', ')}`);
             return;
         }
 
         const requestHandler = handleRequest(req, res, 'Could not recover execution');
         requestHandler(async () => {
             const exId = await _getExIdFromRequest(req);
-            return executionService.recoverExecution(exId, cleanup);
+            return executionService.recoverExecution(exId, cleanupType);
         });
     });
 

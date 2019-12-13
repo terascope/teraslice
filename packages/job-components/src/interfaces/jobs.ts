@@ -100,14 +100,19 @@ export interface Volume {
     path: string;
 }
 
+export enum RecoveryCleanupType {
+    all = 'all',
+    errors = 'errors',
+    pending = 'pending'
+}
+
 export interface ExecutionConfig extends ValidatedJobConfig {
     ex_id: string;
     job_id: string;
     slicer_hostname: string;
     slicer_port: number;
-    previous_execution?: string;
     recovered_execution?: string;
-    recovered_slice_type?: 'all' | 'errors';
+    recovered_slice_type?: RecoveryCleanupType;
 }
 
 /**

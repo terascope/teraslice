@@ -1,10 +1,18 @@
 'use strict';
 
-const _ = require('lodash');
+const sortBy = require('lodash/sortBy');
 const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
 const {
-    TSError, parseError, getFullErrorStack, logError
+    TSError,
+    parseError,
+    getFullErrorStack,
+    logError,
+    get,
+    withoutNil,
+    isEmpty,
+    flatten,
+    includes,
 } = require('@terascope/utils');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 const makeExStore = require('../storage/execution');
@@ -49,14 +57,11 @@ module.exports = function executionService(context, { clusterMasterServer }) {
         return new Promise((resolve) => {
             async function checkCluster() {
                 const state = getClusterState();
-                const dict = {};
+                const dict = Object.create(null);
 
-                _.each(
-                    state,
-                    (node) => _.each(node.active, (worker) => {
-                        dict[worker.ex_id] = true;
-                    }),
-                );
+                Object.values(state).forEach((node) => node.active.forEach((worker) => {
+                    dict[worker.ex_id] = true;
+                }));
 
                 // if found, do not resolve
                 if (dict[exId]) {
@@ -107,24 +112,19 @@ module.exports = function executionService(context, { clusterMasterServer }) {
             });
     }
 
-    function _iterateState(cb) {
-        return _.chain(getClusterState())
+    function findAllWorkers() {
+        return flatten(getClusterState()
             .filter((node) => node.state === 'connected')
             .map((node) => {
-                const workers = node.active.filter(cb);
+                const workers = node.active.filter(Boolean);
 
                 return workers.map((worker) => {
                     worker.node_id = node.node_id;
                     worker.hostname = node.hostname;
                     return worker;
                 });
-            })
-            .flatten()
-            .value();
-    }
-
-    function findAllWorkers() {
-        return _iterateState(_.identity);
+            }))
+            .filter(Boolean);
     }
 
     function addWorkers(exId, workerNum) {
@@ -194,7 +194,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
                     return true;
                 }
 
-                logger.debug(`stopping execution ${exId}...`, _.pickBy({ timeout, excludeNode }));
+                logger.debug(`stopping execution ${exId}...`, withoutNil({ timeout, excludeNode }));
                 return setExecutionStatus(exId, 'stopping')
                     .then(() => clusterService.stopExecution(exId, timeout, excludeNode))
                     .then(() => {
@@ -230,13 +230,13 @@ module.exports = function executionService(context, { clusterMasterServer }) {
         const specificId = exId || false;
         return getRunningExecutions(exId)
             .then((exIds) => {
-                const clients = _.filter(clusterMasterServer.onlineClients, ({ clientId }) => {
+                const clients = clusterMasterServer.onlineClients.filter(({ clientId }) => {
                     if (specificId && clientId === specificId) return true;
-                    return _.includes(exIds, clientId);
+                    return includes(exIds, clientId);
                 });
 
                 function formatResponse(msg) {
-                    const payload = _.get(msg, 'payload', {});
+                    const payload = get(msg, 'payload', {});
                     const identifiers = {
                         ex_id: payload.ex_id,
                         job_id: payload.job_id,
@@ -245,7 +245,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
                     return Object.assign(identifiers, payload.stats);
                 }
 
-                if (_.isEmpty(clients)) {
+                if (isEmpty(clients)) {
                     if (specificId) {
                         const error = new Error(`Could not find active slicer for ex_id: ${specificId}`);
                         error.code = 404;
@@ -254,7 +254,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
                     return Promise.resolve([]);
                 }
 
-                const promises = _.map(clients, (client) => {
+                const promises = clients.map((client) => {
                     const { clientId } = client;
                     return clusterMasterServer
                         .sendExecutionAnalyticsRequest(clientId)
@@ -262,32 +262,14 @@ module.exports = function executionService(context, { clusterMasterServer }) {
                 });
 
                 return Promise.all(promises);
-            }).then((results) => {
-                const sortedData = _.sortBy(results, ['name', 'started']);
-                return _.reverse(sortedData);
-            });
+            }).then((results) => sortBy(results, ['name', 'started']).reverse());
     }
 
-    function createExecutionContext(job) {
-        return exStore.create(job, 'ex')
-            .then((ex) => setExecutionStatus(ex.ex_id, 'pending')
-                .then(() => {
-                    logger.debug('enqueueing execution to be processed', ex);
-                    pendingExecutionQueue.enqueue(ex);
-                    return { job_id: ex.job_id, ex_id: job.ex_id };
-                })
-                .catch((err) => {
-                    const error = new TSError(err, {
-                        reason: 'Failure to set job to pending'
-                    });
-                    return Promise.reject(error);
-                }))
-            .catch((err) => {
-                const error = new TSError(err, {
-                    reason: 'Failure to create execution context'
-                });
-                return Promise.reject(error);
-            });
+    async function createExecutionContext(job) {
+        const ex = await exStore.create(job);
+        logger.debug('enqueueing execution to be processed', ex);
+        pendingExecutionQueue.enqueue(ex);
+        return { job_id: ex.job_id, ex_id: job.ex_id };
     }
 
     function getExecutionContext(exId) {
@@ -335,56 +317,12 @@ module.exports = function executionService(context, { clusterMasterServer }) {
         return exStore.executionMetaData(stats, errMsg);
     }
 
-    function _canRecover(ex) {
-        if (!ex) {
-            throw new Error('Unable to find execution to recover');
-        }
-        if (ex._status === 'completed') {
-            throw new Error('This job has completed and can not be restarted.');
-        }
-        if (ex._status === 'scheduling' || ex._status === 'pending') {
-            throw new Error('This job is currently being scheduled and can not be restarted.');
-        }
-        if (ex._status === 'running') {
-            throw new Error('This job is currently successfully running and can not be restarted.');
-        }
-        return ex;
-    }
-
-    function _removeMetaData(execution) {
-        // we need a better story about what is meta data
-        delete execution.ex_id;
-        delete execution._created;
-        delete execution._updated;
-        delete execution._status;
-        delete execution.slicer_hostname;
-        delete execution.slicer_port;
-        delete execution._has_errors;
-        delete execution._slicer_stats;
-        delete execution._failureReason;
-        delete execution.recovered_execution;
-        delete execution.recovered_slice_state;
-        delete execution._failureReason;
-
-        execution.operations = execution.operations.map((opConfig) => {
-            if (opConfig._op === 'elasticsearch_reader') {
-                if (Array.isArray(opConfig.interval)) opConfig.interval = opConfig.interval.join('');
-            }
-            return opConfig;
-        });
-
-        return execution;
-    }
-
-    function recoverExecution(exId, cleanup) {
-        return getExecutionContext(exId)
-            .then((execution) => _canRecover(execution))
-            .then((execution) => _removeMetaData(execution))
-            .then((execution) => {
-                execution.recovered_execution = exId;
-                if (cleanup) execution.recovered_slice_type = cleanup;
-                return createExecutionContext(execution);
-            });
+    async function recoverExecution(exId, cleanupType) {
+        const execution = await getExecutionContext(exId);
+        const ex = await exStore.createRecoveredExecution(execution, cleanupType);
+        logger.debug('enqueueing execution to be processed', ex);
+        pendingExecutionQueue.enqueue(ex);
+        return { job_id: ex.job_id, ex_id: ex.ex_id };
     }
 
     const api = {

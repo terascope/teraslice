@@ -8,6 +8,7 @@ const makeLogStore = require('./logs');
 const makeStateStore = require('./state');
 
 module.exports = {
+    SliceState: makeStateStore.SliceState,
     makeAnalyticsStore,
     makeAssetStore,
     makeExStore,

@@ -8,7 +8,7 @@ const {
     TSError, get, pDelay, getFullErrorStack, logError
 } = require('@terascope/utils');
 const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
-const { makeStateStore, makeExStore } = require('../../cluster/storage');
+const { makeStateStore, makeExStore, SliceState } = require('../../cluster/storage');
 const { makeLogger, generateWorkerId } = require('../helpers/terafoundation');
 const ExecutionAnalytics = require('./execution-analytics');
 const makeSliceAnalytics = require('./slice-analytics');
@@ -653,8 +653,8 @@ class ExecutionController {
         }
 
         const [errors, started] = await Promise.all([
-            this._checkExecutionErrorState(),
-            this._checkExecutionStartedState()
+            this.stores.stateStore.countByState(this.exId, SliceState.error),
+            this.stores.stateStore.countByState(this.exId, SliceState.start),
         ]);
 
         if (errors > 0 || started > 0) {
@@ -703,16 +703,6 @@ class ExecutionController {
 
         errMsg += ' during processing';
         return errMsg;
-    }
-
-    _checkExecutionErrorState() {
-        const query = `ex_id:${this.exId} AND state:error`;
-        return this.stores.stateStore.count(query, 0);
-    }
-
-    _checkExecutionStartedState() {
-        const query = `ex_id:${this.exId} AND state:start`;
-        return this.stores.stateStore.count(query, 0);
     }
 
     async _waitForWorkersToExit() {

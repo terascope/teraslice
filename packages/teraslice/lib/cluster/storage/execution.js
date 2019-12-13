@@ -1,8 +1,11 @@
 'use strict';
 
-const { TSError, pRetry, includes } = require('@terascope/utils');
+const {
+    TSError, pRetry, includes, cloneDeep
+} = require('@terascope/utils');
 const uuid = require('uuid');
 const Promise = require('bluebird');
+const { RecoveryCleanupType } = require('@terascope/job-components');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 
@@ -32,14 +35,25 @@ module.exports = function executionStorage(context) {
         return backend.search(query, from, size, sort);
     }
 
-    function create(record) {
+    async function create(record, status = 'pending') {
+        if (!_isValidStatus(status)) {
+            throw new Error(`Unknown status "${status}" on execution create`);
+        }
         const date = new Date();
         record.ex_id = uuid.v4();
+        record._status = status;
         record._context = jobType;
         record._created = date;
         record._updated = date;
 
-        return backend.create(record);
+        try {
+            await backend.create(record);
+        } catch (err) {
+            throw new TSError(err, {
+                reason: 'Failure to create execution context'
+            });
+        }
+        return record;
     }
 
     function update(exId, updateSpec) {
@@ -180,6 +194,65 @@ module.exports = function executionStorage(context) {
         return includes(INIT_STATUS, status);
     }
 
+    function _canRecover(ex) {
+        if (!ex) {
+            throw new Error('Unable to find execution to recover');
+        }
+        if (ex._status === 'completed') {
+            throw new Error('This job has completed and can not be restarted.');
+        }
+        if (ex._status === 'scheduling' || ex._status === 'pending') {
+            throw new Error('This job is currently being scheduled and can not be restarted.');
+        }
+        if (ex._status === 'running') {
+            throw new Error('This job is currently successfully running and can not be restarted.');
+        }
+    }
+
+    function _removeMetaData(execution) {
+        // we need a better story about what is meta data
+        delete execution.ex_id;
+        delete execution._created;
+        delete execution._updated;
+        delete execution._status;
+        delete execution.slicer_hostname;
+        delete execution.slicer_port;
+        delete execution._has_errors;
+        delete execution._slicer_stats;
+        delete execution._failureReason;
+        delete execution.recovered_execution;
+        delete execution.recovered_slice_type;
+        delete execution._failureReason;
+
+        execution.operations = execution.operations.map((opConfig) => {
+            if (opConfig._op === 'elasticsearch_reader') {
+                if (Array.isArray(opConfig.interval)) opConfig.interval = opConfig.interval.join('');
+            }
+            return opConfig;
+        });
+    }
+
+    /**
+     * We shouldn't be dependant on mutating the record
+    */
+    async function createRecoveredExecution(execution, cleanupType) {
+        const _execution = cloneDeep(execution);
+        if (cleanupType && !RecoveryCleanupType[cleanupType]) {
+            throw new Error(`Unknown cleanup type "${cleanupType}" to recover`);
+        }
+
+        _canRecover(execution);
+        _removeMetaData(execution);
+
+        execution.recovered_execution = _execution.ex_id;
+        if (cleanupType) {
+            execution.recovered_slice_type = cleanupType;
+        }
+
+        const ex = await create(execution);
+        return ex;
+    }
+
     const api = {
         get: getExecution,
         search,
@@ -187,6 +260,7 @@ module.exports = function executionStorage(context) {
         update,
         remove,
         shutdown,
+        createRecoveredExecution,
         getTerminalStatuses,
         getRunningStatuses,
         getLivingStatuses,

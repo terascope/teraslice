@@ -63,12 +63,17 @@ class TestContext {
         cleanups[this.setupId] = () => this.cleanup();
     }
 
-    async initialize(makeItReal = false) {
+    async initialize(makeItReal = false, initOptions = {}) {
         if (makeItReal) {
             await this.addJobStore();
             await this.addExStore();
+            await this.addStateStore();
 
-            const { ex } = await initializeJob(this.context, this.config, stores);
+            const { ex } = await initializeJob(Object.assign({
+                context: this.context,
+                config: this.config,
+                stores,
+            }, initOptions));
             this.config = ex;
         }
 

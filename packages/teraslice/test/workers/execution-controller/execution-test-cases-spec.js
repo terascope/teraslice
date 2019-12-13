@@ -1,8 +1,8 @@
 'use strict';
 
-const _ = require('lodash');
-const Promise = require('bluebird');
-const { pDelay } = require('@terascope/utils');
+const {
+    pDelay, times, random, isEmpty
+} = require('@terascope/utils');
 const Messaging = require('@terascope/teraslice-messaging');
 const { TestContext } = require('../helpers');
 const { getTestCases } = require('../helpers/execution-controller-helper');
@@ -21,7 +21,7 @@ describe('ExecutionController Test Cases', () => {
                 slicerResults: [{ example: 'single-slice' }, null],
                 body: { example: 'single-slice' },
                 count: 1,
-                analytics: _.sample([true, false])
+                analytics: false
             }
         ],
         [
@@ -34,7 +34,7 @@ describe('ExecutionController Test Cases', () => {
                 workerIds: ['specific-worker-1'],
                 body: { request_worker: 'specific-worker-1', example: 'specific-worker' },
                 count: 1,
-                analytics: _.sample([true, false])
+                analytics: true
             }
         ],
         [
@@ -47,7 +47,7 @@ describe('ExecutionController Test Cases', () => {
                 emitSlicerRecursion: true,
                 count: 3,
                 body: { example: 'subslice' },
-                analytics: _.sample([true, false])
+                analytics: false
             }
         ],
         [
@@ -63,7 +63,7 @@ describe('ExecutionController Test Cases', () => {
                 reconnect: true,
                 body: { example: 'slice-disconnect' },
                 count: 4,
-                analytics: _.sample([true, false])
+                analytics: false
             }
         ],
         [
@@ -81,7 +81,7 @@ describe('ExecutionController Test Cases', () => {
                 body: { example: 'slice-dynamic' },
                 count: 4,
                 workers: 2,
-                analytics: _.sample([true, false])
+                analytics: true
             }
         ],
         [
@@ -91,7 +91,7 @@ describe('ExecutionController Test Cases', () => {
                 slicerFails: true,
                 body: { example: 'slice-failure' },
                 count: 1,
-                analytics: _.sample([true, false])
+                analytics: false
             }
         ],
         [
@@ -101,7 +101,7 @@ describe('ExecutionController Test Cases', () => {
                 sliceFails: true,
                 body: { example: 'slice-fail' },
                 count: 1,
-                analytics: _.sample([true, false])
+                analytics: false
             }
         ],
         [
@@ -117,7 +117,7 @@ describe('ExecutionController Test Cases', () => {
                 emitSlicerRangeExpansion: true,
                 body: { example: 'slicer-slice-range-expansion' },
                 count: 1,
-                analytics: _.sample([true, false])
+                analytics: true
             }
         ],
         [
@@ -127,7 +127,7 @@ describe('ExecutionController Test Cases', () => {
                 pauseAndResume: true,
                 body: { example: 'slice-pause-and-resume' },
                 count: 1,
-                analytics: _.sample([true, false])
+                analytics: false
             }
         ]
     ];
@@ -265,9 +265,9 @@ describe('ExecutionController Test Cases', () => {
 
                     if (analytics) {
                         msg.analytics = {
-                            time: _.times(opCount, () => _.random(0, 2000)),
-                            size: _.times(opCount, () => _.random(0, 100)),
-                            memory: _.times(opCount, () => _.random(0, 10000))
+                            time: times(opCount, () => random(0, 2000)),
+                            size: times(opCount, () => random(0, 100)),
+                            memory: times(opCount, () => random(0, 10000))
                         };
                     }
 
@@ -305,7 +305,7 @@ describe('ExecutionController Test Cases', () => {
             }
 
             function startWorkers() {
-                return Promise.all(_.times(workers, startWorker));
+                return Promise.all(times(workers, startWorker));
             }
 
             clusterMaster.onClientAvailable(() => {
@@ -317,7 +317,7 @@ describe('ExecutionController Test Cases', () => {
                     exController.events.emit('slicer:slice:range_expansion');
                 }
 
-                if (!_.isEmpty(emitsExecutionUpdate)) {
+                if (!isEmpty(emitsExecutionUpdate)) {
                     exController.events.emit('slicer:execution:update', {
                         update: emitsExecutionUpdate
                     });
@@ -345,7 +345,7 @@ describe('ExecutionController Test Cases', () => {
             const { exId } = testContext.executionContext;
 
             expect(slices).toBeArrayOfSize(count);
-            _.times(count, (i) => {
+            times(count, (i) => {
                 const slice = slices[i];
                 expect(slice).toHaveProperty('request');
                 expect(slice.request).toEqual(body);
@@ -366,8 +366,10 @@ describe('ExecutionController Test Cases', () => {
                     const actualCount = await stateStore.count(query, 0);
                     expect(actualCount).toEqual(count);
 
-                    expect(exStatus).toHaveProperty('_has_errors', true);
-                    expect(exStatus).toHaveProperty('_status', 'failed');
+                    expect(exStatus).toMatchObject({
+                        _has_errors: true,
+                        _status: 'failed'
+                    });
                 }
 
                 if (slicerFails) {
@@ -376,12 +378,16 @@ describe('ExecutionController Test Cases', () => {
                     );
                     expect(exStatus._slicer_stats.failed).toEqual(0);
 
-                    expect(exStatus).toHaveProperty('_has_errors', true);
-                    expect(exStatus).toHaveProperty('_status', 'failed');
+                    expect(exStatus).toMatchObject({
+                        _has_errors: true,
+                        _status: 'failed'
+                    });
                 }
             } else {
-                expect(exStatus).toHaveProperty('_status', 'completed');
-                expect(exStatus).toHaveProperty('_has_errors', false);
+                expect(exStatus).toMatchObject({
+                    _has_errors: false,
+                    _status: 'completed'
+                });
 
                 if (slicerQueueLength !== 'QUEUE_MINIMUM_SIZE') {
                     expect(exStatus._slicer_stats.processed).toEqual(count);
@@ -398,7 +404,7 @@ describe('ExecutionController Test Cases', () => {
                 expect(exStatus._slicer_stats.workers_reconnected).toBeGreaterThan(0);
             }
 
-            if (!_.isEmpty(emitsExecutionUpdate)) {
+            if (!isEmpty(emitsExecutionUpdate)) {
                 expect(exStatus).toHaveProperty('operations', emitsExecutionUpdate);
             }
 

@@ -697,11 +697,11 @@ $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_resume
 
 ## POST /ex/{exId}/_recover
 
-Issues a recover command, this can only be run if the execution is stopped, the job will attempt to retry failed slices and to resume where it previously left off. If cleanup parameter is specified it will NOT resume where it left off and exit after recovery completes. If the cleanup parameter is set to `all`, then it will attempt to reprocess all slices left in error or started status, if it is set to  `errors` then it will only reprocess state records that are marked as error.
+Issues a recover command, this can only be run if the execution is stopped, the job will attempt to retry failed slices and to resume where it previously left off. If cleanup parameter is specified it will NOT resume where it left off and exit after recovery completes. If the cleanup parameter is set to `all`, then it will attempt to reprocess all slices left in error or started status, if it is set to  `errors` then it will only reprocess state records that are marked as error. If it is set to `pending` only the slices that haven't been `completed`, or marked as `failed`, will be ran.
 
 **Query Options:**
 
-- `cleanup: enum [ 'all', 'errors' ]`;
+- `cleanup: enum [ 'all', 'errors', 'pending' ]`;
 
 **Usage:**
 
