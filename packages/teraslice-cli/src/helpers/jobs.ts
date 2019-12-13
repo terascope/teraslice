@@ -3,6 +3,7 @@ import fs from 'fs-extra';
 import TerasliceUtil from './teraslice-util';
 import Reply from '../cmds/lib/reply';
 import displayModule from '../cmds/lib/display';
+import * as utils from '@terascope/utils';
 
 const display = displayModule();
 const reply = new Reply();
@@ -72,6 +73,43 @@ export default class Jobs {
 
     async save() {
         return this.status(true, true);
+    }
+
+    async getClientJobFunctions(): Promise<any> {
+        return this.teraslice.client.jobs.wrap(this.config.args.id);
+    }
+
+    async await(status:any, timeout = 0, interval = 2000): Promise<void> {
+        try {
+            reply.green(`> waiting for job ${this.config.args.id} status to be ${status}`);
+            const newStatus = await this.teraslice.client.jobs.wrap(this.config.args.id).waitForStatus(status, interval, timeout);
+            reply.green(`> job ${this.config.args.id} status changed to ${newStatus}`);
+        }
+        catch (e) {
+            reply.fatal(e.message);
+        }
+    }
+
+    async awaitCommand(): Promise<void> {
+        const jobFunctions = await this.getClientJobFunctions();
+        let currentStatus = await jobFunctions.status();
+        if (this.config.args.start) {
+            // make sure job is not already active
+            if (['running', 'failing'].includes(currentStatus)) {
+                reply.yellow(`< job:${this.config.args.id} already active with status ${currentStatus}`);
+            }
+            else {
+                reply.yellow(`starting job ${this.config.args.id}`);
+                await jobFunctions.start();
+                await utils.pDelay(2000);
+                currentStatus = await jobFunctions.status();
+            }
+        }
+        if (currentStatus === this.config.args.status) {
+            reply.yellow(`< job:${this.config.args.id} already ${this.config.args.status}`);
+            process.exit(0);
+        }
+        await this.await(this.config.args.status, this.config.args.timeout);
     }
 
     async status(saveState = false, showJobs = true) {
