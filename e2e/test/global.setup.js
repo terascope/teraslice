@@ -2,16 +2,14 @@
 
 const ms = require('ms');
 const _ = require('lodash');
+const fse = require('fs-extra');
 const Promise = require('bluebird');
-const uuid = require('uuid/v4');
 const signale = require('./signale');
 const { waitForClusterState, waitForExStatus } = require('./wait');
 const setupTerasliceConfig = require('./setup-config');
 const downloadAssets = require('./download-assets');
 const { resetState } = require('./helpers');
 const misc = require('./misc');
-
-const jobList = [];
 
 const { GENERATE_ONLY } = process.env;
 const generateOnly = GENERATE_ONLY ? parseInt(GENERATE_ONLY, 100) : null;
@@ -44,79 +42,10 @@ async function generateTestData() {
     const startTime = Date.now();
     signale.pending('Generating example data...');
 
-    async function populateStateForRecoveryTests(textExId, indexName) {
-        if (generateOnly) return;
-
-        const exId = jobList.shift();
-        if (!exId) return;
-
-        const recoveryStartTime = Date.now();
-        signale.info(`Populating recovery state for exId: ${textExId}`);
-
-        const client = misc.es();
-        const exConfig = await misc
-            .teraslice()
-            .cluster.get(`/ex/${exId}`);
-        exConfig.ex_id = textExId;
-        const date = new Date();
-        const iso = date.toISOString();
-        const index = `${misc.CLUSTER_NAME}__state-${iso.split('-')
-            .slice(0, 2)
-            .join('.')}`;
-        const time = date.getTime();
-        const pastDate = new Date(time - 600000);
-        exConfig.operations[1].index = indexName;
-        exConfig._status = 'failed';
-        exConfig._created = pastDate;
-        exConfig._updated = pastDate;
-        const errored = {
-            _created: iso,
-            _updated: iso,
-            slice_id: uuid(),
-            slicer_order: 1,
-            slicer_id: 0,
-            request: 100,
-            state: 'error',
-            ex_id: textExId
-        };
-        const notCompleted = {
-            _created: iso,
-            _updated: iso,
-            slice_id: uuid(),
-            slicer_order: 2,
-            slicer_id: 0,
-            request: 100,
-            state: 'start',
-            ex_id: textExId
-        };
-        await Promise.all([
-            client.index({
-                index,
-                type: 'state',
-                id: errored.slice_id,
-                body: errored
-            }),
-            client.index({
-                index,
-                type: 'state',
-                id: notCompleted.slice_id,
-                body: notCompleted
-            }),
-            client.index({
-                index: `${misc.CLUSTER_NAME}__ex`,
-                type: 'ex',
-                id: exConfig.ex_id,
-                body: exConfig
-            })
-        ]);
-        signale.info(`Populated recovery state for exId: ${textExId}`, getElapsed(recoveryStartTime));
-    }
-
     async function postJob(jobSpec) {
         const ex = await misc
             .teraslice()
             .executions.submit(jobSpec);
-        jobList.push(ex.id());
         return ex;
     }
 
@@ -178,10 +107,6 @@ async function generateTestData() {
     try {
         await Promise.all(misc.EXAMLPE_INDEX_SIZES.map((size) => generate(size)));
         // we need fully active jobs so we can get proper meta data for recovery state tests
-        await Promise.all([
-            populateStateForRecoveryTests('testex-errors', 'test-recovery-100'),
-            populateStateForRecoveryTests('testex-all', 'test-recovery-200')
-        ]);
         signale.success('Data generation is done', getElapsed(startTime));
     } catch (err) {
         signale.error('Data generation failed', getElapsed(startTime));
@@ -195,6 +120,18 @@ module.exports = async () => {
 
     process.stdout.write('\n');
     signale.time('global setup');
+
+    if (!fse.existsSync(misc.CONFIG_PATH)) {
+        await fse.emptyDir(misc.CONFIG_PATH);
+    }
+    if (!fse.existsSync(misc.ASSETS_PATH)) {
+        await fse.emptyDir(misc.ASSETS_PATH);
+    }
+
+    await Promise.all([
+        fse.ensureDir(misc.ASSETS_PATH),
+        fse.ensureDir(misc.CONFIG_PATH),
+    ]);
 
     await Promise.all([setupTerasliceConfig(), downloadAssets()]);
 

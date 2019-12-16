@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const misc = require('../../misc');
 const { waitForExStatus } = require('../../wait');
-const { resetState, runEsJob } = require('../../helpers');
+const { resetState, runEsJob, testJobLifeCycle } = require('../../helpers');
 
 const teraslice = misc.teraslice();
 
@@ -75,5 +75,21 @@ describe('reindex', () => {
         const stats = await misc.indexStats(specIndex);
 
         expect(stats.count).toBe(100);
+    });
+
+    it('should be able to recover and continue', async () => {
+        const jobSpec = misc.newJob('reindex');
+        jobSpec.name = 'reindex (with recovery)';
+
+        const index = misc.newSpecIndex('reindex');
+
+        // Job needs to be able to run long enough to cycle
+        jobSpec.operations[0].index = misc.getExampleIndex(1000);
+        jobSpec.operations[1].index = index;
+
+        await testJobLifeCycle(jobSpec);
+
+        const stats = await misc.indexStats(index);
+        expect(stats.count).toBe(1000);
     });
 });

@@ -1,0 +1,24 @@
+{
+    "name": "generator",
+    "slicers": 1,
+    "lifecycle": "persistent",
+    "workers": 3,
+    "analytics": false,
+    "assets": ["elasticsearch"],
+    "max_retries": 0,
+    "operations": [
+        {
+            "_op": "elasticsearch_data_generator",
+            "size": 100
+        },
+        {
+            "_op": "elasticsearch_index_selector",
+            "index": "replace-me-1000",
+            "type": "events"
+        },
+        {
+            "_op": "elasticsearch_bulk",
+            "size": 1000
+        }
+    ]
+  }

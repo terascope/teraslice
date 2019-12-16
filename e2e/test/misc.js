@@ -17,6 +17,9 @@ const {
     ELASTICSEARCH_API_VERSION = '6.5'
 } = process.env;
 
+const BASE_PATH = path.join(__dirname, '..');
+const CONFIG_PATH = path.join(BASE_PATH, '.config');
+const ASSETS_PATH = path.join(BASE_PATH, '.assets');
 const SPEC_INDEX_PREFIX = `${TEST_INDEX_PREFIX}spec`;
 const EXAMPLE_INDEX_PREFIX = `${TEST_INDEX_PREFIX}example`;
 const EXAMLPE_INDEX_SIZES = [100, 1000];
@@ -149,7 +152,8 @@ async function globalTeardown(shouldThrow) {
         .catch((err) => errors.push(err));
 
     await cleanupIndex(`${TEST_INDEX_PREFIX}*`).catch((err) => errors.push(err));
-    await fse.remove(path.join(__dirname, '../.config')).catch((err) => errors.push(err));
+    await fse.remove(CONFIG_PATH).catch((err) => errors.push(err));
+    await fse.remove(ASSETS_PATH).catch((err) => errors.push(err));
 
     if (shouldThrow && errors.length === 1) {
         throw errors[0];
@@ -187,5 +191,8 @@ module.exports = {
     TEST_INDEX_PREFIX,
     DEFAULT_NODES,
     DEFAULT_WORKERS,
-    WORKERS_PER_NODE
+    WORKERS_PER_NODE,
+    BASE_PATH,
+    CONFIG_PATH,
+    ASSETS_PATH,
 };

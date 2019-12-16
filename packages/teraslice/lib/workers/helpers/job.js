@@ -18,12 +18,13 @@ async function validateJob(context, jobSpec) {
     }
 }
 
-async function initializeJob({
+async function initializeTestExecution({
     context,
     config,
     stores = {},
     isRecovery,
     cleanupType,
+    createRecovery = true,
     recoverySlices = [],
     lastStatus = 'failed'
 }) {
@@ -41,22 +42,26 @@ async function initializeJob({
 
     let ex;
     if (isRecovery) {
-        const recoverEx = await exStore.create(jobConfig, lastStatus);
+        ex = await exStore.create(jobConfig, lastStatus);
         const promises = recoverySlices.map((recoverySlice) => {
             const { slice, state } = recoverySlice;
-            return stateStore.createState(recoverEx.ex_id, slice, state, slice.error);
+            return stateStore.createState(ex.ex_id, slice, state, slice.error);
         });
 
         await Promise.all(promises);
         await stateStore.refresh();
 
-        ex = await exStore.createRecoveredExecution(recoverEx, cleanupType);
+        if (createRecovery) {
+            ex = await exStore.createRecoveredExecution(ex, cleanupType);
+        }
     } else {
         ex = await exStore.create(jobConfig);
     }
 
-    ex.slicer_hostname = slicerHostname;
-    ex.slicer_port = slicerPort;
+    if (slicerHostname && slicerPort) {
+        ex.slicer_hostname = slicerHostname;
+        ex.slicer_port = slicerPort;
+    }
 
     if (isEmpty(stores)) {
         await Promise.all([
@@ -73,6 +78,6 @@ async function initializeJob({
 }
 
 module.exports = {
-    initializeJob,
+    initializeTestExecution,
     validateJob,
 };

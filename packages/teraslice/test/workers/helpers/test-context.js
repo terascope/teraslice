@@ -16,7 +16,7 @@ const {
     makeJobStore
 } = require('../../../lib/cluster/storage');
 
-const { initializeJob } = require('../../../lib/workers/helpers/job');
+const { initializeTestExecution } = require('../../../lib/workers/helpers/job');
 const makeTerafoundationContext = require('../../../lib/workers/context/terafoundation-context');
 const makeExecutionContext = require('../../../lib/workers/context/execution-context');
 const { newId } = require('../../../lib/utils/id_utils');
@@ -69,7 +69,7 @@ class TestContext {
             await this.addExStore();
             await this.addStateStore();
 
-            const { ex } = await initializeJob(Object.assign({
+            const { ex } = await initializeTestExecution(Object.assign({
                 context: this.context,
                 config: this.config,
                 stores,
