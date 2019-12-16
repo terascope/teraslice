@@ -218,14 +218,8 @@ class ExecutionController {
             });
         });
 
-        this._handlers['slicer:execution:update'] = ({ update }) => {
-            this.logger.trace('slicer sending a execution update', update);
-
-            // this is updating the opConfig for elasticsearch start and/or end dates for ex,
-            // this assumes elasticsearch is first
-            this.stores.exStore.update(this.exId, { operations: update }).catch((err) => {
-                logError(this.logger, err, 'slicer event execution update failure');
-            });
+        this._handlers['slicer:execution:update'] = () => {
+            this.logger.warn('event slicer:execution:update has been removed, used context.apis.executionContext.setMetadata(key, value): Promise<void>');
         };
 
         this._handlers['slicers:finished'] = (err) => {

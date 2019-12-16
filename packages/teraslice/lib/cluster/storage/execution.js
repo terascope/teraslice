@@ -227,8 +227,8 @@ module.exports = function executionStorage(context) {
         if (ex._status === 'scheduling' || ex._status === 'pending') {
             throw new Error('This job is currently being scheduled and can not be restarted.');
         }
-        if (ex._status === 'running') {
-            throw new Error('This job is currently successfully running and can not be restarted.');
+        if (['running', 'recovering'].includes(ex._status)) {
+            throw new Error(`This job is currently ${ex._status} and can not be restarted.`);
         }
     }
 
@@ -246,13 +246,6 @@ module.exports = function executionStorage(context) {
         delete execution.recovered_execution;
         delete execution.recovered_slice_type;
         delete execution._failureReason;
-
-        execution.operations = execution.operations.map((opConfig) => {
-            if (opConfig._op === 'elasticsearch_reader') {
-                if (Array.isArray(opConfig.interval)) opConfig.interval = opConfig.interval.join('');
-            }
-            return opConfig;
-        });
     }
 
     /**
