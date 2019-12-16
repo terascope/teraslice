@@ -103,6 +103,21 @@ Note that the `assets_volume` should also be mounted to your Teraslice master po
 Support for Kubernetes based clustering adds additional properties to a
 Teraslice job definition.  These are outlined below.
 
+### Labels
+
+Key value pairs added into a job's `labels` array, as shown below, will result
+in labels being added to the k8s resources.  The k8s labels will be prefixed
+with `job.teraslice.terascope.io/`.
+
+```json
+    "labels": [
+        ["key1", "value1"]
+    ],
+```
+
+If `labels` is omitted, the k8s resources will just have the standard set of
+labels that Teraslice uses.
+
 ### Resources
 
 It is possible to set CPU and memory resource constraints for your Teraslice
