@@ -17,9 +17,13 @@ describe('ExecutionController Special Tests', () => {
     // [ message, config ]
     const testCases = [
         [
-            'recovering a slicer no cleanup type',
+            'when recovering a slicer no cleanup type',
             {
-                slicerResults: [{ example: 'slice-recovery' }, { example: 'slice-recovery' }, null],
+                slicerResults: [
+                    { example: 'slice-recovery-after' },
+                    { example: 'slice-recovery-after' },
+                    null
+                ],
                 isRecovery: true,
                 recoverySlices: [
                     {
@@ -47,27 +51,35 @@ describe('ExecutionController Special Tests', () => {
                         }
                     }
                 ],
-                body: { example: 'slice-recovery' },
-                count: 4,
-                finalCount: 2,
+                processedSliceCount: 4,
+                incompleteSliceCount: 0,
+                completedSliceCount: 4,
                 analytics: true
             }
         ],
         [
-            'recovering with no slices to recover',
+            'when recovering with no slices to recover',
             {
-                slicerResults: [{ example: 'slice-recovery' }, { example: 'slice-recovery' }, null],
+                slicerResults: [
+                    { example: 'slice-recovery-no-slices-after' },
+                    { example: 'slice-recovery-no-slices-after' },
+                    null
+                ],
                 isRecovery: true,
                 recoverySlices: [],
-                body: { example: 'slice-recovery' },
-                count: 2,
+                incompleteSliceCount: 0,
+                completedSliceCount: 2,
+                processedSliceCount: 2,
                 analytics: true
             }
         ],
         [
-            'recovering a slicer with a cleanup type of errors',
+            'when recovering a slicer with a cleanup type of errors',
             {
-                slicerResults: [{ example: 'slice-recovery-error' }, null],
+                slicerResults: [
+                    { example: 'slice-recovery-error-after' },
+                    null
+                ],
                 isRecovery: true,
                 cleanupType: RecoveryCleanupType.errors,
                 recoverySlices: [
@@ -108,16 +120,19 @@ describe('ExecutionController Special Tests', () => {
                         }
                     }
                 ],
-                body: { example: 'slice-recovery-error' },
-                count: 1,
-                finalCount: 0,
+                incompleteSliceCount: 1,
+                completedSliceCount: 2,
+                processedSliceCount: 1,
                 analytics: false
             }
         ],
         [
-            'recovering a slicer with a cleanup type of all',
+            'when recovering a slicer with a cleanup type of all',
             {
-                slicerResults: [{ example: 'slice-recovery-all' }, null],
+                slicerResults: [
+                    { example: 'slice-recovery-all-after' },
+                    null
+                ],
                 isRecovery: true,
                 cleanupType: RecoveryCleanupType.all,
                 recoverySlices: [
@@ -146,14 +161,14 @@ describe('ExecutionController Special Tests', () => {
                         }
                     }
                 ],
-                body: { example: 'slice-recovery-all' },
-                count: 2,
-                finalCount: 0,
+                processedSliceCount: 2,
+                incompleteSliceCount: 0,
+                completedSliceCount: 2,
                 analytics: true
             }
         ],
         [
-            'processing slices and the execution gets shutdown early',
+            'when processing slices and the execution gets shutdown early',
             {
                 slicerResults: [
                     { example: 'slice-shutdown-early' },
@@ -164,8 +179,9 @@ describe('ExecutionController Special Tests', () => {
                 lifecycle: 'persistent',
                 shutdownTimeout: 2000,
                 shutdownEarly: true,
-                body: { example: 'slice-shutdown-early' },
-                count: 1,
+                incompleteSliceCount: 1,
+                completedSliceCount: 1,
+                processedSliceCount: 1,
                 analytics: false
             }
         ]
@@ -173,14 +189,14 @@ describe('ExecutionController Special Tests', () => {
 
     // for testing add a "only" property to the test cases you want
     // or add a skip property to the test cases you don't want
-    describe.each(getTestCases(testCases))('when %s', (m, options) => {
+    describe.each(getTestCases(testCases))('%s', (m, options) => {
         const {
             slicerResults,
             slicerQueueLength,
-            count,
-            finalCount = count,
+            incompleteSliceCount = 0,
+            completedSliceCount = 0,
+            processedSliceCount = 0,
             lifecycle = 'once',
-            body,
             reconnect = false,
             analytics = false,
             workers = 1,
@@ -198,6 +214,7 @@ describe('ExecutionController Special Tests', () => {
         let exStore;
         let stateStore;
         let shutdownEarlyFn;
+        let exStatus;
 
         beforeAll(async () => {
             await TestContext.waitForCleanup();
@@ -365,13 +382,33 @@ describe('ExecutionController Special Tests', () => {
             await Promise.all([shutdownEarlyFn.wait(), startWorkers(), exController.run()]);
 
             clearTimeout(requestAnayltics);
+
+            exStatus = await exStore.get(exId);
         });
 
         afterAll(() => testContext.cleanup());
 
-        it('should still process the execution correctly', async () => {
+        it('should have the correct complete slices', async () => {
             const { exId } = testContext.executionContext;
-            if (isRecovery) {
+            const recoverFrom = testContext.executionContext.config.recovered_execution;
+            const exIds = recoverFrom ? [exId, recoverFrom] : [exId];
+            expect(
+                await stateStore.count(`ex_id:("${exIds.join('" OR "')}") AND state:completed`, 0)
+            ).toEqual(completedSliceCount);
+        });
+
+        it('should have the correct incomplete slices', async () => {
+            const { exId } = testContext.executionContext;
+            const recoverFrom = testContext.executionContext.config.recovered_execution;
+            const exIds = recoverFrom ? [exId, recoverFrom] : [exId];
+            expect(
+                await stateStore.count(`ex_id:("${exIds.join('" OR "')}") AND NOT state:completed`, 0)
+            ).toEqual(incompleteSliceCount);
+        });
+
+        if (isRecovery) {
+            it('should recover the correct slices', async () => {
+                const { exId } = testContext.executionContext;
                 const recoverFrom = testContext.executionContext.config.recovered_execution;
                 expect(recoverFrom).toBeString();
                 expect(recoverFrom).not.toEqual(exId);
@@ -382,21 +419,19 @@ describe('ExecutionController Special Tests', () => {
                         .recovered_slice_type;
                     expect(actualCleanupType).toEqual(cleanupType);
                 }
-            }
+            });
+        }
 
+        it('should process the right number of slices', async () => {
             if (shutdownEarly) {
-                expect(slices.length).toBeGreaterThanOrEqual(count);
+                expect(slices.length).toBeGreaterThanOrEqual(processedSliceCount);
             } else {
-                expect(slices).toBeArrayOfSize(count);
-                times(finalCount, (i) => {
-                    const slice = slices[i];
-                    expect(slice).toMatchObject({
-                        request: body
-                    });
-                });
+                expect(slices).toBeArrayOfSize(processedSliceCount);
             }
+        });
 
-            const exStatus = await exStore.get(exId);
+        it('should have the correct execution status', () => {
+            const { exId } = testContext.executionContext;
             expect(exStatus).toBeObject();
             expect(exStatus).toHaveProperty('_slicer_stats');
 
@@ -418,12 +453,8 @@ describe('ExecutionController Special Tests', () => {
                 });
 
                 if (slicerQueueLength !== 'QUEUE_MINIMUM_SIZE') {
-                    expect(exStatus._slicer_stats.processed).toEqual(count);
+                    expect(exStatus._slicer_stats.processed).toEqual(processedSliceCount);
                 }
-
-                const query = `ex_id:"${exId}" AND state:completed`;
-                const actualCount = await stateStore.count(query, 0);
-                expect(actualCount).toEqual(finalCount);
             }
 
             expect(exStatus._slicer_stats.workers_joined).toBeGreaterThanOrEqual(1);
