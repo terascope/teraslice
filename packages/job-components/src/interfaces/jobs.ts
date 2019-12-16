@@ -65,6 +65,8 @@ export interface ValidatedJobConfig {
     assets: string[];
     /** This may not exist until ran in an execution */
     assetIds?: string[];
+    /** This will only be available in the context of k8s */
+    labels?: [string, string][];
     lifecycle: LifeCycle;
     max_retries: number;
     name: string;

@@ -45,6 +45,17 @@ export function jobSchema(context: Context): convict.Schema<any> {
                 }
             },
         },
+        labels: {
+            default: null,
+            doc: 'An array of arrays containing key value pairs used to label kubetnetes resources.',
+            format(arr: any) {
+                if (arr != null) {
+                    if (!Array.isArray(arr)) {
+                        throw new Error('labels is required to be an array');
+                    }
+                }
+            }
+        },
         lifecycle: {
             default: 'once',
             doc: 'Job lifecycle behavior, determines if it should exit on completion or remain active',
