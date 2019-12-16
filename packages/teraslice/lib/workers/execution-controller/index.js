@@ -106,8 +106,8 @@ class ExecutionController {
     async initialize() {
         const { context } = this;
 
-        const exStore = makeExStore(context);
-        this.stores.exStore = await exStore;
+        const exStore = await makeExStore(context);
+        this.stores.exStore = exStore;
 
         await this.client.start();
 

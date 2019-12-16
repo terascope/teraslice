@@ -442,7 +442,6 @@ class Scheduler {
             return;
         }
 
-        await this.exStore.setStatus(this.exId, 'running');
         this.startingPoints = await this.recover.getSlicerStartingPosition();
 
         this.logger.info(`execution: ${this.exId} finished its recovery`);

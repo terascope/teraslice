@@ -1,4 +1,5 @@
 import nock from 'nock';
+import { RecoveryCleanupType } from '@terascope/job-components';
 import Job from '../src/job';
 import {
     ExecutionStatus,
@@ -245,7 +246,9 @@ describe('Teraslice Job', () => {
 
             it('should resolve json results from Teraslice', async () => {
                 const job = new Job({ baseUrl }, 'foo-bar');
-                const results = await job.recover({ cleanup: 'errors' });
+                const results = await job.recover({
+                    cleanup: RecoveryCleanupType.errors
+                });
                 expect(results).toEqual({ job_id: 'foo-bar' });
             });
         });
@@ -262,7 +265,9 @@ describe('Teraslice Job', () => {
 
             it('should resolve json results from Teraslice', async () => {
                 const job = new Job({ baseUrl }, 'some-job-id');
-                const results = await job.recover({ cleanup: 'errors' }, requestOptions);
+                const results = await job.recover({
+                    cleanup: RecoveryCleanupType.errors
+                }, requestOptions);
                 expect(results).toEqual({
                     key: 'some-other-key'
                 });

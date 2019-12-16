@@ -1,4 +1,5 @@
 import nock from 'nock';
+import { RecoveryCleanupType } from '@terascope/job-components';
 import Ex from '../src/ex';
 import {
     ExecutionStatus,
@@ -220,7 +221,7 @@ describe('Teraslice Ex', () => {
         describe('when called with a query', () => {
             beforeEach(() => {
                 scope.post('/ex/some-ex-id/_recover')
-                    .query({ cleanup: 'errors' })
+                    .query({ cleanup: RecoveryCleanupType.errors })
                     .reply(200, {
                         job_id: 'some-job-key',
                         ex_id: 'some-ex-key'
@@ -229,7 +230,7 @@ describe('Teraslice Ex', () => {
 
             it('should resolve json results from Teraslice', async () => {
                 const ex = new Ex({ baseUrl }, 'some-ex-id');
-                const instance = await ex.recover({ cleanup: 'errors' });
+                const instance = await ex.recover({ cleanup: RecoveryCleanupType.errors });
 
                 expect(instance).toBeInstanceOf(Ex);
                 expect(instance.id()).toEqual('some-ex-key');
@@ -249,7 +250,9 @@ describe('Teraslice Ex', () => {
 
             it('should resolve json results from Teraslice', async () => {
                 const ex = new Ex({ baseUrl }, 'some-ex-id');
-                const instance = await ex.recover({ cleanup: 'errors' }, requestOptions);
+                const instance = await ex.recover({
+                    cleanup: RecoveryCleanupType.errors
+                }, requestOptions);
 
                 expect(instance).toBeInstanceOf(Ex);
                 expect(instance.id()).toEqual('some-ex-key');

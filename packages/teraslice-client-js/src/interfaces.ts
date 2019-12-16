@@ -5,7 +5,8 @@ import {
     ExecutionConfig,
     SliceRequest,
     Omit,
-    Overwrite
+    Overwrite,
+    RecoveryCleanupType
 } from '@terascope/job-components';
 
 import got from 'got';
@@ -197,16 +198,13 @@ export interface ClusterStats {
     Execution Context
 */
 
-export type ExecutionInitStatus = 'pending' | 'scheduling' | 'initializing';
-export type ExecutionRunningStatus = 'running' | 'failing' | 'paused' |'stopping';
-export type ExecutionTerminalStatus = 'completed' | 'stopped' | 'rejected' | 'failed' | 'terminated';
-
 export enum ExecutionStatus {
     pending = 'pending',
     scheduling = 'scheduling',
     initializing = 'initializing',
 
     running = 'running',
+    recovering = 'recovering',
     failing = 'failing',
     paused = 'paused',
     stopping = 'stopping',
@@ -217,6 +215,25 @@ export enum ExecutionStatus {
     failed = 'failed',
     terminated = 'terminated'
 }
+
+export type ExecutionInitStatus =
+    ExecutionStatus.pending |
+    ExecutionStatus.scheduling |
+    ExecutionStatus.recovering;
+
+export type ExecutionRunningStatus =
+    ExecutionStatus.recovering |
+    ExecutionStatus.running |
+    ExecutionStatus.failing |
+    ExecutionStatus.paused |
+    ExecutionStatus.stopping;
+
+export type ExecutionTerminalStatus =
+    ExecutionStatus.completed |
+    ExecutionStatus.stopped |
+    ExecutionStatus.rejected |
+    ExecutionStatus.failed |
+    ExecutionStatus.terminated;
 
 export interface SlicerAnalytics extends SliceAccumulationStats {
     workers_available: number;
@@ -255,7 +272,7 @@ export interface ExecutionIDResponse {
 */
 
 export interface RecoverQuery {
-    cleanup?: 'all' | 'errors';
+    cleanup?: RecoveryCleanupType;
 }
 
 export interface PausedResponse {

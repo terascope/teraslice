@@ -121,10 +121,10 @@ export default class Job extends Client {
         requestOptions: RequestOptions = {}
     ): Promise<ExecutionStatus> {
         const terminal = {
-            terminated: true,
-            failed: true,
-            rejected: true,
-            completed: true,
+            [ExecutionStatus.terminated]: true,
+            [ExecutionStatus.failed]: true,
+            [ExecutionStatus.rejected]: true,
+            [ExecutionStatus.completed]: true,
         };
 
         const startTime = Date.now();
