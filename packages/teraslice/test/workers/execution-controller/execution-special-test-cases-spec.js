@@ -199,7 +199,9 @@ describe('ExecutionController Special Tests', () => {
         let stateStore;
         let shutdownEarlyFn;
 
-        beforeEach(async () => {
+        beforeAll(async () => {
+            await TestContext.waitForCleanup();
+
             slices = [];
 
             const port = await findPort();
@@ -365,7 +367,7 @@ describe('ExecutionController Special Tests', () => {
             clearTimeout(requestAnayltics);
         });
 
-        afterEach(() => testContext.cleanup());
+        afterAll(() => testContext.cleanup());
 
         it('should still process the execution correctly', async () => {
             const { exId } = testContext.executionContext;

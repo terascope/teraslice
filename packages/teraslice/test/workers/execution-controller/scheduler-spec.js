@@ -32,6 +32,8 @@ describe('Scheduler', () => {
     }
 
     beforeEach(async () => {
+        await TestContext.waitForCleanup();
+
         expectedCount = slicers * countPerSlicer;
 
         testContext = new TestContext({

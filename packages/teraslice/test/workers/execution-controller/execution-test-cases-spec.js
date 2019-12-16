@@ -159,7 +159,9 @@ describe('ExecutionController Test Cases', () => {
         let exStore;
         let stateStore;
 
-        beforeEach(async () => {
+        beforeAll(async () => {
+            await TestContext.waitForCleanup();
+
             slices = [];
 
             const port = await findPort();
@@ -339,7 +341,7 @@ describe('ExecutionController Test Cases', () => {
             clearTimeout(requestAnayltics);
         });
 
-        afterEach(() => testContext.cleanup());
+        afterAll(() => testContext.cleanup());
 
         it('should process the execution correctly', async () => {
             const { exId } = testContext.executionContext;

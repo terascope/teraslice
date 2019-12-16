@@ -43,6 +43,8 @@ describe('Slice', () => {
             const eventMocks = {};
 
             beforeEach(async () => {
+                await TestContext.waitForCleanup();
+
                 testContext = new TestContext({ analytics: true });
                 slice = await setupSlice(testContext, eventMocks);
 
@@ -92,6 +94,8 @@ describe('Slice', () => {
             const eventMocks = {};
 
             beforeEach(async () => {
+                await TestContext.waitForCleanup();
+
                 testContext = new TestContext({ analytics: false });
                 slice = await setupSlice(testContext, eventMocks);
 
@@ -135,6 +139,8 @@ describe('Slice', () => {
             const eventMocks = {};
 
             beforeEach(async () => {
+                await TestContext.waitForCleanup();
+
                 testContext = new TestContext({
                     maxRetries: 3,
                     analytics: false,
@@ -183,6 +189,8 @@ describe('Slice', () => {
             const eventMocks = {};
 
             beforeEach(async () => {
+                await TestContext.waitForCleanup();
+
                 testContext = new TestContext({
                     maxRetries: 3,
                     analytics: false,
@@ -238,6 +246,8 @@ describe('Slice', () => {
             let err;
 
             beforeEach(async () => {
+                await TestContext.waitForCleanup();
+
                 testContext = new TestContext({
                     maxRetries: 5,
                     analytics: false,
@@ -290,6 +300,8 @@ describe('Slice', () => {
             let err;
 
             beforeEach(async () => {
+                await TestContext.waitForCleanup();
+
                 testContext = new TestContext({
                     maxRetries: 0,
                     analytics: false,
@@ -341,6 +353,8 @@ describe('Slice', () => {
             let slice;
 
             beforeEach(async () => {
+                await TestContext.waitForCleanup();
+
                 testContext = new TestContext({ analytics: true });
 
                 slice = await setupSlice(testContext);
@@ -361,6 +375,8 @@ describe('Slice', () => {
             let slice;
 
             beforeEach(async () => {
+                await TestContext.waitForCleanup();
+
                 testContext = new TestContext({ analytics: true });
 
                 slice = await setupSlice(testContext);
@@ -382,6 +398,8 @@ describe('Slice', () => {
         let slice;
 
         beforeEach(async () => {
+            await TestContext.waitForCleanup();
+
             testContext = new TestContext();
             slice = await setupSlice(testContext);
 

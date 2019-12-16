@@ -5,7 +5,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const { createTempDirSync, cleanupTempDirs } = require('jest-fixtures');
-const { newTestSlice, get } = require('@terascope/job-components');
+const { newTestSlice, get, pWhile } = require('@terascope/job-components');
 const { ClusterMaster } = require('@terascope/teraslice-messaging');
 
 const {
@@ -192,7 +192,7 @@ class TestContext {
 }
 
 // make sure we cleanup if any test fails to cleanup properly
-async function cleanupAll(withEs) {
+async function cleanupAll(withEs = false) {
     const count = Object.keys(cleanups).length;
     if (!count) return;
 
@@ -222,24 +222,11 @@ async function cleanupAll(withEs) {
     }
 }
 
-beforeAll(async () => {
-    await cleanupAll(true);
-}, Object.keys(cleanups).length * 5000);
-
-beforeEach((done) => {
-    function readyStart() {
-        const count = Object.keys(cleanups).length;
-        if (count > 1) {
-            setTimeout(readyStart, 10);
-            return;
-        }
-        done();
-    }
-    readyStart();
-});
-
-afterEach(() => cleanupAll(), Object.keys(cleanups).length * 5000);
+beforeAll(async () => cleanupAll(true), Object.keys(cleanups).length * 5000);
 
 module.exports = TestContext;
-
 module.exports.cleanupAll = cleanupAll;
+module.exports.waitForCleanup = () => pWhile(() => !Object.keys(cleanups).length, {
+    name: 'Test Context',
+    timeoutMs: 3000
+});
