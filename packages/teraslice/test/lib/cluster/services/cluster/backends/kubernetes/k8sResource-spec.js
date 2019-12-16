@@ -583,6 +583,22 @@ describe('k8sResource', () => {
             expect(kr.resource.metadata.labels['job.teraslice.terascope.io/key1']).toEqual('value1');
             expect(kr.resource.metadata.labels['job.teraslice.terascope.io/key2']).toEqual('value2');
         });
+
+        it('generates valid k8s resources with keys containing forbidden characters', () => {
+            execution.labels = [
+                ['key 1', 'value1'],
+                ['key2%', 'value2'],
+                ['abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1234', 'value3']
+            ];
+
+            const kr = new K8sResource(
+                'deployments', 'worker', terasliceConfig, execution
+            );
+            // console.log(yaml.dump(kr.resource));
+            expect(kr.resource.metadata.labels['job.teraslice.terascope.io/key-1']).toEqual('value1');
+            expect(kr.resource.metadata.labels['job.teraslice.terascope.io/key2-']).toEqual('value2');
+            expect(kr.resource.metadata.labels['job.teraslice.terascope.io/abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij123']).toEqual('value3');
+        });
     });
 
     describe('execution_controller job', () => {

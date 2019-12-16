@@ -128,10 +128,16 @@ class K8sResource {
     _setJobLabels() {
         if (this.execution.labels != null) {
             _.forEach(this.execution.labels, (label) => {
-                const key = `${this.jobLabelPrefix}/${label[0]}`;
-                const value = label[1];
+                const keyName = label[0].replace(/[^a-zA-Z0-9\-._]/g, '-').substring(0, 63);
+                const key = `${this.jobLabelPrefix}/${keyName}`;
+                const value = label[1].replace(/[^a-zA-Z0-9\-._]/g, '-').substring(0, 63);
                 this.resource.metadata.labels[key] = value;
-                this.resource.spec.template.metadata.labels[key] = value;
+
+                if (this.resource.kind !== 'Service') {
+                    // Services don't have templates, so if it's a service,
+                    // don't add this
+                    this.resource.spec.template.metadata.labels[key] = value;
+                }
             });
         }
     }
