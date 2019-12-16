@@ -130,8 +130,10 @@ class ExecutionController {
 
         const stateStore = await makeStateStore(context);
         this.stores.stateStore = stateStore;
+
         // attach to scheduler
         this.scheduler.stateStore = stateStore;
+        this.scheduler.exStore = exStore;
 
         await this.server.start();
 
@@ -443,14 +445,9 @@ class ExecutionController {
         this.isStarted = true;
         this._verifyStores();
 
-        // notify that the execution is good-to-go
-        await Promise.all([
-            this.client.sendAvailable(),
-            this.stores.exStore.setStatus(this.exId, 'running'),
-        ]);
-
         // start creating / dispatching slices, this will block until done
         await Promise.all([
+            this.client.sendAvailable(),
             this._runDispatch(),
             this.scheduler.run()
         ]);
@@ -920,13 +917,15 @@ class ExecutionController {
                     watchDogSet = false;
                     this.sliceFailureInterval = null;
 
+                    const setStatusTo = this.scheduler.recovering ? 'recovering' : 'running';
+
                     this.logger.info(
                         `No slice errors have occurred within execution: ${
                             this.exId
-                        } will be set back to 'running' state`
+                        } will be set back to '${setStatusTo}' state`
                     );
 
-                    this.stores.exStore.setStatus(this.exId, 'running')
+                    this.stores.exStore.setStatus(this.exId, setStatusTo)
                         .catch((err) => {
                             logError(this.logger, err, 'failure to status back to running after running');
                         });
@@ -954,7 +953,7 @@ class ExecutionController {
             if (this.workersHaveConnected) return;
 
             this.logger.warn(
-                `A worker has not connected to a slicer for ex: ${
+                `A worker has not connected to a slicer for execution: ${
                     this.exId
                 }, shutting down execution`
             );

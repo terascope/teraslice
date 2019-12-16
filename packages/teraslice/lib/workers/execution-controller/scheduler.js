@@ -56,6 +56,8 @@ class Scheduler {
     */
     async run() {
         if (this.recoverExecution) {
+            await this.exStore.setStatus(this.exId, 'recovering');
+
             this.logger.info(`execution: ${this.exId} is starting in recovery mode`);
             this.ready = true;
             this.start();
@@ -70,6 +72,7 @@ class Scheduler {
             await this._initializeExecution();
         }
 
+        await this.exStore.setStatus(this.exId, 'running');
         this.ready = true;
 
         const promise = new Promise((resolve) => {
@@ -439,9 +442,10 @@ class Scheduler {
             return;
         }
 
+        await this.exStore.setStatus(this.exId, 'running');
         this.startingPoints = await this.recover.getSlicerStartingPosition();
 
-        this.logger.info(`execution ${this.exId} finished its recovery`);
+        this.logger.info(`execution: ${this.exId} finished its recovery`);
     }
 }
 

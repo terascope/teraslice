@@ -5,7 +5,7 @@ const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
 const { makeLogger } = require('../helpers/terafoundation');
 
-function recovery(context, stateStore, executionContext) {
+function recoveryModule(context, stateStore, executionContext) {
     const events = context.apis.foundation.getSystemEvents();
     const slicersToRecover = executionContext.config.slicers;
     const recoveryQueue = new Queue();
@@ -184,4 +184,4 @@ function recovery(context, stateStore, executionContext) {
     };
 }
 
-module.exports = recovery;
+module.exports = recoveryModule;

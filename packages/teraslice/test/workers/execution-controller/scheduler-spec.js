@@ -55,6 +55,10 @@ describe('Scheduler', () => {
             }
         };
 
+        scheduler.exStore = {
+            setStatus: jest.fn(() => pDelay(0)),
+        };
+
         testContext.attachCleanup(() => scheduler.shutdown());
     });
 

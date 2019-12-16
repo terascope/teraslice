@@ -10,7 +10,7 @@ const { makeLogger } = require('../../workers/helpers/terafoundation');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 
 const INIT_STATUS = ['pending', 'scheduling', 'initializing'];
-const RUNNING_STATUS = ['running', 'failing', 'paused', 'stopping'];
+const RUNNING_STATUS = ['recovering', 'running', 'failing', 'paused', 'stopping'];
 const TERMINAL_STATUS = ['completed', 'stopped', 'rejected', 'failed', 'terminated'];
 
 const VALID_STATUS = INIT_STATUS.concat(RUNNING_STATUS).concat(TERMINAL_STATUS);
