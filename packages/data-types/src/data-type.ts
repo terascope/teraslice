@@ -3,7 +3,7 @@ import defaultsDeep from 'lodash.defaultsdeep';
 import { formatSchema } from './graphql-helper';
 import * as i from './interfaces';
 import BaseType from './types/versions/base-type';
-import { validateDataTypeConfig } from './utils';
+import { validateDataTypeConfig, formatGQLComment } from './utils';
 import { TypesManager } from './types';
 
 /**
@@ -120,8 +120,11 @@ export class DataType {
 
         this._types.forEach((typeClass) => {
             const { type, custom_type: customType } = typeClass.toGraphQL();
-            if (typeClass.config.description) {
-                baseProperties.add(`#${typeClass.config.description}\n${type.trim()}`);
+            const desc = typeClass.config.description;
+            if (desc) {
+                baseProperties.add(
+                    `${formatGQLComment(desc)}\n${type.trim()}`
+                );
             } else {
                 baseProperties.add(type.trim());
             }
@@ -131,14 +134,14 @@ export class DataType {
         });
 
         if (references.length) {
-            baseProperties.add('# references and virtual fields');
+            baseProperties.add(formatGQLComment('references and virtual fields'));
             references.forEach((prop) => {
                 baseProperties.add(prop.trim());
             });
         }
 
         const baseType = `
-            ${description ? `# ${description}` : ''}
+            ${formatGQLComment(description)}
             type ${typeName} {
                 ${[...baseProperties].join('\n')}
             }

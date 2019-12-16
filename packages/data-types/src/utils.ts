@@ -2,6 +2,17 @@ import * as ts from '@terascope/utils';
 import { DataTypeConfig, TypeConfigFields, AvailableVersion } from './interfaces';
 import { mapping } from './types/versions/mapping';
 
+export function formatGQLComment(desc?: string): string {
+    const trimmed = ts.trim(desc);
+    if (!trimmed) return '';
+    return trimmed
+        .split('\n')
+        .map((str) => ts.trim(str).replace(/^#/, '').trim())
+        .filter(Boolean)
+        .map((str) => `# ${str}`)
+        .join('\n');
+}
+
 export function validateDataTypeConfig(config: DataTypeConfig): DataTypeConfig {
     if (!config || ts.isEmpty(config)) {
         throw new ts.TSError('Missing data type config');
