@@ -16,7 +16,7 @@ describe('ExecutionController Test Cases', () => {
     // [ message, config ]
     const testCases = [
         [
-            'processing one slice',
+            'when processing one slice',
             {
                 slicerResults: [{ example: 'single-slice' }, null],
                 body: { example: 'single-slice' },
@@ -25,7 +25,7 @@ describe('ExecutionController Test Cases', () => {
             }
         ],
         [
-            'processing a slicer requests a specific worker',
+            'when processing a slicer requests a specific worker',
             {
                 slicerResults: [
                     { request_worker: 'specific-worker-1', example: 'specific-worker' },
@@ -38,7 +38,7 @@ describe('ExecutionController Test Cases', () => {
             }
         ],
         [
-            'processing sub-slices',
+            'when processing sub-slices',
             {
                 slicerResults: [
                     [{ example: 'subslice' }, { example: 'subslice' }, { example: 'subslice' }],
@@ -51,7 +51,7 @@ describe('ExecutionController Test Cases', () => {
             }
         ],
         [
-            'processing slices with multiple workers and one reconnects',
+            'when processing slices with multiple workers and one reconnects',
             {
                 slicerResults: [
                     { example: 'slice-disconnect' },
@@ -67,7 +67,7 @@ describe('ExecutionController Test Cases', () => {
             }
         ],
         [
-            'processing a slice with dynamic queue length',
+            'when processing a slice with dynamic queue length',
             {
                 slicerResults: [
                     { example: 'slice-dynamic' },
@@ -85,7 +85,7 @@ describe('ExecutionController Test Cases', () => {
             }
         ],
         [
-            'processing a slice and the slicer throws an error',
+            'when processing a slice and the slicer throws an error',
             {
                 slicerResults: [{ example: 'slice-failure' }, new Error('Slice failure'), null],
                 slicerFails: true,
@@ -95,7 +95,7 @@ describe('ExecutionController Test Cases', () => {
             }
         ],
         [
-            'processing a slice fails',
+            'when processing a slice fails',
             {
                 slicerResults: [{ example: 'slice-fail' }, null],
                 sliceFails: true,
@@ -105,7 +105,7 @@ describe('ExecutionController Test Cases', () => {
             }
         ],
         [
-            'processing a slicer that emits slicer events',
+            'when processing a slicer that emits slicer events',
             {
                 slicerResults: [{ example: 'slicer-slice-range-expansion' }, null],
                 emitsExecutionUpdate: [
@@ -121,7 +121,7 @@ describe('ExecutionController Test Cases', () => {
             }
         ],
         [
-            'processing a slice and the execution is paused and resumed',
+            'when processing a slice and the execution is paused and resumed',
             {
                 slicerResults: [{ example: 'slice-pause-and-resume' }, null],
                 pauseAndResume: true,
@@ -134,7 +134,7 @@ describe('ExecutionController Test Cases', () => {
 
     // for testing add a "only" property to the test cases you want
     // or add a skip property to the test cases you don't want
-    describe.each(getTestCases(testCases))('when %s', (m, options) => {
+    describe.each(getTestCases(testCases))('%s', (m, options) => {
         const {
             slicerResults,
             slicerQueueLength,
@@ -158,6 +158,7 @@ describe('ExecutionController Test Cases', () => {
         let slices;
         let exStore;
         let stateStore;
+        let exStatus;
 
         beforeAll(async () => {
             await TestContext.waitForCleanup();
@@ -339,21 +340,37 @@ describe('ExecutionController Test Cases', () => {
             await Promise.all([startWorkers(), exController.run()]);
 
             clearTimeout(requestAnayltics);
+
+            exStatus = await exStore.get(exId);
         });
 
         afterAll(() => testContext.cleanup());
 
-        it('should process the execution correctly', async () => {
-            const { exId } = testContext.executionContext;
-
+        it('should process the correct slices', async () => {
             expect(slices).toBeArrayOfSize(count);
             times(count, (i) => {
                 const slice = slices[i];
                 expect(slice).toHaveProperty('request');
                 expect(slice.request).toEqual(body);
             });
+        });
 
-            const exStatus = await exStore.get(exId);
+        it('should have the correct number of slices', async () => {
+            const { exId } = testContext.executionContext;
+            const errorCount = await stateStore.count(`ex_id:${exId} AND state:error`, 0);
+            const completedCount = await stateStore.count(`ex_id:${exId} AND state:completed`, 0);
+
+            if (sliceFails) {
+                expect(errorCount).toEqual(count);
+            } else {
+                expect(completedCount).toEqual(count);
+                expect(errorCount).toEqual(0);
+            }
+        });
+
+        it('should have the correct execution status', async () => {
+            const { exId } = testContext.executionContext;
+
             expect(exStatus).toBeObject();
             expect(exStatus).toHaveProperty('_slicer_stats');
 
@@ -364,9 +381,6 @@ describe('ExecutionController Test Cases', () => {
                         `execution: ${exId} had 1 slice failure during processing`
                     );
                     expect(exStatus._slicer_stats.failed).toEqual(count);
-                    const query = `ex_id:${exId} AND state:error`;
-                    const actualCount = await stateStore.count(query, 0);
-                    expect(actualCount).toEqual(count);
 
                     expect(exStatus).toMatchObject({
                         _has_errors: true,
@@ -394,10 +408,6 @@ describe('ExecutionController Test Cases', () => {
                 if (slicerQueueLength !== 'QUEUE_MINIMUM_SIZE') {
                     expect(exStatus._slicer_stats.processed).toEqual(count);
                 }
-
-                const query = `ex_id:${exId} AND state:completed`;
-                const actualCount = await stateStore.count(query, 0);
-                expect(actualCount).toEqual(count);
             }
 
             expect(exStatus._slicer_stats.workers_joined).toBeGreaterThanOrEqual(1);
