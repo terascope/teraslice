@@ -1,8 +1,6 @@
 'use strict';
 
-const {
-    pDelay, times, random, isEmpty
-} = require('@terascope/utils');
+const { pDelay, times, random } = require('@terascope/utils');
 const Messaging = require('@terascope/teraslice-messaging');
 const { TestContext } = require('../helpers');
 const { getTestCases } = require('../helpers/execution-controller-helper');
@@ -108,12 +106,7 @@ describe('ExecutionController Test Cases', () => {
             'when processing a slicer that emits slicer events',
             {
                 slicerResults: [{ example: 'slicer-slice-range-expansion' }, null],
-                emitsExecutionUpdate: [
-                    {
-                        _op: 'some-example',
-                        newData: true
-                    }
-                ],
+                updateMetadata: true,
                 emitSlicerRangeExpansion: true,
                 body: { example: 'slicer-slice-range-expansion' },
                 count: 1,
@@ -147,7 +140,7 @@ describe('ExecutionController Test Cases', () => {
             pauseAndResume = false,
             sliceFails = false,
             slicerFails = false,
-            emitsExecutionUpdate,
+            updateMetadata,
             emitSlicerRecursion = false,
             emitSlicerRangeExpansion = false,
             workerIds = []
@@ -175,7 +168,8 @@ describe('ExecutionController Test Cases', () => {
                 timeout: reconnect ? 5000 : 3000,
                 lifecycle,
                 workers,
-                analytics
+                analytics,
+                updateMetadata
             });
 
             await testContext.addClusterMaster();
@@ -319,12 +313,6 @@ describe('ExecutionController Test Cases', () => {
                 if (emitSlicerRangeExpansion) {
                     exController.events.emit('slicer:slice:range_expansion');
                 }
-
-                if (!isEmpty(emitsExecutionUpdate)) {
-                    exController.events.emit('slicer:execution:update', {
-                        update: emitsExecutionUpdate
-                    });
-                }
             });
 
             const requestAnayltics = setTimeout(async () => {
@@ -416,10 +404,6 @@ describe('ExecutionController Test Cases', () => {
                 expect(exStatus._slicer_stats.workers_reconnected).toBeGreaterThan(0);
             }
 
-            if (!isEmpty(emitsExecutionUpdate)) {
-                expect(exStatus).toHaveProperty('operations', emitsExecutionUpdate);
-            }
-
             if (emitSlicerRangeExpansion) {
                 expect(exStatus._slicer_stats).toHaveProperty('slice_range_expansion', 1);
             }
@@ -427,6 +411,11 @@ describe('ExecutionController Test Cases', () => {
             if (emitSlicerRecursion) {
                 expect(exStatus._slicer_stats).toHaveProperty('subslices', 1);
             }
+        });
+
+        it('should update the execution metadata (from the context apis)', () => {
+            const metadata = updateMetadata ? { slice_calls: count + 1 } : {};
+            expect(exStatus).toHaveProperty('metadata', metadata);
         });
     });
 });

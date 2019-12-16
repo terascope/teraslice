@@ -33,6 +33,10 @@
                 "recovered_slice_type": {
                     "type": "keyword"
                 },
+                "metadata": {
+                    "type": "object",
+                    "enabled": false
+                },
                 "_slicer_stats": {
                     "type": "object"
                 },

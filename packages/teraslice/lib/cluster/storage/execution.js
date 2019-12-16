@@ -1,7 +1,7 @@
 'use strict';
 
 const {
-    TSError, pRetry, includes, cloneDeep
+    TSError, pRetry, includes, cloneDeep, isString
 } = require('@terascope/utils');
 const uuid = require('uuid');
 const Promise = require('bluebird');
@@ -41,6 +41,7 @@ module.exports = function executionStorage(context) {
         }
         const date = new Date();
         record.ex_id = uuid.v4();
+        record.metadata = {};
         record._status = status;
         record._context = jobType;
         record._created = date;
@@ -69,6 +70,28 @@ module.exports = function executionStorage(context) {
             metaData._failureReason = errMsg;
         }
         return metaData;
+    }
+
+    async function getMetadata(exId) {
+        if (!exId || !isString(exId)) {
+            throw new Error('Missing execution ID');
+        }
+        const ex = await getExecution(exId);
+        return ex.metadata || {};
+    }
+
+    async function updateMetadata(exId, metadata = {}) {
+        if (!exId || !isString(exId)) {
+            throw new Error('Missing execution ID');
+        }
+        return update(exId, { metadata });
+    }
+
+    function _addMetadataFns() {
+        if (!context.apis.executionContext) return;
+
+        context.apis.executionContext._getMetadata = getMetadata;
+        context.apis.executionContext._updateMetadata = updateMetadata;
     }
 
     async function getStatus(exId) {
@@ -266,6 +289,8 @@ module.exports = function executionStorage(context) {
         getLivingStatuses,
         setStatus,
         getStatus,
+        getMetadata,
+        updateMetadata,
         executionMetaData,
         verifyStatusUpdate,
         waitForClient,
@@ -286,6 +311,7 @@ module.exports = function executionStorage(context) {
         .then((elasticsearch) => {
             logger.info('execution storage initialized');
             backend = elasticsearch;
+            _addMetadataFns(context);
             return api;
         });
 };

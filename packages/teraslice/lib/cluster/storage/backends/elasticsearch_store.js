@@ -10,7 +10,8 @@ const {
     isTest,
     pDelay,
     pRetry,
-    logError
+    logError,
+    isString
 } = require('@terascope/utils');
 const pWhilst = require('p-whilst');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
@@ -162,6 +163,9 @@ module.exports = function elasticsearchStorage(backendConfig) {
     }
 
     function update(recordId, updateSpec, indexArg = indexName) {
+        if (!recordId || !isString(recordId)) {
+            throw new Error('Missing record id for update');
+        }
         logger.trace(`updating record ${recordId}, `, logRecord ? updateSpec : null);
 
         const query = {

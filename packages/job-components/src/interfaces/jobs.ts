@@ -1,4 +1,4 @@
-import { DataEncoding } from '@terascope/utils';
+import { DataEncoding, AnyObject } from '@terascope/utils';
 
 /**
  * OpConfig is the configuration that user specifies
@@ -113,6 +113,7 @@ export interface ExecutionConfig extends ValidatedJobConfig {
     slicer_port: number;
     recovered_execution?: string;
     recovered_slice_type?: RecoveryCleanupType;
+    metadata: AnyObject;
 }
 
 /**

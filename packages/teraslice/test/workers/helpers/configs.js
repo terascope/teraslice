@@ -34,6 +34,7 @@ const newConfig = (options = {}) => {
                 pickBy({
                     _op: path.join(opsPath, 'example-reader'),
                     exampleProp: 321,
+                    updateMetadata: options.updateMetadata,
                     errorAt: options.readerErrorAt,
                     results: options.readerResults,
                     slicerResults: options.slicerResults,

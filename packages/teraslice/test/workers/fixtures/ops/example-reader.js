@@ -32,6 +32,11 @@ function schema() {
             doc: 'Slicer results to return',
             default: defaultSlicerResults,
             format: 'Array'
+        },
+        updateMetadata: {
+            doc: 'Update the metadata on the slicer execution',
+            default: false,
+            format: Boolean
         }
     };
 }
@@ -64,6 +69,7 @@ module.exports = {
     newSlicer: jest.fn((context, executionContext) => {
         const slicerResults = _.get(executionContext, 'config.operations[0].slicerResults', defaultSlicerResults);
         const errorAt = _.get(executionContext, 'config.operations[0].slicerErrorAt', []);
+        const updateMetadata = _.get(executionContext, 'config.operations[0].updateMetadata', false);
 
         if (!context._slicerCalls) context._slicerCalls = -1;
         context._slicerCalls += 1;
@@ -72,9 +78,17 @@ module.exports = {
             return Promise.reject(new Error('Bad news bears'));
         }
 
+        let sliceCalls = 0;
         return [
-            () => {
+            async () => {
                 const result = slicerResults.shift();
+                sliceCalls++;
+                if (updateMetadata) {
+                    await context.apis.executionContext.setMetadata(
+                        'slice_calls',
+                        sliceCalls
+                    );
+                }
                 if (_.isError(result)) {
                     throw result;
                 }
