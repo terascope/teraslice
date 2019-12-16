@@ -168,6 +168,71 @@ describe('ExecutionController Special Tests', () => {
             }
         ],
         [
+            'when recovering a slicer with a cleanup type of pending',
+            {
+                slicerResults: [
+                    { example: 'slice-recovery-error-after' },
+                    null
+                ],
+                isRecovery: true,
+                cleanupType: RecoveryCleanupType.pending,
+                recoverySlices: [
+                    {
+                        state: 'completed',
+                        slice: {
+                            slice_id: uuidv4(),
+                            request: {
+                                example: 'slice-recovery-pending-completed'
+                            },
+                            slicer_id: 0,
+                            slicer_order: 0,
+                            _created: new Date().toISOString()
+                        }
+                    },
+                    {
+                        state: 'start',
+                        slice: {
+                            slice_id: uuidv4(),
+                            request: {
+                                example: 'slice-recovery-pending-start'
+                            },
+                            slicer_id: 0,
+                            slicer_order: 1,
+                            _created: new Date().toISOString()
+                        }
+                    },
+                    {
+                        state: 'pending',
+                        slice: {
+                            slice_id: uuidv4(),
+                            request: {
+                                example: 'slice-recovery-pending'
+                            },
+                            slicer_id: 0,
+                            slicer_order: 2,
+                            _created: new Date().toISOString()
+                        }
+                    },
+                    {
+                        state: 'pending',
+                        slice: {
+                            slice_id: uuidv4(),
+                            request: {
+                                example: 'slice-recovery-pending'
+                            },
+                            slicer_id: 0,
+                            slicer_order: 3,
+                            _created: new Date().toISOString()
+                        }
+                    }
+                ],
+                incompleteSliceCount: 1,
+                completedSliceCount: 3,
+                processedSliceCount: 2,
+                analytics: false
+            }
+        ],
+        [
             'when processing slices and the execution gets shutdown early',
             {
                 slicerResults: [
