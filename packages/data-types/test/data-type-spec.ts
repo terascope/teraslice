@@ -124,7 +124,7 @@ describe('DataType', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    hello: { type: 'Text', description: 'hello test' },
+                    hello: { type: 'Text', description: '## hello \n\n# test' },
                     location: { type: 'GeoPoint', description: 'location test' },
                     date: { type: 'Date' },
                     ip: { type: 'IP', description: 'ip test' },
@@ -135,7 +135,7 @@ describe('DataType', () => {
 
             const dataType = new DataType(typeConfig, 'myType', 'default description');
             const results = dataType.toGraphQL({
-                description: 'My test data type'
+                description: 'My test data type\nsome extra desc \n '
             });
 
             const schema = formatSchema(`
@@ -147,8 +147,10 @@ describe('DataType', () => {
                 }
 
                 # My test data type
+                # some extra desc
                 type myType {
-                    # hello test
+                    # # hello
+                    # test
                     hello: String
                     # location test
                     location: DTGeoPointV1
