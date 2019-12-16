@@ -12,11 +12,13 @@ class Slice {
         this.executionContext = executionContext;
     }
 
-    async initialize(slice, stores) {
+    async initialize(slice) {
         const { slice_id: sliceId } = slice;
 
-        this.stateStore = stores.stateStore;
-        this.analyticsStore = stores.analyticsStore;
+        if (slice.state !== SliceState.pending) {
+            await this.stateStore.updateState(slice, SliceState.start);
+        }
+
         this.slice = slice;
         this.logger = makeLogger(this.context, 'slice', {
             slice_id: sliceId

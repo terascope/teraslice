@@ -649,13 +649,14 @@ class ExecutionController {
             return;
         }
 
-        const [errors, started] = await Promise.all([
+        const [errors, started, pending] = await Promise.all([
             this.stores.stateStore.countByState(this.exId, SliceState.error),
             this.stores.stateStore.countByState(this.exId, SliceState.start),
+            this.stores.stateStore.countByState(this.exId, SliceState.pending),
         ]);
 
         if (errors > 0 || started > 0) {
-            const errMsg = this._formartExecutionFailure({ errors, started });
+            const errMsg = this._formartExecutionFailure({ errors, started, pending });
             const errorMeta = exStore.executionMetaData(executionStats, errMsg);
             this.logger.error(errMsg);
             await exStore.setStatus(this.exId, 'failed', errorMeta);
@@ -681,25 +682,27 @@ class ExecutionController {
         this.logger.info(`execution ${this.exId} has finished in ${time} seconds`);
     }
 
-    _formartExecutionFailure({ started, errors }) {
-        let errMsg = `execution: ${this.exId}`;
+    _formartExecutionFailure({ started, errors, pending }) {
+        const startedMsg = started <= 1
+            ? `had ${started} slice stuck in started`
+            : `had ${started} slices stuck in started`;
 
-        const startedMsg = started === 1
-            ? `${started} slice stuck in started`
-            : `${started} slices stuck in started`;
-        const errorsMsg = errors === 1 ? `${errors} slice failure` : `${errors} slice failures`;
+        const pendingMsg = pending <= 1
+            ? `had ${pending} slice are still pending`
+            : `had ${pending} slices are still pending`;
 
-        if (errors === 0 && started > 0) {
-            errMsg += ` had ${startedMsg}`;
-        } else {
-            errMsg += ` had ${errorsMsg}`;
-            if (started > 0) {
-                errMsg += `, and had ${startedMsg}`;
-            }
-        }
+        const errorsMsg = errors <= 1
+            ? `had ${errors} slice failure`
+            : `had ${errors} slice failures`;
 
-        errMsg += ' during processing';
-        return errMsg;
+        const none = (errors + started + pending) === 0;
+        const stateMessages = [
+            started || none ? startedMsg : '',
+            pending || none ? pendingMsg : '',
+            errors || none ? errorsMsg : '',
+        ].filter(Boolean);
+
+        return `execution: ${this.exId} ${stateMessages} during processing`;
     }
 
     async _waitForWorkersToExit() {

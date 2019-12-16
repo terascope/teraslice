@@ -368,7 +368,7 @@ describe('ExecutionController Test Cases', () => {
             }
         });
 
-        it('should have the correct execution status', async () => {
+        it('should have the correct execution status', () => {
             const { exId } = testContext.executionContext;
 
             expect(exStatus).toBeObject();

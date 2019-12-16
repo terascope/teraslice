@@ -50,7 +50,7 @@ async function stateStorage(context) {
 
         const bulkRequest = [];
         for (const slice of slices) {
-            const { record, index } = _createSliceRecord(exId, slice, SliceState.start);
+            const { record, index } = _createSliceRecord(exId, slice, SliceState.pending);
             bulkRequest.push({
                 index: {
                     _index: index,

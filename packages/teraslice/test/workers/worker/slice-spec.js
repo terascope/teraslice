@@ -13,14 +13,17 @@ describe('Slice', () => {
         const slice = new Slice(testContext.context, testContext.executionContext);
         testContext.attachCleanup(() => slice.shutdown());
 
-        await Promise.all([
-            testContext.addAnalyticsStore(),
+        const [stateStore, analyticsStore] = await Promise.all([
             testContext.addStateStore(),
+            testContext.addAnalyticsStore(),
         ]);
+
+        slice.analyticsStore = analyticsStore;
+        slice.stateStore = stateStore;
 
         const sliceConfig = await testContext.newSlice();
 
-        await slice.initialize(sliceConfig, testContext.stores);
+        await slice.initialize(sliceConfig);
 
         eventMocks['slice:success'] = jest.fn();
         eventMocks['slice:finalize'] = jest.fn();
