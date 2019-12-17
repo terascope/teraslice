@@ -1,13 +1,13 @@
-import { Logger, TSError } from '@terascope/utils';
+import { Logger, TSError, isPlainObject } from '@terascope/utils';
 import { parseGeoDistance, parseGeoPoint } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
 import xluceneFunctions from './functions';
-import { TypeConfig, FieldType } from '../interfaces';
+import { TypeConfig, FieldType, Variables } from '../interfaces';
 
 export default function makeContext(args: any) {
     let typeConfig: TypeConfig;
-    let variables: i.Variables;
+    let variables: Variables;
 
     let logger: Logger;
     // eslint-disable-next-line
@@ -96,6 +96,18 @@ export default function makeContext(args: any) {
         return fnType.create(field, params, { logger, typeConfig });
     }
 
+    function makeFlow(field: string, values: any[]) {
+        return values.map((value) => {
+            const node = { field, type: i.ASTType.Term, value };
+            coerceTermType(node);
+            // this creates an OR statement
+            return {
+                type: i.ASTType.Conjunction,
+                nodes: [node]
+            };
+        });
+    }
+
     function coerceTermType(node: any, _field?: string) {
         if (!node) return;
         const field = node.field || _field;
@@ -161,6 +173,8 @@ export default function makeContext(args: any) {
         isInferredTermType,
         propagateDefaultField,
         parseFunction,
-        getVariable
+        getVariable,
+        makeFlow,
+        isPlainObject
     };
 }

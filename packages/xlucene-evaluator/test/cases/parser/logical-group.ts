@@ -104,6 +104,51 @@ export default [
         },
     ],
     [
+        'foo:$bar',
+        'variable array substitution',
+        {
+            type: ASTType.LogicalGroup,
+            flow: [
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field: 'foo',
+                            value: 1,
+                        },
+                    ],
+                },
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field: 'foo',
+                            value: 2,
+                        },
+                    ],
+                },
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field: 'foo',
+                            value: 3,
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            foo: FieldType.Integer
+        },
+        {
+            bar: [1, 2, 3]
+        }
+    ],
+    [
         '(a:1 OR b:1)',
         'a simple OR conjunction with top-level parens',
         {

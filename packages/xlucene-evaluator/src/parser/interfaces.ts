@@ -4,12 +4,9 @@ import {
     GeoPoint,
     GeoDistanceUnit,
     TypeConfig,
-    FieldType
+    FieldType,
+    Variables
 } from '../interfaces';
-
-export interface Variables {
-    [key: string]: string | number | boolean | string[] | number[] | boolean[];
-}
 
 export interface ParserOptions {
     type_config?: TypeConfig;

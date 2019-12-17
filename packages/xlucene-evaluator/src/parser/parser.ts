@@ -30,13 +30,7 @@ export class Parser {
         };
 
         try {
-            this.ast = parse(this.query, {
-                // pass in a context the certian variables
-                // and functions can be passed in
-                // in the parser as options.typeConfig
-                // @ts-ignore
-                contextArg,
-            });
+            this.ast = parse(this.query, { contextArg });
             const astJSON = JSON.stringify(this.ast, null, 4);
             this.logger.trace(`parsed ${this.query ? this.query : "''"} to `, astJSON);
         } catch (err) {

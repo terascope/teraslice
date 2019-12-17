@@ -72,3 +72,12 @@ export interface TypeConfig {
 }
 
 export type JoinBy = 'AND'|'OR';
+
+export interface Variables {
+    [key: string]: any;
+}
+
+export interface JoinQueryResult {
+    query: string;
+    variables: Variables;
+}

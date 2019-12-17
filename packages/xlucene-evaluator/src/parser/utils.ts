@@ -5,7 +5,7 @@ import {
     TSError
 } from '@terascope/utils';
 import * as i from './interfaces';
-import { FieldType } from '../interfaces';
+import { FieldType, Variables } from '../interfaces';
 import { isWildCardString } from '../document-matcher/logic-builder/string';
 
 export function isLogicalGroup(node: any): node is i.LogicalGroup {
@@ -110,10 +110,7 @@ export function isGroupLike(node: any): node is i.GroupLikeAST {
     return node && groupTypes.includes(node.type);
 }
 
-export function validateVariables(obj: i.Variables): i.Variables {
+export function validateVariables(obj: Variables): Variables {
     if (!isPlainObject(obj)) throw new TSError('variables option must be an object');
-    for (const [, value] of Object.entries(obj)) {
-        if (isPlainObject(value)) throw new TSError('a value in a variable cannot be set to an object');
-    }
     return obj;
 }

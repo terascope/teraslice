@@ -13,7 +13,7 @@ function validate(params: i.Term[]) {
 
     const point = parseGeoPoint(geoPointParam.value as string);
     const distance = parseGeoDistance(distanceParam.value as string);
-    console.log('in validate', point, geoPointParam.value)
+
     return {
         ...point,
         ...distance

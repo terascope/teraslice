@@ -8,7 +8,9 @@
         isInferredTermType,
         propagateDefaultField,
         parseFunction,
-        getVariable
+        getVariable,
+        makeFlow,
+        isPlainObject
     } = makeContext(options.contextArg);
 }
 
@@ -216,9 +218,16 @@ RestrictedVariableExpression
     = field:FieldName ws* FieldSeparator ws* VariableSign chars:VariableChar+ {
         const key = chars.join('');
         const value = getVariable(key);
-        // create logical group node
         // created quoted node for each value
-        if (Array.isArray(value)) throw new Error(`variable $${key} is set to an Array value, which usage is only allowed with xlucene function expressions`);
+        if (isPlainObject(value)) throw new Error('only function field names provide support for object values in variables')
+        if (Array.isArray(value)) {
+            // create logical group node
+            const root = {
+                type: i.ASTType.LogicalGroup,
+                flow: makeFlow(field, value)
+             };
+             return root;
+        }
         const node = { value, field, type: i.ASTType.Term };
         coerceTermType(node);
         return node;
