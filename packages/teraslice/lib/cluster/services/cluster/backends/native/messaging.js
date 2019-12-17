@@ -2,7 +2,6 @@
 
 const _ = require('lodash');
 const shortid = require('shortid');
-const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
 const { pDelay } = require('@terascope/utils');
 

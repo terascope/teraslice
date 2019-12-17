@@ -1,7 +1,6 @@
 'use strict';
 
-const _ = require('lodash');
-const Promise = require('bluebird');
+const { pRaceWithTimeout, logError, cloneDeep } = require('@terascope/utils');
 const Queue = require('@terascope/queue');
 const { makeLogger } = require('../helpers/terafoundation');
 
@@ -60,11 +59,11 @@ function recoveryModule(context, stateStore, executionContext) {
     }
 
     function _recoveryBatchCompleted() {
-        return _.every(retryState, (v) => v === false);
+        return Object.values(retryState).every((v) => v === false);
     }
 
     function _retryState() {
-        return _.cloneDeep(retryState);
+        return cloneDeep(retryState);
     }
 
     function _waitForRecoveryBatchCompletion() {
@@ -134,21 +133,25 @@ function recoveryModule(context, stateStore, executionContext) {
         return recoveryQueue.size();
     }
 
-    function shutdown() {
+    async function shutdown() {
         let checkInterval;
 
-        return new Promise((resolve) => {
-            checkInterval = setInterval(() => {
-                if (recoverComplete) {
-                    resolve();
-                }
-            }, 100);
-        })
-            .timeout(context.sysconfig.teraslice.shutdown_timeout)
-            .finally(() => {
-                isShutdown = true;
-                clearInterval(checkInterval);
-            });
+        try {
+            await pRaceWithTimeout(
+                new Promise((resolve) => {
+                    checkInterval = setInterval(() => {
+                        if (recoverComplete) {
+                            resolve();
+                        }
+                    }, 100);
+                }),
+                context.sysconfig.teraslice.shutdown_timeout,
+                (err) => { logError(logger, err); }
+            );
+        } finally {
+            isShutdown = true;
+            clearInterval(checkInterval);
+        }
     }
 
     function recoveryComplete() {

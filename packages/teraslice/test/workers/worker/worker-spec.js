@@ -2,7 +2,6 @@
 
 /* eslint-disable no-console */
 
-const Promise = require('bluebird');
 const { pDelay } = require('@terascope/utils');
 const { ExecutionController } = require('@terascope/teraslice-messaging');
 const { findPort } = require('../../../lib/utils/port_utils');

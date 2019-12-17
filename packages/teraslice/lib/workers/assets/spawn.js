@@ -2,7 +2,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const Promise = require('bluebird');
 const { fork } = require('child_process');
 const { isEmpty, get, has } = require('@terascope/utils');
 const { makeLogger } = require('../helpers/terafoundation');

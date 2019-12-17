@@ -1,6 +1,5 @@
 'use strict';
 
-const Promise = require('bluebird');
 const { pDelay } = require('@terascope/utils');
 const { TestContext } = require('../helpers');
 const { findPort } = require('../../../lib/utils/port_utils');

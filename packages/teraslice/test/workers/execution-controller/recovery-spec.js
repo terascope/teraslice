@@ -1,6 +1,5 @@
 'use strict';
 
-const Promise = require('bluebird');
 const pWhilst = require('p-whilst');
 const eventsModule = require('events');
 const { pDelay } = require('@terascope/utils');

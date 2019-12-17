@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
 const { TSError, getFullErrorStack, pDelay } = require('@terascope/utils');
 const { makeLogger } = require('../../../../../workers/helpers/terafoundation');

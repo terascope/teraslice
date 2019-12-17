@@ -1,6 +1,5 @@
 'use strict';
 
-const Promise = require('bluebird');
 const times = require('lodash/times');
 const Slice = require('../../../lib/workers/worker/slice');
 const { TestContext } = require('../helpers');

@@ -3,7 +3,6 @@
 const path = require('path');
 const fse = require('fs-extra');
 const crypto = require('crypto');
-const Promise = require('bluebird');
 const {
     TSError, pDelay, uniq, isString, toString
 } = require('@terascope/utils');

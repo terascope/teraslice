@@ -1,8 +1,8 @@
 'use strict';
 
-const _ = require('lodash');
-const { TSError, logError } = require('@terascope/utils');
-const Promise = require('bluebird');
+const {
+    TSError, logError, get, cloneDeep
+} = require('@terascope/utils');
 const { makeLogger } = require('../../../../../workers/helpers/terafoundation');
 const K8sResource = require('./k8sResource');
 const k8sState = require('./k8sState');
@@ -21,9 +21,9 @@ module.exports = async function kubernetesClusterBackend(context, clusterMasterS
     const logger = makeLogger(context, 'kubernetes_cluster_service');
     // const slicerAllocationAttempts = context.sysconfig.teraslice.slicer_allocation_attempts;
 
-    const clusterName = _.get(context, 'sysconfig.teraslice.name');
+    const clusterName = get(context, 'sysconfig.teraslice.name');
     const clusterNameLabel = clusterName.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
-    const kubernetesNamespace = _.get(context, 'sysconfig.teraslice.kubernetes_namespace', 'default');
+    const kubernetesNamespace = get(context, 'sysconfig.teraslice.kubernetes_namespace', 'default');
 
     const clusterState = {};
     let clusterStateInterval = null;
@@ -46,7 +46,7 @@ module.exports = async function kubernetesClusterBackend(context, clusterMasterS
      * @return {Object} a copy of the clusterState object
      */
     function getClusterState() {
-        return _.cloneDeep(clusterState);
+        return cloneDeep(clusterState);
     }
 
     /**
@@ -96,8 +96,8 @@ module.exports = async function kubernetesClusterBackend(context, clusterMasterS
 
         const exService = exSvcResource.resource;
 
-        execution.slicer_port = _.get(exService, 'spec.ports[0].targetPort');
-        execution.slicer_hostname = _.get(exService, 'metadata.name');
+        execution.slicer_port = get(exService, 'spec.ports[0].targetPort');
+        execution.slicer_hostname = get(exService, 'metadata.name');
 
         const exJobResource = new K8sResource(
             'jobs', 'execution_controller', context.sysconfig.teraslice, execution
