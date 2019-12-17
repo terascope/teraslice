@@ -1,10 +1,8 @@
 import {
     GraphQLScalarType, ASTNode, buildSchema, printSchema
 } from 'graphql';
-import { Kind } from 'graphql/language';
-import { TSError } from '@terascope/utils';
+import { Kind, StringValueNode } from 'graphql/language';
 import { mapping } from './types/versions/mapping';
-import { FieldTypeConfig } from './interfaces';
 
 const allTypes = Object.assign({}, ...Object.values(mapping));
 
@@ -16,32 +14,49 @@ function parseValue(value: any) {
     return value;
 }
 
-// TODO: variable support?
 function parseLiteral(ast: ASTNode) {
-    if (ast.kind !== Kind.OBJECT) throw new TSError('type config "field" key must be set to an object');
+    if (ast.kind !== Kind.OBJECT) throw new Error('Type Config "field" key must be set to an object');
+
     return ast.fields.reduce((accum, curr) => {
         const fieldName = curr.name.value;
-        if (curr.value.kind !== Kind.OBJECT) throw new TSError(`field ${fieldName} must be set to an object`);
-        if (curr.value.fields.length > 1) throw new TSError(`field ${fieldName} must be set to an object with only one key`);
-        const [
-            {
-                name: { value: keyName },
-                // @ts-ignore
-                value: { value: keyValue },
-            },
-        ] = curr.value.fields;
-        const validKeys: (keyof FieldTypeConfig)[] = ['type', 'array'];
-        if (!validKeys.includes(keyName as keyof FieldTypeConfig)) {
-            throw new TSError(`field ${fieldName} must be set to an object with only only key of type`);
-        }
-        if (!keyValue) {
-            throw new TSError('type config must have proper types set, it was not configured correctly');
-        }
-        if (allTypes[keyValue] == null) {
-            throw new TSError(`Type: ${keyValue} is not a valid type`);
+        console.error(JSON.stringify(curr.value, null, 4));
+        if (curr.value.kind !== Kind.OBJECT) {
+            throw new Error(`Field ${fieldName} must be set to an object`);
         }
 
-        accum[fieldName] = { [keyName]: keyValue };
+        curr.value.fields.forEach((field) => {
+            if (!field || field.kind !== Kind.OBJECT_FIELD) {
+                throw new Error(`Field ${fieldName} must be an object`);
+            }
+
+            const { value: keyName } = field.name;
+            const valueNode = field.value;
+            const keyValue = (valueNode as StringValueNode).value;
+
+            if (keyName === 'type') {
+                if (valueNode.kind !== Kind.STRING || !allTypes[valueNode.value]) {
+                    throw new Error(`${keyName}: ${keyValue} is not a valid type`);
+                }
+            }
+
+            if (keyName === 'description') {
+                if (valueNode.kind !== Kind.STRING && valueNode.kind !== Kind.NULL) {
+                    throw new Error(`${keyName}: ${keyValue} is not a valid string`);
+                }
+            }
+
+            if (keyName === 'array') {
+                if (valueNode.kind !== Kind.BOOLEAN && valueNode.kind !== Kind.NULL) {
+                    throw new Error(`${keyName}: ${keyValue} is not a valid boolean`);
+                }
+            }
+
+            accum[fieldName] = {
+                ...accum[fieldName],
+                [keyName]: keyValue
+            };
+        });
+
         return accum;
     }, {});
 }
@@ -55,6 +70,8 @@ export const GraphQLDataType = new GraphQLScalarType({
 });
 
 export function formatSchema(schemaStr: string) {
-    const schema = buildSchema(schemaStr);
-    return printSchema(schema);
+    const schema = buildSchema(schemaStr, { commentDescriptions: true });
+    return printSchema(schema, {
+        commentDescriptions: true
+    });
 }

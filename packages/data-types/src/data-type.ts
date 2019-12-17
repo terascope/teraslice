@@ -3,7 +3,7 @@ import defaultsDeep from 'lodash.defaultsdeep';
 import { formatSchema } from './graphql-helper';
 import * as i from './interfaces';
 import BaseType from './types/versions/base-type';
-import { validateDataTypeConfig } from './utils';
+import { validateDataTypeConfig, formatGQLComment } from './utils';
 import { TypesManager } from './types';
 
 /**
@@ -15,8 +15,10 @@ import { TypesManager } from './types';
  * - xLucene
  */
 export class DataType {
-    name!: string;
-    private _types: BaseType[];
+    readonly name!: string;
+    readonly description?: string;
+
+    private readonly _types: BaseType[];
 
     /** Merge multiple data types into one GraphQL schema, useful for removing duplicates */
     static mergeGraphQLDataTypes(types: DataType[], typeReferences: i.GraphQLTypeReferences = {}) {
@@ -44,8 +46,10 @@ export class DataType {
         return formatSchema(strSchema);
     }
 
-    constructor(config: i.DataTypeConfig, typeName?: string) {
-        if (typeName != null) this.name = typeName;
+    constructor(config: i.DataTypeConfig, typeName?: string, description?: string) {
+        if (typeName) this.name = typeName;
+        if (description) this.description = description;
+
         const { version, fields } = validateDataTypeConfig(config);
 
         const typeManager = new TypesManager(version);
@@ -106,7 +110,7 @@ export class DataType {
     }
 
     toGraphQLTypes(args: i.GraphQLOptions = {}): i.GraphQLTypesResult {
-        const { typeName = this.name, references = [] } = args;
+        const { typeName = this.name, references = [], description = this.description } = args;
         if (!typeName) {
             throw new ts.TSError('No typeName was specified to create the graphql type representing this data structure');
         }
@@ -116,29 +120,37 @@ export class DataType {
 
         this._types.forEach((typeClass) => {
             const { type, custom_type: customType } = typeClass.toGraphQL();
-            baseProperties.add(type.trim());
+            const desc = typeClass.config.description;
+            if (desc) {
+                baseProperties.add(
+                    `${formatGQLComment(desc)}\n${type.trim()}`
+                );
+            } else {
+                baseProperties.add(type.trim());
+            }
             if (customType) {
                 customTypes.add(customType.trim());
             }
         });
 
         if (references.length) {
-            baseProperties.add('# references and virtual fields');
+            baseProperties.add(formatGQLComment('references and virtual fields'));
             references.forEach((prop) => {
                 baseProperties.add(prop.trim());
             });
         }
 
         const baseType = `
+            ${formatGQLComment(description)}
             type ${typeName} {
                 ${[...baseProperties].join('\n')}
             }
-        `;
+        `.trim();
 
         const schema = `
             ${baseType}
             ${[...customTypes].join('\n')}
-        `;
+        `.trim();
 
         return {
             schema,
