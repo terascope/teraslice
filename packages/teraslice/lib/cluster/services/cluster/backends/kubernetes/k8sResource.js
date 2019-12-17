@@ -114,6 +114,12 @@ class K8sResource {
 
     /**
      * Execution Controllers get tolerations and required affinities
+     *
+     * NOTE: We considered changing `execution_controller_targets` to be an
+     * object but the inconsistency with `targets` made this awkward.  See the
+     * `teraslice config with execution_controller_targets and job targets set`
+     * test for an example.  If the syntax for this were to change, we should
+     * also consider changing `execution.targets`, which is a change on the job.
      */
     _setExecutionControllerTargets() {
         if (this.terasliceConfig.execution_controller_targets) {
