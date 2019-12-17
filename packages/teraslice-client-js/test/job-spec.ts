@@ -95,6 +95,7 @@ describe('Teraslice Job', () => {
             env_vars: {},
             slicers: 1,
             workers: 1,
+            metadata: {},
             _created: date,
             _updated: date,
             _context: 'ex',

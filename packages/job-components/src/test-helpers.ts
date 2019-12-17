@@ -6,7 +6,8 @@ import {
     getTypeOf,
     isFunction,
     debugLogger,
-    Logger
+    Logger,
+    makeISODate
 } from '@terascope/utils';
 import * as i from './interfaces';
 
@@ -20,7 +21,7 @@ export function newTestSlice(request: i.SliceRequest = {}): i.Slice {
         slicer_id: random(0, 99999),
         slicer_order: random(0, 99999),
         request,
-        _created: new Date().toISOString(),
+        _created: makeISODate(),
     };
 }
 
@@ -31,6 +32,7 @@ export function newTestJobConfig(defaults: Partial<i.JobConfig> = {}) {
             apis: [],
             operations: [],
             analytics: false,
+            autorecover: false,
             assets: [],
             lifecycle: 'once',
             max_retries: 0,
@@ -49,6 +51,7 @@ export function newTestExecutionConfig(jobConfig: Partial<i.JobConfig> = {}): i.
     exConfig.slicer_port = random(8000, 60000);
     exConfig.ex_id = newId('ex-id');
     exConfig.job_id = newId('job-id');
+    if (!exConfig.metadata) exConfig.metadata = {};
     return exConfig;
 }
 

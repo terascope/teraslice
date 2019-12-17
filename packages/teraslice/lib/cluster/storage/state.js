@@ -137,7 +137,7 @@ async function stateStorage(context) {
     }
 
     async function executionStartingSlice(exId, slicerId) {
-        const startQuery = `ex_id:"${exId}" AND slicer_id:"${slicerId}"`;
+        const startQuery = `ex_id:"${exId}" AND slicer_id:"${slicerId}" AND state:${SliceState.completed}`;
         const recoveryData = {};
 
         await waitForClient();
