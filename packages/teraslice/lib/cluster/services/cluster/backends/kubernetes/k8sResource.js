@@ -148,8 +148,8 @@ class K8sResource {
     _setJobLabels() {
         if (this.execution.labels != null) {
             Object.entries(this.execution.labels).forEach(([k, v]) => {
-                const key = `${this.jobLabelPrefix}/${k.toString().replace(/[^a-zA-Z0-9\-._]/g, '-').substring(0, 63)}`;
-                const value = v.toString().replace(/[^a-zA-Z0-9\-._]/g, '-').substring(0, 63);
+                const key = `${this.jobLabelPrefix}/${_.replace(k, /[^a-zA-Z0-9\-._]/g, '-').substring(0, 63)}`;
+                const value = _.replace(v, /[^a-zA-Z0-9\-._]/g, '-').substring(0, 63);
                 this.resource.metadata.labels[key] = value;
 
                 if (this.resource.kind !== 'Service') {
