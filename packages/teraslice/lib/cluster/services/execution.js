@@ -38,7 +38,8 @@ module.exports = async function executionService(context, { clusterMasterServer 
     let allocateInterval;
 
     function enqueue(ex) {
-        logger.debug('enqueueing execution to be processed', ex);
+        const size = pendingExecutionQueue.size();
+        logger.debug(ex, `enqueueing execution to be processed (queue size ${size})`);
         pendingExecutionQueue.enqueue(cloneDeep(ex));
     }
 
@@ -267,6 +268,7 @@ module.exports = async function executionService(context, { clusterMasterServer 
 
     async function createExecutionContext(job) {
         const ex = await exStore.create(job);
+        enqueue(ex);
         return { job_id: ex.job_id, ex_id: job.ex_id };
     }
 
@@ -399,8 +401,8 @@ module.exports = async function executionService(context, { clusterMasterServer 
 
         const pending = await searchExecutionContexts('_status:pending', null, 10000, '_created:asc');
         for (const execution of pending) {
-            logger.info(`enqueuing pending execution: ${execution.ex_id}`);
-            pendingExecutionQueue(execution);
+            logger.info(`enqueuing ${execution._status} execution: ${execution.ex_id}`);
+            enqueue(execution);
         }
 
         const queueSize = pendingExecutionQueue.size();
@@ -408,15 +410,10 @@ module.exports = async function executionService(context, { clusterMasterServer 
         if (queueSize > 0) {
             logger.info(`execution queue initialization complete, ${pendingExecutionQueue.size()} pending executions have been enqueued`);
         } else {
-            logger.info('execution queue initialization complete');
+            logger.debug('execution queue initialization complete');
         }
 
-        const executionAllocator = _executionAllocator();
-        allocateInterval = setInterval(() => {
-            executionAllocator().catch((err) => {
-                logError(logger, err, 'failue during allocation');
-            });
-        }, 1000);
+        allocateInterval = setInterval(_executionAllocator(), 1000);
     }
 
     exStore = await makeExStore(context);
