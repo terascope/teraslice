@@ -1,7 +1,6 @@
 'use strict';
 
 const sortBy = require('lodash/sortBy');
-const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
 const {
     TSError,
@@ -60,7 +59,7 @@ module.exports = async function executionService(context, { clusterMasterServer 
         return clusterService.allocateSlicer(execution);
     }
 
-    function executionHasStopped(exId, _status) {
+    async function waitForExecutionStatus(exId, _status) {
         const status = _status || 'stopped';
 
         return new Promise((resolve) => {
@@ -109,7 +108,7 @@ module.exports = async function executionService(context, { clusterMasterServer 
             // has already been propagated this can cause a condition of it waiting for
             // stop to return but it already has which pauses this service shutdown
             await stopExecution(exId, null, hostname);
-            await executionHasStopped(exId, 'terminated');
+            await waitForExecutionStatus(exId, 'terminated');
         }));
 
         await clusterService.shutdown()
@@ -185,7 +184,7 @@ module.exports = async function executionService(context, { clusterMasterServer 
     }
 
     async function stopExecution(exId, timeout, excludeNode) {
-        const execution = getExecutionContext(exId);
+        const execution = await getExecutionContext(exId);
         const isTerminal = _isTerminalStatus(execution._status);
         if (isTerminal) {
             logger.info(`execution ${exId} is in terminal status "${execution._status}", it cannot be stopped`);
@@ -195,7 +194,7 @@ module.exports = async function executionService(context, { clusterMasterServer 
         if (execution._status === 'stopping') {
             logger.info('execution is already stopping...');
             // we are kicking this off in the background, not part of the promise chain
-            executionHasStopped(exId);
+            waitForExecutionStatus(exId);
             return;
         }
 
@@ -203,7 +202,7 @@ module.exports = async function executionService(context, { clusterMasterServer 
         await setExecutionStatus(exId, 'stopping');
         await clusterService.stopExecution(exId, timeout, excludeNode);
         // we are kicking this off in the background, not part of the promise chain
-        await executionHasStopped(exId);
+        waitForExecutionStatus(exId);
     }
 
     async function pauseExecution(exId) {
@@ -344,7 +343,7 @@ module.exports = async function executionService(context, { clusterMasterServer 
         setExecutionStatus,
         terminalStatusList,
         executionMetaData,
-        executionHasStopped
+        waitForExecutionStatus
     };
 
     function _executionAllocator() {

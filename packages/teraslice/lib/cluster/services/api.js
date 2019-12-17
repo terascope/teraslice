@@ -163,7 +163,7 @@ module.exports = async function makeAPI(context, app, options) {
     });
 
     function validateCleanupType(cleanupType) {
-        if (!cleanupType && !RecoveryCleanupType[cleanupType]) {
+        if (cleanupType && !RecoveryCleanupType[cleanupType]) {
             const types = Object.values(RecoveryCleanupType);
             throw new TSError(`cleanup_type must be empty or set to ${types.join(', ')}`, {
                 statusCode: 400
