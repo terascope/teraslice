@@ -99,8 +99,8 @@ describe('Utils', () => {
 
             expect(getTypeOf(123)).toEqual('Number');
 
-            expect(getTypeOf(null)).toEqual('Null');
-            expect(getTypeOf(undefined)).toEqual('Undefined');
+            expect(getTypeOf(null)).toEqual('null');
+            expect(getTypeOf(undefined)).toEqual('undefined');
 
             const error = new Error('Hello');
             expect(getTypeOf(error)).toEqual('Error');

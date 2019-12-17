@@ -45,7 +45,10 @@ export function parseJSON<T = object>(buf: Buffer | string): T {
  * @return a human friendly string that describes the input
  */
 export function getTypeOf(val: any): string {
-    if (val) {
+    if (val === undefined) return 'undefined';
+    if (val === null) return 'null';
+
+    if (typeof val === 'object') {
         if (val.__isDataEntity) return 'DataEntity';
         if (val.constructor && val.constructor.name) {
             return val.constructor.name;
