@@ -93,13 +93,23 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
         });
     }
 
+    const { DEBUG_LOG_LEVEL } = process.env;
     if (options.debug) {
         let DEBUG = process.env.DEBUG || '';
+
         if (!DEBUG.includes('*teraslice*')) {
             if (DEBUG) DEBUG += ',';
             DEBUG += '*teraslice*';
         }
-        Object.assign(env, { DEBUG });
+
+        Object.assign(env, {
+            DEBUG,
+            DEBUG_LOG_LEVEL: DEBUG_LOG_LEVEL || 'debug'
+        });
+    } else {
+        Object.assign(env, {
+            DEBUG_LOG_LEVEL: DEBUG_LOG_LEVEL || 'warn'
+        });
     }
 
     return env;

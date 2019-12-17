@@ -19,7 +19,7 @@ module.exports = async function setupTerasliceConfig() {
             environment: 'development',
             log_level: [
                 { console: 'warn' },
-                { file: 'info', }
+                { file: process.env.DEBUG_LOG_LEVEL || 'info', }
             ],
             logging: [
                 'console',
