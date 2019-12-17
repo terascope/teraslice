@@ -1,12 +1,12 @@
 'use strict';
 
-const _ = require('lodash');
 const { Router } = require('express');
-const Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const request = require('request');
 const { RecoveryCleanupType } = require('@terascope/job-components');
-const { parseErrorInfo, parseList, logError } = require('@terascope/utils');
+const {
+    parseErrorInfo, parseList, logError, TSError, startsWith
+} = require('@terascope/utils');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 const {
     makePrometheus,
@@ -150,7 +150,6 @@ module.exports = async function makeAPI(context, app, options) {
         const requestHandler = handleRequest(req, res, 'Could not pause execution');
         requestHandler(async () => {
             const exId = await _getExIdFromRequest(req);
-            await executionService.getActiveExecution(exId);
             return executionService.pauseExecution(exId);
         });
     });
@@ -159,23 +158,37 @@ module.exports = async function makeAPI(context, app, options) {
         const requestHandler = handleRequest(req, res, 'Could not resume execution');
         requestHandler(async () => {
             const exId = await _getExIdFromRequest(req);
-            await executionService.getActiveExecution(exId);
             return executionService.resumeExecution(exId);
         });
     });
 
-    v1routes.post(['/jobs/:jobId/_recover', '/ex/:exId/_recover'], (req, res) => {
-        const { cleanup: cleanupType } = req.query;
-
-        if (cleanupType && !RecoveryCleanupType[cleanupType]) {
+    function validateCleanupType(cleanupType) {
+        if (!cleanupType && !RecoveryCleanupType[cleanupType]) {
             const types = Object.values(RecoveryCleanupType);
-            sendError(res, 400, `if cleanup is specified it must be set to ${types.join(', ')}`);
-            return;
+            throw new TSError(`cleanup_type must be empty or set to ${types.join(', ')}`, {
+                statusCode: 400
+            });
         }
+    }
+
+    v1routes.post('/jobs/:jobId/_recover', (req, res) => {
+        const cleanupType = req.query.cleanup_type || req.query.cleanup;
+        const { jobId } = req.params;
+
+        const requestHandler = handleRequest(req, res, 'Could not recover job');
+        requestHandler(async () => {
+            validateCleanupType(cleanupType);
+            return jobsService.recoverJob(jobId, cleanupType);
+        });
+    });
+
+    v1routes.post('/ex/:exId/_recover', (req, res) => {
+        const cleanupType = req.query.cleanup_type || req.query.cleanup;
+        const { exId } = req.params;
 
         const requestHandler = handleRequest(req, res, 'Could not recover execution');
         requestHandler(async () => {
-            const exId = await _getExIdFromRequest(req);
+            validateCleanupType(cleanupType);
             return executionService.recoverExecution(exId, cleanupType);
         });
     });
@@ -297,10 +310,11 @@ module.exports = async function makeAPI(context, app, options) {
         requestHandler(async () => {
             const nodes = await executionService.getClusterState();
 
-            const transform = _.map(nodes, (node) => {
-                node.active = node.active.length;
-                return node;
-            });
+            const transform = Object.values(nodes).forEach((node) => Object.assign(
+                {},
+                node,
+                { active: node.active.length }
+            ));
 
             return makeTable(req, defaults, transform);
         });
@@ -355,16 +369,16 @@ module.exports = async function makeAPI(context, app, options) {
             sendError(res, 405, `cannot ${req.method} endpoint ${req.originalUrl}`);
         });
 
-    function _changeWorkers(exId, query) {
+    async function _changeWorkers(exId, query) {
         let msg;
         let workerNum;
         const keyOptions = { add: true, remove: true, total: true };
         const queryKeys = Object.keys(query);
 
         if (!query) {
-            const error = new Error('Must provide a query parameter in request');
-            error.code = 400;
-            return Promise.reject(error);
+            throw new TSError('Must provide a query parameter in request', {
+                statusCode: 400
+            });
         }
 
         queryKeys.forEach((key) => {
@@ -375,9 +389,9 @@ module.exports = async function makeAPI(context, app, options) {
         });
 
         if (!msg || isNaN(workerNum) || workerNum <= 0) {
-            const error = new Error('Must provide a valid worker parameter(add/remove/total) that is a number and greater than zero');
-            error.code = 400;
-            return Promise.reject(error);
+            throw new TSError('Must provide a valid worker parameter(add/remove/total) that is a number and greater than zero', {
+                statusCode: 400
+            });
         }
 
         if (msg === 'add') {
@@ -393,7 +407,7 @@ module.exports = async function makeAPI(context, app, options) {
 
     async function _getExIdFromRequest(req, allowWildcard = false) {
         const { path } = req;
-        if (_.startsWith(path, '/ex')) {
+        if (startsWith(path, '/ex')) {
             const { exId } = req.params;
             if (exId) return exId;
 
@@ -405,7 +419,7 @@ module.exports = async function makeAPI(context, app, options) {
             throw error;
         }
 
-        if (_.startsWith(path, '/jobs')) {
+        if (startsWith(path, '/jobs')) {
             const { jobId } = req.params;
             const exId = await jobsService.getLatestExecutionId(jobId);
             if (!exId) {

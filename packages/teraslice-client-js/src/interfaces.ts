@@ -268,11 +268,16 @@ export interface ExecutionIDResponse {
 }
 
 /*
-    Lifecyle Response
+*    Lifecyle Response
 */
 
+/**
+ * Recover Job / Execution Options
+*/
 export interface RecoverQuery {
+    /** @deprecated use `cleanup_type` */
     cleanup?: RecoveryCleanupType;
+    cleanup_type?: RecoveryCleanupType;
 }
 
 export interface PausedResponse {

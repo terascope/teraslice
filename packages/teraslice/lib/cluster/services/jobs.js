@@ -1,14 +1,14 @@
 'use strict';
 
-const Promise = require('bluebird');
-const util = require('util');
 const {
     TSError,
     uniq,
     get,
     logError,
     cloneDeep,
-    isEmpty
+    isEmpty,
+    getTypeOf,
+    isString,
 } = require('@terascope/utils');
 const { JobValidator } = require('@terascope/job-components');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
@@ -16,7 +16,7 @@ const spawnAssetsLoader = require('../../workers/assets/spawn');
 const { terasliceOpPath } = require('../../config');
 const makeJobStore = require('../storage/jobs');
 
-module.exports = function jobsService(context) {
+module.exports = async function jobsService(context) {
     const executionService = context.services.execution;
     const logger = makeLogger(context, 'jobs_service');
 
@@ -27,121 +27,110 @@ module.exports = function jobsService(context) {
 
     let jobStore;
 
-    function submitJob(jobSpec, shouldRun) {
+    async function submitJob(jobSpec, shouldRun) {
         if (jobSpec.job_id) {
-            return Promise.reject(
-                new TSError('Job cannot include a job_id on submit', {
-                    statusCode: 422,
-                })
-            );
+            throw new TSError('Job cannot include a job_id on submit', {
+                statusCode: 422,
+            });
         }
 
-        return _ensureAssets(jobSpec)
-            .then((parsedAssetJob) => _validateJob(parsedAssetJob))
-            .then((validJob) => jobStore.create(jobSpec).then((job) => {
-                if (!shouldRun) {
-                    return { job_id: job.job_id };
-                }
-
-                const exConfig = Object.assign(jobSpec, validJob, {
-                    job_id: job.job_id
-                });
-                return executionService.createExecutionContext(exConfig);
-            }));
-    }
-
-    function updateJob(jobId, updatedJob) {
-        return _ensureAssets(updatedJob)
-            .then((parsedUpdatedJob) => _validateJob(parsedUpdatedJob))
-            .then(() => getJob(jobId))
-            .then((originalJob) => {
-                updatedJob._created = originalJob._created;
-                return jobStore.update(jobId, updatedJob);
-            });
-    }
-
-    function startJob(jobId) {
-        return _getActiveExecution(jobId, true).then((execution) => {
-            // searching for an active execution, if there is then we reject
-            if (execution != null) {
-                const error = new TSError(
-                    `Job ${jobId} is currently running, cannot have the same job concurrently running`
-                );
-                error.code = 409;
-                return Promise.reject(error);
-            }
-
-            return getJob(jobId)
-                .then((jobConfig) => {
-                    if (!jobConfig) {
-                        return Promise.reject(
-                            new TSError(`Job ${jobId} not found`, {
-                                statusCode: 404,
-                            })
-                        );
-                    }
-                    return _ensureAssets(jobConfig);
-                })
-                .then((parsedAssetJob) => _validateJob(parsedAssetJob))
-                .then((validJob) => executionService.createExecutionContext(validJob));
+        const parsedAssetJob = await _ensureAssets(jobSpec);
+        const validJob = await _validateJob(parsedAssetJob);
+        const job = await jobStore.create(jobSpec);
+        if (!shouldRun) {
+            return { job_id: job.job_id };
+        }
+        const exConfig = Object.assign(jobSpec, validJob, {
+            job_id: job.job_id
         });
+        return executionService.createExecutionContext(exConfig);
     }
 
-    function recoverJob(jobId, cleanup) {
+    async function updateJob(jobId, updatedJob) {
+        const parsedUpdatedJob = await _ensureAssets(updatedJob);
+        await _validateJob(parsedUpdatedJob);
+        const originalJob = await getJob(jobId);
+        updatedJob._created = originalJob._created;
+        return jobStore.update(jobId, updatedJob);
+    }
+
+    async function startJob(jobId) {
+        const execution = await _getActiveExecution(jobId, true);
+        // searching for an active execution, if there is then we reject
+        if (execution != null) {
+            throw new TSError(`Job ${jobId} is currently running, cannot have the same job concurrently running`, {
+                statusCode: 409
+            });
+        }
+        const jobConfig = await getJob(jobId);
+        if (!jobConfig) {
+            throw new TSError(`Job ${jobId} not found`, {
+                statusCode: 404,
+            });
+        }
+        const parsedAssetJob = await _ensureAssets(jobConfig);
+        const validJob = await _validateJob(parsedAssetJob);
+        return executionService.createExecutionContext(validJob);
+    }
+
+    async function recoverJob(jobId, cleanupType) {
         // we need to do validations since the job config could change between recovery
-        return getJob(jobId)
-            .then((jobSpec) => _ensureAssets(jobSpec))
-            .then((assetIdJob) => _validateJob(assetIdJob))
-            .then(() => getLatestExecutionId(jobId))
-            .then((exId) => executionService.recoverExecution(exId, cleanup));
+        const jobSpec = await getJob(jobId);
+        const assetIdJob = await _ensureAssets(jobSpec);
+        await _validateJob(assetIdJob);
+        const execution = await getLatestExecution(jobId);
+        // apply the latest job config changes
+        Object.assign(execution, jobSpec);
+        return executionService.recoverExecution(execution, cleanupType);
     }
 
-    function pauseJob(jobId) {
+    async function pauseJob(jobId) {
         return getLatestExecutionId(jobId).then((exId) => executionService.pauseExecution(exId));
     }
 
-    function resumeJob(jobId) {
+    async function resumeJob(jobId) {
         return getLatestExecutionId(jobId).then((exId) => executionService.resumeExecution(exId));
     }
 
-    function getJob(jobId) {
+    async function getJob(jobId) {
         return jobStore.get(jobId);
     }
 
-    function getJobs(from, size, sort) {
+    async function getJobs(from, size, sort) {
         return jobStore.search('job_id:*', from, size, sort);
     }
 
-    function getLatestExecution(jobId, _query, allowZero) {
+    async function getLatestExecution(jobId, _query, allowZero) {
+        if (!jobId || !isString(jobId)) {
+            throw new TSError(`Invalid job id, got ${getTypeOf(jobId)}`);
+        }
         const allowZeroResults = allowZero || false;
         let query = `job_id: "${jobId}"`;
         if (_query) query = _query;
-        return executionService
-            .searchExecutionContexts(query, null, 1, '_created:desc')
-            .then((ex) => {
-                if (!allowZeroResults && ex.length === 0) {
-                    const error = new Error(`No execution was found for job ${jobId}`);
-                    error.code = 404;
-                    return Promise.reject(error);
-                }
-                return ex[0];
+
+        const ex = await executionService.searchExecutionContexts(query, null, 1, '_created:desc');
+        if (!allowZeroResults && ex.length === 0) {
+            throw new TSError(`No execution was found for job ${jobId}`, {
+                statusCode: 404
             });
+        }
+        return ex[0];
     }
 
-    function _getActiveExecution(jobId, allowZeroResults) {
+    async function _getActiveExecution(jobId, allowZeroResults) {
         const str = executionService
             .terminalStatusList()
-            .map((state) => ` _status:"${state}" `)
-            .join('OR');
+            .map((state) => ` _status:"${state}"`)
+            .join(' OR ');
         const query = `job_id:"${jobId}" AND _context:ex NOT (${str.trim()})`;
         return getLatestExecution(jobId, query, allowZeroResults);
     }
 
-    function _getActiveExecutionId(jobId) {
+    async function _getActiveExecutionId(jobId) {
         return _getActiveExecution(jobId).then((ex) => ex.ex_id);
     }
 
-    function getLatestExecutionId(jobId) {
+    async function getLatestExecutionId(jobId) {
         return getLatestExecution(jobId).then((ex) => ex.ex_id);
     }
 
@@ -149,7 +138,7 @@ module.exports = function jobsService(context) {
         return jobValidator.validateConfig(jobSpec);
     }
 
-    function shutdown() {
+    async function shutdown() {
         return jobStore.shutdown().catch((err) => {
             logError(logger, err, 'Error while shutting down job stores');
             // no matter what we need to shutdown
@@ -202,15 +191,15 @@ module.exports = function jobsService(context) {
         });
     }
 
-    const depMsg = 'endpoint /jobs/:job_id/_recover is being depricated, please use the /ex/:ex_id/_recover endpoint';
-
-    const api = {
+    jobStore = await makeJobStore(context);
+    logger.info('job service is initializing...');
+    return {
         submitJob,
         updateJob,
         startJob,
         pauseJob,
         resumeJob,
-        recoverJob: util.deprecate(recoverJob, depMsg),
+        recoverJob,
         getJob,
         getJobs,
         addWorkers,
@@ -219,15 +208,5 @@ module.exports = function jobsService(context) {
         getLatestExecutionId,
         getLatestExecution,
         shutdown,
-    };
-
-    function _initialize() {
-        logger.info('job service is initializing...');
-        return Promise.resolve(api);
-    }
-
-    return makeJobStore(context).then((job) => {
-        jobStore = job;
-        return _initialize(); // Load the initial pendingJobs state.
-    });
+    }; // Load the initial pendingJobs state.
 };

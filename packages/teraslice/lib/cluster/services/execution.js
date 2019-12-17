@@ -5,15 +5,17 @@ const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
 const {
     TSError,
-    parseError,
     getFullErrorStack,
     logError,
     get,
     withoutNil,
     isEmpty,
+    isString,
     flatten,
     includes,
+    cloneDeep,
 } = require('@terascope/utils');
+const clusterModule = require('./cluster');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 const makeExStore = require('../storage/execution');
 
@@ -33,6 +35,12 @@ module.exports = function executionService(context, { clusterMasterServer }) {
 
     let exStore;
     let clusterService;
+    let allocateInterval;
+
+    function enqueue(ex) {
+        logger.debug('enqueueing execution to be processed', ex);
+        pendingExecutionQueue.enqueue(cloneDeep(ex));
+    }
 
     function getClusterState() {
         return clusterService.getClusterState();
@@ -43,11 +51,11 @@ module.exports = function executionService(context, { clusterMasterServer }) {
     }
 
     // designed to allocate additional workers, not any future slicers
-    function allocateWorkers(execution, numOfWorkersRequested) {
+    async function allocateWorkers(execution, numOfWorkersRequested) {
         return clusterService.allocateWorkers(execution, numOfWorkersRequested);
     }
 
-    function allocateSlicer(execution) {
+    async function allocateSlicer(execution) {
         return clusterService.allocateSlicer(execution);
     }
 
@@ -82,34 +90,33 @@ module.exports = function executionService(context, { clusterMasterServer }) {
         });
     }
 
-    function shutdown() {
+    async function shutdown() {
         logger.info('shutting down');
-        const query = exStore.getLivingStatuses().map((str) => `_status:${str}`).join(' OR ');
-        return searchExecutionContexts(query)
-            .map((execution) => {
-                if (isNative) {
-                    logger.warn(`marking execution ex_id: ${execution.ex_id}, job_id: ${execution.job_id} as terminated`);
-                    const exId = execution.ex_id;
-                    const { hostname } = context.sysconfig.teraslice;
 
-                    // need to exclude sending a stop to cluster master host, the shutdown event
-                    // has already been propagated this can cause a condition of it waiting for
-                    // stop to return but it already has which pauses this service shutdown
-                    return stopExecution(exId, null, hostname)
-                        .then(() => executionHasStopped(exId, 'terminated'));
-                }
-                return true;
-            })
-            .then(() => clusterService.shutdown())
-            .then(() => exStore.shutdown())
-            .catch((err) => {
-                const error = new TSError(err, {
-                    reason: 'Error while shutting down execution stores'
-                });
-                logger.error(error);
-                // no matter what we need to shutdown
-                return true;
-            });
+        clearInterval(allocateInterval);
+        allocateInterval = null;
+
+        const query = exStore.getLivingStatuses().map((str) => `_status:${str}`).join(' OR ');
+        const executions = await searchExecutionContexts(query);
+        await Promise.all(executions.map(async (execution) => {
+            if (!isNative) return;
+            logger.warn(`marking execution ex_id: ${execution.ex_id}, job_id: ${execution.job_id} as terminated`);
+            const exId = execution.ex_id;
+            const { hostname } = context.sysconfig.teraslice;
+
+            // need to exclude sending a stop to cluster master host, the shutdown event
+            // has already been propagated this can cause a condition of it waiting for
+            // stop to return but it already has which pauses this service shutdown
+            await stopExecution(exId, null, hostname);
+            await executionHasStopped(exId, 'terminated');
+        }));
+
+        try {
+            await clusterService.shutdown();
+            await exStore.shutdown();
+        } catch (err) {
+            logError(logger, err, 'Error while shutting down execution stores');
+        }
     }
 
     function findAllWorkers() {
@@ -127,17 +134,17 @@ module.exports = function executionService(context, { clusterMasterServer }) {
             .filter(Boolean);
     }
 
-    function addWorkers(exId, workerNum) {
+    async function addWorkers(exId, workerNum) {
         return getActiveExecution(exId)
             .then((execution) => clusterService.addWorkers(execution, workerNum));
     }
 
-    function setWorkers(exId, workerNum) {
+    async function setWorkers(exId, workerNum) {
         return getActiveExecution(exId)
             .then((execution) => clusterService.setWorkers(execution, workerNum));
     }
 
-    function removeWorkers(exId, workerNum) {
+    async function removeWorkers(exId, workerNum) {
         return clusterService.removeWorkers(exId, workerNum);
     }
 
@@ -147,7 +154,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
     }
 
     // safely stop the execution without setting the ex status to stopping or stopped
-    function finishExecution(exId, err) {
+    async function finishExecution(exId, err) {
         if (err) {
             const error = new TSError(err, {
                 reason: `terminal error for execution: ${exId}, shutting down execution`,
@@ -157,149 +164,140 @@ module.exports = function executionService(context, { clusterMasterServer }) {
             });
             logger.error(error);
         }
-        return getExecutionContext(exId)
-            .then((execution) => {
-                const status = execution._status;
-                if (['stopping', 'stopped'].includes(status)) {
-                    logger.debug(`execution ${exId} is already stopping which means there is no need to stop the execution`);
-                    return true;
-                }
+        const execution = await getExecutionContext(exId);
+        const status = execution._status;
+        if (['stopping', 'stopped'].includes(status)) {
+            logger.debug(`execution ${exId} is already stopping which means there is no need to stop the execution`);
+            return;
+        }
 
-                logger.debug(`execution ${exId} finished, shutting down execution`);
-                return clusterService.stopExecution(exId).catch((stopErr) => {
-                    const stopError = new TSError(stopErr, {
-                        reason: 'error finishing the execution',
-                        context: {
-                            ex_id: exId,
-                        }
-                    });
-                    logger.error(stopError);
-                });
+        logger.debug(`execution ${exId} finished, shutting down execution`);
+        try {
+            await clusterService.stopExecution(exId);
+        } catch (stopErr) {
+            const stopError = new TSError(stopErr, {
+                reason: 'error finishing the execution',
+                context: {
+                    ex_id: exId,
+                }
             });
+            logError(logger, stopError);
+        }
     }
 
-    function stopExecution(exId, timeout, excludeNode) {
-        return getExecutionContext(exId)
-            .then((execution) => {
-                const isTerminal = _isTerminalStatus(execution._status);
-                if (isTerminal) {
-                    logger.info(`execution ${exId} is in terminal status "${execution._status}", it cannot be stopped`);
-                    return true;
-                }
+    async function stopExecution(exId, timeout, excludeNode) {
+        const execution = getExecutionContext(exId);
+        const isTerminal = _isTerminalStatus(execution._status);
+        if (isTerminal) {
+            logger.info(`execution ${exId} is in terminal status "${execution._status}", it cannot be stopped`);
+            return;
+        }
 
-                if (execution._status === 'stopping') {
-                    logger.info('execution is already stopping...');
-                    // we are kicking this off in the background, not part of the promise chain
-                    executionHasStopped(exId);
-                    return true;
-                }
+        if (execution._status === 'stopping') {
+            logger.info('execution is already stopping...');
+            // we are kicking this off in the background, not part of the promise chain
+            executionHasStopped(exId);
+            return;
+        }
 
-                logger.debug(`stopping execution ${exId}...`, withoutNil({ timeout, excludeNode }));
-                return setExecutionStatus(exId, 'stopping')
-                    .then(() => clusterService.stopExecution(exId, timeout, excludeNode))
-                    .then(() => {
-                        // we are kicking this off in the background, not part of the promise chain
-                        executionHasStopped(exId);
-                        return true;
-                    });
-            });
+        logger.debug(`stopping execution ${exId}...`, withoutNil({ timeout, excludeNode }));
+        await setExecutionStatus(exId, 'stopping');
+        await clusterService.stopExecution(exId, timeout, excludeNode);
+        // we are kicking this off in the background, not part of the promise chain
+        await executionHasStopped(exId);
     }
 
-    function pauseExecution(exId) {
+    async function pauseExecution(exId) {
         const status = 'paused';
-        if (!clusterMasterServer.isClientReady(exId)) {
-            return Promise.reject(new Error(`Execution ${exId} is not available to pause`));
+        const execution = await getActiveExecution(exId);
+        if (!clusterMasterServer.isClientReady(execution.ex_id)) {
+            throw new Error(`Execution ${execution.ex_id} is not available to pause`);
         }
-        return clusterMasterServer.sendExecutionPause(exId)
-            .then(() => setExecutionStatus(exId, status))
-            .then(() => ({ status }));
+        await setExecutionStatus(exId, status);
+        return { status };
     }
 
-    function resumeExecution(exId) {
+    async function resumeExecution(exId) {
         const status = 'running';
-        if (!clusterMasterServer.isClientReady(exId)) {
-            return Promise.reject(new Error(`Execution ${exId} is not available to resume`));
+        const execution = await getActiveExecution(exId);
+        if (!clusterMasterServer.isClientReady(execution.ex_id)) {
+            throw new Error(`Execution ${execution.ex_id} is not available to resume`);
         }
-        return clusterMasterServer.sendExecutionResume(exId)
-            .then(() => setExecutionStatus(exId, status))
-            .then(() => ({ status }));
+        await clusterMasterServer.sendExecutionResume(execution.ex_id);
+        await setExecutionStatus(execution.ex_id, status);
+        return { status };
     }
 
-    function getControllerStats(exId) {
+    async function getControllerStats(exId) {
         // if no exId is provided it returns all running executions
         const specificId = exId || false;
-        return getRunningExecutions(exId)
-            .then((exIds) => {
-                const clients = clusterMasterServer.onlineClients.filter(({ clientId }) => {
-                    if (specificId && clientId === specificId) return true;
-                    return includes(exIds, clientId);
+        const exIds = await getRunningExecutions(exId);
+        const clients = clusterMasterServer.onlineClients.filter(({ clientId }) => {
+            if (specificId && clientId === specificId) return true;
+            return includes(exIds, clientId);
+        });
+
+        function formatResponse(msg) {
+            const payload = get(msg, 'payload', {});
+            const identifiers = {
+                ex_id: payload.ex_id,
+                job_id: payload.job_id,
+                name: payload.name
+            };
+            return Object.assign(identifiers, payload.stats);
+        }
+
+        if (isEmpty(clients)) {
+            if (specificId) {
+                throw new TSError(`Could not find active slicer for ex_id: ${specificId}`, {
+                    statusCode: 404
                 });
+            }
+            return [];
+        }
 
-                function formatResponse(msg) {
-                    const payload = get(msg, 'payload', {});
-                    const identifiers = {
-                        ex_id: payload.ex_id,
-                        job_id: payload.job_id,
-                        name: payload.name
-                    };
-                    return Object.assign(identifiers, payload.stats);
-                }
+        const promises = clients.map((client) => {
+            const { clientId } = client;
+            return clusterMasterServer
+                .sendExecutionAnalyticsRequest(clientId)
+                .then(formatResponse);
+        });
 
-                if (isEmpty(clients)) {
-                    if (specificId) {
-                        const error = new Error(`Could not find active slicer for ex_id: ${specificId}`);
-                        error.code = 404;
-                        return Promise.reject(error);
-                    }
-                    return Promise.resolve([]);
-                }
-
-                const promises = clients.map((client) => {
-                    const { clientId } = client;
-                    return clusterMasterServer
-                        .sendExecutionAnalyticsRequest(clientId)
-                        .then(formatResponse);
-                });
-
-                return Promise.all(promises);
-            }).then((results) => sortBy(results, ['name', 'started']).reverse());
+        const results = await Promise.all(promises);
+        return sortBy(results, ['name', 'started']).reverse();
     }
 
     async function createExecutionContext(job) {
         const ex = await exStore.create(job);
-        logger.debug('enqueueing execution to be processed', ex);
-        pendingExecutionQueue.enqueue(ex);
         return { job_id: ex.job_id, ex_id: job.ex_id };
     }
 
-    function getExecutionContext(exId) {
+    async function getExecutionContext(exId) {
         return exStore.get(exId)
             .catch((err) => logError(logger, err, `error getting execution context for ex: ${exId}`));
     }
 
-    function getRunningExecutions(exId) {
+    async function getRunningExecutions(exId) {
         let query = exStore.getRunningStatuses().map((state) => ` _status:${state} `).join('OR');
-        if (exId) query = `ex_id: ${exId} AND (${query.trim()})`;
-        return searchExecutionContexts(query, null, null, '_created:desc')
-            .then((exs) => exs.map((ex) => ex.ex_id));
+        if (exId) query = `ex_id:"${exId}" AND (${query.trim()})`;
+        const exs = await searchExecutionContexts(query, null, null, '_created:desc');
+        return exs.map((ex) => ex.ex_id);
     }
 
     // encompasses all executions in either initialization or running statuses
-    function getActiveExecution(exId) {
+    async function getActiveExecution(exId) {
         const str = terminalStatusList().map((state) => ` _status:${state} `).join('OR');
-        const query = `ex_id: ${exId} NOT (${str.trim()})`;
-        return searchExecutionContexts(query, null, 1, '_created:desc')
-            .then((ex) => {
-                if (ex.length === 0) {
-                    const error = new Error(`no active execution context was found for ex_id: ${exId}`);
-                    error.code = 404;
-                    return Promise.reject(error);
-                }
-                return ex[0];
+        const query = `ex_id:"${exId}" NOT (${str.trim()})`;
+        const executions = await searchExecutionContexts(query, null, 1, '_created:desc');
+        if (!executions.length) {
+            throw new Error(`no active execution context was found for ex_id: ${exId}`, {
+                statusCode: 404
             });
+        }
+        return executions[0];
     }
 
-    function searchExecutionContexts(query, from, _size, sort) {
+    async function searchExecutionContexts(query, from, _size, sort) {
         let size = 10000;
         if (_size) size = _size;
         return exStore.search(query, from, size, sort);
@@ -309,19 +307,18 @@ module.exports = function executionService(context, { clusterMasterServer }) {
         return exStore.getTerminalStatuses();
     }
 
-    function setExecutionStatus(exId, status, metaData) {
+    async function setExecutionStatus(exId, status, metaData) {
         return exStore.setStatus(exId, status, metaData);
     }
 
-    function executionMetaData(stats, errMsg) {
+    async function executionMetaData(stats, errMsg) {
         return exStore.executionMetaData(stats, errMsg);
     }
 
     async function recoverExecution(exId, cleanupType) {
-        const execution = await getExecutionContext(exId);
+        const execution = isString(exId) ? await getExecutionContext(exId) : exId;
         const ex = await exStore.createRecoveredExecution(execution, cleanupType);
-        logger.debug('enqueueing execution to be processed', ex);
-        pendingExecutionQueue.enqueue(ex);
+        enqueue(ex);
         return { job_id: ex.job_id, ex_id: ex.ex_id };
     }
 
@@ -398,60 +395,37 @@ module.exports = function executionService(context, { clusterMasterServer }) {
         };
     }
 
-    function _initialize() {
+    async function _initialize() {
         // listen for an execution finished events
         clusterMasterServer.onExecutionFinished(finishExecution);
 
-        // Reschedule any persistent jobs that were running.
-        // There may be some additional subtlety required here.
-        return searchExecutionContexts('running').each((execution) => {
-            // For this restarting to work correctly we need to check the job on the running
-            // cluster to make sure it's not still running after a cluster_master restart.
-            if (execution.lifecycle === 'persistent') {
-                // pendingExecutionQueue.enqueue(job);
-            } else {
-                // _setExecutionStatus(job.ex_id, 'aborted');
-            }
-        })
-            .then(() => searchExecutionContexts('pending', null, 10000, '_created:asc')
-                .each((executionSpec) => {
-                    logger.debug('enqueuing pending execution:', executionSpec);
-                    pendingExecutionQueue.enqueue(executionSpec);
-                })
-                .then(() => {
-                    const queueSize = pendingExecutionQueue.size();
+        const pending = await searchExecutionContexts('_status:pending', null, 10000, '_created:asc');
+        for (const execution of pending) {
+            logger.info(`enqueuing pending execution: ${execution.ex_id}`);
+            pendingExecutionQueue(execution);
+        }
 
-                    if (queueSize > 0) {
-                        logger.info(`execution queue initialization complete, ${pendingExecutionQueue.size()} pending executions have been enqueued`);
-                    } else {
-                        logger.info('execution queue initialization complete');
-                    }
+        const queueSize = pendingExecutionQueue.size();
 
-                    const executionAllocator = _executionAllocator();
-                    setInterval(() => {
-                        executionAllocator();
-                    }, 1000);
+        if (queueSize > 0) {
+            logger.info(`execution queue initialization complete, ${pendingExecutionQueue.size()} pending executions have been enqueued`);
+        } else {
+            logger.info('execution queue initialization complete');
+        }
 
-                    return api;
-                }))
-            .error((err) => {
-                // TODO: verify whats coming here
-                if (parseError(err).includes('no such index')) {
-                    logError(logger, err, 'initialization failed loading state from Elasticsearch');
-                }
-
-                const error = new TSError(err, {
-                    reason: 'Error initializing'
-                });
-                return Promise.reject(error);
+        const executionAllocator = _executionAllocator();
+        allocateInterval = setInterval(() => {
+            executionAllocator().catch((err) => {
+                logError(logger, err, 'failue during allocation');
             });
+        }, 1000);
     }
 
     return makeExStore(context)
         .then((ex) => {
             logger.info('execution service is initializing...');
             exStore = ex;
-            return require('./cluster')(context, clusterMasterServer, api);
+            return clusterModule(context, clusterMasterServer, api);
         })
         .then((cluster) => {
             clusterService = cluster;
