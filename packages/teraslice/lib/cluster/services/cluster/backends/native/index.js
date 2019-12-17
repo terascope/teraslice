@@ -17,7 +17,7 @@ const Messaging = require('./messaging');
  aborted - when a job was running at the point when the cluster shutsdown
  */
 
-module.exports = function nativeClustering(context, clusterMasterServer, executionService) {
+module.exports = async function nativeClustering(context, clusterMasterServer, executionService) {
     const events = context.apis.foundation.getSystemEvents();
     const logger = makeLogger(context, 'native_cluster_service');
     const pendingWorkerRequests = new Queue();
@@ -430,13 +430,14 @@ module.exports = function nativeClustering(context, clusterMasterServer, executi
 
     events.on('cluster:available_workers', schedulePendingRequests);
 
-    function shutdown() {
+    async function shutdown() {
         logger.info('native clustering shutting down');
         isShutdown = true;
         if (messaging) {
-            return messaging.shutdown();
+            await messaging.shutdown();
+        } else {
+            await pDelay(100);
         }
-        return pDelay(100);
     }
 
     function addWorkers(execution, workerNum) {
@@ -585,7 +586,10 @@ module.exports = function nativeClustering(context, clusterMasterServer, executi
         return _notifyNodesWithExecution(exId, sendingMessage, excludeNode);
     }
 
-    const api = {
+    logger.info('native clustering initializing');
+    const server = clusterMasterServer.httpServer;
+    await messaging.listen({ server });
+    return {
         getClusterState,
         allocateWorkers,
         allocateSlicer,
@@ -597,14 +601,4 @@ module.exports = function nativeClustering(context, clusterMasterServer, executi
         readyForAllocation,
         clusterAvailable
     };
-
-    function _initialize() {
-        logger.info('native clustering initializing');
-        const server = clusterMasterServer.httpServer;
-        return Promise.resolve()
-            .then(() => messaging.listen({ server }))
-            .then(() => Promise.resolve(api));
-    }
-
-    return _initialize();
 };

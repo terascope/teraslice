@@ -17,7 +17,7 @@ const K8s = require('./k8s');
  aborted - when a job was running at the point when the cluster shutsdown
  */
 
-module.exports = function kubernetesClusterBackend(context, clusterMasterServer) {
+module.exports = async function kubernetesClusterBackend(context, clusterMasterServer) {
     const logger = makeLogger(context, 'kubernetes_cluster_service');
     // const slicerAllocationAttempts = context.sysconfig.teraslice.slicer_allocation_attempts;
 
@@ -184,7 +184,9 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         clearInterval(clusterStateInterval);
     }
 
-    const api = {
+    logger.info('kubernetes clustering initializing');
+    await k8s.init();
+    return {
         getClusterState,
         allocateWorkers,
         allocateSlicer,
@@ -196,12 +198,4 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         readyForAllocation,
         // clusterAvailable TODO: return false if k8s API unavailable, not in use
     };
-
-    function _initialize() {
-        logger.info('Initializing');
-        return k8s.init()
-            .then(() => Promise.resolve(api));
-    }
-
-    return _initialize();
 };

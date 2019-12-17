@@ -111,12 +111,10 @@ module.exports = async function executionService(context, { clusterMasterServer 
             await executionHasStopped(exId, 'terminated');
         }));
 
-        try {
-            await clusterService.shutdown();
-            await exStore.shutdown();
-        } catch (err) {
-            logError(logger, err, 'Error while shutting down execution stores');
-        }
+        await clusterService.shutdown()
+            .catch((err) => logError(logger, err, 'Error while shutting down cluster service'));
+        await exStore.shutdown()
+            .catch((err) => logError(logger, err, 'Error while shutting down execution stores'));
     }
 
     function findAllWorkers() {

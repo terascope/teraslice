@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function clustering(context, clusterMasterServer, executionService) {
+module.exports = async function clustering(context, clusterMasterServer, executionService) {
     const clusterType = context.sysconfig.teraslice.cluster_manager_type;
 
     if (clusterType === 'native') {
@@ -11,5 +11,5 @@ module.exports = function clustering(context, clusterMasterServer, executionServ
         return require('./backends/kubernetes')(context, clusterMasterServer, executionService);
     }
 
-    return Promise.reject(new Error(`unknown cluster service ${clusterType}, cannot find cluster module`));
+    throw new Error(`unknown cluster service ${clusterType}, cannot find cluster module`);
 };

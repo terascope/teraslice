@@ -464,9 +464,8 @@ module.exports = async function makeAPI(context, app, options) {
         return executionService.getControllerStats(exId);
     }
 
-    function shutdown() {
-        logger.info('shutting down');
-        return Promise.resolve(true);
+    async function shutdown() {
+        logger.info('shutting down api service');
     }
 
     function _waitForStop(exId, blocking) {
