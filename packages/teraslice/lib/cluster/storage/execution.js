@@ -4,7 +4,6 @@ const {
     TSError, pRetry, includes, cloneDeep, isString
 } = require('@terascope/utils');
 const uuid = require('uuid');
-const Promise = require('bluebird');
 const { RecoveryCleanupType } = require('@terascope/job-components');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
@@ -18,7 +17,7 @@ const VALID_STATUS = INIT_STATUS.concat(RUNNING_STATUS).concat(TERMINAL_STATUS);
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
 // get the final result.
-module.exports = function executionStorage(context) {
+module.exports = async function executionStorage(context) {
     const logger = makeLogger(context, 'ex_storage');
     const config = context.sysconfig.teraslice;
     const jobType = 'ex';
@@ -31,7 +30,7 @@ module.exports = function executionStorage(context) {
         return backend.get(exId);
     }
 
-    function search(query, from, size, sort) {
+    async function search(query, from, size, sort) {
         return backend.search(query, from, size, sort);
     }
 
@@ -106,45 +105,38 @@ module.exports = function executionStorage(context) {
     }
 
     // verify the current status to make sure it can be updated to the desired status
-    function verifyStatusUpdate(exId, desiredStatus) {
+    async function verifyStatusUpdate(exId, desiredStatus) {
         if (!desiredStatus || !_isValidStatus(desiredStatus)) {
-            const error = new Error(`Invalid Job status: "${desiredStatus}"`);
-            error.statusCode = 422;
-            return Promise.reject(error);
+            throw new TSError(`Invalid Job status: "${desiredStatus}"`, {
+                statusCode: 422
+            });
         }
 
-        return getStatus(exId)
-            .then((status) => {
-                // when setting the same status to shouldn't throw an error
-                if (desiredStatus === status) {
-                    return Promise.resolve();
-                }
-
-                // when the current status is running it cannot be set to an init status
-                if (_isRunningStatus(status) && _isInitStatus(desiredStatus)) {
-                    const error = new TSError(`Cannot update running job status of "${status}" to init status of "${desiredStatus}"`, {
-                        statusCode: 422
-                    });
-                    return Promise.reject(error);
-                }
-
-                // if it is set to stop but the execution finishes before it can stop
-                // it is okay to set it to completed
-                if (status === 'stopped' && desiredStatus === 'completed') {
-                    return Promise.resolve(status);
-                }
-
-                // when the status is a terminal status, it cannot be set to again
-                if (_isTerminalStatus(status)) {
-                    const error = new TSError(`Cannot update terminal job status of "${status}" to "${desiredStatus}"`, {
-                        statusCode: 422
-                    });
-                    return Promise.reject(error);
-                }
-
-                // otherwise allow the update
-                return Promise.resolve(status);
+        const status = await getStatus(exId);
+        // when setting the same status to shouldn't throw an error
+        if (desiredStatus === status) {
+            return status;
+        }
+        // when the current status is running it cannot be set to an init status
+        if (_isRunningStatus(status) && _isInitStatus(desiredStatus)) {
+            throw new TSError(`Cannot update running job status of "${status}" to init status of "${desiredStatus}"`, {
+                statusCode: 422
             });
+        }
+        // if it is set to stop but the execution finishes before it can stop
+        // it is okay to set it to completed
+        if (status === 'stopped' && desiredStatus === 'completed') {
+            return status;
+        }
+        // when the status is a terminal status, it cannot be set to again
+        if (_isTerminalStatus(status)) {
+            throw new TSError(`Cannot update terminal job status of "${status}" to "${desiredStatus}"`, {
+                statusCode: 422
+            });
+        }
+
+        // otherwise allow the update
+        return status;
     }
 
     async function setStatus(exId, status, metaData) {
@@ -172,11 +164,11 @@ module.exports = function executionStorage(context) {
         return exId;
     }
 
-    function remove(exId) {
+    async function remove(exId) {
         return backend.remove(exId);
     }
 
-    function shutdown(forceShutdown) {
+    async function shutdown(forceShutdown) {
         logger.info('shutting down.');
         return backend.shutdown(forceShutdown);
     }
@@ -185,7 +177,7 @@ module.exports = function executionStorage(context) {
         return backend.verifyClient();
     }
 
-    function waitForClient() {
+    async function waitForClient() {
         return backend.waitForClient();
     }
 
@@ -300,11 +292,8 @@ module.exports = function executionStorage(context) {
         storageName: 'execution'
     };
 
-    return elasticsearchBackend(backendConfig)
-        .then((elasticsearch) => {
-            logger.info('execution storage initialized');
-            backend = elasticsearch;
-            _addMetadataFns(context);
-            return api;
-        });
+    backend = await elasticsearchBackend(backendConfig);
+    logger.info('execution storage initialized');
+    _addMetadataFns(context);
+    return api;
 };

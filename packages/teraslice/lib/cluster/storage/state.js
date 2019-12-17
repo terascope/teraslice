@@ -187,15 +187,15 @@ async function stateStorage(context) {
         }
     }
 
-    function search(query, from, size, sort) {
+    async function search(query, from, size, sort) {
         return backend.search(query, from, size, sort);
     }
 
-    function count(query, from, sort) {
+    async function count(query, from, sort) {
         return backend.count(query, from, sort);
     }
 
-    function countByState(exId, state) {
+    async function countByState(exId, state) {
         if (!SliceState[state]) {
             throw new Error(`Unknown slice state "${state}" on update`);
         }
@@ -203,12 +203,12 @@ async function stateStorage(context) {
         return backend.count(query, 0);
     }
 
-    function shutdown(forceShutdown) {
+    async function shutdown(forceShutdown) {
         logger.info('shutting down');
         return backend.shutdown(forceShutdown);
     }
 
-    function refresh() {
+    async function refresh() {
         const { index } = timeseriesIndex(timeseriesFormat, _index);
         return backend.refresh(index);
     }
@@ -217,7 +217,7 @@ async function stateStorage(context) {
         return backend.verifyClient();
     }
 
-    function waitForClient() {
+    async function waitForClient() {
         return backend.waitForClient();
     }
 

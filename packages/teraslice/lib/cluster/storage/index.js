@@ -4,7 +4,6 @@ const makeAnalyticsStore = require('./analytics');
 const makeAssetStore = require('./assets');
 const makeExStore = require('./execution');
 const makeJobStore = require('./jobs');
-const makeLogStore = require('./logs');
 const makeStateStore = require('./state');
 
 module.exports = {
@@ -13,6 +12,5 @@ module.exports = {
     makeAssetStore,
     makeExStore,
     makeJobStore,
-    makeLogStore,
     makeStateStore,
 };

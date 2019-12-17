@@ -7,7 +7,7 @@ const elasticsearchBackend = require('./backends/elasticsearch_store');
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
 // get the final result.
-module.exports = function jobsStorage(context) {
+module.exports = async function jobsStorage(context) {
     const logger = makeLogger(context, 'job_storage');
 
     const config = context.sysconfig.teraslice;
@@ -16,15 +16,15 @@ module.exports = function jobsStorage(context) {
 
     let backend;
 
-    function getJob(jobId) {
+    async function getJob(jobId) {
         return backend.get(jobId);
     }
 
-    function search(query, from, size, sort) {
+    async function search(query, from, size, sort) {
         return backend.search(query, from, size, sort);
     }
 
-    function create(record) {
+    async function create(record) {
         const date = new Date();
         record.job_id = uuid.v4();
         record._context = jobType;
@@ -34,7 +34,7 @@ module.exports = function jobsStorage(context) {
         return backend.create(record);
     }
 
-    function update(jobId, updateSpec) {
+    async function update(jobId, updateSpec) {
         updateSpec._updated = new Date();
         updateSpec.job_id = jobId;
         updateSpec._context = 'job';
@@ -42,11 +42,11 @@ module.exports = function jobsStorage(context) {
         return backend.indexWithId(jobId, updateSpec);
     }
 
-    function remove(jobId) {
+    async function remove(jobId) {
         return backend.remove(jobId);
     }
 
-    function shutdown(forceShutdown) {
+    async function shutdown(forceShutdown) {
         logger.info('shutting down.');
         return backend.shutdown(forceShutdown);
     }
@@ -55,7 +55,7 @@ module.exports = function jobsStorage(context) {
         return backend.verifyClient();
     }
 
-    function waitForClient() {
+    async function waitForClient() {
         return backend.waitForClient();
     }
 
@@ -80,10 +80,7 @@ module.exports = function jobsStorage(context) {
         storageName: 'jobs'
     };
 
-    return elasticsearchBackend(backendConfig)
-        .then((elasticsearch) => {
-            logger.info('job storage initialized');
-            backend = elasticsearch;
-            return api;
-        });
+    backend = await elasticsearchBackend(backendConfig);
+    logger.info('job storage initialized');
+    return api;
 };
