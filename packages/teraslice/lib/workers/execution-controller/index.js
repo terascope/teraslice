@@ -218,8 +218,8 @@ class ExecutionController {
             });
         });
 
-        this._handlers['slicer:execution:update'] = () => {
-            this.logger.warn('event slicer:execution:update has been removed, used context.apis.executionContext.setMetadata(key, value): Promise<void>');
+        this._handlers['slicer:execution:update'] = (data) => {
+            this.logger.warn(data, 'event slicer:execution:update has been removed, used context.apis.executionContext.setMetadata(key, value): Promise<void>');
         };
 
         this._handlers['slicers:finished'] = (err) => {
