@@ -115,7 +115,7 @@ async function generateTestData() {
 }
 
 module.exports = async () => {
-    await misc.globalTeardown(false);
+    await misc.globalTeardown();
     await misc.resetLogs();
 
     process.stdout.write('\n');

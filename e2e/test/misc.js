@@ -141,7 +141,7 @@ async function resetLogs() {
     await fse.writeFile(logPath, '');
 }
 
-async function globalTeardown(shouldThrow) {
+async function globalTeardown() {
     const errors = [];
 
     await compose
@@ -151,17 +151,16 @@ async function globalTeardown(shouldThrow) {
         })
         .catch((err) => errors.push(err));
 
-    await cleanupIndex(`${TEST_INDEX_PREFIX}*`).catch((err) => errors.push(err));
-    await fse.remove(CONFIG_PATH).catch((err) => errors.push(err));
-    await fse.remove(ASSETS_PATH).catch((err) => errors.push(err));
+    await cleanupIndex(`${TEST_INDEX_PREFIX}*`);
+    if (fse.existsSync(CONFIG_PATH)) {
+        await fse.remove(CONFIG_PATH).catch((err) => errors.push(err));
+    }
+    if (fse.existsSync(ASSETS_PATH)) {
+        await fse.remove(ASSETS_PATH).catch((err) => errors.push(err));
+    }
 
-    if (shouldThrow && errors.length === 1) {
-        throw errors[0];
-    } else if (errors.length) {
+    if (errors.length) {
         errors.forEach((err) => signale.error(err));
-        if (shouldThrow) {
-            throw new Error('Multiple e2e teardown errors');
-        }
     }
 }
 

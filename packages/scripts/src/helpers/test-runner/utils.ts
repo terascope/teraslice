@@ -190,7 +190,7 @@ export async function globalTeardown(options: TestOptions, pkgs: TeardownPkgsArg
             } catch (err) {
                 signale.error(
                     new TSError(err, {
-                        message: `Failed to teardown test for "${name}"`,
+                        reason: `Failed to teardown test for "${name}"`,
                     })
                 );
             } finally {
