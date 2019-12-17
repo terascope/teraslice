@@ -6,8 +6,6 @@ import {
     parseNumberList,
     isNumber,
     AnyObject,
-    escapeString,
-    uniq,
     withoutNil,
     TSError
 } from '@terascope/utils';
@@ -21,7 +19,8 @@ import {
     TypeConfig,
     FieldType,
     CoordinateTuple,
-    GeoShapeRelation
+    GeoShapeRelation,
+    JoinQueryResult
 } from './interfaces';
 import {
     isGeoJSONData,
@@ -149,6 +148,10 @@ export function getLonAndLat(input: any, throwInvalid = true): [number, number] 
     let lat = input.lat || input.latitude;
     let lon = input.lon || input.longitude;
 
+    if (isGeoShapePoint(input)) {
+        [lon, lat] = input.coordinates;
+    }
+
     if (throwInvalid && (!lat || !lon)) {
         throw new Error('geopoint must contain keys lat,lon or latitude/longitude');
     }
@@ -204,28 +207,34 @@ export type CreateJoinQueryOptions = {
     typeConfig?: TypeConfig;
     fieldParams?: Record<string, string>;
     joinBy?: JoinBy;
-    arrayJoinBy?: JoinBy;
+    variables?: AnyObject;
 };
 
 const relationList = Object.values(GeoShapeRelation);
 
-export function makeXluceneGeoDistanceQuery(
+function makeXluceneGeoDistanceQuery(
+    variableState: VariableState,
     field: string,
     value: GeoPointInput,
     fieldParam?: string
 ) {
-    const distance = fieldParam ? escapeValue(fieldParam) : '"100m"';
+    const dValue = fieldParam || '100m';
     const results = parseGeoPoint(value, false);
     if (!results) return '';
-    const { lat, lon } = results;
-    return `${field}:geoDistance(point:"${lat},${lon}" distance:${distance})`;
+    const vDistance = variableState.createVariable('distance', dValue);
+    const vPoint = variableState.createVariable('point', `${results.lat},${results.lon}`);
+    return `${field}:geoDistance(point: ${vPoint} distance: ${vDistance})`;
 }
 
-export function makeXlucenePolyContainsPoint(field: string, value: GeoPointInput) {
+function makeXlucenePolyContainsPoint(
+    variableState: VariableState,
+    field: string,
+    value: GeoPointInput
+) {
     const results = parseGeoPoint(value, false);
     if (!results) return '';
-    const { lat, lon } = results;
-    return `${field}:geoContainsPoint(point:"${lat},${lon}")`;
+    const vPoint = variableState.createVariable('point', `${results.lat},${results.lon}`);
+    return `${field}:geoContainsPoint(point: ${vPoint})`;
 }
 
 export function coordinateToXlucene(cord: CoordinateTuple) {
@@ -241,52 +250,102 @@ function makeList(list: any[]) {
     return makeArrayString(list.map(coordinateToXlucene));
 }
 
-function geoPolyQuery(field: string, list: string, fieldParam?: string) {
-    if (fieldParam && relationList.includes(fieldParam as GeoShapeRelation)) {
-        return `${field}:geoPolygon(points:${list} relation: "${fieldParam}")`;
+function geoPolyQuery(field: string, vList: string, vParam?: string) {
+    if (vParam) {
+        return `${field}:geoPolygon(points: ${vList} relation: ${vParam})`;
     }
-    return `${field}:geoPolygon(points:${list})`;
+    return `${field}:geoPolygon(points: ${vList})`;
 }
 
-export function makeXlucenePolyQuery(
+function makeXlucenePolyQuery(
+    variableState: VariableState,
     field: string,
     value: CoordinateTuple[][],
     fieldParam?: string
 ) {
+    let vParam: string | undefined;
+
+    if (fieldParam && relationList.includes(fieldParam as GeoShapeRelation)) {
+        vParam = variableState.createVariable('relation', fieldParam) as string;
+    }
     // there there is more than one, the other polygons listed are holes
     if (value.length > 1) {
         return value.map(makeList)
-            .map((points) => geoPolyQuery(field, points, fieldParam))
+            .map((points) => {
+                const vList = variableState.createVariable('points', points);
+                return geoPolyQuery(field, vList, vParam);
+            })
             .join(' AND NOT ');
     }
-    const points = makeList(value[0]);
-    return geoPolyQuery(field, points, fieldParam);
+
+    const vList = variableState.createVariable('points', value[0]);
+    return geoPolyQuery(field, vList, vParam);
 }
 
-function createGeoQuery(field: string, value: any, targetType: FieldType, fieldParam?: string) {
+// function createGeoQuery(field: string, value: any, targetType: FieldType, fieldParam?: string) {
+//     if (isGeoJSONData(value)) {
+//         if (isGeoShapePolygon(value)) {
+//             return makeXlucenePolyQuery(field, value.coordinates, fieldParam);
+//         }
+
+//         if (isGeoShapeMultiPolygon(value)) {
+//             return `(${value.coordinates.map((coordinates) => `(${makeXlucenePolyQuery(field, coordinates, fieldParam)})`).join(' OR ')})`;
+//         }
+
+//         if (isGeoShapePoint(value)) {
+//             if (isGeoPointType(targetType)) {
+//                 return makeXluceneGeoDistanceQuery(field, value.coordinates, fieldParam);
+//             }
+//             return makeXlucenePolyContainsPoint(field, value.coordinates);
+//         }
+//         // We do not support any other geoJSON types;
+//         return '';
+//     }
+
+//     // incoming value is a geo-point and we compare to another geo-point by geoDistance query
+//     if (isGeoPointType(targetType)) return makeXluceneGeoDistanceQuery(field, value, fieldParam);
+
+//     if (isGeoJSONType(targetType)) return makeXlucenePolyContainsPoint(field, value);
+//     // if here then return a noop
+//     return '';
+// }
+
+function createGeoQuery(
+    variableState: VariableState,
+    field: string,
+    value: any,
+    targetType: FieldType,
+    fieldParam?: string
+) {
     if (isGeoJSONData(value)) {
         if (isGeoShapePolygon(value)) {
-            return makeXlucenePolyQuery(field, value.coordinates, fieldParam);
+            return makeXlucenePolyQuery(variableState, field, value.coordinates, fieldParam);
         }
 
         if (isGeoShapeMultiPolygon(value)) {
-            return `(${value.coordinates.map((coordinates) => `(${makeXlucenePolyQuery(field, coordinates, fieldParam)})`).join(' OR ')})`;
+            return `(${value.coordinates.map((coordinates) => `(${makeXlucenePolyQuery(variableState, field, coordinates, fieldParam)})`).join(' OR ')})`;
         }
 
         if (isGeoShapePoint(value)) {
             if (isGeoPointType(targetType)) {
-                return makeXluceneGeoDistanceQuery(field, value.coordinates, fieldParam);
+                return makeXluceneGeoDistanceQuery(
+                    variableState,
+                    field,
+                    value.coordinates,
+                    fieldParam
+                );
             }
-            return makeXlucenePolyContainsPoint(field, value.coordinates);
+            return makeXlucenePolyContainsPoint(variableState, field, value.coordinates);
         }
         // We do not support any other geoJSON types;
         return '';
     }
-
     // incoming value is a geo-point and we compare to another geo-point by geoDistance query
-    if (isGeoPointType(targetType)) return makeXluceneGeoDistanceQuery(field, value, fieldParam);
+    if (isGeoPointType(targetType)) {
+        return makeXluceneGeoDistanceQuery(variableState, field, value, fieldParam);
+    }
 
-    if (isGeoJSONType(targetType)) return makeXlucenePolyContainsPoint(field, value);
+    if (isGeoJSONType(targetType)) return makeXlucenePolyContainsPoint(variableState, field, value);
     // if here then return a noop
     return '';
 }
@@ -303,42 +362,76 @@ function isGeoJSONType(type: FieldType) {
     return type === FieldType.GeoJSON;
 }
 
-export function createJoinQuery(input: AnyObject, options: CreateJoinQueryOptions = {}): string {
+// TODO: handle variables and query from before
+export function createJoinQuery(
+    input: AnyObject,
+    options: CreateJoinQueryOptions = {}
+): JoinQueryResult {
     const {
         fieldParams = {},
         joinBy = 'AND',
-        arrayJoinBy = 'AND',
-        typeConfig = {}
+        typeConfig = {},
+        variables
     } = options;
-
+    const variableState = new VariableState(variables);
+    let query = '';
     const obj = withoutNil(input);
-    if (!Object.keys(obj).length) return '';
 
-    return Object.entries(obj)
-        .map(([field, val]) => {
-            let value: string;
-
-            if (isGeoQuery(typeConfig[field])) {
-                return createGeoQuery(field, val, typeConfig[field], fieldParams[field]);
-            }
-
-            if (Array.isArray(val)) {
-                if (val.length > 1) {
-                    value = `(${uniq(val)
-                        .map(escapeValue)
-                        .join(` ${arrayJoinBy} `)})`;
-                } else {
-                    value = escapeValue(val);
+    if (Object.keys(obj).length) {
+        query = Object.entries(obj)
+            .map(([field, val]) => {
+                if (isGeoQuery(typeConfig[field])) {
+                    return createGeoQuery(
+                        variableState,
+                        field,
+                        val,
+                        typeConfig[field],
+                        fieldParams[field]
+                    );
                 }
-            } else {
-                value = escapeValue(val);
-            }
-            return `${field}: ${value}`;
-        })
-        .join(` ${joinBy} `)
-        .trim();
+
+                const value = variableState.createVariable(field, val);
+                return `${field}: ${value}`;
+            })
+            .join(` ${joinBy} `)
+            .trim();
+    }
+
+    const finalVariables = variableState.getVaraibles();
+    return { query, variables: finalVariables };
 }
 
-function escapeValue(val: any) {
-    return `"${escapeString(val)}"`;
+// TODO: remove this code if nothing breaks
+// function escapeValue(val: any) {
+//     return `"${escapeString(val)}"`;
+// }
+
+export class VariableState {
+    private variables: AnyObject;
+
+    constructor(variables?: AnyObject) {
+        this.variables = variables || {};
+    }
+
+    private _makeKey(field: string) {
+        let num = 1;
+        let name = `${field}_${num}`;
+
+        while (this.variables[name]) {
+            num += 1;
+            name = `${field}_${num}`;
+        }
+
+        return name;
+    }
+
+    createVariable(field: string, value: any) {
+        const key = this._makeKey(field);
+        this.variables[key] = value;
+        return `$${key}`;
+    }
+
+    getVaraibles() {
+        return this.variables;
+    }
 }
