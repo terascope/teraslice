@@ -161,34 +161,26 @@ module.exports = async function jobsService(context) {
         return executionService.setWorkers(exId, workerCount);
     }
 
-    function _ensureAssets(jobConfig) {
+    async function _ensureAssets(jobConfig) {
         const jobAssets = uniq(jobConfig.assets || []);
-        return new Promise((resolve, reject) => {
-            if (isEmpty(jobAssets)) {
-                resolve(cloneDeep(jobConfig));
-            } else {
-                // convert asset references to their id's
-                spawnAssetsLoader(jobAssets)
-                    .then((assetIds) => {
-                        if (assetIds.length === 0) {
-                            reject(new Error(`no asset id's were found for assets: ${JSON.stringify(jobAssets)}`));
-                            return;
-                        }
+        if (isEmpty(jobAssets)) {
+            return cloneDeep(jobConfig);
+        }
+        // convert asset references to their id's
+        const assetIds = await spawnAssetsLoader(jobAssets);
+        if (!assetIds.length) {
+            throw new Error(`no asset id's were found for assets: ${JSON.stringify(jobAssets)}`);
+        }
 
-                        if (jobAssets.length !== assetIds.length) {
-                            reject(new Error(`job specified ${jobAssets.length} assets: ${jobAssets.assets} but only ${assetIds.length} where found, assets: ${assetIds}`));
-                            return;
-                        }
+        if (jobAssets.length !== assetIds.length) {
+            throw new Error(`job specified ${jobAssets.length} assets: ${jobAssets.assets} but only ${assetIds.length} where found, assets: ${assetIds}`);
+        }
 
-                        // need to normalize asset identifiers to their id form
-                        // but not mutate original job_spec
-                        const parsedAssetJob = cloneDeep(jobConfig);
-                        parsedAssetJob.assets = assetIds;
-                        resolve(parsedAssetJob);
-                    })
-                    .catch((err) => reject(err));
-            }
-        });
+        // need to normalize asset identifiers to their id form
+        // but not mutate original job_spec
+        const parsedAssetJob = cloneDeep(jobConfig);
+        parsedAssetJob.assets = assetIds;
+        return parsedAssetJob;
     }
 
     jobStore = await makeJobStore(context);

@@ -229,7 +229,7 @@ module.exports = async function makeAPI(context, app, options) {
         requestHandler(async () => {
             const exId = await _getExIdFromRequest(req, true);
 
-            const query = `state:error AND ex_id:${exId}`;
+            const query = `state:error AND ex_id:"${exId}"`;
             return stateStore.search(query, from, size, sort);
         });
     });
@@ -245,7 +245,7 @@ module.exports = async function makeAPI(context, app, options) {
             let query = 'ex_id:*';
 
             if (statuses.length) {
-                const statusTerms = statuses.map((s) => `_status:${s}`).join(' OR ');
+                const statusTerms = statuses.map((s) => `_status:"${s}"`).join(' OR ');
                 query += ` AND (${statusTerms})`;
             }
 
@@ -460,7 +460,7 @@ module.exports = async function makeAPI(context, app, options) {
         });
     }
 
-    function _controllerStats(exId) {
+    async function _controllerStats(exId) {
         return executionService.getControllerStats(exId);
     }
 
