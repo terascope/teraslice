@@ -1,16 +1,13 @@
 'use strict';
 
-const Promise = require('bluebird');
-const _ = require('lodash');
 const express = require('express');
 const request = require('request');
-const { pDelay, logError } = require('@terascope/utils');
+const { pDelay, logError, get } = require('@terascope/utils');
 const { ClusterMaster } = require('@terascope/teraslice-messaging');
 const { makeLogger } = require('../workers/helpers/terafoundation');
 const ExecutionService = require('./services/execution');
 const APIService = require('./services/api');
 const JobService = require('./services/jobs');
-const makeLogs = require('./storage/logs');
 
 module.exports = function _clusterMaster(context) {
     const logger = makeLogger(context, 'cluster_master');
@@ -53,7 +50,7 @@ module.exports = function _clusterMaster(context) {
                     timeout: 900,
                 },
                 (err, response) => {
-                    resolve(_.get(response, 'body.available', false));
+                    resolve(get(response, 'body.available', false));
                 }
             );
         });
@@ -94,7 +91,6 @@ module.exports = function _clusterMaster(context) {
                 logger.debug('api service has been instantiated');
 
                 context.services.api = apiService;
-                await makeLogs(context);
 
                 logger.info('cluster master is ready!');
                 running = true;
