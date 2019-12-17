@@ -24,7 +24,7 @@ export interface TerasliceConfig {
     cluster_manager_type: ClusterManagerType;
     /** This will only be available in the context of k8s */
     cpu?: number;
-    execution_controller_targets?:ExecutionControllerTargets[];
+    execution_controller_targets?: ExecutionControllerTargets[];
     hostname: string;
     index_rollover_frequency: IndexRolloverFrequency;
     kubernetes_config_map_name?: string|'teraslice-worker';
