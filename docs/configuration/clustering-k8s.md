@@ -115,9 +115,9 @@ in labels being added to the k8s resources.  The k8s labels will be prefixed
 with `job.teraslice.terascope.io/`.
 
 ```json
-    "labels": [
-        ["key1", "value1"]
-    ],
+    "labels": {
+        "key1": "value1"
+    },
 ```
 
 If `labels` is omitted, the k8s resources will just have the standard set of

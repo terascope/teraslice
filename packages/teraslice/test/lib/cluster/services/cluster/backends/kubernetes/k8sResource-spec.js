@@ -570,10 +570,10 @@ describe('k8sResource', () => {
 
     describe('worker deployments with job labels', () => {
         it('generates k8s resources with labels', () => {
-            execution.labels = [
-                ['key1', 'value1'],
-                ['key2', 'value2']
-            ];
+            execution.labels = {
+                key1: 'value1',
+                key2: 'value2'
+            };
 
             const kr = new K8sResource(
                 'deployments', 'worker', terasliceConfig, execution
@@ -585,11 +585,11 @@ describe('k8sResource', () => {
         });
 
         it('generates valid k8s resources with keys containing forbidden characters', () => {
-            execution.labels = [
-                ['key 1', 'value1'],
-                ['key2%', 'value2'],
-                ['abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1234', 'value3']
-            ];
+            execution.labels = {
+                'key 1': 'value1',
+                'key2%': 'value2',
+                abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij1234: 'value3',
+            };
 
             const kr = new K8sResource(
                 'deployments', 'worker', terasliceConfig, execution

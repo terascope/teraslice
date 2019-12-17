@@ -48,14 +48,23 @@ export function jobSchema(context: Context): convict.Schema<any> {
         labels: {
             default: null,
             doc: 'An array of arrays containing key value pairs used to label kubetnetes resources.',
-            format(arr: any) {
-                if (arr != null) {
-                    if (!Array.isArray(arr)) {
-                        // FIXME: improve input and error handling
-                        throw new Error('labels is required to be an array');
+            // TODO: Refactor this out as format, copied from env_vars
+            format(obj: any[]) {
+                if (obj != null) {
+                    if (!isPlainObject(obj)) {
+                        throw new Error('must be object');
                     }
+                    Object.entries(obj).forEach(([key, val]) => {
+                        if (key == null || key === '') {
+                            throw new Error('key must be not empty');
+                        }
+
+                        if (val == null || val === '') {
+                            throw new Error(`value for key "${key}" must be not empty`);
+                        }
+                    })
                 }
-            }
+            },
         },
         lifecycle: {
             default: 'once',
