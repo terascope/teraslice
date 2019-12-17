@@ -91,12 +91,17 @@ to support k8s based Teraslice deployments.
 |        Configuration         |                                                                        Description                                                                         |  Type  |  Notes   |
 | :--------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------: | :----: | :------: |
 |        assets_volume         |                               Name of kubernetes volume to be shared across all pods, where Teraslice assets will be stored                                | String | optional |
+| execution_controller_targets |                                 array of `{"key": "rack", "value": "alpha"}` targets for execution controllers                                             | String | optional |
 |       kubernetes_image       |                                                     Name of docker image, default: `teraslice:k8sdev`                                                      | String | optional |
 | kubernetes_image_pull_secret |                                                    Secret used to pull docker images from private repo                                                     | String | optional |
 |  kubernetes_config_map_name  | Name of the configmap used by worker and execution_controller containers for config.  If this is not provided, the default will be `<CLUSTER_NAME>-worker` | String | optional |
 |     kubernetes_namespace     |                                       Kubernetes Namespace that Teraslice will run in, default namespace: 'default'                                        | String | optional |
 
 Note that the `assets_volume` should also be mounted to your Teraslice master pod.
+
+Targets specified in the `execution_controller_targets` setting will result in
+required NodeAffinities and tolerations being added to the execution controller
+Jobs so that they can be targetted to specific parts of your k8s infrastructure.
 
 ## Teraslice Job Properties
 

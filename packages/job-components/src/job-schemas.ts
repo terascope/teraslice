@@ -51,6 +51,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
             format(arr: any) {
                 if (arr != null) {
                     if (!Array.isArray(arr)) {
+                        // FIXME: improve input and error handling
                         throw new Error('labels is required to be an array');
                     }
                 }

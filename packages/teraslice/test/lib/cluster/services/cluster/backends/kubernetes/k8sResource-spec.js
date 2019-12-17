@@ -629,6 +629,96 @@ describe('k8sResource', () => {
         });
     });
 
+    describe('teraslice config with execution_controller_targets set', () => {
+        it('generates execution controller job with toleration and affinity', () => {
+            terasliceConfig.execution_controller_targets = [
+                { key: 'key1', value: 'value1' },
+                { key: 'key2', value: 'value2' }
+            ];
+
+            const kr = new K8sResource(
+                'jobs', 'execution_controller', terasliceConfig, execution
+            );
+
+            expect(kr.resource.kind).toBe('Job');
+            expect(kr.resource.metadata.name).toBe('ts-exc-example-data-generator-job-7ba9afb0-417a');
+
+            expect(kr.resource.spec.template.spec).toHaveProperty('affinity');
+            expect(kr.resource.spec.template.spec).toHaveProperty('tolerations');
+            expect(kr.resource.spec.template.spec.affinity).toEqual(yaml.load(`
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: key1
+                        operator: In
+                        values:
+                          - value1
+                      - key: key2
+                        operator: In
+                        values:
+                          - value2`));
+            expect(kr.resource.spec.template.spec.tolerations).toEqual(yaml.load(`
+            - key: key1
+              operator: Equal
+              value: value1
+              effect: NoSchedule
+            - key: key2
+              operator: Equal
+              value: value2
+              effect: NoSchedule`));
+        });
+    });
+
+    describe('teraslice config with execution_controller_targets and job targets set', () => {
+        it('generates execution controller job with toleration and affinity and targets', () => {
+            terasliceConfig.execution_controller_targets = [
+                { key: 'key1', value: 'value1' },
+            ];
+
+            execution.targets = [
+                { key: 'zone', value: 'west' },
+                { key: 'region', value: 'texas', constraint: 'accepted' }
+            ];
+
+            const kr = new K8sResource(
+                'jobs', 'execution_controller', terasliceConfig, execution
+            );
+
+            expect(kr.resource.kind).toBe('Job');
+            expect(kr.resource.metadata.name).toBe('ts-exc-example-data-generator-job-7ba9afb0-417a');
+
+            expect(kr.resource.spec.template.spec).toHaveProperty('affinity');
+            expect(kr.resource.spec.template.spec).toHaveProperty('tolerations');
+
+            // console.log(yaml.dump(kr.resource.spec.template.spec.affinity));
+            expect(kr.resource.spec.template.spec.affinity).toEqual(yaml.load(`
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: zone
+                        operator: In
+                        values:
+                          - west
+                      - key: key1
+                        operator: In
+                        values:
+                          - value1`));
+
+            // console.log(yaml.dump(kr.resource.spec.template.spec.tolerations));
+            expect(kr.resource.spec.template.spec.tolerations).toEqual(yaml.load(`
+            - key: region
+              operator: Equal
+              value: texas
+              effect: NoSchedule
+            - key: key1
+              operator: Equal
+              value: value1
+              effect: NoSchedule`));
+        });
+    });
+
     describe('execution_controller service', () => {
         it('has valid resource object.', () => {
             const kr = new K8sResource(

@@ -53,6 +53,14 @@ class K8sResource {
             this._setVolumes();
             this._setAssetsVolume();
             this._setImagePullSecret();
+
+            // Execution controller targets are required nodeAffinities, if
+            // required job targets are also supplied, then *all* of the matches
+            // will have to be satisfied for the job to be scheduled.  This also
+            // adds tolerations for any specified targets
+            if (resourceName === 'execution_controller') {
+                this._setExecutionControllerTargets();
+            }
         }
     }
 
@@ -102,6 +110,18 @@ class K8sResource {
             const templated = barbe(templateData, templateKeys, config);
             return JSON.parse(templated);
         };
+    }
+
+    /**
+     * Execution Controllers get tolerations and required affinities
+     */
+    _setExecutionControllerTargets() {
+        if (this.terasliceConfig.execution_controller_targets) {
+            _.forEach(this.terasliceConfig.execution_controller_targets, (target) => {
+                this._setTargetRequired(target);
+                this._setTargetAccepted(target);
+            });
+        }
     }
 
     _setImagePullSecret() {
