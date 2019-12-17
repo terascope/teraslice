@@ -62,7 +62,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
                         if (val == null || val === '') {
                             throw new Error(`value for key "${key}" must be not empty`);
                         }
-                    })
+                    });
                 }
             },
         },
