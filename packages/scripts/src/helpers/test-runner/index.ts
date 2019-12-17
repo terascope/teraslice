@@ -4,7 +4,8 @@ import {
     debugLogger,
     chunk,
     TSError,
-    getFullErrorStack
+    getFullErrorStack,
+    pDelay
 } from '@terascope/utils';
 import {
     writePkgHeader,
@@ -200,7 +201,10 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         const env = printAndGetEnv(suite, options);
 
         try {
-            await runJest(e2eDir, utils.getArgs(options), env, options.jestArgs, options.debug);
+            await Promise.all([
+                runJest(e2eDir, utils.getArgs(options), env, options.jestArgs, options.debug),
+                pushDevImage(),
+            ]);
         } catch (err) {
             errors.push(err.message);
         }
@@ -228,19 +232,22 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         }]);
     }
 
-    if (startedTest && isCI) {
-        const devDockerImage = getDevDockerImage();
-        try {
-            signale.info(`pushing ${devDockerImage}...`);
-            await dockerPush(devDockerImage);
-        } catch (err) {
-            signale.warn(err, `failure to push ${devDockerImage}`);
-        }
-    }
-
     cleanup();
 
     return errors;
+}
+
+async function pushDevImage() {
+    if (!isCI) return;
+    // wait 30 seconds before pushing
+    await pDelay(30 * 1000);
+    const devDockerImage = getDevDockerImage();
+    try {
+        signale.info(`pushing ${devDockerImage}...`);
+        await dockerPush(devDockerImage);
+    } catch (err) {
+        signale.warn(err, `failure to push ${devDockerImage}`);
+    }
 }
 
 function printAndGetEnv(suite: string, options: TestOptions) {
