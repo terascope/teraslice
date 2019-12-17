@@ -1,7 +1,7 @@
 'use strict';
 
 const {
-    TSError, pRetry, includes, cloneDeep, isString
+    TSError, pRetry, includes, cloneDeep, isString, getTypeOf
 } = require('@terascope/utils');
 const uuid = require('uuid');
 const { RecoveryCleanupType } = require('@terascope/job-components');
@@ -244,6 +244,13 @@ module.exports = async function executionStorage(context) {
      * We shouldn't be dependant on mutating the record
     */
     async function createRecoveredExecution(execution, cleanupType) {
+        if (!execution) {
+            throw new Error(`Invalid execution given, got ${getTypeOf(execution)}`);
+        }
+        if (!execution.ex_id) {
+            throw new Error('Unable to recover execution with missing ex_id');
+        }
+
         const _execution = cloneDeep(execution);
         if (cleanupType && !RecoveryCleanupType[cleanupType]) {
             throw new Error(`Unknown cleanup type "${cleanupType}" to recover`);
