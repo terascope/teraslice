@@ -28,7 +28,7 @@ const makeExStore = require('../storage/execution');
  aborted - when a execution was running at the point when the cluster shutsdown
  */
 
-module.exports = function executionService(context, { clusterMasterServer }) {
+module.exports = async function executionService(context, { clusterMasterServer }) {
     const logger = makeLogger(context, 'execution_service');
     const pendingExecutionQueue = new Queue();
     const isNative = context.sysconfig.teraslice.cluster_manager_type === 'native';
@@ -421,14 +421,9 @@ module.exports = function executionService(context, { clusterMasterServer }) {
         }, 1000);
     }
 
-    return makeExStore(context)
-        .then((ex) => {
-            logger.info('execution service is initializing...');
-            exStore = ex;
-            return clusterModule(context, clusterMasterServer, api);
-        })
-        .then((cluster) => {
-            clusterService = cluster;
-            return _initialize();
-        });
+    exStore = await makeExStore(context);
+    logger.info('execution service is initializing...');
+    clusterService = await clusterModule(context, clusterMasterServer, api);
+    await _initialize();
+    return api;
 };

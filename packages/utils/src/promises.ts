@@ -310,7 +310,7 @@ export function pRace(promises: Promise<any>[], logError?: (err: any) => void): 
 /**
  * Similar to pRace but with
  */
-export function pRaceWithTimeout(
+export async function pRaceWithTimeout(
     promises: Promise<any>[] | Promise<any>,
     timeout: number,
     logError?: (err: any) => void
@@ -318,12 +318,23 @@ export function pRaceWithTimeout(
     if (!timeout || typeof timeout !== 'number') {
         throw new Error('Invalid timeout argument, must be a number');
     }
-    const pTimeout = new Promise((resolve) => {
-        // add unref to avoid keeping the process open
-        setTimeout(resolve, timeout).unref();
-    });
-    const _promises = Array.isArray(promises) ? promises : [promises];
-    return pRace([..._promises, pTimeout], logError);
+    let timeoutId: any;
+
+    try {
+        const pTimeout = new Promise((resolve) => {
+            // add unref to avoid keeping the process open
+            timeoutId = setTimeout(resolve, timeout);
+            timeoutId.unref();
+        });
+        const _promises = Array.isArray(promises) ? promises : [promises];
+
+        await pRace([..._promises, pTimeout], logError);
+    } catch (err) {
+        if (logError) logError(err);
+        else console.error(err);
+    } finally {
+        clearTimeout(timeoutId);
+    }
 }
 
 /**

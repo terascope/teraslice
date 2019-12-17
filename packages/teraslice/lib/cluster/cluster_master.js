@@ -116,12 +116,20 @@ module.exports = function _clusterMaster(context) {
         },
         async shutdown() {
             running = false;
+
             logger.info('cluster_master is shutting down');
             clusterMasterServer.isShuttingDown = true;
 
-            const promises = Object.values(context.services).map((service) => service.shutdown());
-            await Promise.all(promises);
-            return clusterMasterServer.shutdown();
+            await Promise.all(Object.entries(context.services)
+                .map(async ([name, service]) => {
+                    try {
+                        await service.shutdown();
+                    } catch (err) {
+                        logError(logger, err, `Failure to shutdown service ${name}`);
+                    }
+                }));
+
+            await clusterMasterServer.shutdown();
         },
     };
 };
