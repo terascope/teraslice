@@ -30,8 +30,23 @@ module.exports = async function executionStorage(context) {
         return backend.get(exId);
     }
 
+    // encompasses all executions in either initialization or running statuses
+    async function getActiveExecution(exId) {
+        const str = getTerminalStatuses().map((state) => ` _status:${state} `).join('OR');
+        const query = `ex_id:"${exId}" NOT (${str.trim()})`;
+        const executions = await search(query, null, 1, '_created:desc');
+        if (!executions.length) {
+            throw new Error(`no active execution context was found for ex_id: ${exId}`, {
+                statusCode: 404
+            });
+        }
+        return executions[0];
+    }
+
     async function search(query, from, size, sort) {
-        return backend.search(query, from, size, sort);
+        let _size = 10000;
+        if (size == null) _size = size;
+        return backend.search(query, from, _size, sort);
     }
 
     async function create(record, status = 'pending') {
@@ -292,6 +307,7 @@ module.exports = async function executionStorage(context) {
         remove,
         shutdown,
         createRecoveredExecution,
+        getActiveExecution,
         getTerminalStatuses,
         getRunningStatuses,
         getLivingStatuses,

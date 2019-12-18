@@ -16,7 +16,7 @@ const Messaging = require('./messaging');
  aborted - when a job was running at the point when the cluster shutsdown
  */
 
-module.exports = async function nativeClustering(context, clusterMasterServer, executionService) {
+module.exports = function nativeClustering(context, clusterMasterServer) {
     const events = context.apis.foundation.getSystemEvents();
     const logger = makeLogger(context, 'native_cluster_service');
     const pendingWorkerRequests = new Queue();
@@ -25,7 +25,9 @@ module.exports = async function nativeClustering(context, clusterMasterServer, e
     const slicerAllocationAttempts = context.sysconfig.teraslice.slicer_allocation_attempts;
     const clusterState = {};
     const messaging = Messaging(context, logger);
-    let isShutdown = false;
+
+    let exStore;
+    let clusterStateInterval;
 
     // temporary holding spot used to attach nodes that are non responsive or
     // disconnect before final cleanup
@@ -84,15 +86,6 @@ module.exports = async function nativeClustering(context, clusterMasterServer, e
         }
     });
 
-    const clusterStateInterval = setInterval(() => {
-        if (isShutdown) {
-            clearInterval(clusterStateInterval);
-            return;
-        }
-        logger.trace('cluster_master requesting state update for all nodes');
-        messaging.broadcast('cluster:node:state');
-    }, nodeStateInterval);
-
     function _cleanUpNode(nodeId) {
         // check workers and slicers
         const node = _checkNode(clusterState[nodeId]);
@@ -102,11 +95,11 @@ module.exports = async function nativeClustering(context, clusterMasterServer, e
             _.forIn(node.slicerExecutions, async (exId) => {
                 const errMsg = `node ${nodeId} has been disconnected from cluster_master past the allowed timeout, it has an active slicer for execution: ${exId} which will be marked as terminated and shut down`;
                 logger.error(errMsg);
-                const metaData = executionService.executionMetaData(null, errMsg);
+                const metaData = exStore.executionMetaData(null, errMsg);
                 pendingWorkerRequests.remove(exId, 'ex_id');
 
                 try {
-                    await executionService.setExecutionStatus(exId, 'terminated', metaData);
+                    await exStore.setExecutionStatus(exId, 'terminated', metaData);
                 } catch (err) {
                     logger.error(err, `failure to set execution ${exId} status to terminated`);
                 } finally {
@@ -122,7 +115,7 @@ module.exports = async function nativeClustering(context, clusterMasterServer, e
                 const numOfWorkers = activeWorkers.filter((worker) => worker.ex_id === exId).length;
 
                 try {
-                    const execution = await executionService.getActiveExecution(exId);
+                    const execution = await exStore.getActiveExecution(exId);
                     addWorkers(execution, numOfWorkers);
                 } catch (err) {
                     logger.error(err, `failure to add workers to execution ${exId}`);
@@ -429,16 +422,6 @@ module.exports = async function nativeClustering(context, clusterMasterServer, e
 
     events.on('cluster:available_workers', schedulePendingRequests);
 
-    async function shutdown() {
-        logger.info('native clustering shutting down');
-        isShutdown = true;
-        if (messaging) {
-            await messaging.shutdown();
-        } else {
-            await pDelay(100);
-        }
-    }
-
     function addWorkers(execution, workerNum) {
         const workerData = {
             job: JSON.stringify(execution),
@@ -585,13 +568,37 @@ module.exports = async function nativeClustering(context, clusterMasterServer, e
         return _notifyNodesWithExecution(exId, sendingMessage, excludeNode);
     }
 
-    logger.info('native clustering initializing');
-    const server = clusterMasterServer.httpServer;
-    await messaging.listen({ server });
+    async function shutdown() {
+        clearInterval(clusterStateInterval);
+
+        logger.info('native clustering shutting down');
+        if (messaging) {
+            await messaging.shutdown();
+        } else {
+            await pDelay(100);
+        }
+    }
+
+    async function initialize() {
+        logger.info('native clustering initializing');
+        exStore = context.stores.execution;
+        if (!exStore) {
+            throw new Error('Missing required stores');
+        }
+        const server = clusterMasterServer.httpServer;
+        await messaging.listen({ server });
+
+        clusterStateInterval = setInterval(() => {
+            logger.trace('cluster_master requesting state update for all nodes');
+            messaging.broadcast('cluster:node:state');
+        }, nodeStateInterval);
+    }
+
     return {
         getClusterState,
         allocateWorkers,
         allocateSlicer,
+        initialize,
         shutdown,
         stopExecution,
         removeWorkers,

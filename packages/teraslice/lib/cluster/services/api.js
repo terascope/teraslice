@@ -18,13 +18,15 @@ const {
 } = require('../../utils/api_utils');
 const terasliceVersion = require('../../../package.json').version;
 
-module.exports = async function makeAPI(context, app, options) {
-    const { assetsUrl } = options;
+module.exports = function apiService(context, { assetsUrl, app }) {
     const clusterType = context.sysconfig.teraslice.cluster_manager_type;
     const logger = makeLogger(context, 'api_service');
-    const executionService = context.services.execution;
-    const jobsService = context.services.jobs;
-    const stateService = context.services.state;
+
+    let available = false;
+    let executionService;
+    let jobsService;
+    let stateStore;
+
     const v1routes = new Router();
 
     app.use(bodyParser.json({
@@ -42,6 +44,10 @@ module.exports = async function makeAPI(context, app, options) {
     });
 
     app.use((req, res, next) => {
+        if (!available) {
+            res.json({ error: 'api is not available' });
+            return;
+        }
         req.logger = logger;
         next();
     });
@@ -229,7 +235,7 @@ module.exports = async function makeAPI(context, app, options) {
             const exId = await _getExIdFromRequest(req, true);
 
             const query = `state:error AND ex_id:"${exId}"`;
-            return stateService.search(query, from, size, sort);
+            return stateStore.search(query, from, size, sort);
         });
     });
 
@@ -467,6 +473,24 @@ module.exports = async function makeAPI(context, app, options) {
         logger.info('shutting down api service');
     }
 
+    async function initialize() {
+        logger.info('api service is initializing...');
+
+        stateStore = context.stores.state;
+        if (stateStore == null) {
+            throw new Error('Missing required stores');
+        }
+
+        executionService = context.services.execution;
+        jobsService = context.services.jobs;
+
+        if (jobsService == null || executionService == null) {
+            throw new Error('Missing required services');
+        }
+
+        available = true;
+    }
+
     function _waitForStop(exId, blocking) {
         return new Promise((resolve) => {
             function checkExecution() {
@@ -491,9 +515,8 @@ module.exports = async function makeAPI(context, app, options) {
         });
     }
 
-    logger.info('api service is initializing...');
-
     return {
+        initialize,
         shutdown,
     };
 };

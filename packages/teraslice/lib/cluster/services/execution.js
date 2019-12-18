@@ -14,9 +14,7 @@ const {
     includes,
     cloneDeep,
 } = require('@terascope/utils');
-const clusterModule = require('./cluster');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
-const makeExStore = require('../storage/execution');
 
 /**
  * New execution result
@@ -34,13 +32,12 @@ const makeExStore = require('../storage/execution');
  aborted - when a execution was running at the point when the cluster shutsdown
  */
 
-module.exports = async function executionService(context, { clusterMasterServer }) {
-    const exStore = await makeExStore(context);
-
+module.exports = function executionService(context, { clusterMasterServer }) {
     const logger = makeLogger(context, 'execution_service');
     const pendingExecutionQueue = new Queue();
     const isNative = context.sysconfig.teraslice.cluster_manager_type === 'native';
 
+    let exStore;
     let clusterService;
     let allocateInterval;
 
@@ -87,7 +84,7 @@ module.exports = async function executionService(context, { clusterMasterServer 
 
                 try {
                     await exStore.verifyStatusUpdate(exId, status);
-                    await setExecutionStatus(exId, status);
+                    await exStore.exStore.setExecutionStatus(exId, status);
                 } catch (err) {
                     logError(logger, err, 'failure setting execution to stopped');
                 } finally {
@@ -105,7 +102,7 @@ module.exports = async function executionService(context, { clusterMasterServer 
         allocateInterval = null;
 
         const query = exStore.getLivingStatuses().map((str) => `_status:${str}`).join(' OR ');
-        const executions = await searchExecutionContexts(query);
+        const executions = await exStore.search(query);
         await Promise.all(executions.map(async (execution) => {
             if (!isNative) return;
             logger.warn(`marking execution ex_id: ${execution.ex_id}, job_id: ${execution.job_id} as terminated`);
@@ -118,11 +115,6 @@ module.exports = async function executionService(context, { clusterMasterServer 
             await stopExecution(exId, null, hostname);
             await waitForExecutionStatus(exId, 'terminated');
         }));
-
-        await clusterService.shutdown()
-            .catch((err) => logError(logger, err, 'Error while shutting down cluster service'));
-        await exStore.shutdown()
-            .catch((err) => logError(logger, err, 'Error while shutting down execution stores'));
     }
 
     function findAllWorkers() {
@@ -141,12 +133,12 @@ module.exports = async function executionService(context, { clusterMasterServer 
     }
 
     async function addWorkers(exId, workerNum) {
-        return getActiveExecution(exId)
+        return exStore.getActiveExecution(exId)
             .then((execution) => clusterService.addWorkers(execution, workerNum));
     }
 
     async function setWorkers(exId, workerNum) {
-        return getActiveExecution(exId)
+        return exStore.getActiveExecution(exId)
             .then((execution) => clusterService.setWorkers(execution, workerNum));
     }
 
@@ -161,7 +153,7 @@ module.exports = async function executionService(context, { clusterMasterServer 
      * @returns {boolean}
     */
     function isExecutionTerminal(execution) {
-        const terminalList = terminalStatusList();
+        const terminalList = exStore.getTerminalStatuses();
         return terminalList.find((tStat) => tStat === execution._status) != null;
     }
 
@@ -213,7 +205,7 @@ module.exports = async function executionService(context, { clusterMasterServer 
         }
 
         logger.debug(`stopping execution ${exId}...`, withoutNil({ timeout, excludeNode }));
-        await setExecutionStatus(exId, 'stopping');
+        await exStore.setExecutionStatus(exId, 'stopping');
         await clusterService.stopExecution(exId, timeout, excludeNode);
         // we are kicking this off in the background, not part of the promise chain
         waitForExecutionStatus(exId);
@@ -221,22 +213,22 @@ module.exports = async function executionService(context, { clusterMasterServer 
 
     async function pauseExecution(exId) {
         const status = 'paused';
-        const execution = await getActiveExecution(exId);
+        const execution = await exStore.getActiveExecution(exId);
         if (!clusterMasterServer.isClientReady(execution.ex_id)) {
             throw new Error(`Execution ${execution.ex_id} is not available to pause`);
         }
-        await setExecutionStatus(exId, status);
+        await exStore.setExecutionStatus(exId, status);
         return { status };
     }
 
     async function resumeExecution(exId) {
         const status = 'running';
-        const execution = await getActiveExecution(exId);
+        const execution = await exStore.getActiveExecution(exId);
         if (!clusterMasterServer.isClientReady(execution.ex_id)) {
             throw new Error(`Execution ${execution.ex_id} is not available to resume`);
         }
         await clusterMasterServer.sendExecutionResume(execution.ex_id);
-        await setExecutionStatus(execution.ex_id, status);
+        await exStore.setExecutionStatus(execution.ex_id, status);
         return { status };
     }
 
@@ -299,39 +291,8 @@ module.exports = async function executionService(context, { clusterMasterServer 
     async function getRunningExecutions(exId) {
         let query = exStore.getRunningStatuses().map((state) => ` _status:${state} `).join('OR');
         if (exId) query = `ex_id:"${exId}" AND (${query.trim()})`;
-        const exs = await searchExecutionContexts(query, null, null, '_created:desc');
+        const exs = await exStore.search(query, null, null, '_created:desc');
         return exs.map((ex) => ex.ex_id);
-    }
-
-    // encompasses all executions in either initialization or running statuses
-    async function getActiveExecution(exId) {
-        const str = terminalStatusList().map((state) => ` _status:${state} `).join('OR');
-        const query = `ex_id:"${exId}" NOT (${str.trim()})`;
-        const executions = await searchExecutionContexts(query, null, 1, '_created:desc');
-        if (!executions.length) {
-            throw new Error(`no active execution context was found for ex_id: ${exId}`, {
-                statusCode: 404
-            });
-        }
-        return executions[0];
-    }
-
-    async function searchExecutionContexts(query, from, _size, sort) {
-        let size = 10000;
-        if (_size) size = _size;
-        return exStore.search(query, from, size, sort);
-    }
-
-    function terminalStatusList() {
-        return exStore.getTerminalStatuses();
-    }
-
-    async function setExecutionStatus(exId, status, metaData) {
-        return exStore.setStatus(exId, status, metaData);
-    }
-
-    async function executionMetaData(stats, errMsg) {
-        return exStore.executionMetaData(stats, errMsg);
     }
 
     /**
@@ -351,33 +312,6 @@ module.exports = async function executionService(context, { clusterMasterServer 
         return { job_id: ex.job_id, ex_id: ex.ex_id };
     }
 
-    const api = {
-        getClusterState,
-        getClusterStats,
-        getControllerStats,
-        getActiveExecution,
-        allocateWorkers,
-        allocateSlicer,
-        findAllWorkers,
-        shutdown,
-        initialize,
-        stopExecution,
-        pauseExecution,
-        resumeExecution,
-        recoverExecution,
-        removeWorkers,
-        addWorkers,
-        setWorkers,
-        createExecutionContext,
-        getExecutionContext,
-        searchExecutionContexts,
-        setExecutionStatus,
-        terminalStatusList,
-        executionMetaData,
-        isExecutionTerminal,
-        waitForExecutionStatus
-    };
-
     function _executionAllocator() {
         let allocatingExecution = false;
         const { readyForAllocation } = clusterService;
@@ -393,9 +327,9 @@ module.exports = async function executionService(context, { clusterMasterServer 
             logger.info(`Scheduling execution: ${execution.ex_id}`);
 
             try {
-                await setExecutionStatus(execution.ex_id, 'scheduling');
+                await exStore.setExecutionStatus(execution.ex_id, 'scheduling');
                 await allocateSlicer(execution);
-                await setExecutionStatus(execution.ex_id, 'initializing', {
+                await exStore.setExecutionStatus(execution.ex_id, 'initializing', {
                     slicer_port: execution.slicer_port,
                     slicer_hostname: execution.slicer_hostname
                 });
@@ -413,8 +347,8 @@ module.exports = async function executionService(context, { clusterMasterServer 
                 });
 
                 try {
-                    const errMetaData = executionMetaData(null, getFullErrorStack(error));
-                    await setExecutionStatus(execution.ex_id, 'failed', errMetaData);
+                    const errMetaData = exStore.executionMetaData(null, getFullErrorStack(error));
+                    await exStore.setExecutionStatus(execution.ex_id, 'failed', errMetaData);
                 } catch (failedErr) {
                     logger.error(new TSError(err, {
                         reason: 'Failure to set execution status to failed after provision failed'
@@ -428,13 +362,22 @@ module.exports = async function executionService(context, { clusterMasterServer 
     }
 
     async function initialize() {
+        exStore = context.stores.execution;
+        if (exStore == null) {
+            throw new Error('Missing required stores');
+        }
+
+        clusterService = context.services.cluster;
+        if (clusterService == null) {
+            throw new Error('Missing required services');
+        }
+
         logger.info('execution service is initializing...');
-        clusterService = await clusterModule(context, clusterMasterServer, api);
 
         // listen for an execution finished events
         clusterMasterServer.onExecutionFinished(finishExecution);
 
-        const pending = await searchExecutionContexts('_status:pending', null, 10000, '_created:asc');
+        const pending = await exStore.search('_status:pending', null, 10000, '_created:asc');
         for (const execution of pending) {
             logger.info(`enqueuing ${execution._status} execution: ${execution.ex_id}`);
             enqueue(execution);
@@ -451,5 +394,25 @@ module.exports = async function executionService(context, { clusterMasterServer 
         allocateInterval = setInterval(_executionAllocator(), 1000);
     }
 
-    return api;
+    return {
+        getClusterState,
+        getClusterStats,
+        getControllerStats,
+        allocateWorkers,
+        allocateSlicer,
+        findAllWorkers,
+        shutdown,
+        initialize,
+        stopExecution,
+        pauseExecution,
+        resumeExecution,
+        recoverExecution,
+        removeWorkers,
+        addWorkers,
+        setWorkers,
+        createExecutionContext,
+        getExecutionContext,
+        isExecutionTerminal,
+        waitForExecutionStatus
+    };
 };

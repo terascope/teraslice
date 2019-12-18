@@ -17,7 +17,7 @@ const K8s = require('./k8s');
  aborted - when a job was running at the point when the cluster shutsdown
  */
 
-module.exports = async function kubernetesClusterBackend(context, clusterMasterServer) {
+module.exports = function kubernetesClusterBackend(context, clusterMasterServer) {
     const logger = makeLogger(context, 'kubernetes_cluster_service');
     // const slicerAllocationAttempts = context.sysconfig.teraslice.slicer_allocation_attempts;
 
@@ -33,13 +33,6 @@ module.exports = async function kubernetesClusterBackend(context, clusterMasterS
     clusterMasterServer.onClientOnline((exId) => {
         logger.info(`execution ${exId} is connected`);
     });
-
-    // Periodically update cluster state, update period controlled by:
-    //  context.sysconfig.teraslice.node_state_interval
-    clusterStateInterval = setInterval(() => {
-        logger.trace('cluster_master requesting cluster state update.');
-        _getClusterState();
-    }, context.sysconfig.teraslice.node_state_interval);
 
     /**
      * getClusterState returns a copy of the clusterState object
@@ -184,12 +177,24 @@ module.exports = async function kubernetesClusterBackend(context, clusterMasterS
         clearInterval(clusterStateInterval);
     }
 
-    logger.info('kubernetes clustering initializing');
-    await k8s.init();
+    async function initialize() {
+        logger.info('kubernetes clustering initializing');
+
+        // Periodically update cluster state, update period controlled by:
+        //  context.sysconfig.teraslice.node_state_interval
+        clusterStateInterval = setInterval(() => {
+            logger.trace('cluster_master requesting cluster state update.');
+            _getClusterState();
+        }, context.sysconfig.teraslice.node_state_interval);
+
+        await k8s.init();
+    }
+
     return {
         getClusterState,
         allocateWorkers,
         allocateSlicer,
+        initialize,
         shutdown,
         stopExecution,
         removeWorkers,

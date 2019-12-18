@@ -5,7 +5,6 @@ const {
     TSError,
     uniq,
     get,
-    logError,
     cloneDeep,
     isEmpty,
     getTypeOf,
@@ -15,7 +14,6 @@ const { JobValidator } = require('@terascope/job-components');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 const spawnAssetsLoader = require('../../workers/assets/spawn');
 const { terasliceOpPath } = require('../../config');
-const makeJobStore = require('../storage/jobs');
 
 /**
  * New execution result
@@ -24,10 +22,12 @@ const makeJobStore = require('../storage/jobs');
  * @property {string} ex_id
  */
 
-module.exports = async function jobsService(context) {
-    const jobStore = await makeJobStore(context);
+module.exports = function jobsService(context) {
+    let executionService;
+    let exStore;
+    let stateStore;
+    let jobStore;
 
-    const executionService = context.services.execution;
     const logger = makeLogger(context, 'jobs_service');
 
     const jobValidator = new JobValidator(context, {
@@ -122,6 +122,15 @@ module.exports = async function jobsService(context) {
             });
         }
 
+        const count = await stateStore.countRecoverySlices(recoverFrom.ex_id, -1, cleanupType);
+        if (!count) {
+            if (validJob.autorecover) {
+                return executionService.createExecutionContext(validJob);
+            }
+
+            throw new Error('No slices found to recover');
+        }
+
         return executionService.recoverExecution(
             // apply the latest job config changes
             defaultsDeep({}, validJob, recoverFrom),
@@ -192,8 +201,8 @@ module.exports = async function jobsService(context) {
      * @returns {Promise<import('@terascope/job-components').ExecutionConfig>}
     */
     async function _getActiveExecution(jobId, allowZeroResults) {
-        const str = executionService
-            .terminalStatusList()
+        const str = exStore
+            .getTerminalStatuses()
             .map((state) => ` _status:"${state}"`)
             .join(' OR ');
         const query = `job_id:"${jobId}" AND _context:ex NOT (${str.trim()})`;
@@ -216,9 +225,7 @@ module.exports = async function jobsService(context) {
     }
 
     async function shutdown() {
-        await jobStore.shutdown().catch((err) => {
-            logError(logger, err, 'Error while shutting down job stores');
-        });
+
     }
 
     async function addWorkers(jobId, workerCount) {
@@ -260,6 +267,19 @@ module.exports = async function jobsService(context) {
 
     async function initialize() {
         logger.info('job service is initializing...');
+
+        exStore = context.stores.execution;
+        jobStore = context.stores.jobs;
+        stateStore = context.stores.state;
+
+        if (jobStore == null || exStore == null || stateStore == null) {
+            throw new Error('Missing required stores');
+        }
+
+        executionService = context.services.execution;
+        if (executionService == null) {
+            throw new Error('Missing required services');
+        }
     }
 
     return {

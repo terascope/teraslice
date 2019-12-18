@@ -157,23 +157,64 @@ async function stateStorage(context) {
         }
     }
 
-    async function recoverSlices(exId, slicerId, cleanupType) {
-        let retryQuery = `ex_id:"${exId}" AND slicer_id:"${slicerId}"`;
-
-        if (cleanupType && cleanupType === RecoveryCleanupType.errors) {
-            retryQuery = `${retryQuery} AND state:"${SliceState.error}"`;
-        } else if (cleanupType && cleanupType === RecoveryCleanupType.pending) {
-            retryQuery = `${retryQuery} AND state:"${SliceState.pending}"`;
-        } else {
-            retryQuery = `${retryQuery} AND NOT state:"${SliceState.completed}"`;
+    /**
+     * @private
+     * @param {string} exId
+     * @param {number} slicerId
+     * @param {import('@terascope/job-components').RecoveryCleanupType} [cleanupType]
+     * @returns {string}
+    */
+    function _getRecoverSlicesQuery(exId, slicerId, cleanupType) {
+        let query = `ex_id:"${exId}"`;
+        if (slicerId !== -1) {
+            query = `${query} AND slicer_id:"${slicerId}"`;
         }
 
+        if (cleanupType && cleanupType === RecoveryCleanupType.errors) {
+            query = `${query} AND state:"${SliceState.error}"`;
+        } else if (cleanupType && cleanupType === RecoveryCleanupType.pending) {
+            query = `${query} AND state:"${SliceState.pending}"`;
+        } else {
+            query = `${query} AND NOT state:"${SliceState.completed}"`;
+        }
+        return query;
+    }
+
+    /**
+     * Count the number of slices to be recovered (for all slicers)
+     * @param {string} exId
+     * @param {import('@terascope/job-components').RecoveryCleanupType} [cleanupType]
+     * @returns {Promise<number>}
+    */
+    async function countRecoverySlices(exId, slicerId, cleanupType) {
+        const query = _getRecoverSlicesQuery(exId, slicerId, cleanupType);
         // Look for all slices that haven't been completed so they can be retried.
         try {
             await waitForClient();
             await backend.refresh(indexName);
 
-            const results = await backend.search(retryQuery, 0, 5000);
+            return backend.count(query, 0, 5000);
+        } catch (err) {
+            throw new TSError(err, {
+                reason: 'Failure to get recovered slices'
+            });
+        }
+    }
+
+    /**
+     * @param {string} exId
+     * @param {number} slicerId
+     * @param {import('@terascope/job-components').RecoveryCleanupType} [cleanupType]
+     * @returns {Promise<import('@terascope/job-components').Slice[]>}
+    */
+    async function recoverSlices(exId, slicerId, cleanupType) {
+        const query = _getRecoverSlicesQuery(exId, slicerId, cleanupType);
+        // Look for all slices that haven't been completed so they can be retried.
+        try {
+            await waitForClient();
+            await backend.refresh(indexName);
+
+            const results = await backend.search(query, 0, 5000);
             return results.map((doc) => ({
                 slice_id: doc.slice_id,
                 slicer_id: doc.slicer_id,
@@ -228,6 +269,7 @@ async function stateStorage(context) {
         updateState,
         recoverSlices,
         executionStartingSlice,
+        countRecoverySlices,
         count,
         countByState,
         waitForClient,
