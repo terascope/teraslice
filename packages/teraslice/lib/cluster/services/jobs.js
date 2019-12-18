@@ -1,5 +1,6 @@
 'use strict';
 
+const defaultsDeep = require('lodash/defaultsDeep');
 const {
     TSError,
     uniq,
@@ -34,6 +35,17 @@ module.exports = async function jobsService(context) {
 
     let jobStore;
 
+    /**
+     * Validate the job spec
+     *
+     * @returns {Promise<import('@terascope/job-components').ValidatedJobConfig>}
+    */
+    async function _validateJobSpec(jobSpec) {
+        const parsedAssetJob = await _ensureAssets(cloneDeep(jobSpec));
+        const validJob = await jobValidator.validateConfig(parsedAssetJob);
+        return validJob;
+    }
+
     async function submitJob(jobSpec, shouldRun) {
         if (jobSpec.job_id) {
             throw new TSError('Job cannot include a job_id on submit', {
@@ -41,24 +53,24 @@ module.exports = async function jobsService(context) {
             });
         }
 
-        const parsedAssetJob = await _ensureAssets(jobSpec);
-        const validJob = await _validateJob(parsedAssetJob);
+        const validJob = await _validateJobSpec(jobSpec);
         const job = await jobStore.create(jobSpec);
         if (!shouldRun) {
             return { job_id: job.job_id };
         }
-        const exConfig = Object.assign(jobSpec, validJob, {
+
+        const exConfig = Object.assign({}, jobSpec, validJob, {
             job_id: job.job_id
         });
         return executionService.createExecutionContext(exConfig);
     }
 
-    async function updateJob(jobId, updatedJob) {
-        const parsedUpdatedJob = await _ensureAssets(updatedJob);
-        await _validateJob(parsedUpdatedJob);
+    async function updateJob(jobId, jobSpec) {
+        await _validateJobSpec(jobSpec);
         const originalJob = await getJob(jobId);
-        updatedJob._created = originalJob._created;
-        return jobStore.update(jobId, updatedJob);
+        return jobStore.update(jobId, Object.assign({}, jobSpec, {
+            _created: originalJob._created
+        }));
     }
 
     /**
@@ -68,35 +80,67 @@ module.exports = async function jobsService(context) {
      * @returns {Promise<NewExecutionResult>}
     */
     async function startJob(jobId) {
-        const execution = await _getActiveExecution(jobId, true);
+        const activeExecution = await _getActiveExecution(jobId, true);
+
         // searching for an active execution, if there is then we reject
-        if (execution != null) {
+        if (activeExecution) {
             throw new TSError(`Job ${jobId} is currently running, cannot have the same job concurrently running`, {
                 statusCode: 409
             });
         }
 
-        const jobConfig = await getJob(jobId);
-        if (!jobConfig) {
-            throw new TSError(`Job ${jobId} not found`, {
-                statusCode: 404,
-            });
+        const jobSpec = await getJob(jobId);
+        const validJob = await _validateJobSpec(jobSpec);
+
+        if (validJob.autorecover) {
+            return _recoverValidJob(validJob);
         }
 
-        const parsedAssetJob = await _ensureAssets(jobConfig);
-        const validJob = await _validateJob(parsedAssetJob);
         return executionService.createExecutionContext(validJob);
     }
 
+    /**
+     * Recover a job using the valid configuration
+     *
+     * @private
+     * @param {import('@terascope/job-components').ValidatedJobConfig} validJob
+     * @param {import('@terascope/job-components').RecoveryCleanupType} [cleanupType]
+     * @returns {Promise<NewExecutionResult>}
+    */
+    async function _recoverValidJob(validJob, cleanupType) {
+        const recoverFrom = await getLatestExecution(validJob.job_id, undefined, true);
+
+        // if there isn't an execution and autorecover is true
+        // create a new execution else throw
+        if (!recoverFrom) {
+            if (validJob.autorecover) {
+                return executionService.createExecutionContext(validJob);
+            }
+
+            throw new TSError(`Job ${validJob.job_id} is missing an execution to recover from`, {
+                statusCode: 404
+            });
+        }
+
+        return executionService.recoverExecution(
+            // apply the latest job config changes
+            defaultsDeep({}, validJob, recoverFrom),
+            cleanupType
+        );
+    }
+
+    /**
+     * Recover a job, applied the last changes to the prev execution
+     *
+     * @param {string} jobId
+     * @param {import('@terascope/job-components').RecoveryCleanupType} [cleanupType]
+     * @returns {Promise<NewExecutionResult>}
+    */
     async function recoverJob(jobId, cleanupType) {
         // we need to do validations since the job config could change between recovery
         const jobSpec = await getJob(jobId);
-        const assetIdJob = await _ensureAssets(jobSpec);
-        await _validateJob(assetIdJob);
-        const execution = await getLatestExecution(jobId);
-        // apply the latest job config changes
-        Object.assign(execution, jobSpec);
-        return executionService.recoverExecution(execution, cleanupType);
+        const validJob = await _validateJobSpec(jobSpec);
+        return _recoverValidJob(validJob, cleanupType);
     }
 
     async function pauseJob(jobId) {
@@ -169,10 +213,6 @@ module.exports = async function jobsService(context) {
 
     async function getLatestExecutionId(jobId) {
         return getLatestExecution(jobId).then((ex) => ex.ex_id);
-    }
-
-    async function _validateJob(jobSpec) {
-        return jobValidator.validateConfig(jobSpec);
     }
 
     async function shutdown() {

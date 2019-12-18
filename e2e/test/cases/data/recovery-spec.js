@@ -18,7 +18,14 @@ describe('recovery', () => {
     let context;
     let specIndex;
     let recoverFromId;
+    /**
+     * @type {import('teraslice-client-js').Ex}
+    */
     let recoverFromEx;
+    /**
+     * @type {import('teraslice-client-js').Job}
+    */
+    let job;
 
     beforeAll(async () => {
         const sysconfig = await fse.readJSON(
@@ -136,6 +143,7 @@ describe('recovery', () => {
 
         recoverFromId = exConfig.ex_id;
         recoverFromEx = teraslice.executions.wrap(recoverFromId);
+        job = teraslice.jobs.wrap(exConfig.job_id);
     });
 
     it('can support different recovery mode cleanup=errors', async () => {
@@ -163,6 +171,19 @@ describe('recovery', () => {
 
     it('can support different recovery mode cleanup=pending', async () => {
         const newEx = await recoverFromEx.recover({ cleanup: 'pending' });
+        await Promise.all([
+            waitForExStatus(newEx, 'recovering'),
+            waitForExStatus(newEx, 'completed')
+        ]);
+
+        const stats = await misc.indexStats(specIndex);
+        expect(stats.count).toEqual(200);
+    });
+
+    it('can support autorecovery', async () => {
+        await job.updatePartial({ autorecover: true });
+        const { ex_id: newExId } = await job.start();
+        const newEx = teraslice.executions.wrap(newExId);
         await Promise.all([
             waitForExStatus(newEx, 'recovering'),
             waitForExStatus(newEx, 'completed')
