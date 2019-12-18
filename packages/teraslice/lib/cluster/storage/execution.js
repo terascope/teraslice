@@ -1,9 +1,9 @@
 'use strict';
 
 const {
-    TSError, pRetry, includes, cloneDeep, isString, getTypeOf
+    TSError, pRetry, includes, cloneDeep, isString, getTypeOf, makeISODate
 } = require('@terascope/utils');
-const uuid = require('uuid');
+const uuid = require('uuid/v4');
 const { RecoveryCleanupType } = require('@terascope/job-components');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
@@ -38,16 +38,17 @@ module.exports = async function executionStorage(context) {
         if (!_isValidStatus(status)) {
             throw new Error(`Unknown status "${status}" on execution create`);
         }
-        const date = new Date();
-        record.ex_id = uuid.v4();
-        record.metadata = {};
-        record._status = status;
-        record._context = jobType;
-        record._created = date;
-        record._updated = date;
-
+        const date = makeISODate();
+        const doc = Object.assign({}, record, {
+            ex_id: uuid(),
+            metadata: {},
+            _status: status,
+            _context: jobType,
+            _created: date,
+            _updated: date
+        });
         try {
-            await backend.create(record);
+            await backend.create(doc);
         } catch (err) {
             throw new TSError(err, {
                 reason: 'Failure to create execution context'
@@ -57,8 +58,13 @@ module.exports = async function executionStorage(context) {
     }
 
     function update(exId, updateSpec) {
-        updateSpec._updated = new Date();
-        return backend.update(exId, updateSpec);
+        return backend.update(exId, Object.assign(
+            {},
+            updateSpec,
+            {
+                _updated: makeISODate()
+            }
+        ));
     }
 
     function executionMetaData(stats, errMsg) {
