@@ -241,31 +241,35 @@ module.exports = async function executionStorage(context) {
     }
 
     /**
-     * We shouldn't be dependant on mutating the record
+     * @param {import('@terascope/job-components').ExecutionConfig} recoverFrom
+     * @param {RecoveryCleanupType} [cleanupType]
+     * @returns {Promise<import('@terascope/job-components').ExecutionConfig>}
     */
-    async function createRecoveredExecution(execution, cleanupType) {
-        if (!execution) {
-            throw new Error(`Invalid execution given, got ${getTypeOf(execution)}`);
+    async function createRecoveredExecution(recoverFrom, cleanupType) {
+        if (!recoverFrom) {
+            throw new Error(`Invalid execution given, got ${getTypeOf(recoverFrom)}`);
         }
-        if (!execution.ex_id) {
+        if (!recoverFrom.ex_id) {
             throw new Error('Unable to recover execution with missing ex_id');
         }
+        const recoverFromId = recoverFrom.ex_id;
 
-        const _execution = cloneDeep(execution);
+        const ex = cloneDeep(recoverFrom);
         if (cleanupType && !RecoveryCleanupType[cleanupType]) {
             throw new Error(`Unknown cleanup type "${cleanupType}" to recover`);
         }
 
-        _canRecover(execution);
-        _removeMetaData(execution);
+        _canRecover(ex);
+        _removeMetaData(ex);
 
-        execution.recovered_execution = _execution.ex_id;
+        ex.recovered_execution = recoverFromId;
         if (cleanupType) {
-            execution.recovered_slice_type = cleanupType;
+            ex.recovered_slice_type = cleanupType;
+        } else if (ex.autorecover) {
+            ex.recovered_slice_type = RecoveryCleanupType.pending;
         }
 
-        const ex = await create(execution);
-        return ex;
+        return create(ex);
     }
 
     const api = {

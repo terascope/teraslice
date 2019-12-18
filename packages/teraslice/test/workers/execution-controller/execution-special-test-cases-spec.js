@@ -171,7 +171,7 @@ describe('ExecutionController Special Tests', () => {
             'when recovering a slicer with a cleanup type of pending',
             {
                 slicerResults: [
-                    { example: 'slice-recovery-error-after' },
+                    { example: 'slice-recovery-pending-after' },
                     null
                 ],
                 isRecovery: true,
@@ -233,6 +233,73 @@ describe('ExecutionController Special Tests', () => {
             }
         ],
         [
+            'when autorecovering a slicer with a cleanup type of pending',
+            {
+                slicerResults: [
+                    { example: 'slice-autorecover-pending-after-1' },
+                    { example: 'slice-autorecover-pending-after-2' },
+                    { example: 'slice-autorecover-pending-after-3' },
+                    null
+                ],
+                autorecover: true,
+                isRecovery: true,
+                recoverySlices: [
+                    {
+                        state: 'completed',
+                        slice: {
+                            slice_id: uuidv4(),
+                            request: {
+                                example: 'slice-autorecover-pending-completed'
+                            },
+                            slicer_id: 0,
+                            slicer_order: 0,
+                            _created: new Date().toISOString()
+                        }
+                    },
+                    {
+                        state: 'start',
+                        slice: {
+                            slice_id: uuidv4(),
+                            request: {
+                                example: 'slice-autorecover-pending-start'
+                            },
+                            slicer_id: 0,
+                            slicer_order: 1,
+                            _created: new Date().toISOString()
+                        }
+                    },
+                    {
+                        state: 'pending',
+                        slice: {
+                            slice_id: uuidv4(),
+                            request: {
+                                example: 'slice-autorecover-pending'
+                            },
+                            slicer_id: 0,
+                            slicer_order: 2,
+                            _created: new Date().toISOString()
+                        }
+                    },
+                    {
+                        state: 'pending',
+                        slice: {
+                            slice_id: uuidv4(),
+                            request: {
+                                example: 'slice-autorecover-pending'
+                            },
+                            slicer_id: 0,
+                            slicer_order: 3,
+                            _created: new Date().toISOString()
+                        }
+                    }
+                ],
+                incompleteSliceCount: 1,
+                completedSliceCount: 6,
+                processedSliceCount: 5,
+                analytics: false
+            }
+        ],
+        [
             'when processing slices and the execution gets shutdown early',
             {
                 slicerResults: [
@@ -270,6 +337,7 @@ describe('ExecutionController Special Tests', () => {
             shutdownEarly = false,
             cleanupType,
             isRecovery = false,
+            autorecover = false,
             recoverySlices = []
         } = options;
 
@@ -297,6 +365,7 @@ describe('ExecutionController Special Tests', () => {
                 timeout: reconnect ? 5000 : 3000,
                 lifecycle,
                 workers,
+                autorecover,
                 analytics
             });
 

@@ -11,6 +11,7 @@ function recoveryModule(context, stateStore, executionContext) {
 
     const cleanupType = executionContext.config.recovered_slice_type;
     const recoverExecution = executionContext.config.recovered_execution;
+    const autorecover = Boolean(executionContext.config.autorecover);
     const { exId } = executionContext;
 
     let recoverComplete = true;
@@ -158,9 +159,16 @@ function recoveryModule(context, stateStore, executionContext) {
         return recoverComplete;
     }
 
-    // if cleanup is set, it implies that it should not continue after recovery
+    /**
+     * Whether or not the execution will continue to process
+     * slices after recovering.
+     *
+     * @returns {boolean}
+    */
     function exitAfterComplete() {
-        return cleanupType != null;
+        if (autorecover) return false;
+        if (!cleanupType) return false;
+        return true;
     }
 
     function testContext() {

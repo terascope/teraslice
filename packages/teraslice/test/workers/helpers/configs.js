@@ -59,6 +59,7 @@ const newConfig = (options = {}) => {
         assets = [],
         workers = 1,
         slicers = 1,
+        autorecover = false,
         recoveredExecution,
         recoveredSliceType,
         probationWindow = 5000
@@ -73,6 +74,7 @@ const newConfig = (options = {}) => {
         lifecycle,
         max_retries: maxRetries,
         operations,
+        autorecover,
         performance_metrics: false,
         recovered_execution: recoveredExecution,
         recovered_slice_type: recoveredSliceType,

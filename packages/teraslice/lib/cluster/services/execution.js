@@ -337,7 +337,7 @@ module.exports = async function executionService(context, { clusterMasterServer 
     async function recoverExecution(exIdOrEx, cleanupType) {
         const recoverFromEx = isString(exIdOrEx)
             ? await getExecutionContext(exIdOrEx)
-            : cloneDeep(exIdOrEx);
+            : exIdOrEx;
 
         const ex = await exStore.createRecoveredExecution(recoverFromEx, cleanupType);
         enqueue(ex);

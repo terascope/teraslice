@@ -43,13 +43,16 @@ async function initializeTestExecution({
     let ex;
     if (isRecovery) {
         ex = await exStore.create(jobConfig, lastStatus);
-        const promises = recoverySlices.map((recoverySlice) => {
-            const { slice, state } = recoverySlice;
-            return stateStore.createState(ex.ex_id, slice, state, slice.error);
-        });
 
-        await Promise.all(promises);
-        await stateStore.refresh();
+        if (recoverySlices.length) {
+            await Promise.all(recoverySlices.map(({ slice, state }) => stateStore.createState(
+                ex.ex_id,
+                slice,
+                state,
+                slice.error
+            )));
+            await stateStore.refresh();
+        }
 
         if (createRecovery) {
             ex = await exStore.createRecoveredExecution(ex, cleanupType);
