@@ -247,8 +247,7 @@ async function stateStorage(context) {
         storageName: 'state'
     };
 
-    const elasticsearch = await elasticsearchBackend(backendConfig);
-    backend = elasticsearch;
+    backend = await elasticsearchBackend(backendConfig);
     logger.info('state storage initialized');
     return api;
 }

@@ -35,11 +35,12 @@ const makeExStore = require('../storage/execution');
  */
 
 module.exports = async function executionService(context, { clusterMasterServer }) {
+    const exStore = await makeExStore(context);
+
     const logger = makeLogger(context, 'execution_service');
     const pendingExecutionQueue = new Queue();
     const isNative = context.sysconfig.teraslice.cluster_manager_type === 'native';
 
-    let exStore;
     let clusterService;
     let allocateInterval;
 
@@ -359,6 +360,7 @@ module.exports = async function executionService(context, { clusterMasterServer 
         allocateSlicer,
         findAllWorkers,
         shutdown,
+        initialize,
         stopExecution,
         pauseExecution,
         resumeExecution,
@@ -425,7 +427,10 @@ module.exports = async function executionService(context, { clusterMasterServer 
         };
     }
 
-    async function _initialize() {
+    async function initialize() {
+        logger.info('execution service is initializing...');
+        clusterService = await clusterModule(context, clusterMasterServer, api);
+
         // listen for an execution finished events
         clusterMasterServer.onExecutionFinished(finishExecution);
 
@@ -446,9 +451,5 @@ module.exports = async function executionService(context, { clusterMasterServer 
         allocateInterval = setInterval(_executionAllocator(), 1000);
     }
 
-    exStore = await makeExStore(context);
-    logger.info('execution service is initializing...');
-    clusterService = await clusterModule(context, clusterMasterServer, api);
-    await _initialize();
     return api;
 };

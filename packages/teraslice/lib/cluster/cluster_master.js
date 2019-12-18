@@ -5,9 +5,10 @@ const request = require('request');
 const { pDelay, logError, get } = require('@terascope/utils');
 const { ClusterMaster } = require('@terascope/teraslice-messaging');
 const { makeLogger } = require('../workers/helpers/terafoundation');
-const ExecutionService = require('./services/execution');
-const APIService = require('./services/api');
-const JobService = require('./services/jobs');
+const makeExecutionService = require('./services/execution');
+const makeApiService = require('./services/api');
+const makeStateService = require('./services/state');
+const makeJobService = require('./services/jobs');
 
 module.exports = function _clusterMaster(context) {
     const logger = makeLogger(context, 'cluster_master');
@@ -66,32 +67,43 @@ module.exports = function _clusterMaster(context) {
         });
     }
 
+    let apiService;
+
     return {
         async initialize() {
             try {
                 await clusterMasterServer.start();
                 logger.info(`cluster master listening on port ${clusterConfig.port}`);
 
-                const executionService = await ExecutionService(context, { clusterMasterServer });
-                logger.debug('execution service has been instantiated');
-                context.services.execution = executionService;
+                const [
+                    execution,
+                    jobs,
+                    state,
+                ] = await Promise.all([
+                    makeExecutionService(context, { clusterMasterServer }),
+                    makeJobService(context),
+                    makeStateService(context),
+                ]);
 
-                const jobsService = await JobService(context);
-                logger.debug('job service has been instantiated');
-                context.services.jobs = jobsService;
+                logger.debug('services has been instantiated');
+
+                context.services.execution = execution;
+                context.services.jobs = jobs;
+                context.services.state = state;
+
+                await Promise.all(Object.values(context.services)
+                    .map((service) => service.initialize()));
+                logger.debug('services has been initialized');
 
                 // give the assets service a bit to come up
                 const fiveMinutes = 5 * 60 * 1000;
                 await waitForAssetsService(Date.now() + fiveMinutes);
 
-                const apiService = await APIService(context, app, {
+                // this must be last
+                apiService = await makeApiService(context, app, {
                     assetsUrl,
                     clusterMasterServer
                 });
-                logger.debug('api service has been instantiated');
-
-                context.services.api = apiService;
-
                 logger.info('cluster master is ready!');
                 running = true;
             } catch (err) {
@@ -119,6 +131,8 @@ module.exports = function _clusterMaster(context) {
 
             logger.info('cluster_master is shutting down');
             clusterMasterServer.isShuttingDown = true;
+
+            await apiService.shutdown();
 
             await Promise.all(Object.entries(context.services)
                 .map(async ([name, service]) => {

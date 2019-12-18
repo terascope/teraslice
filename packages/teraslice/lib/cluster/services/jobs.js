@@ -25,6 +25,8 @@ const makeJobStore = require('../storage/jobs');
  */
 
 module.exports = async function jobsService(context) {
+    const jobStore = await makeJobStore(context);
+
     const executionService = context.services.execution;
     const logger = makeLogger(context, 'jobs_service');
 
@@ -32,8 +34,6 @@ module.exports = async function jobsService(context) {
         terasliceOpPath,
         assetPath: get(context, 'sysconfig.teraslice.assets_directory'),
     });
-
-    let jobStore;
 
     /**
      * Validate the job spec
@@ -216,10 +216,8 @@ module.exports = async function jobsService(context) {
     }
 
     async function shutdown() {
-        return jobStore.shutdown().catch((err) => {
+        await jobStore.shutdown().catch((err) => {
             logError(logger, err, 'Error while shutting down job stores');
-            // no matter what we need to shutdown
-            return true;
         });
     }
 
@@ -260,8 +258,10 @@ module.exports = async function jobsService(context) {
         return parsedAssetJob;
     }
 
-    jobStore = await makeJobStore(context);
-    logger.info('job service is initializing...');
+    async function initialize() {
+        logger.info('job service is initializing...');
+    }
+
     return {
         submitJob,
         updateJob,
@@ -276,6 +276,7 @@ module.exports = async function jobsService(context) {
         setWorkers,
         getLatestExecutionId,
         getLatestExecution,
+        initialize,
         shutdown,
     }; // Load the initial pendingJobs state.
 };

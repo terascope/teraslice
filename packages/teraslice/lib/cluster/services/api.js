@@ -16,17 +16,16 @@ const {
     handleRequest,
     getSearchOptions,
 } = require('../../utils/api_utils');
-const makeStateStore = require('../storage/state');
 const terasliceVersion = require('../../../package.json').version;
 
 module.exports = async function makeAPI(context, app, options) {
-    const { assetsUrl, stateStore: _stateStore } = options;
+    const { assetsUrl } = options;
     const clusterType = context.sysconfig.teraslice.cluster_manager_type;
     const logger = makeLogger(context, 'api_service');
     const executionService = context.services.execution;
     const jobsService = context.services.jobs;
+    const stateService = context.services.state;
     const v1routes = new Router();
-    const stateStore = _stateStore || await makeStateStore(context);
 
     app.use(bodyParser.json({
         type(req) {
@@ -230,7 +229,7 @@ module.exports = async function makeAPI(context, app, options) {
             const exId = await _getExIdFromRequest(req, true);
 
             const query = `state:error AND ex_id:"${exId}"`;
-            return stateStore.search(query, from, size, sort);
+            return stateService.search(query, from, size, sort);
         });
     });
 
