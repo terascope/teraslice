@@ -47,7 +47,7 @@ function _deprecateSlicerName(fn: () => Promise<ControllerState>) {
 }
 
 export default class Job extends Client {
-    private _jobId: string;
+    private readonly _jobId: string;
 
     constructor(config: ClientConfig, jobId: string) {
         super(config);
@@ -101,8 +101,14 @@ export default class Job extends Client {
         return this.post(`/jobs/${this._jobId}/_recover`, null, options);
     }
 
-    async update(jobSpec: JobConfig): Promise<JobIDResponse> {
+    async update(jobSpec: JobConfiguration): Promise<JobConfiguration> {
         return this.put(`/jobs/${this._jobId}`, jobSpec);
+    }
+
+    async updatePartial(jobSpec: Partial<JobConfiguration|JobConfig>): Promise<JobConfiguration> {
+        const current = await this.config();
+        const body: JobConfiguration = Object.assign({}, current, jobSpec);
+        return this.update(body);
     }
 
     async execution(requestOptions: RequestOptions = {}): Promise<Execution> {

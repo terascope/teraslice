@@ -165,6 +165,7 @@ export type ClusterProcess = NativeProcess | KubernetesProcess;
 */
 
 export interface JobConfiguration extends ValidatedJobConfig {
+    job_id: string;
     _context: 'job';
     _created: string;
     _updated: string;

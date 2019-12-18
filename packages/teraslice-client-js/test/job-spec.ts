@@ -5,7 +5,8 @@ import {
     ExecutionStatus,
     Execution,
     ClusterStateNative,
-    WorkerJobProcesses
+    WorkerJobProcesses,
+    JobConfiguration
 } from '../src/interfaces';
 
 describe('Teraslice Job', () => {
@@ -309,10 +310,13 @@ describe('Teraslice Job', () => {
     });
 
     describe('->update', () => {
-        describe('when with a job config', () => {
+        describe('when updating the whole config', () => {
             const body = newTestJobConfig({
                 name: 'hello',
-            });
+            }) as JobConfiguration;
+            body.job_id = 'some-job-id';
+            body._created = 'hello';
+            body._updated = 'hello';
 
             beforeEach(() => {
                 scope.put('/jobs/some-job-id', body as any)
@@ -323,6 +327,34 @@ describe('Teraslice Job', () => {
                 const job = new Job({ baseUrl }, 'some-job-id');
                 const result = await job.update(body);
                 expect(result).toEqual(body);
+            });
+        });
+    });
+
+    describe('->updatePartial', () => {
+        describe('when updating a partial config', () => {
+            const body = newTestJobConfig({
+                name: 'hello',
+            }) as JobConfiguration;
+            body.job_id = 'some-job-id';
+            body._created = 'hello';
+            body._updated = 'hello';
+            const expected = {
+                ...body,
+                name: 'howdy'
+            };
+
+            beforeEach(() => {
+                scope.get('/jobs/some-job-id')
+                    .reply(200, body);
+                scope.put('/jobs/some-job-id', expected as any)
+                    .reply(200, expected);
+            });
+
+            it('should resolve the update job config', async () => {
+                const job = new Job({ baseUrl }, 'some-job-id');
+                const result = await job.updatePartial({ name: 'howdy' });
+                expect(result).toEqual(expected);
             });
         });
     });

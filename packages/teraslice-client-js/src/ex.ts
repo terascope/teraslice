@@ -32,7 +32,7 @@ import {
 } from './interfaces';
 
 export default class Ex extends Client {
-    private _exId: string;
+    private readonly _exId: string;
 
     constructor(config: ClientConfig, exId: string) {
         validateExId(exId);
