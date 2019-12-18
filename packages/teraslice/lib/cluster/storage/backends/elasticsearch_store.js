@@ -60,6 +60,17 @@ module.exports = function elasticsearchStorage(backendConfig) {
         }
     }
 
+    function validateIdAndRecord(recordId, record) {
+        validateId(recordId);
+
+        const id = record[idField];
+        if (id && id !== recordId) {
+            throw new TSError(`${recordType}.${idField} doesn't match request id`, {
+                statusCode: 406
+            });
+        }
+    }
+
     async function getRecord(recordId, indexArg, fields) {
         validateId(recordId);
 
@@ -128,7 +139,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
      * If the document is already there it will be replaced.
      */
     async function indexWithId(recordId, record, indexArg = indexName) {
-        validateId(recordId);
+        validateIdAndRecord(recordId, record);
 
         logger.trace(`indexWithId call with id: ${recordId}, record`, logRecord ? record : null);
         const query = {
@@ -177,7 +188,8 @@ module.exports = function elasticsearchStorage(backendConfig) {
     }
 
     async function update(recordId, updateSpec, indexArg = indexName) {
-        validateId(recordId);
+        validateIdAndRecord(recordId, updateSpec);
+
         logger.trace(`updating record ${recordId}, `, logRecord ? updateSpec : null);
 
         const query = {
