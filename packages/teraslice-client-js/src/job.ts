@@ -7,6 +7,7 @@ import {
     TSError,
     Assignment,
     toHumanTime,
+    JobConfig,
 } from '@terascope/job-components';
 import {
     ClientConfig,
@@ -98,6 +99,10 @@ export default class Job extends Client {
     ): Promise<JobIDResponse> {
         const options = this.makeOptions(query, searchOptions);
         return this.post(`/jobs/${this._jobId}/_recover`, null, options);
+    }
+
+    async update(jobSpec: JobConfig): Promise<JobIDResponse> {
+        return this.put(`/jobs/${this._jobId}`, jobSpec);
     }
 
     async execution(requestOptions: RequestOptions = {}): Promise<Execution> {

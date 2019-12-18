@@ -12,8 +12,10 @@ describe('Teraslice Ex', () => {
     const baseUrl = 'http://teraslice.example.dev/v1';
 
     beforeEach(() => {
+        nock.cleanAll();
         scope = nock(baseUrl);
     });
+
     const requestOptions = { headers: { 'Random-Header': 'true' } };
 
     const clusterState: ClusterStateNative = {

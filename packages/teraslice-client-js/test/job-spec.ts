@@ -1,5 +1,5 @@
 import nock from 'nock';
-import { RecoveryCleanupType } from '@terascope/job-components';
+import { RecoveryCleanupType, newTestJobConfig } from '@terascope/job-components';
 import Job from '../src/job';
 import {
     ExecutionStatus,
@@ -13,8 +13,10 @@ describe('Teraslice Job', () => {
     const baseUrl = 'http://teraslice.example.dev/v1';
 
     beforeEach(() => {
+        nock.cleanAll();
         scope = nock(baseUrl);
     });
+
     const requestOptions = { headers: { 'Some-Header': 'yes' } };
 
     const clusterState: ClusterStateNative = {
@@ -276,7 +278,7 @@ describe('Teraslice Job', () => {
         });
     });
 
-    describe('->execuction', () => {
+    describe('->execution', () => {
         const exJobId = executionResults[0].job_id;
         describe('when called with nothing', () => {
             beforeEach(() => {
@@ -302,6 +304,25 @@ describe('Teraslice Job', () => {
                 const job = new Job({ baseUrl }, exJobId);
                 const results = await job.execution(requestOptions);
                 expect(results).toEqual(executionResults);
+            });
+        });
+    });
+
+    describe('->update', () => {
+        describe('when with a job config', () => {
+            const body = newTestJobConfig({
+                name: 'hello',
+            });
+
+            beforeEach(() => {
+                scope.put('/jobs/some-job-id', body as any)
+                    .reply(200, body);
+            });
+
+            it('should resolve the update job config', async () => {
+                const job = new Job({ baseUrl }, 'some-job-id');
+                const result = await job.update(body);
+                expect(result).toEqual(body);
             });
         });
     });
