@@ -63,6 +63,7 @@ describe('reindex', () => {
 
         jobSpec.name = `reindex ${iterations} times`;
         jobSpec.operations[0].index = misc.getExampleIndex(100);
+        jobSpec.operations[0].interval = '1s';
         jobSpec.operations[1].index = specIndex;
 
         const promises = _.times(iterations, async () => {
