@@ -36,7 +36,18 @@ async function stateStorage(context) {
     const indexName = `${_index}*`;
     const timeseriesFormat = config.index_rollover_frequency.state;
 
-    let backend;
+    const backendConfig = {
+        context,
+        indexName,
+        recordType,
+        idField: 'slice_id',
+        fullResponse: false,
+        logRecord: true,
+        forceRefresh: false,
+        storageName: 'state'
+    };
+
+    const backend = await elasticsearchBackend(backendConfig);
 
     async function createState(exId, slice, state, error) {
         await waitForClient();
@@ -262,7 +273,8 @@ async function stateStorage(context) {
         return backend.waitForClient();
     }
 
-    const api = {
+    logger.info('state storage initialized');
+    return {
         search,
         createState,
         createSlices,
@@ -277,21 +289,6 @@ async function stateStorage(context) {
         shutdown,
         refresh,
     };
-
-    const backendConfig = {
-        context,
-        indexName,
-        recordType,
-        idField: 'slice_id',
-        fullResponse: false,
-        logRecord: true,
-        forceRefresh: false,
-        storageName: 'state'
-    };
-
-    backend = await elasticsearchBackend(backendConfig);
-    logger.info('state storage initialized');
-    return api;
 }
 
 stateStorage.SliceState = SliceState;

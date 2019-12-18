@@ -16,7 +16,18 @@ module.exports = async function analyticsService(context) {
     const indexName = `${_index}*`;
     const timeseriesFormat = config.index_rollover_frequency.analytics;
 
-    let backend;
+    const backendConfig = {
+        context,
+        indexName,
+        recordType: 'analytics',
+        idField: '_id',
+        fullResponse: false,
+        logRecord: false,
+        forceRefresh: false,
+        storageName: 'analytics',
+    };
+
+    const backend = await elasticsearchBackend(backendConfig);
 
     async function log(job, sliceInfo, stats, state = 'completed') {
         const indexData = timeseriesIndex(timeseriesFormat, _index);
@@ -80,7 +91,8 @@ module.exports = async function analyticsService(context) {
         return backend.waitForClient();
     }
 
-    const api = {
+    logger.info('analytics storage initialized');
+    return {
         log,
         get: getRecord,
         search,
@@ -91,19 +103,4 @@ module.exports = async function analyticsService(context) {
         waitForClient,
         verifyClient,
     };
-
-    const backendConfig = {
-        context,
-        indexName,
-        recordType: 'analytics',
-        idField: '_id',
-        fullResponse: false,
-        logRecord: false,
-        forceRefresh: false,
-        storageName: 'analytics',
-    };
-
-    backend = await elasticsearchBackend(backendConfig);
-    logger.info('analytics storage initialized');
-    return api;
 };

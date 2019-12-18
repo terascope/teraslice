@@ -15,14 +15,26 @@ module.exports = async function jobsStorage(context) {
     const jobType = 'job';
     const indexName = `${config.name}__jobs`;
 
-    let backend;
+    const backendConfig = {
+        context,
+        indexName,
+        recordType: 'job',
+        idField: 'job_id',
+        fullResponse: false,
+        logRecord: false,
+        storageName: 'jobs'
+    };
+
+    const backend = await elasticsearchBackend(backendConfig);
 
     async function getJob(jobId) {
         return backend.get(jobId);
     }
 
     async function search(query, from, size, sort) {
-        return backend.search(query, from, size, sort);
+        let _size = 10000;
+        if (size == null) _size = size;
+        return backend.search(query, from, _size, sort);
     }
 
     async function create(record) {
@@ -73,7 +85,8 @@ module.exports = async function jobsStorage(context) {
         return backend.waitForClient();
     }
 
-    const api = {
+    logger.info('job storage initialized');
+    return {
         get: getJob,
         search,
         create,
@@ -83,18 +96,4 @@ module.exports = async function jobsStorage(context) {
         waitForClient,
         shutdown
     };
-
-    const backendConfig = {
-        context,
-        indexName,
-        recordType: 'job',
-        idField: 'job_id',
-        fullResponse: false,
-        logRecord: false,
-        storageName: 'jobs'
-    };
-
-    backend = await elasticsearchBackend(backendConfig);
-    logger.info('job storage initialized');
-    return api;
 };

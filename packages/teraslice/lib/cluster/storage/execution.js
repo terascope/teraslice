@@ -23,7 +23,17 @@ module.exports = async function executionStorage(context) {
     const jobType = 'ex';
     const indexName = `${config.name}__ex`;
 
-    let backend;
+    const backendConfig = {
+        context,
+        indexName,
+        recordType: 'ex',
+        idField: 'ex_id',
+        fullResponse: false,
+        logRecord: false,
+        storageName: 'execution'
+    };
+
+    const backend = await elasticsearchBackend(backendConfig);
 
     async function getExecution(exId) {
         if (!exId) throw new Error('Execution.get() requires a exId');
@@ -299,7 +309,9 @@ module.exports = async function executionStorage(context) {
         return create(ex);
     }
 
-    const api = {
+    logger.info('execution storage initialized');
+    _addMetadataFns(context);
+    return {
         get: getExecution,
         search,
         create,
@@ -320,19 +332,4 @@ module.exports = async function executionStorage(context) {
         waitForClient,
         verifyClient,
     };
-
-    const backendConfig = {
-        context,
-        indexName,
-        recordType: 'ex',
-        idField: 'ex_id',
-        fullResponse: false,
-        logRecord: false,
-        storageName: 'execution'
-    };
-
-    backend = await elasticsearchBackend(backendConfig);
-    logger.info('execution storage initialized');
-    _addMetadataFns(context);
-    return api;
 };

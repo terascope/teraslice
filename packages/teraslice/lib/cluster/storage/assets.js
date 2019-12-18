@@ -19,7 +19,18 @@ module.exports = async function assetsStore(context) {
     const assetsPath = config.assets_directory;
     const indexName = `${config.name}__assets`;
 
-    let backend;
+    const backendConfig = {
+        context,
+        indexName,
+        recordType: 'asset',
+        idField: 'id',
+        fullResponse: true,
+        logRecord: false,
+        storageName: 'assets'
+    };
+
+    await ensureAssetDir();
+    const backend = await elasticsearchBackend(backendConfig);
 
     async function _assetExistsInFS(id) {
         try {
@@ -257,7 +268,8 @@ module.exports = async function assetsStore(context) {
         return backend.waitForClient();
     }
 
-    const api = {
+    logger.info('assets storage initialized');
+    return {
         save,
         search,
         get: getAsset,
@@ -268,20 +280,4 @@ module.exports = async function assetsStore(context) {
         waitForClient,
         verifyClient,
     };
-
-    const backendConfig = {
-        context,
-        indexName,
-        recordType: 'asset',
-        idField: 'id',
-        fullResponse: true,
-        logRecord: false,
-        storageName: 'assets'
-    };
-
-    await ensureAssetDir();
-    backend = await elasticsearchBackend(backendConfig);
-
-    logger.info('assets storage initialized');
-    return api;
 };
