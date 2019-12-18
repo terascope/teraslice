@@ -75,27 +75,32 @@ export function pointInGeoShape(searchPoint: any) {
     };
 }
 
-export function makePolygon(points: GeoPoint[]) {
-    const polyPoints = points.map(makeCoordinatesFromGeoPoint);
-    const line = lineString(polyPoints);
-    return lineToPolygon(line);
+export function makeShape(geoShape: JoinGeoShape) {
+    let feature: any;
+    if (isGeoShapePoint(geoShape)) {
+        return tPoint(geoShape.coordinates);
+    }
+
+    if (isGeoShapeMultiPolygon(geoShape)) {
+        return multiPolygon(geoShape.coordinates);
+    }
+
+    if (isGeoShapePolygon(geoShape)) {
+        // for backwards compatability, need to support 3-point polygons
+        if (geoShape.coordinates[0].length === 3) {
+            const line = lineString(geoShape.coordinates[0]);
+            return lineToPolygon(line);
+        }
+        return tPolygon(geoShape.coordinates);
+    }
+
+    return feature;
 }
 
 export function polyHasShape(queryPolygon: any, relation: GeoShapeRelation) {
     const match = getRelationFn(relation, queryPolygon);
     return (fieldData: JoinGeoShape) => {
-        let feature: any;
-        if (isGeoShapePoint(fieldData)) {
-            feature = tPoint(fieldData.coordinates);
-        }
-
-        if (isGeoShapeMultiPolygon(fieldData)) {
-            feature = multiPolygon(fieldData.coordinates);
-        }
-
-        if (isGeoShapePolygon(fieldData)) {
-            feature = tPolygon(fieldData.coordinates);
-        }
+        const feature = makeShape(fieldData);
         // Nothing matches so return false
         if (!feature) return false;
         try {
