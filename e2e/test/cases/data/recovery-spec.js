@@ -183,13 +183,19 @@ describe('recovery', () => {
     it('can support autorecovery', async () => {
         await job.updatePartial({ autorecover: true });
         const { ex_id: newExId } = await job.start();
+        expect(newExId).not.toBe(recoverFromId);
+
         const newEx = teraslice.executions.wrap(newExId);
         await Promise.all([
             waitForExStatus(newEx, 'recovering'),
-            waitForExStatus(newEx, 'completed')
+            // give the execution time to run for second
+            // after recovering
+            waitForExStatus(newEx, 'running', 5000)
         ]);
 
+        await job.stop({ blocking: true });
+
         const stats = await misc.indexStats(specIndex);
-        expect(stats.count).toEqual(200);
+        expect(stats.count).toBeGreaterThan(200);
     });
 });

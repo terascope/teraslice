@@ -397,6 +397,7 @@ module.exports = async function executionService(context, { clusterMasterServer 
                     slicer_port: execution.slicer_port,
                     slicer_hostname: execution.slicer_hostname
                 });
+
                 try {
                     await allocateWorkers(execution, execution.workers);
                 } catch (err) {
