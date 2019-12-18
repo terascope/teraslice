@@ -48,8 +48,19 @@ describe('Scheduler', () => {
         scheduler = new Scheduler(testContext.context, testContext.executionContext);
 
         scheduler.stateStore = {
+            async getStartingPoints(exId, slicerIds) {
+                if (exId !== testContext.exId) {
+                    throw new Error(`Got invalid ex_id ${exId}`);
+                }
+                if (slicerIds !== slicers) {
+                    throw new Error(`Got invalid slicer ids, ${slicerIds.join(' ')}`);
+                }
+            },
             createState: () => pDelay(0),
             createSlices: async (exId, slices) => {
+                if (exId !== testContext.exId) {
+                    throw new Error(`Got invalid ex_id ${exId}`);
+                }
                 await pDelay(0);
                 return slices.length;
             }
@@ -199,9 +210,6 @@ describe('Scheduler', () => {
                         emitDone();
                     }
                     return result;
-                },
-                getSlicerStartingPosition() {
-                    return Promise.resolve([]);
                 },
                 recoveryComplete() {
                     if (!recoveryRecords.length) {

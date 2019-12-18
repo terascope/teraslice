@@ -10,6 +10,7 @@ const {
     isRetryableError,
     parseErrorInfo,
     isTest,
+    times,
     getFullErrorStack,
 } = require('@terascope/utils');
 const { timeseriesIndex } = require('../utils/date_utils');
@@ -147,17 +148,27 @@ async function stateStorage(context) {
         });
     }
 
-    async function executionStartingSlice(exId, slicerId) {
+    /**
+     * Get the starting position for the slicer
+     *
+     * @param {string} exId
+     * @param {number} slicerId
+     * @returns {Promise<import('@terascope/job-components').SlicerRecoveryData>}
+    */
+    async function _getSlicerStartingPoint(exId, slicerId) {
         const startQuery = `ex_id:"${exId}" AND slicer_id:"${slicerId}" AND state:${SliceState.completed}`;
-        const recoveryData = {};
-
         await waitForClient();
 
         try {
-            const startingData = await backend.search(startQuery, 0, 1, 'slicer_order:desc');
-            if (startingData.length > 0) {
-                recoveryData.lastSlice = JSON.parse(startingData[0].request);
-                logger.info(`last slice process for slicer_id ${slicerId}, ex_id: ${exId} is`, recoveryData.lastSlice);
+            const [slice] = await search(startQuery, 0, 1, 'slicer_order:desc');
+            const recoveryData = {
+                slicer_id: slicerId,
+                lastSlice: undefined
+            };
+
+            if (slice) {
+                recoveryData.lastSlice = JSON.parse(slice.request);
+                logger.info(`last slice process for slicer_id ${slicerId}, ex_id: ${exId} is`, slice.lastSlice);
             }
 
             return recoveryData;
@@ -166,6 +177,18 @@ async function stateStorage(context) {
                 reason: 'Failure getting the newest record'
             });
         }
+    }
+
+    /**
+     * Get the starting positions for all of the slicers
+     *
+     * @param {string} exId
+     * @param {number} slicer
+     * @returns {Promise<import('@terascope/job-components').SlicerRecoveryData[]>}
+    */
+    async function getStartingPoints(exId, slicers) {
+        const recoveredSlices = times(slicers, (i) => _getSlicerStartingPoint(exId, i));
+        return Promise.all(recoveredSlices);
     }
 
     /**
@@ -280,7 +303,7 @@ async function stateStorage(context) {
         createSlices,
         updateState,
         recoverSlices,
-        executionStartingSlice,
+        getStartingPoints,
         countRecoverySlices,
         count,
         countByState,

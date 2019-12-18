@@ -76,6 +76,7 @@ const newConfig = (options = {}) => {
         operations,
         autorecover,
         performance_metrics: false,
+        previous_execution: recoveredExecution,
         recovered_execution: recoveredExecution,
         recovered_slice_type: recoveredSliceType,
         ex_id: newId('ex-id', true),

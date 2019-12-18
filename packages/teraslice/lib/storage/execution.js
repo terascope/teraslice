@@ -299,6 +299,7 @@ module.exports = async function executionStorage(context) {
         _canRecover(ex);
         _removeMetaData(ex);
 
+        ex.previous_execution = recoverFromId;
         ex.recovered_execution = recoverFromId;
         if (cleanupType) {
             ex.recovered_slice_type = cleanupType;

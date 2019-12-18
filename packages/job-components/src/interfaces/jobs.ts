@@ -111,6 +111,7 @@ export interface ExecutionConfig extends ValidatedJobConfig {
     job_id: string;
     slicer_hostname: string;
     slicer_port: number;
+    previous_execution?: string;
     recovered_execution?: string;
     recovered_slice_type?: RecoveryCleanupType;
     metadata: AnyObject;

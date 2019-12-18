@@ -114,6 +114,7 @@ module.exports = function jobsService(context) {
         // create a new execution else throw
         if (!recoverFrom) {
             if (validJob.autorecover) {
+                validJob.previous_execution = recoverFrom.ex_id;
                 return executionService.createExecutionContext(validJob);
             }
 
@@ -125,6 +126,7 @@ module.exports = function jobsService(context) {
         const count = await stateStore.countRecoverySlices(recoverFrom.ex_id, -1, cleanupType);
         if (!count) {
             if (validJob.autorecover) {
+                validJob.previous_execution = recoverFrom.ex_id;
                 return executionService.createExecutionContext(validJob);
             }
 

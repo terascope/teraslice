@@ -10,12 +10,12 @@ const {
     pDelay,
     pRetry,
     logError,
+    pWhile,
     isString,
     getTypeOf,
     get,
     random
 } = require('@terascope/utils');
-const pWhilst = require('p-whilst');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClient } = require('@terascope/job-components');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
@@ -395,13 +395,13 @@ module.exports = function elasticsearchStorage(backendConfig) {
     }
 
     async function waitForClient() {
-        let valid = elasticsearch.verifyClient();
-        if (valid) return;
+        if (elasticsearch.verifyClient()) return;
 
-        await pWhilst(() => valid, async () => {
+        await pWhile(async () => {
             if (isShutdown) throw new Error('Elasticsearch store is shutdown');
-            valid = elasticsearch.verifyClient();
+            if (elasticsearch.verifyClient()) return true;
             await pDelay(100);
+            return false;
         });
     }
 

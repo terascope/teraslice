@@ -35,16 +35,6 @@ function recoveryModule(context, stateStore, executionContext) {
         retryState[sliceData.slice.slice_id] = false;
     }
 
-    function getSlicerStartingPosition() {
-        if (exitAfterComplete()) return Promise.resolve([]);
-
-        const recoveredSlices = [];
-        for (let i = 0; i < slicersToRecover; i += 1) {
-            recoveredSlices.push(stateStore.executionStartingSlice(recoverExecution, i));
-        }
-        return Promise.all(recoveredSlices);
-    }
-
     function _setId(slice) {
         retryState[slice.slice_id] = true;
     }
@@ -182,7 +172,6 @@ function recoveryModule(context, stateStore, executionContext) {
     }
 
     return {
-        getSlicerStartingPosition,
         initialize,
         getSlice,
         getSlices,

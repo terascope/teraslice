@@ -71,7 +71,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
 
                 try {
                     await exStore.verifyStatusUpdate(exId, status);
-                    await exStore.setExecutionStatus(exId, status);
+                    await exStore.setStatus(exId, status);
                 } catch (err) {
                     logError(logger, err, 'failure setting execution to stopped');
                 } finally {
@@ -193,7 +193,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
         }
 
         logger.debug(`stopping execution ${exId}...`, withoutNil({ timeout, excludeNode }));
-        await exStore.setExecutionStatus(exId, 'stopping');
+        await exStore.setStatus(exId, 'stopping');
         await clusterService.stopExecution(exId, timeout, excludeNode);
         // we are kicking this off in the background, not part of the promise chain
         waitForExecutionStatus(exId);
@@ -205,7 +205,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
         if (!clusterMasterServer.isClientReady(execution.ex_id)) {
             throw new Error(`Execution ${execution.ex_id} is not available to pause`);
         }
-        await exStore.setExecutionStatus(exId, status);
+        await exStore.setStatus(exId, status);
         return { status };
     }
 
@@ -216,7 +216,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
             throw new Error(`Execution ${execution.ex_id} is not available to resume`);
         }
         await clusterMasterServer.sendExecutionResume(execution.ex_id);
-        await exStore.setExecutionStatus(execution.ex_id, status);
+        await exStore.setStatus(execution.ex_id, status);
         return { status };
     }
 
@@ -315,9 +315,9 @@ module.exports = function executionService(context, { clusterMasterServer }) {
             logger.info(`Scheduling execution: ${execution.ex_id}`);
 
             try {
-                await exStore.setExecutionStatus(execution.ex_id, 'scheduling');
+                await exStore.setStatus(execution.ex_id, 'scheduling');
                 await clusterService.allocateSlicer(execution);
-                await exStore.setExecutionStatus(execution.ex_id, 'initializing', {
+                await exStore.setStatus(execution.ex_id, 'initializing', {
                     slicer_port: execution.slicer_port,
                     slicer_hostname: execution.slicer_hostname
                 });
@@ -335,8 +335,11 @@ module.exports = function executionService(context, { clusterMasterServer }) {
                 });
 
                 try {
-                    const errMetaData = exStore.executionMetaData(null, getFullErrorStack(error));
-                    await exStore.setExecutionStatus(execution.ex_id, 'failed', errMetaData);
+                    await exStore.setStatus(
+                        execution.ex_id,
+                        'failed',
+                        exStore.executionMetaData(null, getFullErrorStack(error))
+                    );
                 } catch (failedErr) {
                     logger.error(new TSError(err, {
                         reason: 'Failure to set execution status to failed after provision failed'

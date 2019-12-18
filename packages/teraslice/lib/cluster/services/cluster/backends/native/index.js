@@ -99,7 +99,7 @@ module.exports = function nativeClustering(context, clusterMasterServer) {
                 pendingWorkerRequests.remove(exId, 'ex_id');
 
                 try {
-                    await exStore.setExecutionStatus(exId, 'terminated', metaData);
+                    await exStore.setStatus(exId, 'terminated', metaData);
                 } catch (err) {
                     logger.error(err, `failure to set execution ${exId} status to terminated`);
                 } finally {

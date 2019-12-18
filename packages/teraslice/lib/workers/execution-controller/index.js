@@ -2,10 +2,9 @@
 
 const ms = require('ms');
 const _ = require('lodash');
-const pWhilst = require('p-whilst');
 const Messaging = require('@terascope/teraslice-messaging');
 const {
-    TSError, get, pDelay, getFullErrorStack, logError
+    TSError, get, pDelay, getFullErrorStack, logError, pWhile
 } = require('@terascope/utils');
 const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
 const { makeStateStore, makeExStore, SliceState } = require('../../storage');
@@ -431,7 +430,11 @@ class ExecutionController {
 
     async _runExecution() {
         // wait for paused
-        await pWhilst(() => this.isPaused && !this.isShuttdown, () => pDelay(100));
+        await pWhile(async () => {
+            if (!this.isPaused || this.isShuttdown) return true;
+            await pDelay(100);
+            return false;
+        });
 
         this.logger.info(`starting execution ${this.exId}...`);
         this.startTime = Date.now();

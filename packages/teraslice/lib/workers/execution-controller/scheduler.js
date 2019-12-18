@@ -1,9 +1,8 @@
 'use strict';
 
 const {
-    noop, pDelay, get, toString, makeISODate, logError
+    noop, pDelay, get, toString, makeISODate, logError, pWhile
 } = require('@terascope/utils');
-const pWhilst = require('p-whilst');
 const Queue = require('@terascope/queue');
 const makeExecutionRecovery = require('./recovery');
 const { makeLogger } = require('../helpers/terafoundation');
@@ -16,11 +15,17 @@ class Scheduler {
         this.executionContext = executionContext;
         this.exId = executionContext.exId;
 
-        const jobCanRecover = get(executionContext.config, 'recovered_execution', false);
+        const recoverFromExId = get(executionContext.config, 'recovered_execution');
         const slicerCanRecover = executionContext.slicer().isRecoverable();
+        if (recoverFromExId && !slicerCanRecover) {
+            throw new Error('Slicer is not recoverable');
+        }
 
-        this.recoverExecution = jobCanRecover && slicerCanRecover;
-        this.recovering = this.recoverExecution;
+        this.prevExId = get(executionContext.config, 'previous_execution') || recoverFromExId;
+        this.recoverFromExId = recoverFromExId;
+        this.recoverExecution = Boolean(recoverFromExId && slicerCanRecover);
+        this.recovering = Boolean(this.recoverExecution);
+        this.autorecover = Boolean(executionContext.config.autorecover);
 
         this._creating = 0;
         this.ready = false;
@@ -46,9 +51,17 @@ class Scheduler {
     async initialize() {
         if (this.recoverExecution) {
             await this._initializeRecovery();
-        } else {
-            await this._initializeExecution();
+            return;
         }
+
+        if (this.autorecover && this.prevExId) {
+            this.startingPoints = await this.stateStore.getStartingPoints(
+                this.prevExId,
+                this.executionContext.config.slicers
+            );
+        }
+
+        await this._initializeExecution();
     }
 
     /**
@@ -105,12 +118,11 @@ class Scheduler {
             `execution ${this.exId} is finished scheduling, ${n} remaining slices in the queue`
         );
 
-        const waitForCreating = () => {
-            const is = () => this._creating;
-            return pWhilst(is, () => pDelay(100));
-        };
-
-        await waitForCreating();
+        await pWhile(async () => {
+            if (!this._creating) return true;
+            await pDelay(100);
+            return false;
+        });
     }
 
     start() {
@@ -442,7 +454,10 @@ class Scheduler {
             return;
         }
 
-        this.startingPoints = await this.recover.getSlicerStartingPosition();
+        this.startingPoints = await this.stateStore.getStartingPoints(
+            this.prevExId,
+            this.executionContext.config.slicers
+        );
 
         this.logger.info(`execution: ${this.exId} finished its recovery`);
     }
