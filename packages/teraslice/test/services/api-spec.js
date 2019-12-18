@@ -19,6 +19,7 @@ describe('HTTP API', () => {
     };
 
     context.services = {
+        cluster: {},
         execution: {},
         jobs: {},
     };

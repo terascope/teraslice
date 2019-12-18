@@ -71,7 +71,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
 
                 try {
                     await exStore.verifyStatusUpdate(exId, status);
-                    await exStore.exStore.setExecutionStatus(exId, status);
+                    await exStore.setExecutionStatus(exId, status);
                 } catch (err) {
                     logError(logger, err, 'failure setting execution to stopped');
                 } finally {
