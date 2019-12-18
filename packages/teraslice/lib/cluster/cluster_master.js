@@ -42,16 +42,6 @@ module.exports = function _clusterMaster(context) {
         logger,
     });
 
-    const serviceOptions = { assetsUrl, app, clusterMasterServer };
-    const services = Object.freeze({
-        execution: makeExecutionService(context, serviceOptions),
-        jobs: makeJobsService(context),
-        cluster: makeClusterService(context, serviceOptions),
-        api: makeApiService(context, serviceOptions),
-    });
-
-    context.services = services;
-
     function isAssetServiceUp() {
         return new Promise((resolve) => {
             request.get(
@@ -78,6 +68,16 @@ module.exports = function _clusterMaster(context) {
         });
     }
 
+    const serviceOptions = { assetsUrl, app, clusterMasterServer };
+    const services = Object.freeze({
+        execution: makeExecutionService(context, serviceOptions),
+        jobs: makeJobsService(context, serviceOptions),
+        cluster: makeClusterService(context, serviceOptions),
+        api: makeApiService(context, serviceOptions),
+    });
+
+    context.services = services;
+
     return {
         async initialize() {
             try {
@@ -100,13 +100,15 @@ module.exports = function _clusterMaster(context) {
                 await services.cluster.initialize();
                 await services.execution.initialize();
                 await services.jobs.initialize();
-                await services.api.initialize();
 
                 logger.debug('services has been initialized');
 
                 // give the assets service a bit to come up
                 const fiveMinutes = 5 * 60 * 1000;
                 await waitForAssetsService(Date.now() + fiveMinutes);
+
+                // this needs to be last
+                await services.api.initialize();
 
                 logger.info('cluster master is ready!');
                 running = true;
