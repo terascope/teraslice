@@ -181,7 +181,7 @@ module.exports = function jobsService(context) {
             throw new TSError(`Invalid job id, got ${getTypeOf(jobId)}`);
         }
 
-        const ex = await executionService.searchExecutionContexts(
+        const ex = await exStore.search(
             query || `job_id: "${jobId}"`, null, 1, '_created:desc'
         );
 

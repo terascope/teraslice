@@ -47,21 +47,8 @@ module.exports = function executionService(context, { clusterMasterServer }) {
         pendingExecutionQueue.enqueue(cloneDeep(ex));
     }
 
-    function getClusterState() {
-        return clusterService.getClusterState();
-    }
-
-    function getClusterStats() {
+    function getClusterAnalytics() {
         return clusterMasterServer.getClusterAnalytics();
-    }
-
-    // designed to allocate additional workers, not any future slicers
-    async function allocateWorkers(execution, numOfWorkersRequested) {
-        return clusterService.allocateWorkers(execution, numOfWorkersRequested);
-    }
-
-    async function allocateSlicer(execution) {
-        return clusterService.allocateSlicer(execution);
     }
 
     async function waitForExecutionStatus(exId, _status) {
@@ -69,7 +56,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
 
         return new Promise((resolve) => {
             async function checkCluster() {
-                const state = getClusterState();
+                const state = clusterService.getClusterState();
                 const dict = Object.create(null);
 
                 Object.values(state).forEach((node) => node.active.forEach((worker) => {
@@ -118,7 +105,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
     }
 
     function findAllWorkers() {
-        return flatten(getClusterState()
+        return flatten(clusterService.getClusterState()
             .filter((node) => node.state === 'connected')
             .map((node) => {
                 const workers = node.active.filter(Boolean);
@@ -143,7 +130,8 @@ module.exports = function executionService(context, { clusterMasterServer }) {
     }
 
     async function removeWorkers(exId, workerNum) {
-        return clusterService.removeWorkers(exId, workerNum);
+        return exStore.getActiveExecution(exId)
+            .then((execution) => clusterService.removeWorkers(execution.ex_id, workerNum));
     }
 
     /**
@@ -328,14 +316,14 @@ module.exports = function executionService(context, { clusterMasterServer }) {
 
             try {
                 await exStore.setExecutionStatus(execution.ex_id, 'scheduling');
-                await allocateSlicer(execution);
+                await clusterService.allocateSlicer(execution);
                 await exStore.setExecutionStatus(execution.ex_id, 'initializing', {
                     slicer_port: execution.slicer_port,
                     slicer_hostname: execution.slicer_hostname
                 });
 
                 try {
-                    await allocateWorkers(execution, execution.workers);
+                    await clusterService.allocateWorkers(execution, execution.workers);
                 } catch (err) {
                     throw new TSError(err, {
                         reason: `Failure to allocateWorkers ${execution.ex_id}`
@@ -395,11 +383,8 @@ module.exports = function executionService(context, { clusterMasterServer }) {
     }
 
     return {
-        getClusterState,
-        getClusterStats,
+        getClusterAnalytics,
         getControllerStats,
-        allocateWorkers,
-        allocateSlicer,
         findAllWorkers,
         shutdown,
         initialize,

@@ -26,6 +26,9 @@ module.exports = function apiService(context, { assetsUrl, app }) {
     let executionService;
     let jobsService;
     let stateStore;
+    let clusterService;
+    let exStore;
+    let jobStore;
 
     const v1routes = new Router();
 
@@ -68,7 +71,7 @@ module.exports = function apiService(context, { assetsUrl, app }) {
 
     v1routes.get('/cluster/state', (req, res) => {
         const requestHandler = handleRequest(req, res);
-        requestHandler(() => executionService.getClusterState());
+        requestHandler(() => clusterService.getClusterState());
     });
 
     v1routes.route('/assets*')
@@ -254,7 +257,7 @@ module.exports = function apiService(context, { assetsUrl, app }) {
                 query += ` AND (${statusTerms})`;
             }
 
-            return executionService.searchExecutionContexts(query, from, size, sort);
+            return exStore.searchExecutionContexts(query, from, size, sort);
         });
     });
 
@@ -270,7 +273,7 @@ module.exports = function apiService(context, { assetsUrl, app }) {
 
         const requestHandler = handleRequest(req, res, 'Could not get cluster statistics');
         requestHandler(async () => {
-            const stats = await executionService.getClusterStats();
+            const stats = await executionService.getClusterAnalytics();
 
             if (isPrometheusRequest(req)) return makePrometheus(stats, { cluster });
             // for backwards compatability (unsupported for prometheus)
@@ -313,7 +316,7 @@ module.exports = function apiService(context, { assetsUrl, app }) {
 
         const requestHandler = handleRequest(req, res, 'Could not get all nodes');
         requestHandler(async () => {
-            const nodes = await executionService.getClusterState();
+            const nodes = await clusterService.getClusterState();
 
             const transform = Object.values(nodes).forEach((node) => Object.assign(
                 {},
@@ -345,7 +348,7 @@ module.exports = function apiService(context, { assetsUrl, app }) {
 
         const requestHandler = handleRequest(req, res, 'Could not get all executions');
         requestHandler(async () => {
-            const exs = await executionService.searchExecutionContexts(query, from, size, sort);
+            const exs = await executionService.search(query, from, size, sort);
             return makeTable(req, defaults, exs);
         });
     });
@@ -477,14 +480,17 @@ module.exports = function apiService(context, { assetsUrl, app }) {
         logger.info('api service is initializing...');
 
         stateStore = context.stores.state;
-        if (stateStore == null) {
+        exStore = context.stores.execution;
+        jobStore = context.stores.jobs;
+        if (stateStore == null || exStore == null || jobStore == null) {
             throw new Error('Missing required stores');
         }
 
         executionService = context.services.execution;
         jobsService = context.services.jobs;
+        clusterService = context.services.cluster;
 
-        if (jobsService == null || executionService == null) {
+        if (jobsService == null || executionService == null || clusterService == null) {
             throw new Error('Missing required services');
         }
 
