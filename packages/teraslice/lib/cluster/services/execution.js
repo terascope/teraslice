@@ -18,6 +18,13 @@ const clusterModule = require('./cluster');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 const makeExStore = require('../storage/execution');
 
+/**
+ * New execution result
+ * @typedef NewExecutionResult
+ * @property {string} job_id
+ * @property {string} ex_id
+ */
+
 /*
  Execution Life Cycle for _status
  pending -> scheduling -> running -> [ paused -> running ] -> [ stopped | completed ]
@@ -265,6 +272,12 @@ module.exports = async function executionService(context, { clusterMasterServer 
         return sortBy(results, ['name', 'started']).reverse();
     }
 
+    /**
+     * Create a new execution context
+     *
+     * @param {string|import('@terascope/job-components').JobConfig} job
+     * @return {Promise<NewExecutionResult>}
+    */
     async function createExecutionContext(job) {
         const ex = await exStore.create(job);
         enqueue(ex);
@@ -314,9 +327,19 @@ module.exports = async function executionService(context, { clusterMasterServer 
         return exStore.executionMetaData(stats, errMsg);
     }
 
-    async function recoverExecution(exId, cleanupType) {
-        const execution = isString(exId) ? await getExecutionContext(exId) : exId;
-        const ex = await exStore.createRecoveredExecution(execution, cleanupType);
+    /**
+     * Recover the execution
+     *
+     * @param {string|import('@terascope/job-components').ExecutionConfig} exIdOrEx
+     * @param {import('@terascope/job-components').RecoveryCleanupType} [cleanupType]
+     * @return {Promise<NewExecutionResult>}
+    */
+    async function recoverExecution(exIdOrEx, cleanupType) {
+        const recoverFromEx = isString(exIdOrEx)
+            ? await getExecutionContext(exIdOrEx)
+            : cloneDeep(exIdOrEx);
+
+        const ex = await exStore.createRecoveredExecution(recoverFromEx, cleanupType);
         enqueue(ex);
         return { job_id: ex.job_id, ex_id: ex.ex_id };
     }
