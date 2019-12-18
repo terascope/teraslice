@@ -14,7 +14,7 @@ const {
     makeAnalyticsStore,
     makeExStore,
     makeJobStore
-} = require('../../../lib/cluster/storage');
+} = require('../../../lib/storage');
 
 const { initializeTestExecution } = require('../../../lib/workers/helpers/job');
 const makeTerafoundationContext = require('../../../lib/workers/context/terafoundation-context');

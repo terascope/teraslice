@@ -7,8 +7,8 @@ const {
     TSError, pDelay, uniq, isString, toString
 } = require('@terascope/utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
-const { makeLogger } = require('../../workers/helpers/terafoundation');
-const { saveAsset } = require('../../utils/file_utils');
+const { makeLogger } = require('../workers/helpers/terafoundation');
+const { saveAsset } = require('../utils/file_utils');
 
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to

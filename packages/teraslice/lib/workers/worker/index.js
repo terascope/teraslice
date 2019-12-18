@@ -8,7 +8,7 @@ const {
     pWhile
 } = require('@terascope/utils');
 const { ExecutionController, formatURL } = require('@terascope/teraslice-messaging');
-const { makeStateStore, makeAnalyticsStore } = require('../../cluster/storage');
+const { makeStateStore, makeAnalyticsStore } = require('../../storage');
 const { generateWorkerId, makeLogger } = require('../helpers/terafoundation');
 const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
 const Metrics = require('../metrics');

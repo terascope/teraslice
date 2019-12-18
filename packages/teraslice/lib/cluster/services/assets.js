@@ -3,7 +3,7 @@
 const express = require('express');
 const { TSError, parseErrorInfo, logError } = require('@terascope/utils');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
-const makeAssetsStore = require('../storage/assets');
+const makeAssetsStore = require('../../storage/assets');
 const {
     makeTable,
     handleRequest,

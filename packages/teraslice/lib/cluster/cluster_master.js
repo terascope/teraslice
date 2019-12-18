@@ -9,9 +9,9 @@ const makeExecutionService = require('./services/execution');
 const makeApiService = require('./services/api');
 const makeJobsService = require('./services/jobs');
 const makeClusterService = require('./services/cluster');
-const makeJobStore = require('./storage/jobs');
-const makeExStore = require('./storage/execution');
-const makeStateStore = require('./storage/state');
+const makeJobStore = require('../storage/jobs');
+const makeExStore = require('../storage/execution');
+const makeStateStore = require('../storage/state');
 
 module.exports = function _clusterMaster(context) {
     const logger = makeLogger(context, 'cluster_master');

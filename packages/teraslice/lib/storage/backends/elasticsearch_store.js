@@ -18,8 +18,8 @@ const {
 const pWhilst = require('p-whilst');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClient } = require('@terascope/job-components');
-const { makeLogger } = require('../../../workers/helpers/terafoundation');
-const { timeseriesIndex } = require('../../../utils/date_utils');
+const { makeLogger } = require('../../workers/helpers/terafoundation');
+const { timeseriesIndex } = require('../../utils/date_utils');
 
 module.exports = function elasticsearchStorage(backendConfig) {
     const {

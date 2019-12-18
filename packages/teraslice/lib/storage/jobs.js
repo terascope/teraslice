@@ -2,7 +2,7 @@
 
 const uuid = require('uuid/v4');
 const { TSError, makeISODate } = require('@terascope/utils');
-const { makeLogger } = require('../../workers/helpers/terafoundation');
+const { makeLogger } = require('../workers/helpers/terafoundation');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 
 // Module to manager job states in Elasticsearch.

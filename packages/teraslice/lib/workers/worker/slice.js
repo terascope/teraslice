@@ -1,7 +1,7 @@
 'use strict';
 
 const { TSError, getTypeOf, logError } = require('@terascope/utils');
-const { SliceState } = require('../../cluster/storage');
+const { SliceState } = require('../../storage');
 const { makeLogger } = require('../helpers/terafoundation');
 const { logOpStats } = require('../helpers/op-analytics');
 

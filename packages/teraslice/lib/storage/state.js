@@ -12,8 +12,8 @@ const {
     isTest,
     getFullErrorStack,
 } = require('@terascope/utils');
-const { timeseriesIndex } = require('../../utils/date_utils');
-const { makeLogger } = require('../../workers/helpers/terafoundation');
+const { timeseriesIndex } = require('../utils/date_utils');
+const { makeLogger } = require('../workers/helpers/terafoundation');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 
 const SliceState = Object.freeze({

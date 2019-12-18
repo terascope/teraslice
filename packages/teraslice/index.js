@@ -9,7 +9,7 @@
 */
 
 const config = require('./lib/config');
-const stores = require('./lib/cluster/storage');
+const stores = require('./lib/storage');
 const makeTerafoundationContext = require('./lib/workers/context/terafoundation-context');
 const { initializeTestExecution } = require('./lib/workers/helpers/job');
 

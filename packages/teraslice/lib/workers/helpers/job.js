@@ -3,7 +3,7 @@
 const { get, isEmpty } = require('@terascope/utils');
 const { JobValidator } = require('@terascope/job-components');
 const { terasliceOpPath } = require('../../config');
-const { makeJobStore, makeExStore, makeStateStore } = require('../../cluster/storage');
+const { makeJobStore, makeExStore, makeStateStore } = require('../../storage');
 
 async function validateJob(context, jobSpec) {
     const jobValidator = new JobValidator(context, {

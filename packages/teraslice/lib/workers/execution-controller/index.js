@@ -8,7 +8,7 @@ const {
     TSError, get, pDelay, getFullErrorStack, logError
 } = require('@terascope/utils');
 const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
-const { makeStateStore, makeExStore, SliceState } = require('../../cluster/storage');
+const { makeStateStore, makeExStore, SliceState } = require('../../storage');
 const { makeLogger, generateWorkerId } = require('../helpers/terafoundation');
 const ExecutionAnalytics = require('./execution-analytics');
 const makeSliceAnalytics = require('./slice-analytics');

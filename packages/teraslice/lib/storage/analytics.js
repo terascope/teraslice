@@ -1,7 +1,7 @@
 'use strict';
 
-const { makeLogger } = require('../../workers/helpers/terafoundation');
-const { timeseriesIndex } = require('../../utils/date_utils');
+const { makeLogger } = require('../workers/helpers/terafoundation');
+const { timeseriesIndex } = require('../utils/date_utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 
 // Module to manager job states in Elasticsearch.
