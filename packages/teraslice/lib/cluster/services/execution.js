@@ -153,7 +153,13 @@ module.exports = async function executionService(context, { clusterMasterServer 
         return clusterService.removeWorkers(exId, workerNum);
     }
 
-    function _isTerminalStatus(execution) {
+    /**
+     * Check if the execution is in a terminal status
+     *
+     * @param {import('@terascope/job-components').ExecutionConfig} execution
+     * @returns {boolean}
+    */
+    function isExecutionTerminal(execution) {
         const terminalList = terminalStatusList();
         return terminalList.find((tStat) => tStat === execution._status) != null;
     }
@@ -192,7 +198,7 @@ module.exports = async function executionService(context, { clusterMasterServer 
 
     async function stopExecution(exId, timeout, excludeNode) {
         const execution = await getExecutionContext(exId);
-        const isTerminal = _isTerminalStatus(execution._status);
+        const isTerminal = isExecutionTerminal(execution._status);
         if (isTerminal) {
             logger.info(`execution ${exId} is in terminal status "${execution._status}", it cannot be stopped`);
             return;
@@ -366,6 +372,7 @@ module.exports = async function executionService(context, { clusterMasterServer 
         setExecutionStatus,
         terminalStatusList,
         executionMetaData,
+        isExecutionTerminal,
         waitForExecutionStatus
     };
 
