@@ -16,6 +16,13 @@ const spawnAssetsLoader = require('../../workers/assets/spawn');
 const { terasliceOpPath } = require('../../config');
 const makeJobStore = require('../storage/jobs');
 
+/**
+ * New execution result
+ * @typedef NewExecutionResult
+ * @property {string} job_id
+ * @property {string} ex_id
+ */
+
 module.exports = async function jobsService(context) {
     const executionService = context.services.execution;
     const logger = makeLogger(context, 'jobs_service');
@@ -54,6 +61,12 @@ module.exports = async function jobsService(context) {
         return jobStore.update(jobId, updatedJob);
     }
 
+    /**
+     * Start a Job
+     *
+     * @param {string} jobId
+     * @returns {Promise<NewExecutionResult>}
+    */
     async function startJob(jobId) {
         const execution = await _getActiveExecution(jobId, true);
         // searching for an active execution, if there is then we reject
@@ -62,12 +75,14 @@ module.exports = async function jobsService(context) {
                 statusCode: 409
             });
         }
+
         const jobConfig = await getJob(jobId);
         if (!jobConfig) {
             throw new TSError(`Job ${jobId} not found`, {
                 statusCode: 404,
             });
         }
+
         const parsedAssetJob = await _ensureAssets(jobConfig);
         const validJob = await _validateJob(parsedAssetJob);
         return executionService.createExecutionContext(validJob);
@@ -100,16 +115,24 @@ module.exports = async function jobsService(context) {
         return jobStore.search('job_id:*', from, size, sort);
     }
 
-    async function getLatestExecution(jobId, _query, allowZero) {
+    /**
+     * Get the latest execution
+     *
+     * @param {string} jobId
+     * @param {string} [query]
+     * @param {boolean=false} [allowZeroResults]
+     * @returns {Promise<import('@terascope/job-components').ExecutionConfig>}
+    */
+    async function getLatestExecution(jobId, query, allowZeroResults = false) {
         if (!jobId || !isString(jobId)) {
             throw new TSError(`Invalid job id, got ${getTypeOf(jobId)}`);
         }
-        const allowZeroResults = allowZero || false;
-        let query = `job_id: "${jobId}"`;
-        if (_query) query = _query;
 
-        const ex = await executionService.searchExecutionContexts(query, null, 1, '_created:desc');
-        if (!allowZeroResults && ex.length === 0) {
+        const ex = await executionService.searchExecutionContexts(
+            query || `job_id: "${jobId}"`, null, 1, '_created:desc'
+        );
+
+        if (!allowZeroResults && !ex.length) {
             throw new TSError(`No execution was found for job ${jobId}`, {
                 statusCode: 404
             });
@@ -117,6 +140,13 @@ module.exports = async function jobsService(context) {
         return ex[0];
     }
 
+    /**
+     * Get the active execution
+     *
+     * @param {string} jobId
+     * @param {boolean} [allowZeroResults]
+     * @returns {Promise<import('@terascope/job-components').ExecutionConfig>}
+    */
     async function _getActiveExecution(jobId, allowZeroResults) {
         const str = executionService
             .terminalStatusList()
@@ -126,6 +156,13 @@ module.exports = async function jobsService(context) {
         return getLatestExecution(jobId, query, allowZeroResults);
     }
 
+    /**
+     * Get the active execution
+     *
+     * @param {string} jobId
+     * @param {boolean} [allowZeroResults]
+     * @returns {Promise<import('@terascope/job-components').ExecutionConfig>}
+    */
     async function _getActiveExecutionId(jobId) {
         return _getActiveExecution(jobId).then((ex) => ex.ex_id);
     }
