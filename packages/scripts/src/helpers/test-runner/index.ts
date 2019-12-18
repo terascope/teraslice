@@ -174,24 +174,27 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         throw new Error('Missing e2e test directory');
     }
 
-    try {
-        cleanup = await ensureServices(suite, options);
-    } catch (err) {
-        errors.push(getFullErrorStack(err));
-    }
+    await Promise.all([
+        (async () => {
+            try {
+                cleanup = await ensureServices(suite, options);
+            } catch (err) {
+                errors.push(getFullErrorStack(err));
+            }
+        })(),
+        (async () => {
+            const rootInfo = getRootInfo();
+            const [registry] = rootInfo.terascope.docker.registries;
+            const e2eImage = `${registry}:e2e`;
 
-    if (!errors.length) {
-        const rootInfo = getRootInfo();
-        const [registry] = rootInfo.terascope.docker.registries;
-        const e2eImage = `${registry}:e2e`;
-
-        try {
-            const devImage = await pullDevDockerImage();
-            await dockerTag(devImage, e2eImage);
-        } catch (err) {
-            errors.push(getFullErrorStack(err));
-        }
-    }
+            try {
+                const devImage = await pullDevDockerImage();
+                await dockerTag(devImage, e2eImage);
+            } catch (err) {
+                errors.push(getFullErrorStack(err));
+            }
+        })()
+    ]);
 
     if (!errors.length) {
         const timeLabel = `test suite "${suite}"`;
