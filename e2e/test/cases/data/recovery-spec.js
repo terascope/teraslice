@@ -17,7 +17,8 @@ const teraslice = misc.teraslice();
 describe('recovery', () => {
     let context;
     let specIndex;
-    let exId;
+    let recoverFromId;
+    let recoverFromEx;
 
     beforeAll(async () => {
         const sysconfig = await fse.readJSON(
@@ -40,6 +41,8 @@ describe('recovery', () => {
         specIndex = misc.newSpecIndex('test-recovery-job');
         jobSpec.operations[0].index = misc.getExampleIndex(1000);
         jobSpec.operations[1].index = specIndex;
+
+        misc.injectDelay(jobSpec);
 
         const { ex: exConfig } = await initializeTestExecution({
             context,
@@ -131,31 +134,39 @@ describe('recovery', () => {
             lastStatus: 'failed'
         });
 
-        exId = exConfig.ex_id;
+        recoverFromId = exConfig.ex_id;
+        recoverFromEx = teraslice.executions.wrap(recoverFromId);
     });
 
     it('can support different recovery mode cleanup=errors', async () => {
-        const ex = teraslice.executions.wrap(exId);
-        const newEx = await ex.recover({ cleanup: 'errors' });
-        await waitForExStatus(newEx, 'completed');
+        const newEx = await recoverFromEx.recover({ cleanup: 'errors' });
+        await Promise.all([
+            waitForExStatus(newEx, 'recovering'),
+            waitForExStatus(newEx, 'completed')
+        ]);
 
         const stats = await misc.indexStats(specIndex);
         expect(stats.count).toEqual(200);
     });
 
     it('can support different recovery mode cleanup=all', async () => {
-        const ex = teraslice.executions.wrap(exId);
-        const newEx = await ex.recover({ cleanup: 'all' });
-        await waitForExStatus(newEx, 'completed');
+        const newEx = await recoverFromEx.recover({ cleanup: 'all' });
+
+        await Promise.all([
+            waitForExStatus(newEx, 'recovering'),
+            waitForExStatus(newEx, 'completed')
+        ]);
 
         const stats = await misc.indexStats(specIndex);
         expect(stats.count).toEqual(600);
     });
 
     it('can support different recovery mode cleanup=pending', async () => {
-        const ex = teraslice.executions.wrap(exId);
-        const newEx = await ex.recover({ cleanup: 'pending' });
-        await waitForExStatus(newEx, 'completed');
+        const newEx = await recoverFromEx.recover({ cleanup: 'pending' });
+        await Promise.all([
+            waitForExStatus(newEx, 'recovering'),
+            waitForExStatus(newEx, 'completed')
+        ]);
 
         const stats = await misc.indexStats(specIndex);
         expect(stats.count).toEqual(200);
