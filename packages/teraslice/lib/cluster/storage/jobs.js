@@ -1,6 +1,7 @@
 'use strict';
 
-const uuid = require('uuid');
+const uuid = require('uuid/v4');
+const { TSError, makeISODate } = require('@terascope/utils');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 
@@ -25,21 +26,34 @@ module.exports = async function jobsStorage(context) {
     }
 
     async function create(record) {
-        const date = new Date();
-        record.job_id = uuid.v4();
-        record._context = jobType;
-        record._created = date;
-        record._updated = date;
-
-        return backend.create(record);
+        const date = makeISODate();
+        const doc = Object.assign({}, record, {
+            job_id: uuid(),
+            _context: jobType,
+            _created: date,
+            _updated: date
+        });
+        try {
+            await backend.create(doc);
+        } catch (err) {
+            throw new TSError(err, {
+                reason: 'Failure to create job'
+            });
+        }
+        return doc;
     }
 
     async function update(jobId, updateSpec) {
-        updateSpec._updated = new Date();
-        updateSpec.job_id = jobId;
-        updateSpec._context = 'job';
         // We want to save the whole job as it is posted, update api does partial doc updates
-        return backend.indexWithId(jobId, updateSpec);
+        return backend.indexWithId(jobId, Object.assign(
+            {},
+            updateSpec,
+            {
+                job_id: jobId,
+                _context: jobType,
+                _updated: makeISODate()
+            }
+        ));
     }
 
     async function remove(jobId) {

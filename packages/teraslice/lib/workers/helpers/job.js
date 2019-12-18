@@ -35,14 +35,16 @@ async function initializeTestExecution({
     const validJob = await validateJob(context, config, { skipRegister: true });
     const jobSpec = await jobStore.create(config);
 
-    const jobConfig = Object.assign({}, jobSpec, validJob);
+    const job = Object.assign({}, jobSpec, validJob, {
+        job_id: jobSpec.job_id
+    });
 
-    const slicerHostname = jobConfig.slicer_hostname;
-    const slicerPort = jobConfig.slicer_port;
+    const slicerHostname = job.slicer_hostname;
+    const slicerPort = job.slicer_port;
 
     let ex;
     if (isRecovery) {
-        ex = await exStore.create(jobConfig, lastStatus);
+        ex = await exStore.create(job, lastStatus);
 
         if (recoverySlices.length) {
             await Promise.all(recoverySlices.map(({ slice, state }) => stateStore.createState(
@@ -58,7 +60,7 @@ async function initializeTestExecution({
             ex = await exStore.createRecoveredExecution(ex, cleanupType);
         }
     } else {
-        ex = await exStore.create(jobConfig);
+        ex = await exStore.create(job);
     }
 
     if (slicerHostname && slicerPort) {
@@ -75,7 +77,7 @@ async function initializeTestExecution({
     }
 
     return {
-        job: jobConfig,
+        job,
         ex,
     };
 }

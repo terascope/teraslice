@@ -630,7 +630,7 @@ class ExecutionController {
             if (isStopping) {
                 const metaData = exStore.executionMetaData(executionStats);
                 this.logger.debug(`execution is set to ${status}, status will not be updated`);
-                await exStore.update(this.exId, metaData);
+                await exStore.updatePartial(this.exId, metaData);
                 return;
             }
 

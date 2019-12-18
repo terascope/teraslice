@@ -38,6 +38,10 @@ module.exports = async function executionStorage(context) {
         if (!_isValidStatus(status)) {
             throw new Error(`Unknown status "${status}" on execution create`);
         }
+        if (!record.job_id) {
+            throw new Error('Missing job_id on execution create');
+        }
+
         const date = makeISODate();
         const doc = Object.assign({}, record, {
             ex_id: uuid(),
@@ -54,14 +58,16 @@ module.exports = async function executionStorage(context) {
                 reason: 'Failure to create execution context'
             });
         }
-        return record;
+        return doc;
     }
 
-    function update(exId, updateSpec) {
+    function updatePartial(exId, updateSpec) {
         return backend.update(exId, Object.assign(
             {},
             updateSpec,
             {
+                ex_id: exId,
+                _context: jobType,
                 _updated: makeISODate()
             }
         ));
@@ -89,7 +95,7 @@ module.exports = async function executionStorage(context) {
         if (!exId || !isString(exId)) {
             throw new Error('Missing execution ID');
         }
-        return update(exId, { metadata });
+        return updatePartial(exId, { metadata });
     }
 
     function _addMetadataFns() {
@@ -159,7 +165,7 @@ module.exports = async function executionStorage(context) {
             if (metaData) {
                 Object.assign(statusObj, metaData);
             }
-            await update(exId, statusObj);
+            await updatePartial(exId, statusObj);
         } catch (err) {
             throw new TSError(err, {
                 statusCode: 422,
@@ -282,7 +288,7 @@ module.exports = async function executionStorage(context) {
         get: getExecution,
         search,
         create,
-        update,
+        updatePartial,
         remove,
         shutdown,
         createRecoveredExecution,
