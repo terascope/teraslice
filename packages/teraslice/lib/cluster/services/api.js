@@ -88,7 +88,7 @@ module.exports = async function makeAPI(context, app, options) {
 
         const { start } = req.query;
         const jobSpec = req.body;
-        const shouldRun = start !== 'false';
+        const shouldRun = `${start}` !== 'false';
 
         const requestHandler = handleRequest(req, res, 'Job submission failed');
         requestHandler(() => jobsService.submitJob(jobSpec, shouldRun));
@@ -476,7 +476,7 @@ module.exports = async function makeAPI(context, app, options) {
                         const status = execution._status;
                         const terminalList = executionService.terminalStatusList();
                         const isTerminal = terminalList.find((tStat) => tStat === status);
-                        if (isTerminal || !(blocking === true || blocking === 'true')) {
+                        if (isTerminal || `${blocking}` !== 'true') {
                             resolve({ status });
                         } else {
                             setTimeout(checkExecution, 3000);
