@@ -338,10 +338,15 @@ export default class IndexStore<T extends Record<string, any>> {
     ): Promise<T> {
         utils.validateId('updatePartial', id);
         try {
-            const existing = await this.get(id);
+            const existing = await this.get(id) as any;
+            let version: number|undefined;
+            if (ts.DataEntity.isDataEntity(existing)) {
+                version = existing.getMetadata('_version');
+            }
             return await this.indexById(
                 id,
-                await applyChanges(existing)
+                await applyChanges(existing),
+                { version }
             );
         } catch (error) {
             // if there is a version conflict

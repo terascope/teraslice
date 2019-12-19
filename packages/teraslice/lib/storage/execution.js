@@ -1,7 +1,7 @@
 'use strict';
 
 const {
-    TSError, pRetry, includes, cloneDeep, isString, getTypeOf, makeISODate
+    TSError, pRetry, includes, cloneDeep, getTypeOf, makeISODate
 } = require('@terascope/utils');
 const uuid = require('uuid/v4');
 const { RecoveryCleanupType } = require('@terascope/job-components');
@@ -36,7 +36,6 @@ module.exports = async function executionStorage(context) {
     const backend = await elasticsearchBackend(backendConfig);
 
     async function getExecution(exId) {
-        if (!exId) throw new Error('Execution.get() requires a exId');
         return backend.get(exId);
     }
 
@@ -89,16 +88,8 @@ module.exports = async function executionStorage(context) {
         return doc;
     }
 
-    function updatePartial(exId, updateSpec) {
-        return backend.update(exId, Object.assign(
-            {},
-            updateSpec,
-            {
-                ex_id: exId,
-                _context: jobType,
-                _updated: makeISODate()
-            }
-        ));
+    async function updatePartial(exId, updateSpec) {
+        return backend.updatePartial(exId, updateSpec);
     }
 
     function executionMetaData(stats, errMsg) {
@@ -112,17 +103,11 @@ module.exports = async function executionStorage(context) {
     }
 
     async function getMetadata(exId) {
-        if (!exId || !isString(exId)) {
-            throw new Error('Missing execution ID');
-        }
         const ex = await getExecution(exId);
         return ex.metadata || {};
     }
 
     async function updateMetadata(exId, metadata = {}) {
-        if (!exId || !isString(exId)) {
-            throw new Error('Missing execution ID');
-        }
         return updatePartial(exId, { metadata });
     }
 

@@ -17,6 +17,7 @@ const {
     random,
     isInteger
 } = require('@terascope/utils');
+const defaultsDeep = require('lodash/defaultsDeep');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClient } = require('@terascope/job-components');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
@@ -222,6 +223,41 @@ module.exports = function elasticsearchStorage(backendConfig) {
         };
 
         return elasticsearch.update(query);
+    }
+
+    async function updatePartial(recordId, updateSpec, indexArg = indexName) {
+        validateIdAndRecord(recordId, updateSpec);
+
+        logger.trace(`updating partial record ${recordId}, `, logRecord ? updateSpec : null);
+
+        const existing = await elasticsearch.get({
+            index: indexArg,
+            type: recordType,
+            id: recordId,
+        }, true);
+
+        const doc = defaultsDeep({}, updateSpec, existing._source);
+        const query = {
+            index: indexArg,
+            type: recordType,
+            id: recordId,
+            body: doc,
+            refresh: forceRefresh,
+            version: existing._version,
+        };
+
+        try {
+            await elasticsearch.indexWithId(query);
+            return doc;
+        } catch (err) {
+            // if there is a version conflict
+            if (err.statusCode === 409 && err.message.includes('version conflict')) {
+                logger.warn(`version conflict when updating a ${recordType}`, updateSpec);
+                return updatePartial(recordId, updateSpec, indexArg);
+            }
+
+            throw new TSError(err);
+        }
     }
 
     async function remove(recordId, indexArg = indexName) {
@@ -441,6 +477,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
         indexWithId,
         create,
         update,
+        updatePartial,
         bulk,
         bulkSend,
         remove,

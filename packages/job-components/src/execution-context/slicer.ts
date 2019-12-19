@@ -24,7 +24,7 @@ export class SlicerExecutionContext
 
     constructor(config: ExecutionContextConfig) {
         super(config);
-        this.logger = this.api.makeLogger('worker_context');
+        this.logger = this.api.makeLogger('slicer_context');
 
         this._methodRegistry.set('onSliceComplete', new Set());
         this._methodRegistry.set('onSliceDispatch', new Set());
