@@ -4,6 +4,9 @@ import TerasliceUtil from './teraslice-util';
 import Reply from '../cmds/lib/reply';
 import displayModule from '../cmds/lib/display';
 import * as utils from '@terascope/utils';
+import * as TSClientTypes from 'teraslice-client-js';
+import Job from 'teraslice-client-js/dist/src/job';
+import { AnyAaaaRecord } from 'dns';
 
 const display = displayModule();
 const reply = new Reply();
@@ -75,11 +78,11 @@ export default class Jobs {
         return this.status(true, true);
     }
 
-    async getClientJobFunctions(): Promise<any> {
+    clientJobFunctions(): Job  {
         return this.teraslice.client.jobs.wrap(this.config.args.id);
     }
 
-    async await(status:any, timeout = 0, interval = 2000): Promise<void> {
+    async await(status:TSClientTypes.ExecutionStatus, timeout = 0, interval = 2000): Promise<void> {
         try {
             reply.green(`> waiting for job ${this.config.args.id} status to be ${status}`);
             const newStatus = await this.teraslice.client.jobs.wrap(this.config.args.id).waitForStatus(status, interval, timeout);
@@ -91,8 +94,9 @@ export default class Jobs {
     }
 
     async awaitCommand(): Promise<void> {
-        const jobFunctions = await this.getClientJobFunctions();
+        const jobFunctions = await this.clientJobFunctions();
         let currentStatus = await jobFunctions.status();
+
         if (this.config.args.start) {
             // make sure job is not already active
             // @ts-ignore
@@ -106,14 +110,16 @@ export default class Jobs {
                 currentStatus = await jobFunctions.status();
             }
         }
+
         if (currentStatus === this.config.args.status) {
             reply.yellow(`< job:${this.config.args.id} already ${this.config.args.status}`);
             process.exit(0);
         }
+
         await this.await(this.config.args.status, this.config.args.timeout);
     }
 
-    async status(saveState = false, showJobs = true) {
+    async status(saveState = false, showJobs = true): Promise<void> {
         let controllers = [];
         const header = ['job_id', 'name', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
         const active = false;
