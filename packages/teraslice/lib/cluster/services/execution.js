@@ -307,7 +307,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
             _cleanupType
         );
 
-        this.logger.info(`creating a execution from ${recoverFromEx.ex_id} with ${count} slices to recover`);
+        logger.info(`creating a execution from ${recoverFromEx.ex_id} with ${count} slices to recover`);
 
         if (!count) {
             if (recoverFromEx.autorecover) {
