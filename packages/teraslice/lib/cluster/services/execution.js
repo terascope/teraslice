@@ -2,6 +2,7 @@
 
 const sortBy = require('lodash/sortBy');
 const Queue = require('@terascope/queue');
+const { RecoveryCleanupType } = require('@terascope/job-components');
 const {
     TSError,
     getFullErrorStack,
@@ -38,6 +39,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
     const isNative = context.sysconfig.teraslice.cluster_manager_type === 'native';
 
     let exStore;
+    let stateStore;
     let clusterService;
     let allocateInterval;
 
@@ -287,13 +289,35 @@ module.exports = function executionService(context, { clusterMasterServer }) {
      * Recover the execution
      *
      * @param {string|import('@terascope/job-components').ExecutionConfig} exIdOrEx
-     * @param {import('@terascope/job-components').RecoveryCleanupType} [cleanupType]
+     * @param {RecoveryCleanupType} [cleanupType]
      * @return {Promise<NewExecutionResult>}
     */
     async function recoverExecution(exIdOrEx, cleanupType) {
         const recoverFromEx = isString(exIdOrEx)
             ? await getExecutionContext(exIdOrEx)
-            : exIdOrEx;
+            : cloneDeep(exIdOrEx);
+
+        const count = await stateStore.countRecoverySlices(recoverFromEx.ex_id, -1, cleanupType);
+        if (!count) {
+            if (recoverFromEx.autorecover) {
+                recoverFromEx.previous_execution = recoverFromEx.ex_id;
+                return createExecutionContext(recoverFromEx);
+            }
+
+            // if there is a cleanup type (the job will exit after recovering)
+            // and there are no slices to recover throw
+            if (cleanupType) {
+                let typeTxt = ' ';
+                if (cleanupType === RecoveryCleanupType.errors) {
+                    typeTxt = ' error ';
+                } else if (cleanupType === RecoveryCleanupType.pending) {
+                    typeTxt = ' pending ';
+                }
+                throw new TSError(`No${typeTxt}slices found to recover`, {
+                    statusCode: 422
+                });
+            }
+        }
 
         const ex = await exStore.createRecoveredExecution(recoverFromEx, cleanupType);
         enqueue(ex);
@@ -354,7 +378,8 @@ module.exports = function executionService(context, { clusterMasterServer }) {
 
     async function initialize() {
         exStore = context.stores.execution;
-        if (exStore == null) {
+        stateStore = context.stores.state;
+        if (exStore == null || stateStore == null) {
             throw new Error('Missing required stores');
         }
 

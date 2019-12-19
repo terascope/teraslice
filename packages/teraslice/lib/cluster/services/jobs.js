@@ -25,7 +25,6 @@ const { terasliceOpPath } = require('../../config');
 module.exports = function jobsService(context) {
     let executionService;
     let exStore;
-    let stateStore;
     let jobStore;
 
     const logger = makeLogger(context, 'jobs_service');
@@ -121,16 +120,6 @@ module.exports = function jobsService(context) {
             throw new TSError(`Job ${validJob.job_id} is missing an execution to recover from`, {
                 statusCode: 404
             });
-        }
-
-        const count = await stateStore.countRecoverySlices(recoverFrom.ex_id, -1, cleanupType);
-        if (!count) {
-            if (validJob.autorecover) {
-                validJob.previous_execution = recoverFrom.ex_id;
-                return executionService.createExecutionContext(validJob);
-            }
-
-            throw new Error('No slices found to recover');
         }
 
         return executionService.recoverExecution(
@@ -272,9 +261,8 @@ module.exports = function jobsService(context) {
 
         exStore = context.stores.execution;
         jobStore = context.stores.jobs;
-        stateStore = context.stores.state;
 
-        if (jobStore == null || exStore == null || stateStore == null) {
+        if (jobStore == null || exStore == null) {
             throw new Error('Missing required stores');
         }
 

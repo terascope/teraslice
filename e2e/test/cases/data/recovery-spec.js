@@ -160,6 +160,9 @@ describe('recovery', () => {
         expect(exConfig).toHaveProperty('previous_execution', newEx.id());
         expect(exConfig).toHaveProperty('recovered_execution', newEx.id());
         expect(exConfig).toHaveProperty('recovered_slice_type', 'errors');
+
+        await expect(newEx.recover({ cleanup_type: 'errors' }))
+            .rejects.toThrowError('No error slices found to recover');
     });
 
     it('can support different recovery mode cleanup=all', async () => {
@@ -174,9 +177,15 @@ describe('recovery', () => {
         const stats = await misc.indexStats(specIndex);
         expect(stats.count).toEqual(600);
 
-        expect(exConfig).toHaveProperty('previous_execution', newEx.id());
-        expect(exConfig).toHaveProperty('recovered_execution', newEx.id());
-        expect(exConfig).toHaveProperty('recovered_slice_type', 'all');
+        expect(exConfig).toMatchObject({
+            ex_id: newEx.id(),
+            previous_execution: recoverFromId,
+            recovered_execution: recoverFromId,
+            recovered_slice_type: 'all'
+        });
+
+        await expect(newEx.recover({ cleanup_type: 'all' }))
+            .rejects.toThrowError('No slices found to recover');
     });
 
     it('can support different recovery mode cleanup=pending', async () => {
@@ -191,9 +200,15 @@ describe('recovery', () => {
         const stats = await misc.indexStats(specIndex);
         expect(stats.count).toEqual(200);
 
-        expect(exConfig).toHaveProperty('previous_execution', newEx.id());
-        expect(exConfig).toHaveProperty('recovered_execution', newEx.id());
-        expect(exConfig).toHaveProperty('recovered_slice_type', 'all');
+        expect(exConfig).toMatchObject({
+            ex_id: newEx.id(),
+            previous_execution: recoverFromId,
+            recovered_execution: recoverFromId,
+            recovered_slice_type: 'pending'
+        });
+
+        await expect(newEx.recover({ cleanup_type: 'pending' }))
+            .rejects.toThrowError('No pending slices found to recover');
     });
 
     it('can support autorecovery', async () => {
@@ -202,7 +217,8 @@ describe('recovery', () => {
         expect(newExId).not.toBe(recoverFromId);
 
         const newEx = teraslice.executions.wrap(newExId);
-        await Promise.all([
+        const [exConfig] = await Promise.all([
+            job.execution(),
             waitForExStatus(newEx, 'recovering'),
             // give the execution time to run for second
             // after recovering
@@ -214,8 +230,8 @@ describe('recovery', () => {
         const { count } = await misc.indexStats(specIndex);
         expect(count).toBeGreaterThan(200);
 
-        await job.start();
-        const [exConfig] = await Promise.all([
+        const { ex_id: finalExId } = await job.start();
+        const [finalExConfig] = await Promise.all([
             job.execution(),
             waitForExStatus(newEx, 'running')
         ]);
@@ -225,15 +241,28 @@ describe('recovery', () => {
         const { count: finalCount } = await misc.indexStats(specIndex);
         expect(finalCount).not.toBeGreaterThan(count);
 
-        expect(exConfig).toHaveProperty('previous_execution', newEx.id());
-        expect(exConfig).toHaveProperty('recovered_slice_type', 'pending');
-        expect(exConfig.recovered_execution).toBeNil();
+        expect(exConfig).toMatchObject({
+            autorecover: true,
+            ex_id: newEx.id(),
+            previous_execution: recoverFromId,
+            recovered_execution: recoverFromId,
+            recovered_slice_type: 'pending'
+        });
+
+        expect(finalExConfig).toMatchObject({
+            autorecover: true,
+            ex_id: finalExId,
+            previous_execution: newEx.id(),
+            recovered_slice_type: 'pending'
+        });
+        expect(finalExConfig.recovered_execution).toBeNil();
     });
 
     it('can support recovery without a cleanup type', async () => {
         const newEx = await recoverFromEx.recover();
 
-        await Promise.all([
+        const [exConfig] = await Promise.all([
+            newEx.config(),
             waitForExStatus(newEx, 'recovering'),
             // give the execution time to run for second
             // after recovering
@@ -245,8 +274,8 @@ describe('recovery', () => {
         const { count } = await misc.indexStats(specIndex);
         expect(count).toBeGreaterThan(600);
 
-        await job.start();
-        const [exConfig] = await Promise.all([
+        const { ex_id: finalExId } = await job.start();
+        const [finalExConfig] = await Promise.all([
             job.execution(),
             waitForExStatus(newEx, 'running')
         ]);
@@ -256,8 +285,19 @@ describe('recovery', () => {
         const { count: finalCount } = await misc.indexStats(specIndex);
         expect(finalCount).not.toBeGreaterThan(count);
 
-        expect(exConfig).toHaveProperty('previous_execution', newEx.id());
-        expect(exConfig).toHaveProperty('recovered_execution', newEx.id());
+        expect(exConfig).toMatchObject({
+            ex_id: newEx.id(),
+            previous_execution: recoverFromId,
+            recovered_execution: recoverFromId,
+        });
+
+        expect(finalExConfig).toMatchObject({
+            ex_id: finalExId,
+            previous_execution: newEx.id(),
+            recovered_execution: newEx.id(),
+        });
+
+        expect(finalExConfig.recovered_slice_type).toBeNil();
         expect(exConfig.recovered_slice_type).toBeNil();
     });
 });
