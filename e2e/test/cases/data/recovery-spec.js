@@ -244,7 +244,7 @@ describe('recovery', () => {
         await job.stop({ blocking: true });
 
         const { count: finalCount } = await misc.indexStats(specIndex);
-        expect(finalCount).not.toBeGreaterThan(count);
+        expect(finalCount).toBeGreaterThan(count);
 
         expect(exConfig).toMatchObject({
             autorecover: true,
@@ -290,7 +290,7 @@ describe('recovery', () => {
         await finalEx.stop({ blocking: true });
 
         const { count: finalCount } = await misc.indexStats(specIndex);
-        expect(finalCount).not.toBeGreaterThan(count);
+        expect(finalCount).toBeGreaterThan(count);
 
         expect(exConfig).toMatchObject({
             ex_id: newEx.id(),
