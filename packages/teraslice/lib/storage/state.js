@@ -227,7 +227,7 @@ async function stateStorage(context) {
             await waitForClient();
             await backend.refresh(indexName);
 
-            return backend.count(query, 0, 5000);
+            return backend.count(query, 0);
         } catch (err) {
             throw new TSError(err, {
                 reason: 'Failure to get recovered slices'
