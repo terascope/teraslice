@@ -1,5 +1,7 @@
 'use strict';
 
+const { makeISODate } = require('@terascope/utils');
+
 function dateOptions(value) {
     const options = {
         year: 'y',
@@ -44,7 +46,7 @@ function dateOptions(value) {
 }
 
 function timeseriesIndex(timeseriesFormat, index, dateStr) {
-    const timestamp = new Date().toISOString();
+    const timestamp = makeISODate();
     const formatter = { daily: 10, monthly: 7, yearly: 4 };
     const dateString = dateStr || timestamp;
     return { index: `${index}-${dateString.slice(0, formatter[timeseriesFormat]).replace(/-/g, '.')}`, timestamp };

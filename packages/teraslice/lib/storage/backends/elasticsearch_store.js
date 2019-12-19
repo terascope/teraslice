@@ -14,7 +14,8 @@ const {
     isString,
     getTypeOf,
     get,
-    random
+    random,
+    isInteger
 } = require('@terascope/utils');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClient } = require('@terascope/job-components');
@@ -93,6 +94,16 @@ module.exports = function elasticsearchStorage(backendConfig) {
     }
 
     async function search(query, from, size, sort, fields, indexArg = indexName) {
+        if (from != null && !isInteger(from)) {
+            throw new Error(`from parameter must be a integer, got ${from}`);
+        }
+        if (size != null && !isInteger(size)) {
+            throw new Error(`size parameter must be a integer, got ${size}`);
+        }
+        if (sort != null && !isString(sort)) {
+            throw new Error(`sort parameter must be a string, got ${sort}`);
+        }
+
         const esQuery = {
             index: indexArg,
             from,
@@ -172,13 +183,20 @@ module.exports = function elasticsearchStorage(backendConfig) {
     }
 
     async function count(query, from, sort, indexArg = indexName) {
+        if (from != null && !isInteger(from)) {
+            throw new Error(`from parameter must be a integer, got ${from}`);
+        }
+        if (sort != null && !isString(sort)) {
+            throw new Error(`sort parameter must be a string, got ${sort}`);
+        }
+
         const esQuery = {
             index: indexArg,
             from,
             sort,
         };
 
-        if (typeof query === 'string') {
+        if (isString(query)) {
             esQuery.q = query;
         } else {
             esQuery.body = query;
