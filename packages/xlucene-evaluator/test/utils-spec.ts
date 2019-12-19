@@ -7,24 +7,58 @@ import {
     GeoShapePoint,
     GeoShapePolygon,
     GeoShapeMultiPolygon,
-    GeoShapeRelation
+    GeoShapeRelation,
+    CreateJoinQueryOptions
 } from '../src/interfaces';
+
+// @ts-ignore
+const { VariableState, parseGeoPoint } = utils;
 
 describe('Utils', () => {
     it('should have GEO_DISTANCE_UNITS', () => {
         expect(utils.GEO_DISTANCE_UNITS).toBeObject();
     });
 
-    // TODO: add tests for parseGeoPoint
+    describe('parseGeoPoint', () => {
+        it('will not throw if throwInvalid is set to false', () => {
+            expect(parseGeoPoint('asdfasdf', false)).toEqual(null);
+            // @ts-ignore
+            expect(parseGeoPoint({}, false)).toEqual(null);
+            // @ts-ignore
+            expect(parseGeoPoint(123412341234, false)).toEqual(null);
+            // @ts-ignore
+            expect(parseGeoPoint([], false)).toEqual(null);
+        });
+
+        it('can parse geo-point from a string', () => {
+            const results = parseGeoPoint('40, 50');
+            expect(results).toEqual({ lat: 40, lon: 50 });
+        });
+
+        it('can parse geo-point from a object (short hand notation)', () => {
+            const results = parseGeoPoint({ lat: 40, lon: 50 });
+            expect(results).toEqual({ lat: 40, lon: 50 });
+        });
+
+        it('can parse geo-point from a object (long hand notation)', () => {
+            const results = parseGeoPoint({ latitude: 40, longitude: 50 });
+            expect(results).toEqual({ lat: 40, lon: 50 });
+        });
+
+        it('can parse geo-point from a coordinate tuple', () => {
+            const results = parseGeoPoint([50, 40]);
+            expect(results).toEqual({ lat: 40, lon: 50 });
+        });
+    });
 
     describe('VariableState', () => {
         it('can return variables', () => {
-            const vState = new utils.VariableState();
+            const vState = new VariableState();
             expect(vState.getVaraibles()).toEqual({});
         });
 
         it('can set variables', () => {
-            const vState = new utils.VariableState();
+            const vState = new VariableState();
             const newVariableName = vState.createVariable('hello', 'world');
 
             expect(newVariableName).toEqual('$hello_1');
@@ -32,7 +66,7 @@ describe('Utils', () => {
         });
 
         it('can set with same field', () => {
-            const vState = new utils.VariableState();
+            const vState = new VariableState();
             const newVariableName1 = vState.createVariable('hello', 'world');
             const newVariableName2 = vState.createVariable('hello', 'goodbye');
 
@@ -42,7 +76,7 @@ describe('Utils', () => {
         });
 
         it('can respect existing variables', () => {
-            const vState = new utils.VariableState({ hello_1: 'stuff' });
+            const vState = new VariableState({ hello_1: 'stuff' });
             const newVariableName = vState.createVariable('hello', 'world');
 
             expect(newVariableName).toEqual('$hello_2');
@@ -79,7 +113,7 @@ describe('Utils', () => {
 
         it('will do basic "OR" joins with simple values', () => {
             const input = { hello: 'world', goodBye: 'Dave', myName: 'isSteve' };
-            const options: utils.CreateJoinQueryOptions = { joinBy: 'OR' };
+            const options: CreateJoinQueryOptions = { joinBy: 'OR' };
             const { query, variables } = createJoinQuery(input, options);
 
             expect(query).toEqual('hello: $hello_1 OR goodBye: $goodBye_1 OR myName: $myName_1');
@@ -96,7 +130,7 @@ describe('Utils', () => {
 
         it('array input values are passed through', () => {
             const input = { foo: 'bar', baz: [1, 2, 3] };
-            const options: utils.CreateJoinQueryOptions = {};
+            const options: CreateJoinQueryOptions = {};
             const { query, variables } = createJoinQuery(input, options);
 
             expect(query).toEqual('foo: $foo_1 AND baz: $baz_1');
@@ -105,7 +139,7 @@ describe('Utils', () => {
 
         it('can make a geoDistance join if field type is set to "geo"', () => {
             const input = { location: '60,90' };
-            const options: utils.CreateJoinQueryOptions = {
+            const options: CreateJoinQueryOptions = {
                 typeConfig: { location: FieldType.Geo }
             };
             const { query, variables } = createJoinQuery(input, options);
@@ -117,7 +151,7 @@ describe('Utils', () => {
         // TODO: this test can be removed when GEO is removed from code
         it('can add additional fieldParams for geoDistance', () => {
             const input = { location: '60,90' };
-            const options: utils.CreateJoinQueryOptions = {
+            const options: CreateJoinQueryOptions = {
                 fieldParams: { location: '50km' },
                 typeConfig: { location: FieldType.Geo }
             };
@@ -129,7 +163,7 @@ describe('Utils', () => {
 
         it('can make a geoDistance join if field type is set to "geoPoint" with geoPoint data', () => {
             const input = { location: '60,90' };
-            const options: utils.CreateJoinQueryOptions = {
+            const options: CreateJoinQueryOptions = {
                 fieldParams: { location: '50km' },
                 typeConfig: { location: FieldType.GeoPoint }
             };
@@ -141,7 +175,7 @@ describe('Utils', () => {
 
         it('will return an empty string if field type is set to "geoPoint" with bad data', () => {
             const input = { location: 23452345 };
-            const options: utils.CreateJoinQueryOptions = {
+            const options: CreateJoinQueryOptions = {
                 typeConfig: { location: FieldType.GeoPoint }
             };
             const { query } = createJoinQuery(input, options);
@@ -157,7 +191,7 @@ describe('Utils', () => {
             const input = {
                 location: data
             };
-            const options: utils.CreateJoinQueryOptions = {
+            const options: CreateJoinQueryOptions = {
                 fieldParams: { location: '50km' },
                 typeConfig: { location: FieldType.GeoPoint }
             };
@@ -175,254 +209,258 @@ describe('Utils', () => {
             const input = {
                 location: data
             };
-            const options: utils.CreateJoinQueryOptions = {
+            const options: CreateJoinQueryOptions = {
                 typeConfig: { location: FieldType.GeoPoint }
             };
             const { query, variables } = createJoinQuery(input, options);
-            console.log('query', JSON.stringify(query, null, 4))
-            console.log('variables', JSON.stringify(variables, null, 4))
 
-            // expect(results).toEqual('location:geoPolygon(points:["10, 10","10, 50","50, 50","50, 10"])');
             expect(query).toEqual('location:geoPolygon(points: $points_1)');
             expect(variables).toEqual({ points_1: input.location });
         });
 
-        // it('can make a geo bbox join if field type is set to "geoPoint" with GeoJSON multipolygon data', () => {
-        //     const data: GeoShapeMultiPolygon = {
-        //         type: GeoShapeType.MultiPolygon,
-        //         coordinates: [
-        //             [[[10, 10], [50, 10], [50, 50], [10, 50]]],
-        //             [[[-10, -10], [-50, -10], [-50, -50], [-10, -50]]]
-        //         ]
-        //     };
-        //     const input = {
-        //         location: data
-        //     };
-        //     const options: utils.CreateJoinQueryOptions = {
-        //         typeConfig: { location: FieldType.GeoPoint }
-        //     };
-        //     const { query, variables } = createJoinQuery(input, options);
+        it('can make a geo bbox join if field type is set to "geoPoint" with GeoJSON multipolygon data', () => {
+            const data: GeoShapeMultiPolygon = {
+                type: GeoShapeType.MultiPolygon,
+                coordinates: [
+                    [[[10, 10], [50, 10], [50, 50], [10, 50]]],
+                    [[[-10, -10], [-50, -10], [-50, -50], [-10, -50]]]
+                ]
+            };
+            const input = {
+                location: data
+            };
+            const options: CreateJoinQueryOptions = {
+                typeConfig: { location: FieldType.GeoPoint }
+            };
+            const { query, variables } = createJoinQuery(input, options);
 
-        //     expect(results).toEqual('((location:geoPolygon(points:["10, 10","10, 50","50, 50","50, 10"])) OR (location:geoPolygon(points:["-10, -10","-10, -50","-50, -50","-50, -10"])))');
-        // });
+            expect(query).toEqual('location:geoPolygon(points: $points_1)');
+            expect(variables).toEqual({ points_1: input.location });
+        });
 
-        // it('unrecognized geoJSON input with field type is set to "geoPoint" will return an empty string', () => {
-        //     const data = {
-        //         type: 'LineString',
-        //         coordinates: [[1, 1], [3, 5], [6, 8]]
-        //     };
-        //     const input = {
-        //         location: data
-        //     };
-        //     const options: utils.CreateJoinQueryOptions = {
-        //         typeConfig: { location: FieldType.GeoPoint }
-        //     };
-        //     const { query, variables } = createJoinQuery(input, options);
+        it('unrecognized geoJSON input with field type is set to "geoPoint" will return an empty string', () => {
+            const data = {
+                type: 'LineString',
+                coordinates: [[1, 1], [3, 5], [6, 8]]
+            };
+            const input = {
+                location: data
+            };
+            const options: CreateJoinQueryOptions = {
+                typeConfig: { location: FieldType.GeoPoint }
+            };
+            const { query, variables } = createJoinQuery(input, options);
 
-        //     expect(results).toEqual('');
-        // });
+            expect(query).toEqual('');
+            expect(variables).toEqual({});
+        });
 
-        // it('will return an empty string if field type is set to "geoJSON" with bad data', () => {
-        //     const input = { location: 23452345 };
-        //     const options: utils.CreateJoinQueryOptions = {
-        //         typeConfig: { location: FieldType.GeoJSON }
-        //     };
-        //     const { query, variables } = createJoinQuery(input, options);
+        it('will return an empty string if field type is set to "geoJSON" with bad data', () => {
+            const input = { location: 23452345 };
+            const options: CreateJoinQueryOptions = {
+                typeConfig: { location: FieldType.GeoJSON }
+            };
+            const { query, variables } = createJoinQuery(input, options);
 
-        //     expect(results).toEqual('');
-        // });
+            expect(query).toEqual('');
+            expect(variables).toEqual({});
+        });
 
-        // it('can make a geoContainsPoint join if field type is set to "geoJSON" with geoPoint data', () => {
-        //     const input = { location: '60,90' };
-        //     const options: utils.CreateJoinQueryOptions = {
-        //         typeConfig: { location: FieldType.GeoJSON }
-        //     };
-        //     const { query, variables } = createJoinQuery(input, options);
+        it('can make a geoContainsPoint join if field type is set to "geoJSON" with geoPoint data', () => {
+            const input = { location: '60,90' };
+            const options: CreateJoinQueryOptions = {
+                typeConfig: { location: FieldType.GeoJSON }
+            };
+            const { query, variables } = createJoinQuery(input, options);
 
-        //     expect(results).toEqual('location:geoContainsPoint(point:"60,90")');
-        // });
+            expect(query).toEqual('location:geoContainsPoint(point: $point_1)');
+            expect(variables).toEqual({ point_1: '60,90' });
+        });
 
-        // it('can make a geoContainsPoint join if field type is set to "geoJSON" with geoJSON point data', () => {
-        //     const data: GeoShapePoint = {
-        //         type: GeoShapeType.Point,
-        //         coordinates: [90, 60]
-        //     };
-        //     const input = {
-        //         location: data
-        //     };
-        //     const options: utils.CreateJoinQueryOptions = {
-        //         typeConfig: { location: FieldType.GeoJSON }
-        //     };
-        //     const { query, variables } = createJoinQuery(input, options);
+        it('can make a geoContainsPoint join if field type is set to "geoJSON" with geoJSON point data', () => {
+            const data: GeoShapePoint = {
+                type: GeoShapeType.Point,
+                coordinates: [90, 60]
+            };
+            const input = {
+                location: data
+            };
+            const options: CreateJoinQueryOptions = {
+                typeConfig: { location: FieldType.GeoJSON }
+            };
+            const { query, variables } = createJoinQuery(input, options);
 
-        //     expect(results).toEqual('location:geoContainsPoint(point:"60,90")');
-        // });
+            expect(query).toEqual('location:geoContainsPoint(point: $point_1)');
+            expect(variables).toEqual({ point_1: '60,90' });
+        });
 
-        // it('can make a geoPolygon join if field type is set to "geoJSON" with geoJSON polygon data', () => {
-        //     const data: GeoShapePolygon = {
-        //         type: GeoShapeType.Polygon,
-        //         coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50]]]
-        //     };
-        //     const input = {
-        //         location: data
-        //     };
-        //     const options: utils.CreateJoinQueryOptions = {
-        //         typeConfig: { location: FieldType.GeoJSON }
-        //     };
-        //     const { query, variables } = createJoinQuery(input, options);
+        it('can make a geoPolygon join if field type is set to "geoJSON" with geoJSON polygon data', () => {
+            const data: GeoShapePolygon = {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50]]]
+            };
+            const input = {
+                location: data
+            };
+            const options: CreateJoinQueryOptions = {
+                typeConfig: { location: FieldType.GeoJSON }
+            };
+            const { query, variables } = createJoinQuery(input, options);
 
-        //     expect(results).toEqual('location:geoPolygon(points:["10, 10","10, 50","50, 50","50, 10"])');
-        // });
+            expect(query).toEqual('location:geoPolygon(points: $points_1)');
+            expect(variables).toEqual({ points_1: input.location });
+        });
 
-        // it('can make a geoPolygon join if field type is set to "geoJSON" with geoJSON polygon data and fieldParam disjoint', () => {
-        //     const data: GeoShapePolygon = {
-        //         type: GeoShapeType.Polygon,
-        //         coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50]]]
-        //     };
-        //     const input = {
-        //         location: data
-        //     };
-        //     const options: utils.CreateJoinQueryOptions = {
-        //         fieldParams: { location: GeoShapeRelation.Disjoint },
-        //         typeConfig: { location: FieldType.GeoJSON }
-        //     };
-        //     const { query, variables } = createJoinQuery(input, options);
+        it('can make a geoPolygon join if field type is set to "geoJSON" with geoJSON polygon data and fieldParam disjoint', () => {
+            const data: GeoShapePolygon = {
+                type: GeoShapeType.Polygon,
+                coordinates: [[[10, 10], [50, 10], [50, 50], [10, 50]]]
+            };
+            const input = {
+                location: data
+            };
+            const options: CreateJoinQueryOptions = {
+                fieldParams: { location: GeoShapeRelation.Disjoint },
+                typeConfig: { location: FieldType.GeoJSON }
+            };
+            const { query, variables } = createJoinQuery(input, options);
 
-        //     expect(results).toEqual('location:geoPolygon(points:["10, 10","10, 50","50, 50","50, 10"] relation: "disjoint")');
-        // });
+            expect(query).toEqual('location:geoPolygon(points: $points_1 relation: $relation_1)');
+            expect(variables).toEqual({ points_1: input.location, relation_1: 'disjoint' });
+        });
 
-        // it('can make a geoPolygon join if field type is set to "geoJSON" with geoJSON multipolygon data', () => {
-        //     const data: GeoShapeMultiPolygon = {
-        //         type: GeoShapeType.MultiPolygon,
-        //         coordinates: [
-        //             [[[10, 10], [50, 10], [50, 50], [10, 50]]],
-        //             [[[-10, -10], [-50, -10], [-50, -50], [-10, -50]]]
-        //         ]
-        //     };
-        //     const input = {
-        //         location: data
-        //     };
-        //     const options: utils.CreateJoinQueryOptions = {
-        //         typeConfig: { location: FieldType.GeoJSON }
-        //     };
-        //     const { query, variables } = createJoinQuery(input, options);
+        it('can make a geoPolygon join if field type is set to "geoJSON" with geoJSON multipolygon data', () => {
+            const data: GeoShapeMultiPolygon = {
+                type: GeoShapeType.MultiPolygon,
+                coordinates: [
+                    [[[10, 10], [50, 10], [50, 50], [10, 50]]],
+                    [[[-10, -10], [-50, -10], [-50, -50], [-10, -50]]]
+                ]
+            };
+            const input = {
+                location: data
+            };
+            const options: CreateJoinQueryOptions = {
+                typeConfig: { location: FieldType.GeoJSON }
+            };
+            const { query, variables } = createJoinQuery(input, options);
 
-        //     expect(results).toEqual('((location:geoPolygon(points:["10, 10","10, 50","50, 50","50, 10"])) OR (location:geoPolygon(points:["-10, -10","-10, -50","-50, -50","-50, -10"])))');
-        // });
+            expect(query).toEqual('location:geoPolygon(points: $points_1)');
+            expect(variables).toEqual({ points_1: input.location });
+        });
 
-        // it('can make a geoPolygon join if field type is set to "geoJSON" with geoJSON polygon data with holes', () => {
-        //     const data: GeoShapePolygon = {
-        //         type: GeoShapeType.Polygon,
-        //         coordinates: [
-        //             [[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],
-        //             [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]
-        //         ]
-        //     };
-        //     const input = {
-        //         location: data
-        //     };
-        //     const options: utils.CreateJoinQueryOptions = {
-        //         typeConfig: { location: FieldType.GeoJSON }
-        //     };
-        //     const { query, variables } = createJoinQuery(input, options);
-        //     const resultQuery = 'location:geoPolygon(points:["0, 100","0, 101","1, 101","1, 100","0, 100"]) AND NOT location:geoPolygon(points:["0.2, 100.2","0.2, 100.8","0.8, 100.8","0.8, 100.2","0.2, 100.2"])';
-        //     expect(results).toEqual(resultQuery);
-        // });
+        it('can make a geoPolygon join if field type is set to "geoJSON" with geoJSON polygon data with holes', () => {
+            const data: GeoShapePolygon = {
+                type: GeoShapeType.Polygon,
+                coordinates: [
+                    [[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],
+                    [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]
+                ]
+            };
+            const input = {
+                location: data
+            };
+            const options: CreateJoinQueryOptions = {
+                typeConfig: { location: FieldType.GeoJSON }
+            };
+            const { query, variables } = createJoinQuery(input, options);
 
-        // it('can make a geoPolygon join if field type is set to "GeoPoint" with geoJSON polygon data with holes and relation set to disjoint', () => {
-        //     const data: GeoShapePolygon = {
-        //         type: GeoShapeType.Polygon,
-        //         coordinates: [
-        //             [[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],
-        //             [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]
-        //         ]
-        //     };
-        //     const input = {
-        //         location: data
-        //     };
-        //     const options: utils.CreateJoinQueryOptions = {
-        //         fieldParams: { location: GeoShapeRelation.Within },
-        //         typeConfig: { location: FieldType.GeoPoint }
-        //     };
-        //     const { query, variables } = createJoinQuery(input, options);
-        //     const resultQuery = 'location:geoPolygon(points:["0, 100","0, 101","1, 101","1, 100","0, 100"] relation: "within") AND NOT location:geoPolygon(points:["0.2, 100.2","0.2, 100.8","0.8, 100.8","0.8, 100.2","0.2, 100.2"] relation: "within")';
-        //     expect(results).toEqual(resultQuery);
-        // });
+            expect(query).toEqual('location:geoPolygon(points: $points_1)');
+            expect(variables).toEqual({ points_1: input.location });
+        });
 
-        // it('can make a geoPolygon join if field type is set to "GeoPoint" with geoJSON multipolygon data that has holes', () => {
-        //     const data: GeoShapeMultiPolygon = {
-        //         type: GeoShapeType.MultiPolygon,
-        //         coordinates: [
-        //             [
-        //                 [[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]],
-        //                 [[20, 20], [40, 20], [40, 40], [20, 40], [20, 20]]
-        //             ],
-        //             [
-        //                 [[-10, -10], [-50, -10], [-50, -50], [-10, -50], [-10, -10]],
-        //                 [[-20, -20], [-40, -20], [-40, -40], [-20, -40], [-20, -20]]
-        //             ]
-        //         ]
-        //     };
-        //     const input = {
-        //         location: data
-        //     };
-        //     const options: utils.CreateJoinQueryOptions = {
-        //         typeConfig: { location: FieldType.GeoPoint }
-        //     };
-        //     const { query, variables } = createJoinQuery(input, options);
-        //     const firstPolyQuery = 'location:geoPolygon(points:["10, 10","10, 50","50, 50","50, 10","10, 10"]) AND NOT location:geoPolygon(points:["20, 20","20, 40","40, 40","40, 20","20, 20"])';
-        //     const secondPolyQuery = 'location:geoPolygon(points:["-10, -10","-10, -50","-50, -50","-50, -10","-10, -10"]) AND NOT location:geoPolygon(points:["-20, -20","-20, -40","-40, -40","-40, -20","-20, -20"])';
-        //     const resultsQuery = `((${firstPolyQuery}) OR (${secondPolyQuery}))`;
+        it('can make a geoPolygon join if field type is set to "GeoPoint" with geoJSON polygon data with holes and relation set to disjoint', () => {
+            const data: GeoShapePolygon = {
+                type: GeoShapeType.Polygon,
+                coordinates: [
+                    [[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],
+                    [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]
+                ]
+            };
+            const input = {
+                location: data
+            };
+            const options: CreateJoinQueryOptions = {
+                fieldParams: { location: GeoShapeRelation.Within },
+                typeConfig: { location: FieldType.GeoPoint }
+            };
+            const { query, variables } = createJoinQuery(input, options);
 
-        //     expect(results).toEqual(resultsQuery);
-        // });
+            expect(query).toEqual('location:geoPolygon(points: $points_1 relation: $relation_1)');
+            expect(variables).toEqual({ points_1: input.location, relation_1: 'within' });
+        });
 
-        // it('can make a geoPolygon join if field type is set to "geoJSON" with geoJSON polygon data with holes and relation set to disjoint', () => {
-        //     const data: GeoShapePolygon = {
-        //         type: GeoShapeType.Polygon,
-        //         coordinates: [
-        //             [[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],
-        //             [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]
-        //         ]
-        //     };
-        //     const input = {
-        //         location: data
-        //     };
-        //     const options: utils.CreateJoinQueryOptions = {
-        //         fieldParams: { location: GeoShapeRelation.Within },
-        //         typeConfig: { location: FieldType.GeoJSON }
-        //     };
-        //     const { query, variables } = createJoinQuery(input, options);
-        //     const resultQuery = 'location:geoPolygon(points:["0, 100","0, 101","1, 101","1, 100","0, 100"] relation: "within") AND NOT location:geoPolygon(points:["0.2, 100.2","0.2, 100.8","0.8, 100.8","0.8, 100.2","0.2, 100.2"] relation: "within")';
-        //     expect(results).toEqual(resultQuery);
-        // });
+        it('can make a geoPolygon join if field type is set to "GeoPoint" with geoJSON multipolygon data that has holes', () => {
+            const data: GeoShapeMultiPolygon = {
+                type: GeoShapeType.MultiPolygon,
+                coordinates: [
+                    [
+                        [[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]],
+                        [[20, 20], [40, 20], [40, 40], [20, 40], [20, 20]]
+                    ],
+                    [
+                        [[-10, -10], [-50, -10], [-50, -50], [-10, -50], [-10, -10]],
+                        [[-20, -20], [-40, -20], [-40, -40], [-20, -40], [-20, -20]]
+                    ]
+                ]
+            };
+            const input = {
+                location: data
+            };
+            const options: CreateJoinQueryOptions = {
+                typeConfig: { location: FieldType.GeoPoint }
+            };
+            const { query, variables } = createJoinQuery(input, options);
 
-        // it('can make a geoPolygon join if field type is set to "geoJSON" with geoJSON multipolygon data that has holes', () => {
-        //     const data: GeoShapeMultiPolygon = {
-        //         type: GeoShapeType.MultiPolygon,
-        //         coordinates: [
-        //             [
-        //                 [[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]],
-        //                 [[20, 20], [40, 20], [40, 40], [20, 40], [20, 20]]
-        //             ],
-        //             [
-        //                 [[-10, -10], [-50, -10], [-50, -50], [-10, -50], [-10, -10]],
-        //                 [[-20, -20], [-40, -20], [-40, -40], [-20, -40], [-20, -20]]
-        //             ]
-        //         ]
-        //     };
-        //     const input = {
-        //         location: data
-        //     };
-        //     const options: utils.CreateJoinQueryOptions = {
-        //         typeConfig: { location: FieldType.GeoJSON }
-        //     };
-        //     const { query, variables } = createJoinQuery(input, options);
-        //     const firstPolyQuery = 'location:geoPolygon(points:["10, 10","10, 50","50, 50","50, 10","10, 10"]) AND NOT location:geoPolygon(points:["20, 20","20, 40","40, 40","40, 20","20, 20"])';
-        //     const secondPolyQuery = 'location:geoPolygon(points:["-10, -10","-10, -50","-50, -50","-50, -10","-10, -10"]) AND NOT location:geoPolygon(points:["-20, -20","-20, -40","-40, -40","-40, -20","-20, -20"])';
-        //     const resultsQuery = `((${firstPolyQuery}) OR (${secondPolyQuery}))`;
+            expect(query).toEqual('location:geoPolygon(points: $points_1)');
+            expect(variables).toEqual({ points_1: input.location });
+        });
 
-        //     expect(results).toEqual(resultsQuery);
-        // });
+        it('can make a geoPolygon join if field type is set to "geoJSON" with geoJSON polygon data with holes and relation set to disjoint', () => {
+            const data: GeoShapePolygon = {
+                type: GeoShapeType.Polygon,
+                coordinates: [
+                    [[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],
+                    [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]
+                ]
+            };
+            const input = {
+                location: data
+            };
+            const options: CreateJoinQueryOptions = {
+                fieldParams: { location: GeoShapeRelation.Within },
+                typeConfig: { location: FieldType.GeoJSON }
+            };
+            const { query, variables } = createJoinQuery(input, options);
+
+            expect(query).toEqual('location:geoPolygon(points: $points_1 relation: $relation_1)');
+            expect(variables).toEqual({ points_1: input.location, relation_1: 'within' });
+        });
+
+        it('can make a geoPolygon join if field type is set to "geoJSON" with geoJSON multipolygon data that has holes', () => {
+            const data: GeoShapeMultiPolygon = {
+                type: GeoShapeType.MultiPolygon,
+                coordinates: [
+                    [
+                        [[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]],
+                        [[20, 20], [40, 20], [40, 40], [20, 40], [20, 20]]
+                    ],
+                    [
+                        [[-10, -10], [-50, -10], [-50, -50], [-10, -50], [-10, -10]],
+                        [[-20, -20], [-40, -20], [-40, -40], [-20, -40], [-20, -20]]
+                    ]
+                ]
+            };
+            const input = {
+                location: data
+            };
+            const options: CreateJoinQueryOptions = {
+                typeConfig: { location: FieldType.GeoJSON }
+            };
+            const { query, variables } = createJoinQuery(input, options);
+
+            expect(query).toEqual('location:geoPolygon(points: $points_1)');
+            expect(variables).toEqual({ points_1: input.location });
+        });
     });
 });

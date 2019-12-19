@@ -1,3 +1,5 @@
+import { AnyObject } from '@terascope/utils';
+
 type GeoPointArr = [number, number];
 type GeoPointStr = string;
 type GeoObjShort = {lat: string | number; lon: string | number};
@@ -81,3 +83,10 @@ export interface JoinQueryResult {
     query: string;
     variables: Variables;
 }
+
+export type CreateJoinQueryOptions = {
+    typeConfig?: TypeConfig;
+    fieldParams?: Record<string, string>;
+    joinBy?: JoinBy;
+    variables?: AnyObject;
+};

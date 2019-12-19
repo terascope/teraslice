@@ -15,12 +15,11 @@ import {
     GeoPointInput,
     GeoPoint,
     GeoDistanceUnit,
-    JoinBy,
-    TypeConfig,
     FieldType,
     CoordinateTuple,
     GeoShapeRelation,
-    JoinQueryResult
+    JoinQueryResult,
+    CreateJoinQueryOptions
 } from './interfaces';
 import {
     isGeoJSONData,
@@ -203,13 +202,6 @@ export function parseGeoPoint(point: GeoPointInput, throwInvalid = true): GeoPoi
     return null;
 }
 
-export type CreateJoinQueryOptions = {
-    typeConfig?: TypeConfig;
-    fieldParams?: Record<string, string>;
-    joinBy?: JoinBy;
-    variables?: AnyObject;
-};
-
 const relationList = Object.values(GeoShapeRelation);
 
 function makeXluceneGeoDistanceQuery(
@@ -242,25 +234,17 @@ export function coordinateToXlucene(cord: CoordinateTuple) {
     return `"${cord[1]}, ${cord[0]}"`;
 }
 
-function makeArrayString(arr: any[]) {
-    return `[${arr}]`;
-}
-
-function makeList(list: any[]) {
-    return makeArrayString(list.map(coordinateToXlucene));
-}
-
-function geoPolyQuery(field: string, vList: string, vParam?: string) {
+function geoPolyQuery(field: string, polyVariableName: string, vParam?: string) {
     if (vParam) {
-        return `${field}:geoPolygon(points: ${vList} relation: ${vParam})`;
+        return `${field}:geoPolygon(points: ${polyVariableName} relation: ${vParam})`;
     }
-    return `${field}:geoPolygon(points: ${vList})`;
+    return `${field}:geoPolygon(points: ${polyVariableName})`;
 }
 
 function makeXlucenePolyQuery(
     variableState: VariableState,
     field: string,
-    value: CoordinateTuple[][],
+    polyVariableName: string,
     fieldParam?: string
 ) {
     let vParam: string | undefined;
@@ -268,18 +252,8 @@ function makeXlucenePolyQuery(
     if (fieldParam && relationList.includes(fieldParam as GeoShapeRelation)) {
         vParam = variableState.createVariable('relation', fieldParam) as string;
     }
-    // there there is more than one, the other polygons listed are holes
-    if (value.length > 1) {
-        return value.map(makeList)
-            .map((points) => {
-                const vList = variableState.createVariable('points', points);
-                return geoPolyQuery(field, vList, vParam);
-            })
-            .join(' AND NOT ');
-    }
 
-    const vList = variableState.createVariable('points', value[0]);
-    return geoPolyQuery(field, vList, vParam);
+    return geoPolyQuery(field, polyVariableName, vParam);
 }
 
 function createGeoQuery(
@@ -290,12 +264,11 @@ function createGeoQuery(
     fieldParam?: string
 ) {
     if (isGeoJSONData(value)) {
-        if (isGeoShapePolygon(value)) {
-            return makeXlucenePolyQuery(variableState, field, value.coordinates, fieldParam);
-        }
-
-        if (isGeoShapeMultiPolygon(value)) {
-            return `(${value.coordinates.map((coordinates) => `(${makeXlucenePolyQuery(variableState, field, coordinates, fieldParam)})`).join(' OR ')})`;
+        if (isGeoShapePolygon(value) || isGeoShapeMultiPolygon(value)) {
+            // geoPolygon internally takes care of poly/multipoly.
+            // need to preserve original poly in variables
+            const polyVariableName = variableState.createVariable('points', value);
+            return makeXlucenePolyQuery(variableState, field, polyVariableName, fieldParam);
         }
 
         if (isGeoShapePoint(value)) {
