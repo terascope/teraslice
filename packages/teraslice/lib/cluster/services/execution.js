@@ -297,11 +297,22 @@ module.exports = function executionService(context, { clusterMasterServer }) {
             ? await getExecutionContext(exIdOrEx)
             : cloneDeep(exIdOrEx);
 
-        const count = await stateStore.countRecoverySlices(recoverFromEx.ex_id, -1, cleanupType);
+        const _cleanupType = recoverFromEx.autorecover && !cleanupType
+            ? RecoveryCleanupType.pending
+            : cleanupType;
+
+        const count = await stateStore.countRecoverySlices(
+            recoverFromEx.ex_id,
+            -1,
+            _cleanupType
+        );
+
+        this.logger.info(`creating a execution from ${recoverFromEx.ex_id} with ${count} slices to recover`);
+
         if (!count) {
             if (recoverFromEx.autorecover) {
                 recoverFromEx.previous_execution = recoverFromEx.ex_id;
-                recoverFromEx.recovered_slice_type = RecoveryCleanupType.pending;
+                recoverFromEx.recovered_slice_type = _cleanupType;
                 delete recoverFromEx.recovered_execution;
                 return createExecutionContext(recoverFromEx);
             }
