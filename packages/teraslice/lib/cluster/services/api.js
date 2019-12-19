@@ -503,7 +503,7 @@ module.exports = function apiService(context, { assetsUrl, app }) {
                 executionService.getExecutionContext(exId)
                     .then((execution) => {
                         const status = execution._status;
-                        const terminalList = executionService.terminalStatusList();
+                        const terminalList = exStore.getTerminalStatuses();
                         const isTerminal = terminalList.find((tStat) => tStat === status);
                         if (isTerminal || `${blocking}` !== 'true') {
                             resolve({ status });
