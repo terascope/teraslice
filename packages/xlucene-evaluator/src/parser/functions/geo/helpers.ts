@@ -19,6 +19,7 @@ import {
 } from '@turf/helpers';
 // @ts-ignore
 import lineToPolygon from '@turf/line-to-polygon';
+import { getCoords } from '@turf/invariant';
 import { parseGeoPoint } from '../../../utils';
 import {
     GeoShapeRelation,
@@ -86,15 +87,17 @@ export function makeShape(geoShape: JoinGeoShape) {
     }
 
     if (isGeoShapePolygon(geoShape)) {
-        // for backwards compatability, need to support 3-point polygons
-        if (geoShape.coordinates[0].length === 3) {
-            const line = lineString(geoShape.coordinates[0]);
-            return lineToPolygon(line);
-        }
         return tPolygon(geoShape.coordinates);
     }
 
     return feature;
+}
+
+export function validateListCoords(coords: CoordinateTuple[]) {
+    if (coords.length < 3) throw new Error('geoPolygon points parameter must have at least three geo-points');
+    const line = lineString(coords);
+    const polygon = lineToPolygon(line);
+    return getCoords(polygon);
 }
 
 export function polyHasShape(queryPolygon: any, relation: GeoShapeRelation) {

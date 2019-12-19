@@ -282,34 +282,6 @@ function makeXlucenePolyQuery(
     return geoPolyQuery(field, vList, vParam);
 }
 
-// function createGeoQuery(field: string, value: any, targetType: FieldType, fieldParam?: string) {
-//     if (isGeoJSONData(value)) {
-//         if (isGeoShapePolygon(value)) {
-//             return makeXlucenePolyQuery(field, value.coordinates, fieldParam);
-//         }
-
-//         if (isGeoShapeMultiPolygon(value)) {
-//             return `(${value.coordinates.map((coordinates) => `(${makeXlucenePolyQuery(field, coordinates, fieldParam)})`).join(' OR ')})`;
-//         }
-
-//         if (isGeoShapePoint(value)) {
-//             if (isGeoPointType(targetType)) {
-//                 return makeXluceneGeoDistanceQuery(field, value.coordinates, fieldParam);
-//             }
-//             return makeXlucenePolyContainsPoint(field, value.coordinates);
-//         }
-//         // We do not support any other geoJSON types;
-//         return '';
-//     }
-
-//     // incoming value is a geo-point and we compare to another geo-point by geoDistance query
-//     if (isGeoPointType(targetType)) return makeXluceneGeoDistanceQuery(field, value, fieldParam);
-
-//     if (isGeoJSONType(targetType)) return makeXlucenePolyContainsPoint(field, value);
-//     // if here then return a noop
-//     return '';
-// }
-
 function createGeoQuery(
     variableState: VariableState,
     field: string,

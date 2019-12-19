@@ -4,7 +4,12 @@ import * as ts from '@terascope/utils';
 import * as p from '../parser';
 import { CachedTranslator, SortOrder } from '../translator';
 import * as i from './interfaces';
-import { GeoDistanceUnit, TypeConfig, FieldType } from '../interfaces';
+import {
+    GeoDistanceUnit,
+    TypeConfig,
+    FieldType,
+    Variables,
+} from '../interfaces';
 import { parseWildCard, matchString } from '../document-matcher/logic-builder/string';
 
 const _logger = ts.debugLogger('xlucene-query-access');
@@ -21,6 +26,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     readonly allowEmpty: boolean;
     readonly typeConfig: TypeConfig;
     readonly parsedTypeConfig: TypeConfig;
+    readonly variables: Variables;
     logger: ts.Logger;
 
     private readonly _parser: p.CachedParser = new p.CachedParser();
@@ -35,6 +41,8 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         } = config;
 
         const typeConfig = config.type_config || options.type_config || {};
+        const variables = options.variables || {};
+
         if (ts.isEmpty(typeConfig)) throw new Error('type_config must be provided');
         this.typeConfig = { ...typeConfig };
 
@@ -52,6 +60,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         this.defaultGeoSortOrder = config.default_geo_sort_order;
         this.defaultGeoSortUnit = config.default_geo_sort_unit;
         this.parsedTypeConfig = this._restrictTypeConfig();
+        this.variables = variables;
     }
 
     clearCache() {
@@ -64,12 +73,16 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      *
      * @returns a restricted xlucene query
      */
-    restrict(q: string): string {
+    restrict(q: string, options: i.RestrictOptions = {}): string {
         let parser: p.Parser;
+        const { variables } = options;
+        const queryVariables = Object.assign({}, this.variables, variables);
+
         try {
             parser = this._parser.make(q, {
                 logger: this.logger,
                 type_config: this.typeConfig,
+                variables: queryVariables
             });
         } catch (err) {
             throw new ts.TSError(err, {
@@ -167,19 +180,22 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     restrictSearchQuery(query: string, opts: i.RestrictSearchQueryOptions = {}): es.SearchParams {
         const {
             params = {},
+            variables = {},
             elasticsearch_version: esVersion = 6,
             ...translateOptions
         } = opts;
+        const queryVariables = Object.assign({}, this.variables, variables);
 
         if (params._source) {
             throw new ts.TSError('Cannot include _source in params, use _sourceInclude or _sourceExclude');
         }
 
-        const restricted = this.restrict(query);
+        const restricted = this.restrict(query, { variables: queryVariables });
 
         const parsed = this._parser.make(restricted, {
             type_config: this.typeConfig,
-            logger: this.logger
+            logger: this.logger,
+            variables: queryVariables
         });
 
         const translator = this._translator.make(parsed, {
@@ -188,6 +204,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             default_geo_field: this.defaultGeoField,
             default_geo_sort_order: this.defaultGeoSortOrder,
             default_geo_sort_unit: this.defaultGeoSortUnit,
+            variables: queryVariables
         });
 
         const translated = translator.toElasticsearchDSL(translateOptions);

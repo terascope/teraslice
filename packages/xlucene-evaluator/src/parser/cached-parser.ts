@@ -12,7 +12,6 @@ export class CachedParser {
     make(query: string, options?: ParserOptions) {
         const cached = _cache.get(this)!;
         if (cached[query] != null) return cached[query];
-
         const parser = new Parser(query, options);
 
         cached[query] = parser;

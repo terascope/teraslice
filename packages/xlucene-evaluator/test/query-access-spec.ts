@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { SearchParams } from 'elasticsearch';
 import { TSError } from '@terascope/utils';
-import { QueryAccess, FieldType } from '../src';
+import { QueryAccess, FieldType, GeoShapeType } from '../src';
 
 describe('QueryAccess', () => {
     describe('when constructed without type_config', () => {
@@ -645,6 +645,201 @@ describe('QueryAccess', () => {
                     'bar',
                     'baz'
                 ]
+            });
+        });
+    });
+
+    describe('can work with variables', () => {
+        const queryAccess = new QueryAccess({
+            allow_implicit_queries: true,
+            excludes: [],
+            includes: [],
+        }, {
+            type_config: {
+                foo: FieldType.String,
+                bar: FieldType.String,
+            },
+            variables: {
+                foo1: 'hello world',
+                foo2: ['some', 'thing'],
+                bar1: 'I am bar',
+            }
+        });
+
+        it('should be able to return string variable elasticsearch dsl', () => {
+            const q = 'foo:$foo1';
+            const result = queryAccess.restrictSearchQuery(q);
+
+            expect(result).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                match: {
+                                    foo: {
+                                        operator: 'and',
+                                        query: 'hello world'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                _sourceInclude: [],
+                _sourceExclude: []
+            });
+        });
+
+        it('should be able to return array string variable elasticsearch dsl', () => {
+            const q = 'foo:$foo2';
+            const result = queryAccess.restrictSearchQuery(q);
+
+            expect(result).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                bool: {
+                                    should: [
+                                        {
+                                            bool: {
+                                                filter: [
+                                                    {
+                                                        match: {
+                                                            foo: {
+                                                                operator: 'and',
+                                                                query: 'some'
+                                                            }
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            bool: {
+                                                filter: [
+                                                    {
+                                                        match: {
+                                                            foo: {
+                                                                operator: 'and',
+                                                                query: 'thing'
+                                                            }
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                _sourceInclude: [],
+                _sourceExclude: []
+            });
+        });
+
+        it('should be able to add additonal varaibles', () => {
+            const variables = {
+                foo3: 'iamvariable'
+            };
+            const q = 'foo:$foo3';
+            const result = queryAccess.restrictSearchQuery(q, { variables });
+
+            expect(result).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                match: {
+                                    foo: {
+                                        operator: 'and',
+                                        query: variables.foo3
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                _sourceInclude: [],
+                _sourceExclude: []
+            });
+        });
+
+        it('should be able to override default variables', () => {
+            const variables = {
+                bar1: 'iamvariable'
+            };
+            const q = 'foo:$bar1';
+            const result = queryAccess.restrictSearchQuery(q, { variables });
+
+            expect(result).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                match: {
+                                    foo: {
+                                        operator: 'and',
+                                        query: variables.bar1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                _sourceInclude: [],
+                _sourceExclude: []
+            });
+        });
+
+        it('does not used cached translator if variables have changed', () => {
+            const q1 = 'bar:$bar1';
+            const result1 = queryAccess.restrictSearchQuery(q1);
+
+            expect(result1).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                match: {
+                                    bar: {
+                                        operator: 'and',
+                                        query: 'I am bar'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                _sourceInclude: [],
+                _sourceExclude: []
+            });
+
+            const variables = {
+                bar1: 'i-am-a-variable'
+            };
+            const q2 = 'bar:$bar1';
+            const result2 = queryAccess.restrictSearchQuery(q2, { variables });
+
+            expect(result2).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                match: {
+                                    bar: {
+                                        operator: 'and',
+                                        query: variables.bar1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                _sourceInclude: [],
+                _sourceExclude: []
             });
         });
     });

@@ -4,7 +4,8 @@ import {
     makeShape,
     polyHasShape,
     isGeoShapePolygon,
-    isGeoShapeMultiPolygon
+    isGeoShapeMultiPolygon,
+    validateListCoords
 } from './helpers';
 import { parseGeoPoint } from '../../../utils';
 import * as i from '../../interfaces';
@@ -66,9 +67,8 @@ function validate(params: i.Term[]): { polygonShape: GeoShape; relation: GeoShap
             const { lat, lon } = parseGeoPoint(value);
             return [lon, lat];
         });
-
-        if (points.length < 3) throw new Error('geoPolygon points parameter must have at least three geo-points');
-        polygonShape.coordinates.push(points);
+        const coords = validateListCoords(points);
+        polygonShape.coordinates = coords;
     }
 
     return { polygonShape, relation };
@@ -203,14 +203,14 @@ const geoPolygon: i.FunctionDefinition = {
             return polyHasPoint(polygon);
         }
 
-        function polyToSGeoShapeMatcher() {
+        function polyToGeoShapeMatcher() {
             const polygon = makeShape(polygonShape);
             if (polygon == null) return () => false;
             return polyHasShape(polygon, relation);
         }
 
         return {
-            match: targetIsGeoPoint ? polyToGeoPointMatcher() : polyToSGeoShapeMatcher(),
+            match: targetIsGeoPoint ? polyToGeoPointMatcher() : polyToGeoShapeMatcher(),
             toElasticsearchQuery: targetIsGeoPoint ? esPolyToPointQuery : esPolyToPolyQuery
         };
     }

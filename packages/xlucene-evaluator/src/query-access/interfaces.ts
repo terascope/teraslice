@@ -2,9 +2,10 @@ import { SearchParams } from 'elasticsearch';
 import { AnyObject } from '@terascope/utils';
 import { SortOrder, ElasticsearchDSLOptions } from '../translator/interfaces';
 import { ParserOptions } from '../parser';
-import { TypeConfig, GeoDistanceUnit } from '../interfaces';
+import { TypeConfig, GeoDistanceUnit, Variables } from '../interfaces';
 
 export interface RestrictSearchQueryOptions extends ElasticsearchDSLOptions {
+    variables?: Variables;
     /**
      * Elasticsearch search parameters
      * _sourceInclude and _sourceExclude will be filtered based
@@ -16,6 +17,10 @@ export interface RestrictSearchQueryOptions extends ElasticsearchDSLOptions {
      * @default 6
     */
     elasticsearch_version?: number;
+}
+
+export interface RestrictOptions {
+    variables?: Variables;
 }
 
 export interface QueryAccessConfig<T extends AnyObject = AnyObject> {

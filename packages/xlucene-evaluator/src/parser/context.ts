@@ -8,7 +8,6 @@ import { TypeConfig, FieldType, Variables } from '../interfaces';
 export default function makeContext(args: any) {
     let typeConfig: TypeConfig;
     let variables: Variables;
-
     let logger: Logger;
     // eslint-disable-next-line
     ({ typeConfig = {}, variables = {}, logger } = args);

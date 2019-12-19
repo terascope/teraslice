@@ -1,6 +1,6 @@
 import { debugLogger, isString, Logger } from '@terascope/utils';
 import { Parser } from '../parser';
-import { TypeConfig, GeoDistanceUnit } from '../interfaces';
+import { TypeConfig, GeoDistanceUnit, Variables } from '../interfaces';
 import { parseGeoDistanceUnit } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
@@ -11,12 +11,14 @@ export class Translator {
     readonly query: string;
     logger: Logger;
     readonly typeConfig: TypeConfig;
+    readonly variables: Variables | undefined;
     private readonly _parser: Parser;
     private _defaultGeoField?: string;
     private _defaultGeoSortOrder: 'asc'|'desc' = 'asc';
     private _defaultGeoSortUnit: GeoDistanceUnit = 'meters';
 
     constructor(input: string | Parser, options: i.TranslatorOptions = {}) {
+        this.variables = options.variables;
         this.logger = options.logger != null
             ? options.logger.child({ module: 'xlucene-translator' })
             : _logger;
@@ -26,6 +28,7 @@ export class Translator {
             this._parser = new Parser(input, {
                 type_config: this.typeConfig,
                 logger: this.logger,
+                variables: this.variables
             });
         } else {
             this._parser = input;
