@@ -302,6 +302,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
             if (recoverFromEx.autorecover) {
                 recoverFromEx.previous_execution = recoverFromEx.ex_id;
                 recoverFromEx.recovered_slice_type = RecoveryCleanupType.pending;
+                delete recoverFromEx.recovered_execution;
                 return createExecutionContext(recoverFromEx);
             }
 
