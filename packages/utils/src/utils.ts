@@ -169,3 +169,33 @@ export function getField<T, P extends keyof T, V>(
     }
     return result || defaultVal;
 }
+
+function _getArgCacheKey(args: any[]): string {
+    const fixed = args.filter((a, i, arr) => {
+        if (a === undefined && arr.length === (i + 1)) return false;
+        return true;
+    });
+    try {
+        return JSON.stringify(fixed);
+    } catch (_e) {
+        return toString(fixed);
+    }
+}
+
+type MemoizeFn = (...args: any[]) => any;
+/**
+ * A replacement for lodash memoize
+*/
+export function memoize<T extends MemoizeFn>(fn: T): T {
+    const _cache = new Map<string, any>();
+
+    const _memoize: any = (...args: any[]): any => {
+        const key = _getArgCacheKey(args);
+        const cached = _cache.get(key);
+        if (cached !== undefined) return cached;
+        const result = fn(...args);
+        _cache.set(key, result);
+        return result;
+    };
+    return _memoize;
+}
