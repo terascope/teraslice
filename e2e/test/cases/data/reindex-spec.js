@@ -1,6 +1,6 @@
 'use strict';
 
-const _ = require('lodash');
+const { get, times } = require('@terascope/utils');
 const misc = require('../../misc');
 const { waitForExStatus } = require('../../wait');
 const { resetState, runEsJob, testJobLifeCycle } = require('../../helpers');
@@ -36,7 +36,7 @@ describe('reindex', () => {
         // the job should  be marked as completed but no new index
         // as there are no records
         await misc.indexStats(specIndex).catch((errResponse) => {
-            const reason = _.get(errResponse, 'body.error.reason');
+            const reason = get(errResponse, 'body.error.reason');
             expect(reason).toEqual('no such index');
         });
     });
@@ -66,7 +66,7 @@ describe('reindex', () => {
         jobSpec.operations[0].interval = '1s';
         jobSpec.operations[1].index = specIndex;
 
-        const promises = _.times(iterations, async () => {
+        const promises = times(iterations, async () => {
             const ex = await teraslice.executions.submit(jobSpec);
             return waitForExStatus(ex, 'completed');
         });

@@ -1,6 +1,6 @@
 'use strict';
 
-const _ = require('lodash');
+const { cloneDeep } = require('@terascope/utils');
 const path = require('path');
 const fse = require('fs-extra');
 const {
@@ -90,7 +90,7 @@ module.exports = async function setupTerasliceConfig() {
 };
 
 async function writeMasterConfig(baseConfig) {
-    const masterConfig = _.cloneDeep(baseConfig);
+    const masterConfig = cloneDeep(baseConfig);
     masterConfig.teraslice.master = true;
 
     const masterConfigPath = path.join(CONFIG_PATH, 'teraslice-master.json');
@@ -100,7 +100,7 @@ async function writeMasterConfig(baseConfig) {
 }
 
 async function writeWorkerConfig(baseConfig) {
-    const workerConfig = _.cloneDeep(baseConfig);
+    const workerConfig = cloneDeep(baseConfig);
     workerConfig.teraslice.master = false;
 
     const workerConfigPath = path.join(CONFIG_PATH, 'teraslice-worker.json');

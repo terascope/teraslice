@@ -1,9 +1,11 @@
 'use strict';
 
-const _ = require('lodash');
+const {
+    memoize,
+    cloneDeep
+} = require('@terascope/utils');
 const path = require('path');
 const fse = require('fs-extra');
-const Promise = require('bluebird');
 const nanoid = require('nanoid/generate');
 const { TerasliceClient } = require('teraslice-client-js');
 const ElasticsearchClient = require('elasticsearch').Client;
@@ -37,7 +39,7 @@ const WORKERS_PER_NODE = 12;
 const compose = require('@terascope/docker-compose-js')('docker-compose.yml');
 const signale = require('./signale');
 
-const es = _.memoize(
+const es = memoize(
     () => new ElasticsearchClient({
         host: ELASTICSEARCH_HOST,
         log: 'error',
@@ -45,13 +47,13 @@ const es = _.memoize(
     })
 );
 
-const teraslice = _.memoize(() => new TerasliceClient({
+const teraslice = memoize(() => new TerasliceClient({
     host: `http://${HOST_IP}:45678`,
     timeout: 2 * 60 * 1000
 }));
 
 function newJob(name) {
-    return _.cloneDeep(require(`./fixtures/jobs/${name}.json`));
+    return cloneDeep(require(`./fixtures/jobs/${name}.json`));
 }
 
 function injectDelay(jobSpec, ms = 1000) {
@@ -124,12 +126,11 @@ function scaleService(service, count) {
 }
 
 function newId(prefix, lowerCase = false, length = 15) {
-    let characters = '-0123456789abcdefghijklmnopqrstuvwxyz';
+    let characters = '0123456789abcdefghijklmnopqrstuvwxyz';
     if (!lowerCase) {
         characters += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     }
-    let id = _.trim(nanoid(characters, length), '-');
-    id = _.padEnd(id, length, 'abcdefghijklmnopqrstuvwxyz');
+    const id = nanoid(characters, length);
     if (prefix) {
         return `${prefix}-${id}`;
     }

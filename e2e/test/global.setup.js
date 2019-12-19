@@ -1,9 +1,11 @@
 'use strict';
 
 const ms = require('ms');
-const _ = require('lodash');
+const {
+    castArray,
+    pDelay
+} = require('@terascope/utils');
 const fse = require('fs-extra');
-const Promise = require('bluebird');
 const signale = require('./signale');
 const { waitForClusterState, waitForExStatus } = require('./wait');
 const setupTerasliceConfig = require('./setup-config');
@@ -86,13 +88,13 @@ async function generateTestData() {
                 jobSpec.operations[0].size = count / hex.length;
                 jobSpec.operations[0].set_id = 'hexadecimal';
                 jobSpec.operations[1].id_field = 'id';
-                const result = await Promise.map(hex, (letter) => {
+                const result = await Promise.all(hex.map((letter) => {
                     jobSpec.name = `Generate: ${indexName}[${letter}]`;
                     jobSpec.operations[0].id_start_key = letter;
                     return postJob(jobSpec);
-                });
-                const executions = _.castArray(result);
-                await Promise.map(executions, (ex) => waitForExStatus(ex, 'completed'));
+                }));
+                const executions = castArray(result);
+                await Promise.all(executions.map((ex) => waitForExStatus(ex, 'completed')));
             } else {
                 await postJob(jobSpec);
             }
@@ -137,7 +139,7 @@ module.exports = async () => {
 
     await dockerUp();
     await waitForTeraslice();
-    await Promise.delay(2000);
+    await pDelay(2000);
     await resetState();
 
     try {
