@@ -27,17 +27,6 @@ describe('SlicerCore', () => {
 
     describe('->initialize', () => {
         it('should resolve undefined', () => expect(slicer.initialize([])).resolves.toBeUndefined());
-
-        it('should throw if slicer is not recoverable but given recoveryData', async () => {
-            const context = new TestContext('teraslice-operations2');
-            const exConfig = newTestExecutionConfig();
-            exConfig.recovered_execution = 'someexID';
-            exConfig.operations.push({
-                _op: 'example-op',
-            });
-            const opConfig = exConfig.operations[0];
-            expect(() => new ExampleSlicerCore(context as WorkerContext, opConfig, exConfig)).toThrowWithMessage(Error, 'Slicer is not recoverable');
-        });
     });
 
     describe('->shutdown', () => {

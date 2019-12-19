@@ -48,17 +48,14 @@ describe('Scheduler', () => {
         scheduler = new Scheduler(testContext.context, testContext.executionContext);
 
         scheduler.stateStore = {
-            async getStartingPoints(exId, slicerIds) {
-                if (exId !== testContext.exId) {
-                    throw new Error(`Got invalid ex_id ${exId}`);
-                }
-                if (slicerIds !== slicers) {
-                    throw new Error(`Got invalid slicer ids, ${slicerIds.join(' ')}`);
+            async getStartingPoints(exId, numSlicers) {
+                if (numSlicers !== slicers) {
+                    throw new Error(`Got invalid slicer ids, ${numSlicers.join(' ')}`);
                 }
             },
             createState: () => pDelay(0),
             createSlices: async (exId, slices) => {
-                if (exId !== testContext.exId) {
+                if (!exId || typeof exId !== 'string' || exId !== testContext.exId) {
                     throw new Error(`Got invalid ex_id ${exId}`);
                 }
                 await pDelay(0);
