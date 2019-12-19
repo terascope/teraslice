@@ -301,6 +301,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
         if (!count) {
             if (recoverFromEx.autorecover) {
                 recoverFromEx.previous_execution = recoverFromEx.ex_id;
+                recoverFromEx.recovered_slice_type = RecoveryCleanupType.pending;
                 return createExecutionContext(recoverFromEx);
             }
 
@@ -334,14 +335,16 @@ module.exports = function executionService(context, { clusterMasterServer }) {
             if (!canAllocate) return;
 
             allocatingExecution = true;
-            const execution = pendingExecutionQueue.dequeue();
+            let execution = pendingExecutionQueue.dequeue();
 
             logger.info(`Scheduling execution: ${execution.ex_id}`);
 
             try {
-                await exStore.setStatus(execution.ex_id, 'scheduling');
-                await clusterService.allocateSlicer(execution);
-                await exStore.setStatus(execution.ex_id, 'initializing', {
+                execution = await exStore.setStatus(execution.ex_id, 'scheduling');
+
+                execution = await clusterService.allocateSlicer(execution);
+
+                execution = await exStore.setStatus(execution.ex_id, 'initializing', {
                     slicer_port: execution.slicer_port,
                     slicer_hostname: execution.slicer_hostname
                 });

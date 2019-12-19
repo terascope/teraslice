@@ -82,7 +82,8 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      * @param  {Object} execution        Object containing execution details
      * @return {Promise}                 [description]
      */
-    function allocateSlicer(execution) {
+    async function allocateSlicer(ex) {
+        const execution = cloneDeep(ex);
         const exSvcResource = new K8sResource(
             'services', 'execution_controller', context.sysconfig.teraslice, execution
         );
@@ -97,25 +98,16 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         );
         const exJob = exJobResource.resource;
 
-        logger.debug(`exJob:\n\n${JSON.stringify(exJob, null, 2)}`);
+        logger.debug(exJob, 'execution allocating slicer');
 
         // TODO: This should try slicerAllocationAttempts times??
-        return k8s.post(exService, 'service')
-            .then((result) => logger.debug(`k8s slicer service submitted: ${JSON.stringify(result)}`))
-            .catch((err) => {
-                const error = new TSError(err, {
-                    reason: 'Error submitting k8s slicer service'
-                });
-                return Promise.reject(error);
-            })
-            .then(() => k8s.post(exJob, 'job'))
-            .then((result) => logger.debug(`k8s slicer job submitted: ${JSON.stringify(result)}`))
-            .catch((err) => {
-                const error = new TSError(err, {
-                    reason: 'Error submitting k8s slicer job'
-                });
-                return Promise.reject(error);
-            });
+        const serviceResult = await k8s.post(exService, 'service');
+        logger.debug(serviceResult, 'k8s slicer service submitted');
+
+        const jobResult = await k8s.post(exJob, 'job');
+        logger.debug(jobResult, 'k8s slicer job submitted');
+
+        return execution;
     }
 
     /**

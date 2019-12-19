@@ -2,7 +2,9 @@
 
 const _ = require('lodash');
 const Queue = require('@terascope/queue');
-const { TSError, getFullErrorStack, pDelay } = require('@terascope/utils');
+const {
+    TSError, getFullErrorStack, pDelay, cloneDeep
+} = require('@terascope/utils');
 const { makeLogger } = require('../../../../../workers/helpers/terafoundation');
 const stateUtils = require('../state-utils');
 const Messaging = require('./messaging');
@@ -129,7 +131,7 @@ module.exports = function nativeClustering(context, clusterMasterServer) {
     }
 
     function getClusterState() {
-        return _.cloneDeep(clusterState);
+        return cloneDeep(clusterState);
     }
 
     function _checkNode(node) {
@@ -339,70 +341,69 @@ module.exports = function nativeClustering(context, clusterMasterServer) {
         return Promise.all(results);
     }
 
-    function _createSlicer(job, errorNodes) {
+    async function _createSlicer(ex, errorNodes) {
+        const execution = cloneDeep(ex);
         const sortedNodes = _.orderBy(clusterState, 'available', 'desc');
         const slicerNodeID = _findNodeForSlicer(sortedNodes, errorNodes);
 
         // need to mutate job so that workers will know the specific port and
         // hostname of the created slicer
-        return _findPort(slicerNodeID)
-            .then((portObj) => {
-                job.slicer_port = portObj.port;
-                job.slicer_hostname = clusterState[slicerNodeID].hostname;
+        const portObj = await _findPort(slicerNodeID);
+        execution.slicer_port = portObj.port;
+        execution.slicer_hostname = clusterState[slicerNodeID].hostname;
 
-                logger.debug(`node ${clusterState[slicerNodeID].hostname} has been elected for slicer, listening on port: ${portObj.port}`);
-                const exId = job.ex_id;
-                const jobId = job.job_id;
-                const jobStr = JSON.stringify(job);
-                const data = {
-                    job: jobStr,
-                    ex_id: exId,
-                    job_id: jobId,
-                    workers: 1,
-                    slicer_port: portObj.port,
-                    node_id: slicerNodeID,
-                    assignment: 'execution_controller'
-                };
+        logger.debug(`node ${clusterState[slicerNodeID].hostname} has been elected for slicer, listening on port: ${portObj.port}`);
 
-                return messaging.send({
-                    to: 'node_master',
-                    address: slicerNodeID,
-                    message: 'cluster:execution_controller:create',
-                    payload: data,
-                    response: true
-                })
-                    .catch((err) => {
-                        const error = new TSError(err, {
-                            reason: `failed to allocate execution_controller to ${slicerNodeID}`
-                        });
-                        logger.error(error);
-                        errorNodes[slicerNodeID] = getFullErrorStack(error);
-                        return Promise.reject(error);
-                    });
+        const exId = execution.ex_id;
+        const jobId = execution.job_id;
+        const jobStr = JSON.stringify(execution);
+
+        const data = {
+            job: jobStr,
+            ex_id: exId,
+            job_id: jobId,
+            workers: 1,
+            slicer_port: portObj.port,
+            node_id: slicerNodeID,
+            assignment: 'execution_controller'
+        };
+
+        try {
+            await messaging.send({
+                to: 'node_master',
+                address: slicerNodeID,
+                message: 'cluster:execution_controller:create',
+                payload: data,
+                response: true
             });
+        } catch (err) {
+            const error = new TSError(err, {
+                reason: `failed to allocate execution_controller to ${slicerNodeID}`
+            });
+            logger.error(error);
+            errorNodes[slicerNodeID] = getFullErrorStack(error);
+            throw err;
+        }
     }
 
-    function allocateSlicer(job) {
+    async function allocateSlicer(ex) {
         let retryCount = 0;
         const errorNodes = {};
-        return new Promise(((resolve, reject) => {
-            function retry() {
-                _createSlicer(job, errorNodes)
-                    .then((results) => {
-                        resolve(results);
-                    })
-                    .catch(() => {
-                        retryCount += 1;
-                        if (retryCount >= slicerAllocationAttempts) {
-                            reject(new Error(`failed to allocate execution_controller to nodes: ${JSON.stringify(errorNodes)}`));
-                        } else {
-                            retry(errorNodes);
-                        }
-                    });
-            }
 
-            retry();
-        }));
+        async function _allocateSlicer() {
+            try {
+                return await _createSlicer(ex, errorNodes);
+            } catch (err) {
+                retryCount += 1;
+                if (retryCount >= slicerAllocationAttempts) {
+                    throw new Error(`Failed to allocate execution_controller to nodes: ${JSON.stringify(errorNodes)}`);
+                } else {
+                    await pDelay(100);
+                    return _allocateSlicer();
+                }
+            }
+        }
+        return _allocateSlicer();
     }
 
     const schedulePendingRequests = _.debounce(() => {

@@ -212,7 +212,7 @@ module.exports = async function assetsStore(context) {
         }
 
         try {
-            return fse.ensureDir(assetsPath);
+            return await fse.ensureDir(assetsPath);
         } catch (err) {
             throw new Error(`Failure to the ensure assets directory ${assetsPath}, for reason ${err.message}`);
         }

@@ -179,7 +179,15 @@ module.exports = async function executionStorage(context) {
         return status;
     }
 
-    async function setStatus(exId, status, metaData) {
+    /**
+     * Set the status
+     *
+     * @param {string} exId
+     * @param {string} status
+     * @param {Partial<import('@terascope/job-components').ExecutionConfig>} body
+     * @returns {Promise<import('@terascope/job-components').ExecutionConfig>}
+    */
+    async function setStatus(exId, status, body) {
         await waitForClient();
         await pRetry(() => verifyStatusUpdate(exId, status), {
             matches: ['no_shard_available_action_exception'],
@@ -190,18 +198,16 @@ module.exports = async function executionStorage(context) {
 
         try {
             const statusObj = { _status: status };
-            if (metaData) {
-                Object.assign(statusObj, metaData);
+            if (body) {
+                Object.assign(statusObj, body);
             }
-            await updatePartial(exId, statusObj);
+            return await updatePartial(exId, statusObj);
         } catch (err) {
             throw new TSError(err, {
                 statusCode: 422,
                 reason: `Unable to set execution ${exId} status code to ${status}`
             });
         }
-
-        return exId;
     }
 
     async function remove(exId) {
@@ -269,8 +275,6 @@ module.exports = async function executionStorage(context) {
         delete execution._has_errors;
         delete execution._slicer_stats;
         delete execution._failureReason;
-        delete execution.recovered_execution;
-        delete execution.recovered_slice_type;
     }
 
     /**
