@@ -89,8 +89,8 @@ module.exports = {
                         sliceCalls
                     );
                 }
-                if (_.isError(result)) {
-                    throw result;
+                if (result && result.error) {
+                    throw new Error(result.error);
                 }
                 return result;
             },

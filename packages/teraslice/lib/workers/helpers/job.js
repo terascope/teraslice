@@ -64,8 +64,10 @@ async function initializeTestExecution({
     }
 
     if (slicerHostname && slicerPort) {
-        ex.slicer_hostname = slicerHostname;
-        ex.slicer_port = slicerPort;
+        ex = await exStore.updatePartial(ex.ex_id, (existing) => Object.assign(existing, {
+            slicer_hostname: slicerHostname,
+            slicer_port: slicerPort,
+        }));
     }
 
     if (isEmpty(stores)) {

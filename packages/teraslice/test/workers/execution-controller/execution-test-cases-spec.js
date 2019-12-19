@@ -85,7 +85,7 @@ describe('ExecutionController Test Cases', () => {
         [
             'when processing a slice and the slicer throws an error',
             {
-                slicerResults: [{ example: 'slice-failure' }, new Error('Slice failure'), null],
+                slicerResults: [{ example: 'slice-failure' }, { error: 'Slice failure' }, null],
                 slicerFails: true,
                 body: { example: 'slice-failure' },
                 count: 1,

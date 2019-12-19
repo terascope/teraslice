@@ -1,7 +1,7 @@
 'use strict';
 
 const {
-    TSError, pRetry, includes, cloneDeep, getTypeOf, makeISODate
+    TSError, includes, getTypeOf, makeISODate
 } = require('@terascope/utils');
 const uuid = require('uuid/v4');
 const { RecoveryCleanupType } = require('@terascope/job-components');
@@ -73,10 +73,14 @@ module.exports = async function executionStorage(context) {
             _status: status,
             _context: jobType,
             _created: date,
-            _updated: date
+            _updated: date,
+            _has_errors: false,
+            _slicer_stats: {},
+            _failureReason: ''
         });
 
-        _removeMetaData(doc);
+        delete doc.slicer_port;
+        delete doc.slicer_hostname;
 
         try {
             await backend.create(doc);
@@ -88,8 +92,8 @@ module.exports = async function executionStorage(context) {
         return doc;
     }
 
-    async function updatePartial(exId, updateSpec) {
-        return backend.updatePartial(exId, updateSpec);
+    async function updatePartial(exId, applyChanges) {
+        return backend.updatePartial(exId, applyChanges);
     }
 
     function executionMetaData(stats, errMsg) {
@@ -98,6 +102,8 @@ module.exports = async function executionStorage(context) {
         const metaData = { _has_errors: hasErrors, _slicer_stats: stats };
         if (errMsg) {
             metaData._failureReason = errMsg;
+        } else {
+            metaData._failureReason = '';
         }
         return metaData;
     }
@@ -108,7 +114,7 @@ module.exports = async function executionStorage(context) {
     }
 
     async function updateMetadata(exId, metadata = {}) {
-        return updatePartial(exId, { metadata });
+        await backend.update(exId, { metadata });
     }
 
     function _addMetadataFns() {
@@ -138,6 +144,10 @@ module.exports = async function executionStorage(context) {
         }
 
         const status = await getStatus(exId);
+        _verifyStatus(status, desiredStatus);
+    }
+
+    function _verifyStatus(status, desiredStatus) {
         // when setting the same status to shouldn't throw an error
         if (desiredStatus === status) {
             return status;
@@ -173,20 +183,13 @@ module.exports = async function executionStorage(context) {
      * @returns {Promise<import('@terascope/job-components').ExecutionConfig>}
     */
     async function setStatus(exId, status, body) {
-        await waitForClient();
-        await pRetry(() => verifyStatusUpdate(exId, status), {
-            matches: ['no_shard_available_action_exception'],
-            delay: 1000,
-            retries: 10,
-            backoff: 5
-        });
-
         try {
-            const statusObj = { _status: status };
-            if (body) {
-                Object.assign(statusObj, body);
-            }
-            return await updatePartial(exId, statusObj);
+            return await updatePartial(exId, (existing) => {
+                _verifyStatus(existing._status, status);
+                return Object.assign(existing, body, {
+                    _status: status
+                });
+            });
         } catch (err) {
             throw new TSError(err, {
                 statusCode: 422,
@@ -240,28 +243,6 @@ module.exports = async function executionStorage(context) {
         return includes(INIT_STATUS, status);
     }
 
-    function _canRecover(ex) {
-        if (!ex) {
-            throw new Error('Unable to find execution to recover');
-        }
-        if (ex._status === 'completed') {
-            throw new Error('This job has completed and can not be restarted.');
-        }
-        if (ex._status === 'scheduling' || ex._status === 'pending') {
-            throw new Error('This job is currently being scheduled and can not be restarted.');
-        }
-        if (['running', 'recovering'].includes(ex._status)) {
-            throw new Error(`This job is currently ${ex._status} and can not be restarted.`);
-        }
-    }
-
-    function _removeMetaData(execution) {
-        // we need a better story about what is meta data
-        delete execution._has_errors;
-        delete execution._slicer_stats;
-        delete execution._failureReason;
-    }
-
     /**
      * @param {import('@terascope/job-components').ExecutionConfig} recoverFrom
      * @param {RecoveryCleanupType} [cleanupType]
@@ -274,25 +255,17 @@ module.exports = async function executionStorage(context) {
         if (!recoverFrom.ex_id) {
             throw new Error('Unable to recover execution with missing ex_id');
         }
+
         const recoverFromId = recoverFrom.ex_id;
 
-        const ex = cloneDeep(recoverFrom);
+        const ex = Object.assign({}, recoverFrom);
         if (cleanupType && !RecoveryCleanupType[cleanupType]) {
             throw new Error(`Unknown cleanup type "${cleanupType}" to recover`);
         }
 
-        _canRecover(ex);
-        _removeMetaData(ex);
-
-        delete ex.ex_id;
-        delete ex._created;
-        delete ex._updated;
-        delete ex._status;
-        delete ex.slicer_hostname;
-        delete ex.slicer_port;
-
         ex.previous_execution = recoverFromId;
         ex.recovered_execution = recoverFromId;
+
         if (cleanupType) {
             ex.recovered_slice_type = cleanupType;
         } else if (ex.autorecover) {

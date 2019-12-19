@@ -17,7 +17,6 @@ const {
     random,
     isInteger
 } = require('@terascope/utils');
-const defaultsDeep = require('lodash/defaultsDeep');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClient } = require('@terascope/job-components');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
@@ -225,18 +224,33 @@ module.exports = function elasticsearchStorage(backendConfig) {
         return elasticsearch.update(query);
     }
 
-    async function updatePartial(recordId, updateSpec, indexArg = indexName) {
-        validateIdAndRecord(recordId, updateSpec);
+    async function updatePartial(recordId, applyChanges, indexArg = indexName) {
+        if (typeof applyChanges !== 'function') {
+            throw new Error('Update Partial expected a applyChanges function');
+        }
 
-        logger.trace(`updating partial record ${recordId}, `, logRecord ? updateSpec : null);
+        validateId(recordId);
+        await waitForClient();
 
-        const existing = await elasticsearch.get({
+        const getParams = {
             index: indexArg,
             type: recordType,
             id: recordId,
-        }, true);
+        };
 
-        const doc = defaultsDeep({}, updateSpec, existing._source);
+        const existing = await pRetry(() => elasticsearch.get(getParams, true), {
+            matches: ['no_shard_available_action_exception'],
+            delay: 1000,
+            retries: 10,
+            backoff: 5
+        });
+
+        const doc = await applyChanges(Object.assign({}, existing._source));
+
+        logger.trace(`updating partial record ${recordId}, `, logRecord ? doc : null);
+
+        validateIdAndRecord(recordId, doc);
+
         const query = {
             index: indexArg,
             type: recordType,
@@ -252,8 +266,8 @@ module.exports = function elasticsearchStorage(backendConfig) {
         } catch (err) {
             // if there is a version conflict
             if (err.statusCode === 409 && err.message.includes('version conflict')) {
-                logger.warn(`version conflict when updating a ${recordType}`, updateSpec);
-                return updatePartial(recordId, updateSpec, indexArg);
+                logger.warn({ error: err }, `version conflict when updating "${recordId}" (${recordType})`);
+                return updatePartial(recordId, applyChanges, indexArg);
             }
 
             throw new TSError(err);
