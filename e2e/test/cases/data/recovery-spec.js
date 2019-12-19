@@ -148,36 +148,52 @@ describe('recovery', () => {
 
     it('can support different recovery mode cleanup=errors', async () => {
         const newEx = await recoverFromEx.recover({ cleanup: 'errors' });
-        await Promise.all([
+        const [exConfig] = await Promise.all([
+            newEx.config(),
             waitForExStatus(newEx, 'recovering'),
             waitForExStatus(newEx, 'completed')
         ]);
 
         const stats = await misc.indexStats(specIndex);
         expect(stats.count).toEqual(200);
+
+        expect(exConfig).toHaveProperty('previous_execution', newEx.id());
+        expect(exConfig).toHaveProperty('recovered_execution', newEx.id());
+        expect(exConfig).toHaveProperty('recovered_slice_type', 'errors');
     });
 
     it('can support different recovery mode cleanup=all', async () => {
         const newEx = await recoverFromEx.recover({ cleanup: 'all' });
 
-        await Promise.all([
+        const [exConfig] = await Promise.all([
+            newEx.config(),
             waitForExStatus(newEx, 'recovering'),
             waitForExStatus(newEx, 'completed')
         ]);
 
         const stats = await misc.indexStats(specIndex);
         expect(stats.count).toEqual(600);
+
+        expect(exConfig).toHaveProperty('previous_execution', newEx.id());
+        expect(exConfig).toHaveProperty('recovered_execution', newEx.id());
+        expect(exConfig).toHaveProperty('recovered_slice_type', 'all');
     });
 
     it('can support different recovery mode cleanup=pending', async () => {
         const newEx = await recoverFromEx.recover({ cleanup: 'pending' });
-        await Promise.all([
+
+        const [exConfig] = await Promise.all([
+            newEx.config(),
             waitForExStatus(newEx, 'recovering'),
             waitForExStatus(newEx, 'completed')
         ]);
 
         const stats = await misc.indexStats(specIndex);
         expect(stats.count).toEqual(200);
+
+        expect(exConfig).toHaveProperty('previous_execution', newEx.id());
+        expect(exConfig).toHaveProperty('recovered_execution', newEx.id());
+        expect(exConfig).toHaveProperty('recovered_slice_type', 'all');
     });
 
     it('can support autorecovery', async () => {
@@ -195,7 +211,53 @@ describe('recovery', () => {
 
         await job.stop({ blocking: true });
 
-        const stats = await misc.indexStats(specIndex);
-        expect(stats.count).toBeGreaterThan(200);
+        const { count } = await misc.indexStats(specIndex);
+        expect(count).toBeGreaterThan(200);
+
+        await job.start();
+        const [exConfig] = await Promise.all([
+            job.execution(),
+            waitForExStatus(newEx, 'running')
+        ]);
+
+        await job.stop({ blocking: true });
+
+        const { count: finalCount } = await misc.indexStats(specIndex);
+        expect(finalCount).not.toBeGreaterThan(count);
+
+        expect(exConfig).toHaveProperty('previous_execution', newEx.id());
+        expect(exConfig).toHaveProperty('recovered_slice_type', 'pending');
+        expect(exConfig.recovered_execution).toBeNil();
+    });
+
+    it('can support recovery without a cleanup type', async () => {
+        const newEx = await recoverFromEx.recover();
+
+        await Promise.all([
+            waitForExStatus(newEx, 'recovering'),
+            // give the execution time to run for second
+            // after recovering
+            waitForExStatus(newEx, 'running', 5000)
+        ]);
+
+        await job.stop({ blocking: true });
+
+        const { count } = await misc.indexStats(specIndex);
+        expect(count).toBeGreaterThan(600);
+
+        await job.start();
+        const [exConfig] = await Promise.all([
+            job.execution(),
+            waitForExStatus(newEx, 'running')
+        ]);
+
+        await job.stop({ blocking: true });
+
+        const { count: finalCount } = await misc.indexStats(specIndex);
+        expect(finalCount).not.toBeGreaterThan(count);
+
+        expect(exConfig).toHaveProperty('previous_execution', newEx.id());
+        expect(exConfig).toHaveProperty('recovered_execution', newEx.id());
+        expect(exConfig.recovered_slice_type).toBeNil();
     });
 });
