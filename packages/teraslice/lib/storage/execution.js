@@ -76,6 +76,9 @@ module.exports = async function executionStorage(context) {
             _created: date,
             _updated: date
         });
+
+        _removeMetaData(doc);
+
         try {
             await backend.create(doc);
         } catch (err) {
@@ -263,18 +266,11 @@ module.exports = async function executionStorage(context) {
 
     function _removeMetaData(execution) {
         // we need a better story about what is meta data
-        delete execution.ex_id;
-        delete execution._created;
-        delete execution._updated;
-        delete execution._status;
-        delete execution.slicer_hostname;
-        delete execution.slicer_port;
         delete execution._has_errors;
         delete execution._slicer_stats;
         delete execution._failureReason;
         delete execution.recovered_execution;
         delete execution.recovered_slice_type;
-        delete execution._failureReason;
     }
 
     /**
@@ -298,6 +294,13 @@ module.exports = async function executionStorage(context) {
 
         _canRecover(ex);
         _removeMetaData(ex);
+
+        delete ex.ex_id;
+        delete ex._created;
+        delete ex._updated;
+        delete ex._status;
+        delete ex.slicer_hostname;
+        delete ex.slicer_port;
 
         ex.previous_execution = recoverFromId;
         ex.recovered_execution = recoverFromId;
