@@ -376,6 +376,7 @@ module.exports = function nativeClustering(context, clusterMasterServer) {
                 payload: data,
                 response: true
             });
+            return execution;
         } catch (err) {
             const error = new TSError(err, {
                 reason: `failed to allocate execution_controller to ${slicerNodeID}`

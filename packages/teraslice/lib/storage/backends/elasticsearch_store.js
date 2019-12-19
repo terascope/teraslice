@@ -257,8 +257,16 @@ module.exports = function elasticsearchStorage(backendConfig) {
             id: recordId,
             body: doc,
             refresh: forceRefresh,
-            version: existing._version,
         };
+
+        const esVersion = elasticsearch.getESVersion();
+
+        if (esVersion >= 7) {
+            query.if_seq_no = existing._seq_no;
+            query.if_primary_term = existing._primary_term;
+        } else {
+            query.version = existing._version;
+        }
 
         try {
             await elasticsearch.indexWithId(query);
@@ -266,7 +274,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
         } catch (err) {
             // if there is a version conflict
             if (err.statusCode === 409 && err.message.includes('version conflict')) {
-                logger.warn({ error: err }, `version conflict when updating "${recordId}" (${recordType})`);
+                logger.debug({ error: err }, `version conflict when updating "${recordId}" (${recordType})`);
                 return updatePartial(recordId, applyChanges, indexArg);
             }
 
