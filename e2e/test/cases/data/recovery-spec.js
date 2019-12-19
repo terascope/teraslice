@@ -157,9 +157,12 @@ describe('recovery', () => {
         const stats = await misc.indexStats(specIndex);
         expect(stats.count).toEqual(200);
 
-        expect(exConfig).toHaveProperty('previous_execution', newEx.id());
-        expect(exConfig).toHaveProperty('recovered_execution', newEx.id());
-        expect(exConfig).toHaveProperty('recovered_slice_type', 'errors');
+        expect(exConfig).toMatchObject({
+            ex_id: newEx.id(),
+            previous_execution: recoverFromId,
+            recovered_execution: recoverFromId,
+            recovered_slice_type: 'errors'
+        });
 
         await expect(newEx.recover({ cleanup_type: 'errors' }))
             .rejects.toThrowError('No error slices found to recover');
@@ -231,9 +234,11 @@ describe('recovery', () => {
         expect(count).toBeGreaterThan(200);
 
         const { ex_id: finalExId } = await job.start();
+        const finalEx = teraslice.executions.wrap(finalExId);
+
         const [finalExConfig] = await Promise.all([
-            job.execution(),
-            waitForExStatus(newEx, 'running')
+            finalEx.config(),
+            waitForExStatus(finalEx, 'running')
         ]);
 
         await job.stop({ blocking: true });
@@ -251,7 +256,7 @@ describe('recovery', () => {
 
         expect(finalExConfig).toMatchObject({
             autorecover: true,
-            ex_id: finalExId,
+            ex_id: finalEx.id(),
             previous_execution: newEx.id(),
             recovered_slice_type: 'pending'
         });
@@ -269,18 +274,20 @@ describe('recovery', () => {
             waitForExStatus(newEx, 'running', 5000)
         ]);
 
-        await job.stop({ blocking: true });
+        await newEx.stop({ blocking: true });
 
         const { count } = await misc.indexStats(specIndex);
         expect(count).toBeGreaterThan(600);
 
-        const { ex_id: finalExId } = await job.start();
+        const { ex_id: finalExId } = await job.recover();
+        const finalEx = teraslice.executions.wrap(finalExId);
+
         const [finalExConfig] = await Promise.all([
-            job.execution(),
-            waitForExStatus(newEx, 'running')
+            finalEx.config(),
+            waitForExStatus(finalEx, 'running')
         ]);
 
-        await job.stop({ blocking: true });
+        await finalEx.stop({ blocking: true });
 
         const { count: finalCount } = await misc.indexStats(specIndex);
         expect(finalCount).not.toBeGreaterThan(count);
@@ -292,7 +299,7 @@ describe('recovery', () => {
         });
 
         expect(finalExConfig).toMatchObject({
-            ex_id: finalExId,
+            ex_id: finalEx.id(),
             previous_execution: newEx.id(),
             recovered_execution: newEx.id(),
         });
