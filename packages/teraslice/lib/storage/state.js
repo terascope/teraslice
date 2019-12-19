@@ -227,7 +227,7 @@ async function stateStorage(context) {
             await waitForClient();
             await backend.refresh(indexName);
 
-            return backend.count(query, 0);
+            return backend.count(query);
         } catch (err) {
             throw new TSError(err, {
                 reason: 'Failure to get recovered slices'
@@ -262,11 +262,11 @@ async function stateStorage(context) {
         }
     }
 
-    async function search(query, from, size, sort) {
+    async function search(query, from, size, sort = '_updated:desc') {
         return backend.search(query, from, size, sort);
     }
 
-    async function count(query, from, sort) {
+    async function count(query, from = 0, sort = '_updated:desc') {
         return backend.count(query, from, sort);
     }
 
@@ -275,7 +275,7 @@ async function stateStorage(context) {
             throw new Error(`Unknown slice state "${state}" on update`);
         }
         const query = `ex_id:"${exId}" AND state:${state}`;
-        return backend.count(query, 0);
+        return backend.count(query);
     }
 
     async function shutdown(forceShutdown) {
