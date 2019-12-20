@@ -1,16 +1,17 @@
 'use strict';
 
-const Promise = require('bluebird');
-const _ = require('lodash');
 const express = require('express');
 const request = require('request');
-const { pDelay, logError } = require('@terascope/utils');
+const { pDelay, logError, get } = require('@terascope/utils');
 const { ClusterMaster } = require('@terascope/teraslice-messaging');
 const { makeLogger } = require('../workers/helpers/terafoundation');
-const ExecutionService = require('./services/execution');
-const APIService = require('./services/api');
-const JobService = require('./services/jobs');
-const makeLogs = require('./storage/logs');
+const makeExecutionService = require('./services/execution');
+const makeApiService = require('./services/api');
+const makeJobsService = require('./services/jobs');
+const makeClusterService = require('./services/cluster');
+const makeJobStore = require('../storage/jobs');
+const makeExStore = require('../storage/execution');
+const makeStateStore = require('../storage/state');
 
 module.exports = function _clusterMaster(context) {
     const logger = makeLogger(context, 'cluster_master');
@@ -41,8 +42,6 @@ module.exports = function _clusterMaster(context) {
         logger,
     });
 
-    context.services = {};
-
     function isAssetServiceUp() {
         return new Promise((resolve) => {
             request.get(
@@ -53,7 +52,7 @@ module.exports = function _clusterMaster(context) {
                     timeout: 900,
                 },
                 (err, response) => {
-                    resolve(_.get(response, 'body.available', false));
+                    resolve(get(response, 'body.available', false));
                 }
             );
         });
@@ -69,32 +68,47 @@ module.exports = function _clusterMaster(context) {
         });
     }
 
+    const serviceOptions = { assetsUrl, app, clusterMasterServer };
+    const services = Object.freeze({
+        execution: makeExecutionService(context, serviceOptions),
+        jobs: makeJobsService(context, serviceOptions),
+        cluster: makeClusterService(context, serviceOptions),
+        api: makeApiService(context, serviceOptions),
+    });
+
+    context.services = services;
+
     return {
         async initialize() {
             try {
                 await clusterMasterServer.start();
                 logger.info(`cluster master listening on port ${clusterConfig.port}`);
 
-                const executionService = await ExecutionService(context, { clusterMasterServer });
-                logger.debug('execution service has been instantiated');
-                context.services.execution = executionService;
+                const [exStore, stateStore, jobStore] = await Promise.all([
+                    makeExStore(context),
+                    makeStateStore(context),
+                    makeJobStore(context)
+                ]);
 
-                const jobsService = await JobService(context);
-                logger.debug('job service has been instantiated');
-                context.services.jobs = jobsService;
+                context.stores = {
+                    execution: exStore,
+                    state: stateStore,
+                    jobs: jobStore,
+                };
+
+                // order matters
+                await services.cluster.initialize();
+                await services.execution.initialize();
+                await services.jobs.initialize();
+
+                logger.debug('services has been initialized');
 
                 // give the assets service a bit to come up
                 const fiveMinutes = 5 * 60 * 1000;
                 await waitForAssetsService(Date.now() + fiveMinutes);
 
-                const apiService = await APIService(context, app, {
-                    assetsUrl,
-                    clusterMasterServer
-                });
-                logger.debug('api service has been instantiated');
-
-                context.services.api = apiService;
-                await makeLogs(context);
+                // this needs to be last
+                await services.api.initialize();
 
                 logger.info('cluster master is ready!');
                 running = true;
@@ -120,12 +134,29 @@ module.exports = function _clusterMaster(context) {
         },
         async shutdown() {
             running = false;
+
             logger.info('cluster_master is shutting down');
             clusterMasterServer.isShuttingDown = true;
 
-            const promises = Object.values(context.services).map((service) => service.shutdown());
-            await Promise.all(promises);
-            return clusterMasterServer.shutdown();
+            await Promise.all(Object.entries(context.services)
+                .map(async ([name, service]) => {
+                    try {
+                        await service.shutdown();
+                    } catch (err) {
+                        logError(logger, err, `Failure to shutdown service ${name}`);
+                    }
+                }));
+
+            await Promise.all(Object.entries(context.stores)
+                .map(async ([name, store]) => {
+                    try {
+                        await store.shutdown();
+                    } catch (err) {
+                        logError(logger, err, `Failure to shutdown store ${name}`);
+                    }
+                }));
+
+            await clusterMasterServer.shutdown();
         },
     };
 };

@@ -2,29 +2,31 @@
 
 main() {
     local remove_only="$1"
-    local cwd="$PWD";
-    for name in $(yarn --silent lerna list --toposort); do
-        local package="${name#\@terascope/}"
-        if [ -z "$remove_only" ] || [ "$remove_only" == "dist" ]; then
-            local dist_dir="$cwd/packages/$package/dist"
-            if [ -d "$dist_dir" ]; then
-                # delete all files except the dist/src/index
-                # to avoid reloading vscode
-                find "$dist_dir" \
-                    -not -path '*src/index*' \
-                    -and \
-                    -not -name 'dist' \
-                    -print0 | xargs rm -r --
+    if [ -z "$remove_only" ] || [ "$remove_only" == "dist" ]; then
+        # ...
+        # cleanup remove or empty files (easier for vscode to detect changes)
+        # ...
+        while IFS= read -r -d '' file; do
+            if [[ "$file" =~ \.js$ ]]; then
+                echo 'module.exports = {};' > "$file"
+            elif [[ "$file" =~ \.ts$ ]]; then
+                echo 'export {};' > "$file"
+            elif [ -f "$file" ]; then
+                rm "$file"
             fi
-        fi
+        done < <(find ./packages -type f \
+            -not -path '*/node_modules/*' \
+            -and -path '*/dist/*' \
+            -print0)
+    fi
 
-        if [ -z "$remove_only" ] || [ "$remove_only" == "build" ]; then
-            local build_dir="$cwd/packages/$package/build"
-            if [ -d "$build_dir" ]; then
-                rm -rf "$build_dir"
+    if [ -z "$remove_only" ] || [ "$remove_only" == "build" ]; then
+        for dir in ./packages/*/build; do
+            if [ -d "$dir" ]; then
+                rm -r "$dir"
             fi
-        fi
-    done
+        done
+    fi
 }
 
 main "$@"

@@ -1,4 +1,4 @@
-import { DataEncoding } from '@terascope/utils';
+import { DataEncoding, AnyObject } from '@terascope/utils';
 
 /**
  * OpConfig is the configuration that user specifies
@@ -65,8 +65,7 @@ export interface ValidatedJobConfig {
     assets: string[];
     /** This may not exist until ran in an execution */
     assetIds?: string[];
-    /** This will only be available in the context of k8s */
-    labels?: { [key: string]: string };
+    autorecover?: boolean;
     lifecycle: LifeCycle;
     max_retries: number;
     name: string;
@@ -77,6 +76,8 @@ export interface ValidatedJobConfig {
     env_vars: { [key: string]: string };
     slicers: number;
     workers: number;
+    /** This will only be available in the context of k8s */
+    labels?: { [key: string]: string };
     /** This will only be available in the context of k8s */
     targets?: Targets[];
     /** This will only be available in the context of k8s */
@@ -99,13 +100,20 @@ export interface Volume {
     path: string;
 }
 
+export enum RecoveryCleanupType {
+    all = 'all',
+    errors = 'errors',
+    pending = 'pending'
+}
+
 export interface ExecutionConfig extends ValidatedJobConfig {
     ex_id: string;
     job_id: string;
     slicer_hostname: string;
     slicer_port: number;
     recovered_execution?: string;
-    recovered_slice_type?: 'all' | 'errors';
+    recovered_slice_type?: RecoveryCleanupType;
+    metadata: AnyObject;
 }
 
 /**

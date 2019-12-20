@@ -32,7 +32,7 @@ import {
 } from './interfaces';
 
 export default class Ex extends Client {
-    private _exId: string;
+    private readonly _exId: string;
 
     constructor(config: ClientConfig, exId: string) {
         validateExId(exId);
@@ -141,11 +141,11 @@ export default class Ex extends Client {
         requestOptions: RequestOptions = {}
     ): Promise<ExecutionStatus> {
         const terminal = {
-            terminated: true,
-            failed: true,
-            rejected: true,
-            completed: true,
-            stopped: true,
+            [ExecutionStatus.terminated]: true,
+            [ExecutionStatus.failed]: true,
+            [ExecutionStatus.rejected]: true,
+            [ExecutionStatus.completed]: true,
+            [ExecutionStatus.stopped]: true,
         };
 
         const startTime = Date.now();

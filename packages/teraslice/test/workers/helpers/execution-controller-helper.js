@@ -1,19 +1,15 @@
 'use strict';
 
 const _ = require('lodash');
-const Promise = require('bluebird');
-const { pDelay } = require('@terascope/utils');
+const { pDelay, pDefer } = require('@terascope/utils');
 
 function makeShutdownEarlyFn({ exController, enabled = false }) {
-    let resolve;
     let shutdownErr = {
         message: 'Shutdown never triggered'
     };
     let alreadyCalled = false;
 
-    const deferred = new Promise((_resolve) => {
-        resolve = _resolve;
-    });
+    const deferred = pDefer();
 
     const catchShutdown = async () => {
         if (alreadyCalled) return;
@@ -25,14 +21,15 @@ function makeShutdownEarlyFn({ exController, enabled = false }) {
         } catch (err) {
             shutdownErr = err;
         }
-        resolve();
+
+        deferred.resolve();
     };
 
     return {
         error: () => shutdownErr,
         wait: async () => {
             if (!enabled) return;
-            await deferred;
+            await deferred.promise;
         },
         shutdown: async () => {
             if (!enabled) return;

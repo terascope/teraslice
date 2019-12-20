@@ -1,6 +1,7 @@
 'use strict';
 
 const { TSError, getTypeOf, logError } = require('@terascope/utils');
+const { SliceState } = require('../../storage');
 const { makeLogger } = require('../helpers/terafoundation');
 const { logOpStats } = require('../helpers/op-analytics');
 
@@ -11,11 +12,13 @@ class Slice {
         this.executionContext = executionContext;
     }
 
-    async initialize(slice, stores) {
+    async initialize(slice) {
         const { slice_id: sliceId } = slice;
 
-        this.stateStore = stores.stateStore;
-        this.analyticsStore = stores.analyticsStore;
+        if (slice.state !== SliceState.pending) {
+            await this.stateStore.updateState(slice, SliceState.start);
+        }
+
         this.slice = slice;
         this.logger = makeLogger(this.context, 'slice', {
             slice_id: sliceId
@@ -116,7 +119,7 @@ class Slice {
     async _markCompleted() {
         const { slice } = this;
 
-        await this.stateStore.updateState(slice, 'completed');
+        await this.stateStore.updateState(slice, SliceState.completed);
 
         this.logger.trace(`completed slice for execution: ${this.executionContext.exId}`, slice);
         this.events.emit('slice:success', slice);
@@ -125,7 +128,7 @@ class Slice {
     async _markFailed(err) {
         const { stateStore, slice } = this;
 
-        await stateStore.updateState(slice, 'error', err);
+        await stateStore.updateState(slice, SliceState.error, err);
 
         logError(this.logger, err, `slice state for ${this.executionContext.exId} has been marked as error`);
 

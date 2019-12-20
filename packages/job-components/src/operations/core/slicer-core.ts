@@ -50,10 +50,6 @@ export default abstract class SlicerCore<T = OpConfig>
                 failed: 0,
             },
         };
-
-        if (this.executionConfig.recovered_execution && !this.isRecoverable()) {
-            throw new Error('Slicer is not recoverable');
-        }
     }
 
     /**

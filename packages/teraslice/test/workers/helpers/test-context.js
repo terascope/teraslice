@@ -5,7 +5,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const { createTempDirSync, cleanupTempDirs } = require('jest-fixtures');
-const { newTestSlice, get } = require('@terascope/job-components');
+const { newTestSlice, get, pWhile } = require('@terascope/job-components');
 const { ClusterMaster } = require('@terascope/teraslice-messaging');
 
 const {
@@ -14,9 +14,9 @@ const {
     makeAnalyticsStore,
     makeExStore,
     makeJobStore
-} = require('../../../lib/cluster/storage');
+} = require('../../../lib/storage');
 
-const { initializeJob } = require('../../../lib/workers/helpers/job');
+const { initializeTestExecution } = require('../../../lib/workers/helpers/job');
 const makeTerafoundationContext = require('../../../lib/workers/context/terafoundation-context');
 const makeExecutionContext = require('../../../lib/workers/context/execution-context');
 const { newId } = require('../../../lib/utils/id_utils');
@@ -63,12 +63,17 @@ class TestContext {
         cleanups[this.setupId] = () => this.cleanup();
     }
 
-    async initialize(makeItReal = false) {
+    async initialize(makeItReal = false, initOptions = {}) {
         if (makeItReal) {
             await this.addJobStore();
             await this.addExStore();
+            await this.addStateStore();
 
-            const { ex } = await initializeJob(this.context, this.config, stores);
+            const { ex } = await initializeTestExecution(Object.assign({
+                context: this.context,
+                config: this.config,
+                stores,
+            }, initOptions));
             this.config = ex;
         }
 
@@ -187,7 +192,7 @@ class TestContext {
 }
 
 // make sure we cleanup if any test fails to cleanup properly
-async function cleanupAll(withEs) {
+async function cleanupAll(withEs = false) {
     const count = Object.keys(cleanups).length;
     if (!count) return;
 
@@ -217,24 +222,11 @@ async function cleanupAll(withEs) {
     }
 }
 
-beforeAll(async () => {
-    await cleanupAll(true);
-}, Object.keys(cleanups).length * 5000);
-
-beforeEach((done) => {
-    function readyStart() {
-        const count = Object.keys(cleanups).length;
-        if (count > 1) {
-            setTimeout(readyStart, 10);
-            return;
-        }
-        done();
-    }
-    readyStart();
-});
-
-afterEach(() => cleanupAll(), Object.keys(cleanups).length * 5000);
+beforeAll(async () => cleanupAll(true), Object.keys(cleanups).length * 5000);
 
 module.exports = TestContext;
-
 module.exports.cleanupAll = cleanupAll;
+module.exports.waitForCleanup = () => pWhile(() => !Object.keys(cleanups).length, {
+    name: 'Test Context',
+    timeoutMs: 3000
+});

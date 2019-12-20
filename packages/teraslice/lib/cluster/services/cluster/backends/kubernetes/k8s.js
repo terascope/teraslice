@@ -1,7 +1,6 @@
 'use strict';
 
-const _ = require('lodash');
-const { TSError } = require('@terascope/utils');
+const { TSError, get, isEmpty } = require('@terascope/utils');
 const { Client, config } = require('kubernetes-client');
 
 class K8s {
@@ -253,12 +252,12 @@ class K8s {
             return Promise.reject(err);
         }
 
-        if (_.isEmpty(objList.items)) {
+        if (isEmpty(objList.items)) {
             this.logger.info(`k8s._deleteObjByExId: ${exId} ${nodeType} ${objType} has already been deleted`);
             return Promise.resolve();
         }
 
-        const name = _.get(objList, 'items[0].metadata.name');
+        const name = get(objList, 'items[0].metadata.name');
         this.logger.info(`k8s._deleteObjByExId: ${exId} ${nodeType} ${objType} deleting: ${name}`);
 
         try {

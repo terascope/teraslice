@@ -8,7 +8,7 @@ const {
     pWhile
 } = require('@terascope/utils');
 const { ExecutionController, formatURL } = require('@terascope/teraslice-messaging');
-const { makeStateStore, makeAnalyticsStore } = require('../../cluster/storage');
+const { makeStateStore, makeAnalyticsStore } = require('../../storage');
 const { generateWorkerId, makeLogger } = require('../helpers/terafoundation');
 const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
 const Metrics = require('../metrics');
@@ -73,10 +73,15 @@ class Worker {
         const { context } = this;
         this.isInitialized = true;
 
-        const stateStore = makeStateStore(context);
-        const analyticsStore = makeAnalyticsStore(context);
-        this.stores.stateStore = await stateStore;
-        this.stores.analyticsStore = await analyticsStore;
+        const [stateStore, analyticsStore] = await Promise.all([
+            makeStateStore(context),
+            makeAnalyticsStore(context),
+        ]);
+
+        this.stores.stateStore = stateStore;
+        this.slice.stateStore = stateStore;
+        this.stores.analyticsStore = analyticsStore;
+        this.slice.analyticsStore = analyticsStore;
 
         this.client.onServerShutdown(() => {
             this.logger.warn('Execution Controller shutdown, exiting...');
@@ -154,7 +159,7 @@ class Worker {
         const { slice_id: sliceId } = msg;
 
         try {
-            await this.slice.initialize(msg, this.stores);
+            await this.slice.initialize(msg);
 
             await this.slice.run();
 

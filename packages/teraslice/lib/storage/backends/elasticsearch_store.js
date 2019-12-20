@@ -2,7 +2,6 @@
 
 const ms = require('ms');
 const fs = require('fs');
-const _ = require('lodash');
 const path = require('path');
 const {
     TSError,
@@ -10,13 +9,18 @@ const {
     isTest,
     pDelay,
     pRetry,
-    logError
+    logError,
+    pWhile,
+    isString,
+    getTypeOf,
+    get,
+    random,
+    isInteger
 } = require('@terascope/utils');
-const pWhilst = require('p-whilst');
 const elasticsearchApi = require('@terascope/elasticsearch-api');
 const { getClient } = require('@terascope/job-components');
-const { makeLogger } = require('../../../workers/helpers/terafoundation');
-const { timeseriesIndex } = require('../../../utils/date_utils');
+const { makeLogger } = require('../../workers/helpers/terafoundation');
+const { timeseriesIndex } = require('../../utils/date_utils');
 
 module.exports = function elasticsearchStorage(backendConfig) {
     const {
@@ -35,7 +39,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
 
     const config = context.sysconfig.teraslice;
 
-    const indexSettings = _.get(config, ['index_settings', storageName], {
+    const indexSettings = get(config, ['index_settings', storageName], {
         number_of_shards: 5,
         number_of_replicas: 1,
     });
@@ -49,7 +53,28 @@ module.exports = function elasticsearchStorage(backendConfig) {
     let bulkQueue = [];
     let savingBulk = false; // serialize save requests.
 
-    function getRecord(recordId, indexArg, fields) {
+    function validateId(recordId) {
+        if (!recordId || !isString(recordId)) {
+            throw new TSError(`Invalid ${recordType} id given ${getTypeOf(recordId)}`, {
+                statusCode: 422
+            });
+        }
+    }
+
+    function validateIdAndRecord(recordId, record) {
+        validateId(recordId);
+
+        const id = record[idField];
+        if (id && id !== recordId) {
+            throw new TSError(`${recordType}.${idField} doesn't match request id`, {
+                statusCode: 406
+            });
+        }
+    }
+
+    async function getRecord(recordId, indexArg, fields) {
+        validateId(recordId);
+
         logger.trace(`getting record id: ${recordId}`);
         const query = {
             index: indexArg || indexName,
@@ -68,7 +93,17 @@ module.exports = function elasticsearchStorage(backendConfig) {
         return elasticsearch.get(query);
     }
 
-    function search(query, from, size, sort, fields, indexArg = indexName) {
+    async function search(query, from, size, sort, fields, indexArg = indexName) {
+        if (from != null && !isInteger(from)) {
+            throw new Error(`from parameter must be a integer, got ${from}`);
+        }
+        if (size != null && !isInteger(size)) {
+            throw new Error(`size parameter must be a integer, got ${size}`);
+        }
+        if (sort != null && !isString(sort)) {
+            throw new Error(`sort parameter must be a string, got ${sort}`);
+        }
+
         const esQuery = {
             index: indexArg,
             from,
@@ -98,7 +133,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
      * index saves a record to elasticsearch allowing automatic
      * ID creation
      */
-    function index(record, indexArg = indexName) {
+    async function index(record, indexArg = indexName) {
         logger.trace('indexing record', logRecord ? record : undefined);
         const query = {
             index: indexArg,
@@ -114,7 +149,9 @@ module.exports = function elasticsearchStorage(backendConfig) {
      * index saves a record to elasticsearch with a specified ID.
      * If the document is already there it will be replaced.
      */
-    function indexWithId(recordId, record, indexArg = indexName) {
+    async function indexWithId(recordId, record, indexArg = indexName) {
+        validateIdAndRecord(recordId, record);
+
         logger.trace(`indexWithId call with id: ${recordId}, record`, logRecord ? record : null);
         const query = {
             index: indexArg,
@@ -131,7 +168,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
      * Create saves a record to elasticsearch under the provided id.
      * If the record already exists it will not be inserted.
      */
-    function create(record, indexArg = indexName) {
+    async function create(record, indexArg = indexName) {
         logger.trace('creating record', logRecord ? record : null);
 
         const query = {
@@ -145,14 +182,21 @@ module.exports = function elasticsearchStorage(backendConfig) {
         return elasticsearch.create(query);
     }
 
-    function count(query, from, sort, indexArg = indexName) {
+    async function count(query, from, sort, indexArg = indexName) {
+        if (from != null && !isInteger(from)) {
+            throw new Error(`from parameter must be a integer, got ${from}`);
+        }
+        if (sort != null && !isString(sort)) {
+            throw new Error(`sort parameter must be a string, got ${sort}`);
+        }
+
         const esQuery = {
             index: indexArg,
             from,
             sort,
         };
 
-        if (typeof query === 'string') {
+        if (isString(query)) {
             esQuery.q = query;
         } else {
             esQuery.body = query;
@@ -161,7 +205,9 @@ module.exports = function elasticsearchStorage(backendConfig) {
         return elasticsearch.count(esQuery);
     }
 
-    function update(recordId, updateSpec, indexArg = indexName) {
+    async function update(recordId, updateSpec, indexArg = indexName) {
+        validateIdAndRecord(recordId, updateSpec);
+
         logger.trace(`updating record ${recordId}, `, logRecord ? updateSpec : null);
 
         const query = {
@@ -178,7 +224,67 @@ module.exports = function elasticsearchStorage(backendConfig) {
         return elasticsearch.update(query);
     }
 
-    function remove(recordId, indexArg = indexName) {
+    async function updatePartial(recordId, applyChanges, indexArg = indexName) {
+        if (typeof applyChanges !== 'function') {
+            throw new Error('Update Partial expected a applyChanges function');
+        }
+
+        validateId(recordId);
+        await waitForClient();
+
+        const getParams = {
+            index: indexArg,
+            type: recordType,
+            id: recordId,
+        };
+
+        const existing = await pRetry(() => elasticsearch.get(getParams, true), {
+            matches: ['no_shard_available_action_exception'],
+            delay: 1000,
+            retries: 10,
+            backoff: 5
+        });
+
+        const doc = await applyChanges(Object.assign({}, existing._source));
+
+        logger.trace(`updating partial record ${recordId}, `, logRecord ? doc : null);
+
+        validateIdAndRecord(recordId, doc);
+
+        const query = {
+            index: indexArg,
+            type: recordType,
+            id: recordId,
+            body: doc,
+            refresh: forceRefresh,
+        };
+
+        const esVersion = elasticsearch.getESVersion();
+
+        if (esVersion >= 7) {
+            query.if_seq_no = existing._seq_no;
+            query.if_primary_term = existing._primary_term;
+        } else {
+            query.version = existing._version;
+        }
+
+        try {
+            await elasticsearch.indexWithId(query);
+            return doc;
+        } catch (err) {
+            // if there is a version conflict
+            if (err.statusCode === 409 && err.message.includes('version conflict')) {
+                logger.debug({ error: err }, `version conflict when updating "${recordId}" (${recordType})`);
+                return updatePartial(recordId, applyChanges, indexArg);
+            }
+
+            throw new TSError(err);
+        }
+    }
+
+    async function remove(recordId, indexArg = indexName) {
+        validateId(recordId);
+
         logger.trace(`removing record ${recordId}`);
         const query = {
             index: indexArg,
@@ -190,7 +296,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
         return elasticsearch.remove(query);
     }
 
-    function bulk(record, _type, indexArg = indexName) {
+    async function bulk(record, _type, indexArg = indexName) {
         if (isShutdown) {
             throw new TSError('Unable to send bulk record after shutdown', {
                 context: {
@@ -297,7 +403,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
         return mapping;
     }
 
-    function sendTemplate(mapping) {
+    async function sendTemplate(mapping) {
         if (mapping.template) {
             const clusterName = context.sysconfig.teraslice.name;
             const name = `${clusterName}_${recordType}_template`;
@@ -315,7 +421,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
         return Promise.resolve(true);
     }
 
-    function _createIndex(indexArg = indexName) {
+    async function _createIndex(indexArg = indexName) {
         const existQuery = { index: indexArg };
         return elasticsearch.index_exists(existQuery).then((exists) => {
             if (!exists) {
@@ -328,7 +434,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
                 };
 
                 // add a random delay to stagger requests
-                return pDelay(isTest ? 0 : _.random(0, 5000))
+                return pDelay(isTest ? 0 : random(0, 5000))
                     .then(() => sendTemplate(mapping))
                     .then(() => elasticsearch.index_create(createQuery))
                     .then((results) => results)
@@ -365,13 +471,13 @@ module.exports = function elasticsearchStorage(backendConfig) {
     }
 
     async function waitForClient() {
-        let valid = elasticsearch.verifyClient();
-        if (valid) return;
+        if (elasticsearch.verifyClient()) return;
 
-        await pWhilst(() => valid, async () => {
+        await pWhile(async () => {
             if (isShutdown) throw new Error('Elasticsearch store is shutdown');
-            valid = elasticsearch.verifyClient();
+            if (elasticsearch.verifyClient()) return true;
             await pDelay(100);
+            return false;
         });
     }
 
@@ -382,7 +488,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
             return null;
         });
         // stager the interval to avoid collisions
-    }, _.random(9000, 11000));
+    }, random(9000, 11000));
 
     // javascript is having a fit if you use the shorthand get, so we renamed function to getRecord
     const api = {
@@ -393,6 +499,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
         indexWithId,
         create,
         update,
+        updatePartial,
         bulk,
         bulkSend,
         remove,
@@ -470,13 +577,11 @@ module.exports = function elasticsearchStorage(backendConfig) {
                         })
                         .then((results) => {
                             let bool = false;
-                            if (Object.keys(results).length !== 0) {
-                                const isPrimary = _.filter(
-                                    results[newIndex].shards,
-                                    (shard) => shard.primary === true
-                                );
-
-                                bool = _.every(isPrimary, (shard) => shard.stage === 'DONE');
+                            const shards = get(results, [newIndex, 'shards'], []);
+                            if (shards.length) {
+                                bool = shards
+                                    .filter((shard) => shard.primary)
+                                    .every((shard) => shard.stage === 'DONE');
                             }
 
                             if (bool) {
@@ -493,7 +598,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
                         })
                         .catch((checkingErr) => {
                             // add a random delay to stagger requests
-                            pDelay(isTest ? 0 : _.random(0, 1000)).then(() => {
+                            pDelay(isTest ? 0 : random(0, 1000)).then(() => {
                                 running = false;
                                 const checkingError = new TSError(checkingErr, {
                                     reason: `Attempting to connect to elasticsearch: ${clientName}`,

@@ -1,8 +1,11 @@
 'use strict';
 
 const ms = require('ms');
-const _ = require('lodash');
-const Promise = require('bluebird');
+const {
+    pDelay,
+    uniq,
+    toString
+} = require('@terascope/utils');
 const signale = require('./signale');
 const misc = require('./misc');
 const wait = require('./wait');
@@ -14,11 +17,11 @@ async function resetState() {
     const state = await cluster.state();
 
     await Promise.all([
-        Promise.delay(800),
+        pDelay(800),
         misc.cleanupIndex(`${misc.SPEC_INDEX_PREFIX}*`),
         (async () => {
             const cleanupExIds = [];
-            _.forEach(state, (node) => {
+            Object.values(state).forEach((node) => {
                 const { assignment, ex_id: exId } = node;
 
                 const isWorker = ['execution_controller', 'worker'].includes(assignment);
@@ -28,7 +31,7 @@ async function resetState() {
             });
 
             await Promise.all(
-                _.uniq(cleanupExIds).map(async (exId) => {
+                uniq(cleanupExIds).map(async (exId) => {
                     signale.warn(`resetting ex ${exId}`);
                     try {
                         await executions.wrap(exId).stop({ blocking: true });
@@ -39,7 +42,7 @@ async function resetState() {
             );
         })(),
         (async () => {
-            const count = _.keys(state).length;
+            const count = Object.keys(state).length;
             if (count !== misc.DEFAULT_NODES) {
                 signale.warn(`resetting cluster state of ${count} nodes`);
                 await misc.scaleWorkers();
@@ -108,10 +111,8 @@ async function testJobLifeCycle(jobSpec, delay = 3000) {
     try {
         await p;
     } catch (err) {
-        const terminalErr = 'status failed to change from status "stopped" to "completed"';
-        const failedStatusErr = 'starget status, "completed", because it is in the terminal state, "stopped"';
-        const errStr = _.toString(err);
-        if (errStr.includes(terminalErr) || errStr.includes(failedStatusErr)) {
+        const errStr = toString(err);
+        if (errStr.includes('"stopped"') && errStr.includes('"completed"')) {
             signale.warn(
                 `${errStr} - however since this can be race condition, we don't want to fail the test`
             );

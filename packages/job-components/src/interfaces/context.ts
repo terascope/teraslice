@@ -126,17 +126,25 @@ export interface AssetsAPI {
 
 /**
  * WorkerContext includes the type definitions for
- * the APIs available to Worker.
+ * the APIs available to Worker or Slicer.
  * This extends the Terafoundation Context.
 */
 export interface WorkerContextAPIs extends ContextAPIs {
-    /** Includes an API for getting a client from Terafoundation */
+    /**
+     * Includes an API for getting a client from Terafoundation
+    */
     assets: AssetsAPI;
-    /** Includes an API for getting a client from Terafoundation */
+    /**
+     * Includes an API for getting a client from Terafoundation
+    */
     op_runner: OpRunnerAPI;
-    /** Includes an API for getting a opConfig from the job */
+    /**
+     * Includes an API for getting a opConfig from the job
+    */
     job_runner: JobRunnerAPI;
-    /** An API for registering and loading the new Job APIs */
+    /**
+     * An API for registering and loading the new Job APIs
+    */
     executionContext: ExecutionContextAPI;
 }
 

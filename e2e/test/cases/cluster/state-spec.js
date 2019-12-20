@@ -1,7 +1,9 @@
 'use strict';
 
-const _ = require('lodash');
-const Promise = require('bluebird');
+const {
+    pDelay,
+    flatten
+} = require('@terascope/utils');
 const misc = require('../../misc');
 const wait = require('../../wait');
 const signale = require('../../signale');
@@ -15,7 +17,7 @@ describe('cluster state', () => {
     const teraslice = misc.teraslice();
 
     function findWorkers(nodes, type, exId) {
-        return _.filter(nodes, (worker) => {
+        return nodes.filter((worker) => {
             if (exId) {
                 if (type) {
                     return worker.assignment === type && worker.ex_id === exId;
@@ -29,12 +31,13 @@ describe('cluster state', () => {
     }
 
     function checkState(state, type, exId) {
-        return _.flatten(_.map(state, (node) => findWorkers(node.active, type, exId))).length;
+        const nodes = Object.values(state);
+        return flatten(nodes.map((node) => findWorkers(node.active, type, exId))).length;
     }
 
     function verifyClusterMaster(state) {
         // verify that the cluster master worker exists within the state
-        const nodes = _.filter(state, (node) => {
+        const nodes = Object.values(state).filter((node) => {
             const cms = findWorkers(node.active, 'cluster_master');
             return cms.length > 0;
         });
@@ -55,10 +58,10 @@ describe('cluster state', () => {
     }
 
     function verifyClusterState(state, workersAdded = 0) {
-        expect(_.values(state)).toBeArrayOfSize(misc.DEFAULT_NODES + workersAdded);
+        expect(Object.values(state)).toBeArrayOfSize(misc.DEFAULT_NODES + workersAdded);
 
         // verify each node
-        _.forEach(state, (node) => {
+        Object.values(state).forEach((node) => {
             expect(node.total).toBe(misc.WORKERS_PER_NODE);
             expect(node.node_id).toBeDefined();
             expect(node.hostname).toBeDefined();
@@ -100,7 +103,7 @@ describe('cluster state', () => {
         jobSpec.operations[1].index = specIndex;
 
         const ex = await submitAndStart(jobSpec, 5000);
-        await Promise.delay(1000);
+        await pDelay(1000);
         const exId = ex.id();
 
         const state = await teraslice.cluster.state();
@@ -137,7 +140,7 @@ describe('cluster state', () => {
         jobSpec.operations[1].index = specIndex;
 
         const ex = await submitAndStart(jobSpec, 5000);
-        await Promise.delay(1000);
+        await pDelay(1000);
         const exId = ex.id();
 
         const state = await teraslice.cluster.state();

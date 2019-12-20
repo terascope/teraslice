@@ -10,9 +10,9 @@ import got from 'got';
 import { ClientConfig, SearchOptions, RequestOptions } from './interfaces';
 
 export default class Client {
-    private _apiVersion: string;
-    private _request: got.GotInstance;
-    protected _config: ClientConfig;
+    private readonly _apiVersion: string;
+    private readonly _request: got.GotInstance;
+    protected readonly _config: ClientConfig;
 
     constructor(config: ClientConfig = {}) {
         const configUrl = new URL(config.host || config.baseUrl || 'http://localhost:5678');
