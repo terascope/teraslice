@@ -113,13 +113,17 @@ module.exports = function jobsService(context) {
         // create a new execution else throw
         if (!recoverFrom) {
             if (validJob.autorecover) {
-                validJob.previous_execution = recoverFrom.ex_id;
                 return executionService.createExecutionContext(validJob);
             }
 
             throw new TSError(`Job ${validJob.job_id} is missing an execution to recover from`, {
                 statusCode: 404
             });
+        }
+
+        if (validJob.slicers !== recoverFrom.slicers) {
+            const changedFrom = `from ${recoverFrom.slicers} to ${validJob.slicers}`;
+            logger.warn(`recovery for job ${recoverFrom.job_id} changed slicers ${changedFrom}`);
         }
 
         return executionService.recoverExecution(

@@ -2,7 +2,6 @@
 
 const sortBy = require('lodash/sortBy');
 const Queue = require('@terascope/queue');
-const { RecoveryCleanupType } = require('@terascope/job-components');
 const {
     TSError,
     getFullErrorStack,
@@ -289,48 +288,13 @@ module.exports = function executionService(context, { clusterMasterServer }) {
      * Recover the execution
      *
      * @param {string|import('@terascope/job-components').ExecutionConfig} exIdOrEx
-     * @param {RecoveryCleanupType} [cleanupType]
+     * @param {import('@terascope/job-components').RecoveryCleanupType} [cleanupType]
      * @return {Promise<NewExecutionResult>}
     */
     async function recoverExecution(exIdOrEx, cleanupType) {
         const recoverFromEx = isString(exIdOrEx)
             ? await getExecutionContext(exIdOrEx)
             : cloneDeep(exIdOrEx);
-
-        const _cleanupType = recoverFromEx.autorecover && !cleanupType
-            ? RecoveryCleanupType.pending
-            : cleanupType;
-
-        const count = await stateStore.countRecoverySlices(
-            recoverFromEx.ex_id,
-            -1,
-            _cleanupType
-        );
-
-        logger.info(`creating a execution from ${recoverFromEx.ex_id} with ${count} slices to recover`);
-
-        if (!count) {
-            if (recoverFromEx.autorecover) {
-                recoverFromEx.previous_execution = recoverFromEx.ex_id;
-                recoverFromEx.recovered_slice_type = _cleanupType;
-                delete recoverFromEx.recovered_execution;
-                return createExecutionContext(recoverFromEx);
-            }
-
-            // if there is a cleanup type (the job will exit after recovering)
-            // and there are no slices to recover throw
-            if (cleanupType) {
-                let typeTxt = ' ';
-                if (cleanupType === RecoveryCleanupType.errors) {
-                    typeTxt = ' error ';
-                } else if (cleanupType === RecoveryCleanupType.pending) {
-                    typeTxt = ' pending ';
-                }
-                throw new TSError(`No${typeTxt}slices found to recover`, {
-                    statusCode: 422
-                });
-            }
-        }
 
         const ex = await exStore.createRecoveredExecution(recoverFromEx, cleanupType);
         enqueue(ex);

@@ -21,7 +21,6 @@ class Scheduler {
             throw new Error('Slicer is not recoverable');
         }
 
-        this.prevExId = get(executionContext.config, 'previous_execution') || recoverFromExId;
         this.recoverFromExId = recoverFromExId;
         this.recoverExecution = Boolean(recoverFromExId && slicerCanRecover);
         this.recovering = Boolean(this.recoverExecution);
@@ -52,13 +51,6 @@ class Scheduler {
         if (this.recoverExecution) {
             await this._initializeRecovery();
             return;
-        }
-
-        if (this.autorecover && this.prevExId) {
-            this.startingPoints = await this.stateStore.getStartingPoints(
-                this.prevExId,
-                this.executionContext.config.slicers
-            );
         }
 
         await this._initializeExecution();
@@ -455,8 +447,8 @@ class Scheduler {
         }
 
         this.startingPoints = await this.stateStore.getStartingPoints(
-            this.prevExId,
-            this.executionContext.config.slicers
+            this.recoverFromExId,
+            this.prevSlicers,
         );
 
         this.logger.info(`execution: ${this.exId} finished its recovery`);

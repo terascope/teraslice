@@ -263,7 +263,6 @@ module.exports = async function executionStorage(context) {
             throw new Error(`Unknown cleanup type "${cleanupType}" to recover`);
         }
 
-        ex.previous_execution = recoverFromId;
         ex.recovered_execution = recoverFromId;
 
         if (cleanupType) {

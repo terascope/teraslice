@@ -159,13 +159,9 @@ describe('recovery', () => {
 
         expect(exConfig).toMatchObject({
             ex_id: newEx.id(),
-            previous_execution: recoverFromId,
             recovered_execution: recoverFromId,
             recovered_slice_type: 'errors'
         });
-
-        await expect(newEx.recover({ cleanup_type: 'errors' }))
-            .rejects.toThrowError('No error slices found to recover');
     });
 
     it('can support different recovery mode cleanup=all', async () => {
@@ -182,7 +178,6 @@ describe('recovery', () => {
 
         expect(exConfig).toMatchObject({
             ex_id: newEx.id(),
-            previous_execution: recoverFromId,
             recovered_execution: recoverFromId,
             recovered_slice_type: 'all'
         });
@@ -205,7 +200,6 @@ describe('recovery', () => {
 
         expect(exConfig).toMatchObject({
             ex_id: newEx.id(),
-            previous_execution: recoverFromId,
             recovered_execution: recoverFromId,
             recovered_slice_type: 'pending'
         });
@@ -249,7 +243,6 @@ describe('recovery', () => {
         expect(exConfig).toMatchObject({
             autorecover: true,
             ex_id: newEx.id(),
-            previous_execution: recoverFromId,
             recovered_execution: recoverFromId,
             recovered_slice_type: 'pending'
         });
@@ -257,11 +250,8 @@ describe('recovery', () => {
         expect(finalExConfig).toMatchObject({
             autorecover: true,
             ex_id: finalEx.id(),
-            previous_execution: newEx.id(),
             recovered_slice_type: 'pending'
         });
-        // FIXME
-        // expect(finalExConfig.recovered_execution).toBeNil();
     });
 
     it('can support recovery without a cleanup type', async () => {
@@ -295,13 +285,11 @@ describe('recovery', () => {
 
         expect(exConfig).toMatchObject({
             ex_id: newEx.id(),
-            previous_execution: recoverFromId,
             recovered_execution: recoverFromId,
         });
 
         expect(finalExConfig).toMatchObject({
             ex_id: finalEx.id(),
-            previous_execution: newEx.id(),
             recovered_execution: newEx.id(),
         });
 
