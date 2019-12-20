@@ -1,3 +1,4 @@
+import ms from 'ms';
 import path from 'path';
 import isCI from 'is-ci';
 import {
@@ -18,7 +19,7 @@ import {
 } from '../misc';
 import { ensureServices } from './services';
 import { PackageInfo } from '../interfaces';
-import { TestOptions } from './interfaces';
+import { TestOptions, RunSuiteResult } from './interfaces';
 import { runJest, dockerPush, dockerTag } from '../scripts';
 import * as utils from './utils';
 import signale from '../signale';
@@ -29,33 +30,57 @@ const logger = debugLogger('ts-scripts:cmd:test');
 
 export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
     logger.info('running tests with options', options);
-    let errors: string[];
+    let result: RunSuiteResult = {
+        cleanup: () => {},
+        errors: [],
+    };
 
     try {
-        errors = await _runTests(pkgInfos, options);
+        result = await _runTests(pkgInfos, options);
     } catch (err) {
-        errors = [getFullErrorStack(err)];
+        result.errors = [getFullErrorStack(err)];
     }
 
     let errorMsg = '';
-    if (errors.length > 1) {
-        errorMsg = `Multiple Test Failures:${formatList(errors)}`;
-    } else if (errors.length === 1) {
-        ([errorMsg] = errors);
+    if (result.errors.length > 1) {
+        errorMsg = `Multiple Test Failures:${formatList(result.errors)}`;
+    } else if (result.errors.length === 1) {
+        ([errorMsg] = result.errors);
     }
 
-    if (errors.length) {
+    if (result.errors.length) {
         signale.error(`\n${errorMsg}`);
+    }
 
+    if (options.keepOpen) {
+        await new Promise((resolve) => {
+            let timeoutId: any;
+            signale.info('keeping the tests open so the services don\'t shutdown, use ctrl-c to exit.');
+
+            function done() {
+                clearTimeout(timeoutId);
+                process.removeListener('SIGINT', done);
+                process.removeListener('SIGTERM', done);
+                resolve();
+            }
+
+            timeoutId = setTimeout(done, ms('4 hour'));
+            process.once('SIGINT', done);
+            process.once('SIGTERM', done);
+        });
+    }
+
+    result.cleanup();
+
+    if (result.errors.length) {
         const exitCode = (process.exitCode || 0) > 0 ? process.exitCode : 1;
         process.exit(exitCode);
-        return;
+    } else {
+        process.exit(0);
     }
-
-    process.exit(0);
 }
 
-async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
+async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise<RunSuiteResult> {
     if (options.suite === 'e2e') {
         return runE2ETest(options);
     }
@@ -63,9 +88,10 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
     const filtered = utils.filterBySuite(pkgInfos, options);
     if (!filtered.length) {
         signale.warn('No tests found.');
-        return [];
+        return { cleanup() {}, errors: [] };
     }
 
+    const cleanups: (() => void)[] = [];
     const availableSuites = getAvailableTestSuites();
     const grouped = utils.groupBySuite(filtered, availableSuites, options);
 
@@ -74,9 +100,10 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
         if (!pkgs.length || suite === 'e2e') continue;
 
         try {
-            const suiteErrors: string[] = await runTestSuite(suite, pkgs, options);
-            if (suiteErrors.length) {
-                errors.push(...suiteErrors);
+            const result = await runTestSuite(suite, pkgs, options);
+            cleanups.push(result.cleanup);
+            if (result.errors.length) {
+                errors.push(...result.errors);
                 if (options.bail) {
                     break;
                 }
@@ -87,15 +114,23 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
         }
     }
 
-    return errors;
+    return {
+        cleanup() {
+            cleanups.forEach((fn) => { fn(); });
+        },
+        errors,
+    };
 }
 
 async function runTestSuite(
     suite: string,
     pkgInfos: PackageInfo[],
     options: TestOptions
-): Promise<string[]> {
-    if (suite === 'e2e') return [];
+): Promise<RunSuiteResult> {
+    if (suite === 'e2e') {
+        return { cleanup() {}, errors: [] };
+    }
+
     const errors: string[] = [];
 
     // jest or our tests have a memory leak, limiting this seems to help
@@ -115,7 +150,7 @@ async function runTestSuite(
         writeHeader(`Running test suite "${suite}"`, false);
     }
 
-    const cleanup = await ensureServices(suite, options);
+    let cleanup = await ensureServices(suite, options);
 
     const timeLabel = `test suite "${suite}"`;
     signale.time(timeLabel);
@@ -157,13 +192,17 @@ async function runTestSuite(
         }
     }
 
+    if (!options.keepOpen) {
+        cleanup();
+        cleanup = () => {};
+    }
+
     signale.timeEnd(timeLabel);
 
-    cleanup();
-    return errors;
+    return { errors, cleanup };
 }
 
-async function runE2ETest(options: TestOptions): Promise<string[]> {
+async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
     let cleanup = () => {};
     const errors: string[] = [];
     const suite = 'e2e';
@@ -215,7 +254,7 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         signale.timeEnd(timeLabel);
     }
 
-    if (startedTest) {
+    if (startedTest && !options.keepOpen) {
         try {
             await utils.logE2E(e2eDir, errors.length > 0);
         } catch (err) {
@@ -235,9 +274,7 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         }]);
     }
 
-    cleanup();
-
-    return errors;
+    return { errors, cleanup };
 }
 
 async function pushDevImage() {

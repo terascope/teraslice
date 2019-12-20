@@ -34,7 +34,6 @@ export class CoreContext<
             process.env.NODE_TYPE
             || process.env.assignment
             || process.env.ASSIGNMENT
-            || 'unknown'
         ) as D;
 
         if (ts.isFunction(config.cluster_name)) {

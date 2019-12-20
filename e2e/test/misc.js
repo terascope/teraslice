@@ -2,7 +2,8 @@
 
 const {
     memoize,
-    cloneDeep
+    cloneDeep,
+    toBoolean
 } = require('@terascope/utils');
 const path = require('path');
 const fse = require('fs-extra');
@@ -18,6 +19,8 @@ const {
     ELASTICSEARCH_VERSION = '6.8',
     ELASTICSEARCH_API_VERSION = '6.5'
 } = process.env;
+
+const KEEP_OPEN = toBoolean(process.env.KEEP_OPEN);
 
 const BASE_PATH = path.join(__dirname, '..');
 const CONFIG_PATH = path.join(BASE_PATH, '.config');
@@ -143,6 +146,10 @@ async function resetLogs() {
 }
 
 async function globalTeardown() {
+    if (KEEP_OPEN) {
+        return;
+    }
+
     const errors = [];
 
     await compose

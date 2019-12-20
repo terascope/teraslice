@@ -93,6 +93,10 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
         });
     }
 
+    if (options.keepOpen) {
+        env.KEEP_OPEN = 'true';
+    }
+
     if (options.debug) {
         let DEBUG = process.env.DEBUG || '';
         const DEBUG_LOG_LEVEL = process.env.DEBUG_LOG_LEVEL || 'debug';
@@ -180,6 +184,10 @@ export function groupBySuite(
 
 type TeardownPkgsArg = { name: string; dir: string; suite?: string }[];
 export async function globalTeardown(options: TestOptions, pkgs: TeardownPkgsArg) {
+    if (options.keepOpen) {
+        signale.info('skipping teardown because --keep-open is set');
+        return;
+    }
     for (const { name, dir, suite } of pkgs) {
         const filePath = path.join(dir, 'test/global.teardown.js');
         if (fse.existsSync(filePath)) {
