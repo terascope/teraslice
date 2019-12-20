@@ -19,7 +19,7 @@ import {
 } from '../misc';
 import { ensureServices } from './services';
 import { PackageInfo } from '../interfaces';
-import { TestOptions, RunSuiteResult } from './interfaces';
+import { TestOptions, RunSuiteResult, CleanupFN } from './interfaces';
 import { runJest, dockerPush, dockerTag } from '../scripts';
 import * as utils from './utils';
 import signale from '../signale';
@@ -70,7 +70,11 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
         });
     }
 
-    result.cleanup();
+    try {
+        await result.cleanup();
+    } catch (err) {
+        signale.warn(err, 'cleanup error');
+    }
 
     if (result.errors.length) {
         const exitCode = (process.exitCode || 0) > 0 ? process.exitCode : 1;
@@ -115,8 +119,8 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
     }
 
     return {
-        cleanup() {
-            cleanups.forEach((fn) => { fn(); });
+        async cleanup() {
+            await Promise.all(cleanups);
         },
         errors,
     };
@@ -150,7 +154,7 @@ async function runTestSuite(
         writeHeader(`Running test suite "${suite}"`, false);
     }
 
-    let cleanup = await ensureServices(suite, options);
+    let cleanup: CleanupFN = await ensureServices(suite, options);
 
     const timeLabel = `test suite "${suite}"`;
     signale.time(timeLabel);
@@ -176,11 +180,22 @@ async function runTestSuite(
         } catch (err) {
             errors.push(err.message);
 
-            await utils.globalTeardown(options, pkgs.map((pkg) => ({
+            const teardownPkgs = pkgs.map((pkg) => ({
                 name: pkg.name,
                 dir: pkg.dir,
                 suite: pkg.terascope.testSuite
-            })));
+            }));
+
+            if (options.keepOpen) {
+                const prevCleanup = cleanup;
+                cleanup = async () => {
+                    await prevCleanup();
+                    options.keepOpen = false;
+                    await utils.globalTeardown(options, teardownPkgs);
+                };
+            } else {
+                await utils.globalTeardown(options, teardownPkgs);
+            }
 
             if (options.bail) {
                 break;
@@ -193,7 +208,7 @@ async function runTestSuite(
     }
 
     if (!options.keepOpen) {
-        cleanup();
+        await cleanup();
         cleanup = () => {};
     }
 
@@ -203,7 +218,7 @@ async function runTestSuite(
 }
 
 async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
-    let cleanup = () => {};
+    let cleanup: CleanupFN = () => {};
     const errors: string[] = [];
     const suite = 'e2e';
     let startedTest = false;
@@ -267,11 +282,24 @@ async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
     }
 
     if (startedTest && errors.length) {
-        await utils.globalTeardown(options, [{
-            name: suite,
-            dir: e2eDir,
-            suite,
-        }]);
+        if (options.keepOpen) {
+            const prevCleanup = cleanup;
+            cleanup = async () => {
+                await prevCleanup();
+                options.keepOpen = false;
+                await utils.globalTeardown(options, [{
+                    name: suite,
+                    dir: e2eDir,
+                    suite,
+                }]);
+            };
+        } else {
+            await utils.globalTeardown(options, [{
+                name: suite,
+                dir: e2eDir,
+                suite,
+            }]);
+        }
     }
 
     return { errors, cleanup };

@@ -184,10 +184,6 @@ export function groupBySuite(
 
 type TeardownPkgsArg = { name: string; dir: string; suite?: string }[];
 export async function globalTeardown(options: TestOptions, pkgs: TeardownPkgsArg) {
-    if (options.keepOpen) {
-        signale.info('skipping teardown because --keep-open is set');
-        return;
-    }
     for (const { name, dir, suite } of pkgs) {
         const filePath = path.join(dir, 'test/global.teardown.js');
         if (fse.existsSync(filePath)) {

@@ -19,7 +19,8 @@ export type GroupedPackages = {
     [suite: string]: PackageInfo[];
 };
 
+export type CleanupFN = () => (Promise<void>|void);
 export type RunSuiteResult = {
     errors: string[];
-    cleanup: () => void;
+    cleanup: CleanupFN;
 }
