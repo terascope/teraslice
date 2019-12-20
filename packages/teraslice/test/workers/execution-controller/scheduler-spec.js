@@ -64,6 +64,9 @@ describe('Scheduler', () => {
         };
 
         scheduler.exStore = {
+            async get() {
+                return { slicers };
+            },
             setStatus: jest.fn(() => pDelay(0)),
         };
 

@@ -446,9 +446,10 @@ class Scheduler {
             return;
         }
 
+        const { slicers: prevSlicers } = await this.exStore.get(this.recoverFromExId);
         this.startingPoints = await this.stateStore.getStartingPoints(
             this.recoverFromExId,
-            this.prevSlicers,
+            prevSlicers,
         );
 
         this.logger.info(`execution: ${this.exId} finished its recovery`);
