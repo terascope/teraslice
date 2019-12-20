@@ -181,9 +181,6 @@ describe('recovery', () => {
             recovered_execution: recoverFromId,
             recovered_slice_type: 'all'
         });
-
-        await expect(newEx.recover({ cleanup_type: 'all' }))
-            .rejects.toThrowError('No slices found to recover');
     });
 
     it('can support different recovery mode cleanup=pending', async () => {
@@ -203,9 +200,6 @@ describe('recovery', () => {
             recovered_execution: recoverFromId,
             recovered_slice_type: 'pending'
         });
-
-        await expect(newEx.recover({ cleanup_type: 'pending' }))
-            .rejects.toThrowError('No pending slices found to recover');
     });
 
     it('can support autorecovery', async () => {
