@@ -35,7 +35,6 @@
     },
     "devDependencies": {
         "@types/got": "^9.6.8",
-        "@types/nock": "^11.1.0",
         "nock": "^11.7.0"
     },
     "publishConfig": {

@@ -25,7 +25,7 @@
     "dependencies": {
         "@terascope/utils": "^0.20.7",
         "ajv": "^6.10.0",
-        "nanoid": "^2.1.6",
+        "nanoid": "^2.1.8",
         "rambda": "~3.0.1",
         "xlucene-evaluator": "^0.14.1"
     },
