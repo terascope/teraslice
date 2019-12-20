@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { SearchParams } from 'elasticsearch';
 import { TSError } from '@terascope/utils';
-import { QueryAccess, FieldType, GeoShapeType } from '../src';
+import { QueryAccess, FieldType } from '../src';
 
 describe('QueryAccess', () => {
     describe('when constructed without type_config', () => {

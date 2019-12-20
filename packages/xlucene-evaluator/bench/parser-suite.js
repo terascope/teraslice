@@ -14,45 +14,61 @@ const multipolyInput = { location: greenlandGeoData };
 
 const typeConfig = { location: FieldType.GeoJSON };
 
-const geoPolygonQuery = createJoinQuery(polyInput, { typeConfig });
-const geoMultiPolygonQuery = createJoinQuery(multipolyInput, { typeConfig });
+const { query: polyQuery, variables: polyVariables } = createJoinQuery(polyInput, { typeConfig });
+const {
+    query: multiPolyQuery,
+    variables: multiPolyVariables
+} = createJoinQuery(multipolyInput, { typeConfig });
+
+const multiPolyConfig = {
+    type_config: typeConfig,
+    variables: multiPolyVariables
+};
+
+const polyConfig = {
+    type_config: typeConfig,
+    variables: polyVariables
+};
 
 const partOne = times(300, (n) => `a:${n}`).join(' OR ');
 const partTwo = times(200, (n) => `b:${n}`).join(' OR ');
 const partThree = times(300, (n) => `c:${n}`).join(') OR (');
 const largeTermQuery = `(${partOne}) AND ${partTwo} OR (${partThree})`;
-
-const run = async () => Suite('Parser (large)')
-    // .add('parsing large geoPolygon queries', {
-    //     fn() {
-    //         new Parser(geoPolygonQuery, typeConfig);
-    //     }
-    // })
-    .add('parsing large multipolygon geoPolygon queries', {
-        fn() {
-            new Parser(geoMultiPolygonQuery, typeConfig);
-        }
-    })
-    // .add('parsing large term queries', {
-    //     fn() {
-    //         new Parser(largeTermQuery);
-    //     }
-    // })
-    // .add('parsing small term queries', {
-    //     fn() {
-    //         new Parser('foo: bar AND foo: "bar" AND hello: true AND a: 1');
-    //     }
-    // })
-    .run({
-        async: true,
-        initCount: 0,
-        maxTime: 1,
-    });
+console.log(multiPolyQuery, multiPolyConfig)
+// const run = async () => Suite('Parser (large)')
+//     // .add('parsing large geoPolygon queries', {
+//     //     fn() {
+//     //         new Parser(polyQuery, polyConfig);
+//     //     }
+//     // })
+//     // .add('parsing large multipolygon geoPolygon queries', {
+//     //     fn() {
+//     //         new Parser(multiPolyQuery, multiPolyConfig);
+//     //     }
+//     // })
+//     // .add('parsing large term queries', {
+//     //     fn() {
+//     //         new Parser(largeTermQuery);
+//     //     }
+//     // })
+//     // .add('parsing small term queries', {
+//     //     fn() {
+//     //         new Parser('foo: bar AND foo: "bar" AND hello: true AND a: 1');
+//     //     }
+//     // })
+//     .run({
+//         async: true,
+//         initCount: 0,
+//         maxTime: 1,
+//     });
 
 if (require.main === module) {
     console.time('run');
-    new Parser(geoMultiPolygonQuery, typeConfig);
+    const parser = new Parser(multiPolyQuery, multiPolyConfig);
+    // const parser = new Parser(polyQuery, polyConfig);
+
     console.timeEnd('run');
+    console.log('parser.ast', JSON.stringify(parser.ast, null, 4))
     // run().then((suite) => {
     //     suite.on('complete', () => {});
     // });

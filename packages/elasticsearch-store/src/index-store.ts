@@ -4,7 +4,9 @@ import {
     TypeConfig,
     CachedTranslator,
     createJoinQuery,
-    QueryAccess
+    JoinQueryResult,
+    QueryAccess,
+    RestrictOptions
 } from 'xlucene-evaluator';
 import IndexManager from './index-manager';
 import * as i from './interfaces';
@@ -134,9 +136,10 @@ export default class IndexStore<T extends Record<string, any>> {
     async count(
         query = '',
         params: PartialParam<es.CountParams, 'q' | 'body'> = {},
+        options?: RestrictOptions,
         queryAccess?: QueryAccess<T>
     ): Promise<number> {
-        const p = Object.assign({}, params, this._translateQuery(query, queryAccess));
+        const p = Object.assign({}, params, this._translateQuery(query, options, queryAccess));
 
         return this.countRequest(p);
     }
@@ -362,8 +365,9 @@ export default class IndexStore<T extends Record<string, any>> {
         );
     }
 
-    async countBy(fields: AnyInput<T>, joinBy?: JoinBy, arrayJoinBy?: JoinBy): Promise<number> {
-        return this.count(this.createJoinQuery(fields, joinBy, arrayJoinBy));
+    async countBy(fields: AnyInput<T>, joinBy?: JoinBy): Promise<number> {
+        const { query, variables } = this.createJoinQuery(fields, joinBy);
+        return this.count(query, undefined, { variables });
     }
 
     async exists(id: string[] | string): Promise<boolean> {
@@ -383,13 +387,14 @@ export default class IndexStore<T extends Record<string, any>> {
         options?: i.FindOneOptions<T>,
         queryAccess?: QueryAccess<T>
     ) {
-        const query = this.createJoinQuery(fields, joinBy);
+        const { query, variables } = this.createJoinQuery(fields, joinBy, options?.variables);
 
         const results = await this.search(
             query,
             {
                 ...options,
                 size: 1,
+                variables
             },
             queryAccess,
             true
@@ -397,7 +402,11 @@ export default class IndexStore<T extends Record<string, any>> {
 
         const record = ts.getFirst(results);
         if (record == null) {
-            throw new ts.TSError(`Unable to find ${this.name} by ${query}`, {
+            let errQuery = query;
+            for (const [key, value] of Object.entries(variables)) {
+                errQuery = errQuery.replace(`$${key}`, value);
+            }
+            throw new ts.TSError(`Unable to find ${this.name} by ${errQuery}`, {
                 statusCode: 404,
             });
         }
@@ -411,11 +420,11 @@ export default class IndexStore<T extends Record<string, any>> {
         options?: i.FindOptions<T>,
         queryAccess?: QueryAccess<T>
     ): Promise<T[]> {
-        const query = this.createJoinQuery(fields, joinBy);
+        const { query, variables } = this.createJoinQuery(fields, joinBy, options?.variables);
 
         return this.search(
             query,
-            { size: 10000, ...options },
+            { variables, size: 10000, ...options },
             queryAccess,
             false
         );
@@ -459,15 +468,16 @@ export default class IndexStore<T extends Record<string, any>> {
         const _ids = utils.validateIds(ids, 'exists');
         if (!_ids.length) return [];
 
-        const query = this.createJoinQuery({
+        const { query, variables } = this.createJoinQuery({
             [this.config.id_field!]: _ids
-        } as AnyInput<T>);
+        } as AnyInput<T>, 'AND', { variables: options?.variables });
 
         const result = await this.search(
             query,
             {
                 ...options,
                 size: _ids.length,
+                variables
             },
             queryAccess,
             false
@@ -504,10 +514,15 @@ export default class IndexStore<T extends Record<string, any>> {
         if (queryAccess) {
             searchParams = queryAccess.restrictSearchQuery(q, {
                 params,
-                elasticsearch_version: utils.getESVersion(this.client)
+                elasticsearch_version: utils.getESVersion(this.client),
+                variables: options.variables
             });
         } else {
-            searchParams = Object.assign({}, params, this._translateQuery(q));
+            searchParams = Object.assign(
+                {},
+                params,
+                this._translateQuery(q, { variables: options.variables })
+            );
         }
 
         return this.searchRequest(searchParams, critical);
@@ -561,15 +576,15 @@ export default class IndexStore<T extends Record<string, any>> {
         return this._toRecords(results.hits.hits, critical);
     }
 
-    createJoinQuery(fields: AnyInput<T>, joinBy: JoinBy = 'AND', arrayJoinBy: JoinBy = 'OR'): string {
+    createJoinQuery(fields: AnyInput<T>, joinBy: JoinBy = 'AND', variables = {}): JoinQueryResult {
         const result = createJoinQuery(fields, {
             joinBy,
-            arrayJoinBy,
-            typeConfig: this.xluceneTypeConfig
+            typeConfig: this.xluceneTypeConfig,
+            variables
         });
         if (result) return result;
 
-        return `${ts.getFirst(Object.keys(fields))}: "__undefined__"`;
+        return { query: `${ts.getFirst(Object.keys(fields))}: "__undefined__"`, variables: {} };
     }
 
     /**
@@ -713,12 +728,17 @@ export default class IndexStore<T extends Record<string, any>> {
         return _doc as T;
     }
 
-    private _translateQuery(q: string, queryAccess?: QueryAccess<T>) {
-        const query: string = queryAccess ? queryAccess.restrict(q) : q;
+    private _translateQuery(q: string, options?: RestrictOptions, queryAccess?: QueryAccess<T>) {
+        const query: string = queryAccess
+            ? queryAccess.restrict(q, { variables: options?.variables })
+            : q;
+
         const translator = this._translator.make(query, {
             type_config: this.xluceneTypeConfig,
-            logger: this._logger
+            logger: this._logger,
+            variables: options?.variables
         });
+
         return {
             q: null,
             body: translator.toElasticsearchDSL(),

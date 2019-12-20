@@ -36,6 +36,7 @@ interface PolyHolesQuery {
 }
 
 function validate(params: i.Term[]): { polygonShape: GeoShape; relation: GeoShapeRelation } {
+    console.time('validation');
     const geoPointsParam = params.find((node) => node.field === 'points');
     const geoRelationParam = params.find((node) => node.field === 'relation');
     let relation: GeoShapeRelation;
@@ -70,7 +71,7 @@ function validate(params: i.Term[]): { polygonShape: GeoShape; relation: GeoShap
         const coords = validateListCoords(points);
         polygonShape.coordinates = coords;
     }
-
+    console.timeEnd('validation');
     return { polygonShape, relation };
 }
 
@@ -204,9 +205,12 @@ const geoPolygon: i.FunctionDefinition = {
         }
 
         function polyToGeoShapeMatcher() {
+            console.time('matcher');
             const polygon = makeShape(polygonShape);
             if (polygon == null) return () => false;
-            return polyHasShape(polygon, relation);
+            const fn = polyHasShape(polygon, relation);
+            console.timeEnd('matcher');
+            return fn;
         }
 
         return {

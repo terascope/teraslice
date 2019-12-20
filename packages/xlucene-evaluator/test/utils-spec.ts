@@ -35,6 +35,11 @@ describe('Utils', () => {
             expect(results).toEqual({ lat: 40, lon: 50 });
         });
 
+        it('can parse geo-point from a string part 2', () => {
+            const results = parseGeoPoint('20,0');
+            expect(results).toEqual({ lat: 20, lon: 0 });
+        });
+
         it('can parse geo-point from a object (short hand notation)', () => {
             const results = parseGeoPoint({ lat: 40, lon: 50 });
             expect(results).toEqual({ lat: 40, lon: 50 });

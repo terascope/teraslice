@@ -188,12 +188,12 @@ export function parseGeoPoint(point: GeoPointInput, throwInvalid = true): GeoPoi
         [lat, lon] = getLonAndLat(point, throwInvalid);
     }
 
-    if (throwInvalid && (!lat || !lon)) {
+    if (throwInvalid && (lat == null || lon == null)) {
         throw new TSError(`incorrect point given to parse, point:${point}`);
     }
 
     // data incoming is lat,lon and we must return lon,lat
-    if (lat && lon) {
+    if (lat != null && lon != null) {
         return {
             lat,
             lon

@@ -1,4 +1,5 @@
 import { Logger, Omit } from '@terascope/utils';
+import { Variables } from 'xlucene-evaluator';
 import { ESTypeMappings, ESIndexSettings } from '@terascope/data-types';
 
 /** A versioned Index Configuration */
@@ -252,11 +253,13 @@ export type FindOptions<T> = {
     from?: number;
     sort?: string;
     size?: number;
+    variables?: Variables;
 };
 
 export type FindOneOptions<T> = {
     includes?: (keyof T)[];
     excludes?: (keyof T)[];
+    variables?: Variables;
 };
 
 export interface MigrateIndexOptions {
