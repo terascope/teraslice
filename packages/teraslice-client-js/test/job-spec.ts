@@ -1,10 +1,12 @@
 import nock from 'nock';
+import { RecoveryCleanupType, newTestJobConfig } from '@terascope/job-components';
 import Job from '../src/job';
 import {
     ExecutionStatus,
     Execution,
     ClusterStateNative,
-    WorkerJobProcesses
+    WorkerJobProcesses,
+    JobConfiguration
 } from '../src/interfaces';
 
 describe('Teraslice Job', () => {
@@ -12,8 +14,10 @@ describe('Teraslice Job', () => {
     const baseUrl = 'http://teraslice.example.dev/v1';
 
     beforeEach(() => {
+        nock.cleanAll();
         scope = nock(baseUrl);
     });
+
     const requestOptions = { headers: { 'Some-Header': 'yes' } };
 
     const clusterState: ClusterStateNative = {
@@ -94,6 +98,7 @@ describe('Teraslice Job', () => {
             env_vars: {},
             slicers: 1,
             workers: 1,
+            metadata: {},
             _created: date,
             _updated: date,
             _context: 'ex',
@@ -245,7 +250,9 @@ describe('Teraslice Job', () => {
 
             it('should resolve json results from Teraslice', async () => {
                 const job = new Job({ baseUrl }, 'foo-bar');
-                const results = await job.recover({ cleanup: 'errors' });
+                const results = await job.recover({
+                    cleanup: RecoveryCleanupType.errors
+                });
                 expect(results).toEqual({ job_id: 'foo-bar' });
             });
         });
@@ -262,7 +269,9 @@ describe('Teraslice Job', () => {
 
             it('should resolve json results from Teraslice', async () => {
                 const job = new Job({ baseUrl }, 'some-job-id');
-                const results = await job.recover({ cleanup: 'errors' }, requestOptions);
+                const results = await job.recover({
+                    cleanup: RecoveryCleanupType.errors
+                }, requestOptions);
                 expect(results).toEqual({
                     key: 'some-other-key'
                 });
@@ -270,7 +279,7 @@ describe('Teraslice Job', () => {
         });
     });
 
-    describe('->execuction', () => {
+    describe('->execution', () => {
         const exJobId = executionResults[0].job_id;
         describe('when called with nothing', () => {
             beforeEach(() => {
@@ -296,6 +305,56 @@ describe('Teraslice Job', () => {
                 const job = new Job({ baseUrl }, exJobId);
                 const results = await job.execution(requestOptions);
                 expect(results).toEqual(executionResults);
+            });
+        });
+    });
+
+    describe('->update', () => {
+        describe('when updating the whole config', () => {
+            const body = newTestJobConfig({
+                name: 'hello',
+            }) as JobConfiguration;
+            body.job_id = 'some-job-id';
+            body._created = 'hello';
+            body._updated = 'hello';
+
+            beforeEach(() => {
+                scope.put('/jobs/some-job-id', body as any)
+                    .reply(200, body);
+            });
+
+            it('should resolve the update job config', async () => {
+                const job = new Job({ baseUrl }, 'some-job-id');
+                const result = await job.update(body);
+                expect(result).toEqual(body);
+            });
+        });
+    });
+
+    describe('->updatePartial', () => {
+        describe('when updating a partial config', () => {
+            const body = newTestJobConfig({
+                name: 'hello',
+            }) as JobConfiguration;
+            body.job_id = 'some-job-id';
+            body._created = 'hello';
+            body._updated = 'hello';
+            const expected = {
+                ...body,
+                name: 'howdy'
+            };
+
+            beforeEach(() => {
+                scope.get('/jobs/some-job-id')
+                    .reply(200, body);
+                scope.put('/jobs/some-job-id', expected as any)
+                    .reply(200, expected);
+            });
+
+            it('should resolve the update job config', async () => {
+                const job = new Job({ baseUrl }, 'some-job-id');
+                const result = await job.updatePartial({ name: 'howdy' });
+                expect(result).toEqual(expected);
             });
         });
     });

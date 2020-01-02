@@ -1,14 +1,17 @@
 {
-    "name": "example-data-generator-job-labels",
+    "name": "example-data-generator-job-targets",
     "lifecycle": "once",
     "workers": 2,
     "assets": [
         "example",
         "elasticsearch"
     ],
-    "labels": {
-        "key1": "value1"
-    },
+    "targets": [
+        {
+            "key": "zone",
+            "value": "west"
+        }
+    ],
     "operations": [
         {
             "_op": "elasticsearch_data_generator",

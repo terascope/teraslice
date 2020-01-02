@@ -1,6 +1,5 @@
 'use strict';
 
-const Promise = require('bluebird');
 const { waitForExStatus } = require('../../wait');
 const { resetState } = require('../../helpers');
 const misc = require('../../misc');

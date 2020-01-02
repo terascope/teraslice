@@ -1,8 +1,8 @@
 'use strict';
 
-const _ = require('lodash');
-const { TSError, logError } = require('@terascope/utils');
-const Promise = require('bluebird');
+const {
+    TSError, logError, get, cloneDeep
+} = require('@terascope/utils');
 const { makeLogger } = require('../../../../../workers/helpers/terafoundation');
 const K8sResource = require('./k8sResource');
 const k8sState = require('./k8sState');
@@ -21,9 +21,9 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
     const logger = makeLogger(context, 'kubernetes_cluster_service');
     // const slicerAllocationAttempts = context.sysconfig.teraslice.slicer_allocation_attempts;
 
-    const clusterName = _.get(context, 'sysconfig.teraslice.name');
+    const clusterName = get(context, 'sysconfig.teraslice.name');
     const clusterNameLabel = clusterName.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
-    const kubernetesNamespace = _.get(context, 'sysconfig.teraslice.kubernetes_namespace', 'default');
+    const kubernetesNamespace = get(context, 'sysconfig.teraslice.kubernetes_namespace', 'default');
 
     const clusterState = {};
     let clusterStateInterval = null;
@@ -34,19 +34,12 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         logger.info(`execution ${exId} is connected`);
     });
 
-    // Periodically update cluster state, update period controlled by:
-    //  context.sysconfig.teraslice.node_state_interval
-    clusterStateInterval = setInterval(() => {
-        logger.trace('cluster_master requesting cluster state update.');
-        _getClusterState();
-    }, context.sysconfig.teraslice.node_state_interval);
-
     /**
      * getClusterState returns a copy of the clusterState object
      * @return {Object} a copy of the clusterState object
      */
     function getClusterState() {
-        return _.cloneDeep(clusterState);
+        return cloneDeep(clusterState);
     }
 
     /**
@@ -89,40 +82,32 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      * @param  {Object} execution        Object containing execution details
      * @return {Promise}                 [description]
      */
-    function allocateSlicer(execution) {
+    async function allocateSlicer(ex) {
+        const execution = cloneDeep(ex);
         const exSvcResource = new K8sResource(
             'services', 'execution_controller', context.sysconfig.teraslice, execution
         );
 
         const exService = exSvcResource.resource;
 
-        execution.slicer_port = _.get(exService, 'spec.ports[0].targetPort');
-        execution.slicer_hostname = _.get(exService, 'metadata.name');
+        execution.slicer_port = get(exService, 'spec.ports[0].targetPort');
+        execution.slicer_hostname = get(exService, 'metadata.name');
 
         const exJobResource = new K8sResource(
             'jobs', 'execution_controller', context.sysconfig.teraslice, execution
         );
         const exJob = exJobResource.resource;
 
-        logger.debug(`exJob:\n\n${JSON.stringify(exJob, null, 2)}`);
+        logger.debug(exJob, 'execution allocating slicer');
 
         // TODO: This should try slicerAllocationAttempts times??
-        return k8s.post(exService, 'service')
-            .then((result) => logger.debug(`k8s slicer service submitted: ${JSON.stringify(result)}`))
-            .catch((err) => {
-                const error = new TSError(err, {
-                    reason: 'Error submitting k8s slicer service'
-                });
-                return Promise.reject(error);
-            })
-            .then(() => k8s.post(exJob, 'job'))
-            .then((result) => logger.debug(`k8s slicer job submitted: ${JSON.stringify(result)}`))
-            .catch((err) => {
-                const error = new TSError(err, {
-                    reason: 'Error submitting k8s slicer job'
-                });
-                return Promise.reject(error);
-            });
+        const serviceResult = await k8s.post(exService, 'service');
+        logger.debug(serviceResult, 'k8s slicer service submitted');
+
+        const jobResult = await k8s.post(exJob, 'job');
+        logger.debug(jobResult, 'k8s slicer job submitted');
+
+        return execution;
     }
 
     /**
@@ -184,10 +169,24 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         clearInterval(clusterStateInterval);
     }
 
-    const api = {
+    async function initialize() {
+        logger.info('kubernetes clustering initializing');
+
+        // Periodically update cluster state, update period controlled by:
+        //  context.sysconfig.teraslice.node_state_interval
+        clusterStateInterval = setInterval(() => {
+            logger.trace('cluster_master requesting cluster state update.');
+            _getClusterState();
+        }, context.sysconfig.teraslice.node_state_interval);
+
+        await k8s.init();
+    }
+
+    return {
         getClusterState,
         allocateWorkers,
         allocateSlicer,
+        initialize,
         shutdown,
         stopExecution,
         removeWorkers,
@@ -196,12 +195,4 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         readyForAllocation,
         // clusterAvailable TODO: return false if k8s API unavailable, not in use
     };
-
-    function _initialize() {
-        logger.info('Initializing');
-        return k8s.init()
-            .then(() => Promise.resolve(api));
-    }
-
-    return _initialize();
 };

@@ -7,7 +7,9 @@ export default class Counter extends Slicer<AnyObject> {
         super.initialize(recoveryData);
         if (this.recoveryData.length > 0) {
             const { lastSlice } = this.recoveryData[0];
-            this.count = lastSlice.count;
+            if (lastSlice) {
+                this.count = lastSlice.count;
+            }
         }
     }
 

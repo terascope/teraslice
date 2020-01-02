@@ -1,6 +1,8 @@
 'use strict';
 
-const Promise = require('bluebird');
+const {
+    RecoveryCleanupType
+} = require('@terascope/job-components');
 const {
     TSError,
     pRetry,
@@ -8,16 +10,24 @@ const {
     isRetryableError,
     parseErrorInfo,
     isTest,
+    times,
     getFullErrorStack,
 } = require('@terascope/utils');
-const { timeseriesIndex } = require('../../utils/date_utils');
-const { makeLogger } = require('../../workers/helpers/terafoundation');
+const { timeseriesIndex } = require('../utils/date_utils');
+const { makeLogger } = require('../workers/helpers/terafoundation');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
+
+const SliceState = Object.freeze({
+    pending: 'pending',
+    start: 'start',
+    error: 'error',
+    completed: 'completed',
+});
 
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
 // get the final result.
-module.exports = async function stateStorage(context) {
+async function stateStorage(context) {
     const recordType = 'state';
 
     const logger = makeLogger(context, 'state_storage');
@@ -27,7 +37,18 @@ module.exports = async function stateStorage(context) {
     const indexName = `${_index}*`;
     const timeseriesFormat = config.index_rollover_frequency.state;
 
-    let backend;
+    const backendConfig = {
+        context,
+        indexName,
+        recordType,
+        idField: 'slice_id',
+        fullResponse: false,
+        logRecord: true,
+        forceRefresh: false,
+        storageName: 'state'
+    };
+
+    const backend = await elasticsearchBackend(backendConfig);
 
     async function createState(exId, slice, state, error) {
         await waitForClient();
@@ -41,7 +62,7 @@ module.exports = async function stateStorage(context) {
 
         const bulkRequest = [];
         for (const slice of slices) {
-            const { record, index } = _createSliceRecord(exId, slice, 'start');
+            const { record, index } = _createSliceRecord(exId, slice, SliceState.pending);
             bulkRequest.push({
                 index: {
                     _index: index,
@@ -54,6 +75,9 @@ module.exports = async function stateStorage(context) {
     }
 
     function _createSliceRecord(exId, slice, state, error) {
+        if (!SliceState[state]) {
+            throw new Error(`Unknown slice state "${state}" on create`);
+        }
         const { index } = timeseriesIndex(timeseriesFormat, _index, slice._created);
         const record = {
             slice_id: slice.slice_id,
@@ -72,7 +96,11 @@ module.exports = async function stateStorage(context) {
         return { record, index };
     }
 
-    function updateState(slice, state, error) {
+    async function updateState(slice, state, error) {
+        if (!SliceState[state]) {
+            throw new Error(`Unknown slice state "${state}" on update`);
+        }
+
         const indexData = timeseriesIndex(timeseriesFormat, _index, slice._created);
         const record = {
             _updated: indexData.timestamp,
@@ -80,7 +108,7 @@ module.exports = async function stateStorage(context) {
         };
 
         // it will usaully just be error
-        if (state === 'error' || error) {
+        if (state === SliceState.error || error) {
             if (error) {
                 record.error = getFullErrorStack(error);
             } else {
@@ -120,17 +148,27 @@ module.exports = async function stateStorage(context) {
         });
     }
 
-    async function executionStartingSlice(exId, slicerId) {
-        const startQuery = `ex_id:"${exId}" AND slicer_id:"${slicerId}"`;
-        const recoveryData = {};
-
+    /**
+     * Get the starting position for the slicer
+     *
+     * @param {string} exId
+     * @param {number} slicerId
+     * @returns {Promise<import('@terascope/job-components').SlicerRecoveryData>}
+    */
+    async function _getSlicerStartingPoint(exId, slicerId) {
+        const startQuery = `ex_id:"${exId}" AND slicer_id:"${slicerId}" AND state:${SliceState.completed}`;
         await waitForClient();
 
         try {
-            const startingData = await backend.search(startQuery, 0, 1, 'slicer_order:desc');
-            if (startingData.length > 0) {
-                recoveryData.lastSlice = JSON.parse(startingData[0].request);
-                logger.info(`last slice process for slicer_id ${slicerId}, ex_id: ${exId} is`, recoveryData.lastSlice);
+            const [slice] = await search(startQuery, 0, 1, 'slicer_order:desc');
+            const recoveryData = {
+                slicer_id: slicerId,
+                lastSlice: undefined
+            };
+
+            if (slice) {
+                recoveryData.lastSlice = JSON.parse(slice.request);
+                logger.info(`last slice process for slicer_id ${slicerId}, ex_id: ${exId} is`, slice.lastSlice);
             }
 
             return recoveryData;
@@ -141,21 +179,56 @@ module.exports = async function stateStorage(context) {
         }
     }
 
-    async function recoverSlices(exId, slicerId, cleanupType) {
-        let retryQuery = `ex_id:"${exId}" AND slicer_id:"${slicerId}"`;
+    /**
+     * Get the starting positions for all of the slicers
+     *
+     * @param {string} exId
+     * @param {number} slicer
+     * @returns {Promise<import('@terascope/job-components').SlicerRecoveryData[]>}
+    */
+    async function getStartingPoints(exId, slicers) {
+        const recoveredSlices = times(slicers, (i) => _getSlicerStartingPoint(exId, i));
+        return Promise.all(recoveredSlices);
+    }
 
-        if (cleanupType && cleanupType === 'errors') {
-            retryQuery = `${retryQuery} AND state:error`;
-        } else {
-            retryQuery = `${retryQuery} AND NOT (state:completed OR state:invalid)`;
+    /**
+     * @private
+     * @param {string} exId
+     * @param {number} slicerId
+     * @param {import('@terascope/job-components').RecoveryCleanupType} [cleanupType]
+     * @returns {string}
+    */
+    function _getRecoverSlicesQuery(exId, slicerId, cleanupType) {
+        let query = `ex_id:"${exId}"`;
+        if (slicerId !== -1) {
+            query = `${query} AND slicer_id:"${slicerId}"`;
         }
 
+        if (cleanupType && cleanupType === RecoveryCleanupType.errors) {
+            query = `${query} AND state:"${SliceState.error}"`;
+        } else if (cleanupType && cleanupType === RecoveryCleanupType.pending) {
+            query = `${query} AND state:"${SliceState.pending}"`;
+        } else {
+            query = `${query} AND NOT state:"${SliceState.completed}"`;
+        }
+        logger.debug('recovery slices query:', query);
+        return query;
+    }
+
+    /**
+     * @param {string} exId
+     * @param {number} slicerId
+     * @param {import('@terascope/job-components').RecoveryCleanupType} [cleanupType]
+     * @returns {Promise<import('@terascope/job-components').Slice[]>}
+    */
+    async function recoverSlices(exId, slicerId, cleanupType) {
+        const query = _getRecoverSlicesQuery(exId, slicerId, cleanupType);
         // Look for all slices that haven't been completed so they can be retried.
         try {
             await waitForClient();
             await backend.refresh(indexName);
 
-            const results = await backend.search(retryQuery, 0, 5000);
+            const results = await search(query, 0, 5000, 'slicer_order:desc');
             return results.map((doc) => ({
                 slice_id: doc.slice_id,
                 slicer_id: doc.slicer_id,
@@ -163,27 +236,34 @@ module.exports = async function stateStorage(context) {
                 _created: doc._created
             }));
         } catch (err) {
-            const error = new TSError(err, {
-                reason: 'An error has occurred accessing the state log for retry'
+            throw new TSError(err, {
+                reason: 'Failure to get recovered slices'
             });
-            return Promise.reject(error);
         }
     }
 
-    function search(query, from, size, sort) {
-        return backend.search(query, from, size, sort);
+    async function search(query, from, size, sort = '_updated:desc', fields) {
+        return backend.search(query, from, size, sort, fields);
     }
 
-    function count(query, from, sort) {
+    async function count(query, from = 0, sort = '_updated:desc') {
         return backend.count(query, from, sort);
     }
 
-    function shutdown(forceShutdown) {
+    async function countByState(exId, state) {
+        if (!SliceState[state]) {
+            throw new Error(`Unknown slice state "${state}" on update`);
+        }
+        const query = `ex_id:"${exId}" AND state:${state}`;
+        return count(query);
+    }
+
+    async function shutdown(forceShutdown) {
         logger.info('shutting down');
         return backend.shutdown(forceShutdown);
     }
 
-    function refresh() {
+    async function refresh() {
         const { index } = timeseriesIndex(timeseriesFormat, _index);
         return backend.refresh(index);
     }
@@ -192,37 +272,27 @@ module.exports = async function stateStorage(context) {
         return backend.verifyClient();
     }
 
-    function waitForClient() {
+    async function waitForClient() {
         return backend.waitForClient();
     }
 
-    const api = {
+    logger.info('state storage initialized');
+    return {
         search,
         createState,
         createSlices,
         updateState,
         recoverSlices,
-        executionStartingSlice,
+        getStartingPoints,
         count,
+        countByState,
         waitForClient,
         verifyClient,
         shutdown,
         refresh,
     };
+}
 
-    const backendConfig = {
-        context,
-        indexName,
-        recordType,
-        idField: 'slice_id',
-        fullResponse: false,
-        logRecord: true,
-        forceRefresh: false,
-        storageName: 'state'
-    };
+stateStorage.SliceState = SliceState;
 
-    const elasticsearch = await elasticsearchBackend(backendConfig);
-    backend = elasticsearch;
-    logger.info('state storage initialized');
-    return api;
-};
+module.exports = stateStorage;

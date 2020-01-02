@@ -2,7 +2,6 @@
 
 const _ = require('lodash');
 const eventsModule = require('events');
-const Promise = require('bluebird');
 const { debugLogger } = require('@terascope/job-components');
 const nodeModule = require('../lib/cluster/node_master');
 

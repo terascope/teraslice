@@ -93,13 +93,23 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
         });
     }
 
+    if (options.keepOpen) {
+        env.KEEP_OPEN = 'true';
+    }
+
     if (options.debug) {
         let DEBUG = process.env.DEBUG || '';
+        const DEBUG_LOG_LEVEL = process.env.DEBUG_LOG_LEVEL || 'debug';
+
         if (!DEBUG.includes('*teraslice*')) {
             if (DEBUG) DEBUG += ',';
             DEBUG += '*teraslice*';
         }
-        Object.assign(env, { DEBUG });
+
+        Object.assign(env, {
+            DEBUG,
+            DEBUG_LOG_LEVEL: DEBUG_LOG_LEVEL || 'debug'
+        });
     }
 
     return env;
@@ -190,7 +200,7 @@ export async function globalTeardown(options: TestOptions, pkgs: TeardownPkgsArg
             } catch (err) {
                 signale.error(
                     new TSError(err, {
-                        message: `Failed to teardown test for "${name}"`,
+                        reason: `Failed to teardown test for "${name}"`,
                     })
                 );
             } finally {

@@ -1,7 +1,10 @@
 'use strict';
 
-const _ = require('lodash');
-const Promise = require('bluebird');
+const ms = require('ms');
+const {
+    pDelay,
+    isEmpty,
+} = require('@terascope/utils');
 const signale = require('./signale');
 const misc = require('./misc');
 
@@ -47,7 +50,7 @@ function forValue(func, value, iterations = 100) {
             throw new Error(`forValue didn't find target value after ${iterations} iterations.`);
         }
 
-        await Promise.delay(250 * multiplier);
+        await pDelay(250 * multiplier);
         return _forValue();
     }
 
@@ -77,7 +80,7 @@ function forWorkers(workerCount = misc.DEFAULT_WORKERS) {
 
 async function scaleWorkersAndWait(workersToAdd = 0) {
     const workerCount = misc.DEFAULT_WORKERS + workersToAdd;
-    await Promise.delay(500);
+    await pDelay(500);
 
     const state = await misc.teraslice().cluster.state();
     if (Object.keys(state) === workerCount) return state;
@@ -85,7 +88,7 @@ async function scaleWorkersAndWait(workersToAdd = 0) {
     return misc
         .scaleWorkers(workersToAdd)
         .then(() => forWorkers(workerCount))
-        .then(() => Promise.delay(500))
+        .then(() => pDelay(500))
         .then(() => misc.teraslice().cluster.state());
 }
 
@@ -99,7 +102,7 @@ async function scaleWorkersAndWait(workersToAdd = 0) {
 function forWorkersJoined(exId, workerCount, iterations) {
     async function _forWorkersJoined() {
         const controllers = await misc.teraslice().cluster.controllers();
-        const controller = _.find(controllers, (s) => s.ex_id === exId);
+        const controller = controllers.find((s) => s.ex_id === exId);
         if (!controller) return 0;
         return controller.workers_joined;
     }
@@ -122,7 +125,7 @@ function waitForClusterState(timeoutMs = 120000) {
                 timeout: 500,
                 json: true
             });
-            nodes = _.size(_.keys(result));
+            nodes = Object.keys(result).length;
         } catch (err) {
             return _waitForClusterState();
         }
@@ -139,56 +142,23 @@ async function waitForExStatus(ex, status, interval = 100, endDelay = 50) {
     const start = Date.now();
 
     async function logExErrors() {
-        try {
-            const errors = await ex.errors();
-            signale.warn(`waitForStatus: ${exId} errors`, printObj(errors));
-            return null;
-        } catch (err) {
-            return null;
-        }
+        const errors = await ex.errors();
+        warn(`waitForStatus: ${exId} errors`, errors);
     }
 
-    function printObj(obj) {
-        if (_.isEmpty(obj)) return 'none';
-        return JSON.stringify(obj);
+    function warn(msg, obj) {
+        if (isEmpty(obj)) return;
+        signale.warn(`${msg}: ${JSON.stringify(obj, null, 2)}`);
     }
 
     async function logClusterState() {
         const state = await misc.teraslice().cluster.state();
-
-        signale.warn(`Cluster State on Job Failure: ${JSON.stringify(state, null, 2)}`);
+        warn('Cluster State on Job Failure', state);
     }
 
-    async function logExStatus(lastStatus) {
-        try {
-            const config = await ex.config();
-            if (_.isEmpty(config)) return null;
-
-            const reasons = _.pick(config, ['_failureReason', '_hasErrors']);
-
-            const slicerStats = _.pick(config._slicer_stats, [
-                'queued',
-                'failed',
-                'processed',
-                'job_duration'
-            ]);
-
-            signale.warn(`Ex Status Failure:
-                job: "${config.job_id}";
-                job name: "${config.name}";
-                ex: "${config.ex_id}";
-                workers: ${config.workers};
-                slicers: ${config.slicers};
-                status: expected "${config._status || lastStatus}" to equal "${status}";
-                slicer stats: ${printObj(slicerStats)};
-                failed after: ${Date.now() - start}ms;
-                failure reasons: ${printObj(reasons)};
-            `);
-
-            return null;
-        } catch (err) {
-            return null;
-        }
+    async function logExStatus() {
+        const config = await ex.config();
+        warn('ex status', config);
     }
 
     try {
@@ -197,17 +167,23 @@ async function waitForExStatus(ex, status, interval = 100, endDelay = 50) {
             // since most of the time we are chaining this with other actions
             // make sure we avoid unrealistic test conditions by giving the
             // it a little bit of time
-            await Promise.delay(endDelay);
+            await pDelay(endDelay);
         }
         return result;
     } catch (err) {
         err.message = `Execution: ${ex.id()}: ${err.message}`;
 
+        warn(err.stack, {
+            failedAfter: ms(Date.now() - start),
+            expectedStatus: status,
+            lastStatus: err.lastStatus
+        });
+
         await Promise.all([
-            logExErrors(err.lastStatus),
+            logExErrors(),
             logExStatus(),
             logClusterState()
-        ]);
+        ]).catch((e) => signale.warn(e));
 
         throw err;
     }
@@ -230,7 +206,7 @@ async function waitForIndexCount(index, expected, remainingMs = 30 * 1000) {
         // it probably okay
     }
 
-    await Promise.delay(50);
+    await pDelay(50);
     const elapsed = Date.now() - start;
     return waitForIndexCount(index, expected, remainingMs - elapsed);
 }

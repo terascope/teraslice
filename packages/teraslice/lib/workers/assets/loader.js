@@ -9,7 +9,7 @@ const {
     pDelay
 } = require('@terascope/utils');
 const makeTerafoundationContext = require('../context/terafoundation-context');
-const makeAssetStore = require('../../cluster/storage/assets');
+const makeAssetStore = require('../../storage/assets');
 const { safeDecode } = require('../../utils/encoding_utils');
 const { makeLogger } = require('../helpers/terafoundation');
 const { saveAsset } = require('../../utils/file_utils');

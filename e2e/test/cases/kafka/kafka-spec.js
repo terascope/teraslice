@@ -1,6 +1,5 @@
 'use strict';
 
-const Promise = require('bluebird');
 const uuidv4 = require('uuid/v4');
 const misc = require('../../misc');
 const wait = require('../../wait');

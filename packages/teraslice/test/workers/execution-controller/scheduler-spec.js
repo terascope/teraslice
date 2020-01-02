@@ -32,6 +32,8 @@ describe('Scheduler', () => {
     }
 
     beforeEach(async () => {
+        await TestContext.waitForCleanup();
+
         expectedCount = slicers * countPerSlicer;
 
         testContext = new TestContext({
@@ -46,11 +48,26 @@ describe('Scheduler', () => {
         scheduler = new Scheduler(testContext.context, testContext.executionContext);
 
         scheduler.stateStore = {
+            async getStartingPoints(exId, numSlicers) {
+                if (numSlicers !== slicers) {
+                    throw new Error(`Got invalid slicer ids, ${numSlicers.join(' ')}`);
+                }
+            },
             createState: () => pDelay(0),
             createSlices: async (exId, slices) => {
+                if (!exId || typeof exId !== 'string' || exId !== testContext.exId) {
+                    throw new Error(`Got invalid ex_id ${exId}`);
+                }
                 await pDelay(0);
                 return slices.length;
             }
+        };
+
+        scheduler.exStore = {
+            async get() {
+                return { slicers };
+            },
+            setStatus: jest.fn(() => pDelay(0)),
         };
 
         testContext.attachCleanup(() => scheduler.shutdown());
@@ -193,9 +210,6 @@ describe('Scheduler', () => {
                         emitDone();
                     }
                     return result;
-                },
-                getSlicerStartingPosition() {
-                    return Promise.resolve([]);
                 },
                 recoveryComplete() {
                     if (!recoveryRecords.length) {

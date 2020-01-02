@@ -1,14 +1,13 @@
 'use strict';
 
-const Promise = require('bluebird');
-const { makeLogger } = require('../../workers/helpers/terafoundation');
-const { timeseriesIndex } = require('../../utils/date_utils');
+const { makeLogger } = require('../workers/helpers/terafoundation');
+const { timeseriesIndex } = require('../utils/date_utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
 // get the final result.
-module.exports = function analyticsService(context) {
+module.exports = async function analyticsService(context) {
     const logger = makeLogger(context, 'analytics_storage');
     const config = context.sysconfig.teraslice;
     const workerId = `${context.sysconfig.teraslice.hostname}__${context.cluster.worker.id}`;
@@ -17,9 +16,20 @@ module.exports = function analyticsService(context) {
     const indexName = `${_index}*`;
     const timeseriesFormat = config.index_rollover_frequency.analytics;
 
-    let backend;
+    const backendConfig = {
+        context,
+        indexName,
+        recordType: 'analytics',
+        idField: '_id',
+        fullResponse: false,
+        logRecord: false,
+        forceRefresh: false,
+        storageName: 'analytics',
+    };
 
-    function log(job, sliceInfo, stats, state = 'completed') {
+    const backend = await elasticsearchBackend(backendConfig);
+
+    async function log(job, sliceInfo, stats, state = 'completed') {
         const indexData = timeseriesIndex(timeseriesFormat, _index);
         const esIndex = indexData.index;
         const { timestamp } = indexData;
@@ -47,28 +57,28 @@ module.exports = function analyticsService(context) {
         return Promise.all(results);
     }
 
-    function getRecord(recordId, index) {
+    async function getRecord(recordId, index) {
         return backend.get(recordId, index);
     }
 
-    function search(query, from, size) {
-        return backend.search(query, from, size);
+    async function search(query, from, size, sort, fields) {
+        return backend.search(query, from, size, sort, fields);
     }
 
-    function update(recordId, updateSpec, index) {
+    async function update(recordId, updateSpec, index) {
         return backend.update(recordId, updateSpec, index);
     }
 
-    function remove(recordId, index) {
+    async function remove(recordId, index) {
         return backend.remove(recordId, index);
     }
 
-    function shutdown(forceShutdown) {
+    async function shutdown(forceShutdown) {
         logger.info('shutting down.');
         return backend.shutdown(forceShutdown);
     }
 
-    function refresh() {
+    async function refresh() {
         const { index } = timeseriesIndex(timeseriesFormat, _index);
         return backend.refresh(index);
     }
@@ -77,11 +87,12 @@ module.exports = function analyticsService(context) {
         return backend.verifyClient();
     }
 
-    function waitForClient() {
+    async function waitForClient() {
         return backend.waitForClient();
     }
 
-    const api = {
+    logger.info('analytics storage initialized');
+    return {
         log,
         get: getRecord,
         search,
@@ -92,21 +103,4 @@ module.exports = function analyticsService(context) {
         waitForClient,
         verifyClient,
     };
-
-    const backendConfig = {
-        context,
-        indexName,
-        recordType: 'analytics',
-        idField: '_id',
-        fullResponse: false,
-        logRecord: false,
-        forceRefresh: false,
-        storageName: 'analytics',
-    };
-
-    return elasticsearchBackend(backendConfig).then((elasticsearch) => {
-        backend = elasticsearch;
-        logger.info('analytics storage initialized');
-        return api;
-    });
 };

@@ -13,9 +13,10 @@ describe('JobValidator', () => {
 
     describe('->validateConfig', () => {
         it('returns a completed and valid jobConfig', () => {
-            const jobSpec: JobConfig = {
+            const jobSpec: JobConfig = Object.freeze({
                 name: 'noop',
                 assets: ['fixtures'],
+                autorecover: true,
                 apis: [
                     {
                         _name: 'example-api'
@@ -29,13 +30,10 @@ describe('JobValidator', () => {
                         _op: 'noop',
                     },
                 ],
-            };
+            });
 
             const validJob = api.validateConfig(jobSpec);
-            expect(validJob.max_retries).toBeDefined();
-            expect(validJob.lifecycle).toBeDefined();
-            expect(validJob.operations).toBeDefined();
-            expect(validJob.assets).toBeDefined();
+            expect(validJob).toMatchObject(jobSpec);
         });
 
         it('will throw based off op validation errors', () => {

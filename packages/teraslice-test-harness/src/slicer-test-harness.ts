@@ -40,6 +40,11 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
 
     constructor(job: JobConfig, options: JobHarnessOptions) {
         super(job, options, 'execution_controller');
+
+        const { config } = this.executionContext;
+        if (config.recovered_execution && !this.slicer().isRecoverable()) {
+            throw new Error('Slicer is not recoverable');
+        }
     }
 
     slicer<T extends SlicerCore = SlicerCore>(): T {

@@ -1,7 +1,10 @@
-import Jobs from './jobs';
-import Cluster from './cluster';
 import Assets from './assets';
+import Cluster from './cluster';
+import Ex from './ex';
 import Executions from './executions';
+import Job from './job';
+import Jobs from './jobs';
+
 import * as i from './interfaces';
 
 class TerasliceClient {
@@ -25,5 +28,13 @@ class TerasliceClient {
 }
 
 export * from './interfaces';
-export { TerasliceClient };
+export {
+    TerasliceClient,
+    Assets,
+    Cluster,
+    Executions,
+    Ex,
+    Jobs,
+    Job
+};
 export default TerasliceClient;

@@ -2,7 +2,6 @@
 
 /* eslint-disable no-console */
 
-const Promise = require('bluebird');
 const { pDelay } = require('@terascope/utils');
 const { ExecutionController } = require('@terascope/teraslice-messaging');
 const { findPort } = require('../../../lib/utils/port_utils');
@@ -11,6 +10,8 @@ const { TestContext } = require('../helpers');
 
 describe('Worker', () => {
     async function setupTest(options = {}) {
+        await TestContext.waitForCleanup();
+
         const slicerPort = await findPort();
         options.slicerPort = slicerPort;
 
@@ -372,6 +373,8 @@ describe('Worker', () => {
         let worker;
 
         beforeEach(async () => {
+            await TestContext.waitForCleanup();
+
             testContext = new TestContext();
 
             await testContext.initialize();

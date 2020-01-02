@@ -5,6 +5,7 @@ export type TestOptions = {
     debug: boolean;
     watch: boolean;
     all: boolean;
+    keepOpen: boolean;
     reportCoverage: boolean;
     suite?: string;
     useExistingServices: boolean;
@@ -17,3 +18,9 @@ export type TestOptions = {
 export type GroupedPackages = {
     [suite: string]: PackageInfo[];
 };
+
+export type CleanupFN = () => (Promise<void>|void);
+export type RunSuiteResult = {
+    errors: string[];
+    cleanup: CleanupFN;
+}

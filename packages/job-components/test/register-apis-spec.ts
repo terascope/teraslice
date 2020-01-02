@@ -39,6 +39,8 @@ describe('registerApis', () => {
         expect(context.apis.executionContext.addToRegistry).toBeFunction();
         expect(context.apis.executionContext.initAPI).toBeFunction();
         expect(context.apis.executionContext.getAPI).toBeFunction();
+        expect(context.apis.executionContext.getMetadata).toBeFunction();
+        expect(context.apis.executionContext.setMetadata).toBeFunction();
     });
 
     describe('->getOpConfig', () => {
@@ -269,6 +271,18 @@ describe('registerApis', () => {
             it('should return the api and return hello when called', () => {
                 const result = context.apis.executionContext.getAPI('hello');
                 expect(result()).toEqual('hello');
+            });
+        });
+
+        describe('->getMetadata/->setMetadata', () => {
+            it('should be able to set and get the metadata', async () => {
+                await context.apis.executionContext.setMetadata('hello', 'there');
+                const result = await context.apis.executionContext.getMetadata();
+                expect(result).toEqual({ hello: 'there' });
+            });
+
+            it('should throw if setting without a key', async () => {
+                await expect(context.apis.executionContext.setMetadata(null)).toReject();
             });
         });
     });

@@ -1,6 +1,5 @@
 'use strict';
 
-const Promise = require('bluebird');
 const times = require('lodash/times');
 const Slice = require('../../../lib/workers/worker/slice');
 const { TestContext } = require('../helpers');
@@ -13,14 +12,17 @@ describe('Slice', () => {
         const slice = new Slice(testContext.context, testContext.executionContext);
         testContext.attachCleanup(() => slice.shutdown());
 
-        await Promise.all([
-            testContext.addAnalyticsStore(),
+        const [stateStore, analyticsStore] = await Promise.all([
             testContext.addStateStore(),
+            testContext.addAnalyticsStore(),
         ]);
+
+        slice.analyticsStore = analyticsStore;
+        slice.stateStore = stateStore;
 
         const sliceConfig = await testContext.newSlice();
 
-        await slice.initialize(sliceConfig, testContext.stores);
+        await slice.initialize(sliceConfig);
 
         eventMocks['slice:success'] = jest.fn();
         eventMocks['slice:finalize'] = jest.fn();
@@ -43,6 +45,8 @@ describe('Slice', () => {
             const eventMocks = {};
 
             beforeEach(async () => {
+                await TestContext.waitForCleanup();
+
                 testContext = new TestContext({ analytics: true });
                 slice = await setupSlice(testContext, eventMocks);
 
@@ -92,6 +96,8 @@ describe('Slice', () => {
             const eventMocks = {};
 
             beforeEach(async () => {
+                await TestContext.waitForCleanup();
+
                 testContext = new TestContext({ analytics: false });
                 slice = await setupSlice(testContext, eventMocks);
 
@@ -135,6 +141,8 @@ describe('Slice', () => {
             const eventMocks = {};
 
             beforeEach(async () => {
+                await TestContext.waitForCleanup();
+
                 testContext = new TestContext({
                     maxRetries: 3,
                     analytics: false,
@@ -183,6 +191,8 @@ describe('Slice', () => {
             const eventMocks = {};
 
             beforeEach(async () => {
+                await TestContext.waitForCleanup();
+
                 testContext = new TestContext({
                     maxRetries: 3,
                     analytics: false,
@@ -238,6 +248,8 @@ describe('Slice', () => {
             let err;
 
             beforeEach(async () => {
+                await TestContext.waitForCleanup();
+
                 testContext = new TestContext({
                     maxRetries: 5,
                     analytics: false,
@@ -290,6 +302,8 @@ describe('Slice', () => {
             let err;
 
             beforeEach(async () => {
+                await TestContext.waitForCleanup();
+
                 testContext = new TestContext({
                     maxRetries: 0,
                     analytics: false,
@@ -341,6 +355,8 @@ describe('Slice', () => {
             let slice;
 
             beforeEach(async () => {
+                await TestContext.waitForCleanup();
+
                 testContext = new TestContext({ analytics: true });
 
                 slice = await setupSlice(testContext);
@@ -361,6 +377,8 @@ describe('Slice', () => {
             let slice;
 
             beforeEach(async () => {
+                await TestContext.waitForCleanup();
+
                 testContext = new TestContext({ analytics: true });
 
                 slice = await setupSlice(testContext);
@@ -382,6 +400,8 @@ describe('Slice', () => {
         let slice;
 
         beforeEach(async () => {
+            await TestContext.waitForCleanup();
+
             testContext = new TestContext();
             slice = await setupSlice(testContext);
 

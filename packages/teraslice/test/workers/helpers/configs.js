@@ -34,6 +34,7 @@ const newConfig = (options = {}) => {
                 pickBy({
                     _op: path.join(opsPath, 'example-reader'),
                     exampleProp: 321,
+                    updateMetadata: options.updateMetadata,
                     errorAt: options.readerErrorAt,
                     results: options.readerResults,
                     slicerResults: options.slicerResults,
@@ -58,6 +59,7 @@ const newConfig = (options = {}) => {
         assets = [],
         workers = 1,
         slicers = 1,
+        autorecover = false,
         recoveredExecution,
         recoveredSliceType,
         probationWindow = 5000
@@ -72,6 +74,7 @@ const newConfig = (options = {}) => {
         lifecycle,
         max_retries: maxRetries,
         operations,
+        autorecover,
         performance_metrics: false,
         recovered_execution: recoveredExecution,
         recovered_slice_type: recoveredSliceType,

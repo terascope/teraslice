@@ -1,6 +1,6 @@
 'use strict';
 
-const _ = require('lodash');
+const { cloneDeep } = require('@terascope/utils');
 const path = require('path');
 const fse = require('fs-extra');
 const {
@@ -9,7 +9,8 @@ const {
     ELASTICSEARCH_HOST,
     ELASTICSEARCH_API_VERSION,
     CLUSTER_NAME,
-    HOST_IP
+    HOST_IP,
+    CONFIG_PATH,
 } = require('./misc');
 
 module.exports = async function setupTerasliceConfig() {
@@ -18,7 +19,7 @@ module.exports = async function setupTerasliceConfig() {
             environment: 'development',
             log_level: [
                 { console: 'warn' },
-                { file: 'info', }
+                { file: process.env.DEBUG_LOG_LEVEL || 'info', }
             ],
             logging: [
                 'console',
@@ -84,32 +85,25 @@ module.exports = async function setupTerasliceConfig() {
         }
     };
 
-    const baseConfigPath = path.join(__dirname, '..', '.config');
-    if (!fse.existsSync(baseConfigPath)) {
-        await fse.emptyDir(baseConfigPath);
-    }
-
-    await fse.ensureDir(baseConfigPath);
-
-    await writeMasterConfig(baseConfigPath, baseConfig);
-    await writeWorkerConfig(baseConfigPath, baseConfig);
+    await writeMasterConfig(baseConfig);
+    await writeWorkerConfig(baseConfig);
 };
 
-async function writeMasterConfig(configPath, baseConfig) {
-    const masterConfig = _.cloneDeep(baseConfig);
+async function writeMasterConfig(baseConfig) {
+    const masterConfig = cloneDeep(baseConfig);
     masterConfig.teraslice.master = true;
 
-    const masterConfigPath = path.join(configPath, 'teraslice-master.json');
+    const masterConfigPath = path.join(CONFIG_PATH, 'teraslice-master.json');
     await fse.writeJSON(masterConfigPath, masterConfig, {
         spaces: 4
     });
 }
 
-async function writeWorkerConfig(configPath, baseConfig) {
-    const workerConfig = _.cloneDeep(baseConfig);
+async function writeWorkerConfig(baseConfig) {
+    const workerConfig = cloneDeep(baseConfig);
     workerConfig.teraslice.master = false;
 
-    const workerConfigPath = path.join(configPath, 'teraslice-worker.json');
+    const workerConfigPath = path.join(CONFIG_PATH, 'teraslice-worker.json');
     await fse.writeJSON(workerConfigPath, workerConfig, {
         spaces: 4
     });

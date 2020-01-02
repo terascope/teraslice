@@ -239,6 +239,18 @@ const schema = {
             });
         },
     },
+    execution_controller_targets: {
+        default: null,
+        doc: 'Specify an array of {"key": ..., "value": ...} targets for execution controllers',
+        format(arr) {
+            if (arr != null) {
+                if (!Array.isArray(arr)) {
+                    throw new Error('labels is required to be an array');
+                    // FIXME: improve input and error handling
+                }
+            }
+        }
+    },
     kubernetes_image: {
         doc: 'Specify a custom image name for kubernetes, this only applies to kubernetes systems',
         default: 'terascope/teraslice',
