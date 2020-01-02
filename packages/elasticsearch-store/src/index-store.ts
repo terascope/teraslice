@@ -350,7 +350,7 @@ export default class IndexStore<T extends ts.AnyObject> {
         try {
             const existing = await this.get(id) as any;
             const params: any = {};
-            if (ts.DataEntity.isDataEntity(existing)) {
+            if (ts.DataEntity.is(existing)) {
                 if (this.esVersion >= 7) {
                     params.if_seq_no = existing.getMetadata('_seq_no');
                     params.if_primary_term = existing.getMetadata('_primary_term');
