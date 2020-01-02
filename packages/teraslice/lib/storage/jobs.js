@@ -31,10 +31,8 @@ module.exports = async function jobsStorage(context) {
         return backend.get(jobId);
     }
 
-    async function search(query, from, size, sort) {
-        let _size = 10000;
-        if (size == null) _size = size;
-        return backend.search(query, from, _size, sort);
+    async function search(query, from, size, sort, fields) {
+        return backend.search(query, from, size, sort, fields);
     }
 
     async function create(record) {

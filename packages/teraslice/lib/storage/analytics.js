@@ -61,8 +61,8 @@ module.exports = async function analyticsService(context) {
         return backend.get(recordId, index);
     }
 
-    async function search(query, from, size) {
-        return backend.search(query, from, size);
+    async function search(query, from, size, sort, fields) {
+        return backend.search(query, from, size, sort, fields);
     }
 
     async function update(recordId, updateSpec, index) {

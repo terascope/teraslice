@@ -23,7 +23,7 @@ export function toNumber(input: any): number {
 
 /** Convert any input to a integer, return false if unable to convert input  */
 export function toInteger(input: any): number | false {
-    if (Number.isInteger(input)) return input;
+    if (isInteger(input)) return input;
     const val = Number.parseInt(input, 10);
     if (isNumber(val)) return val;
     return false;
