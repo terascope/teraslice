@@ -106,14 +106,14 @@ module.exports = function apiService(context, { assetsUrl, app }) {
         const { size, from, sort } = getSearchOptions(req);
 
         const requestHandler = handleRequest(req, res, 'Could not retrieve list of jobs');
-        requestHandler(() => jobsService.getJobs(from, size, sort));
+        requestHandler(() => jobStore.search('job_id:*', from, size, sort));
     });
 
     v1routes.get('/jobs/:jobId', (req, res) => {
         const { jobId } = req.params;
 
         const requestHandler = handleRequest(req, res, 'Could not retrieve job');
-        requestHandler(async () => jobsService.getJob(jobId));
+        requestHandler(async () => jobStore.get(jobId));
     });
 
     v1routes.put('/jobs/:jobId', (req, res) => {
@@ -295,6 +295,7 @@ module.exports = function apiService(context, { assetsUrl, app }) {
         .get(_redirect);
 
     app.get('/txt/workers', (req, res) => {
+        const { size, from } = getSearchOptions(req);
         let defaults;
         if (clusterType === 'native') {
             defaults = ['assignment', 'job_id', 'ex_id', 'node_id', 'pid'];
@@ -307,22 +308,25 @@ module.exports = function apiService(context, { assetsUrl, app }) {
         const requestHandler = handleRequest(req, res, 'Could not get all workers');
         requestHandler(async () => {
             const workers = await executionService.findAllWorkers();
-            return makeTable(req, defaults, workers);
+            return makeTable(req, defaults, workers.slice(from, size));
         });
     });
 
     app.get('/txt/nodes', (req, res) => {
+        const { size, from } = getSearchOptions(req);
         const defaults = ['node_id', 'state', 'hostname', 'total', 'active', 'pid', 'teraslice_version', 'node_version'];
 
         const requestHandler = handleRequest(req, res, 'Could not get all nodes');
         requestHandler(async () => {
             const nodes = await clusterService.getClusterState();
 
-            const transform = Object.values(nodes).map((node) => Object.assign(
-                {},
-                node,
-                { active: node.active.length }
-            ));
+            const transform = Object.values(nodes)
+                .slice(from, size)
+                .map((node) => Object.assign(
+                    {},
+                    node,
+                    { active: node.active.length }
+                ));
 
             return makeTable(req, defaults, transform);
         });
@@ -332,10 +336,11 @@ module.exports = function apiService(context, { assetsUrl, app }) {
         const { size, from, sort } = getSearchOptions(req);
 
         const defaults = ['job_id', 'name', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
+        const query = 'job_id:*';
 
         const requestHandler = handleRequest(req, res, 'Could not get all jobs');
         requestHandler(async () => {
-            const jobs = await jobsService.getJobs(from, size, sort);
+            const jobs = await jobStore.search(query, from, size, sort);
             return makeTable(req, defaults, jobs);
         });
     });
@@ -354,6 +359,8 @@ module.exports = function apiService(context, { assetsUrl, app }) {
     });
 
     app.get(['/txt/slicers', '/txt/controllers'], (req, res) => {
+        const { size, from } = getSearchOptions(req);
+
         const defaults = [
             'name',
             'job_id',
@@ -367,7 +374,7 @@ module.exports = function apiService(context, { assetsUrl, app }) {
         const requestHandler = handleRequest(req, res, 'Could not get all execution statistics');
         requestHandler(async () => {
             const stats = await _controllerStats();
-            return makeTable(req, defaults, stats);
+            return makeTable(req, defaults, stats.slice(from, size));
         });
     });
 

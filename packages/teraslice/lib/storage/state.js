@@ -242,8 +242,8 @@ async function stateStorage(context) {
         }
     }
 
-    async function search(query, from, size, sort = '_updated:desc') {
-        return backend.search(query, from, size, sort);
+    async function search(query, from, size, sort = '_updated:desc', fields) {
+        return backend.search(query, from, size, sort, fields);
     }
 
     async function count(query, from = 0, sort = '_updated:desc') {

@@ -66,7 +66,7 @@ module.exports = function jobsService(context) {
 
     async function updateJob(jobId, jobSpec) {
         await _validateJobSpec(jobSpec);
-        const originalJob = await getJob(jobId);
+        const originalJob = await jobStore.get(jobId);
         return jobStore.update(jobId, Object.assign({}, jobSpec, {
             _created: originalJob._created
         }));
@@ -88,7 +88,7 @@ module.exports = function jobsService(context) {
             });
         }
 
-        const jobSpec = await getJob(jobId);
+        const jobSpec = await jobStore.get(jobId);
         const validJob = await _validateJobSpec(jobSpec);
 
         if (validJob.autorecover) {
@@ -142,7 +142,7 @@ module.exports = function jobsService(context) {
     */
     async function recoverJob(jobId, cleanupType) {
         // we need to do validations since the job config could change between recovery
-        const jobSpec = await getJob(jobId);
+        const jobSpec = await jobStore.get(jobId);
         const validJob = await _validateJobSpec(jobSpec);
         return _recoverValidJob(validJob, cleanupType);
     }
@@ -153,14 +153,6 @@ module.exports = function jobsService(context) {
 
     async function resumeJob(jobId) {
         return getLatestExecutionId(jobId).then((exId) => executionService.resumeExecution(exId));
-    }
-
-    async function getJob(jobId) {
-        return jobStore.get(jobId);
-    }
-
-    async function getJobs(from, size, sort) {
-        return jobStore.search('job_id:*', from, size, sort);
     }
 
     /**
@@ -283,8 +275,6 @@ module.exports = function jobsService(context) {
         pauseJob,
         resumeJob,
         recoverJob,
-        getJob,
-        getJobs,
         addWorkers,
         removeWorkers,
         setWorkers,
