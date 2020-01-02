@@ -22,8 +22,8 @@
     "directories": {
         "lib": "lib",
         "bin": "service.js",
-        "main": "index.js",
-        "test": "test"
+        "test": "test",
+        "main": "index.js"
     },
     "scripts": {
         "start": "node service.js",
