@@ -1,6 +1,6 @@
 {
     "name": "teraslice-cli",
-    "version": "0.12.0",
+    "version": "0.12.1",
     "description": "Command line manager for teraslice jobs, assets, and cluster references.",
     "keywords": [
         "teraslice"
@@ -53,10 +53,10 @@
         "signale": "^1.4.0",
         "teraslice-client-js": "^0.12.0",
         "tmp": "^0.1.0",
-        "tty-table": "^2.8.3",
-        "yargs": "^15.0.2",
+        "tty-table": "^2.8.4",
+        "yargs": "^15.1.0",
         "yeoman-environment": "^2.7.0",
-        "yeoman-generator": "^4.3.0",
+        "yeoman-generator": "^4.4.0",
         "yo": "^3.1.1"
     },
     "devDependencies": {
@@ -66,7 +66,7 @@
         "@types/prompts": "^2.0.1",
         "@types/signale": "^1.2.1",
         "@types/tmp": "^0.1.0",
-        "@types/yargs": "^13.0.3",
+        "@types/yargs": "^13.0.4",
         "@types/yeoman-assert": "^3.1.1",
         "@types/yeoman-environment": "^2.3.2",
         "@types/yeoman-generator": "^3.1.4",
