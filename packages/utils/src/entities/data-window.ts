@@ -1,10 +1,10 @@
 import { EntityArray, ConcatEntityArray } from './entity-array';
 import { getValidDate, getUnixTime } from '../dates';
 import { DataEntity } from './data-entity';
-import { getTypeOf } from '../utils';
+import { getTypeOf } from '../deps';
 import * as i from './interfaces';
 import * as utils from './utils';
-import { locked } from '../misc';
+import { locked } from '../decorators';
 import * as e from './entity';
 
 /**

@@ -8,7 +8,7 @@ import { ensureBuffer, isBuffer } from '../buffers';
 import { parseJSON } from '../json';
 import * as i from './interfaces';
 import * as utils from './utils';
-import { locked } from '../misc';
+import { locked } from '../decorators';
 import * as e from './entity';
 
 /**

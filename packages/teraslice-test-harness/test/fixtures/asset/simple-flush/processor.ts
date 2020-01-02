@@ -1,5 +1,5 @@
 import {
-    WorkerContext, BatchProcessor, ExecutionConfig, DataWindow
+    BatchProcessor, DataWindow
 } from '@terascope/job-components';
 import { FlusherConfig } from './interfaces';
 

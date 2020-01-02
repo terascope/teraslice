@@ -520,7 +520,8 @@ describe('IndexStore', () => {
                     size: records.length + 1,
                 });
 
-
+                expect(results).toBeArrayOfSize(records.length);
+                expect(DataEntity.isArray(results)).toBeTrue();
             });
 
             it('should be able use exists and range xlucene syntax', async () => {
@@ -531,7 +532,8 @@ describe('IndexStore', () => {
                     size: 5,
                 });
 
-
+                expect(results).toBeArrayOfSize(5);
+                expect(DataEntity.isArray(results)).toBeTrue();
             });
 
             it('should be able use multi-term xlucene syntax', async () => {
@@ -542,7 +544,8 @@ describe('IndexStore', () => {
                     sort: 'test_number',
                 });
 
-
+                expect(results).toBeArrayOfSize(3);
+                expect(DataEntity.isArray(results)).toBeTrue();
             });
 
             it('should be able to bulk update the records', async () => {
@@ -721,7 +724,8 @@ describe('IndexStore', () => {
                     sort: 'test_id',
                 });
 
-
+                expect(DataEntity.isArray(results)).toBeTrue();
+                expect(results).toEqual(expected);
 
                 const record = await indexStore.get(expected[0].test_id);
 
