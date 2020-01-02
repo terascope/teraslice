@@ -257,7 +257,7 @@ module.exports = function apiService(context, { assetsUrl, app }) {
                 query += ` AND (${statusTerms})`;
             }
 
-            return exStore.searchExecutionContexts(query, from, size, sort);
+            return exStore.search(query, from, size, sort);
         });
     });
 
@@ -318,7 +318,7 @@ module.exports = function apiService(context, { assetsUrl, app }) {
         requestHandler(async () => {
             const nodes = await clusterService.getClusterState();
 
-            const transform = Object.values(nodes).forEach((node) => Object.assign(
+            const transform = Object.values(nodes).map((node) => Object.assign(
                 {},
                 node,
                 { active: node.active.length }
@@ -348,7 +348,7 @@ module.exports = function apiService(context, { assetsUrl, app }) {
 
         const requestHandler = handleRequest(req, res, 'Could not get all executions');
         requestHandler(async () => {
-            const exs = await executionService.search(query, from, size, sort);
+            const exs = await exStore.search(query, from, size, sort);
             return makeTable(req, defaults, exs);
         });
     });
