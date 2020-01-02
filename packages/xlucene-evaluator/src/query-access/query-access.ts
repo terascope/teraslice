@@ -11,6 +11,7 @@ import {
     Variables,
 } from '../interfaces';
 import { parseWildCard, matchString } from '../document-matcher/logic-builder/string';
+import { pDelay, pImmediate } from '@terascope/utils';
 
 const _logger = ts.debugLogger('xlucene-query-access');
 
@@ -177,7 +178,10 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      *
      * @returns a restricted elasticsearch search query
      */
-    restrictSearchQuery(query: string, opts: i.RestrictSearchQueryOptions = {}): es.SearchParams {
+    async restrictSearchQuery(
+        query: string,
+        opts: i.RestrictSearchQueryOptions = {}
+    ): Promise<es.SearchParams> {
         const {
             params = {},
             variables = {},
@@ -192,11 +196,15 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
         const restricted = this.restrict(query, { variables: queryVariables });
 
+        await pImmediate();
+
         const parsed = this._parser.make(restricted, {
             type_config: this.typeConfig,
             logger: this.logger,
             variables: queryVariables
         });
+
+        await pImmediate();
 
         const translator = this._translator.make(parsed, {
             type_config: this.parsedTypeConfig,

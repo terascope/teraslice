@@ -512,7 +512,7 @@ export default class IndexStore<T extends Record<string, any>> {
 
         let searchParams: Partial<es.SearchParams>;
         if (queryAccess) {
-            searchParams = queryAccess.restrictSearchQuery(q, {
+            searchParams = await queryAccess.restrictSearchQuery(q, {
                 params,
                 elasticsearch_version: utils.getESVersion(this.client),
                 variables: options.variables
