@@ -31,8 +31,17 @@ export class Parser {
 
         try {
             this.ast = parse(this.query, { contextArg });
-            const astJSON = JSON.stringify(this.ast, null, 4);
-            this.logger.trace(`parsed ${this.query ? this.query : "''"} to `, astJSON);
+
+            this.forTypes([i.ASTType.Function], (_node) => {
+                const node = _node as i.FunctionNode;
+                // @ts-ignore we are delaying instantiation
+                if (node.instance) node.instance = node.instance();
+            });
+
+            if (this.logger.level() === 10) {
+                const astJSON = JSON.stringify(this.ast, null, 4);
+                this.logger.trace(`parsed ${this.query ? this.query : "''"} to `, astJSON);
+            }
         } catch (err) {
             if (err && err.message.includes('Expected ,')) {
                 err.message = err.message.replace('Expected ,', 'Expected');

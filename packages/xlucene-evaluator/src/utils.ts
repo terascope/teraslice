@@ -143,7 +143,7 @@ export function parseGeoDistanceUnit(input: string): GeoDistanceUnit {
 }
 
 /** @returns {[lat, lon]} */
-export function getLonAndLat(input: any, throwInvalid = true): [number, number] {
+export function getLonAndLat(input: any, throwInvalid = true): [number, number] | null {
     let lat = input.lat || input.latitude;
     let lon = input.lon || input.longitude;
 
@@ -157,8 +157,9 @@ export function getLonAndLat(input: any, throwInvalid = true): [number, number] 
 
     lat = toNumber(lat);
     lon = toNumber(lon);
-    if (throwInvalid && (!isNumber(lat) || !isNumber(lon))) {
-        throw new Error('geopoint lat and lon must be numbers');
+    if (!isNumber(lat) || !isNumber(lon)) {
+        if (throwInvalid) throw new Error('geopoint lat and lon must be numbers');
+        return null;
     }
 
     return [lat, lon];
@@ -185,7 +186,8 @@ export function parseGeoPoint(point: GeoPointInput, throwInvalid = true): GeoPoi
         // array of points are meant to be lon/lat format
         [lon, lat] = parseNumberList(point);
     } else if (isPlainObject(point)) {
-        [lat, lon] = getLonAndLat(point, throwInvalid);
+        const results = getLonAndLat(point, throwInvalid);
+        if (results) [lat, lon] = results;
     }
 
     if (throwInvalid && (lat == null || lon == null)) {

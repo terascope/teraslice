@@ -18,7 +18,7 @@ import {
     GeoShape,
 } from '../../../interfaces';
 import { isWildCardString, parseWildCard, matchString } from '../../../document-matcher/logic-builder/string';
-// TODO: fix mapping here
+
 const compatMapping = {
     [GeoShapeType.Polygon]: ESGeoShapeType.Polygon,
     [GeoShapeType.MultiPolygon]: ESGeoShapeType.MultiPolygon,
@@ -36,7 +36,6 @@ interface PolyHolesQuery {
 }
 
 function validate(params: i.Term[]): { polygonShape: GeoShape; relation: GeoShapeRelation } {
-    console.time('validation');
     const geoPointsParam = params.find((node) => node.field === 'points');
     const geoRelationParam = params.find((node) => node.field === 'relation');
     let relation: GeoShapeRelation;
@@ -71,7 +70,7 @@ function validate(params: i.Term[]): { polygonShape: GeoShape; relation: GeoShap
         const coords = validateListCoords(points);
         polygonShape.coordinates = coords;
     }
-    console.timeEnd('validation');
+
     return { polygonShape, relation };
 }
 
@@ -157,7 +156,7 @@ const geoPolygon: i.FunctionDefinition = {
             // TODO: chech if points is a polygon with holes
             if (isGeoShapePolygon(polygonShape)) {
                 const query = makePolygonQuery(field, polygonShape.coordinates);
-                logger.trace('built geo polygon to point query', { query });
+                if (logger.level() === 10) logger.trace('built geo polygon to point query', { query });
 
                 return { query };
             }
@@ -170,7 +169,7 @@ const geoPolygon: i.FunctionDefinition = {
                         )
                     }
                 };
-                logger.trace('built geo polygon to point query', { query });
+                if (logger.level() === 10) logger.trace('built geo polygon to point query', { query });
 
                 return { query };
             }
@@ -192,7 +191,7 @@ const geoPolygon: i.FunctionDefinition = {
                     }
                 }
             };
-            logger.trace('built geo polygon to polygon query', { query });
+            if (logger.level() === 10) logger.trace('built geo polygon to polygon query', { query });
 
             return { query };
         }
@@ -205,11 +204,9 @@ const geoPolygon: i.FunctionDefinition = {
         }
 
         function polyToGeoShapeMatcher() {
-            console.time('matcher');
             const polygon = makeShape(polygonShape);
             if (polygon == null) return () => false;
             const fn = polyHasShape(polygon, relation);
-            console.timeEnd('matcher');
             return fn;
         }
 

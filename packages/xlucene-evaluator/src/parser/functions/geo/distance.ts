@@ -53,7 +53,7 @@ const geoDistance: i.FunctionDefinition = {
                 }
             };
 
-            logger.trace('built geo distance query', { query });
+            if (logger.level() === 10) logger.trace('built geo distance query', { query });
 
             return {
                 query,

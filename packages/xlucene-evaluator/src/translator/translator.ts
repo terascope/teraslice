@@ -57,8 +57,10 @@ export class Translator {
             geo_sort_unit: opts.geo_sort_unit || this._defaultGeoSortUnit,
         });
 
-        const resultStr = JSON.stringify(result, null, 2);
-        this.logger.trace(`translated ${this.query ? this.query : "''"} query to`, resultStr);
+        if (this.logger.level() === 10) {
+            const resultStr = JSON.stringify(result, null, 2);
+            this.logger.trace(`translated ${this.query ? this.query : "''"} query to`, resultStr);
+        }
 
         return result;
     }

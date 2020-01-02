@@ -32,7 +32,7 @@ const geoBox: i.FunctionDefinition = {
                 bottom_right,
             };
 
-            logger.trace('built geo bounding box query', { query });
+            if (logger.level() === 10) logger.trace('built geo bounding box query', { query });
             return { query };
         }
 

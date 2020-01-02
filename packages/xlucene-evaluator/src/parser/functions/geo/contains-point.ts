@@ -33,7 +33,7 @@ const geoContainsPoint: i.FunctionDefinition = {
                 }
             };
 
-            logger.trace('built geo shape query', { query });
+            if (logger.level() === 10) logger.trace('built geo shape query', { query });
 
             return { query };
         }

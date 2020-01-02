@@ -89,10 +89,10 @@ export default function makeContext(args: any) {
     }
 
     function parseFunction(field: string, name: string, params: i.Term[]) {
-        // TODO: get better types name
         const fnType = xluceneFunctions[name];
         if (fnType == null) throw new Error(`Could not find an xlucene function with name "${name}"`);
-        return fnType.create(field, params, { logger, typeConfig });
+        // we are delaying instantiation until after parser since this can be called multiple times
+        return () => fnType.create(field, params, { logger, typeConfig });
     }
 
     function makeFlow(field: string, values: any[]) {
