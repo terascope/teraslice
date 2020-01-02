@@ -106,8 +106,8 @@ module.exports = function elasticsearchStorage(backendConfig) {
 
         const esQuery = {
             index: indexArg,
-            from,
-            size,
+            from: from != null ? from : 0,
+            size: size != null ? size : 10000,
             sort,
         };
 
