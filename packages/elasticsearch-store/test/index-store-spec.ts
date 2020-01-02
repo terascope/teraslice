@@ -135,6 +135,82 @@ describe('IndexStore', () => {
                 expect(count).toBe(1);
             });
 
+            it('can use count with variables', async () => {
+                const testRecord: SimpleRecordInput = {
+                    test_id: 'hello',
+                    test_keyword: 'world',
+                    test_object: {},
+                    test_number: 5678,
+                    test_boolean: true,
+                };
+
+                const variables = {
+                    id: 'hello'
+                };
+
+                await indexStore.indexById(testRecord.test_id, testRecord);
+
+                const count = await indexStore.count('test_id: $id', { variables });
+                expect(count).toBe(1);
+            });
+
+            it('can use countBy with variables', async () => {
+                const testRecord: SimpleRecordInput = {
+                    test_id: 'goodbye',
+                    test_keyword: 'jimmy',
+                    test_object: {},
+                    test_number: 1111,
+                    test_boolean: false,
+                };
+
+                const variables = {
+                    id: 'goodbye'
+                };
+
+                await indexStore.indexById(testRecord.test_id, testRecord);
+
+                const count = await indexStore.countBy({ test_id: '$id' }, 'OR', { variables });
+                expect(count).toBe(1);
+            });
+
+            it('can use search with variables', async () => {
+                const testRecord: SimpleRecordInput = {
+                    test_id: 'iamtest',
+                    test_keyword: 'aloha',
+                    test_object: {},
+                    test_number: 111111111,
+                    test_boolean: true,
+                };
+
+                const variables = {
+                    word: 'aloha'
+                };
+
+                await indexStore.indexById(testRecord.test_id, testRecord);
+
+                const [results] = await indexStore.search('test_keyword:$word', { variables });
+                expect(results).toEqual(testRecord);
+            });
+
+            it('can use findBy with variables', async () => {
+                const testRecord: SimpleRecordInput = {
+                    test_id: 'iamfindby',
+                    test_keyword: 'iamfindby',
+                    test_object: {},
+                    test_number: 1,
+                    test_boolean: false,
+                };
+
+                const variables = {
+                    word: 'iamfindby'
+                };
+
+                await indexStore.indexById(testRecord.test_id, testRecord);
+
+                const results = await indexStore.findBy({ test_keyword: '$word' }, 'OR', { variables });
+                expect(results).toEqual(testRecord);
+            });
+
             it('should be able to get the count', () => expect(indexStore.count(`test_id: ${record.test_id}`)).resolves.toBe(1));
 
             it('should get zero when the using the wrong id', () => expect(indexStore.count('test_id: wrong-id')).resolves.toBe(0));

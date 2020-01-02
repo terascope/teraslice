@@ -87,6 +87,22 @@ describe('Utils', () => {
             expect(newVariableName).toEqual('$hello_2');
             expect(vState.getVaraibles()).toEqual({ hello_1: 'stuff', hello_2: 'world' });
         });
+
+        it('can respect values that are already variables', () => {
+            const variables = { person: { some: 'data' } };
+            const vState = new VariableState(variables);
+            const newVariableName = vState.createVariable('hello', '$person');
+
+            expect(newVariableName).toEqual('$person');
+            expect(vState.getVaraibles()).toEqual(variables);
+        });
+
+        it('will throw if value variable is not provided', () => {
+            const variables = { other: { some: 'data' } };
+            const vState = new VariableState(variables);
+
+            expect(() => vState.createVariable('hello', '$person')).toThrowError('must provide variable "person"');
+        });
     });
 
     describe('join queries', () => {
@@ -106,6 +122,14 @@ describe('Utils', () => {
 
             expect(query).toEqual('hello: $hello_2');
             expect(variables).toEqual({ hello_1: 'first', hello_2: 'world' });
+        });
+
+        it('inputs that have variable will be kept', () => {
+            const input = { profile: '$person' };
+            const { query, variables } = createJoinQuery(input, { variables: { person: 'John' } });
+
+            expect(query).toEqual('profile: $person');
+            expect(variables).toEqual({ person: 'John' });
         });
 
         it('will do basic "AND" joins with simple values', () => {

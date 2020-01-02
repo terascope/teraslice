@@ -7,7 +7,8 @@ import {
     isNumber,
     AnyObject,
     withoutNil,
-    TSError
+    TSError,
+    startsWith
 } from '@terascope/utils';
 import { Range, RangeNode } from './parser/interfaces';
 import {
@@ -348,11 +349,6 @@ export function createJoinQuery(
     return { query, variables: finalVariables };
 }
 
-// TODO: remove this code if nothing breaks
-// function escapeValue(val: any) {
-//     return `"${escapeString(val)}"`;
-// }
-
 export class VariableState {
     private variables: AnyObject;
 
@@ -373,6 +369,11 @@ export class VariableState {
     }
 
     createVariable(field: string, value: any) {
+        if (typeof value === 'string' && startsWith(value, '$')) {
+            const vField = value.slice(1);
+            if (this.variables[vField] === undefined) throw new Error(`must provide variable "${vField}"`);
+            return value;
+        }
         const key = this._makeKey(field);
         this.variables[key] = value;
         return `$${key}`;

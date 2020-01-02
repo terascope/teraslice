@@ -135,12 +135,10 @@ export default class IndexStore<T extends Record<string, any>> {
     /** Count records by a given Lucene Query */
     async count(
         query = '',
-        params: PartialParam<es.CountParams, 'q' | 'body'> = {},
         options?: RestrictOptions,
         queryAccess?: QueryAccess<T>
     ): Promise<number> {
-        const p = Object.assign({}, params, this._translateQuery(query, options, queryAccess));
-
+        const p = this._translateQuery(query, options, queryAccess) as es.CountParams;
         return this.countRequest(p);
     }
 
@@ -365,9 +363,15 @@ export default class IndexStore<T extends Record<string, any>> {
         );
     }
 
-    async countBy(fields: AnyInput<T>, joinBy?: JoinBy): Promise<number> {
-        const { query, variables } = this.createJoinQuery(fields, joinBy);
-        return this.count(query, undefined, { variables });
+    async countBy(
+        fields: AnyInput<T>,
+        joinBy?: JoinBy,
+        options?: RestrictOptions
+    ): Promise<number> {
+        console.log('incoming', fields, options?.variables)
+        const { query, variables } = this.createJoinQuery(fields, joinBy, options?.variables);
+        console.log('what is query', query, variables)
+        return this.count(query, { variables });
     }
 
     async exists(id: string[] | string): Promise<boolean> {
@@ -740,7 +744,7 @@ export default class IndexStore<T extends Record<string, any>> {
         });
 
         return {
-            q: null,
+            q: undefined,
             body: translator.toElasticsearchDSL(),
         };
     }
