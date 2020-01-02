@@ -106,7 +106,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
     }
 
     function findAllWorkers() {
-        return flatten(clusterService.getClusterState()
+        return flatten(Object.values(clusterService.getClusterState())
             .filter((node) => node.state === 'connected')
             .map((node) => {
                 const workers = node.active.filter(Boolean);
