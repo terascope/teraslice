@@ -173,7 +173,7 @@ describe('Utils', () => {
             };
             const { query, variables } = createJoinQuery(input, options);
 
-            expect(query).toEqual('location:geoDistance(point: $point_1 distance: $distance_1)');
+            expect(query).toEqual('location:geoDistance(point: $point_1, distance: $distance_1)');
             expect(variables).toEqual({ point_1: input.location, distance_1: '100m' });
         });
 
@@ -186,7 +186,7 @@ describe('Utils', () => {
             };
             const { query, variables } = createJoinQuery(input, options);
 
-            expect(query).toEqual('location:geoDistance(point: $point_1 distance: $distance_1)');
+            expect(query).toEqual('location:geoDistance(point: $point_1, distance: $distance_1)');
             expect(variables).toEqual({ point_1: input.location, distance_1: '50km' });
         });
 
@@ -198,7 +198,7 @@ describe('Utils', () => {
             };
             const { query, variables } = createJoinQuery(input, options);
 
-            expect(query).toEqual('location:geoDistance(point: $point_1 distance: $distance_1)');
+            expect(query).toEqual('location:geoDistance(point: $point_1, distance: $distance_1)');
             expect(variables).toEqual({ point_1: input.location, distance_1: '50km' });
         });
 
@@ -226,7 +226,7 @@ describe('Utils', () => {
             };
             const { query, variables } = createJoinQuery(input, options);
 
-            expect(query).toEqual('location:geoDistance(point: $point_1 distance: $distance_1)');
+            expect(query).toEqual('location:geoDistance(point: $point_1, distance: $distance_1)');
             expect(variables).toEqual({ point_1: '60,90', distance_1: '50km' });
         });
 
@@ -354,7 +354,7 @@ describe('Utils', () => {
             };
             const { query, variables } = createJoinQuery(input, options);
 
-            expect(query).toEqual('location:geoPolygon(points: $points_1 relation: $relation_1)');
+            expect(query).toEqual('location:geoPolygon(points: $points_1, relation: $relation_1)');
             expect(variables).toEqual({ points_1: input.location, relation_1: 'disjoint' });
         });
 
@@ -415,7 +415,7 @@ describe('Utils', () => {
             };
             const { query, variables } = createJoinQuery(input, options);
 
-            expect(query).toEqual('location:geoPolygon(points: $points_1 relation: $relation_1)');
+            expect(query).toEqual('location:geoPolygon(points: $points_1, relation: $relation_1)');
             expect(variables).toEqual({ points_1: input.location, relation_1: 'within' });
         });
 
@@ -462,7 +462,7 @@ describe('Utils', () => {
             };
             const { query, variables } = createJoinQuery(input, options);
 
-            expect(query).toEqual('location:geoPolygon(points: $points_1 relation: $relation_1)');
+            expect(query).toEqual('location:geoPolygon(points: $points_1, relation: $relation_1)');
             expect(variables).toEqual({ points_1: input.location, relation_1: 'within' });
         });
 

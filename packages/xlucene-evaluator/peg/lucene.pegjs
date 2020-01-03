@@ -636,7 +636,7 @@ FieldChar "field"
   = [_a-zA-Z0-9-\.\?\*]
 
 VariableChar
-  = [_a-zA-Z0-9-\.\?\*]
+  = [_a-zA-Z0-9]
 
 FieldSeparator ""
   = ':'

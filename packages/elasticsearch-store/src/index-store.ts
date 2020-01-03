@@ -379,9 +379,7 @@ export default class IndexStore<T extends Record<string, any>> {
         joinBy?: JoinBy,
         options?: RestrictOptions
     ): Promise<number> {
-        console.log('incoming', fields, options?.variables)
         const { query, variables } = this.createJoinQuery(fields, joinBy, options?.variables);
-        console.log('what is query', query, variables)
         return this.count(query, { variables });
     }
 

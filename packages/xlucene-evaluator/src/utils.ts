@@ -218,7 +218,7 @@ function makeXluceneGeoDistanceQuery(
     if (!results) return '';
     const vDistance = variableState.createVariable('distance', dValue);
     const vPoint = variableState.createVariable('point', `${results.lat},${results.lon}`);
-    return `${field}:geoDistance(point: ${vPoint} distance: ${vDistance})`;
+    return `${field}:geoDistance(point: ${vPoint}, distance: ${vDistance})`;
 }
 
 function makeXlucenePolyContainsPoint(
@@ -239,7 +239,7 @@ export function coordinateToXlucene(cord: CoordinateTuple) {
 
 function geoPolyQuery(field: string, polyVariableName: string, vParam?: string) {
     if (vParam) {
-        return `${field}:geoPolygon(points: ${polyVariableName} relation: ${vParam})`;
+        return `${field}:geoPolygon(points: ${polyVariableName}, relation: ${vParam})`;
     }
     return `${field}:geoPolygon(points: ${polyVariableName})`;
 }
@@ -360,7 +360,7 @@ export class VariableState {
         let num = 1;
         let name = `${field}_${num}`;
 
-        while (this.variables[name]) {
+        while (this.variables[name] !== undefined) {
             num += 1;
             name = `${field}_${num}`;
         }
@@ -380,6 +380,6 @@ export class VariableState {
     }
 
     getVaraibles() {
-        return this.variables;
+        return { ...this.variables };
     }
 }
