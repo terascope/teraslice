@@ -7,7 +7,7 @@ import { getPackage } from '../../src/helpers/utils';
 const { version } = getPackage();
 const reply = new Reply();
 
-// TODO: relook into this use!!!!!!!!!!!!!!
+// TODO: relook into this use
 
 export default class JobFile {
     /**
@@ -60,10 +60,11 @@ export default class JobFile {
     }
 
     readFile() {
-        if (!fs.pathExistsSync(this.jobPath)) {
-            reply.fatal(`Cannot find ${this.jobPath}, check your path and file name and try again`);
+        try {
+            this.content = fs.readJsonSync(this.jobPath);
+        } catch (e) {
+            reply.fatal(e.message);
         }
-        this.content = fs.readJsonSync(this.jobPath);
     }
 
     addMetaData(id: string, clusterUrl: string) {

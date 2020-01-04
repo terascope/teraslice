@@ -1,5 +1,6 @@
 import TjmUtil from '../../helpers/tjm-util';
 import JobSrc from '../../helpers/job-src';
+import Config from '../../helpers/config';
 import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
 import { getTerasliceClient } from '../../helpers/utils';
@@ -10,7 +11,6 @@ const yargsOptions = new YargsOptions();
 const cmd = {
     command: 'await <job-file>',
     describe: 'wait for job to reach a specified status',
-    aliases: ['run'],
     builder(yargs:any) {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
@@ -30,7 +30,8 @@ const cmd = {
         // @ts-ignore
         const cliConfig = new Config(Object.assign(jobFile, argv));
         const jobs = new Jobs(cliConfig);
-        jobs.awaitCommand();
+        console.log(argv);
+        jobs.await();
     }
 };
 

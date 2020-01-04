@@ -5,7 +5,7 @@ import Reply from '../cmds/lib/reply';
 import displayModule from '../cmds/lib/display';
 import * as utils from '@terascope/utils';
 import * as TSClientTypes from 'teraslice-client-js';
-import Job from 'teraslice-client-js/dist/src/job';
+import Job from 'teraslice-client-js/src/job';
 import { AnyAaaaRecord } from 'dns';
 
 const display = displayModule();
@@ -78,45 +78,49 @@ export default class Jobs {
         return this.status(true, true);
     }
 
-    clientJobFunctions(): Job  {
-        return this.teraslice.client.jobs.wrap(this.config.args.id);
-    }
+    async awaitStatus(status: TSClientTypes.ExecutionStatus, jobFunctions: Job, timeout = 0): Promise<void> {
+        let currentStatus = await jobFunctions.status();
 
-    async await(status:TSClientTypes.ExecutionStatus, timeout = 0, interval = 2000): Promise<void> {
+        if (currentStatus === status) {
+            reply.yellow(`< job:${this.config.args.id} already ${status}`);
+            process.exit(0);
+        }
+
         try {
-            reply.green(`> waiting for job ${this.config.args.id} status to be ${status}`);
-            const newStatus = await this.teraslice.client.jobs.wrap(this.config.args.id).waitForStatus(status, interval, timeout);
+            const newStatus = await jobFunctions.waitForStatus(status, 5000, timeout);
             reply.green(`> job ${this.config.args.id} status changed to ${newStatus}`);
-        }
-        catch (e) {
-            reply.fatal(e.message);
+            process.exit(0);
+        } catch (e) {
+            currentStatus = await jobFunctions.status();
+
+            if (e.message.includes('Job cannot reach the target status')
+                && this.config.args.status.includes(status)) {
+                    reply.green(`> job ${this.config.args.id} status changed to ${currentStatus}`);
+                    process.exit(0);
+            } else {
+                reply.fatal(e.message);
+            }
         }
     }
 
-    async awaitCommand(): Promise<void> {
-        const jobFunctions = await this.clientJobFunctions();
+    async await(): Promise<void> {
+        const jobFunctions = await this.teraslice.client.jobs.wrap(this.config.args.id);;
         let currentStatus = await jobFunctions.status();
 
         if (this.config.args.start) {
             // make sure job is not already active
             // @ts-ignore
-            if (['running', 'failing'].includes(currentStatus)) {
+            if (['running', 'failing', 'initializing'].includes(currentStatus)) {
                 reply.yellow(`< job:${this.config.args.id} already active with status ${currentStatus}`);
-            }
-            else {
+            } else {
                 reply.yellow(`starting job ${this.config.args.id}`);
                 await jobFunctions.start();
-                await utils.pDelay(2000);
-                currentStatus = await jobFunctions.status();
             }
         }
 
-        if (currentStatus === this.config.args.status) {
-            reply.yellow(`< job:${this.config.args.id} already ${this.config.args.status}`);
-            process.exit(0);
-        }
-
-        await this.await(this.config.args.status, this.config.args.timeout);
+        reply.green(`> waiting for job ${this.config.args.id} status to be ${this.config.args.status}`);
+        // @ts-ignore
+        await Promise.all(this.config.args.status.map((status: TSClientTypes.ExecutionStatus) => this.awaitStatus(status, jobFunctions, this.config.args.timeout)));
     }
 
     async status(saveState = false, showJobs = true): Promise<void> {
@@ -189,6 +193,7 @@ export default class Jobs {
         }
 
         await this.checkJobsStart(this.activeStatus);
+
         if (this.jobsListChecked.length === 0) {
             reply.error(`No jobs to ${action}`);
             return;
@@ -197,6 +202,7 @@ export default class Jobs {
         if (this.jobsListChecked.length === 1) {
             this.config.yes = true;
         }
+
         if (this.config.yes || await display.showPrompt(action, `all jobs on ${this.config.args.clusterAlias}`)) {
             await this.changeStatus(this.jobsListChecked, action);
             let waitCount = 0;

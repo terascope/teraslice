@@ -22,7 +22,7 @@ const cmd: CMD = {
     async handler(argv): Promise<void> {
         const cliConfig = new Config(argv);
         const jobs = new Jobs(cliConfig);
-        jobs.awaitCommand();
+        jobs.await();
     }
 };
 

@@ -25,6 +25,30 @@ export default class Options {
                 nargs: 1,
                 type: 'string'
             }),
+            'await-status': () => ({
+                describe: 'status to wait for',
+                type: 'array',
+                choices: [
+                    'pending',
+                    'scheduling',
+                    'recovering',
+                    'initializing',
+                    'running',
+                    'failing ',
+                    'paused',
+                    'stopping',
+                    'completed',
+                    'stopped',
+                    'rejected',
+                    'failed',
+                    'terminated'
+                ]
+            }),
+            'await-timeout': () => ({
+                describe: 'ms time to wait for status',
+                type: 'number',
+                default: 0
+            }),
             'base-dir': () => ({
                 describe: 'The base directory to work in, defaults to cwd',
                 default: process.cwd(),
