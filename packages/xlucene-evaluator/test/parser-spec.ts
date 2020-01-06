@@ -125,7 +125,7 @@ describe('Parser', () => {
                 });
                 throw new Error('this should throw');
             } catch (err) {
-                expect(err.message.includes(errMsg)).toEqual(true);
+                expect(err.message).toContain(errMsg);
             }
         }
 
