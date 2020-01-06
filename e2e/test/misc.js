@@ -1,9 +1,12 @@
 'use strict';
 
-const _ = require('lodash');
+const {
+    memoize,
+    cloneDeep,
+    toBoolean
+} = require('@terascope/utils');
 const path = require('path');
 const fse = require('fs-extra');
-const Promise = require('bluebird');
 const nanoid = require('nanoid/generate');
 const { TerasliceClient } = require('teraslice-client-js');
 const ElasticsearchClient = require('elasticsearch').Client;
@@ -17,6 +20,11 @@ const {
     ELASTICSEARCH_API_VERSION = '6.5'
 } = process.env;
 
+const KEEP_OPEN = toBoolean(process.env.KEEP_OPEN);
+
+const BASE_PATH = path.join(__dirname, '..');
+const CONFIG_PATH = path.join(BASE_PATH, '.config');
+const ASSETS_PATH = path.join(BASE_PATH, '.assets');
 const SPEC_INDEX_PREFIX = `${TEST_INDEX_PREFIX}spec`;
 const EXAMPLE_INDEX_PREFIX = `${TEST_INDEX_PREFIX}example`;
 const EXAMLPE_INDEX_SIZES = [100, 1000];
@@ -34,7 +42,7 @@ const WORKERS_PER_NODE = 12;
 const compose = require('@terascope/docker-compose-js')('docker-compose.yml');
 const signale = require('./signale');
 
-const es = _.memoize(
+const es = memoize(
     () => new ElasticsearchClient({
         host: ELASTICSEARCH_HOST,
         log: 'error',
@@ -42,13 +50,13 @@ const es = _.memoize(
     })
 );
 
-const teraslice = _.memoize(() => new TerasliceClient({
+const teraslice = memoize(() => new TerasliceClient({
     host: `http://${HOST_IP}:45678`,
     timeout: 2 * 60 * 1000
 }));
 
 function newJob(name) {
-    return _.cloneDeep(require(`./fixtures/jobs/${name}.json`));
+    return cloneDeep(require(`./fixtures/jobs/${name}.json`));
 }
 
 function injectDelay(jobSpec, ms = 1000) {
@@ -121,12 +129,11 @@ function scaleService(service, count) {
 }
 
 function newId(prefix, lowerCase = false, length = 15) {
-    let characters = '-0123456789abcdefghijklmnopqrstuvwxyz';
+    let characters = '0123456789abcdefghijklmnopqrstuvwxyz';
     if (!lowerCase) {
         characters += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     }
-    let id = _.trim(nanoid(characters, length), '-');
-    id = _.padEnd(id, length, 'abcdefghijklmnopqrstuvwxyz');
+    const id = nanoid(characters, length);
     if (prefix) {
         return `${prefix}-${id}`;
     }
@@ -138,7 +145,11 @@ async function resetLogs() {
     await fse.writeFile(logPath, '');
 }
 
-async function globalTeardown(shouldThrow) {
+async function globalTeardown() {
+    if (KEEP_OPEN) {
+        return;
+    }
+
     const errors = [];
 
     await compose
@@ -148,16 +159,16 @@ async function globalTeardown(shouldThrow) {
         })
         .catch((err) => errors.push(err));
 
-    await cleanupIndex(`${TEST_INDEX_PREFIX}*`).catch((err) => errors.push(err));
-    await fse.remove(path.join(__dirname, '../.config')).catch((err) => errors.push(err));
+    await cleanupIndex(`${TEST_INDEX_PREFIX}*`);
+    if (fse.existsSync(CONFIG_PATH)) {
+        await fse.remove(CONFIG_PATH).catch((err) => errors.push(err));
+    }
+    if (fse.existsSync(ASSETS_PATH)) {
+        await fse.remove(ASSETS_PATH).catch((err) => errors.push(err));
+    }
 
-    if (shouldThrow && errors.length === 1) {
-        throw errors[0];
-    } else if (errors.length) {
+    if (errors.length) {
         errors.forEach((err) => signale.error(err));
-        if (shouldThrow) {
-            throw new Error('Multiple e2e teardown errors');
-        }
     }
 }
 
@@ -187,5 +198,8 @@ module.exports = {
     TEST_INDEX_PREFIX,
     DEFAULT_NODES,
     DEFAULT_WORKERS,
-    WORKERS_PER_NODE
+    WORKERS_PER_NODE,
+    BASE_PATH,
+    CONFIG_PATH,
+    ASSETS_PATH,
 };

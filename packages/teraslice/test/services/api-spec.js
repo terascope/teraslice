@@ -11,17 +11,17 @@ describe('HTTP API', () => {
     const app = express();
     const assetsUrl = 'http://example.asset:1234';
     const context = new TestContext('http-api');
-    context.services = {
-        execution: {
 
-        },
-        jobs: {
-
-        }
+    context.stores = {
+        state: {},
+        execution: {},
+        jobs: {},
     };
 
-    const stateStore = {
-
+    context.services = {
+        cluster: {},
+        execution: {},
+        jobs: {},
     };
 
     let api;
@@ -34,7 +34,7 @@ describe('HTTP API', () => {
 
         baseUrl = `http://localhost:${port}`;
 
-        api = await makeAPI(context, app, { assetsUrl, stateStore });
+        api = makeAPI(context, { assetsUrl, app });
 
         await new Promise((resolve, reject) => {
             server = app.listen(port, (err) => {
@@ -42,6 +42,8 @@ describe('HTTP API', () => {
                 else resolve();
             });
         });
+
+        await api.initialize();
     });
 
     afterAll(async () => {

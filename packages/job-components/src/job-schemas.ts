@@ -45,6 +45,12 @@ export function jobSchema(context: Context): convict.Schema<any> {
                 }
             },
         },
+        autorecover: {
+            default: false,
+            doc: 'Automatically recover pending slices from the last stopped/completed execution. '
+                + 'The last state will always be passed to the slicer',
+            format: Boolean,
+        },
         lifecycle: {
             default: 'once',
             doc: 'Job lifecycle behavior, determines if it should exit on completion or remain active',
@@ -143,6 +149,27 @@ export function jobSchema(context: Context): convict.Schema<any> {
             default: workers,
             doc: 'the number of workers dedicated for the job',
             format: 'positive_int'
+        },
+        labels: {
+            default: null,
+            doc: 'An array of arrays containing key value pairs used to label kubetnetes resources.',
+            // TODO: Refactor this out as format, copied from env_vars
+            format(obj: any[]) {
+                if (obj != null) {
+                    if (!isPlainObject(obj)) {
+                        throw new Error('must be object');
+                    }
+                    Object.entries(obj).forEach(([key, val]) => {
+                        if (key == null || key === '') {
+                            throw new Error('key must be not empty');
+                        }
+
+                        if (val == null || val === '') {
+                            throw new Error(`value for key "${key}" must be not empty`);
+                        }
+                    });
+                }
+            },
         },
         env_vars: {
             default: {},

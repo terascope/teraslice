@@ -1,5 +1,4 @@
-import { defer } from 'bluebird';
-import { Logger } from '@terascope/utils';
+import { Logger, pDefer } from '@terascope/utils';
 
 function logWrapper(logger: Logger) {
     return function _logger() {
@@ -33,9 +32,7 @@ function create(customConfig: any, logger: Logger) {
 
     logger.info(`using elasticsearch hosts: ${customConfig.host}`);
 
-    customConfig.defer = function _defer() {
-        return defer();
-    };
+    customConfig.defer = pDefer;
 
     const client = new elasticsearch.Client(customConfig);
 

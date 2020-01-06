@@ -54,6 +54,7 @@ export type AnyQuery =
     | WildcardQuery
     | ExistsQuery
     | RegExprQuery
+    | QueryStringQuery
     | RangeQuery
     | MultiMatchQuery
 
@@ -113,6 +114,13 @@ export interface GeoQuery {
 export interface RegExprQuery {
     regexp: {
         [field: string]: string;
+    };
+}
+
+export interface QueryStringQuery {
+    query_string: {
+        fields: string[];
+        query: string;
     };
 }
 

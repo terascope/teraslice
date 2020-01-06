@@ -1,9 +1,8 @@
 'use strict';
 
 const {
-    noop, pDelay, get, toString, makeISODate, logError
+    noop, pDelay, get, toString, makeISODate, logError, pWhile
 } = require('@terascope/utils');
-const pWhilst = require('p-whilst');
 const Queue = require('@terascope/queue');
 const makeExecutionRecovery = require('./recovery');
 const { makeLogger } = require('../helpers/terafoundation');
@@ -16,11 +15,16 @@ class Scheduler {
         this.executionContext = executionContext;
         this.exId = executionContext.exId;
 
-        const jobCanRecover = get(executionContext.config, 'recovered_execution', false);
+        const recoverFromExId = get(executionContext.config, 'recovered_execution');
         const slicerCanRecover = executionContext.slicer().isRecoverable();
+        if (recoverFromExId && !slicerCanRecover) {
+            throw new Error('Slicer is not recoverable');
+        }
 
-        this.recoverExecution = jobCanRecover && slicerCanRecover;
-        this.recovering = this.recoverExecution;
+        this.recoverFromExId = recoverFromExId;
+        this.recoverExecution = Boolean(recoverFromExId && slicerCanRecover);
+        this.recovering = Boolean(this.recoverExecution);
+        this.autorecover = Boolean(executionContext.config.autorecover);
 
         this._creating = 0;
         this.ready = false;
@@ -46,9 +50,10 @@ class Scheduler {
     async initialize() {
         if (this.recoverExecution) {
             await this._initializeRecovery();
-        } else {
-            await this._initializeExecution();
+            return;
         }
+
+        await this._initializeExecution();
     }
 
     /**
@@ -56,6 +61,8 @@ class Scheduler {
     */
     async run() {
         if (this.recoverExecution) {
+            await this.exStore.setStatus(this.exId, 'recovering');
+
             this.logger.info(`execution: ${this.exId} is starting in recovery mode`);
             this.ready = true;
             this.start();
@@ -70,6 +77,7 @@ class Scheduler {
             await this._initializeExecution();
         }
 
+        await this.exStore.setStatus(this.exId, 'running');
         this.ready = true;
 
         const promise = new Promise((resolve) => {
@@ -102,12 +110,11 @@ class Scheduler {
             `execution ${this.exId} is finished scheduling, ${n} remaining slices in the queue`
         );
 
-        const waitForCreating = () => {
-            const is = () => this._creating;
-            return pWhilst(is, () => pDelay(100));
-        };
-
-        await waitForCreating();
+        await pWhile(async () => {
+            if (!this._creating) return true;
+            await pDelay(100);
+            return false;
+        });
     }
 
     start() {
@@ -439,9 +446,13 @@ class Scheduler {
             return;
         }
 
-        this.startingPoints = await this.recover.getSlicerStartingPosition();
+        const { slicers: prevSlicers } = await this.exStore.get(this.recoverFromExId);
+        this.startingPoints = await this.stateStore.getStartingPoints(
+            this.recoverFromExId,
+            prevSlicers,
+        );
 
-        this.logger.info(`execution ${this.exId} finished its recovery`);
+        this.logger.info(`execution: ${this.exId} finished its recovery`);
     }
 }
 

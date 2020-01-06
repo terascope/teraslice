@@ -1,10 +1,12 @@
+import ms from 'ms';
 import path from 'path';
 import isCI from 'is-ci';
 import {
     debugLogger,
     chunk,
     TSError,
-    getFullErrorStack
+    getFullErrorStack,
+    pDelay
 } from '@terascope/utils';
 import {
     writePkgHeader,
@@ -17,7 +19,7 @@ import {
 } from '../misc';
 import { ensureServices } from './services';
 import { PackageInfo } from '../interfaces';
-import { TestOptions } from './interfaces';
+import { TestOptions, RunSuiteResult, CleanupFN } from './interfaces';
 import { runJest, dockerPush, dockerTag } from '../scripts';
 import * as utils from './utils';
 import signale from '../signale';
@@ -28,33 +30,61 @@ const logger = debugLogger('ts-scripts:cmd:test');
 
 export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
     logger.info('running tests with options', options);
-    let errors: string[];
+    let result: RunSuiteResult = {
+        cleanup: () => {},
+        errors: [],
+    };
 
     try {
-        errors = await _runTests(pkgInfos, options);
+        result = await _runTests(pkgInfos, options);
     } catch (err) {
-        errors = [getFullErrorStack(err)];
+        result.errors = [getFullErrorStack(err)];
     }
 
     let errorMsg = '';
-    if (errors.length > 1) {
-        errorMsg = `Multiple Test Failures:${formatList(errors)}`;
-    } else if (errors.length === 1) {
-        ([errorMsg] = errors);
+    if (result.errors.length > 1) {
+        errorMsg = `Multiple Test Failures:${formatList(result.errors)}`;
+    } else if (result.errors.length === 1) {
+        ([errorMsg] = result.errors);
     }
 
-    if (errors.length) {
+    if (result.errors.length) {
         signale.error(`\n${errorMsg}`);
+    }
 
+    if (options.keepOpen) {
+        await new Promise((resolve) => {
+            let timeoutId: any;
+            signale.info('keeping the tests open so the services don\'t shutdown, use ctrl-c to exit.');
+
+            function done() {
+                clearTimeout(timeoutId);
+                process.removeListener('SIGINT', done);
+                process.removeListener('SIGTERM', done);
+                resolve();
+            }
+
+            timeoutId = setTimeout(done, ms('4 hour'));
+            process.once('SIGINT', done);
+            process.once('SIGTERM', done);
+        });
+    }
+
+    try {
+        await result.cleanup();
+    } catch (err) {
+        signale.warn(err, 'cleanup error');
+    }
+
+    if (result.errors.length) {
         const exitCode = (process.exitCode || 0) > 0 ? process.exitCode : 1;
         process.exit(exitCode);
-        return;
+    } else {
+        process.exit(0);
     }
-
-    process.exit(0);
 }
 
-async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise<string[]> {
+async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise<RunSuiteResult> {
     if (options.suite === 'e2e') {
         return runE2ETest(options);
     }
@@ -62,9 +92,10 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
     const filtered = utils.filterBySuite(pkgInfos, options);
     if (!filtered.length) {
         signale.warn('No tests found.');
-        return [];
+        return { cleanup() {}, errors: [] };
     }
 
+    const cleanups: (() => void)[] = [];
     const availableSuites = getAvailableTestSuites();
     const grouped = utils.groupBySuite(filtered, availableSuites, options);
 
@@ -73,9 +104,10 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
         if (!pkgs.length || suite === 'e2e') continue;
 
         try {
-            const suiteErrors: string[] = await runTestSuite(suite, pkgs, options);
-            if (suiteErrors.length) {
-                errors.push(...suiteErrors);
+            const result = await runTestSuite(suite, pkgs, options);
+            cleanups.push(result.cleanup);
+            if (result.errors.length) {
+                errors.push(...result.errors);
                 if (options.bail) {
                     break;
                 }
@@ -86,15 +118,23 @@ async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise
         }
     }
 
-    return errors;
+    return {
+        async cleanup() {
+            await Promise.all(cleanups);
+        },
+        errors,
+    };
 }
 
 async function runTestSuite(
     suite: string,
     pkgInfos: PackageInfo[],
     options: TestOptions
-): Promise<string[]> {
-    if (suite === 'e2e') return [];
+): Promise<RunSuiteResult> {
+    if (suite === 'e2e') {
+        return { cleanup() {}, errors: [] };
+    }
+
     const errors: string[] = [];
 
     // jest or our tests have a memory leak, limiting this seems to help
@@ -114,7 +154,7 @@ async function runTestSuite(
         writeHeader(`Running test suite "${suite}"`, false);
     }
 
-    const cleanup = await ensureServices(suite, options);
+    let cleanup: CleanupFN = await ensureServices(suite, options);
 
     const timeLabel = `test suite "${suite}"`;
     signale.time(timeLabel);
@@ -140,11 +180,22 @@ async function runTestSuite(
         } catch (err) {
             errors.push(err.message);
 
-            await utils.globalTeardown(options, pkgs.map((pkg) => ({
+            const teardownPkgs = pkgs.map((pkg) => ({
                 name: pkg.name,
                 dir: pkg.dir,
                 suite: pkg.terascope.testSuite
-            })));
+            }));
+
+            if (options.keepOpen) {
+                const prevCleanup = cleanup;
+                cleanup = async () => {
+                    await prevCleanup();
+                    options.keepOpen = false;
+                    await utils.globalTeardown(options, teardownPkgs);
+                };
+            } else {
+                await utils.globalTeardown(options, teardownPkgs);
+            }
 
             if (options.bail) {
                 break;
@@ -156,14 +207,18 @@ async function runTestSuite(
         }
     }
 
+    if (!options.keepOpen) {
+        await cleanup();
+        cleanup = () => {};
+    }
+
     signale.timeEnd(timeLabel);
 
-    cleanup();
-    return errors;
+    return { errors, cleanup };
 }
 
-async function runE2ETest(options: TestOptions): Promise<string[]> {
-    let cleanup = () => {};
+async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
+    let cleanup: CleanupFN = () => {};
     const errors: string[] = [];
     const suite = 'e2e';
     let startedTest = false;
@@ -173,24 +228,27 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         throw new Error('Missing e2e test directory');
     }
 
-    try {
-        cleanup = await ensureServices(suite, options);
-    } catch (err) {
-        errors.push(getFullErrorStack(err));
-    }
+    await Promise.all([
+        (async () => {
+            try {
+                cleanup = await ensureServices(suite, options);
+            } catch (err) {
+                errors.push(getFullErrorStack(err));
+            }
+        })(),
+        (async () => {
+            const rootInfo = getRootInfo();
+            const [registry] = rootInfo.terascope.docker.registries;
+            const e2eImage = `${registry}:e2e`;
 
-    if (!errors.length) {
-        const rootInfo = getRootInfo();
-        const [registry] = rootInfo.terascope.docker.registries;
-        const e2eImage = `${registry}:e2e`;
-
-        try {
-            const devImage = await pullDevDockerImage();
-            await dockerTag(devImage, e2eImage);
-        } catch (err) {
-            errors.push(getFullErrorStack(err));
-        }
-    }
+            try {
+                const devImage = await pullDevDockerImage();
+                await dockerTag(devImage, e2eImage);
+            } catch (err) {
+                errors.push(getFullErrorStack(err));
+            }
+        })()
+    ]);
 
     if (!errors.length) {
         const timeLabel = `test suite "${suite}"`;
@@ -200,7 +258,10 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         const env = printAndGetEnv(suite, options);
 
         try {
-            await runJest(e2eDir, utils.getArgs(options), env, options.jestArgs, options.debug);
+            await Promise.all([
+                runJest(e2eDir, utils.getArgs(options), env, options.jestArgs, options.debug),
+                pushDevImage(),
+            ]);
         } catch (err) {
             errors.push(err.message);
         }
@@ -208,7 +269,7 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
         signale.timeEnd(timeLabel);
     }
 
-    if (startedTest) {
+    if (startedTest && !options.keepOpen) {
         try {
             await utils.logE2E(e2eDir, errors.length > 0);
         } catch (err) {
@@ -221,26 +282,40 @@ async function runE2ETest(options: TestOptions): Promise<string[]> {
     }
 
     if (startedTest && errors.length) {
-        await utils.globalTeardown(options, [{
-            name: suite,
-            dir: e2eDir,
-            suite,
-        }]);
-    }
-
-    if (startedTest && isCI) {
-        const devDockerImage = getDevDockerImage();
-        try {
-            signale.info(`pushing ${devDockerImage}...`);
-            await dockerPush(devDockerImage);
-        } catch (err) {
-            signale.warn(err, `failure to push ${devDockerImage}`);
+        if (options.keepOpen) {
+            const prevCleanup = cleanup;
+            cleanup = async () => {
+                await prevCleanup();
+                options.keepOpen = false;
+                await utils.globalTeardown(options, [{
+                    name: suite,
+                    dir: e2eDir,
+                    suite,
+                }]);
+            };
+        } else {
+            await utils.globalTeardown(options, [{
+                name: suite,
+                dir: e2eDir,
+                suite,
+            }]);
         }
     }
 
-    cleanup();
+    return { errors, cleanup };
+}
 
-    return errors;
+async function pushDevImage() {
+    if (!isCI) return;
+    // wait 30 seconds before pushing
+    await pDelay(30 * 1000);
+    const devDockerImage = getDevDockerImage();
+    try {
+        signale.info(`pushing ${devDockerImage}...`);
+        await dockerPush(devDockerImage);
+    } catch (err) {
+        signale.warn(err, `failure to push ${devDockerImage}`);
+    }
 }
 
 function printAndGetEnv(suite: string, options: TestOptions) {

@@ -257,13 +257,25 @@ export function translateQuery(
         return wildcardQuery;
     }
 
-    function buildRegExprQuery(node: p.Regexp): i.RegExprQuery | i.MultiMatchQuery {
+    function buildRegExprQuery(
+        node: p.Regexp
+    ): i.RegExprQuery | i.MultiMatchQuery | i.QueryStringQuery {
         if (isMultiMatch(node)) {
             const query = `${node.value}`;
             return buildMultiMatchQuery(node, query);
         }
 
         const field = getTermField(node);
+
+        if (node.tokenizer) {
+            return {
+                query_string: {
+                    fields: [field],
+                    query: `/${node.value}/`
+                }
+            };
+        }
+
         const regexQuery: i.RegExprQuery = {
             regexp: {
                 [field]: node.value,

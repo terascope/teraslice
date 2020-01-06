@@ -1,3 +1,4 @@
+import isCI from 'is-ci';
 import path from 'path';
 import semver from 'semver';
 import { getFirstChar, uniq, trim } from '@terascope/utils';
@@ -5,7 +6,7 @@ import { getDocPath, updatePkgJSON, fixDepPkgName } from '../packages';
 import { updateReadme, ensureOverview } from '../docs/overview';
 import { PackageInfo, RootPackageInfo } from '../interfaces';
 import { formatList, getRootDir } from '../misc';
-import { getChangedFiles } from '../scripts';
+import { getChangedFiles, gitDiff } from '../scripts';
 import { DepKey, SyncOptions } from './interfaces';
 import signale from '../signale';
 
@@ -34,6 +35,9 @@ export async function verifyCommitted(options: SyncOptions) {
 Before running this command make sure to commit, or stage, the following files:
 ${formatList(changed)}
 `);
+        if (isCI) {
+            await gitDiff(changed);
+        }
         process.exit(1);
     }
 }
