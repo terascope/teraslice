@@ -69,7 +69,8 @@ export function createRootLogger(context: i.FoundationContext<{}>): ts.Logger {
 
     const loggerConfig: bunyan.LoggerOptions = {
         name: filename,
-        streams: streamConfig
+        streams: streamConfig,
+        assignment: context.assignment,
     };
 
     const logger = bunyan.createLogger(loggerConfig) as ts.Logger;

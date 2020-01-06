@@ -338,10 +338,21 @@ export default class IndexStore<T extends Record<string, any>> {
     ): Promise<T> {
         utils.validateId('updatePartial', id);
         try {
-            const existing = await this.get(id);
+            const existing = await this.get(id) as any;
+            const params: any = {};
+            if (ts.DataEntity.isDataEntity(existing)) {
+                const esVersion = utils.getESVersion(this.client);
+                if (esVersion >= 7) {
+                    params.if_seq_no = existing.getMetadata('_seq_no');
+                    params.if_primary_term = existing.getMetadata('_primary_term');
+                } else {
+                    params.version = existing.getMetadata('_version');
+                }
+            }
             return await this.indexById(
                 id,
-                await applyChanges(existing)
+                await applyChanges(existing),
+                params
             );
         } catch (error) {
             // if there is a version conflict
@@ -679,6 +690,8 @@ export default class IndexStore<T extends Record<string, any>> {
             _index: result._index,
             _type: result._type,
             _version: result._version,
+            _seq_no: result._seq_no,
+            _primary_term: result._primary_term
         }) as any;
     }
 
@@ -746,6 +759,8 @@ interface RecordResponse<T> {
     _type: string;
     _id: string;
     _version?: number;
+    _seq_no?: number;
+    _primary_term?: number;
     _source: T;
 }
 

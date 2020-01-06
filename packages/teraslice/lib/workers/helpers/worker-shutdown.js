@@ -82,6 +82,8 @@ function shutdownHandler(context, shutdownFn) {
     }
 
     async function callShutdownFn(event, err) {
+        // avoid failing before the promse is try / catched in pRaceWithTimeout
+        await pDelay(100);
         await shutdownFn(event, err);
     }
 

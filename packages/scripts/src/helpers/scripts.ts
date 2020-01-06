@@ -353,6 +353,14 @@ export async function getCommitHash(): Promise<string> {
     return exec({ cmd: 'git', args: ['rev-parse', '--short', 'HEAD'] });
 }
 
+export async function gitDiff(files: string[] = []): Promise<void> {
+    try {
+        await fork({ cmd: 'git', args: ['diff', ...files] });
+    } catch (e) {
+        logger.trace(e);
+    }
+}
+
 export async function getChangedFiles(...files: string[]) {
     const result = await exec({ cmd: 'git', args: ['diff', '--name-only', ...files] });
     return result

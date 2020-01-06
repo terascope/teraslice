@@ -2,7 +2,6 @@
 
 const { spawn } = require('child_process');
 const path = require('path');
-const Promise = require('bluebird');
 const { TSError } = require('@terascope/utils');
 
 function newProcessor(context, opConfig) {

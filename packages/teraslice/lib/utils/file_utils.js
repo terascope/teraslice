@@ -1,11 +1,9 @@
 'use strict';
 
 const fs = require('fs');
-const _ = require('lodash');
 const path = require('path');
 const fse = require('fs-extra');
 const shortid = require('shortid');
-const Promise = require('bluebird');
 const decompress = require('decompress');
 
 function existsSync(filename) {
@@ -31,7 +29,7 @@ function normalizeZipFile(id, newPath, logger) {
         .then(() => fse
             .readJson(packagePath)
             .then((packageData) => {
-                _.assign(metaData, packageData);
+                Object.assign(metaData, packageData);
                 return metaData;
             })
             .catch(() => {
@@ -65,7 +63,7 @@ function normalizeZipFile(id, newPath, logger) {
             return fse
                 .readJson(path.join(newPath, assetJSON[0], 'asset.json'))
                 .then((packageData) => {
-                    _.assign(metaData, packageData);
+                    Object.assign(metaData, packageData);
 
                     return Promise.resolve(
                         moveContents(newPath, path.join(newPath, assetJSON[0]))

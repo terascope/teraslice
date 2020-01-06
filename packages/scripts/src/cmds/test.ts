@@ -14,6 +14,7 @@ type Options = {
     watch: boolean;
     bail: boolean;
     suite?: string;
+    'keep-open': boolean;
     'report-coverage': boolean;
     'elasticsearch-version': string;
     'elasticsearch-api-version': string;
@@ -42,6 +43,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 description: 'This will cause the tests to stop at the first failed test.',
                 type: 'boolean',
                 default: isCI,
+            })
+            .option('keep-open', {
+                description: 'This will cause the tests to remain open after done (so they can be debugged).',
+                type: 'boolean',
+                default: false,
             })
             .option('report-coverage', {
                 description: 'Report the coverage for CI',
@@ -104,6 +110,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             watch,
             bail,
             suite: argv.suite,
+            keepOpen: argv['keep-open'],
             useExistingServices: argv['use-existing-services'],
             elasticsearchVersion: argv['elasticsearch-version'],
             elasticsearchAPIVersion: argv['elasticsearch-api-version'],

@@ -7,6 +7,7 @@ const {
     logError,
     isString,
     get,
+    toInteger,
 } = require('@terascope/utils');
 
 function makeTable(req, defaults, data, mappingFn) {
@@ -123,8 +124,23 @@ function isPrometheusRequest(req) {
     return acceptHeader && acceptHeader.indexOf('application/openmetrics-text;') > -1;
 }
 
+/**
+ * @returns {number}
+*/
+function parseQueryInt(req, prop, defaultVal) {
+    const val = req.query[prop];
+    if (val == null || val === '') return defaultVal;
+    const parsed = toInteger(val);
+    // allow the invalid prop to be passed through
+    // (because an error should thrown downstream)
+    if (parsed === false) return req.query[prop];
+    return parsed;
+}
+
 function getSearchOptions(req, defaultSort = '_updated:desc') {
-    const { size = 100, from = null, sort = defaultSort } = req.query;
+    const sort = req.query.sort || defaultSort;
+    const size = parseQueryInt(req, 'size', 100);
+    const from = parseQueryInt(req, 'from', 0);
     return { size, from, sort };
 }
 

@@ -43,6 +43,36 @@ export default [
         },
     ],
     [
+        'firstname.text:/[A-Z]+/',
+        'query.constant_score.filter',
+        {
+            query_string: {
+                fields: ['firstname.text'],
+                query: '/[A-Z]+/',
+            },
+        },
+        {
+            type_config: {
+                firstname: FieldType.String
+            }
+        }
+    ],
+    [
+        'other.value:/[a-z]{1,3}/',
+        'query.constant_score.filter',
+        {
+            regexp: {
+                'other.value': '[a-z]{1,3}',
+            },
+        },
+        {
+            type_config: {
+                other: FieldType.String,
+                'other.value': FieldType.String
+            }
+        }
+    ],
+    [
         '_exists_:hello',
         'query.constant_score.filter',
         {

@@ -27,6 +27,8 @@ show: ## show k8s deployments and services
 	kubectl get --namespace $(NAMESPACE) deployments,svc,po,jobs -o wide
 	@echo ""
 	curl $(ES_URL)/_cat/indices
+	@echo ""
+	curl $(TERASLICE_MASTER_URL)/txt/nodes
 
 logs: ## show logs for k8s deployments and services
 	kubectl logs --namespace $(NAMESPACE) -l app=teraslice --tail=$(LOG_LENGTH) | bunyan
@@ -90,6 +92,7 @@ push: ## push final docker image
 	docker push $(TERASLICE_K8S_IMAGE)
 
 setup-all: namespace elasticsearch auth setup ## setup EVERYTHING
+	earl aliases remove ${TERASLICE_ALIAS} 2> /dev/null || true
 	earl aliases add ${TERASLICE_ALIAS} ${TERASLICE_MASTER_URL}
 
 setup: configs k8s-master ## setup teraslice
@@ -115,12 +118,14 @@ register: ## creates asset and registers job
 	earl tjm register ${TERASLICE_ALIAS} example-job.json
 	earl tjm register ${TERASLICE_ALIAS} example-job-labels.json
 	earl tjm register ${TERASLICE_ALIAS} example-job-resource.json
+	earl tjm register ${TERASLICE_ALIAS} example-job-targets.json
 	earl tjm register ${TERASLICE_ALIAS} example-job-volume.json
 
 deregister: ## resets jobs
 	earl tjm reset example-job.json || echo '* it is okay'
 	earl tjm reset example-job-labels.json || echo '* it is okay'
 	earl tjm reset example-job-resource.json || echo '* it is okay'
+	earl tjm reset example-job-targets.json || echo '* it is okay'
 	earl tjm reset example-job-volume.json || echo '* it is okay'
 
 start: ## runs example job

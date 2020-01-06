@@ -1,5 +1,7 @@
 import { EventEmitter } from 'events';
-import { AnyObject, Logger, isTest } from '@terascope/utils';
+import {
+    get, set, AnyObject, Logger, isTest, isProd, isString
+} from '@terascope/utils';
 import {
     OpAPI, Context, ExecutionConfig, APIConfig, WorkerContext
 } from '../interfaces';
@@ -136,5 +138,42 @@ export class ExecutionContextAPI {
      */
     makeLogger(moduleName: string, extra: AnyObject = {}) {
         return makeExContextLogger(this._context, this._executionConfig, moduleName, extra);
+    }
+
+    /**
+     * Update metadata on the execution context
+     * Only update the metadata after the execution has been initialized
+    */
+    async setMetadata(key: string, value: any): Promise<void> {
+        if (!key || !isString(key)) {
+            throw new Error('Unable to set execution metadata, missing key');
+        }
+        const exId = this._executionConfig.ex_id;
+        const metadata: AnyObject = await this._getMetadata(exId);
+        set(metadata, key, value);
+        this._logger.warn('updating execution metadata', metadata);
+        await this._updateMetadata(exId, metadata);
+    }
+
+    async getMetadata(key?: string): Promise<AnyObject> {
+        const exId = this._executionConfig.ex_id;
+        const metadata = await this._getMetadata(exId);
+        if (key) return get(metadata, key);
+        this._logger.warn('updating execution metadata', metadata);
+        return metadata;
+    }
+
+    // These methods will be replaced to actually update the
+    // execution metadata when running in production
+    private async _updateMetadata(_exId: string, metadata: AnyObject): Promise<void> {
+        if (isProd) throw new Error('This should have been replaced by in the execution store');
+        this._executionConfig.metadata = metadata;
+    }
+
+    // These methods will be replaced to actually get the
+    // execution metadata when running in production
+    private async _getMetadata(_exId: string): Promise<AnyObject> {
+        if (isProd) throw new Error('This should have been replaced by in the execution store');
+        return this._executionConfig.metadata || {};
     }
 }

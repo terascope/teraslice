@@ -44,7 +44,10 @@ describe('SlicerTestHarness', () => {
             const lastSlice = { some: 'stuff' };
 
             try {
-                await slicerHarness.initialize([{ lastSlice }]);
+                await slicerHarness.initialize([{
+                    lastSlice,
+                    slicer_id: 0,
+                }]);
             } catch (err) {
                 expect(err).toBeDefined();
             }
@@ -103,7 +106,10 @@ describe('SlicerTestHarness', () => {
         });
 
         it('should not throw if given recovery data', async () => {
-            await slicerHarness.initialize([{ lastSlice }]);
+            await slicerHarness.initialize([{
+                lastSlice,
+                slicer_id: 0,
+            }]);
         });
 
         it('should throw if recovery data is malformed', async () => {
@@ -128,7 +134,10 @@ describe('SlicerTestHarness', () => {
         it('can recovery to previous count', async () => {
             const expectedResults = { count: 26 };
 
-            await slicerHarness.initialize([{ lastSlice }]);
+            await slicerHarness.initialize([{
+                lastSlice,
+                slicer_id: 1,
+            }]);
 
             const [results] = await slicerHarness.createSlices();
             expect(results).toEqual(expectedResults);
