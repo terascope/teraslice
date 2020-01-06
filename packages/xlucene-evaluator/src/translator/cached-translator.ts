@@ -13,24 +13,7 @@ export class CachedTranslator {
 
     make(input: string|Parser, options?: TranslatorOptions): Translator {
         const query = isString(input) ? input : input.query;
-        const cached = _cache.get(this)!;
-        const cachedTranslator = cached[query];
-
-        if (cachedTranslator != null) {
-            if (!cachedTranslator.variables) return cachedTranslator;
-            if (options?.variables) {
-                const cachedVars = JSON.stringify(cachedTranslator.variables);
-                const newVars = JSON.stringify(options.variables);
-                if (cachedVars === newVars) return cachedTranslator;
-            }
-        }
-
-        const translate = new Translator(query, options);
-
-        cached[query] = translate;
-        _cache.set(this, cached);
-
-        return translate;
+        return new Translator(query, options);
     }
 
     reset() {

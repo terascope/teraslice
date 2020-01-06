@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { TSError, times } from '@terascope/utils';
 import allTestCases from './cases/parser';
-import { Parser, ASTType } from '../src';
+import { Parser, ASTType, FieldType } from '../src';
 
 describe('Parser', () => {
     for (const [key, testCases] of Object.entries(allTestCases)) {
@@ -107,5 +107,37 @@ describe('Parser', () => {
                 });
             }).toThrow();
         });
+    });
+
+    it('restricted variables will throw if given bad values', () => {
+        const query = 'foo: $bar';
+        const typeConfig = { foo: FieldType.String };
+        const errMsg = 'non-function variables may only be numbers, strings, boolean or an array of these primitives';
+
+        function test(val: any) {
+            const variables = { bar: val };
+
+            try {
+                new Parser(query, {
+                    type_config: typeConfig,
+                    // @ts-ignore
+                    variables
+                });
+                throw new Error('this should throw');
+            } catch (err) {
+                expect(err.message.includes(errMsg)).toEqual(true);
+            }
+        }
+
+        const testCases: any[] = [
+            { some: 'data' },
+            Buffer.from('1234'),
+            new Map(),
+            new Set(),
+            new Error(),
+            [1, { other: 'stuff' }, 3]
+        ];
+
+        testCases.forEach(test);
     });
 });

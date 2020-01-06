@@ -10,7 +10,7 @@
         parseFunction,
         getVariable,
         makeFlow,
-        isPlainObject
+        validateRestrictedVariable,
     } = makeContext(options.contextArg);
 }
 
@@ -219,7 +219,6 @@ RestrictedVariableExpression
         const key = chars.join('');
         const value = getVariable(key);
         // created quoted node for each value
-        if (isPlainObject(value)) throw new Error('only function field names provide support for object values in variables')
         if (Array.isArray(value)) {
             // create logical group node
             const root = {
@@ -228,6 +227,7 @@ RestrictedVariableExpression
              };
              return root;
         }
+        validateRestrictedVariable(value)
         const node = { value, field, type: i.ASTType.Term };
         coerceTermType(node);
         return node;

@@ -1,4 +1,4 @@
-import { Logger, TSError, isPlainObject } from '@terascope/utils';
+import { Logger, TSError } from '@terascope/utils';
 import { parseGeoDistance, parseGeoPoint } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
@@ -97,6 +97,7 @@ export default function makeContext(args: any) {
 
     function makeFlow(field: string, values: any[]) {
         return values.map((value) => {
+            validateRestrictedVariable(value);
             const node = { field, type: i.ASTType.Term, value };
             coerceTermType(node);
             // this creates an OR statement
@@ -105,6 +106,13 @@ export default function makeContext(args: any) {
                 nodes: [node]
             };
         });
+    }
+    // cannot allow variables that are objects, errors, maps, sets, buffers
+    function validateRestrictedVariable(val: any) {
+        const type = typeof val;
+        if (!['string', 'number', 'boolean'].includes(type)) {
+            throw new Error(' non-function variables may only be numbers, strings, boolean or an array of these primitives');
+        }
     }
 
     function coerceTermType(node: any, _field?: string) {
@@ -174,6 +182,6 @@ export default function makeContext(args: any) {
         parseFunction,
         getVariable,
         makeFlow,
-        isPlainObject
+        validateRestrictedVariable
     };
 }
