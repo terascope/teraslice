@@ -2,8 +2,10 @@ import { CMD } from '../../interfaces';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 import Jobs from '../../helpers/jobs';
+import Reply from '../lib/reply';
 
 const yargsOptions = new YargsOptions();
+const reply = new Reply();
 
 const cmd: CMD = {
     command: 'await <cluster-alias> <id>',
@@ -23,7 +25,12 @@ const cmd: CMD = {
     async handler(argv): Promise<void> {
         const cliConfig = new Config(argv);
         const jobs = new Jobs(cliConfig);
-        jobs.awaitCommand();
+
+        try {
+            jobs.awaitCommand();
+        } catch (e) {
+            reply.fatal(e.message);
+        }
     }
 };
 

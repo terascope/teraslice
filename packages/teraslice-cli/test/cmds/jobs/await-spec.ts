@@ -1,16 +1,17 @@
 import yargs from 'yargs';
-import errors from '../../../src/cmds/jobs/await';
+import await from '../../../src/cmds/jobs/await';
 
 describe('jobs await', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
             const yargsCmd = yargs.command(
                 // @ts-ignore
-                errors.command,
-                errors.describe,
-                errors.builder,
+                await.command,
+                await.describe,
+                await.builder,
                 () => true
             );
+
             const yargsResult = yargsCmd.parse(
                 'await ts-test1', {}
             );
@@ -19,9 +20,9 @@ describe('jobs await', () => {
         it('should parse properly with an id specifed', () => {
             const yargsCmd = yargs.command(
                 // @ts-ignore
-                errors.command,
-                errors.describe,
-                errors.builder,
+                await.command,
+                await.describe,
+                await.builder,
                 () => true
             );
             const yargsResult = yargsCmd.parse(

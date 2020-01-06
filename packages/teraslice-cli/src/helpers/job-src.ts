@@ -63,6 +63,10 @@ export default class JobFile {
         try {
             this.content = fs.readJsonSync(this.jobPath);
         } catch (e) {
+            if (e.message.includes('no such file or directory')) {
+                reply.fatal(`Cannot find ${this.jobPath}, check your path and file name and try again`)
+            }
+
             reply.fatal(e.message);
         }
     }
