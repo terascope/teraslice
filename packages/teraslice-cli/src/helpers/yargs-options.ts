@@ -42,7 +42,8 @@ export default class Options {
                     'rejected',
                     'failed',
                     'terminated'
-                ]
+                ],
+                default: ['completed', 'stopped']
             }),
             'await-timeout': () => ({
                 describe: 'ms time to wait for status',

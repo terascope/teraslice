@@ -7,7 +7,7 @@ const yargsOptions = new YargsOptions();
 
 const cmd: CMD = {
     command: 'await <cluster-alias> <id>',
-    describe: 'waits for jobs to reach specified status',
+    describe: 'waits for jobs to reach specified status, can take more than one status',
     builder(yargs: any) {
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('output', yargsOptions.buildOption('output'));
@@ -17,12 +17,13 @@ const cmd: CMD = {
         yargs.strict()
             .example('$0 jobs await CLUSTER_ALIAS JOBID --status completed --timeout 10000')
             .example('$0 jobs await CLUSTER_ALIAS JOBID --status completed --timeout 10000 --start')
+            .example('$0 jobs await CLUSTER_ALIAS JOBID --status completed stopped --timeout 10000 --start')
         return yargs;
     },
     async handler(argv): Promise<void> {
         const cliConfig = new Config(argv);
         const jobs = new Jobs(cliConfig);
-        jobs.await();
+        jobs.awaitCommand();
     }
 };
 

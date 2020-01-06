@@ -78,23 +78,23 @@ export default class Jobs {
         return this.status(true, true);
     }
 
-    async awaitStatus(status: TSClientTypes.ExecutionStatus, jobFunctions: Job, timeout = 0): Promise<void> {
+    async awaitStatus(desiredStatus: TSClientTypes.ExecutionStatus, jobFunctions: Job, timeout = 0): Promise<void> {
         let currentStatus = await jobFunctions.status();
 
-        if (currentStatus === status) {
-            reply.yellow(`< job:${this.config.args.id} already ${status}`);
+        if (currentStatus === desiredStatus) {
+            reply.yellow(`> job:${this.config.args.id} already ${desiredStatus}`);
             process.exit(0);
         }
 
         try {
-            const newStatus = await jobFunctions.waitForStatus(status, 5000, timeout);
+            const newStatus = await jobFunctions.waitForStatus(desiredStatus, 5000, timeout);
             reply.green(`> job ${this.config.args.id} status changed to ${newStatus}`);
             process.exit(0);
         } catch (e) {
             currentStatus = await jobFunctions.status();
 
             if (e.message.includes('Job cannot reach the target status')
-                && this.config.args.status.includes(status)) {
+                && this.config.args.status.includes(desiredStatus)) {
                     reply.green(`> job ${this.config.args.id} status changed to ${currentStatus}`);
                     process.exit(0);
             } else {
@@ -103,24 +103,32 @@ export default class Jobs {
         }
     }
 
-    async await(): Promise<void> {
+    async awaitCommand(): Promise<void> {
         const jobFunctions = await this.teraslice.client.jobs.wrap(this.config.args.id);;
         let currentStatus = await jobFunctions.status();
-
+        
+        const desiredStatus: string[] = this.config.args.status;
+        
         if (this.config.args.start) {
             // make sure job is not already active
             // @ts-ignore
-            if (['running', 'failing', 'initializing'].includes(currentStatus)) {
-                reply.yellow(`< job:${this.config.args.id} already active with status ${currentStatus}`);
+            if (this.activeStatus.includes(currentStatus)) {
+                reply.yellow(`> job:${this.config.args.id} already active with status ${currentStatus}`);
             } else {
-                reply.yellow(`starting job ${this.config.args.id}`);
-                await jobFunctions.start();
+                reply.yellow(`> starting job ${this.config.args.id}`);
+
+                try {
+                    await jobFunctions.start();
+                    reply.yellow(`> job:${this.config.args.id} is running`);
+                } catch (e) {
+                    reply.fatal(e.message);
+                }
             }
         }
 
-        reply.green(`> waiting for job ${this.config.args.id} status to be ${this.config.args.status}`);
+        reply.green(`> waiting for job ${this.config.args.id} status to reach ${desiredStatus.join(' or ')}`);
         // @ts-ignore
-        await Promise.all(this.config.args.status.map((status: TSClientTypes.ExecutionStatus) => this.awaitStatus(status, jobFunctions, this.config.args.timeout)));
+        await Promise.all(desiredStatus.map((status: TSClientTypes.ExecutionStatus) => this.awaitStatus(status, jobFunctions, this.config.args.timeout)));
     }
 
     async status(saveState = false, showJobs = true): Promise<void> {
@@ -137,6 +145,7 @@ export default class Jobs {
         }
 
         const statusList = _.split(this.config.args.status, ',');
+
         for (const jobStatus of statusList) {
             const exResult = await this.teraslice.client.executions.list(jobStatus);
             const jobsTemp = await this.controllerStatus(exResult, jobStatus, controllers);
@@ -176,7 +185,7 @@ export default class Jobs {
         return jobs;
     }
 
-    async start(action = 'start') {
+    async start(action = 'start'): Promise<void> {
         // start job with job file
         if (!this.config.args.all) {
             const id = await this.teraslice.client.jobs.wrap(this.config.args.id).config();

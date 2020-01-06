@@ -10,7 +10,7 @@ const yargsOptions = new YargsOptions();
 
 const cmd = {
     command: 'await <job-file>',
-    describe: 'wait for job to reach a specified status',
+    describe: 'wait for job to reach a specified status, can await for more than one status',
     builder(yargs:any) {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
@@ -22,6 +22,7 @@ const cmd = {
         yargs.example('$0 tjm await FILE.JSON --status stopped');
         // @ts-ignore
         yargs.example('$0 tjm run FILE.JSON --status completed --start --timeout 1000');
+        yargs.example('$0 tjm run FILE.JSON --status completed stopped --start --timeout 1000');
         return yargs;
     },
     async handler(argv: any): Promise<void> {
@@ -30,8 +31,7 @@ const cmd = {
         // @ts-ignore
         const cliConfig = new Config(Object.assign(jobFile, argv));
         const jobs = new Jobs(cliConfig);
-        console.log(argv);
-        jobs.await();
+        jobs.awaitCommand();
     }
 };
 

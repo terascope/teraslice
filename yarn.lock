@@ -1173,6 +1173,17 @@
     multi-progress "^2.0.0"
     superagent "^5.1.0"
 
+"@terascope/job-components@^0.25.0":
+  version "0.25.0"
+  resolved "https://registry.yarnpkg.com/@terascope/job-components/-/job-components-0.25.0.tgz#2e7bc3209b7c3ae80072f34d41c4d138f66bc6fd"
+  integrity sha512-7H+Juo6pirbwHL2/t4KEW6zJKK1oBlj5nqiMlDOcbLnKv0KcvOuxvtv6r88krQg9MoFCidAPsY00O23Sly+nCg==
+  dependencies:
+    "@terascope/queue" "^1.1.7"
+    "@terascope/utils" "^0.20.7"
+    convict "^4.4.1"
+    datemath-parser "^1.0.6"
+    uuid "^3.3.3"
+
 "@turf/bbox-polygon@^6.0.1":
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/@turf/bbox-polygon/-/bbox-polygon-6.0.1.tgz#ae0fbb14558831fb34538aae089a23d3336c6379"
@@ -2328,6 +2339,11 @@ auto-bind@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/auto-bind/-/auto-bind-3.0.0.tgz#67773e64899b228f6d2a841709e7e086cfed31a3"
   integrity sha512-v0A231a/lfOo6kxQtmEkdBfTApvC21aJYukA8pkKnoTvVqh3Wmm7/Rwy4GBCHTTHVoLVA5qsBDDvf1XY1nIV2g==
+
+auto-bind@^4.0.0:
+  version "4.0.0"
+  resolved "https://npm.terascope.io/auto-bind/-/auto-bind-4.0.0.tgz#e3589fc6c2da8f7ca43ba9f84fa52a744fc997fb"
+  integrity sha512-Hdw8qdNiqdJ8LqT0iK0sVzkFbzg6fhnQqqfWhBDxcHZvU75+B+ayzTy8x+k5Ix0Y92XOhOUlx74ps+bA6BeYMQ==
 
 awesome-phonenumber@^2.22.0:
   version "2.22.0"
@@ -3664,7 +3680,42 @@ datemath-parser@^1.0.6:
   dependencies:
     moment "^2.22.2"
 
-debug@2.2.0, debug@2.3.3, debug@2.6.9, debug@3.1.0, debug@^2.2.0, debug@^2.3.3, debug@^2.6.8, debug@^2.6.9, debug@^3.1.0, debug@^3.2.6, debug@^4.0.1, debug@^4.1.0, debug@^4.1.1:
+debug@2.2.0:
+  version "2.2.0"
+  resolved "https://npm.terascope.io/debug/-/debug-2.2.0.tgz#f87057e995b1a1f6ae6a4960664137bc56f039da"
+  integrity sha1-+HBX6ZWxofauaklgZkE3vFbwOdo=
+  dependencies:
+    ms "0.7.1"
+
+debug@2.3.3:
+  version "2.3.3"
+  resolved "https://npm.terascope.io/debug/-/debug-2.3.3.tgz#40c453e67e6e13c901ddec317af8986cda9eff8c"
+  integrity sha1-QMRT5n5uE8kB3ewxeviYbNqe/4w=
+  dependencies:
+    ms "0.7.2"
+
+debug@2.6.9, debug@^2.2.0, debug@^2.3.3, debug@^2.6.8, debug@^2.6.9:
+  version "2.6.9"
+  resolved "https://npm.terascope.io/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
+  integrity sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==
+  dependencies:
+    ms "2.0.0"
+
+debug@3.1.0:
+  version "3.1.0"
+  resolved "https://npm.terascope.io/debug/-/debug-3.1.0.tgz#5bb5a0672628b64149566ba16819e61518c67261"
+  integrity sha512-OX8XqP7/1a9cqkxYw2yXss15f26NKWBpDXQd0/uK/KPqdQhxbPa994hnzjcE2VqQpDslf55723cKPUOGSmMY3g==
+  dependencies:
+    ms "2.0.0"
+
+debug@^3.1.0, debug@^3.2.6:
+  version "3.2.6"
+  resolved "https://npm.terascope.io/debug/-/debug-3.2.6.tgz#e83d17de16d8a7efb7717edbe5fb10135eee629b"
+  integrity sha512-mel+jf7nrtEl5Pn1Qx46zARXKDpBbvzezse7p7LqINmdoIk8PYP5SySaxEmYv6TZ0JyEKA1hsCId6DIhgITtWQ==
+  dependencies:
+    ms "^2.1.1"
+
+debug@^4.0.1, debug@^4.1.0, debug@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/debug/-/debug-4.1.1.tgz#3b72260255109c6b589cee050f1d516139664791"
   integrity sha512-pYAIzeRo8J6KPEaJ0VWOh5Pzkbw/RetuzehGM7QRRX5he4fPHx2rdKMB256ehJCkX+XRQm16eZLqLNS8RSZXZw==
@@ -7809,7 +7860,27 @@ mquery@3.2.2:
     safe-buffer "5.1.2"
     sliced "1.0.1"
 
-ms@2.1.1, ms@2.1.2, ms@^2.0.0, ms@^2.1.1, ms@^2.1.2:
+ms@0.7.1:
+  version "0.7.1"
+  resolved "https://npm.terascope.io/ms/-/ms-0.7.1.tgz#9cd13c03adbff25b65effde7ce864ee952017098"
+  integrity sha1-nNE8A62/8ltl7/3nzoZO6VIBcJg=
+
+ms@0.7.2:
+  version "0.7.2"
+  resolved "https://npm.terascope.io/ms/-/ms-0.7.2.tgz#ae25cf2512b3885a1d95d7f037868d8431124765"
+  integrity sha1-riXPJRKziFodldfwN4aNhDESR2U=
+
+ms@2.0.0:
+  version "2.0.0"
+  resolved "https://npm.terascope.io/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
+  integrity sha1-VgiurfwAvmwpAd9fmGF4jeDVl8g=
+
+ms@2.1.1:
+  version "2.1.1"
+  resolved "https://npm.terascope.io/ms/-/ms-2.1.1.tgz#30a5864eb3ebb0a66f2ebe6d727af06a09d86e0a"
+  integrity sha512-tgp+dl5cGk28utYktBsrFqA7HKgrhgPsg6Z/EfhWI4gl1Hwq8B/GmY/0oXZ6nF8hDVesS/FpnYaD/kOWhYQvyg==
+
+ms@2.1.2, ms@^2.0.0, ms@^2.1.1, ms@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
   integrity sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
@@ -10773,6 +10844,15 @@ temp-write@^3.4.0:
     pify "^3.0.0"
     temp-dir "^1.0.0"
     uuid "^3.0.1"
+
+teraslice-client-js@^0.11.0:
+  version "0.11.0"
+  resolved "https://npm.terascope.io/teraslice-client-js/-/teraslice-client-js-0.11.0.tgz#f637fc2933f4f43dd0889465ca7b8be5ba822460"
+  integrity sha512-r8aGEUEiJrPIvDZlIrB9u500l/yN+LptprTcYEKbg+D7n9pc4xos0652p/F9nbZfBM4259+w/rkjHx/bX2/1gQ==
+  dependencies:
+    "@terascope/job-components" "^0.25.0"
+    auto-bind "^4.0.0"
+    got "^9.6.0"
 
 term-size@^1.2.0:
   version "1.2.0"
