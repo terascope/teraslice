@@ -42,6 +42,66 @@ export default [
         },
     ],
     [
+        'NOT name:$foo',
+        'negate a single field/value with variables',
+        {
+            type: ASTType.Negation,
+            node: {
+                type: ASTType.Term,
+                field_type: FieldType.String,
+                field: 'name',
+                value: 'Madman',
+            },
+        },
+        { name: FieldType.String },
+        { foo: 'Madman' }
+    ],
+    [
+        '(NOT name:$foo)',
+        'negate with parens and a single field/value with variables',
+        {
+            type: ASTType.Negation,
+            node: {
+                type: ASTType.Term,
+                field_type: FieldType.String,
+                field: 'name',
+                value: 'Madman',
+            },
+        },
+        { name: FieldType.String },
+        { foo: 'Madman' }
+    ],
+    [
+        '!name:$foo',
+        'negate a single field/value with variables',
+        {
+            type: ASTType.Negation,
+            node: {
+                type: ASTType.Term,
+                field_type: FieldType.String,
+                field: 'name',
+                value: 'Madman',
+            },
+        },
+        { name: FieldType.String },
+        { foo: 'Madman' }
+    ],
+    [
+        '!(name:$foo)',
+        'parens negate a single field/value with variables',
+        {
+            type: ASTType.Negation,
+            node: {
+                type: ASTType.Term,
+                field_type: FieldType.String,
+                field: 'name',
+                value: 'Madman',
+            },
+        },
+        { name: FieldType.String },
+        { foo: 'Madman' }
+    ],
+    [
         'foo:bar NOT name:Madman',
         'simple NOT conjunction',
         {

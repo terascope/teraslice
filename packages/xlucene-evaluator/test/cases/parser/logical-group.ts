@@ -27,6 +27,32 @@ export default [
         },
     ],
     [
+        'a:$foo AND b:$bar',
+        'a simple AND conjunction with variables',
+        {
+            type: ASTType.LogicalGroup,
+            flow: [
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field: 'a',
+                            value: 1,
+                        },
+                        {
+                            type: ASTType.Term,
+                            field: 'b',
+                            value: 1,
+                        },
+                    ],
+                },
+            ],
+        },
+        { a: FieldType.Integer, b: FieldType.Integer },
+        { foo: 1, bar: 1 }
+    ],
+    [
         '(a:1 AND b:1)',
         'a simple AND conjunction',
         {

@@ -1,4 +1,5 @@
 import { Logger, TSError, getTypeOf } from '@terascope/utils';
+import { isRegExp } from 'util';
 import { parseGeoDistance, parseGeoPoint } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
@@ -110,7 +111,7 @@ export default function makeContext(args: any) {
     // cannot allow variables that are objects, errors, maps, sets, buffers
     function validateRestrictedVariable(variable: any, varName: string) {
         const type = getTypeOf(variable);
-        if (!['String', 'Number', 'Boolean'].includes(type)) {
+        if (!['String', 'Number', 'Boolean', 'RegExp'].includes(type)) {
             throw new Error(`Unsupported type of ${type} received for variable $${varName}`);
         }
     }
@@ -122,6 +123,7 @@ export default function makeContext(args: any) {
 
         const fieldType = getFieldType(field);
         if (fieldType === node.field_type) return;
+
         logger.trace(
             `coercing field "${field}":${node.value} type of ${node.field_type} to ${fieldType}`
         );
@@ -149,10 +151,15 @@ export default function makeContext(args: any) {
         }
 
         if (fieldType === FieldType.Integer) {
-            node.field_type = fieldType;
-            delete node.quoted;
-            delete node.restricted;
-            node.value = parseInt(node.value, 10);
+            if (utils.isRange(node)) {
+                node.left.field_type = fieldType;
+                if (node.right) node.right.field_type = fieldType;
+            } else {
+                delete node.quoted;
+                delete node.restricted;
+                node.field_type = fieldType;
+                node.value = parseInt(node.value, 10);
+            }
             return;
         }
 
@@ -166,8 +173,14 @@ export default function makeContext(args: any) {
 
         if (fieldType === FieldType.String) {
             node.field_type = fieldType;
-            node.quoted = false;
-            node.value = `${node.value}`;
+
+            if (isRegExp(node.value)) {
+                node.type = i.ASTType.Regexp;
+                node.value = node.value.source;
+            } else {
+                node.quoted = false;
+                node.value = `${node.value}`;
+            }
         }
     }
 

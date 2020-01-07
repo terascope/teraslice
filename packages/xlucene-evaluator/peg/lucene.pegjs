@@ -124,10 +124,10 @@ OrConjunction
     }
 
 TermGroup
-    = NegationExpression / ParensGroup / TermExpression
+    = NegationExpression / ParensGroup / VariableType / TermExpression
 
 FieldOrQuotedTermGroup
-    = ParensGroup / FieldOrQuotedTermExpression
+    = ParensGroup / VariableType / FieldOrQuotedTermExpression
 
 NegationExpression
     = 'NOT' ws+ node:NegatedTermGroup {
@@ -178,7 +178,7 @@ BaseTermExpression
     }
     / field:FieldName ws* FieldSeparator ws* term:(RegexpType/QuotedStringType) {
         const node = { ...term, field };
-        coerceTermType(node);
+        coerceTermType(node, field);
         return node;
     }
     / FunctionExpression
@@ -187,7 +187,7 @@ BaseTermExpression
     / FieldGroup
     / field:FieldName ws* FieldSeparator ws* term:(ParensStringType/WildcardType) {
         const node = { ...term, field };
-        coerceTermType(node);
+        coerceTermType(node, field);
         return node;
     }
     / field:FieldName ws* FieldSeparator ws* value:RestrictedString &{
@@ -201,7 +201,7 @@ BaseTermExpression
     }
     / field:FieldName ws* FieldSeparator ws* term:(BooleanType / FloatType / IntegerType / RestrictedStringType) {
         const node = { ...term, field };
-        coerceTermType(node);
+        coerceTermType(node, field);
         return node;
     }
 
@@ -210,7 +210,7 @@ VariableExpression
         const key = chars.join('');
         const value = getVariable(key);
         const node = { value, field, type: i.ASTType.Term };
-        coerceTermType(node);
+        coerceTermType(node, field);
         return node;
     }
 
@@ -229,7 +229,7 @@ RestrictedVariableExpression
         }
         validateRestrictedVariable(value, key)
         const node = { value, field, type: i.ASTType.Term };
-        coerceTermType(node);
+        coerceTermType(node, field);
         return node;
     }
 
@@ -412,12 +412,14 @@ RightRangeType
 RangeTermType
     = FloatType
     / IntegerType
+    / VariableType
     / QuotedStringType
     / RestrictedStringType
 
 // Term type that probably are right
 TermType
-    = RegexpType
+    = VariableType
+    / RegexpType
     / QuotedStringType
     / ParensStringType
     / WildcardType
@@ -442,6 +444,15 @@ PostiveInfinityType
             field_type: FieldType.Integer,
             value: Number.POSITIVE_INFINITY
         }
+    }
+
+VariableType
+    = VariableSign chars:VariableChar+ {
+        const key = chars.join('');
+        const value = getVariable(key);
+        const node = { value, type: i.ASTType.Term };
+        coerceTermType(node);
+        return node;
     }
 
 FloatType
