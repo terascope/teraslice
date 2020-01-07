@@ -277,14 +277,14 @@ teraslice-cli tjm stop JOB.JSON
 
 ### tjm await
 
-Waits for the status of a job to change to a specified status then exits.
+Waits for job to reach specified status
 
 - `--status` The status to wait on, once the job gets to specified status the cli exits
-  - default if stopped or completed
-  - can enter more than one status, must be seperated by a space
-- `--timeout` Time in microseconds, how long to wait for job to reach specified status
+  - defaults to stopped or completed if not specified
+  - can enter more than one status seperated by a space
+- `--timeout` Time in microseconds, how long to wait for the job to reach the status
   - default is forever
-- `--start` Starts job if not already started
+- `--start` Start the job then await for status
 
 ```sh
 teraslice-cli tjm await JOB.JSON
@@ -357,11 +357,11 @@ teraslice-cli jobs restart local --all -y
 Waits for job to reach a specified status
 
 - `--status` The status to wait on, once the job gets to specified status the cli exits
-  - default if stopped or completed
-  - can enter more than one status, must be seperated by a space
-- `--timeout` Time in microseconds, how long to wait for job to reach status
+  - defaults to stopped or completed if not specified
+  - can enter more than one status seperated by a space
+- `--timeout` Time in microseconds, how long to wait for the job to reach the status
   - default is forever
-- `--start` Starts job if not already started
+- `--start` Start the job then await for status
 
 ```sh
 teraslice-cli jobs await <cluster> <job_id>

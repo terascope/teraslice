@@ -30,7 +30,7 @@ export = {
         const active = false;
         const parse = false;
         const cliConfig = new Config(argv);
-        const teraslice: TerasliceUtil = new TerasliceUtil(cliConfig);
+        const teraslice = new TerasliceUtil(cliConfig);
         const header = ['ex_id', 'slice_id', 'slicer_id', 'slicer_order', 'state', '_created', '_updated', 'error'];
         const format = `${cliConfig.args.output}Horizontal`;
 
