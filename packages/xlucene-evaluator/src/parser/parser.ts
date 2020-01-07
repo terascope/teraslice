@@ -22,21 +22,26 @@ export class Parser {
 
         this.query = trim(query || '');
 
+        const variables = options.variables ? utils.validateVariables(options.variables) : {};
         const contextArg = {
             typeConfig: options.type_config,
+            variables,
             logger: this.logger
         };
 
         try {
-            this.ast = parse(this.query, {
-                // pass in a context the certian variables
-                // and functions can be passed in
-                // in the parser as options.typeConfig
-                // @ts-ignore
-                contextArg,
+            this.ast = parse(this.query, { contextArg });
+
+            this.forTypes([i.ASTType.Function], (_node) => {
+                const node = _node as i.FunctionNode;
+                // @ts-ignore we are delaying instantiation
+                if (node.instance) node.instance = node.instance();
             });
-            const astJSON = JSON.stringify(this.ast, null, 4);
-            this.logger.trace(`parsed ${this.query ? this.query : "''"} to `, astJSON);
+
+            if (this.logger.level() === 10) {
+                const astJSON = JSON.stringify(this.ast, null, 4);
+                this.logger.trace(`parsed ${this.query ? this.query : "''"} to `, astJSON);
+            }
         } catch (err) {
             if (err && err.message.includes('Expected ,')) {
                 err.message = err.message.replace('Expected ,', 'Expected');

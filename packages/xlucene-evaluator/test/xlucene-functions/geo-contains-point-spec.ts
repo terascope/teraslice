@@ -34,9 +34,40 @@ describe('geoContainsPoint', () => {
         expect(instance.toElasticsearchQuery).toBeFunction();
     });
 
+    it('can instantiate with variables', () => {
+        const variables = {
+            point1: { lat: 36.03133177633187, lon: -116.3671875 },
+        };
+        const query = 'location:geoContainsPoint(point: $point1)';
+        const {
+            ast: {
+                name, type, field, instance
+            }
+        } = new Parser(query, {
+            type_config: typeConfig,
+            variables
+        });
+
+        expect(name).toEqual('geoContainsPoint');
+        expect(type).toEqual('function');
+        expect(field).toEqual('location');
+        expect(instance.match).toBeFunction();
+        expect(instance.toElasticsearchQuery).toBeFunction();
+    });
+
     describe('elasticsearch dsl', () => {
-        it('can produce proper elasticsearch DSL', () => {
+        it('can produce proper elasticsearch DSL (variable queries included)', () => {
             expect.hasAssertions();
+
+            const variables = {
+                point1: { lat: 36.03133177633187, lon: -116.3671875 },
+                point2: '36.03133177633187,-116.3671875',
+                point3: {
+                    type: GeoShapeType.Point,
+                    coordinates: [-116.3671875, 36.03133177633187]
+                },
+                point4: [-116.3671875, 36.03133177633187]
+            };
 
             const results = {
                 geo_shape: {
@@ -55,10 +86,14 @@ describe('geoContainsPoint', () => {
                 'location: geoContainsPoint(point:     "36.03133177633187,-116.3671875")',
                 'location:geoContainsPoint(point:"36.03133177633187,        -116.3671875")',
                 'location:geoContainsPoint(       point:"36.03133177633187,        -116.3671875")',
+                'location:geoContainsPoint(point: $point1)',
+                'location:geoContainsPoint(point: $point2)',
+                'location:geoContainsPoint(point: $point3)',
+                'location:geoContainsPoint(point: $point4)'
             ];
 
             const astResults = queries
-                .map((query) => new Parser(query, { type_config: typeConfig }))
+                .map((query) => new Parser(query, { type_config: typeConfig, variables }))
                 .map((parser) => parser.ast.instance.toElasticsearchQuery('location', options));
 
             astResults.forEach((ast) => {
@@ -70,18 +105,16 @@ describe('geoContainsPoint', () => {
 
     describe('matcher', () => {
         const pointInPoly: CoordinateTuple = [15, 15];
-        const pointOutOfPoly: CoordinateTuple = [30, 30];
+        const pointOutOfPoly: CoordinateTuple = [-30, -30];
 
         const multiPolygon = {
             type: GeoShapeType.MultiPolygon,
             coordinates: [
                 [
-                    [[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]],
-                    [[20, 20], [40, 20], [40, 40], [20, 40], [20, 20]]
+                    [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
                 ],
                 [
-                    [[-10, -10], [-50, -10], [-50, -50], [-10, -50], [-10, -10]],
-                    [[-20, -20], [-40, -20], [-40, -40], [-20, -40], [-20, -20]]
+                    [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
                 ]
             ]
         };
@@ -89,23 +122,23 @@ describe('geoContainsPoint', () => {
         const polygon = {
             type: GeoShapeType.Polygon,
             coordinates: [
-                [[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]],
+                [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
             ]
         };
 
         const nonMatchingPolygon = {
             type: GeoShapeType.Polygon,
             coordinates: [
-                [[-10, -10], [-50, -10], [-50, -50], [-10, -50], [-10, -10]],
-                [[-20, -20], [-40, -20], [-40, -40], [-20, -40], [-20, -20]]
+                [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
+                [[-20, -20], [-20, -40], [-40, -40], [-40, -20], [-20, -20]]
             ]
         };
 
         const polygonWithHoles = {
             type: GeoShapeType.Polygon,
             coordinates: [
-                [[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]],
-                [[20, 20], [40, 20], [40, 40], [20, 40], [20, 20]]
+                [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+                [[20, 20], [20, 40], [40, 40], [40, 20], [20, 20]]
             ]
         };
 
@@ -156,6 +189,21 @@ describe('geoContainsPoint', () => {
 
             const { ast: { instance: { match } } } = new Parser(query, {
                 type_config: typeConfig
+            });
+
+            expect(match(matchingPoint)).toEqual(true);
+            expect(match(nonMatchingPoint)).toEqual(false);
+        });
+
+        it('matcher can work with variables', () => {
+            const variables = {
+                point1: matchingPoint
+            };
+            const query = 'location:geoContainsPoint(point:$point1)';
+
+            const { ast: { instance: { match } } } = new Parser(query, {
+                type_config: typeConfig,
+                variables
             });
 
             expect(match(matchingPoint)).toEqual(true);

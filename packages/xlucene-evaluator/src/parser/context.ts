@@ -1,15 +1,17 @@
-import { Logger } from '@terascope/utils';
+import { Logger, TSError, getTypeOf } from '@terascope/utils';
+import { isRegExp } from 'util';
 import { parseGeoDistance, parseGeoPoint } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
 import xluceneFunctions from './functions';
-import { TypeConfig, FieldType } from '../interfaces';
+import { TypeConfig, FieldType, Variables } from '../interfaces';
 
 export default function makeContext(args: any) {
     let typeConfig: TypeConfig;
+    let variables: Variables;
     let logger: Logger;
     // eslint-disable-next-line
-    ({ typeConfig = {}, logger } = args);
+    ({ typeConfig = {}, variables = {}, logger } = args);
     if (!typeConfig || !logger) {
         throw new Error('Peg Engine given invalid context');
     }
@@ -54,6 +56,13 @@ export default function makeContext(args: any) {
         return typeConfig[field];
     }
 
+    function getVariable(value: string) {
+        const variable = variables[value];
+        if (variable === undefined) throw new TSError(`Could not find a variable set with key "${value}"`);
+        if (Array.isArray(variable)) return variable.slice();
+        return variable;
+    }
+
     const inferredFieldTypes = [FieldType.String];
     function isInferredTermType(field: string): boolean {
         const fieldType = getFieldType(field);
@@ -81,10 +90,30 @@ export default function makeContext(args: any) {
     }
 
     function parseFunction(field: string, name: string, params: i.Term[]) {
-        // TODO: get better types name
         const fnType = xluceneFunctions[name];
         if (fnType == null) throw new Error(`Could not find an xlucene function with name "${name}"`);
-        return fnType.create(field, params, { logger, typeConfig });
+        // we are delaying instantiation until after parser since this can be called multiple times
+        return () => fnType.create(field, params, { logger, typeConfig });
+    }
+
+    function makeFlow(field: string, values: any[], varName: string) {
+        return values.map((value) => {
+            validateRestrictedVariable(value, varName);
+            const node = { field, type: i.ASTType.Term, value };
+            coerceTermType(node);
+            // this creates an OR statement
+            return {
+                type: i.ASTType.Conjunction,
+                nodes: [node]
+            };
+        });
+    }
+    // cannot allow variables that are objects, errors, maps, sets, buffers
+    function validateRestrictedVariable(variable: any, varName: string) {
+        const type = getTypeOf(variable);
+        if (!['String', 'Number', 'Boolean', 'RegExp'].includes(type)) {
+            throw new Error(`Unsupported type of ${type} received for variable $${varName}`);
+        }
     }
 
     function coerceTermType(node: any, _field?: string) {
@@ -94,6 +123,7 @@ export default function makeContext(args: any) {
 
         const fieldType = getFieldType(field);
         if (fieldType === node.field_type) return;
+
         logger.trace(
             `coercing field "${field}":${node.value} type of ${node.field_type} to ${fieldType}`
         );
@@ -121,10 +151,15 @@ export default function makeContext(args: any) {
         }
 
         if (fieldType === FieldType.Integer) {
-            node.field_type = fieldType;
-            delete node.quoted;
-            delete node.restricted;
-            node.value = parseInt(node.value, 10);
+            if (utils.isRange(node)) {
+                node.left.field_type = fieldType;
+                if (node.right) node.right.field_type = fieldType;
+            } else {
+                delete node.quoted;
+                delete node.restricted;
+                node.field_type = fieldType;
+                node.value = parseInt(node.value, 10);
+            }
             return;
         }
 
@@ -138,8 +173,14 @@ export default function makeContext(args: any) {
 
         if (fieldType === FieldType.String) {
             node.field_type = fieldType;
-            node.qouted = false;
-            node.value = `${node.value}`;
+
+            if (isRegExp(node.value)) {
+                node.type = i.ASTType.Regexp;
+                node.value = node.value.source;
+            } else {
+                node.quoted = false;
+                node.value = `${node.value}`;
+            }
         }
     }
 
@@ -151,6 +192,9 @@ export default function makeContext(args: any) {
         parseInferredTermType,
         isInferredTermType,
         propagateDefaultField,
-        parseFunction
+        parseFunction,
+        getVariable,
+        makeFlow,
+        validateRestrictedVariable
     };
 }

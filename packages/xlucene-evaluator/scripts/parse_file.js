@@ -6,7 +6,7 @@ const readline = require('readline');
 const filePath = process.argv[2];
 const { DocumentMatcher } = require('../dist/src');
 
-if (!filePath) throw new Error('a file path must be provided ie "node scripts/parse_file.js path/to/file.txt"');
+if (!filePath) throw new Error('A file path must be provided ie "node scripts/parse_file.js path/to/file.txt"');
 
 const rl = readline.createInterface({
     input: fs.createReadStream(filePath)

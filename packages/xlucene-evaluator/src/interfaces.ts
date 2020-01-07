@@ -1,14 +1,16 @@
+import { AnyObject } from '@terascope/utils';
+
 type GeoPointArr = [number, number];
 type GeoPointStr = string;
 type GeoObjShort = {lat: string | number; lon: string | number};
 type GeoObjLong = {latitude: string | number; longitude: string | number};
+
 export type GeoPointInput =
     GeoPointArr|
     GeoPointStr|
     GeoObjShort|
     GeoObjLong|
-    number[]|
-    object;
+    GeoShapePoint;
 
 export interface GeoDistanceObj {
     distance: number;
@@ -72,3 +74,19 @@ export interface TypeConfig {
 }
 
 export type JoinBy = 'AND'|'OR';
+
+export interface Variables {
+    [key: string]: any;
+}
+
+export interface JoinQueryResult {
+    query: string;
+    variables: Variables;
+}
+
+export type CreateJoinQueryOptions = {
+    typeConfig?: TypeConfig;
+    fieldParams?: Record<string, string>;
+    joinBy?: JoinBy;
+    variables?: AnyObject;
+};
