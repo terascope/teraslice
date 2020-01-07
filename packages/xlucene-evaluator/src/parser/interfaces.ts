@@ -4,12 +4,14 @@ import {
     GeoPoint,
     GeoDistanceUnit,
     TypeConfig,
-    FieldType
+    FieldType,
+    Variables
 } from '../interfaces';
 
 export interface ParserOptions {
     type_config?: TypeConfig;
     logger?: Logger;
+    variables?: Variables;
 }
 
 export type AST = EmptyAST & LogicalGroup & Term
@@ -74,7 +76,7 @@ export interface AnyDataType {
      * in the type_config
     */
     field_type: FieldType;
-    value: string|number|boolean;
+    value: string|number|boolean|any;
 }
 
 export interface NumberDataType {

@@ -5,6 +5,7 @@ import {
     TypeConfig,
     GeoShapeRelation,
     CoordinateTuple,
+    Variables,
 } from '../interfaces';
 
 export type SortOrder = 'asc'|'desc';
@@ -15,6 +16,7 @@ export type TranslatorOptions = {
     default_geo_field?: string;
     default_geo_sort_order?: SortOrder;
     default_geo_sort_unit?: GeoDistanceUnit|string;
+    variables?: Variables;
 };
 
 export type UtilsTranslateQueryOptions = {

@@ -1,6 +1,11 @@
-import { isString, isEmpty } from '@terascope/utils';
+import {
+    isString,
+    isEmpty,
+    isPlainObject,
+    TSError
+} from '@terascope/utils';
 import * as i from './interfaces';
-import { FieldType } from '../interfaces';
+import { FieldType, Variables } from '../interfaces';
 import { isWildCardString } from '../document-matcher/logic-builder/string';
 
 export function isLogicalGroup(node: any): node is i.LogicalGroup {
@@ -103,4 +108,9 @@ export const groupTypes: i.ASTType[] = [i.ASTType.LogicalGroup, i.ASTType.FieldG
 
 export function isGroupLike(node: any): node is i.GroupLikeAST {
     return node && groupTypes.includes(node.type);
+}
+
+export function validateVariables(obj: Variables): Variables {
+    if (!isPlainObject(obj)) throw new TSError('Invalid variables configuration provided, it must be an object');
+    return obj;
 }

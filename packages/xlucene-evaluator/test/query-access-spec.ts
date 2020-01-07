@@ -523,14 +523,14 @@ describe('QueryAccess', () => {
             }
         });
 
-        it('should be able to return a restricted query', () => {
+        it('should be able to return a restricted query', async () => {
             const params: SearchParams = {
                 q: 'idk',
                 _sourceInclude: ['moo'],
                 _sourceExclude: ['baz'],
             };
 
-            const result = queryAccess.restrictSearchQuery('foo:bar', {
+            const result = await queryAccess.restrictSearchQuery('foo:bar', {
                 params
             });
             expect(result).toMatchObject({
@@ -542,8 +542,8 @@ describe('QueryAccess', () => {
             expect(result).not.toHaveProperty('q', 'idk');
         });
 
-        it('should be able to allow * queries', () => {
-            const result = queryAccess.restrictSearchQuery('*');
+        it('should be able to allow * queries', async () => {
+            const result = await queryAccess.restrictSearchQuery('*');
             expect(result).toEqual({
                 body: {
                     query: {
@@ -561,8 +561,8 @@ describe('QueryAccess', () => {
             });
         });
 
-        it('should be able to return a restricted query without any params', () => {
-            const result = queryAccess.restrictSearchQuery('foo:bar');
+        it('should be able to return a restricted query without any params', async () => {
+            const result = await queryAccess.restrictSearchQuery('foo:bar');
             expect(result).toMatchObject({
                 _sourceExclude: ['bar', 'baz'],
                 _sourceInclude: ['foo', 'moo'],
@@ -571,9 +571,9 @@ describe('QueryAccess', () => {
             expect(result).not.toHaveProperty('q', 'idk');
         });
 
-        it('should be able to return a restricted geo query and add the geo sort', () => {
+        it('should be able to return a restricted geo query and add the geo sort', async () => {
             const q = 'foo:(_geo_point_:"33.435518,-111.873616" _geo_distance_:5000yd)';
-            const result = queryAccess.restrictSearchQuery(q, {
+            const result = await queryAccess.restrictSearchQuery(q, {
                 geo_sort_order: 'asc'
             });
 
@@ -593,9 +593,9 @@ describe('QueryAccess', () => {
             });
         });
 
-        it('should be able to return a query with a default sort when geo_sort_point is passed in', () => {
+        it('should be able to return a query with a default sort when geo_sort_point is passed in', async () => {
             const q = 'foo:bar';
-            const result = queryAccess.restrictSearchQuery(q, {
+            const result = await queryAccess.restrictSearchQuery(q, {
                 geo_sort_point: {
                     lat: 55.435518,
                     lon: -101.873616,
@@ -618,9 +618,9 @@ describe('QueryAccess', () => {
             });
         });
 
-        it('can process quoted values correctly', () => {
+        it('can process quoted values correctly', async () => {
             const q = 'foo:"something-xy40\\" value 8008"';
-            const result = queryAccess.restrictSearchQuery(q);
+            const result = await queryAccess.restrictSearchQuery(q);
 
             expect(result).toMatchObject({
                 body: {
@@ -645,6 +645,201 @@ describe('QueryAccess', () => {
                     'bar',
                     'baz'
                 ]
+            });
+        });
+    });
+
+    describe('can work with variables', () => {
+        const queryAccess = new QueryAccess({
+            allow_implicit_queries: true,
+            excludes: [],
+            includes: [],
+        }, {
+            type_config: {
+                foo: FieldType.String,
+                bar: FieldType.String,
+            },
+            variables: {
+                foo1: 'hello world',
+                foo2: ['some', 'thing'],
+                bar1: 'I am bar',
+            }
+        });
+
+        it('should be able to return string variable elasticsearch dsl', async () => {
+            const q = 'foo:$foo1';
+            const result = await queryAccess.restrictSearchQuery(q);
+
+            expect(result).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                match: {
+                                    foo: {
+                                        operator: 'and',
+                                        query: 'hello world'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                _sourceInclude: [],
+                _sourceExclude: []
+            });
+        });
+
+        it('should be able to return array string variable elasticsearch dsl', async () => {
+            const q = 'foo:$foo2';
+            const result = await queryAccess.restrictSearchQuery(q);
+
+            expect(result).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                bool: {
+                                    should: [
+                                        {
+                                            bool: {
+                                                filter: [
+                                                    {
+                                                        match: {
+                                                            foo: {
+                                                                operator: 'and',
+                                                                query: 'some'
+                                                            }
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            bool: {
+                                                filter: [
+                                                    {
+                                                        match: {
+                                                            foo: {
+                                                                operator: 'and',
+                                                                query: 'thing'
+                                                            }
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                _sourceInclude: [],
+                _sourceExclude: []
+            });
+        });
+
+        it('should be able to add additonal varaibles', async () => {
+            const variables = {
+                foo3: 'iamvariable'
+            };
+            const q = 'foo:$foo3';
+            const result = await queryAccess.restrictSearchQuery(q, { variables });
+
+            expect(result).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                match: {
+                                    foo: {
+                                        operator: 'and',
+                                        query: variables.foo3
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                _sourceInclude: [],
+                _sourceExclude: []
+            });
+        });
+
+        it('should be able to override default variables', async () => {
+            const variables = {
+                bar1: 'iamvariable'
+            };
+            const q = 'foo:$bar1';
+            const result = await queryAccess.restrictSearchQuery(q, { variables });
+
+            expect(result).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                match: {
+                                    foo: {
+                                        operator: 'and',
+                                        query: variables.bar1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                _sourceInclude: [],
+                _sourceExclude: []
+            });
+        });
+
+        it('does not used cached translator if variables have changed', async () => {
+            const q1 = 'bar:$bar1';
+            const result1 = await queryAccess.restrictSearchQuery(q1);
+
+            expect(result1).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                match: {
+                                    bar: {
+                                        operator: 'and',
+                                        query: 'I am bar'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                _sourceInclude: [],
+                _sourceExclude: []
+            });
+
+            const variables = {
+                bar1: 'i-am-a-variable'
+            };
+            const q2 = 'bar:$bar1';
+            const result2 = await queryAccess.restrictSearchQuery(q2, { variables });
+
+            expect(result2).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                match: {
+                                    bar: {
+                                        operator: 'and',
+                                        query: variables.bar1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                _sourceInclude: [],
+                _sourceExclude: []
             });
         });
     });

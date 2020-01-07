@@ -8,6 +8,12 @@ export default [
         field: 'example',
         value: '[a-z]+'
     }],
+    ['example: $foo', 'a basic regexp with variables', {
+        type: ASTType.Regexp,
+        field_type: FieldType.String,
+        field: 'example',
+        value: '[a-z]+'
+    }, { example: FieldType.String }, { foo: /[a-z]+/ }],
     ['example:/foo:bar/', 'a regexp with a colon', {
         type: ASTType.Regexp,
         field_type: FieldType.String,

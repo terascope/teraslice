@@ -11,6 +11,15 @@ export default [
             value: 10
         }
     }],
+    ['count: >=$foo', 'gte ranges with variables', {
+        type: ASTType.Range,
+        field: 'count',
+        left: {
+            operator: 'gte',
+            field_type: FieldType.Integer,
+            value: 10
+        }
+    }, { count: FieldType.Integer }, { foo: 10 }],
     ['count:>10', 'gt ranges', {
         type: ASTType.Range,
         field: 'count',
@@ -52,6 +61,20 @@ export default [
             value: 5,
         }
     }],
+    ['count:[$foo TO $bar]', 'inclusive ranges with integers with variables', {
+        type: ASTType.Range,
+        field: 'count',
+        left: {
+            operator: 'gte',
+            field_type: FieldType.Integer,
+            value: 1,
+        },
+        right: {
+            operator: 'lte',
+            field_type: FieldType.Integer,
+            value: 5,
+        }
+    }, { count: FieldType.Integer }, { foo: 1, bar: 5 }],
     ['count:[1.5 TO 5.3]', 'inclusive ranges with floats', {
         type: ASTType.Range,
         field: 'count',
