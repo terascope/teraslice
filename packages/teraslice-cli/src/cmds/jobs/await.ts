@@ -1,5 +1,6 @@
 import { CMD } from '../../interfaces';
 import Config from '../../helpers/config';
+import * as TSClientTypes from 'teraslice-client-js';
 import YargsOptions from '../../helpers/yargs-options';
 import Jobs from '../../helpers/jobs';
 import Reply from '../lib/reply';
@@ -26,11 +27,24 @@ const cmd: CMD = {
         const cliConfig = new Config(argv);
         const jobs = new Jobs(cliConfig);
 
-        try {
-            jobs.awaitCommand();
-        } catch (e) {
-            reply.fatal(e.message);
+        const desiredStatus: TSClientTypes.ExecutionStatus[] = jobs.config.args.status;
+
+        if (jobs.config.args.start) {
+            // hack to get jobs.start to work without printing out too much stuff
+            jobs.config.args.status = 'running,failing';
+    
+            await jobs.start();
         }
+
+        // @ts-ignore
+        const newStatus = await Promise.all(desiredStatus.map(
+            (status) => jobs.awaitStatus(
+                status,
+                jobs.teraslice.client.jobs.wrap(jobs.config.args.id),
+                jobs.config.args.timeout)
+        ));
+
+        reply.green(`> job: ${jobs.config.args.id} reached status: ${status}`);
     }
 };
 

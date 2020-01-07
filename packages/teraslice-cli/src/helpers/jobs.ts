@@ -77,74 +77,23 @@ export default class Jobs {
         return this.status(true, true);
     }
 
-    async currentJobStatus(jobFunctions: TSClientTypes.Job) {
-        try {
-            return jobFunctions.status();
-        } catch (e) {
-            reply.fatal(e.message);
-        }
-    }
-
     async awaitStatus(
         desiredStatus: TSClientTypes.ExecutionStatus,
         jobFunctions: TSClientTypes.Job,
         timeout = 0
-    ): Promise<void> {
+    ) {
         try {
-            const newStatus = await jobFunctions.waitForStatus(desiredStatus, 5000, timeout);
-            reply.green(`> job ${this.config.args.id} status changed to ${newStatus}`);
-            process.exit(0);
+            return jobFunctions.waitForStatus(desiredStatus, 5000, timeout);
         } catch (e) {
             // don't want to throw an error if job reaches any of the desired statuses
-            const currentStatus = await this.currentJobStatus(jobFunctions);
+            const currentStatus = await jobFunctions.status()
 
             if (e.message.includes('Job cannot reach the target status')
                 && this.config.args.status.includes(currentStatus)) {
-                reply.green(`> job: ${this.config.args.id} status changed to ${currentStatus}`);
-                process.exit(0);
+                return currentStatus;
             }
             reply.fatal(e.message);
         }
-    }
-
-    async awaitCommand(): Promise<void> {
-        const jobFunctions = await this.teraslice.client.jobs.wrap(this.config.args.id);
-
-        const desiredStatus: TSClientTypes.ExecutionStatus[] = this.config.args.status;
-
-        if (this.config.args.start) {
-            const currentStatus = await this.currentJobStatus(jobFunctions);
-            // @ts-ignore
-            if (this.activeStatus.includes(currentStatus)) {
-                reply.yellow(`> job: ${this.config.args.id} already active with status ${currentStatus}`);
-            } else {
-                reply.yellow(`> starting job ${this.config.args.id}`);
-
-                try {
-                    await jobFunctions.start();
-                    // pause to allow api call time to process
-                    await util.pDelay(2500);
-                } catch (e) {
-                    reply.fatal(e.message);
-                }
-            }
-        }
-
-        const currentStatus = await this.currentJobStatus(jobFunctions);
-        reply.green(`> job: ${this.config.args.id} current status: ${currentStatus}`);
-
-        reply.green(`> job: ${this.config.args.id} waiting for status ${desiredStatus.join(' or ')}`);
-
-        // @ts-ignore
-        if (desiredStatus.includes(currentStatus)) {
-            reply.yellow(`> job:${this.config.args.id} already ${currentStatus}, nothing to do`);
-            process.exit(0);
-        }
-
-        // @ts-ignore
-        await Promise.all(desiredStatus.map(
-            (status) => this.awaitStatus(status, jobFunctions, this.config.args.timeout)
-        ));
     }
 
     async status(saveState = false, showJobs = true): Promise<void> {
