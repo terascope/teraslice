@@ -16,6 +16,7 @@ const cmd = {
         yargs.options('timeout', yargsOptions.buildOption('await-timeout'));
         yargs.option('start', yargsOptions.buildOption('start'));
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
+        yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         // @ts-ignore
         yargs.example('$0 tjm await FILE.JSON');
@@ -26,6 +27,7 @@ const cmd = {
     },
     async handler(argv: any): Promise<void> {
         const jobFile = new JobSrc(argv);
+
         jobFile.init();
         // @ts-ignore
         const cliConfig = new Config(Object.assign(jobFile, argv));

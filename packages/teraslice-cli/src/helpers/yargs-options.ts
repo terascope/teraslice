@@ -34,7 +34,7 @@ export default class Options {
                     'recovering',
                     'initializing',
                     'running',
-                    'failing ',
+                    'failing',
                     'paused',
                     'stopping',
                     'completed',

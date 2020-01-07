@@ -116,14 +116,14 @@ export default class Jobs {
             const currentStatus = await this.currentJobStatus(jobFunctions);
             // @ts-ignore
             if (this.activeStatus.includes(currentStatus)) {
-                reply.yellow(`> job:${this.config.args.id} already active with status ${currentStatus}`);
+                reply.yellow(`> job: ${this.config.args.id} already active with status ${currentStatus}`);
             } else {
                 reply.yellow(`> starting job ${this.config.args.id}`);
 
                 try {
                     await jobFunctions.start();
-                    // pause to allow call to get to ts api
-                    util.pDelay(3000);
+                    // pause to allow api call time to process
+                    await util.pDelay(2500);
                 } catch (e) {
                     reply.fatal(e.message);
                 }
