@@ -153,13 +153,13 @@ export function getLonAndLat(input: any, throwInvalid = true): [number, number] 
     }
 
     if (throwInvalid && (!lat || !lon)) {
-        throw new Error('geopoint must contain keys lat,lon or latitude/longitude');
+        throw new Error('Invalid geopoint object, it must contain keys lat,lon or latitude/longitude');
     }
 
     lat = toNumber(lat);
     lon = toNumber(lon);
     if (!isNumber(lat) || !isNumber(lon)) {
-        if (throwInvalid) throw new Error('geopoint lat and lon must be numbers');
+        if (throwInvalid) throw new Error('Invalid geopoint, lat and lon must be numbers');
         return null;
     }
 
@@ -192,7 +192,7 @@ export function parseGeoPoint(point: GeoPointInput, throwInvalid = true): GeoPoi
     }
 
     if (throwInvalid && (lat == null || lon == null)) {
-        throw new TSError(`incorrect point given to parse, point:${point}`);
+        throw new TSError(`Invalid geopoint given to parse, point:${point}`);
     }
 
     // data incoming is lat,lon and we must return lon,lat
@@ -371,7 +371,7 @@ export class VariableState {
     createVariable(field: string, value: any) {
         if (typeof value === 'string' && startsWith(value, '$')) {
             const vField = value.slice(1);
-            if (this.variables[vField] === undefined) throw new Error(`must provide variable "${vField}"`);
+            if (this.variables[vField] === undefined) throw new Error(`Must provide variable "${vField}" in the variables config`);
             return value;
         }
         const key = this._makeKey(field);

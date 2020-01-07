@@ -74,7 +74,7 @@ describe('Parser', () => {
 
     describe('when given a invalid function query "location:geoBox()", it can still parse syntax but break at validation', () => {
         it('should throw an error', () => {
-            const errMsg = 'Failure to parse xlucene query "location:geoBox()", caused by Error: geoBox query needs to specify a "topLeft" parameter';
+            const errMsg = 'Failure to parse xlucene query "location:geoBox()", caused by Error: Invalid geoBox query, need to specify a "topLeft" parameter';
             expect(() => {
                 new Parser('location:geoBox()');
             }).toThrowWithMessage(TSError, errMsg);
@@ -91,7 +91,7 @@ describe('Parser', () => {
 
     describe('when given variables in a query', () => {
         it('should throw an error if no variables are supplied', () => {
-            const errMsg = /could not find a variable set with key "bar"/;
+            const errMsg = /Could not find a variable set with key "bar"/;
             expect(() => {
                 new Parser('foo:$bar');
             }).toThrowWithMessage(TSError, errMsg);
@@ -112,7 +112,7 @@ describe('Parser', () => {
     it('restricted variables will throw if given bad values', () => {
         const query = 'foo: $bar';
         const typeConfig = { foo: FieldType.String };
-        const errMsg = 'non-function variables may only be numbers, strings, boolean or an array of these primitives';
+        const errMsg = 'Unsupported type of';
 
         function test(val: any) {
             const variables = { bar: val };

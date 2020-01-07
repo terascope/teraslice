@@ -43,14 +43,14 @@ function validate(params: i.Term[]): { polygonShape: GeoShape; relation: GeoShap
     if (geoRelationParam) {
         const relationKeys = Object.values(GeoShapeRelation);
         if (!relationKeys.includes(geoRelationParam.value as GeoShapeRelation)) {
-            throw new TSError(`relation parameter "${geoRelationParam.value}" is not a valid relation value`);
+            throw new TSError(`Invalid relation value "${geoRelationParam.value}"`);
         }
         relation = geoRelationParam.value as GeoShapeRelation;
     } else {
         relation = GeoShapeRelation.Within;
     }
 
-    if (geoPointsParam == null) throw new TSError('geoPolygon query needs to specify a "points" parameter');
+    if (geoPointsParam == null) throw new TSError('Invalid geoPolygon query, need to specify a "points" parameter');
 
     let polygonShape: GeoShape = {
         type: GeoShapeType.Polygon,
@@ -60,7 +60,7 @@ function validate(params: i.Term[]): { polygonShape: GeoShape; relation: GeoShap
     if (isGeoShapePolygon(geoPointsParam.value) || isGeoShapeMultiPolygon(geoPointsParam.value)) {
         polygonShape = geoPointsParam.value;
     } else {
-        if (!Array.isArray(geoPointsParam.value)) throw new TSError('points parameter must either be a geoshape or be an array of geo-points');
+        if (!Array.isArray(geoPointsParam.value)) throw new TSError('Invalid points parameter, it must either be a geoshape or be an array of geo-points');
 
         const points: CoordinateTuple[] = geoPointsParam.value.map((node) => {
             const value = node.value || node;
@@ -79,7 +79,7 @@ const geoPolygon: i.FunctionDefinition = {
     version: '1',
     // @ts-ignore type issues with esPolyToPointQuery AnyQuery results
     create(_field: string, params: any, { logger, typeConfig }) {
-        if (!_field || _field === '*') throw new Error('field for geoPolygon cannot be empty or "*"');
+        if (!_field || _field === '*') throw new Error('Field for geoPolygon cannot be empty or "*"');
         const { polygonShape, relation } = validate(params);
         let type: string;
 

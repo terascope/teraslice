@@ -111,6 +111,6 @@ export function isGroupLike(node: any): node is i.GroupLikeAST {
 }
 
 export function validateVariables(obj: Variables): Variables {
-    if (!isPlainObject(obj)) throw new TSError('variables option must be an object');
+    if (!isPlainObject(obj)) throw new TSError('Invalid variables configuration provided, it must be an object');
     return obj;
 }

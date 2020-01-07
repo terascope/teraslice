@@ -94,7 +94,7 @@ export function makeShape(geoShape: JoinGeoShape) {
 }
 
 export function validateListCoords(coords: CoordinateTuple[]) {
-    if (coords.length < 3) throw new Error('geoPolygon points parameter must have at least three geo-points');
+    if (coords.length < 3) throw new Error('Points parameter for a geoPolygon query must have at least three geo-points');
     const line = lineString(coords);
     const polygon = lineToPolygon(line);
     return getCoords(polygon);

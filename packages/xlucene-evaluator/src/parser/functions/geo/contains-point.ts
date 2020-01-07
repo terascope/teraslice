@@ -7,7 +7,7 @@ import { GeoShapeRelation } from '../../../interfaces';
 
 function validate(params: i.Term[]) {
     const geoPointParam = params.find((node) => node.field === 'point');
-    if (geoPointParam == null) throw new Error('geoContainsPoint query needs to specify a "point" parameter');
+    if (geoPointParam == null) throw new Error('Invalid geoContainsPoint query, need to specify a "point" parameter');
     const pointData = parseGeoPoint(geoPointParam.value as string);
 
     return { lat: pointData.lat, lon: pointData.lon };
@@ -17,7 +17,7 @@ const geoContainsPoint: i.FunctionDefinition = {
     name: 'geoContainsPoint',
     version: '1',
     create(_field: string, params: any, { logger }) {
-        if (!_field || _field === '*') throw new Error('field for geoContainsPoint cannot be empty or "*"');
+        if (!_field || _field === '*') throw new Error('Field for geoContainsPoint cannot be empty or "*"');
         const { lat, lon } = validate(params);
 
         function toElasticsearchQuery(field: string) {

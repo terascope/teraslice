@@ -8,8 +8,8 @@ function validate(params: i.Term[]) {
     const distanceParam = params.find((node) => node.field === 'distance');
     const geoPointParam = params.find((node) => node.field === 'point');
 
-    if (distanceParam == null) throw new Error('geoDistance query needs to specify a "distance" parameter');
-    if (geoPointParam == null) throw new Error('geoDistance query needs to specify a "point" parameter');
+    if (distanceParam == null) throw new Error('Invalid geoDistance query, need to specify a "distance" parameter');
+    if (geoPointParam == null) throw new Error('Invalid geoDistance query, need to specify a "point" parameter');
 
     const point = parseGeoPoint(geoPointParam.value as string);
     const distance = parseGeoDistance(distanceParam.value as string);
@@ -24,7 +24,7 @@ const geoDistance: i.FunctionDefinition = {
     name: 'geoDistance',
     version: '1',
     create(_field: string, params: any, { logger }) {
-        if (!_field || _field === '*') throw new Error('field for geoDistance cannot be empty or "*"');
+        if (!_field || _field === '*') throw new Error('Field for geoDistance cannot be empty or "*"');
         const {
             lat, lon, distance, unit: paramUnit
         } = validate(params);

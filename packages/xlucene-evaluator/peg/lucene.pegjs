@@ -223,11 +223,11 @@ RestrictedVariableExpression
             // create logical group node
             const root = {
                 type: i.ASTType.LogicalGroup,
-                flow: makeFlow(field, value)
+                flow: makeFlow(field, value, key)
              };
              return root;
         }
-        validateRestrictedVariable(value)
+        validateRestrictedVariable(value, key)
         const node = { value, field, type: i.ASTType.Term };
         coerceTermType(node);
         return node;

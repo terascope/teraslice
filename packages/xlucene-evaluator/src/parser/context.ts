@@ -1,4 +1,4 @@
-import { Logger, TSError } from '@terascope/utils';
+import { Logger, TSError, getTypeOf } from '@terascope/utils';
 import { parseGeoDistance, parseGeoPoint } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
@@ -57,7 +57,7 @@ export default function makeContext(args: any) {
 
     function getVariable(value: string) {
         const variable = variables[value];
-        if (variable === undefined) throw new TSError(`could not find a variable set with key "${value}"`);
+        if (variable === undefined) throw new TSError(`Could not find a variable set with key "${value}"`);
         if (Array.isArray(variable)) return variable.slice();
         return variable;
     }
@@ -95,9 +95,9 @@ export default function makeContext(args: any) {
         return () => fnType.create(field, params, { logger, typeConfig });
     }
 
-    function makeFlow(field: string, values: any[]) {
+    function makeFlow(field: string, values: any[], varName: string) {
         return values.map((value) => {
-            validateRestrictedVariable(value);
+            validateRestrictedVariable(value, varName);
             const node = { field, type: i.ASTType.Term, value };
             coerceTermType(node);
             // this creates an OR statement
@@ -108,10 +108,10 @@ export default function makeContext(args: any) {
         });
     }
     // cannot allow variables that are objects, errors, maps, sets, buffers
-    function validateRestrictedVariable(val: any) {
-        const type = typeof val;
-        if (!['string', 'number', 'boolean'].includes(type)) {
-            throw new Error(' non-function variables may only be numbers, strings, boolean or an array of these primitives');
+    function validateRestrictedVariable(variable: any, varName: string) {
+        const type = getTypeOf(variable);
+        if (!['String', 'Number', 'Boolean'].includes(type)) {
+            throw new Error(`Unsupported type of ${type} received for variable $${varName}`);
         }
     }
 

@@ -43,7 +43,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         const typeConfig = config.type_config || options.type_config || {};
         const variables = options.variables || {};
 
-        if (ts.isEmpty(typeConfig)) throw new Error('type_config must be provided');
+        if (ts.isEmpty(typeConfig)) throw new Error('Configuration for type_config must be provided');
         this.typeConfig = { ...typeConfig };
 
         this.logger = options.logger != null
