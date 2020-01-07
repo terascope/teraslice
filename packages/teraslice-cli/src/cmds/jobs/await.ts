@@ -9,17 +9,17 @@ const reply = new Reply();
 
 const cmd: CMD = {
     command: 'await <cluster-alias> <id>',
-    describe: 'waits for jobs to reach specified status, can take more than one status',
+    describe: 'cli blocks/ waits until job reaches the entered status or timeout expires',
     builder(yargs: any) {
-        yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
-        yargs.options('output', yargsOptions.buildOption('output'));
         yargs.options('status', yargsOptions.buildOption('await-status'));
         yargs.options('timeout', yargsOptions.buildOption('await-timeout'));
         yargs.options('start', yargsOptions.buildOption('start'));
+        yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.strict()
-            .example('$0 jobs await CLUSTER_ALIAS JOBID --status completed --timeout 10000')
-            .example('$0 jobs await CLUSTER_ALIAS JOBID --status completed --timeout 10000 --start')
-            .example('$0 jobs await CLUSTER_ALIAS JOBID --status completed stopped --timeout 10000 --start')
+            .example('$0 jobs await CLUSTER_ALIAS JOBID')
+            .example('$0 jobs await CLUSTER_ALIAS JOBID --start')
+            .example('$0 jobs await CLUSTER_ALIAS JOBID --status running --timeout 10000 --start')
+            .example('$0 jobs await CLUSTER_ALIAS JOBID --status failing rejected pending --timeout 300000 --start');
         return yargs;
     },
     async handler(argv): Promise<void> {

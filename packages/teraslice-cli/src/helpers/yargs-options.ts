@@ -26,7 +26,7 @@ export default class Options {
                 type: 'string'
             }),
             'await-status': () => ({
-                describe: 'status to wait for',
+                describe: 'desired status to wait for, exits once status is reached',
                 type: 'array',
                 choices: [
                     'pending',
@@ -46,7 +46,7 @@ export default class Options {
                 default: ['completed', 'stopped']
             }),
             'await-timeout': () => ({
-                describe: 'ms time to wait for status',
+                describe: 'time in milliseconds to wait for status, exits if timeout expires',
                 type: 'number',
                 default: 0
             }),
@@ -109,7 +109,7 @@ export default class Options {
                 type: 'boolean'
             }),
             start: () => ({
-                describe: 'Option to start job immediately after registering or updating a job',
+                describe: 'Option to start job ',
                 alias: 'run',
                 type: 'boolean',
                 default: false

@@ -10,19 +10,18 @@ const yargsOptions = new YargsOptions();
 
 const cmd = {
     command: 'await <job-file>',
-    describe: 'wait for job to reach a specified status, can await for more than one status',
+    describe: 'cli blocks/ waits until the job reaches the entered status or timeout expires',
     builder(yargs:any) {
-        yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
-        yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
-        yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.option('status', yargsOptions.buildOption('await-status'));
         yargs.options('timeout', yargsOptions.buildOption('await-timeout'));
         yargs.option('start', yargsOptions.buildOption('start'));
+        yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
+        yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         // @ts-ignore
-        yargs.example('$0 tjm await FILE.JSON --status stopped');
-        // @ts-ignore
-        yargs.example('$0 tjm run FILE.JSON --status completed --start --timeout 1000');
-        yargs.example('$0 tjm run FILE.JSON --status completed stopped --start --timeout 1000');
+        yargs.example('$0 tjm await FILE.JSON');
+        yargs.example('$0 tjm await FILE.JSON --start');
+        yargs.example('$0 tjm run FILE.JSON --status completed --timeout 10000 --start');
+        yargs.example('$0 tjm await FILE.JSON --status failing stopping terminated rejected --timeout 600000 --start');
         return yargs;
     },
     async handler(argv: any): Promise<void> {
