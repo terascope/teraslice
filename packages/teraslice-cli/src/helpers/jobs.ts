@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import fs from 'fs-extra';
 import * as TSClientTypes from 'teraslice-client-js';
+import * as util from '@terascope/utils';
 
 import TerasliceUtil from './teraslice-util';
 import displayModule from '../cmds/lib/display';
@@ -76,44 +77,43 @@ export default class Jobs {
         return this.status(true, true);
     }
 
+    async currentJobStatus(jobFunctions: TSClientTypes.Job) {
+        try {
+            return jobFunctions.status();
+        } catch(e) {
+            reply.fatal(e.message);
+        }
+    }
+
     async awaitStatus(
         desiredStatus: TSClientTypes.ExecutionStatus,
         jobFunctions: TSClientTypes.Job,
         timeout = 0
     ): Promise<void> {
-        let currentStatus = await jobFunctions.status();
-
-        if (currentStatus === desiredStatus) {
-            reply.yellow(`> job:${this.config.args.id} already ${desiredStatus}`);
-            process.exit(0);
-        }
-
         try {
             const newStatus = await jobFunctions.waitForStatus(desiredStatus, 5000, timeout);
             reply.green(`> job ${this.config.args.id} status changed to ${newStatus}`);
             process.exit(0);
         } catch (e) {
-            currentStatus = await jobFunctions.status();
-
+            // don't want to throw an error if job reaches any of the desired statuses
+            const currentStatus = await this.currentJobStatus(jobFunctions);
+    
             if (e.message.includes('Job cannot reach the target status')
-                && this.config.args.status.includes(desiredStatus)) {
-                reply.green(`> job ${this.config.args.id} status changed to ${currentStatus}`);
-                process.exit(0);
-            } else {
-                reply.fatal(e.message);
+                && this.config.args.status.includes(currentStatus)) {
+                    reply.green(`> job: ${this.config.args.id} status changed to ${currentStatus}`);
+                    process.exit(0)
             }
+            reply.fatal(e.message);
         }
     }
 
     async awaitCommand(): Promise<void> {
         const jobFunctions = await this.teraslice.client.jobs.wrap(this.config.args.id);
 
-        const currentStatus = await jobFunctions.status();
-
         const desiredStatus: TSClientTypes.ExecutionStatus[] = this.config.args.status;
 
         if (this.config.args.start) {
-            // make sure job is not already active
+            const currentStatus = await this.currentJobStatus(jobFunctions);
             // @ts-ignore
             if (this.activeStatus.includes(currentStatus)) {
                 reply.yellow(`> job:${this.config.args.id} already active with status ${currentStatus}`);
@@ -122,14 +122,25 @@ export default class Jobs {
 
                 try {
                     await jobFunctions.start();
-                    reply.yellow(`> job:${this.config.args.id} is running`);
+                    // pause to allow call to get to ts api
+                    util.pDelay(3000);
                 } catch (e) {
                     reply.fatal(e.message);
                 }
             }
         }
 
-        reply.green(`> waiting for job ${this.config.args.id} status to reach ${desiredStatus.join(' or ')}`);
+        const currentStatus = await this.currentJobStatus(jobFunctions);
+        reply.green(`> job: ${this.config.args.id} current status: ${currentStatus}`);
+
+        reply.green(`> job: ${this.config.args.id} waiting for status ${desiredStatus.join(' or ')}`);
+
+        // @ts-ignore
+        if (desiredStatus.includes(currentStatus)) {
+            reply.yellow(`> job:${this.config.args.id} already ${currentStatus}, nothing to do`);
+            process.exit(0);
+        }
+
         // @ts-ignore
         await Promise.all(desiredStatus.map(
             (status) => this.awaitStatus(status, jobFunctions, this.config.args.timeout)
