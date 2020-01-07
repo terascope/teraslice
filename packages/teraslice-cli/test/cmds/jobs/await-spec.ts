@@ -33,8 +33,6 @@ describe('jobs await', () => {
                 'await ts-test1 job_id --status paused stopped --start --timeout 10000', {}
             );
 
-            console.log(yargsResult);
-
             expect(yargsResult.status).toStrictEqual(['paused', 'stopped']);
             expect(yargsResult.start).toBe(true);
             expect(yargsResult.timeout).toEqual(10000);

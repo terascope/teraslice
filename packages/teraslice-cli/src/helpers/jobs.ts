@@ -80,7 +80,7 @@ export default class Jobs {
     async currentJobStatus(jobFunctions: TSClientTypes.Job) {
         try {
             return jobFunctions.status();
-        } catch(e) {
+        } catch (e) {
             reply.fatal(e.message);
         }
     }
@@ -97,11 +97,11 @@ export default class Jobs {
         } catch (e) {
             // don't want to throw an error if job reaches any of the desired statuses
             const currentStatus = await this.currentJobStatus(jobFunctions);
-    
+
             if (e.message.includes('Job cannot reach the target status')
                 && this.config.args.status.includes(currentStatus)) {
-                    reply.green(`> job: ${this.config.args.id} status changed to ${currentStatus}`);
-                    process.exit(0)
+                reply.green(`> job: ${this.config.args.id} status changed to ${currentStatus}`);
+                process.exit(0);
             }
             reply.fatal(e.message);
         }

@@ -1,17 +1,15 @@
-import TjmUtil from '../../helpers/tjm-util';
 import JobSrc from '../../helpers/job-src';
 import Config from '../../helpers/config';
 import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
-import { getTerasliceClient } from '../../helpers/utils';
 import Jobs from '../../helpers/jobs';
 
 const yargsOptions = new YargsOptions();
 
-const cmd = {
+const cmd: CMD = {
     command: 'await <job-file>',
     describe: 'cli waits until the job reaches a specified status or timeout expires',
-    builder(yargs:any) {
+    builder(yargs: any) {
         yargs.option('status', yargsOptions.buildOption('await-status'));
         yargs.options('timeout', yargsOptions.buildOption('await-timeout'));
         yargs.option('start', yargsOptions.buildOption('start'));
