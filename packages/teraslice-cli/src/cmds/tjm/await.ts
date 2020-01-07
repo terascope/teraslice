@@ -10,7 +10,7 @@ const yargsOptions = new YargsOptions();
 
 const cmd = {
     command: 'await <job-file>',
-    describe: 'cli blocks/ waits until the job reaches the entered status or timeout expires',
+    describe: 'cli waits until the job reaches a specified status or timeout expires',
     builder(yargs:any) {
         yargs.option('status', yargsOptions.buildOption('await-status'));
         yargs.options('timeout', yargsOptions.buildOption('await-timeout'));

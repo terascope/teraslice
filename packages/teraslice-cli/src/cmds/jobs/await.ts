@@ -9,7 +9,7 @@ const reply = new Reply();
 
 const cmd: CMD = {
     command: 'await <cluster-alias> <id>',
-    describe: 'cli blocks/ waits until job reaches the entered status or timeout expires',
+    describe: 'cli waits until job reaches a specified status or timeout expires',
     builder(yargs: any) {
         yargs.options('status', yargsOptions.buildOption('await-status'));
         yargs.options('timeout', yargsOptions.buildOption('await-timeout'));
