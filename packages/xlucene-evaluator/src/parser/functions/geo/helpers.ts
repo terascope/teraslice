@@ -19,6 +19,7 @@ import {
 } from '@turf/helpers';
 // @ts-ignore
 import lineToPolygon from '@turf/line-to-polygon';
+import { getCoords } from '@turf/invariant';
 import { parseGeoPoint } from '../../../utils';
 import {
     GeoShapeRelation,
@@ -75,27 +76,34 @@ export function pointInGeoShape(searchPoint: any) {
     };
 }
 
-export function makePolygon(points: GeoPoint[]) {
-    const polyPoints = points.map(makeCoordinatesFromGeoPoint);
-    const line = lineString(polyPoints);
-    return lineToPolygon(line);
+export function makeShape(geoShape: JoinGeoShape) {
+    let feature: any;
+    if (isGeoShapePoint(geoShape)) {
+        return tPoint(geoShape.coordinates);
+    }
+
+    if (isGeoShapeMultiPolygon(geoShape)) {
+        return multiPolygon(geoShape.coordinates);
+    }
+
+    if (isGeoShapePolygon(geoShape)) {
+        return tPolygon(geoShape.coordinates);
+    }
+
+    return feature;
+}
+
+export function validateListCoords(coords: CoordinateTuple[]) {
+    if (coords.length < 3) throw new Error('Points parameter for a geoPolygon query must have at least three geo-points');
+    const line = lineString(coords);
+    const polygon = lineToPolygon(line);
+    return getCoords(polygon);
 }
 
 export function polyHasShape(queryPolygon: any, relation: GeoShapeRelation) {
     const match = getRelationFn(relation, queryPolygon);
     return (fieldData: JoinGeoShape) => {
-        let feature: any;
-        if (isGeoShapePoint(fieldData)) {
-            feature = tPoint(fieldData.coordinates);
-        }
-
-        if (isGeoShapeMultiPolygon(fieldData)) {
-            feature = multiPolygon(fieldData.coordinates);
-        }
-
-        if (isGeoShapePolygon(fieldData)) {
-            feature = tPolygon(fieldData.coordinates);
-        }
+        const feature = makeShape(fieldData);
         // Nothing matches so return false
         if (!feature) return false;
         try {

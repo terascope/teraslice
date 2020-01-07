@@ -144,7 +144,6 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
         fields: AnyInput<T>,
         clientId?: number,
         joinBy?: JoinBy,
-        arrayJoinBy?: JoinBy
     ): Promise<number> {
         return this.countBy({
             ...fields,
@@ -152,7 +151,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
                 client_id: [clientId, 0],
             }),
             _deleted: false
-        }, joinBy, arrayJoinBy);
+        }, joinBy);
     }
 
     async recordExists(id: string[] | string, clientId?: number): Promise<boolean> {

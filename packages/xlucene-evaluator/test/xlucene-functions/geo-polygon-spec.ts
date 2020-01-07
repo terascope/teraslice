@@ -1,5 +1,7 @@
 import 'jest-extended';
 import { debugLogger } from '@terascope/utils';
+import { randomPolygon } from '@turf/random';
+import { getCoords } from '@turf/invariant';
 import { Parser } from '../../src';
 import { UtilsTranslateQueryOptions, ESGeoShapeType } from '../../src/translator/interfaces';
 import {
@@ -35,25 +37,17 @@ describe('geoPolygon', () => {
         });
 
         describe('elasticsearch dsl', () => {
-            it('can produce elasticsearch DSL', () => {
+            it('can produce elasticsearch DSL with array of points', () => {
                 expect.hasAssertions();
-
+                // validation of points makes sure that it is enclosed
                 const results = {
                     geo_polygon: {
                         location: {
                             points: [
-                                {
-                                    lat: 70.43,
-                                    lon: 140.43
-                                },
-                                {
-                                    lat: 81.3,
-                                    lon: 123.4
-                                },
-                                {
-                                    lat: 89.3,
-                                    lon: 154.4
-                                }
+                                [140.43, 70.43],
+                                [123.4, 81.3],
+                                [154.4, 89.3],
+                                [140.43, 70.43]
                             ]
                         }
                     }
@@ -76,6 +70,169 @@ describe('geoPolygon', () => {
                     expect(ast.query).toEqual(results);
                     expect(ast.sort).toBeUndefined();
                 });
+            });
+
+            it('can produce elasticsearch DSL with variables set to polygons', () => {
+                const variables = {
+                    points1: {
+                        type: GeoShapeType.Polygon,
+                        coordinates: [
+                            [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+                        ]
+                    }
+                };
+                const xQuery = 'location: geoPolygon(points: $points1)';
+
+                const { ast: { instance: { toElasticsearchQuery } } } = new Parser(xQuery, {
+                    type_config: typeConfig,
+                    variables
+                });
+
+                const expected = {
+                    geo_polygon: {
+                        location: {
+                            points: [
+                                [10, 10],
+                                [10, 50],
+                                [50, 50],
+                                [50, 10],
+                                [10, 10]
+                            ]
+                        }
+                    }
+                };
+
+                const { query, sort } = toElasticsearchQuery('location', options);
+
+                expect(query).toEqual(expected);
+                expect(sort).toBeUndefined();
+            });
+
+            it('can produce elasticsearch DSL with variables set to polygons with holes', () => {
+                const variables = {
+                    points1: {
+                        type: GeoShapeType.Polygon,
+                        coordinates: [
+                            [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+                            [[20, 20], [20, 40], [40, 40], [40, 20], [20, 20]]
+                        ]
+                    }
+                };
+                const xQuery = 'location: geoPolygon(points: $points1)';
+
+                const { ast: { instance: { toElasticsearchQuery } } } = new Parser(xQuery, {
+                    type_config: typeConfig,
+                    variables
+                });
+
+                const expected = {
+                    bool: {
+                        should: [
+                            {
+                                bool: {
+                                    filter: [
+                                        {
+                                            geo_polygon: {
+                                                location: {
+                                                    points: [
+                                                        [10, 10],
+                                                        [10, 50],
+                                                        [50, 50],
+                                                        [50, 10],
+                                                        [10, 10]
+                                                    ]
+                                                }
+                                            }
+                                        },
+                                        {
+                                            bool: {
+                                                must_not: [
+                                                    {
+                                                        geo_polygon: {
+                                                            location: {
+                                                                points: [
+                                                                    [20, 20],
+                                                                    [20, 40],
+                                                                    [40, 40],
+                                                                    [40, 20],
+                                                                    [20, 20]
+                                                                ]
+                                                            }
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                };
+
+                const { query, sort } = toElasticsearchQuery('location', options);
+
+                expect(query).toEqual(expected);
+                expect(sort).toBeUndefined();
+            });
+
+            it('can produce elasticsearch DSL with variables set to multipolygons', () => {
+                const variables = {
+                    points1: {
+                        type: GeoShapeType.MultiPolygon,
+                        coordinates: [
+                            [
+                                [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+                            ],
+                            [
+                                [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
+                            ]
+                        ]
+                    }
+                };
+                const xQuery = 'location: geoPolygon(points: $points1)';
+
+                const { ast: { instance: { toElasticsearchQuery } } } = new Parser(xQuery, {
+                    type_config: typeConfig,
+                    variables
+                });
+
+                const expected = {
+                    bool: {
+                        should: [
+                            {
+                                geo_polygon: {
+                                    location: {
+                                        points: [
+                                            [10, 10],
+                                            [10, 50],
+                                            [50, 50],
+                                            [50, 10],
+                                            [10, 10]
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                geo_polygon: {
+                                    location: {
+                                        points: [
+                                            [-10, -10],
+                                            [-10, -50],
+                                            [-50, -50],
+                                            [-50, -10],
+                                            [-10, -10]]
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                };
+
+                const { query, sort } = toElasticsearchQuery('location', options);
+
+                expect(query).toEqual(expected);
+                expect(sort).toBeUndefined();
             });
         });
 
@@ -105,17 +262,15 @@ describe('geoPolygon', () => {
             type_config: {}
         };
 
-        function makePoint() {
-            return `"${Math.random() * 90}, ${Math.random() * 180}"`;
-        }
-
         it('can parse really long polygons', () => {
-            const list: string[] = [];
+            const { features: [polygon] } = randomPolygon(1, { num_vertices: 8000 });
+            const [coordList] = getCoords(polygon);
+            const coords = coordList.map((points: [number, number]) => {
+                const [lon, lat] = points;
+                return `"${lat}, ${lon}"`;
+            }).join(', ');
 
-            for (let i = 0; i < 8000; i++) {
-                list.push(makePoint());
-            }
-            const query = `location:geoPolygon(points:[${list.join(', ')}])`;
+            const query = `location:geoPolygon(points:[${coords}])`;
 
             expect(() => new Parser(query, { type_config: typeConfig })).not.toThrow();
         });
@@ -147,7 +302,9 @@ describe('geoPolygon', () => {
                         location: {
                             shape: {
                                 type: ESGeoShapeType.Polygon,
-                                coordinates: [[[140.43, 70.43], [123.4, 81.3], [154.4, 89.3]]]
+                                coordinates: [
+                                    [[140.43, 70.43], [123.4, 81.3], [154.4, 89.3], [140.43, 70.43]]
+                                ]
                             },
                             relation: GeoShapeRelation.Within
                         }
@@ -179,7 +336,9 @@ describe('geoPolygon', () => {
                         location: {
                             shape: {
                                 type: ESGeoShapeType.Polygon,
-                                coordinates: [[[140.43, 70.43], [123.4, 81.3], [154.4, 89.3]]]
+                                coordinates: [
+                                    [[140.43, 70.43], [123.4, 81.3], [154.4, 89.3], [140.43, 70.43]]
+                                ]
                             },
                             relation: GeoShapeRelation.Within
                         }
@@ -200,7 +359,9 @@ describe('geoPolygon', () => {
                         location: {
                             shape: {
                                 type: ESGeoShapeType.Polygon,
-                                coordinates: [[[140.43, 70.43], [123.4, 81.3], [154.4, 89.3]]]
+                                coordinates: [
+                                    [[140.43, 70.43], [123.4, 81.3], [154.4, 89.3], [140.43, 70.43]]
+                                ]
                             },
                             relation: GeoShapeRelation.Intersects
                         }
@@ -221,7 +382,9 @@ describe('geoPolygon', () => {
                         location: {
                             shape: {
                                 type: ESGeoShapeType.Polygon,
-                                coordinates: [[[140.43, 70.43], [123.4, 81.3], [154.4, 89.3]]]
+                                coordinates: [
+                                    [[140.43, 70.43], [123.4, 81.3], [154.4, 89.3], [140.43, 70.43]]
+                                ]
                             },
                             relation: GeoShapeRelation.Contains
                         }
@@ -242,7 +405,9 @@ describe('geoPolygon', () => {
                         location: {
                             shape: {
                                 type: ESGeoShapeType.Polygon,
-                                coordinates: [[[140.43, 70.43], [123.4, 81.3], [154.4, 89.3]]]
+                                coordinates: [
+                                    [[140.43, 70.43], [123.4, 81.3], [154.4, 89.3], [140.43, 70.43]]
+                                ]
                             },
                             relation: GeoShapeRelation.Disjoint
                         }
@@ -264,7 +429,7 @@ describe('geoPolygon', () => {
             const queryPoints = ['10,10', '10,50', '50,50', '50,10', '10,10'];
             const containPoints = {
                 type: GeoShapeType.Polygon,
-                coordinates: [[[0, 0], [0, 100], [60, 100], [60, 0], [0, 0]]]
+                coordinates: [[[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]]
             };
             const withinPoints = {
                 type: GeoShapeType.Polygon,
@@ -276,7 +441,7 @@ describe('geoPolygon', () => {
             };
             const intersetPoints = {
                 type: GeoShapeType.Polygon,
-                coordinates: [[[0, 0], [15, 15], [0, 15], [15, 0], [0, 0]]]
+                coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]
             };
 
             const matchingPoint = {
@@ -293,10 +458,10 @@ describe('geoPolygon', () => {
                 type: GeoShapeType.MultiPolygon,
                 coordinates: [
                     [
-                        [[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]],
+                        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
                     ],
                     [
-                        [[-10, -10], [-50, -10], [-50, -50], [-10, -50], [-10, -10]],
+                        [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
                     ]
                 ]
             };
@@ -305,12 +470,12 @@ describe('geoPolygon', () => {
                 type: GeoShapeType.MultiPolygon,
                 coordinates: [
                     [
-                        [[10, 10], [50, 10], [50, 50], [10, 50], [10, 10]],
-                        [[20, 20], [40, 20], [40, 40], [20, 40], [20, 20]]
+                        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+                        [[20, 20], [20, 40], [40, 40], [40, 20], [20, 20]]
                     ],
                     [
-                        [[-10, -10], [-50, -10], [-50, -50], [-10, -50], [-10, -10]],
-                        [[-20, -20], [-40, -20], [-40, -40], [-20, -40], [-20, -20]]
+                        [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
+                        [[-20, -20], [-20, -40], [-40, -40], [-40, -20], [-20, -20]]
                     ]
                 ]
             };

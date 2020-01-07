@@ -1,6 +1,6 @@
 {
     "name": "xlucene-evaluator",
-    "version": "0.15.0",
+    "version": "0.16.0",
     "description": "Flexible Lucene-like evalutor and language parser",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-evaluator#readme",
     "repository": {
@@ -19,6 +19,7 @@
         "test": "test"
     },
     "scripts": {
+        "benchmark": "yarn build && node bench/index.js",
         "prebuild": "./scripts/generate-engine.js",
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
@@ -40,6 +41,7 @@
         "@turf/circle": "^6.0.1",
         "@turf/helpers": "^6.1.4",
         "@turf/line-to-polygon": "^6.0.1",
+        "@turf/random": "^6.0.2",
         "date-fns": "^2.8.1",
         "ip6addr": "^0.2.2",
         "is-cidr": "^3.0.0",

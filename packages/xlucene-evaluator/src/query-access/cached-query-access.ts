@@ -10,16 +10,7 @@ export class CachedQueryAccess {
     }
 
     make<T>(config: QueryAccessConfig<T>, options?: QueryAccessOptions): QueryAccess<T> {
-        const key = JSON.stringify(config);
-        const cached = _cache.get(this)!;
-        if (cached[key] != null) return cached[key];
-
-        const queryAccess = new QueryAccess(config, options);
-
-        cached[key] = queryAccess;
-        _cache.set(this, cached);
-
-        return queryAccess;
+        return new QueryAccess(config, options);
     }
 
     reset() {
