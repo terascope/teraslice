@@ -19,7 +19,7 @@ function parseLiteral(ast: ASTNode) {
 
     return ast.fields.reduce((accum, curr) => {
         const fieldName = curr.name.value;
-        console.error(JSON.stringify(curr.value, null, 4));
+
         if (curr.value.kind !== Kind.OBJECT) {
             throw new Error(`Field ${fieldName} must be set to an object`);
         }
