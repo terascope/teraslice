@@ -100,9 +100,24 @@ export type AvailableVersion = 1;
 export const AvailableVersions: readonly AvailableVersion[] = [1];
 
 export type FieldTypeConfig = {
+    /**
+     * The type of field
+    */
     type: AvailableType;
+    /**
+     * Indicates whether the field is an array
+    */
     array?: boolean;
+    /**
+     * A description for the fields
+    */
     description?: string;
+    /**
+     * Specifies whether the field is index in elasticsearch
+     * (Not all fields support this)
+     * @default false
+    */
+    indexed?: boolean;
 };
 
 type ActualType = {

@@ -30,6 +30,16 @@ describe('Object V1', () => {
         expect(esMapping).toEqual(results);
     });
 
+    it('can get proper ES Mappings when not indexed', () => {
+        const esMapping = new ObejctType(field, {
+            ...typeConfig,
+            indexed: false,
+        }).toESMapping();
+        const results = { mapping: { [field]: { type: 'object', enabled: false } } };
+
+        expect(esMapping).toEqual(results);
+    });
+
     it('can get proper graphql types', () => {
         const graphQlTypes = new ObejctType(field, typeConfig).toGraphQL();
         const results = { type: `${field}: JSONObject`, customTypes: ['scalar JSONObject'] };
