@@ -1,10 +1,10 @@
 import { FieldType } from 'xlucene-evaluator';
 import BaseType from '../base-type';
-import { ElasticSearchTypes, ESTypeMapping } from '../../../interfaces';
+import { ESTypeMapping } from '../../../interfaces';
 
 export default class ObjectType extends BaseType {
     toESMapping(_version?: number) {
-        const type: ESTypeMapping = { type: 'object' as ElasticSearchTypes };
+        const type: ESTypeMapping = { type: 'object' };
         if (this.config.indexed === false) {
             type.enabled = false;
         }

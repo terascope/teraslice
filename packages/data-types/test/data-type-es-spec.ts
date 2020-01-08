@@ -24,6 +24,7 @@ describe('DataType (elasticsearch)', () => {
                 expect(err.message).toInclude("Cannot destructure property `typeName` of 'undefined' or 'null'.");
             }
         });
+
         it('can create an elasticsearch mapping', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
@@ -58,6 +59,59 @@ describe('DataType (elasticsearch)', () => {
             const dataType = new DataType(typeConfig);
 
             expect(dataType.toESMapping({ typeName: 'events' })).toEqual(results);
+        });
+
+        it('can create an elasticsearch mapping with nested objects', () => {
+            const typeConfig: DataTypeConfig = {
+                version: LATEST_VERSION,
+                fields: {
+                    config: { type: 'Object' },
+                    'config.foo': { type: 'Byte' },
+                    'config.path': { type: 'KeywordPathAnalyzer' },
+                    'config.bar': { type: 'Object', indexed: false },
+                },
+            };
+
+            const output = new DataType(typeConfig).toESMapping({ typeName: 'events' });
+
+            expect(output).toHaveProperty('mappings.events.properties', {
+                config: {
+                    type: 'object',
+                    properties: {
+                        foo: { type: 'byte' },
+                        bar: {
+                            type: 'object',
+                            enabled: false
+                        },
+                        path: {
+                            fields: {
+                                tokens: {
+                                    analyzer: 'path_analyzer',
+                                    type: 'text'
+                                }
+                            },
+                            type: 'keyword'
+                        }
+                    }
+                },
+            });
+
+            expect(output).toHaveProperty('settings', {
+                analysis: {
+                    analyzer: {
+                        path_analyzer: {
+                            type: 'custom',
+                            tokenizer: 'path_tokenizer'
+                        },
+                    },
+                    tokenizer: {
+                        path_tokenizer: {
+                            type: 'pattern',
+                            pattern: '/'
+                        }
+                    }
+                },
+            });
         });
 
         it('can add additional settings to a elasticsearch mapping', () => {

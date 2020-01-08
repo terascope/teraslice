@@ -6,6 +6,11 @@ import BaseType, { IBaseType } from './versions/base-type';
 
 export const LATEST_VERSION: AvailableVersion = 1;
 
+/**
+ * Instaniate all of the types for the group
+ *
+ * @todo support multiple levels deep nesting
+*/
 export function getTypes(fields: TypeConfigFields, version = LATEST_VERSION): BaseType[] {
     const types: Record<string, GroupType|BaseType> = {};
     const groupFields: Record<string, Set<string>> = {};

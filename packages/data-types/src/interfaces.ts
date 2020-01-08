@@ -160,10 +160,11 @@ type FieldsESTypeMapping = {
     };
 };
 
-type PropertyESTypeMapping = {
+export type PropertyESTypes = FieldsESTypeMapping | BasicESTypeMapping;
+export type PropertyESTypeMapping = {
     type?: 'nested' | 'object';
     properties: {
-        [key: string]: FieldsESTypeMapping | BasicESTypeMapping;
+        [key: string]: PropertyESTypes;
     };
 };
 
