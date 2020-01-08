@@ -161,19 +161,17 @@ export class DataType {
         const inputProperties: string[] = [];
 
         this._types.forEach((typeClass) => {
-            const { type, custom_type: customType } = typeClass.toGraphQL();
-            baseProperties.push(type);
+            const result = typeClass.toGraphQL(typeName);
+            baseProperties.push(result.type);
 
             if (createInputType) {
                 if (args.includeAllInputFields
                     || !ts.startsWith(typeClass.field, '_')) {
-                    inputProperties.push(type);
+                    inputProperties.push(result.type);
                 }
             }
 
-            if (customType) {
-                customTypes.push(customType);
-            }
+            customTypes.push(...result.customTypes);
         });
 
         if (references.length) {

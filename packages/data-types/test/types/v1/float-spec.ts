@@ -32,7 +32,7 @@ describe('Float V1', () => {
 
     it('can get proper graphql types', () => {
         const graphQlTypes = new FloatType(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: Float` };
+        const results = { type: `${field}: Float`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });

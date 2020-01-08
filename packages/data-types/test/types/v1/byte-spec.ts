@@ -33,14 +33,14 @@ describe('Byte V1', () => {
 
     it('can get proper graphql types', () => {
         const graphQlTypes = new ByteType(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: Int` };
+        const results = { type: `${field}: Int`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });
 
     it('can get proper graphql types when given an array', () => {
         const graphQlTypes = new ByteType(field, { ...typeConfig, array: true }).toGraphQL();
-        const results = { type: `${field}: [Int]` };
+        const results = { type: `${field}: [Int]`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });

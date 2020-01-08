@@ -61,7 +61,7 @@ describe('Hostname V1', () => {
 
     it('can get proper graphql types', () => {
         const graphQlTypes = new Hostname(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: String` };
+        const results = { type: `${field}: String`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });

@@ -32,14 +32,14 @@ describe('Text V1', () => {
 
     it('can get proper graphql types', () => {
         const graphQlTypes = new Text(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: String` };
+        const results = { type: `${field}: String`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });
 
     it('can get proper graphql types when given an array', () => {
         const graphQlTypes = new Text(field, { ...typeConfig, array: true }).toGraphQL();
-        const results = { type: `${field}: [String]` };
+        const results = { type: `${field}: [String]`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });

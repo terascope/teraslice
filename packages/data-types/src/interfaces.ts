@@ -124,7 +124,7 @@ export type DataTypeConfig = {
 
 export interface GraphQLType {
     type: string;
-    custom_type?: string;
+    customTypes: string[];
 }
 
 export type ESTypeMapping = PropertyESTypeMapping | FieldsESTypeMapping | BasicESTypeMapping;

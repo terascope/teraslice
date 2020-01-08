@@ -67,11 +67,15 @@ describe('DataType (graphql)', () => {
             const dataType = new DataType(typeConfig, 'ObjType', 'nested field test description');
             expect(dataType.toGraphQL()).toEqual(
                 formatSchema(`
-                        scalar JSONObject
+                        type DTObjTypeV1 {
+                            a: String
+                            bar: String
+                            foo: String
+                        }
 
                         # nested field test description
                         type ObjType {
-                            example: JSONObject
+                            example: DTObjTypeV1
                         }
                     `)
             );

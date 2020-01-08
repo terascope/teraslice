@@ -1,21 +1,16 @@
 import { TypeConfig } from 'xlucene-evaluator';
-import * as ts from '@terascope/utils';
-import { TypeESMapping, GraphQLType, FieldTypeConfig } from '../../interfaces';
+import { TypeESMapping, GraphQLType } from '../../interfaces';
 import BaseType from './base-type';
 
 export type NestedTypes = { [field: string]: BaseType };
 
-export default class GroupType {
-    readonly field: string;
+export default class GroupType extends BaseType {
     readonly types: NestedTypes;
-    readonly config: FieldTypeConfig;
+    readonly version: number;
 
-    constructor(field: string, config: FieldTypeConfig, types: NestedTypes) {
-        if (!field || !ts.isString(field)) {
-            throw new ts.TSError('A field must be provided and must be of type string');
-        }
-        this.field = field;
-        this.config = config;
+    constructor(field: string, version: number, types: NestedTypes) {
+        super(field, types[field].config);
+        this.version = version;
         this.types = types;
     }
 
@@ -23,12 +18,39 @@ export default class GroupType {
         return {} as any;
     }
 
-    toGraphQL(): GraphQLType {
-        return { type: 'test' };
+    toGraphQL(typeName?: string): GraphQLType {
+        const customTypeName = `DT${typeName || 'Object'}V${this.version}`;
+
+        const properties: string[] = [];
+        const customTypes: string[] = [];
+
+        for (const [field, type] of Object.entries(this.types)) {
+            if (field === this.field) {
+                continue;
+            }
+
+            const result = type.toGraphQL(typeName);
+
+            properties.push(this._removeBase(result.type));
+
+            customTypes.push(...result.customTypes);
+        }
+
+        customTypes.push(`
+            type ${customTypeName} {
+                ${[...properties].sort().join('\n')}
+            }
+        `);
+
+        return this._formatGql(customTypeName, customTypes);
     }
 
     toXlucene(): TypeConfig {
         const configs = Object.values(this.types).map((type) => type.toXlucene());
         return Object.assign({}, ...configs);
+    }
+
+    private _removeBase(str: string) {
+        return str.replace(`${this.field}.`, '').trim();
     }
 }

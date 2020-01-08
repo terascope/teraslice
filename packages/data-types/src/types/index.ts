@@ -70,7 +70,7 @@ function getGroupType({
         });
     });
 
-    return new GroupType(base, nestedTypes[base].config, nestedTypes);
+    return new GroupType(base, version, nestedTypes);
 }
 
 export type GetTypeArg = {

@@ -44,7 +44,7 @@ describe('KeywordTokens V1', () => {
 
     it('can get proper graphql types', () => {
         const graphQlTypes = new KeywordTokens(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: String` };
+        const results = { type: `${field}: String`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });

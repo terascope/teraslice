@@ -33,7 +33,7 @@ describe('Long V1', () => {
 
     it('can get proper graphql types', () => {
         const graphQlTypes = new LongType(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: Int` };
+        const results = { type: `${field}: Int`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });
