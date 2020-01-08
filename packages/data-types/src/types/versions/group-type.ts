@@ -1,4 +1,5 @@
 import { TypeConfig } from 'xlucene-evaluator';
+import { firstToUpper } from '@terascope/utils';
 import * as i from '../../interfaces';
 import BaseType from './base-type';
 
@@ -48,7 +49,12 @@ export default class GroupType extends BaseType {
     }
 
     toGraphQL(typeName?: string) {
-        const customTypeName = `DT${typeName || 'Object'}V${this.version}`;
+        const customTypeName: string = [
+            'DT',
+            (typeName || 'Object'),
+            firstToUpper(this.field),
+            `V${this.version}`
+        ].join('');
 
         const properties: string[] = [];
         const customTypes: string[] = [];
