@@ -198,13 +198,15 @@ The processor will be added to the `asset` directory with an associated test fil
 
 Commands to manage jobs by referencing a job file.
 
-### tjm register
+### tjm register or reg
 
-Registers a job to a cluster and adds the metadata to a job file. Before a job can be registered set up cluster aliases as instructed above. Use `--start` to immediately start the job after registering, also accepts the abbreviation reg.
+Registers a job to a cluster and adds the metadata to a job file. Before a job can be registered set up cluster aliases as instructed above.
+
+- `--start` Starts job after it is registered
 
 ```sh
-teraslice-cli tjm register <cluster-alias> jobFile.json
-teraslice-cli tjm reg <cluster-alias> jobFile.json --start
+teraslice-cli tjm register <cluster-alias> JOB.JSON
+teraslice-cli tjm reg <cluster-alias> JOB.JSON --start
 ```
 
 **For all the commands below the job must be registered on the cluster and have metadata in the `jobsFile.json` to work**
@@ -214,7 +216,7 @@ teraslice-cli tjm reg <cluster-alias> jobFile.json --start
 For anyone who was using the previous version of tjm this command converts the old metadata style to the current version so that jobs don't have to be re-registered with the cluster.  Just use convert and any of the below commands will work, this does break the use of any older versions of tjm.
 
 ```sh
-teraslice-cli tjm convert jobFile.json
+teraslice-cli tjm convert JOB.JSON
 ```
 
 ### tjm errors
@@ -222,7 +224,7 @@ teraslice-cli tjm convert jobFile.json
 Displays errors for a job.
 
 ```sh
-teraslice-cli tjm errors jobFile.json
+teraslice-cli tjm errors JOB.JSON
 ```
 
 ### tjm init
@@ -230,7 +232,7 @@ teraslice-cli tjm errors jobFile.json
 Creates an example teraslice-job in the current working directory
 
 ```sh
-terasclie-cli tjm init jobFile.json
+terasclie-cli tjm init JOB.JSON
 ```
 
 ### tjm reset
@@ -238,7 +240,7 @@ terasclie-cli tjm init jobFile.json
 Removes metadata from job file, useful if the job needs to be moved to a different cluster.
 
 ```sj
-teraslice-cli tjm reset jobFile.json
+teraslice-cli tjm reset JOB.JSON
 ```
 
 ### tjm restart
@@ -246,7 +248,7 @@ teraslice-cli tjm reset jobFile.json
 Stops and restarts a job.
 
 ```sh
-teraslice-cli tjm restart jobFile.json
+teraslice-cli tjm restart JOB.JSON
 ```
 
 ### tjm start
@@ -254,7 +256,7 @@ teraslice-cli tjm restart jobFile.json
 Starts a job, `run` is an alias to `start`.
 
 ```sh
-teraslice-cli jobs start jobFile.json
+teraslice-cli jobs start JOB.JSON
 ```
 
 ### tjm status
@@ -262,7 +264,7 @@ teraslice-cli jobs start jobFile.json
 Reports the status of a job.
 
 ```sh
-teraslice-cli tjm status jobFile.json
+teraslice-cli tjm status JOB.JSON
 ```
 
 ### tjm stop
@@ -270,16 +272,39 @@ teraslice-cli tjm status jobFile.json
 Stops a job.
 
 ```sh
-teraslice-cli tjm stop jobFile.json
+teraslice-cli tjm stop JOB.JSON
 ```
+
+### tjm await
+
+Waits for job to reach specified status
+
+- `--status` The status to wait on, once the job gets to specified status the cli exits
+  - defaults to stopped or completed if not specified
+  - can enter more than one status seperated by a space
+- `--timeout` Time in microseconds, how long to wait for the job to reach the status
+  - default is forever
+- `--start` Start the job then await for status
+
+```sh
+teraslice-cli tjm await JOB.JSON
+teraslice-cli tjm await JOB.JSON --start
+teraslice-cli tjm await JOB.JSON --status completed
+teraslice-cli tjm await JOB.JSON --status completed --timeout 10000
+teraslice-cli tjm await JOB.JSON --status failing --timeout 10000 --start
+teraslice-cli tjm await JOB.JSON --status running failing initializing --start
+```
+
 
 ### tjm update
 
-Updates the job file on the cluster, can also set --start to restart the job after the update is complete.
+Updates the job file on the cluster
+
+- `--start` Starts job after update is complete
 
 ```sh
-teraslice-cli tjm update jobFile.json
-teraslice-cli tjm update jobFile.json --start
+teraslice-cli tjm update JOB.JSON
+teraslice-cli tjm update JOB.JSON --start
 ```
 
 ### tjm view
@@ -287,7 +312,7 @@ teraslice-cli tjm update jobFile.json --start
 Displays job file as it is saved on the cluster.
 
 ```sh
-teraslice-cli tjm view jobFile.json
+teraslice-cli tjm view JOB.JSON
 ```
 
 ### tjm workers
@@ -295,9 +320,9 @@ teraslice-cli tjm view jobFile.json
 Adjusts the number of workers for a job.  Only accepts add, remove and total.  Total will add or remove workers accordingly to get to the number specified.
 
 ```sh
-teraslice-cli tjm workers add 10 jobFile.json
-teraslice-cli tjm workers remove 5 jobFile.json
-teraslice-cli tjm workers total 50 jobFile.json
+teraslice-cli tjm workers add 10 JOB.JSON
+teraslice-cli tjm workers remove 5 JOB.JSON
+teraslice-cli tjm workers total 50 JOB.JSON
 ```
 
 ## Jobs
@@ -325,6 +350,24 @@ teraslice-cli jobs resume local 99999999-9999-9999-9999-999999999999
 teraslice-cli jobs restart local 99999999-9999-9999-9999-999999999999
 # restart all jobs, no prompt
 teraslice-cli jobs restart local --all -y
+```
+
+### jobs await
+
+Waits for job to reach a specified status
+
+- `--status` The status to wait on, once the job gets to specified status the cli exits
+  - defaults to stopped or completed if not specified
+  - can enter more than one status seperated by a space
+- `--timeout` Time in microseconds, how long to wait for the job to reach the status
+  - default is forever
+- `--start` Start the job then await for status
+
+```sh
+teraslice-cli jobs await <cluster> <job_id>
+teraslice-cli jobs await LOCALHOST 99999999-9999-9999-9999-999999999999
+teraslice-cli jobs await LOCALHOST 99999999-9999-9999-9999-999999999999 --start
+teraslice-cli jobs await LOCALHOST 99999999-9999-9999-9999-999999999999 --status running failing --timeout 10000 --start
 ```
 
 ### jobs errors

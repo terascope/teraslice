@@ -25,6 +25,31 @@ export default class Options {
                 nargs: 1,
                 type: 'string'
             }),
+            'await-status': () => ({
+                describe: 'desired status to wait for, exits once status is reached',
+                type: 'array',
+                choices: [
+                    'pending',
+                    'scheduling',
+                    'recovering',
+                    'initializing',
+                    'running',
+                    'failing',
+                    'paused',
+                    'stopping',
+                    'completed',
+                    'stopped',
+                    'rejected',
+                    'failed',
+                    'terminated'
+                ],
+                default: ['completed', 'stopped']
+            }),
+            'await-timeout': () => ({
+                describe: 'time in milliseconds to wait for status, exits if timeout expires',
+                type: 'number',
+                default: 0
+            }),
             'base-dir': () => ({
                 describe: 'The base directory to work in, defaults to cwd',
                 default: process.cwd(),
@@ -84,7 +109,7 @@ export default class Options {
                 type: 'boolean'
             }),
             start: () => ({
-                describe: 'Option to start job immediately after registering or updating a job',
+                describe: 'Option to start job ',
                 alias: 'run',
                 type: 'boolean',
                 default: false

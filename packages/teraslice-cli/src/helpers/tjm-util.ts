@@ -21,6 +21,11 @@ export default class TjmUtil {
 
             reply.green(`Started ${this.job.name} on ${this.job.clusterUrl}`);
         } catch (e) {
+            if (e.message.includes('is currently running')) {
+                reply.green(`> job: ${this.job.name}, id: ${this.job.jobId} is running on ${this.job.clusterUrl}`);
+                return;
+            }
+
             reply.fatal(e.message);
         }
     }

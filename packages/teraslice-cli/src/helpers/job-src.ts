@@ -7,7 +7,7 @@ import { getPackage } from '../../src/helpers/utils';
 const { version } = getPackage();
 const reply = new Reply();
 
-// TODO: relook into this use!!!!!!!!!!!!!!
+// TODO: relook into this use
 
 export default class JobFile {
     /**
@@ -18,6 +18,7 @@ export default class JobFile {
     version: string;
     jobId!: string;
     name!: string;
+    id!: string;
     clusterUrl!: string;
     content: any;
 
@@ -40,6 +41,7 @@ export default class JobFile {
         }
 
         this.jobId = this.content.__metadata.cli.job_id;
+        this.id = this.content.__metadata.cli.job_id;
         this.clusterUrl = this.content.__metadata.cli.cluster;
         this.name = this.content.name;
     }
@@ -58,10 +60,16 @@ export default class JobFile {
     }
 
     readFile() {
-        if (!fs.pathExistsSync(this.jobPath)) {
-            reply.fatal(`Cannot find ${this.jobPath}, check your path and file name and try again`);
+        try {
+            this.content = fs.readJsonSync(this.jobPath);
+        } catch (e) {
+            if (e.message.includes('no such file or directory')) {
+                reply.fatal(`Cannot find ${this.jobPath}, check your path and file name and try again`);
+                return;
+            }
+
+            reply.fatal(e.message);
         }
-        this.content = fs.readJsonSync(this.jobPath);
     }
 
     addMetaData(id: string, clusterUrl: string) {
