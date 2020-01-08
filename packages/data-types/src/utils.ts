@@ -13,6 +13,26 @@ export function formatGQLComment(desc?: string): string {
         .join('\n');
 }
 
+export function concatUniqueStrings(...values: (string|(string[]))[]): string[] {
+    const set = new Set<string>();
+    values.forEach((vals) => {
+        if (Array.isArray(vals)) {
+            vals.forEach((val) => {
+                const v = ts.trim(val);
+                if (v) set.add(v);
+            });
+        } else {
+            const v = ts.trim(vals);
+            if (v) set.add(v);
+        }
+    });
+    return [...set];
+}
+
+export function joinStrings(...values: (string|(string[]))[]): string {
+    return concatUniqueStrings(...values).join('\n');
+}
+
 export function validateDataTypeConfig(config: DataTypeConfig): DataTypeConfig {
     if (!config || ts.isEmpty(config)) {
         throw new ts.TSError('Missing data type config');

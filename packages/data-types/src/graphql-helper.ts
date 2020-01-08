@@ -69,9 +69,16 @@ export const GraphQLDataType = new GraphQLScalarType({
     parseLiteral,
 });
 
-export function formatSchema(schemaStr: string) {
-    const schema = buildSchema(schemaStr, { commentDescriptions: true });
-    return printSchema(schema, {
+export function formatSchema(schemaStr: string, removeScalars = false) {
+    const schema = buildSchema(schemaStr, {
+        commentDescriptions: true,
+    });
+    const result = printSchema(schema, {
         commentDescriptions: true
     });
+
+    if (removeScalars) {
+        return result.replace(/\s*scalar \w+\s*/gi, '\n');
+    }
+    return result;
 }

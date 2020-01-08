@@ -93,6 +93,18 @@ describe('DataType', () => {
 
             expect(() => new DataType(typeConfig)).not.toThrow();
         });
+
+        it('should persist config, name and description', () => {
+            const typeConfig: DataTypeConfig = {
+                version: LATEST_VERSION,
+                fields: { hello: { type: 'Keyword' } },
+            };
+
+            const dataType = new DataType(typeConfig, 'Test', 'hello there');
+            expect(dataType).toHaveProperty('name', 'Test');
+            expect(dataType).toHaveProperty('description', 'hello there');
+            expect(dataType).toHaveProperty('config', typeConfig);
+        });
     });
 
     describe('->toXlucene', () => {
@@ -292,6 +304,33 @@ describe('DataType', () => {
             `);
 
             expect(results).toEqual(schema);
+        });
+
+        it('can merge schema without the result scalars', () => {
+            const typeConfig: DataTypeConfig = {
+                version: LATEST_VERSION,
+                fields: {
+                    test_obj: { type: 'Object' },
+                    test_geo: { type: 'GeoJSON' },
+                },
+            };
+
+            const types = [new DataType(typeConfig, 'Test')];
+
+            const result = DataType.mergeGraphQLDataTypes(types, {}, true);
+            const schema = formatSchema(`
+                scalar JSONObject
+                scalar GeoJSON
+
+                type Test {
+                    test_obj: JSONObject
+                    test_geo: GeoJSON
+                }
+            `, true);
+
+            expect(result).toEqual(schema);
+            expect(result).not.toInclude('scalar');
+            expect(schema).not.toInclude('scalar');
         });
 
         it('should be able to combine mulitple types together with references', () => {
