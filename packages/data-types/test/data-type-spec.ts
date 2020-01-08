@@ -333,6 +333,57 @@ describe('DataType', () => {
             expect(schema).not.toInclude('scalar');
         });
 
+        it('should throw when given duplicte type names', () => {
+            const typeConfig1: DataTypeConfig = {
+                version: LATEST_VERSION,
+                fields: {
+                    hello: { type: 'Keyword' },
+                },
+            };
+
+            const typeConfig2: DataTypeConfig = {
+                version: LATEST_VERSION,
+                fields: {
+                    hello: { type: 'Text' },
+                },
+            };
+
+            const typeConfig3: DataTypeConfig = {
+                version: LATEST_VERSION,
+                fields: {
+                    hello: { type: 'Keyword' },
+                    hi: { type: 'Keyword' },
+                },
+            };
+
+            const types = [
+                new DataType(typeConfig1, 'Hello'),
+                new DataType(typeConfig2, 'Hello'),
+                new DataType(typeConfig3, 'Hello'),
+            ];
+
+            expect(() => {
+                DataType.mergeGraphQLDataTypes(types, { removeScalars: true });
+            }).toThrowError(/Unable to process duplicate DataType "Hello"/);
+        });
+
+        it('should throw when given a type without a type name', () => {
+            const typeConfig1: DataTypeConfig = {
+                version: LATEST_VERSION,
+                fields: {
+                    hello: { type: 'Keyword' },
+                },
+            };
+
+            const types = [
+                new DataType(typeConfig1),
+            ];
+
+            expect(() => {
+                DataType.mergeGraphQLDataTypes(types);
+            }).toThrowError(/Unable to process DataType with missing type name/);
+        });
+
         it('should be able to combine mulitple types together with references', () => {
             const infoTypeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,

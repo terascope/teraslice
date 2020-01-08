@@ -30,8 +30,19 @@ export class DataType {
 
         const customTypesList: string[] = [];
         const baseTypeList: string[] = [];
+        const names: string[] = [];
 
         types.forEach((type) => {
+            if (!type.name || !ts.isString(type.name)) {
+                throw new Error('Unable to process DataType with missing type name');
+            }
+
+            if (names.includes(type.name)) {
+                throw new Error(`Unable to process duplicate DataType "${type.name}"`);
+            }
+
+            names.push(type.name);
+
             const global = typeReferences.__all || [];
             const typeSpecific = typeReferences[type.name] || [];
             const references: string[] = utils.concatUniqueStrings(
@@ -57,7 +68,7 @@ export class DataType {
         if (description) this.description = description;
 
         const { version, fields } = utils.validateDataTypeConfig(config);
-        this.config = { version, fields };
+        this.config = Object.freeze({ version, fields });
 
         const typeManager = new TypesManager(version);
         this._types = typeManager.getTypes(fields);
