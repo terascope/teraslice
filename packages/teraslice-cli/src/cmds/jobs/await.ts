@@ -46,7 +46,6 @@ const cmd: CMD = {
                     jobs.config.args.timeout
                 )
             ));
-            reply.green(`> job: ${jobs.config.args.id} reached status: ${newStatus}`);
         } catch (e) {
             // @ts-ignore
             if (!e.fatalError && desiredStatus.includes(e.context.lastStatus)) {
