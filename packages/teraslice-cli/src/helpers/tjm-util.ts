@@ -1,4 +1,5 @@
 import Reply from '../cmds/lib/reply';
+
 const reply = new Reply();
 
 export default class TjmUtil {

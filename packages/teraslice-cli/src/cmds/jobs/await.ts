@@ -28,7 +28,6 @@ const cmd: CMD = {
         const cliConfig = new Config(argv);
         const jobs = new Jobs(cliConfig);
 
-
         const desiredStatus: TSClientTypes.ExecutionStatus[] = jobs.config.args.status;
 
         if (jobs.config.args.start) {
@@ -49,8 +48,8 @@ const cmd: CMD = {
             ));
             reply.green(`> job: ${jobs.config.args.id} reached status: ${newStatus}`);
         } catch (e) {
-             // @ts-ignore
-             if (!e.fatalError && desiredStatus.includes(e.context.lastStatus)) {
+            // @ts-ignore
+            if (!e.fatalError && desiredStatus.includes(e.context.lastStatus)) {
                 newStatus = e.context.lastStatus;
             } else {
                 reply.fatal(e.message);
