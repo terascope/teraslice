@@ -37,6 +37,12 @@ describe('Keyword V1', () => {
         expect(graphQlTypes).toEqual(results);
     });
 
+    it('will use ID when the field is _key in graphql', () => {
+        const graphQlTypes = new Keyword('_key', typeConfig).toGraphQL();
+
+        expect(graphQlTypes).toEqual({ type: '_key: ID' });
+    });
+
     it('can get proper xlucene properties', () => {
         const xlucene = new Keyword(field, typeConfig).toXlucene();
         const results = { [field]: 'string' };
