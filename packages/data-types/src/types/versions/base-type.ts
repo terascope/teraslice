@@ -3,25 +3,21 @@ import * as ts from '@terascope/utils';
 import { TypeESMapping, GraphQLType, FieldTypeConfig } from '../../interfaces';
 import { formatGQLComment } from '../../graphql-helper';
 
-export type NestedTypes = { [field: string]: BaseType };
-
 // eslint-disable-next-line @typescript-eslint/interface-name-prefix
 export interface IBaseType {
-    new(field: string, config: FieldTypeConfig, nestedTypes?: NestedTypes): BaseType;
+    new(field: string, config: FieldTypeConfig): BaseType;
 }
 
 export default abstract class BaseType {
     readonly field: string;
-    readonly nestedTypes?: NestedTypes;
     readonly config: FieldTypeConfig;
 
-    constructor(field: string, config: FieldTypeConfig, nestedTypes?: NestedTypes) {
+    constructor(field: string, config: FieldTypeConfig) {
         if (!field || !ts.isString(field)) {
             throw new ts.TSError('A field must be provided and must be of type string');
         }
         this.field = field;
         this.config = config;
-        this.nestedTypes = nestedTypes;
     }
 
     abstract toESMapping(version?: number): TypeESMapping;
