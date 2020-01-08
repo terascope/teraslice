@@ -4,7 +4,7 @@ import { formatSchema, formatGQLComment } from './graphql-helper';
 import * as i from './interfaces';
 import BaseType from './types/versions/base-type';
 import * as utils from './utils';
-import { TypesManager } from './types';
+import { getTypes } from './types';
 
 /**
  * A DataType is used to define the structure of data with version support
@@ -86,8 +86,7 @@ export class DataType {
         this.fields = Object.freeze(fields);
         this.version = version;
 
-        const typeManager = new TypesManager(version);
-        this._types = typeManager.getTypes(fields);
+        this._types = getTypes(fields, version);
     }
 
     /**

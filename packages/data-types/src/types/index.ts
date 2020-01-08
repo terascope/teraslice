@@ -1,29 +1,35 @@
 import * as ts from '@terascope/utils';
 import { mapping } from './versions/mapping';
 import { FieldTypeConfig, AvailableVersion, TypeConfigFields } from '../interfaces';
-import BaseType from './versions/base-type';
-
-export class TypesManager {
-    public version: AvailableVersion;
-
-    constructor(version: AvailableVersion) {
-        this.version = version;
-        if (mapping[this.version] == null) throw new ts.TSError(`Unknown DataType version v${version}`);
-    }
-
-    getTypes(fields: TypeConfigFields) {
-        const types: BaseType[] = [];
-        for (const field of Object.keys(fields).sort()) {
-            types.push(this.getType(field, fields[field]));
-        }
-        return types;
-    }
-
-    getType(field: string, type: FieldTypeConfig) {
-        const Type = ts.get(mapping, [this.version, type.type]);
-        if (Type == null) throw new ts.TSError(`Type "${type.type}" was not found in version v${this.version}`);
-        return new Type(field, type);
-    }
-}
+import BaseType, { NestedTypes, IBaseType } from './versions/base-type';
 
 export const LATEST_VERSION: AvailableVersion = 1;
+
+export function getTypes(fields: TypeConfigFields, version = LATEST_VERSION): BaseType[] {
+    const types: BaseType[] = [];
+    for (const field of Object.keys(fields).sort()) {
+        types.push(getType({
+            field,
+            config: fields[field],
+            version
+        }));
+    }
+    return types;
+}
+
+export type GetTypeArg = {
+    field: string;
+    config: FieldTypeConfig;
+    nestedTypes?: NestedTypes;
+    version?: AvailableVersion;
+};
+
+export function getType({
+    field, config, nestedTypes, version = LATEST_VERSION
+}: GetTypeArg) {
+    const TypeClass = ts.get(mapping, [version, config.type]) as IBaseType;
+    if (TypeClass == null) {
+        throw new ts.TSError(`Type "${config.type}" was not found in version v${version}`);
+    }
+    return new TypeClass(field, config, nestedTypes);
+}
