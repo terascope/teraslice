@@ -103,7 +103,8 @@ describe('DataType', () => {
             const dataType = new DataType(typeConfig, 'Test', 'hello there');
             expect(dataType).toHaveProperty('name', 'Test');
             expect(dataType).toHaveProperty('description', 'hello there');
-            expect(dataType).toHaveProperty('config', typeConfig);
+            expect(dataType).toHaveProperty('fields', typeConfig.fields);
+            expect(dataType).toHaveProperty('version', typeConfig.version);
         });
     });
 

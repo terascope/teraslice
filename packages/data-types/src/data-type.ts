@@ -17,7 +17,8 @@ import { TypesManager } from './types';
 export class DataType {
     readonly name!: string;
     readonly description?: string;
-    readonly config: i.DataTypeConfig;
+    readonly fields: i.TypeConfigFields;
+    readonly version: i.AvailableVersion;
 
     private readonly _types: BaseType[];
 
@@ -82,7 +83,8 @@ export class DataType {
         if (description) this.description = description;
 
         const { version, fields } = utils.validateDataTypeConfig(config);
-        this.config = Object.freeze({ version, fields });
+        this.fields = Object.freeze(fields);
+        this.version = version;
 
         const typeManager = new TypesManager(version);
         this._types = typeManager.getTypes(fields);
