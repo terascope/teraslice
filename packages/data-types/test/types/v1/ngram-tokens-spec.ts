@@ -56,7 +56,7 @@ describe('NgramTokens V1', () => {
         expect(esMapping).toEqual(results);
     });
 
-    it('can get proper graphQl types', () => {
+    it('can get proper graphql types', () => {
         const graphQlTypes = new NgramTokens(field, typeConfig).toGraphQL();
         const results = { type: `${field}: String` };
 

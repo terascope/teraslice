@@ -30,14 +30,14 @@ describe('Object V1', () => {
         expect(esMapping).toEqual(results);
     });
 
-    it('can get proper graphQl types', () => {
+    it('can get proper graphql types', () => {
         const graphQlTypes = new ObejctType(field, typeConfig).toGraphQL();
         const results = { type: `${field}: JSONObject`, custom_type: 'scalar JSONObject' };
 
         expect(graphQlTypes).toEqual(results);
     });
 
-    it('can get proper graphQl types when given an array', () => {
+    it('can get proper graphql types when given an array', () => {
         const graphQlTypes = new ObejctType(field, { ...typeConfig, array: true }).toGraphQL();
         const results = { type: `${field}: JSONObject`, custom_type: 'scalar JSONObject' };
 

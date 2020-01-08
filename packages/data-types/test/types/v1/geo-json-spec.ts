@@ -38,7 +38,7 @@ describe('GeoPoint V1', () => {
         expect(esMapping).toEqual(results);
     });
 
-    it('can get proper graphQl types', () => {
+    it('can get proper graphql types', () => {
         const { type: graphQlTypes } = new GeoJSONType(field, typeConfig).toGraphQL();
         const results = `${field}: GeoJSON`;
 

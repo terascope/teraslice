@@ -30,14 +30,14 @@ describe('Boolean V1', () => {
         expect(esMapping).toEqual(results);
     });
 
-    it('can get proper graphQl types', () => {
+    it('can get proper graphql types', () => {
         const graphQlTypes = new BooleanType(field, typeConfig).toGraphQL();
         const results = { type: `${field}: Boolean` };
 
         expect(graphQlTypes).toEqual(results);
     });
 
-    it('can get proper graphQl types when given an array', () => {
+    it('can get proper graphql types when given an array', () => {
         const graphQlTypes = new BooleanType(field, { ...typeConfig, array: true }).toGraphQL();
         const results = { type: `${field}: [Boolean]` };
 
