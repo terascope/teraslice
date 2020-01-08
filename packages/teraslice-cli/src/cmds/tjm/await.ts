@@ -1,12 +1,10 @@
 import * as TSClientTypes from 'teraslice-client-js';
 import * as util from '@terascope/utils';
-import TjmUtil from '../../helpers/tjm-util';
 import { getTerasliceClient } from '../../helpers/utils';
+import TjmUtil from '../../helpers/tjm-util';
 import YargsOptions from '../../helpers/yargs-options';
 import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
-import Config from '../../helpers/config';
-import Jobs from '../../helpers/jobs';
 import Reply from '../lib/reply';
 
 const yargsOptions = new YargsOptions();
@@ -34,6 +32,7 @@ const cmd: CMD = {
         jobFile.init();
 
         const client = getTerasliceClient(jobFile);
+
         const tjmUtil = new TjmUtil(client, jobFile);
 
         const desiredStatus: TSClientTypes.ExecutionStatus[] = argv.status;
@@ -43,7 +42,7 @@ const cmd: CMD = {
             await util.pDelay(2500);
         }
 
-        const jobFuncs = await client.jobs.wrap(jobFile.jobId);
+        const jobFuncs = await tjmUtil.client.jobs.wrap(jobFile.jobId);
         const currentStatus = await jobFuncs.status();
 
         reply.green(`> job: ${jobFile.jobId} current status: ${currentStatus}`);

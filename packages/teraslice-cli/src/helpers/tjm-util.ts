@@ -1,5 +1,4 @@
 import Reply from '../cmds/lib/reply';
-
 const reply = new Reply();
 
 export default class TjmUtil {
@@ -25,7 +24,7 @@ export default class TjmUtil {
                 reply.green(`> job: ${this.job.name}, id: ${this.job.jobId} is running on ${this.job.clusterUrl}`);
                 return;
             }
-    
+
             reply.fatal(e.message);
         }
     }

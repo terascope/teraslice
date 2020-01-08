@@ -28,12 +28,12 @@ const cmd: CMD = {
         const cliConfig = new Config(argv);
         const jobs = new Jobs(cliConfig);
 
+
         const desiredStatus: TSClientTypes.ExecutionStatus[] = jobs.config.args.status;
 
         if (jobs.config.args.start) {
             // hack to get jobs.start to work without over logging
             jobs.config.args.status = 'running,failing';
-
             await jobs.start();
         }
 
