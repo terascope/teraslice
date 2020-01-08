@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import fs from 'fs-extra';
 import * as TSClientTypes from 'teraslice-client-js';
-import * as util from '@terascope/utils';
 
 import TerasliceUtil from './teraslice-util';
 import displayModule from '../cmds/lib/display';
@@ -77,23 +76,12 @@ export default class Jobs {
         return this.status(true, true);
     }
 
-    async awaitStatus(
+    awaitStatus(
         desiredStatus: TSClientTypes.ExecutionStatus,
-        jobFunctions: TSClientTypes.Job,
+        jobId: string,
         timeout = 0
     ) {
-        try {
-            return jobFunctions.waitForStatus(desiredStatus, 5000, timeout);
-        } catch (e) {
-            // don't want to throw an error if job reaches any of the desired statuses
-            const currentStatus = await jobFunctions.status()
-
-            if (e.message.includes('Job cannot reach the target status')
-                && this.config.args.status.includes(currentStatus)) {
-                return currentStatus;
-            }
-            reply.fatal(e.message);
-        }
+        return this.teraslice.client.jobs.wrap(jobId).waitForStatus(desiredStatus, 5000, timeout);
     }
 
     async status(saveState = false, showJobs = true): Promise<void> {

@@ -1,9 +1,10 @@
-import { CMD } from '../../interfaces';
-import Config from '../../helpers/config';
 import * as TSClientTypes from 'teraslice-client-js';
+import * as util from '@terascope/utils';
 import YargsOptions from '../../helpers/yargs-options';
 import Jobs from '../../helpers/jobs';
 import Reply from '../lib/reply';
+import Config from '../../helpers/config';
+import { CMD } from '../../interfaces';
 
 const yargsOptions = new YargsOptions();
 const reply = new Reply();
@@ -30,21 +31,33 @@ const cmd: CMD = {
         const desiredStatus: TSClientTypes.ExecutionStatus[] = jobs.config.args.status;
 
         if (jobs.config.args.start) {
-            // hack to get jobs.start to work without printing out too much stuff
+            // hack to get jobs.start to work without over logging
             jobs.config.args.status = 'running,failing';
-    
+
             await jobs.start();
         }
 
+        let newStatus;
         // @ts-ignore
-        const newStatus = await Promise.all(desiredStatus.map(
-            (status) => jobs.awaitStatus(
-                status,
-                jobs.teraslice.client.jobs.wrap(jobs.config.args.id),
-                jobs.config.args.timeout)
-        ));
+        try {
+            newStatus = await util.pRace(desiredStatus.map(
+                (status) => jobs.awaitStatus(
+                    status,
+                    jobs.config.args.id,
+                    jobs.config.args.timeout
+                )
+            ));
+            reply.green(`> job: ${jobs.config.args.id} reached status: ${newStatus}`);
+        } catch (e) {
+             // @ts-ignore
+             if (!e.fatalError && desiredStatus.includes(e.context.lastStatus)) {
+                newStatus = e.context.lastStatus;
+            } else {
+                reply.fatal(e.message);
+            }
+        }
 
-        reply.green(`> job: ${jobs.config.args.id} reached status: ${status}`);
+        reply.green(`> job: ${jobs.config.args.id} reached status: ${newStatus}`);
     }
 };
 
