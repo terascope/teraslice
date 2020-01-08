@@ -65,6 +65,7 @@ export default class JobFile {
         } catch (e) {
             if (e.message.includes('no such file or directory')) {
                 reply.fatal(`Cannot find ${this.jobPath}, check your path and file name and try again`);
+                return;
             }
 
             reply.fatal(e.message);
