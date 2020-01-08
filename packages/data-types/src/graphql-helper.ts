@@ -1,10 +1,8 @@
+import * as ts from '@terascope/utils';
 import {
     GraphQLScalarType, ASTNode, buildSchema, printSchema
 } from 'graphql';
 import { Kind, StringValueNode } from 'graphql/language';
-import { mapping } from './types/versions/mapping';
-
-const allTypes = Object.assign({}, ...Object.values(mapping));
 
 function serialize(value: any) {
     return value;
@@ -34,7 +32,7 @@ function parseLiteral(ast: ASTNode) {
             const keyValue = (valueNode as StringValueNode).value;
 
             if (keyName === 'type') {
-                if (valueNode.kind !== Kind.STRING || !allTypes[valueNode.value]) {
+                if (valueNode.kind !== Kind.STRING) {
                     throw new Error(`${keyName}: ${keyValue} is not a valid type`);
                 }
             }
@@ -81,4 +79,19 @@ export function formatSchema(schemaStr: string, removeScalars = false) {
         return result.replace(/\s*scalar \w+\s*/gi, '\n');
     }
     return result;
+}
+
+export function formatGQLComment(desc?: string, prefix?: string): string {
+    let description = ts.trim(desc);
+    if (prefix) {
+        description = description ? `${prefix} - ${description}` : prefix;
+    }
+    if (!description) return '';
+
+    return description
+        .split('\n')
+        .map((str) => ts.trim(str).replace(/^#/, '').trim())
+        .filter(Boolean)
+        .map((str) => `# ${str}`)
+        .join('\n');
 }

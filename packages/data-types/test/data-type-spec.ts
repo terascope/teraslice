@@ -161,16 +161,16 @@ describe('DataType', () => {
                 # My test data type
                 # some extra desc
                 type myType {
+                    date: String
+                    # example obj test
+                    example_obj: JSONObject
                     # # hello
                     # test
                     hello: String
-                    # location test
-                    location: DTGeoPointV1
-                    date: String
                     # ip test
                     ip: String
-                    # example obj test
-                    example_obj: JSONObject
+                    # location test
+                    location: DTGeoPointV1
                     # some number test
                     someNum: Int
                 }
@@ -223,10 +223,10 @@ describe('DataType', () => {
                 }
 
                 type otherType {
-                    hello: String
-                    location: DTGeoPointV1
                     date: String
+                    hello: String
                     ip: String
+                    location: DTGeoPointV1
                     someNum: Int
                 }
             `);
@@ -283,10 +283,10 @@ describe('DataType', () => {
             const results = DataType.mergeGraphQLDataTypes(types);
             const schema = formatSchema(`
                 type firstType {
-                    hello: String
-                    location: DTGeoPointV1
                     date: String
+                    hello: String
                     ip: String
+                    location: DTGeoPointV1
                     someNum: Int
                 }
 
@@ -296,14 +296,51 @@ describe('DataType', () => {
                 }
 
                 type secondType {
+                    bool: Boolean
                     hello: String
                     location: DTGeoPointV1
                     otherLocation: DTGeoPointV1
-                    bool: Boolean
                 }
             `);
 
             expect(results).toEqual(schema);
+        });
+
+        it('should be able to generate the input types', () => {
+            const typeConfig: DataTypeConfig = {
+                version: LATEST_VERSION,
+                fields: {
+                    _created: { type: 'Date' },
+                    _updated: { type: 'Date' },
+                    _key: { type: 'Keyword' },
+                    name: { type: 'KeywordCaseInsensitive' },
+                    description: { type: 'Text' },
+                },
+            };
+
+            const types = [
+                new DataType(typeConfig, 'TestRecord'),
+            ];
+
+            const result = DataType.mergeGraphQLDataTypes(types, {
+                createInputTypes: true,
+            });
+            const schema = formatSchema(`
+                type TestRecord {
+                    _created: String
+                    _key: ID
+                    _updated: String
+                    description: String
+                    name: String
+                }
+
+                # Input for TestRecord
+                input TestRecordInput {
+                    description: String
+                    name: String
+                }
+            `);
+            expect(result).toEqual(schema);
         });
 
         it('can merge schema without the result scalars', () => {
@@ -323,8 +360,8 @@ describe('DataType', () => {
                 scalar GeoJSON
 
                 type Test {
-                    test_obj: JSONObject
                     test_geo: GeoJSON
+                    test_obj: JSONObject
                 }
             `, true);
 
@@ -436,10 +473,10 @@ describe('DataType', () => {
                 }
 
                 type ChildType {
-                    hello: String
-                    location: DTGeoPointV1
                     date: String
+                    hello: String
                     ip: String
+                    location: DTGeoPointV1
                     long_number: Int
                     # references and virtual fields
                     info(query: String): Info
@@ -453,8 +490,8 @@ describe('DataType', () => {
 
                 type ParentType {
                     location: DTGeoPointV1
-                    other_location: DTGeoPointV1
                     obj: JSONObject
+                    other_location: DTGeoPointV1
                     some_date: String
                     # references and virtual fields
                     info(query: String): Info

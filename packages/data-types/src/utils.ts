@@ -2,18 +2,8 @@ import * as ts from '@terascope/utils';
 import { DataTypeConfig, TypeConfigFields, AvailableVersion } from './interfaces';
 import { mapping } from './types/versions/mapping';
 
-export function formatGQLComment(desc?: string): string {
-    const trimmed = ts.trim(desc);
-    if (!trimmed) return '';
-    return trimmed
-        .split('\n')
-        .map((str) => ts.trim(str).replace(/^#/, '').trim())
-        .filter(Boolean)
-        .map((str) => `# ${str}`)
-        .join('\n');
-}
-
-export function concatUniqueStrings(...values: (string|(string[]))[]): string[] {
+type ConcatStrType = string|undefined|((string|undefined)[])
+export function concatUniqueStrings(...values: ConcatStrType[]): string[] {
     const set = new Set<string>();
     values.forEach((vals) => {
         if (Array.isArray(vals)) {
@@ -21,7 +11,7 @@ export function concatUniqueStrings(...values: (string|(string[]))[]): string[] 
                 const v = ts.trim(val);
                 if (v) set.add(v);
             });
-        } else {
+        } else if (vals) {
             const v = ts.trim(vals);
             if (v) set.add(v);
         }
@@ -29,7 +19,7 @@ export function concatUniqueStrings(...values: (string|(string[]))[]): string[] 
     return [...set];
 }
 
-export function joinStrings(...values: (string|(string[]))[]): string {
+export function joinStrings(...values: ConcatStrType[]): string {
     return concatUniqueStrings(...values).join('\n');
 }
 

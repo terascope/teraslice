@@ -1,6 +1,6 @@
 import * as ts from '@terascope/utils';
 import defaultsDeep from 'lodash.defaultsdeep';
-import { formatSchema } from './graphql-helper';
+import { formatSchema, formatGQLComment } from './graphql-helper';
 import * as i from './interfaces';
 import BaseType from './types/versions/base-type';
 import * as utils from './utils';
@@ -28,8 +28,8 @@ export class DataType {
             removeScalars = false
         } = options;
 
-        const customTypesList: string[] = [];
-        const baseTypeList: string[] = [];
+        const customTypes: string[] = [];
+        const typeDefs: string[] = [];
         const names: string[] = [];
 
         types.forEach((type) => {
@@ -40,8 +40,16 @@ export class DataType {
             if (names.includes(type.name)) {
                 throw new Error(`Unable to process duplicate DataType "${type.name}"`);
             }
-
             names.push(type.name);
+
+            if (options.createInputTypes) {
+                const inputName = `${type.name}Input`;
+
+                if (names.includes(inputName)) {
+                    throw new Error(`Unable to process duplicate DataType "${inputName}" input`);
+                }
+                names.push(inputName);
+            }
 
             const global = typeReferences.__all || [];
             const typeSpecific = typeReferences[type.name] || [];
@@ -50,15 +58,21 @@ export class DataType {
                 typeSpecific
             );
 
-            const { baseType, customTypes } = type.toGraphQLTypes({
+            const result = type.toGraphQLTypes({
                 references,
+                createInputType: options.createInputTypes,
+                includeAllInputFields: options.includeAllInputFields,
             });
 
-            customTypesList.push(...customTypes);
-            baseTypeList.push(baseType);
+            customTypes.push(...result.customTypes);
+            typeDefs.push(result.baseType);
+
+            if (result.inputType) {
+                typeDefs.push(result.inputType);
+            }
         });
 
-        const strSchema = utils.joinStrings(customTypesList, baseTypeList);
+        const strSchema = utils.joinStrings(customTypes, typeDefs);
 
         return formatSchema(strSchema, removeScalars);
     }
@@ -122,57 +136,73 @@ export class DataType {
     }
 
     toGraphQL(args?: i.GraphQLOptions, removeScalars = false) {
-        const { schema } = this.toGraphQLTypes(args);
-
+        const { baseType, inputType, customTypes } = this.toGraphQLTypes(args);
+        const schema = utils.joinStrings(customTypes, baseType, inputType);
         return formatSchema(schema, removeScalars);
     }
 
     toGraphQLTypes(args: i.GraphQLOptions = {}): i.GraphQLTypesResult {
-        const { typeName = this.name, references = [], description = this.description } = args;
+        const {
+            typeName = this.name,
+            references = [],
+            description = this.description,
+            createInputType = false
+        } = args;
+
         if (!typeName) {
             throw new ts.TSError('No typeName was specified to create the graphql type representing this data structure');
         }
 
+        const inputName = `${typeName}Input`;
+
         const customTypes: string[] = [];
         const baseProperties: string[] = [];
+        const inputProperties: string[] = [];
 
         this._types.forEach((typeClass) => {
             const { type, custom_type: customType } = typeClass.toGraphQL();
-            const desc = typeClass.config.description;
-            if (desc) {
-                baseProperties.push(
-                    `${utils.formatGQLComment(desc)}\n${type}`
-                );
-            } else {
-                baseProperties.push(type);
+            baseProperties.push(type);
+
+            if (createInputType) {
+                if (args.includeAllInputFields
+                    || !ts.startsWith(typeClass.field, '_')) {
+                    inputProperties.push(type);
+                }
             }
+
             if (customType) {
                 customTypes.push(customType);
             }
         });
 
         if (references.length) {
-            baseProperties.push(utils.formatGQLComment('references and virtual fields'));
-            references.forEach((prop) => {
-                baseProperties.push(prop);
-            });
+            baseProperties.push(utils.joinStrings(
+                formatGQLComment('references and virtual fields'),
+                references
+            ));
         }
 
-        const baseType = `
-            ${utils.formatGQLComment(description)}
-            type ${typeName} {
+        const baseType = utils.joinStrings(
+            formatGQLComment(description),
+            `type ${typeName} {
                 ${utils.joinStrings(baseProperties)}
-            }
-        `.trim();
+            }`
+        );
 
-        const schema = `
-            ${baseType}
-            ${utils.joinStrings(customTypes)}
-        `.trim();
+        let inputType: string|undefined;
+
+        if (createInputType) {
+            inputType = utils.joinStrings(
+                formatGQLComment(description, `Input for ${typeName}`),
+                `input ${inputName} {
+                    ${utils.joinStrings(inputProperties)}
+                }`
+            );
+        }
 
         return {
-            schema,
             baseType,
+            inputType,
             customTypes,
         };
     }

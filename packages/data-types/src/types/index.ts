@@ -13,8 +13,8 @@ export class TypesManager {
 
     getTypes(fields: TypeConfigFields) {
         const types: BaseType[] = [];
-        for (const [field, typeDef] of Object.entries(fields)) {
-            types.push(this.getType(field, typeDef));
+        for (const field of Object.keys(fields).sort()) {
+            types.push(this.getType(field, fields[field]));
         }
         return types;
     }

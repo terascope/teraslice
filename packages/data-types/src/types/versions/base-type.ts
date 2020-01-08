@@ -1,6 +1,7 @@
 import { TypeConfig } from 'xlucene-evaluator';
 import * as ts from '@terascope/utils';
 import { TypeESMapping, GraphQLType, FieldTypeConfig } from '../../interfaces';
+import { formatGQLComment } from '../../graphql-helper';
 
 export default abstract class BaseType {
     readonly field: string;
@@ -22,17 +23,32 @@ export default abstract class BaseType {
         type: string,
         customType?: string
     ): { type: string; custom_type?: string } {
+        const desc = this.config.description;
         if (this.field.includes('.')) {
             const [base] = this.field.split('.');
             if (!ts.isTest) {
                 console.warn('[WARNING]: typed nested objects are not supported when converting to graphql\n');
             }
-            return { type: `${base}: JSONObject`, custom_type: 'scalar JSONObject' };
+            return {
+                type: formatType(`${base}: JSONObject`, desc),
+                custom_type: 'scalar JSONObject'
+            };
         }
 
         if (type !== 'JSONObject' && this.config.array) {
-            return { type: `${this.field}: [${type}]`, custom_type: customType };
+            return {
+                type: formatType(`${this.field}: [${type}]`, desc),
+                custom_type: customType
+            };
         }
-        return { type: `${this.field}: ${type}`, custom_type: customType };
+        return {
+            type: formatType(`${this.field}: ${type}`, desc),
+            custom_type: customType
+        };
     }
+}
+
+function formatType(type: string, desc?: string) {
+    if (!desc) return type;
+    return `${formatGQLComment(desc)}\n${type}`;
 }

@@ -2,8 +2,8 @@ import { AnyObject } from '@terascope/utils';
 import BaseType from './types/versions/base-type';
 
 export type GraphQLTypesResult = {
-    schema: string;
     baseType: string;
+    inputType?: string;
     customTypes: string[];
 };
 
@@ -11,11 +11,15 @@ export type GraphQLOptions = {
     typeName?: string;
     description?: string;
     references?: string[];
+    createInputType?: boolean;
+    includeAllInputFields?: boolean;
 };
 
 export type MergeGraphQLOptions = {
     removeScalars?: boolean;
     references?: GraphQLTypeReferences;
+    createInputTypes?: boolean;
+    includeAllInputFields?: boolean;
 };
 
 export type GraphQLTypeReferences = { __all?: string[] } & {
