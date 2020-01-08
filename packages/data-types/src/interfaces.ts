@@ -13,6 +13,11 @@ export type GraphQLOptions = {
     references?: string[];
 };
 
+export type MergeGraphQLOptions = {
+    removeScalars?: boolean;
+    references?: GraphQLTypeReferences;
+};
+
 export type GraphQLTypeReferences = { __all?: string[] } & {
     [typeName: string]: string[];
 };

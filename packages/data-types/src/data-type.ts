@@ -22,18 +22,22 @@ export class DataType {
     private readonly _types: BaseType[];
 
     /** Merge multiple data types into one GraphQL schema, useful for removing duplicates */
-    static mergeGraphQLDataTypes(
-        types: DataType[],
-        typeReferences: i.GraphQLTypeReferences = {},
-        removeScalars = false
-    ) {
+    static mergeGraphQLDataTypes(types: DataType[], options: i.MergeGraphQLOptions = {}) {
+        const {
+            references: typeReferences = {},
+            removeScalars = false
+        } = options;
+
         const customTypesList: string[] = [];
         const baseTypeList: string[] = [];
 
         types.forEach((type) => {
             const global = typeReferences.__all || [];
             const typeSpecific = typeReferences[type.name] || [];
-            const references: string[] = utils.concatUniqueStrings(global, typeSpecific);
+            const references: string[] = utils.concatUniqueStrings(
+                global,
+                typeSpecific
+            );
 
             const { baseType, customTypes } = type.toGraphQLTypes({
                 references,

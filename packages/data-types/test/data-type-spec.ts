@@ -317,7 +317,7 @@ describe('DataType', () => {
 
             const types = [new DataType(typeConfig, 'Test')];
 
-            const result = DataType.mergeGraphQLDataTypes(types, {}, true);
+            const result = DataType.mergeGraphQLDataTypes(types, { removeScalars: true });
             const schema = formatSchema(`
                 scalar JSONObject
                 scalar GeoJSON
@@ -368,9 +368,11 @@ describe('DataType', () => {
             ];
 
             const results = DataType.mergeGraphQLDataTypes(types, {
-                __all: ['info(query: String): Info'],
-                ChildType: ['num_parents: Int'],
-                ParentType: ['children: ChildType'],
+                references: {
+                    __all: ['info(query: String): Info'],
+                    ChildType: ['num_parents: Int'],
+                    ParentType: ['children: ChildType'],
+                }
             });
 
             const schema = formatSchema(`
