@@ -30,12 +30,13 @@ describe('GeoPoint V1', () => {
         expect(esMapping).toEqual(results);
     });
 
-    it('can get proper graphQl types', () => {
+    it('can get proper graphql types', () => {
         const {
             type: graphQlTypes,
-            custom_type: customType
+            customTypes
         } = new GeoPointType(field, typeConfig).toGraphQL();
         const results = `${field}: DTGeoPointV1`;
+        const [customType] = customTypes;
 
         expect(graphQlTypes).toEqual(results);
         expect(customType).toInclude('type DTGeoPointV1 {');

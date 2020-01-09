@@ -30,11 +30,17 @@ describe('Keyword V1', () => {
         expect(esMapping).toEqual(results);
     });
 
-    it('can get proper graphQl types', () => {
+    it('can get proper graphql types', () => {
         const graphQlTypes = new Keyword(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: String` };
+        const results = { type: `${field}: String`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
+    });
+
+    it('will use ID when the field is _key in graphql', () => {
+        const graphQlTypes = new Keyword('_key', typeConfig).toGraphQL();
+
+        expect(graphQlTypes).toEqual({ type: '_key: ID', customTypes: [] });
     });
 
     it('can get proper xlucene properties', () => {

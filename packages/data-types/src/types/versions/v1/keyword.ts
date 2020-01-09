@@ -8,6 +8,9 @@ export default class Keyword extends BaseType {
     }
 
     toGraphQL() {
+        if (this.field === '_key') {
+            return this._formatGql('ID');
+        }
         return this._formatGql('String');
     }
 

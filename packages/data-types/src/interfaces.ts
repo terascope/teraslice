@@ -2,8 +2,8 @@ import { AnyObject } from '@terascope/utils';
 import BaseType from './types/versions/base-type';
 
 export type GraphQLTypesResult = {
-    schema: string;
     baseType: string;
+    inputType?: string;
     customTypes: string[];
 };
 
@@ -11,6 +11,15 @@ export type GraphQLOptions = {
     typeName?: string;
     description?: string;
     references?: string[];
+    createInputType?: boolean;
+    includeAllInputFields?: boolean;
+};
+
+export type MergeGraphQLOptions = {
+    removeScalars?: boolean;
+    references?: GraphQLTypeReferences;
+    createInputTypes?: boolean;
+    includeAllInputFields?: boolean;
 };
 
 export type GraphQLTypeReferences = { __all?: string[] } & {
@@ -91,9 +100,24 @@ export type AvailableVersion = 1;
 export const AvailableVersions: readonly AvailableVersion[] = [1];
 
 export type FieldTypeConfig = {
+    /**
+     * The type of field
+    */
     type: AvailableType;
+    /**
+     * Indicates whether the field is an array
+    */
     array?: boolean;
+    /**
+     * A description for the fields
+    */
     description?: string;
+    /**
+     * Specifies whether the field is index in elasticsearch
+     * (Not all fields support this)
+     * @default false
+    */
+    indexed?: boolean;
 };
 
 type ActualType = {
@@ -115,7 +139,7 @@ export type DataTypeConfig = {
 
 export interface GraphQLType {
     type: string;
-    custom_type?: string;
+    customTypes: string[];
 }
 
 export type ESTypeMapping = PropertyESTypeMapping | FieldsESTypeMapping | BasicESTypeMapping;
@@ -136,10 +160,11 @@ type FieldsESTypeMapping = {
     };
 };
 
-type PropertyESTypeMapping = {
+export type PropertyESTypes = FieldsESTypeMapping | BasicESTypeMapping;
+export type PropertyESTypeMapping = {
     type?: 'nested' | 'object';
     properties: {
-        [key: string]: FieldsESTypeMapping | BasicESTypeMapping;
+        [key: string]: PropertyESTypes;
     };
 };
 
