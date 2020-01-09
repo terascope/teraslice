@@ -506,6 +506,33 @@ describe('QueryAccess', () => {
         });
     });
 
+    describe('when there is no field restrictions', () => {
+        it('should be able to limit the source fields via params', async () => {
+            const params: SearchParams = {
+                _sourceInclude: ['foo'],
+                _sourceExclude: ['bar'],
+            };
+
+            const qa = new QueryAccess({
+                excludes: [],
+                includes: [],
+            }, {
+                type_config: {
+                    foo: FieldType.String,
+                    bar: FieldType.String,
+                }
+            });
+            const result = await qa.restrictSearchQuery('foo:bar', {
+                params
+            });
+
+            expect(result).toMatchObject({
+                _sourceInclude: ['foo'],
+                _sourceExclude: ['bar'],
+            });
+        });
+    });
+
     describe('when converting to an elasticsearch search query', () => {
         const queryAccess = new QueryAccess({
             allow_implicit_queries: true,
