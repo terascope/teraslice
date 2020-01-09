@@ -83,7 +83,7 @@ export class DataType {
         if (description) this.description = description;
 
         const { version, fields } = utils.validateDataTypeConfig(config);
-        this.fields = Object.freeze(fields);
+        this.fields = fields;
         this.version = version;
 
         this._types = getTypes(fields, version);
@@ -133,7 +133,7 @@ export class DataType {
             }
         }
 
-        return defaultsDeep(ts.cloneDeep(overrides), esMapping);
+        return defaultsDeep({}, overrides, esMapping);
     }
 
     toGraphQL(args?: i.GraphQLOptions, removeScalars = false) {
