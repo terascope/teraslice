@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import * as p from '../parser';
@@ -50,8 +49,8 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             ? options.logger.child({ module: 'xlucene-query-access' })
             : _logger;
 
-        this.excludes = excludes;
-        this.includes = includes;
+        this.excludes = excludes.slice();
+        this.includes = includes.slice();
         this.constraints = ts.castArray(constraint).filter(Boolean) as string[];
         this.allowEmpty = Boolean(allowEmpty);
         this.preventPrefixWildcard = Boolean(config.prevent_prefix_wildcard);
@@ -187,16 +186,16 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             elasticsearch_version: esVersion = 6,
             ...translateOptions
         } = opts;
-        const queryVariables = Object.assign({}, this.variables, variables);
 
         if (params._source) {
             throw new ts.TSError('Cannot include _source in params, use _sourceInclude or _sourceExclude');
         }
 
-        const restricted = this.restrict(query, { variables: queryVariables });
+        const restricted = this.restrict(query, { variables });
 
         await ts.pImmediate();
 
+        const queryVariables = Object.assign({}, this.variables, variables);
         const parsed = this._parser.make(restricted, {
             type_config: this.typeConfig,
             logger: this.logger,
@@ -221,25 +220,21 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             params._sourceExclude as (keyof T)[]
         );
 
-        const searchParams = _.defaultsDeep({}, params, {
-            body: translated,
-            _sourceInclude: includes,
-            _sourceExclude: excludes,
-        });
+        delete params._sourceInclude;
+        delete params._sourceExclude;
+
+        const excludesKey: any = esVersion >= 7 ? '_sourceExcludes' : '_sourceExclude';
+        const includesKey: any = esVersion >= 7 ? '_sourceIncludes' : '_sourceInclude';
+
+        const searchParams: es.SearchParams = {
+            ...params,
+            body: { ...params.body, ...translated },
+            [excludesKey]: excludes,
+            [includesKey]: includes,
+        };
 
         if (searchParams != null) {
             delete searchParams.q;
-        }
-
-        if (esVersion >= 7) {
-            if (searchParams._sourceExclude) {
-                searchParams._sourceExcludes = searchParams._sourceExclude.slice();
-                delete searchParams._sourceExclude;
-            }
-            if (searchParams._sourceInclude) {
-                searchParams._sourceIncludes = searchParams._sourceInclude.slice();
-                delete searchParams._sourceInclude;
-            }
         }
 
         return searchParams;
@@ -261,22 +256,19 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         restricted?: (keyof T)[],
         override?: (keyof T)[] | boolean | (keyof T)
     ): (keyof T)[] | undefined {
-        if (restricted && override) {
-            const fields = ts.uniq(ts.parseList(override) as (keyof T)[]);
+        const fields = ts.uniq(ts.parseList(override) as (keyof T)[]);
 
-            for (const field of restricted) {
-                const index = fields.indexOf(field);
-                delete fields[index];
-            }
-
-            return [...fields];
+        if (restricted && fields.length) {
+            return fields.filter((field) => restricted.includes(field));
         }
 
         if (override) {
             return [];
         }
 
-        return restricted;
+        if (restricted) return restricted.slice();
+
+        return undefined;
     }
 
     private _isFieldRestricted(field: string): boolean {

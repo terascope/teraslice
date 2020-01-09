@@ -59,7 +59,7 @@ describe('Utils', () => {
     describe('VariableState', () => {
         it('can return variables', () => {
             const vState = new VariableState();
-            expect(vState.getVaraibles()).toEqual({});
+            expect(vState.getVariables()).toEqual({});
         });
 
         it('can set variables', () => {
@@ -67,7 +67,7 @@ describe('Utils', () => {
             const newVariableName = vState.createVariable('hello', 'world');
 
             expect(newVariableName).toEqual('$hello_1');
-            expect(vState.getVaraibles()).toEqual({ hello_1: 'world' });
+            expect(vState.getVariables()).toEqual({ hello_1: 'world' });
         });
 
         it('can set with same field', () => {
@@ -77,7 +77,7 @@ describe('Utils', () => {
 
             expect(newVariableName1).toEqual('$hello_1');
             expect(newVariableName2).toEqual('$hello_2');
-            expect(vState.getVaraibles()).toEqual({ hello_1: 'world', hello_2: 'goodbye' });
+            expect(vState.getVariables()).toEqual({ hello_1: 'world', hello_2: 'goodbye' });
         });
 
         it('can respect existing variables', () => {
@@ -85,7 +85,7 @@ describe('Utils', () => {
             const newVariableName = vState.createVariable('hello', 'world');
 
             expect(newVariableName).toEqual('$hello_2');
-            expect(vState.getVaraibles()).toEqual({ hello_1: 'stuff', hello_2: 'world' });
+            expect(vState.getVariables()).toEqual({ hello_1: 'stuff', hello_2: 'world' });
         });
 
         it('can respect values that are already variables', () => {
@@ -94,7 +94,7 @@ describe('Utils', () => {
             const newVariableName = vState.createVariable('hello', '$person');
 
             expect(newVariableName).toEqual('$person');
-            expect(vState.getVaraibles()).toEqual(variables);
+            expect(vState.getVariables()).toEqual(variables);
         });
 
         it('will throw if value variable is not provided', () => {
