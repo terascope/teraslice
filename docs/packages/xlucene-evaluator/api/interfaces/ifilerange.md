@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `IFileRange`
+title: xLucene Evaluator: `IFileRange`
 sidebar_label: IFileRange
 ---
 
@@ -22,7 +22,7 @@ sidebar_label: IFileRange
 
 • **end**: *[IFilePosition](ifileposition.md)*
 
-Defined in parser/peg-engine.ts:18
+Defined in parser/peg-engine.ts:19
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **start**: *[IFilePosition](ifileposition.md)*
 
-Defined in parser/peg-engine.ts:17
+Defined in parser/peg-engine.ts:18

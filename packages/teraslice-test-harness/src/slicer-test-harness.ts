@@ -12,6 +12,9 @@ import {
     SliceResult,
     ExecutionStats,
     SlicerCore,
+    TSError,
+    SlicerRecoveryData,
+    get
 } from '@terascope/job-components';
 import BaseTestHarness from './base-test-harness';
 import { JobHarnessOptions } from './interfaces';
@@ -37,6 +40,11 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
 
     constructor(job: JobConfig, options: JobHarnessOptions) {
         super(job, options, 'execution_controller');
+
+        const { config } = this.executionContext;
+        if (config.recovered_execution && !this.slicer().isRecoverable()) {
+            throw new Error('Slicer is not recoverable');
+        }
     }
 
     slicer<T extends SlicerCore = SlicerCore>(): T {
@@ -47,10 +55,19 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
      * Initialize the Operations on the ExecutionContext
      * @param recoveryData is an array of starting points to recover from
     */
-    async initialize(recoveryData?: object[]) {
+    async initialize(recoveryData: SlicerRecoveryData[] = []) {
         await super.initialize();
-        await this.executionContext.initialize(recoveryData);
+        // teraslice checks to see if slicer is recoverable
+        // should throw test recoveryData if slicer is not recoverable
+        if (recoveryData.length > 0) {
+            if (!this.executionContext.slicer().isRecoverable()) throw new TSError('Slicer is not recoverable, please create the isRecoverable method and return true to enable recovery');
+            recoveryData.forEach((slice) => {
+                const data = get(slice, 'lastSlice');
+                if (data == null) throw new Error('recoveryData is malformed');
+            });
+        }
 
+        await this.executionContext.initialize(recoveryData);
         this.executionContext.onExecutionStats(this.stats);
         this._emitInterval = setInterval(() => {
             this.executionContext.onExecutionStats(this.stats);

@@ -1,9 +1,10 @@
-
 import _ from 'lodash';
 import fs from 'fs-extra';
+import * as TSClientTypes from 'teraslice-client-js';
+
 import TerasliceUtil from './teraslice-util';
-import Reply from '../cmds/lib/reply';
 import displayModule from '../cmds/lib/display';
+import Reply from '../cmds/lib/reply';
 
 const display = displayModule();
 const reply = new Reply();
@@ -75,7 +76,15 @@ export default class Jobs {
         return this.status(true, true);
     }
 
-    async status(saveState = false, showJobs = true) {
+    awaitStatus(
+        desiredStatus: TSClientTypes.ExecutionStatus,
+        jobId: string,
+        timeout = 0
+    ) {
+        return this.teraslice.client.jobs.wrap(jobId).waitForStatus(desiredStatus, 5000, timeout);
+    }
+
+    async status(saveState = false, showJobs = true): Promise<void> {
         let controllers = [];
         const header = ['job_id', 'name', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
         const active = false;
@@ -89,8 +98,9 @@ export default class Jobs {
         }
 
         const statusList = _.split(this.config.args.status, ',');
+
         for (const jobStatus of statusList) {
-            const exResult = await this.teraslice.client.ex.list(jobStatus);
+            const exResult = await this.teraslice.client.executions.list(jobStatus);
             const jobsTemp = await this.controllerStatus(exResult, jobStatus, controllers);
             _.each(jobsTemp, (job) => {
                 this.jobsList.push(job);
@@ -119,7 +129,7 @@ export default class Jobs {
         }
 
         for (const jobStatus of statusList) {
-            const exResult = await this.teraslice.client.ex.list(jobStatus);
+            const exResult = await this.teraslice.client.executions.list(jobStatus);
             const jobsTemp = await this.controllerStatus(exResult, jobStatus, controllers);
             _.each(jobsTemp, (job) => {
                 jobs.push(job);
@@ -128,7 +138,7 @@ export default class Jobs {
         return jobs;
     }
 
-    async start(action = 'start') {
+    async start(action = 'start'): Promise<void> {
         // start job with job file
         if (!this.config.args.all) {
             const id = await this.teraslice.client.jobs.wrap(this.config.args.id).config();
@@ -145,6 +155,7 @@ export default class Jobs {
         }
 
         await this.checkJobsStart(this.activeStatus);
+
         if (this.jobsListChecked.length === 0) {
             reply.error(`No jobs to ${action}`);
             return;
@@ -153,6 +164,7 @@ export default class Jobs {
         if (this.jobsListChecked.length === 1) {
             this.config.yes = true;
         }
+
         if (this.config.yes || await display.showPrompt(action, `all jobs on ${this.config.args.clusterAlias}`)) {
             await this.changeStatus(this.jobsListChecked, action);
             let waitCount = 0;

@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `TermLikeAST`
+title: xLucene Evaluator: `TermLikeAST`
 sidebar_label: TermLikeAST
 ---
 
@@ -9,17 +9,19 @@ sidebar_label: TermLikeAST
 
 * **TermLikeAST**
 
-  * [Range](range.md)
+  ↳ [Range](range.md)
 
-  * [GeoDistance](geodistance.md)
+  ↳ [GeoDistance](geodistance.md)
 
-  * [GeoBoundingBox](geoboundingbox.md)
+  ↳ [GeoBoundingBox](geoboundingbox.md)
 
-  * [Regexp](regexp.md)
+  ↳ [FunctionNode](functionnode.md)
 
-  * [Wildcard](wildcard.md)
+  ↳ [Regexp](regexp.md)
 
-  * [Term](term.md)
+  ↳ [Wildcard](wildcard.md)
+
+  ↳ [Term](term.md)
 
 ## Index
 
@@ -34,7 +36,7 @@ sidebar_label: TermLikeAST
 
 • **field**: *[Field](../overview.md#field)*
 
-*Defined in [parser/interfaces.ts:54](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L54)*
+*Defined in [parser/interfaces.ts:46](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L46)*
 
 ___
 
@@ -42,4 +44,4 @@ ___
 
 • **type**: *[TermLikeType](../overview.md#termliketype)*
 
-*Defined in [parser/interfaces.ts:53](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L53)*
+*Defined in [parser/interfaces.ts:45](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L45)*

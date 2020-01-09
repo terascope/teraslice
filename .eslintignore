@@ -17,17 +17,17 @@ builds
 .yarn-cache
 node_modules
 .vscode
-assets
-packages/*/assets
+/assets
+/examples/assets/
+/packages/teraslice/assets
 autoload
-e2e/autoload
 e2e/.config
-packages/**/dist
-packages/**/build
-packages/teraslice-cli/generator-templates
-packages/xlucene-evaluator/src/parser/peg-engine.ts
+/packages/*/dist
+/packages/*/build
+/packages/teraslice-cli/generator-templates
+/packages/generator-teraslice/generators/*/templates/**/*.ts
+/packages/xlucene-evaluator/src/parser/peg-engine.ts
 
 website
-packages/*/**/*.d.ts
-types/**/*.d.ts
 docs
+**/*.d.ts

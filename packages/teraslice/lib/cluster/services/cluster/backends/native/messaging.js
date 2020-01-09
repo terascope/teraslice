@@ -2,7 +2,6 @@
 
 const _ = require('lodash');
 const shortid = require('shortid');
-const Promise = require('bluebird');
 const Queue = require('@terascope/queue');
 const { pDelay } = require('@terascope/utils');
 
@@ -493,7 +492,6 @@ module.exports = function messaging(context, logger) {
         return emitIpcMessage(emitFn);
     }
 
-
     // all child processes need to set up a process listener on the 'message' event
     if (config.clients.ipcClient) {
         process.on('message', handleIpcMessages());
@@ -543,12 +541,11 @@ module.exports = function messaging(context, logger) {
         };
     }
 
-    function shutdown() {
+    async function shutdown() {
         if (io && _.isFunction(io.close)) {
             io.close();
-            return pDelay(100);
+            await pDelay(100);
         }
-        return Promise.resolve();
     }
 
     return {

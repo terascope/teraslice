@@ -1,6 +1,10 @@
 import { cloneDeep, Logger } from '@terascope/utils';
 import {
-    SlicerOperationLifeCycle, ExecutionStats, Slice, SliceResult
+    SlicerOperationLifeCycle,
+    ExecutionStats,
+    Slice,
+    SliceResult,
+    SlicerRecoveryData
 } from '../interfaces';
 import SlicerCore from '../operations/core/slicer-core';
 import { ExecutionContextConfig } from './interfaces';
@@ -20,7 +24,7 @@ export class SlicerExecutionContext
 
     constructor(config: ExecutionContextConfig) {
         super(config);
-        this.logger = this.api.makeLogger('worker_context');
+        this.logger = this.api.makeLogger('slicer_context');
 
         this._methodRegistry.set('onSliceComplete', new Set());
         this._methodRegistry.set('onSliceDispatch', new Set());
@@ -41,7 +45,7 @@ export class SlicerExecutionContext
      * Called during execution initialization
      * @param recoveryData is the data to recover from
      */
-    async initialize(recoveryData?: object[]) {
+    async initialize(recoveryData?: SlicerRecoveryData[]) {
         return super.initialize(recoveryData);
     }
 

@@ -1,4 +1,3 @@
-
 import 'jest-extended';
 import { debugLogger, cloneDeep } from '@terascope/utils';
 import { isPrimaryConfig } from '../../src/loader/utils';

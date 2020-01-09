@@ -53,15 +53,9 @@ export function uniq<T>(arr: T[]): T[] {
 /** A native implemation of lodash times */
 export function times(n: number): number[];
 export function times<T>(n: number, fn: (index: number) => T): T[];
-export function times<T>(n: number, fn?: (index: number) => T): T[] {
-    let i = -1;
-    const result = Array(n);
-
-    while (++i < n) {
-        result[i] = fn != null ? fn(i) : i;
-    }
-
-    return result;
+export function times<T>(n: number, fn?: (index: number) => T): (T[])|(number[]) {
+    if (fn) return Array.from({ length: n }, (_, x) => fn(x));
+    return Array.from({ length: n }, (_, x) => x);
 }
 
 /** Map an array faster without sparse array handling */

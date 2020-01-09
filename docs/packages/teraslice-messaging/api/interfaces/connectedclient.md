@@ -22,7 +22,7 @@ sidebar_label: ConnectedClient
 
 • **clientId**: *string*
 
-*Defined in [messenger/interfaces.ts:63](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/messenger/interfaces.ts#L63)*
+*Defined in [messenger/interfaces.ts:63](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-messaging/src/messenger/interfaces.ts#L63)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **state**: *[ClientState](../enums/clientstate.md)*
 
-*Defined in [messenger/interfaces.ts:64](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/messenger/interfaces.ts#L64)*
+*Defined in [messenger/interfaces.ts:64](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-messaging/src/messenger/interfaces.ts#L64)*

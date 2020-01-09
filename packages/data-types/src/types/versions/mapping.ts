@@ -3,6 +3,8 @@ import { DataTypeMapping } from '../../interfaces';
 import BooleanV1 from './v1/boolean';
 import DateV1 from './v1/date';
 import GeoV1 from './v1/geo';
+import GeoPointV1 from './v1/geo-point';
+import GeoJSONV1 from './v1/geo-json';
 import IPV1 from './v1/ip';
 import IPRangeV1 from './v1/ip-range';
 import ByteV1 from './v1/byte';
@@ -28,6 +30,8 @@ export const mapping: DataTypeMapping = {
         Boolean: BooleanV1,
         Date: DateV1,
         Geo: GeoV1,
+        GeoPoint: GeoPointV1,
+        GeoJSON: GeoJSONV1,
         IP: IPV1,
         IPRange: IPRangeV1,
         Byte: ByteV1,

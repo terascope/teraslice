@@ -39,7 +39,7 @@ A basic FIFO queue
 
 • **head**? : *[Node](node.md)‹T›*
 
-*Defined in [queue.ts:5](https://github.com/terascope/teraslice/blob/0ae31df4/packages/queue/src/queue.ts#L5)*
+*Defined in [queue.ts:5](https://github.com/terascope/teraslice/blob/d8feecc03/packages/queue/src/queue.ts#L5)*
 
 ___
 
@@ -47,7 +47,7 @@ ___
 
 • **tail**? : *[Node](node.md)‹T›*
 
-*Defined in [queue.ts:6](https://github.com/terascope/teraslice/blob/0ae31df4/packages/queue/src/queue.ts#L6)*
+*Defined in [queue.ts:6](https://github.com/terascope/teraslice/blob/d8feecc03/packages/queue/src/queue.ts#L6)*
 
 ## Methods
 
@@ -55,7 +55,7 @@ ___
 
 ▸ **dequeue**(): *T | undefined*
 
-*Defined in [queue.ts:28](https://github.com/terascope/teraslice/blob/0ae31df4/packages/queue/src/queue.ts#L28)*
+*Defined in [queue.ts:28](https://github.com/terascope/teraslice/blob/d8feecc03/packages/queue/src/queue.ts#L28)*
 
 **Returns:** *T | undefined*
 
@@ -65,7 +65,7 @@ ___
 
 ▸ **each**(`fn`: function): *void*
 
-*Defined in [queue.ts:50](https://github.com/terascope/teraslice/blob/0ae31df4/packages/queue/src/queue.ts#L50)*
+*Defined in [queue.ts:50](https://github.com/terascope/teraslice/blob/d8feecc03/packages/queue/src/queue.ts#L50)*
 
 Iterate over each value
 
@@ -89,7 +89,7 @@ ___
 
 ▸ **enqueue**(`value`: T): *void*
 
-*Defined in [queue.ts:10](https://github.com/terascope/teraslice/blob/0ae31df4/packages/queue/src/queue.ts#L10)*
+*Defined in [queue.ts:10](https://github.com/terascope/teraslice/blob/d8feecc03/packages/queue/src/queue.ts#L10)*
 
 A value to the end of the queue
 
@@ -107,7 +107,7 @@ ___
 
 ▸ **exists**(`key`: string, `val`: any): *boolean*
 
-*Defined in [queue.ts:165](https://github.com/terascope/teraslice/blob/0ae31df4/packages/queue/src/queue.ts#L165)*
+*Defined in [queue.ts:165](https://github.com/terascope/teraslice/blob/d8feecc03/packages/queue/src/queue.ts#L165)*
 
 Search the queue to see if a key value pair exists
 
@@ -126,7 +126,7 @@ ___
 
 ▸ **extract**(`key`: string, `val`: any): *T | undefined*
 
-*Defined in [queue.ts:114](https://github.com/terascope/teraslice/blob/0ae31df4/packages/queue/src/queue.ts#L114)*
+*Defined in [queue.ts:114](https://github.com/terascope/teraslice/blob/d8feecc03/packages/queue/src/queue.ts#L114)*
 
 Search the queue for a key that matches a value and return the match
 
@@ -145,14 +145,14 @@ ___
 
 ▸ **remove**(`id`: string, `keyForID?`: undefined | string): *void*
 
-*Defined in [queue.ts:61](https://github.com/terascope/teraslice/blob/0ae31df4/packages/queue/src/queue.ts#L61)*
+*Defined in [queue.ts:61](https://github.com/terascope/teraslice/blob/d8feecc03/packages/queue/src/queue.ts#L61)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `id` | string |
-`keyForID?` | undefined \| string |
+`keyForID?` | undefined &#124; string |
 
 **Returns:** *void*
 
@@ -162,7 +162,7 @@ ___
 
 ▸ **size**(): *number*
 
-*Defined in [queue.ts:158](https://github.com/terascope/teraslice/blob/0ae31df4/packages/queue/src/queue.ts#L158)*
+*Defined in [queue.ts:158](https://github.com/terascope/teraslice/blob/d8feecc03/packages/queue/src/queue.ts#L158)*
 
 Get the length of the queue
 
@@ -174,7 +174,7 @@ ___
 
 ▸ **unshift**(`value`: T): *void*
 
-*Defined in [queue.ts:18](https://github.com/terascope/teraslice/blob/0ae31df4/packages/queue/src/queue.ts#L18)*
+*Defined in [queue.ts:18](https://github.com/terascope/teraslice/blob/d8feecc03/packages/queue/src/queue.ts#L18)*
 
 **Parameters:**
 

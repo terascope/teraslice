@@ -4,10 +4,11 @@ const {
     get,
     getFullErrorStack,
     isFatalError,
+    logError,
     pWhile
 } = require('@terascope/utils');
 const { ExecutionController, formatURL } = require('@terascope/teraslice-messaging');
-const { makeStateStore, makeAnalyticsStore } = require('../../cluster/storage');
+const { makeStateStore, makeAnalyticsStore } = require('../../storage');
 const { generateWorkerId, makeLogger } = require('../helpers/terafoundation');
 const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
 const Metrics = require('../metrics');
@@ -72,10 +73,15 @@ class Worker {
         const { context } = this;
         this.isInitialized = true;
 
-        const stateStore = makeStateStore(context);
-        const analyticsStore = makeAnalyticsStore(context);
-        this.stores.stateStore = await stateStore;
-        this.stores.analyticsStore = await analyticsStore;
+        const [stateStore, analyticsStore] = await Promise.all([
+            makeStateStore(context),
+            makeAnalyticsStore(context),
+        ]);
+
+        this.stores.stateStore = stateStore;
+        this.slice.stateStore = stateStore;
+        this.stores.analyticsStore = analyticsStore;
+        this.slice.analyticsStore = analyticsStore;
 
         this.client.onServerShutdown(() => {
             this.logger.warn('Execution Controller shutdown, exiting...');
@@ -90,6 +96,9 @@ class Worker {
         if (this.metrics != null) {
             await this.metrics.initialize();
         }
+
+        const { exId } = this.executionContext;
+        this.logger.info(`execution: ${exId} initialized worker`);
     }
 
     async run() {
@@ -102,7 +111,7 @@ class Worker {
                 await this.runOnce();
             } catch (err) {
                 process.exitCode = 1;
-                this.logger.error(err, 'Worker must shutdown due to fatal error');
+                logError(this.logger, err, 'Worker must shutdown due to fatal error');
                 this.forceShutdown = true;
             } finally {
                 running = false;
@@ -150,7 +159,7 @@ class Worker {
         const { slice_id: sliceId } = msg;
 
         try {
-            await this.slice.initialize(msg, this.stores);
+            await this.slice.initialize(msg);
 
             await this.slice.run();
 
@@ -164,11 +173,7 @@ class Worker {
 
             await this.executionContext.onSliceFinished(sliceId);
         } catch (err) {
-            this.logger.error(err, `slice ${sliceId} run error`);
-
-            if (isFatalError(err)) {
-                throw err;
-            }
+            logError(this.logger, err, `slice ${sliceId} run error`);
 
             if (!sentSliceComplete) {
                 await this._sendSliceComplete({
@@ -176,6 +181,10 @@ class Worker {
                     analytics: this.slice.analyticsData,
                     error: getFullErrorStack(err)
                 });
+            }
+
+            if (isFatalError(err)) {
+                throw err;
             }
         }
 

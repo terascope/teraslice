@@ -1,4 +1,3 @@
-
 import 'jest-extended';
 import _ from 'lodash';
 import { DocumentMatcher, TypeConfig, FieldType } from '../src';

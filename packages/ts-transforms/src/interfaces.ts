@@ -1,4 +1,3 @@
-
 import { TypeConfig } from 'xlucene-evaluator';
 import { DataEntity } from '@terascope/utils';
 import { Extraction } from '../src/operations';
@@ -57,7 +56,6 @@ export interface SelectorConfig {
     __id: string;
     selector: string;
 }
-
 
 export interface ExtractionConfig {
     __id: string;

@@ -40,6 +40,44 @@ export default [
             }
         ]
     }],
+    ['count:(>=$foo AND <=$bar AND >=$baz)', 'a field group expression with ranges with variables', {
+        type: 'field-group',
+        field: 'count',
+        flow: [
+            {
+                type: ASTType.Conjunction,
+                nodes: [
+                    {
+                        type: ASTType.Range,
+                        field: 'count',
+                        left: {
+                            operator: 'gte',
+                            field_type: FieldType.Integer,
+                            value: 10,
+                        }
+                    },
+                    {
+                        type: ASTType.Range,
+                        field: 'count',
+                        left: {
+                            operator: 'lte',
+                            field_type: FieldType.Integer,
+                            value: 20,
+                        }
+                    },
+                    {
+                        type: ASTType.Range,
+                        field: 'count',
+                        left: {
+                            operator: 'gte',
+                            field_type: FieldType.Integer,
+                            value: 100,
+                        }
+                    }
+                ]
+            }
+        ]
+    }, { count: FieldType.Integer }, { foo: 10, bar: 20, baz: 100 }],
     ['count:(>=10 OR <=20 OR >=100)', 'a chained OR field group expression with ranges', {
         type: 'field-group',
         field: 'count',
@@ -177,6 +215,34 @@ export default [
             }
         ]
     }],
+    ['count:($foo $bar)', 'implicit OR grouping with variables', {
+        type: 'field-group',
+        field: 'count',
+        flow: [
+            {
+                type: ASTType.Conjunction,
+                nodes: [
+                    {
+                        type: ASTType.Term,
+                        field: 'count',
+                        field_type: FieldType.Integer,
+                        value: 155
+                    },
+                ]
+            },
+            {
+                type: ASTType.Conjunction,
+                nodes: [
+                    {
+                        type: ASTType.Term,
+                        field: 'count',
+                        field_type: FieldType.Integer,
+                        value: 223
+                    }
+                ]
+            }
+        ]
+    }, { count: FieldType.Integer }, { foo: 155, bar: 223 }],
     [
         'count:(155 OR "223")',
         'OR grouping with quoted and unqouted integers',
@@ -211,6 +277,42 @@ export default [
         {
             count: FieldType.Integer
         }
+    ],
+    [
+        'count:($foo OR $bar)',
+        'OR grouping with quoted and unqouted integers with variables',
+        {
+            type: 'field-group',
+            field: 'count',
+            flow: [
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field: 'count',
+                            field_type: FieldType.Integer,
+                            value: 155
+                        },
+                    ]
+                },
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field: 'count',
+                            field_type: FieldType.Integer,
+                            value: 223
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            count: FieldType.Integer
+        },
+        { foo: 155, bar: 223 }
     ],
     [
         'bool:(true OR "false")',
@@ -340,6 +442,32 @@ export default [
             }
         ]
     }],
+    ['val:(NOT $foo AND $bar)', 'negated field group with variables', {
+        type: 'field-group',
+        field: 'val',
+        flow: [
+            {
+                type: ASTType.Conjunction,
+                nodes: [
+                    {
+                        type: ASTType.Negation,
+                        node: {
+                            type: ASTType.Term,
+                            field: 'val',
+                            field_type: FieldType.Integer,
+                            value: 1,
+                        }
+                    },
+                    {
+                        type: ASTType.Term,
+                        field: 'val',
+                        field_type: FieldType.Integer,
+                        value: 2
+                    }
+                ]
+            }
+        ]
+    }, { val: FieldType.Integer }, { foo: 1, bar: 2 }],
     ['some_ref:("A")', 'single value field group',
         {
             type: ASTType.Term,

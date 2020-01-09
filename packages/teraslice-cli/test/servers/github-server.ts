@@ -1,4 +1,3 @@
-
 import fs from 'fs';
 import path from 'path';
 import nock from 'nock';
@@ -32,9 +31,5 @@ export default class GithubServer {
             }
         }
         return scope;
-    }
-
-    close() {
-        nock.cleanAll();
     }
 }

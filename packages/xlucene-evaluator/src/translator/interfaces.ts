@@ -2,7 +2,10 @@ import { Logger } from '@terascope/utils';
 import {
     GeoPoint,
     GeoDistanceUnit,
-    TypeConfig
+    TypeConfig,
+    GeoShapeRelation,
+    CoordinateTuple,
+    Variables,
 } from '../interfaces';
 
 export type SortOrder = 'asc'|'desc';
@@ -13,10 +16,12 @@ export type TranslatorOptions = {
     default_geo_field?: string;
     default_geo_sort_order?: SortOrder;
     default_geo_sort_unit?: GeoDistanceUnit|string;
+    variables?: Variables;
 };
 
 export type UtilsTranslateQueryOptions = {
     logger: Logger;
+    type_config: TypeConfig;
     default_geo_field?: string;
     geo_sort_point?: GeoPoint;
     geo_sort_order: SortOrder;
@@ -51,14 +56,38 @@ export type AnyQuery =
     | WildcardQuery
     | ExistsQuery
     | RegExprQuery
+    | QueryStringQuery
     | RangeQuery
-    | MultiMatchQuery;
+    | MultiMatchQuery
 
 export interface ExistsQuery {
     exists: {
         field: string;
     };
 }
+
+export enum ESGeoShapeType {
+    Point = 'point',
+    Polygon = 'polygon',
+    MultiPolygon = 'multipolygon'
+}
+
+export type ESGeoShapePoint = {
+    type: ESGeoShapeType.Point;
+    coordinates: CoordinateTuple;
+}
+
+export type ESGeoShapePolygon = {
+    type: ESGeoShapeType.Polygon;
+    coordinates: CoordinateTuple[][];
+}
+
+export type ESGeoShapeMultiPolygon = {
+    type: ESGeoShapeType.MultiPolygon;
+    coordinates: CoordinateTuple[][][];
+}
+
+export type ESGeoShape = ESGeoShapePoint | ESGeoShapePolygon | ESGeoShapeMultiPolygon
 
 export interface GeoQuery {
     geo_bounding_box?: {
@@ -73,7 +102,13 @@ export interface GeoQuery {
     };
     geo_polygon?: {
         [field: string]: {
-            points: GeoPoint[] | string[];
+            points: GeoPoint[] | string[] | CoordinateTuple[];
+        };
+    };
+    geo_shape?: {
+        [field: string]: {
+            shape: ESGeoShape;
+            relation: GeoShapeRelation;
         };
     };
 }
@@ -81,6 +116,13 @@ export interface GeoQuery {
 export interface RegExprQuery {
     regexp: {
         [field: string]: string;
+    };
+}
+
+export interface QueryStringQuery {
+    query_string: {
+        fields: string[];
+        query: string;
     };
 }
 

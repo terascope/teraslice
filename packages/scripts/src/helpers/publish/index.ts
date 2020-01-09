@@ -1,12 +1,12 @@
 import ms from 'ms';
-import { get } from '@terascope/utils';
+import { get, concat } from '@terascope/utils';
 import { PackageInfo } from '../interfaces';
 import { listPackages, getMainPackageInfo, getPublishTag } from '../packages';
 import { PublishAction, PublishOptions, PublishType } from './interfaces';
 import {
     shouldNPMPublish,
     formatDailyTag,
-    buildCacheLayers,
+    pullDevDockerImage,
 } from './utils';
 import {
     yarnPublish,
@@ -15,7 +15,7 @@ import {
     dockerBuild,
     dockerPush
 } from '../scripts';
-import { getRootInfo } from '../misc';
+import { getRootInfo, getDevDockerImage } from '../misc';
 import signale from '../signale';
 
 export async function publish(action: PublishAction, options: PublishOptions) {
@@ -30,7 +30,7 @@ export async function publish(action: PublishAction, options: PublishOptions) {
 }
 
 async function publishToNPM(options: PublishOptions) {
-    if (![PublishType.Latest, PublishType.Tag].includes(options.type)) {
+    if (![PublishType.Latest, PublishType.Tag, PublishType.Dev].includes(options.type)) {
         throw new Error(`NPM publish does NOT support publish type "${options.type}"`);
     }
     for (const pkgInfo of listPackages()) {
@@ -54,13 +54,17 @@ async function npmPublish(pkgInfo: PackageInfo, options: PublishOptions) {
 }
 
 async function publishToDocker(options: PublishOptions) {
-    const imagesToPush = [];
-    let imageToBuild = '';
+    const imagesToPush: string[] = [];
     const rootInfo = getRootInfo();
 
     const { registries } = rootInfo.terascope.docker;
 
+    const cacheFrom: string[] = [];
+    cacheFrom.push(await pullDevDockerImage());
+
     for (const registry of registries) {
+        let imageToBuild = '';
+
         if (options.type === PublishType.Latest) {
             imageToBuild = `${registry}:latest`;
         } else if (options.type === PublishType.Tag) {
@@ -74,22 +78,22 @@ async function publishToDocker(options: PublishOptions) {
                 throw new Error(`Docker Image ${image} already exists`);
             }
             imageToBuild = image;
-        } else if (options.type === PublishType.Dev) {
-            imageToBuild = `${registry}:dev`;
         } else if (options.type === PublishType.Daily) {
             const tag = await formatDailyTag();
             imageToBuild = `${registry}:${tag}`;
+        } else if (options.type === PublishType.Dev) {
+            imageToBuild = getDevDockerImage();
         }
 
         const startTime = Date.now();
         signale.pending(`building docker for ${options.type} release`);
 
-        const cacheLayersToPush = await buildCacheLayers(registry);
-        imagesToPush.push(...cacheLayersToPush);
-
         signale.debug(`building docker image ${imageToBuild}`);
-        await dockerBuild(imageToBuild, cacheLayersToPush);
-        imagesToPush.push(imageToBuild);
+        await dockerBuild(imageToBuild, cacheFrom);
+
+        if (!imagesToPush.includes(imageToBuild)) {
+            imagesToPush.push(imageToBuild);
+        }
 
         signale.success(`built docker image ${imageToBuild}, took ${ms(Date.now() - startTime)}`);
     }
@@ -98,6 +102,9 @@ async function publishToDocker(options: PublishOptions) {
         signale.info(`[DRY RUN] - skipping publish of docker images ${imagesToPush.join(', ')}`);
     } else {
         signale.info(`publishing docker images ${imagesToPush.join(', ')}`);
-        await Promise.all(imagesToPush.map(dockerPush));
+        await Promise.all(concat(
+            imagesToPush,
+            cacheFrom,
+        ).map(dockerPush));
     }
 }

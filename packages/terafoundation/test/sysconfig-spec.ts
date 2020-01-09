@@ -23,11 +23,6 @@ describe('sysconfig helpers', () => {
             const filePath = getTestFile('test-config.yaml');
             expect(() => parseConfigFile(filePath)).not.toThrow();
         });
-
-        it('should work with a yaml file', () => {
-            const filePath = getTestFile('test-config.yml');
-            expect(() => parseConfigFile(filePath)).not.toThrow();
-        });
     });
 });
 

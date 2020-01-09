@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `GeoBoundingBox`
+title: xLucene Evaluator: `GeoBoundingBox`
 sidebar_label: GeoBoundingBox
 ---
 
@@ -9,7 +9,7 @@ sidebar_label: GeoBoundingBox
 
 * [TermLikeAST](termlikeast.md)
 
-  * **GeoBoundingBox**
+  ↳ **GeoBoundingBox**
 
 ## Index
 
@@ -27,7 +27,7 @@ sidebar_label: GeoBoundingBox
 
 • **bottom_right**: *[GeoPoint](geopoint.md)*
 
-*Defined in [parser/interfaces.ts:154](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L154)*
+*Defined in [parser/interfaces.ts:144](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L144)*
 
 ___
 
@@ -37,7 +37,7 @@ ___
 
 *Inherited from [TermLikeAST](termlikeast.md).[field](termlikeast.md#field)*
 
-*Defined in [parser/interfaces.ts:54](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L54)*
+*Defined in [parser/interfaces.ts:46](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L46)*
 
 ___
 
@@ -45,7 +45,7 @@ ___
 
 • **field_type**: *[Geo](../enums/fieldtype.md#geo)*
 
-*Defined in [parser/interfaces.ts:152](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L152)*
+*Defined in [parser/interfaces.ts:142](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L142)*
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 • **top_left**: *[GeoPoint](geopoint.md)*
 
-*Defined in [parser/interfaces.ts:153](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L153)*
+*Defined in [parser/interfaces.ts:143](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L143)*
 
 ___
 
@@ -63,4 +63,4 @@ ___
 
 *Overrides [TermLikeAST](termlikeast.md).[type](termlikeast.md#type)*
 
-*Defined in [parser/interfaces.ts:151](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L151)*
+*Defined in [parser/interfaces.ts:141](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L141)*

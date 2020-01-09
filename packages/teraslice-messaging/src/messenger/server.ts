@@ -6,7 +6,8 @@ import {
     isTest,
     isString,
     isNumber,
-    debugLogger
+    debugLogger,
+    pDelay,
 } from '@terascope/utils';
 import { newMsgId } from '../utils';
 import * as i from './interfaces';
@@ -148,20 +149,10 @@ export class Server extends Core {
             return;
         }
 
-        await new Promise((resolve) => {
-            this.server.volatile.emit('shutdown');
-
-            this.server.close(() => {
-                resolve();
-            });
-        });
-
-        await new Promise((resolve) => {
-            this.httpServer.close(() => {
-                resolve();
-            });
-        });
-
+        this.server.volatile.emit('shutdown');
+        await pDelay(isTest ? 100 : 5000);
+        this.server.close();
+        this.httpServer.close();
         this._clients = {};
 
         super.close();

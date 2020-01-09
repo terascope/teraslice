@@ -2,13 +2,12 @@
 
 const ms = require('ms');
 const _ = require('lodash');
-const pWhilst = require('p-whilst');
 const Messaging = require('@terascope/teraslice-messaging');
 const {
-    TSError, get, pDelay, getFullErrorStack
+    TSError, get, pDelay, getFullErrorStack, logError, pWhile
 } = require('@terascope/utils');
 const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
-const { makeStateStore, makeExStore } = require('../../cluster/storage');
+const { makeStateStore, makeExStore, SliceState } = require('../../storage');
 const { makeLogger, generateWorkerId } = require('../helpers/terafoundation');
 const ExecutionAnalytics = require('./execution-analytics');
 const makeSliceAnalytics = require('./slice-analytics');
@@ -106,8 +105,8 @@ class ExecutionController {
     async initialize() {
         const { context } = this;
 
-        const exStore = makeExStore(context);
-        this.stores.exStore = await exStore;
+        const exStore = await makeExStore(context);
+        this.stores.exStore = exStore;
 
         await this.client.start();
 
@@ -130,8 +129,10 @@ class ExecutionController {
 
         const stateStore = await makeStateStore(context);
         this.stores.stateStore = stateStore;
+
         // attach to scheduler
         this.scheduler.stateStore = stateStore;
+        this.scheduler.exStore = exStore;
 
         await this.server.start();
 
@@ -202,7 +203,7 @@ class ExecutionController {
                 this.events.emit('slice:failure', response);
 
                 if (this.scheduler.canComplete()) {
-                    this.setFailingStatus();
+                    this.setFailingStatus('slice failure event');
                 } else if (this.scheduler.isRecovering()) {
                     this._terminalError(new Error('Slice failed while recovering'));
                 } else {
@@ -216,14 +217,8 @@ class ExecutionController {
             });
         });
 
-        this._handlers['slicer:execution:update'] = ({ update }) => {
-            this.logger.trace('slicer sending a execution update', update);
-
-            // this is updating the opConfig for elasticsearch start and/or end dates for ex,
-            // this assumes elasticsearch is first
-            this.stores.exStore.update(this.exId, { operations: update }).catch((err) => {
-                this.logger.error(err, 'slicer event execution update failure');
-            });
+        this._handlers['slicer:execution:update'] = (data) => {
+            this.logger.warn(data, 'event slicer:execution:update has been removed, used context.apis.executionContext.setMetadata(key, value): Promise<void>');
         };
 
         this._handlers['slicers:finished'] = (err) => {
@@ -233,7 +228,7 @@ class ExecutionController {
         };
 
         this._handlers['recovery:failure'] = (err) => {
-            this.logger.error(err, 'recovery finished due to failure');
+            logError(this.logger, err, 'recovery finished due to failure');
             this._terminalError(err);
         };
 
@@ -245,7 +240,9 @@ class ExecutionController {
             this.slicerAnalytics = makeSliceAnalytics(this.context, this.executionContext);
         }
 
-        this.logger.debug(`execution ${this.exId} is initialized`);
+        await this.scheduler.initialize();
+
+        this.logger.info(`execution: ${this.exId} initialized execution_controller`);
 
         this.isInitialized = true;
     }
@@ -258,7 +255,7 @@ class ExecutionController {
         try {
             await this._runExecution();
         } catch (err) {
-            this.logger.error(err, 'Run execution error');
+            logError(this.logger, err, 'Run execution error');
         }
 
         this.events.emit('worker:shutdown');
@@ -272,7 +269,7 @@ class ExecutionController {
         try {
             await Promise.all([this.client.sendExecutionFinished(), this._waitForWorkersToExit()]);
         } catch (err) {
-            this.logger.error(err, 'Failure sending execution finished');
+            logError(this.logger, err, 'Failure sending execution finished');
         }
 
         this.logger.debug(`execution ${this.exId} is done`);
@@ -300,10 +297,10 @@ class ExecutionController {
         await pDelay(100);
     }
 
-    async setFailingStatus() {
+    async setFailingStatus(reason) {
         const { exStore } = this.stores;
 
-        const errMsg = `execution ${this.exId} has encountered a processing error`;
+        const errMsg = `execution ${this.exId} has encountered a processing error, reason: ${reason}`;
         this.logger.error(errMsg);
 
         const executionStats = this.executionAnalytics.getAnalytics();
@@ -311,7 +308,7 @@ class ExecutionController {
         try {
             await exStore.setStatus(this.exId, 'failing', errorMeta);
         } catch (err) {
-            this.logger.error(err, 'Failure to set execution status to "failing"');
+            logError(this.logger, err, 'Failure to set execution status to "failing"');
         }
     }
 
@@ -334,7 +331,7 @@ class ExecutionController {
         try {
             await exStore.setStatus(this.exId, 'failed', errorMeta);
         } catch (_err) {
-            this.logger.error(_err, 'failure setting status to failed');
+            logError(this.logger, _err, 'failure setting status to failed');
         }
 
         this.logger.fatal(`execution ${this.exId} is ended because of slice failure`);
@@ -432,17 +429,21 @@ class ExecutionController {
     }
 
     async _runExecution() {
+        // wait for paused
+        await pWhile(async () => {
+            if (!this.isPaused || this.isShuttdown) return true;
+            await pDelay(100);
+            return false;
+        });
+
         this.logger.info(`starting execution ${this.exId}...`);
         this.startTime = Date.now();
 
         this.isStarted = true;
         this._verifyStores();
 
-        // wait for paused
-        await pWhilst(() => this.isPaused && !this.isShuttdown, () => pDelay(100));
-
+        // start creating / dispatching slices, this will block until done
         await Promise.all([
-            this.stores.exStore.setStatus(this.exId, 'running'),
             this.client.sendAvailable(),
             this._runDispatch(),
             this.scheduler.run()
@@ -510,7 +511,7 @@ class ExecutionController {
                     });
                     dispatch.length = 0;
 
-                    Promise.all(promises).catch((err) => this.logger.error(err, 'failure to dispatch slices'));
+                    Promise.all(promises).catch((err) => logError(this.logger, err, 'failure to dispatch slices'));
                 });
             }
 
@@ -568,7 +569,7 @@ class ExecutionController {
                 this._removePendingDispatch();
             })
             .catch((err) => {
-                this.logger.error(err, 'error dispatching slice');
+                logError(this.logger, err, 'error dispatching slice');
                 this._removePendingDispatch();
                 this._removePendingSlice();
             });
@@ -630,9 +631,11 @@ class ExecutionController {
             const status = await exStore.getStatus(this.exId);
             const isStopping = status === 'stopping' || status === 'stopped';
             if (isStopping) {
-                const metaData = exStore.executionMetaData(executionStats);
                 this.logger.debug(`execution is set to ${status}, status will not be updated`);
-                await exStore.update(this.exId, metaData);
+                await exStore.updatePartial(this.exId, (existing) => {
+                    const metaData = exStore.executionMetaData(executionStats);
+                    return Object.assign(existing, metaData);
+                });
                 return;
             }
 
@@ -645,13 +648,14 @@ class ExecutionController {
             return;
         }
 
-        const [errors, started] = await Promise.all([
-            this._checkExecutionErrorState(),
-            this._checkExecutionStartedState()
+        const [errors, started, pending] = await Promise.all([
+            this.stores.stateStore.countByState(this.exId, SliceState.error),
+            this.stores.stateStore.countByState(this.exId, SliceState.start),
+            this.stores.stateStore.countByState(this.exId, SliceState.pending),
         ]);
 
         if (errors > 0 || started > 0) {
-            const errMsg = this._formartExecutionFailure({ errors, started });
+            const errMsg = this._formartExecutionFailure({ errors, started, pending });
             const errorMeta = exStore.executionMetaData(executionStats, errMsg);
             this.logger.error(errMsg);
             await exStore.setStatus(this.exId, 'failed', errorMeta);
@@ -677,35 +681,27 @@ class ExecutionController {
         this.logger.info(`execution ${this.exId} has finished in ${time} seconds`);
     }
 
-    _formartExecutionFailure({ started, errors }) {
-        let errMsg = `execution: ${this.exId}`;
+    _formartExecutionFailure({ started, errors, pending }) {
+        const startedMsg = started <= 1
+            ? `had ${started} slice stuck in started`
+            : `had ${started} slices stuck in started`;
 
-        const startedMsg = started === 1
-            ? `${started} slice stuck in started`
-            : `${started} slices stuck in started`;
-        const errorsMsg = errors === 1 ? `${errors} slice failure` : `${errors} slice failures`;
+        const pendingMsg = pending <= 1
+            ? `had ${pending} slice are still pending`
+            : `had ${pending} slices are still pending`;
 
-        if (errors === 0 && started > 0) {
-            errMsg += ` had ${startedMsg}`;
-        } else {
-            errMsg += ` had ${errorsMsg}`;
-            if (started > 0) {
-                errMsg += `, and had ${startedMsg}`;
-            }
-        }
+        const errorsMsg = errors <= 1
+            ? `had ${errors} slice failure`
+            : `had ${errors} slice failures`;
 
-        errMsg += ' during processing';
-        return errMsg;
-    }
+        const none = (errors + started + pending) === 0;
+        const stateMessages = [
+            started || none ? startedMsg : '',
+            pending || none ? pendingMsg : '',
+            errors || none ? errorsMsg : '',
+        ].filter(Boolean);
 
-    _checkExecutionErrorState() {
-        const query = `ex_id:${this.exId} AND state:error`;
-        return this.stores.stateStore.count(query, 0);
-    }
-
-    _checkExecutionStartedState() {
-        const query = `ex_id:${this.exId} AND state:start`;
-        return this.stores.stateStore.count(query, 0);
+        return `execution: ${this.exId} ${stateMessages} during processing`;
     }
 
     async _waitForWorkersToExit() {
@@ -830,9 +826,12 @@ class ExecutionController {
             return true;
         }
 
-        await this.client.sendExecutionFinished(error.message);
+        try {
+            await this.client.sendExecutionFinished(error.message);
+        } finally {
+            logError(this.logger, error, 'Unable to verify execution on initialization');
+        }
 
-        this.logger.warn('Unable to verify execution on initialization', error.stack);
         return false;
     }
 
@@ -905,7 +904,7 @@ class ExecutionController {
             errorCount = analyticsData.failed;
             processedCount = analyticsData.processed;
 
-            await this.setFailingStatus();
+            await this.setFailingStatus('slice failure watch dog');
 
             this.sliceFailureInterval = setInterval(() => {
                 const currentAnalyticsData = this.executionAnalytics.getAnalytics();
@@ -920,12 +919,18 @@ class ExecutionController {
                     watchDogSet = false;
                     this.sliceFailureInterval = null;
 
+                    const setStatusTo = this.scheduler.recovering ? 'recovering' : 'running';
+
                     this.logger.info(
                         `No slice errors have occurred within execution: ${
                             this.exId
-                        } will be set back to 'running' state`
+                        } will be set back to '${setStatusTo}' state`
                     );
-                    this.stores.exStore.setStatus(this.exId, 'running');
+
+                    this.stores.exStore.setStatus(this.exId, setStatusTo)
+                        .catch((err) => {
+                            logError(this.logger, err, 'failure to status back to running after running');
+                        });
                     return;
                 }
 
@@ -950,7 +955,7 @@ class ExecutionController {
             if (this.workersHaveConnected) return;
 
             this.logger.warn(
-                `A worker has not connected to a slicer for ex: ${
+                `A worker has not connected to a slicer for execution: ${
                     this.exId
                 }, shutting down execution`
             );

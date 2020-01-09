@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `ILiteralExpectation`
+title: xLucene Evaluator: `ILiteralExpectation`
 sidebar_label: ILiteralExpectation
 ---
 
@@ -23,7 +23,7 @@ sidebar_label: ILiteralExpectation
 
 • **ignoreCase**: *boolean*
 
-Defined in parser/peg-engine.ts:24
+Defined in parser/peg-engine.ts:25
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **text**: *string*
 
-Defined in parser/peg-engine.ts:23
+Defined in parser/peg-engine.ts:24
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 • **type**: *"literal"*
 
-Defined in parser/peg-engine.ts:22
+Defined in parser/peg-engine.ts:23

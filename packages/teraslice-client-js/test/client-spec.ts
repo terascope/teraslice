@@ -1,4 +1,3 @@
-
 import nock from 'nock';
 import TerasliceClient from '../src';
 import Client from '../src/client';

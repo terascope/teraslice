@@ -1,6 +1,6 @@
 import { debugLogger, isString, Logger } from '@terascope/utils';
 import { Parser } from '../parser';
-import { TypeConfig, GeoDistanceUnit } from '../interfaces';
+import { TypeConfig, GeoDistanceUnit, Variables } from '../interfaces';
 import { parseGeoDistanceUnit } from '../utils';
 import * as i from './interfaces';
 import * as utils from './utils';
@@ -10,22 +10,25 @@ const _logger = debugLogger('xlucene-translator');
 export class Translator {
     readonly query: string;
     logger: Logger;
-    readonly typeConfig?: TypeConfig;
+    readonly typeConfig: TypeConfig;
+    readonly variables: Variables | undefined;
     private readonly _parser: Parser;
     private _defaultGeoField?: string;
     private _defaultGeoSortOrder: 'asc'|'desc' = 'asc';
     private _defaultGeoSortUnit: GeoDistanceUnit = 'meters';
 
     constructor(input: string | Parser, options: i.TranslatorOptions = {}) {
+        this.variables = options.variables;
         this.logger = options.logger != null
             ? options.logger.child({ module: 'xlucene-translator' })
             : _logger;
 
-        this.typeConfig = options.type_config;
+        this.typeConfig = options.type_config || {};
         if (isString(input)) {
             this._parser = new Parser(input, {
                 type_config: this.typeConfig,
                 logger: this.logger,
+                variables: this.variables
             });
         } else {
             this._parser = input;
@@ -47,14 +50,17 @@ export class Translator {
     toElasticsearchDSL(opts: i.ElasticsearchDSLOptions = {}): i.ElasticsearchDSLResult {
         const result = utils.translateQuery(this._parser, {
             logger: this.logger,
+            type_config: this.typeConfig,
             default_geo_field: this._defaultGeoField,
             geo_sort_point: opts.geo_sort_point,
             geo_sort_order: opts.geo_sort_order || this._defaultGeoSortOrder,
             geo_sort_unit: opts.geo_sort_unit || this._defaultGeoSortUnit,
         });
 
-        const resultStr = JSON.stringify(result, null, 2);
-        this.logger.trace(`translated ${this.query ? this.query : "''"} query to`, resultStr);
+        if (this.logger.level() === 10) {
+            const resultStr = JSON.stringify(result, null, 2);
+            this.logger.trace(`translated ${this.query ? this.query : "''"} query to`, resultStr);
+        }
 
         return result;
     }

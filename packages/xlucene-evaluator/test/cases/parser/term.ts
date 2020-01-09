@@ -563,4 +563,109 @@ export default [
             value: `/value\\\\`,
         },
     ],
+    [
+        `field:$bar`,
+        'variable with value is a string',
+        {
+            value: 'someValue',
+            field: 'field',
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: false,
+        },
+        {
+            field: 'string'
+        },
+        {
+            bar: 'someValue'
+        }
+    ],
+    [
+        `field:$bar`,
+        'variable with value is a boolean',
+        {
+            value: false,
+            field: 'field',
+            type: ASTType.Term,
+            field_type: FieldType.Boolean,
+        },
+        {
+            field: 'boolean'
+        },
+        {
+            bar: false
+        }
+    ],
+    [
+        `field:$bar`,
+        'variable with value is a number',
+        {
+            value: 2345,
+            field: 'field',
+            type: ASTType.Term,
+            field_type: FieldType.Integer,
+        },
+        {
+            field: 'integer'
+        },
+        {
+            bar: 2345
+        }
+    ],
+    [
+        'field:something.com',
+        'can parse string values with dots',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: false,
+            restricted: true,
+            field: 'field',
+            value: 'something.com',
+        },
+    ],
+    [
+        'field:false.com',
+        'can parse string values that have true/false in them',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: false,
+            field: 'field',
+            value: 'false.com',
+        },
+    ],
+    [
+        'field.right:false.com',
+        'can parse string values that have true/false in them with fields that have dots',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: false,
+            field: 'field.right',
+            value: 'false.com',
+        },
+    ],
+    [
+        'field.right:3.com',
+        'can parse string values that have integers in them',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: false,
+            field: 'field.right',
+            value: '3.com',
+        },
+    ],
+    [
+        'field.right:3.3.com',
+        'can parse string values that have floats in them',
+        {
+            type: ASTType.Term,
+            field_type: FieldType.String,
+            quoted: false,
+            field: 'field.right',
+            value: '3.3.com',
+        },
+    ],
 ] as TestCase[];

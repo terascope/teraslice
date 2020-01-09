@@ -1,5 +1,7 @@
 # All images inherit from this
-FROM node:10.16.3-alpine AS base
+FROM node:10.16.3-alpine
+
+# [INSTALL IMAGE DEPENDENCIES]
 
 # dependencies that exist in all layers
 RUN apk --no-cache add \
@@ -15,62 +17,7 @@ RUN apk --no-cache add \
     python
 
 ENV NPM_CONFIG_LOGLEVEL error
-
-RUN mkdir -p /app/source /app/connectors
-WORKDIR /app/source
-
-# Use tini to handle sigterm and zombie processes
-ENTRYPOINT ["/sbin/tini", "--"]
-
-# Install the connectors in a different layer
-FROM base AS connectors
-
-RUN apk --no-cache add \
-    --virtual .build-deps \
-    gcc \
-    zlib-dev \
-    bsd-compat-headers \
-    py-setuptools
-
 ENV WITH_SASL 0
-
-# Install any built-in connectors in /app/
-# use npm because there isn't a package.json
-WORKDIR /app/connectors
-
-RUN npm init --yes > /dev/null \
-    && npm install \
-    --quiet \
-    --no-package-lock \
-    'terafoundation_kafka_connector@~0.4.2' \
-    # clean up node-rdkafka
-    && rm -rf node_modules/node-rdkafka/docs \
-    node_modules/node-rdkafka/deps/librdkafka
-
-# the deps image should contain all of dev code
-FROM base AS deps
-
-COPY package.json yarn.lock lerna.json .yarnrc /app/source/
-COPY packages /app/source/packages
-
-ENV NODE_ENV development
-
-# install both dev and production dependencies
-RUN yarn \
-    --no-cache \
-    --prod=false \
-    --frozen-lockfile \
-    --ignore-optional
-
-# Prepare the node modules for isntallation
-COPY types /app/source/types
-COPY tsconfig.json /app/source/
-
-# Build the packages
-RUN yarn quick:setup
-
-# the prod image should small
-FROM base
 
 # Install bunyan
 RUN yarn global add \
@@ -81,20 +28,72 @@ RUN yarn global add \
     --no-cache \
     bunyan
 
-ENV NODE_ENV production
+RUN mkdir -p /app/source
 
-COPY --from=connectors /app/connectors/node_modules /app/node_modules
+# [BUILD AND INSTALL THE CONNECTORS]
+RUN apk --no-cache add \
+    --virtual .build-deps \
+    gcc \
+    zlib-dev \
+    bsd-compat-headers \
+    py-setuptools
+
+# Install any built-in connectors in /app/
+# use npm because there isn't a package.json
+WORKDIR /app
+
+RUN npm init --yes > /dev/null \
+    && npm install \
+    --quiet \
+    --no-package-lock \
+    'terafoundation_kafka_connector@~0.5.3'
+
+RUN apk del .build-deps
+
+# [INSTALL AND BUILD PACKAGES]
+WORKDIR /app/source
+ENV NODE_ENV development
+
+COPY package.json yarn.lock lerna.json .yarnrc /app/source/
+COPY scripts /app/source/scripts
+
+# remove the workspaces to the package.json
+RUN ./scripts/docker-pkg-fix.js "pre"
+
+# install both dev and production dependencies
+RUN yarn \
+    --prod=false \
+    --no-progress \
+    --frozen-lockfile \
+    --ignore-optional
+
+# add back the workspaces to the package.json
+RUN ./scripts/docker-pkg-fix.js "post"
+
+# Add all of the packages and other required files
+COPY packages /app/source/packages
+
+# install the missing packages
+RUN yarn \
+    --no-cache \
+    --prod=false \
+    --prefer-offline \
+    --frozen-lockfile \
+    --ignore-optional
+
+COPY types /app/source/types
+COPY tsconfig.json /app/source/
+
+# link and build the missing packages
+RUN yarn quick:setup
+
+# [BUILD THE PRODUCTION IMAGE]
+ENV NODE_ENV production
 
 # verify node-rdkafka is installed right
 RUN node -e "require('node-rdkafka')"
 
-COPY service.js package.json lerna.json yarn.lock .yarnrc /app/source/
-COPY scripts /app/source/scripts
-
-# copy the compiled packages
-COPY --from=deps /app/source/packages /app/source/packages
-# copy the production node_modules
-COPY --from=deps /app/source/node_modules /app/source/node_modules
+COPY service.js /app/source/
 
 # verify teraslice is installed right
 RUN node -e "require('teraslice')"
@@ -106,4 +105,6 @@ VOLUME /app/config /app/logs /app/assets
 ENV TERAFOUNDATION_CONFIG /app/config/teraslice.yaml
 ENV NODE_OPTIONS "--max-old-space-size=2048"
 
+# Use tini to handle sigterm and zombie processes
+ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["node", "service.js"]

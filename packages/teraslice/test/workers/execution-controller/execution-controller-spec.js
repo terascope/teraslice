@@ -1,6 +1,5 @@
 'use strict';
 
-const Promise = require('bluebird');
 const { pDelay } = require('@terascope/utils');
 const { TestContext } = require('../helpers');
 const { findPort } = require('../../../lib/utils/port_utils');
@@ -13,6 +12,8 @@ describe('ExecutionController', () => {
         let exStore;
 
         beforeEach(async () => {
+            await TestContext.waitForCleanup();
+
             const port = await findPort();
 
             testContext = new TestContext({
@@ -92,6 +93,7 @@ describe('ExecutionController', () => {
         const probationWindow = 500;
 
         beforeEach(async () => {
+            await TestContext.waitForCleanup();
             const port = await findPort();
 
             testContext = new TestContext({
@@ -158,6 +160,8 @@ describe('ExecutionController', () => {
         let exController;
 
         beforeEach(async () => {
+            await TestContext.waitForCleanup();
+
             testContext = new TestContext({
                 assignment: 'execution_controller'
             });
@@ -188,12 +192,12 @@ describe('ExecutionController', () => {
                 exController.logger.error = logErr;
 
                 const stats = exController.executionAnalytics.getAnalytics();
-                await exController.setFailingStatus();
+                await exController.setFailingStatus('some reason');
 
                 expect(setStatus).toHaveBeenCalledWith(testContext.exId, 'failing', errMeta);
                 expect(executionMetaData).toHaveBeenCalledWith(
                     stats,
-                    `execution ${testContext.exId} has encountered a processing error`
+                    `execution ${testContext.exId} has encountered a processing error, reason: some reason`
                 );
                 expect(logErr).toHaveBeenCalledTimes(2);
             });
@@ -205,6 +209,8 @@ describe('ExecutionController', () => {
         let exController;
 
         beforeEach(async () => {
+            await TestContext.waitForCleanup();
+
             testContext = new TestContext({
                 assignment: 'execution_controller'
             });
@@ -274,6 +280,8 @@ describe('ExecutionController', () => {
         let exController;
 
         beforeEach(async () => {
+            await TestContext.waitForCleanup();
+
             testContext = new TestContext({
                 assignment: 'execution_controller',
                 shutdownTimeout: 100

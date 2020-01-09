@@ -2,7 +2,6 @@
 
 const utils = require('../../lib/utils/date_utils');
 
-
 describe('elastic_utils', () => {
     it('has methods dateOptions and processInterval', () => {
         const { dateOptions } = utils;

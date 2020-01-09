@@ -8,11 +8,12 @@ import {
 } from './strings';
 
 /** Check if an input is empty, similar to lodash.isEmpty */
-export function isEmpty(val?: any): boolean {
-    if (val == null) return true;
-    if (val.size != null) return !val.size;
-    if (typeof val === 'object') return !Object.keys(val).length;
-    if (val.length != null) return !val.length;
+export function isEmpty<T>(val?: T): val is undefined {
+    const _val = val as any;
+    if (!_val) return true;
+    if (typeof _val.size === 'number') return !_val.size;
+    if (typeof _val.length === 'number') return !_val.length;
+    if (typeof val === 'object') return !Object.keys(_val).length;
 
     return true;
 }
@@ -44,7 +45,10 @@ export function parseJSON<T = object>(buf: Buffer | string): T {
  * @return a human friendly string that describes the input
  */
 export function getTypeOf(val: any): string {
-    if (val) {
+    if (val === undefined) return 'undefined';
+    if (val === null) return 'null';
+
+    if (typeof val === 'object') {
         if (val.__isDataEntity) return 'DataEntity';
         if (val.constructor && val.constructor.name) {
             return val.constructor.name;
@@ -164,4 +168,34 @@ export function getField<T, P extends keyof T, V>(
         return result;
     }
     return result || defaultVal;
+}
+
+function _getArgCacheKey(args: any[]): string {
+    const fixed = args.filter((a, i, arr) => {
+        if (a === undefined && arr.length === (i + 1)) return false;
+        return true;
+    });
+    try {
+        return JSON.stringify(fixed);
+    } catch (_e) {
+        return toString(fixed);
+    }
+}
+
+type MemoizeFn = (...args: any[]) => any;
+/**
+ * A replacement for lodash memoize
+*/
+export function memoize<T extends MemoizeFn>(fn: T): T {
+    const _cache = new Map<string, any>();
+
+    const _memoize: any = (...args: any[]): any => {
+        const key = _getArgCacheKey(args);
+        const cached = _cache.get(key);
+        if (cached !== undefined) return cached;
+        const result = fn(...args);
+        _cache.set(key, result);
+        return result;
+    };
+    return _memoize;
 }

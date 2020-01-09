@@ -17,15 +17,15 @@ A base class for supporting convict "Schema" definitions
 
 * [SchemaCore](schemacore.md)‹T›
 
-  * **ConvictSchema**
+  ↳ **ConvictSchema**
 
-  * [Schema](schema.md)
+  ↳ [Schema](schema.md)
 
-  * [Schema](schema.md)
+  ↳ [Schema](schema.md)
 
-  * [Schema](schema.md)
+  ↳ [Schema](schema.md)
 
-  * [Schema](schema.md)
+  ↳ [Schema](schema.md)
 
 ## Index
 
@@ -54,7 +54,7 @@ A base class for supporting convict "Schema" definitions
 
 *Overrides [SchemaCore](schemacore.md).[constructor](schemacore.md#constructor)*
 
-*Defined in [operations/convict-schema.ts:17](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/convict-schema.ts#L17)*
+*Defined in [operations/convict-schema.ts:17](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/convict-schema.ts#L17)*
 
 **Parameters:**
 
@@ -73,7 +73,7 @@ Name | Type | Default |
 
 *Inherited from [SchemaCore](schemacore.md).[context](schemacore.md#protected-context)*
 
-*Defined in [operations/core/schema-core.ts:8](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/schema-core.ts#L8)*
+*Defined in [operations/core/schema-core.ts:8](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/core/schema-core.ts#L8)*
 
 ___
 
@@ -83,7 +83,7 @@ ___
 
 *Inherited from [SchemaCore](schemacore.md).[opType](schemacore.md#optype)*
 
-*Defined in [operations/core/schema-core.ts:9](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/core/schema-core.ts#L9)*
+*Defined in [operations/core/schema-core.ts:9](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/core/schema-core.ts#L9)*
 
 ___
 
@@ -91,7 +91,7 @@ ___
 
 • **schema**: *convict.Schema‹S›*
 
-*Defined in [operations/convict-schema.ts:17](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/convict-schema.ts#L17)*
+*Defined in [operations/convict-schema.ts:17](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/convict-schema.ts#L17)*
 
 ## Methods
 
@@ -101,7 +101,7 @@ ___
 
 *Overrides [SchemaCore](schemacore.md).[build](schemacore.md#abstract-build)*
 
-*Defined in [operations/convict-schema.ts:42](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/convict-schema.ts#L42)*
+*Defined in [operations/convict-schema.ts:42](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/convict-schema.ts#L42)*
 
 **Type parameters:**
 
@@ -123,7 +123,7 @@ ___
 
 *Overrides [SchemaCore](schemacore.md).[validate](schemacore.md#abstract-validate)*
 
-*Defined in [operations/convict-schema.ts:24](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/convict-schema.ts#L24)*
+*Defined in [operations/convict-schema.ts:24](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/convict-schema.ts#L24)*
 
 **Parameters:**
 
@@ -137,7 +137,7 @@ Name | Type |
 
 *Overrides [SchemaCore](schemacore.md).[validate](schemacore.md#abstract-validate)*
 
-*Defined in [operations/convict-schema.ts:25](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/convict-schema.ts#L25)*
+*Defined in [operations/convict-schema.ts:25](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/convict-schema.ts#L25)*
 
 **Parameters:**
 
@@ -155,7 +155,7 @@ ___
 
 *Overrides [SchemaCore](schemacore.md).[validateJob](schemacore.md#optional-abstract-validatejob)*
 
-*Defined in [operations/convict-schema.ts:34](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/convict-schema.ts#L34)*
+*Defined in [operations/convict-schema.ts:34](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/convict-schema.ts#L34)*
 
 **Parameters:**
 
@@ -171,6 +171,6 @@ ___
 
 ▸ **type**(): *string*
 
-*Defined in [operations/convict-schema.ts:38](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/operations/convict-schema.ts#L38)*
+*Defined in [operations/convict-schema.ts:38](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/operations/convict-schema.ts#L38)*
 
 **Returns:** *string*

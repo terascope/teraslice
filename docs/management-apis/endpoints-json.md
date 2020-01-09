@@ -181,6 +181,7 @@ Setting start to false will just store the job and not automatically enqueue it,
 ```sh
 $ curl -XPOST 'localhost:5678/v1/jobs' -d@job.json
 {
+    "ex_id": "81c4441d-afd8-4d4a-a0f5-749a99527b08",
     "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd"
 }
 ```
@@ -327,6 +328,7 @@ Issues a start command, this will start a fresh new job associated with the job 
 $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_start'
 {
     "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd"
+    "ex_id": "0b5309f9-35d7-444a-be97-55e4de4aef41"
 }
 ```
 
@@ -378,14 +380,21 @@ $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_resu
 
 ## POST /v1/jobs/{jobId}/_recover
 
-THIS API ENDPOINT IS BEING DEPRECATED: issues a recover command, this can only be run if the job is stopped, the job will attempt to retry failed slices and to resume where it previously left off.
+**IMPORTANT** When recovering an job, the last execution ran will be recovered but any changes applied to the job since the recovery will be applied.
+
+Issues a recover command, this can only be run if current execution is in a terminated status, the job will attempt to retry failed slices and to resume where it previously left off. If `cleanup_type` parameter is specified it will NOT resume where it left off and exit after recovery completes. If the `cleanup_type` parameter is set to `all`, then it will attempt to reprocess all slices left in error or started status, if it is set to  `errors` then it will only reprocess state records that are marked as error. If it is set to `pending` only the slices that haven't been `completed`, or marked as `failed`, will be ran.
+
+**Query Options:**
+
+- `cleanup_type: enum [ 'all', 'errors', 'pending' ]`;
 
 **Usage:**
 
 ```sh
-$ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_recover'
+$ curl -XPOST 'localhost:5678/v1/jobs/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_recover?cleanup_type=errors'
 {
-    "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd"
+    "ex_id": "75881f00-1875-40d1-a2ab-dece54b0b69b",
+    "job_id": "863678b3-daf3-4ea9-8cb0-88b846cd7e57"
 }
 ```
 
@@ -666,7 +675,7 @@ $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_stop'
 }
 ```
 
-## POST /ex/{exId}/_pause
+## POST /v1/ex/{exId}/_pause
 
 Issues a pause command, this will prevent the execution controller from invoking slicers and also prevent the allocation of slices to workers, marks the job execution context state as paused.
 
@@ -679,7 +688,7 @@ $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_pause'
 }
 ```
 
-## POST /ex/{exId}/_resume
+## POST /v1/ex/{exId}/_resume
 
 Issues a resume command, this allows the execution controller to continue invoking slicers and allocating work if they were in a paused state, marks the job execution context as running.
 
@@ -692,24 +701,27 @@ $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_resume
 }
 ```
 
-## POST /ex/{exId}/_recover
+## POST /v1/ex/{exId}/_recover
 
-Issues a recover command, this can only be run if the execution is stopped, the job will attempt to retry failed slices and to resume where it previously left off. If cleanup parameter is specified it will NOT resume where it left off and exit after recovery completes. If the cleanup parameter is set to `all`, then it will attempt to reprocess all slices left in error or started status, if it is set to  `errors` then it will only reprocess state records that are marked as error.
+**IMPORTANT** When recovering an execution, the configuration from is copied from that execution and any changes added to the job will not be applied. Additionally, recovering an execution that is not the last ran execution for a job should be used with caution. For these reasons it is recommended to [recover a job](#post-v1jobsjobid_recover) unless you need the above recommendations.
+
+Issues a recover command, this can only be run if the execution is stopped, the job will attempt to retry failed slices and to resume where it previously left off. If `cleanup_type` parameter is specified it will NOT resume where it left off and exit after recovery completes. If the `cleanup_type` parameter is set to `all`, then it will attempt to reprocess all slices left in error or started status, if it is set to  `errors` then it will only reprocess state records that are marked as error. If it is set to `pending` only the slices that haven't been `completed`, or marked as `failed`, will be ran.
 
 **Query Options:**
 
-- `cleanup: enum [ 'all', 'errors' ]`;
+- `cleanup_type: enum [ 'all', 'errors', 'pending' ]`;
 
 **Usage:**
 
 ```sh
-$ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_recover?cleanup=errors'
+$ curl -XPOST 'localhost:5678/v1/ex/d3ce31bd-db5f-41cc-922a-64e1b0cb05c4/_recover?cleanup_type=errors'
 {
+    "ex_id": "9766fd8c-8c3e-4318-9d2c-1673662175e9",
     "job_id": "863678b3-daf3-4ea9-8cb0-88b846cd7e57"
 }
 ```
 
-## POST /ex/{exId}/_workers
+## POST /v1/ex/{exId}/_workers
 
 You can dynamically change the amount of workers that are allocated for a specific job execution.
 
@@ -728,7 +740,7 @@ $ curl -XPOST 'localhost:5678/v1/ex/863678b3-daf3-4ea9-8cb0-88b846cd7e57/_worker
 "5 workers have been add for execution: 863678b3-daf3-4ea9-8cb0-88b846cd7e57"
 ```
 
-## GET /ex/{exId}/controller
+## GET /v1/ex/{exId}/controller
 
 Same concept as cluster/controllers, but only get stats on execution controller associated with the given execution context id.
 

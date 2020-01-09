@@ -521,13 +521,6 @@ describe('elasticsearch-api', () => {
         return expect(results).toBeTruthy();
     });
 
-    it('can call nodeStats', async () => {
-        const api = esApi(client, logger);
-
-        const results = await api.nodeStats();
-        return expect(results).toBeTruthy();
-    });
-
     it('can warn window size with version', () => {
         const api = esApi(client, logger, { index: 'some_index' });
 
@@ -815,10 +808,11 @@ describe('elasticsearch-api', () => {
             query: 'someLucene:query',
             fields: ['field1', 'field2']
         };
-
+        const field = 'someField';
         const msg1 = { count: 100, key: 'someKey' };
         const msg2 = { count: 100, start: new Date(), end: new Date() };
         const msg3 = { count: 100 };
+        const msg4 = { count: 100, wildcard: { field, value: 'someKey' } };
 
         function makeResponse(opConfig, msg, data) {
             const query = {
@@ -845,12 +839,17 @@ describe('elasticsearch-api', () => {
             { wildcard: { _uid: 'someKey' } },
             { query_string: { query: opConfig3.query } }
         ];
+        const response5 = [
+            { wildcard: { [field]: 'someKey' } },
+            { query_string: { query: opConfig3.query } }
+        ];
 
         expect(api.buildQuery(opConfig1, msg1)).toEqual(makeResponse(opConfig1, msg1, response1));
         expect(api.buildQuery(opConfig2, msg2)).toEqual(makeResponse(opConfig2, msg2, response2));
         expect(api.buildQuery(opConfig3, msg3)).toEqual(makeResponse(opConfig3, msg3, response3));
         expect(api.buildQuery(opConfig4, msg3)).toEqual(makeResponse(opConfig4, msg3, response3));
         expect(api.buildQuery(opConfig3, msg1)).toEqual(makeResponse(opConfig3, msg1, response4));
+        expect(api.buildQuery(opConfig3, msg4)).toEqual(makeResponse(opConfig3, msg1, response5));
     });
 
     it('can set up an index', () => {

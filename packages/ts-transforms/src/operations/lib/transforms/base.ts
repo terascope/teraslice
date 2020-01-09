@@ -1,4 +1,3 @@
-
 import { DataEntity, get } from '@terascope/utils';
 import OperationBase from '../base';
 

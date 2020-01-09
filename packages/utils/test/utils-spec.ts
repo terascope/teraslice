@@ -7,6 +7,9 @@ import {
     parseList,
     parseNumberList,
     toNumber,
+    times,
+    random,
+    memoize,
 } from '../src';
 
 describe('Utils', () => {
@@ -51,6 +54,7 @@ describe('Utils', () => {
         });
 
         // TODO: We may need to add support for this?
+        // eslint-disable-next-line jest/no-disabled-tests
         xit('should handle a json base64 encoded Buffer', () => {
             const input = Buffer.from(JSON.stringify({ foo: 'bar' }), 'base64');
             expect(parseJSON(input)).toEqual({ foo: 'bar' });
@@ -98,8 +102,8 @@ describe('Utils', () => {
 
             expect(getTypeOf(123)).toEqual('Number');
 
-            expect(getTypeOf(null)).toEqual('Null');
-            expect(getTypeOf(undefined)).toEqual('Undefined');
+            expect(getTypeOf(null)).toEqual('null');
+            expect(getTypeOf(undefined)).toEqual('undefined');
 
             const error = new Error('Hello');
             expect(getTypeOf(error)).toEqual('Error');
@@ -158,6 +162,55 @@ describe('Utils', () => {
         // @ts-ignore
         ])('should convert %j to be %j', (input, expected) => {
             expect(toNumber(input)).toEqual(expected);
+        });
+    });
+
+    describe('memoize', () => {
+        it('should handle no args', () => {
+            const fn = memoize((_arg?: undefined): number => random(0, 1000000000));
+
+            const result = fn();
+            expect(result).toBeNumber();
+            expect(fn()).toBe(result);
+            expect(fn(undefined)).toBe(result);
+        });
+
+        it('should handle one arg', () => {
+            const fn = memoize((input: any, _arg?: undefined) => input);
+
+            const a1 = { a: 1 };
+            const a2 = { a: 2 };
+
+            expect(fn(a1)).toBe(a1);
+            expect(fn(a1)).toEqual(a1);
+
+            expect(fn({ a: 1 })).toBe(a1);
+            expect(fn({ a: 1 }, undefined)).toBe(a1);
+            expect(fn(a1)).toBe(a1);
+            expect(fn(a1, undefined)).toBe(a1);
+
+            expect(fn(a2)).toBe(a2);
+            expect(fn(a2)).toEqual(a2);
+            expect(fn(a2, undefined)).toBe(a2);
+        });
+
+        it('should handle multiple args', () => {
+            const fn = memoize((...args: (number|undefined)[]): number[] => times(
+                args.reduce(
+                    (c = 0, n = 0) => c + n,
+                    0
+                )!
+            ));
+
+            const result1 = fn(5, 5);
+            const result2 = fn(5, 5, 5);
+            expect(result1).toEqual(times(10));
+            expect(result2).toEqual(times(15));
+
+            expect(fn(5, 5)).toBe(result1);
+            expect(fn(5, 5, undefined)).toBe(result1);
+            expect(fn(5, 5, 5)).toBe(result2);
+            expect(result2).not.toBe(result1);
         });
     });
 });

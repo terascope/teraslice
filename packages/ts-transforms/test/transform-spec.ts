@@ -1,4 +1,3 @@
-
 import 'jest-extended';
 import path from 'path';
 import { DataEntity, get, cloneDeep } from '@terascope/utils';
@@ -944,7 +943,7 @@ describe('can transform matches', () => {
         });
     });
 
-    it('can catch all selector extractions', async () => {
+    it('can catch all selector extractions for transformRules31', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules31.txt')],
         };
@@ -987,7 +986,7 @@ describe('can transform matches', () => {
         });
     });
 
-    it('can catch all selector extractions', async () => {
+    it('can catch all selector extractions for sameSourceDifferentSelector', async () => {
         const config: WatcherConfig = {
             rules: [getPath('sameSourceDifferentSelector.txt')],
         };

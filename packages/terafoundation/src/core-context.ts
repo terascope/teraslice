@@ -2,7 +2,6 @@ import * as ts from '@terascope/utils';
 import registerApis from './api';
 import * as i from './interfaces';
 
-
 /**
  * CoreContext
 */
@@ -35,7 +34,6 @@ export class CoreContext<
             process.env.NODE_TYPE
             || process.env.assignment
             || process.env.ASSIGNMENT
-            || 'unknown'
         ) as D;
 
         if (ts.isFunction(config.cluster_name)) {

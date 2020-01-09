@@ -30,9 +30,9 @@ describe('Float V1', () => {
         expect(esMapping).toEqual(results);
     });
 
-    it('can get proper graphQl types', () => {
+    it('can get proper graphql types', () => {
         const graphQlTypes = new FloatType(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: Float` };
+        const results = { type: `${field}: Float`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });

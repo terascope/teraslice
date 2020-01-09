@@ -1,4 +1,3 @@
-
 import util from 'util';
 import autoBind from 'auto-bind';
 import {
@@ -7,6 +6,8 @@ import {
     toString,
     TSError,
     Assignment,
+    toHumanTime,
+    JobConfig,
 } from '@terascope/job-components';
 import {
     ClientConfig,
@@ -16,20 +17,20 @@ import {
     ClusterState,
     ClusterProcess,
     ControllerState,
-    JobsGetResponse,
     StateErrors,
     WorkerJobProcesses,
     SearchOptions,
     ChangeWorkerResponse,
     RequestOptions,
     ExecutionIDResponse,
-    ExecutionGetResponse,
     RecoverQuery,
     ResumeResponse,
     StoppedResponse,
     PausedResponse,
     JobIDResponse,
-    StopQuery
+    StopQuery,
+    Execution,
+    JobConfiguration
 } from './interfaces';
 import Client from './client';
 
@@ -46,7 +47,7 @@ function _deprecateSlicerName(fn: () => Promise<ControllerState>) {
 }
 
 export default class Job extends Client {
-    private _jobId: string;
+    private readonly _jobId: string;
 
     constructor(config: ClientConfig, jobId: string) {
         super(config);
@@ -100,7 +101,17 @@ export default class Job extends Client {
         return this.post(`/jobs/${this._jobId}/_recover`, null, options);
     }
 
-    async execution(requestOptions: RequestOptions = {}): Promise<ExecutionGetResponse> {
+    async update(jobSpec: JobConfiguration): Promise<JobConfiguration> {
+        return this.put(`/jobs/${this._jobId}`, jobSpec);
+    }
+
+    async updatePartial(jobSpec: Partial<JobConfiguration|JobConfig>): Promise<JobConfiguration> {
+        const current = await this.config();
+        const body: JobConfiguration = Object.assign({}, current, jobSpec);
+        return this.update(body);
+    }
+
+    async execution(requestOptions: RequestOptions = {}): Promise<Execution> {
         return this.get(`/jobs/${this._jobId}/ex`, requestOptions);
     }
 
@@ -121,28 +132,31 @@ export default class Job extends Client {
         requestOptions: RequestOptions = {}
     ): Promise<ExecutionStatus> {
         const terminal = {
-            terminated: true,
-            failed: true,
-            rejected: true,
-            completed: true,
-            stopped: true,
+            [ExecutionStatus.terminated]: true,
+            [ExecutionStatus.failed]: true,
+            [ExecutionStatus.rejected]: true,
+            [ExecutionStatus.completed]: true,
+            [ExecutionStatus.stopped]: true,
         };
 
         const startTime = Date.now();
-        let uri = `/jobs/${this._jobId}/ex`;
         const options = Object.assign({}, {
             json: true,
             timeout: intervalMs < 1000 ? 1000 : intervalMs,
         }, requestOptions);
+        let exId: string;
 
         const checkStatus = async (): Promise<ExecutionStatus> => {
             let result;
             try {
-                const ex = await this.get(uri, options);
-                uri = `/ex/${ex.ex_id}`;
+                const ex = await this.get(`/jobs/${this._jobId}/ex`, options);
+                if (exId && ex.ex_id !== exId) {
+                    console.warn(`[WARNING] the execution ${ex.ex_id} has changed from ${exId}`);
+                }
+                exId = ex.ex_id;
                 result = ex._status;
             } catch (err) {
-                if (toString(err).includes('TIMEDOUT')) {
+                if (/(timeout|timedout)/i.test(toString(err))) {
                     await pDelay(intervalMs);
                     return checkStatus();
                 }
@@ -166,7 +180,7 @@ export default class Job extends Client {
             const elapsed = Date.now() - startTime;
             if (timeoutMs > 0 && elapsed >= timeoutMs) {
                 throw new TSError(
-                    `Job status failed to change from status "${result}" to "${target}" within ${timeoutMs}ms`,
+                    `Job status failed to change from status "${result}" to "${target}" within ${toHumanTime(timeoutMs)}`,
                     { context: { lastStatus: result } }
                 );
             }
@@ -178,7 +192,7 @@ export default class Job extends Client {
         return checkStatus();
     }
 
-    async config(requestOptions: RequestOptions = {}): Promise<JobsGetResponse> {
+    async config(requestOptions: RequestOptions = {}): Promise<JobConfiguration> {
         return this.get(`/jobs/${this._jobId}`, requestOptions);
     }
 

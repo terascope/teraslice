@@ -1,5 +1,5 @@
 ---
-title: Ts Transforms: `OperationsPipline`
+title: TS Transforms: `OperationsPipline`
 sidebar_label: OperationsPipline
 ---
 

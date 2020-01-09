@@ -1,13 +1,12 @@
 'use strict';
 
-const Promise = require('bluebird');
 const uuidv4 = require('uuid/v4');
 const misc = require('../../misc');
 const wait = require('../../wait');
 const signale = require('../../signale');
 const { resetState } = require('../../helpers');
 
-const { waitForJobStatus, waitForIndexCount } = wait;
+const { waitForExStatus, waitForIndexCount } = wait;
 
 describe('kafka', () => {
     beforeAll(() => resetState());
@@ -30,17 +29,17 @@ describe('kafka', () => {
         readerSpec.operations[0].group = groupId;
         readerSpec.operations[1].index = specIndex;
 
-        const sender = await teraslice.jobs.submit(senderSpec);
+        const sender = await teraslice.executions.submit(senderSpec);
 
         const [reader] = await Promise.all([
-            teraslice.jobs.submit(readerSpec),
-            waitForJobStatus(sender, 'completed')
+            teraslice.executions.submit(readerSpec),
+            waitForExStatus(sender, 'completed')
         ]);
 
         await waitForIndexCount(specIndex, total);
         await reader.stop();
 
-        await waitForJobStatus(reader, 'stopped');
+        await waitForExStatus(reader, 'stopped');
 
         let count = 0;
         try {

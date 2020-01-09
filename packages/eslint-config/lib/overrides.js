@@ -2,7 +2,6 @@
 
 const rules = require('./rules');
 
-
 let hasTypescript;
 try {
     require.resolve('typescript');
@@ -16,7 +15,7 @@ if (hasTypescript) {
     overrides.push(
         {
             // overrides just for react files
-            files: ['.jsx', '*.tsx'],
+            files: ['*.jsx', '*.tsx'],
             extends: ['plugin:@typescript-eslint/recommended', 'airbnb'],
             plugins: ['@typescript-eslint'],
             parser: '@typescript-eslint/parser',
@@ -52,7 +51,16 @@ if (hasTypescript) {
                 },
             },
             rules: rules.typescript,
-        }
+        },
+        {
+            // overrides just for spec files
+            files: ['*-spec.js', '*-spec.ts', '*-spec.tsx', '*-spec.jsx'],
+            plugins: ['jest'],
+            env: {
+                'jest/globals': true
+            },
+            rules: rules.jest,
+        },
     );
 }
 

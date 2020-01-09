@@ -1,11 +1,12 @@
 'use strict';
 
-const _ = require('lodash');
 const { Router } = require('express');
-const Promise = require('bluebird');
 const bodyParser = require('body-parser');
 const request = require('request');
-const { parseErrorInfo, parseList } = require('@terascope/utils');
+const { RecoveryCleanupType } = require('@terascope/job-components');
+const {
+    parseErrorInfo, parseList, logError, TSError, startsWith
+} = require('@terascope/utils');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 const {
     makePrometheus,
@@ -15,17 +16,21 @@ const {
     handleRequest,
     getSearchOptions,
 } = require('../../utils/api_utils');
-const makeStateStore = require('../storage/state');
 const terasliceVersion = require('../../../package.json').version;
 
-module.exports = async function makeAPI(context, app, options) {
-    const { assetsUrl, stateStore: _stateStore } = options;
+module.exports = function apiService(context, { assetsUrl, app }) {
     const clusterType = context.sysconfig.teraslice.cluster_manager_type;
     const logger = makeLogger(context, 'api_service');
-    const executionService = context.services.execution;
-    const jobsService = context.services.jobs;
+
+    let available = false;
+    let executionService;
+    let jobsService;
+    let stateStore;
+    let clusterService;
+    let exStore;
+    let jobStore;
+
     const v1routes = new Router();
-    const stateStore = _stateStore || await makeStateStore(context);
 
     app.use(bodyParser.json({
         type(req) {
@@ -42,6 +47,10 @@ module.exports = async function makeAPI(context, app, options) {
     });
 
     app.use((req, res, next) => {
+        if (!available) {
+            res.json({ error: 'api is not available' });
+            return;
+        }
         req.logger = logger;
         next();
     });
@@ -62,7 +71,7 @@ module.exports = async function makeAPI(context, app, options) {
 
     v1routes.get('/cluster/state', (req, res) => {
         const requestHandler = handleRequest(req, res);
-        requestHandler(() => executionService.getClusterState());
+        requestHandler(() => clusterService.getClusterState());
     });
 
     v1routes.route('/assets*')
@@ -87,7 +96,7 @@ module.exports = async function makeAPI(context, app, options) {
 
         const { start } = req.query;
         const jobSpec = req.body;
-        const shouldRun = start !== 'false';
+        const shouldRun = `${start}` !== 'false';
 
         const requestHandler = handleRequest(req, res, 'Job submission failed');
         requestHandler(() => jobsService.submitJob(jobSpec, shouldRun));
@@ -97,14 +106,14 @@ module.exports = async function makeAPI(context, app, options) {
         const { size, from, sort } = getSearchOptions(req);
 
         const requestHandler = handleRequest(req, res, 'Could not retrieve list of jobs');
-        requestHandler(() => jobsService.getJobs(from, size, sort));
+        requestHandler(() => jobStore.search('job_id:*', from, size, sort));
     });
 
     v1routes.get('/jobs/:jobId', (req, res) => {
         const { jobId } = req.params;
 
         const requestHandler = handleRequest(req, res, 'Could not retrieve job');
-        requestHandler(async () => jobsService.getJob(jobId));
+        requestHandler(async () => jobStore.get(jobId));
     });
 
     v1routes.put('/jobs/:jobId', (req, res) => {
@@ -149,7 +158,6 @@ module.exports = async function makeAPI(context, app, options) {
         const requestHandler = handleRequest(req, res, 'Could not pause execution');
         requestHandler(async () => {
             const exId = await _getExIdFromRequest(req);
-            await executionService.getActiveExecution(exId);
             return executionService.pauseExecution(exId);
         });
     });
@@ -158,23 +166,38 @@ module.exports = async function makeAPI(context, app, options) {
         const requestHandler = handleRequest(req, res, 'Could not resume execution');
         requestHandler(async () => {
             const exId = await _getExIdFromRequest(req);
-            await executionService.getActiveExecution(exId);
             return executionService.resumeExecution(exId);
         });
     });
 
-    v1routes.post(['/jobs/:jobId/_recover', '/ex/:exId/_recover'], (req, res) => {
-        const { cleanup } = req.query;
-
-        if (cleanup && !(cleanup === 'all' || cleanup === 'errors')) {
-            sendError(res, 400, 'if cleanup is specified it must be set to "all" or "errors"');
-            return;
+    function validateCleanupType(cleanupType) {
+        if (cleanupType && !RecoveryCleanupType[cleanupType]) {
+            const types = Object.values(RecoveryCleanupType);
+            throw new TSError(`cleanup_type must be empty or set to ${types.join(', ')}`, {
+                statusCode: 400
+            });
         }
+    }
+
+    v1routes.post('/jobs/:jobId/_recover', (req, res) => {
+        const cleanupType = req.query.cleanup_type || req.query.cleanup;
+        const { jobId } = req.params;
+
+        const requestHandler = handleRequest(req, res, 'Could not recover job');
+        requestHandler(async () => {
+            validateCleanupType(cleanupType);
+            return jobsService.recoverJob(jobId, cleanupType);
+        });
+    });
+
+    v1routes.post('/ex/:exId/_recover', (req, res) => {
+        const cleanupType = req.query.cleanup_type || req.query.cleanup;
+        const { exId } = req.params;
 
         const requestHandler = handleRequest(req, res, 'Could not recover execution');
         requestHandler(async () => {
-            const exId = await _getExIdFromRequest(req);
-            return executionService.recoverExecution(exId, cleanup);
+            validateCleanupType(cleanupType);
+            return executionService.recoverExecution(exId, cleanupType);
         });
     });
 
@@ -214,7 +237,7 @@ module.exports = async function makeAPI(context, app, options) {
         requestHandler(async () => {
             const exId = await _getExIdFromRequest(req, true);
 
-            const query = `state:error AND ex_id:${exId}`;
+            const query = `state:error AND ex_id:"${exId}"`;
             return stateStore.search(query, from, size, sort);
         });
     });
@@ -230,11 +253,11 @@ module.exports = async function makeAPI(context, app, options) {
             let query = 'ex_id:*';
 
             if (statuses.length) {
-                const statusTerms = statuses.map((s) => `_status:${s}`).join(' OR ');
+                const statusTerms = statuses.map((s) => `_status:"${s}"`).join(' OR ');
                 query += ` AND (${statusTerms})`;
             }
 
-            return executionService.searchExecutionContexts(query, from, size, sort);
+            return exStore.search(query, from, size, sort);
         });
     });
 
@@ -250,7 +273,7 @@ module.exports = async function makeAPI(context, app, options) {
 
         const requestHandler = handleRequest(req, res, 'Could not get cluster statistics');
         requestHandler(async () => {
-            const stats = await executionService.getClusterStats();
+            const stats = await executionService.getClusterAnalytics();
 
             if (isPrometheusRequest(req)) return makePrometheus(stats, { cluster });
             // for backwards compatability (unsupported for prometheus)
@@ -272,6 +295,7 @@ module.exports = async function makeAPI(context, app, options) {
         .get(_redirect);
 
     app.get('/txt/workers', (req, res) => {
+        const { size, from } = getSearchOptions(req);
         let defaults;
         if (clusterType === 'native') {
             defaults = ['assignment', 'job_id', 'ex_id', 'node_id', 'pid'];
@@ -284,21 +308,25 @@ module.exports = async function makeAPI(context, app, options) {
         const requestHandler = handleRequest(req, res, 'Could not get all workers');
         requestHandler(async () => {
             const workers = await executionService.findAllWorkers();
-            return makeTable(req, defaults, workers);
+            return makeTable(req, defaults, workers.slice(from, size));
         });
     });
 
     app.get('/txt/nodes', (req, res) => {
+        const { size, from } = getSearchOptions(req);
         const defaults = ['node_id', 'state', 'hostname', 'total', 'active', 'pid', 'teraslice_version', 'node_version'];
 
         const requestHandler = handleRequest(req, res, 'Could not get all nodes');
         requestHandler(async () => {
-            const nodes = await executionService.getClusterState();
+            const nodes = await clusterService.getClusterState();
 
-            const transform = _.map(nodes, (node) => {
-                node.active = node.active.length;
-                return node;
-            });
+            const transform = Object.values(nodes)
+                .slice(from, size)
+                .map((node) => Object.assign(
+                    {},
+                    node,
+                    { active: node.active.length }
+                ));
 
             return makeTable(req, defaults, transform);
         });
@@ -308,10 +336,11 @@ module.exports = async function makeAPI(context, app, options) {
         const { size, from, sort } = getSearchOptions(req);
 
         const defaults = ['job_id', 'name', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
+        const query = 'job_id:*';
 
         const requestHandler = handleRequest(req, res, 'Could not get all jobs');
         requestHandler(async () => {
-            const jobs = await jobsService.getJobs(from, size, sort);
+            const jobs = await jobStore.search(query, from, size, sort);
             return makeTable(req, defaults, jobs);
         });
     });
@@ -324,12 +353,14 @@ module.exports = async function makeAPI(context, app, options) {
 
         const requestHandler = handleRequest(req, res, 'Could not get all executions');
         requestHandler(async () => {
-            const exs = await executionService.searchExecutionContexts(query, from, size, sort);
+            const exs = await exStore.search(query, from, size, sort);
             return makeTable(req, defaults, exs);
         });
     });
 
     app.get(['/txt/slicers', '/txt/controllers'], (req, res) => {
+        const { size, from } = getSearchOptions(req);
+
         const defaults = [
             'name',
             'job_id',
@@ -343,7 +374,7 @@ module.exports = async function makeAPI(context, app, options) {
         const requestHandler = handleRequest(req, res, 'Could not get all execution statistics');
         requestHandler(async () => {
             const stats = await _controllerStats();
-            return makeTable(req, defaults, stats);
+            return makeTable(req, defaults, stats.slice(from, size));
         });
     });
 
@@ -353,16 +384,16 @@ module.exports = async function makeAPI(context, app, options) {
             sendError(res, 405, `cannot ${req.method} endpoint ${req.originalUrl}`);
         });
 
-    function _changeWorkers(exId, query) {
+    async function _changeWorkers(exId, query) {
         let msg;
         let workerNum;
         const keyOptions = { add: true, remove: true, total: true };
         const queryKeys = Object.keys(query);
 
         if (!query) {
-            const error = new Error('Must provide a query parameter in request');
-            error.code = 400;
-            return Promise.reject(error);
+            throw new TSError('Must provide a query parameter in request', {
+                statusCode: 400
+            });
         }
 
         queryKeys.forEach((key) => {
@@ -373,9 +404,9 @@ module.exports = async function makeAPI(context, app, options) {
         });
 
         if (!msg || isNaN(workerNum) || workerNum <= 0) {
-            const error = new Error('Must provide a valid worker parameter(add/remove/total) that is a number and greater than zero');
-            error.code = 400;
-            return Promise.reject(error);
+            throw new TSError('Must provide a valid worker parameter(add/remove/total) that is a number and greater than zero', {
+                statusCode: 400
+            });
         }
 
         if (msg === 'add') {
@@ -391,7 +422,7 @@ module.exports = async function makeAPI(context, app, options) {
 
     async function _getExIdFromRequest(req, allowWildcard = false) {
         const { path } = req;
-        if (_.startsWith(path, '/ex')) {
+        if (startsWith(path, '/ex')) {
             const { exId } = req.params;
             if (exId) return exId;
 
@@ -403,7 +434,7 @@ module.exports = async function makeAPI(context, app, options) {
             throw error;
         }
 
-        if (_.startsWith(path, '/jobs')) {
+        if (startsWith(path, '/jobs')) {
             const { jobId } = req.params;
             const exId = await jobsService.getLatestExecutionId(jobId);
             if (!exId) {
@@ -444,13 +475,33 @@ module.exports = async function makeAPI(context, app, options) {
         });
     }
 
-    function _controllerStats(exId) {
+    async function _controllerStats(exId) {
         return executionService.getControllerStats(exId);
     }
 
-    function shutdown() {
-        logger.info('shutting down');
-        return Promise.resolve(true);
+    async function shutdown() {
+        logger.info('shutting down api service');
+    }
+
+    async function initialize() {
+        logger.info('api service is initializing...');
+
+        stateStore = context.stores.state;
+        exStore = context.stores.execution;
+        jobStore = context.stores.jobs;
+        if (stateStore == null || exStore == null || jobStore == null) {
+            throw new Error('Missing required stores');
+        }
+
+        executionService = context.services.execution;
+        jobsService = context.services.jobs;
+        clusterService = context.services.cluster;
+
+        if (jobsService == null || executionService == null || clusterService == null) {
+            throw new Error('Missing required services');
+        }
+
+        available = true;
     }
 
     function _waitForStop(exId, blocking) {
@@ -459,16 +510,16 @@ module.exports = async function makeAPI(context, app, options) {
                 executionService.getExecutionContext(exId)
                     .then((execution) => {
                         const status = execution._status;
-                        const terminalList = executionService.terminalStatusList();
+                        const terminalList = exStore.getTerminalStatuses();
                         const isTerminal = terminalList.find((tStat) => tStat === status);
-                        if (isTerminal || !(blocking === true || blocking === 'true')) {
+                        if (isTerminal || `${blocking}` !== 'true') {
                             resolve({ status });
                         } else {
                             setTimeout(checkExecution, 3000);
                         }
                     })
                     .catch((err) => {
-                        logger.error(err);
+                        logError(logger, err, 'failure waiting for stop');
                         setTimeout(checkExecution, 3000);
                     });
             }
@@ -477,9 +528,8 @@ module.exports = async function makeAPI(context, app, options) {
         });
     }
 
-    logger.info('api service is initializing...');
-
     return {
+        initialize,
         shutdown,
     };
 };

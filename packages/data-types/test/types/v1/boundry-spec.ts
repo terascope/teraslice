@@ -39,12 +39,13 @@ describe('Boundary V1', () => {
         expect(esMapping).toEqual(results);
     });
 
-    it('can get proper graphQl types', () => {
+    it('can get proper graphql types', () => {
         const {
             type: graphQlTypes,
-            custom_type: customType
+            customTypes
         } = new Boundary(field, typeConfig).toGraphQL();
         const results = `${field}: GeoBoundaryType`;
+        const [customType] = customTypes;
 
         expect(graphQlTypes).toEqual(results);
         expect(customType).toInclude('type GeoBoundaryType {');

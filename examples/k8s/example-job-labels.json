@@ -6,12 +6,9 @@
         "example",
         "elasticsearch"
     ],
-    "targets": [
-        {
-            "key": "zone",
-            "value": "west"
-        }
-    ],
+    "labels": {
+        "key1": "value1"
+    },
     "operations": [
         {
             "_op": "elasticsearch_data_generator",

@@ -1,6 +1,6 @@
 'use strict';
 
-const _ = require('lodash');
+const { cloneDeep } = require('@terascope/utils');
 const path = require('path');
 const fse = require('fs-extra');
 const {
@@ -9,7 +9,8 @@ const {
     ELASTICSEARCH_HOST,
     ELASTICSEARCH_API_VERSION,
     CLUSTER_NAME,
-    HOST_IP
+    HOST_IP,
+    CONFIG_PATH,
 } = require('./misc');
 
 module.exports = async function setupTerasliceConfig() {
@@ -18,7 +19,7 @@ module.exports = async function setupTerasliceConfig() {
             environment: 'development',
             log_level: [
                 { console: 'warn' },
-                { file: 'info', }
+                { file: process.env.DEBUG_LOG_LEVEL || 'info', }
             ],
             logging: [
                 'console',
@@ -58,6 +59,7 @@ module.exports = async function setupTerasliceConfig() {
             workers: WORKERS_PER_NODE,
             port: 45678,
             name: CLUSTER_NAME,
+            master_hostname: HOST_IP,
             index_settings: {
                 analytics: {
                     number_of_shards: 1,
@@ -83,34 +85,25 @@ module.exports = async function setupTerasliceConfig() {
         }
     };
 
-    const configPath = path.join(__dirname, '..', '.config');
-    if (!fse.existsSync(configPath)) {
-        await fse.emptyDir(configPath);
-    }
-
-    await fse.ensureDir(configPath);
-
-    await writeMasterConfig(configPath, baseConfig);
-    await writeWorkerConfig(configPath, baseConfig);
+    await writeMasterConfig(baseConfig);
+    await writeWorkerConfig(baseConfig);
 };
 
-async function writeMasterConfig(configPath, baseConfig) {
-    const masterConfig = _.cloneDeep(baseConfig);
+async function writeMasterConfig(baseConfig) {
+    const masterConfig = cloneDeep(baseConfig);
     masterConfig.teraslice.master = true;
-    masterConfig.teraslice.master_hostname = HOST_IP;
 
-    const masterConfigPath = path.join(configPath, 'teraslice-master.json');
+    const masterConfigPath = path.join(CONFIG_PATH, 'teraslice-master.json');
     await fse.writeJSON(masterConfigPath, masterConfig, {
         spaces: 4
     });
 }
 
-async function writeWorkerConfig(configPath, baseConfig) {
-    const workerConfig = _.cloneDeep(baseConfig);
+async function writeWorkerConfig(baseConfig) {
+    const workerConfig = cloneDeep(baseConfig);
     workerConfig.teraslice.master = false;
-    workerConfig.teraslice.master_hostname = HOST_IP;
 
-    const workerConfigPath = path.join(configPath, 'teraslice-worker.json');
+    const workerConfigPath = path.join(CONFIG_PATH, 'teraslice-worker.json');
     await fse.writeJSON(workerConfigPath, workerConfig, {
         spaces: 4
     });

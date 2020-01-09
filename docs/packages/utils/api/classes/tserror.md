@@ -12,7 +12,7 @@ like statusCode and fatalError
 
 * Error
 
-  * **TSError**
+  ↳ **TSError**
 
 ## Index
 
@@ -35,6 +35,7 @@ like statusCode and fatalError
 ### Methods
 
 * [cause](tserror.md#cause)
+* [__@hasInstance](tserror.md#static-__@hasinstance)
 
 ## Constructors
 
@@ -42,7 +43,7 @@ like statusCode and fatalError
 
 \+ **new TSError**(`input`: any, `config`: [TSErrorConfig](../interfaces/tserrorconfig.md)): *[TSError](tserror.md)*
 
-*Defined in [errors.ts:39](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/errors.ts#L39)*
+*Defined in [errors.ts:47](https://github.com/terascope/teraslice/blob/d8feecc03/packages/utils/src/errors.ts#L47)*
 
 **Parameters:**
 
@@ -59,7 +60,7 @@ Name | Type | Default |
 
 • **code**: *string*
 
-*Defined in [errors.ts:17](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/errors.ts#L17)*
+*Defined in [errors.ts:17](https://github.com/terascope/teraslice/blob/d8feecc03/packages/utils/src/errors.ts#L17)*
 
 An descriptive error code that specifies the error type, this follows more
 node convention
@@ -70,7 +71,7 @@ ___
 
 • **context**: *[TSErrorContext](../interfaces/tserrorcontext.md)*
 
-*Defined in [errors.ts:39](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/errors.ts#L39)*
+*Defined in [errors.ts:39](https://github.com/terascope/teraslice/blob/d8feecc03/packages/utils/src/errors.ts#L39)*
 
 Additional context metadata
 
@@ -80,7 +81,7 @@ ___
 
 • **fatalError**: *boolean*
 
-*Defined in [errors.ts:27](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/errors.ts#L27)*
+*Defined in [errors.ts:27](https://github.com/terascope/teraslice/blob/d8feecc03/packages/utils/src/errors.ts#L27)*
 
 Used to indicate the an error is fatal
 
@@ -92,7 +93,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:974
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:974
 
 ___
 
@@ -102,7 +103,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:973
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:973
 
 ___
 
@@ -110,7 +111,7 @@ ___
 
 • **retryable**? : *undefined | false | true*
 
-*Defined in [errors.ts:34](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/errors.ts#L34)*
+*Defined in [errors.ts:34](https://github.com/terascope/teraslice/blob/d8feecc03/packages/utils/src/errors.ts#L34)*
 
 Used sometimes to indicate whether an error is retryable
 
@@ -126,7 +127,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:975
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:975
 
 ___
 
@@ -134,7 +135,7 @@ ___
 
 • **statusCode**: *number*
 
-*Defined in [errors.ts:22](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/errors.ts#L22)*
+*Defined in [errors.ts:22](https://github.com/terascope/teraslice/blob/d8feecc03/packages/utils/src/errors.ts#L22)*
 
 A HTTP status code for easy use
 
@@ -144,7 +145,7 @@ ___
 
 ▪ **Error**: *ErrorConstructor*
 
-Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:984
+Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:984
 
 ## Methods
 
@@ -152,6 +153,22 @@ Defined in /Users/jarednoble/Projects/terascope/teraslice/node_modules/typedoc/n
 
 ▸ **cause**(): *any*
 
-*Defined in [errors.ts:71](https://github.com/terascope/teraslice/blob/0ae31df4/packages/utils/src/errors.ts#L71)*
+*Defined in [errors.ts:79](https://github.com/terascope/teraslice/blob/d8feecc03/packages/utils/src/errors.ts#L79)*
 
 **Returns:** *any*
+
+___
+
+### `Static` __@hasInstance
+
+▸ **__@hasInstance**(`instance`: any): *boolean*
+
+*Defined in [errors.ts:41](https://github.com/terascope/teraslice/blob/d8feecc03/packages/utils/src/errors.ts#L41)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`instance` | any |
+
+**Returns:** *boolean*

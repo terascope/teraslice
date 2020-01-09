@@ -91,6 +91,7 @@ to support k8s based Teraslice deployments.
 |        Configuration         |                                                                        Description                                                                         |  Type  |  Notes   |
 | :--------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------: | :----: | :------: |
 |        assets_volume         |                               Name of kubernetes volume to be shared across all pods, where Teraslice assets will be stored                                | String | optional |
+| execution_controller_targets |                                 array of `{"key": "rack", "value": "alpha"}` targets for execution controllers                                             | String | optional |
 |       kubernetes_image       |                                                     Name of docker image, default: `teraslice:k8sdev`                                                      | String | optional |
 | kubernetes_image_pull_secret |                                                    Secret used to pull docker images from private repo                                                     | String | optional |
 |  kubernetes_config_map_name  | Name of the configmap used by worker and execution_controller containers for config.  If this is not provided, the default will be `<CLUSTER_NAME>-worker` | String | optional |
@@ -98,10 +99,29 @@ to support k8s based Teraslice deployments.
 
 Note that the `assets_volume` should also be mounted to your Teraslice master pod.
 
+Targets specified in the `execution_controller_targets` setting will result in
+required NodeAffinities and tolerations being added to the execution controller
+Jobs so that they can be targetted to specific parts of your k8s infrastructure.
+
 ## Teraslice Job Properties
 
 Support for Kubernetes based clustering adds additional properties to a
 Teraslice job definition.  These are outlined below.
+
+### Labels
+
+Key value pairs added into a job's `labels` array, as shown below, will result
+in labels being added to the k8s resources.  The k8s labels will be prefixed
+with `job.teraslice.terascope.io/`.
+
+```json
+    "labels": {
+        "key1": "value1"
+    },
+```
+
+If `labels` is omitted, the k8s resources will just have the standard set of
+labels that Teraslice uses.
 
 ### Resources
 

@@ -1,15 +1,14 @@
 'use strict';
 
-const _ = require('lodash');
 const path = require('path');
 const fse = require('fs-extra');
 const crypto = require('crypto');
-const Promise = require('bluebird');
-const { TSError, pDelay } = require('@terascope/utils');
+const {
+    TSError, pDelay, uniq, isString, toString
+} = require('@terascope/utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
-const { makeLogger } = require('../../workers/helpers/terafoundation');
-const { saveAsset } = require('../../utils/file_utils');
-
+const { makeLogger } = require('../workers/helpers/terafoundation');
+const { saveAsset } = require('../utils/file_utils');
 
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
@@ -20,7 +19,18 @@ module.exports = async function assetsStore(context) {
     const assetsPath = config.assets_directory;
     const indexName = `${config.name}__assets`;
 
-    let backend;
+    const backendConfig = {
+        context,
+        indexName,
+        recordType: 'asset',
+        idField: 'id',
+        fullResponse: true,
+        logRecord: false,
+        storageName: 'assets'
+    };
+
+    await ensureAssetDir();
+    const backend = await elasticsearchBackend(backendConfig);
 
     async function _assetExistsInFS(id) {
         try {
@@ -83,19 +93,19 @@ module.exports = async function assetsStore(context) {
         }
     }
 
-    function search(query, from, size, sort, fields) {
+    async function search(query, from, size, sort, fields) {
         return backend.search(query, from, size, sort, fields);
     }
 
-    function getAsset(id) {
+    async function getAsset(id) {
         return backend.get(id);
     }
 
-    function _getAssetId(assetIdentifier) {
+    async function _getAssetId(assetIdentifier) {
         // is full _id
         if (assetIdentifier.length === 40) {
             // need to return a promise
-            return Promise.resolve(assetIdentifier);
+            return assetIdentifier;
         }
 
         const metaData = assetIdentifier.split(':');
@@ -104,48 +114,36 @@ module.exports = async function assetsStore(context) {
 
         // if no version specified get latest
         if (metaData.length === 1 || metaData[1] === 'latest') {
-            return search(`name:${metaData[0]}`, null, 1, sort, fields)
-                .then((assetRecord) => {
-                    const record = assetRecord.hits.hits[0];
-                    if (!record) {
-                        const error = new Error(`asset: ${metaData.join(' ')} was not found`);
-                        return Promise.reject(error);
-                    }
-                    return record._id;
-                });
+            const assetRecord = await search(`name:"${metaData[0]}"`, null, 1, sort, fields);
+            const record = assetRecord.hits.hits[0];
+            if (!record) {
+                throw new Error(`asset: ${metaData.join(' ')} was not found`);
+            }
+            return record._id;
         }
 
         // has wildcard in version
-        return search(`name:${metaData[0]} AND version:${metaData[1]}`, null, 10000, sort, fields)
-            .then((assetRecords) => {
-                const records = assetRecords.hits.hits.map((record) => ({
-                    id: record._id,
-                    version: record._source.version
-                }));
+        const assetRecords = await search(`name:"${metaData[0]}" AND version:"${metaData[1]}"`, null, 10000, sort, fields);
+        const records = assetRecords.hits.hits.map((doc) => ({
+            id: doc._id,
+            version: doc._source.version
+        }));
+        const versionID = metaData[1];
+        const wildcardPlacement = versionID.indexOf('*') - 1;
+        const versionTransform = versionID.split('.');
+        const versionWithWildcard = versionTransform.indexOf('*');
+        const versionSlice = versionTransform.filter((chars) => chars !== '*').join('.');
+        if (records.length === 0) {
+            throw new Error(`No asset with the provided name and version could be located, asset: ${metaData.join(':')}`);
+        }
 
-                const versionID = metaData[1];
-                const wildcardPlacement = versionID.indexOf('*') - 1;
-                const versionTransform = versionID.split('.');
-                const versionWithWildcard = versionTransform.indexOf('*');
-                const versionSlice = versionTransform.filter((chars) => chars !== '*').join('.');
-
-                if (records.length === 0) {
-                    const error = new Error(`No asset with the provided name and version could be located, asset: ${metaData.join(':')}`);
-                    return Promise.reject(error);
-                }
-
-                return records.reduce((prev, curr) => _compareVersions(
-                    prev,
-                    curr,
-                    wildcardPlacement,
-                    versionSlice,
-                    versionWithWildcard
-                )).id;
-            });
+        return records.reduce((prev, curr) => _compareVersions(
+            prev, curr, wildcardPlacement, versionSlice, versionWithWildcard
+        )).id;
     }
 
     function parseAssetsArray(assetsArray) {
-        return Promise.all(assetsArray.map(_getAssetId));
+        return Promise.all(uniq(assetsArray).map(_getAssetId));
     }
 
     function _compareVersions(prev, curr, wildcardPlacement, versionSlice, versionWithWildcard) {
@@ -186,7 +184,7 @@ module.exports = async function assetsStore(context) {
         throw error;
     }
 
-    function shutdown(forceShutdown) {
+    async function shutdown(forceShutdown) {
         logger.info('shutting asset store down.');
         return backend.shutdown(forceShutdown);
     }
@@ -195,7 +193,7 @@ module.exports = async function assetsStore(context) {
         try {
             await backend.get(assetId, null, ['name']);
         } catch (err) {
-            if (_.toString(err).indexOf('Not Found')) {
+            if (toString(err).indexOf('Not Found')) {
                 const error = new TSError(`Unable to find asset ${assetId}`, {
                     statusCode: 404
                 });
@@ -209,12 +207,12 @@ module.exports = async function assetsStore(context) {
     }
 
     async function ensureAssetDir() {
-        if (!assetsPath || !_.isString(assetsPath)) {
+        if (!assetsPath || !isString(assetsPath)) {
             throw new Error('Asset Store requires a valid assetsPath');
         }
 
         try {
-            return fse.ensureDir(assetsPath);
+            return await fse.ensureDir(assetsPath);
         } catch (err) {
             throw new Error(`Failure to the ensure assets directory ${assetsPath}, for reason ${err.message}`);
         }
@@ -266,11 +264,12 @@ module.exports = async function assetsStore(context) {
         return backend.verifyClient();
     }
 
-    function waitForClient() {
+    async function waitForClient() {
         return backend.waitForClient();
     }
 
-    const api = {
+    logger.info('assets storage initialized');
+    return {
         save,
         search,
         get: getAsset,
@@ -281,20 +280,4 @@ module.exports = async function assetsStore(context) {
         waitForClient,
         verifyClient,
     };
-
-    const backendConfig = {
-        context,
-        indexName,
-        recordType: 'asset',
-        idField: 'id',
-        fullResponse: true,
-        logRecord: false,
-        storageName: 'assets'
-    };
-
-    await ensureAssetDir();
-    backend = await elasticsearchBackend(backendConfig);
-
-    logger.info('assets storage initialized');
-    return api;
 };

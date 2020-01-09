@@ -23,6 +23,7 @@ describe('Translator', () => {
         parser.ast = { type: 'idk', field: 'a', val: true } as any;
         expect(translateQuery(parser, {
             logger,
+            type_config: {},
             geo_sort_order: 'asc',
             geo_sort_unit: 'meters',
         })).toEqual({
@@ -85,6 +86,7 @@ describe('Translator', () => {
                                 expected,
                                 property,
                                 actual,
+                                result
                             },
                             null,
                             2

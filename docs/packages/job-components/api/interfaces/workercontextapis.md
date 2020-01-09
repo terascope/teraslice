@@ -11,9 +11,9 @@ This extends the Terafoundation Context.
 
 ## Hierarchy
 
-  * [ContextAPIs](contextapis.md)
+  ↳ [ContextAPIs](contextapis.md)
 
-  * **WorkerContextAPIs**
+  ↳ **WorkerContextAPIs**
 
 ## Indexable
 
@@ -43,7 +43,7 @@ This extends the Terafoundation Context.
 
 • **assets**: *[AssetsAPI](assetsapi.md)*
 
-*Defined in [interfaces/context.ts:128](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/interfaces/context.ts#L128)*
+*Defined in [interfaces/context.ts:128](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/context.ts#L128)*
 
 Includes an API for getting a client from Terafoundation
 
@@ -53,7 +53,7 @@ ___
 
 • **executionContext**: *[ExecutionContextAPI](../classes/executioncontextapi.md)*
 
-*Defined in [interfaces/context.ts:134](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/interfaces/context.ts#L134)*
+*Defined in [interfaces/context.ts:134](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/context.ts#L134)*
 
 An API for registering and loading the new Job APIs
 
@@ -65,7 +65,7 @@ ___
 
 *Inherited from [ContextApis](contextapis.md).[foundation](contextapis.md#foundation)*
 
-*Defined in [interfaces/context.ts:87](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/interfaces/context.ts#L87)*
+*Defined in [interfaces/context.ts:87](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/context.ts#L87)*
 
 ___
 
@@ -73,7 +73,7 @@ ___
 
 • **job_runner**: *[JobRunnerAPI](jobrunnerapi.md)*
 
-*Defined in [interfaces/context.ts:132](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/interfaces/context.ts#L132)*
+*Defined in [interfaces/context.ts:132](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/context.ts#L132)*
 
 Includes an API for getting a opConfig from the job
 
@@ -83,7 +83,7 @@ ___
 
 • **op_runner**: *[OpRunnerAPI](oprunnerapi.md)*
 
-*Defined in [interfaces/context.ts:130](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/interfaces/context.ts#L130)*
+*Defined in [interfaces/context.ts:130](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/context.ts#L130)*
 
 Includes an API for getting a client from Terafoundation
 
@@ -95,7 +95,7 @@ Includes an API for getting a client from Terafoundation
 
 *Inherited from [ContextApis](contextapis.md).[registerAPI](contextapis.md#registerapi)*
 
-*Defined in [interfaces/context.ts:88](https://github.com/terascope/teraslice/blob/0ae31df4/packages/job-components/src/interfaces/context.ts#L88)*
+*Defined in [interfaces/context.ts:88](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/context.ts#L88)*
 
 **Parameters:**
 

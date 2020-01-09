@@ -2,6 +2,7 @@ import ms from 'ms';
 import got from 'got';
 import semver from 'semver';
 import { debugLogger, pRetry, TSError } from '@terascope/utils';
+import { getServicesForSuite } from '../misc';
 import {
     dockerRun,
     DockerRunOptions,
@@ -9,18 +10,16 @@ import {
     dockerStop
 } from '../scripts';
 import { TestOptions } from './interfaces';
-import { TestSuite } from '../interfaces';
+import { Service } from '../interfaces';
 import * as config from '../config';
 import signale from '../signale';
-import { getRootInfo } from '../misc';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
 const disableXPackSecurity = !config.ELASTICSEARCH_DOCKER_IMAGE.includes('blacktop');
 
-type Service = TestSuite.Elasticsearch | TestSuite.Kafka;
 const services: { [service in Service]: DockerRunOptions } = {
-    [TestSuite.Elasticsearch]: {
+    [Service.Elasticsearch]: {
         image: config.ELASTICSEARCH_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.ELASTICSEARCH_NAME}`,
         tmpfs: config.SERVICES_USE_TMPFS
@@ -38,7 +37,7 @@ const services: { [service in Service]: DockerRunOptions } = {
         },
         network: config.DOCKER_NETWORK_NAME
     },
-    [TestSuite.Kafka]: {
+    [Service.Kafka]: {
         image: config.KAFKA_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.KAFKA_NAME}`,
         tmpfs: config.SERVICES_USE_TMPFS
@@ -57,59 +56,42 @@ const services: { [service in Service]: DockerRunOptions } = {
     },
 };
 
-function isServiceEnabled(service: TestSuite.Elasticsearch|TestSuite.Kafka): boolean {
-    const rootInfo = getRootInfo();
-    const testServices = rootInfo.terascope.tests.services;
-    return testServices.includes(service);
-}
+export async function ensureServices(suite: string, options: TestOptions): Promise<() => void> {
+    const launchServices = getServicesForSuite(suite);
 
-export async function ensureServices(suite: TestSuite, options: TestOptions): Promise<() => void> {
     try {
-        if (suite === TestSuite.Elasticsearch) {
-            return ensureElasticsearch(options);
+        const promises: Promise<(() => void)>[] = [];
+
+        if (launchServices.includes(Service.Elasticsearch)) {
+            promises.push(ensureElasticsearch(options));
         }
 
-        if (suite === TestSuite.Kafka) {
-            return ensureKafka(options);
+        if (launchServices.includes(Service.Kafka)) {
+            promises.push(ensureKafka(options));
         }
 
-        if (suite === TestSuite.E2E) {
-            const fns = await Promise.all([
-                ensureElasticsearch(options),
-                ensureKafka(options)
-            ]);
-            return () => {
-                fns.forEach((fn) => fn());
-            };
-        }
+        const fns = await Promise.all(promises);
+
+        return () => {
+            fns.forEach((fn) => fn());
+        };
     } catch (err) {
         throw new TSError(err, {
             message: `Failed to start services for test suite "${suite}"`,
         });
     }
-
-    return () => {};
 }
 
 export async function ensureKafka(options: TestOptions): Promise<() => void> {
     let fn = () => {};
-    if (!isServiceEnabled(TestSuite.Kafka)) {
-        signale.warn('Kafka service is not enabled in root package config');
-        return fn;
-    }
-    fn = await startService(options, TestSuite.Kafka);
+    fn = await startService(options, Service.Kafka);
     await checkKafka(options);
     return fn;
 }
 
 export async function ensureElasticsearch(options: TestOptions): Promise<() => void> {
     let fn = () => {};
-    if (!isServiceEnabled(TestSuite.Elasticsearch)) {
-        signale.warn('Elasticsearch service is not enabled in root package config');
-        return fn;
-    }
-
-    fn = await startService(options, TestSuite.Elasticsearch);
+    fn = await startService(options, Service.Elasticsearch);
     await checkElasticsearch(options, 10);
     return fn;
 }
@@ -161,7 +143,9 @@ async function checkElasticsearch(options: TestOptions, retries: number): Promis
 
             const satifies = semver.satisfies(actual, `^${expected}`);
             if (satifies) {
-                signale.debug(`elasticsearch@${actual} is running at ${elasticsearchHost}`);
+                if (options.debug) {
+                    signale.debug(`elasticsearch@${actual} is running at ${elasticsearchHost}`);
+                }
                 return;
             }
 
@@ -190,7 +174,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
 
     await stopService(service);
 
-    const fn = await dockerRun(services[service], version);
+    const fn = await dockerRun(services[service], version, options.debug);
 
     signale.success(`started ${service}@${version} service, took ~${ms(Date.now() - startTime)}`);
 
@@ -207,6 +191,8 @@ async function startService(options: TestOptions, service: Service): Promise<() 
     };
 }
 
-async function checkKafka(_options: TestOptions) {
-    signale.debug(`kafka should be running at ${config.KAFKA_BROKER}`);
+async function checkKafka(options: TestOptions) {
+    if (options.debug) {
+        signale.debug(`kafka should be running at ${config.KAFKA_BROKER}`);
+    }
 }

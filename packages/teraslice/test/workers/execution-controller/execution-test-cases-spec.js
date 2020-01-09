@@ -1,8 +1,6 @@
 'use strict';
 
-const _ = require('lodash');
-const Promise = require('bluebird');
-const { pDelay } = require('@terascope/utils');
+const { pDelay, times, random } = require('@terascope/utils');
 const Messaging = require('@terascope/teraslice-messaging');
 const { TestContext } = require('../helpers');
 const { getTestCases } = require('../helpers/execution-controller-helper');
@@ -16,16 +14,16 @@ describe('ExecutionController Test Cases', () => {
     // [ message, config ]
     const testCases = [
         [
-            'processing one slice',
+            'when processing one slice',
             {
                 slicerResults: [{ example: 'single-slice' }, null],
                 body: { example: 'single-slice' },
                 count: 1,
-                analytics: _.sample([true, false])
+                analytics: false
             }
         ],
         [
-            'processing a slicer requests a specific worker',
+            'when processing a slicer requests a specific worker',
             {
                 slicerResults: [
                     { request_worker: 'specific-worker-1', example: 'specific-worker' },
@@ -34,11 +32,11 @@ describe('ExecutionController Test Cases', () => {
                 workerIds: ['specific-worker-1'],
                 body: { request_worker: 'specific-worker-1', example: 'specific-worker' },
                 count: 1,
-                analytics: _.sample([true, false])
+                analytics: true
             }
         ],
         [
-            'processing sub-slices',
+            'when processing sub-slices',
             {
                 slicerResults: [
                     [{ example: 'subslice' }, { example: 'subslice' }, { example: 'subslice' }],
@@ -47,11 +45,11 @@ describe('ExecutionController Test Cases', () => {
                 emitSlicerRecursion: true,
                 count: 3,
                 body: { example: 'subslice' },
-                analytics: _.sample([true, false])
+                analytics: false
             }
         ],
         [
-            'processing slices with multiple workers and one reconnects',
+            'when processing slices with multiple workers and one reconnects',
             {
                 slicerResults: [
                     { example: 'slice-disconnect' },
@@ -63,11 +61,11 @@ describe('ExecutionController Test Cases', () => {
                 reconnect: true,
                 body: { example: 'slice-disconnect' },
                 count: 4,
-                analytics: _.sample([true, false])
+                analytics: false
             }
         ],
         [
-            'processing a slice with dynamic queue length',
+            'when processing a slice with dynamic queue length',
             {
                 slicerResults: [
                     { example: 'slice-dynamic' },
@@ -81,60 +79,55 @@ describe('ExecutionController Test Cases', () => {
                 body: { example: 'slice-dynamic' },
                 count: 4,
                 workers: 2,
-                analytics: _.sample([true, false])
+                analytics: true
             }
         ],
         [
-            'processing a slice and the slicer throws an error',
+            'when processing a slice and the slicer throws an error',
             {
-                slicerResults: [{ example: 'slice-failure' }, new Error('Slice failure'), null],
+                slicerResults: [{ example: 'slice-failure' }, { error: 'Slice failure' }, null],
                 slicerFails: true,
                 body: { example: 'slice-failure' },
                 count: 1,
-                analytics: _.sample([true, false])
+                analytics: false
             }
         ],
         [
-            'processing a slice fails',
+            'when processing a slice fails',
             {
                 slicerResults: [{ example: 'slice-fail' }, null],
                 sliceFails: true,
                 body: { example: 'slice-fail' },
                 count: 1,
-                analytics: _.sample([true, false])
+                analytics: false
             }
         ],
         [
-            'processing a slicer that emits slicer events',
+            'when processing a slicer that emits slicer events',
             {
                 slicerResults: [{ example: 'slicer-slice-range-expansion' }, null],
-                emitsExecutionUpdate: [
-                    {
-                        _op: 'some-example',
-                        newData: true
-                    }
-                ],
+                updateMetadata: true,
                 emitSlicerRangeExpansion: true,
                 body: { example: 'slicer-slice-range-expansion' },
                 count: 1,
-                analytics: _.sample([true, false])
+                analytics: true
             }
         ],
         [
-            'processing a slice and the execution is paused and resumed',
+            'when processing a slice and the execution is paused and resumed',
             {
                 slicerResults: [{ example: 'slice-pause-and-resume' }, null],
                 pauseAndResume: true,
                 body: { example: 'slice-pause-and-resume' },
                 count: 1,
-                analytics: _.sample([true, false])
+                analytics: false
             }
         ]
     ];
 
     // for testing add a "only" property to the test cases you want
     // or add a skip property to the test cases you don't want
-    describe.each(getTestCases(testCases))('when %s', (m, options) => {
+    describe.each(getTestCases(testCases))('%s', (m, options) => {
         const {
             slicerResults,
             slicerQueueLength,
@@ -147,7 +140,7 @@ describe('ExecutionController Test Cases', () => {
             pauseAndResume = false,
             sliceFails = false,
             slicerFails = false,
-            emitsExecutionUpdate,
+            updateMetadata,
             emitSlicerRecursion = false,
             emitSlicerRangeExpansion = false,
             workerIds = []
@@ -158,8 +151,11 @@ describe('ExecutionController Test Cases', () => {
         let slices;
         let exStore;
         let stateStore;
+        let exStatus;
 
-        beforeEach(async () => {
+        beforeAll(async () => {
+            await TestContext.waitForCleanup();
+
             slices = [];
 
             const port = await findPort();
@@ -172,7 +168,8 @@ describe('ExecutionController Test Cases', () => {
                 timeout: reconnect ? 5000 : 3000,
                 lifecycle,
                 workers,
-                analytics
+                analytics,
+                updateMetadata
             });
 
             await testContext.addClusterMaster();
@@ -265,9 +262,9 @@ describe('ExecutionController Test Cases', () => {
 
                     if (analytics) {
                         msg.analytics = {
-                            time: _.times(opCount, () => _.random(0, 2000)),
-                            size: _.times(opCount, () => _.random(0, 100)),
-                            memory: _.times(opCount, () => _.random(0, 10000))
+                            time: times(opCount, () => random(0, 2000)),
+                            size: times(opCount, () => random(0, 100)),
+                            memory: times(opCount, () => random(0, 10000))
                         };
                     }
 
@@ -305,7 +302,7 @@ describe('ExecutionController Test Cases', () => {
             }
 
             function startWorkers() {
-                return Promise.all(_.times(workers, startWorker));
+                return Promise.all(times(workers, startWorker));
             }
 
             clusterMaster.onClientAvailable(() => {
@@ -315,12 +312,6 @@ describe('ExecutionController Test Cases', () => {
 
                 if (emitSlicerRangeExpansion) {
                     exController.events.emit('slicer:slice:range_expansion');
-                }
-
-                if (!_.isEmpty(emitsExecutionUpdate)) {
-                    exController.events.emit('slicer:execution:update', {
-                        update: emitsExecutionUpdate
-                    });
                 }
             });
 
@@ -337,21 +328,37 @@ describe('ExecutionController Test Cases', () => {
             await Promise.all([startWorkers(), exController.run()]);
 
             clearTimeout(requestAnayltics);
+
+            exStatus = await exStore.get(exId);
         });
 
-        afterEach(() => testContext.cleanup());
+        afterAll(() => testContext.cleanup());
 
-        it('should process the execution correctly', async () => {
-            const { exId } = testContext.executionContext;
-
+        it('should process the correct slices', async () => {
             expect(slices).toBeArrayOfSize(count);
-            _.times(count, (i) => {
+            times(count, (i) => {
                 const slice = slices[i];
                 expect(slice).toHaveProperty('request');
                 expect(slice.request).toEqual(body);
             });
+        });
 
-            const exStatus = await exStore.get(exId);
+        it('should have the correct number of slices', async () => {
+            const { exId } = testContext.executionContext;
+            const errorCount = await stateStore.count(`ex_id:${exId} AND state:error`, 0);
+            const completedCount = await stateStore.count(`ex_id:${exId} AND state:completed`, 0);
+
+            if (sliceFails) {
+                expect(errorCount).toEqual(count);
+            } else {
+                expect(completedCount).toEqual(count);
+                expect(errorCount).toEqual(0);
+            }
+        });
+
+        it('should have the correct execution status', () => {
+            const { exId } = testContext.executionContext;
+
             expect(exStatus).toBeObject();
             expect(exStatus).toHaveProperty('_slicer_stats');
 
@@ -362,12 +369,11 @@ describe('ExecutionController Test Cases', () => {
                         `execution: ${exId} had 1 slice failure during processing`
                     );
                     expect(exStatus._slicer_stats.failed).toEqual(count);
-                    const query = `ex_id:${exId} AND state:error`;
-                    const actualCount = await stateStore.count(query, 0);
-                    expect(actualCount).toEqual(count);
 
-                    expect(exStatus).toHaveProperty('_has_errors', true);
-                    expect(exStatus).toHaveProperty('_status', 'failed');
+                    expect(exStatus).toMatchObject({
+                        _has_errors: true,
+                        _status: 'failed'
+                    });
                 }
 
                 if (slicerFails) {
@@ -376,30 +382,26 @@ describe('ExecutionController Test Cases', () => {
                     );
                     expect(exStatus._slicer_stats.failed).toEqual(0);
 
-                    expect(exStatus).toHaveProperty('_has_errors', true);
-                    expect(exStatus).toHaveProperty('_status', 'failed');
+                    expect(exStatus).toMatchObject({
+                        _has_errors: true,
+                        _status: 'failed'
+                    });
                 }
             } else {
-                expect(exStatus).toHaveProperty('_status', 'completed');
-                expect(exStatus).toHaveProperty('_has_errors', false);
+                expect(exStatus).toMatchObject({
+                    _has_errors: false,
+                    _status: 'completed'
+                });
 
                 if (slicerQueueLength !== 'QUEUE_MINIMUM_SIZE') {
                     expect(exStatus._slicer_stats.processed).toEqual(count);
                 }
-
-                const query = `ex_id:${exId} AND state:completed`;
-                const actualCount = await stateStore.count(query, 0);
-                expect(actualCount).toEqual(count);
             }
 
             expect(exStatus._slicer_stats.workers_joined).toBeGreaterThanOrEqual(1);
 
             if (reconnect && slicerQueueLength !== 'QUEUE_MINIMUM_SIZE') {
                 expect(exStatus._slicer_stats.workers_reconnected).toBeGreaterThan(0);
-            }
-
-            if (!_.isEmpty(emitsExecutionUpdate)) {
-                expect(exStatus).toHaveProperty('operations', emitsExecutionUpdate);
             }
 
             if (emitSlicerRangeExpansion) {
@@ -409,6 +411,11 @@ describe('ExecutionController Test Cases', () => {
             if (emitSlicerRecursion) {
                 expect(exStatus._slicer_stats).toHaveProperty('subslices', 1);
             }
+        });
+
+        it('should update the execution metadata (from the context apis)', () => {
+            const metadata = updateMetadata ? { slice_calls: count + 1 } : {};
+            expect(exStatus).toHaveProperty('metadata', metadata);
         });
     });
 });

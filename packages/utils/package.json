@@ -1,6 +1,6 @@
 {
     "name": "@terascope/utils",
-    "version": "0.20.5",
+    "version": "0.21.0",
     "description": "A collection of Teraslice Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/utils#readme",
     "bugs": {
@@ -53,6 +53,6 @@
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,
-        "testSuite": "unit"
+        "testSuite": "unit-a"
     }
 }

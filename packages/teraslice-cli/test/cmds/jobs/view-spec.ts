@@ -1,4 +1,3 @@
-
 import yargs from 'yargs';
 import view from '../../../src/cmds/jobs/view';
 

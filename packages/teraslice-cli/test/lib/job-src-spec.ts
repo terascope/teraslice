@@ -1,4 +1,3 @@
-
 import path from 'path';
 import fs from 'fs-extra';
 import { createTempDirSync } from 'jest-fixtures';
@@ -67,12 +66,8 @@ describe('JobSrc', () => {
     });
 
     it('should return correct version', () => {
-        try {
-            const job = new JobSrc(args);
-            expect(job.version).toBe(version);
-        } catch (e) {
-            fail(e);
-        }
+        const job = new JobSrc(args);
+        expect(job.version).toBe(version);
     });
 
     it('should add metaData to job contents', () => {
@@ -87,18 +82,14 @@ describe('JobSrc', () => {
             }
         ];
         writeJob();
-        try {
-            const job = new JobSrc(args);
-            job.readFile();
-            job.addMetaData('1234', 'localhost');
-            const { content } = job;
-            expect(content.__metadata.cli.version).toBe(version);
-            expect(content.__metadata.cli.job_id).toBe('1234');
-            expect(content.__metadata.cli.cluster).toBe('localhost');
-            expect(content.__metadata.cli.updated).toBeDefined();
-        } catch (e) {
-            fail(e);
-        }
+        const job = new JobSrc(args);
+        job.readFile();
+        job.addMetaData('1234', 'localhost');
+        const { content } = job;
+        expect(content.__metadata.cli.version).toBe(version);
+        expect(content.__metadata.cli.job_id).toBe('1234');
+        expect(content.__metadata.cli.cluster).toBe('localhost');
+        expect(content.__metadata.cli.updated).toBeDefined();
     });
 
     it('should check presence of metadataCheck false', () => {
@@ -113,13 +104,9 @@ describe('JobSrc', () => {
             }
         ];
         writeJob();
-        try {
-            const job = new JobSrc(args);
-            job.readFile();
-            expect(job.hasMetaData).toBe(false);
-        } catch (e) {
-            fail(e);
-        }
+        const job = new JobSrc(args);
+        job.readFile();
+        expect(job.hasMetaData).toBe(false);
     });
 
     it('should check presence of metadataCheck true', () => {
@@ -134,14 +121,10 @@ describe('JobSrc', () => {
             }
         ];
         writeJob();
-        try {
-            const job = new JobSrc(args);
-            job.readFile();
-            job.addMetaData('1234', 'localhost');
-            expect(job.hasMetaData).toBe(true);
-        } catch (e) {
-            fail(e);
-        }
+        const job = new JobSrc(args);
+        job.readFile();
+        job.addMetaData('1234', 'localhost');
+        expect(job.hasMetaData).toBe(true);
     });
 
     it('should overwrite old job file', () => {
@@ -211,13 +194,9 @@ describe('JobSrc', () => {
 
         writeJob();
         const job = new JobSrc(args);
-        try {
-            job.init();
-            expect(job.clusterUrl).toBe('localhost:5678');
-            expect(job.jobId).toBe('some-job-id');
-            expect(job.name).toBe('goodJob');
-        } catch (e) {
-            fail(e);
-        }
+        job.init();
+        expect(job.clusterUrl).toBe('localhost:5678');
+        expect(job.jobId).toBe('some-job-id');
+        expect(job.name).toBe('goodJob');
     });
 });

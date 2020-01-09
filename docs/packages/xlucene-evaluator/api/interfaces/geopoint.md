@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `GeoPoint`
+title: xLucene Evaluator: `GeoPoint`
 sidebar_label: GeoPoint
 ---
 
@@ -9,7 +9,7 @@ sidebar_label: GeoPoint
 
 * **GeoPoint**
 
-  * [GeoDistance](geodistance.md)
+  ↳ [GeoDistance](geodistance.md)
 
 ## Index
 
@@ -24,7 +24,7 @@ sidebar_label: GeoPoint
 
 • **lat**: *number*
 
-*Defined in [parser/interfaces.ts:146](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L146)*
+*Defined in [interfaces.ts:20](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/interfaces.ts#L20)*
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **lon**: *number*
 
-*Defined in [parser/interfaces.ts:147](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L147)*
+*Defined in [interfaces.ts:21](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/interfaces.ts#L21)*

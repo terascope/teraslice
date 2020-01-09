@@ -1,12 +1,18 @@
 import 'jest-extended';
 import { SearchParams } from 'elasticsearch';
 import { TSError } from '@terascope/utils';
-import { QueryAccess } from '../src';
+import { QueryAccess, FieldType } from '../src';
 
 describe('QueryAccess', () => {
+    describe('when constructed without type_config', () => {
+        it('should throw an error', () => {
+            expect(() => new QueryAccess({})).toThrowError('type_config must be provided');
+        });
+    });
+
     describe('when constructed without exclude', () => {
         it('should set an empty array', () => {
-            const queryAccess = new QueryAccess({});
+            const queryAccess = new QueryAccess({}, { type_config: { foo: FieldType.String } });
 
             expect(queryAccess.excludes).toBeArrayOfSize(0);
         });
@@ -15,6 +21,21 @@ describe('QueryAccess', () => {
     describe('when constructed with exclusive fields', () => {
         const queryAccess = new QueryAccess({
             excludes: ['bar', 'moo', 'baa.maa', 'a.b'],
+        }, {
+            type_config: {
+                foo: FieldType.String,
+                bar: FieldType.String,
+                moo: FieldType.String,
+                baa: FieldType.Object,
+                'baa.maa': FieldType.String,
+                'baa.chaa': FieldType.String,
+                a: FieldType.Object,
+                'a.b': FieldType.Object,
+                'a.b.c': FieldType.String,
+                'a.c': FieldType.Object,
+                'a.c.b': FieldType.String,
+                mood: FieldType.String
+            }
         });
 
         describe('when passed queries with foo in field', () => {
@@ -23,6 +44,28 @@ describe('QueryAccess', () => {
 
                 const result = queryAccess.restrict(query);
                 expect(result).toEqual(query);
+            });
+        });
+
+        describe('when passed a query which prefix matches excluded field', () => {
+            it('should not throw', () => {
+                const query = 'mood:example';
+                const result = queryAccess.restrict(query);
+
+                expect(result).toEqual(query);
+            });
+
+            it('can restrict types', () => {
+                const expected = {
+                    baa: FieldType.Object,
+                    a: FieldType.Object,
+                    foo: FieldType.String,
+                    mood: FieldType.String,
+                    'baa.chaa': FieldType.String,
+                    'a.c': FieldType.Object,
+                    'a.c.b': FieldType.String,
+                };
+                expect(queryAccess.parsedTypeConfig).toEqual(expected);
             });
         });
 
@@ -93,7 +136,13 @@ describe('QueryAccess', () => {
 
     describe('when constructed with include fields', () => {
         const queryAccess = new QueryAccess({
-            includes: ['bar', 'star'],
+            includes: ['bar', 'star', 'baz'],
+        }, {
+            type_config: {
+                bar: FieldType.Integer,
+                star: FieldType.Integer,
+                baz: FieldType.String
+            }
         });
 
         it('should throw if field is not included', () => {
@@ -118,6 +167,13 @@ describe('QueryAccess', () => {
             expect(() => queryAccess.restrict(query)).toThrowError('Implicit fields are restricted, please specify the field');
         });
 
+        it('should not throw if given baz.text', () => {
+            expect.hasAssertions();
+            const query = 'baz.text:foo';
+
+            expect(() => queryAccess.restrict(query)).not.toThrow();
+        });
+
         it('should throw when using *', () => {
             expect.hasAssertions();
 
@@ -133,12 +189,16 @@ describe('QueryAccess', () => {
 
             const result = new QueryAccess({
                 allow_implicit_queries: true,
+            }, {
+                type_config: {
+                    bar: FieldType.String,
+                }
             }).restrict(query);
 
             expect(result).toEqual(query);
         });
 
-        it('should throw if field is not included', () => {
+        it('should throw if field is not included with other term', () => {
             const query = 'hello:world AND bar:foo';
 
             expect(() => queryAccess.restrict(query)).toThrow();
@@ -147,6 +207,10 @@ describe('QueryAccess', () => {
         it('should throw if passed an empty query', () => {
             expect(() => new QueryAccess({
                 allow_empty_queries: false,
+            }, {
+                type_config: {
+                    bar: FieldType.String,
+                }
             }).restrict('')).toThrowWithMessage(TSError, 'Empty queries are restricted');
         });
 
@@ -154,6 +218,10 @@ describe('QueryAccess', () => {
             expect(
                 new QueryAccess({
                     allow_empty_queries: true,
+                }, {
+                    type_config: {
+                        bar: FieldType.String,
+                    }
                 }).restrict('')
             ).toEqual('');
         });
@@ -163,6 +231,12 @@ describe('QueryAccess', () => {
                 new QueryAccess({
                     allow_empty_queries: true,
                     constraint: 'foo:bar',
+                }, {
+                    type_config: {
+                        foo: FieldType.String,
+                        bar: FieldType.Integer,
+                        star: FieldType.Integer
+                    }
                 }).restrict('')
             ).toEqual('foo:bar');
         });
@@ -173,7 +247,7 @@ describe('QueryAccess', () => {
             expect(queryAccess.restrict(query)).toEqual(query);
         });
 
-        it('should allow field listed if included', () => {
+        it('should allow field listed if included with range query', () => {
             const query = 'bar:[0 TO *] OR star:(0 OR 2)';
 
             expect(queryAccess.restrict(query)).toEqual(query);
@@ -183,6 +257,10 @@ describe('QueryAccess', () => {
             it('should be able to default to constraint query', () => {
                 const result = new QueryAccess({
                     constraint: 'foo:bar',
+                }, {
+                    type_config: {
+                        foo: FieldType.String,
+                    }
                 }).restrict('');
                 expect(result).toEqual('foo:bar');
             });
@@ -195,6 +273,10 @@ describe('QueryAccess', () => {
 
                 const result = new QueryAccess({
                     constraint: 'foo:bar',
+                }, {
+                    type_config: {
+                        foo: FieldType.String,
+                    }
                 }).restrict(query);
                 expect(result).toEqual('foo:bar');
             });
@@ -207,9 +289,157 @@ describe('QueryAccess', () => {
 
                 const result = new QueryAccess({
                     constraint: 'foo:bar',
+                }, {
+                    type_config: {
+                        foo: FieldType.String,
+                    }
                 }).restrict(query);
                 expect(result).toEqual('foo:bar');
             });
+        });
+    });
+
+    describe('when using a field wildcard', () => {
+        it('should not throw if includes matches field wildcard', () => {
+            const queryAccess = new QueryAccess({
+                includes: ['field_one', 'field_two'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                }
+            });
+
+            const query = 'field_*:bar';
+            expect(() => queryAccess.restrict(query)).not.toThrow();
+        });
+
+        it('should throw if includes does not match all fields', () => {
+            const queryAccess = new QueryAccess({
+                includes: ['field_one', 'field_two'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                    foo: FieldType.String
+                }
+            });
+
+            const query = 'field_*:bar AND foo:bar';
+            expect(() => queryAccess.restrict(query)).toThrow();
+        });
+
+        it('should not throw if type_config field has valid matching fields', () => {
+            const queryAccess = new QueryAccess({
+                includes: ['field_one'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                }
+            });
+
+            const query = 'field_*:bar';
+            expect(() => queryAccess.restrict(query)).not.toThrow();
+        });
+
+        it('should throw if excludes matches all fields wildcard query', () => {
+            const queryAccess = new QueryAccess({
+                excludes: ['field_one', 'field_two'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                }
+            });
+
+            const query = 'field_*:bar';
+            expect(() => queryAccess.restrict(query)).toThrow();
+        });
+
+        it('should not throw if field wildcard query is not restricted on all variants', () => {
+            const queryAccess = new QueryAccess({
+                excludes: ['field_two'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                }
+            });
+
+            const query = 'field_*:bar';
+            expect(queryAccess.restrict(query)).toEqual(query);
+        });
+
+        it('should throw if excludes contains all variants for field wildcard query', () => {
+            const queryAccess = new QueryAccess({
+                excludes: ['field_one', 'field_two'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                }
+            });
+
+            const query = 'field_*:bar';
+            expect(() => queryAccess.restrict(query)).toThrow();
+        });
+
+        it('should not throw if includes matches first path', () => {
+            const queryAccess = new QueryAccess({
+                includes: ['foo'],
+            }, {
+                type_config: {
+                    foo: FieldType.Object,
+                    'foo.a': FieldType.String
+                }
+            });
+
+            const query = 'foo.*:bar';
+            expect(() => queryAccess.restrict(query)).not.toThrow();
+        });
+
+        it('should throw if excludes matches first path', () => {
+            const queryAccess = new QueryAccess({
+                excludes: ['foo.bar'],
+            }, {
+                type_config: {
+                    foo: FieldType.Object,
+                    'foo.bar': FieldType.String,
+                    'foo.baz': FieldType.String,
+                }
+            });
+
+            const query = 'foo.*:bar';
+            expect(() => queryAccess.restrict(query)).not.toThrow();
+        });
+
+        it('should throw if it matches prefix in includes', () => {
+            const queryAccess = new QueryAccess({
+                includes: ['field_'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                }
+            });
+
+            const query = 'field_*:bar';
+            expect(() => queryAccess.restrict(query)).toThrow();
+        });
+
+        it('should throw if it matches prefix in excludes', () => {
+            const queryAccess = new QueryAccess({
+                excludes: ['field'],
+            }, {
+                type_config: {
+                    field_one: FieldType.String,
+                    field_two: FieldType.String,
+                }
+            });
+
+            const query = 'field_*:bar';
+            expect(() => queryAccess.restrict(query)).not.toThrow();
         });
     });
 
@@ -217,6 +447,11 @@ describe('QueryAccess', () => {
         const constraint = 'foo:bar';
         const queryAccess = new QueryAccess({
             constraint,
+        }, {
+            type_config: {
+                foo: FieldType.String,
+                hello: FieldType.String
+            }
         });
 
         it('should append the constraint on the returned query', () => {
@@ -230,6 +465,11 @@ describe('QueryAccess', () => {
         const queryAccess = new QueryAccess({
             constraint,
             excludes: ['hello'],
+        }, {
+            type_config: {
+                foo: FieldType.String,
+                hello: FieldType.String,
+            }
         });
 
         it('should return the query', () => {
@@ -242,6 +482,12 @@ describe('QueryAccess', () => {
     describe('when resticting prefix wildcards', () => {
         const queryAccess = new QueryAccess({
             prevent_prefix_wildcard: true,
+        }, {
+            type_config: {
+                bar: FieldType.String,
+                hello: FieldType.String,
+                bytes: FieldType.Integer
+            }
         });
 
         describe.each([['hello:*world'], ['hello:?world']])('when using a query of "%s"', (query) => {
@@ -268,16 +514,23 @@ describe('QueryAccess', () => {
             default_geo_sort_unit: 'mm',
             excludes: ['bar', 'baz'],
             includes: ['foo', 'moo'],
+        }, {
+            type_config: {
+                moo: FieldType.GeoPoint,
+                bar: FieldType.String,
+                baz: FieldType.String,
+                foo: FieldType.String,
+            }
         });
 
-        it('should be able to return a restricted query', () => {
+        it('should be able to return a restricted query', async () => {
             const params: SearchParams = {
                 q: 'idk',
                 _sourceInclude: ['moo'],
                 _sourceExclude: ['baz'],
             };
 
-            const result = queryAccess.restrictSearchQuery('foo:bar', {
+            const result = await queryAccess.restrictSearchQuery('foo:bar', {
                 params
             });
             expect(result).toMatchObject({
@@ -289,8 +542,8 @@ describe('QueryAccess', () => {
             expect(result).not.toHaveProperty('q', 'idk');
         });
 
-        it('should be able to allow * queries', () => {
-            const result = queryAccess.restrictSearchQuery('*');
+        it('should be able to allow * queries', async () => {
+            const result = await queryAccess.restrictSearchQuery('*');
             expect(result).toEqual({
                 body: {
                     query: {
@@ -308,8 +561,8 @@ describe('QueryAccess', () => {
             });
         });
 
-        it('should be able to return a restricted query without any params', () => {
-            const result = queryAccess.restrictSearchQuery('foo:bar');
+        it('should be able to return a restricted query without any params', async () => {
+            const result = await queryAccess.restrictSearchQuery('foo:bar');
             expect(result).toMatchObject({
                 _sourceExclude: ['bar', 'baz'],
                 _sourceInclude: ['foo', 'moo'],
@@ -318,9 +571,9 @@ describe('QueryAccess', () => {
             expect(result).not.toHaveProperty('q', 'idk');
         });
 
-        it('should be able to return a restricted geo query and add the geo sort', () => {
+        it('should be able to return a restricted geo query and add the geo sort', async () => {
             const q = 'foo:(_geo_point_:"33.435518,-111.873616" _geo_distance_:5000yd)';
-            const result = queryAccess.restrictSearchQuery(q, {
+            const result = await queryAccess.restrictSearchQuery(q, {
                 geo_sort_order: 'asc'
             });
 
@@ -340,9 +593,9 @@ describe('QueryAccess', () => {
             });
         });
 
-        it('should be able to return a query with a default sort when geo_sort_point is passed in', () => {
+        it('should be able to return a query with a default sort when geo_sort_point is passed in', async () => {
             const q = 'foo:bar';
-            const result = queryAccess.restrictSearchQuery(q, {
+            const result = await queryAccess.restrictSearchQuery(q, {
                 geo_sort_point: {
                     lat: 55.435518,
                     lon: -101.873616,
@@ -365,9 +618,9 @@ describe('QueryAccess', () => {
             });
         });
 
-        it('can process quoted values correctly', () => {
+        it('can process quoted values correctly', async () => {
             const q = 'foo:"something-xy40\\" value 8008"';
-            const result = queryAccess.restrictSearchQuery(q);
+            const result = await queryAccess.restrictSearchQuery(q);
 
             expect(result).toMatchObject({
                 body: {
@@ -392,6 +645,201 @@ describe('QueryAccess', () => {
                     'bar',
                     'baz'
                 ]
+            });
+        });
+    });
+
+    describe('can work with variables', () => {
+        const queryAccess = new QueryAccess({
+            allow_implicit_queries: true,
+            excludes: [],
+            includes: [],
+        }, {
+            type_config: {
+                foo: FieldType.String,
+                bar: FieldType.String,
+            },
+            variables: {
+                foo1: 'hello world',
+                foo2: ['some', 'thing'],
+                bar1: 'I am bar',
+            }
+        });
+
+        it('should be able to return string variable elasticsearch dsl', async () => {
+            const q = 'foo:$foo1';
+            const result = await queryAccess.restrictSearchQuery(q);
+
+            expect(result).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                match: {
+                                    foo: {
+                                        operator: 'and',
+                                        query: 'hello world'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                _sourceInclude: [],
+                _sourceExclude: []
+            });
+        });
+
+        it('should be able to return array string variable elasticsearch dsl', async () => {
+            const q = 'foo:$foo2';
+            const result = await queryAccess.restrictSearchQuery(q);
+
+            expect(result).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                bool: {
+                                    should: [
+                                        {
+                                            bool: {
+                                                filter: [
+                                                    {
+                                                        match: {
+                                                            foo: {
+                                                                operator: 'and',
+                                                                query: 'some'
+                                                            }
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            bool: {
+                                                filter: [
+                                                    {
+                                                        match: {
+                                                            foo: {
+                                                                operator: 'and',
+                                                                query: 'thing'
+                                                            }
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                _sourceInclude: [],
+                _sourceExclude: []
+            });
+        });
+
+        it('should be able to add additonal varaibles', async () => {
+            const variables = {
+                foo3: 'iamvariable'
+            };
+            const q = 'foo:$foo3';
+            const result = await queryAccess.restrictSearchQuery(q, { variables });
+
+            expect(result).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                match: {
+                                    foo: {
+                                        operator: 'and',
+                                        query: variables.foo3
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                _sourceInclude: [],
+                _sourceExclude: []
+            });
+        });
+
+        it('should be able to override default variables', async () => {
+            const variables = {
+                bar1: 'iamvariable'
+            };
+            const q = 'foo:$bar1';
+            const result = await queryAccess.restrictSearchQuery(q, { variables });
+
+            expect(result).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                match: {
+                                    foo: {
+                                        operator: 'and',
+                                        query: variables.bar1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                _sourceInclude: [],
+                _sourceExclude: []
+            });
+        });
+
+        it('does not used cached translator if variables have changed', async () => {
+            const q1 = 'bar:$bar1';
+            const result1 = await queryAccess.restrictSearchQuery(q1);
+
+            expect(result1).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                match: {
+                                    bar: {
+                                        operator: 'and',
+                                        query: 'I am bar'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                _sourceInclude: [],
+                _sourceExclude: []
+            });
+
+            const variables = {
+                bar1: 'i-am-a-variable'
+            };
+            const q2 = 'bar:$bar1';
+            const result2 = await queryAccess.restrictSearchQuery(q2, { variables });
+
+            expect(result2).toMatchObject({
+                body: {
+                    query: {
+                        constant_score: {
+                            filter: {
+                                match: {
+                                    bar: {
+                                        operator: 'and',
+                                        query: variables.bar1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                _sourceInclude: [],
+                _sourceExclude: []
             });
         });
     });

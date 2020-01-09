@@ -22,6 +22,7 @@ class K8sResource {
      */
     constructor(resourceType, resourceName, terasliceConfig, execution) {
         this.execution = execution;
+        this.jobLabelPrefix = 'job.teraslice.terascope.io';
         this.nodeType = resourceName;
         this.terasliceConfig = terasliceConfig;
 
@@ -37,6 +38,8 @@ class K8sResource {
         this.templateConfig = this._makeConfig();
         this.resource = this.templateGenerator(this.templateConfig);
 
+        this._setJobLabels();
+
         // services don't have pod templates that need modification by these
         // methods
         if (resourceType !== 'services') {
@@ -50,6 +53,14 @@ class K8sResource {
             this._setVolumes();
             this._setAssetsVolume();
             this._setImagePullSecret();
+
+            // Execution controller targets are required nodeAffinities, if
+            // required job targets are also supplied, then *all* of the matches
+            // will have to be satisfied for the job to be scheduled.  This also
+            // adds tolerations for any specified targets
+            if (resourceName === 'execution_controller') {
+                this._setExecutionControllerTargets();
+            }
         }
     }
 
@@ -69,7 +80,6 @@ class K8sResource {
         const name = `ts-${this.nameInfix}-${jobNameLabel.substring(0, 35)}-${this.execution.job_id.substring(0, 13)}`;
         const shutdownTimeoutMs = _.get(this.terasliceConfig, 'shutdown_timeout', 60000);
         const shutdownTimeoutSeconds = Math.round(shutdownTimeoutMs / 1000);
-
 
         const config = {
             // assetsDirectory: _.get(this.terasliceConfig, 'assets_directory', ''),
@@ -102,6 +112,24 @@ class K8sResource {
         };
     }
 
+    /**
+     * Execution Controllers get tolerations and required affinities
+     *
+     * NOTE: We considered changing `execution_controller_targets` to be an
+     * object but the inconsistency with `targets` made this awkward.  See the
+     * `teraslice config with execution_controller_targets and job targets set`
+     * test for an example.  If the syntax for this were to change, we should
+     * also consider changing `execution.targets`, which is a change on the job.
+     */
+    _setExecutionControllerTargets() {
+        if (this.terasliceConfig.execution_controller_targets) {
+            _.forEach(this.terasliceConfig.execution_controller_targets, (target) => {
+                this._setTargetRequired(target);
+                this._setTargetAccepted(target);
+            });
+        }
+    }
+
     _setImagePullSecret() {
         if (this.terasliceConfig.kubernetes_image_pull_secret) {
             this.resource.spec.template.spec.imagePullSecrets = [
@@ -119,6 +147,22 @@ class K8sResource {
             this.resource.spec.template.spec.containers[0].volumeMounts.push({
                 name: this.terasliceConfig.assets_volume,
                 mountPath: this.terasliceConfig.assets_directory
+            });
+        }
+    }
+
+    _setJobLabels() {
+        if (this.execution.labels != null) {
+            Object.entries(this.execution.labels).forEach(([k, v]) => {
+                const key = `${this.jobLabelPrefix}/${_.replace(k, /[^a-zA-Z0-9\-._]/g, '-').substring(0, 63)}`;
+                const value = _.replace(v, /[^a-zA-Z0-9\-._]/g, '-').substring(0, 63);
+                this.resource.metadata.labels[key] = value;
+
+                if (this.resource.kind !== 'Service') {
+                    // Services don't have templates, so if it's a service,
+                    // don't add this
+                    this.resource.spec.template.metadata.labels[key] = value;
+                }
             });
         }
     }

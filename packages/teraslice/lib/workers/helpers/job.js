@@ -1,9 +1,9 @@
 'use strict';
 
-const { get } = require('@terascope/utils');
+const { get, isEmpty } = require('@terascope/utils');
 const { JobValidator } = require('@terascope/job-components');
 const { terasliceOpPath } = require('../../config');
-const { makeJobStore, makeExStore } = require('../../cluster/storage');
+const { makeJobStore, makeExStore, makeStateStore } = require('../../storage');
 
 async function validateJob(context, jobSpec) {
     const jobValidator = new JobValidator(context, {
@@ -12,26 +12,70 @@ async function validateJob(context, jobSpec) {
     });
 
     try {
-        return jobValidator.validateConfig(jobSpec);
+        return await jobValidator.validateConfig(jobSpec);
     } catch (error) {
         throw new Error(`validating job: ${error}`);
     }
 }
 
-async function initializeJob(context, config, stores = {}) {
+async function initializeTestExecution({
+    context,
+    config,
+    stores = {},
+    isRecovery,
+    cleanupType,
+    createRecovery = true,
+    recoverySlices = [],
+    lastStatus = 'failed'
+}) {
     const jobStore = stores.jobStore || (await makeJobStore(context));
     const exStore = stores.exStore || (await makeExStore(context));
+    const stateStore = stores.stateStore || (await makeStateStore(context));
 
     const validJob = await validateJob(context, config, { skipRegister: true });
     const jobSpec = await jobStore.create(config);
 
-    const job = Object.assign({}, jobSpec, validJob);
+    const job = Object.assign({}, jobSpec, validJob, {
+        job_id: jobSpec.job_id
+    });
 
-    const ex = await exStore.create(job, 'ex');
-    await exStore.setStatus(ex.ex_id, 'pending');
+    const slicerHostname = job.slicer_hostname;
+    const slicerPort = job.slicer_port;
 
-    if (!Object.keys(stores).length) {
-        await Promise.all([exStore.shutdown(true), jobStore.shutdown(true)]);
+    let ex;
+    if (isRecovery) {
+        ex = await exStore.create(job, lastStatus);
+
+        if (recoverySlices.length) {
+            await Promise.all(recoverySlices.map(({ slice, state }) => stateStore.createState(
+                ex.ex_id,
+                slice,
+                state,
+                slice.error
+            )));
+            await stateStore.refresh();
+        }
+
+        if (createRecovery) {
+            ex = await exStore.createRecoveredExecution(ex, cleanupType);
+        }
+    } else {
+        ex = await exStore.create(job);
+    }
+
+    if (slicerHostname && slicerPort) {
+        ex = await exStore.updatePartial(ex.ex_id, (existing) => Object.assign(existing, {
+            slicer_hostname: slicerHostname,
+            slicer_port: slicerPort,
+        }));
+    }
+
+    if (isEmpty(stores)) {
+        await Promise.all([
+            exStore.shutdown(true),
+            jobStore.shutdown(true),
+            stateStore.shutdown(true)
+        ]);
     }
 
     return {
@@ -41,6 +85,6 @@ async function initializeJob(context, config, stores = {}) {
 }
 
 module.exports = {
-    initializeJob,
+    initializeTestExecution,
     validateJob,
 };

@@ -9,7 +9,7 @@ sidebar_label: Cluster
 
 * [Client](client.md)
 
-  * **Cluster**
+  ↳ **Cluster**
 
 ## Index
 
@@ -44,7 +44,7 @@ sidebar_label: Cluster
 
 *Overrides [Client](client.md).[constructor](client.md#constructor)*
 
-*Defined in [cluster.ts:18](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/cluster.ts#L18)*
+*Defined in [cluster.ts:18](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/cluster.ts#L18)*
 
 **Parameters:**
 
@@ -62,7 +62,7 @@ Name | Type |
 
 *Inherited from [Client](client.md).[_config](client.md#protected-_config)*
 
-*Defined in [client.ts:11](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L11)*
+*Defined in [client.ts:11](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L11)*
 
 ## Methods
 
@@ -70,7 +70,7 @@ Name | Type |
 
 ▸ **controllers**(): *Promise‹[ControllerState](../overview.md#controllerstate)›*
 
-*Defined in [cluster.ts:42](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/cluster.ts#L42)*
+*Defined in [cluster.ts:42](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/cluster.ts#L42)*
 
 **Returns:** *Promise‹[ControllerState](../overview.md#controllerstate)›*
 
@@ -82,7 +82,7 @@ ___
 
 *Inherited from [Client](client.md).[delete](client.md#delete)*
 
-*Defined in [client.ts:44](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L44)*
+*Defined in [client.ts:44](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L44)*
 
 **Parameters:**
 
@@ -101,7 +101,7 @@ ___
 
 *Inherited from [Client](client.md).[get](client.md#get)*
 
-*Defined in [client.ts:32](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L32)*
+*Defined in [client.ts:32](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L32)*
 
 **Parameters:**
 
@@ -118,7 +118,7 @@ ___
 
 ▸ **info**(): *Promise‹[RootResponse](../interfaces/rootresponse.md)›*
 
-*Defined in [cluster.ts:26](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/cluster.ts#L26)*
+*Defined in [cluster.ts:26](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/cluster.ts#L26)*
 
 **Returns:** *Promise‹[RootResponse](../interfaces/rootresponse.md)›*
 
@@ -126,20 +126,20 @@ ___
 
 ### `Protected` makeOptions
 
-▸ **makeOptions**(`query`: any, `options`: [RequestOptions](../interfaces/requestoptions.md) | [SearchOptions](../overview.md#searchoptions)): *[RequestOptions](../interfaces/requestoptions.md) & object | object & object*
+▸ **makeOptions**(`query`: any, `options`: [RequestOptions](../interfaces/requestoptions.md) | [SearchOptions](../overview.md#searchoptions)): *[RequestOptions](../interfaces/requestoptions.md)‹› & object | object & object*
 
 *Inherited from [Client](client.md).[makeOptions](client.md#protected-makeoptions)*
 
-*Defined in [client.ts:87](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L87)*
+*Defined in [client.ts:87](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L87)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `query` | any |
-`options` | [RequestOptions](../interfaces/requestoptions.md) \| [SearchOptions](../overview.md#searchoptions) |
+`options` | [RequestOptions](../interfaces/requestoptions.md) &#124; [SearchOptions](../overview.md#searchoptions) |
 
-**Returns:** *[RequestOptions](../interfaces/requestoptions.md) & object | object & object*
+**Returns:** *[RequestOptions](../interfaces/requestoptions.md)‹› & object | object & object*
 
 ___
 
@@ -149,7 +149,7 @@ ___
 
 *Inherited from [Client](client.md).[parse](client.md#protected-parse)*
 
-*Defined in [client.ts:82](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L82)*
+*Defined in [client.ts:82](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L82)*
 
 **Parameters:**
 
@@ -167,7 +167,7 @@ ___
 
 *Inherited from [Client](client.md).[post](client.md#post)*
 
-*Defined in [client.ts:36](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L36)*
+*Defined in [client.ts:36](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L36)*
 
 **Parameters:**
 
@@ -187,7 +187,7 @@ ___
 
 *Inherited from [Client](client.md).[put](client.md#put)*
 
-*Defined in [client.ts:40](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/client.ts#L40)*
+*Defined in [client.ts:40](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L40)*
 
 **Parameters:**
 
@@ -205,7 +205,7 @@ ___
 
 ▸ **slicers**(): *Promise‹[ControllerState](../overview.md#controllerstate)›*
 
-*Defined in [cluster.ts:38](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/cluster.ts#L38)*
+*Defined in [cluster.ts:38](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/cluster.ts#L38)*
 
 **Returns:** *Promise‹[ControllerState](../overview.md#controllerstate)›*
 
@@ -215,7 +215,7 @@ ___
 
 ▸ **state**(): *Promise‹[ClusterState](../overview.md#clusterstate)›*
 
-*Defined in [cluster.ts:30](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/cluster.ts#L30)*
+*Defined in [cluster.ts:30](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/cluster.ts#L30)*
 
 **Returns:** *Promise‹[ClusterState](../overview.md#clusterstate)›*
 
@@ -225,7 +225,7 @@ ___
 
 ▸ **stats**(): *Promise‹[ClusterStats](../interfaces/clusterstats.md)›*
 
-*Defined in [cluster.ts:34](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/cluster.ts#L34)*
+*Defined in [cluster.ts:34](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/cluster.ts#L34)*
 
 **Returns:** *Promise‹[ClusterStats](../interfaces/clusterstats.md)›*
 
@@ -235,7 +235,7 @@ ___
 
 ▸ **txt**(`type`: [TxtType](../overview.md#txttype)): *Promise‹string›*
 
-*Defined in [cluster.ts:46](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-client-js/src/cluster.ts#L46)*
+*Defined in [cluster.ts:46](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/cluster.ts#L46)*
 
 **Parameters:**
 

@@ -1,6 +1,6 @@
 {
     "name": "ts-transforms",
-    "version": "0.24.13",
+    "version": "0.29.1",
     "description": "An ETL framework built upon xlucene-evaluator",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/ts-transforms#readme",
     "bugs": {
@@ -35,24 +35,24 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/utils": "^0.20.5",
+        "@terascope/utils": "^0.21.0",
         "@types/graphlib": "^2.1.5",
         "@types/shortid": "^0.0.29",
-        "awesome-phonenumber": "^2.15.0",
-        "graphlib": "^2.1.7",
+        "awesome-phonenumber": "^2.24.0",
+        "graphlib": "^2.1.8",
         "jexl": "^2.2.1",
         "shortid": "^2.2.14",
         "valid-url": "^1.0.9",
-        "validator": "^11.0.0",
-        "xlucene-evaluator": "^0.11.8",
-        "yargs": "^14.2.0"
+        "validator": "^12.1.0",
+        "xlucene-evaluator": "^0.16.1",
+        "yargs": "^15.1.0"
     },
     "devDependencies": {
-        "@types/jexl": "^2.1.0",
+        "@types/jexl": "^2.2.0",
         "@types/valid-url": "^1.0.2",
-        "@types/validator": "^10.11.3",
-        "@types/yargs": "^13.0.3",
-        "execa": "^3.2.0"
+        "@types/validator": "^12.0.1",
+        "@types/yargs": "^13.0.4",
+        "execa": "^4.0.0"
     },
     "engines": {
         "node": ">=8.0.0"
@@ -61,10 +61,10 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
-    "displayName": "Ts Transforms",
+    "displayName": "TS Transforms",
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,
-        "testSuite": "unit"
+        "testSuite": "unit-b"
     }
 }

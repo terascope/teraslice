@@ -1,4 +1,3 @@
-
 import yargs from 'yargs';
 import errors from '../../../src/cmds/ex/errors';
 

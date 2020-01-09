@@ -125,19 +125,26 @@ export async function runJest(
     cwd: string,
     argsMap: ArgsMap,
     env?: ExecEnv,
-    extraArgs?: string[]
+    extraArgs?: string[],
+    debug?: boolean
 ): Promise<void> {
     const args = mapToArgs(argsMap);
     if (extraArgs) {
         extraArgs.forEach((extraArg) => {
             if (extraArg.startsWith('-') && args.includes(extraArg)) {
-                logger.debug(`* skipping duplicate jest arg ${extraArg}`);
+                if (debug) {
+                    logger.debug(`* skipping duplicate jest arg ${extraArg}`);
+                }
                 return;
             }
             args.push(extraArg);
         });
     }
-    signale.debug(`executing: jest ${args.join(' ')}`);
+
+    if (debug) {
+        signale.debug(`executing: jest ${args.join(' ')}`);
+    }
+
     await fork({
         cmd: 'jest',
         cwd,
@@ -147,16 +154,28 @@ export async function runJest(
 }
 
 export async function dockerPull(image: string): Promise<void> {
-    await exec({
-        cmd: 'docker',
-        args: ['pull', image],
-    });
+    try {
+        await exec({
+            cmd: 'docker',
+            args: ['pull', image],
+        });
+    } catch (err) {
+        process.exitCode = 0;
+        throw err;
+    }
 }
 
 export async function dockerStop(name: string): Promise<void> {
     await exec({
         cmd: 'docker',
         args: ['stop', name],
+    });
+}
+
+export async function dockerTag(from: string, to: string): Promise<void> {
+    await exec({
+        cmd: 'docker',
+        args: ['tag', from, to],
     });
 }
 
@@ -192,7 +211,7 @@ export type DockerRunOptions = {
     network?: string;
 };
 
-export async function dockerRun(opt: DockerRunOptions, tag = 'latest'): Promise<() => void> {
+export async function dockerRun(opt: DockerRunOptions, tag = 'latest', debug?: boolean): Promise<() => void> {
     const args: string[] = ['run', '--rm'];
     if (!opt.image) {
         throw new Error('Missing required image option');
@@ -237,7 +256,9 @@ export async function dockerRun(opt: DockerRunOptions, tag = 'latest'): Promise<
     let stderr: any;
     let done = true;
 
-    signale.debug(`executing: docker ${args.join(' ')}`);
+    if (debug) {
+        signale.debug(`executing: docker ${args.join(' ')}`);
+    }
     const subprocess = execa('docker', args);
     if (!subprocess || !subprocess.stderr) {
         throw new Error('Failed to execute docker run');
@@ -282,7 +303,6 @@ export async function dockerRun(opt: DockerRunOptions, tag = 'latest'): Promise<
 
         if (done && !subprocess.killed) return;
 
-        signale.debug(`killing "${opt.name}" docker container`);
         subprocess.kill();
     };
 }
@@ -333,6 +353,14 @@ export async function getCommitHash(): Promise<string> {
     return exec({ cmd: 'git', args: ['rev-parse', '--short', 'HEAD'] });
 }
 
+export async function gitDiff(files: string[] = []): Promise<void> {
+    try {
+        await fork({ cmd: 'git', args: ['diff', ...files] });
+    } catch (e) {
+        logger.trace(e);
+    }
+}
+
 export async function getChangedFiles(...files: string[]) {
     const result = await exec({ cmd: 'git', args: ['diff', '--name-only', ...files] });
     return result
@@ -353,30 +381,6 @@ export function mapToArgs(input: ArgsMap): string[] {
         }
     }
     return args.filter((str) => str != null && str !== '');
-}
-
-export async function getLatestNPMVersion(
-    name: string,
-    tag = 'latest',
-    registry: string = config.NPM_DEFAULT_REGISTRY
-): Promise<string> {
-    const subprocess = await execa(
-        'npm',
-        [
-            '--json',
-            '--registry',
-            registry,
-            'info',
-            name,
-            'dist-tags'
-        ],
-        { reject: false }
-    );
-
-    if (subprocess.exitCode > 0) return '0.0.0';
-
-    const output: Record<string, string> = JSON.parse(subprocess.stdout);
-    return output[tag];
 }
 
 export async function yarnPublish(

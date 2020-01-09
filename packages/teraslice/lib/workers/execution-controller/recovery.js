@@ -1,17 +1,17 @@
 'use strict';
 
-const _ = require('lodash');
-const Promise = require('bluebird');
+const { pRaceWithTimeout, logError, cloneDeep } = require('@terascope/utils');
 const Queue = require('@terascope/queue');
 const { makeLogger } = require('../helpers/terafoundation');
 
-function recovery(context, stateStore, executionContext) {
+function recoveryModule(context, stateStore, executionContext) {
     const events = context.apis.foundation.getSystemEvents();
     const slicersToRecover = executionContext.config.slicers;
     const recoveryQueue = new Queue();
 
     const cleanupType = executionContext.config.recovered_slice_type;
     const recoverExecution = executionContext.config.recovered_execution;
+    const autorecover = Boolean(executionContext.config.autorecover);
     const { exId } = executionContext;
 
     let recoverComplete = true;
@@ -35,16 +35,6 @@ function recovery(context, stateStore, executionContext) {
         retryState[sliceData.slice.slice_id] = false;
     }
 
-    function getSlicerStartingPosition() {
-        if (exitAfterComplete()) return Promise.resolve([]);
-
-        const recoveredSlices = [];
-        for (let i = 0; i < slicersToRecover; i += 1) {
-            recoveredSlices.push(stateStore.executionStartingSlice(recoverExecution, i));
-        }
-        return Promise.all(recoveredSlices);
-    }
-
     function _setId(slice) {
         retryState[slice.slice_id] = true;
     }
@@ -60,11 +50,11 @@ function recovery(context, stateStore, executionContext) {
     }
 
     function _recoveryBatchCompleted() {
-        return _.every(retryState, (v) => v === false);
+        return Object.values(retryState).every((v) => v === false);
     }
 
     function _retryState() {
-        return _.cloneDeep(retryState);
+        return cloneDeep(retryState);
     }
 
     function _waitForRecoveryBatchCompletion() {
@@ -134,30 +124,41 @@ function recovery(context, stateStore, executionContext) {
         return recoveryQueue.size();
     }
 
-    function shutdown() {
+    async function shutdown() {
         let checkInterval;
 
-        return new Promise((resolve) => {
-            checkInterval = setInterval(() => {
-                if (recoverComplete) {
-                    resolve();
-                }
-            }, 100);
-        })
-            .timeout(context.sysconfig.teraslice.shutdown_timeout)
-            .finally(() => {
-                isShutdown = true;
-                clearInterval(checkInterval);
-            });
+        try {
+            await pRaceWithTimeout(
+                new Promise((resolve) => {
+                    checkInterval = setInterval(() => {
+                        if (recoverComplete) {
+                            resolve();
+                        }
+                    }, 100);
+                }),
+                context.sysconfig.teraslice.shutdown_timeout,
+                (err) => { logError(logger, err); }
+            );
+        } finally {
+            isShutdown = true;
+            clearInterval(checkInterval);
+        }
     }
 
     function recoveryComplete() {
         return recoverComplete;
     }
 
-    // if cleanup is set, it implies that it should not continue after recovery
+    /**
+     * Whether or not the execution will continue to process
+     * slices after recovering.
+     *
+     * @returns {boolean}
+    */
     function exitAfterComplete() {
-        return cleanupType != null;
+        if (autorecover) return false;
+        if (!cleanupType) return false;
+        return true;
     }
 
     function testContext() {
@@ -171,7 +172,6 @@ function recovery(context, stateStore, executionContext) {
     }
 
     return {
-        getSlicerStartingPosition,
         initialize,
         getSlice,
         getSlices,
@@ -184,4 +184,4 @@ function recovery(context, stateStore, executionContext) {
     };
 }
 
-module.exports = recovery;
+module.exports = recoveryModule;

@@ -13,9 +13,10 @@ describe('JobValidator', () => {
 
     describe('->validateConfig', () => {
         it('returns a completed and valid jobConfig', () => {
-            const jobSpec: JobConfig = {
+            const jobSpec: JobConfig = Object.freeze({
                 name: 'noop',
                 assets: ['fixtures'],
+                autorecover: true,
                 apis: [
                     {
                         _name: 'example-api'
@@ -29,51 +30,10 @@ describe('JobValidator', () => {
                         _op: 'noop',
                     },
                 ],
-            };
+            });
 
             const validJob = api.validateConfig(jobSpec);
-            expect(validJob.max_retries).toBeDefined();
-            expect(validJob.lifecycle).toBeDefined();
-            expect(validJob.operations).toBeDefined();
-            expect(validJob.assets).toBeDefined();
-        });
-
-        it('throws an error with faulty operation configuration', () => {
-            const jobSpec: JobConfig = {
-                name: 'test',
-                // @ts-ignore
-                operations: [
-                    {
-                        something: 'else',
-                    },
-                    {
-                        _op: 'noop',
-                    },
-                ],
-            };
-
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).toThrowError();
-        });
-
-        it('will properly read an operation', () => {
-            const jobSpec: JobConfig = {
-                name: 'test',
-                assets: ['fixtures'],
-                operations: [
-                    {
-                        _op: 'example-reader',
-                    },
-                    {
-                        _op: 'noop',
-                    },
-                ],
-            };
-
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).not.toThrowError();
+            expect(validJob).toMatchObject(jobSpec);
         });
 
         it('will throw based off op validation errors', () => {
@@ -91,27 +51,6 @@ describe('JobValidator', () => {
                         _op: 'noop',
                     },
                 ],
-            };
-
-            expect(() => {
-                api.validateConfig(jobSpec);
-            }).toThrowError();
-        });
-
-        it('will throw based off crossValidation errors', () => {
-            const jobSpec: JobConfig = {
-                name: 'test',
-                lifecycle: 'persistent',
-                assets: ['fixtures'],
-                operations: [
-                    {
-                        _op: 'example-reader'
-                    },
-                    {
-                        _op: 'noop',
-                        failCrossValidation: true
-                    },
-                ]
             };
 
             expect(() => {

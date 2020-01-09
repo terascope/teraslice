@@ -1,37 +1,40 @@
 'use strict';
 
 const ms = require('ms');
-const _ = require('lodash');
-const Promise = require('bluebird');
+const {
+    pDelay,
+    uniq,
+    toString
+} = require('@terascope/utils');
 const signale = require('./signale');
 const misc = require('./misc');
 const wait = require('./wait');
 
-const { cluster, jobs } = misc.teraslice();
+const { cluster, executions } = misc.teraslice();
 
 async function resetState() {
     const startTime = Date.now();
     const state = await cluster.state();
 
     await Promise.all([
-        Promise.delay(800),
+        pDelay(800),
         misc.cleanupIndex(`${misc.SPEC_INDEX_PREFIX}*`),
         (async () => {
-            const cleanupJobs = [];
-            _.forEach(state, (node) => {
-                const { assignment, job_id: jobId } = node;
+            const cleanupExIds = [];
+            Object.values(state).forEach((node) => {
+                const { assignment, ex_id: exId } = node;
 
                 const isWorker = ['execution_controller', 'worker'].includes(assignment);
                 if (isWorker) {
-                    cleanupJobs.push(jobId);
+                    cleanupExIds.push(exId);
                 }
             });
 
             await Promise.all(
-                _.uniq(cleanupJobs).map(async (jobId) => {
-                    signale.warn(`resetting job ${jobId}`);
+                uniq(cleanupExIds).map(async (exId) => {
+                    signale.warn(`resetting ex ${exId}`);
                     try {
-                        await jobs.wrap(jobId).stop({ blocking: true });
+                        await executions.wrap(exId).stop({ blocking: true });
                     } catch (err) {
                         // ignore error;
                     }
@@ -39,7 +42,7 @@ async function resetState() {
             );
         })(),
         (async () => {
-            const count = _.keys(state).length;
+            const count = Object.keys(state).length;
             if (count !== misc.DEFAULT_NODES) {
                 signale.warn(`resetting cluster state of ${count} nodes`);
                 await misc.scaleWorkers();
@@ -59,17 +62,18 @@ async function submitAndStart(jobSpec, delay) {
         misc.injectDelay(jobSpec, delay);
     }
 
-    const job = await jobs.submit(jobSpec);
-    await wait.waitForJobStatus(job, 'running');
-    return job;
+    const ex = await executions.submit(jobSpec);
+    await wait.waitForExStatus(ex, 'running');
+    return ex;
 }
 
 async function runEsJob(jobSpec, index, delay) {
     if (delay) {
         misc.injectDelay(jobSpec, delay);
     }
-    const job = await jobs.submit(jobSpec);
-    await wait.waitForJobStatus(job, 'completed');
+
+    const ex = await executions.submit(jobSpec);
+    await wait.waitForExStatus(ex, 'completed');
 
     try {
         const stats = await misc.indexStats(index);
@@ -83,40 +87,44 @@ async function runEsJob(jobSpec, index, delay) {
  * Test pause
  */
 async function testJobLifeCycle(jobSpec, delay = 3000) {
-    const job = await submitAndStart(jobSpec, delay);
+    let ex;
+    const waitForStatus = async (status) => wait.waitForExStatus(ex, status, 50, 0);
 
-    const waitForStatus = (status) => wait.waitForJobStatus(job, status, 50, 0);
+    if (delay) {
+        misc.injectDelay(jobSpec, delay);
+    }
+
+    ex = await executions.submit(jobSpec);
+    await waitForStatus('running');
 
     let p = waitForStatus('paused');
-    job.pause();
+    ex.pause();
     await p;
 
     p = waitForStatus('running');
-    job.resume();
+    ex.resume();
     await p;
 
     p = waitForStatus('stopped');
-    job.stop();
+    ex.stop();
 
     try {
         await p;
     } catch (err) {
-        const alreadyCompletedErr = 'Job cannot reach the target status, "stopped", because it is in the terminal state, "completed"';
-        const errStr = _.toString(err);
-        if (errStr.includes(alreadyCompletedErr)) {
+        const errStr = toString(err);
+        if (errStr.includes('"stopped"') && errStr.includes('"completed"')) {
             signale.warn(
                 `${errStr} - however since this can be race condition, we don't want to fail the test`
             );
-            return job;
+            return ex;
         }
 
         throw err;
     }
 
-    await job.recover();
+    ex = await ex.recover();
     await waitForStatus('completed');
-
-    return job;
+    return ex;
 }
 
 module.exports = {

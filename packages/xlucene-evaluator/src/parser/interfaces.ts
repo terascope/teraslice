@@ -1,16 +1,17 @@
-
 import { Logger } from '@terascope/utils';
 import { UtilsTranslateQueryOptions, AnyQuery, AnyQuerySort } from '../translator/interfaces';
 import {
     GeoPoint,
     GeoDistanceUnit,
     TypeConfig,
-    FieldType
+    FieldType,
+    Variables
 } from '../interfaces';
 
 export interface ParserOptions {
     type_config?: TypeConfig;
     logger?: Logger;
+    variables?: Variables;
 }
 
 export type AST = EmptyAST & LogicalGroup & Term
@@ -44,6 +45,7 @@ export type TermLikeType =
 export interface TermLikeAST {
     type: TermLikeType;
     field: Field;
+    tokenizer?: boolean;
 }
 
 export enum ASTType {
@@ -74,7 +76,7 @@ export interface AnyDataType {
      * in the type_config
     */
     field_type: FieldType;
-    value: string|number|boolean;
+    value: string|number|boolean|any;
 }
 
 export interface NumberDataType {
@@ -185,5 +187,8 @@ export interface FunctionMethodsResults {
 
 export interface FunctionMethods {
     match(arg: any): boolean;
-    toElasticsearchQuery(options: UtilsTranslateQueryOptions): FunctionMethodsResults;
+    toElasticsearchQuery(
+        field: string,
+        options: UtilsTranslateQueryOptions
+    ): FunctionMethodsResults;
 }

@@ -1,15 +1,16 @@
+import { AnyObject } from '@terascope/utils';
 
 type GeoPointArr = [number, number];
 type GeoPointStr = string;
 type GeoObjShort = {lat: string | number; lon: string | number};
 type GeoObjLong = {latitude: string | number; longitude: string | number};
+
 export type GeoPointInput =
     GeoPointArr|
     GeoPointStr|
     GeoObjShort|
     GeoObjLong|
-    number[]|
-    object;
+    GeoShapePoint;
 
 export interface GeoDistanceObj {
     distance: number;
@@ -21,6 +22,38 @@ export interface GeoPoint {
     lon: number;
 }
 
+export enum GeoShapeRelation {
+    Intersects = 'intersects',
+    Disjoint = 'disjoint',
+    Within = 'within',
+    Contains = 'contains'
+}
+
+export enum GeoShapeType {
+    Point = 'Point',
+    Polygon = 'Polygon',
+    MultiPolygon = 'MultiPolygon',
+}
+
+export type GeoShapePoint = {
+    type: GeoShapeType.Point;
+    coordinates: CoordinateTuple;
+}
+
+export type GeoShapePolygon = {
+    type: GeoShapeType.Polygon;
+    coordinates: CoordinateTuple[][];
+}
+
+export type GeoShapeMultiPolygon = {
+    type: GeoShapeType.MultiPolygon;
+    coordinates: CoordinateTuple[][][];
+}
+
+export type GeoShape = GeoShapePoint | GeoShapePolygon | GeoShapeMultiPolygon;
+
+export type CoordinateTuple = [number, number];
+
 export type GeoDistanceUnit = 'miles'|'yards'|'feet'|'inch'|'kilometers'|'meters'|'centimeters'|'millimeters'|'nauticalmiles';
 
 export enum FieldType {
@@ -31,7 +64,9 @@ export enum FieldType {
     Integer = 'integer',
     Float = 'float',
     Boolean = 'boolean',
-    Object = 'object'
+    Object = 'object',
+    GeoPoint = 'geo-point',
+    GeoJSON = 'geo-json'
 }
 
 export interface TypeConfig {
@@ -39,3 +74,19 @@ export interface TypeConfig {
 }
 
 export type JoinBy = 'AND'|'OR';
+
+export interface Variables {
+    [key: string]: any;
+}
+
+export interface JoinQueryResult {
+    query: string;
+    variables: Variables;
+}
+
+export type CreateJoinQueryOptions = {
+    typeConfig?: TypeConfig;
+    fieldParams?: Record<string, string>;
+    joinBy?: JoinBy;
+    variables?: AnyObject;
+};

@@ -64,7 +64,8 @@ export interface SliceRequest {
  * The metadata given to Slicer after succefully recovering the execution
  */
 export interface SlicerRecoveryData {
-    lastSlice: Slice;
+    slicer_id: number;
+    lastSlice?: SliceRequest;
 }
 
 /**

@@ -1,6 +1,6 @@
 {
     "name": "@terascope/teraslice-state-storage",
-    "version": "0.7.10",
+    "version": "0.9.0",
     "description": "State storage operation api for teraslice",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-state-storage#readme",
     "bugs": {
@@ -23,10 +23,10 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/elasticsearch-api": "^2.1.13",
-        "@terascope/utils": "^0.20.5",
-        "bluebird": "^3.5.5",
-        "mnemonist": "^0.30.0"
+        "@terascope/elasticsearch-api": "^2.3.0",
+        "@terascope/utils": "^0.21.0",
+        "bluebird": "^3.7.2",
+        "mnemonist": "^0.31.3"
     },
     "publishConfig": {
         "access": "public",
@@ -36,6 +36,6 @@
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,
-        "testSuite": "unit"
+        "testSuite": "unit-a"
     }
 }

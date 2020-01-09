@@ -1,5 +1,5 @@
 ---
-title: Xlucene Evaluator: `GroupLikeAST`
+title: xLucene Evaluator: `GroupLikeAST`
 sidebar_label: GroupLikeAST
 ---
 
@@ -9,9 +9,9 @@ sidebar_label: GroupLikeAST
 
 * **GroupLikeAST**
 
-  * [LogicalGroup](logicalgroup.md)
+  ↳ [LogicalGroup](logicalgroup.md)
 
-  * [FieldGroup](fieldgroup.md)
+  ↳ [FieldGroup](fieldgroup.md)
 
 ## Index
 
@@ -26,7 +26,7 @@ sidebar_label: GroupLikeAST
 
 • **flow**: *[Conjunction](conjunction.md)[]*
 
-*Defined in [parser/interfaces.ts:40](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L40)*
+*Defined in [parser/interfaces.ts:31](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L31)*
 
 ___
 
@@ -34,4 +34,4 @@ ___
 
 • **type**: *[GroupLikeType](../overview.md#groupliketype)*
 
-*Defined in [parser/interfaces.ts:39](https://github.com/terascope/teraslice/blob/0ae31df4/packages/xlucene-evaluator/src/parser/interfaces.ts#L39)*
+*Defined in [parser/interfaces.ts:30](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L30)*

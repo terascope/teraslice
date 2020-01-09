@@ -1,4 +1,3 @@
-
 import { DocumentMatcher, TypeConfig } from 'xlucene-evaluator';
 import { DataEntity } from '@terascope/utils';
 import { InputOutputCardinality, SelectorConfig } from '../../../interfaces';

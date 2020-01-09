@@ -85,7 +85,6 @@ export class DataEntity<
         return DataEntity.make({}, input.getMetadata()) as T;
     }
 
-
     /**
      * A utility for converting a `Buffer` to a `DataEntity`,
      * using the DataEntity encoding.

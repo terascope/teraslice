@@ -1,10 +1,18 @@
 import { TypeConfig } from 'xlucene-evaluator';
 import * as ts from '@terascope/utils';
-import { TypeESMapping, GraphQLType, FieldTypeConfig } from '../../interfaces';
+import {
+    GraphQLType, TypeESMapping, FieldTypeConfig
+} from '../../interfaces';
+import { formatGQLComment } from '../../graphql-helper';
+
+// eslint-disable-next-line @typescript-eslint/interface-name-prefix
+export interface IBaseType {
+    new(field: string, config: FieldTypeConfig): BaseType;
+}
 
 export default abstract class BaseType {
-    protected field: string;
-    protected config: FieldTypeConfig;
+    readonly field: string;
+    readonly config: FieldTypeConfig;
 
     constructor(field: string, config: FieldTypeConfig) {
         if (!field || !ts.isString(field)) {
@@ -15,24 +23,33 @@ export default abstract class BaseType {
     }
 
     abstract toESMapping(version?: number): TypeESMapping;
-    abstract toGraphQL(): GraphQLType;
+    abstract toGraphQL(typeName?: string): GraphQLType;
     abstract toXlucene(): TypeConfig;
 
     protected _formatGql(
         type: string,
-        customType?: string
-    ): { type: string; custom_type?: string } {
-        if (this.field.includes('.')) {
-            const [base] = this.field.split('.');
-            if (!ts.isTest) {
-                console.warn('[WARNING]: typed nested objects are not supported when converting to graphql\n');
-            }
-            return { type: `${base}: JSONObject`, custom_type: 'scalar JSONObject' };
-        }
-
+        customType?: string|(string[])
+    ): GraphQLType {
+        const desc = this.config.description;
         if (type !== 'JSONObject' && this.config.array) {
-            return { type: `${this.field}: [${type}]`, custom_type: customType };
+            return {
+                type: formatGQLType(`${this.field}: [${type}]`, desc),
+                customTypes: makeCustomTypes(customType),
+            };
         }
-        return { type: `${this.field}: ${type}`, custom_type: customType };
+        return {
+            type: formatGQLType(`${this.field}: ${type}`, desc),
+            customTypes: makeCustomTypes(customType)
+        };
     }
+}
+
+function makeCustomTypes(customType?: string|(string[])): string[] {
+    if (!customType?.length) return [];
+    return ts.castArray(customType);
+}
+
+export function formatGQLType(type: string, desc?: string) {
+    if (!desc) return type;
+    return `${formatGQLComment(desc)}\n${type}`;
 }

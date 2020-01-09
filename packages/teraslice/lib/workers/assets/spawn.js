@@ -1,10 +1,9 @@
 'use strict';
 
-const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
-const Promise = require('bluebird');
 const { fork } = require('child_process');
+const { isEmpty, get, has } = require('@terascope/utils');
 const { makeLogger } = require('../helpers/terafoundation');
 const { safeEncode } = require('../../utils/encoding_utils');
 
@@ -12,20 +11,21 @@ const loaderPath = path.join(__dirname, 'loader.js');
 
 async function spawnAssetLoader(assets, context) {
     // if assets is empty return early
-    if (_.isEmpty(assets)) {
+    if (isEmpty(assets)) {
         return [];
     }
 
     // if the assets are ids and are already loaded, return early
     if (context) {
-        const assetDir = _.get(context, 'sysconfig.teraslice.assets_directory');
-        const alreadyExists = _.every(assets, (id) => {
+        const assetDir = get(context, 'sysconfig.teraslice.assets_directory');
+
+        const alreadyExists = assets.every((id) => {
             const assetPath = path.join(assetDir, id);
             return fs.existsSync(assetPath);
         });
 
         if (alreadyExists) {
-            const logger = makeLogger(context, 'assets_loader');
+            const logger = makeLogger(context, 'asset_loader');
             logger.debug('assets already loaded...');
             return assets;
         }
@@ -37,26 +37,24 @@ async function spawnAssetLoader(assets, context) {
         const child = fork(loaderPath, process.argv, {
             stdio: 'inherit',
             env: Object.assign({}, process.env, {
-                NODE_TYPE: 'asset_loader',
-                assignment: 'asset_loader',
                 ASSETS: safeEncode(assets)
             })
         });
 
         child.on('message', (msg) => {
-            if (_.has(msg, 'success')) {
+            if (has(msg, 'success')) {
                 message = msg;
             }
         });
 
         child.on('close', (code) => {
-            const isSuccess = _.get(message, 'success', false) && code === 0;
+            const isSuccess = get(message, 'success', false) && code === 0;
             if (!isSuccess) {
-                const errMsg = _.get(message, 'error', `exit code ${code}`);
+                const errMsg = get(message, 'error', `exit code ${code}`);
                 const error = new Error(`Failure to get assets, caused by ${errMsg}`);
                 reject(error);
             } else {
-                resolve(_.get(message, 'assetIds', []));
+                resolve(get(message, 'assetIds', []));
             }
         });
     });

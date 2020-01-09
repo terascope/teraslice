@@ -1,4 +1,3 @@
-
 import { Logger, debugLogger } from '@terascope/utils';
 import { PhaseManager } from './phases';
 import { WatcherConfig } from './interfaces';

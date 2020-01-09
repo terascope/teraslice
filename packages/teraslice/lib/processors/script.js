@@ -2,11 +2,10 @@
 
 const { spawn } = require('child_process');
 const path = require('path');
-const Promise = require('bluebird');
+const { TSError } = require('@terascope/utils');
 
 function newProcessor(context, opConfig) {
     const { args, options } = opConfig;
-    const contextLogger = context.logger;
 
     let command = '';
 
@@ -21,23 +20,23 @@ function newProcessor(context, opConfig) {
                     command = path.join(apath, opConfig.command);
                     resolve(procData);
                 })
-                .catch((error) => {
-                    const errorMsg = 'asset not in specified path';
-                    contextLogger.error(errorMsg, error);
-                    reject(errorMsg);
+                .catch((err) => {
+                    reject(new TSError(err, {
+                        reason: 'asset not in specified path'
+                    }));
                 });
         }
     }));
 
-    function procData(data, logger) {
+    function procData(data) {
         return new Promise(((resolve, reject) => {
             let inData = '';
             try {
                 inData = JSON.stringify(data);
-            } catch (error) {
-                const errorMsg = 'failed to convert input data to string';
-                logger.error(errorMsg, error);
-                reject(errorMsg);
+            } catch (err) {
+                reject(new TSError(err, {
+                    reason: 'failed to convert input data to string',
+                }));
                 return;
             }
 
@@ -47,10 +46,10 @@ function newProcessor(context, opConfig) {
 
             try {
                 childProcess = spawn(command, args, options);
-            } catch (error) {
-                const errorMsg = 'when trying to run command';
-                logger.error(errorMsg, error);
-                reject(errorMsg);
+            } catch (err) {
+                reject(new TSError(err, {
+                    reason: 'when trying to run command'
+                }));
                 return;
             }
 
@@ -59,7 +58,6 @@ function newProcessor(context, opConfig) {
             childProcess.stdin.end();
 
             childProcess.on('error', (err) => {
-                logger.error(err);
                 reject(err);
             });
 
@@ -74,10 +72,10 @@ function newProcessor(context, opConfig) {
                     try {
                         const final = JSON.parse(outData);
                         resolve(final);
-                    } catch (error) {
-                        const errorMsg = 'processing script stdout pipe';
-                        logger.error(errorMsg, error);
-                        reject(errorMsg);
+                    } catch (err) {
+                        reject(new TSError(err, {
+                            reason: 'processing script stdout pipe'
+                        }));
                     }
                 }
             });
@@ -85,16 +83,14 @@ function newProcessor(context, opConfig) {
             childProcess.stderr.on('data', (outError) => {
                 outErrors += outError;
             });
+
             childProcess.on('close', (code) => {
-                if (code > 1) {
-                    const errorMsg = 'child process non-zero exit';
-                    logger.error(errorMsg);
-                    reject(errorMsg);
+                if (code > 0) {
+                    reject(new TSError('child process non-zero exit'));
                 }
             });
 
             childProcess.on('error', (err) => {
-                logger.error(err);
                 reject(err);
             });
         }));

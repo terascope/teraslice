@@ -1,4 +1,3 @@
-
 import { DataEntity } from '@terascope/utils';
 import crypto from 'crypto';
 import { PostProcessConfig } from '../../../interfaces';

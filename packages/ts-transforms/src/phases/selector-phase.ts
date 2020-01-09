@@ -1,4 +1,3 @@
-
 import { DataEntity } from '@terascope/utils';
 import { WatcherConfig, Operation, SelectorConfig } from '../interfaces';
 import PhaseBase from './base';

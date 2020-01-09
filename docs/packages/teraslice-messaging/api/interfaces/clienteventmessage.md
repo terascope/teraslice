@@ -23,7 +23,7 @@ sidebar_label: ClientEventMessage
 
 • **error**? : *Error | [ResponseError](../overview.md#responseerror)*
 
-*Defined in [messenger/interfaces.ts:111](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/messenger/interfaces.ts#L111)*
+*Defined in [messenger/interfaces.ts:111](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-messaging/src/messenger/interfaces.ts#L111)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **payload**: *any*
 
-*Defined in [messenger/interfaces.ts:110](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/messenger/interfaces.ts#L110)*
+*Defined in [messenger/interfaces.ts:110](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-messaging/src/messenger/interfaces.ts#L110)*
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 • **scope**? : *undefined | string*
 
-*Defined in [messenger/interfaces.ts:109](https://github.com/terascope/teraslice/blob/0ae31df4/packages/teraslice-messaging/src/messenger/interfaces.ts#L109)*
+*Defined in [messenger/interfaces.ts:109](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-messaging/src/messenger/interfaces.ts#L109)*

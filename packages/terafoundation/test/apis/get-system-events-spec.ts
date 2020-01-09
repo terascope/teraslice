@@ -24,7 +24,7 @@ describe('getSystemEvents foundation API', () => {
 
     it('should emit and receive events', () => {
         const { foundation } = context.apis;
-        const spy = jasmine.createSpy('testevent');
+        const spy = jest.fn();
         const events = foundation.getSystemEvents();
 
         events.on('testevent', spy);

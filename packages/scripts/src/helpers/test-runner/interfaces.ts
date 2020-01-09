@@ -1,12 +1,13 @@
-import { TestSuite, PackageInfo } from '../interfaces';
+import { PackageInfo } from '../interfaces';
 
 export type TestOptions = {
     bail: boolean;
     debug: boolean;
     watch: boolean;
     all: boolean;
+    keepOpen: boolean;
     reportCoverage: boolean;
-    suite?: TestSuite;
+    suite?: string;
     useExistingServices: boolean;
     elasticsearchVersion: string;
     elasticsearchAPIVersion: string;
@@ -15,8 +16,11 @@ export type TestOptions = {
 };
 
 export type GroupedPackages = {
-    [TestSuite.E2E]: PackageInfo[];
-    [TestSuite.Unit]: PackageInfo[];
-    [TestSuite.Elasticsearch]: PackageInfo[];
-    [TestSuite.Kafka]: PackageInfo[];
+    [suite: string]: PackageInfo[];
 };
+
+export type CleanupFN = () => (Promise<void>|void);
+export type RunSuiteResult = {
+    errors: string[];
+    cleanup: CleanupFN;
+}

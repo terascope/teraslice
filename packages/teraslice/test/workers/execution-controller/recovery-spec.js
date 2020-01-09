@@ -1,9 +1,7 @@
 'use strict';
 
-const Promise = require('bluebird');
-const pWhilst = require('p-whilst');
 const eventsModule = require('events');
-const { pDelay } = require('@terascope/utils');
+const { pDelay, pWhile } = require('@terascope/utils');
 const { debugLogger } = require('@terascope/job-components');
 const recoveryCode = require('../../../lib/workers/execution-controller/recovery');
 
@@ -12,8 +10,6 @@ const eventEmitter2 = new eventsModule.EventEmitter();
 
 describe('execution recovery', () => {
     const logger = debugLogger('execution-recovery');
-
-    const startingPoints = {};
 
     let testSlices = [{ slice_id: 1 }, { slice_id: 2 }];
 
@@ -31,9 +27,6 @@ describe('execution recovery', () => {
     };
 
     const stateStore = {
-        executionStartingSlice: (exId, ind) => {
-            startingPoints[ind] = exId;
-        },
         recoverSlices: () => {
             const data = testSlices.slice();
             testSlices = [];
@@ -75,7 +68,6 @@ describe('execution recovery', () => {
         expect(recoveryModule.handle).toBeFunction();
         expect(recoveryModule.getSlice).toBeFunction();
         expect(recoveryModule.getSlices).toBeFunction();
-        expect(recoveryModule.getSlicerStartingPosition).toBeFunction();
         expect(recoveryModule.recoveryComplete).toBeFunction();
         expect(recoveryModule.shutdown).toBeFunction();
     });
@@ -145,18 +137,17 @@ describe('execution recovery', () => {
 
         expect(recoveryModule.recoveryComplete()).toEqual(false);
 
-        let finished = false;
-        const createSlices = pWhilst(
-            () => !finished,
-            async () => {
-                finished = await recoveryModule.handle();
-            }
+        const createSlicesPromise = pWhile(
+            () => recoveryModule.handle(),
+            { timeoutMs: 5000 }
         );
 
-        const shouldWait = () => !recoveryModule.sliceCount() && !recoveryModule.recoveryComplete();
-
         const slicer = async () => {
-            await pWhilst(shouldWait, () => pDelay(10));
+            await pWhile(async () => {
+                if (recoveryModule.sliceCount() || recoveryModule.recoveryComplete()) return true;
+                await pDelay(10);
+                return false;
+            }, { timeoutMs: 5000 });
             return recoveryModule.getSlice();
         };
 
@@ -180,11 +171,7 @@ describe('execution recovery', () => {
                 expect(slice).toEqual(null);
                 expect(allDoneEventFired).toEqual(true);
                 expect(recoveryModule.recoveryComplete()).toEqual(true);
-                return recoveryModule.getSlicerStartingPosition();
-            })
-            .then(() => {
-                expect(startingPoints).toEqual({ 0: '9999', 1: '9999' });
-                return createSlices;
+                return createSlicesPromise;
             });
     });
 });

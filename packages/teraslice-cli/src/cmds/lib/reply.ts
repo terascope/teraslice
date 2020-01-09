@@ -1,4 +1,3 @@
-
 import chalk from 'chalk';
 import { toString, get } from '@terascope/utils';
 
@@ -16,7 +15,7 @@ export default class Reply {
 
     fatal(err: any) {
         if (process.env.TJM_TEST_MODE) {
-            throw Error(err);
+            throw new Error(err);
         } else {
             console.error(chalk.red(this.formatErr(err)));
             process.exit(1);

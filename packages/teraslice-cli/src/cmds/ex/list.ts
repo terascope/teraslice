@@ -1,4 +1,3 @@
-
 import { CMD } from '../../interfaces';
 import Config from '../../helpers/config';
 import TerasliceUtil from '../../helpers/teraslice-util';
@@ -33,7 +32,7 @@ export = {
         const header = ['name', 'lifecycle', 'slicers', 'workers', '_status', 'ex_id', 'job_id', '_created', '_updated'];
 
         try {
-            response = await teraslice.client.ex.list(cliConfig.args.status);
+            response = await teraslice.client.executions.list(cliConfig.args.status);
         } catch (err) {
             reply.fatal(`Error getting ex list on ${cliConfig.args.clusterAlias}\n${err}`);
         }

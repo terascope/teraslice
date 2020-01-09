@@ -1,11 +1,9 @@
 'use strict';
 
-const _ = require('lodash');
 const express = require('express');
-const Promise = require('bluebird');
-const { TSError, parseErrorInfo } = require('@terascope/utils');
+const { TSError, parseErrorInfo, logError } = require('@terascope/utils');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
-const makeAssetsStore = require('../storage/assets');
+const makeAssetsStore = require('../../storage/assets');
 const {
     makeTable,
     handleRequest,
@@ -33,7 +31,7 @@ module.exports = function assetsService(context) {
     });
 
     app.post('/assets', (req, res) => {
-        logger.info('loading an asset');
+        logger.debug('loading an asset');
         const results = [];
 
         req.on('data', (buff) => {
@@ -51,14 +49,14 @@ module.exports = function assetsService(context) {
                 })
                 .catch((err) => {
                     const { statusCode, message } = parseErrorInfo(err);
-                    logger.error(err);
+                    logError(logger, err, 'failure streaming assets');
                     sendError(res, statusCode, message);
                 });
         });
 
         req.on('error', (err) => {
             const { statusCode, message } = parseErrorInfo(err);
-            logger.error(err);
+            logError(logger, err, 'failure writing asset');
             res.status(statusCode).send(message);
         });
     });
@@ -85,12 +83,12 @@ module.exports = function assetsService(context) {
     });
 
     app.get('/txt/assets/:name', (req, res) => {
-        const query = `id:* AND name:${req.params.name}`;
+        const query = `id:* AND name:"${req.params.name}"`;
         createAssetTable(query, req, res);
     });
 
     app.get('/txt/assets/:name/:version', (req, res) => {
-        const query = `id:* AND name:${req.params.name} AND version:${req.params.version}`;
+        const query = `id:* AND name:"${req.params.name}" AND version:"${req.params.version}"`;
         createAssetTable(query, req, res);
     });
 
@@ -100,12 +98,12 @@ module.exports = function assetsService(context) {
     });
 
     app.get('/assets/:name', (req, res) => {
-        const query = `id:* AND name:${req.params.name}`;
+        const query = `id:* AND name:"${req.params.name}"`;
         assetsSearch(query, req, res);
     });
 
     app.get('/assets/:name/:version', (req, res) => {
-        const query = `id:* AND name:${req.params.name} AND version:${req.params.version}`;
+        const query = `id:* AND name:"${req.params.name}" AND version:"${req.params.version}"`;
         assetsSearch(query, req, res);
     });
 
@@ -132,8 +130,7 @@ module.exports = function assetsService(context) {
         const requestHandler = handleRequest(req, res, 'Could not get assets');
         requestHandler(async () => {
             const results = await assetsStore.search(query, from, size, sort, defaults);
-            const data = results.hits.hits;
-            const assets = _.map(data, (asset) => {
+            const assets = results.hits.hits.map((asset) => {
                 const record = asset._source;
                 record.id = asset._id;
                 return record;
@@ -149,15 +146,13 @@ module.exports = function assetsService(context) {
         requestHandler(async () => {
             const fields = ['_created', 'name', 'version', 'description'];
             const results = await assetsStore.search(query, from, size, sort, fields);
-            const data = results.hits.hits;
-            return _.map(data, (asset) => {
+            return results.hits.hits.map((asset) => {
                 const record = asset._source;
                 record.id = asset._id;
                 return record;
             });
         });
     }
-
 
     const { port } = process.env;
     return {

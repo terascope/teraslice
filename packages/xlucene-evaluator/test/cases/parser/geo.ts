@@ -77,12 +77,34 @@ export default [
         },
     ],
     [
-        'location:geoPolygon(points:["123.43,223.43", "102.3,123.4", "99.3,154.4"])',
+        'location:geoPolygon(points:["60.43,111.43", "70.3,123.4", "65.23,118.34"])',
         'a geo polygon query',
         {
             type: ASTType.Function,
             field: 'location',
             name: 'geoPolygon'
         },
+    ],
+    [
+        'location:geoPolygon(points:$points)',
+        'a geo polygon query with a variable',
+        {
+            type: ASTType.Function,
+            field: 'location',
+            name: 'geoPolygon'
+        },
+        {},
+        { points: ['60.43,111.43', '70.3,123.4', '65.23,118.34'] }
+    ],
+    [
+        'location:geoPolygon(points:$points, relation: $relation)',
+        'a geo polygon query with variables and commas',
+        {
+            type: ASTType.Function,
+            field: 'location',
+            name: 'geoPolygon'
+        },
+        {},
+        { points: ['60.43,111.43', '70.3,123.4', '65.23,118.34'], relation: 'within' }
     ]
 ] as TestCase[];

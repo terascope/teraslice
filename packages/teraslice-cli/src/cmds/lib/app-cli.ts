@@ -1,4 +1,3 @@
-
 import os from 'os';
 
 const homeDir = os.homedir();

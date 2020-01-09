@@ -1,9 +1,8 @@
-
+import _ from 'lodash';
 import { CMD } from '../../interfaces';
 import Reply from '../lib/reply';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
-import _ from 'lodash';
 import { getTerasliceClient } from '../../helpers/utils';
 
 const reply = new Reply();
