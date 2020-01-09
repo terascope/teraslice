@@ -73,16 +73,24 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      * @returns a restricted xlucene query
      */
     restrict(q: string, options: i.RestrictOptions = {}): string {
+        return this._restrict(q, options).query;
+    }
+
+    /**
+     * Validate and restrict a xlucene query
+     *
+     * @returns a restricted xlucene query
+     */
+    private _restrict(q: string, options: i.RestrictOptions = {}): p.Parser {
         let parser: p.Parser;
-        const { variables } = options;
-        const queryVariables = Object.assign({}, this.variables, variables);
+        const parserOptions: p.ParserOptions = {
+            logger: this.logger,
+            type_config: this.typeConfig,
+            variables: Object.assign({}, this.variables, options.variables)
+        };
 
         try {
-            parser = this._parser.make(q, {
-                logger: this.logger,
-                type_config: this.typeConfig,
-                variables: queryVariables
-            });
+            parser = this._parser.make(q, parserOptions);
         } catch (err) {
             throw new ts.TSError(err, {
                 reason: 'Query could not be parsed',
@@ -104,7 +112,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
                     }
                 });
             }
-            return addConstraints(this.constraints, '');
+            return this._addConstraints(parser, parserOptions);
         }
 
         parser.forTermTypes((node: p.TermLikeAST) => {
@@ -144,7 +152,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             }
         });
 
-        return addConstraints(this.constraints, q);
+        return this._addConstraints(parser, parserOptions);
     }
 
     private _restrictTypeConfig(): TypeConfig {
@@ -191,26 +199,19 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             throw new ts.TSError('Cannot include _source in params, use _sourceInclude or _sourceExclude');
         }
 
-        const restricted = this.restrict(query, { variables });
+        const parser = this._restrict(query, { variables });
 
         await ts.pImmediate();
 
-        const queryVariables = Object.assign({}, this.variables, variables);
-        const parsed = this._parser.make(restricted, {
-            type_config: this.typeConfig,
-            logger: this.logger,
-            variables: queryVariables
-        });
-
         await ts.pImmediate();
 
-        const translator = this._translator.make(parsed, {
+        const translator = this._translator.make(parser, {
             type_config: this.parsedTypeConfig,
             logger: this.logger,
             default_geo_field: this.defaultGeoField,
             default_geo_sort_order: this.defaultGeoSortOrder,
             default_geo_sort_unit: this.defaultGeoSortUnit,
-            variables: queryVariables
+            variables: parser.variables
         });
 
         const translated = translator.toElasticsearchDSL(translateOptions);
@@ -285,6 +286,15 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             return matchField(typeField, field);
         });
     }
+
+    private _addConstraints(parser: p.Parser, options: p.ParserOptions): p.Parser {
+        if (this.constraints?.length) {
+            const queries = ts.concat(this.constraints, [parser.query]).filter(Boolean) as string[];
+            if (queries.length === 1) return this._parser.make(queries[0], options);
+            return this._parser.make(`(${queries.join(') AND (')})`, options);
+        }
+        return parser;
+    }
 }
 
 function matchFieldObject(typeField: string, field: string) {
@@ -335,11 +345,4 @@ function startsWithWildcard(input?: string | number) {
     if (!ts.isString(input)) return false;
 
     return ['*', '?'].includes(ts.getFirstChar(input));
-}
-
-function addConstraints(constraints?: string[], query?: string): string {
-    const queries = ts.concat(constraints || [], [query]).filter(Boolean) as string[];
-    if (queries.length === 0) return '';
-    if (queries.length === 1) return queries[0];
-    return `(${queries.join(') AND (')})`;
 }
