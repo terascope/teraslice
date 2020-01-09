@@ -534,12 +534,20 @@ describe('QueryAccess', () => {
                 params
             });
             expect(result).toMatchObject({
-                _sourceExclude: ['baz'],
                 _sourceInclude: ['moo'],
+                _sourceExclude: ['baz'],
+            });
+            expect(result).not.toHaveProperty('q', 'idk');
+
+            expect(params._sourceInclude).toBe(params._sourceInclude);
+            expect(params._sourceExclude).toBe(params._sourceExclude);
+
+            expect(params).toMatchObject({
+                _sourceInclude: ['moo'],
+                _sourceExclude: ['baz'],
             });
 
             expect(params).toHaveProperty('q', 'idk');
-            expect(result).not.toHaveProperty('q', 'idk');
         });
 
         it('should be able to allow * queries', async () => {

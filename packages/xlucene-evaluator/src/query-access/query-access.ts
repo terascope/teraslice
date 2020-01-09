@@ -189,19 +189,18 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         opts: i.RestrictSearchQueryOptions = {}
     ): Promise<es.SearchParams> {
         const {
-            params = {},
+            params: _params = {},
             variables = {},
             elasticsearch_version: esVersion = 6,
             ...translateOptions
         } = opts;
 
-        if (params._source) {
+        if (_params._source) {
             throw new ts.TSError('Cannot include _source in params, use _sourceInclude or _sourceExclude');
         }
+        const params = { ..._params };
 
         const parser = this._restrict(query, { variables });
-
-        await ts.pImmediate();
 
         await ts.pImmediate();
 
