@@ -80,14 +80,13 @@ export default class IndexManager {
         const esVersion = utils.getESVersion(this.client);
         logger.trace(`Using elasticsearch version ${esVersion}`);
 
-        const mapping: any = utils.getIndexMapping(config);
-
-        const body: any = {
-            settings,
-            mappings: {
-                [config.name]: mapping,
-            },
-        };
+        const body: any = config.data_type.toESMapping({
+            typeName: config.name,
+            version: esVersion,
+            overrides: {
+                settings,
+            }
+        });
 
         if (utils.isTemplatedIndex(config.index_schema)) {
             const templateName = this.formatTemplateName(config);

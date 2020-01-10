@@ -1,6 +1,5 @@
 import 'jest-extended';
-import * as R from 'rambda';
-import { debugLogger } from '@terascope/utils';
+import { debugLogger, get } from '@terascope/utils';
 import * as simple from './helpers/simple-index';
 import * as template from './helpers/template-index';
 import { IndexManager, timeseriesIndex, IndexConfig } from '../src';
@@ -15,9 +14,9 @@ describe('IndexManager->indexSetup()', () => {
 
         const config: IndexConfig = {
             name: `${TEST_INDEX_PREFIX}simple`,
+            data_type: simple.dataType,
             index_schema: {
                 version: 1,
-                mapping: simple.mapping,
                 strict: true,
             },
             version: 1,
@@ -72,9 +71,9 @@ describe('IndexManager->indexSetup()', () => {
 
         const config: IndexConfig = {
             name: `${TEST_INDEX_PREFIX}template`,
+            data_type: template.dataType,
             index_schema: {
                 version: 1,
-                mapping: template.mapping,
                 template: true,
                 strict: true,
             },
@@ -134,10 +133,11 @@ describe('IndexManager->indexSetup()', () => {
         });
 
         it('should be able upsert the same template safely', async () => {
-            const { mapping, version } = config.index_schema!;
+            const { version } = config.index_schema!;
 
-            const mappings = {};
-            mappings[config.name] = mapping;
+            const { mappings } = config.data_type.toESMapping({
+                typeName: config.name,
+            });
 
             await indexManager.upsertTemplate({
                 template: templateName,
@@ -153,8 +153,8 @@ describe('IndexManager->indexSetup()', () => {
         });
 
         it('should be able to upsert a newer template safely', async () => {
-            const mapping = R.pathOr({}, ['index_schema', 'mapping'], config);
-            const version = R.pathOr(1, ['index_schema', 'version'], config);
+            const mapping = get(config, ['index_schema', 'mapping'], {});
+            const version = get(config, ['index_schema', 'version'], 1);
 
             const mappings = {};
             mappings[config.name] = mapping;
@@ -184,9 +184,9 @@ describe('IndexManager->indexSetup()', () => {
 
         const config: IndexConfig = {
             name: `${TEST_INDEX_PREFIX}timeseries`,
+            data_type: template.dataType,
             index_schema: {
                 version: 1,
-                mapping: template.mapping,
                 template: true,
                 timeseries: true,
                 rollover_frequency: 'daily',

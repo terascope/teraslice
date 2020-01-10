@@ -3,7 +3,7 @@ import { Client } from 'elasticsearch';
 import { QueryAccess } from 'xlucene-evaluator';
 import { times, TSError, AnyObject } from '@terascope/utils';
 import {
-    IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions
+    IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions, makeRecordDataType
 } from '../src';
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
 import { TEST_INDEX_PREFIX } from './helpers/config';
@@ -15,29 +15,19 @@ describe('IndexModel', () => {
         config: AnyObject;
     }
 
+    const dataType = makeRecordDataType({
+        name: 'ExampleModel',
+        fields: {
+            name: { type: 'KeywordCaseInsensitive' },
+            type: { type: 'Keyword' },
+            config: { type: 'Object', indexed: false },
+        }
+    });
+
     const client = makeClient();
     const exampleConfig: IndexModelConfig<ExampleRecord> = {
         name: 'example_model',
-        mapping: {
-            properties: {
-                name: {
-                    type: 'keyword',
-                    fields: {
-                        text: {
-                            type: 'text',
-                            analyzer: 'lowercase_keyword_analyzer',
-                        },
-                    },
-                },
-                type: {
-                    type: 'keyword',
-                },
-                config: {
-                    type: 'object',
-                    enabled: false,
-                },
-            },
-        },
+        data_type: dataType,
         schema: {
             properties: {
                 name: {

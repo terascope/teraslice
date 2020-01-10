@@ -1,5 +1,5 @@
 import { Overwrite } from '@terascope/utils';
-import { ESTypeMappings } from '@terascope/data-types';
+import { DataType } from '@terascope/data-types';
 
 export interface SimpleRecord {
     test_id: string;
@@ -20,6 +20,18 @@ SimpleRecord,
     _updated?: Date | string;
 }
 >;
+
+export const dataType = new DataType({
+    fields: {
+        test_id: { type: 'Keyword' },
+        test_keyword: { type: 'Keyword' },
+        test_object: { type: 'Object', indexed: false },
+        test_number: { type: 'Integer' },
+        test_boolean: { type: 'Boolean' },
+        _created: { type: 'Keyword' },
+        _updated: { type: 'Keyword' },
+    }
+});
 
 export const schema = {
     additionalProperties: false,
@@ -51,35 +63,4 @@ export const schema = {
         },
     },
     required: ['test_id', 'test_keyword'],
-};
-
-export const mapping: ESTypeMappings = {
-    _all: {
-        enabled: false,
-    },
-    dynamic: false,
-    properties: {
-        test_id: {
-            type: 'keyword',
-        },
-        test_keyword: {
-            type: 'keyword',
-        },
-        test_object: {
-            type: 'object',
-            enabled: false,
-        },
-        test_boolean: {
-            type: 'boolean',
-        },
-        test_number: {
-            type: 'integer',
-        },
-        _created: {
-            type: 'date',
-        },
-        _updated: {
-            type: 'date',
-        },
-    },
 };

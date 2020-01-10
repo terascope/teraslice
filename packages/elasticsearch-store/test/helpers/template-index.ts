@@ -1,5 +1,5 @@
 import { Overwrite } from '@terascope/utils';
-import { ESTypeMappings } from '@terascope/data-types';
+import { DataType } from '@terascope/data-types';
 
 export interface TemplateRecord {
     some_id: string;
@@ -17,6 +17,16 @@ TemplateRecord,
     _updated?: Date | string;
 }
 >;
+
+export const dataType = new DataType({
+    fields: {
+        some_id: { type: 'Keyword' },
+        search_keyword: { type: 'Keyword' },
+        random_number: { type: 'Integer' },
+        _created: { type: 'Keyword' },
+        _updated: { type: 'Keyword' },
+    }
+});
 
 export const schema = {
     additionalProperties: false,
@@ -39,28 +49,4 @@ export const schema = {
         },
     },
     required: ['some_id', 'search_keyword'],
-};
-
-export const mapping: ESTypeMappings = {
-    _all: {
-        enabled: false,
-    },
-    dynamic: false,
-    properties: {
-        some_id: {
-            type: 'keyword',
-        },
-        search_keyword: {
-            type: 'keyword',
-        },
-        random_number: {
-            type: 'integer',
-        },
-        _created: {
-            type: 'date',
-        },
-        _updated: {
-            type: 'date',
-        },
-    },
 };

@@ -1,8 +1,6 @@
 import Ajv from 'ajv';
-import * as R from 'rambda';
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { isNotNil } from './misc';
 import { IndexConfig, IndexSchema, DataSchema } from '../interfaces';
 import { throwValidationError, getErrorMessages } from './errors';
 
@@ -112,19 +110,10 @@ export function isValidClient(input: any): input is es.Client {
     return reqKeys.every((key) => input[key] != null);
 }
 
-type indexFn = (config?: IndexSchema) => boolean;
+export function isTemplatedIndex(config?: IndexSchema): boolean {
+    return ts.has(config, 'mapping') || ts.get(config, 'template') === true;
+}
 
-export const isSimpleIndex: indexFn = R.both(
-    isNotNil,
-    R.both(
-        R.has('mapping'),
-        R.pipe(
-            R.path(['template']),
-            R.isNil
-        )
-    )
-);
-
-export const isTemplatedIndex: indexFn = R.both(isNotNil, R.both(R.has('mapping'), R.propEq('template', true)));
-
-export const isTimeSeriesIndex: indexFn = R.both(isTemplatedIndex, R.propEq('timeseries', true));
+export function isTimeSeriesIndex(config?: IndexSchema): boolean {
+    return isTemplatedIndex(config) && ts.get(config, 'timeseries') === true;
+}
