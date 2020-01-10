@@ -102,10 +102,12 @@ destroy: deregister ## delete k8s deployments and services
 	kubectl delete --namespace $(NAMESPACE) deployments,jobs,services,pods -l app=teraslice --grace-period=1
 	kubectl delete --namespace $(NAMESPACE) configmap teraslice-master || echo "* it is okay..."
 	kubectl delete --namespace $(NAMESPACE) configmap teraslice-worker || echo "* it is okay..."
-	docker rmi $(shell docker image ls $(TERASLICE_K8S_IMAGE) --format "{{.ID}}") || echo "* it is okay..."
 	curl -fsS -XDELETE "$(ES_URL)/ts-dev1*" || echo '* it is okay'
 
-destroy-all: destroy deauth deelasticsearch delete-namespace ## delete ALL things including the namespace
+destroy-img: destroy
+	docker rmi $(shell docker image ls $(TERASLICE_K8S_IMAGE) --format "{{.ID}}") || echo "* it is okay..."
+
+destroy-all: destroy-img deauth deelasticsearch delete-namespace ## delete ALL things including the namespace
 	earl aliases remove ${TERASLICE_ALIAS} || echo '* it is okay'
 
 rebuild: destroy build setup ## destroys then re-runs things

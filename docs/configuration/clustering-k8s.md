@@ -344,6 +344,12 @@ curl -Ss $(minikube ip):30678
 }
 ```
 
+Or using `ts-top`:
+
+```bash
+ts-top -p 30678 $(minikube ip)
+```
+
 And Elasticsearch should be accessible on port 30200:
 
 ```bash
