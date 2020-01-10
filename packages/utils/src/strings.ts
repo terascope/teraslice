@@ -198,22 +198,25 @@ export function getWordParts(input: string): string[] {
 }
 
 export function toCamelCase(input: string): string {
-    return getWordParts(input).map((str, i) => {
+    return firstToLower(getWordParts(input).map((str, i) => {
         if (i === 0) return str;
         return firstToUpper(str);
-    }).join('');
+    }).join(''));
 }
 
 export function toPascalCase(input: string): string {
-    return getWordParts(input).map(firstToUpper).join('');
+    return firstToUpper(getWordParts(input).map((str, i) => {
+        if (i === 0) return str;
+        return firstToUpper(str);
+    }).join(''));
 }
 
 export function toKebabCase(input: string): string {
-    return getWordParts(input).map(firstToUpper).join('-').toLowerCase();
+    return getWordParts(input).join('-').toLowerCase();
 }
 
 export function toSnakeCase(input: string): string {
-    return getWordParts(input).map(firstToUpper).join('_').toLowerCase();
+    return getWordParts(input).join('_').toLowerCase();
 }
 
 /**
@@ -237,17 +240,27 @@ export function toSafeString(input: string): string {
 
     return s;
 }
+function _replaceFirstWordChar(str: string, fn: (char: string) => string): string {
+    let found = false;
+    return str.split('').map((s) => {
+        if (!found && wordChars[s]) {
+            found = true;
+            return fn(s);
+        }
+        return s;
+    }).join('');
+}
 
 /** Change first character in string to upper case */
 export function firstToUpper(str: string): string {
     if (!str) return '';
-    return `${getFirstChar(str).toUpperCase()}${str.slice(1)}`;
+    return _replaceFirstWordChar(str, (char) => char.toUpperCase());
 }
 
 /** Change first character in string to lower case */
 export function firstToLower(str: string): string {
     if (!str) return '';
-    return `${getFirstChar(str).toLowerCase()}${str.slice(1)}`;
+    return _replaceFirstWordChar(str, (char) => char.toLowerCase());
 }
 
 export function getFirstChar(input: string): string {

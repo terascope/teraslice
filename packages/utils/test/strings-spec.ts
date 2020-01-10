@@ -7,7 +7,11 @@ import {
     matchAll,
     match,
     formatRegex,
-    FormatRegexResult
+    FormatRegexResult,
+    toCamelCase,
+    toPascalCase,
+    toSnakeCase,
+    toKebabCase
 } from '../src';
 
 describe('String Utils', () => {
@@ -46,6 +50,58 @@ describe('String Utils', () => {
             ['foo _ bar   baz 123', ['foo', 'bar', 'baz', '123']],
         ])('should convert %s to be %s', (input: any, expected: any) => {
             expect(getWordParts(input)).toStrictEqual(expected);
+        });
+    });
+
+    describe('toCamelCase', () => {
+        test.each([
+            ['_key', '_key'],
+            ['hello-there', 'helloThere'],
+            ['helloThere', 'helloThere'],
+            ['HelloThere', 'helloThere'],
+            ['hello_there', 'helloThere'],
+            ['hello there', 'helloThere'],
+        ])('should convert %s to be %s', (input: any, expected: any) => {
+            expect(toCamelCase(input)).toEqual(expected);
+        });
+    });
+
+    describe('toPascalCase', () => {
+        test.each([
+            ['_key', '_Key'],
+            ['hello-there', 'HelloThere'],
+            ['helloThere', 'HelloThere'],
+            ['HelloThere', 'HelloThere'],
+            ['hello_there', 'HelloThere'],
+            ['hello there', 'HelloThere'],
+        ])('should convert %s to be %s', (input: any, expected: any) => {
+            expect(toPascalCase(input)).toEqual(expected);
+        });
+    });
+
+    describe('toKebabCase', () => {
+        test.each([
+            ['_key', '_key'],
+            ['hello-there', 'hello-there'],
+            ['helloThere', 'hello-there'],
+            ['HelloThere', 'hello-there'],
+            ['hello_there', 'hello-there'],
+            ['hello there', 'hello-there'],
+        ])('should convert %s to be %s', (input: any, expected: any) => {
+            expect(toKebabCase(input)).toEqual(expected);
+        });
+    });
+
+    describe('toSnakeCase', () => {
+        test.each([
+            ['_key', '_key'],
+            ['hello-there', 'hello_there'],
+            ['helloThere', 'hello_there'],
+            ['HelloThere', 'hello_there'],
+            ['hello_there', 'hello_there'],
+            ['hello there', 'hello_there'],
+        ])('should convert %s to be %s', (input: any, expected: any) => {
+            expect(toSnakeCase(input)).toEqual(expected);
         });
     });
 
