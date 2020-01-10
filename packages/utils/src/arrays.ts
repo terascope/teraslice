@@ -16,6 +16,7 @@ export function flattenDeep<T>(val: ListOfRecursiveArraysOrValues<T>): T[] {
 
 /** A simplified implemation of lodash castArray */
 export function castArray<T>(input: T|T[]): T[] {
+    if (input == null) return [];
     if (Array.isArray(input)) return input;
     return [input];
 }
@@ -36,9 +37,9 @@ export function withoutNil<T extends object>(input: T): WithoutNil<T> {
     // @ts-ignore
     const result: WithoutNil<T> = {};
 
-    for (const [key, val] of Object.entries(input)) {
-        if (val != null) {
-            result[key] = val;
+    for (const key of Object.keys(input).sort()) {
+        if (input[key] != null) {
+            result[key] = input[key];
         }
     }
 
@@ -46,7 +47,8 @@ export function withoutNil<T extends object>(input: T): WithoutNil<T> {
 }
 
 /** A native implemation of lodash uniq */
-export function uniq<T>(arr: T[]): T[] {
+export function uniq<T>(arr: T[]|Set<T>): T[] {
+    if (arr instanceof Set) return [...arr];
     return [...new Set(arr)];
 }
 
@@ -95,7 +97,7 @@ export function includes(input: any, key: string): boolean {
     if (Array.isArray(input) || typeof input === 'string') return input.includes(key);
     if (typeof input.has === 'function') return input.has(key);
     if (typeof input === 'object') {
-        return Object.keys(input).includes(key);
+        return key in input;
     }
     return false;
 }
@@ -105,5 +107,5 @@ export function includes(input: any, key: string): boolean {
  * else if it will return the input
  */
 export function getFirst<T>(input: T | T[]): T {
-    return Array.isArray(input) ? input[0] : input;
+    return castArray(input)[0];
 }
