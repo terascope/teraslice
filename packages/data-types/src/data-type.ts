@@ -4,7 +4,7 @@ import { formatSchema, formatGQLComment } from './graphql-helper';
 import * as i from './interfaces';
 import BaseType from './types/versions/base-type';
 import * as utils from './utils';
-import { getTypes } from './types';
+import { getTypes, LATEST_VERSION } from './types';
 
 /**
  * A DataType is used to define the structure of data with version support
@@ -78,11 +78,15 @@ export class DataType {
         return formatSchema(strSchema, removeScalars);
     }
 
-    constructor(config: i.DataTypeConfig, typeName?: string, description?: string) {
+    constructor(config: Partial<i.DataTypeConfig>, typeName?: string, description?: string) {
         if (typeName) this.name = typeName;
         if (description) this.description = description;
 
-        const { version, fields } = utils.validateDataTypeConfig(config);
+        const { version, fields } = utils.validateDataTypeConfig({
+            version: LATEST_VERSION,
+            fields: {},
+            ...config,
+        });
         this.fields = fields;
         this.version = version;
 
