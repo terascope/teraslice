@@ -1,5 +1,4 @@
 import { TypeConfig } from 'xlucene-evaluator';
-import { firstToUpper } from '@terascope/utils';
 import * as i from '../../interfaces';
 import BaseType from './base-type';
 
@@ -48,13 +47,13 @@ export default class GroupType extends BaseType {
         };
     }
 
-    toGraphQL(typeName?: string) {
-        const customTypeName: string = [
-            'DT',
-            (typeName || 'Object'),
-            firstToUpper(this.field),
-            `V${this.version}`
-        ].join('');
+    toGraphQL(typeName?: string, isInput?: boolean, includePrivate?: boolean) {
+        const customTypeName: string = this._formatGQLTypeName(
+            typeName || 'Object',
+            isInput,
+            true,
+            this.version,
+        );
 
         const properties: string[] = [];
         const customTypes: string[] = [];
@@ -64,16 +63,23 @@ export default class GroupType extends BaseType {
                 continue;
             }
 
-            const result = type.toGraphQL(typeName);
+            if (isInput && includePrivate && this._removeBase(field).startsWith('_')) {
+                continue;
+            }
+
+            const result = type.toGraphQL(typeName, isInput, includePrivate);
 
             properties.push(this._removeBase(result.type));
 
             customTypes.push(...result.customTypes);
         }
 
+        const props = [...properties].sort();
+
+        const defType = isInput ? 'input' : 'type';
         customTypes.push(`
-            type ${customTypeName} {
-                ${[...properties].sort().join('\n')}
+            ${defType} ${customTypeName} {
+                ${props.join('\n')}
             }
         `);
 

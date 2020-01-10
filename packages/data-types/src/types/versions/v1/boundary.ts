@@ -16,14 +16,16 @@ export default class Boundary extends BaseType {
         };
     }
 
-    toGraphQL() {
+    toGraphQL(_typeName?: string, isInput?: boolean) {
+        const defType = isInput ? 'input' : 'type';
+        const name = this._formatGQLTypeName('GeoBoundary', isInput);
         const customType = `
-            type GeoBoundaryType {
+            ${defType} ${name} {
                 lat: Int!
                 lon: Int!
             }
         `;
-        return this._formatGql('GeoBoundaryType', customType);
+        return this._formatGql(name, customType);
     }
 
     toXlucene() {

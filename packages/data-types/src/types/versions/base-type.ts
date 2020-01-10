@@ -23,7 +23,7 @@ export default abstract class BaseType {
     }
 
     abstract toESMapping(version?: number): TypeESMapping;
-    abstract toGraphQL(typeName?: string): GraphQLType;
+    abstract toGraphQL(typeName?: string, isInput?: boolean, includePrivate?: boolean): GraphQLType;
     abstract toXlucene(): TypeConfig;
 
     protected _formatGql(
@@ -41,6 +41,21 @@ export default abstract class BaseType {
             type: formatGQLType(`${this.field}: ${type}`, desc),
             customTypes: makeCustomTypes(customType)
         };
+    }
+
+    _formatGQLTypeName(
+        typeName: string,
+        isInput?: boolean,
+        includeField?: boolean,
+        version?: number
+    ): string {
+        return [
+            'DT',
+            (typeName),
+            includeField ? ts.firstToUpper(this.field) : '',
+            isInput ? 'Input' : '',
+            `V${version ?? 1}`
+        ].filter(Boolean).join('');
     }
 }
 

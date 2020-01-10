@@ -38,7 +38,7 @@ describe('Geo V1', () => {
         const results = `${field}: GeoPointType`;
         const [customType] = customTypes;
         expect(graphQlTypes).toEqual(results);
-        expect(customType).toInclude('type GeoPointType {');
+        expect(customType).toInclude('type DTGeoPointTypeV1 {');
         expect(customType).toInclude('lat: String!');
         expect(customType).toInclude('lon: String!');
     });
