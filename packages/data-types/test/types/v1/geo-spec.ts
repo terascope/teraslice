@@ -35,7 +35,7 @@ describe('Geo V1', () => {
             type: graphQlTypes,
             customTypes
         } = new GeoType(field, typeConfig).toGraphQL();
-        const results = `${field}: GeoPointType`;
+        const results = `${field}: DTGeoPointTypeV1`;
         const [customType] = customTypes;
         expect(graphQlTypes).toEqual(results);
         expect(customType).toInclude('type DTGeoPointTypeV1 {');
