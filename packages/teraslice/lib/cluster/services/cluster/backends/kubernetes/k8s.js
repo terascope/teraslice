@@ -1,7 +1,9 @@
 'use strict';
 
 const { TSError, get, isEmpty } = require('@terascope/utils');
-const { Client, config } = require('kubernetes-client');
+const { KubeConfig } = require('kubernetes-client');
+const { Client } = require('kubernetes-client');
+const Request = require('kubernetes-client/backends/request');
 
 class K8s {
     constructor(logger, clientConfig, defaultNamespace = 'default') {
@@ -14,9 +16,16 @@ class K8s {
             });
         } else if (process.env.KUBERNETES_SERVICE_HOST && process.env.KUBERNETES_SERVICE_PORT) {
             // configures the client when running inside k8s
-            this.client = new Client({ config: config.getInCluster() });
+            const kubeconfig = new KubeConfig();
+            kubeconfig.loadFromCluster();
+            const backend = new Request({ kubeconfig });
+            this.client = new Client({ backend });
         } else {
-            this.client = new Client({ config: config.fromKubeconfig() });
+            // configures the client from .kube/config file
+            const kubeconfig = new KubeConfig();
+            kubeconfig.loadFromDefault();
+            const backend = new Request({ kubeconfig });
+            this.client = new Client({ backend });
         }
     }
 
