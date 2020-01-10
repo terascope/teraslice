@@ -14,9 +14,9 @@ describe('IndexManager->migrateIndex()', () => {
         const previousConfig: IndexConfig = {
             namespace: TEST_INDEX_PREFIX,
             name: 'migrate',
+            data_type: simple.dataType,
             index_schema: {
                 version: 1,
-                mapping: simple.mapping,
                 strict: true,
             },
             version: 1,
@@ -30,9 +30,9 @@ describe('IndexManager->migrateIndex()', () => {
         const newConfig: IndexConfig = {
             namespace: TEST_INDEX_PREFIX,
             name: 'migrate',
+            data_type: simple.dataType,
             index_schema: {
                 version: 2,
-                mapping: simple.mapping,
                 strict: true,
             },
             version: 1,

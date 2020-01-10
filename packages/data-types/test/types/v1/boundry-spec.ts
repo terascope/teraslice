@@ -44,11 +44,11 @@ describe('Boundary V1', () => {
             type: graphQlTypes,
             customTypes
         } = new Boundary(field, typeConfig).toGraphQL();
-        const results = `${field}: GeoBoundaryType`;
+        const results = `${field}: DTGeoBoundaryV1`;
         const [customType] = customTypes;
 
         expect(graphQlTypes).toEqual(results);
-        expect(customType).toInclude('type GeoBoundaryType {');
+        expect(customType).toInclude('type DTGeoBoundaryV1 {');
         expect(customType).toInclude('lat: Int!');
         expect(customType).toInclude('lon: Int!');
     });

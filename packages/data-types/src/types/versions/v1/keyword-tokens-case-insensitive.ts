@@ -7,7 +7,6 @@ export default class KeywordTokensCaseInsensitive extends BaseType {
         return {
             mapping: {
                 [this.field]: {
-                    // TODO: this is wrong, I dont think analyzer can be at this level
                     type: 'text' as ElasticSearchTypes,
                     analyzer: 'lowercase_keyword_analyzer',
                     fields: {

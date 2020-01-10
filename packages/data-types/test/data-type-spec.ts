@@ -5,15 +5,8 @@ import {
 } from '../src';
 
 describe('DataType', () => {
-    it('should throw when given an empty object', () => {
-        expect.hasAssertions();
-        try {
-            // @ts-ignore
-            new DataType({});
-        } catch (err) {
-            expect(err).toBeInstanceOf(TSError);
-            expect(err.message).toInclude('Missing data type config');
-        }
+    it('should not throw when given an empty object', () => {
+        expect(() => new DataType({})).not.toThrow();
     });
 
     it('should throw when given no version', () => {
@@ -64,9 +57,8 @@ describe('DataType', () => {
             new DataType({
                 version: 1,
                 fields: {
-                    // @ts-ignore
                     blah: true,
-                },
+                } as any,
             });
         } catch (err) {
             expect(err).toBeInstanceOf(TSError);

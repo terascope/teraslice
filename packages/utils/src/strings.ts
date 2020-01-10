@@ -67,6 +67,158 @@ export function truncate(str: string, len: number): string {
     return str.length >= len ? `${str.slice(0, sliceLen)} ...` : str;
 }
 
+const lowerChars = {
+    a: true,
+    b: true,
+    c: true,
+    d: true,
+    e: true,
+    f: true,
+    g: true,
+    h: true,
+    i: true,
+    j: true,
+    k: true,
+    l: true,
+    m: true,
+    n: true,
+    o: true,
+    p: true,
+    q: true,
+    r: true,
+    s: true,
+    t: true,
+    u: true,
+    v: true,
+    w: true,
+    x: true,
+    y: true,
+    z: true,
+};
+
+const upperChars = {
+    A: true,
+    B: true,
+    C: true,
+    D: true,
+    E: true,
+    F: true,
+    G: true,
+    H: true,
+    I: true,
+    J: true,
+    K: true,
+    L: true,
+    M: true,
+    N: true,
+    O: true,
+    P: true,
+    Q: true,
+    R: true,
+    S: true,
+    T: true,
+    U: true,
+    V: true,
+    W: true,
+    X: true,
+    Y: true,
+    Z: true,
+};
+
+const numChars = {
+    0: true,
+    1: true,
+    2: true,
+    3: true,
+    4: true,
+    5: true,
+    6: true,
+    7: true,
+    8: true,
+    9: true,
+};
+
+const sepChars = {
+    ' ': true,
+    _: true,
+    '-': true,
+};
+
+const wordChars = {
+    ...lowerChars,
+    ...upperChars,
+    ...numChars,
+};
+
+/**
+ * Split a string and get the word parts
+*/
+export function getWordParts(input: string): string[] {
+    if (!isString(input)) {
+        throw new Error(`Expected string, got "${input}"`);
+    }
+
+    const parts: string[] = [];
+
+    let word = '';
+    let started = false;
+
+    for (let i = 0; i < input.length; i++) {
+        const char = input.charAt(i);
+        const nextChar = input.charAt(i + 1);
+
+        if (!started && char === '_') {
+            if (nextChar === '_' || wordChars[nextChar]) {
+                word += char;
+                continue;
+            }
+        }
+
+        started = true;
+
+        if (char && wordChars[char]) {
+            word += char;
+        }
+
+        if (sepChars[nextChar]) {
+            parts.push(word);
+            word = '';
+        }
+
+        if (upperChars[nextChar]) {
+            const nextNextChar = input.charAt(i + 2);
+            if (lowerChars[nextNextChar]) {
+                parts.push(word);
+                word = '';
+            }
+        }
+    }
+
+    return parts.concat(word).filter(Boolean);
+}
+
+export function toCamelCase(input: string): string {
+    return firstToLower(getWordParts(input).map((str, i) => {
+        if (i === 0) return str;
+        return firstToUpper(str);
+    }).join(''));
+}
+
+export function toPascalCase(input: string): string {
+    return firstToUpper(getWordParts(input).map((str, i) => {
+        if (i === 0) return str;
+        return firstToUpper(str);
+    }).join(''));
+}
+
+export function toKebabCase(input: string): string {
+    return getWordParts(input).join('-').toLowerCase();
+}
+
+export function toSnakeCase(input: string): string {
+    return getWordParts(input).join('_').toLowerCase();
+}
+
 /**
  * Make a string url/elasticsearch safe.
  * safeString converts the string to lower case,
@@ -85,20 +237,34 @@ export function toSafeString(input: string): string {
     s = s.replace(/\s/g, whitespaceChar);
     const reg = new RegExp('[.+#*?"<>|/\\\\]', 'g');
     s = s.replace(reg, '');
+
     return s;
+}
+function _replaceFirstWordChar(str: string, fn: (char: string) => string): string {
+    let found = false;
+    return str.split('').map((s) => {
+        if (!found && wordChars[s]) {
+            found = true;
+            return fn(s);
+        }
+        return s;
+    }).join('');
 }
 
 /** Change first character in string to upper case */
 export function firstToUpper(str: string): string {
-    return `${getFirstChar(str).toUpperCase()}${str.slice(1)}`;
+    if (!str) return '';
+    return _replaceFirstWordChar(str, (char) => char.toUpperCase());
 }
 
 /** Change first character in string to lower case */
 export function firstToLower(str: string): string {
-    return `${getFirstChar(str).toLowerCase()}${str.slice(1)}`;
+    if (!str) return '';
+    return _replaceFirstWordChar(str, (char) => char.toLowerCase());
 }
 
 export function getFirstChar(input: string): string {
+    if (!input) return '';
     return trim(input).charAt(0);
 }
 

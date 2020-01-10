@@ -1,31 +1,21 @@
-import * as R from 'rambda';
 import { Client } from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { TypeConfig, FieldType } from 'xlucene-evaluator';
-import { getFirstKey, getFirstValue, buildNestPath } from './misc';
 import { getErrorType } from './errors';
 import * as i from '../interfaces';
 
 export function getTimeByField(field = ''): (input: any) => number {
-    return R.ifElse(
-        R.has(field),
-        R.pipe(
-            R.path(field as any),
-            (input: any) => new Date(input).getTime()
-        ),
-        () => Date.now()
-    );
+    return (input) => ts.getUnixTime(ts.get(input, field)) || Date.now();
 }
 
 export function shardsPath(index: string): (stats: any) => i.Shard[] {
-    return R.pathOr([], [index, 'shards']);
+    return (stats) => ts.get(stats, [index, 'shards'], []);
 }
 
-export const verifyIndexShards: (shards: i.Shard[]) => boolean = R.pipe(
-    // @ts-ignore
-    R.filter((shard: i.Shard) => shard.primary),
-    R.all((shard: i.Shard) => shard.stage === 'DONE')
-);
+export function verifyIndexShards(shards: i.Shard[]): boolean {
+    return ts.castArray(shards)
+        .filter((shard) => shard.primary)
+        .every((shard) => shard.stage === 'DONE');
+}
 
 export function timeseriesIndex(index: string, timeSeriesFormat: i.TimeSeriesFormat = 'monthly'): string {
     const formatter = {
@@ -107,60 +97,9 @@ type BulkResponseItemResult = {
  */
 export function getBulkResponseItem(input: any = {}): BulkResponseItemResult {
     return {
-        item: getFirstValue(input) as i.BulkResponseItem,
-        action: getFirstKey(input) as i.BulkAction,
+        item: ts.getFirstValue(input) as i.BulkResponseItem,
+        action: ts.getFirstKey(input) as i.BulkAction,
     };
-}
-
-export function getXLuceneTypesFromMapping(mapping: any): TypeConfig | undefined {
-    if (!ts.isPlainObject(mapping) || ts.isEmpty(mapping)) return;
-
-    const result: TypeConfig = {};
-
-    if (mapping.properties != null) {
-        const entries = getTypesFromProperties(mapping.properties);
-        for (const [key, val] of entries) {
-            result[key] = val;
-        }
-    }
-
-    return result;
-}
-
-type TypeMappingPair = [string, FieldType];
-type MappingProperties = { [key: string]: MappingProperty };
-type MappingProperty = { type?: string; properties: MappingProperties };
-
-export function getTypesFromProperties(properties: MappingProperties, basePath = ''): TypeMappingPair[] {
-    const result: TypeMappingPair[] = [];
-    for (const [key, value] of Object.entries(properties)) {
-        if (ts.isPlainObject(value) && key) {
-            const path = buildNestPath([basePath, key]);
-
-            if (value.properties) {
-                result.push(...getTypesFromProperties(value.properties, path));
-            } else {
-                const type = getXluceneTypeFromESType(value.type);
-                if (type) {
-                    result.push([path, type]);
-                }
-            }
-        }
-    }
-    return result;
-}
-
-export function getXluceneTypeFromESType(type?: string): FieldType | undefined {
-    if (!type) return;
-
-    if (['geo_point', 'geo_shape'].includes(type)) return FieldType.Geo;
-    if (type === 'ip') return FieldType.IP;
-    if (type === 'date') return FieldType.Date;
-    if (['byte', 'short', 'integer', 'long'].includes(type)) return FieldType.Integer;
-    if (['double', 'float'].includes(type)) return FieldType.Float;
-    if (['keyword', 'text'].includes(type)) return FieldType.String;
-    if (type === 'object') return FieldType.Object;
-    if (type === 'boolean') return FieldType.Boolean;
 }
 
 export function getESVersion(client: Client): number {

@@ -6,8 +6,15 @@ export default class KeywordCaseInsensitive extends BaseType {
     toESMapping(_version?: number) {
         return {
             mapping: {
-                [this.field]: {
-                    // TODO: this is wrong, I dont think analyzer can be at this level
+                [this.field]: this.config.use_fields_hack ? {
+                    type: 'keyword',
+                    fields: {
+                        text: {
+                            type: 'text',
+                            analyzer: 'lowercase_keyword_analyzer',
+                        },
+                    },
+                } : {
                     type: 'text' as ElasticSearchTypes,
                     analyzer: 'lowercase_keyword_analyzer',
                 },

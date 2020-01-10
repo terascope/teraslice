@@ -2,7 +2,9 @@ import 'jest-extended';
 import {
     DataEntity,
     isPlainObject,
-    has
+    has,
+    getFirstKey,
+    getFirstValue
 } from '../src';
 
 describe('Objects', () => {
@@ -103,6 +105,36 @@ describe('Objects', () => {
             expect(has({ a: 'b' }, [] as any)).toBeFalse();
             expect(has({ a: 'b' }, NaN)).toBeFalse();
             expect(has({ a: 'b' }, (() => {}) as any)).toBeFalse();
+        });
+    });
+
+    describe('getFirstValue', () => {
+        describe('when given an object', () => {
+            it('should return the first value', () => {
+                const obj = { key1: 1, key2: 2 };
+                expect(getFirstValue(obj)).toEqual(1);
+            });
+        });
+
+        describe('when given an empty object', () => {
+            it('should return nil', () => {
+                expect(getFirstValue({})).toBeNil();
+            });
+        });
+    });
+
+    describe('getFirstKey', () => {
+        describe('when given an object', () => {
+            it('should return the first value', () => {
+                const obj = { key1: 1, key2: 2 };
+                expect(getFirstKey(obj)).toEqual('key1');
+            });
+        });
+
+        describe('when given an empty object', () => {
+            it('should return nil', () => {
+                expect(getFirstKey({})).toBeNil();
+            });
         });
     });
 });

@@ -44,6 +44,35 @@ describe('KeywordCaseInsensitive V1', () => {
         expect(esMapping).toEqual(results);
     });
 
+    it('can get proper ES Mappings with a fields hack', () => {
+        const esMapping = new KeywordCaseInsensitive(field, {
+            ...typeConfig,
+            use_fields_hack: true
+        }).toESMapping();
+
+        const results = {
+            mapping: {
+                [field]: {
+                    type: 'keyword',
+                    fields: {
+                        text: {
+                            type: 'text' as ElasticSearchTypes,
+                            analyzer: 'lowercase_keyword_analyzer',
+                        }
+                    }
+                },
+            },
+            analyzer: {
+                lowercase_keyword_analyzer: {
+                    tokenizer: 'keyword',
+                    filter: 'lowercase',
+                },
+            },
+        };
+
+        expect(esMapping).toEqual(results);
+    });
+
     it('can get proper graphql types', () => {
         const graphQlTypes = new KeywordCaseInsensitive(field, typeConfig).toGraphQL();
         const results = { type: `${field}: String`, customTypes: [] };

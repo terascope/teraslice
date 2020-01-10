@@ -4,8 +4,15 @@ import unset from 'lodash.unset';
 import cloneDeep from 'lodash.clonedeep';
 import isPlainObject from 'is-plain-object';
 
+export function getFirstValue<T>(input: { [key: string]: T }): T | undefined {
+    return Object.values(input)[0];
+}
+export function getFirstKey<T>(input: T): (keyof T) | undefined {
+    return Object.keys(input)[0] as keyof T;
+}
+
 /** Check in input has a key */
-export function has(data: object, key: string|number|symbol): boolean {
+export function has(data: object|undefined, key: string|number|symbol): boolean {
     if (data == null || typeof data !== 'object') return false;
     if (data instanceof Set || data instanceof Map) {
         if (key in data) return true;
