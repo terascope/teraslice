@@ -43,7 +43,7 @@ function parseLiteral(ast: ASTNode) {
                 }
             }
 
-            if (keyName === 'array') {
+            if (keyName === 'array' || keyName === 'indexed') {
                 if (valueNode.kind !== Kind.BOOLEAN && valueNode.kind !== Kind.NULL) {
                     throw new Error(`${keyName}: ${keyValue} is not a valid boolean`);
                 }

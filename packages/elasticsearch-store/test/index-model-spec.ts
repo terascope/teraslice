@@ -18,7 +18,10 @@ describe('IndexModel', () => {
     const dataType = makeRecordDataType({
         name: 'ExampleModel',
         fields: {
-            name: { type: 'KeywordCaseInsensitive' },
+            name: {
+                type: 'KeywordCaseInsensitive',
+                use_fields_hack: true
+            },
             type: { type: 'Keyword' },
             config: { type: 'Object', indexed: false },
         }
