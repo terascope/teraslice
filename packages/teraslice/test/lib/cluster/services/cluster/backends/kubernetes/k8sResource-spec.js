@@ -629,6 +629,19 @@ describe('k8sResource', () => {
         });
     });
 
+    describe('worker deployment with capital letters in job name', () => {
+        it('has valid resource object.', () => {
+            execution.name = 'teraslice-JOB-name';
+            const kr = new K8sResource(
+                'deployments', 'worker', terasliceConfig, execution
+            );
+
+            expect(kr.resource.kind).toBe('Deployment');
+            expect(kr.resource.spec.replicas).toBe(2);
+            expect(kr.resource.metadata.name).toBe('ts-wkr-teraslice-job-name-7ba9afb0-417a');
+        });
+    });
+
     describe('teraslice config with execution_controller_targets set', () => {
         it('generates execution controller job with toleration and affinity', () => {
             terasliceConfig.execution_controller_targets = [
