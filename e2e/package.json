@@ -34,7 +34,7 @@
         "elasticsearch": "^15.4.1",
         "fs-extra": "^8.1.0",
         "ms": "^2.1.2",
-        "nanoid": "^2.1.8",
+        "nanoid": "^2.1.9",
         "semver": "^7.1.1",
         "signale": "^1.4.0",
         "teraslice-client-js": "^0.13.0",
