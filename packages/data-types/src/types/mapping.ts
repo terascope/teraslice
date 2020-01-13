@@ -1,4 +1,4 @@
-import { DataTypeMapping } from '../../interfaces';
+import { DataTypeMapping } from '../interfaces';
 
 import BooleanV1 from './v1/boolean';
 import DateV1 from './v1/date';

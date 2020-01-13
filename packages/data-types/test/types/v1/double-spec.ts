@@ -1,6 +1,6 @@
 import { TSError } from '@terascope/utils';
 import { FieldType } from 'xlucene-evaluator';
-import DoubleType from '../../../src/types/versions/v1/double';
+import DoubleType from '../../../src/types/v1/double';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Double V1', () => {

@@ -2,8 +2,8 @@ import { TypeConfig } from 'xlucene-evaluator';
 import * as ts from '@terascope/utils';
 import {
     GraphQLType, TypeESMapping, FieldTypeConfig
-} from '../../interfaces';
-import { formatGQLComment } from '../../graphql-helper';
+} from '../interfaces';
+import { formatGQLComment } from '../graphql-helper';
 
 // eslint-disable-next-line @typescript-eslint/interface-name-prefix
 export interface IBaseType {

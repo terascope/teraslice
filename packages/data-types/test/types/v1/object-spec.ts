@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import ObejctType from '../../../src/types/versions/v1/object';
+import ObejctType from '../../../src/types/v1/object';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Object V1', () => {

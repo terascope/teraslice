@@ -1,10 +1,10 @@
 import { FieldType } from 'xlucene-evaluator';
 import BaseType from '../base-type';
-import { ElasticSearchTypes } from '../../../interfaces';
+import { ElasticSearchTypes } from '../../interfaces';
 
-export default class Long extends BaseType {
+export default class Byte extends BaseType {
     toESMapping(_version?: number) {
-        return { mapping: { [this.field]: { type: 'long' as ElasticSearchTypes } } };
+        return { mapping: { [this.field]: { type: 'byte' as ElasticSearchTypes } } };
     }
 
     toGraphQL() {

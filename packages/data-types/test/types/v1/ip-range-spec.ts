@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import IpRangeType from '../../../src/types/versions/v1/ip-range';
+import IpRangeType from '../../../src/types/v1/ip-range';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('IPRange V1', () => {

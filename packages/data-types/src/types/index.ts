@@ -1,8 +1,8 @@
 import * as ts from '@terascope/utils';
-import { mapping } from './versions/mapping';
+import { mapping } from './mapping';
 import { FieldTypeConfig, AvailableVersion, TypeConfigFields } from '../interfaces';
-import GroupType, { NestedTypes } from './versions/group-type';
-import BaseType, { IBaseType } from './versions/base-type';
+import GroupType, { NestedTypes } from './group-type';
+import BaseType, { IBaseType } from './base-type';
 
 export const LATEST_VERSION: AvailableVersion = 1;
 

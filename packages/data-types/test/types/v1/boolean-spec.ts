@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import BooleanType from '../../../src/types/versions/v1/boolean';
+import BooleanType from '../../../src/types/v1/boolean';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Boolean V1', () => {

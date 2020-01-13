@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import KeywordCaseInsensitive from '../../../src/types/versions/v1/keyword-case-insensitive';
+import KeywordCaseInsensitive from '../../../src/types/v1/keyword-case-insensitive';
 import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
 
 describe('KeywordCaseInsensitive V1', () => {

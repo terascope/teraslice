@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import Keyword from '../../../src/types/versions/v1/keyword';
+import Keyword from '../../../src/types/v1/keyword';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Keyword V1', () => {

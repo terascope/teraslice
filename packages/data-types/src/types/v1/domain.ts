@@ -1,6 +1,6 @@
 import { FieldType } from 'xlucene-evaluator';
 import BaseType from '../base-type';
-import { ElasticSearchTypes } from '../../../interfaces';
+import { ElasticSearchTypes } from '../../interfaces';
 
 export default class Domain extends BaseType {
     toESMapping(_version?: number) {

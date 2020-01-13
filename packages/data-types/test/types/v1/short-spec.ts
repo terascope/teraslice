@@ -1,6 +1,6 @@
 import { TSError } from '@terascope/utils';
 import { FieldType } from 'xlucene-evaluator';
-import Short from '../../../src/types/versions/v1/short';
+import Short from '../../../src/types/v1/short';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Short V1', () => {

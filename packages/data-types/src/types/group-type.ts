@@ -1,5 +1,5 @@
 import { TypeConfig } from 'xlucene-evaluator';
-import * as i from '../../interfaces';
+import * as i from '../interfaces';
 import BaseType from './base-type';
 
 export type NestedTypes = { [field: string]: BaseType };

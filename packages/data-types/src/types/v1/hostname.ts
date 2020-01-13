@@ -1,31 +1,36 @@
 import { FieldType } from 'xlucene-evaluator';
 import BaseType from '../base-type';
-import { ElasticSearchTypes } from '../../../interfaces';
+import { ElasticSearchTypes } from '../../interfaces';
 
-export default class KeywordPathAnalyzer extends BaseType {
+export default class Hostname extends BaseType {
     toESMapping(_version?: number) {
         return {
             mapping: {
                 [this.field]: {
-                    type: 'keyword' as ElasticSearchTypes,
+                    type: 'text' as ElasticSearchTypes,
+                    analyzer: 'lowercase_keyword_analyzer',
                     fields: {
                         tokens: {
-                            type: 'text',
-                            analyzer: 'path_analyzer',
+                            type: 'text' as ElasticSearchTypes,
+                            analyzer: 'hostname_analyzer',
                         },
                     },
                 },
             },
             analyzer: {
-                path_analyzer: {
+                hostname_analyzer: {
                     type: 'custom',
-                    tokenizer: 'path_tokenizer'
+                    tokenizer: 'hostname_tokenizer'
+                },
+                lowercase_keyword_analyzer: {
+                    tokenizer: 'keyword',
+                    filter: 'lowercase',
                 }
             },
             tokenizer: {
-                path_tokenizer: {
+                hostname_tokenizer: {
                     type: 'pattern',
-                    pattern: '/'
+                    pattern: '\\.'
                 }
             },
         };

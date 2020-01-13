@@ -2,7 +2,7 @@ import * as ts from '@terascope/utils';
 import defaultsDeep from 'lodash.defaultsdeep';
 import { formatSchema, formatGQLComment } from './graphql-helper';
 import * as i from './interfaces';
-import BaseType from './types/versions/base-type';
+import BaseType from './types/base-type';
 import * as utils from './utils';
 import { getTypes, LATEST_VERSION } from './types';
 
