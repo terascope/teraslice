@@ -44,13 +44,13 @@ describe('Boundary V1', () => {
             type: graphQlTypes,
             customTypes
         } = new Boundary(field, typeConfig).toGraphQL();
-        const results = `${field}: DTGeoBoundaryV1`;
+        const results = `${field}: [DTGeoBoundaryV1]`;
         const [customType] = customTypes;
 
         expect(graphQlTypes).toEqual(results);
         expect(customType).toInclude('type DTGeoBoundaryV1 {');
-        expect(customType).toInclude('lat: Float!');
-        expect(customType).toInclude('lon: Float!');
+        expect(customType).toInclude('lat: Float');
+        expect(customType).toInclude('lon: Float');
     });
 
     it('can get proper xlucene properties', () => {

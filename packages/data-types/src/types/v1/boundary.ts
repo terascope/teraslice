@@ -25,7 +25,7 @@ export default class Boundary extends BaseType {
                 lon: Float!
             }
         `;
-        return this._formatGql(name, customType);
+        return this._formatGql(`[${name}]`, customType);
     }
 
     toXlucene() {
