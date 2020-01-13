@@ -10,6 +10,7 @@ export type GraphQLTypesResult = {
 export type GraphQLOptions = {
     typeName?: string;
     description?: string;
+    customTypes?: string[];
     references?: string[];
     createInputType?: boolean;
     includeAllInputFields?: boolean;
@@ -18,6 +19,7 @@ export type GraphQLOptions = {
 export type MergeGraphQLOptions = {
     removeScalars?: boolean;
     references?: GraphQLTypeReferences;
+    customTypes?: string[];
     createInputTypes?: boolean;
     includeAllInputFields?: boolean;
 };

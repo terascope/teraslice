@@ -169,7 +169,10 @@ describe('DataType (graphql)', () => {
 
             const types = [new DataType(typeConfig1, 'firstType'), new DataType(typeConfig2, 'secondType')];
 
-            const results = DataType.mergeGraphQLDataTypes(types);
+            const results = DataType.mergeGraphQLDataTypes(types, {
+                customTypes: ['scalar FOOO'],
+                removeScalars: true
+            });
             const schema = formatSchema(`
                     type firstType {
                         date: String
