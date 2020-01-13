@@ -1,5 +1,6 @@
 {
     "name": "@terascope/teraslice-op-test-harness",
+    "displayName": "Teraslice Op Test Harness",
     "version": "1.11.0",
     "description": "A testing harness to simplify testing Teraslice processors and operations.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-op-test-harness#readme",
@@ -26,7 +27,6 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
-    "displayName": "Teraslice Op Test Harness",
     "terascope": {
         "testSuite": "unit-a"
     }

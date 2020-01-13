@@ -1,5 +1,6 @@
 {
     "name": "teraslice-client-js",
+    "displayName": "Teraslice Client (JavaScript)",
     "version": "0.13.0",
     "description": "A Node.js client for teraslice jobs, assets, and cluster references.",
     "keywords": [
@@ -41,7 +42,6 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
-    "displayName": "Teraslice Client (JavaScript)",
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,

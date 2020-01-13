@@ -136,8 +136,8 @@ post_cleanup() {
         yarn cache clean
 
     prompt "Do you want to verify/rebuild the node_modules?" &&
-        echoerr "* running yarn --force --check-files --update-checksums" &&
-        yarn --force --check-files --update-checksums
+        echoerr "* running rm -rf node_modules" &&
+        rm -rf node_modules
 
     prompt "Do you want to rebuild the packages?" &&
         echoerr "* running yarn setup" &&

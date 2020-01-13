@@ -1,5 +1,6 @@
 {
     "name": "terafoundation",
+    "displayName": "Terafoundation",
     "version": "0.16.0",
     "description": "A Clustering and Foundation tool for Terascope Tools",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/terafoundation#readme",
@@ -53,7 +54,6 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
-    "displayName": "Terafoundation",
     "terascope": {
         "enableTypedoc": true,
         "testSuite": "unit-b"
