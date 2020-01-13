@@ -1,5 +1,6 @@
 {
     "name": "generator-teraslice",
+    "displayName": "Generator Teraslice",
     "version": "0.3.2",
     "description": "Generate teraslice related packages and code",
     "keywords": [
@@ -36,7 +37,6 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
-    "displayName": "Generator Teraslice",
     "terascope": {
         "testSuite": "unit-a"
     }

@@ -1,5 +1,6 @@
 {
     "name": "@terascope/elasticsearch-api",
+    "displayName": "Elasticsearch API",
     "version": "2.4.0",
     "description": "Elasticsearch client api used across multiple services, handles retries and exponential backoff",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/elasticsearch-api#readme",
@@ -26,7 +27,6 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
-    "displayName": "Elasticsearch API",
     "terascope": {
         "testSuite": "unit-a"
     }

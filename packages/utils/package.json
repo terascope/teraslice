@@ -1,5 +1,6 @@
 {
     "name": "@terascope/utils",
+    "displayName": "Utils",
     "version": "0.22.0",
     "description": "A collection of Teraslice Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/utils#readme",
@@ -23,6 +24,9 @@
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
     },
+    "resolutions": {
+        "debug": "^4.1.1"
+    },
     "dependencies": {
         "debug": "^4.1.1",
         "is-plain-object": "^3.0.0",
@@ -42,14 +46,10 @@
         "@types/lodash.unset": "^4.5.6",
         "benchmark": "^2.1.4"
     },
-    "resolutions": {
-        "debug": "^4.1.1"
-    },
     "publishConfig": {
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
-    "displayName": "Utils",
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,

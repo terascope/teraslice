@@ -1,5 +1,6 @@
 {
     "name": "xlucene-evaluator",
+    "displayName": "xLucene Evaluator",
     "version": "0.17.0",
     "description": "Flexible Lucene-like evalutor and language parser",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-evaluator#readme",
@@ -60,7 +61,6 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
-    "displayName": "xLucene Evaluator",
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,

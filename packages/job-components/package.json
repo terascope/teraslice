@@ -1,5 +1,6 @@
 {
     "name": "@terascope/job-components",
+    "displayName": "Job Components",
     "version": "0.27.0",
     "description": "A teraslice library for validating jobs schemas, registering apis, and defining and running new Job APIs",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/job-components#readme",
@@ -49,7 +50,6 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
-    "displayName": "Job Components",
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,
