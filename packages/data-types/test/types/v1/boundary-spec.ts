@@ -49,8 +49,8 @@ describe('Boundary V1', () => {
 
         expect(graphQlTypes).toEqual(results);
         expect(customType).toInclude('type DTGeoBoundaryV1 {');
-        expect(customType).toInclude('lat: Float');
-        expect(customType).toInclude('lon: Float');
+        expect(customType).toInclude('lat: Float!');
+        expect(customType).toInclude('lon: Float!');
     });
 
     it('can get proper xlucene properties', () => {
