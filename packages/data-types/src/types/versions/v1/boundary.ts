@@ -21,8 +21,8 @@ export default class Boundary extends BaseType {
         const name = this._formatGQLTypeName('GeoBoundary', isInput);
         const customType = `
             ${defType} ${name} {
-                lat: Int!
-                lon: Int!
+                lat: Float!
+                lon: Float!
             }
         `;
         return this._formatGql(name, customType);
