@@ -154,7 +154,7 @@ async function runTestSuite(
         writeHeader(`Running test suite "${suite}"`, false);
     }
 
-    let cleanup: CleanupFN = await ensureServices(suite, options);
+    let cleanup: CleanupFN = await ensureServices(options.forceSuite || suite, options);
 
     const timeLabel = `test suite "${suite}"`;
     signale.time(timeLabel);

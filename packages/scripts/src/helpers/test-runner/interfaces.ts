@@ -4,9 +4,11 @@ export type TestOptions = {
     bail: boolean;
     debug: boolean;
     watch: boolean;
+    trace: boolean;
     all: boolean;
     keepOpen: boolean;
     reportCoverage: boolean;
+    forceSuite?: string;
     suite?: string;
     useExistingServices: boolean;
     elasticsearchVersion: string;
