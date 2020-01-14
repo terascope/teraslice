@@ -12,7 +12,7 @@ export async function bumpPackages(options: BumpPackageOptions) {
     const packagesToBump = await utils.getPackagesToBump(packages, options);
     utils.bumpPackagesList(packagesToBump, packages);
 
-    const commitMsg = utils.getBumpCommitMessage(packagesToBump, options.release);
+    const commitMsgs = utils.getBumpCommitMessages(packagesToBump, options.release);
 
     for (const pkgInfo of packages) {
         updatePkgJSON(pkgInfo);
@@ -30,6 +30,6 @@ export async function bumpPackages(options: BumpPackageOptions) {
 
 Please commit these changes:
 
-    git commit -am "${commitMsg}" && git push
+    git commit -a -m "${commitMsgs.join('" -m "')}" && git push
 `);
 }
