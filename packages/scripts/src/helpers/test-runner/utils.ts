@@ -97,9 +97,10 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
         env.KEEP_OPEN = 'true';
     }
 
-    if (options.debug) {
+    if (options.debug || options.trace) {
         let DEBUG = process.env.DEBUG || '';
-        const DEBUG_LOG_LEVEL = process.env.DEBUG_LOG_LEVEL || 'debug';
+        const defaultLevel = options.trace ? 'trace' : 'debug';
+        const DEBUG_LOG_LEVEL = process.env.DEBUG_LOG_LEVEL || defaultLevel;
 
         if (!DEBUG.includes('*teraslice*')) {
             if (DEBUG) DEBUG += ',';
@@ -108,12 +109,8 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
 
         Object.assign(env, {
             DEBUG,
-            DEBUG_LOG_LEVEL: DEBUG_LOG_LEVEL || 'debug'
+            DEBUG_LOG_LEVEL
         });
-    }
-
-    if (options.trace) {
-        env.DEBUG_LOG_LEVEL = 'trace';
     }
 
     return env;
