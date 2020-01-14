@@ -35,6 +35,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .example('$0 test', 'example --watch -- --testPathPattern worker-spec')
             .example('$0 test', 'example --debug --bail')
             .example('$0 test', '. --debug --bail')
+            .example('$0 test', `. --trace --force-suite ${testSuites.find((s) => s.startsWith('unit'))}`)
             .option('debug', {
                 alias: 'd',
                 description: 'This will run all of the tests in-band and output any debug info',
@@ -153,15 +154,18 @@ function hoistJestArg(argv: any, keys: string|(string[]), type: 'boolean'|'strin
     castArray(keys).forEach((key) => {
         val = argv[key];
 
-        const index = jestArgs.indexOf(`--${key}`);
+        const index = jestArgs.indexOf(
+            key.length === 1 ? `-${key}` : `--${key}`
+        );
         if (index > -1) {
             const nextVal = jestArgs[index + 1];
 
             if (type === 'boolean') {
-                jestArgs.splice(index, 1);
                 if (nextVal && ['true', true, 'false', false].includes(nextVal)) {
+                    jestArgs.splice(index, 2);
                     val = toBoolean(nextVal);
                 } else {
+                    jestArgs.splice(index, 1);
                     val = true;
                 }
             } else if (type === 'string') {

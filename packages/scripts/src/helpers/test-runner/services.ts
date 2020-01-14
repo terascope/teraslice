@@ -183,7 +183,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
 
     await stopService(service);
 
-    const fn = await dockerRun(services[service], version, options.debug);
+    const fn = await dockerRun(services[service], version, options.debug || options.trace);
 
     signale.success(`started ${service}@${version} service, took ~${ms(Date.now() - startTime)}`);
 
