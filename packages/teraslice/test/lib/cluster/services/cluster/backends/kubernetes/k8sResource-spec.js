@@ -642,6 +642,20 @@ describe('k8sResource', () => {
         });
     });
 
+    describe('worker deployment with different combinations of job names', () => {
+        test.each([
+            ['aa', 'ts-wkr-aa-7ba9afb0-417a'],
+            ['00', 'ts-wkr-a0-7ba9afb0-417a']
+        ])('returns %s when input is %s', (jobName, k8sName) => {
+            execution.name = jobName;
+            const kr = new K8sResource(
+                'deployments', 'worker', terasliceConfig, execution
+            );
+
+            expect(kr.resource.metadata.name).toBe(k8sName);
+        });
+    });
+
     describe('teraslice config with execution_controller_targets set', () => {
         it('generates execution controller job with toleration and affinity', () => {
             terasliceConfig.execution_controller_targets = [
