@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { CommandModule } from 'yargs';
-import { toBoolean, castArray } from '@terascope/utils';
+import { toBoolean, castArray, startsWith } from '@terascope/utils';
 import { PackageInfo, GlobalCMDOptions } from '../helpers/interfaces';
 import { getAvailableTestSuites } from '../helpers/misc';
 import * as config from '../helpers/config';
@@ -14,6 +14,7 @@ type Options = {
     bail: boolean;
     suite?: string;
     'keep-open': boolean;
+    'trace': boolean;
     'report-coverage': boolean;
     'elasticsearch-version': string;
     'elasticsearch-api-version': string;
@@ -35,6 +36,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .option('debug', {
                 alias: 'd',
                 description: 'This will run all of the tests in-band and output any debug info',
+                type: 'boolean',
+                default: false,
+            })
+            .option('trace', {
+                description: 'Sets the debug log level to trace',
                 type: 'boolean',
                 default: false,
             })
@@ -97,9 +103,17 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             });
     },
     handler(argv) {
-        const debug = hoistJestArg(argv, 'debug');
-        const watch = hoistJestArg(argv, 'watch');
-        const bail = hoistJestArg(argv, 'bail');
+        const debug = hoistJestArg(argv, 'debug', 'boolean');
+        const watch = hoistJestArg(argv, 'watch', 'boolean');
+        const bail = hoistJestArg(argv, 'bail', 'boolean');
+        const trace = hoistJestArg(argv, 'trace', 'boolean');
+        const keepOpen = hoistJestArg(argv, 'keep-open', 'boolean');
+        const useExistingServices = hoistJestArg(argv, 'use-existing-services', 'boolean');
+        const elasticsearchVersion = hoistJestArg(argv, 'elasticsearch-version', 'string');
+        const elasticsearchAPIVersion = hoistJestArg(argv, 'elasticsearch-api-version', 'string');
+        const kafkaVersion = hoistJestArg(argv, 'kafka-version', 'string');
+        const reportCoverage = hoistJestArg(argv, 'report-coverage', 'boolean');
+
         if (debug && watch) {
             throw new Error('--debug and --watch conflict, please set one or the other');
         }
@@ -109,30 +123,44 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             watch,
             bail,
             suite: argv.suite,
-            keepOpen: argv['keep-open'],
-            useExistingServices: argv['use-existing-services'],
-            elasticsearchVersion: argv['elasticsearch-version'],
-            elasticsearchAPIVersion: argv['elasticsearch-api-version'],
-            kafkaVersion: argv['kafka-version'],
+            trace,
+            keepOpen,
+            useExistingServices,
+            elasticsearchVersion,
+            elasticsearchAPIVersion,
+            kafkaVersion,
             all: !argv.packages || !argv.packages.length,
-            reportCoverage: argv['report-coverage'],
+            reportCoverage,
             jestArgs,
         });
     },
 };
 
 // this only works with booleans for now
-function hoistJestArg(argv: any, key: string): boolean {
+function hoistJestArg<T>(argv: any, key: string, type: 'string'): string;
+function hoistJestArg<T>(argv: any, key: string, type: 'boolean'): boolean;
+function hoistJestArg(argv: any, key: string, type: 'boolean'|'string'): boolean|string {
     let val = argv[key];
 
     const index = jestArgs.indexOf(`--${key}`);
     if (index > -1) {
         const nextVal = jestArgs[index + 1];
-        jestArgs.splice(index, 1);
-        if (nextVal && ['true', true, 'false', false].includes(nextVal)) {
-            val = toBoolean(nextVal);
-        } else {
-            val = true;
+
+        if (type === 'boolean') {
+            if (nextVal && ['true', true, 'false', false].includes(nextVal)) {
+                val = toBoolean(nextVal);
+                jestArgs.splice(index, 2);
+            } else {
+                val = true;
+                jestArgs.splice(index, 1);
+            }
+        } else if (type === 'string') {
+            if (!startsWith(nextVal, '-')) {
+                val = nextVal;
+                jestArgs.splice(index, 2);
+            } else {
+                jestArgs.splice(index, 1);
+            }
         }
     }
 

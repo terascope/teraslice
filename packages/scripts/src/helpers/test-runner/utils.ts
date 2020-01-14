@@ -112,6 +112,10 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
         });
     }
 
+    if (options.trace) {
+        env.DEBUG_LOG_LEVEL = 'trace';
+    }
+
     return env;
 }
 
