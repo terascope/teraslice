@@ -40,7 +40,7 @@ jobs:
       script: yarn --silent test --suite unit-a
 
     - name: 'Unit Test Suite (node 12)'
-      node_js: '12.13'
+      node_js: '12.14'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite unit-b
@@ -54,23 +54,24 @@ jobs:
 
     - script:
       name: 'ES Test Suite (elasticsearch 6) (node 12)'
-      node_js: '12.13'
+      node_js: '12.14'
       # run only on pull-requests and cron
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite elasticsearch --elasticsearch-version 6.8.2 --elasticsearch-api-version 6.5
 
     - script:
       name: 'ES Test Suite (elasticsearch 7) (node 10)'
+      node_js: '12.14'
       # run only on pull-requests
       if: branch = master AND type IN (pull_request) AND commit_message !~ /^WIP/
       script: yarn --silent test --suite elasticsearch --elasticsearch-version 7.2.1 --elasticsearch-api-version 7.0 --report-coverage false
 
     - script:
       name: 'End-to-End Test Suite (elasticsearch 6) (node 10)'
-      node_js: '12.13'
+      node_js: '12.14'
       # run only on pull-requests and cron
       if: branch = master AND type IN (pull_request, cron) AND fork = false
-      script: yarn --silent test --suite e2e --elasticsearch-version 6.8.2 --elasticsearch-api-version 6.5 --kafka-version 2.3
+      script: yarn --silent test --suite e2e
 
     - stage: "Releases"
       name: 'Publish pre-release packages'

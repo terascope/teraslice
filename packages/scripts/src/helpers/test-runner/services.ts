@@ -92,7 +92,7 @@ export async function ensureKafka(options: TestOptions): Promise<() => void> {
 export async function ensureElasticsearch(options: TestOptions): Promise<() => void> {
     let fn = () => {};
     fn = await startService(options, Service.Elasticsearch);
-    await checkElasticsearch(options, 30);
+    await checkElasticsearch(options);
     return fn;
 }
 
@@ -107,7 +107,7 @@ async function stopService(service: Service) {
     signale.success(`stopped service ${service}, took ${ms(Date.now() - startTime)}`);
 }
 
-async function checkElasticsearch(options: TestOptions, retries: number): Promise<void> {
+async function checkElasticsearch(options: TestOptions): Promise<void> {
     const elasticsearchHost = config.ELASTICSEARCH_HOST;
 
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
@@ -165,8 +165,11 @@ async function checkElasticsearch(options: TestOptions, retries: number): Promis
             );
         },
         {
-            retries,
-            maxDelay: 1000
+            // roughly 90 seconds
+            retries: 90,
+            delay: 500,
+            backoff: 1,
+            maxDelay: 500
         }
     );
 }
