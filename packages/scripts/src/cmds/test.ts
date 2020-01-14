@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { CommandModule } from 'yargs';
-import { toBoolean, castArray, startsWith } from '@terascope/utils';
+import { toBoolean, castArray } from '@terascope/utils';
 import { PackageInfo, GlobalCMDOptions } from '../helpers/interfaces';
 import { getAvailableTestSuites } from '../helpers/misc';
 import * as config from '../helpers/config';
@@ -13,6 +13,7 @@ type Options = {
     watch: boolean;
     bail: boolean;
     suite?: string;
+    'force-suite'?: string;
     'keep-open': boolean;
     'trace': boolean;
     'report-coverage': boolean;
@@ -24,6 +25,7 @@ type Options = {
 };
 
 const jestArgs = getExtraArgs();
+const testSuites = getAvailableTestSuites();
 
 const cmd: CommandModule<GlobalCMDOptions, Options> = {
     command: 'test [packages..]',
@@ -65,10 +67,14 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'boolean',
                 default: false,
             })
+            .option('force-suite', {
+                description: 'Force a test to run with a specific test suite',
+                choices: testSuites.filter((s) => s !== 'e2e'),
+            })
             .option('suite', {
                 alias: 's',
                 description: 'Run a test given a particular suite. Defaults to running all',
-                choices: getAvailableTestSuites(),
+                choices: testSuites,
             })
             .option('use-existing-services', {
                 description: 'If true no services will be launched',
@@ -103,16 +109,17 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             });
     },
     handler(argv) {
-        const debug = hoistJestArg(argv, 'debug', 'boolean');
-        const watch = hoistJestArg(argv, 'watch', 'boolean');
+        const debug = hoistJestArg(argv, ['d', 'debug'], 'boolean');
+        const watch = hoistJestArg(argv, ['w', 'watch'], 'boolean');
         const bail = hoistJestArg(argv, 'bail', 'boolean');
         const trace = hoistJestArg(argv, 'trace', 'boolean');
         const keepOpen = hoistJestArg(argv, 'keep-open', 'boolean');
+        const reportCoverage = hoistJestArg(argv, 'report-coverage', 'boolean');
         const useExistingServices = hoistJestArg(argv, 'use-existing-services', 'boolean');
         const elasticsearchVersion = hoistJestArg(argv, 'elasticsearch-version', 'string');
         const elasticsearchAPIVersion = hoistJestArg(argv, 'elasticsearch-api-version', 'string');
         const kafkaVersion = hoistJestArg(argv, 'kafka-version', 'string');
-        const reportCoverage = hoistJestArg(argv, 'report-coverage', 'boolean');
+        const forceSuite = hoistJestArg(argv, 'force-suite', 'string');
 
         if (debug && watch) {
             throw new Error('--debug and --watch conflict, please set one or the other');
@@ -125,6 +132,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             suite: argv.suite,
             trace,
             keepOpen,
+            forceSuite,
             useExistingServices,
             elasticsearchVersion,
             elasticsearchAPIVersion,
@@ -137,34 +145,35 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
 };
 
 // this only works with booleans for now
-function hoistJestArg<T>(argv: any, key: string, type: 'string'): string;
-function hoistJestArg<T>(argv: any, key: string, type: 'boolean'): boolean;
-function hoistJestArg(argv: any, key: string, type: 'boolean'|'string'): boolean|string {
-    let val = argv[key];
+function hoistJestArg(argv: any, keys: string|(string[]), type: 'string'): string;
+function hoistJestArg(argv: any, keys: string|(string[]), type: 'boolean'): boolean;
+function hoistJestArg(argv: any, keys: string|(string[]), type: 'boolean'|'string'): boolean|string {
+    let val: any;
 
-    const index = jestArgs.indexOf(`--${key}`);
-    if (index > -1) {
-        const nextVal = jestArgs[index + 1];
+    castArray(keys).forEach((key) => {
+        val = argv[key];
 
-        if (type === 'boolean') {
-            if (nextVal && ['true', true, 'false', false].includes(nextVal)) {
-                val = toBoolean(nextVal);
-                jestArgs.splice(index, 2);
-            } else {
-                val = true;
+        const index = jestArgs.indexOf(`--${key}`);
+        if (index > -1) {
+            const nextVal = jestArgs[index + 1];
+
+            if (type === 'boolean') {
                 jestArgs.splice(index, 1);
-            }
-        } else if (type === 'string') {
-            if (!startsWith(nextVal, '-')) {
+                if (nextVal && ['true', true, 'false', false].includes(nextVal)) {
+                    val = toBoolean(nextVal);
+                } else {
+                    val = true;
+                }
+            } else if (type === 'string') {
+                jestArgs.splice(index, 2);
                 val = nextVal;
-                jestArgs.splice(index, 2);
-            } else {
-                jestArgs.splice(index, 1);
             }
         }
-    }
 
-    return toBoolean(val);
+        return toBoolean(val);
+    });
+
+    return val;
 }
 
 function getExtraArgs(): string[] {

@@ -115,7 +115,11 @@ async function checkElasticsearch(options: TestOptions, retries: number): Promis
 
     return pRetry(
         async () => {
-            logger.debug(`checking elasticsearch at ${elasticsearchHost}`);
+            if (options.trace) {
+                signale.debug(`checking elasticsearch at ${elasticsearchHost}`);
+            } else {
+                logger.debug(`checking elasticsearch at ${elasticsearchHost}`);
+            }
 
             let body: any;
             try {
@@ -130,7 +134,11 @@ async function checkElasticsearch(options: TestOptions, retries: number): Promis
                 });
             }
 
-            logger.debug('got response from elasticsearch service', body);
+            if (options.trace) {
+                signale.debug('got response from elasticsearch service', body);
+            } else {
+                logger.debug('got response from elasticsearch service', body);
+            }
 
             if (!body || !body.version || !body.version.number) {
                 throw new TSError(`Invalid response from elasticsearch at ${elasticsearchHost}`, {
@@ -158,6 +166,7 @@ async function checkElasticsearch(options: TestOptions, retries: number): Promis
         },
         {
             retries,
+            maxDelay: 1000
         }
     );
 }
