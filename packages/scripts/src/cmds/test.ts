@@ -1,5 +1,4 @@
 import fs from 'fs';
-import isCI from 'is-ci';
 import { CommandModule } from 'yargs';
 import { toBoolean, castArray } from '@terascope/utils';
 import { PackageInfo, GlobalCMDOptions } from '../helpers/interfaces';
@@ -42,7 +41,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .option('bail', {
                 description: 'This will cause the tests to stop at the first failed test.',
                 type: 'boolean',
-                default: isCI,
+                default: false,
             })
             .option('keep-open', {
                 description: 'This will cause the tests to remain open after done (so they can be debugged).',
