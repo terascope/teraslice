@@ -327,10 +327,14 @@ export async function dockerBuild(
 }
 
 export async function dockerPush(image: string): Promise<void> {
-    await fork({
-        cmd: 'docker',
-        args: ['push', image],
-    });
+    const subprocess = await execa.command(
+        `docker push "${image}"`,
+        { reject: false }
+    );
+
+    if (subprocess.exitCode !== 0) {
+        throw new Error(`Unable to push docker image ${image}, ${subprocess.stderr}`);
+    }
 }
 
 export async function pgrep(name: string): Promise<string> {
