@@ -328,7 +328,7 @@ export async function dockerBuild(
 
 export async function dockerPush(image: string): Promise<void> {
     const subprocess = await execa.command(
-        `docker push "${image}"`,
+        `docker push ${image}`,
         { reject: false }
     );
 
