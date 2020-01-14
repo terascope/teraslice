@@ -28,7 +28,9 @@ jobs:
         yarn: false
         directories:
           - '$TRAVIS_BUILD_DIR/.eslintcache'
-      script: yarn lint
+      script:
+        - yarn lint
+        - yarn sync --verify
 
     - stage: "Tests"
       name: 'Unit Test Suite (node 10)'
