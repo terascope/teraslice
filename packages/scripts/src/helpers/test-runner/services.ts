@@ -92,7 +92,7 @@ export async function ensureKafka(options: TestOptions): Promise<() => void> {
 export async function ensureElasticsearch(options: TestOptions): Promise<() => void> {
     let fn = () => {};
     fn = await startService(options, Service.Elasticsearch);
-    await checkElasticsearch(options, 10);
+    await checkElasticsearch(options, 30);
     return fn;
 }
 
