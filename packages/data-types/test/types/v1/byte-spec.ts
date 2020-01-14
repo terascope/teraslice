@@ -1,6 +1,6 @@
 import { TSError } from '@terascope/utils';
 import { FieldType } from 'xlucene-evaluator';
-import ByteType from '../../../src/types/versions/v1/byte';
+import ByteType from '../../../src/types/v1/byte';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Byte V1', () => {

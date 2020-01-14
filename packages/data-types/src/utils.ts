@@ -1,6 +1,6 @@
 import * as ts from '@terascope/utils';
 import { DataTypeConfig, TypeConfigFields, AvailableVersion } from './interfaces';
-import { mapping } from './types/versions/mapping';
+import { mapping } from './types/mapping';
 
 type ConcatStrType = string|undefined|((string|undefined)[])
 export function concatUniqueStrings(...values: ConcatStrType[]): string[] {

@@ -162,35 +162,44 @@ describe('DataType (graphql)', () => {
                 fields: {
                     hello: { type: 'Text' },
                     location: { type: 'GeoPoint' },
-                    otherLocation: { type: 'GeoPoint' },
+                    otherLocation: { type: 'Boundary', array: true },
                     bool: { type: 'Boolean' },
                 },
             };
 
             const types = [new DataType(typeConfig1, 'firstType'), new DataType(typeConfig2, 'secondType')];
 
-            const results = DataType.mergeGraphQLDataTypes(types);
+            const results = DataType.mergeGraphQLDataTypes(types, {
+                customTypes: ['scalar FOOO'],
+                removeScalars: true
+            });
+
             const schema = formatSchema(`
-                    type firstType {
-                        date: String
-                        hello: String
-                        ip: String
-                        location: DTGeoPointV1
-                        someNum: Int
-                    }
+                type firstType {
+                    date: String
+                    hello: String
+                    ip: String
+                    location: DTGeoPointV1
+                    someNum: Int
+                }
 
-                    type DTGeoPointV1 {
-                        lat: String!
-                        lon: String!
-                    }
+                type DTGeoPointV1 {
+                    lat: String!
+                    lon: String!
+                }
 
-                    type secondType {
-                        bool: Boolean
-                        hello: String
-                        location: DTGeoPointV1
-                        otherLocation: DTGeoPointV1
-                    }
-                `);
+                type DTGeoBoundaryV1 {
+                    lat: Float!
+                    lon: Float!
+                }
+
+                type secondType {
+                    bool: Boolean
+                    hello: String
+                    location: DTGeoPointV1
+                    otherLocation: [[DTGeoBoundaryV1]]
+                }
+            `);
 
             expect(results).toEqual(schema);
         });

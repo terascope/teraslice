@@ -1,6 +1,6 @@
 import { FieldType } from 'xlucene-evaluator';
 import BaseType from '../base-type';
-import { ElasticSearchTypes } from '../../../interfaces';
+import { ElasticSearchTypes } from '../../interfaces';
 
 export default class Boundary extends BaseType {
     toESMapping(_version?: number) {
@@ -21,11 +21,11 @@ export default class Boundary extends BaseType {
         const name = this._formatGQLTypeName('GeoBoundary', isInput);
         const customType = `
             ${defType} ${name} {
-                lat: Int!
-                lon: Int!
+                lat: Float!
+                lon: Float!
             }
         `;
-        return this._formatGql(name, customType);
+        return this._formatGql(`[${name}]`, customType);
     }
 
     toXlucene() {

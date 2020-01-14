@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import KeywordTokens from '../../../src/types/versions/v1/keyword-tokens';
+import KeywordTokens from '../../../src/types/v1/keyword-tokens';
 import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
 
 describe('KeywordTokens V1', () => {

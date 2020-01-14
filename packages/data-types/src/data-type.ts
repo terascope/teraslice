@@ -2,7 +2,7 @@ import * as ts from '@terascope/utils';
 import defaultsDeep from 'lodash.defaultsdeep';
 import { formatSchema, formatGQLComment } from './graphql-helper';
 import * as i from './interfaces';
-import BaseType from './types/versions/base-type';
+import BaseType from './types/base-type';
 import * as utils from './utils';
 import { getTypes, LATEST_VERSION } from './types';
 
@@ -29,7 +29,7 @@ export class DataType {
             removeScalars = false
         } = options;
 
-        const customTypes: string[] = [];
+        const customTypes: string[] = [...(options.customTypes ?? [])];
         const typeDefs: string[] = [];
         const names: string[] = [];
 
@@ -73,7 +73,7 @@ export class DataType {
             }
         });
 
-        const strSchema = utils.joinStrings(customTypes, typeDefs);
+        const strSchema = utils.joinStrings(customTypes, customTypes, typeDefs);
 
         return formatSchema(strSchema, removeScalars);
     }
@@ -142,7 +142,9 @@ export class DataType {
 
     toGraphQL(args?: i.GraphQLOptions, removeScalars = false) {
         const { baseType, inputType, customTypes } = this.toGraphQLTypes(args);
-        const schema = utils.joinStrings(customTypes, baseType, inputType);
+        const schema = utils.joinStrings(
+            customTypes, baseType, inputType, args?.customTypes
+        );
         return formatSchema(schema, removeScalars);
     }
 

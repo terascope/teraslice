@@ -76,7 +76,7 @@ export function formatSchema(schemaStr: string, removeScalars = false) {
     });
 
     if (removeScalars) {
-        return result.replace(/\s*scalar \w+\s*/gi, '\n');
+        return result.replace(/\s*scalar \w+/g, '');
     }
     return result;
 }

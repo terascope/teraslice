@@ -1,6 +1,6 @@
 import { FieldType } from 'xlucene-evaluator';
 import BaseType from '../base-type';
-import { ElasticSearchTypes } from '../../../interfaces';
+import { ElasticSearchTypes } from '../../interfaces';
 
 // TODO: This type is deprecated, not sure how to properly indicate it.
 export default class GeoType extends BaseType {

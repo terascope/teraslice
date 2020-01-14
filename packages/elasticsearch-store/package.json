@@ -30,7 +30,7 @@
         "xlucene-evaluator": "^0.17.0"
     },
     "devDependencies": {
-        "@terascope/data-types": "^0.11.0",
+        "@terascope/data-types": "^0.11.1",
         "elasticsearch": "^15.4.1"
     },
     "publishConfig": {

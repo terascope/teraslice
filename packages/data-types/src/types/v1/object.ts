@@ -1,6 +1,6 @@
 import { FieldType } from 'xlucene-evaluator';
 import BaseType from '../base-type';
-import { ESTypeMapping } from '../../../interfaces';
+import { ESTypeMapping } from '../../interfaces';
 
 export default class ObjectType extends BaseType {
     toESMapping(_version?: number) {
