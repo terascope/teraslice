@@ -13,8 +13,7 @@
     ],
     "scripts": {
         "benchmark": "lerna run --concurrency=1 --no-prefix --stream benchmark",
-        "prebuild": "lerna run prebuild",
-        "build": "tsc --build",
+        "build": "lerna run prebuild && tsc --build",
         "build:all": "yarn build:cleanup && env FORCE_COLOR=1 lerna run build",
         "build:cleanup": "./scripts/build-cleanup.sh",
         "build:fix": "./scripts/build-fix.sh",
@@ -25,8 +24,8 @@
         "docs": "ts-scripts docs",
         "lint": "eslint --cache --ext .js,.jsx,.ts,.tsx .",
         "lint:fix": "yarn lint --fix && yarn sync",
-        "quick:setup": "lerna link --force-local && yarn build",
-        "setup": "yarn && lerna link --force-local && yarn build:cleanup && yarn build && yarn sync -q",
+        "quick:setup": "lerna link --force-local && lerna run prebuild && tsc --build",
+        "setup": "yarn && lerna link --force-local && ./scripts/build-cleanup.sh && lerna run prebuild && tsc --build && ts-scripts sync -q",
         "start": "node service.js",
         "sync": "ts-scripts sync",
         "test": "ts-scripts test"
