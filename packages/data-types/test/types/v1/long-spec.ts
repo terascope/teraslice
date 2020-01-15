@@ -1,6 +1,6 @@
 import { TSError } from '@terascope/utils';
 import { FieldType } from 'xlucene-evaluator';
-import LongType from '../../../src/types/versions/v1/long';
+import LongType from '../../../src/types/v1/long';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Long V1', () => {
@@ -31,9 +31,9 @@ describe('Long V1', () => {
         expect(esMapping).toEqual(results);
     });
 
-    it('can get proper graphQl types', () => {
+    it('can get proper graphql types', () => {
         const graphQlTypes = new LongType(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: Int` };
+        const results = { type: `${field}: Int`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });

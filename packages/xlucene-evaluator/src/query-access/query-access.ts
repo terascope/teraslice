@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import * as p from '../parser';
@@ -50,8 +49,8 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             ? options.logger.child({ module: 'xlucene-query-access' })
             : _logger;
 
-        this.excludes = excludes;
-        this.includes = includes;
+        this.excludes = excludes?.slice();
+        this.includes = includes?.slice();
         this.constraints = ts.castArray(constraint).filter(Boolean) as string[];
         this.allowEmpty = Boolean(allowEmpty);
         this.preventPrefixWildcard = Boolean(config.prevent_prefix_wildcard);
@@ -74,16 +73,24 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      * @returns a restricted xlucene query
      */
     restrict(q: string, options: i.RestrictOptions = {}): string {
+        return this._restrict(q, options).query;
+    }
+
+    /**
+     * Validate and restrict a xlucene query
+     *
+     * @returns a restricted xlucene query
+     */
+    private _restrict(q: string, options: i.RestrictOptions = {}): p.Parser {
         let parser: p.Parser;
-        const { variables } = options;
-        const queryVariables = Object.assign({}, this.variables, variables);
+        const parserOptions: p.ParserOptions = {
+            logger: this.logger,
+            type_config: this.typeConfig,
+            variables: Object.assign({}, this.variables, options.variables)
+        };
 
         try {
-            parser = this._parser.make(q, {
-                logger: this.logger,
-                type_config: this.typeConfig,
-                variables: queryVariables
-            });
+            parser = this._parser.make(q, parserOptions);
         } catch (err) {
             throw new ts.TSError(err, {
                 reason: 'Query could not be parsed',
@@ -105,7 +112,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
                     }
                 });
             }
-            return addConstraints(this.constraints, '');
+            return this._addConstraints(parser, parserOptions);
         }
 
         parser.forTermTypes((node: p.TermLikeAST) => {
@@ -145,7 +152,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             }
         });
 
-        return addConstraints(this.constraints, q);
+        return this._addConstraints(parser, parserOptions);
     }
 
     private _restrictTypeConfig(): TypeConfig {
@@ -182,36 +189,28 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         opts: i.RestrictSearchQueryOptions = {}
     ): Promise<es.SearchParams> {
         const {
-            params = {},
+            params: _params = {},
             variables = {},
             elasticsearch_version: esVersion = 6,
             ...translateOptions
         } = opts;
-        const queryVariables = Object.assign({}, this.variables, variables);
 
-        if (params._source) {
+        if (_params._source) {
             throw new ts.TSError('Cannot include _source in params, use _sourceInclude or _sourceExclude');
         }
+        const params = { ..._params };
 
-        const restricted = this.restrict(query, { variables: queryVariables });
-
-        await ts.pImmediate();
-
-        const parsed = this._parser.make(restricted, {
-            type_config: this.typeConfig,
-            logger: this.logger,
-            variables: queryVariables
-        });
+        const parser = this._restrict(query, { variables });
 
         await ts.pImmediate();
 
-        const translator = this._translator.make(parsed, {
+        const translator = this._translator.make(parser, {
             type_config: this.parsedTypeConfig,
             logger: this.logger,
             default_geo_field: this.defaultGeoField,
             default_geo_sort_order: this.defaultGeoSortOrder,
             default_geo_sort_unit: this.defaultGeoSortUnit,
-            variables: queryVariables
+            variables: parser.variables
         });
 
         const translated = translator.toElasticsearchDSL(translateOptions);
@@ -221,25 +220,21 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             params._sourceExclude as (keyof T)[]
         );
 
-        const searchParams = _.defaultsDeep({}, params, {
-            body: translated,
-            _sourceInclude: includes,
-            _sourceExclude: excludes,
-        });
+        delete params._sourceInclude;
+        delete params._sourceExclude;
+
+        const excludesKey: any = esVersion >= 7 ? '_sourceExcludes' : '_sourceExclude';
+        const includesKey: any = esVersion >= 7 ? '_sourceIncludes' : '_sourceInclude';
+
+        const searchParams: es.SearchParams = {
+            ...params,
+            body: { ...params.body, ...translated },
+            [excludesKey]: excludes,
+            [includesKey]: includes,
+        };
 
         if (searchParams != null) {
             delete searchParams.q;
-        }
-
-        if (esVersion >= 7) {
-            if (searchParams._sourceExclude) {
-                searchParams._sourceExcludes = searchParams._sourceExclude.slice();
-                delete searchParams._sourceExclude;
-            }
-            if (searchParams._sourceInclude) {
-                searchParams._sourceIncludes = searchParams._sourceInclude.slice();
-                delete searchParams._sourceInclude;
-            }
         }
 
         return searchParams;
@@ -251,32 +246,35 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      * **NOTE:** this will remove restricted fields and will not throw
      */
     restrictSourceFields(includes?: (keyof T)[], excludes?: (keyof T)[]) {
+        const all = Object.keys(this.parsedTypeConfig)
+            .map((field) => field.split('.')[0]) as (keyof T)[];
+
         return {
-            includes: this._getSourceFields(this.includes, includes),
-            excludes: this._getSourceFields(this.excludes, excludes),
+            includes: this._getSourceFields(this.includes, all, includes),
+            excludes: this._getSourceFields(this.excludes, all, excludes),
         };
     }
 
     private _getSourceFields(
-        restricted?: (keyof T)[],
-        override?: (keyof T)[] | boolean | (keyof T)
+        restricted: (keyof T)[],
+        all: (keyof T)[],
+        override?: (keyof T)[] | boolean | (keyof T),
     ): (keyof T)[] | undefined {
-        if (restricted && override) {
-            const fields = ts.uniq(ts.parseList(override) as (keyof T)[]);
+        const fields = ts.uniq(ts.parseList(override) as (keyof T)[]);
 
-            for (const field of restricted) {
-                const index = fields.indexOf(field);
-                delete fields[index];
+        if (fields.length) {
+            if (restricted.length) {
+                return restricted.filter((field) => fields.includes(field));
             }
 
-            return [...fields];
+            if (all.length) {
+                return fields.filter((field) => all.includes(field));
+            }
+
+            return fields;
         }
 
-        if (override) {
-            return [];
-        }
-
-        return restricted;
+        return restricted.slice();
     }
 
     private _isFieldRestricted(field: string): boolean {
@@ -292,6 +290,15 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             }
             return matchField(typeField, field);
         });
+    }
+
+    private _addConstraints(parser: p.Parser, options: p.ParserOptions): p.Parser {
+        if (this.constraints?.length) {
+            const queries = ts.concat(this.constraints, [parser.query]).filter(Boolean) as string[];
+            if (queries.length === 1) return this._parser.make(queries[0], options);
+            return this._parser.make(`(${queries.join(') AND (')})`, options);
+        }
+        return parser;
     }
 }
 
@@ -343,11 +350,4 @@ function startsWithWildcard(input?: string | number) {
     if (!ts.isString(input)) return false;
 
     return ['*', '?'].includes(ts.getFirstChar(input));
-}
-
-function addConstraints(constraints?: string[], query?: string): string {
-    const queries = ts.concat(constraints || [], [query]).filter(Boolean) as string[];
-    if (queries.length === 0) return '';
-    if (queries.length === 1) return queries[0];
-    return `(${queries.join(') AND (')})`;
 }

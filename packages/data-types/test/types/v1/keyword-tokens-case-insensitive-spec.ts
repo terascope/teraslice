@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import KeywordTokensCaseInsensitive from '../../../src/types/versions/v1/keyword-tokens-case-insensitive';
+import KeywordTokensCaseInsensitive from '../../../src/types/v1/keyword-tokens-case-insensitive';
 import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
 
 describe('KeywordTokensCaseInsensitive V1', () => {
@@ -50,9 +50,9 @@ describe('KeywordTokensCaseInsensitive V1', () => {
         expect(esMapping).toEqual(results);
     });
 
-    it('can get proper graphQl types', () => {
+    it('can get proper graphql types', () => {
         const graphQlTypes = new KeywordTokensCaseInsensitive(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: String` };
+        const results = { type: `${field}: String`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });

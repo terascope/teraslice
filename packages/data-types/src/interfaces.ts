@@ -1,16 +1,27 @@
 import { AnyObject } from '@terascope/utils';
-import BaseType from './types/versions/base-type';
+import BaseType from './types/base-type';
 
 export type GraphQLTypesResult = {
-    schema: string;
     baseType: string;
+    inputType?: string;
     customTypes: string[];
 };
 
 export type GraphQLOptions = {
     typeName?: string;
     description?: string;
+    customTypes?: string[];
     references?: string[];
+    createInputType?: boolean;
+    includeAllInputFields?: boolean;
+};
+
+export type MergeGraphQLOptions = {
+    removeScalars?: boolean;
+    references?: GraphQLTypeReferences;
+    customTypes?: string[];
+    createInputTypes?: boolean;
+    includeAllInputFields?: boolean;
 };
 
 export type GraphQLTypeReferences = { __all?: string[] } & {
@@ -91,9 +102,31 @@ export type AvailableVersion = 1;
 export const AvailableVersions: readonly AvailableVersion[] = [1];
 
 export type FieldTypeConfig = {
+    /**
+     * The type of field
+    */
     type: AvailableType;
+    /**
+     * Indicates whether the field is an array
+    */
     array?: boolean;
+    /**
+     * A description for the fields
+    */
     description?: string;
+    /**
+     * Specifies whether the field is index in elasticsearch
+     *
+     * (Only type Object currently support this)
+     * @default true
+    */
+    indexed?: boolean;
+
+    /**
+     * A temporary flag to fix KeywordCaseInsensitive to be
+     * a type keyword with case insenstive .text fields
+    */
+    use_fields_hack?: boolean;
 };
 
 type ActualType = {
@@ -115,7 +148,7 @@ export type DataTypeConfig = {
 
 export interface GraphQLType {
     type: string;
-    custom_type?: string;
+    customTypes: string[];
 }
 
 export type ESTypeMapping = PropertyESTypeMapping | FieldsESTypeMapping | BasicESTypeMapping;
@@ -136,10 +169,11 @@ type FieldsESTypeMapping = {
     };
 };
 
-type PropertyESTypeMapping = {
+export type PropertyESTypes = FieldsESTypeMapping | BasicESTypeMapping;
+export type PropertyESTypeMapping = {
     type?: 'nested' | 'object';
     properties: {
-        [key: string]: FieldsESTypeMapping | BasicESTypeMapping;
+        [key: string]: PropertyESTypes;
     };
 };
 

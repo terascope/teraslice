@@ -92,7 +92,7 @@ export async function ensureKafka(options: TestOptions): Promise<() => void> {
 export async function ensureElasticsearch(options: TestOptions): Promise<() => void> {
     let fn = () => {};
     fn = await startService(options, Service.Elasticsearch);
-    await checkElasticsearch(options, 10);
+    await checkElasticsearch(options);
     return fn;
 }
 
@@ -107,7 +107,7 @@ async function stopService(service: Service) {
     signale.success(`stopped service ${service}, took ${ms(Date.now() - startTime)}`);
 }
 
-async function checkElasticsearch(options: TestOptions, retries: number): Promise<void> {
+async function checkElasticsearch(options: TestOptions): Promise<void> {
     const elasticsearchHost = config.ELASTICSEARCH_HOST;
 
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
@@ -115,7 +115,11 @@ async function checkElasticsearch(options: TestOptions, retries: number): Promis
 
     return pRetry(
         async () => {
-            logger.debug(`checking elasticsearch at ${elasticsearchHost}`);
+            if (options.trace) {
+                signale.debug(`checking elasticsearch at ${elasticsearchHost}`);
+            } else {
+                logger.debug(`checking elasticsearch at ${elasticsearchHost}`);
+            }
 
             let body: any;
             try {
@@ -130,7 +134,11 @@ async function checkElasticsearch(options: TestOptions, retries: number): Promis
                 });
             }
 
-            logger.debug('got response from elasticsearch service', body);
+            if (options.trace) {
+                signale.debug('got response from elasticsearch service', body);
+            } else {
+                logger.debug('got response from elasticsearch service', body);
+            }
 
             if (!body || !body.version || !body.version.number) {
                 throw new TSError(`Invalid response from elasticsearch at ${elasticsearchHost}`, {
@@ -157,7 +165,11 @@ async function checkElasticsearch(options: TestOptions, retries: number): Promis
             );
         },
         {
-            retries,
+            // roughly 90 seconds
+            retries: 90,
+            delay: 500,
+            backoff: 1,
+            maxDelay: 500
         }
     );
 }
@@ -174,7 +186,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
 
     await stopService(service);
 
-    const fn = await dockerRun(services[service], version, options.debug);
+    const fn = await dockerRun(services[service], version, options.debug || options.trace);
 
     signale.success(`started ${service}@${version} service, took ~${ms(Date.now() - startTime)}`);
 

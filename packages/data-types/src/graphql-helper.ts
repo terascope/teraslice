@@ -1,10 +1,8 @@
+import * as ts from '@terascope/utils';
 import {
     GraphQLScalarType, ASTNode, buildSchema, printSchema
 } from 'graphql';
 import { Kind, StringValueNode } from 'graphql/language';
-import { mapping } from './types/versions/mapping';
-
-const allTypes = Object.assign({}, ...Object.values(mapping));
 
 function serialize(value: any) {
     return value;
@@ -19,7 +17,7 @@ function parseLiteral(ast: ASTNode) {
 
     return ast.fields.reduce((accum, curr) => {
         const fieldName = curr.name.value;
-        console.error(JSON.stringify(curr.value, null, 4));
+
         if (curr.value.kind !== Kind.OBJECT) {
             throw new Error(`Field ${fieldName} must be set to an object`);
         }
@@ -34,7 +32,7 @@ function parseLiteral(ast: ASTNode) {
             const keyValue = (valueNode as StringValueNode).value;
 
             if (keyName === 'type') {
-                if (valueNode.kind !== Kind.STRING || !allTypes[valueNode.value]) {
+                if (valueNode.kind !== Kind.STRING) {
                     throw new Error(`${keyName}: ${keyValue} is not a valid type`);
                 }
             }
@@ -45,7 +43,7 @@ function parseLiteral(ast: ASTNode) {
                 }
             }
 
-            if (keyName === 'array') {
+            if (keyName === 'array' || keyName === 'indexed') {
                 if (valueNode.kind !== Kind.BOOLEAN && valueNode.kind !== Kind.NULL) {
                     throw new Error(`${keyName}: ${keyValue} is not a valid boolean`);
                 }
@@ -69,9 +67,31 @@ export const GraphQLDataType = new GraphQLScalarType({
     parseLiteral,
 });
 
-export function formatSchema(schemaStr: string) {
-    const schema = buildSchema(schemaStr, { commentDescriptions: true });
-    return printSchema(schema, {
+export function formatSchema(schemaStr: string, removeScalars = false) {
+    const schema = buildSchema(schemaStr, {
+        commentDescriptions: true,
+    });
+    const result = printSchema(schema, {
         commentDescriptions: true
     });
+
+    if (removeScalars) {
+        return result.replace(/\s*scalar \w+/g, '');
+    }
+    return result;
+}
+
+export function formatGQLComment(desc?: string, prefix?: string): string {
+    let description = ts.trim(desc);
+    if (prefix) {
+        description = description ? `${prefix} - ${description}` : prefix;
+    }
+    if (!description) return '';
+
+    return description
+        .split('\n')
+        .map((str) => ts.trim(str).replace(/^#/, '').trim())
+        .filter(Boolean)
+        .map((str) => `# ${str}`)
+        .join('\n');
 }

@@ -1,6 +1,6 @@
 import { Logger, Omit } from '@terascope/utils';
 import { Variables } from 'xlucene-evaluator';
-import { ESTypeMappings, ESIndexSettings } from '@terascope/data-types';
+import { ESIndexSettings, DataType } from '@terascope/data-types';
 
 /** A versioned Index Configuration */
 export interface IndexConfig<T = any> {
@@ -19,6 +19,11 @@ export interface IndexConfig<T = any> {
      * Data Version, this allows multiple versions of an index to exist with the same Schema
      */
     version?: number;
+
+    /**
+     * The DataType of the index (used for generating the mappings)
+     */
+    data_type: DataType;
 
     /**
      * Elasticsearch Index Settings
@@ -80,11 +85,6 @@ export interface IndexConfig<T = any> {
 
 /** Elasticsearch Index Schema, Mapping and Version */
 export interface IndexSchema {
-    /**
-     * The ElasticSearch index mapping
-     */
-    mapping: ESTypeMappings;
-
     /**
      * The version of this particular Schema definition
      */
@@ -219,8 +219,8 @@ export interface IndexModelConfig<T extends IndexModelRecord> {
     /** Name of the Model/Data Type */
     name: string;
 
-    /** the elasticsearch type mappings */
-    mapping: ESTypeMappings;
+    /** The DataType of the model */
+    data_type: DataType;
 
     /** JSON Schema */
     schema: any;

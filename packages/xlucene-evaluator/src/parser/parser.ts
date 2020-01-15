@@ -7,12 +7,14 @@ import {
 import { parse } from './peg-engine';
 import * as i from './interfaces';
 import * as utils from './utils';
+import { Variables } from '../interfaces';
 
 const _logger = debugLogger('xlucene-parser');
 
 export class Parser {
     readonly ast: i.AST;
     readonly query: string;
+    readonly variables: Variables;
     logger: Logger;
 
     constructor(query: string, options: i.ParserOptions = {}) {
@@ -22,10 +24,10 @@ export class Parser {
 
         this.query = trim(query || '');
 
-        const variables = options.variables ? utils.validateVariables(options.variables) : {};
+        this.variables = options.variables ? utils.validateVariables(options.variables) : {};
         const contextArg = {
             typeConfig: options.type_config,
-            variables,
+            variables: this.variables,
             logger: this.logger
         };
 

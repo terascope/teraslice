@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import NgramTokens from '../../../src/types/versions/v1/ngram-tokens';
+import NgramTokens from '../../../src/types/v1/ngram-tokens';
 import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
 
 describe('NgramTokens V1', () => {
@@ -56,9 +56,9 @@ describe('NgramTokens V1', () => {
         expect(esMapping).toEqual(results);
     });
 
-    it('can get proper graphQl types', () => {
+    it('can get proper graphql types', () => {
         const graphQlTypes = new NgramTokens(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: String` };
+        const results = { type: `${field}: String`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });

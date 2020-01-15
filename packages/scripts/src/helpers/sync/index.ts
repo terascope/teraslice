@@ -15,9 +15,7 @@ export async function syncAll(options: SyncOptions) {
     utils.syncVersions(pkgInfos, rootInfo);
     await updatePkgJSON(rootInfo);
 
-    for (const pkgInfo of pkgInfos) {
-        await utils.syncPackage(files, pkgInfo);
-    }
+    await Promise.all(pkgInfos.map((pkgInfo) => utils.syncPackage(files, pkgInfo)));
 
     await updateSidebarJSON();
     await utils.verify(files, options);

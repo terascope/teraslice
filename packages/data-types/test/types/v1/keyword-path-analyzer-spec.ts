@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import KeywordPathAnalyzer from '../../../src/types/versions/v1/keyword-path-analyzer';
+import KeywordPathAnalyzer from '../../../src/types/v1/keyword-path-analyzer';
 import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
 
 describe('KeywordPathAnalyzer V1', () => {
@@ -54,9 +54,9 @@ describe('KeywordPathAnalyzer V1', () => {
         expect(esMapping).toEqual(results);
     });
 
-    it('can get proper graphQl types', () => {
+    it('can get proper graphql types', () => {
         const graphQlTypes = new KeywordPathAnalyzer(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: String` };
+        const results = { type: `${field}: String`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });

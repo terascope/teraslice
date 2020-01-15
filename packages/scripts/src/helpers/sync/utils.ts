@@ -75,9 +75,11 @@ export function getFiles(pkgInfo: PackageInfo): string[] {
 }
 
 export async function syncPackage(files: string[], pkgInfo: PackageInfo) {
-    await updateReadme(pkgInfo);
-    await ensureOverview(pkgInfo);
-    await updatePkgJSON(pkgInfo);
+    await Promise.all([
+        updateReadme(pkgInfo),
+        ensureOverview(pkgInfo),
+        updatePkgJSON(pkgInfo),
+    ]);
 
     files.push(...getFiles(pkgInfo));
 }

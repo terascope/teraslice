@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import DateType from '../../../src/types/versions/v1/date';
+import DateType from '../../../src/types/v1/date';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Date V1', () => {
@@ -30,9 +30,9 @@ describe('Date V1', () => {
         expect(esMapping).toEqual(results);
     });
 
-    it('can get proper graphQl types', () => {
+    it('can get proper graphql types', () => {
         const graphQlTypes = new DateType(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: String` };
+        const results = { type: `${field}: String`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });

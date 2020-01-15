@@ -68,9 +68,7 @@ export default class IndexStore<T extends Record<string, any>> {
             wait: this._bulkMaxWait,
         });
 
-        if (config.index_schema != null) {
-            this.xluceneTypeConfig = utils.getXLuceneTypesFromMapping(config.index_schema.mapping);
-        }
+        this.xluceneTypeConfig = config.data_type.toXlucene();
 
         if (config.data_schema != null) {
             const validator = utils.makeDataValidator(config.data_schema, this._logger);

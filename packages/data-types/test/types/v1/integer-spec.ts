@@ -1,6 +1,6 @@
 import { TSError } from '@terascope/utils';
 import { FieldType } from 'xlucene-evaluator';
-import Interger from '../../../src/types/versions/v1/integer';
+import Interger from '../../../src/types/v1/integer';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Integer V1', () => {
@@ -31,9 +31,9 @@ describe('Integer V1', () => {
         expect(esMapping).toEqual(results);
     });
 
-    it('can get proper graphQl types', () => {
+    it('can get proper graphql types', () => {
         const graphQlTypes = new Interger(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: Int` };
+        const results = { type: `${field}: Int`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });

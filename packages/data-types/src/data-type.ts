@@ -1,10 +1,10 @@
 import * as ts from '@terascope/utils';
 import defaultsDeep from 'lodash.defaultsdeep';
-import { formatSchema } from './graphql-helper';
+import { formatSchema, formatGQLComment } from './graphql-helper';
 import * as i from './interfaces';
-import BaseType from './types/versions/base-type';
-import { validateDataTypeConfig, formatGQLComment } from './utils';
-import { TypesManager } from './types';
+import BaseType from './types/base-type';
+import * as utils from './utils';
+import { getTypes, LATEST_VERSION } from './types';
 
 /**
  * A DataType is used to define the structure of data with version support
@@ -17,43 +17,80 @@ import { TypesManager } from './types';
 export class DataType {
     readonly name!: string;
     readonly description?: string;
+    readonly fields: i.TypeConfigFields;
+    readonly version: i.AvailableVersion;
 
     private readonly _types: BaseType[];
 
     /** Merge multiple data types into one GraphQL schema, useful for removing duplicates */
-    static mergeGraphQLDataTypes(types: DataType[], typeReferences: i.GraphQLTypeReferences = {}) {
-        const customTypesList: string[] = [];
-        const baseTypeList: string[] = [];
+    static mergeGraphQLDataTypes(types: DataType[], options: i.MergeGraphQLOptions = {}) {
+        const {
+            references: typeReferences = {},
+            removeScalars = false
+        } = options;
+
+        const customTypes: string[] = [...(options.customTypes ?? [])];
+        const typeDefs: string[] = [];
+        const names: string[] = [];
 
         types.forEach((type) => {
+            if (!type.name || !ts.isString(type.name)) {
+                throw new Error('Unable to process DataType with missing type name');
+            }
+
+            if (names.includes(type.name)) {
+                throw new Error(`Unable to process duplicate DataType "${type.name}"`);
+            }
+            names.push(type.name);
+
+            if (options.createInputTypes) {
+                const inputName = `${type.name}Input`;
+
+                if (names.includes(inputName)) {
+                    throw new Error(`Unable to process duplicate DataType "${inputName}" input`);
+                }
+                names.push(inputName);
+            }
+
             const global = typeReferences.__all || [];
             const typeSpecific = typeReferences[type.name] || [];
-            const references: string[] = [...global, ...typeSpecific];
+            const references: string[] = utils.concatUniqueStrings(
+                global,
+                typeSpecific
+            );
 
-            const { baseType, customTypes } = type.toGraphQLTypes({
+            const result = type.toGraphQLTypes({
                 references,
+                createInputType: options.createInputTypes,
+                includeAllInputFields: options.includeAllInputFields,
             });
 
-            customTypesList.push(...customTypes.map(ts.trim));
-            baseTypeList.push(baseType.trim());
+            customTypes.push(...result.customTypes);
+            typeDefs.push(result.baseType);
+
+            if (result.inputType) {
+                typeDefs.push(result.inputType);
+            }
         });
 
-        const strSchema = `
-            ${baseTypeList.join('\n')}
-            ${ts.uniq(customTypesList).join('\n')}
-        `;
+        const strSchema = utils.joinStrings(customTypes, customTypes, typeDefs);
 
-        return formatSchema(strSchema);
+        return formatSchema(strSchema, removeScalars);
     }
 
-    constructor(config: i.DataTypeConfig, typeName?: string, description?: string) {
+    constructor(config: Partial<i.DataTypeConfig>, typeName?: string, description?: string) {
         if (typeName) this.name = typeName;
         if (description) this.description = description;
 
-        const { version, fields } = validateDataTypeConfig(config);
+        const { version, fields } = utils.validateDataTypeConfig({
+            version: LATEST_VERSION,
+            fields: {},
+            ...config,
+        });
+        this.fields = fields;
+        this.version = version;
 
-        const typeManager = new TypesManager(version);
-        this._types = typeManager.getTypes(fields);
+        this._types = getTypes(fields, version);
     }
 
     /**
@@ -100,62 +137,83 @@ export class DataType {
             }
         }
 
-        return defaultsDeep(ts.cloneDeep(overrides), esMapping);
+        return defaultsDeep({}, overrides, esMapping);
     }
 
-    toGraphQL(args?: i.GraphQLOptions) {
-        const { schema } = this.toGraphQLTypes(args);
-
-        return formatSchema(schema);
+    toGraphQL(args?: i.GraphQLOptions, removeScalars = false) {
+        const { baseType, inputType, customTypes } = this.toGraphQLTypes(args);
+        const schema = utils.joinStrings(
+            customTypes, baseType, inputType, args?.customTypes
+        );
+        return formatSchema(schema, removeScalars);
     }
 
     toGraphQLTypes(args: i.GraphQLOptions = {}): i.GraphQLTypesResult {
-        const { typeName = this.name, references = [], description = this.description } = args;
+        const {
+            typeName = this.name,
+            references = [],
+            description = this.description,
+            createInputType = false
+        } = args;
+
         if (!typeName) {
             throw new ts.TSError('No typeName was specified to create the graphql type representing this data structure');
         }
 
-        const customTypes = new Set<string>();
-        const baseProperties = new Set<string>();
+        const inputName = `${typeName}Input`;
+
+        const customTypes: string[] = [];
+        const baseProperties: string[] = [];
+        const inputProperties: string[] = [];
 
         this._types.forEach((typeClass) => {
-            const { type, custom_type: customType } = typeClass.toGraphQL();
-            const desc = typeClass.config.description;
-            if (desc) {
-                baseProperties.add(
-                    `${formatGQLComment(desc)}\n${type.trim()}`
-                );
-            } else {
-                baseProperties.add(type.trim());
-            }
-            if (customType) {
-                customTypes.add(customType.trim());
+            const result = typeClass.toGraphQL(typeName);
+            baseProperties.push(result.type);
+            customTypes.push(...result.customTypes);
+
+            if (createInputType) {
+                if (args.includeAllInputFields
+                    || !ts.startsWith(typeClass.field, '_')) {
+                    const inputResult = typeClass.toGraphQL(
+                        typeName,
+                        true,
+                        args.includeAllInputFields
+                    );
+                    inputProperties.push(inputResult.type);
+                    customTypes.push(...inputResult.customTypes);
+                }
             }
         });
 
         if (references.length) {
-            baseProperties.add(formatGQLComment('references and virtual fields'));
-            references.forEach((prop) => {
-                baseProperties.add(prop.trim());
-            });
+            baseProperties.push(utils.joinStrings(
+                formatGQLComment('references and virtual fields'),
+                references
+            ));
         }
 
-        const baseType = `
-            ${formatGQLComment(description)}
-            type ${typeName} {
-                ${[...baseProperties].join('\n')}
-            }
-        `.trim();
+        const baseType = utils.joinStrings(
+            formatGQLComment(description),
+            `type ${typeName} {
+                ${utils.joinStrings(baseProperties)}
+            }`
+        );
 
-        const schema = `
-            ${baseType}
-            ${[...customTypes].join('\n')}
-        `.trim();
+        let inputType: string|undefined;
+
+        if (createInputType) {
+            inputType = utils.joinStrings(
+                formatGQLComment(description, `Input for ${typeName}`),
+                `input ${inputName} {
+                    ${utils.joinStrings(inputProperties)}
+                }`
+            );
+        }
 
         return {
-            schema,
             baseType,
-            customTypes: [...customTypes],
+            inputType,
+            customTypes,
         };
     }
 

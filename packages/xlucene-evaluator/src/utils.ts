@@ -6,7 +6,6 @@ import {
     parseNumberList,
     isNumber,
     AnyObject,
-    withoutNil,
     TSError,
     startsWith
 } from '@terascope/utils';
@@ -321,31 +320,32 @@ export function createJoinQuery(
         typeConfig = {},
         variables
     } = options;
+
     const variableState = new VariableState(variables);
-    let query = '';
-    const obj = withoutNil(input);
+    const query = Object.entries(input)
+        .map(([field, val]) => {
+            if (val == null) return '';
 
-    if (Object.keys(obj).length) {
-        query = Object.entries(obj)
-            .map(([field, val]) => {
-                if (isGeoQuery(typeConfig[field])) {
-                    return createGeoQuery(
-                        variableState,
-                        field,
-                        val,
-                        typeConfig[field],
-                        fieldParams[field]
-                    );
-                }
+            const config = typeConfig[field];
 
-                const value = variableState.createVariable(field, val);
-                return `${field}: ${value}`;
-            })
-            .join(` ${joinBy} `)
-            .trim();
-    }
+            if (isGeoQuery(config)) {
+                return createGeoQuery(
+                    variableState,
+                    field,
+                    val,
+                    config,
+                    fieldParams[field]
+                );
+            }
 
-    const finalVariables = variableState.getVaraibles();
+            const value = variableState.createVariable(field, val);
+            return `${field}: ${value}`;
+        })
+        .filter(Boolean)
+        .join(` ${joinBy} `)
+        .trim();
+
+    const finalVariables = variableState.getVariables();
     return { query, variables: finalVariables };
 }
 
@@ -353,7 +353,7 @@ export class VariableState {
     private variables: AnyObject;
 
     constructor(variables?: AnyObject) {
-        this.variables = variables || {};
+        this.variables = { ...variables };
     }
 
     private _makeKey(field: string) {
@@ -379,7 +379,14 @@ export class VariableState {
         return `$${key}`;
     }
 
-    getVaraibles() {
-        return { ...this.variables };
+    /**
+     * Shallow clones and sorts the keys
+    */
+    getVariables() {
+        const result: AnyObject = {};
+        for (const key of Object.keys(this.variables).sort()) {
+            result[key] = this.variables[key];
+        }
+        return result;
     }
 }

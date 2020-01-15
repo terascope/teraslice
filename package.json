@@ -1,5 +1,6 @@
 {
     "name": "teraslice-workspace",
+    "displayName": "Teraslice",
     "version": "0.62.2",
     "private": true,
     "homepage": "https://github.com/terascope/teraslice",
@@ -12,9 +13,8 @@
     ],
     "scripts": {
         "benchmark": "lerna run --concurrency=1 --no-prefix --stream benchmark",
-        "prebuild": "lerna run prebuild",
-        "build": "tsc --build",
-        "build:all": "yarn build:cleanup && env FORCE_COLOR=1 yarn lerna run build",
+        "build": "lerna run prebuild && tsc --build",
+        "build:all": "yarn build:cleanup && env FORCE_COLOR=1 lerna run build",
         "build:cleanup": "./scripts/build-cleanup.sh",
         "build:fix": "./scripts/build-fix.sh",
         "build:pkg": "./scripts/build-pkg.sh",
@@ -22,14 +22,19 @@
         "bump": "ts-scripts bump",
         "cleanup": "yarn build:fix",
         "docs": "ts-scripts docs",
-        "lint": "yarn lint:es && yarn sync --verify",
-        "lint:es": "eslint --cache --ext .js,.jsx,.ts,.tsx .",
-        "lint:fix": "yarn lint:es --fix && yarn sync",
-        "quick:setup": "yarn lerna link --force-local && yarn build",
-        "setup": "yarn && yarn lerna link --force-local && yarn build:cleanup && yarn build && yarn sync -q",
+        "lint": "eslint --cache --ext .js,.jsx,.ts,.tsx .",
+        "lint:fix": "yarn lint --fix && yarn sync",
+        "quick:setup": "lerna link --force-local && lerna run prebuild && tsc --build",
+        "setup": "yarn && lerna link --force-local && ./scripts/build-cleanup.sh && lerna run prebuild && tsc --build && ts-scripts sync -q",
         "start": "node service.js",
         "sync": "ts-scripts sync",
         "test": "ts-scripts test"
+    },
+    "resolutions": {
+        "@types/lodash": "^4.14.149",
+        "debug": "^4.1.1",
+        "ms": "^2.1.2",
+        "typescript": "^3.7.4"
     },
     "dependencies": {},
     "devDependencies": {
@@ -51,12 +56,6 @@
         "ts-jest": "^24.2.0",
         "typescript": "^3.7.4"
     },
-    "resolutions": {
-        "@types/lodash": "^4.14.149",
-        "debug": "^4.1.1",
-        "ms": "^2.1.2",
-        "typescript": "^3.7.4"
-    },
     "engines": {
         "node": ">=10.16.0",
         "yarn": ">=1.16.0"
@@ -65,7 +64,6 @@
         "darwin",
         "linux"
     ],
-    "displayName": "Teraslice",
     "documentation": "https://terascope.github.io/teraslice",
     "terascope": {
         "root": true,

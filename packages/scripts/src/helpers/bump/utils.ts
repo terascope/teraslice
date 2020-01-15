@@ -1,5 +1,5 @@
 import semver, { ReleaseType } from 'semver';
-import { get } from '@terascope/utils';
+import { get, chunk } from '@terascope/utils';
 import { BumpPackageOptions, BumpPkgInfo, BumpType } from './interfaces';
 import { isMainPackage, findPackageByName, getRemotePackageVersion } from '../packages';
 import { PackageInfo } from '../interfaces';
@@ -82,10 +82,10 @@ export async function getPackagesToBump(
     return result;
 }
 
-export function getBumpCommitMessage(
+export function getBumpCommitMessages(
     result: Record<string, BumpPkgInfo>,
     release: ReleaseType
-): string {
+): string[] {
     const messages: string[] = [];
     const bumpResult = { ...result };
     const main = Object.entries(result).find(([, info]) => info.main);
@@ -97,18 +97,12 @@ export function getBumpCommitMessage(
 
     const names = Object.entries(bumpResult).map(([name, { to }]) => `${name}@${to}`);
 
-    const limit = 2;
-    const remaining = names.length - limit;
-    if (remaining > 0) {
-        const focusNames = names.slice(0, limit);
-        messages.push(`bump: (${release}) ${focusNames.join(', ')} (${remaining} more) ...`);
-        const moreNames = names.slice(limit).map((name) => `  - ${name}`);
-        messages.push(...moreNames);
-    } else if (names.length) {
-        messages.push(`bump: (${release}) ${names.join(', ')}`);
-    }
+    const limit = 4;
+    chunk(names.slice(0, limit), 2).forEach((focusNames) => {
+        messages.push(`bump: (${release}) ${focusNames.join(', ')}`);
+    });
 
-    return messages.join('\\\n');
+    return messages;
 }
 
 /** This mutates the packages param */

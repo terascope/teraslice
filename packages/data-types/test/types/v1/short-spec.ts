@@ -1,6 +1,6 @@
 import { TSError } from '@terascope/utils';
 import { FieldType } from 'xlucene-evaluator';
-import Short from '../../../src/types/versions/v1/short';
+import Short from '../../../src/types/v1/short';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Short V1', () => {
@@ -31,16 +31,16 @@ describe('Short V1', () => {
         expect(esMapping).toEqual(results);
     });
 
-    it('can get proper graphQl types', () => {
+    it('can get proper graphql types', () => {
         const graphQlTypes = new Short(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: Int` };
+        const results = { type: `${field}: Int`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });
 
-    it('can get proper graphQl types when given an array', () => {
+    it('can get proper graphql types when given an array', () => {
         const graphQlTypes = new Short(field, { ...typeConfig, array: true }).toGraphQL();
-        const results = { type: `${field}: [Int]` };
+        const results = { type: `${field}: [Int]`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });

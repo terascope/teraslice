@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import FloatType from '../../../src/types/versions/v1/float';
+import FloatType from '../../../src/types/v1/float';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Float V1', () => {
@@ -30,9 +30,9 @@ describe('Float V1', () => {
         expect(esMapping).toEqual(results);
     });
 
-    it('can get proper graphQl types', () => {
+    it('can get proper graphql types', () => {
         const graphQlTypes = new FloatType(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: Float` };
+        const results = { type: `${field}: Float`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });

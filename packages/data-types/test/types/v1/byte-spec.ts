@@ -1,6 +1,6 @@
 import { TSError } from '@terascope/utils';
 import { FieldType } from 'xlucene-evaluator';
-import ByteType from '../../../src/types/versions/v1/byte';
+import ByteType from '../../../src/types/v1/byte';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Byte V1', () => {
@@ -31,16 +31,16 @@ describe('Byte V1', () => {
         expect(esMapping).toEqual(results);
     });
 
-    it('can get proper graphQl types', () => {
+    it('can get proper graphql types', () => {
         const graphQlTypes = new ByteType(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: Int` };
+        const results = { type: `${field}: Int`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });
 
-    it('can get proper graphQl types when given an array', () => {
+    it('can get proper graphql types when given an array', () => {
         const graphQlTypes = new ByteType(field, { ...typeConfig, array: true }).toGraphQL();
-        const results = { type: `${field}: [Int]` };
+        const results = { type: `${field}: [Int]`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });

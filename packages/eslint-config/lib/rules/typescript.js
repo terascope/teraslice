@@ -70,6 +70,7 @@ module.exports = Object.assign({}, jsRules, {
         typedefs: false
     }],
     'import/no-unresolved': 'off',
+    'import/extensions': 'off',
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': [
         'error',

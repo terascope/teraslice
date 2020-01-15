@@ -25,9 +25,9 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
             version: 1,
             name: modelConfig.name,
             namespace: options.namespace,
+            data_type: modelConfig.data_type,
             index_schema: {
                 version: modelConfig.version,
-                mapping: utils.addDefaultMapping(modelConfig.mapping),
             },
             data_schema: {
                 schema: utils.addDefaultSchema(modelConfig.schema),
@@ -37,14 +37,6 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
             index_settings: {
                 'index.number_of_shards': ts.isTest ? 1 : 5,
                 'index.number_of_replicas': ts.isTest ? 0 : 2,
-                analysis: {
-                    analyzer: {
-                        lowercase_keyword_analyzer: {
-                            tokenizer: 'keyword',
-                            filter: 'lowercase',
-                        },
-                    },
-                },
             },
         };
 

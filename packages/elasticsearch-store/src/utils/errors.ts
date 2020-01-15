@@ -1,11 +1,9 @@
-import * as R from 'rambda';
 import * as ts from '@terascope/utils';
 import ajv from 'ajv';
 
-export const getErrorMessages: (errors: ErrorLike[]) => string = R.pipe(
-    R.map(getErrorMessage),
-    R.join(', ')
-);
+export function getErrorMessages(errors: ErrorLike[]): string {
+    return errors.filter(Boolean).map(getErrorMessage).join(',');
+}
 
 export function throwValidationError(errors: ErrorLike[] | null | undefined): string | null {
     if (errors == null) return null;
@@ -27,18 +25,15 @@ export function getErrorMessage(err: ErrorLike): string {
         return err;
     }
 
-    const message: string = R.path(['message'], err) || R.pathOr(defaultErrorMsg, ['msg'], err);
-    const prefix = R.path(['dataPath'], err);
+    const message: string = ts.get(err, ['message']) || ts.get(err, ['msg'], defaultErrorMsg);
+    const prefix = ts.get(err, ['dataPath']);
 
     return `${prefix ? `${prefix} ` : ''}${message}`;
 }
 
-export const getErrorType = R.pathOr('', ['error', 'type']);
-
-export const getStatusCode: (error: ErrorLike) => number = R.pipe(
-    R.ifElse(R.has('statusCode'), R.path(['statusCode']), R.path(['status'])),
-    R.defaultTo(500)
-);
+export function getErrorType(err: any): string {
+    return ts.get(err, ['error', 'type'], '');
+}
 
 export type ErrorLike =
     | {

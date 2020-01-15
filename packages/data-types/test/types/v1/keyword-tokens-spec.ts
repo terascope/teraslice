@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import KeywordTokens from '../../../src/types/versions/v1/keyword-tokens';
+import KeywordTokens from '../../../src/types/v1/keyword-tokens';
 import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
 
 describe('KeywordTokens V1', () => {
@@ -42,9 +42,9 @@ describe('KeywordTokens V1', () => {
         expect(esMapping).toEqual(results);
     });
 
-    it('can get proper graphQl types', () => {
+    it('can get proper graphql types', () => {
         const graphQlTypes = new KeywordTokens(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: String` };
+        const results = { type: `${field}: String`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });

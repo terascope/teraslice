@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import Domain from '../../../src/types/versions/v1/domain';
+import Domain from '../../../src/types/v1/domain';
 import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
 
 describe('Domain V1', () => {
@@ -66,9 +66,9 @@ describe('Domain V1', () => {
         expect(esMapping).toEqual(results);
     });
 
-    it('can get proper graphQl types', () => {
+    it('can get proper graphql types', () => {
         const graphQlTypes = new Domain(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: String` };
+        const results = { type: `${field}: String`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });

@@ -1,5 +1,6 @@
 {
     "name": "@terascope/error-parser",
+    "displayName": "Error Parser",
     "version": "1.0.2",
     "description": "Generic error parser",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/error-parser#readme",
@@ -23,7 +24,6 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
-    "displayName": "Error Parser",
     "terascope": {
         "testSuite": "unit-b"
     }

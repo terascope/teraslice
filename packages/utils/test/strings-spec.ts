@@ -1,7 +1,17 @@
 import 'jest-extended';
-// @ts-ignore
 import {
-    toSafeString, unescapeString, escapeString, matchAll, match, formatRegex, FormatRegexResult
+    toSafeString,
+    unescapeString,
+    getWordParts,
+    escapeString,
+    matchAll,
+    match,
+    formatRegex,
+    FormatRegexResult,
+    toCamelCase,
+    toPascalCase,
+    toSnakeCase,
+    toKebabCase
 } from '../src';
 
 describe('String Utils', () => {
@@ -19,6 +29,79 @@ describe('String Utils', () => {
             // @ts-ignore
         ])('should convert %s to be %s', (input: any, expected: any) => {
             expect(toSafeString(input)).toEqual(expected);
+        });
+    });
+
+    describe('getWordParts', () => {
+        test.each([
+            ['hello-there', ['hello', 'there']],
+            ['++_--hello', ['hello']],
+            ['GraphQL', ['GraphQL']],
+            ['Howdy-Hi?+ you', ['Howdy', 'Hi', 'you']],
+            ['123', ['123']],
+            ['DataTypes', ['Data', 'Types']],
+            ['Data_Type', ['Data', 'Type']],
+            ['Foo Bar', ['Foo', 'Bar']],
+            ['foo_bar', ['foo', 'bar']],
+            ['_key', ['_key']],
+            ['-key', ['key']],
+            ['__example', ['__example']],
+            ['SomeASTNode123', ['SomeAST', 'Node123']],
+            ['foo _ bar   baz 123', ['foo', 'bar', 'baz', '123']],
+        ])('should convert %s to be %s', (input: any, expected: any) => {
+            expect(getWordParts(input)).toStrictEqual(expected);
+        });
+    });
+
+    describe('toCamelCase', () => {
+        test.each([
+            ['_key', '_key'],
+            ['hello-there', 'helloThere'],
+            ['helloThere', 'helloThere'],
+            ['HelloThere', 'helloThere'],
+            ['hello_there', 'helloThere'],
+            ['hello there', 'helloThere'],
+        ])('should convert %s to be %s', (input: any, expected: any) => {
+            expect(toCamelCase(input)).toEqual(expected);
+        });
+    });
+
+    describe('toPascalCase', () => {
+        test.each([
+            ['_key', '_Key'],
+            ['hello-there', 'HelloThere'],
+            ['helloThere', 'HelloThere'],
+            ['HelloThere', 'HelloThere'],
+            ['hello_there', 'HelloThere'],
+            ['hello there', 'HelloThere'],
+        ])('should convert %s to be %s', (input: any, expected: any) => {
+            expect(toPascalCase(input)).toEqual(expected);
+        });
+    });
+
+    describe('toKebabCase', () => {
+        test.each([
+            ['_key', '_key'],
+            ['hello-there', 'hello-there'],
+            ['helloThere', 'hello-there'],
+            ['HelloThere', 'hello-there'],
+            ['hello_there', 'hello-there'],
+            ['hello there', 'hello-there'],
+        ])('should convert %s to be %s', (input: any, expected: any) => {
+            expect(toKebabCase(input)).toEqual(expected);
+        });
+    });
+
+    describe('toSnakeCase', () => {
+        test.each([
+            ['_key', '_key'],
+            ['hello-there', 'hello_there'],
+            ['helloThere', 'hello_there'],
+            ['HelloThere', 'hello_there'],
+            ['hello_there', 'hello_there'],
+            ['hello there', 'hello_there'],
+        ])('should convert %s to be %s', (input: any, expected: any) => {
+            expect(toSnakeCase(input)).toEqual(expected);
         });
     });
 

@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import Text from '../../../src/types/versions/v1/text';
+import Text from '../../../src/types/v1/text';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Text V1', () => {
@@ -30,16 +30,16 @@ describe('Text V1', () => {
         expect(esMapping).toEqual(results);
     });
 
-    it('can get proper graphQl types', () => {
+    it('can get proper graphql types', () => {
         const graphQlTypes = new Text(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: String` };
+        const results = { type: `${field}: String`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });
 
-    it('can get proper graphQl types when given an array', () => {
+    it('can get proper graphql types when given an array', () => {
         const graphQlTypes = new Text(field, { ...typeConfig, array: true }).toGraphQL();
-        const results = { type: `${field}: [String]` };
+        const results = { type: `${field}: [String]`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });

@@ -506,6 +506,33 @@ describe('QueryAccess', () => {
         });
     });
 
+    describe('when there is no field restrictions', () => {
+        it('should be able to limit the source fields via params', async () => {
+            const params: SearchParams = {
+                _sourceInclude: ['foo'],
+                _sourceExclude: ['bar'],
+            };
+
+            const qa = new QueryAccess({
+                excludes: [],
+                includes: [],
+            }, {
+                type_config: {
+                    foo: FieldType.String,
+                    bar: FieldType.String,
+                }
+            });
+            const result = await qa.restrictSearchQuery('foo:bar', {
+                params
+            });
+
+            expect(result).toMatchObject({
+                _sourceInclude: ['foo'],
+                _sourceExclude: ['bar'],
+            });
+        });
+    });
+
     describe('when converting to an elasticsearch search query', () => {
         const queryAccess = new QueryAccess({
             allow_implicit_queries: true,
@@ -534,12 +561,20 @@ describe('QueryAccess', () => {
                 params
             });
             expect(result).toMatchObject({
-                _sourceExclude: ['baz'],
                 _sourceInclude: ['moo'],
+                _sourceExclude: ['baz'],
+            });
+            expect(result).not.toHaveProperty('q', 'idk');
+
+            expect(params._sourceInclude).toBe(params._sourceInclude);
+            expect(params._sourceExclude).toBe(params._sourceExclude);
+
+            expect(params).toMatchObject({
+                _sourceInclude: ['moo'],
+                _sourceExclude: ['baz'],
             });
 
             expect(params).toHaveProperty('q', 'idk');
-            expect(result).not.toHaveProperty('q', 'idk');
         });
 
         it('should be able to allow * queries', async () => {

@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import IpRangeType from '../../../src/types/versions/v1/ip-range';
+import IpRangeType from '../../../src/types/v1/ip-range';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('IPRange V1', () => {
@@ -30,9 +30,9 @@ describe('IPRange V1', () => {
         expect(esMapping).toEqual(results);
     });
 
-    it('can get proper graphQl types', () => {
+    it('can get proper graphql types', () => {
         const graphQlTypes = new IpRangeType(field, typeConfig).toGraphQL();
-        const results = { type: `${field}: String` };
+        const results = { type: `${field}: String`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });
