@@ -629,24 +629,16 @@ describe('k8sResource', () => {
         });
     });
 
-    describe('worker deployment with capital letters in job name', () => {
-        it('has valid resource object.', () => {
-            execution.name = 'teraslice-JOB-name';
-            const kr = new K8sResource(
-                'deployments', 'worker', terasliceConfig, execution
-            );
-
-            expect(kr.resource.kind).toBe('Deployment');
-            expect(kr.resource.spec.replicas).toBe(2);
-            expect(kr.resource.metadata.name).toBe('ts-wkr-teraslice-job-name-7ba9afb0-417a');
-        });
-    });
-
     describe('worker deployment with different combinations of job names', () => {
         test.each([
             ['aa', 'ts-wkr-aa-7ba9afb0-417a'],
-            ['00', 'ts-wkr-a0-7ba9afb0-417a']
-        ])('returns %s when input is %s', (jobName, k8sName) => {
+            ['00', 'ts-wkr-a0-7ba9afb0-417a'],
+            ['a', 'ts-wkr-a-7ba9afb0-417a'],
+            ['0', 'ts-wkr-a-7ba9afb0-417a'],
+            ['-job-', 'ts-wkr-ajob0-7ba9afb0-417a'],
+            ['-JOB-', 'ts-wkr-ajob0-7ba9afb0-417a'],
+            ['teraslice-JOB-name', 'ts-wkr-teraslice-job-name-7ba9afb0-417a']
+        ])('when Job Name is %s the k8s worker name is: %s', (jobName, k8sName) => {
             execution.name = jobName;
             const kr = new K8sResource(
                 'deployments', 'worker', terasliceConfig, execution
