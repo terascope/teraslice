@@ -9,7 +9,7 @@ export type RunOptions = {
 }
 type Services = string[]|string;
 
-export default class Compose {
+export class Compose {
     composeFile: string;
     constructor(composeFile: string) {
         this.composeFile = composeFile;
