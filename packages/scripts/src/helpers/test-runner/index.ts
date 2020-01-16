@@ -17,10 +17,14 @@ import {
     getAvailableTestSuites,
     getDevDockerImage
 } from '../misc';
-import { ensureServices } from './services';
+import { ensureServices, pullServices } from './services';
 import { PackageInfo } from '../interfaces';
 import { TestOptions, RunSuiteResult, CleanupFN } from './interfaces';
-import { runJest, dockerPush, dockerTag } from '../scripts';
+import {
+    runJest,
+    dockerPush,
+    dockerTag,
+} from '../scripts';
 import * as utils from './utils';
 import signale from '../signale';
 import { getE2EDir } from '../packages';
@@ -230,11 +234,7 @@ async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
 
     await Promise.all([
         (async () => {
-            try {
-                cleanup = await ensureServices(suite, options);
-            } catch (err) {
-                errors.push(getFullErrorStack(err));
-            }
+            await pullServices(suite, options);
         })(),
         (async () => {
             const rootInfo = getRootInfo();
@@ -249,6 +249,12 @@ async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
             }
         })()
     ]);
+
+    try {
+        cleanup = await ensureServices(suite, options);
+    } catch (err) {
+        errors.push(getFullErrorStack(err));
+    }
 
     if (!errors.length) {
         const timeLabel = `test suite "${suite}"`;
@@ -313,6 +319,7 @@ async function pushDevImage() {
     try {
         signale.info(`pushing ${devDockerImage}...`);
         await dockerPush(devDockerImage);
+        signale.info(`pushed ${devDockerImage} image`);
     } catch (err) {
         signale.warn(err, `failure to push ${devDockerImage}`);
     }

@@ -71,7 +71,9 @@ jobs:
       node_js: '12.14'
       # run only on pull-requests and cron
       if: branch = master AND type IN (pull_request, cron) AND fork = false
-      script: yarn --silent test --suite e2e
+      script:
+        - yarn --cwd e2e setup
+        - yarn --silent --cwd e2e test
 
     - stage: "Releases"
       name: 'Publish pre-release packages'
