@@ -319,6 +319,7 @@ async function pushDevImage() {
     try {
         signale.info(`pushing ${devDockerImage}...`);
         await dockerPush(devDockerImage);
+        signale.info(`pushed ${devDockerImage} image`);
     } catch (err) {
         signale.warn(err, `failure to push ${devDockerImage}`);
     }
