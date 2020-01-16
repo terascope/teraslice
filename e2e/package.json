@@ -24,9 +24,9 @@
         "logs": "./scripts/logs.sh",
         "logs-follow": "./scripts/logs.sh -f",
         "setup": "yarn",
-        "test": "ts-scripts test --suite e2e --",
-        "test:debug": "ts-scripts test --suite e2e --debug --",
-        "test:watch": "ts-scripts test --suite e2e --watch --"
+        "test": "../node_modules/.bin/ts-scripts test --suite e2e --",
+        "test:debug": "../node_modules/.bin/ts-scripts test --suite e2e --debug --",
+        "test:watch": "../node_modules/.bin/ts-scripts test --suite e2e --watch --"
     },
     "resolutions": {
         "ms": "^2.1.2"
