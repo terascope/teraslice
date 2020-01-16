@@ -7,7 +7,8 @@ import {
     dockerRun,
     DockerRunOptions,
     getContainerInfo,
-    dockerStop
+    dockerStop,
+    dockerPull
 } from '../scripts';
 import { TestOptions } from './interfaces';
 import { Service } from '../interfaces';
@@ -55,6 +56,30 @@ const services: { [service in Service]: DockerRunOptions } = {
         network: config.DOCKER_NETWORK_NAME
     },
 };
+
+export async function pullServices(suite: string, options: TestOptions) {
+    const launchServices = getServicesForSuite(suite);
+
+    try {
+        const promises: Promise<void>[] = [];
+
+        if (launchServices.includes(Service.Elasticsearch)) {
+            const image = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${options.elasticsearchVersion}`;
+            promises.push(dockerPull(image));
+        }
+
+        if (launchServices.includes(Service.Kafka)) {
+            const image = `${config.KAFKA_DOCKER_IMAGE}:${options.kafkaVersion}`;
+            promises.push(dockerPull(image));
+        }
+
+        await Promise.all(promises);
+    } catch (err) {
+        throw new TSError(err, {
+            message: `Failed to pull services for test suite "${suite}"`,
+        });
+    }
+}
 
 export async function ensureServices(suite: string, options: TestOptions): Promise<() => void> {
     const launchServices = getServicesForSuite(suite);
@@ -113,6 +138,7 @@ async function checkElasticsearch(options: TestOptions): Promise<void> {
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
     if (dockerGateways.includes(config.ELASTICSEARCH_HOSTNAME)) return;
 
+    const isE2E = options.suite === 'e2e';
     return pRetry(
         async () => {
             if (options.trace) {
@@ -165,8 +191,8 @@ async function checkElasticsearch(options: TestOptions): Promise<void> {
             );
         },
         {
-            // roughly 90 seconds
-            retries: 90,
+            // give e2e tests a lot more time to start up
+            retries: isE2E ? 180 : 60,
             delay: 500,
             backoff: 1,
             maxDelay: 500

@@ -29,9 +29,9 @@ The examples below show the common patterns for calls. Since this is a wrapper a
 Note: Each function takes an object for keyword parameters as the last argument.
 
 ```js
-const compose = require('@terascope/docker-compose-js')('docker-compose.yaml');
+const Compose = require('@terascope/docker-compose-js');
 
-compose.up()
+new Compose('docker-compose.yaml').up()
     .then(function() {
         return compose.stop('test');
     })
@@ -53,9 +53,9 @@ compose.up()
 Example of scaling a particular task
 
 ```js
-const compose = require('@terascope/docker-compose-js')('docker-compose.yaml');
+const Compose = require('@terascope/docker-compose-js');
 
-compose.up()
+new Compose('docker-compose.yaml').up()
     .then(function(result) {
         return compose.scale('test=2');
     })
