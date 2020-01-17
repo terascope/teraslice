@@ -1,7 +1,7 @@
 import ms from 'ms';
 import got from 'got';
 import semver from 'semver';
-import { debugLogger, pRetry, TSError } from '@terascope/utils';
+import * as ts from '@terascope/utils';
 import { getServicesForSuite } from '../misc';
 import {
     dockerRun,
@@ -15,7 +15,7 @@ import { Service } from '../interfaces';
 import * as config from '../config';
 import signale from '../signale';
 
-const logger = debugLogger('ts-scripts:cmd:test');
+const logger = ts.debugLogger('ts-scripts:cmd:test');
 
 const disableXPackSecurity = !config.ELASTICSEARCH_DOCKER_IMAGE.includes('blacktop');
 
@@ -75,7 +75,7 @@ export async function pullServices(suite: string, options: TestOptions) {
 
         await Promise.all(promises);
     } catch (err) {
-        throw new TSError(err, {
+        throw new ts.TSError(err, {
             message: `Failed to pull services for test suite "${suite}"`,
         });
     }
@@ -101,7 +101,7 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
             fns.forEach((fn) => fn());
         };
     } catch (err) {
-        throw new TSError(err, {
+        throw new ts.TSError(err, {
             message: `Failed to start services for test suite "${suite}"`,
         });
     }
@@ -138,66 +138,62 @@ async function checkElasticsearch(options: TestOptions): Promise<void> {
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
     if (dockerGateways.includes(config.ELASTICSEARCH_HOSTNAME)) return;
 
-    const isE2E = options.suite === 'e2e';
-    return pRetry(
-        async () => {
-            if (options.trace) {
-                signale.debug(`checking elasticsearch at ${elasticsearchHost}`);
-            } else {
-                logger.debug(`checking elasticsearch at ${elasticsearchHost}`);
-            }
-
-            let body: any;
-            try {
-                ({ body } = await got(elasticsearchHost, {
-                    json: true,
-                    throwHttpErrors: true,
-                    retry: 0,
-                }));
-            } catch (err) {
-                throw new TSError(err, {
-                    retryable: true,
-                });
-            }
-
-            if (options.trace) {
-                signale.debug('got response from elasticsearch service', body);
-            } else {
-                logger.debug('got response from elasticsearch service', body);
-            }
-
-            if (!body || !body.version || !body.version.number) {
-                throw new TSError(`Invalid response from elasticsearch at ${elasticsearchHost}`, {
-                    retryable: true,
-                });
-            }
-
-            const actual: string = body.version.number;
-            const expected = options.elasticsearchVersion;
-
-            const satifies = semver.satisfies(actual, `^${expected}`);
-            if (satifies) {
-                if (options.debug) {
-                    signale.debug(`elasticsearch@${actual} is running at ${elasticsearchHost}`);
+    try {
+        await ts.pWhile(
+            async () => {
+                if (options.trace) {
+                    signale.debug(`checking elasticsearch at ${elasticsearchHost}`);
+                } else {
+                    logger.debug(`checking elasticsearch at ${elasticsearchHost}`);
                 }
-                return;
-            }
 
-            throw new TSError(
-                `Elasticsearch at ${elasticsearchHost} does not satify required version of ${expected}, got ${actual}`,
-                {
-                    retryable: false,
+                let body: any;
+                try {
+                    ({ body } = await got(elasticsearchHost, {
+                        json: true,
+                        throwHttpErrors: true,
+                        retry: 0,
+                    }));
+                } catch (err) {
+                    return false;
                 }
-            );
-        },
-        {
-            // give e2e tests a lot more time to start up
-            retries: isE2E ? 180 : 60,
-            delay: 500,
-            backoff: 1,
-            maxDelay: 500
-        }
-    );
+
+                if (options.trace) {
+                    signale.debug('got response from elasticsearch service', body);
+                } else {
+                    logger.debug('got response from elasticsearch service', body);
+                }
+
+                if (!body?.version?.number) {
+                    return false;
+                }
+
+                const actual: string = body.version.number;
+                const expected = options.elasticsearchVersion;
+
+                const satifies = semver.satisfies(actual, `^${expected}`);
+                if (satifies) {
+                    if (options.debug || options.trace) {
+                        signale.debug(`elasticsearch@${actual} is running at ${elasticsearchHost}`);
+                    }
+                    return true;
+                }
+
+                throw new ts.TSError(
+                    `Elasticsearch at ${elasticsearchHost} does not satify required version of ${expected}, got ${actual}`,
+                    {
+                        retryable: false,
+                    }
+                );
+            },
+            {
+                timeoutMs: ms('1m'),
+                enabledJitter: true,
+            }
+        );
+    } catch (err) {
+        signale.error(err);
+    }
 }
 
 async function startService(options: TestOptions, service: Service): Promise<() => void> {
@@ -221,7 +217,7 @@ async function startService(options: TestOptions, service: Service): Promise<() 
             fn();
         } catch (err) {
             signale.error(
-                new TSError(err, {
+                new ts.TSError(err, {
                     reason: `Failed to stop ${service}@${version} service`,
                 })
             );

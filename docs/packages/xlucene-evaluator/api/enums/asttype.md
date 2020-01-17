@@ -29,7 +29,7 @@ sidebar_label: ASTType
 
 • **Conjunction**: = "conjunction"
 
-*Defined in [parser/interfaces.ts:52](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L52)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:54](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L54)*
 
 ___
 
@@ -37,7 +37,7 @@ ___
 
 • **Empty**: = "empty"
 
-*Defined in [parser/interfaces.ts:61](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L61)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:63](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L63)*
 
 ___
 
@@ -45,7 +45,7 @@ ___
 
 • **Exists**: = "exists"
 
-*Defined in [parser/interfaces.ts:55](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L55)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:57](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L57)*
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 • **FieldGroup**: = "field-group"
 
-*Defined in [parser/interfaces.ts:51](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L51)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:53](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L53)*
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • **Function**: = "function"
 
-*Defined in [parser/interfaces.ts:62](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L62)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:64](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L64)*
 
 ___
 
@@ -69,7 +69,7 @@ ___
 
 • **GeoBoundingBox**: = "geo-bounding-box"
 
-*Defined in [parser/interfaces.ts:58](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L58)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:60](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L60)*
 
 ___
 
@@ -77,7 +77,7 @@ ___
 
 • **GeoDistance**: = "geo-distance"
 
-*Defined in [parser/interfaces.ts:57](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L57)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:59](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L59)*
 
 ___
 
@@ -85,7 +85,7 @@ ___
 
 • **LogicalGroup**: = "logical-group"
 
-*Defined in [parser/interfaces.ts:50](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L50)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:52](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L52)*
 
 ___
 
@@ -93,7 +93,7 @@ ___
 
 • **Negation**: = "negation"
 
-*Defined in [parser/interfaces.ts:53](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L53)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:55](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L55)*
 
 ___
 
@@ -101,7 +101,7 @@ ___
 
 • **Range**: = "range"
 
-*Defined in [parser/interfaces.ts:56](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L56)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:58](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L58)*
 
 ___
 
@@ -109,7 +109,7 @@ ___
 
 • **Regexp**: = "regexp"
 
-*Defined in [parser/interfaces.ts:59](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L59)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:61](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L61)*
 
 ___
 
@@ -117,7 +117,7 @@ ___
 
 • **Term**: = "term"
 
-*Defined in [parser/interfaces.ts:54](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L54)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:56](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L56)*
 
 ___
 
@@ -125,4 +125,4 @@ ___
 
 • **Wildcard**: = "wildcard"
 
-*Defined in [parser/interfaces.ts:60](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L60)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:62](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L62)*

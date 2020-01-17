@@ -59,7 +59,7 @@ that `ClusterContext` does, like `master` or `worker`.
 
 *Overrides [CoreContext](corecontext.md).[constructor](corecontext.md#constructor)*
 
-*Defined in [process-context.ts:21](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/process-context.ts#L21)*
+*Defined in [packages/terafoundation/src/process-context.ts:20](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/process-context.ts#L20)*
 
 **Parameters:**
 
@@ -78,7 +78,7 @@ Name | Type |
 
 *Inherited from [CoreContext](corecontext.md).[apis](corecontext.md#apis)*
 
-*Defined in [core-context.ts:16](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/core-context.ts#L16)*
+*Defined in [packages/terafoundation/src/core-context.ts:15](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/core-context.ts#L15)*
 
 ___
 
@@ -88,7 +88,7 @@ ___
 
 *Inherited from [CoreContext](corecontext.md).[arch](corecontext.md#arch)*
 
-*Defined in [core-context.ts:20](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/core-context.ts#L20)*
+*Defined in [packages/terafoundation/src/core-context.ts:19](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/core-context.ts#L19)*
 
 ___
 
@@ -98,7 +98,7 @@ ___
 
 *Inherited from [CoreContext](corecontext.md).[assignment](corecontext.md#assignment)*
 
-*Defined in [core-context.ts:22](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/core-context.ts#L22)*
+*Defined in [packages/terafoundation/src/core-context.ts:21](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/core-context.ts#L21)*
 
 ___
 
@@ -108,7 +108,7 @@ ___
 
 *Inherited from [CoreContext](corecontext.md).[cluster](corecontext.md#cluster)*
 
-*Defined in [core-context.ts:14](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/core-context.ts#L14)*
+*Defined in [packages/terafoundation/src/core-context.ts:13](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/core-context.ts#L13)*
 
 ___
 
@@ -118,7 +118,7 @@ ___
 
 *Inherited from [CoreContext](corecontext.md).[cluster_name](corecontext.md#optional-cluster_name)*
 
-*Defined in [core-context.ts:23](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/core-context.ts#L23)*
+*Defined in [packages/terafoundation/src/core-context.ts:22](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/core-context.ts#L22)*
 
 ___
 
@@ -128,7 +128,7 @@ ___
 
 *Inherited from [CoreContext](corecontext.md).[foundation](corecontext.md#foundation)*
 
-*Defined in [core-context.ts:17](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/core-context.ts#L17)*
+*Defined in [packages/terafoundation/src/core-context.ts:16](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/core-context.ts#L16)*
 
 ___
 
@@ -138,7 +138,7 @@ ___
 
 *Inherited from [CoreContext](corecontext.md).[logger](corecontext.md#logger)*
 
-*Defined in [core-context.ts:18](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/core-context.ts#L18)*
+*Defined in [packages/terafoundation/src/core-context.ts:17](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/core-context.ts#L17)*
 
 ___
 
@@ -148,7 +148,7 @@ ___
 
 *Inherited from [CoreContext](corecontext.md).[name](corecontext.md#name)*
 
-*Defined in [core-context.ts:19](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/core-context.ts#L19)*
+*Defined in [packages/terafoundation/src/core-context.ts:18](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/core-context.ts#L18)*
 
 ___
 
@@ -158,7 +158,7 @@ ___
 
 *Inherited from [CoreContext](corecontext.md).[platform](corecontext.md#platform)*
 
-*Defined in [core-context.ts:21](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/core-context.ts#L21)*
+*Defined in [packages/terafoundation/src/core-context.ts:20](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/core-context.ts#L20)*
 
 ___
 
@@ -168,4 +168,4 @@ ___
 
 *Inherited from [CoreContext](corecontext.md).[sysconfig](corecontext.md#sysconfig)*
 
-*Defined in [core-context.ts:15](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/core-context.ts#L15)*
+*Defined in [packages/terafoundation/src/core-context.ts:14](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/core-context.ts#L14)*

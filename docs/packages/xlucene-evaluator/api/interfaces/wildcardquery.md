@@ -21,7 +21,7 @@ sidebar_label: WildcardQuery
 
 • **wildcard**: *object*
 
-*Defined in [translator/interfaces.ts:111](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/translator/interfaces.ts#L111)*
+*Defined in [packages/xlucene-evaluator/src/translator/interfaces.ts:153](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/translator/interfaces.ts#L153)*
 
 #### Type declaration:
 

@@ -22,7 +22,7 @@ sidebar_label: TestContextOptions
 
 • **assignment**? : *i.Assignment*
 
-*Defined in [test-helpers.ts:141](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/test-helpers.ts#L141)*
+*Defined in [packages/job-components/src/test-helpers.ts:144](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/test-helpers.ts#L144)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **clients**? : *[TestClientConfig](testclientconfig.md)[]*
 
-*Defined in [test-helpers.ts:142](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/test-helpers.ts#L142)*
+*Defined in [packages/job-components/src/test-helpers.ts:145](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/test-helpers.ts#L145)*

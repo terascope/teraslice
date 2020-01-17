@@ -37,7 +37,7 @@ sidebar_label: SyntaxError
 
 \+ **new SyntaxError**(`message`: string, `expected`: [Expectation](../overview.md#expectation)[], `found`: string | null, `location`: [IFileRange](../interfaces/ifilerange.md)): *[SyntaxError](syntaxerror.md)*
 
-Defined in parser/peg-engine.ts:147
+Defined in packages/xlucene-evaluator/src/parser/peg-engine.ts:147
 
 **Parameters:**
 
@@ -56,7 +56,7 @@ Name | Type |
 
 • **expected**: *[Expectation](../overview.md#expectation)[]*
 
-Defined in parser/peg-engine.ts:144
+Defined in packages/xlucene-evaluator/src/parser/peg-engine.ts:144
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **found**: *string | null*
 
-Defined in parser/peg-engine.ts:145
+Defined in packages/xlucene-evaluator/src/parser/peg-engine.ts:145
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 • **location**: *[IFileRange](../interfaces/ifilerange.md)*
 
-Defined in parser/peg-engine.ts:146
+Defined in packages/xlucene-evaluator/src/parser/peg-engine.ts:146
 
 ___
 
@@ -82,7 +82,7 @@ ___
 
 *Overrides void*
 
-Defined in parser/peg-engine.ts:143
+Defined in packages/xlucene-evaluator/src/parser/peg-engine.ts:143
 
 ___
 
@@ -92,7 +92,7 @@ ___
 
 *Overrides void*
 
-Defined in parser/peg-engine.ts:147
+Defined in packages/xlucene-evaluator/src/parser/peg-engine.ts:147
 
 ___
 
@@ -104,7 +104,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:975
+Defined in node_modules/typescript/lib/lib.es5.d.ts:975
 
 ___
 
@@ -112,7 +112,7 @@ ___
 
 ▪ **Error**: *ErrorConstructor*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d.ts:984
+Defined in node_modules/typescript/lib/lib.es5.d.ts:984
 
 ## Methods
 
@@ -120,7 +120,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es5.d
 
 ▸ **buildMessage**(`expected`: [Expectation](../overview.md#expectation)[], `found`: string | null): *string*
 
-Defined in parser/peg-engine.ts:53
+Defined in packages/xlucene-evaluator/src/parser/peg-engine.ts:53
 
 **Parameters:**
 

@@ -19,6 +19,7 @@ sidebar_label: JobFile
 
 * [clusterUrl](jobfile.md#clusterurl)
 * [content](jobfile.md#content)
+* [id](jobfile.md#id)
 * [jobId](jobfile.md#jobid)
 * [jobPath](jobfile.md#jobpath)
 * [name](jobfile.md#name)
@@ -42,7 +43,7 @@ sidebar_label: JobFile
 
 \+ **new JobFile**(`argv`: any): *[JobFile](jobfile.md)*
 
-*Defined in [helpers/job-src.ts:23](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/job-src.ts#L23)*
+*Defined in [packages/teraslice-cli/src/helpers/job-src.ts:23](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/job-src.ts#L23)*
 
 **Parameters:**
 
@@ -58,7 +59,7 @@ Name | Type |
 
 • **clusterUrl**: *string*
 
-*Defined in [helpers/job-src.ts:22](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/job-src.ts#L22)*
+*Defined in [packages/teraslice-cli/src/helpers/job-src.ts:22](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/job-src.ts#L22)*
 
 ___
 
@@ -66,7 +67,15 @@ ___
 
 • **content**: *any*
 
-*Defined in [helpers/job-src.ts:23](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/job-src.ts#L23)*
+*Defined in [packages/teraslice-cli/src/helpers/job-src.ts:23](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/job-src.ts#L23)*
+
+___
+
+###  id
+
+• **id**: *string*
+
+*Defined in [packages/teraslice-cli/src/helpers/job-src.ts:21](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/job-src.ts#L21)*
 
 ___
 
@@ -74,7 +83,7 @@ ___
 
 • **jobId**: *string*
 
-*Defined in [helpers/job-src.ts:20](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/job-src.ts#L20)*
+*Defined in [packages/teraslice-cli/src/helpers/job-src.ts:19](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/job-src.ts#L19)*
 
 ___
 
@@ -82,7 +91,7 @@ ___
 
 • **jobPath**: *string*
 
-*Defined in [helpers/job-src.ts:18](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/job-src.ts#L18)*
+*Defined in [packages/teraslice-cli/src/helpers/job-src.ts:17](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/job-src.ts#L17)*
 
 **`param`** the path to the job file
 
@@ -94,7 +103,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [helpers/job-src.ts:21](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/job-src.ts#L21)*
+*Defined in [packages/teraslice-cli/src/helpers/job-src.ts:20](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/job-src.ts#L20)*
 
 ___
 
@@ -102,7 +111,7 @@ ___
 
 • **version**: *string*
 
-*Defined in [helpers/job-src.ts:19](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/job-src.ts#L19)*
+*Defined in [packages/teraslice-cli/src/helpers/job-src.ts:18](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/job-src.ts#L18)*
 
 ## Accessors
 
@@ -110,7 +119,7 @@ ___
 
 • **get hasMetaData**(): *boolean*
 
-*Defined in [helpers/job-src.ts:75](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/job-src.ts#L75)*
+*Defined in [packages/teraslice-cli/src/helpers/job-src.ts:82](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/job-src.ts#L82)*
 
 **Returns:** *boolean*
 
@@ -120,7 +129,7 @@ ___
 
 ▸ **addMetaData**(`id`: string, `clusterUrl`: string): *void*
 
-*Defined in [helpers/job-src.ts:68](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/job-src.ts#L68)*
+*Defined in [packages/teraslice-cli/src/helpers/job-src.ts:75](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/job-src.ts#L75)*
 
 **Parameters:**
 
@@ -137,7 +146,7 @@ ___
 
 ▸ **init**(): *void*
 
-*Defined in [helpers/job-src.ts:34](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/job-src.ts#L34)*
+*Defined in [packages/teraslice-cli/src/helpers/job-src.ts:34](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/job-src.ts#L34)*
 
 **Returns:** *void*
 
@@ -147,7 +156,7 @@ ___
 
 ▸ **overwrite**(): *void*
 
-*Defined in [helpers/job-src.ts:79](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/job-src.ts#L79)*
+*Defined in [packages/teraslice-cli/src/helpers/job-src.ts:86](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/job-src.ts#L86)*
 
 **Returns:** *void*
 
@@ -157,7 +166,7 @@ ___
 
 ▸ **readFile**(): *void*
 
-*Defined in [helpers/job-src.ts:61](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/job-src.ts#L61)*
+*Defined in [packages/teraslice-cli/src/helpers/job-src.ts:62](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/job-src.ts#L62)*
 
 **Returns:** *void*
 
@@ -167,6 +176,6 @@ ___
 
 ▸ **validateJob**(): *void*
 
-*Defined in [helpers/job-src.ts:48](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/job-src.ts#L48)*
+*Defined in [packages/teraslice-cli/src/helpers/job-src.ts:49](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/job-src.ts#L49)*
 
 **Returns:** *void*

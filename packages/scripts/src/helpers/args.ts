@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import mm from 'micromatch';
 import { trim, uniq, isEmpty } from '@terascope/utils';
 import { listPackages, getPkgNames } from './packages';
 import { formatList } from './misc';
@@ -8,33 +9,34 @@ import { PackageInfo } from './interfaces';
 export type CoercePkgInput = string | string[] | undefined;
 
 export function coercePkgArg(input: CoercePkgInput): PackageInfo[] {
-    const names = makeArray(input);
+    const names: string[] = makeArray(input);
+
     if (!names.length) {
         return [];
     }
 
-    const result: PackageInfo[] = [];
     const packages = listPackages();
+    const pkgsObj: Record<string, PackageInfo> = {};
+    packages.forEach((info) => {
+        pkgsObj[info.dir] = info;
+    });
 
-    for (const name of names) {
-        let folderName = '';
-        if (fs.existsSync(path.resolve(name))) {
-            folderName = path.basename(path.resolve(name));
-        }
+    const matches = Object.values(
+        mm.matchKeys(pkgsObj, names.map((name) => {
+            const resolved = path.resolve(name);
+            if (fs.existsSync(resolved)) return path.basename(resolved);
+            return name;
+        }), {
+            basename: true
+        })
+    ).filter(Boolean) as PackageInfo[];
 
-        const found = packages.find((info) => {
-            if (folderName === info.folderName) return true;
-            return [info.name, info.folderName].includes(name);
-        });
-
-        if (!found) {
-            const list = formatList(getPkgNames(packages));
-            throw new Error(`Package name "${name}" must be one of:${list}`);
-        }
-        result.push(found);
+    if (matches.length < names.length) {
+        const list = formatList(getPkgNames(packages));
+        throw new Error(`Pattern ${names.join(', ')} must match one of:${list}`);
     }
 
-    return result;
+    return matches;
 }
 
 export function makeArray(input: string | string[] | undefined): string[] {
@@ -47,5 +49,5 @@ export function makeArray(input: string | string[] | undefined): string[] {
         return uniq(arr);
     }
     if (typeof input !== 'string') return [];
-    return [trim(input)];
+    return [trim(input)].filter(Boolean);
 }

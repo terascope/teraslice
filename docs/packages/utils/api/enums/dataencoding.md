@@ -20,7 +20,7 @@ Available data encoding types for a DataEntity
 
 • **JSON**: = "json"
 
-*Defined in [entities/interfaces.ts:63](https://github.com/terascope/teraslice/blob/d8feecc03/packages/utils/src/entities/interfaces.ts#L63)*
+*Defined in [packages/utils/src/entities/interfaces.ts:63](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/interfaces.ts#L63)*
 
 ___
 
@@ -28,4 +28,4 @@ ___
 
 • **RAW**: = "raw"
 
-*Defined in [entities/interfaces.ts:64](https://github.com/terascope/teraslice/blob/d8feecc03/packages/utils/src/entities/interfaces.ts#L64)*
+*Defined in [packages/utils/src/entities/interfaces.ts:64](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/interfaces.ts#L64)*

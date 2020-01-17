@@ -27,7 +27,7 @@ sidebar_label: IParseOptions
 
 • **filename**? : *undefined | string*
 
-Defined in parser/peg-engine.ts:5291
+Defined in packages/xlucene-evaluator/src/parser/peg-engine.ts:5625
 
 ___
 
@@ -35,7 +35,7 @@ ___
 
 • **startRule**? : *undefined | string*
 
-Defined in parser/peg-engine.ts:5292
+Defined in packages/xlucene-evaluator/src/parser/peg-engine.ts:5626
 
 ___
 
@@ -43,4 +43,4 @@ ___
 
 • **tracer**? : *any*
 
-Defined in parser/peg-engine.ts:5293
+Defined in packages/xlucene-evaluator/src/parser/peg-engine.ts:5627

@@ -32,6 +32,7 @@ sidebar_label: Jobs
 ### Methods
 
 * [addWorkers](jobs.md#addworkers)
+* [awaitStatus](jobs.md#awaitstatus)
 * [changeStatus](jobs.md#changestatus)
 * [checkJobsStart](jobs.md#checkjobsstart)
 * [checkJobsStop](jobs.md#checkjobsstop)
@@ -55,7 +56,7 @@ sidebar_label: Jobs
 
 \+ **new Jobs**(`cliConfig`: any): *[Jobs](jobs.md)*
 
-*Defined in [helpers/jobs.ts:23](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L23)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:24](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L24)*
 
 **Parameters:**
 
@@ -71,7 +72,7 @@ Name | Type |
 
 • **activeStatus**: *string[]*
 
-*Defined in [helpers/jobs.ts:22](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L22)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:23](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L23)*
 
 ___
 
@@ -79,7 +80,7 @@ ___
 
 • **allJobsStopped**: *boolean*
 
-*Defined in [helpers/jobs.ts:21](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L21)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:22](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L22)*
 
 ___
 
@@ -87,7 +88,7 @@ ___
 
 • **config**: *any*
 
-*Defined in [helpers/jobs.ts:17](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L17)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:18](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L18)*
 
 **`param`** config object
 
@@ -97,7 +98,7 @@ ___
 
 • **jobsList**: *string[]*
 
-*Defined in [helpers/jobs.ts:19](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L19)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:20](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L20)*
 
 ___
 
@@ -105,7 +106,7 @@ ___
 
 • **jobsListChecked**: *string[]*
 
-*Defined in [helpers/jobs.ts:23](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L23)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:24](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L24)*
 
 ___
 
@@ -113,7 +114,7 @@ ___
 
 • **jobsListInitial**: *string[]*
 
-*Defined in [helpers/jobs.ts:20](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L20)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:21](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L21)*
 
 ___
 
@@ -121,7 +122,7 @@ ___
 
 • **teraslice**: *[TerasliceUtil](terasliceutil.md)*
 
-*Defined in [helpers/jobs.ts:18](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L18)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:19](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L19)*
 
 ## Accessors
 
@@ -129,7 +130,7 @@ ___
 
 • **get list**(): *string[]*
 
-*Defined in [helpers/jobs.ts:35](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L35)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:36](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L36)*
 
 **Returns:** *string[]*
 
@@ -139,7 +140,7 @@ ___
 
 ▸ **addWorkers**(`expectedJobs`: any[], `actualJobs`: any[]): *Promise‹void›*
 
-*Defined in [helpers/jobs.ts:261](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L261)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:273](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L273)*
 
 **Parameters:**
 
@@ -152,11 +153,29 @@ Name | Type |
 
 ___
 
+###  awaitStatus
+
+▸ **awaitStatus**(`desiredStatus`: ExecutionStatus, `jobId`: string, `timeout`: number): *Promise‹ExecutionStatus›*
+
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:79](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L79)*
+
+**Parameters:**
+
+Name | Type | Default |
+------ | ------ | ------ |
+`desiredStatus` | ExecutionStatus | - |
+`jobId` | string | - |
+`timeout` | number | 0 |
+
+**Returns:** *Promise‹ExecutionStatus›*
+
+___
+
 ###  changeStatus
 
 ▸ **changeStatus**(`jobs`: any[], `action`: string): *Promise‹null | void[]›*
 
-*Defined in [helpers/jobs.ts:362](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L362)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:374](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L374)*
 
 **Parameters:**
 
@@ -173,7 +192,7 @@ ___
 
 ▸ **checkJobsStart**(`statusList`: any[]): *Promise‹void›*
 
-*Defined in [helpers/jobs.ts:344](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L344)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:356](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L356)*
 
 **Parameters:**
 
@@ -189,7 +208,7 @@ ___
 
 ▸ **checkJobsStop**(`statusList`: any[]): *Promise‹void›*
 
-*Defined in [helpers/jobs.ts:330](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L330)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:342](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L342)*
 
 **Parameters:**
 
@@ -205,7 +224,7 @@ ___
 
 ▸ **checkWorkerCount**(`expectedJobs`: any[], `actualJobs`: any[], `addedWorkers`: boolean): *Promise‹boolean›*
 
-*Defined in [helpers/jobs.ts:284](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L284)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:296](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L296)*
 
 **Parameters:**
 
@@ -223,7 +242,7 @@ ___
 
 ▸ **controllerStatus**(`result`: any[], `jobStatus`: string, `controllerList`: any): *Promise‹any[]›*
 
-*Defined in [helpers/jobs.ts:316](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L316)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:328](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L328)*
 
 **Parameters:**
 
@@ -241,7 +260,7 @@ ___
 
 ▸ **pause**(): *Promise‹void›*
 
-*Defined in [helpers/jobs.ts:45](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L45)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:46](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L46)*
 
 **Returns:** *Promise‹void›*
 
@@ -251,7 +270,7 @@ ___
 
 ▸ **recover**(): *Promise‹void›*
 
-*Defined in [helpers/jobs.ts:60](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L60)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:61](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L61)*
 
 **Returns:** *Promise‹void›*
 
@@ -261,7 +280,7 @@ ___
 
 ▸ **restart**(): *Promise‹void›*
 
-*Defined in [helpers/jobs.ts:53](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L53)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:54](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L54)*
 
 **Returns:** *Promise‹void›*
 
@@ -271,7 +290,7 @@ ___
 
 ▸ **resume**(): *Promise‹void›*
 
-*Defined in [helpers/jobs.ts:49](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L49)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:50](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L50)*
 
 **Returns:** *Promise‹void›*
 
@@ -281,7 +300,7 @@ ___
 
 ▸ **run**(): *Promise‹void›*
 
-*Defined in [helpers/jobs.ts:70](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L70)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:71](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L71)*
 
 **Returns:** *Promise‹void›*
 
@@ -291,7 +310,7 @@ ___
 
 ▸ **save**(): *Promise‹void›*
 
-*Defined in [helpers/jobs.ts:74](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L74)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:75](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L75)*
 
 **Returns:** *Promise‹void›*
 
@@ -301,7 +320,7 @@ ___
 
 ▸ **start**(`action`: string): *Promise‹void›*
 
-*Defined in [helpers/jobs.ts:131](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L131)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:141](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L141)*
 
 **Parameters:**
 
@@ -317,7 +336,7 @@ ___
 
 ▸ **status**(`saveState`: boolean, `showJobs`: boolean): *Promise‹void›*
 
-*Defined in [helpers/jobs.ts:78](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L78)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:87](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L87)*
 
 **Parameters:**
 
@@ -334,7 +353,7 @@ ___
 
 ▸ **statusCheck**(`statusList`: string[]): *Promise‹string[]›*
 
-*Defined in [helpers/jobs.ts:112](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L112)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:122](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L122)*
 
 **Parameters:**
 
@@ -350,7 +369,7 @@ ___
 
 ▸ **stop**(`action`: string): *Promise‹void›*
 
-*Defined in [helpers/jobs.ts:193](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L193)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:205](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L205)*
 
 **Parameters:**
 
@@ -366,6 +385,6 @@ ___
 
 ▸ **workers**(): *Promise‹void›*
 
-*Defined in [helpers/jobs.ts:39](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/jobs.ts#L39)*
+*Defined in [packages/teraslice-cli/src/helpers/jobs.ts:40](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/jobs.ts#L40)*
 
 **Returns:** *Promise‹void›*

@@ -20,6 +20,7 @@ sidebar_label: Parser
 * [ast](parser.md#ast)
 * [logger](parser.md#logger)
 * [query](parser.md#query)
+* [variables](parser.md#variables)
 
 ### Methods
 
@@ -32,7 +33,7 @@ sidebar_label: Parser
 
 \+ **new Parser**(`query`: string, `options`: [ParserOptions](../interfaces/parseroptions.md)): *[Parser](parser.md)*
 
-*Defined in [parser/parser.ts:16](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/parser.ts#L16)*
+*Defined in [packages/xlucene-evaluator/src/parser/parser.ts:18](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/parser.ts#L18)*
 
 **Parameters:**
 
@@ -49,7 +50,7 @@ Name | Type | Default |
 
 • **ast**: *i.AST*
 
-*Defined in [parser/parser.ts:14](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/parser.ts#L14)*
+*Defined in [packages/xlucene-evaluator/src/parser/parser.ts:15](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/parser.ts#L15)*
 
 ___
 
@@ -57,7 +58,7 @@ ___
 
 • **logger**: *Logger*
 
-*Defined in [parser/parser.ts:16](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/parser.ts#L16)*
+*Defined in [packages/xlucene-evaluator/src/parser/parser.ts:18](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/parser.ts#L18)*
 
 ___
 
@@ -65,7 +66,15 @@ ___
 
 • **query**: *string*
 
-*Defined in [parser/parser.ts:15](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/parser.ts#L15)*
+*Defined in [packages/xlucene-evaluator/src/parser/parser.ts:16](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/parser.ts#L16)*
+
+___
+
+###  variables
+
+• **variables**: *[Variables](../interfaces/variables.md)*
+
+*Defined in [packages/xlucene-evaluator/src/parser/parser.ts:17](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/parser.ts#L17)*
 
 ## Methods
 
@@ -73,7 +82,7 @@ ___
 
 ▸ **forTermTypes**(`cb`: function): *void*
 
-*Defined in [parser/parser.ts:80](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/parser.ts#L80)*
+*Defined in [packages/xlucene-evaluator/src/parser/parser.ts:86](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/parser.ts#L86)*
 
 **Parameters:**
 
@@ -95,7 +104,7 @@ ___
 
 ▸ **forTypes**<**T**>(`types`: T, `cb`: function): *void*
 
-*Defined in [parser/parser.ts:52](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/parser.ts#L52)*
+*Defined in [packages/xlucene-evaluator/src/parser/parser.ts:58](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/parser.ts#L58)*
 
 **Type parameters:**
 

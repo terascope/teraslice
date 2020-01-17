@@ -28,7 +28,7 @@ LegacyExecutionContext is the old ExecutionContext available
 
 • **config**: *[ExecutionConfig](executionconfig.md)*
 
-*Defined in [interfaces/jobs.ts:113](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/jobs.ts#L113)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:123](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L123)*
 
 ___
 
@@ -36,7 +36,7 @@ ___
 
 • **dynamicQueueLength**: *boolean*
 
-*Defined in [interfaces/jobs.ts:116](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/jobs.ts#L116)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:126](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L126)*
 
 ___
 
@@ -44,7 +44,7 @@ ___
 
 • **queue**: *Function[]*
 
-*Defined in [interfaces/jobs.ts:117](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/jobs.ts#L117)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:127](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L127)*
 
 ___
 
@@ -52,7 +52,7 @@ ___
 
 • **queueLength**: *10000 | number*
 
-*Defined in [interfaces/jobs.ts:115](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/jobs.ts#L115)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:125](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L125)*
 
 ___
 
@@ -60,7 +60,7 @@ ___
 
 • **reader**: *Function | null*
 
-*Defined in [interfaces/jobs.ts:118](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/jobs.ts#L118)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:128](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L128)*
 
 ___
 
@@ -68,4 +68,4 @@ ___
 
 • **slicer**: *Function*
 
-*Defined in [interfaces/jobs.ts:114](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/jobs.ts#L114)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:124](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L124)*

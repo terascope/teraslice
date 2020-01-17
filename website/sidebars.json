@@ -180,7 +180,8 @@
                 "type": "subcategory",
                 "label": "docker-compose-js",
                 "ids": [
-                    "packages/docker-compose-js/overview"
+                    "packages/docker-compose-js/overview",
+                    "packages/docker-compose-js/api/overview"
                 ]
             },
             {

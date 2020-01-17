@@ -21,4 +21,4 @@ sidebar_label: IAnyExpectation
 
 • **type**: *"any"*
 
-Defined in parser/peg-engine.ts:38
+Defined in packages/xlucene-evaluator/src/parser/peg-engine.ts:38

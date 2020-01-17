@@ -22,7 +22,7 @@ sidebar_label: OutputValidation
 
 • **matchRequirements**: *[MatchRequirements](matchrequirements.md)*
 
-*Defined in [interfaces.ts:162](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/interfaces.ts#L162)*
+*Defined in [interfaces.ts:160](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L160)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **restrictOutput**: *RestrictOutput*
 
-*Defined in [interfaces.ts:161](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/interfaces.ts#L161)*
+*Defined in [interfaces.ts:159](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L159)*

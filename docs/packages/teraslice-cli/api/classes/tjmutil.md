@@ -31,7 +31,7 @@ sidebar_label: TjmUtil
 
 \+ **new TjmUtil**(`client`: any, `job`: any): *[TjmUtil](tjmutil.md)*
 
-*Defined in [helpers/tjm-util.ts:8](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/tjm-util.ts#L8)*
+*Defined in [packages/teraslice-cli/src/helpers/tjm-util.ts:7](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/tjm-util.ts#L7)*
 
 **Parameters:**
 
@@ -48,7 +48,7 @@ Name | Type |
 
 • **client**: *any*
 
-*Defined in [helpers/tjm-util.ts:7](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/tjm-util.ts#L7)*
+*Defined in [packages/teraslice-cli/src/helpers/tjm-util.ts:6](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/tjm-util.ts#L6)*
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 • **job**: *any*
 
-*Defined in [helpers/tjm-util.ts:8](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/tjm-util.ts#L8)*
+*Defined in [packages/teraslice-cli/src/helpers/tjm-util.ts:7](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/tjm-util.ts#L7)*
 
 ## Methods
 
@@ -64,7 +64,7 @@ ___
 
 ▸ **start**(): *Promise‹void›*
 
-*Defined in [helpers/tjm-util.ts:15](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/tjm-util.ts#L15)*
+*Defined in [packages/teraslice-cli/src/helpers/tjm-util.ts:14](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/tjm-util.ts#L14)*
 
 **Returns:** *Promise‹void›*
 
@@ -74,6 +74,6 @@ ___
 
 ▸ **stop**(): *Promise‹void›*
 
-*Defined in [helpers/tjm-util.ts:29](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/tjm-util.ts#L29)*
+*Defined in [packages/teraslice-cli/src/helpers/tjm-util.ts:33](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/tjm-util.ts#L33)*
 
 **Returns:** *Promise‹void›*

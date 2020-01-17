@@ -41,7 +41,7 @@ sidebar_label: Jobs
 
 *Overrides [Client](client.md).[constructor](client.md#constructor)*
 
-*Defined in [jobs.ts:13](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/jobs.ts#L13)*
+*Defined in [packages/teraslice-client-js/src/jobs.ts:14](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/jobs.ts#L14)*
 
 **Parameters:**
 
@@ -59,7 +59,7 @@ Name | Type |
 
 *Inherited from [Client](client.md).[_config](client.md#protected-_config)*
 
-*Defined in [client.ts:11](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L11)*
+*Defined in [packages/teraslice-client-js/src/client.ts:15](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/client.ts#L15)*
 
 ## Methods
 
@@ -69,7 +69,7 @@ Name | Type |
 
 *Inherited from [Client](client.md).[delete](client.md#delete)*
 
-*Defined in [client.ts:44](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L44)*
+*Defined in [packages/teraslice-client-js/src/client.ts:53](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/client.ts#L53)*
 
 **Parameters:**
 
@@ -88,7 +88,7 @@ ___
 
 *Inherited from [Client](client.md).[get](client.md#get)*
 
-*Defined in [client.ts:32](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L32)*
+*Defined in [packages/teraslice-client-js/src/client.ts:41](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/client.ts#L41)*
 
 **Parameters:**
 
@@ -103,9 +103,9 @@ ___
 
 ###  list
 
-▸ **list**(`status?`: [JobListStatusQuery](../overview.md#jobliststatusquery), `searchOptions`: [SearchOptions](../overview.md#searchoptions)): *Promise‹[JobsGetResponse](../overview.md#jobsgetresponse)›*
+▸ **list**(`status?`: [JobListStatusQuery](../overview.md#jobliststatusquery), `searchOptions`: [SearchOptions](../overview.md#searchoptions)): *Promise‹[JobConfiguration](../interfaces/jobconfiguration.md)[]›*
 
-*Defined in [jobs.ts:26](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/jobs.ts#L26)*
+*Defined in [packages/teraslice-client-js/src/jobs.ts:27](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/jobs.ts#L27)*
 
 **Parameters:**
 
@@ -114,7 +114,7 @@ Name | Type | Default |
 `status?` | [JobListStatusQuery](../overview.md#jobliststatusquery) | - |
 `searchOptions` | [SearchOptions](../overview.md#searchoptions) |  {} |
 
-**Returns:** *Promise‹[JobsGetResponse](../overview.md#jobsgetresponse)›*
+**Returns:** *Promise‹[JobConfiguration](../interfaces/jobconfiguration.md)[]›*
 
 ___
 
@@ -124,7 +124,7 @@ ___
 
 *Inherited from [Client](client.md).[makeOptions](client.md#protected-makeoptions)*
 
-*Defined in [client.ts:87](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L87)*
+*Defined in [packages/teraslice-client-js/src/client.ts:97](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/client.ts#L97)*
 
 **Parameters:**
 
@@ -143,7 +143,7 @@ ___
 
 *Inherited from [Client](client.md).[parse](client.md#protected-parse)*
 
-*Defined in [client.ts:82](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L82)*
+*Defined in [packages/teraslice-client-js/src/client.ts:91](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/client.ts#L91)*
 
 **Parameters:**
 
@@ -161,7 +161,7 @@ ___
 
 *Inherited from [Client](client.md).[post](client.md#post)*
 
-*Defined in [client.ts:36](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L36)*
+*Defined in [packages/teraslice-client-js/src/client.ts:45](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/client.ts#L45)*
 
 **Parameters:**
 
@@ -181,7 +181,7 @@ ___
 
 *Inherited from [Client](client.md).[put](client.md#put)*
 
-*Defined in [client.ts:40](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/client.ts#L40)*
+*Defined in [packages/teraslice-client-js/src/client.ts:49](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/client.ts#L49)*
 
 **Parameters:**
 
@@ -197,9 +197,9 @@ ___
 
 ###  submit
 
-▸ **submit**(`jobSpec`: JobConfig, `shouldNotStart?`: undefined | false | true): *Promise‹[Job](job.md)‹››*
+▸ **submit**(`jobSpec`: JobConfig, `shouldNotStart?`: undefined | false | true): *Promise‹[Job](job.md)›*
 
-*Defined in [jobs.ts:20](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/jobs.ts#L20)*
+*Defined in [packages/teraslice-client-js/src/jobs.ts:21](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/jobs.ts#L21)*
 
 **Parameters:**
 
@@ -208,7 +208,7 @@ Name | Type |
 `jobSpec` | JobConfig |
 `shouldNotStart?` | undefined &#124; false &#124; true |
 
-**Returns:** *Promise‹[Job](job.md)‹››*
+**Returns:** *Promise‹[Job](job.md)›*
 
 ___
 
@@ -216,7 +216,10 @@ ___
 
 ▸ **wrap**(`jobId`: string): *[Job](job.md)‹›*
 
-*Defined in [jobs.ts:36](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/jobs.ts#L36)*
+*Defined in [packages/teraslice-client-js/src/jobs.ts:39](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/jobs.ts#L39)*
+
+Wraps the job_id with convenience functions for accessing
+the state on the server.
 
 **Parameters:**
 

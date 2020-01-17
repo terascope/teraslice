@@ -21,4 +21,4 @@ sidebar_label: ESMGetResponse
 
 • **docs**: *[ESGetResponse](esgetresponse.md)[]*
 
-*Defined in [elasticsearch-state-storage/index.ts:330](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L330)*
+*Defined in [packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts:330](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L330)*

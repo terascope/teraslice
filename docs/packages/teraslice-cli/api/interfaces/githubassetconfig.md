@@ -24,7 +24,7 @@ sidebar_label: GithubAssetConfig
 
 • **arch**: *string*
 
-*Defined in [interfaces.ts:7](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/interfaces.ts#L7)*
+*Defined in [packages/teraslice-cli/src/interfaces.ts:6](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/interfaces.ts#L6)*
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **assetString**: *string*
 
-*Defined in [interfaces.ts:8](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/interfaces.ts#L8)*
+*Defined in [packages/teraslice-cli/src/interfaces.ts:7](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/interfaces.ts#L7)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **nodeVersion**: *string*
 
-*Defined in [interfaces.ts:9](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/interfaces.ts#L9)*
+*Defined in [packages/teraslice-cli/src/interfaces.ts:8](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/interfaces.ts#L8)*
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **platform**: *string*
 
-*Defined in [interfaces.ts:10](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/interfaces.ts#L10)*
+*Defined in [packages/teraslice-cli/src/interfaces.ts:9](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/interfaces.ts#L9)*

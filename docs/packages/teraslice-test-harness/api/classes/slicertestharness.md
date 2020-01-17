@@ -51,7 +51,7 @@ This is useful for testing Slicers.
 
 *Overrides [BaseTestHarness](basetestharness.md).[constructor](basetestharness.md#constructor)*
 
-*Defined in [slicer-test-harness.ts:36](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-test-harness/src/slicer-test-harness.ts#L36)*
+*Defined in [slicer-test-harness.ts:39](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-test-harness/src/slicer-test-harness.ts#L39)*
 
 **Parameters:**
 
@@ -70,7 +70,7 @@ Name | Type |
 
 *Inherited from [BaseTestHarness](basetestharness.md).[context](basetestharness.md#protected-context)*
 
-*Defined in [base-test-harness.ts:26](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-test-harness/src/base-test-harness.ts#L26)*
+*Defined in [base-test-harness.ts:26](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-test-harness/src/base-test-harness.ts#L26)*
 
 ___
 
@@ -80,7 +80,7 @@ ___
 
 *Inherited from [BaseTestHarness](basetestharness.md).[events](basetestharness.md#events)*
 
-*Defined in [base-test-harness.ts:24](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-test-harness/src/base-test-harness.ts#L24)*
+*Defined in [base-test-harness.ts:24](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-test-harness/src/base-test-harness.ts#L24)*
 
 ___
 
@@ -90,7 +90,7 @@ ___
 
 *Inherited from [BaseTestHarness](basetestharness.md).[executionContext](basetestharness.md#protected-executioncontext)*
 
-*Defined in [base-test-harness.ts:25](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-test-harness/src/base-test-harness.ts#L25)*
+*Defined in [base-test-harness.ts:25](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-test-harness/src/base-test-harness.ts#L25)*
 
 ## Methods
 
@@ -98,7 +98,7 @@ ___
 
 ▸ **createSlices**(): *Promise‹SliceRequest[]›*
 
-*Defined in [slicer-test-harness.ts:73](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-test-harness/src/slicer-test-harness.ts#L73)*
+*Defined in [slicer-test-harness.ts:90](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-test-harness/src/slicer-test-harness.ts#L90)*
 
 Create Slices, always returns an Array of slices or slice requests.
 To adjust the number of slicers change the job configuration
@@ -112,7 +112,7 @@ an array of Slices including the metadata or the just the Slice Request.
 
 ▸ **createSlices**(`options`: object): *Promise‹SliceRequest[]›*
 
-*Defined in [slicer-test-harness.ts:74](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-test-harness/src/slicer-test-harness.ts#L74)*
+*Defined in [slicer-test-harness.ts:91](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-test-harness/src/slicer-test-harness.ts#L91)*
 
 **Parameters:**
 
@@ -124,7 +124,7 @@ Name | Type |
 
 ▸ **createSlices**(`options`: object): *Promise‹Slice[]›*
 
-*Defined in [slicer-test-harness.ts:75](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-test-harness/src/slicer-test-harness.ts#L75)*
+*Defined in [slicer-test-harness.ts:92](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-test-harness/src/slicer-test-harness.ts#L92)*
 
 **Parameters:**
 
@@ -138,19 +138,19 @@ ___
 
 ###  initialize
 
-▸ **initialize**(`recoveryData?`: object[]): *Promise‹void›*
+▸ **initialize**(`recoveryData`: SlicerRecoveryData[]): *Promise‹void›*
 
 *Overrides [BaseTestHarness](basetestharness.md).[initialize](basetestharness.md#initialize)*
 
-*Defined in [slicer-test-harness.ts:50](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-test-harness/src/slicer-test-harness.ts#L50)*
+*Defined in [slicer-test-harness.ts:58](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-test-harness/src/slicer-test-harness.ts#L58)*
 
 Initialize the Operations on the ExecutionContext
 
 **Parameters:**
 
-Name | Type | Description |
------- | ------ | ------ |
-`recoveryData?` | object[] | is an array of starting points to recover from  |
+Name | Type | Default | Description |
+------ | ------ | ------ | ------ |
+`recoveryData` | SlicerRecoveryData[] |  [] | is an array of starting points to recover from  |
 
 **Returns:** *Promise‹void›*
 
@@ -162,7 +162,7 @@ ___
 
 *Inherited from [BaseTestHarness](basetestharness.md).[makeContextConfig](basetestharness.md#protected-makecontextconfig)*
 
-*Defined in [base-test-harness.ts:58](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-test-harness/src/base-test-harness.ts#L58)*
+*Defined in [base-test-harness.ts:58](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-test-harness/src/base-test-harness.ts#L58)*
 
 **Parameters:**
 
@@ -179,7 +179,7 @@ ___
 
 ▸ **onSliceComplete**(`result`: SliceResult): *void*
 
-*Defined in [slicer-test-harness.ts:117](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-test-harness/src/slicer-test-harness.ts#L117)*
+*Defined in [slicer-test-harness.ts:134](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-test-harness/src/slicer-test-harness.ts#L134)*
 
 **Parameters:**
 
@@ -195,7 +195,7 @@ ___
 
 ▸ **onSliceDispatch**(`slice`: Slice): *void*
 
-*Defined in [slicer-test-harness.ts:113](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-test-harness/src/slicer-test-harness.ts#L113)*
+*Defined in [slicer-test-harness.ts:130](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-test-harness/src/slicer-test-harness.ts#L130)*
 
 **Parameters:**
 
@@ -213,7 +213,7 @@ ___
 
 *Inherited from [BaseTestHarness](basetestharness.md).[setClients](basetestharness.md#setclients)*
 
-*Defined in [base-test-harness.ts:47](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-test-harness/src/base-test-harness.ts#L47)*
+*Defined in [base-test-harness.ts:47](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-test-harness/src/base-test-harness.ts#L47)*
 
 **Parameters:**
 
@@ -229,7 +229,7 @@ ___
 
 ▸ **setWorkers**(`count`: number): *void*
 
-*Defined in [slicer-test-harness.ts:107](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-test-harness/src/slicer-test-harness.ts#L107)*
+*Defined in [slicer-test-harness.ts:124](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-test-harness/src/slicer-test-harness.ts#L124)*
 
 **Parameters:**
 
@@ -247,7 +247,7 @@ ___
 
 *Overrides [BaseTestHarness](basetestharness.md).[shutdown](basetestharness.md#shutdown)*
 
-*Defined in [slicer-test-harness.ts:124](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-test-harness/src/slicer-test-harness.ts#L124)*
+*Defined in [slicer-test-harness.ts:141](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-test-harness/src/slicer-test-harness.ts#L141)*
 
 Shutdown the Operations on the ExecutionContext
 
@@ -259,7 +259,7 @@ ___
 
 ▸ **slicer**<**T**>(): *T*
 
-*Defined in [slicer-test-harness.ts:42](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-test-harness/src/slicer-test-harness.ts#L42)*
+*Defined in [slicer-test-harness.ts:50](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-test-harness/src/slicer-test-harness.ts#L50)*
 
 **Type parameters:**
 
@@ -273,11 +273,11 @@ ___
 
 ### ▪ **stats**: *object*
 
-*Defined in [slicer-test-harness.ts:25](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-test-harness/src/slicer-test-harness.ts#L25)*
+*Defined in [slicer-test-harness.ts:28](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-test-harness/src/slicer-test-harness.ts#L28)*
 
 ▪ **slices**: *object*
 
-*Defined in [slicer-test-harness.ts:30](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-test-harness/src/slicer-test-harness.ts#L30)*
+*Defined in [slicer-test-harness.ts:33](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-test-harness/src/slicer-test-harness.ts#L33)*
 
 * **failed**: *number* = 0
 
@@ -285,7 +285,7 @@ ___
 
 ▪ **workers**: *object*
 
-*Defined in [slicer-test-harness.ts:26](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-test-harness/src/slicer-test-harness.ts#L26)*
+*Defined in [slicer-test-harness.ts:29](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-test-harness/src/slicer-test-harness.ts#L29)*
 
 * **available**: *number* = 1
 

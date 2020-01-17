@@ -40,7 +40,7 @@ sidebar_label: AssetSrc
 
 \+ **new AssetSrc**(`srcDir`: string): *[AssetSrc](assetsrc.md)*
 
-*Defined in [helpers/asset-src.ts:26](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/asset-src.ts#L26)*
+*Defined in [packages/teraslice-cli/src/helpers/asset-src.ts:25](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/asset-src.ts#L25)*
 
 **Parameters:**
 
@@ -56,7 +56,7 @@ Name | Type |
 
 • **assetFile**: *string*
 
-*Defined in [helpers/asset-src.ts:22](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/asset-src.ts#L22)*
+*Defined in [packages/teraslice-cli/src/helpers/asset-src.ts:21](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/asset-src.ts#L21)*
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **assetPackageJson**: *any*
 
-*Defined in [helpers/asset-src.ts:24](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/asset-src.ts#L24)*
+*Defined in [packages/teraslice-cli/src/helpers/asset-src.ts:23](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/asset-src.ts#L23)*
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [helpers/asset-src.ts:25](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/asset-src.ts#L25)*
+*Defined in [packages/teraslice-cli/src/helpers/asset-src.ts:24](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/asset-src.ts#L24)*
 
 ___
 
@@ -80,7 +80,7 @@ ___
 
 • **packageJson**: *any*
 
-*Defined in [helpers/asset-src.ts:23](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/asset-src.ts#L23)*
+*Defined in [packages/teraslice-cli/src/helpers/asset-src.ts:22](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/asset-src.ts#L22)*
 
 ___
 
@@ -88,7 +88,7 @@ ___
 
 • **srcDir**: *string*
 
-*Defined in [helpers/asset-src.ts:21](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/asset-src.ts#L21)*
+*Defined in [packages/teraslice-cli/src/helpers/asset-src.ts:20](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/asset-src.ts#L20)*
 
 **`param`** Path to a valid asset source directory, must
 must contain `asset/asset.json` and `asset/package.json` files.
@@ -99,7 +99,7 @@ ___
 
 • **version**: *string*
 
-*Defined in [helpers/asset-src.ts:26](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/asset-src.ts#L26)*
+*Defined in [packages/teraslice-cli/src/helpers/asset-src.ts:25](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/asset-src.ts#L25)*
 
 ## Accessors
 
@@ -107,7 +107,7 @@ ___
 
 • **get buildDir**(): *string*
 
-*Defined in [helpers/asset-src.ts:44](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/asset-src.ts#L44)*
+*Defined in [packages/teraslice-cli/src/helpers/asset-src.ts:43](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/asset-src.ts#L43)*
 
 **Returns:** *string*
 
@@ -119,7 +119,7 @@ ___
 
 • **get zipFileName**(): *string*
 
-*Defined in [helpers/asset-src.ts:48](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/asset-src.ts#L48)*
+*Defined in [packages/teraslice-cli/src/helpers/asset-src.ts:47](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/asset-src.ts#L47)*
 
 **Returns:** *string*
 
@@ -129,7 +129,7 @@ ___
 
 ▸ **build**(): *Promise‹string›*
 
-*Defined in [helpers/asset-src.ts:74](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/asset-src.ts#L74)*
+*Defined in [packages/teraslice-cli/src/helpers/asset-src.ts:73](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/asset-src.ts#L73)*
 
 **Returns:** *Promise‹string›*
 
@@ -139,7 +139,7 @@ ___
 
 ▸ **zip**(`tmpAssetDir`: string, `outputFileName`: string): *Promise‹ZipResults›*
 
-*Defined in [helpers/asset-src.ts:116](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/asset-src.ts#L116)*
+*Defined in [packages/teraslice-cli/src/helpers/asset-src.ts:115](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/asset-src.ts#L115)*
 
 zip - Creates properly named zip archive of asset from tmpAssetDir
 

@@ -31,7 +31,7 @@ sidebar_label: Selector
 
 \+ **new Selector**(`config`: [SelectorConfig](../interfaces/selectorconfig.md), `types?`: TypeConfig): *[Selector](selector.md)*
 
-*Defined in [operations/lib/transforms/selector.ts:11](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/transforms/selector.ts#L11)*
+*Defined in [operations/lib/transforms/selector.ts:10](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/operations/lib/transforms/selector.ts#L10)*
 
 **Parameters:**
 
@@ -48,7 +48,7 @@ Name | Type |
 
 • **selector**: *string*
 
-*Defined in [operations/lib/transforms/selector.ts:8](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/transforms/selector.ts#L8)*
+*Defined in [operations/lib/transforms/selector.ts:7](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/operations/lib/transforms/selector.ts#L7)*
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 ▪ **cardinality**: *[InputOutputCardinality](../overview.md#inputoutputcardinality)* = "one-to-one"
 
-*Defined in [operations/lib/transforms/selector.ts:11](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/transforms/selector.ts#L11)*
+*Defined in [operations/lib/transforms/selector.ts:10](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/operations/lib/transforms/selector.ts#L10)*
 
 ## Methods
 
@@ -64,7 +64,7 @@ ___
 
 ▸ **addMetaData**(`doc`: DataEntity, `selector`: string): *void*
 
-*Defined in [operations/lib/transforms/selector.ts:24](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/transforms/selector.ts#L24)*
+*Defined in [operations/lib/transforms/selector.ts:23](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/operations/lib/transforms/selector.ts#L23)*
 
 **Parameters:**
 
@@ -81,7 +81,7 @@ ___
 
 ▸ **run**(`doc`: DataEntity): *DataEntity | null*
 
-*Defined in [operations/lib/transforms/selector.ts:33](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/operations/lib/transforms/selector.ts#L33)*
+*Defined in [operations/lib/transforms/selector.ts:32](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/operations/lib/transforms/selector.ts#L32)*
 
 **Parameters:**
 

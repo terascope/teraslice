@@ -25,9 +25,9 @@ sidebar_label: Default Argumentconfig
 
 • **default**? : *any*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:67
+Defined in node_modules/@types/yeoman-generator/index.d.ts:67
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:67
+Defined in node_modules/@types/yeoman-generator/index.d.ts:67
 
 ___
 
@@ -35,9 +35,9 @@ ___
 
 • **description**? : *undefined | string*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:63
+Defined in node_modules/@types/yeoman-generator/index.d.ts:63
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:63
+Defined in node_modules/@types/yeoman-generator/index.d.ts:63
 
 ___
 
@@ -45,9 +45,9 @@ ___
 
 • **optional**? : *undefined | false | true*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:65
+Defined in node_modules/@types/yeoman-generator/index.d.ts:65
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:65
+Defined in node_modules/@types/yeoman-generator/index.d.ts:65
 
 ___
 
@@ -55,9 +55,9 @@ ___
 
 • **required**? : *undefined | false | true*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:64
+Defined in node_modules/@types/yeoman-generator/index.d.ts:64
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:64
+Defined in node_modules/@types/yeoman-generator/index.d.ts:64
 
 ___
 
@@ -65,6 +65,6 @@ ___
 
 • **type**? : *StringConstructor | NumberConstructor | ArrayConstructor | ObjectConstructor*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:66
+Defined in node_modules/@types/yeoman-generator/index.d.ts:66
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:66
+Defined in node_modules/@types/yeoman-generator/index.d.ts:66

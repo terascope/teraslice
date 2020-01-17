@@ -21,4 +21,4 @@ sidebar_label: ResumeResponse
 
 • **status**: *[running](../enums/executionstatus.md#running)*
 
-*Defined in [interfaces.ts:282](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L282)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:289](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L289)*

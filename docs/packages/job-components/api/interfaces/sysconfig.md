@@ -23,7 +23,7 @@ sidebar_label: SysConfig
 
 • **_nodeName**: *string*
 
-*Defined in [interfaces/context.ts:59](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/context.ts#L59)*
+*Defined in [packages/job-components/src/interfaces/context.ts:60](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/context.ts#L60)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **terafoundation**: *[TerafoundationConfig](terafoundationconfig.md)*
 
-*Defined in [interfaces/context.ts:57](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/context.ts#L57)*
+*Defined in [packages/job-components/src/interfaces/context.ts:58](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/context.ts#L58)*
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 • **teraslice**: *[TerasliceConfig](terasliceconfig.md)*
 
-*Defined in [interfaces/context.ts:58](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/context.ts#L58)*
+*Defined in [packages/job-components/src/interfaces/context.ts:59](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/context.ts#L59)*

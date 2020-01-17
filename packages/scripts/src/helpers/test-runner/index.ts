@@ -313,8 +313,8 @@ async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
 
 async function pushDevImage() {
     if (!isCI) return;
-    // wait 30 seconds before pushing
-    await pDelay(30 * 1000);
+    // wait 15 seconds before pushing
+    await pDelay(15 * 1000);
     const devDockerImage = getDevDockerImage();
     try {
         signale.info(`pushing ${devDockerImage}...`);
@@ -327,7 +327,7 @@ async function pushDevImage() {
 
 function printAndGetEnv(suite: string, options: TestOptions) {
     const env = utils.getEnv(options, suite);
-    if (options.debug || isCI) {
+    if (options.debug || options.trace || isCI) {
         const envStr = Object
             .entries(env)
             .filter(([_, val]) => val != null && val !== '')

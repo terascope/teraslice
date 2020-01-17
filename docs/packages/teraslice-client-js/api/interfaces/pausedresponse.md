@@ -21,4 +21,4 @@ sidebar_label: PausedResponse
 
 • **status**: *[paused](../enums/executionstatus.md#paused)*
 
-*Defined in [interfaces.ts:278](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L278)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:285](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L285)*

@@ -22,7 +22,7 @@ sidebar_label: ErrorResponse
 
 • **error**: *number*
 
-*Defined in [interfaces.ts:64](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L64)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:65](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L65)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **message**: *string*
 
-*Defined in [interfaces.ts:65](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L65)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:66](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L66)*
