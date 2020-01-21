@@ -33,7 +33,7 @@
         "@types/lodash": "^4.14.149",
         "debug": "^4.1.1",
         "ms": "^2.1.2",
-        "typescript": "^3.7.4"
+        "typescript": "^3.7.5"
     },
     "dependencies": {},
     "devDependencies": {
@@ -53,7 +53,7 @@
         "lerna": "^3.20.1",
         "lerna-alias": "^3.0.2",
         "ts-jest": "^24.2.0",
-        "typescript": "^3.7.4"
+        "typescript": "^3.7.5"
     },
     "engines": {
         "node": ">=10.16.0",
