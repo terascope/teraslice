@@ -73,7 +73,7 @@ export default class Executions extends Client {
 
 function _parseListOptions(options: ListOptions): SearchQuery {
     // support legacy
-    if (!options) return { status: '*' };
+    if (!options) return {};
     if (isString(options)) return { status: options };
     return options;
 }

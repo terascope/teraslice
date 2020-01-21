@@ -1,6 +1,5 @@
 import path from 'path';
 import nock from 'nock';
-import { pDelay } from '@terascope/utils';
 
 import Jobs from '../../src/helpers/jobs';
 
@@ -24,13 +23,9 @@ describe('jobs', () => {
             'cluster-alias': 'localhost',
             args: { id, action, num }
         };
-        const fn = (obj: any) => {
-            console.log('what is this', obj);
-            return true;
-        };
 
         scope = nock('http://localhost:5678')
-            .post(`/v1/jobs/${id}/_workers?add=5`, fn)
+            .post(`/v1/jobs/${id}/_workers?add=5`)
             .reply(200, msg);
 
         jobs = new Jobs(cliArgs);
@@ -48,6 +43,6 @@ describe('jobs', () => {
 
     it('can log properly', async () => {
         const results = await jobs.workers();
-        expect(results).toEqual(`> job: ${id} ${msg.message}`)
+        expect(results).toEqual(`> job: ${id} ${msg.message}`);
     });
 });
