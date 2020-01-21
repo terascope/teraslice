@@ -211,10 +211,9 @@ describe('recovery', () => {
         const [exConfig] = await Promise.all([
             job.execution(),
             waitForExStatus(newEx, 'recovering'),
-            // give the execution time to run for second
-            // after recovering
-            waitForExStatus(newEx, 'running', 5000)
         ]);
+
+        await waitForExStatus(newEx, 'running');
 
         await job.stop({ blocking: true });
 
@@ -254,10 +253,8 @@ describe('recovery', () => {
         const [exConfig] = await Promise.all([
             newEx.config(),
             waitForExStatus(newEx, 'recovering'),
-            // give the execution time to run for second
-            // after recovering
-            waitForExStatus(newEx, 'running', 5000)
         ]);
+        await waitForExStatus(newEx, 'running');
 
         await newEx.stop({ blocking: true });
 
