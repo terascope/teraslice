@@ -29,7 +29,7 @@
     },
     "resolutions": {
         "ms": "^2.1.2",
-        "typescript": "^3.7.4"
+        "typescript": "^3.7.5"
     },
     "dependencies": {
         "@lerna/query-graph": "^3.18.5",

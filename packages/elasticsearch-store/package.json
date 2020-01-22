@@ -26,7 +26,7 @@
     "dependencies": {
         "@terascope/data-types": "^0.11.1",
         "@terascope/utils": "^0.22.0",
-        "ajv": "^6.10.0",
+        "ajv": "^6.11.0",
         "nanoid": "^2.1.9",
         "xlucene-evaluator": "^0.17.0"
     },
