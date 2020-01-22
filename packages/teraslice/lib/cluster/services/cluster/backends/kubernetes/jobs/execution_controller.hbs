@@ -8,7 +8,7 @@
             "teraslice.terascope.io/exId": "{{exId}}",
             "jobId": "{{jobId}}",
             "jobName": "{{jobNameLabel}}",
-            "clusterName": "{{clusterNameLabel}}"
+            "app.kubernetes.io/instance": "{{clusterNameLabel}}"
         },
         "name": "{{name}}",
         "namespace": "{{namespace}}"
@@ -22,7 +22,7 @@
                     "teraslice.terascope.io/exId": "{{exId}}",
                     "jobId": "{{jobId}}",
                     "jobName": "{{jobNameLabel}}",
-                    "clusterName": "{{clusterNameLabel}}"
+                    "app.kubernetes.io/instance": "{{clusterNameLabel}}"
                 }
             },
             "spec": {

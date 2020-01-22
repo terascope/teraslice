@@ -17,7 +17,7 @@
                 "creationTimestamp": "2018-04-16T17:34:34Z",
                 "labels": {
                     "app": "teraslice",
-                    "clusterName": "ts-dev1",
+                    "app.kubernetes.io/instance": "ts-dev1",
                     "nodeType": "master",
                     "pod-template-hash": "2769401078"
                 },
@@ -129,8 +129,8 @@
                 "creationTimestamp": "2018-04-16T17:34:52Z",
                 "labels": {
                     "app": "teraslice",
-                    "clusterName": "ts-dev1",
-                    "exId": "123456",
+                    "app.kubernetes.io/instance": "ts-dev1",
+                    "teraslice.terascope.io/exId": "123456",
                     "jobId": "654321",
                     "jobName": "test-job-1",
                     "nodeType": "execution_controller",
@@ -251,8 +251,8 @@
                 "creationTimestamp": "2018-04-16T17:34:52Z",
                 "labels": {
                     "app": "teraslice",
-                    "clusterName": "ts-dev1",
-                    "exId": "123456",
+                    "app.kubernetes.io/instance": "ts-dev1",
+                    "teraslice.terascope.io/exId": "123456",
                     "jobId": "654321",
                     "jobName": "test-job-1",
                     "nodeType": "worker",
@@ -373,8 +373,8 @@
                 "creationTimestamp": "2018-04-16T17:34:52Z",
                 "labels": {
                     "app": "teraslice",
-                    "clusterName": "ts-dev2",
-                    "exId": "123456",
+                    "app.kubernetes.io/instance": "ts-dev2",
+                    "teraslice.terascope.io/exId": "123456",
                     "jobId": "654321",
                     "jobName": "test-job-1",
                     "nodeType": "execution_controller",
