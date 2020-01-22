@@ -15,12 +15,21 @@ The metadata given to Slicer after succefully recovering the execution
 
 ### Properties
 
-* [lastSlice](slicerrecoverydata.md#lastslice)
+* [lastSlice](slicerrecoverydata.md#optional-lastslice)
+* [slicer_id](slicerrecoverydata.md#slicer_id)
 
 ## Properties
 
-###  lastSlice
+### `Optional` lastSlice
 
-• **lastSlice**: *[Slice](slice.md)*
+• **lastSlice**? : *[SliceRequest](slicerequest.md)*
 
-*Defined in [interfaces/operations.ts:67](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/operations.ts#L67)*
+*Defined in [packages/job-components/src/interfaces/operations.ts:68](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/operations.ts#L68)*
+
+___
+
+###  slicer_id
+
+• **slicer_id**: *number*
+
+*Defined in [packages/job-components/src/interfaces/operations.ts:67](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/operations.ts#L67)*

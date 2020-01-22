@@ -10,6 +10,7 @@ const fse = require('fs-extra');
 const nanoid = require('nanoid/generate');
 const { TerasliceClient } = require('teraslice-client-js');
 const ElasticsearchClient = require('elasticsearch').Client;
+const { Compose } = require('@terascope/docker-compose-js');
 
 const {
     TEST_INDEX_PREFIX = 'teratest_',
@@ -39,7 +40,7 @@ const DEFAULT_NODES = DEFAULT_WORKERS + 1;
 // The number of workers per number (see the process-master.yaml and process-worker.yaml)
 const WORKERS_PER_NODE = 12;
 
-const compose = require('@terascope/docker-compose-js')('docker-compose.yml');
+const compose = new Compose('docker-compose.yml');
 const signale = require('./signale');
 
 const es = memoize(

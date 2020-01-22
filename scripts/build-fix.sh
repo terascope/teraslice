@@ -99,6 +99,16 @@ cleanup_packages() {
         fi
     done
 
+    if [ -d "e2e/dist" ]; then
+        echoerr "* removing e2e/dist"
+        rm -rf "e2e/dist"
+    fi
+
+    if [ -d "e2e/node_modules" ]; then
+        echoerr "* removing e2e/node_modules"
+        rm -rf "e2e/node_modules"
+    fi
+
     return 0
 }
 
@@ -135,7 +145,11 @@ post_cleanup() {
         echoerr "* running yarn cache clean" &&
         yarn cache clean
 
-    prompt "Do you want to verify/rebuild the node_modules?" &&
+    prompt "Do you want to clear your jest cache?" &&
+        echoerr "* running yarn jest --clear-cache" &&
+        yarn jest --clear-cache
+
+    prompt "Do you want to remove the node_modules?" &&
         echoerr "* running rm -rf node_modules" &&
         rm -rf node_modules
 

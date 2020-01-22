@@ -6,10 +6,31 @@ const isCI = require('is-ci');
 const { jest: lernaAliases } = require('lerna-alias');
 
 module.exports = (projectDir) => {
+    let parentFolder;
+    let workspaceName;
+    let packageRoot;
+    let rootDir;
+
     const name = path.basename(projectDir);
-    const workspaceName = name === 'e2e' ? 'e2e' : 'packages';
-    const rootDir = name === 'e2e' ? '../' : '../../';
-    const packageRoot = name === 'e2e' ? '<rootDir>/e2e' : `<rootDir>/${workspaceName}/${name}`;
+    const runInDir = process.cwd() !== __dirname;
+
+    if (name === 'e2e') {
+        parentFolder = name;
+        workspaceName = name;
+        if (runInDir) {
+            packageRoot = '<rootDir>';
+            rootDir = './';
+        } else {
+            packageRoot = `<rootDir>/${name}`;
+            rootDir = '../';
+        }
+    } else {
+        parentFolder = 'packages';
+        workspaceName = `packages/${name}`;
+        packageRoot = `<rootDir>/${workspaceName}`;
+        rootDir = '../../';
+    }
+
     const isTypescript = fs.existsSync(path.join(projectDir, 'tsconfig.json'));
 
     const coverageReporters = ['lcov', 'html'];
@@ -18,7 +39,7 @@ module.exports = (projectDir) => {
     }
     const config = {
         rootDir,
-        name: `${workspaceName}/${name}`,
+        name: workspaceName,
         displayName: name,
         verbose: true,
         testEnvironment: 'node',
@@ -26,9 +47,9 @@ module.exports = (projectDir) => {
         testMatch: [`${packageRoot}/test/**/*-spec.{ts,js}`, `${packageRoot}/test/*-spec.{ts,js}`],
         testPathIgnorePatterns: [
             '<rootDir>/assets',
-            `<rootDir>/${workspaceName}/*/node_modules`,
-            `<rootDir>/${workspaceName}/*/dist`,
-            `<rootDir>/${workspaceName}/teraslice-cli/test/fixtures/`
+            `<rootDir>/${parentFolder}/*/node_modules`,
+            `<rootDir>/${parentFolder}/*/dist`,
+            `<rootDir>/${parentFolder}/teraslice-cli/test/fixtures/`
         ],
         transformIgnorePatterns: ['^.+\\.js$'],
         moduleNameMapper: lernaAliases({ mainFields: ['srcMain', 'main'] }),
@@ -44,10 +65,14 @@ module.exports = (projectDir) => {
 
     if (fs.existsSync(path.join(projectDir, 'test/global.setup.js'))) {
         config.globalSetup = `${packageRoot}/test/global.setup.js`;
+    } else if (fs.existsSync(path.join(projectDir, 'test/global.setup.ts'))) {
+        config.globalSetup = `${packageRoot}/test/global.setup.ts`;
     }
 
     if (fs.existsSync(path.join(projectDir, 'test/global.teardown.js'))) {
         config.globalTeardown = `${packageRoot}/test/global.teardown.js`;
+    } else if (fs.existsSync(path.join(projectDir, 'test/global.teardown.ts'))) {
+        config.globalTeardown = `${packageRoot}/test/global.teardown.ts`;
     }
 
     if (fs.existsSync(path.join(projectDir, 'test/test.setup.js'))) {
@@ -60,7 +85,7 @@ module.exports = (projectDir) => {
 
     if (isTypescript) {
         config.globals['ts-jest'] = {
-            tsConfig: `./${workspaceName}/${name}/tsconfig.json`,
+            tsConfig: runInDir ? './tsconfig.json' : `./${workspaceName}/tsconfig.json`,
             diagnostics: true,
             pretty: true
         };

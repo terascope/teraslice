@@ -39,7 +39,7 @@ sidebar_label: SlicerAnalytics
 
 *Inherited from [SliceAccumulationStats](sliceaccumulationstats.md).[failed](sliceaccumulationstats.md#failed)*
 
-*Defined in [interfaces.ts:195](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L195)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:185](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L185)*
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 *Inherited from [SliceAccumulationStats](sliceaccumulationstats.md).[job_duration](sliceaccumulationstats.md#job_duration)*
 
-*Defined in [interfaces.ts:197](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L197)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:187](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L187)*
 
 ___
 
@@ -59,7 +59,7 @@ ___
 
 *Inherited from [SliceAccumulationStats](sliceaccumulationstats.md).[processed](sliceaccumulationstats.md#processed)*
 
-*Defined in [interfaces.ts:194](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L194)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:184](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L184)*
 
 ___
 
@@ -69,7 +69,7 @@ ___
 
 *Inherited from [SliceAccumulationStats](sliceaccumulationstats.md).[queued](sliceaccumulationstats.md#queued)*
 
-*Defined in [interfaces.ts:196](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L196)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:186](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L186)*
 
 ___
 
@@ -77,7 +77,7 @@ ___
 
 • **queuing_complete**? : *undefined | string*
 
-*Defined in [interfaces.ts:241](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L241)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:247](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L247)*
 
 ___
 
@@ -85,7 +85,7 @@ ___
 
 • **slice_range_expansion**: *number*
 
-*Defined in [interfaces.ts:237](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L237)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:243](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L243)*
 
 ___
 
@@ -93,7 +93,7 @@ ___
 
 • **slicers**: *number*
 
-*Defined in [interfaces.ts:238](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L238)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:244](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L244)*
 
 ___
 
@@ -101,7 +101,7 @@ ___
 
 • **started**? : *undefined | string*
 
-*Defined in [interfaces.ts:240](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L240)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:246](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L246)*
 
 ___
 
@@ -109,7 +109,7 @@ ___
 
 • **subslice_by_key**: *number*
 
-*Defined in [interfaces.ts:239](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L239)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:245](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L245)*
 
 ___
 
@@ -117,7 +117,7 @@ ___
 
 • **subslices**: *number*
 
-*Defined in [interfaces.ts:236](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L236)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:242](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L242)*
 
 ___
 
@@ -125,7 +125,7 @@ ___
 
 • **workers_active**: *number*
 
-*Defined in [interfaces.ts:235](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L235)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:241](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L241)*
 
 ___
 
@@ -133,7 +133,7 @@ ___
 
 • **workers_available**: *number*
 
-*Defined in [interfaces.ts:234](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L234)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:240](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L240)*
 
 ___
 
@@ -143,7 +143,7 @@ ___
 
 *Inherited from [SliceAccumulationStats](sliceaccumulationstats.md).[workers_disconnected](sliceaccumulationstats.md#workers_disconnected)*
 
-*Defined in [interfaces.ts:199](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L199)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:189](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L189)*
 
 ___
 
@@ -153,7 +153,7 @@ ___
 
 *Inherited from [SliceAccumulationStats](sliceaccumulationstats.md).[workers_joined](sliceaccumulationstats.md#workers_joined)*
 
-*Defined in [interfaces.ts:198](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L198)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:188](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L188)*
 
 ___
 
@@ -163,4 +163,4 @@ ___
 
 *Inherited from [SliceAccumulationStats](sliceaccumulationstats.md).[workers_reconnected](sliceaccumulationstats.md#workers_reconnected)*
 
-*Defined in [interfaces.ts:200](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L200)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:190](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L190)*

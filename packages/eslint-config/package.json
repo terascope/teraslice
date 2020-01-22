@@ -17,14 +17,14 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@typescript-eslint/eslint-plugin": "^2.14.0",
+        "@typescript-eslint/eslint-plugin": "^2.16.0",
         "@typescript-eslint/parser": "^2.14.0",
         "eslint-config-airbnb": "^18.0.1",
         "eslint-config-airbnb-base": "^14.0.0",
         "eslint-plugin-import": "~2.20.0",
         "eslint-plugin-jest": "^23.2.0",
         "eslint-plugin-jsx-a11y": "^6.2.3",
-        "eslint-plugin-react": "^7.17.0",
+        "eslint-plugin-react": "^7.18.0",
         "eslint-plugin-react-hooks": "^2.3.0"
     },
     "devDependencies": {},

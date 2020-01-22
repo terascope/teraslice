@@ -26,7 +26,7 @@ sidebar_label: LogicalGroup
 
 *Inherited from [GroupLikeAST](grouplikeast.md).[flow](grouplikeast.md#flow)*
 
-*Defined in [parser/interfaces.ts:31](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L31)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:32](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L32)*
 
 ___
 
@@ -36,4 +36,4 @@ ___
 
 *Overrides [GroupLikeAST](grouplikeast.md).[type](grouplikeast.md#type)*
 
-*Defined in [parser/interfaces.ts:98](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L98)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:100](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L100)*

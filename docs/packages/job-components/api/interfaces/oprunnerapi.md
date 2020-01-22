@@ -21,7 +21,7 @@ sidebar_label: OpRunnerAPI
 
 ▸ **getClient**(`config`: [GetClientConfig](getclientconfig.md), `type`: string): *any*
 
-*Defined in [interfaces/context.ts:108](https://github.com/terascope/teraslice/blob/d8feecc03/packages/job-components/src/interfaces/context.ts#L108)*
+*Defined in [packages/job-components/src/interfaces/context.ts:114](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/context.ts#L114)*
 
 **Parameters:**
 

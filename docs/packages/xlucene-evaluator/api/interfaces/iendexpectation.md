@@ -21,4 +21,4 @@ sidebar_label: IEndExpectation
 
 • **type**: *"end"*
 
-Defined in parser/peg-engine.ts:42
+Defined in packages/xlucene-evaluator/src/parser/peg-engine.ts:42

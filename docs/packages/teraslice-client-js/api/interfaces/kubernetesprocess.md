@@ -30,7 +30,7 @@ sidebar_label: KubernetesProcess
 
 • **assets**: *string[]*
 
-*Defined in [interfaces.ts:148](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L148)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:140](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L140)*
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 • **assignment**: *Assignment*
 
-*Defined in [interfaces.ts:143](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L143)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:135](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L135)*
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 • **ex_id**: *string*
 
-*Defined in [interfaces.ts:145](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L145)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:137](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L137)*
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 • **image**: *string*
 
-*Defined in [interfaces.ts:149](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L149)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:141](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L141)*
 
 ___
 
@@ -62,7 +62,7 @@ ___
 
 • **job_id**: *string*
 
-*Defined in [interfaces.ts:146](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L146)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:138](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L138)*
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 • **pod_ip**: *string*
 
-*Defined in [interfaces.ts:147](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L147)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:139](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L139)*
 
 ___
 
@@ -78,7 +78,7 @@ ___
 
 • **pod_name**: *string*
 
-*Defined in [interfaces.ts:144](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L144)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:136](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L136)*
 
 ___
 
@@ -86,4 +86,4 @@ ___
 
 • **worker_id**: *string*
 
-*Defined in [interfaces.ts:142](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L142)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:134](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L134)*

@@ -21,4 +21,4 @@ sidebar_label: EnqueuedWorker
 
 • **workerId**: *string*
 
-*Defined in [execution-controller/interfaces.ts:49](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L49)*
+*Defined in [packages/teraslice-messaging/src/execution-controller/interfaces.ts:49](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L49)*

@@ -22,6 +22,7 @@ node_modules
 /packages/teraslice/assets
 autoload
 e2e/.config
+e2e/dist
 /packages/*/dist
 /packages/*/build
 /packages/teraslice-cli/generator-templates

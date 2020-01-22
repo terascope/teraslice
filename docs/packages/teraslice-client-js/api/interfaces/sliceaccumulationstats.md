@@ -31,7 +31,7 @@ sidebar_label: SliceAccumulationStats
 
 • **failed**: *number*
 
-*Defined in [interfaces.ts:195](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L195)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:185](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L185)*
 
 ___
 
@@ -39,7 +39,7 @@ ___
 
 • **job_duration**: *number*
 
-*Defined in [interfaces.ts:197](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L197)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:187](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L187)*
 
 ___
 
@@ -47,7 +47,7 @@ ___
 
 • **processed**: *number*
 
-*Defined in [interfaces.ts:194](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L194)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:184](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L184)*
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 • **queued**: *number*
 
-*Defined in [interfaces.ts:196](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L196)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:186](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L186)*
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 • **workers_disconnected**: *number*
 
-*Defined in [interfaces.ts:199](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L199)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:189](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L189)*
 
 ___
 
@@ -71,7 +71,7 @@ ___
 
 • **workers_joined**: *number*
 
-*Defined in [interfaces.ts:198](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L198)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:188](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L188)*
 
 ___
 
@@ -79,4 +79,4 @@ ___
 
 • **workers_reconnected**: *number*
 
-*Defined in [interfaces.ts:200](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L200)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:190](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L190)*

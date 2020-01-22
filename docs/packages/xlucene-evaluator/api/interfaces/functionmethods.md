@@ -22,7 +22,7 @@ sidebar_label: FunctionMethods
 
 ▸ **match**(`arg`: any): *boolean*
 
-*Defined in [parser/interfaces.ts:187](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L187)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:189](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L189)*
 
 **Parameters:**
 
@@ -36,14 +36,15 @@ ___
 
 ###  toElasticsearchQuery
 
-▸ **toElasticsearchQuery**(`options`: [UtilsTranslateQueryOptions](../overview.md#utilstranslatequeryoptions)): *[FunctionMethodsResults](functionmethodsresults.md)*
+▸ **toElasticsearchQuery**(`field`: string, `options`: [UtilsTranslateQueryOptions](../overview.md#utilstranslatequeryoptions)): *[FunctionMethodsResults](functionmethodsresults.md)*
 
-*Defined in [parser/interfaces.ts:188](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L188)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:190](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L190)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
+`field` | string |
 `options` | [UtilsTranslateQueryOptions](../overview.md#utilstranslatequeryoptions) |
 
 **Returns:** *[FunctionMethodsResults](functionmethodsresults.md)*

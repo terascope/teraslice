@@ -13,6 +13,8 @@ sidebar_label: FieldType
 * [Date](fieldtype.md#date)
 * [Float](fieldtype.md#float)
 * [Geo](fieldtype.md#geo)
+* [GeoJSON](fieldtype.md#geojson)
+* [GeoPoint](fieldtype.md#geopoint)
 * [IP](fieldtype.md#ip)
 * [Integer](fieldtype.md#integer)
 * [Object](fieldtype.md#object)
@@ -24,7 +26,7 @@ sidebar_label: FieldType
 
 • **Boolean**: = "boolean"
 
-*Defined in [interfaces.ts:33](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/interfaces.ts#L33)*
+*Defined in [packages/xlucene-evaluator/src/interfaces.ts:66](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/interfaces.ts#L66)*
 
 ___
 
@@ -32,7 +34,7 @@ ___
 
 • **Date**: = "date"
 
-*Defined in [interfaces.ts:28](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/interfaces.ts#L28)*
+*Defined in [packages/xlucene-evaluator/src/interfaces.ts:61](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/interfaces.ts#L61)*
 
 ___
 
@@ -40,7 +42,7 @@ ___
 
 • **Float**: = "float"
 
-*Defined in [interfaces.ts:32](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/interfaces.ts#L32)*
+*Defined in [packages/xlucene-evaluator/src/interfaces.ts:65](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/interfaces.ts#L65)*
 
 ___
 
@@ -48,7 +50,23 @@ ___
 
 • **Geo**: = "geo"
 
-*Defined in [interfaces.ts:27](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/interfaces.ts#L27)*
+*Defined in [packages/xlucene-evaluator/src/interfaces.ts:60](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/interfaces.ts#L60)*
+
+___
+
+###  GeoJSON
+
+• **GeoJSON**: = "geo-json"
+
+*Defined in [packages/xlucene-evaluator/src/interfaces.ts:69](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/interfaces.ts#L69)*
+
+___
+
+###  GeoPoint
+
+• **GeoPoint**: = "geo-point"
+
+*Defined in [packages/xlucene-evaluator/src/interfaces.ts:68](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/interfaces.ts#L68)*
 
 ___
 
@@ -56,7 +74,7 @@ ___
 
 • **IP**: = "ip"
 
-*Defined in [interfaces.ts:29](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/interfaces.ts#L29)*
+*Defined in [packages/xlucene-evaluator/src/interfaces.ts:62](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/interfaces.ts#L62)*
 
 ___
 
@@ -64,7 +82,7 @@ ___
 
 • **Integer**: = "integer"
 
-*Defined in [interfaces.ts:31](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/interfaces.ts#L31)*
+*Defined in [packages/xlucene-evaluator/src/interfaces.ts:64](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/interfaces.ts#L64)*
 
 ___
 
@@ -72,7 +90,7 @@ ___
 
 • **Object**: = "object"
 
-*Defined in [interfaces.ts:34](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/interfaces.ts#L34)*
+*Defined in [packages/xlucene-evaluator/src/interfaces.ts:67](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/interfaces.ts#L67)*
 
 ___
 
@@ -80,4 +98,4 @@ ___
 
 • **String**: = "string"
 
-*Defined in [interfaces.ts:30](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/interfaces.ts#L30)*
+*Defined in [packages/xlucene-evaluator/src/interfaces.ts:63](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/interfaces.ts#L63)*

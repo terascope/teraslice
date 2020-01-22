@@ -21,7 +21,7 @@ sidebar_label: RangeQuery
 
 • **range**: *object*
 
-*Defined in [translator/interfaces.ts:117](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/translator/interfaces.ts#L117)*
+*Defined in [packages/xlucene-evaluator/src/translator/interfaces.ts:159](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/translator/interfaces.ts#L159)*
 
 #### Type declaration:
 

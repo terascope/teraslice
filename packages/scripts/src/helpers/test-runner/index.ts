@@ -17,10 +17,14 @@ import {
     getAvailableTestSuites,
     getDevDockerImage
 } from '../misc';
-import { ensureServices } from './services';
+import { ensureServices, pullServices } from './services';
 import { PackageInfo } from '../interfaces';
 import { TestOptions, RunSuiteResult, CleanupFN } from './interfaces';
-import { runJest, dockerPush, dockerTag } from '../scripts';
+import {
+    runJest,
+    dockerPush,
+    dockerTag,
+} from '../scripts';
 import * as utils from './utils';
 import signale from '../signale';
 import { getE2EDir } from '../packages';
@@ -230,11 +234,7 @@ async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
 
     await Promise.all([
         (async () => {
-            try {
-                cleanup = await ensureServices(suite, options);
-            } catch (err) {
-                errors.push(getFullErrorStack(err));
-            }
+            await pullServices(suite, options);
         })(),
         (async () => {
             const rootInfo = getRootInfo();
@@ -249,6 +249,12 @@ async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
             }
         })()
     ]);
+
+    try {
+        cleanup = await ensureServices(suite, options);
+    } catch (err) {
+        errors.push(getFullErrorStack(err));
+    }
 
     if (!errors.length) {
         const timeLabel = `test suite "${suite}"`;
@@ -307,12 +313,13 @@ async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
 
 async function pushDevImage() {
     if (!isCI) return;
-    // wait 30 seconds before pushing
-    await pDelay(30 * 1000);
+    // wait 15 seconds before pushing
+    await pDelay(15 * 1000);
     const devDockerImage = getDevDockerImage();
     try {
         signale.info(`pushing ${devDockerImage}...`);
         await dockerPush(devDockerImage);
+        signale.info(`pushed ${devDockerImage} image`);
     } catch (err) {
         signale.warn(err, `failure to push ${devDockerImage}`);
     }
@@ -320,7 +327,7 @@ async function pushDevImage() {
 
 function printAndGetEnv(suite: string, options: TestOptions) {
     const env = utils.getEnv(options, suite);
-    if (options.debug || isCI) {
+    if (options.debug || options.trace || isCI) {
         const envStr = Object
             .entries(env)
             .filter(([_, val]) => val != null && val !== '')

@@ -21,4 +21,4 @@ sidebar_label: Worker
 
 • **workerId**: *string*
 
-*Defined in [execution-controller/interfaces.ts:23](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L23)*
+*Defined in [packages/teraslice-messaging/src/execution-controller/interfaces.ts:23](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L23)*

@@ -35,6 +35,9 @@
             "path": "packages/queue"
         },
         {
+            "path": "packages/docker-compose-js"
+        },
+        {
             "path": "packages/terafoundation"
         },
         {

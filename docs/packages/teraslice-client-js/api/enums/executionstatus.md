@@ -15,6 +15,7 @@ sidebar_label: ExecutionStatus
 * [initializing](executionstatus.md#initializing)
 * [paused](executionstatus.md#paused)
 * [pending](executionstatus.md#pending)
+* [recovering](executionstatus.md#recovering)
 * [rejected](executionstatus.md#rejected)
 * [running](executionstatus.md#running)
 * [scheduling](executionstatus.md#scheduling)
@@ -28,7 +29,7 @@ sidebar_label: ExecutionStatus
 
 • **completed**: = "completed"
 
-*Defined in [interfaces.ts:226](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L226)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:213](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L213)*
 
 ___
 
@@ -36,7 +37,7 @@ ___
 
 • **failed**: = "failed"
 
-*Defined in [interfaces.ts:229](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L229)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:216](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L216)*
 
 ___
 
@@ -44,7 +45,7 @@ ___
 
 • **failing**: = "failing"
 
-*Defined in [interfaces.ts:222](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L222)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:209](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L209)*
 
 ___
 
@@ -52,7 +53,7 @@ ___
 
 • **initializing**: = "initializing"
 
-*Defined in [interfaces.ts:219](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L219)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:205](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L205)*
 
 ___
 
@@ -60,7 +61,7 @@ ___
 
 • **paused**: = "paused"
 
-*Defined in [interfaces.ts:223](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L223)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:210](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L210)*
 
 ___
 
@@ -68,7 +69,15 @@ ___
 
 • **pending**: = "pending"
 
-*Defined in [interfaces.ts:217](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L217)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:203](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L203)*
+
+___
+
+###  recovering
+
+• **recovering**: = "recovering"
+
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:208](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L208)*
 
 ___
 
@@ -76,7 +85,7 @@ ___
 
 • **rejected**: = "rejected"
 
-*Defined in [interfaces.ts:228](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L228)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:215](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L215)*
 
 ___
 
@@ -84,7 +93,7 @@ ___
 
 • **running**: = "running"
 
-*Defined in [interfaces.ts:221](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L221)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:207](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L207)*
 
 ___
 
@@ -92,7 +101,7 @@ ___
 
 • **scheduling**: = "scheduling"
 
-*Defined in [interfaces.ts:218](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L218)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:204](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L204)*
 
 ___
 
@@ -100,7 +109,7 @@ ___
 
 • **stopped**: = "stopped"
 
-*Defined in [interfaces.ts:227](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L227)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:214](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L214)*
 
 ___
 
@@ -108,7 +117,7 @@ ___
 
 • **stopping**: = "stopping"
 
-*Defined in [interfaces.ts:224](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L224)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:211](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L211)*
 
 ___
 
@@ -116,4 +125,4 @@ ___
 
 • **terminated**: = "terminated"
 
-*Defined in [interfaces.ts:230](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L230)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:217](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L217)*

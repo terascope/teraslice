@@ -57,6 +57,7 @@ e2e/logs/*
 !e2e/logs/.gitkeep
 e2e/.config
 e2e/.assets
+e2e/dist
 
 # package dist directory
 packages/**/dist

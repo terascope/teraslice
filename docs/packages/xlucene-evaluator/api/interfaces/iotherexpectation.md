@@ -22,7 +22,7 @@ sidebar_label: IOtherExpectation
 
 • **description**: *string*
 
-Defined in parser/peg-engine.ts:47
+Defined in packages/xlucene-evaluator/src/parser/peg-engine.ts:47
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **type**: *"other"*
 
-Defined in parser/peg-engine.ts:46
+Defined in packages/xlucene-evaluator/src/parser/peg-engine.ts:46

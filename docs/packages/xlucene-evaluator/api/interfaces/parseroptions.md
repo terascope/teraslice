@@ -19,6 +19,7 @@ sidebar_label: ParserOptions
 
 * [logger](parseroptions.md#optional-logger)
 * [type_config](parseroptions.md#optional-type_config)
+* [variables](parseroptions.md#optional-variables)
 
 ## Properties
 
@@ -26,7 +27,7 @@ sidebar_label: ParserOptions
 
 • **logger**? : *Logger*
 
-*Defined in [parser/interfaces.ts:13](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L13)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:13](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L13)*
 
 ___
 
@@ -34,4 +35,12 @@ ___
 
 • **type_config**? : *[TypeConfig](typeconfig.md)*
 
-*Defined in [parser/interfaces.ts:12](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L12)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:12](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L12)*
+
+___
+
+### `Optional` variables
+
+• **variables**? : *[Variables](variables.md)*
+
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:14](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L14)*

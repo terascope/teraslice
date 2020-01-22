@@ -26,14 +26,17 @@ sidebar_label: Execution
 * [apis](execution.md#apis)
 * [assetIds](execution.md#optional-assetids)
 * [assets](execution.md#assets)
+* [autorecover](execution.md#optional-autorecover)
 * [cpu](execution.md#optional-cpu)
 * [env_vars](execution.md#env_vars)
 * [ex_id](execution.md#ex_id)
 * [job_id](execution.md#job_id)
 * [kubernetes_image](execution.md#optional-kubernetes_image)
+* [labels](execution.md#optional-labels)
 * [lifecycle](execution.md#lifecycle)
 * [max_retries](execution.md#max_retries)
 * [memory](execution.md#optional-memory)
+* [metadata](execution.md#metadata)
 * [name](execution.md#name)
 * [operations](execution.md#operations)
 * [performance_metrics](execution.md#optional-performance_metrics)
@@ -53,7 +56,7 @@ sidebar_label: Execution
 
 • **_context**: *"ex"*
 
-*Defined in [interfaces.ts:245](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L245)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:251](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L251)*
 
 ___
 
@@ -61,7 +64,7 @@ ___
 
 • **_created**: *string*
 
-*Defined in [interfaces.ts:246](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L246)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:252](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L252)*
 
 ___
 
@@ -69,7 +72,7 @@ ___
 
 • **_failureReason**? : *undefined | string*
 
-*Defined in [interfaces.ts:250](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L250)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:256](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L256)*
 
 ___
 
@@ -77,7 +80,7 @@ ___
 
 • **_has_errors**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:249](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L249)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:255](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L255)*
 
 ___
 
@@ -85,7 +88,7 @@ ___
 
 • **_slicer_stats**? : *[SlicerAnalytics](sliceranalytics.md)*
 
-*Defined in [interfaces.ts:251](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L251)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:257](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L257)*
 
 ___
 
@@ -93,7 +96,7 @@ ___
 
 • **_status**: *[ExecutionStatus](../enums/executionstatus.md)*
 
-*Defined in [interfaces.ts:248](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L248)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:254](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L254)*
 
 ___
 
@@ -101,7 +104,7 @@ ___
 
 • **_updated**: *string*
 
-*Defined in [interfaces.ts:247](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L247)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:253](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L253)*
 
 ___
 
@@ -111,7 +114,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:56
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:56
 
 ___
 
@@ -121,7 +124,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:63
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:64
 
 ___
 
@@ -131,7 +134,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:59
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:59
 
 This may not exist until ran in an execution
 
@@ -143,7 +146,17 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:57
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:57
+
+___
+
+### `Optional` autorecover
+
+• **autorecover**? : *undefined | false | true*
+
+*Inherited from void*
+
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:60
 
 ___
 
@@ -153,7 +166,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:75
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:80
 
 This will only be available in the context of k8s
 
@@ -165,7 +178,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:67
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:68
 
 #### Type declaration:
 
@@ -179,7 +192,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:92
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:102
 
 ___
 
@@ -189,7 +202,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:93
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:103
 
 ___
 
@@ -199,7 +212,19 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:81
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:86
+
+This will only be available in the context of k8s
+
+___
+
+### `Optional` labels
+
+• **labels**? : *undefined | object*
+
+*Inherited from void*
+
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:74
 
 This will only be available in the context of k8s
 
@@ -211,7 +236,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:60
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:61
 
 ___
 
@@ -221,7 +246,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:61
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:62
 
 ___
 
@@ -231,9 +256,19 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:77
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:82
 
 This will only be available in the context of k8s
+
+___
+
+###  metadata
+
+• **metadata**: *AnyObject*
+
+*Inherited from void*
+
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:108
 
 ___
 
@@ -243,7 +278,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:62
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:63
 
 ___
 
@@ -253,7 +288,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:64
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:65
 
 ___
 
@@ -263,7 +298,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:66
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:67
 
 ___
 
@@ -273,7 +308,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:65
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:66
 
 ___
 
@@ -283,17 +318,17 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:96
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:106
 
 ___
 
 ### `Optional` recovered_slice_type
 
-• **recovered_slice_type**? : *"all" | "errors"*
+• **recovered_slice_type**? : *RecoveryCleanupType*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:97
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:107
 
 ___
 
@@ -303,7 +338,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:94
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:104
 
 ___
 
@@ -313,7 +348,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:95
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:105
 
 ___
 
@@ -323,7 +358,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:70
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:71
 
 ___
 
@@ -333,7 +368,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:73
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:78
 
 This will only be available in the context of k8s
 
@@ -345,7 +380,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:79
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:84
 
 This will only be available in the context of k8s
 
@@ -357,4 +392,4 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/packages/job-components/dist/src/interfaces/jobs.d.ts:71
+Defined in packages/job-components/dist/src/interfaces/jobs.d.ts:72
