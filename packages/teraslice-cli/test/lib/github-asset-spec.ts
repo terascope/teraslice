@@ -100,6 +100,30 @@ describe('GithubAsset', () => {
             expect(name).toEqual('elasticsearch-test');
             expect(version).toEqual('9.9.9');
         });
+
+        it('can download specific versions of assets despite it being draft or prerelease', async () => {
+            const testConfig = {
+                arch: 'x64',
+                assetString: 'terascope/elasticsearch-assets@v1.5.6',
+                nodeVersion: 'v8.16.1',
+                platform: 'linux'
+            };
+
+            const github = new GithubAsset(testConfig);
+
+            const assetPath = await github.download(tmpDir.name);
+            const zipExists = await fs.pathExists(assetPath);
+
+            expect(zipExists).toEqual(true);
+
+            await decompress(assetPath, tmpDir.name);
+
+            const jsonPath = path.join(tmpDir.name, 'testAsset/asset/asset.json');
+            const { name, version } = await fs.readJSON(jsonPath);
+
+            expect(name).toEqual('testAsset');
+            expect(version).toEqual('1.5.6');
+        });
     });
 
     describe('GithubAsset static methods', () => {
