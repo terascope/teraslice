@@ -3,6 +3,7 @@ import {
     isPlainObject,
     JobConfig,
     TSError,
+    unset
 } from '@terascope/job-components';
 import autoBind from 'auto-bind';
 import Client from './client';
@@ -74,6 +75,10 @@ export default class Executions extends Client {
 function _parseListOptions(options: ListOptions): SearchQuery {
     // support legacy
     if (!options) return {};
-    if (isString(options)) return { status: options };
+    if (isString(options)) {
+        if (options === '*') return {};
+        return { status: options };
+    }
+    if (options.status === '*') unset(options, 'status');
     return options;
 }
