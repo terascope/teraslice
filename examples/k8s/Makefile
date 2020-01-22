@@ -130,10 +130,25 @@ deregister: ## resets jobs
 	earl tjm reset example-job-targets.json || echo '* it is okay'
 	earl tjm reset example-job-volume.json || echo '* it is okay'
 
-start: ## runs example job
+start: ## starts example job
 	# yes | tjm asset --replace -c $(TERASLICE_MASTER_URL) || echo '* it is okay'
 	earl assets deploy ${TERASLICE_ALIAS} --build --replace --src-dir asset/
 	earl tjm start example-job.json
 
 stop: ## stops example job
 	earl tjm stop example-job.json || echo '* it is okay'
+
+# pause: ## pauses example job
+# 	earl tjm pause example-job.json || echo '* it is okay'
+
+# resume: ## resumes example job
+# 	earl tjm resume example-job.json || echo '* it is okay'
+
+scaleup: ## pauses example job
+	earl tjm workers add 2 example-job.json || echo '* it is okay'
+
+scaledown: ## pauses example job
+	earl tjm workers remove 1 example-job.json || echo '* it is okay'
+
+scaleto: ## pauses example job
+	earl tjm workers total 2 example-job.json || echo '* it is okay'

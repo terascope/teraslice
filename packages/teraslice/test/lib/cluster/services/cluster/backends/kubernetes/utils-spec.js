@@ -25,7 +25,7 @@ describe('K8s Utils', () => {
                 labels: {
                     app: 'teraslice',
                     nodeType: config.nodeType,
-                    exId: config.exId,
+                    'teraslice.terascope.io/exId': config.exId,
                     jobId: config.jobId,
                     jobName: config.jobNameLabel,
                     clusterName: config.clusterNameLabel
@@ -37,7 +37,7 @@ describe('K8s Utils', () => {
             expect(exService.spec.selector).toEqual({
                 app: 'teraslice',
                 nodeType: config.nodeType,
-                exId: config.exId
+                'teraslice.terascope.io/exId': config.exId
             });
         });
 
@@ -62,7 +62,7 @@ describe('K8s Utils', () => {
                 labels: {
                     app: 'teraslice',
                     nodeType: config.nodeType,
-                    exId: config.exId,
+                    'teraslice.terascope.io/exId': config.exId,
                     jobId: config.jobId,
                     jobName: config.jobNameLabel,
                     clusterName: config.clusterNameLabel
@@ -120,7 +120,7 @@ describe('K8s Utils', () => {
                 labels: {
                     app: 'teraslice',
                     nodeType: config.nodeType,
-                    exId: config.exId,
+                    'teraslice.terascope.io/exId': config.exId,
                     jobId: config.jobId,
                     jobName: config.jobNameLabel,
                     clusterName: config.clusterNameLabel

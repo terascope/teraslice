@@ -254,7 +254,7 @@ class K8s {
         let deleteResponse;
 
         try {
-            objList = await this.list(`nodeType=${nodeType},exId=${exId}`, objType);
+            objList = await this.list(`nodeType=${nodeType},teraslice.terascope.io/exId=${exId}`, objType);
         } catch (e) {
             const err = new Error(`Request list in _deleteObjByExId with nodeType: ${nodeType} and exId: ${exId} failed with: ${e}`);
             this.logger.error(err);
@@ -291,7 +291,7 @@ class K8s {
         let newScale;
 
         this.logger.info(`Scaling exId: ${exId}, op: ${op}, numWorkers: ${numWorkers}`);
-        const listResponse = await this.list(`nodeType=worker,exId=${exId}`, 'deployments');
+        const listResponse = await this.list(`nodeType=worker,teraslice.terascope.io/exId=${exId}`, 'deployments');
         this.logger.debug(`k8s worker query listResponse: ${JSON.stringify(listResponse)}`);
 
         // the selector provided to list above should always result in a single

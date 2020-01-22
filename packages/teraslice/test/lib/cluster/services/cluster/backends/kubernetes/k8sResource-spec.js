@@ -182,7 +182,8 @@ describe('k8sResource', () => {
                 'deployments', 'worker', terasliceConfig, execution
             );
 
-            expect(kr.resource.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+            expect(kr.resource.metadata.labels['teraslice.terascope.io/exId'])
+                .toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
             expect(kr.resource.spec.template.spec.containers[0].resources).not.toBeDefined();
 
             const envArray = kr.resource.spec.template.spec.containers[0].env;
@@ -197,7 +198,8 @@ describe('k8sResource', () => {
                 'deployments', 'worker', terasliceConfig, execution
             );
 
-            expect(kr.resource.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+            expect(kr.resource.metadata.labels['teraslice.terascope.io/exId'])
+                .toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
             expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
                   requests:
                     memory: 2147483648
@@ -234,7 +236,8 @@ describe('k8sResource', () => {
                 'deployments', 'worker', terasliceConfig, execution
             );
 
-            expect(kr.resource.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+            expect(kr.resource.metadata.labels['teraslice.terascope.io/exId'])
+                .toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
             expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
                   requests:
                     memory: 1073741824
@@ -257,7 +260,8 @@ describe('k8sResource', () => {
                 'deployments', 'worker', terasliceConfig, execution
             );
 
-            expect(kr.resource.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+            expect(kr.resource.metadata.labels['teraslice.terascope.io/exId'])
+                .toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
             expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
                   requests:
                     memory: 2147483648
@@ -279,7 +283,8 @@ describe('k8sResource', () => {
                 'deployments', 'worker', terasliceConfig, execution
             );
 
-            expect(kr.resource.metadata.labels.exId).toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
+            expect(kr.resource.metadata.labels['teraslice.terascope.io/exId'])
+                .toEqual('e76a0278-d9bc-4d78-bf14-431bcd97528c');
             expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
                   requests:
                     memory: 2147483648
