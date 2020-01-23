@@ -132,7 +132,7 @@ export default class Options {
             }),
             'ex-status': () => ({
                 describe: 'list of ex status to include',
-                default: '*'
+                default: ''
             }),
             'ex-size': () => ({
                 describe: 'size of ex error list to return',
