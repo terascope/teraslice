@@ -1,4 +1,3 @@
-# All images inherit from this
 FROM terascope/node-base:10.18.1
 
 # [INSTALL AND BUILD PACKAGES]
