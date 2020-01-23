@@ -59,8 +59,7 @@ async function publishToDocker(options: PublishOptions) {
 
     const { registries } = rootInfo.terascope.docker;
 
-    const cacheFrom: string[] = [];
-    cacheFrom.push(await pullDevDockerImage());
+    const devImage = await pullDevDockerImage();
 
     for (const registry of registries) {
         let imageToBuild = '';
@@ -89,7 +88,7 @@ async function publishToDocker(options: PublishOptions) {
         signale.pending(`building docker for ${options.type} release`);
 
         signale.debug(`building docker image ${imageToBuild}`);
-        await dockerBuild(imageToBuild, cacheFrom);
+        await dockerBuild(imageToBuild);
 
         if (!imagesToPush.includes(imageToBuild)) {
             imagesToPush.push(imageToBuild);
@@ -104,7 +103,7 @@ async function publishToDocker(options: PublishOptions) {
         signale.info(`publishing docker images ${imagesToPush.join(', ')}`);
         await Promise.all(concat(
             imagesToPush,
-            cacheFrom,
+            devImage,
         ).map(dockerPush));
     }
 }

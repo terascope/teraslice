@@ -1,4 +1,4 @@
-FROM terascope/node-base:10.18.1-1
+FROM terascope/node-base:10.18.1-2
 
 # [INSTALL AND BUILD PACKAGES]
 ENV NODE_ENV development
@@ -40,6 +40,9 @@ RUN yarn quick:setup
 ENV NODE_ENV production
 
 COPY service.js /app/source/
+
+# verify node-rdkafka is installed right
+RUN node -e "require('node-rdkafka')"
 
 # verify teraslice is installed right
 RUN node -e "require('teraslice')"
