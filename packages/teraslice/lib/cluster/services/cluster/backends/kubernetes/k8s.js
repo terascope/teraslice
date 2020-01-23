@@ -1,7 +1,9 @@
 'use strict';
 
 const { TSError, get, isEmpty } = require('@terascope/utils');
-const { Client, config } = require('kubernetes-client');
+const { KubeConfig } = require('kubernetes-client');
+const { Client } = require('kubernetes-client');
+const Request = require('kubernetes-client/backends/request');
 
 class K8s {
     constructor(logger, clientConfig, defaultNamespace = 'default') {
@@ -14,9 +16,16 @@ class K8s {
             });
         } else if (process.env.KUBERNETES_SERVICE_HOST && process.env.KUBERNETES_SERVICE_PORT) {
             // configures the client when running inside k8s
-            this.client = new Client({ config: config.getInCluster() });
+            const kubeconfig = new KubeConfig();
+            kubeconfig.loadFromCluster();
+            const backend = new Request({ kubeconfig });
+            this.client = new Client({ backend });
         } else {
-            this.client = new Client({ config: config.fromKubeconfig() });
+            // configures the client from .kube/config file
+            const kubeconfig = new KubeConfig();
+            kubeconfig.loadFromDefault();
+            const backend = new Request({ kubeconfig });
+            this.client = new Client({ backend });
         }
     }
 
@@ -245,9 +254,9 @@ class K8s {
         let deleteResponse;
 
         try {
-            objList = await this.list(`nodeType=${nodeType},exId=${exId}`, objType);
+            objList = await this.list(`app.kubernetes.io/component=${nodeType},teraslice.terascope.io/exId=${exId}`, objType);
         } catch (e) {
-            const err = new Error(`Request list in _deleteObjByExId with nodeType: ${nodeType} and exId: ${exId} failed with: ${e}`);
+            const err = new Error(`Request list in _deleteObjByExId with app.kubernetes.io/component: ${nodeType} and exId: ${exId} failed with: ${e}`);
             this.logger.error(err);
             return Promise.reject(err);
         }
@@ -282,7 +291,7 @@ class K8s {
         let newScale;
 
         this.logger.info(`Scaling exId: ${exId}, op: ${op}, numWorkers: ${numWorkers}`);
-        const listResponse = await this.list(`nodeType=worker,exId=${exId}`, 'deployments');
+        const listResponse = await this.list(`app.kubernetes.io/component=worker,teraslice.terascope.io/exId=${exId}`, 'deployments');
         this.logger.debug(`k8s worker query listResponse: ${JSON.stringify(listResponse)}`);
 
         // the selector provided to list above should always result in a single

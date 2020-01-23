@@ -48,7 +48,7 @@ k8s-master: ## start teraslice master in k8s
 elasticsearch: elasticsearchDeployment.yaml ## start elasticsearch in k8s
 	kubectl create --namespace $(NAMESPACE) -f ./elasticsearchDeployment.yaml
 
-deelasticsearch: elasticsearchDeployment.yaml ## start elasticsearch in k8s
+deelasticsearch: elasticsearchDeployment.yaml ## delete elasticsearch from k8s
 	kubectl delete --namespace $(NAMESPACE) -f ./elasticsearchDeployment.yaml
 
 namespace: ns.yaml ## create namespace
@@ -102,10 +102,13 @@ destroy: deregister ## delete k8s deployments and services
 	kubectl delete --namespace $(NAMESPACE) deployments,jobs,services,pods -l app=teraslice --grace-period=1
 	kubectl delete --namespace $(NAMESPACE) configmap teraslice-master || echo "* it is okay..."
 	kubectl delete --namespace $(NAMESPACE) configmap teraslice-worker || echo "* it is okay..."
-	docker rmi $(shell docker image ls $(TERASLICE_K8S_IMAGE) --format "{{.ID}}") || echo "* it is okay..."
 	curl -fsS -XDELETE "$(ES_URL)/ts-dev1*" || echo '* it is okay'
+	curl -fsS -XDELETE "$(ES_URL)/terak8s-example-data" || echo '* it is okay'
 
-destroy-all: destroy deauth deelasticsearch delete-namespace ## delete ALL things including the namespace
+destroy-img: destroy
+	docker rmi $(shell docker image ls $(TERASLICE_K8S_IMAGE) --format "{{.ID}}") || echo "* it is okay..."
+
+destroy-all: destroy-img deauth deelasticsearch delete-namespace ## delete ALL things including the namespace
 	earl aliases remove ${TERASLICE_ALIAS} || echo '* it is okay'
 
 rebuild: destroy build setup ## destroys then re-runs things
@@ -128,10 +131,25 @@ deregister: ## resets jobs
 	earl tjm reset example-job-targets.json || echo '* it is okay'
 	earl tjm reset example-job-volume.json || echo '* it is okay'
 
-start: ## runs example job
+start: ## starts example job
 	# yes | tjm asset --replace -c $(TERASLICE_MASTER_URL) || echo '* it is okay'
 	earl assets deploy ${TERASLICE_ALIAS} --build --replace --src-dir asset/
 	earl tjm start example-job.json
 
 stop: ## stops example job
 	earl tjm stop example-job.json || echo '* it is okay'
+
+# pause: ## pauses example job
+# 	earl tjm pause example-job.json || echo '* it is okay'
+
+# resume: ## resumes example job
+# 	earl tjm resume example-job.json || echo '* it is okay'
+
+scaleup: ## pauses example job
+	earl tjm workers add 2 example-job.json || echo '* it is okay'
+
+scaledown: ## pauses example job
+	earl tjm workers remove 1 example-job.json || echo '* it is okay'
+
+scaleto: ## pauses example job
+	earl tjm workers total 2 example-job.json || echo '* it is okay'

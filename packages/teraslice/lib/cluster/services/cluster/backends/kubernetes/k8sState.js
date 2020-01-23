@@ -25,14 +25,15 @@ function gen(k8sPods, clusterState, clusterNameLabel) {
 
     // add a worker for each pod
     k8sPods.items.forEach((pod) => {
-        // Teraslice workers and execution controllers have the `clusterName`
-        // label that matches their cluster name attached to their k8s pods.
+        // Teraslice workers and execution controllers have the
+        // `app.kubernetes.io/instance` label that matches their cluster name
+        // attached to their k8s pods.
         // If these labels don't match the supplied `clusterNameLabel`
         // then it is assumed that the pod is not a member of this cluster
         // so it is omitted from clusterState.
         // NOTE: The cluster master will not appear in cluster state if they do
-        // not label it with clusterName=clusterNameLabel
-        if (pod.metadata.labels.clusterName === clusterNameLabel) {
+        // not label it with `app.kubernetes.io/instance=clusterNameLabel`
+        if (pod.metadata.labels['app.kubernetes.io/instance'] === clusterNameLabel) {
             if (!_.has(clusterState, pod.status.hostIP)) {
                 // If the node isn't in clusterState, add it
                 clusterState[pod.status.hostIP] = {
@@ -50,13 +51,13 @@ function gen(k8sPods, clusterState, clusterNameLabel) {
 
             const worker = {
                 assets: [],
-                assignment: pod.metadata.labels.nodeType,
-                ex_id: pod.metadata.labels.exId,
+                assignment: pod.metadata.labels['app.kubernetes.io/component'],
+                ex_id: pod.metadata.labels['teraslice.terascope.io/exId'],
                 // WARNING: This makes the assumption that the first container
                 // in the pod is the teraslice container.  Currently it is the
                 // only container, so this assumption is safe for now.
                 image: pod.spec.containers[0].image,
-                job_id: pod.metadata.labels.jobId,
+                job_id: pod.metadata.labels['teraslice.terascope.io/jobId'],
                 pod_name: pod.metadata.name,
                 pod_ip: pod.status.podIP,
                 worker_id: pod.metadata.name,
