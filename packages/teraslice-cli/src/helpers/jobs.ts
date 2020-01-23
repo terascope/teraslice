@@ -40,7 +40,11 @@ export default class Jobs {
     async workers() {
         const response = await this.teraslice.client.jobs.wrap(this.config.args.id)
             .changeWorkers(this.config.args.action, this.config.args.num);
-        reply.info(`> job: ${this.config.args.id} ${response}`);
+        const responseMsg = typeof response === 'string' ? response : response.message;
+        const msg = `> job: ${this.config.args.id} ${responseMsg}`;
+        reply.info(msg);
+        // for testing purposes
+        return msg;
     }
 
     async pause() {
