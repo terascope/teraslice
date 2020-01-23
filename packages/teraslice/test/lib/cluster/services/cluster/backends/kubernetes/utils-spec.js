@@ -27,7 +27,7 @@ describe('K8s Utils', () => {
                     nodeType: config.nodeType,
                     'teraslice.terascope.io/exId': config.exId,
                     'teraslice.terascope.io/jobId': config.jobId,
-                    jobName: config.jobNameLabel,
+                    'teraslice.terascope.io/jobName': config.jobNameLabel,
                     'app.kubernetes.io/instance': config.clusterNameLabel
                 },
                 name: config.name,
@@ -64,7 +64,7 @@ describe('K8s Utils', () => {
                     nodeType: config.nodeType,
                     'teraslice.terascope.io/exId': config.exId,
                     'teraslice.terascope.io/jobId': config.jobId,
-                    jobName: config.jobNameLabel,
+                    'teraslice.terascope.io/jobName': config.jobNameLabel,
                     'app.kubernetes.io/instance': config.clusterNameLabel
                 },
                 name: config.name,
@@ -122,7 +122,7 @@ describe('K8s Utils', () => {
                     nodeType: config.nodeType,
                     'teraslice.terascope.io/exId': config.exId,
                     'teraslice.terascope.io/jobId': config.jobId,
-                    jobName: config.jobNameLabel,
+                    'teraslice.terascope.io/jobName': config.jobNameLabel,
                     'app.kubernetes.io/instance': config.clusterNameLabel
                 },
                 name: config.name,

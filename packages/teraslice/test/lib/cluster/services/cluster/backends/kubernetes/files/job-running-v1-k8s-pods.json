@@ -130,7 +130,7 @@
                 "app.kubernetes.io/instance": "ts-dev1",
                 "teraslice.terascope.io/exId": "123456",
                 "teraslice.terascope.io/jobId": "654321",
-                "jobName": "test-job-1",
+                "teraslice.terascope.io/jobName": "test-job-1",
                 "nodeType": "execution_controller",
                 "pod-template-hash": "340711374"
             },
@@ -251,7 +251,7 @@
                 "app.kubernetes.io/instance": "ts-dev1",
                 "teraslice.terascope.io/exId": "123456",
                 "teraslice.terascope.io/jobId": "654321",
-                "jobName": "test-job-1",
+                "teraslice.terascope.io/jobName": "test-job-1",
                 "nodeType": "worker",
                 "pod-template-hash": "46241697"
             },
