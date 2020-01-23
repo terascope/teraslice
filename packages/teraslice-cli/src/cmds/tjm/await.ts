@@ -33,7 +33,6 @@ const cmd: CMD = {
         const cliConfig = new Config({ ...jobFile, ...argv});
         const jobs = new Jobs(cliConfig);
 
-
         const desiredStatus: TSClientTypes.ExecutionStatus[] = argv.status;
 
         reply.green(`> job: ${jobFile.id} waiting for status ${desiredStatus.join(' or ')}`);
