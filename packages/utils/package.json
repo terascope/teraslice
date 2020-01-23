@@ -31,7 +31,7 @@
         "debug": "^4.1.1",
         "is-plain-object": "^3.0.0",
         "js-string-escape": "^1.0.1",
-        "kind-of": "^6.0.2",
+        "kind-of": "^6.0.3",
         "lodash.clonedeep": "^4.5.0",
         "lodash.get": "^4.4.2",
         "lodash.set": "^4.3.2",
