@@ -196,7 +196,7 @@ describe('JobSrc', () => {
         const job = new JobSrc(args);
         job.init();
         expect(job.clusterUrl).toBe('localhost:5678');
-        expect(job.jobId).toBe('some-job-id');
+        expect(job.id).toBe('some-job-id');
         expect(job.name).toBe('goodJob');
     });
 });

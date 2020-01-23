@@ -1,7 +1,7 @@
-import * as TSClientTypes from 'teraslice-client-js';
 import * as util from '@terascope/utils';
-import { getTerasliceClient } from '../../helpers/utils';
-import TjmUtil from '../../helpers/tjm-util';
+import * as TSClientTypes from 'teraslice-client-js';
+import Config from '../../helpers/config';
+import Jobs from '../../helpers/jobs';
 import YargsOptions from '../../helpers/yargs-options';
 import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
@@ -16,7 +16,6 @@ const cmd: CMD = {
     builder(yargs: any) {
         yargs.option('status', yargsOptions.buildOption('await-status'));
         yargs.options('timeout', yargsOptions.buildOption('await-timeout'));
-        yargs.option('start', yargsOptions.buildOption('start'));
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
@@ -31,40 +30,18 @@ const cmd: CMD = {
         const jobFile = new JobSrc(argv);
         jobFile.init();
 
-        const client = getTerasliceClient(jobFile);
+        const cliConfig = new Config({ ...jobFile, ...argv});
+        const jobs = new Jobs(cliConfig);
 
-        const tjmUtil = new TjmUtil(client, jobFile);
 
         const desiredStatus: TSClientTypes.ExecutionStatus[] = argv.status;
 
-        if (argv.start) {
-            await tjmUtil.start();
-            await util.pDelay(2500);
-        }
+        reply.green(`> job: ${jobFile.id} waiting for status ${desiredStatus.join(' or ')}`);
 
-        const jobFuncs = await tjmUtil.client.jobs.wrap(jobFile.jobId);
-        const currentStatus = await jobFuncs.status();
+        const status = await jobs.awaitManyStatuses(desiredStatus, jobFile.id, argv.timeout);
 
-        reply.green(`> job: ${jobFile.jobId} current status: ${currentStatus}`);
-
-        reply.green(`> job: ${jobFile.jobId} waiting for status ${desiredStatus.join(' or ')}`);
-
-        let newStatus;
-
-        try {
-            newStatus = await util.pRace(desiredStatus.map(
-                (status) => jobFuncs.waitForStatus(status, 5000, argv.timeout)
-            ));
-        } catch (e) {
-            // @ts-ignore
-            if (!e.fatalError && desiredStatus.includes(e.context.lastStatus)) {
-                newStatus = e.context.lastStatus;
-            } else {
-                reply.fatal(e.message);
-            }
-        }
-
-        reply.green(`> job: ${jobFile.jobId} reached status: ${newStatus}`);
+        reply.green(`> job: ${jobFile.id} reached status: ${status}`);
+        process.exit(0);
     }
 };
 

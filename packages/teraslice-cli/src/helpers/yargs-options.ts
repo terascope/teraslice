@@ -214,14 +214,14 @@ export default class Options {
                 describe: 'new cluster url to add to the config file',
                 type: 'string'
             }),
-            number: () => ({
-                describe: 'Number of workers to add, remove, or set to via the tjm command',
+            'worker-number': () => ({
+                describe: 'Number of workers to add, remove, or set for a job',
                 type: 'number',
                 nargs: 1
             }),
             'worker-action': () => ({
                 choices: ['add', 'remove', 'total'],
-                describe: 'Indicates the action to use when adding workers via the tjm commands',
+                describe: 'Action to use when adjusting workers',
                 nargs: 1,
                 type: 'string'
             })

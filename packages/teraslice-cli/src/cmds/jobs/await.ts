@@ -15,7 +15,6 @@ const cmd: CMD = {
     builder(yargs: any) {
         yargs.options('status', yargsOptions.buildOption('await-status'));
         yargs.options('timeout', yargsOptions.buildOption('await-timeout'));
-        yargs.options('start', yargsOptions.buildOption('start'));
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.strict()
             .example('$0 jobs await CLUSTER_ALIAS JOBID')
@@ -26,36 +25,16 @@ const cmd: CMD = {
     },
     async handler(argv): Promise<void> {
         const cliConfig = new Config(argv);
+
         const jobs = new Jobs(cliConfig);
 
         const desiredStatus: TSClientTypes.ExecutionStatus[] = jobs.config.args.status;
 
-        if (jobs.config.args.start) {
-            // hack to get jobs.start to work without over logging
-            jobs.config.args.status = 'running,failing';
-            await jobs.start();
-        }
+        reply.info(`> job: ${jobs.config.args.id} waiting for status ${desiredStatus.join(' or ')}`);
 
-        let newStatus;
-        // @ts-ignore
-        try {
-            newStatus = await util.pRace(desiredStatus.map(
-                (status) => jobs.awaitStatus(
-                    status,
-                    jobs.config.args.id,
-                    jobs.config.args.timeout
-                )
-            ));
-        } catch (e) {
-            // @ts-ignore
-            if (!e.fatalError && desiredStatus.includes(e.context.lastStatus)) {
-                newStatus = e.context.lastStatus;
-            } else {
-                reply.fatal(e.message);
-            }
-        }
-
-        reply.green(`> job: ${jobs.config.args.id} reached status: ${newStatus}`);
+        const newStatus = await jobs.awaitManyStatuses(desiredStatus, jobs.config.args.id, jobs.config.args.timeout);
+        reply.info(`> job: ${jobs.config.args.id} reached status: ${newStatus}`);
+        process.exit(0);
     }
 };
 

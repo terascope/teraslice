@@ -30,11 +30,10 @@ describe('jobs await', () => {
             );
 
             const yargsResult = yargsCmd.parse(
-                'await ts-test1 job_id --status paused stopped --start --timeout 10000', {}
+                'await ts-test1 job_id --status paused stopped --timeout 10000', {}
             );
 
             expect(yargsResult.status).toStrictEqual(['paused', 'stopped']);
-            expect(yargsResult.start).toBe(true);
             expect(yargsResult.timeout).toEqual(10000);
         });
     });

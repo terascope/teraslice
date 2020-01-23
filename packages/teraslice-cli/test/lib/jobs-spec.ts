@@ -6,14 +6,17 @@ import Jobs from '../../src/helpers/jobs';
 describe('jobs', () => {
     const id = '12341234';
     const exId = '56785678';
-    const num = 5;
-    const action = 'add';
-    let cliArgs;
     let jobs: any;
+    let cliArgs = {
+        'cluster-manager-type': 'native',
+        'output-style': 'txt',
+        'config-dir': path.join(__dirname, '../fixtures/config_dir'),
+        'cluster-alias': 'localhost',
+        args: {}
+    };
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let scope: nock.Scope;
-
-    const msg = { message: `${num} workers have been ${action} for execution: ${exId}` };
+    let msg: any;
 
     beforeEach(() => {
         cliArgs = {
@@ -21,28 +24,60 @@ describe('jobs', () => {
             'output-style': 'txt',
             'config-dir': path.join(__dirname, '../fixtures/config_dir'),
             'cluster-alias': 'localhost',
-            args: { id, action, num }
+            args: {}
         };
 
-        scope = nock('http://localhost:5678')
-            .post(`/v1/jobs/${id}/_workers?add=5`)
-            .reply(200, msg);
-
-        jobs = new Jobs(cliArgs);
+        scope = nock('http://localhost:5678');
     });
 
     afterEach(() => {
-        cliArgs = {};
         jobs = {};
         nock.cleanAll();
     });
 
     it('should return a job object', () => {
+        const number = 5;
+        const action = 'add';
+    
+        cliArgs.args = { id, action, number }
+
+        jobs = new Jobs(cliArgs);
         expect(jobs).toBeDefined();
     });
 
-    it('can log properly', async () => {
+    it('workers function should return ts client response if an object', async () => {
+        const number = 5;
+        const action = 'add';
+    
+        cliArgs.args = { id, action, number }
+
+        jobs = new Jobs(cliArgs);
+
+        msg = { message: `5 workers have been added for execution: ${exId}` };
+
+        scope
+            .post(`/v1/jobs/${id}/_workers?add=5`)
+            .reply(200, msg);
+
         const results = await jobs.workers();
-        expect(results).toEqual(`> job: ${id} ${msg.message}`);
+        expect(results).toEqual(`${msg.message}`);
+    });
+
+    it('workers function should return ts client response if a string', async () => {
+        const number = 3;
+        const action = 'remove';
+    
+        cliArgs.args = { id, action, number }
+
+        jobs = new Jobs(cliArgs);
+    
+        msg = `3 workers have been removed for execution: ${exId}`;
+
+        scope
+            .post(`/v1/jobs/${id}/_workers?remove=3`)
+            .reply(200, msg);
+
+        const results = await jobs.workers();
+        expect(results).toEqual(`${msg}`);
     });
 });

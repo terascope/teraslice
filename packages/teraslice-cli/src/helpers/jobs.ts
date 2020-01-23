@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import fs from 'fs-extra';
 import * as TSClientTypes from 'teraslice-client-js';
+import * as util from '@terascope/utils';
 
 import TerasliceUtil from './teraslice-util';
 import displayModule from '../cmds/lib/display';
@@ -39,12 +40,9 @@ export default class Jobs {
 
     async workers() {
         const response = await this.teraslice.client.jobs.wrap(this.config.args.id)
-            .changeWorkers(this.config.args.action, this.config.args.num);
-        const responseMsg = typeof response === 'string' ? response : response.message;
-        const msg = `> job: ${this.config.args.id} ${responseMsg}`;
-        reply.info(msg);
-        // for testing purposes
-        return msg;
+            .changeWorkers(this.config.args.action, this.config.args.number);
+
+        return typeof response === 'string' ? response : response.message;
     }
 
     async pause() {
@@ -80,12 +78,33 @@ export default class Jobs {
         return this.status(true, true);
     }
 
-    awaitStatus(
-        desiredStatus: TSClientTypes.ExecutionStatus,
+    awaitStatus (
+        status: TSClientTypes.ExecutionStatus,
+        jobId: string,
+        timeout = 0
+    ): Promise <TSClientTypes.ExecutionStatus> {
+        return this.teraslice.client.jobs.wrap(jobId).waitForStatus(status, 5000, timeout);
+    }
+
+    async awaitManyStatuses(
+        status: TSClientTypes.ExecutionStatus[],
         jobId: string,
         timeout = 0
     ) {
-        return this.teraslice.client.jobs.wrap(jobId).waitForStatus(desiredStatus, 5000, timeout);
+        let newStatus;
+
+        try {
+            newStatus = await util.pRace(status.map((s) => this.awaitStatus(s, jobId, timeout)));
+        } catch (e) {
+            // @ts-ignore
+            if (!e.fatalError && status.includes(e.context.lastStatus)) {
+                newStatus = e.context.lastStatus;
+            } else {
+                reply.fatal(e.message);
+            }
+        }
+
+        return newStatus;
     }
 
     async status(saveState = false, showJobs = true): Promise<void> {
