@@ -1,8 +1,9 @@
+import ms from 'ms';
 import path from 'path';
 import execa from 'execa';
 import fse from 'fs-extra';
 import {
-    debugLogger, pDelay, isString, get
+    debugLogger, isString, get, pWhile
 } from '@terascope/utils';
 import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
@@ -280,7 +281,10 @@ export async function dockerRun(opt: DockerRunOptions, tag = 'latest', debug?: b
         }
     })();
 
-    await pDelay(2000);
+    const upFor = ms('10s');
+    await pWhile(() => dockerContainerReady(opt.name, upFor), {
+        timeoutMs: ms('1m')
+    });
 
     if (error) {
         if (stderr) {
@@ -305,6 +309,23 @@ export async function dockerRun(opt: DockerRunOptions, tag = 'latest', debug?: b
 
         subprocess.kill();
     };
+}
+
+export async function dockerContainerReady(name: string, upFor: number): Promise<boolean> {
+    try {
+        const result = await exec({
+            cmd: 'docker',
+            args: [
+                'ps', '--format', '"{{json .Status}}"', '--filter', `name=${name}`
+            ]
+        });
+
+        const timeup = ms(result.replace(/[(Up)\s"]+|/ig, ''));
+        if (!timeup) return false;
+        return timeup >= upFor;
+    } catch (err) {
+        return false;
+    }
 }
 
 export async function dockerBuild(
