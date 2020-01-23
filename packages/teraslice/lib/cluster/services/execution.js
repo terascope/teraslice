@@ -269,7 +269,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
     async function createExecutionContext(job) {
         const ex = await exStore.create(job);
         enqueue(ex);
-        return { job_id: ex.job_id, ex_id: job.ex_id };
+        return { job_id: ex.job_id, ex_id: ex.ex_id };
     }
 
     async function getExecutionContext(exId) {
