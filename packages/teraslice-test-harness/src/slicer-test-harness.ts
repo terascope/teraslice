@@ -14,7 +14,6 @@ import {
     SlicerCore,
     TSError,
     SlicerRecoveryData,
-    get
 } from '@terascope/job-components';
 import BaseTestHarness from './base-test-harness';
 import { JobHarnessOptions } from './interfaces';
@@ -61,10 +60,6 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
         // should throw test recoveryData if slicer is not recoverable
         if (recoveryData.length > 0) {
             if (!this.executionContext.slicer().isRecoverable()) throw new TSError('Slicer is not recoverable, please create the isRecoverable method and return true to enable recovery');
-            recoveryData.forEach((slice) => {
-                const data = get(slice, 'lastSlice');
-                if (data == null) throw new Error('recoveryData is malformed');
-            });
         }
 
         await this.executionContext.initialize(recoveryData);
