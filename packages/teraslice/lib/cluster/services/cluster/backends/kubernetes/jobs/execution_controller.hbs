@@ -3,7 +3,7 @@
     "kind": "Job",
     "metadata": {
         "labels": {
-            "app": "teraslice",
+            "app.kubernetes.io/name": "teraslice",
             "nodeType": "{{nodeType}}",
             "teraslice.terascope.io/exId": "{{exId}}",
             "jobId": "{{jobId}}",
@@ -17,7 +17,7 @@
         "template": {
             "metadata": {
                 "labels": {
-                    "app": "teraslice",
+                    "app.kubernetes.io/name": "teraslice",
                     "nodeType": "{{nodeType}}",
                     "teraslice.terascope.io/exId": "{{exId}}",
                     "jobId": "{{jobId}}",

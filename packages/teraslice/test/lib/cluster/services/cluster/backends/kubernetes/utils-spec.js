@@ -23,7 +23,7 @@ describe('K8s Utils', () => {
 
             expect(exService.metadata).toEqual({
                 labels: {
-                    app: 'teraslice',
+                    'app.kubernetes.io/name': 'teraslice',
                     nodeType: config.nodeType,
                     'teraslice.terascope.io/exId': config.exId,
                     jobId: config.jobId,
@@ -35,7 +35,7 @@ describe('K8s Utils', () => {
             });
 
             expect(exService.spec.selector).toEqual({
-                app: 'teraslice',
+                'app.kubernetes.io/name': 'teraslice',
                 nodeType: config.nodeType,
                 'teraslice.terascope.io/exId': config.exId
             });
@@ -60,7 +60,7 @@ describe('K8s Utils', () => {
             expect(exJob.kind).toEqual('Job');
             expect(exJob.metadata).toEqual({
                 labels: {
-                    app: 'teraslice',
+                    'app.kubernetes.io/name': 'teraslice',
                     nodeType: config.nodeType,
                     'teraslice.terascope.io/exId': config.exId,
                     jobId: config.jobId,
@@ -118,7 +118,7 @@ describe('K8s Utils', () => {
             expect(workerDeployment.kind).toEqual('Deployment');
             expect(workerDeployment.metadata).toEqual({
                 labels: {
-                    app: 'teraslice',
+                    'app.kubernetes.io/name': 'teraslice',
                     nodeType: config.nodeType,
                     'teraslice.terascope.io/exId': config.exId,
                     jobId: config.jobId,

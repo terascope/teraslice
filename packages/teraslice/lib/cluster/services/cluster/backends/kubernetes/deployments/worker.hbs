@@ -3,7 +3,7 @@
     "kind": "Deployment",
     "metadata": {
         "labels": {
-            "app": "teraslice",
+            "app.kubernetes.io/name": "teraslice",
             "nodeType": "{{nodeType}}",
             "teraslice.terascope.io/exId": "{{exId}}",
             "jobId": "{{jobId}}",
@@ -18,7 +18,7 @@
         "template": {
             "metadata": {
                 "labels": {
-                    "app": "teraslice",
+                    "app.kubernetes.io/name": "teraslice",
                     "nodeType": "{{nodeType}}",
                     "teraslice.terascope.io/exId": "{{exId}}",
                     "jobId": "{{jobId}}",
@@ -67,7 +67,7 @@
         },
         "selector": {
             "matchLabels": {
-                "app": "teraslice",
+                "app.kubernetes.io/name": "teraslice",
                 "nodeType": "{{nodeType}}",
                 "teraslice.terascope.io/exId": "{{exId}}"
             }

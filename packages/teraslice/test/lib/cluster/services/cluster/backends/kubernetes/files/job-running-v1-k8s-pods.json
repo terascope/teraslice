@@ -15,7 +15,7 @@
             "resourceVersion": "1089503",
             "creationTimestamp": "2018-04-16T17:34:34Z",
             "labels": {
-                "app": "teraslice",
+                "app.kubernetes.io/name": "teraslice",
                 "app.kubernetes.io/instance": "ts-dev1",
                 "nodeType": "master",
                 "pod-template-hash": "2769401078"
@@ -126,7 +126,7 @@
             "resourceVersion": "1089556",
             "creationTimestamp": "2018-04-16T17:34:52Z",
             "labels": {
-                "app": "teraslice",
+                "app.kubernetes.io/name": "teraslice",
                 "app.kubernetes.io/instance": "ts-dev1",
                 "teraslice.terascope.io/exId": "123456",
                 "jobId": "654321",
@@ -247,7 +247,7 @@
             "resourceVersion": "1089559",
             "creationTimestamp": "2018-04-16T17:34:52Z",
             "labels": {
-                "app": "teraslice",
+                "app.kubernetes.io/name": "teraslice",
                 "app.kubernetes.io/instance": "ts-dev1",
                 "teraslice.terascope.io/exId": "123456",
                 "jobId": "654321",
