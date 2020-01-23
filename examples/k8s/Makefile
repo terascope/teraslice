@@ -48,7 +48,7 @@ k8s-master: ## start teraslice master in k8s
 elasticsearch: elasticsearchDeployment.yaml ## start elasticsearch in k8s
 	kubectl create --namespace $(NAMESPACE) -f ./elasticsearchDeployment.yaml
 
-deelasticsearch: elasticsearchDeployment.yaml ## start elasticsearch in k8s
+deelasticsearch: elasticsearchDeployment.yaml ## delete elasticsearch from k8s
 	kubectl delete --namespace $(NAMESPACE) -f ./elasticsearchDeployment.yaml
 
 namespace: ns.yaml ## create namespace
@@ -103,6 +103,7 @@ destroy: deregister ## delete k8s deployments and services
 	kubectl delete --namespace $(NAMESPACE) configmap teraslice-master || echo "* it is okay..."
 	kubectl delete --namespace $(NAMESPACE) configmap teraslice-worker || echo "* it is okay..."
 	curl -fsS -XDELETE "$(ES_URL)/ts-dev1*" || echo '* it is okay'
+	curl -fsS -XDELETE "$(ES_URL)/terak8s-example-data || echo '* it is okay'
 
 destroy-img: destroy
 	docker rmi $(shell docker image ls $(TERASLICE_K8S_IMAGE) --format "{{.ID}}") || echo "* it is okay..."
