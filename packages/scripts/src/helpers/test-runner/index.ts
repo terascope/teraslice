@@ -17,7 +17,7 @@ import {
     getAvailableTestSuites,
     getDevDockerImage
 } from '../misc';
-import { ensureServices } from './services';
+import { ensureServices, pullServices } from './services';
 import { PackageInfo } from '../interfaces';
 import { TestOptions, RunSuiteResult, CleanupFN } from './interfaces';
 import {
@@ -236,6 +236,15 @@ async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
     const [registry] = rootInfo.terascope.docker.registries;
     const e2eImage = `${registry}:e2e`;
 
+    if (isCI) {
+        // pull the services first in CI
+        try {
+            await pullServices(suite, options);
+        } catch (err) {
+            errors.push(getFullErrorStack(err));
+        }
+    }
+
     try {
         const devImage = await pullDevDockerImage();
         await dockerTag(devImage, e2eImage);
@@ -259,7 +268,7 @@ async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
         try {
             await Promise.all([
                 runJest(e2eDir, utils.getArgs(options), env, options.jestArgs, options.debug),
-                pushDevImage(),
+                pDelay(5000).then(() => pushDevImage()),
             ]);
         } catch (err) {
             errors.push(err.message);
