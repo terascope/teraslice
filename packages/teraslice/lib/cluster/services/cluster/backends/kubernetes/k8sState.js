@@ -51,7 +51,7 @@ function gen(k8sPods, clusterState, clusterNameLabel) {
 
             const worker = {
                 assets: [],
-                assignment: pod.metadata.labels.nodeType,
+                assignment: pod.metadata.labels['app.kubernetes.io/component'],
                 ex_id: pod.metadata.labels['teraslice.terascope.io/exId'],
                 // WARNING: This makes the assumption that the first container
                 // in the pod is the teraslice container.  Currently it is the

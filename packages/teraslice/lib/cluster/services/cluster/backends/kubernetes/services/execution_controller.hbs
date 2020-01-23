@@ -4,7 +4,7 @@
   "metadata": {
     "labels": {
         "app.kubernetes.io/name": "teraslice",
-        "nodeType": "{{nodeType}}",
+        "app.kubernetes.io/component": "{{nodeType}}",
         "teraslice.terascope.io/exId": "{{exId}}",
         "teraslice.terascope.io/jobId": "{{jobId}}",
         "teraslice.terascope.io/jobName": "{{jobNameLabel}}",
@@ -22,7 +22,7 @@
     ],
     "selector": {
       "app.kubernetes.io/name": "teraslice",
-      "nodeType": "{{nodeType}}",
+      "app.kubernetes.io/component": "{{nodeType}}",
       "teraslice.terascope.io/exId": "{{exId}}"
     }
   }

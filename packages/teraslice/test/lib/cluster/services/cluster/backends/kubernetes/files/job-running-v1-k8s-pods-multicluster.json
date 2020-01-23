@@ -18,7 +18,7 @@
                 "labels": {
                     "app.kubernetes.io/name": "teraslice",
                     "app.kubernetes.io/instance": "ts-dev1",
-                    "nodeType": "master",
+                    "app.kubernetes.io/component": "master",
                     "pod-template-hash": "2769401078"
                 },
                 "ownerReferences": [{
@@ -133,7 +133,7 @@
                     "teraslice.terascope.io/exId": "123456",
                     "teraslice.terascope.io/jobId": "654321",
                     "teraslice.terascope.io/jobName": "test-job-1",
-                    "nodeType": "execution_controller",
+                    "app.kubernetes.io/component": "execution_controller",
                     "pod-template-hash": "340711374"
                 },
                 "ownerReferences": [{
@@ -255,7 +255,7 @@
                     "teraslice.terascope.io/exId": "123456",
                     "teraslice.terascope.io/jobId": "654321",
                     "teraslice.terascope.io/jobName": "test-job-1",
-                    "nodeType": "worker",
+                    "app.kubernetes.io/component": "worker",
                     "pod-template-hash": "46241697"
                 },
                 "ownerReferences": [{
@@ -377,7 +377,7 @@
                     "teraslice.terascope.io/exId": "123456",
                     "teraslice.terascope.io/jobId": "654321",
                     "teraslice.terascope.io/jobName": "test-job-1",
-                    "nodeType": "execution_controller",
+                    "app.kubernetes.io/component": "execution_controller",
                     "pod-template-hash": "340711374"
                 },
                 "ownerReferences": [{
