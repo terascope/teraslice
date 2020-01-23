@@ -6,7 +6,6 @@ import {
     chunk,
     TSError,
     getFullErrorStack,
-    pDelay
 } from '@terascope/utils';
 import {
     writePkgHeader,
@@ -15,7 +14,6 @@ import {
     getRootDir,
     getRootInfo,
     getAvailableTestSuites,
-    getDevDockerImage
 } from '../misc';
 import { ensureServices, pullServices } from './services';
 import { PackageInfo } from '../interfaces';
@@ -247,6 +245,13 @@ async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
 
     try {
         const devImage = await pullDevDockerImage();
+        try {
+            signale.debug(`pushing ${devImage}...`);
+            await dockerPush(devImage);
+            signale.debug(`pushed ${devImage} image`);
+        } catch (err) {
+            signale.warn(err, `failure to push ${devImage}`);
+        }
         await dockerTag(devImage, e2eImage);
     } catch (err) {
         errors.push(getFullErrorStack(err));
@@ -266,10 +271,13 @@ async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
         const env = printAndGetEnv(suite, options);
 
         try {
-            await Promise.all([
-                runJest(e2eDir, utils.getArgs(options), env, options.jestArgs, options.debug),
-                pDelay(5000).then(() => pushDevImage()),
-            ]);
+            await runJest(
+                e2eDir,
+                utils.getArgs(options),
+                env,
+                options.jestArgs,
+                options.debug
+            );
         } catch (err) {
             errors.push(err.message);
         }
@@ -311,20 +319,6 @@ async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
     }
 
     return { errors, cleanup };
-}
-
-async function pushDevImage() {
-    if (!isCI) return;
-    // wait 15 seconds before pushing
-    await pDelay(15 * 1000);
-    const devDockerImage = getDevDockerImage();
-    try {
-        signale.info(`pushing ${devDockerImage}...`);
-        await dockerPush(devDockerImage);
-        signale.info(`pushed ${devDockerImage} image`);
-    } catch (err) {
-        signale.warn(err, `failure to push ${devDockerImage}`);
-    }
 }
 
 function printAndGetEnv(suite: string, options: TestOptions) {

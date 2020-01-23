@@ -19,6 +19,7 @@ type ExecOpts = {
     cwd?: string;
     env?: ExecEnv;
     stdio?: 'inherit';
+    timeout?: number;
     detached?: boolean;
 };
 
@@ -29,6 +30,7 @@ function _exec(opts: ExecOpts) {
         env: opts.env,
         preferLocal: true,
         detached: opts.detached,
+        timeout: opts.timeout,
         stdio: opts.stdio,
     };
 
@@ -154,11 +156,12 @@ export async function runJest(
     });
 }
 
-export async function dockerPull(image: string): Promise<void> {
+export async function dockerPull(image: string, timeout = 0): Promise<void> {
     try {
         await exec({
             cmd: 'docker',
             args: ['pull', image],
+            timeout,
         });
     } catch (err) {
         process.exitCode = 0;
@@ -199,8 +202,12 @@ export async function dockerNetworkExists(name: string): Promise<boolean> {
 }
 
 export async function remoteDockerImageExists(image: string): Promise<boolean> {
-    const result = await execa.command(`docker pull ${image}`, { reject: false });
-    return result.exitCode === 0;
+    try {
+        await dockerPull(image, ms('30s'));
+        return true;
+    } catch (err) {
+        return false;
+    }
 }
 
 export type DockerRunOptions = {

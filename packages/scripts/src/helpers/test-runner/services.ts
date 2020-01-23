@@ -198,7 +198,6 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
 }
 
 async function checkKafka(options: TestOptions, startTime: number) {
-    await ts.pDelay(2000);
     const took = ms(Date.now() - startTime);
     signale.success(`kafka@${options.kafkaVersion} *might* be running at ${config.KAFKA_BROKER}, took ${took}`);
 }

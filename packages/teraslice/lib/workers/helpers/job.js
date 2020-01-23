@@ -25,15 +25,16 @@ async function initializeTestExecution({
     isRecovery,
     cleanupType,
     createRecovery = true,
+    shutdownStores = false,
     recoverySlices = [],
     lastStatus = 'failed'
 }) {
-    const jobStore = stores.jobStore || (await makeJobStore(context));
-    const exStore = stores.exStore || (await makeExStore(context));
-    const stateStore = stores.stateStore || (await makeStateStore(context));
+    stores.jobStore = stores.jobStore || (await makeJobStore(context));
+    stores.exStore = stores.exStore || (await makeExStore(context));
+    stores.stateStore = stores.stateStore || (await makeStateStore(context));
 
     const validJob = await validateJob(context, config, { skipRegister: true });
-    const jobSpec = await jobStore.create(config);
+    const jobSpec = await stores.jobStore.create(config);
 
     const job = Object.assign({}, jobSpec, validJob, {
         job_id: jobSpec.job_id
@@ -44,37 +45,37 @@ async function initializeTestExecution({
 
     let ex;
     if (isRecovery) {
-        ex = await exStore.create(job, lastStatus);
+        ex = await stores.exStore.create(job, lastStatus);
 
         if (recoverySlices.length) {
-            await Promise.all(recoverySlices.map(({ slice, state }) => stateStore.createState(
+            await Promise.all(recoverySlices.map(({ slice, state }) => stores.stateStore.createState(
                 ex.ex_id,
                 slice,
                 state,
                 slice.error
             )));
-            await stateStore.refresh();
+            await stores.stateStore.refresh();
         }
 
         if (createRecovery) {
-            ex = await exStore.createRecoveredExecution(ex, cleanupType);
+            ex = await stores.exStore.createRecoveredExecution(ex, cleanupType);
         }
     } else {
-        ex = await exStore.create(job);
+        ex = await stores.exStore.create(job);
     }
 
     if (slicerHostname && slicerPort) {
-        ex = await exStore.updatePartial(ex.ex_id, (existing) => Object.assign(existing, {
+        ex = await stores.exStore.updatePartial(ex.ex_id, (existing) => Object.assign(existing, {
             slicer_hostname: slicerHostname,
             slicer_port: slicerPort,
         }));
     }
 
-    if (isEmpty(stores)) {
+    if (shutdownStores) {
         await Promise.all([
-            exStore.shutdown(true),
-            jobStore.shutdown(true),
-            stateStore.shutdown(true)
+            stores.exStore.shutdown(true),
+            stores.jobStore.shutdown(true),
+            stores.stateStore.shutdown(true)
         ]);
     }
 
