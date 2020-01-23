@@ -17,7 +17,7 @@ import {
     getAvailableTestSuites,
     getDevDockerImage
 } from '../misc';
-import { ensureServices, pullServices } from './services';
+import { ensureServices } from './services';
 import { PackageInfo } from '../interfaces';
 import { TestOptions, RunSuiteResult, CleanupFN } from './interfaces';
 import {
@@ -232,23 +232,16 @@ async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
         throw new Error('Missing e2e test directory');
     }
 
-    await Promise.all([
-        (async () => {
-            await pullServices(suite, options);
-        })(),
-        (async () => {
-            const rootInfo = getRootInfo();
-            const [registry] = rootInfo.terascope.docker.registries;
-            const e2eImage = `${registry}:e2e`;
+    const rootInfo = getRootInfo();
+    const [registry] = rootInfo.terascope.docker.registries;
+    const e2eImage = `${registry}:e2e`;
 
-            try {
-                const devImage = await pullDevDockerImage();
-                await dockerTag(devImage, e2eImage);
-            } catch (err) {
-                errors.push(getFullErrorStack(err));
-            }
-        })()
-    ]);
+    try {
+        const devImage = await pullDevDockerImage();
+        await dockerTag(devImage, e2eImage);
+    } catch (err) {
+        errors.push(getFullErrorStack(err));
+    }
 
     try {
         cleanup = await ensureServices(suite, options);
