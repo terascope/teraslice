@@ -206,6 +206,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
         if (!clusterMasterServer.isClientReady(execution.ex_id)) {
             throw new Error(`Execution ${execution.ex_id} is not available to pause`);
         }
+        await clusterMasterServer.sendExecutionPause(exId);
         await exStore.setStatus(exId, status);
         return { status };
     }
