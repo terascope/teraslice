@@ -1,6 +1,6 @@
 'use strict';
 
-const { get, isEmpty } = require('@terascope/utils');
+const { get } = require('@terascope/utils');
 const { JobValidator } = require('@terascope/job-components');
 const { terasliceOpPath } = require('../../config');
 const { makeJobStore, makeExStore, makeStateStore } = require('../../storage');
@@ -48,12 +48,13 @@ async function initializeTestExecution({
         ex = await stores.exStore.create(job, lastStatus);
 
         if (recoverySlices.length) {
-            await Promise.all(recoverySlices.map(({ slice, state }) => stores.stateStore.createState(
-                ex.ex_id,
-                slice,
-                state,
-                slice.error
-            )));
+            await Promise.all(recoverySlices
+                .map(({ slice, state }) => stores.stateStore.createState(
+                    ex.ex_id,
+                    slice,
+                    state,
+                    slice.error
+                )));
             await stores.stateStore.refresh();
         }
 
