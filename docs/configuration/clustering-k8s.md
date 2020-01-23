@@ -308,7 +308,26 @@ property should be the name of the Kubernetes `persistentVolumeClaim`.  The
 ],
 ```
 
-## Makefile
+## Kubernetes Labels
+
+We automatically add labels to the Kubernetes resources created by Teraslice.
+For resources related to specific jobs they will be labeled with the following:
+
+* `app.kubernetes.io/component` - `execution_controller` or `worker`
+* `app.kubernetes.io/instance` - the Teraslice cluster instance name
+* `app.kubernetes.io/name` - always the string: `teraslice`
+* `teraslice.terascope.io/exId` - the `exId`
+* `teraslice.terascope.io/jobId` - the `jobId`
+* `teraslice.terascope.io/jobName` - Teraslice job name, possibly modified
+
+Note that the Teraslice job name is used in creating and labelling some of the
+Kubernetes resources.  Rather than enforce kubernetes strict DNS naming
+conventions on Teraslice job names, we modify the incoming Teraslice names to
+fit those conventions.  This may result in the `jobName` label being non-unique,
+`jobId` should be used instead.  Teraslice doesn't actually even enforce
+uniqueness of job names, so doing so here wouldn't make sense.
+
+## Development
 
 There is a `Makefile` I use to help bootstrap Teraslice and do repetitive tasks,
 you can type `make` to see all of the possible targets.
