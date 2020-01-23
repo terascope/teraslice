@@ -125,7 +125,7 @@ describe('Teraslice Executions', () => {
 
             beforeEach(() => {
                 scope.get('/ex')
-                    .query({ status: '*' })
+                    .query({})
                     .reply(200, data);
             });
 

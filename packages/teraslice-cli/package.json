@@ -1,7 +1,7 @@
 {
     "name": "teraslice-cli",
     "displayName": "Teraslice CLI",
-    "version": "0.14.0",
+    "version": "0.14.1",
     "description": "Command line manager for teraslice jobs, assets, and cluster references.",
     "keywords": [
         "teraslice"
@@ -52,7 +52,7 @@
         "request": "^2.88.0",
         "request-promise": "^4.2.5",
         "signale": "^1.4.0",
-        "teraslice-client-js": "^0.13.0",
+        "teraslice-client-js": "^0.13.1",
         "tmp": "^0.1.0",
         "tty-table": "^2.8.4",
         "yargs": "^15.1.0",

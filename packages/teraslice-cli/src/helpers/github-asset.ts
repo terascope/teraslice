@@ -36,7 +36,7 @@ export default class GithubAsset {
         let filterRelease;
 
         if (version) {
-            filterRelease = (r: any) => !r.draft && !r.prerelease && r.tag_name.includes(version);
+            filterRelease = (r: any) => r.tag_name.includes(version);
         } else {
             filterRelease = (r: any) => !r.draft && !r.prerelease;
         }
