@@ -22,7 +22,8 @@ export default class IndexStore<T extends Record<string, any>> {
     readonly manager: IndexManager;
     readonly name: string;
     refreshByDefault = true;
-    readonly xluceneTypeConfig: TypeConfig | undefined;
+    protected _defaultQueryAccess: QueryAccess<T>|undefined;
+    readonly xluceneTypeConfig: TypeConfig;
 
     readonly writeHooks = new Set<WriteHook<T>>();
     readonly readHooks = new Set<ReadHook<T>>();
@@ -78,6 +79,7 @@ export default class IndexStore<T extends Record<string, any>> {
 
         this._getIngestTime = utils.getTimeByField(this.config.ingest_time_field as string);
         this._getEventTime = utils.getTimeByField(this.config.event_time_field as string);
+        this._defaultQueryAccess = config.default_query_access;
     }
 
     /**
@@ -741,7 +743,11 @@ export default class IndexStore<T extends Record<string, any>> {
         return _doc as T;
     }
 
-    private _translateQuery(q: string, options?: RestrictOptions, queryAccess?: QueryAccess<T>) {
+    private _translateQuery(
+        q: string,
+        options?: RestrictOptions,
+        queryAccess = this._defaultQueryAccess
+    ) {
         const query: string = queryAccess
             ? queryAccess.restrict(q, { variables: options?.variables })
             : q;

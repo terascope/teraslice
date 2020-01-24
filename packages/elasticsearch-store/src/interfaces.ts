@@ -1,5 +1,5 @@
 import { Logger, Omit } from '@terascope/utils';
-import { Variables } from 'xlucene-evaluator';
+import { Variables, QueryAccess } from 'xlucene-evaluator';
 import { ESIndexSettings, DataType } from '@terascope/data-types';
 
 /** A versioned Index Configuration */
@@ -81,6 +81,11 @@ export interface IndexConfig<T = any> {
      * Event Time field from the source record
      */
     event_time_field?: keyof T;
+
+    /**
+     * The default query access to use
+    */
+    default_query_access?: QueryAccess<T>;
 }
 
 /** Elasticsearch Index Schema, Mapping and Version */

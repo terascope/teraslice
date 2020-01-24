@@ -38,6 +38,9 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
                 'index.number_of_shards': ts.isTest ? 1 : 5,
                 'index.number_of_replicas': ts.isTest ? 0 : 2,
             },
+            default_query_access: new QueryAccess({
+                constraint: '_deleted: false'
+            })
         };
 
         const indexConfig: i.IndexConfig<T> = {
