@@ -3,12 +3,12 @@
     "kind": "Deployment",
     "metadata": {
         "labels": {
-            "app": "teraslice",
-            "nodeType": "{{nodeType}}",
-            "exId": "{{exId}}",
-            "jobId": "{{jobId}}",
-            "jobName": "{{jobNameLabel}}",
-            "clusterName": "{{clusterNameLabel}}"
+            "app.kubernetes.io/name": "teraslice",
+            "app.kubernetes.io/component": "{{nodeType}}",
+            "teraslice.terascope.io/exId": "{{exId}}",
+            "teraslice.terascope.io/jobId": "{{jobId}}",
+            "teraslice.terascope.io/jobName": "{{jobNameLabel}}",
+            "app.kubernetes.io/instance": "{{clusterNameLabel}}"
         },
         "name": "{{name}}",
         "namespace": "{{namespace}}"
@@ -18,12 +18,12 @@
         "template": {
             "metadata": {
                 "labels": {
-                    "app": "teraslice",
-                    "nodeType": "{{nodeType}}",
-                    "exId": "{{exId}}",
-                    "jobId": "{{jobId}}",
-                    "jobName": "{{jobNameLabel}}",
-                    "clusterName": "{{clusterNameLabel}}"
+                    "app.kubernetes.io/name": "teraslice",
+                    "app.kubernetes.io/component": "{{nodeType}}",
+                    "teraslice.terascope.io/exId": "{{exId}}",
+                    "teraslice.terascope.io/jobId": "{{jobId}}",
+                    "teraslice.terascope.io/jobName": "{{jobNameLabel}}",
+                    "app.kubernetes.io/instance": "{{clusterNameLabel}}"
                 }
             },
             "spec": {
@@ -67,9 +67,9 @@
         },
         "selector": {
             "matchLabels": {
-                "app": "teraslice",
-                "nodeType": "{{nodeType}}",
-                "exId": "{{exId}}"
+                "app.kubernetes.io/name": "teraslice",
+                "app.kubernetes.io/component": "{{nodeType}}",
+                "teraslice.terascope.io/exId": "{{exId}}"
             }
         }
     }
