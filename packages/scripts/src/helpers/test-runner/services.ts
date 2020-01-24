@@ -109,15 +109,17 @@ export async function ensureServices(suite: string, options: TestOptions): Promi
 
 export async function ensureKafka(options: TestOptions): Promise<() => void> {
     let fn = () => {};
+    const startTime = Date.now();
     fn = await startService(options, Service.Kafka);
-    await checkKafka(options);
+    await checkKafka(options, startTime);
     return fn;
 }
 
 export async function ensureElasticsearch(options: TestOptions): Promise<() => void> {
     let fn = () => {};
+    const startTime = Date.now();
     fn = await startService(options, Service.Elasticsearch);
-    await checkElasticsearch(options);
+    await checkElasticsearch(options, startTime);
     return fn;
 }
 
@@ -132,7 +134,7 @@ async function stopService(service: Service) {
     signale.success(`stopped service ${service}, took ${ms(Date.now() - startTime)}`);
 }
 
-async function checkElasticsearch(options: TestOptions): Promise<void> {
+async function checkElasticsearch(options: TestOptions, startTime: number): Promise<void> {
     const elasticsearchHost = config.ELASTICSEARCH_HOST;
 
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
@@ -173,9 +175,8 @@ async function checkElasticsearch(options: TestOptions): Promise<void> {
 
                 const satifies = semver.satisfies(actual, `^${expected}`);
                 if (satifies) {
-                    if (options.debug || options.trace) {
-                        signale.debug(`elasticsearch@${actual} is running at ${elasticsearchHost}`);
-                    }
+                    const took = ms(Date.now() - startTime);
+                    signale.success(`elasticsearch@${actual} is running at ${elasticsearchHost}, took ${took}`);
                     return true;
                 }
 
@@ -196,6 +197,11 @@ async function checkElasticsearch(options: TestOptions): Promise<void> {
     }
 }
 
+async function checkKafka(options: TestOptions, startTime: number) {
+    const took = ms(Date.now() - startTime);
+    signale.success(`kafka@${options.kafkaVersion} *might* be running at ${config.KAFKA_BROKER}, took ${took}`);
+}
+
 async function startService(options: TestOptions, service: Service): Promise<() => void> {
     const version = options[`${service}Version`] as string;
     if (options.useExistingServices) {
@@ -203,14 +209,11 @@ async function startService(options: TestOptions, service: Service): Promise<() 
         return () => {};
     }
 
-    const startTime = Date.now();
     signale.pending(`starting ${service}@${version} service...`);
 
     await stopService(service);
 
     const fn = await dockerRun(services[service], version, options.debug || options.trace);
-
-    signale.success(`started ${service}@${version} service, took ~${ms(Date.now() - startTime)}`);
 
     return () => {
         try {
@@ -223,10 +226,4 @@ async function startService(options: TestOptions, service: Service): Promise<() 
             );
         }
     };
-}
-
-async function checkKafka(options: TestOptions) {
-    if (options.debug) {
-        signale.debug(`kafka should be running at ${config.KAFKA_BROKER}`);
-    }
 }

@@ -15,6 +15,7 @@ const { resetState } = require('../../helpers');
 const teraslice = misc.teraslice();
 
 describe('recovery', () => {
+    const stores = {};
     let context;
     let specIndex;
     let recoverFromId;
@@ -54,6 +55,7 @@ describe('recovery', () => {
         const { ex: exConfig } = await initializeTestExecution({
             context,
             config: jobSpec,
+            stores,
             isRecovery: true,
             createRecovery: false,
             recoverySlices: [

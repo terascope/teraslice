@@ -22,7 +22,8 @@ export default class IndexStore<T extends Record<string, any>> {
     readonly manager: IndexManager;
     readonly name: string;
     refreshByDefault = true;
-    readonly xluceneTypeConfig: TypeConfig | undefined;
+    protected _defaultQueryAccess: QueryAccess<T>|undefined;
+    readonly xluceneTypeConfig: TypeConfig;
 
     readonly writeHooks = new Set<WriteHook<T>>();
     readonly readHooks = new Set<ReadHook<T>>();
@@ -78,6 +79,7 @@ export default class IndexStore<T extends Record<string, any>> {
 
         this._getIngestTime = utils.getTimeByField(this.config.ingest_time_field as string);
         this._getEventTime = utils.getTimeByField(this.config.event_time_field as string);
+        this._defaultQueryAccess = config.default_query_access;
     }
 
     /**
@@ -375,19 +377,24 @@ export default class IndexStore<T extends Record<string, any>> {
     async countBy(
         fields: AnyInput<T>,
         joinBy?: JoinBy,
-        options?: RestrictOptions
+        options?: RestrictOptions,
+        queryAccess?: QueryAccess<T>,
     ): Promise<number> {
         const { query, variables } = this.createJoinQuery(fields, joinBy, options?.variables);
-        return this.count(query, { variables });
+        return this.count(query, { variables }, queryAccess);
     }
 
-    async exists(id: string[] | string): Promise<boolean> {
+    async exists(
+        id: string[] | string,
+        options?: RestrictOptions,
+        queryAccess?: QueryAccess<T>
+    ): Promise<boolean> {
         const ids = utils.validateIds(id, 'exists');
         if (!ids.length) return true;
 
         const count = await this.countBy({
             [this.config.id_field!]: ids,
-        } as AnyInput<T>);
+        } as AnyInput<T>, 'AND', options, queryAccess);
 
         return count === ids.length;
     }
@@ -522,8 +529,9 @@ export default class IndexStore<T extends Record<string, any>> {
         };
 
         let searchParams: Partial<es.SearchParams>;
-        if (queryAccess) {
-            searchParams = await queryAccess.restrictSearchQuery(q, {
+        const _queryAccess = (queryAccess || this._defaultQueryAccess);
+        if (_queryAccess) {
+            searchParams = await _queryAccess.restrictSearchQuery(q, {
                 params,
                 elasticsearch_version: utils.getESVersion(this.client),
                 variables: options.variables
@@ -595,7 +603,7 @@ export default class IndexStore<T extends Record<string, any>> {
         });
         if (result) return result;
 
-        return { query: `${ts.getFirst(Object.keys(fields))}: "__undefined__"`, variables: {} };
+        return { query: `${ts.getFirstKey(fields)}: "__undefined__"`, variables: {} };
     }
 
     /**
@@ -741,9 +749,16 @@ export default class IndexStore<T extends Record<string, any>> {
         return _doc as T;
     }
 
-    private _translateQuery(q: string, options?: RestrictOptions, queryAccess?: QueryAccess<T>) {
-        const query: string = queryAccess
-            ? queryAccess.restrict(q, { variables: options?.variables })
+    private _translateQuery(
+        q: string,
+        options?: RestrictOptions,
+        queryAccess?: QueryAccess<T>
+    ) {
+        const _queryAccess = (queryAccess || this._defaultQueryAccess);
+        const query = _queryAccess
+            ? _queryAccess.restrict(q, {
+                variables: options?.variables
+            })
             : q;
 
         const translator = this._translator.make(query, {
