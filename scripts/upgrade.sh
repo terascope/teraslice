@@ -16,7 +16,7 @@ USAGE
     exit 1
 }
 
-upgrade_interative() {
+upgrade_interactive() {
     echoerr "* upgrading packages in $PWD..." &&
         yarn && yarn upgrade-interactive --latest --caret &&
         echoerr '* reinstalling node_modules .' &&
@@ -34,8 +34,8 @@ main() {
         ;;
     esac
 
-    upgrade_interative
-    cd e2e && upgrade_interative;
+    upgrade_interactive
+    cd e2e && upgrade_interactive;
 }
 
 main "$@"
