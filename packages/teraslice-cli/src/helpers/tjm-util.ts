@@ -25,7 +25,6 @@ export default class TjmUtil {
                 reply.green(`> job: ${this.job.name}, id: ${this.job.id} is running on ${this.job.clusterUrl}`);
                 return;
             }
-            console.log(e);
 
             reply.fatal(e.message);
         }
