@@ -39,6 +39,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
                 'index.number_of_replicas': ts.isTest ? 0 : 2,
             },
             default_query_access: new QueryAccess({
+                type_config: modelConfig.data_type.toXlucene(),
                 constraint: '_deleted: false'
             })
         };
