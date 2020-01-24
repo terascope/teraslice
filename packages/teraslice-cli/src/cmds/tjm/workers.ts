@@ -1,10 +1,9 @@
 import JobSrc from '../../helpers/job-src';
-import * as TSTypes from 'teraslice-client-js';
 import Config from '../../helpers/config';
-import Jobs from '../../helpers/jobs';
 import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
 import Reply from '../lib/reply';
+import Jobs from '../../helpers/jobs';
 
 const reply = new Reply();
 const yargsOptions = new YargsOptions();
@@ -29,7 +28,7 @@ const cmd: CMD = {
         const job = new JobSrc(argv);
         job.init();
 
-        const cliConfig = new Config({ ...job, ...argv});
+        const cliConfig = new Config({ ...job, ...argv });
         const jobs = new Jobs(cliConfig);
 
         try {

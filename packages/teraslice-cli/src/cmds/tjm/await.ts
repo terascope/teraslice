@@ -1,4 +1,3 @@
-import * as util from '@terascope/utils';
 import * as TSClientTypes from 'teraslice-client-js';
 import Config from '../../helpers/config';
 import Jobs from '../../helpers/jobs';
@@ -30,7 +29,7 @@ const cmd: CMD = {
         const jobFile = new JobSrc(argv);
         jobFile.init();
 
-        const cliConfig = new Config({ ...jobFile, ...argv});
+        const cliConfig = new Config({ ...jobFile, ...argv });
         const jobs = new Jobs(cliConfig);
 
         const desiredStatus: TSClientTypes.ExecutionStatus[] = argv.status;

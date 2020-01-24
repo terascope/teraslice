@@ -32,6 +32,6 @@ const cmd: CMD = {
             reply.fatal(e);
         }
     }
-}
+};
 
 export = cmd;

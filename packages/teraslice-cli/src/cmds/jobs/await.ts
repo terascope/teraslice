@@ -1,5 +1,4 @@
 import * as TSClientTypes from 'teraslice-client-js';
-import * as util from '@terascope/utils';
 import YargsOptions from '../../helpers/yargs-options';
 import Jobs from '../../helpers/jobs';
 import Reply from '../lib/reply';
@@ -32,7 +31,12 @@ const cmd: CMD = {
 
         reply.info(`> job: ${jobs.config.args.id} waiting for status ${desiredStatus.join(' or ')}`);
 
-        const newStatus = await jobs.awaitManyStatuses(desiredStatus, jobs.config.args.id, jobs.config.args.timeout);
+        const newStatus = await jobs.awaitManyStatuses(
+            desiredStatus,
+            jobs.config.args.id,
+            jobs.config.args.timeout
+        );
+
         reply.info(`> job: ${jobs.config.args.id} reached status: ${newStatus}`);
         process.exit(0);
     }

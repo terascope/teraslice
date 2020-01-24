@@ -38,8 +38,8 @@ describe('jobs', () => {
     it('should return a job object', () => {
         const number = 5;
         const action = 'add';
-    
-        cliArgs.args = { id, action, number }
+
+        cliArgs.args = { id, action, number };
 
         jobs = new Jobs(cliArgs);
         expect(jobs).toBeDefined();
@@ -48,8 +48,8 @@ describe('jobs', () => {
     it('workers function should return ts client response if an object', async () => {
         const number = 5;
         const action = 'add';
-    
-        cliArgs.args = { id, action, number }
+
+        cliArgs.args = { id, action, number };
 
         jobs = new Jobs(cliArgs);
 
@@ -66,11 +66,11 @@ describe('jobs', () => {
     it('workers function should return ts client response if a string', async () => {
         const number = 3;
         const action = 'remove';
-    
-        cliArgs.args = { id, action, number }
+
+        cliArgs.args = { id, action, number };
 
         jobs = new Jobs(cliArgs);
-    
+
         msg = `3 workers have been removed for execution: ${exId}`;
 
         scope
