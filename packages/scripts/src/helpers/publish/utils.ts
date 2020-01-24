@@ -92,11 +92,13 @@ export async function pullDevDockerImage(): Promise<string> {
     const startTime = Date.now();
     const devImage = getDevDockerImage();
 
+    let pulled = false;
     if (isCI) {
         try {
             signale.debug(`pulling ${devImage}...`);
             await dockerPull(devImage);
             signale.debug(`pulled ${devImage}`);
+            pulled = true;
         } catch (err) {
             // do nothing
         }
@@ -105,7 +107,7 @@ export async function pullDevDockerImage(): Promise<string> {
     signale.pending(`building docker image ${devImage}`);
 
     try {
-        await dockerBuild(devImage);
+        await dockerBuild(devImage, pulled ? [devImage] : []);
     } catch (err) {
         throw new TSError(err, {
             message: `Failed to build ${devImage} docker image`,
