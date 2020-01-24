@@ -1,4 +1,4 @@
-FROM terascope/node-base:10.18.1-2
+FROM terascope/node-base:10.16.3
 
 # [INSTALL AND BUILD PACKAGES]
 ENV NODE_ENV development
