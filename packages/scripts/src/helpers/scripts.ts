@@ -3,7 +3,7 @@ import path from 'path';
 import execa from 'execa';
 import fse from 'fs-extra';
 import {
-    debugLogger, isString, get, pWhile
+    debugLogger, isString, get, pWhile, pDelay
 } from '@terascope/utils';
 import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
@@ -288,7 +288,7 @@ export async function dockerRun(opt: DockerRunOptions, tag = 'latest', debug?: b
         }
     })();
 
-    const upFor = ms('10s');
+    const upFor = ms('5s');
     await pWhile(() => dockerContainerReady(opt.name, upFor), {
         timeoutMs: ms('1m')
     });
@@ -331,6 +331,7 @@ export async function dockerContainerReady(name: string, upFor: number): Promise
         if (!timeup) return false;
         return timeup >= upFor;
     } catch (err) {
+        await pDelay(1000);
         return false;
     }
 }

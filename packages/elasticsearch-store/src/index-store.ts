@@ -377,19 +377,24 @@ export default class IndexStore<T extends Record<string, any>> {
     async countBy(
         fields: AnyInput<T>,
         joinBy?: JoinBy,
-        options?: RestrictOptions
+        options?: RestrictOptions,
+        queryAccess?: QueryAccess<T>,
     ): Promise<number> {
         const { query, variables } = this.createJoinQuery(fields, joinBy, options?.variables);
-        return this.count(query, { variables });
+        return this.count(query, { variables }, queryAccess);
     }
 
-    async exists(id: string[] | string): Promise<boolean> {
+    async exists(
+        id: string[] | string,
+        options?: RestrictOptions,
+        queryAccess?: QueryAccess<T>
+    ): Promise<boolean> {
         const ids = utils.validateIds(id, 'exists');
         if (!ids.length) return true;
 
         const count = await this.countBy({
             [this.config.id_field!]: ids,
-        } as AnyInput<T>);
+        } as AnyInput<T>, 'AND', options, queryAccess);
 
         return count === ids.length;
     }
@@ -524,8 +529,9 @@ export default class IndexStore<T extends Record<string, any>> {
         };
 
         let searchParams: Partial<es.SearchParams>;
-        if (queryAccess) {
-            searchParams = await queryAccess.restrictSearchQuery(q, {
+        const _queryAccess = (queryAccess || this._defaultQueryAccess);
+        if (_queryAccess) {
+            searchParams = await _queryAccess.restrictSearchQuery(q, {
                 params,
                 elasticsearch_version: utils.getESVersion(this.client),
                 variables: options.variables
@@ -597,7 +603,7 @@ export default class IndexStore<T extends Record<string, any>> {
         });
         if (result) return result;
 
-        return { query: `${ts.getFirst(Object.keys(fields))}: "__undefined__"`, variables: {} };
+        return { query: `${ts.getFirstKey(fields)}: "__undefined__"`, variables: {} };
     }
 
     /**
@@ -746,10 +752,13 @@ export default class IndexStore<T extends Record<string, any>> {
     private _translateQuery(
         q: string,
         options?: RestrictOptions,
-        queryAccess = this._defaultQueryAccess
+        queryAccess?: QueryAccess<T>
     ) {
-        const query: string = queryAccess
-            ? queryAccess.restrict(q, { variables: options?.variables })
+        const _queryAccess = (queryAccess || this._defaultQueryAccess);
+        const query = _queryAccess
+            ? _queryAccess.restrict(q, {
+                variables: options?.variables
+            })
             : q;
 
         const translator = this._translator.make(query, {

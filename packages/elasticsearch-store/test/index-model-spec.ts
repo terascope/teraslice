@@ -327,8 +327,8 @@ describe('IndexModel', () => {
             try {
                 await indexModel.findById(fetched._key);
             } catch (err) {
-                expect(err.message).toInclude('Record Missing');
-                expect(err.statusCode).toEqual(410);
+                expect(err.message).toInclude('Unable to find');
+                expect(err.statusCode).toEqual(404);
             }
 
             return expect(indexModel.recordExists(fetched._key)).resolves.toBeFalse();

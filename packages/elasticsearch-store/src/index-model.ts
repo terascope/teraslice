@@ -1,6 +1,6 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { QueryAccess, JoinBy } from 'xlucene-evaluator';
+import { QueryAccess, JoinBy, RestrictOptions } from 'xlucene-evaluator';
 import IndexStore, { AnyInput } from './index-store';
 import * as utils from './utils';
 import * as i from './interfaces';
@@ -140,6 +140,8 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
         fields: AnyInput<T>,
         clientId?: number,
         joinBy?: JoinBy,
+        options?: RestrictOptions,
+        queryAccess?: QueryAccess<T>,
     ): Promise<number> {
         return this.countBy({
             ...fields,
@@ -147,7 +149,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
                 client_id: [clientId, 0],
             }),
             _deleted: false
-        }, joinBy);
+        }, joinBy, options, queryAccess);
     }
 
     async recordExists(id: string[] | string, clientId?: number): Promise<boolean> {
