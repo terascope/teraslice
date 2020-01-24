@@ -92,15 +92,17 @@ export async function pullDevDockerImage(): Promise<string> {
     const startTime = Date.now();
     const devImage = getDevDockerImage();
 
-    signale.pending(`building docker image ${devImage}`);
-
     if (isCI) {
         try {
+            signale.debug(`pulling ${devImage}...`);
             await dockerPull(devImage);
+            signale.debug(`pulled ${devImage}`);
         } catch (err) {
             // do nothing
         }
     }
+
+    signale.pending(`building docker image ${devImage}`);
 
     try {
         await dockerBuild(devImage);
