@@ -1,36 +1,83 @@
 'use strict';
 
-const _ = require('lodash');
+const shuffle = require('lodash/shuffle');
+const {
+    get,
+    times,
+    toInteger,
+    pDelay,
+} = require('@terascope/utils');
 const porty = require('porty');
 
-async function findPort(ports = {}) {
+const _portLists = new Map();
+const listPorts = (start, end) => {
+    const key = `${start}:${end}`;
+    if (_portLists.has(key)) {
+        return _portLists.get(key);
+    }
+
+    // this should only be done once
+    const ports = shuffle(times((end - start) + 1, (n) => n + start));
+    _portLists.set(key, ports);
+    return ports;
+};
+
+async function findPort(options = {}) {
     const {
         start = 8002,
         end = 40000,
         assetsPort = 8003
-    } = ports;
+    } = options;
 
-    const range = 100;
-    const min = _.random(start, end - range);
-    const max = _.min([end, (min + range)]);
+    const ports = listPorts(start, end);
 
-    const port = await porty.find({
-        min,
-        max,
-        avoids: [assetsPort],
-    });
+    const tested = [];
+    let port;
 
-    return port;
+    while (ports.length) {
+        port = ports.shift();
+        if (port === assetsPort) continue;
+        // these will be enqueue
+        tested.push(port);
+
+        const available = await porty.test(port);
+        if (available) {
+            break;
+        } else {
+            await pDelay(100);
+            port = undefined;
+        }
+    }
+
+    _portLists[`${start}:${end}`] = ports.concat(tested);
+
+    if (port) return port;
+    throw new Error(`No available port between ${start}-${end}`);
 }
 
 function getPorts(context) {
-    const portConfig = _.get(context, 'sysconfig.teraslice.slicer_port_range');
-    const dataArray = _.split(portConfig, ':');
-    const assetsPort = _.toInteger(dataArray[0]);
+    const portConfig = get(context, 'sysconfig.teraslice.slicer_port_range');
+    const dataArray = portConfig.split(':');
+    const assetsPort = toInteger(dataArray[0]);
     const start = assetsPort + 1;
-    // range end is non-inclusive, so we need to add one
-    const end = _.toInteger(dataArray[1]) + 1;
+    // range end is exclusive, so we need to add one
+    const end = toInteger(dataArray[1]) + 1;
     return { assetsPort, start, end };
 }
 
-module.exports = { findPort, getPorts };
+if (require.main === module) {
+    // eslint-disable-next-line no-inner-declarations
+    function _test(tries = 10) {
+        if (!tries) return false;
+
+        // for testing
+        return findPort()
+            .then((port) => console.error(`Found port ${port}`))
+            .catch((err) => console.error(err))
+            .then(() => _test(tries - 1));
+    }
+
+    _test();
+} else {
+    module.exports = { findPort, getPorts };
+}
