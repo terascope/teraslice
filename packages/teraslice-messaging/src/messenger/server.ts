@@ -100,10 +100,10 @@ export class Server extends Core {
                 throw new Error(`Port ${this.port} is already in-use`);
             }
         }, {
-            retries: 5,
+            retries: isTest ? 1 : 5,
             endWithFatal: true,
-            logError: (...args) => {
-                this.logger.error('', ...args);
+            logError: (err: any, ...args) => {
+                this.logger.error(err, ...args);
             }
         });
 
