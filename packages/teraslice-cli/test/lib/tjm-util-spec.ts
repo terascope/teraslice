@@ -1,29 +1,19 @@
 import Promise from 'bluebird';
 import TjmUtil from '../../src/helpers/tjm-util';
-// @ts-ignore
-let startResponse = null;
-// @ts-ignore
 
-let stopResponse = null;
-// @ts-ignore
-
-let statusResponse = null;
-// @ts-ignore
-
-let waitStatus = null;
+let startResponse: any;
+let stopResponse: any;
+let statusResponse: any;
+let waitStatus: any;
 let job: any = {};
 
 const client = {
     jobs: {
         wrap: () => {
             const functions = {
-                // @ts-ignore
                 start: () => startResponse,
-                // @ts-ignore
                 stop: () => stopResponse,
-                // @ts-ignore
                 status: () => statusResponse,
-                // @ts-ignore
                 waitForStatus: () => waitStatus
             };
             return functions;
@@ -38,19 +28,22 @@ describe('tjm-util start function', () => {
     });
 
     it('should return nothing if no errors', async () => {
-        job.jobId = 'testJobId';
+        job.id = 'testJobId';
         job.name = 'testJobName';
         job.clusterUrl = 'testCluster';
 
         startResponse = { job_id: 'testJobId' };
+
         const tjmUtil = new TjmUtil(client, job);
+
         const response = await tjmUtil.start();
+
         // no errors should return nothing
         expect(response).toBeUndefined();
     });
 
     it('should throw an error if job id missing from response', async () => {
-        job.jobId = 'testJobId';
+        job.id = 'testJobId';
         job.name = 'testJobName';
         job.clusterUrl = 'testCluster';
         startResponse = {};
@@ -63,7 +56,7 @@ describe('tjm-util start function', () => {
     });
 
     it('should throw an error if job ids do not match', async () => {
-        job.jobId = 'testJobId';
+        job.id = 'testJobId';
         job.name = 'testJobName2';
         job.clusterUrl = 'testCluster2';
         startResponse = { job_id: 'badJobId' };
@@ -76,7 +69,7 @@ describe('tjm-util start function', () => {
     });
 
     it('should throw an error if client returns an error', async () => {
-        job.jobId = 'testJobId';
+        job.id = 'testJobId';
         job.name = 'testJobName';
         job.clusterUrl = 'testCluster';
 
@@ -98,7 +91,7 @@ describe('tjm-util stop function', () => {
     });
 
     it('should return nothing if no errors', async () => {
-        job.jobId = 'testJobId';
+        job.id = 'testJobId';
         job.name = 'testJobName';
         job.clusterUrl = 'testCluster';
 
@@ -113,7 +106,7 @@ describe('tjm-util stop function', () => {
     });
 
     it('should throw an error if the status is not stopped', async () => {
-        job.jobId = 'testJobId';
+        job.id = 'testJobId';
         job.name = 'testJobName';
         job.clusterUrl = 'testCluster';
         statusResponse = 'running';
@@ -128,7 +121,7 @@ describe('tjm-util stop function', () => {
     });
 
     it('should wait for job to stop if status is stopping', async () => {
-        job.jobId = 'testJobId';
+        job.id = 'testJobId';
         job.name = 'testJobName';
         job.clusterUrl = 'testCluster';
         statusResponse = 'stopping';
@@ -141,7 +134,7 @@ describe('tjm-util stop function', () => {
     });
 
     it('should not throw a fatal error if job has a terminal status', async () => {
-        job.jobId = 'testJobId';
+        job.id = 'testJobId';
         job.name = 'testJobName';
         job.clusterUrl = 'testCluster';
 
@@ -168,7 +161,7 @@ describe('tjm-util stop function', () => {
     });
 
     it('should throw a fatal error if error not listed', async () => {
-        job.jobId = 'testJobId';
+        job.id = 'testJobId';
         job.name = 'testJobName';
         job.clusterUrl = 'testCluster';
 
