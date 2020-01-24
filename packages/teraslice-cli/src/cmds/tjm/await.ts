@@ -20,9 +20,8 @@ const cmd: CMD = {
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         // @ts-ignore
         yargs.example('$0 tjm await FILE.JSON');
-        yargs.example('$0 tjm await FILE.JSON --start');
-        yargs.example('$0 tjm run FILE.JSON --status completed --timeout 10000 --start');
-        yargs.example('$0 tjm await FILE.JSON --status failing stopping terminated rejected --timeout 600000 --start');
+        yargs.example('$0 tjm run FILE.JSON --status completed --timeout 10000');
+        yargs.example('$0 tjm await FILE.JSON --status failing stopping terminated rejected --timeout 600000 ');
         return yargs;
     },
     async handler(argv: any): Promise<void> {

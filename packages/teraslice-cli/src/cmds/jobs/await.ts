@@ -17,9 +17,8 @@ const cmd: CMD = {
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.strict()
             .example('$0 jobs await CLUSTER_ALIAS JOBID')
-            .example('$0 jobs await CLUSTER_ALIAS JOBID --start')
-            .example('$0 jobs await CLUSTER_ALIAS JOBID --status running --timeout 10000 --start')
-            .example('$0 jobs await CLUSTER_ALIAS JOBID --status failing rejected pending --timeout 300000 --start');
+            .example('$0 jobs await CLUSTER_ALIAS JOBID --status running --timeout 10000')
+            .example('$0 jobs await CLUSTER_ALIAS JOBID --status failing rejected pending --timeout 300000');
         return yargs;
     },
     async handler(argv): Promise<void> {
