@@ -8,6 +8,7 @@ import {
     isNumber,
     debugLogger,
     pDelay,
+    pRetry,
 } from '@terascope/utils';
 import { newMsgId } from '../utils';
 import * as i from './interfaces';
@@ -93,10 +94,18 @@ export class Server extends Core {
     }
 
     async listen() {
-        const portAvailable = await porty.test(this.port);
-        if (!portAvailable) {
-            throw new Error(`Port ${this.port} is already in-use`);
-        }
+        await pRetry(async () => {
+            const portAvailable = await porty.test(this.port);
+            if (!portAvailable) {
+                throw new Error(`Port ${this.port} is already in-use`);
+            }
+        }, {
+            retries: 5,
+            endWithFatal: true,
+            logError: (...args) => {
+                this.logger.error('', ...args);
+            }
+        });
 
         await new Promise((resolve, reject) => {
             this.httpServer.listen(this.port, (err?: Error) => {
