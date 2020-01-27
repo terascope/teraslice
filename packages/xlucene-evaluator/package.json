@@ -50,7 +50,7 @@
         "lodash": "^4.17.11"
     },
     "devDependencies": {
-        "elasticsearch": "^15.4.1",
+        "elasticsearch": "^16.6.0",
         "pegjs": "^0.10.0",
         "ts-pegjs": "^0.2.6"
     },
