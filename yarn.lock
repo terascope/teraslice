@@ -1756,10 +1756,10 @@
   resolved "https://registry.yarnpkg.com/@types/js-string-escape/-/js-string-escape-1.0.0.tgz#96738a64ea912f7d4b87ee097231d68fd1813332"
   integrity sha512-UANTN9S09hivqbeR4unjVS7DrtgjYUFNK4UCmHGPuwMrHyMFeU3z9KMg0wja/fTflXo7fVl0BsAohlgRO4QowQ==
 
-"@types/js-yaml@^3.12.1":
-  version "3.12.1"
-  resolved "https://registry.yarnpkg.com/@types/js-yaml/-/js-yaml-3.12.1.tgz#5c6f4a1eabca84792fbd916f0cb40847f123c656"
-  integrity sha512-SGGAhXLHDx+PK4YLNcNGa6goPf9XRWQNAUUbffkwVGGXIxmDKWyGGL4inzq2sPmExu431Ekb9aEMn9BkPqEYFA==
+"@types/js-yaml@^3.12.1", "@types/js-yaml@^3.12.2":
+  version "3.12.2"
+  resolved "https://registry.yarnpkg.com/@types/js-yaml/-/js-yaml-3.12.2.tgz#a35a1809c33a68200fb6403d1ad708363c56470a"
+  integrity sha512-0CFu/g4mDSNkodVwWijdlr8jH7RoplRWNgovjFLEZeT+QEbbZXjBmCe3HwaWheAlCbHwomTwzZoSedeOycABug==
 
 "@types/json-schema@^7.0.3":
   version "7.0.4"
