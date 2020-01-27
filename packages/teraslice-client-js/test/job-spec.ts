@@ -636,6 +636,22 @@ describe('Teraslice Job', () => {
             });
         });
 
+        describe('when called with status array and matches on the first try', () => {
+            beforeEach(() => {
+                scope.get('/jobs/some-job-id/ex')
+                    .reply(200, {
+                        ex_id: 'example-ex-id',
+                        _status: ExecutionStatus.running
+                    });
+            });
+
+            it('should resolve json results from Teraslice', async () => {
+                const job = new Job({ baseUrl }, 'some-job-id');
+                const results = await job.waitForStatus([ExecutionStatus.failing, ExecutionStatus.running]);
+                expect(results).toEqual(ExecutionStatus.running);
+            });
+        });
+
         describe('when called and it matches on the first try (with headers)', () => {
             const searchOptions = { headers: { 'Some-Header': 'yes' } };
 
@@ -681,6 +697,28 @@ describe('Teraslice Job', () => {
             });
         });
 
+        describe('when called with array of statuses and matches on the second try', () => {
+            beforeEach(() => {
+                scope.get('/jobs/some-job-id/ex')
+                    .reply(200, {
+                        ex_id: 'example-ex-id',
+                        _status: ExecutionStatus.running
+                    });
+
+                scope.get('/jobs/some-job-id/ex')
+                    .reply(200, {
+                        ex_id: 'example-ex-id',
+                        _status: ExecutionStatus.terminated
+                    });
+            });
+
+            it('should resolve json results from Teraslice', async () => {
+                const job = new Job({ baseUrl }, 'some-job-id');
+                const results = await job.waitForStatus([ExecutionStatus.completed, ExecutionStatus.failed, ExecutionStatus.terminated]);
+                expect(results).toEqual(ExecutionStatus.terminated);
+            });
+        });
+
         describe('when called and it never matches', () => {
             beforeEach(() => {
                 scope.get('/jobs/some-job-id/ex')
@@ -705,6 +743,34 @@ describe('Teraslice Job', () => {
                     await job.waitForStatus(ExecutionStatus.completed, 100, 1000);
                 } catch (err) {
                     expect(err.message).toEqual('Job status failed to change from status "running" to "completed" within 1000ms');
+                }
+            });
+        });
+
+        describe('when called with array of statuses and it never matches', () => {
+            beforeEach(() => {
+                scope.get('/jobs/some-job-id/ex')
+                    .times(1)
+                    .reply(200, {
+                        ex_id: 'example-ex-id',
+                        _status: ExecutionStatus.initializing
+                    });
+
+                scope.get('/jobs/some-job-id/ex')
+                    .times(11)
+                    .reply(200, {
+                        ex_id: 'example-ex-id',
+                        _status: ExecutionStatus.running
+                    });
+            });
+
+            it('should reject with a timeout error', async () => {
+                expect.hasAssertions();
+                const job = new Job({ baseUrl }, 'some-job-id');
+                try {
+                    await job.waitForStatus([ExecutionStatus.completed, ExecutionStatus.failed, ExecutionStatus.stopped], 100, 1000);
+                } catch (err) {
+                    expect(err.message).toEqual('Job status failed to change from status "running" to "completed,failed,stopped" within 1000ms');
                 }
             });
         });
