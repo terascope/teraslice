@@ -20,7 +20,7 @@ export class Client extends Core {
     protected ready: boolean;
     protected serverShutdown: boolean;
 
-    constructor(opts: i.ClientOptions) {
+    constructor(opts: i.ClientOptions, _connectTimeout?: number) {
         const {
             hostUrl,
             clientId,
@@ -76,7 +76,7 @@ export class Client extends Core {
             pingInterval,
             perMessageDeflate: false,
             query: { clientId, clientType },
-            timeout: connectTimeout,
+            timeout: _connectTimeout
         });
 
         this.socket = SocketIOClient(hostUrl, options);
@@ -113,50 +113,7 @@ export class Client extends Core {
             return;
         }
 
-        await new Promise((resolve, reject) => {
-            let connectTimeout: any;
-            const connectToStr = `${this.serverName} at ${this.hostUrl}`;
-            const onError = (err: any) => {
-                const errStr = toString(err);
-                if (errStr.includes('xhr poll error')) {
-                    // it still connecting so this is probably okay
-                    this.logger.debug(`${errStr} when connecting to ${connectToStr}`);
-                } else {
-                    this.logger.warn(`${errStr} when connecting to ${connectToStr}`);
-                }
-            };
-
-            const onTimeoutError = (timeout: number) => {
-                this.logger.warn(`timeout of ${ms(timeout)} when connecting to ${connectToStr}`);
-            };
-
-            const cleanup = () => {
-                if (connectTimeout != null) {
-                    clearTimeout(connectTimeout);
-                    connectTimeout = undefined;
-                }
-                this.socket.removeListener('connect_error', onError);
-                this.socket.removeListener('connect_timeout', onTimeoutError);
-                this.socket.removeListener('connect', onConnect);
-            };
-
-            function onConnect() {
-                cleanup();
-                resolve();
-            }
-
-            this.socket.once('connect_error', onError);
-            this.socket.once('connect_timeout', onTimeoutError);
-            this.socket.once('connect', onConnect);
-            this.socket.connect();
-
-            connectTimeout = setTimeout(() => {
-                cleanup();
-                reject(new Error(`Unable to connect to ${connectToStr} after ${ms(this.connectTimeout)}`));
-            }, this.connectTimeout);
-
-            this.logger.debug(`attempting to ${connectToStr}`);
-        });
+        await this._connect(this.connectTimeout);
 
         this.socket.on('reconnecting', () => {
             this.logger.debug(`client ${this.clientId} is reconnecting...`);
@@ -208,6 +165,69 @@ export class Client extends Core {
         this.emit('ready');
 
         this.logger.debug(`client ${this.clientId} connect`);
+    }
+
+    private async _connect(remainingTimeout: number, attempt = 1): Promise<void> {
+        const connectToStr = `${this.serverName} at ${this.hostUrl}`;
+        if (this.socket.connected) {
+            return;
+        }
+
+        if (attempt > 1) {
+            this.logger.debug(`attempt #${attempt} connecting to ${connectToStr}`, {
+                remainingTimeout
+            });
+        } else {
+            this.logger.debug(`attempting to connect to ${connectToStr}`);
+        }
+
+        const startTime = Date.now();
+        await new Promise((resolve, reject) => {
+            let timer: any;
+            let cleanup: () => void;
+
+            const onError = (err: any) => {
+                const errStr = toString(err).replace('Error: ', '');
+                if (errStr.includes('xhr poll error')) {
+                    // it still connecting so this is probably okay
+                    this.logger.debug(`${errStr} when connecting to ${connectToStr}`);
+                } else {
+                    this.logger.warn(`${errStr} when connecting to ${connectToStr}`);
+                }
+            };
+
+            const onTimeoutError = (timeout: number) => {
+                this.logger.debug(`timeout of ${ms(timeout)} when connecting to ${connectToStr}, reconnecting...`);
+                cleanup();
+                resolve();
+            };
+
+            cleanup = () => {
+                clearTimeout(timer);
+                this.socket.removeListener('connect_error', onError);
+                this.socket.removeListener('connect_timeout', onTimeoutError);
+                this.socket.removeListener('connect', onConnect);
+            };
+
+            function onConnect() {
+                cleanup();
+                resolve(true);
+            }
+
+            this.socket.on('connect_error', onError);
+            this.socket.once('connect_timeout', onTimeoutError);
+            this.socket.once('connect', onConnect);
+            this.socket.connect();
+
+            timer = setTimeout(() => {
+                if (this.socket.connected) return;
+                cleanup();
+                reject(new Error(`Unable to connect to ${connectToStr} after ${ms(this.connectTimeout)}`));
+            }, remainingTimeout);
+        });
+
+        const elapsed = Date.now() - startTime;
+        return this._connect(elapsed, attempt + 1);
     }
 
     async sendAvailable(payload?: i.Payload) {

@@ -16,6 +16,15 @@ USAGE
     exit 1
 }
 
+upgrade_interactive() {
+    echoerr "* upgrading packages in $PWD..." &&
+        yarn && yarn upgrade-interactive --latest --caret &&
+        echoerr '* reinstalling node_modules .' &&
+        rm -rf node_modules && yarn --force --check-files --update-checksums &&
+        echoerr '* running yarn setup...' &&
+        yarn setup
+}
+
 main() {
     local arg="$1"
 
@@ -25,11 +34,8 @@ main() {
         ;;
     esac
 
-    yarn upgrade-interactive --latest --caret &&
-        echoerr '* reinstalling node_modules' &&
-        rm -rf node_modules &&
-        echoerr '* running yarn setup' &&
-        yarn setup
+    upgrade_interactive
+    cd e2e && upgrade_interactive;
 }
 
 main "$@"

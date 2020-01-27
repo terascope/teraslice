@@ -11,14 +11,18 @@ import {
 const logger = debugLogger('utils:promises');
 
 /** promisified setTimeout */
-export const pDelay = (delay = 1) => new Promise((resolve) => {
-    setTimeout(resolve, delay);
-});
+export function pDelay<T = undefined>(delay = 1, arg?: T) {
+    return new Promise<T>((resolve) => {
+        setTimeout(resolve, delay, arg);
+    });
+}
 
 /** promisified setImmediate */
-export const pImmediate = () => new Promise((resolve) => {
-    setImmediate(resolve);
-});
+export function pImmediate<T = undefined>(arg?: T) {
+    return new Promise<T>((resolve) => {
+        setImmediate(resolve, arg);
+    });
+}
 
 export interface PRetryConfig {
     /**

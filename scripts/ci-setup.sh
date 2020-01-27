@@ -37,6 +37,9 @@ only_ci() {
 }
 
 setup_docker() {
+    # https://docs.travis-ci.com/user/pull-requests/#pull-requests-and-security-restrictions
+    [ "$TRAVIS_PULL_REQUEST" == "true" ] && [ -z "$DOCKER_PASSWORD" ] && return;
+
     require_env "DOCKER_USERNAME"
     require_env "DOCKER_PASSWORD"
 
@@ -49,6 +52,9 @@ setup_docker() {
 }
 
 setup_github() {
+    # https://docs.travis-ci.com/user/pull-requests/#pull-requests-and-security-restrictions
+    [ "$TRAVIS_PULL_REQUEST" == "true" ] && [ -z "$GITHUB_TOKEN" ] && return;
+
     require_env "GITHUB_EMAIL"
     require_env "GITHUB_NAME"
     require_env "GITHUB_TOKEN"
@@ -62,6 +68,9 @@ setup_github() {
 }
 
 setup_npm() {
+    # https://docs.travis-ci.com/user/pull-requests/#pull-requests-and-security-restrictions
+    [ "$TRAVIS_PULL_REQUEST" == "true" ] && [ -z "$NPM_TOKEN" ] && return;
+
     require_env "NPM_TOKEN"
     echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >~/.npmrc
 

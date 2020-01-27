@@ -6,7 +6,8 @@ import {
     get,
     TSError,
     isFunction,
-    flatten
+    flatten,
+    toBoolean
 } from '@terascope/utils';
 import {
     ArgsMap,
@@ -230,14 +231,15 @@ async function getE2ELogs(dir: string, env: ExecEnv): Promise<string> {
 }
 
 export async function logE2E(dir: string, failed: boolean): Promise<void> {
-    if (failed) {
-        const errLogs = await getE2ELogs(dir, {
-            LOG_LEVEL: 'INFO',
-            RAW_LOGS: isCI ? 'true' : 'false',
-            FORCE_COLOR: isCI ? '0' : '1',
-        });
-        process.stderr.write(`${errLogs}\n`);
-    }
+    if (!failed) return;
+    if (toBoolean(process.env.SKIP_E2E_OUTPUT_LOGS)) return;
+
+    const errLogs = await getE2ELogs(dir, {
+        LOG_LEVEL: 'INFO',
+        RAW_LOGS: isCI ? 'true' : 'false',
+        FORCE_COLOR: isCI ? '0' : '1',
+    });
+    process.stderr.write(`${errLogs}\n`);
 }
 
 const abc = 'abcdefghijklmnopqrstuvwxyz';

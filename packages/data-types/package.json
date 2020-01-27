@@ -35,7 +35,7 @@
     },
     "devDependencies": {
         "@types/lodash.defaultsdeep": "^4.6.6",
-        "@types/yargs": "^13.0.4",
+        "@types/yargs": "^15.0.1",
         "xlucene-evaluator": "^0.17.0"
     },
     "engines": {

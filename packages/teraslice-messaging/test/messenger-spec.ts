@@ -4,6 +4,8 @@ import { Message } from '../src/messenger';
 import { Messenger, formatURL, newMsgId } from '../src';
 import { findPort, pDelay } from './helpers';
 
+jest.setTimeout(10000);
+
 describe('Messenger', () => {
     describe('->Core', () => {
         describe('when constructed without a valid actionTimeout', () => {
@@ -201,6 +203,7 @@ describe('Messenger', () => {
                 clientId = await newMsgId();
                 const port = await findPort();
                 const hostUrl = formatURL('localhost', port);
+
                 server = new Messenger.Server({
                     port,
                     networkLatencyBuffer: 0,
@@ -218,8 +221,6 @@ describe('Messenger', () => {
                 server.onClientShutdown(clientShutdownFn);
                 server.onClientError(clientErrorFn);
 
-                await server.listen();
-
                 client = new Messenger.Client({
                     serverName: 'example',
                     clientId,
@@ -228,16 +229,19 @@ describe('Messenger', () => {
                     clientDisconnectTimeout: 1000,
                     networkLatencyBuffer: 0,
                     actionTimeout: 1000,
-                    connectTimeout: 2000,
-                    socketOptions: {
-                        reconnection: true,
-                        reconnectionAttempts: 10,
-                        reconnectionDelay: 10,
-                        reconnectionDelayMax: 50
-                    },
-                });
+                    connectTimeout: 5000,
+                // this last arg is for overriding the
+                // connect timeout for the socket.io client
+                }, 500);
 
-                await client.connect();
+                // let the client connect first so
+                // we can test that client can come up
+                // before the server
+                await Promise.all([
+                    client.connect(),
+                    pDelay(1000).then(() => server.listen())
+                ]);
+
                 await client.sendAvailable();
             }
 
