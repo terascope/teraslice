@@ -26,18 +26,15 @@ const cmd: CMD = {
 
         const jobs = new Jobs(cliConfig);
 
-        const desiredStatus: TSClientTypes.ExecutionStatus[] = jobs.config.args.status;
+        reply.info(`> job: ${jobs.config.args.id} waiting for status ${jobs.config.args.status.join(' or ')}`);
 
-        reply.info(`> job: ${jobs.config.args.id} waiting for status ${desiredStatus.join(' or ')}`);
+        try {
+            const newStatus = await jobs.awaitStatus();
+            reply.info(`> job: ${jobs.config.args.id} reached status: ${newStatus}`);
+        } catch (e) {
+            reply.fatal(e.message);
+        }
 
-        const newStatus = await jobs.awaitManyStatuses(
-            desiredStatus,
-            jobs.config.args.id,
-            jobs.config.args.timeout
-        );
-
-        reply.info(`> job: ${jobs.config.args.id} reached status: ${newStatus}`);
-        process.exit(0);
     }
 };
 

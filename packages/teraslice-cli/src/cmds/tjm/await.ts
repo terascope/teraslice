@@ -20,7 +20,7 @@ const cmd: CMD = {
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         // @ts-ignore
         yargs.example('$0 tjm await FILE.JSON');
-        yargs.example('$0 tjm run FILE.JSON --status completed --timeout 10000');
+        yargs.example('$0 tjm await FILE.JSON --status completed --timeout 10000');
         yargs.example('$0 tjm await FILE.JSON --status failing stopping terminated rejected --timeout 600000 ');
         return yargs;
     },
@@ -31,14 +31,15 @@ const cmd: CMD = {
         const cliConfig = new Config({ ...jobFile, ...argv });
         const jobs = new Jobs(cliConfig);
 
-        const desiredStatus: TSClientTypes.ExecutionStatus[] = argv.status;
+        reply.green(`> job: ${jobFile.id} waiting for status ${argv.status.join(' or ')}`);
 
-        reply.green(`> job: ${jobFile.id} waiting for status ${desiredStatus.join(' or ')}`);
+        try {
+            const status = await jobs.awaitStatus();
+            reply.green(`> job: ${jobFile.id} reached status: ${status}`);
+        } catch (e) {
+            reply.fatal(e.message);
+        }
 
-        const status = await jobs.awaitManyStatuses(desiredStatus, jobFile.id, argv.timeout);
-
-        reply.green(`> job: ${jobFile.id} reached status: ${status}`);
-        process.exit(0);
     }
 };
 

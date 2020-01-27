@@ -6,34 +6,14 @@ import Jobs from '../../src/helpers/jobs';
 describe('jobs', () => {
     const id = '12341234';
     const exId = '56785678';
-    let jobs: any;
-    let cliArgs = {
+
+    const cliArgs = {
         'cluster-manager-type': 'native',
         'output-style': 'txt',
         'config-dir': path.join(__dirname, '../fixtures/config_dir'),
         'cluster-alias': 'localhost',
         args: {}
     };
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    let scope: nock.Scope;
-    let msg: any;
-
-    beforeEach(() => {
-        cliArgs = {
-            'cluster-manager-type': 'native',
-            'output-style': 'txt',
-            'config-dir': path.join(__dirname, '../fixtures/config_dir'),
-            'cluster-alias': 'localhost',
-            args: {}
-        };
-
-        scope = nock('http://localhost:5678');
-    });
-
-    afterEach(() => {
-        jobs = {};
-        nock.cleanAll();
-    });
 
     it('should return a job object', () => {
         const number = 5;
@@ -41,15 +21,37 @@ describe('jobs', () => {
 
         cliArgs.args = { id, action, number };
 
-        jobs = new Jobs(cliArgs);
+        const jobs = new Jobs(cliArgs);
         expect(jobs).toBeDefined();
     });
+});
 
-    it('workers function should return ts client response if an object', async () => {
-        const number = 5;
-        const action = 'add';
+describe('jobs.workers should', () => {
+    let msg: any;
+    let jobs: any;
+    const id = '12341234';
+    const exId = '56785678';
 
-        cliArgs.args = { id, action, number };
+    const scope = nock('http://localhost:5678');
+
+    const cliArgs = {
+        'cluster-manager-type': 'native',
+        'output-style': 'txt',
+        'config-dir': path.join(__dirname, '../fixtures/config_dir'),
+        'cluster-alias': 'localhost',
+        args: {}
+    };
+
+    beforeEach(() => cliArgs.args = {});
+
+    afterEach(() => {
+        jobs = {};
+        nock.cleanAll();
+    });
+
+
+    it('return correct response if ts-client response is an object', async () => {
+        cliArgs.args = { id, action: 'add', number: 5 };
 
         jobs = new Jobs(cliArgs);
 
@@ -63,11 +65,8 @@ describe('jobs', () => {
         expect(results).toEqual(`${msg.message}`);
     });
 
-    it('workers function should return ts client response if a string', async () => {
-        const number = 3;
-        const action = 'remove';
-
-        cliArgs.args = { id, action, number };
+    it('return correct response if ts-client response is a string', async () => {
+        cliArgs.args = { id, action: 'remove', number: 3 };
 
         jobs = new Jobs(cliArgs);
 
@@ -80,4 +79,50 @@ describe('jobs', () => {
         const results = await jobs.workers();
         expect(results).toEqual(`${msg}`);
     });
+
+});
+
+
+describe('jobs.awaitStatus should', () => {
+    let job: any;
+    const id = '12341234';
+    const exId = '56785678';
+
+    const scope = nock('http://localhost:5678');
+
+    const cliArgs = {
+        'cluster-manager-type': 'native',
+        'output-style': 'txt',
+        'config-dir': path.join(__dirname, '../fixtures/config_dir'),
+        'cluster-alias': 'localhost',
+        args: {}
+    };
+
+    beforeEach(() => cliArgs.args = {});
+
+    afterEach(() => {
+        job = {};
+        nock.cleanAll();
+    });
+
+    it('return status when desired status is reached', async () => {
+        cliArgs.args = { id, status: ['stopped', 'completed'], timeout: 0 };
+
+        job = new Jobs(cliArgs);
+
+        scope
+            .get('/v1/jobs/12341234/ex')
+            .reply(200, {
+                ex_id: '12341234',
+                _status: 'running'
+            })
+            .get('/v1/jobs/12341234/ex')
+            .reply(200, {
+                ex_id: '12341234',
+                _status: 'stopped'
+            });
+
+        const results = await job.awaitStatus();
+        expect(results).toEqual('stopped');
+    }, 7000);
 });

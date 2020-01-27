@@ -78,26 +78,8 @@ export default class Jobs {
         return this.status(true, true);
     }
 
-    async awaitManyStatuses(
-        status: TSClientTypes.ExecutionStatus[],
-        jobId: string,
-        timeout = 0
-    ) {
-        let newStatus;
-
-        try {
-            newStatus = await util.pRace(status.map((s) => this.teraslice.client.jobs.wrap(jobId)
-                .waitForStatus(s, 5000, timeout)));
-        } catch (e) {
-            // @ts-ignore
-            if (!e.fatalError && status.includes(e.context.lastStatus)) {
-                newStatus = e.context.lastStatus;
-            } else {
-                reply.fatal(e.message);
-            }
-        }
-
-        return newStatus;
+    awaitStatus() {
+        return this.teraslice.client.jobs.wrap(this.config.args.id).waitForStatus(this.config.args.status, 5000, this.config.args.timeout);
     }
 
     async status(saveState = false, showJobs = true): Promise<void> {
