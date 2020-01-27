@@ -1,4 +1,3 @@
-import * as TSClientTypes from 'teraslice-client-js';
 import YargsOptions from '../../helpers/yargs-options';
 import Jobs from '../../helpers/jobs';
 import Reply from '../lib/reply';
@@ -34,7 +33,6 @@ const cmd: CMD = {
         } catch (e) {
             reply.fatal(e.message);
         }
-
     }
 };
 

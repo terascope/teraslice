@@ -1,5 +1,4 @@
 import yargs from 'yargs';
-import nock from 'nock';
 import await from '../../../src/cmds/jobs/await';
 
 describe('jobs await', () => {

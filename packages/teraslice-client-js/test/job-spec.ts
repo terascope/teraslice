@@ -647,7 +647,11 @@ describe('Teraslice Job', () => {
 
             it('should resolve json results from Teraslice', async () => {
                 const job = new Job({ baseUrl }, 'some-job-id');
-                const results = await job.waitForStatus([ExecutionStatus.failing, ExecutionStatus.running]);
+                const results = await job.waitForStatus([
+                    ExecutionStatus.failing,
+                    ExecutionStatus.running
+                ]);
+
                 expect(results).toEqual(ExecutionStatus.running);
             });
         });
@@ -714,7 +718,12 @@ describe('Teraslice Job', () => {
 
             it('should resolve json results from Teraslice', async () => {
                 const job = new Job({ baseUrl }, 'some-job-id');
-                const results = await job.waitForStatus([ExecutionStatus.completed, ExecutionStatus.failed, ExecutionStatus.terminated]);
+                const results = await job.waitForStatus([
+                    ExecutionStatus.completed,
+                    ExecutionStatus.failed,
+                    ExecutionStatus.terminated
+                ]);
+
                 expect(results).toEqual(ExecutionStatus.terminated);
             });
         });
@@ -768,7 +777,11 @@ describe('Teraslice Job', () => {
                 expect.hasAssertions();
                 const job = new Job({ baseUrl }, 'some-job-id');
                 try {
-                    await job.waitForStatus([ExecutionStatus.completed, ExecutionStatus.failed, ExecutionStatus.stopped], 100, 1000);
+                    await job.waitForStatus([
+                        ExecutionStatus.completed,
+                        ExecutionStatus.failed,
+                        ExecutionStatus.stopped
+                    ], 100, 1000);
                 } catch (err) {
                     expect(err.message).toEqual('Job status failed to change from status "running" to "completed,failed,stopped" within 1000ms');
                 }

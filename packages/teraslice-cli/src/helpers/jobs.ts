@@ -1,7 +1,5 @@
 import _ from 'lodash';
 import fs from 'fs-extra';
-import * as TSClientTypes from 'teraslice-client-js';
-import * as util from '@terascope/utils';
 
 import TerasliceUtil from './teraslice-util';
 import displayModule from '../cmds/lib/display';
@@ -79,7 +77,8 @@ export default class Jobs {
     }
 
     awaitStatus() {
-        return this.teraslice.client.jobs.wrap(this.config.args.id).waitForStatus(this.config.args.status, 5000, this.config.args.timeout);
+        return this.teraslice.client.jobs.wrap(this.config.args.id)
+            .waitForStatus(this.config.args.status, 5000, this.config.args.timeout);
     }
 
     async status(saveState = false, showJobs = true): Promise<void> {

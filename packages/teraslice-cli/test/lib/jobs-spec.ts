@@ -5,7 +5,6 @@ import Jobs from '../../src/helpers/jobs';
 
 describe('jobs', () => {
     const id = '12341234';
-    const exId = '56785678';
 
     const cliArgs = {
         'cluster-manager-type': 'native',
@@ -42,13 +41,14 @@ describe('jobs.workers should', () => {
         args: {}
     };
 
-    beforeEach(() => cliArgs.args = {});
+    beforeEach(() => {
+        cliArgs.args = {};
+    });
 
     afterEach(() => {
         jobs = {};
         nock.cleanAll();
     });
-
 
     it('return correct response if ts-client response is an object', async () => {
         cliArgs.args = { id, action: 'add', number: 5 };
@@ -79,15 +79,11 @@ describe('jobs.workers should', () => {
         const results = await jobs.workers();
         expect(results).toEqual(`${msg}`);
     });
-
 });
-
 
 describe('jobs.awaitStatus should', () => {
     let job: any;
     const id = '12341234';
-    const exId = '56785678';
-
     const scope = nock('http://localhost:5678');
 
     const cliArgs = {
@@ -98,7 +94,9 @@ describe('jobs.awaitStatus should', () => {
         args: {}
     };
 
-    beforeEach(() => cliArgs.args = {});
+    beforeEach(() => {
+        cliArgs.args = {};
+    });
 
     afterEach(() => {
         job = {};
