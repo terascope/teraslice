@@ -11,7 +11,7 @@ export default class TjmUtil {
         this.job = job;
     }
 
-    async start() {
+    async start(): Promise<void> {
         try {
             const startResult = await this.client.jobs.wrap(this.job.id).start();
 
