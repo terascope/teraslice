@@ -126,7 +126,7 @@ export default class Job extends Client {
     }
 
     async waitForStatus(
-        target: ExecutionStatus,
+        target: ExecutionStatus[] | ExecutionStatus,
         intervalMs = 1000,
         timeoutMs = 0,
         requestOptions: RequestOptions = {}
@@ -163,7 +163,7 @@ export default class Job extends Client {
                 throw err;
             }
 
-            if (result === target) {
+            if (result === target || (Array.isArray(target) && target.includes(result))) {
                 return result;
             }
 

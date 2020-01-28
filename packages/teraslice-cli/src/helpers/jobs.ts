@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import fs from 'fs-extra';
-import * as TSClientTypes from 'teraslice-client-js';
 
 import TerasliceUtil from './teraslice-util';
 import displayModule from '../cmds/lib/display';
@@ -39,12 +38,9 @@ export default class Jobs {
 
     async workers() {
         const response = await this.teraslice.client.jobs.wrap(this.config.args.id)
-            .changeWorkers(this.config.args.action, this.config.args.num);
-        const responseMsg = typeof response === 'string' ? response : response.message;
-        const msg = `> job: ${this.config.args.id} ${responseMsg}`;
-        reply.info(msg);
-        // for testing purposes
-        return msg;
+            .changeWorkers(this.config.args.action, this.config.args.number);
+
+        return typeof response === 'string' ? response : response.message;
     }
 
     async pause() {
@@ -80,12 +76,9 @@ export default class Jobs {
         return this.status(true, true);
     }
 
-    awaitStatus(
-        desiredStatus: TSClientTypes.ExecutionStatus,
-        jobId: string,
-        timeout = 0
-    ) {
-        return this.teraslice.client.jobs.wrap(jobId).waitForStatus(desiredStatus, 5000, timeout);
+    awaitStatus() {
+        return this.teraslice.client.jobs.wrap(this.config.args.id)
+            .waitForStatus(this.config.args.status, 5000, this.config.args.timeout);
     }
 
     async status(saveState = false, showJobs = true): Promise<void> {

@@ -16,7 +16,7 @@ describe('jobs workers', () => {
             );
             expect(yargsResult.clusterAlias).toEqual('ts-test1');
             expect(yargsResult.id).toEqual('99999999-9999-9999-9999-999999999999');
-            expect(yargsResult.num).toEqual(5);
+            expect(yargsResult.number).toEqual(5);
             expect(yargsResult.action).toEqual('add');
         });
         it('should parse properly with an id and remove count', () => {
@@ -30,9 +30,10 @@ describe('jobs workers', () => {
             const yargsResult = yargsCmd.parse(
                 'workers ts-test1 99999999-9999-9999-9999-999999999999 remove 5', {}
             );
+
             expect(yargsResult.clusterAlias).toEqual('ts-test1');
             expect(yargsResult.id).toEqual('99999999-9999-9999-9999-999999999999');
-            expect(yargsResult.num).toEqual(5);
+            expect(yargsResult.number).toEqual(5);
             expect(yargsResult.action).toEqual('remove');
         });
     });

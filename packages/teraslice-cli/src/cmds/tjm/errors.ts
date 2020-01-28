@@ -8,7 +8,7 @@ const reply = new Reply();
 
 const yargsOptions = new YargsOptions();
 
-export = {
+const cmd: CMD = {
     command: 'errors <job-file>',
     describe: 'View errors of a job by referencing the job file',
     builder(yargs) {
@@ -19,13 +19,13 @@ export = {
         yargs.example('$0 tjm errors jobFile.json');
         return yargs;
     },
-    async handler(argv) {
+    async handler(argv): Promise <void> {
         const job = new JobSrc(argv);
         job.init();
         const client = getTerasliceClient(job);
 
         try {
-            const response = await client.jobs.wrap(job.jobId).errors();
+            const response = await client.jobs.wrap(job.id).errors();
 
             if (response.length === 0) {
                 reply.green(`No errors for ${job.name} on ${job.clusterUrl}`);
@@ -37,4 +37,6 @@ export = {
             reply.fatal(e.message);
         }
     }
-} as CMD;
+};
+
+export = cmd;
