@@ -1,3 +1,5 @@
-export default class RecordTransform {
+import { Repository } from '../interfaces';
 
-}
+export const respoitory: Repository = {
+
+};
