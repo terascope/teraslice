@@ -13,16 +13,16 @@ export default class TjmUtil {
 
     async start() {
         try {
-            const startResult = await this.client.jobs.wrap(this.job.jobId).start();
+            const startResult = await this.client.jobs.wrap(this.job.id).start();
 
-            if (!startResult.job_id || startResult.job_id !== this.job.jobId) {
+            if (!startResult.job_id || startResult.job_id !== this.job.id) {
                 reply.fatal(`Could not start ${this.job.name} on ${this.job.clusterUrl}`);
             }
 
             reply.green(`Started ${this.job.name} on ${this.job.clusterUrl}`);
         } catch (e) {
             if (e.message.includes('is currently running')) {
-                reply.green(`> job: ${this.job.name}, id: ${this.job.jobId} is running on ${this.job.clusterUrl}`);
+                reply.green(`> job: ${this.job.name}, id: ${this.job.id} is running on ${this.job.clusterUrl}`);
                 return;
             }
 
@@ -41,20 +41,20 @@ export default class TjmUtil {
         ];
 
         try {
-            const status: string = await this.client.jobs.wrap(this.job.jobId).status();
+            const status = await this.client.jobs.wrap(this.job.id).status();
 
             if (status === 'stopping') {
                 reply.green(`job: ${this.job.name} is stopping, wait for job to stop`);
-                await this.client.jobs.wrap(this.job.jobId).waitForStatus('stopped');
+                await this.client.jobs.wrap(this.job.id).waitForStatus('stopped');
                 reply.green(`Stopped job ${this.job.name} on ${this.job.clusterUrl}`);
                 return;
             }
 
             if (terminalStatuses.includes(status)) {
-                reply.green(`job: ${this.job.name}, job id: ${this.job.jobId}, is not running.  Current status is ${status} on cluster: ${this.job.clusterUrl}`);
+                reply.green(`job: ${this.job.name}, job id: ${this.job.id}, is not running.  Current status is ${status} on cluster: ${this.job.clusterUrl}`);
             } else {
-                reply.green(`attempting to stop job: ${this.job.name}, job id: ${this.job.jobId}, on cluster ${this.job.clusterUrl}`);
-                const response = await this.client.jobs.wrap(this.job.jobId).stop();
+                reply.green(`attempting to stop job: ${this.job.name}, job id: ${this.job.id}, on cluster ${this.job.clusterUrl}`);
+                const response = await this.client.jobs.wrap(this.job.id).stop();
                 const jobStatus = response.status.status || response.status;
 
                 if (jobStatus !== 'stopped') {

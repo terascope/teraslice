@@ -1,5 +1,5 @@
 import { AnyObject } from '@terascope/utils';
-import BaseType from './types/versions/base-type';
+import BaseType from './types/base-type';
 
 export type GraphQLTypesResult = {
     baseType: string;
@@ -10,6 +10,7 @@ export type GraphQLTypesResult = {
 export type GraphQLOptions = {
     typeName?: string;
     description?: string;
+    customTypes?: string[];
     references?: string[];
     createInputType?: boolean;
     includeAllInputFields?: boolean;
@@ -18,6 +19,7 @@ export type GraphQLOptions = {
 export type MergeGraphQLOptions = {
     removeScalars?: boolean;
     references?: GraphQLTypeReferences;
+    customTypes?: string[];
     createInputTypes?: boolean;
     includeAllInputFields?: boolean;
 };
@@ -114,10 +116,17 @@ export type FieldTypeConfig = {
     description?: string;
     /**
      * Specifies whether the field is index in elasticsearch
-     * (Not all fields support this)
-     * @default false
+     *
+     * (Only type Object currently support this)
+     * @default true
     */
     indexed?: boolean;
+
+    /**
+     * A temporary flag to fix KeywordCaseInsensitive to be
+     * a type keyword with case insenstive .text fields
+    */
+    use_fields_hack?: boolean;
 };
 
 type ActualType = {

@@ -4,7 +4,7 @@ import {
 } from '@terascope/utils';
 import { Translator } from 'xlucene-evaluator';
 import {
-    SimpleRecord, SimpleRecordInput, mapping, schema
+    SimpleRecord, SimpleRecordInput, dataType, schema
 } from './helpers/simple-index';
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
 import { TEST_INDEX_PREFIX } from './helpers/config';
@@ -33,9 +33,9 @@ describe('IndexStore', () => {
     const index = `${TEST_INDEX_PREFIX}store-v1-s1`;
     const config: IndexConfig = {
         name: `${TEST_INDEX_PREFIX}store`,
+        data_type: dataType,
         index_schema: {
             version: 1,
-            mapping,
             strict: true,
         },
         version: 1,

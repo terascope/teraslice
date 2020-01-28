@@ -24,7 +24,7 @@ sidebar_label: AnyDataType
 
 • **field_type**: *[FieldType](../enums/fieldtype.md)*
 
-*Defined in [parser/interfaces.ts:76](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L76)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:78](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L78)*
 
 The field type here may be the field type specified
 in the type_config
@@ -33,6 +33,6 @@ ___
 
 ###  value
 
-• **value**: *string | number | boolean*
+• **value**: *string | number | boolean | any*
 
-*Defined in [parser/interfaces.ts:77](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L77)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:79](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L79)*

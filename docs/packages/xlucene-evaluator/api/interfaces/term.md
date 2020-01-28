@@ -19,6 +19,7 @@ sidebar_label: Term
 
 * [field](term.md#field)
 * [field_type](term.md#field_type)
+* [tokenizer](term.md#optional-tokenizer)
 * [type](term.md#type)
 * [value](term.md#value)
 
@@ -30,7 +31,7 @@ sidebar_label: Term
 
 *Inherited from [TermLikeAST](termlikeast.md).[field](termlikeast.md#field)*
 
-*Defined in [parser/interfaces.ts:46](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L46)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:47](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L47)*
 
 ___
 
@@ -40,10 +41,20 @@ ___
 
 *Inherited from [AnyDataType](anydatatype.md).[field_type](anydatatype.md#field_type)*
 
-*Defined in [parser/interfaces.ts:76](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L76)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:78](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L78)*
 
 The field type here may be the field type specified
 in the type_config
+
+___
+
+### `Optional` tokenizer
+
+• **tokenizer**? : *undefined | false | true*
+
+*Inherited from [TermLikeAST](termlikeast.md).[tokenizer](termlikeast.md#optional-tokenizer)*
+
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:48](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L48)*
 
 ___
 
@@ -53,14 +64,14 @@ ___
 
 *Overrides [TermLikeAST](termlikeast.md).[type](termlikeast.md#type)*
 
-*Defined in [parser/interfaces.ts:163](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L163)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:165](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L165)*
 
 ___
 
 ###  value
 
-• **value**: *string | number | boolean*
+• **value**: *string | number | boolean | any*
 
 *Inherited from [AnyDataType](anydatatype.md).[value](anydatatype.md#value)*
 
-*Defined in [parser/interfaces.ts:77](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L77)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:79](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L79)*

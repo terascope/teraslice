@@ -3,31 +3,6 @@ import * as ts from '@terascope/utils';
 import generate from 'nanoid/generate';
 import nanoid from 'nanoid/async';
 
-/** ElasticSearch Mapping */
-export const mapping: dt.ESTypeMappings = {
-    _all: {
-        enabled: false,
-    },
-    dynamic: false,
-    properties: {
-        _key: {
-            type: 'keyword',
-        },
-        client_id: {
-            type: 'integer',
-        },
-        _deleted: {
-            type: 'boolean',
-        },
-        _created: {
-            type: 'date',
-        },
-        _updated: {
-            type: 'date',
-        },
-    },
-};
-
 /** JSON Schema */
 export const schema = {
     additionalProperties: false,
@@ -57,7 +32,7 @@ export const schema = {
 
 export function makeRecordDataType(arg: {
     name: string;
-    description: string;
+    description?: string;
     fields: dt.TypeConfigFields;
 }): dt.DataType {
     return new dt.DataType({
@@ -71,10 +46,6 @@ export function makeRecordDataType(arg: {
         },
         version: dt.LATEST_VERSION
     }, arg.name, arg.description);
-}
-
-export function addDefaultMapping(input: dt.ESTypeMappings): dt.ESTypeMappings {
-    return mergeDefaults(input, mapping);
 }
 
 export function addDefaultSchema(input: object) {
@@ -119,11 +90,5 @@ export function mergeDefaults<T>(source: T, from: Partial<T>): T {
 }
 
 export function toInstanceName(name: string): string {
-    let s = ts.trim(name);
-    s = s.replace(/[_-\s]+/g, ' ');
-    s = s.replace(/s$/, '');
-    return s
-        .split(' ')
-        .map(ts.firstToUpper)
-        .join('');
+    return ts.getWordParts(name).map(ts.firstToUpper).join('');
 }

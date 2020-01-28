@@ -1,6 +1,7 @@
 {
     "name": "xlucene-evaluator",
-    "version": "0.16.1",
+    "displayName": "xLucene Evaluator",
+    "version": "0.17.0",
     "description": "Flexible Lucene-like evalutor and language parser",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-evaluator#readme",
     "repository": {
@@ -29,7 +30,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/utils": "^0.21.0",
+        "@terascope/utils": "^0.22.0",
         "@turf/bbox": "^6.0.1",
         "@turf/bbox-polygon": "^6.0.1",
         "@turf/boolean-contains": "^6.0.1",
@@ -42,7 +43,7 @@
         "@turf/helpers": "^6.1.4",
         "@turf/line-to-polygon": "^6.0.1",
         "@turf/random": "^6.0.2",
-        "date-fns": "^2.8.1",
+        "date-fns": "^2.9.0",
         "ip6addr": "^0.2.2",
         "is-cidr": "^3.0.0",
         "latlon-geohash": "^1.1.0",
@@ -60,7 +61,6 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
-    "displayName": "xLucene Evaluator",
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,

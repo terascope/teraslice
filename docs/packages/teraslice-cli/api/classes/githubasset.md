@@ -40,7 +40,7 @@ sidebar_label: GithubAsset
 
 \+ **new GithubAsset**(`config`: [GithubAssetConfig](../interfaces/githubassetconfig.md)): *[GithubAsset](githubasset.md)*
 
-*Defined in [helpers/github-asset.ts:14](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/github-asset.ts#L14)*
+*Defined in [packages/teraslice-cli/src/helpers/github-asset.ts:13](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/github-asset.ts#L13)*
 
 **Parameters:**
 
@@ -56,7 +56,7 @@ Name | Type |
 
 • **arch**: *string*
 
-*Defined in [helpers/github-asset.ts:8](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/github-asset.ts#L8)*
+*Defined in [packages/teraslice-cli/src/helpers/github-asset.ts:7](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/github-asset.ts#L7)*
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **assetString**: *string*
 
-*Defined in [helpers/github-asset.ts:9](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/github-asset.ts#L9)*
+*Defined in [packages/teraslice-cli/src/helpers/github-asset.ts:8](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/github-asset.ts#L8)*
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [helpers/github-asset.ts:13](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/github-asset.ts#L13)*
+*Defined in [packages/teraslice-cli/src/helpers/github-asset.ts:12](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/github-asset.ts#L12)*
 
 ___
 
@@ -80,7 +80,7 @@ ___
 
 • **nodeVersion**: *string*
 
-*Defined in [helpers/github-asset.ts:10](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/github-asset.ts#L10)*
+*Defined in [packages/teraslice-cli/src/helpers/github-asset.ts:9](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/github-asset.ts#L9)*
 
 ___
 
@@ -88,7 +88,7 @@ ___
 
 • **platform**: *string*
 
-*Defined in [helpers/github-asset.ts:11](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/github-asset.ts#L11)*
+*Defined in [packages/teraslice-cli/src/helpers/github-asset.ts:10](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/github-asset.ts#L10)*
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 • **user**: *string*
 
-*Defined in [helpers/github-asset.ts:12](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/github-asset.ts#L12)*
+*Defined in [packages/teraslice-cli/src/helpers/github-asset.ts:11](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/github-asset.ts#L11)*
 
 ___
 
@@ -104,7 +104,7 @@ ___
 
 • **version**? : *undefined | string*
 
-*Defined in [helpers/github-asset.ts:14](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/github-asset.ts#L14)*
+*Defined in [packages/teraslice-cli/src/helpers/github-asset.ts:13](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/github-asset.ts#L13)*
 
 ## Accessors
 
@@ -112,7 +112,7 @@ ___
 
 • **get nodeMajorVersion**(): *string*
 
-*Defined in [helpers/github-asset.ts:28](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/github-asset.ts#L28)*
+*Defined in [packages/teraslice-cli/src/helpers/github-asset.ts:27](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/github-asset.ts#L27)*
 
 **Returns:** *string*
 
@@ -122,7 +122,7 @@ ___
 
 ▸ **download**(`outDir`: string, `quiet`: boolean): *Promise‹any›*
 
-*Defined in [helpers/github-asset.ts:32](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/github-asset.ts#L32)*
+*Defined in [packages/teraslice-cli/src/helpers/github-asset.ts:31](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/github-asset.ts#L31)*
 
 **Parameters:**
 
@@ -139,7 +139,7 @@ ___
 
 ▸ **parseAssetString**(`assetString`: string): *object*
 
-*Defined in [helpers/github-asset.ts:86](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-cli/src/helpers/github-asset.ts#L86)*
+*Defined in [packages/teraslice-cli/src/helpers/github-asset.ts:85](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/github-asset.ts#L85)*
 
 **Parameters:**
 

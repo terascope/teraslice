@@ -28,7 +28,7 @@ sidebar_label: StringDataType
 
 • **field_type**: *[String](../enums/fieldtype.md#string)*
 
-*Defined in [parser/interfaces.ts:86](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L86)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:88](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L88)*
 
 ___
 
@@ -36,7 +36,7 @@ ___
 
 • **quoted**: *boolean*
 
-*Defined in [parser/interfaces.ts:88](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L88)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:90](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L90)*
 
 ___
 
@@ -44,7 +44,7 @@ ___
 
 • **restricted**? : *undefined | false | true*
 
-*Defined in [parser/interfaces.ts:89](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L89)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:91](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L91)*
 
 ___
 
@@ -52,4 +52,4 @@ ___
 
 • **value**: *string*
 
-*Defined in [parser/interfaces.ts:87](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/parser/interfaces.ts#L87)*
+*Defined in [packages/xlucene-evaluator/src/parser/interfaces.ts:89](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/parser/interfaces.ts#L89)*

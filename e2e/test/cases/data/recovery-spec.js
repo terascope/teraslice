@@ -15,6 +15,7 @@ const { resetState } = require('../../helpers');
 const teraslice = misc.teraslice();
 
 describe('recovery', () => {
+    const stores = {};
     let context;
     let specIndex;
     let recoverFromId;
@@ -54,6 +55,7 @@ describe('recovery', () => {
         const { ex: exConfig } = await initializeTestExecution({
             context,
             config: jobSpec,
+            stores,
             isRecovery: true,
             createRecovery: false,
             recoverySlices: [
@@ -211,10 +213,9 @@ describe('recovery', () => {
         const [exConfig] = await Promise.all([
             job.execution(),
             waitForExStatus(newEx, 'recovering'),
-            // give the execution time to run for second
-            // after recovering
-            waitForExStatus(newEx, 'running', 5000)
         ]);
+
+        await waitForExStatus(newEx, 'running');
 
         await job.stop({ blocking: true });
 
@@ -254,10 +255,8 @@ describe('recovery', () => {
         const [exConfig] = await Promise.all([
             newEx.config(),
             waitForExStatus(newEx, 'recovering'),
-            // give the execution time to run for second
-            // after recovering
-            waitForExStatus(newEx, 'running', 5000)
         ]);
+        await waitForExStatus(newEx, 'running');
 
         await newEx.stop({ blocking: true });
 

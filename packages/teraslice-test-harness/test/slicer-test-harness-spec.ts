@@ -113,15 +113,10 @@ describe('SlicerTestHarness', () => {
         });
 
         it('should throw if recovery data is malformed', async () => {
-            expect.assertions(2);
+            expect.assertions(1);
             const badRecoveryData = { some: 'stuff' };
-
-            try {
-                // @ts-ignore
-                await slicerHarness.initialize([badRecoveryData]);
-            } catch (err) {
-                expect(err).toBeDefined();
-            }
+            // @ts-ignore this one does not throw
+            await slicerHarness.initialize([badRecoveryData]);
 
             try {
                 // @ts-ignore

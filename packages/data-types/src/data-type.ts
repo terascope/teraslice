@@ -2,9 +2,9 @@ import * as ts from '@terascope/utils';
 import defaultsDeep from 'lodash.defaultsdeep';
 import { formatSchema, formatGQLComment } from './graphql-helper';
 import * as i from './interfaces';
-import BaseType from './types/versions/base-type';
+import BaseType from './types/base-type';
 import * as utils from './utils';
-import { getTypes } from './types';
+import { getTypes, LATEST_VERSION } from './types';
 
 /**
  * A DataType is used to define the structure of data with version support
@@ -29,7 +29,7 @@ export class DataType {
             removeScalars = false
         } = options;
 
-        const customTypes: string[] = [];
+        const customTypes: string[] = [...(options.customTypes ?? [])];
         const typeDefs: string[] = [];
         const names: string[] = [];
 
@@ -73,16 +73,20 @@ export class DataType {
             }
         });
 
-        const strSchema = utils.joinStrings(customTypes, typeDefs);
+        const strSchema = utils.joinStrings(customTypes, customTypes, typeDefs);
 
         return formatSchema(strSchema, removeScalars);
     }
 
-    constructor(config: i.DataTypeConfig, typeName?: string, description?: string) {
+    constructor(config: Partial<i.DataTypeConfig>, typeName?: string, description?: string) {
         if (typeName) this.name = typeName;
         if (description) this.description = description;
 
-        const { version, fields } = utils.validateDataTypeConfig(config);
+        const { version, fields } = utils.validateDataTypeConfig({
+            version: LATEST_VERSION,
+            fields: {},
+            ...config,
+        });
         this.fields = fields;
         this.version = version;
 
@@ -138,7 +142,9 @@ export class DataType {
 
     toGraphQL(args?: i.GraphQLOptions, removeScalars = false) {
         const { baseType, inputType, customTypes } = this.toGraphQLTypes(args);
-        const schema = utils.joinStrings(customTypes, baseType, inputType);
+        const schema = utils.joinStrings(
+            customTypes, baseType, inputType, args?.customTypes
+        );
         return formatSchema(schema, removeScalars);
     }
 
@@ -163,15 +169,20 @@ export class DataType {
         this._types.forEach((typeClass) => {
             const result = typeClass.toGraphQL(typeName);
             baseProperties.push(result.type);
+            customTypes.push(...result.customTypes);
 
             if (createInputType) {
                 if (args.includeAllInputFields
                     || !ts.startsWith(typeClass.field, '_')) {
-                    inputProperties.push(result.type);
+                    const inputResult = typeClass.toGraphQL(
+                        typeName,
+                        true,
+                        args.includeAllInputFields
+                    );
+                    inputProperties.push(inputResult.type);
+                    customTypes.push(...inputResult.customTypes);
                 }
             }
-
-            customTypes.push(...result.customTypes);
         });
 
         if (references.length) {

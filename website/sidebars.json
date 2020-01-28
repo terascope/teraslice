@@ -178,16 +178,10 @@
         "Internal": [
             {
                 "type": "subcategory",
-                "label": "chunked-file-reader",
-                "ids": [
-                    "packages/chunked-file-reader/overview"
-                ]
-            },
-            {
-                "type": "subcategory",
                 "label": "docker-compose-js",
                 "ids": [
-                    "packages/docker-compose-js/overview"
+                    "packages/docker-compose-js/overview",
+                    "packages/docker-compose-js/api/overview"
                 ]
             },
             {

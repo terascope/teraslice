@@ -9,7 +9,7 @@ import Reply from '../lib/reply';
 const reply = new Reply();
 const yargsOptions = new YargsOptions();
 
-export = {
+const cmd: CMD = {
     command: 'update <job-file>',
     describe: 'Update a job by referencing the job file',
     builder(yargs) {
@@ -21,7 +21,7 @@ export = {
         yargs.example('$0 tjm update jobFile.json');
         return yargs;
     },
-    async handler(argv) {
+    async handler(argv): Promise <void> {
         const job = new JobSrc(argv);
         job.init();
 
@@ -33,21 +33,21 @@ export = {
         _.unset(jobJson, '__metadata');
 
         try {
-            const update = await client.cluster.put(`/jobs/${job.jobId}`, jobJson);
+            const update = await client.cluster.put(`/jobs/${job.id}`, jobJson);
             // @ts-ignore TODO: review this
             if (!_.get(update, 'job_id') === job.job_id) {
-                reply.fatal(`Could not be updated job ${job.jobId} on ${job.clusterUrl}`);
+                reply.fatal(`Could not be updated job ${job.id} on ${job.clusterUrl}`);
             }
         } catch (e) {
             reply.fatal(e.message);
         }
 
-        job.addMetaData(job.jobId, job.clusterUrl);
+        job.addMetaData(job.id, job.clusterUrl);
         job.overwrite();
-        reply.green(`Updated job ${job.jobId} config on ${job.clusterUrl}`);
+        reply.green(`Updated job ${job.id} config on ${job.clusterUrl}`);
 
         try {
-            const view = await client.jobs.wrap(job.jobId).config();
+            const view = await client.jobs.wrap(job.id).config();
             reply.yellow(`${job.name} on ${job.clusterUrl}:`);
             reply.green(JSON.stringify(view, null, 4));
         } catch (e) {
@@ -60,4 +60,6 @@ export = {
             await tjmUtil.start();
         }
     }
-} as CMD;
+};
+
+export = cmd;

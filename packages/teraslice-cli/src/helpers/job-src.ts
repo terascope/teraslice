@@ -16,9 +16,8 @@ export default class JobFile {
      */
     jobPath!: string;
     version: string;
-    jobId!: string;
-    name!: string;
     id!: string;
+    name!: string;
     clusterUrl!: string;
     content: any;
 
@@ -40,7 +39,6 @@ export default class JobFile {
             reply.fatal('Job file does not contain cli data, register the job first');
         }
 
-        this.jobId = this.content.__metadata.cli.job_id;
         this.id = this.content.__metadata.cli.job_id;
         this.clusterUrl = this.content.__metadata.cli.cluster;
         this.name = this.content.name;

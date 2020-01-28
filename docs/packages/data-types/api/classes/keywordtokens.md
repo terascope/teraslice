@@ -19,11 +19,12 @@ sidebar_label: KeywordTokens
 
 ### Properties
 
-* [config](keywordtokens.md#protected-config)
-* [field](keywordtokens.md#protected-field)
+* [config](keywordtokens.md#config)
+* [field](keywordtokens.md#field)
 
 ### Methods
 
+* [_formatGQLTypeName](keywordtokens.md#_formatgqltypename)
 * [_formatGql](keywordtokens.md#protected-_formatgql)
 * [toESMapping](keywordtokens.md#toesmapping)
 * [toGraphQL](keywordtokens.md#tographql)
@@ -37,7 +38,7 @@ sidebar_label: KeywordTokens
 
 *Inherited from [BaseType](basetype.md).[constructor](basetype.md#constructor)*
 
-*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/d8feecc03/packages/data-types/src/types/versions/base-type.ts#L7)*
+*Defined in [data-types/src/types/base-type.ts:15](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/types/base-type.ts#L15)*
 
 **Parameters:**
 
@@ -50,42 +51,63 @@ Name | Type |
 
 ## Properties
 
-### `Protected` config
+###  config
 
 • **config**: *[FieldTypeConfig](../overview.md#fieldtypeconfig)*
 
-*Inherited from [BaseType](basetype.md).[config](basetype.md#protected-config)*
+*Inherited from [BaseType](basetype.md).[config](basetype.md#config)*
 
-*Defined in [types/versions/base-type.ts:7](https://github.com/terascope/teraslice/blob/d8feecc03/packages/data-types/src/types/versions/base-type.ts#L7)*
+*Defined in [data-types/src/types/base-type.ts:15](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/types/base-type.ts#L15)*
 
 ___
 
-### `Protected` field
+###  field
 
 • **field**: *string*
 
-*Inherited from [BaseType](basetype.md).[field](basetype.md#protected-field)*
+*Inherited from [BaseType](basetype.md).[field](basetype.md#field)*
 
-*Defined in [types/versions/base-type.ts:6](https://github.com/terascope/teraslice/blob/d8feecc03/packages/data-types/src/types/versions/base-type.ts#L6)*
+*Defined in [data-types/src/types/base-type.ts:14](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/types/base-type.ts#L14)*
 
 ## Methods
 
+###  _formatGQLTypeName
+
+▸ **_formatGQLTypeName**(`typeName`: string, `isInput?`: undefined | false | true, `includeField?`: undefined | false | true, `version?`: undefined | number): *string*
+
+*Inherited from [BaseType](basetype.md).[_formatGQLTypeName](basetype.md#_formatgqltypename)*
+
+*Defined in [data-types/src/types/base-type.ts:46](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/types/base-type.ts#L46)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`typeName` | string |
+`isInput?` | undefined &#124; false &#124; true |
+`includeField?` | undefined &#124; false &#124; true |
+`version?` | undefined &#124; number |
+
+**Returns:** *string*
+
+___
+
 ### `Protected` _formatGql
 
-▸ **_formatGql**(`type`: string, `customType?`: undefined | string): *object*
+▸ **_formatGql**(`type`: string, `customType?`: string | Array): *[GraphQLType](../interfaces/graphqltype.md)*
 
 *Inherited from [BaseType](basetype.md).[_formatGql](basetype.md#protected-_formatgql)*
 
-*Defined in [types/versions/base-type.ts:21](https://github.com/terascope/teraslice/blob/d8feecc03/packages/data-types/src/types/versions/base-type.ts#L21)*
+*Defined in [data-types/src/types/base-type.ts:29](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/types/base-type.ts#L29)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `type` | string |
-`customType?` | undefined &#124; string |
+`customType?` | string &#124; Array |
 
-**Returns:** *object*
+**Returns:** *[GraphQLType](../interfaces/graphqltype.md)*
 
 ___
 
@@ -95,7 +117,7 @@ ___
 
 *Overrides [BaseType](basetype.md).[toESMapping](basetype.md#abstract-toesmapping)*
 
-*Defined in [types/versions/v1/keyword-tokens.ts:5](https://github.com/terascope/teraslice/blob/d8feecc03/packages/data-types/src/types/versions/v1/keyword-tokens.ts#L5)*
+*Defined in [data-types/src/types/v1/keyword-tokens.ts:5](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/types/v1/keyword-tokens.ts#L5)*
 
 **Parameters:**
 
@@ -109,13 +131,13 @@ ___
 
 ###  toGraphQL
 
-▸ **toGraphQL**(): *object*
+▸ **toGraphQL**(): *[GraphQLType](../interfaces/graphqltype.md)*
 
 *Overrides [BaseType](basetype.md).[toGraphQL](basetype.md#abstract-tographql)*
 
-*Defined in [types/versions/v1/keyword-tokens.ts:21](https://github.com/terascope/teraslice/blob/d8feecc03/packages/data-types/src/types/versions/v1/keyword-tokens.ts#L21)*
+*Defined in [data-types/src/types/v1/keyword-tokens.ts:21](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/types/v1/keyword-tokens.ts#L21)*
 
-**Returns:** *object*
+**Returns:** *[GraphQLType](../interfaces/graphqltype.md)*
 
 ___
 
@@ -125,6 +147,6 @@ ___
 
 *Overrides [BaseType](basetype.md).[toXlucene](basetype.md#abstract-toxlucene)*
 
-*Defined in [types/versions/v1/keyword-tokens.ts:25](https://github.com/terascope/teraslice/blob/d8feecc03/packages/data-types/src/types/versions/v1/keyword-tokens.ts#L25)*
+*Defined in [data-types/src/types/v1/keyword-tokens.ts:25](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/types/v1/keyword-tokens.ts#L25)*
 
 **Returns:** *object*

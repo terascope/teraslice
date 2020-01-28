@@ -1,6 +1,7 @@
 {
     "name": "@terascope/scripts",
-    "version": "0.10.1",
+    "displayName": "Scripts",
+    "version": "0.12.4",
     "description": "A collection of terascope monorepo scripts",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/scripts#readme",
     "bugs": {
@@ -26,24 +27,29 @@
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
     },
+    "resolutions": {
+        "ms": "^2.1.2",
+        "typescript": "^3.7.5"
+    },
     "dependencies": {
         "@lerna/query-graph": "^3.18.5",
-        "@terascope/utils": "^0.21.0",
+        "@terascope/utils": "^0.22.0",
         "@types/is-ci": "^2.0.0",
-        "codecov": "^3.5.0",
+        "codecov": "^3.6.2",
         "execa": "^4.0.0",
         "fs-extra": "^8.1.0",
         "got": "^9.6.0",
         "ip": "^1.1.5",
         "is-ci": "^2.0.0",
         "lodash.defaultsdeep": "^4.6.1",
+        "micromatch": "^4.0.2",
         "ms": "^2.1.2",
         "package-json": "^6.5.0",
         "pkg-up": "^3.1.0",
         "semver": "^7.1.1",
         "signale": "^1.4.0",
         "sort-package-json": "^1.35.0",
-        "typedoc": "^0.15.6",
+        "typedoc": "~0.15.6",
         "typedoc-plugin-markdown": "^2.2.16",
         "yargs": "^15.1.0"
     },
@@ -51,19 +57,15 @@
         "@types/got": "^9.6.8",
         "@types/ip": "^1.1.0",
         "@types/lodash.defaultsdeep": "^4.6.6",
+        "@types/micromatch": "^4.0.0",
         "@types/ms": "^0.7.30",
         "@types/semver": "^6.0.1",
         "@types/signale": "^1.2.1"
-    },
-    "resolutions": {
-        "ms": "^2.1.2",
-        "typescript": "^3.5.4"
     },
     "publishConfig": {
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
-    "displayName": "Scripts",
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": false,

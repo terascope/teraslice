@@ -49,6 +49,8 @@ sidebar_label: RequestOptions
 * [path](requestoptions.md#optional-path)
 * [pfx](requestoptions.md#optional-pfx)
 * [port](requestoptions.md#optional-port)
+* [privateKeyEngine](requestoptions.md#optional-privatekeyengine)
+* [privateKeyIdentifier](requestoptions.md#optional-privatekeyidentifier)
 * [protocol](requestoptions.md#optional-protocol)
 * [query](requestoptions.md#optional-query)
 * [rejectUnauthorized](requestoptions.md#optional-rejectunauthorized)
@@ -59,6 +61,7 @@ sidebar_label: RequestOptions
 * [servername](requestoptions.md#optional-servername)
 * [sessionIdContext](requestoptions.md#optional-sessionidcontext)
 * [setHost](requestoptions.md#optional-sethost)
+* [sigalgs](requestoptions.md#optional-sigalgs)
 * [socketPath](requestoptions.md#optional-socketpath)
 * [throwHttpErrors](requestoptions.md#optional-throwhttperrors)
 * [timeout](requestoptions.md#optional-timeout)
@@ -72,7 +75,7 @@ sidebar_label: RequestOptions
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:85
+Defined in node_modules/@types/node/http.d.ts:85
 
 ___
 
@@ -84,17 +87,17 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:220
+Defined in node_modules/@types/got/index.d.ts:221
 
 ___
 
 ### `Optional` auth
 
-• **auth**? : *undefined | string*
+• **auth**? : *string | null*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:83
+Defined in node_modules/@types/node/http.d.ts:83
 
 ___
 
@@ -104,7 +107,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:210
+Defined in node_modules/@types/got/index.d.ts:211
 
 ___
 
@@ -112,7 +115,7 @@ ___
 
 • **body**? : *any*
 
-*Defined in [interfaces.ts:42](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L42)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:43](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L43)*
 
 ___
 
@@ -122,7 +125,11 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:359
+Defined in node_modules/@types/node/tls.d.ts:503
+
+Optionally override the trusted CA certificates. Default is to trust
+the well-known CAs curated by Mozilla. Mozilla's CAs are completely
+replaced when CAs are explicitly specified using this option.
 
 ___
 
@@ -132,7 +139,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:221
+Defined in node_modules/@types/got/index.d.ts:222
 
 ___
 
@@ -142,7 +149,17 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:358
+Defined in node_modules/@types/node/tls.d.ts:515
+
+ Cert chains in PEM format. One cert chain should be provided per
+ private key. Each cert chain should consist of the PEM formatted
+ certificate for a provided private key, followed by the PEM
+ formatted intermediate certificates (if any), in order, and not
+ including the root CA (the root CA must be pre-known to the peer,
+ see ca). When providing multiple cert chains, they do not have to
+ be in the same order as their private keys in key. If the
+ intermediate certificates are not provided, the peer will not be
+ able to validate the certificate, and the handshake will fail.
 
 ___
 
@@ -152,7 +169,12 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:360
+Defined in node_modules/@types/node/tls.d.ts:529
+
+Cipher suite specification, replacing the default. For more
+information, see modifying the default cipher suite. Permitted
+ciphers can be obtained via tls.getCiphers(). Cipher names must be
+uppercased in order for OpenSSL to accept them.
 
 ___
 
@@ -162,7 +184,9 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:363
+Defined in node_modules/@types/node/tls.d.ts:533
+
+Name of an OpenSSL engine which can provide the client certificate.
 
 ___
 
@@ -172,7 +196,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:211
+Defined in node_modules/@types/got/index.d.ts:212
 
 ___
 
@@ -182,7 +206,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:89
+Defined in node_modules/@types/node/http.d.ts:89
 
 ___
 
@@ -192,7 +216,9 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:364
+Defined in node_modules/@types/node/tls.d.ts:537
+
+PEM formatted CRLs (Certificate Revocation Lists).
 
 ___
 
@@ -202,7 +228,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:217
+Defined in node_modules/@types/got/index.d.ts:218
 
 ___
 
@@ -212,7 +238,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:77
+Defined in node_modules/@types/node/http.d.ts:77
 
 ___
 
@@ -222,7 +248,14 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:365
+Defined in node_modules/@types/node/tls.d.ts:546
+
+Diffie Hellman parameters, required for Perfect Forward Secrecy. Use
+openssl dhparam to create the parameters. The key length must be
+greater than or equal to 1024 bits or else an error will be thrown.
+Although 1024 bits is permissible, use 2048 bits or larger for
+stronger security. If omitted or invalid, the parameters are
+silently discarded and DHE ciphers will not be available.
 
 ___
 
@@ -232,7 +265,15 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:362
+Defined in node_modules/@types/node/tls.d.ts:556
+
+A string describing a named curve or a colon separated list of curve
+NIDs or names, for example P-521:P-384:P-256, to use for ECDH key
+agreement. Set to auto to select the curve automatically. Use
+crypto.getCurves() to obtain a list of available curve names. On
+recent releases, openssl ecparam -list_curves will also display the
+name and description of each available elliptic curve. Default:
+tls.DEFAULT_ECDH_CURVE.
 
 ___
 
@@ -242,7 +283,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:212
+Defined in node_modules/@types/got/index.d.ts:213
 
 ___
 
@@ -252,7 +293,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:75
+Defined in node_modules/@types/node/http.d.ts:75
 
 ___
 
@@ -262,7 +303,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:216
+Defined in node_modules/@types/got/index.d.ts:217
 
 ___
 
@@ -272,7 +313,7 @@ ___
 
 *Overrides void*
 
-*Defined in [interfaces.ts:43](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L43)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:44](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L44)*
 
 ___
 
@@ -282,27 +323,31 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:361
+Defined in node_modules/@types/node/tls.d.ts:562
+
+Attempt to use the server's cipher suite preferences instead of the
+client's. When true, causes SSL_OP_CIPHER_SERVER_PREFERENCE to be
+set in secureOptions
 
 ___
 
 ### `Optional` host
 
-• **host**? : *undefined | string*
+• **host**? : *string | null*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:73
+Defined in node_modules/@types/node/http.d.ts:73
 
 ___
 
 ### `Optional` hostname
 
-• **hostname**? : *undefined | string*
+• **hostname**? : *string | null*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:74
+Defined in node_modules/@types/node/http.d.ts:74
 
 ___
 
@@ -310,17 +355,26 @@ ___
 
 • **json**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:44](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L44)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:45](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L45)*
 
 ___
 
 ### `Optional` key
 
-• **key**? : *string | Buffer | Array‹Buffer | Object›*
+• **key**? : *string | Buffer | Array‹Buffer | KeyObject›*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:356
+Defined in node_modules/@types/node/tls.d.ts:573
+
+Private keys in PEM format. PEM allows the option of private keys
+being encrypted. Encrypted keys will be decrypted with
+options.passphrase. Multiple keys using different algorithms can be
+provided either as an array of unencrypted key strings or buffers,
+or an array of objects in the form {pem: <string|buffer>[,
+passphrase: <string>]}. The object form can only occur in an array.
+object.passphrase is optional. Encrypted keys will be decrypted with
+object.passphrase if provided, or options.passphrase if it is not.
 
 ___
 
@@ -330,7 +384,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:78
+Defined in node_modules/@types/node/http.d.ts:78
 
 ___
 
@@ -340,7 +394,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:377
+Defined in node_modules/@types/node/tls.d.ts:593
 
 Optionally set the maximum TLS version to allow. One
 of `'TLSv1.3'`, `'TLSv1.2'`, `'TLSv1.1'`, or `'TLSv1'`. Cannot be specified along with the
@@ -357,7 +411,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:80
+Defined in node_modules/@types/node/http.d.ts:80
 
 ___
 
@@ -367,7 +421,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:388
+Defined in node_modules/@types/node/tls.d.ts:604
 
 Optionally set the minimum TLS version to allow. One
 of `'TLSv1.3'`, `'TLSv1.2'`, `'TLSv1.1'`, or `'TLSv1'`. Cannot be specified along with the
@@ -386,47 +440,85 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:357
+Defined in node_modules/@types/node/tls.d.ts:608
+
+Shared passphrase used for a single private key and/or a PFX.
 
 ___
 
 ### `Optional` path
 
-• **path**? : *undefined | string*
+• **path**? : *string | null*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:81
+Defined in node_modules/@types/node/http.d.ts:81
 
 ___
 
 ### `Optional` pfx
 
-• **pfx**? : *string | Buffer | Array‹string | Buffer | Object›*
+• **pfx**? : *string | Buffer | Array‹string | Buffer | PxfObject›*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:355
+Defined in node_modules/@types/node/tls.d.ts:619
+
+PFX or PKCS12 encoded private key and certificate chain. pfx is an
+alternative to providing key and cert individually. PFX is usually
+encrypted, if it is, passphrase will be used to decrypt it. Multiple
+PFX can be provided either as an array of unencrypted PFX buffers,
+or an array of objects in the form {buf: <string|buffer>[,
+passphrase: <string>]}. The object form can only occur in an array.
+object.passphrase is optional. Encrypted PFX will be decrypted with
+object.passphrase if provided, or options.passphrase if it is not.
 
 ___
 
 ### `Optional` port
 
-• **port**? : *number | string*
+• **port**? : *number | string | null*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:76
+Defined in node_modules/@types/node/http.d.ts:76
+
+___
+
+### `Optional` privateKeyEngine
+
+• **privateKeyEngine**? : *undefined | string*
+
+*Inherited from void*
+
+Defined in node_modules/@types/node/tls.d.ts:578
+
+Name of an OpenSSL engine to get private key from. Should be used
+together with privateKeyIdentifier.
+
+___
+
+### `Optional` privateKeyIdentifier
+
+• **privateKeyIdentifier**? : *undefined | string*
+
+*Inherited from void*
+
+Defined in node_modules/@types/node/tls.d.ts:584
+
+Identifier of a private key managed by an OpenSSL engine. Should be
+used together with privateKeyEngine. Should not be set together with
+key, because both options define a private key in different ways.
 
 ___
 
 ### `Optional` protocol
 
-• **protocol**? : *undefined | string*
+• **protocol**? : *string | null*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:72
+Defined in node_modules/@types/node/http.d.ts:72
 
 ___
 
@@ -436,7 +528,7 @@ ___
 
 *Overrides void*
 
-*Defined in [interfaces.ts:45](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L45)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:46](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L46)*
 
 ___
 
@@ -446,7 +538,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/https.d.ts:10
+Defined in node_modules/@types/node/https.d.ts:10
 
 ___
 
@@ -456,7 +548,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:222
+Defined in node_modules/@types/got/index.d.ts:223
 
 ___
 
@@ -466,7 +558,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:215
+Defined in node_modules/@types/got/index.d.ts:216
 
 ___
 
@@ -476,7 +568,11 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:366
+Defined in node_modules/@types/node/tls.d.ts:625
+
+Optionally affect the OpenSSL protocol behavior, which is not
+usually necessary. This should be used carefully if at all! Value is
+a numeric bitmask of the SSL_OP_* options from OpenSSL Options
 
 ___
 
@@ -486,7 +582,17 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:367
+Defined in node_modules/@types/node/tls.d.ts:637
+
+Legacy mechanism to select the TLS protocol version to use, it does
+not support independent control of the minimum and maximum version,
+and does not support limiting the protocol to TLSv1.3. Use
+minVersion and maxVersion instead. The possible values are listed as
+SSL_METHODS, use the function names as strings. For example, use
+'TLSv1_1_method' to force TLS version 1.1, or 'TLS_method' to allow
+any TLS protocol version up to TLSv1.3. It is not recommended to use
+TLS versions less than 1.2, but it may be required for
+interoperability. Default: none, see minVersion.
 
 ___
 
@@ -496,7 +602,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/https.d.ts:11
+Defined in node_modules/@types/node/https.d.ts:11
 
 ___
 
@@ -506,7 +612,10 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/tls.d.ts:368
+Defined in node_modules/@types/node/tls.d.ts:642
+
+Opaque identifier used by servers to ensure session state is not
+shared between applications. Unused by clients.
 
 ___
 
@@ -516,7 +625,22 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:87
+Defined in node_modules/@types/node/http.d.ts:87
+
+___
+
+### `Optional` sigalgs
+
+• **sigalgs**? : *undefined | string*
+
+*Inherited from void*
+
+Defined in node_modules/@types/node/tls.d.ts:522
+
+ Colon-separated list of supported signature algorithms. The list
+ can contain digest algorithms (SHA256, MD5 etc.), public key
+ algorithms (RSA-PSS, ECDSA etc.), combination of both (e.g
+ 'RSA+SHA384') or TLS v1.3 scheme names (e.g. rsa_pss_pss_sha512).
 
 ___
 
@@ -526,7 +650,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/http.d.ts:79
+Defined in node_modules/@types/node/http.d.ts:79
 
 ___
 
@@ -536,7 +660,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:219
+Defined in node_modules/@types/got/index.d.ts:220
 
 ___
 
@@ -548,7 +672,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:214
+Defined in node_modules/@types/got/index.d.ts:215
 
 ___
 
@@ -558,4 +682,4 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/got/index.d.ts:218
+Defined in node_modules/@types/got/index.d.ts:219

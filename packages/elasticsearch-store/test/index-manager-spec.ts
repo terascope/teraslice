@@ -1,7 +1,10 @@
 import 'jest-extended';
 import { TSError, debugLogger } from '@terascope/utils';
+import { DataType } from '@terascope/data-types';
 import { IndexManager, IndexConfig } from '../src';
 import { makeClient } from './helpers/elasticsearch';
+
+const dataType = new DataType({}, 'hello');
 
 describe('IndexManager', () => {
     const client = makeClient();
@@ -70,6 +73,7 @@ describe('IndexManager', () => {
                 it('should return a correctly formatted index name', () => {
                     const indexName = indexManager.formatIndexName({
                         name: 'hello',
+                        data_type: dataType,
                     });
 
                     expect(indexName).toEqual('hello-v1-s1');
@@ -81,6 +85,7 @@ describe('IndexManager', () => {
                     const indexName = indexManager.formatIndexName({
                         name: 'hello',
                         namespace: 'test',
+                        data_type: dataType,
                     });
 
                     expect(indexName).toEqual('test-hello-v1-s1');
@@ -92,9 +97,9 @@ describe('IndexManager', () => {
                     const indexName = indexManager.formatIndexName(
                         {
                             name: 'hello',
+                            data_type: dataType,
                             index_schema: {
                                 version: 1,
-                                mapping: { properties: {} },
                                 template: true,
                                 timeseries: true,
                             },
@@ -112,11 +117,9 @@ describe('IndexManager', () => {
                 it('should return a correctly formatted index name', () => {
                     const indexName = indexManager.formatIndexName({
                         name: 'hello',
+                        data_type: dataType,
                         index_schema: {
                             version: 1,
-                            mapping: {
-                                properties: {},
-                            },
                             template: true,
                             timeseries: true,
                         },
@@ -131,11 +134,9 @@ describe('IndexManager', () => {
                     const indexName = indexManager.formatIndexName({
                         name: 'hello',
                         version: 3,
+                        data_type: dataType,
                         index_schema: {
                             version: 2,
-                            mapping: {
-                                properties: {},
-                            },
                         },
                     });
 
@@ -149,6 +150,7 @@ describe('IndexManager', () => {
                 it('should return a correctly formatted template name', () => {
                     const templateName = indexManager.formatTemplateName({
                         name: 'hello',
+                        data_type: dataType,
                     });
 
                     expect(templateName).toEqual('hello-v1');
@@ -160,6 +162,7 @@ describe('IndexManager', () => {
                     const templateName = indexManager.formatTemplateName({
                         name: 'hello',
                         namespace: 'test',
+                        data_type: dataType,
                     });
 
                     expect(templateName).toEqual('test-hello-v1');
@@ -171,6 +174,7 @@ describe('IndexManager', () => {
                     const templateName = indexManager.formatTemplateName({
                         name: 'hello',
                         version: 2,
+                        data_type: dataType,
                     });
 
                     expect(templateName).toEqual('hello-v2');

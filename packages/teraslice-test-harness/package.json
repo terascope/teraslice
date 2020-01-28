@@ -1,6 +1,7 @@
 {
     "name": "teraslice-test-harness",
-    "version": "0.11.0",
+    "displayName": "Teraslice Test Harness",
+    "version": "0.12.1",
     "description": "A helpful library for testing teraslice jobs, operations, and other components.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-test-harness#readme",
     "bugs": {
@@ -30,8 +31,8 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/job-components": "^0.26.0",
-        "@terascope/teraslice-op-test-harness": "^1.10.0",
+        "@terascope/job-components": "^0.27.0",
+        "@terascope/teraslice-op-test-harness": "^1.11.0",
         "lodash": "^4.17.11"
     },
     "devDependencies": {},
@@ -42,7 +43,6 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
-    "displayName": "Teraslice Test Harness",
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,

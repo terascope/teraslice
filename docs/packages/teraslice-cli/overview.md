@@ -284,15 +284,13 @@ Waits for job to reach specified status
   - can enter more than one status seperated by a space
 - `--timeout` Time in microseconds, how long to wait for the job to reach the status
   - default is forever
-- `--start` Start the job then await for status
 
 ```sh
 teraslice-cli tjm await JOB.JSON
-teraslice-cli tjm await JOB.JSON --start
 teraslice-cli tjm await JOB.JSON --status completed
 teraslice-cli tjm await JOB.JSON --status completed --timeout 10000
-teraslice-cli tjm await JOB.JSON --status failing --timeout 10000 --start
-teraslice-cli tjm await JOB.JSON --status running failing initializing --start
+teraslice-cli tjm await JOB.JSON --status failing --timeout 10000
+teraslice-cli tjm await JOB.JSON --status running failing initializing 
 ```
 
 
@@ -361,13 +359,11 @@ Waits for job to reach a specified status
   - can enter more than one status seperated by a space
 - `--timeout` Time in microseconds, how long to wait for the job to reach the status
   - default is forever
-- `--start` Start the job then await for status
 
 ```sh
 teraslice-cli jobs await <cluster> <job_id>
 teraslice-cli jobs await LOCALHOST 99999999-9999-9999-9999-999999999999
-teraslice-cli jobs await LOCALHOST 99999999-9999-9999-9999-999999999999 --start
-teraslice-cli jobs await LOCALHOST 99999999-9999-9999-9999-999999999999 --status running failing --timeout 10000 --start
+teraslice-cli jobs await LOCALHOST 99999999-9999-9999-9999-999999999999 --status running failing terminated --timeout 10000
 ```
 
 ### jobs errors

@@ -7,6 +7,9 @@ import {
     trimAndToLower
 } from './strings';
 
+export const isNil = (input: any) => input == null;
+export const isNotNil = (input: any) => input != null;
+
 /** Check if an input is empty, similar to lodash.isEmpty */
 export function isEmpty<T>(val?: T): val is undefined {
     const _val = val as any;

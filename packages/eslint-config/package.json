@@ -1,6 +1,7 @@
 {
     "name": "@terascope/eslint-config",
-    "version": "0.2.2",
+    "displayName": "Terascope ESLint Config",
+    "version": "0.2.3",
     "description": "A shared eslint config based on eslint-config-airbnb",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/eslint-config#readme",
     "bugs": {
@@ -16,14 +17,14 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@typescript-eslint/eslint-plugin": "^2.14.0",
-        "@typescript-eslint/parser": "^2.14.0",
+        "@typescript-eslint/eslint-plugin": "^2.17.0",
+        "@typescript-eslint/parser": "^2.17.0",
         "eslint-config-airbnb": "^18.0.1",
         "eslint-config-airbnb-base": "^14.0.0",
-        "eslint-plugin-import": "~2.18.2",
+        "eslint-plugin-import": "~2.20.0",
         "eslint-plugin-jest": "^23.2.0",
         "eslint-plugin-jsx-a11y": "^6.2.3",
-        "eslint-plugin-react": "^7.17.0",
+        "eslint-plugin-react": "^7.18.0",
         "eslint-plugin-react-hooks": "^2.3.0"
     },
     "devDependencies": {},
@@ -34,7 +35,6 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
-    "displayName": "Terascope ESLint Config",
     "terascope": {
         "enableTypedoc": false,
         "testSuite": "unit-b"

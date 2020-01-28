@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import NgramTokens from '../../../src/types/versions/v1/ngram-tokens';
+import NgramTokens from '../../../src/types/v1/ngram-tokens';
 import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
 
 describe('NgramTokens V1', () => {

@@ -1,5 +1,6 @@
 {
     "name": "generator-teraslice",
+    "displayName": "Generator Teraslice",
     "version": "0.3.2",
     "description": "Generate teraslice related packages and code",
     "keywords": [
@@ -25,7 +26,7 @@
     "dependencies": {
         "chalk": "^3.0.0",
         "lodash": "^4.17.11",
-        "yeoman-generator": "^4.4.0",
+        "yeoman-generator": "^4.5.0",
         "yosay": "^2.0.1"
     },
     "devDependencies": {},
@@ -36,7 +37,6 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
-    "displayName": "Generator Teraslice",
     "terascope": {
         "testSuite": "unit-a"
     }

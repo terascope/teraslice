@@ -35,7 +35,7 @@ sidebar_label: PostProcessPhase
 
 *Overrides [PhaseBase](phasebase.md).[constructor](phasebase.md#constructor)*
 
-*Defined in [phases/post-process-phase.ts:13](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/phases/post-process-phase.ts#L13)*
+*Defined in [phases/post-process-phase.ts:13](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/phases/post-process-phase.ts#L13)*
 
 **Parameters:**
 
@@ -55,7 +55,7 @@ Name | Type |
 
 *Inherited from [PhaseBase](phasebase.md).[hasProcessing](phasebase.md#hasprocessing)*
 
-*Defined in [phases/base.ts:6](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/phases/base.ts#L6)*
+*Defined in [phases/base.ts:6](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/phases/base.ts#L6)*
 
 ___
 
@@ -65,7 +65,7 @@ ___
 
 *Inherited from [PhaseBase](phasebase.md).[opConfig](phasebase.md#protected-opconfig)*
 
-*Defined in [phases/base.ts:7](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/phases/base.ts#L7)*
+*Defined in [phases/base.ts:7](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/phases/base.ts#L7)*
 
 ___
 
@@ -75,7 +75,7 @@ ___
 
 *Inherited from [PhaseBase](phasebase.md).[phase](phasebase.md#phase)*
 
-*Defined in [phases/base.ts:5](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/phases/base.ts#L5)*
+*Defined in [phases/base.ts:5](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/phases/base.ts#L5)*
 
 ## Methods
 
@@ -85,7 +85,7 @@ ___
 
 *Overrides [PhaseBase](phasebase.md).[run](phasebase.md#abstract-run)*
 
-*Defined in [phases/post-process-phase.ts:34](https://github.com/terascope/teraslice/blob/d8feecc03/packages/ts-transforms/src/phases/post-process-phase.ts#L34)*
+*Defined in [phases/post-process-phase.ts:34](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/phases/post-process-phase.ts#L34)*
 
 **Parameters:**
 

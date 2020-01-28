@@ -4,7 +4,7 @@ services:
     build:
       context: .
     command: [
-      "./scripts/wait-for-it.sh",
+      "wait-for-it",
       "elasticsearch:9200",
       "--timeout=60",
       "--strict",
@@ -33,7 +33,7 @@ services:
     build:
       context: .
     command: [
-      "./scripts/wait-for-it.sh",
+      "wait-for-it",
       "teraslice-master:5678",
       "--timeout=60",
       "--strict",

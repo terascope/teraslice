@@ -1,47 +1,13 @@
 import 'jest-extended';
 import { Client } from 'elasticsearch';
 import { QueryAccess, GeoShape, GeoShapeType } from 'xlucene-evaluator';
-import { ESTypeMapping, DataType } from '@terascope/data-types';
 import {
-    IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions
+    IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions, makeRecordDataType
 } from '../src';
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
 import { TEST_INDEX_PREFIX } from './helpers/config';
 
 describe('IndexSearchCompatability', () => {
-    const mapping: ESTypeMapping = {
-        properties: {
-            id: { type: 'keyword' },
-            foo: { type: 'keyword' },
-            group: { type: 'keyword' },
-            field_one: { type: 'integer' },
-            field_two: { type: 'integer' },
-            word: {
-                type: 'keyword',
-                fields: {
-                    tokens: {
-                        type: 'text',
-                        analyzer: 'standard',
-                    },
-                },
-            },
-            updated: { type: 'date' },
-            created: { type: 'date' },
-            location_one: { type: 'geo_point' },
-            location_two: { type: 'geo_point' },
-            shape_one: {
-                type: 'geo_shape',
-                tree: 'quadtree',
-                strategy: 'recursive'
-            },
-            shape_two: {
-                type: 'geo_shape',
-                tree: 'quadtree',
-                strategy: 'recursive'
-            }
-        }
-    };
-
     interface SearchRecord extends IndexModelRecord {
         id: string;
         foo: string;
@@ -57,8 +23,8 @@ describe('IndexSearchCompatability', () => {
         shape_two?: GeoShape;
     }
 
-    const dataType = new DataType({
-        version: 1,
+    const dataType = makeRecordDataType({
+        name: 'SearchCompatability',
         fields: {
             id: { type: 'Keyword' },
             foo: { type: 'Keyword' },
@@ -145,7 +111,7 @@ describe('IndexSearchCompatability', () => {
     const client = makeClient();
     const searchConfig: IndexModelConfig<SearchRecord> = {
         name: 'search_compatability',
-        mapping,
+        data_type: dataType,
         schema: {
             properties: {
                 id: {
@@ -226,8 +192,7 @@ describe('IndexSearchCompatability', () => {
         await indexModel.initialize();
         await Promise.all(searchData.map((_record) => {
             const record = Object.assign({}, _record, { client_id: 1 });
-            // @ts-ignore GEOTypes issue
-            return indexModel.createRecord(record);
+            return indexModel.createRecord(record as any);
         }));
     });
 

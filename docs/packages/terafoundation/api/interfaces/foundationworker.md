@@ -54,7 +54,7 @@ sidebar_label: FoundationWorker
 
 • **__process_restart**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:72](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/interfaces.ts#L72)*
+*Defined in [packages/terafoundation/src/interfaces.ts:72](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/interfaces.ts#L72)*
 
 ___
 
@@ -62,7 +62,7 @@ ___
 
 • **assignment**: *string*
 
-*Defined in [interfaces.ts:74](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/interfaces.ts#L74)*
+*Defined in [packages/terafoundation/src/interfaces.ts:74](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/interfaces.ts#L74)*
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:33
+Defined in node_modules/@types/node/cluster.d.ts:33
 
 ___
 
@@ -82,7 +82,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:25
+Defined in node_modules/@types/node/cluster.d.ts:25
 
 ___
 
@@ -92,7 +92,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:26
+Defined in node_modules/@types/node/cluster.d.ts:26
 
 ___
 
@@ -100,7 +100,7 @@ ___
 
 • **service_context**: *any*
 
-*Defined in [interfaces.ts:73](https://github.com/terascope/teraslice/blob/d8feecc03/packages/terafoundation/src/interfaces.ts#L73)*
+*Defined in [packages/terafoundation/src/interfaces.ts:73](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/interfaces.ts#L73)*
 
 ___
 
@@ -110,7 +110,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:18
+Defined in node_modules/@types/node/events.d.ts:18
 
 ## Methods
 
@@ -122,7 +122,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:44
+Defined in node_modules/@types/node/cluster.d.ts:44
 
 events.EventEmitter
   1. disconnect
@@ -154,7 +154,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:45
+Defined in node_modules/@types/node/cluster.d.ts:45
 
 **Parameters:**
 
@@ -172,7 +172,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:46
+Defined in node_modules/@types/node/cluster.d.ts:46
 
 **Parameters:**
 
@@ -196,7 +196,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:47
+Defined in node_modules/@types/node/cluster.d.ts:47
 
 **Parameters:**
 
@@ -221,7 +221,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:48
+Defined in node_modules/@types/node/cluster.d.ts:48
 
 **Parameters:**
 
@@ -245,7 +245,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:49
+Defined in node_modules/@types/node/cluster.d.ts:49
 
 **Parameters:**
 
@@ -270,7 +270,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:50
+Defined in node_modules/@types/node/cluster.d.ts:50
 
 **Parameters:**
 
@@ -290,7 +290,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:29
+Defined in node_modules/@types/node/cluster.d.ts:29
 
 **Parameters:**
 
@@ -308,7 +308,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:30
+Defined in node_modules/@types/node/cluster.d.ts:30
 
 **Returns:** *void*
 
@@ -322,7 +322,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:52
+Defined in node_modules/@types/node/cluster.d.ts:52
 
 **Parameters:**
 
@@ -339,7 +339,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:53
+Defined in node_modules/@types/node/cluster.d.ts:53
 
 **Parameters:**
 
@@ -355,7 +355,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:54
+Defined in node_modules/@types/node/cluster.d.ts:54
 
 **Parameters:**
 
@@ -372,7 +372,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:55
+Defined in node_modules/@types/node/cluster.d.ts:55
 
 **Parameters:**
 
@@ -390,7 +390,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:56
+Defined in node_modules/@types/node/cluster.d.ts:56
 
 **Parameters:**
 
@@ -407,7 +407,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:57
+Defined in node_modules/@types/node/cluster.d.ts:57
 
 **Parameters:**
 
@@ -425,7 +425,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:58
+Defined in node_modules/@types/node/cluster.d.ts:58
 
 **Parameters:**
 
@@ -445,7 +445,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:33
+Defined in node_modules/@types/node/events.d.ts:33
 
 **Returns:** *Array‹string | symbol›*
 
@@ -459,7 +459,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:29
+Defined in node_modules/@types/node/events.d.ts:29
 
 **Returns:** *number*
 
@@ -471,7 +471,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:31
+Defined in node_modules/@types/node/cluster.d.ts:31
 
 **Returns:** *boolean*
 
@@ -483,7 +483,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:32
+Defined in node_modules/@types/node/cluster.d.ts:32
 
 **Returns:** *boolean*
 
@@ -495,7 +495,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:28
+Defined in node_modules/@types/node/cluster.d.ts:28
 
 **Parameters:**
 
@@ -515,7 +515,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:34
+Defined in node_modules/@types/node/events.d.ts:34
 
 **Parameters:**
 
@@ -535,7 +535,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:30
+Defined in node_modules/@types/node/events.d.ts:30
 
 **Parameters:**
 
@@ -555,7 +555,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:26
+Defined in node_modules/@types/node/events.d.ts:26
 
 **Parameters:**
 
@@ -583,7 +583,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:60
+Defined in node_modules/@types/node/cluster.d.ts:60
 
 **Parameters:**
 
@@ -607,7 +607,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:61
+Defined in node_modules/@types/node/cluster.d.ts:61
 
 **Parameters:**
 
@@ -625,7 +625,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:62
+Defined in node_modules/@types/node/cluster.d.ts:62
 
 **Parameters:**
 
@@ -649,7 +649,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:63
+Defined in node_modules/@types/node/cluster.d.ts:63
 
 **Parameters:**
 
@@ -674,7 +674,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:64
+Defined in node_modules/@types/node/cluster.d.ts:64
 
 **Parameters:**
 
@@ -698,7 +698,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:65
+Defined in node_modules/@types/node/cluster.d.ts:65
 
 **Parameters:**
 
@@ -723,7 +723,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:66
+Defined in node_modules/@types/node/cluster.d.ts:66
 
 **Parameters:**
 
@@ -745,7 +745,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:68
+Defined in node_modules/@types/node/cluster.d.ts:68
 
 **Parameters:**
 
@@ -769,7 +769,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:69
+Defined in node_modules/@types/node/cluster.d.ts:69
 
 **Parameters:**
 
@@ -787,7 +787,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:70
+Defined in node_modules/@types/node/cluster.d.ts:70
 
 **Parameters:**
 
@@ -811,7 +811,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:71
+Defined in node_modules/@types/node/cluster.d.ts:71
 
 **Parameters:**
 
@@ -836,7 +836,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:72
+Defined in node_modules/@types/node/cluster.d.ts:72
 
 **Parameters:**
 
@@ -860,7 +860,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:73
+Defined in node_modules/@types/node/cluster.d.ts:73
 
 **Parameters:**
 
@@ -885,7 +885,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:74
+Defined in node_modules/@types/node/cluster.d.ts:74
 
 **Parameters:**
 
@@ -907,7 +907,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:76
+Defined in node_modules/@types/node/cluster.d.ts:76
 
 **Parameters:**
 
@@ -931,7 +931,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:77
+Defined in node_modules/@types/node/cluster.d.ts:77
 
 **Parameters:**
 
@@ -949,7 +949,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:78
+Defined in node_modules/@types/node/cluster.d.ts:78
 
 **Parameters:**
 
@@ -973,7 +973,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:79
+Defined in node_modules/@types/node/cluster.d.ts:79
 
 **Parameters:**
 
@@ -998,7 +998,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:80
+Defined in node_modules/@types/node/cluster.d.ts:80
 
 **Parameters:**
 
@@ -1022,7 +1022,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:81
+Defined in node_modules/@types/node/cluster.d.ts:81
 
 **Parameters:**
 
@@ -1047,7 +1047,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:82
+Defined in node_modules/@types/node/cluster.d.ts:82
 
 **Parameters:**
 
@@ -1069,7 +1069,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:84
+Defined in node_modules/@types/node/cluster.d.ts:84
 
 **Parameters:**
 
@@ -1093,7 +1093,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:85
+Defined in node_modules/@types/node/cluster.d.ts:85
 
 **Parameters:**
 
@@ -1111,7 +1111,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:86
+Defined in node_modules/@types/node/cluster.d.ts:86
 
 **Parameters:**
 
@@ -1135,7 +1135,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:87
+Defined in node_modules/@types/node/cluster.d.ts:87
 
 **Parameters:**
 
@@ -1160,7 +1160,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:88
+Defined in node_modules/@types/node/cluster.d.ts:88
 
 **Parameters:**
 
@@ -1184,7 +1184,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:89
+Defined in node_modules/@types/node/cluster.d.ts:89
 
 **Parameters:**
 
@@ -1209,7 +1209,7 @@ Name | Type |
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:90
+Defined in node_modules/@types/node/cluster.d.ts:90
 
 **Parameters:**
 
@@ -1231,7 +1231,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:31
+Defined in node_modules/@types/node/events.d.ts:31
 
 **Parameters:**
 
@@ -1251,7 +1251,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:27
+Defined in node_modules/@types/node/events.d.ts:27
 
 **Parameters:**
 
@@ -1271,7 +1271,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:25
+Defined in node_modules/@types/node/events.d.ts:25
 
 **Parameters:**
 
@@ -1297,7 +1297,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/cluster.d.ts:27
+Defined in node_modules/@types/node/cluster.d.ts:27
 
 **Parameters:**
 
@@ -1319,7 +1319,7 @@ ___
 
 *Overrides void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:28
+Defined in node_modules/@types/node/events.d.ts:28
 
 **Parameters:**
 
@@ -1337,7 +1337,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/node/events.d.ts:17
+Defined in node_modules/@types/node/events.d.ts:17
 
 **`deprecated`** since v4.0.0
 

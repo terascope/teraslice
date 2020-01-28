@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import Text from '../../../src/types/versions/v1/text';
+import Text from '../../../src/types/v1/text';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Text V1', () => {

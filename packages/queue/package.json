@@ -1,5 +1,6 @@
 {
     "name": "@terascope/queue",
+    "displayName": "Queue",
     "version": "1.1.7",
     "description": "This is a typical FIFO queue implementation with a few extra helper methods",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/queue#readme",
@@ -32,7 +33,6 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
-    "displayName": "Queue",
     "terascope": {
         "enableTypedoc": true,
         "testSuite": "unit-a"

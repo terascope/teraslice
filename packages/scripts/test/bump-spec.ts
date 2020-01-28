@@ -5,7 +5,7 @@ import { PackageInfo } from '../src/helpers/interfaces';
 import {
     getPackagesToBump,
     bumpPackagesList,
-    getBumpCommitMessage
+    getBumpCommitMessages
 } from '../src/helpers/bump/utils';
 
 describe('Bump Utils', () => {
@@ -163,8 +163,10 @@ describe('Bump Utils', () => {
             });
 
             it('should be able to get a readable commit message', () => {
-                const message = getBumpCommitMessage(result, options.release);
-                expect(message).toBe('bump: (minor) package-util-1@3.1.0, package-dep-1@2.1.0');
+                const messages = getBumpCommitMessages(result, options.release);
+                expect(messages).toEqual([
+                    'bump: (minor) package-util-1@3.1.0, package-dep-1@2.1.0'
+                ]);
             });
         });
 
@@ -257,8 +259,10 @@ describe('Bump Utils', () => {
             });
 
             it('should be able to get a readable commit message', () => {
-                const message = getBumpCommitMessage(result, options.release);
-                expect(message).toBe('bump: (patch) package-util-1@3.0.1');
+                const messages = getBumpCommitMessages(result, options.release);
+                expect(messages).toEqual([
+                    'bump: (patch) package-util-1@3.0.1'
+                ]);
             });
         });
     });
@@ -358,9 +362,11 @@ describe('Bump Utils', () => {
         });
 
         it('should be able to get a readable commit message', () => {
-            const message = getBumpCommitMessage(result, options.release);
-            expect(message).toBe(`release: (preminor) package-main@1.1.0-rc.0\\
-bump: (preminor) package-dep-2@2.1.0-rc.0`);
+            const messages = getBumpCommitMessages(result, options.release);
+            expect(messages).toEqual([
+                'release: (preminor) package-main@1.1.0-rc.0',
+                'bump: (preminor) package-dep-2@2.1.0-rc.0'
+            ]);
         });
     });
 });

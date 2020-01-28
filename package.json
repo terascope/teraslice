@@ -1,20 +1,19 @@
 {
     "name": "teraslice-workspace",
-    "version": "0.62.2",
+    "displayName": "Teraslice",
+    "version": "0.63.1",
     "private": true,
     "homepage": "https://github.com/terascope/teraslice",
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "workspaces": [
-        "packages/*",
-        "e2e"
+        "packages/*"
     ],
     "scripts": {
         "benchmark": "lerna run --concurrency=1 --no-prefix --stream benchmark",
-        "prebuild": "lerna run prebuild",
-        "build": "tsc --build",
-        "build:all": "yarn build:cleanup && env FORCE_COLOR=1 yarn lerna run build",
+        "build": "lerna run prebuild && tsc --build",
+        "build:all": "yarn build:cleanup && env FORCE_COLOR=1 lerna run build",
         "build:cleanup": "./scripts/build-cleanup.sh",
         "build:fix": "./scripts/build-fix.sh",
         "build:pkg": "./scripts/build-pkg.sh",
@@ -22,44 +21,40 @@
         "bump": "ts-scripts bump",
         "cleanup": "yarn build:fix",
         "docs": "ts-scripts docs",
-        "lint": "yarn lint:es && yarn sync --verify",
-        "lint:es": "eslint --cache --ext .js,.jsx,.ts,.tsx .",
-        "lint:fix": "yarn lint:es --fix && yarn sync",
-        "quick:setup": "yarn lerna link --force-local && yarn build",
-        "setup": "yarn && yarn lerna link --force-local && yarn build:cleanup && yarn build && yarn sync -q",
+        "lint": "eslint --cache --ext .js,.jsx,.ts,.tsx .",
+        "lint:fix": "yarn lint --fix && yarn sync",
+        "quick:setup": "lerna link --force-local && lerna run prebuild && tsc --build",
+        "setup": "yarn && lerna link --force-local && ./scripts/build-cleanup.sh && lerna run prebuild && tsc --build && ts-scripts sync -q",
         "start": "node service.js",
         "sync": "ts-scripts sync",
         "test": "ts-scripts test"
-    },
-    "config": {
-        "commitizen": {
-            "path": "git-cz"
-        }
-    },
-    "devDependencies": {
-        "@types/bluebird": "^3.5.28",
-        "@types/convict": "^4.2.1",
-        "@types/elasticsearch": "^5.0.35",
-        "@types/fs-extra": "^8.0.1",
-        "@types/jest": "^24.0.25",
-        "@types/lodash": "^4.14.149",
-        "@types/nanoid": "^2.0.0",
-        "@types/node": "^12.12.21",
-        "@types/uuid": "^3.4.6",
-        "eslint": "^6.8.0",
-        "jest": "^24.9.0",
-        "jest-extended": "^0.11.2",
-        "jest-watch-typeahead": "^0.4.0",
-        "lerna": "^3.20.1",
-        "lerna-alias": "^3.0.2",
-        "ts-jest": "^24.2.0",
-        "typescript": "^3.7.4"
     },
     "resolutions": {
         "@types/lodash": "^4.14.149",
         "debug": "^4.1.1",
         "ms": "^2.1.2",
-        "typescript": "^3.7.4"
+        "typescript": "^3.7.5"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "@types/bluebird": "^3.5.28",
+        "@types/convict": "^4.2.1",
+        "@types/elasticsearch": "^5.0.35",
+        "@types/fs-extra": "^8.0.1",
+        "@types/jest": "^24.9.0",
+        "@types/lodash": "^4.14.149",
+        "@types/nanoid": "^2.0.0",
+        "@types/node": "^13.1.8",
+        "@types/uuid": "^3.4.6",
+        "eslint": "^6.8.0",
+        "jest": "^25.1.0",
+        "jest-extended": "^0.11.5",
+        "jest-watch-typeahead": "^0.4.0",
+        "lerna": "^3.20.1",
+        "lerna-alias": "^3.0.2",
+        "node-notifier": "^6.0.0",
+        "ts-jest": "^25.0.0",
+        "typescript": "^3.7.5"
     },
     "engines": {
         "node": ">=10.16.0",
@@ -69,7 +64,6 @@
         "darwin",
         "linux"
     ],
-    "displayName": "Teraslice",
     "documentation": "https://terascope.github.io/teraslice",
     "terascope": {
         "root": true,

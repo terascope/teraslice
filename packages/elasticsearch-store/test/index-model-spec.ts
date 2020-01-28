@@ -3,7 +3,7 @@ import { Client } from 'elasticsearch';
 import { QueryAccess } from 'xlucene-evaluator';
 import { times, TSError, AnyObject } from '@terascope/utils';
 import {
-    IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions
+    IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions, makeRecordDataType
 } from '../src';
 import { makeClient, cleanupIndexStore } from './helpers/elasticsearch';
 import { TEST_INDEX_PREFIX } from './helpers/config';
@@ -15,29 +15,22 @@ describe('IndexModel', () => {
         config: AnyObject;
     }
 
+    const dataType = makeRecordDataType({
+        name: 'ExampleModel',
+        fields: {
+            name: {
+                type: 'KeywordCaseInsensitive',
+                use_fields_hack: true
+            },
+            type: { type: 'Keyword' },
+            config: { type: 'Object', indexed: false },
+        }
+    });
+
     const client = makeClient();
     const exampleConfig: IndexModelConfig<ExampleRecord> = {
         name: 'example_model',
-        mapping: {
-            properties: {
-                name: {
-                    type: 'keyword',
-                    fields: {
-                        text: {
-                            type: 'text',
-                            analyzer: 'lowercase_keyword_analyzer',
-                        },
-                    },
-                },
-                type: {
-                    type: 'keyword',
-                },
-                config: {
-                    type: 'object',
-                    enabled: false,
-                },
-            },
-        },
+        data_type: dataType,
         schema: {
             properties: {
                 name: {
@@ -334,8 +327,8 @@ describe('IndexModel', () => {
             try {
                 await indexModel.findById(fetched._key);
             } catch (err) {
-                expect(err.message).toInclude('Record Missing');
-                expect(err.statusCode).toEqual(410);
+                expect(err.message).toInclude('Unable to find');
+                expect(err.statusCode).toEqual(404);
             }
 
             return expect(indexModel.recordExists(fetched._key)).resolves.toBeFalse();

@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import KeywordCaseInsensitive from '../../../src/types/versions/v1/keyword-case-insensitive';
+import KeywordCaseInsensitive from '../../../src/types/v1/keyword-case-insensitive';
 import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
 
 describe('KeywordCaseInsensitive V1', () => {
@@ -31,6 +31,35 @@ describe('KeywordCaseInsensitive V1', () => {
                     // TODO: this is wrong, I dont think analyzer can be at this level
                     type: 'text' as ElasticSearchTypes,
                     analyzer: 'lowercase_keyword_analyzer',
+                },
+            },
+            analyzer: {
+                lowercase_keyword_analyzer: {
+                    tokenizer: 'keyword',
+                    filter: 'lowercase',
+                },
+            },
+        };
+
+        expect(esMapping).toEqual(results);
+    });
+
+    it('can get proper ES Mappings with a fields hack', () => {
+        const esMapping = new KeywordCaseInsensitive(field, {
+            ...typeConfig,
+            use_fields_hack: true
+        }).toESMapping();
+
+        const results = {
+            mapping: {
+                [field]: {
+                    type: 'keyword',
+                    fields: {
+                        text: {
+                            type: 'text' as ElasticSearchTypes,
+                            analyzer: 'lowercase_keyword_analyzer',
+                        }
+                    }
                 },
             },
             analyzer: {

@@ -30,7 +30,7 @@ sidebar_label: Default Storage
 
 \+ **new Storage**(`name`: string, `fs`: MemFsEditor, `configPath`: string): *[Storage](default.storage.md)*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:34
+Defined in node_modules/@types/yeoman-generator/index.d.ts:34
 
 **Parameters:**
 
@@ -44,7 +44,7 @@ Name | Type |
 
 \+ **new Storage**(`name`: string, `fs`: MemFsEditor, `configPath`: string): *[Storage](default.storage.md)*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:34
+Defined in node_modules/@types/yeoman-generator/index.d.ts:34
 
 **Parameters:**
 
@@ -62,7 +62,7 @@ Name | Type |
 
 ▸ **defaults**(`defaults`: __type): *__type*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:37
+Defined in node_modules/@types/yeoman-generator/index.d.ts:37
 
 **Parameters:**
 
@@ -74,7 +74,7 @@ Name | Type |
 
 ▸ **defaults**(`defaults`: __type): *__type*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:37
+Defined in node_modules/@types/yeoman-generator/index.d.ts:37
 
 **Parameters:**
 
@@ -90,7 +90,7 @@ ___
 
 ▸ **delete**(`key`: string): *void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:38
+Defined in node_modules/@types/yeoman-generator/index.d.ts:38
 
 **Parameters:**
 
@@ -102,7 +102,7 @@ Name | Type |
 
 ▸ **delete**(`key`: string): *void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:38
+Defined in node_modules/@types/yeoman-generator/index.d.ts:38
 
 **Parameters:**
 
@@ -118,7 +118,7 @@ ___
 
 ▸ **get**(`key`: string): *any*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:39
+Defined in node_modules/@types/yeoman-generator/index.d.ts:39
 
 **Parameters:**
 
@@ -130,7 +130,7 @@ Name | Type |
 
 ▸ **get**(`key`: string): *any*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:39
+Defined in node_modules/@types/yeoman-generator/index.d.ts:39
 
 **Parameters:**
 
@@ -146,7 +146,7 @@ ___
 
 ▸ **getAll**(): *object*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:40
+Defined in node_modules/@types/yeoman-generator/index.d.ts:40
 
 **Returns:** *object*
 
@@ -154,7 +154,7 @@ Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/
 
 ▸ **getAll**(): *object*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:40
+Defined in node_modules/@types/yeoman-generator/index.d.ts:40
 
 **Returns:** *object*
 
@@ -166,13 +166,13 @@ ___
 
 ▸ **save**(): *void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:41
+Defined in node_modules/@types/yeoman-generator/index.d.ts:41
 
 **Returns:** *void*
 
 ▸ **save**(): *void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:41
+Defined in node_modules/@types/yeoman-generator/index.d.ts:41
 
 **Returns:** *void*
 
@@ -182,7 +182,7 @@ ___
 
 ▸ **set**(`key`: string, `value`: any): *any*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:42
+Defined in node_modules/@types/yeoman-generator/index.d.ts:42
 
 **Parameters:**
 
@@ -195,7 +195,7 @@ Name | Type |
 
 ▸ **set**(`key`: string, `value`: any): *any*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/@types/yeoman-generator/index.d.ts:42
+Defined in node_modules/@types/yeoman-generator/index.d.ts:42
 
 **Parameters:**
 

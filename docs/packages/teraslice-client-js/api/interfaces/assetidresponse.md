@@ -9,10 +9,6 @@ sidebar_label: AssetIDResponse
 
 * **AssetIDResponse**
 
-  ↳ [AssetsPostResponse](assetspostresponse.md)
-
-  ↳ [AssetsDeleteResponse](assetsdeleteresponse.md)
-
 ## Index
 
 ### Properties
@@ -25,4 +21,4 @@ sidebar_label: AssetIDResponse
 
 • **_id**: *string*
 
-*Defined in [interfaces.ts:98](https://github.com/terascope/teraslice/blob/d8feecc03/packages/teraslice-client-js/src/interfaces.ts#L98)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:98](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L98)*

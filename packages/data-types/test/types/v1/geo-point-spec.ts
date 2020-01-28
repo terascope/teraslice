@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import GeoPointType from '../../../src/types/versions/v1/geo-point';
+import GeoPointType from '../../../src/types/v1/geo-point';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('GeoPoint V1', () => {

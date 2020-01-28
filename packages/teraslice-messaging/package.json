@@ -1,6 +1,7 @@
 {
     "name": "@terascope/teraslice-messaging",
-    "version": "0.5.0",
+    "displayName": "Teraslice Messaging",
+    "version": "0.6.1",
     "description": "An internal teraslice messaging library using socket.io",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-messaging#readme",
     "bugs": {
@@ -29,11 +30,15 @@
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
     },
+    "resolutions": {
+        "debug": "^4.1.1",
+        "ms": "^2.1.2"
+    },
     "dependencies": {
         "@terascope/queue": "^1.1.7",
-        "@terascope/utils": "^0.21.0",
+        "@terascope/utils": "^0.22.0",
         "ms": "^2.1.2",
-        "nanoid": "^2.1.8",
+        "nanoid": "^2.1.10",
         "p-event": "^4.1.0",
         "porty": "^3.1.1",
         "socket.io": "^1.7.4",
@@ -44,10 +49,6 @@
         "@types/socket.io": "^2.1.4",
         "@types/socket.io-client": "^1.4.32"
     },
-    "resolutions": {
-        "debug": "^4.1.1",
-        "ms": "^2.1.2"
-    },
     "engines": {
         "node": ">=8.0.0"
     },
@@ -55,7 +56,6 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
-    "displayName": "Teraslice Messaging",
     "srcMain": "src/index.ts",
     "terascope": {
         "enableTypedoc": true,

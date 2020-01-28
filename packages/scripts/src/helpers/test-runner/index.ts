@@ -6,7 +6,6 @@ import {
     chunk,
     TSError,
     getFullErrorStack,
-    pDelay
 } from '@terascope/utils';
 import {
     writePkgHeader,
@@ -15,12 +14,15 @@ import {
     getRootDir,
     getRootInfo,
     getAvailableTestSuites,
-    getDevDockerImage
 } from '../misc';
-import { ensureServices } from './services';
+import { ensureServices, pullServices } from './services';
 import { PackageInfo } from '../interfaces';
 import { TestOptions, RunSuiteResult, CleanupFN } from './interfaces';
-import { runJest, dockerPush, dockerTag } from '../scripts';
+import {
+    runJest,
+    dockerPush,
+    dockerTag,
+} from '../scripts';
 import * as utils from './utils';
 import signale from '../signale';
 import { getE2EDir } from '../packages';
@@ -154,7 +156,7 @@ async function runTestSuite(
         writeHeader(`Running test suite "${suite}"`, false);
     }
 
-    let cleanup: CleanupFN = await ensureServices(suite, options);
+    let cleanup: CleanupFN = await ensureServices(options.forceSuite || suite, options);
 
     const timeLabel = `test suite "${suite}"`;
     signale.time(timeLabel);
@@ -228,27 +230,38 @@ async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
         throw new Error('Missing e2e test directory');
     }
 
-    await Promise.all([
-        (async () => {
-            try {
-                cleanup = await ensureServices(suite, options);
-            } catch (err) {
-                errors.push(getFullErrorStack(err));
-            }
-        })(),
-        (async () => {
-            const rootInfo = getRootInfo();
-            const [registry] = rootInfo.terascope.docker.registries;
-            const e2eImage = `${registry}:e2e`;
+    const rootInfo = getRootInfo();
+    const [registry] = rootInfo.terascope.docker.registries;
+    const e2eImage = `${registry}:e2e`;
 
-            try {
-                const devImage = await pullDevDockerImage();
-                await dockerTag(devImage, e2eImage);
-            } catch (err) {
-                errors.push(getFullErrorStack(err));
-            }
-        })()
-    ]);
+    if (isCI) {
+        // pull the services first in CI
+        try {
+            await pullServices(suite, options);
+        } catch (err) {
+            errors.push(getFullErrorStack(err));
+        }
+    }
+
+    try {
+        const devImage = await pullDevDockerImage();
+        try {
+            signale.debug(`pushing ${devImage}...`);
+            await dockerPush(devImage);
+            signale.debug(`pushed ${devImage} image`);
+        } catch (err) {
+            signale.warn(err, `failure to push ${devImage}`);
+        }
+        await dockerTag(devImage, e2eImage);
+    } catch (err) {
+        errors.push(getFullErrorStack(err));
+    }
+
+    try {
+        cleanup = await ensureServices(suite, options);
+    } catch (err) {
+        errors.push(getFullErrorStack(err));
+    }
 
     if (!errors.length) {
         const timeLabel = `test suite "${suite}"`;
@@ -258,10 +271,13 @@ async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
         const env = printAndGetEnv(suite, options);
 
         try {
-            await Promise.all([
-                runJest(e2eDir, utils.getArgs(options), env, options.jestArgs, options.debug),
-                pushDevImage(),
-            ]);
+            await runJest(
+                e2eDir,
+                utils.getArgs(options),
+                env,
+                options.jestArgs,
+                options.debug
+            );
         } catch (err) {
             errors.push(err.message);
         }
@@ -305,22 +321,9 @@ async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
     return { errors, cleanup };
 }
 
-async function pushDevImage() {
-    if (!isCI) return;
-    // wait 30 seconds before pushing
-    await pDelay(30 * 1000);
-    const devDockerImage = getDevDockerImage();
-    try {
-        signale.info(`pushing ${devDockerImage}...`);
-        await dockerPush(devDockerImage);
-    } catch (err) {
-        signale.warn(err, `failure to push ${devDockerImage}`);
-    }
-}
-
 function printAndGetEnv(suite: string, options: TestOptions) {
     const env = utils.getEnv(options, suite);
-    if (options.debug || isCI) {
+    if (options.debug || options.trace || isCI) {
         const envStr = Object
             .entries(env)
             .filter(([_, val]) => val != null && val !== '')

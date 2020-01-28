@@ -7,7 +7,7 @@ import Reply from '../lib/reply';
 const reply = new Reply();
 const yargsOptions = new YargsOptions();
 
-export = {
+const cmd: CMD = {
     command: 'view <job-file>',
     describe: 'View job as saved on the cluster by referencing the job file',
     builder(yargs) {
@@ -18,13 +18,13 @@ export = {
         yargs.example('$0 tjm view jobFile.json');
         return yargs;
     },
-    async handler(argv) {
+    async handler(argv): Promise <void> {
         const job = new JobSrc(argv);
         job.init();
         const client = getTerasliceClient(job);
 
         try {
-            const response = await client.jobs.wrap(job.jobId).config();
+            const response = await client.jobs.wrap(job.id).config();
 
             reply.yellow(`${job.name} on ${job.clusterUrl}:`);
             reply.green(JSON.stringify(response, null, 4));
@@ -32,4 +32,6 @@ export = {
             reply.fatal(e.message);
         }
     }
-} as CMD;
+};
+
+export = cmd;

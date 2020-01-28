@@ -16,12 +16,12 @@ sidebar_label: WorkerOperations
 ### Properties
 
 * [Set](workeroperations.md#set)
-* [__@toStringTag](workeroperations.md#__@tostringtag)
+* [[Symbol.toStringTag]](workeroperations.md#[symbol.tostringtag])
 * [size](workeroperations.md#size)
 
 ### Methods
 
-* [__@iterator](workeroperations.md#__@iterator)
+* [[Symbol.iterator]](workeroperations.md#[symbol.iterator])
 * [add](workeroperations.md#add)
 * [clear](workeroperations.md#clear)
 * [delete](workeroperations.md#delete)
@@ -37,17 +37,17 @@ sidebar_label: WorkerOperations
 
 • **Set**: *SetConstructor*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.collection.d.ts:71
+Defined in node_modules/typescript/lib/lib.es2015.collection.d.ts:71
 
 ___
 
-###  __@toStringTag
+###  [Symbol.toStringTag]
 
-• **__@toStringTag**: *string*
+• **[Symbol.toStringTag]**: *string*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts:138
+Defined in node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts:138
 
 ___
 
@@ -57,17 +57,17 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.collection.d.ts:64
+Defined in node_modules/typescript/lib/lib.es2015.collection.d.ts:64
 
 ## Methods
 
-###  __@iterator
+###  [Symbol.iterator]
 
-▸ **__@iterator**(): *IterableIterator‹[WorkerOperationLifeCycle](workeroperationlifecycle.md)›*
+▸ **[Symbol.iterator]**(): *IterableIterator‹[WorkerOperationLifeCycle](workeroperationlifecycle.md)›*
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.iterable.d.ts:171
+Defined in node_modules/typescript/lib/lib.es2015.iterable.d.ts:171
 
 Iterates over values in the set.
 
@@ -81,7 +81,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.collection.d.ts:59
+Defined in node_modules/typescript/lib/lib.es2015.collection.d.ts:59
 
 **Parameters:**
 
@@ -99,7 +99,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.collection.d.ts:60
+Defined in node_modules/typescript/lib/lib.es2015.collection.d.ts:60
 
 **Returns:** *void*
 
@@ -111,7 +111,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.collection.d.ts:61
+Defined in node_modules/typescript/lib/lib.es2015.collection.d.ts:61
 
 **Parameters:**
 
@@ -129,7 +129,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.iterable.d.ts:175
+Defined in node_modules/typescript/lib/lib.es2015.iterable.d.ts:175
 
 Returns an iterable of [v,v] pairs for every value `v` in the set.
 
@@ -143,7 +143,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.collection.d.ts:62
+Defined in node_modules/typescript/lib/lib.es2015.collection.d.ts:62
 
 **Parameters:**
 
@@ -171,7 +171,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.collection.d.ts:63
+Defined in node_modules/typescript/lib/lib.es2015.collection.d.ts:63
 
 **Parameters:**
 
@@ -189,7 +189,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.iterable.d.ts:179
+Defined in node_modules/typescript/lib/lib.es2015.iterable.d.ts:179
 
 Despite its name, returns an iterable of the values in the set,
 
@@ -203,7 +203,7 @@ ___
 
 *Inherited from void*
 
-Defined in /Users/peter/Projects/teraslice/node_modules/typescript/lib/lib.es2015.iterable.d.ts:184
+Defined in node_modules/typescript/lib/lib.es2015.iterable.d.ts:184
 
 Returns an iterable of values in the set.
 

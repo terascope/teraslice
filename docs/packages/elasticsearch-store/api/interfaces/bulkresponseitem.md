@@ -23,7 +23,7 @@ sidebar_label: BulkResponseItem
 
 • **_seq_no**? : *undefined | number*
 
-*Defined in [interfaces.ts:169](https://github.com/terascope/teraslice/blob/d8feecc03/packages/elasticsearch-store/src/interfaces.ts#L169)*
+*Defined in [interfaces.ts:165](https://github.com/terascope/teraslice/blob/78714a985/packages/elasticsearch-store/src/interfaces.ts#L165)*
 
 This only exists in 6.x
 
@@ -33,7 +33,7 @@ ___
 
 • **error**? : *undefined | object*
 
-*Defined in [interfaces.ts:161](https://github.com/terascope/teraslice/blob/d8feecc03/packages/elasticsearch-store/src/interfaces.ts#L161)*
+*Defined in [interfaces.ts:157](https://github.com/terascope/teraslice/blob/78714a985/packages/elasticsearch-store/src/interfaces.ts#L157)*
 
 ___
 
@@ -41,4 +41,4 @@ ___
 
 • **status**? : *undefined | number*
 
-*Defined in [interfaces.ts:165](https://github.com/terascope/teraslice/blob/d8feecc03/packages/elasticsearch-store/src/interfaces.ts#L165)*
+*Defined in [interfaces.ts:161](https://github.com/terascope/teraslice/blob/78714a985/packages/elasticsearch-store/src/interfaces.ts#L161)*

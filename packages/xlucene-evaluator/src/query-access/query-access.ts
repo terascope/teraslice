@@ -49,8 +49,8 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             ? options.logger.child({ module: 'xlucene-query-access' })
             : _logger;
 
-        this.excludes = excludes.slice();
-        this.includes = includes.slice();
+        this.excludes = excludes?.slice();
+        this.includes = includes?.slice();
         this.constraints = ts.castArray(constraint).filter(Boolean) as string[];
         this.allowEmpty = Boolean(allowEmpty);
         this.preventPrefixWildcard = Boolean(config.prevent_prefix_wildcard);
@@ -189,19 +189,18 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         opts: i.RestrictSearchQueryOptions = {}
     ): Promise<es.SearchParams> {
         const {
-            params = {},
+            params: _params = {},
             variables = {},
             elasticsearch_version: esVersion = 6,
             ...translateOptions
         } = opts;
 
-        if (params._source) {
+        if (_params._source) {
             throw new ts.TSError('Cannot include _source in params, use _sourceInclude or _sourceExclude');
         }
+        const params = { ..._params };
 
         const parser = this._restrict(query, { variables });
-
-        await ts.pImmediate();
 
         await ts.pImmediate();
 
@@ -247,29 +246,35 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      * **NOTE:** this will remove restricted fields and will not throw
      */
     restrictSourceFields(includes?: (keyof T)[], excludes?: (keyof T)[]) {
+        const all = Object.keys(this.parsedTypeConfig)
+            .map((field) => field.split('.')[0]) as (keyof T)[];
+
         return {
-            includes: this._getSourceFields(this.includes, includes),
-            excludes: this._getSourceFields(this.excludes, excludes),
+            includes: this._getSourceFields(this.includes, all, includes),
+            excludes: this._getSourceFields(this.excludes, all, excludes),
         };
     }
 
     private _getSourceFields(
-        restricted?: (keyof T)[],
-        override?: (keyof T)[] | boolean | (keyof T)
+        restricted: (keyof T)[],
+        all: (keyof T)[],
+        override?: (keyof T)[] | boolean | (keyof T),
     ): (keyof T)[] | undefined {
         const fields = ts.uniq(ts.parseList(override) as (keyof T)[]);
 
-        if (restricted && fields.length) {
-            return fields.filter((field) => restricted.includes(field));
+        if (fields.length) {
+            if (restricted.length) {
+                return restricted.filter((field) => fields.includes(field));
+            }
+
+            if (all.length) {
+                return fields.filter((field) => all.includes(field));
+            }
+
+            return fields;
         }
 
-        if (override) {
-            return [];
-        }
-
-        if (restricted) return restricted.slice();
-
-        return undefined;
+        return restricted.slice();
     }
 
     private _isFieldRestricted(field: string): boolean {

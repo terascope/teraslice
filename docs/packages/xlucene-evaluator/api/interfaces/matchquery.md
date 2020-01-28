@@ -21,7 +21,7 @@ sidebar_label: MatchQuery
 
 • **match**: *object*
 
-*Defined in [translator/interfaces.ts:88](https://github.com/terascope/teraslice/blob/d8feecc03/packages/xlucene-evaluator/src/translator/interfaces.ts#L88)*
+*Defined in [packages/xlucene-evaluator/src/translator/interfaces.ts:130](https://github.com/terascope/teraslice/blob/78714a985/packages/xlucene-evaluator/src/translator/interfaces.ts#L130)*
 
 #### Type declaration:
 

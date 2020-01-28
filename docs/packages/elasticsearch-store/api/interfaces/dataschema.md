@@ -16,7 +16,6 @@ Data Schema and Version
 ### Properties
 
 * [all_formatters](dataschema.md#optional-all_formatters)
-* [log_level](dataschema.md#optional-log_level)
 * [schema](dataschema.md#schema)
 * [strict](dataschema.md#optional-strict)
 
@@ -26,7 +25,7 @@ Data Schema and Version
 
 • **all_formatters**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:153](https://github.com/terascope/teraslice/blob/d8feecc03/packages/elasticsearch-store/src/interfaces.ts#L153)*
+*Defined in [interfaces.ts:149](https://github.com/terascope/teraslice/blob/78714a985/packages/elasticsearch-store/src/interfaces.ts#L149)*
 
 If enabled this will allow the use of some of
 the slower but more correct JSON Schema's formatters:
@@ -41,21 +40,11 @@ the slower but more correct JSON Schema's formatters:
 
 ___
 
-### `Optional` log_level
-
-• **log_level**? : *Logger.LogLevel | "none"*
-
-*Defined in [interfaces.ts:139](https://github.com/terascope/teraslice/blob/d8feecc03/packages/elasticsearch-store/src/interfaces.ts#L139)*
-
-When logging invalid record, optionally set the log level
-
-___
-
 ###  schema
 
 • **schema**: *any*
 
-*Defined in [interfaces.ts:126](https://github.com/terascope/teraslice/blob/d8feecc03/packages/elasticsearch-store/src/interfaces.ts#L126)*
+*Defined in [interfaces.ts:127](https://github.com/terascope/teraslice/blob/78714a985/packages/elasticsearch-store/src/interfaces.ts#L127)*
 
 The Data Schema in JSON Schema format
 
@@ -65,7 +54,7 @@ ___
 
 • **strict**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:134](https://github.com/terascope/teraslice/blob/d8feecc03/packages/elasticsearch-store/src/interfaces.ts#L134)*
+*Defined in [interfaces.ts:135](https://github.com/terascope/teraslice/blob/78714a985/packages/elasticsearch-store/src/interfaces.ts#L135)*
 
 If enabled and the data fails to match the schema or version
 an error will thrown

@@ -1,8 +1,9 @@
+import ms from 'ms';
 import path from 'path';
 import execa from 'execa';
 import fse from 'fs-extra';
 import {
-    debugLogger, pDelay, isString, get
+    debugLogger, isString, get, pWhile, pDelay
 } from '@terascope/utils';
 import { TSCommands, PackageInfo } from './interfaces';
 import { getRootDir } from './misc';
@@ -18,6 +19,7 @@ type ExecOpts = {
     cwd?: string;
     env?: ExecEnv;
     stdio?: 'inherit';
+    timeout?: number;
     detached?: boolean;
 };
 
@@ -28,6 +30,7 @@ function _exec(opts: ExecOpts) {
         env: opts.env,
         preferLocal: true,
         detached: opts.detached,
+        timeout: opts.timeout,
         stdio: opts.stdio,
     };
 
@@ -153,11 +156,12 @@ export async function runJest(
     });
 }
 
-export async function dockerPull(image: string): Promise<void> {
+export async function dockerPull(image: string, timeout = 0): Promise<void> {
     try {
         await exec({
             cmd: 'docker',
             args: ['pull', image],
+            timeout,
         });
     } catch (err) {
         process.exitCode = 0;
@@ -198,8 +202,12 @@ export async function dockerNetworkExists(name: string): Promise<boolean> {
 }
 
 export async function remoteDockerImageExists(image: string): Promise<boolean> {
-    const result = await execa.command(`docker pull ${image}`, { reject: false });
-    return result.exitCode === 0;
+    try {
+        await dockerPull(image, ms('30s'));
+        return true;
+    } catch (err) {
+        return false;
+    }
 }
 
 export type DockerRunOptions = {
@@ -280,7 +288,10 @@ export async function dockerRun(opt: DockerRunOptions, tag = 'latest', debug?: b
         }
     })();
 
-    await pDelay(2000);
+    const upFor = ms('5s');
+    await pWhile(() => dockerContainerReady(opt.name, upFor), {
+        timeoutMs: ms('1m')
+    });
 
     if (error) {
         if (stderr) {
@@ -307,6 +318,24 @@ export async function dockerRun(opt: DockerRunOptions, tag = 'latest', debug?: b
     };
 }
 
+export async function dockerContainerReady(name: string, upFor: number): Promise<boolean> {
+    try {
+        const result = await exec({
+            cmd: 'docker',
+            args: [
+                'ps', '--format', '"{{json .Status}}"', '--filter', `name=${name}`
+            ]
+        });
+
+        const timeup = ms(result.replace(/[(Up)\s"]+|/ig, ''));
+        if (!timeup) return false;
+        return timeup >= upFor;
+    } catch (err) {
+        await pDelay(1000);
+        return false;
+    }
+}
+
 export async function dockerBuild(
     tag: string,
     cacheFrom: string[] = [],
@@ -327,10 +356,14 @@ export async function dockerBuild(
 }
 
 export async function dockerPush(image: string): Promise<void> {
-    await fork({
-        cmd: 'docker',
-        args: ['push', image],
-    });
+    const subprocess = await execa.command(
+        `docker push ${image}`,
+        { reject: false }
+    );
+
+    if (subprocess.exitCode !== 0) {
+        throw new Error(`Unable to push docker image ${image}, ${subprocess.stderr}`);
+    }
 }
 
 export async function pgrep(name: string): Promise<string> {
