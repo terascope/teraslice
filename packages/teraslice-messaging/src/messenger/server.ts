@@ -103,7 +103,7 @@ export class Server extends Core {
             retries: isTest ? 1 : 5,
             endWithFatal: true,
             logError: (err: any, ...args) => {
-                this.logger.error(err, ...args);
+                this.logger.warn(err, ...args);
             }
         });
 
