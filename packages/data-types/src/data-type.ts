@@ -4,7 +4,7 @@ import { formatSchema, formatGQLComment } from './graphql-helper';
 import * as i from './interfaces';
 import BaseType from './types/base-type';
 import * as utils from './utils';
-import { getTypes, LATEST_VERSION } from './types';
+import { getTypes, LATEST_VERSION, getGroupedFields } from './types';
 
 /**
  * A DataType is used to define the structure of data with version support
@@ -19,8 +19,8 @@ export class DataType {
     readonly description?: string;
     readonly fields: i.TypeConfigFields;
     readonly version: i.AvailableVersion;
-    /** Excludes the nested fields (useful testing) */
-    readonly baseFields: i.TypeConfigFields = {};
+    /** An object of base fields with their child fields */
+    readonly groupedFields: i.GroupedFields;
 
     private readonly _types: BaseType[];
 
@@ -94,7 +94,8 @@ export class DataType {
         this.fields = fields;
         this.version = version;
 
-        this._types = getTypes(fields, version);
+        this.groupedFields = getGroupedFields(fields);
+        this._types = getTypes(fields, this.groupedFields, version);
     }
 
     /**
