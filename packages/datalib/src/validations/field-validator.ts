@@ -67,7 +67,7 @@ export function isTimestamp(input: any) {
         return !isNaN(Date.parse(input));
     }
 
-    // if it is a number then it must have at 10 digits or 13
+    // if it is a number then it must have 10 digits for seconds or 13 for milliseconds
     return `${input}`.length === 10 || `${input}`.length === 13;
 }
 
