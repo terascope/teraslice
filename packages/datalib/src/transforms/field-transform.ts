@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import PhoneNumber from 'awesome-phonenumber';
 import * as ts from '@terascope/utils';
 import * as valid from '../validations/field-validator';
 import { Repository } from '../interfaces';
@@ -65,17 +66,42 @@ export function toUnixTime(input: any): number {
         throw new Error('Not a valid date, cannot transform to unix time');
     }
 
-    if (valid.isString(input) && isNaN(input)) {
-        console.log(new Date(input));
-        return Date.parse(input);
-    }
+    let unixTime = isNaN(input) ? Date.parse(input) : Number(input);
 
-    if (_.isDate(input)) {
-        return input.getTime();
-    }
+    if (`${unixTime}`.length === 10) unixTime *= 1000;
 
-    if (`${input}`.length === 10) return Number(input) * 1000;
-
-    return Number(input);
+    return unixTime;
 }
 
+export function phoneNumber(input: string): string {
+    // leading zeros break awesome phone number
+    let testNumber = _.trimStart(String(input).trim(), '0');
+
+    // needs to start with a +
+    if (testNumber.indexOf('+') !== 0) testNumber = `+${testNumber}`;
+
+    const phoneNumber = new PhoneNumber(testNumber);
+
+    if (!phoneNumber.getNumber()) {
+        throw new Error('Could not determine the incoming phone number');
+    }
+
+    return String(phoneNumber.getNumber()).slice(1);
+}
+
+export function toUUID(input: string, args?: { lowercase: boolean }): string {
+    // uuid should be in format of 8-4-4-4-12, 32 hexidecimal chars
+    let allAlpha = `${input}`.replace(/\W/g, '');
+
+    const hexidecimalChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+
+    if (allAlpha.length !== 32
+        || allAlpha.split('').some((char: string | number) => !hexidecimalChars.includes(String(char).toLowerCase()))) {
+        throw new Error('Cannot create a valid UUID number');
+    }
+
+    if (args && args.lowercase) allAlpha = allAlpha.toLowerCase();
+
+    return `${allAlpha.slice(0, 8)}-${allAlpha.slice(8, 12)}`
+        + `-${allAlpha.slice(12, 16)}-${allAlpha.slice(16, 20)}-${allAlpha.slice(20,)}`;
+}
