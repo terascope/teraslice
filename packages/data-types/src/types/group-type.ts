@@ -1,16 +1,15 @@
 import { TypeConfig } from 'xlucene-evaluator';
+import { firstToUpper } from '@terascope/utils';
 import * as i from '../interfaces';
-import BaseType from './base-type';
+import BaseType, { ToGraphQLOptions } from './base-type';
 
 export type NestedTypes = { [field: string]: BaseType };
 
 export default class GroupType extends BaseType {
     readonly types: NestedTypes;
-    readonly version: number;
 
     constructor(field: string, version: number, types: NestedTypes) {
-        super(field, types[field].config);
-        this.version = version;
+        super(field, types[field].config, version);
         this.types = types;
     }
 
@@ -47,12 +46,15 @@ export default class GroupType extends BaseType {
         };
     }
 
-    toGraphQL(typeName?: string, isInput?: boolean, includePrivate?: boolean) {
-        const customTypeName: string = this._formatGQLTypeName(
-            typeName || 'Object',
-            isInput,
-            true,
-            this.version,
+    toGraphQL(options: ToGraphQLOptions = {}) {
+        const { typeName = 'Object', isInput, includePrivate } = options;
+
+        const customTypeName = this._formatGQLTypeName(
+            options.useSnakeCase
+                ? `_${typeName}_${this.field}_`
+                : `${typeName}${firstToUpper(this.field)}`,
+            options.isInput,
+            options.useSnakeCase ? 'input_' : undefined
         );
 
         const properties: string[] = [];
@@ -67,7 +69,7 @@ export default class GroupType extends BaseType {
                 continue;
             }
 
-            const result = type.toGraphQL(typeName, isInput, includePrivate);
+            const result = type.toGraphQL(options);
 
             properties.push(this._removeBase(result.type));
 

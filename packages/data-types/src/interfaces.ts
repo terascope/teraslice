@@ -12,6 +12,7 @@ export type GraphQLOptions = {
     description?: string;
     customTypes?: string[];
     references?: string[];
+    useSnakeCase?: boolean;
     createInputType?: boolean;
     includeAllInputFields?: boolean;
 };
@@ -21,6 +22,7 @@ export type MergeGraphQLOptions = {
     references?: GraphQLTypeReferences;
     customTypes?: string[];
     createInputTypes?: boolean;
+    useSnakeCase?: boolean;
     includeAllInputFields?: boolean;
 };
 

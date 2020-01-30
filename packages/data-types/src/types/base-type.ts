@@ -10,20 +10,29 @@ export interface IBaseType {
     new(field: string, config: FieldTypeConfig): BaseType;
 }
 
+export type ToGraphQLOptions = {
+    typeName?: string;
+    isInput?: boolean;
+    includePrivate?: boolean;
+    useSnakeCase?: boolean;
+};
+
 export default abstract class BaseType {
     readonly field: string;
     readonly config: FieldTypeConfig;
+    readonly version: number;
 
-    constructor(field: string, config: FieldTypeConfig) {
+    constructor(field: string, config: FieldTypeConfig, version = 1) {
         if (!field || !ts.isString(field)) {
             throw new ts.TSError('A field must be provided and must be of type string');
         }
+        this.version = version;
         this.field = field;
         this.config = config;
     }
 
     abstract toESMapping(version?: number): TypeESMapping;
-    abstract toGraphQL(typeName?: string, isInput?: boolean, includePrivate?: boolean): GraphQLType;
+    abstract toGraphQL(options?: ToGraphQLOptions): GraphQLType;
     abstract toXlucene(): TypeConfig;
 
     protected _formatGql(
@@ -43,19 +52,13 @@ export default abstract class BaseType {
         };
     }
 
-    _formatGQLTypeName(
-        typeName: string,
-        isInput?: boolean,
-        includeField?: boolean,
-        version?: number
-    ): string {
+    _formatGQLTypeName(typeName: string, isInput?: boolean, inputSuffix = 'Input'): string {
         return [
             'DT',
-            (typeName),
-            includeField ? ts.firstToUpper(this.field) : '',
-            isInput ? 'Input' : '',
-            `V${version ?? 1}`
-        ].filter(Boolean).join('');
+            typeName,
+            isInput ? inputSuffix : '',
+            `V${this.version}`
+        ].join('');
     }
 }
 
