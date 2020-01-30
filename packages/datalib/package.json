@@ -30,8 +30,11 @@
     },
     "dependencies": {
         "@terascope/utils": "^0.22.0",
+        "awesome-phonenumber": "^2.25.0",
         "graphql": "^14.5.8",
-        "graphql-tools": "^4.0.6"
+        "graphql-tools": "^4.0.6",
+        "valid-url": "^1.0.9",
+        "validator": "^12.2.0"
     },
     "devDependencies": {},
     "engines": {

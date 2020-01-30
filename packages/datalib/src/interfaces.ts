@@ -15,7 +15,52 @@ interface Config {
     };
 }
 
-export interface ValidationResults {
-    isValid: boolean;
-    error?: string;
+export enum ESGeoShapeType {
+    Point = 'point',
+    Polygon = 'polygon',
+    MultiPolygon = 'multipolygon'
 }
+
+export type ESGeoShapePoint = {
+    type: ESGeoShapeType.Point;
+    coordinates: CoordinateTuple;
+}
+
+export type ESGeoShapePolygon = {
+    type: ESGeoShapeType.Polygon;
+    coordinates: CoordinateTuple[][];
+}
+
+export type ESGeoShapeMultiPolygon = {
+    type: ESGeoShapeType.MultiPolygon;
+    coordinates: CoordinateTuple[][][];
+}
+
+export type ESGeoShape = ESGeoShapePoint | ESGeoShapePolygon | ESGeoShapeMultiPolygon
+
+export enum GeoShapeType {
+    Point = 'Point',
+    Polygon = 'Polygon',
+    MultiPolygon = 'MultiPolygon',
+}
+
+export type GeoShapePoint = {
+    type: GeoShapeType.Point;
+    coordinates: CoordinateTuple;
+}
+
+export type GeoShapePolygon = {
+    type: GeoShapeType.Polygon;
+    coordinates: CoordinateTuple[][];
+}
+
+export type GeoShapeMultiPolygon = {
+    type: GeoShapeType.MultiPolygon;
+    coordinates: CoordinateTuple[][][];
+}
+
+export type GeoShape = GeoShapePoint | GeoShapePolygon | GeoShapeMultiPolygon;
+
+export type JoinGeoShape = GeoShape & ESGeoShape;
+
+export type CoordinateTuple = [number, number];
