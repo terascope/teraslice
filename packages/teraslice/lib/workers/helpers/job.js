@@ -1,6 +1,6 @@
 'use strict';
 
-const { get } = require('@terascope/utils');
+const { get, makeISODate } = require('@terascope/utils');
 const { JobValidator } = require('@terascope/job-components');
 const { terasliceOpPath } = require('../../config');
 const { makeJobStore, makeExStore, makeStateStore } = require('../../storage');
@@ -69,6 +69,7 @@ async function initializeTestExecution({
         ex = await stores.exStore.updatePartial(ex.ex_id, (existing) => Object.assign(existing, {
             slicer_hostname: slicerHostname,
             slicer_port: slicerPort,
+            _updated: makeISODate()
         }));
     }
 

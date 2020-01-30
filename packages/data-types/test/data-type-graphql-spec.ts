@@ -204,6 +204,109 @@ describe('DataType (graphql)', () => {
             expect(results).toEqual(schema);
         });
 
+        it('can build use snake case when needed', () => {
+            const typeConfig1: DataTypeConfig = {
+                version: LATEST_VERSION,
+                fields: {
+                    hello: { type: 'Text' },
+                    location: { type: 'GeoPoint' },
+                    date: { type: 'Date' },
+                    ip: { type: 'IP' },
+                    someNum: { type: 'Long' },
+                },
+            };
+
+            const typeConfig2: DataTypeConfig = {
+                version: LATEST_VERSION,
+                fields: {
+                    hello: { type: 'Text' },
+                    location: { type: 'GeoPoint' },
+                    otherLocation: { type: 'Boundary', array: true },
+                    foo: { type: 'Object' },
+                    'foo.bar': { type: 'Keyword' },
+                    bool: { type: 'Boolean' },
+                },
+            };
+
+            const types = [
+                new DataType(typeConfig1, 'first_type'),
+                new DataType(typeConfig2, 'second_type')
+            ];
+
+            const results = DataType.mergeGraphQLDataTypes(types, {
+                customTypes: ['scalar FOOO'],
+                createInputTypes: true,
+                useSnakeCase: true,
+                removeScalars: true
+            });
+
+            const schema = formatSchema(`
+                input DT_second_type_foo_input_V1 {
+                   bar: String
+                }
+
+                type DT_second_type_foo_V1 {
+                   bar: String
+                }
+
+                type DTGeoBoundaryV1 {
+                    lat: Float!
+                    lon: Float!
+                }
+
+                type DTGeoPointV1 {
+                    lat: String!
+                    lon: String!
+                }
+
+                input DTGeoBoundaryInputV1 {
+                    lat: Float!
+                    lon: Float!
+                }
+
+                input DTGeoPointInputV1 {
+                    lat: String!
+                    lon: String!
+                }
+
+                type first_type {
+                    date: String
+                    hello: String
+                    ip: String
+                    location: DTGeoPointV1
+                    someNum: Int
+                }
+
+                # Input for first_type
+                input first_type_input {
+                    date: String
+                    hello: String
+                    ip: String
+                    location: DTGeoPointInputV1
+                    someNum: Int
+                }
+
+                type second_type {
+                    bool: Boolean
+                    foo: DT_second_type_foo_V1
+                    hello: String
+                    location: DTGeoPointV1
+                    otherLocation: [[DTGeoBoundaryV1]]
+                }
+
+                # Input for second_type
+                input second_type_input {
+                    bool: Boolean
+                    foo: DT_second_type_foo_input_V1
+                    hello: String
+                    location: DTGeoPointInputV1
+                    otherLocation: [[DTGeoBoundaryInputV1]]
+                }
+            `);
+
+            expect(results).toEqual(schema);
+        });
+
         it('should be able to generate the input types', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
@@ -224,20 +327,20 @@ describe('DataType (graphql)', () => {
                 createInputTypes: true,
             });
             const schema = formatSchema(`
-                    type TestRecord {
-                        _created: String
-                        _key: ID
-                        _updated: String
-                        description: String
-                        name: String
-                    }
+                type TestRecord {
+                    _created: String
+                    _key: ID
+                    _updated: String
+                    description: String
+                    name: String
+                }
 
-                    # Input for TestRecord
-                    input TestRecordInput {
-                        description: String
-                        name: String
-                    }
-                `);
+                # Input for TestRecord
+                input TestRecordInput {
+                    description: String
+                    name: String
+                }
+            `);
             expect(result).toEqual(schema);
         });
 

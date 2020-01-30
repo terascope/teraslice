@@ -1,5 +1,5 @@
 import { FieldType } from 'xlucene-evaluator';
-import BaseType from '../base-type';
+import BaseType, { ToGraphQLOptions } from '../base-type';
 import { ElasticSearchTypes } from '../../interfaces';
 
 export default class Boundary extends BaseType {
@@ -16,7 +16,7 @@ export default class Boundary extends BaseType {
         };
     }
 
-    toGraphQL(_typeName?: string, isInput?: boolean) {
+    toGraphQL({ isInput }: ToGraphQLOptions = {}) {
         const defType = isInput ? 'input' : 'type';
         const name = this._formatGQLTypeName('GeoBoundary', isInput);
         const customType = `

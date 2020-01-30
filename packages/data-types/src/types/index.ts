@@ -1,29 +1,42 @@
 import * as ts from '@terascope/utils';
 import { mapping } from './mapping';
-import { FieldTypeConfig, AvailableVersion, TypeConfigFields } from '../interfaces';
+import {
+    FieldTypeConfig, AvailableVersion, TypeConfigFields, GroupedFields
+} from '../interfaces';
 import GroupType, { NestedTypes } from './group-type';
 import BaseType, { IBaseType } from './base-type';
 
 export const LATEST_VERSION: AvailableVersion = 1;
+
+export function getGroupedFields(fields: TypeConfigFields): GroupedFields {
+    const groupFields: GroupedFields = {};
+    for (const field of Object.keys(fields)) {
+        const [base] = field.split('.');
+        if (!groupFields[base]) groupFields[base] = [];
+        if (!groupFields[base].includes(base)) {
+            groupFields[base].push(base);
+        }
+        if (!groupFields[base].includes(field)) {
+            groupFields[base].push(field);
+        }
+    }
+    return groupFields;
+}
 
 /**
  * Instaniate all of the types for the group
  *
  * @todo support multiple levels deep nesting
 */
-export function getTypes(fields: TypeConfigFields, version = LATEST_VERSION): BaseType[] {
+export function getTypes(
+    fields: TypeConfigFields,
+    groupedFields: GroupedFields,
+    version = LATEST_VERSION
+): BaseType[] {
     const types: Record<string, GroupType|BaseType> = {};
-    const groupFields: Record<string, Set<string>> = {};
 
-    for (const field of Object.keys(fields)) {
-        const [base] = field.split('.');
-        if (!groupFields[base]) groupFields[base] = new Set();
-        groupFields[base].add(base);
-        groupFields[base].add(field);
-    }
-
-    for (const [field, group] of Object.entries(groupFields)) {
-        if (group.size > 1) {
+    for (const [field, group] of Object.entries(groupedFields)) {
+        if (group.length > 1) {
             types[field] = getGroupType({
                 base: field,
                 fields: [...group].map((f) => ({

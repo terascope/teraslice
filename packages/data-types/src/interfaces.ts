@@ -1,6 +1,9 @@
 import { AnyObject } from '@terascope/utils';
 import BaseType from './types/base-type';
 
+/** An object of base fields with their child fields */
+export type GroupedFields = Record<string, string[]>;
+
 export type GraphQLTypesResult = {
     baseType: string;
     inputType?: string;
@@ -12,6 +15,7 @@ export type GraphQLOptions = {
     description?: string;
     customTypes?: string[];
     references?: string[];
+    useSnakeCase?: boolean;
     createInputType?: boolean;
     includeAllInputFields?: boolean;
 };
@@ -21,6 +25,7 @@ export type MergeGraphQLOptions = {
     references?: GraphQLTypeReferences;
     customTypes?: string[];
     createInputTypes?: boolean;
+    useSnakeCase?: boolean;
     includeAllInputFields?: boolean;
 };
 
