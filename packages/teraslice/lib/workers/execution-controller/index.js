@@ -4,7 +4,7 @@ const ms = require('ms');
 const _ = require('lodash');
 const Messaging = require('@terascope/teraslice-messaging');
 const {
-    TSError, get, pDelay, getFullErrorStack, logError, pWhile
+    TSError, includes, get, pDelay, getFullErrorStack, logError, pWhile, makeISODate
 } = require('@terascope/utils');
 const { waitForWorkerShutdown } = require('../helpers/worker-shutdown');
 const { makeStateStore, makeExStore, SliceState } = require('../../storage');
@@ -634,7 +634,9 @@ class ExecutionController {
                 this.logger.debug(`execution is set to ${status}, status will not be updated`);
                 await exStore.updatePartial(this.exId, (existing) => {
                     const metaData = exStore.executionMetaData(executionStats);
-                    return Object.assign(existing, metaData);
+                    return Object.assign(existing, metaData, {
+                        _updated: makeISODate()
+                    });
                 });
                 return;
             }
@@ -818,9 +820,9 @@ class ExecutionController {
             return `${prefix} sending execution:finished event to cluster master`;
         };
 
-        if (_.includes(terminalStatuses, status)) {
+        if (includes(terminalStatuses, status)) {
             error = new Error(invalidStateMsg('terminal'));
-        } else if (_.includes(runningStatuses, status)) {
+        } else if (includes(runningStatuses, status)) {
             error = new Error(invalidStateMsg('running'));
         } else {
             return true;

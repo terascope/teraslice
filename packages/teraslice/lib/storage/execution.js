@@ -112,7 +112,10 @@ module.exports = async function executionStorage(context) {
     }
 
     async function updateMetadata(exId, metadata = {}) {
-        await backend.update(exId, { metadata });
+        await backend.update(exId, {
+            metadata,
+            _updated: makeISODate()
+        });
     }
 
     function _addMetadataFns() {
@@ -185,7 +188,8 @@ module.exports = async function executionStorage(context) {
             return await updatePartial(exId, (existing) => {
                 _verifyStatus(existing._status, status);
                 return Object.assign(existing, body, {
-                    _status: status
+                    _status: status,
+                    _updated: makeISODate()
                 });
             });
         } catch (err) {
