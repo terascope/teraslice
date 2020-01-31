@@ -7,12 +7,9 @@ export const respoitory: Repository = {
 
 export function required(obj: AnyObject, fields: string[]) {
     const keys = Object.keys(obj);
-    const hasKeys = fields.every((rField) => keys.includes(rField));
-    if (hasKeys) return obj;
-    // return null or {}
-    return null;
+    return fields.every((rField) => keys.includes(rField));
 }
 
-export function filter() {
-    return documentMatcher.match(doc)
-}
+// export function filter() {
+//     return documentMatcher.match(doc)
+// }

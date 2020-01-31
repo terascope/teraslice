@@ -1,5 +1,6 @@
 # set the dist to bionic
 dist: bionic
+os: linux
 language: node_js
 node_js: '10.16'
 

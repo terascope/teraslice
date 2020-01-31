@@ -33,10 +33,10 @@ function assetFileInfo(assetName) {
     };
 }
 
-function hasNewerAsset(assets, assetName) {
+function getOlderAsset(assets, assetName) {
     const { name, version } = assetFileInfo(assetName);
 
-    return assets.some((a) => {
+    return assets.find((a) => {
         if (a.name !== name) return false;
         return semver.gt(version, a.version);
     });
@@ -77,22 +77,23 @@ function deleteOlderAssets() {
 
     const olderAssets = duplicateAssets.reduce((acc, current, index, src) => {
         const without = src.filter((a, i) => index !== i);
-        const hasNewer = hasNewerAsset(without, current.fileName);
-        if (hasNewer) {
+        const older = getOlderAsset(without, current.fileName);
+        if (older) {
+            older.newerVersion = current.version;
             return acc;
         }
         return acc.concat([current]);
     }, []);
 
     for (const asset of olderAssets) {
-        signale.warn(`Deleting asset ${asset.name}@v${asset.version} in-favor of newer one`);
+        signale.warn(`Deleting asset ${asset.name}@v${asset.version} in-favor of existing v${asset.newerVersion}`);
         fs.unlinkSync(path.join(autoloadDir, asset.fileName));
     }
 }
 
 function logAssets() {
     const assets = listAssets().map(({ name, version }) => `${name}@v${version}`);
-    signale.info(`Downloading asset bundles: ${assets.join(', ')}`);
+    signale.info(`Autoload asset bundles: ${assets.join(', ')}`);
 }
 
 async function downloadAssets() {

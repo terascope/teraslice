@@ -1,24 +1,27 @@
 import * as ts from '@terascope/utils';
+import ipaddr from 'ipaddr.js';
 import { isIP as checkIp } from 'net';
 import PhoneValidator from 'awesome-phonenumber';
 import validator from 'validator';
 import * as url from 'valid-url';
-import { toLowerCase } from '../transforms/field-transform';
 import {
     FQDNOptions,
     HashConfig,
     LengthConfig,
     PostalCodeLocale
 } from './interfaces';
+import { parseGeoPoint } from '../transforms/helpers';
 import * as i from '../interfaces';
 
-const geoJSONTypes = Object.keys(i.GeoShapeType).map(toLowerCase);
+const geoJSONTypes = Object.keys(i.GeoShapeType).map((key) => key.toLowerCase());
 
 export const respoitory: i.Repository = {
     isBoolean: { fn: isBoolean, config: {} },
     isBooleanLike: { fn: isBooleanLike, config: {} },
     isEmail: { fn: isEmail, config: {} },
+    validValue: { fn: validValue, config: {} },
     isGeoJSON: { fn: isGeoJSON, config: {} },
+    isGeoPoint: { fn: isGeoPoint, config: {} },
     isGeoShapePoint: { fn: isGeoShapePoint, config: {} },
     isGeoShapePolygon: { fn: isGeoShapePolygon, config: {} },
     isGeoShapeMultiPolygon: { fn: isGeoShapeMultiPolygon, config: {} },
@@ -47,17 +50,19 @@ export const respoitory: i.Repository = {
     isLength: { fn: isLength, config: {} },
     isMimeType: { fn: isMimeType, config: {} },
     isPostalCode: { fn: isPostalCode, config: {} },
+    isTimestamp: { fn: isTimestamp, config: {} },
+    isPublicIp: { fn: isPublicIp, config: {} },
 };
 
-export function isBoolean(input: any): input is boolean {
+export function isBoolean(input: any): boolean {
     return ts.isBoolean(input);
 }
 
-export function isBooleanLike(input: any) {
+export function isBooleanLike(input: any): boolean {
     return ts.isBooleanLike(input);
 }
 
-export function isEmail(input: string): boolean {
+export function isEmail(input: any): boolean {
     // Email Validation as per RFC2822 standards. Straight from .net helpfiles
     // eslint-disable-next-line
     const regex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
@@ -66,10 +71,15 @@ export function isEmail(input: string): boolean {
     return false;
 }
 
+export function isGeoPoint(input: any) {
+    const results = parseGeoPoint(input, false);
+    return results != null;
+}
+
 export function isGeoJSON(input: any) {
     return ts.isPlainObject(input)
         && Array.isArray(input.coordinates)
-        && geoJSONTypes.includes(toLowerCase(input.type));
+        && geoJSONTypes.includes(input.type.toLowerCase());
 }
 
 export function isGeoShapePoint(input: i.JoinGeoShape) {
@@ -86,7 +96,7 @@ export function isGeoShapeMultiPolygon(input: i.JoinGeoShape) {
     return isGeoJSON(input)
     && (input.type === i.GeoShapeType.MultiPolygon || input.type === i.ESGeoShapeType.MultiPolygon);
 }
-
+// TODO: test pass this
 export function isIP(input: any) {
     if (checkIp(input) === 0) return false;
     return true;
@@ -193,4 +203,42 @@ export function isMimeType(input: any) {
 
 export function isPostalCode(input: any, { locale = 'any' }: { locale: 'any' | PostalCodeLocale }) {
     return isString(input) && validator.isPostalCode(input, locale);
+}
+
+export function validValue(input: any, options?: { invalidValues: any[] }): boolean {
+    if (options && options.invalidValues) {
+        return input != null && !options.invalidValues.includes(input);
+    }
+
+    return input != null;
+}
+
+export function isTimestamp(input: any) {
+    // string must be a recognized date format, milliseconds or seconds
+    if (!isNumber(input) || ts.isValidDate(input)) {
+        return !isNaN(Date.parse(input));
+    }
+
+    // if it is a number then it must have 10 digits for seconds or 13 for milliseconds
+    return `${input}`.length === 10 || `${input}`.length === 13;
+}
+
+export function isPublicIp(input: any, options?: { private: boolean }) {
+    let range;
+    let result = true;
+
+    try {
+        range = ipaddr.parse(input).range();
+    } catch (e) {
+        return false;
+    }
+
+    // ipv6 private is parsed as uniqueLocal
+    if (range === 'private' || range === 'uniqueLocal') {
+        result = false;
+    }
+
+    if (options && options.private) return !result;
+
+    return result;
 }

@@ -181,7 +181,7 @@ describe('k8s', () => {
         beforeEach(() => {
             scope = nock(_url)
                 .get('/apis/apps/v1/namespaces/default/deployments/')
-                .query({ labelSelector: /nodeType=worker,exId=.*/ })
+                .query({ labelSelector: /app\.kubernetes\.io\/component=worker,teraslice\.terascope\.io\/exId=.*/ })
                 .reply(200, {
                     kind: 'DeploymentList',
                     items: [
@@ -228,13 +228,13 @@ describe('k8s', () => {
         it('can delete an execution', async () => {
             nock(_url)
                 .get('/apis/apps/v1/namespaces/default/deployments/')
-                .query({ labelSelector: /nodeType=worker,exId=.*/ })
+                .query({ labelSelector: /app\.kubernetes\.io\/component=worker,teraslice\.terascope\.io\/exId=.*/ })
                 .reply(200, { kind: 'DeploymentList', items: [{ metadata: { name: 'e33b5454' } }] })
                 .get('/apis/batch/v1/namespaces/default/jobs/')
-                .query({ labelSelector: /nodeType=execution_controller,exId=.*/ })
+                .query({ labelSelector: /app\.kubernetes\.io\/component=execution_controller,teraslice\.terascope\.io\/exId=.*/ })
                 .reply(200, { kind: 'JobList', items: [{ metadata: { name: 'e33b5454' } }] })
                 .get('/api/v1/namespaces/default/services/')
-                .query({ labelSelector: /nodeType=execution_controller,exId=.*/ })
+                .query({ labelSelector: /app\.kubernetes\.io\/component=execution_controller,teraslice\.terascope\.io\/exId=.*/ })
                 .reply(200, { kind: 'ServiceList', items: [{ metadata: { name: 'e33b5454' } }] })
                 .delete('/apis/apps/v1/namespaces/default/deployments/e33b5454')
                 .reply(200, {})

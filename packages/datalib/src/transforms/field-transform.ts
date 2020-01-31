@@ -1,208 +1,175 @@
 import * as ts from '@terascope/utils';
 import crypto from 'crypto';
-
+import PhoneValidator from 'awesome-phonenumber';
+import jexl from 'jexl';
+import { ExtractFieldConfig } from './interfaces';
+import { parseGeoPoint } from './helpers';
+import { isString } from '../validations/field-validator';
 import { Repository } from '../interfaces';
 
 export const respoitory: Repository = {
-    uppercase: { fn: uppercase, config: {} },
+    uppercase: { fn: toUpperCase, config: {} },
     truncate: { fn: truncate, config: { size: { type: 'Int!' } } },
     toBoolean: { fn: toBoolean, config: {} },
 };
 
-export function toBoolean(input: string) {
+export function toBoolean(input: any) {
     return ts.toBoolean(input);
 }
 
-export function uppercase(input: string) {
-    if (ts.isString(input)) return input.toUpperCase();
-    return null;
+export function toUpperCase(input: string) {
+    if (!isString(input)) throw new Error('Input must be a string');
+    return input.toUpperCase();
 }
 
-export function toLowerCase(input: any){
+export function toLowerCase(input: string) {
+    if (!isString(input)) throw new Error('Input must be a string');
     return input.toLowerCase();
 }
 
-export function trim(){
-
+export function trim(input: string) {
+    if (!isString(input)) throw new Error('Input must be a string');
+    return ts.trim(input);
 }
-
+// TODO: fix types here
 export function truncate(input: string, args: ts.AnyObject) {
+    if (!isString(input)) throw new Error('Input must be a string');
+
     const { size } = args;
     // should we be throwing
     if (!size || !ts.isNumber(size) || size <= 0) throw new Error('Invalid size paramter for truncate');
-    if (ts.isString(input)) return input.slice(0, size);
-    return null;
+    return input.slice(0, size);
 }
 
-export function noramlizeBoolean(){}
-
-export function noramlizeISDN(){
-    const phoneNumber = new PhoneValidator(`+${data}`);
-        const fullNumber = phoneNumber.getNumber();
-        if (fullNumber) return String(fullNumber).slice(1);
-        throw Error('could not normalize');
+// TODO: could this have a number input?
+export function toISDN(input: string) {
+    const phoneNumber = new PhoneValidator(`+${input}`);
+    const fullNumber = phoneNumber.getNumber();
+    if (fullNumber) return String(fullNumber).slice(1);
+    throw Error('could not genereate ISDN');
 }
 type Case = 'lowercase' | 'uppercase';
 
-export function normalizeMacAddress(
-    input: any,
-    case = 'lowercase',
-    preserveColons = false,
-){
-    let results = input;
-        if (typeof input !== 'string') throw new Error('data must be a string');
-        if (case === 'lowercase') results = results.toLowerCase();
-        if (case === 'uppercase') results = results.toUpperCase();
-        if (!preserveColons) results = results.replace(/:/gi, '');
-        return results;
-}
+// export function normalizeMacAddress(
+//     input: any,
+//     case = 'lowercase',
+//     preserveColons = false,
+// ){
+//     if (!isString(input)) throw new Error('Input must be a string')
 
-export function normalizeNumber(){
-    if (typeof data === 'number') return data;
-    if (typeof data === 'string') {
-        const results = toNumber(data);
+//     let results = input;
+//         if (typeof input !== 'string') throw new Error('data must be a string');
+//         if (case === 'lowercase') results = results.toLowerCase();
+//         if (case === 'uppercase') results = results.toUpperCase();
+//         if (!preserveColons) results = results.replace(/:/gi, '');
+//         return results;
+// }
+
+export function normalizeNumber(input: any) {
+    if (typeof input === 'number') return input;
+    if (typeof input === 'string') {
+        const results = ts.toNumber(input);
         if (Number.isNaN(results)) throw new Error('could not convert to a number');
         return results;
     }
     throw new Error('could not convert to a number');
 }
 
-export function toNumber(input: any){
+export function toNumber(input: any) {
     // TODO: does this check for isNAN
-    return ts.isNumber(input);
+    if (ts.isNumber(input)) return ts.toNumber(input);
+    throw new Error('Input could not convert to a number');
 }
 
-export function decodeBase64(){
-    return Buffer.from(data, 'base64').toString('utf8');
+export function decodeBase64(input: string) {
+    if (!isString(input)) throw new Error('Input must be a string');
+    return Buffer.from(input, 'base64').toString('utf8');
 }
 
-export function encodeBase64(){
-    return Buffer.from(data).toString('base64');
+export function encodeBase64(input: string) {
+    if (!isString(input)) throw new Error('Input must be a string');
+    return Buffer.from(input).toString('base64');
 }
 
-export function decodeUrl(){
-    return decodeURIComponent(data);
+export function decodeUrl(input: string) {
+    if (!isString(input)) throw new Error('Input must be a string');
+    return decodeURIComponent(input);
 }
 
-export function encodeUrl(){
-    return encodeURIComponent(data);
+export function encodeUrl(input: string) {
+    if (!isString(input)) throw new Error('Input must be a string');
+    return encodeURIComponent(input);
 }
 
-export function decodeHex(){
-    return Buffer.from(data, 'hex').toString('utf8');
+export function decodeHex(input: string) {
+    if (!isString(input)) throw new Error('Input must be a string');
+    return Buffer.from(input, 'hex').toString('utf8');
 }
 
-export function encodeHex(){
-    return Buffer.from(data).toString('hex');
+export function encodeHex(input: string) {
+    if (!isString(input)) throw new Error('Input must be a string');
+    return Buffer.from(input).toString('hex');
 }
 
-// TODO: there should be a decode MD5?
-export function encodeMD5(){
-    return crypto.createHash('md5').update(data).digest('hex');
+export function encodeMD5(input: string) {
+    if (!isString(input)) throw new Error('Input must be a string');
+    return crypto.createHash('md5').update(input).digest('hex');
 }
 
-export function encodeSHA(input: any, hash = 'sha256', digest = 'hex'){
+// TODO: better types for this
+export function encodeSHA(input: any, { hash = 'sha256', digest = 'hex' }) {
+    if (!isString(input)) throw new Error('Input must be a string');
+    // TODO: guard for hash ??
+    if (!['latin1', 'hex', 'base64'].includes(digest)) throw new Error('Parameter digest is misconfigured');
+    // @ts-ignore
     return crypto.createHash(hash).update(input).digest(digest);
 }
 
-export function encodeSHA1(){
-    return crypto.createHash('sha1').update(data).digest('hex');
+export function encodeSHA1(input: string) {
+    if (!isString(input)) throw new Error('Input must be a string');
+    return crypto.createHash('sha1').update(input).digest('hex');
 }
 
-export function decodeSHA1(){
-    return crypto.createHash('sha1').update(data).digest('hex');
+export function decodeSHA1(input: string) {
+    if (!isString(input)) throw new Error('Input must be a string');
+    return crypto.createHash('sha1').update(input).digest('hex');
 }
 
-export function parseJSON(input: any){
-    return JSON.parse(input)
+export function parseJSON(input: any) {
+    if (!isString(input)) throw new Error('Input must be a string');
+    return JSON.parse(input);
 }
 
-
-export function dedup(){
-    return uniq(arrayField)
+export function dedup(input: any[]) {
+    if (!Array.isArray(input)) throw new Error('Input must be an array');
+    return ts.uniq(input);
 }
 
+export function toGeoPoint(input: any) {
+    return parseGeoPoint(input, true);
+}
 
-export function parseGeoPoint(point: GeoPointInput): GeoPoint | null {
-    let lat: number | undefined;
-    let lon: number | undefined;
-
-    if (typeof point === 'string') {
-        if (point.match(',')) {
-            [lat, lon] = ts.parseNumberList(point);
-        } else {
-            try {
-                [lat, lon] = Object.values(geoHash.decode(point));
-            } catch (err) {
-                // do nothing
-            }
+export function extract(
+    input: any,
+    {
+        regex, isMultiValue = true, jexlExp, start, end
+    }: ExtractFieldConfig
+) {
+    function getSubslice() {
+        const indexStart = input.indexOf(start);
+        if (indexStart !== -1) {
+            const sliceStart = indexStart + start.length;
+            let endInd = input.indexOf(end, sliceStart);
+            if (endInd === -1) endInd = input.length;
+            const extractedSlice = input.slice(sliceStart, endInd);
+            if (extractedSlice) return input.slice(sliceStart, endInd);
         }
-    } else if (Array.isArray(point)) {
-        // array of points are meant to be lon/lat format
-        [lon, lat] = ts.parseNumberList(point);
-    } else if (ts.isPlainObject(point)) {
-        const results = getLonAndLat(point, throwInvalid);
-        if (results) [lat, lon] = results;
-    }
-
-
-
-    // data incoming is lat,lon and we must return lon,lat
-    if (lat != null && lon != null) {
-        return {
-            lat,
-            lon
-        };
-    }
-
-    throw new ts.TSError(`Invalid geopoint given to parse, point:${point}`);
-}
-
-/** @returns {[lat, lon]} */
-export function getLonAndLat(input: any, throwInvalid = true): [number, number] | null {
-    let lat = input.lat || input.latitude;
-    let lon = input.lon || input.longitude;
-
-    if (isGeoShapePoint(input)) {
-        [lon, lat] = input.coordinates;
-    }
-
-    if (throwInvalid && (!lat || !lon)) {
-        throw new Error('Invalid geopoint object, it must contain keys lat,lon or latitude/longitude');
-    }
-
-    lat = toNumber(lat);
-    lon = toNumber(lon);
-    if (!isNumber(lat) || !isNumber(lon)) {
-        if (throwInvalid) throw new Error('Invalid geopoint, lat and lon must be numbers');
         return null;
-    }
-
-    return [lat, lon];
-}
-
-export function extract() {
-    function isMutation(configs: ExtractionConfig[]): boolean {
-        return configs.some((config) => config.mutate === true);
-    }
-
-    function getSubslice(start: string, end: string) {
-        return (data: string) => {
-            const indexStart = data.indexOf(start);
-            if (indexStart !== -1) {
-                const sliceStart = indexStart + start.length;
-                let endInd = data.indexOf(end, sliceStart);
-                if (endInd === -1) endInd = data.length;
-                const extractedSlice = data.slice(sliceStart, endInd);
-                if (extractedSlice) return data.slice(sliceStart, endInd);
-            }
-            return null;
-        };
     }
 
     type Cb = (data: any) => string|string[]|null;
 
-    function extractField(data: any, fn: Cb, isMultiValue = true) {
+    function extractField(data: any, fn: Cb) {
         if (typeof data === 'string') {
             return fn(data);
         }
@@ -232,116 +199,36 @@ export function extract() {
         return null;
     }
 
-    function matchRegex(config: ExtractionConfig) {
-        return (data: string) => {
-            const results = matchAll(config.regex as string, data);
-            if (config.multivalue) return results;
-            return results ? results[0] : results;
-        };
+    function matchRegex() {
+        const results = ts.matchAll(regex as string, input);
+        if (isMultiValue) return results;
+        return results ? results[0] : results;
     }
 
-    function callExpression(exp: string, origin: DataEntity<AnyObject, {}>) {
+    function callExpression() {
         try {
-            return jexl.evalSync(exp, origin);
+            return jexl.evalSync(jexlExp as string, input);
         } catch (err) {
-            const errMessage = `Invalid jexl expression: ${exp}, error: ${err.message}`;
-            throw new TSError(errMessage);
+            const errMessage = `Invalid jexl expression: ${jexlExp}, error: ${err.message}`;
+            throw new ts.TSError(errMessage);
         }
     }
 
-    function extractAndTransferFields(
-        data: any,
-        dest: DataEntity,
-        config: ExtractionConfig,
-        origin: DataEntity
-    ) {
+    function extractAndTransferFields() {
         let extractedResult;
 
-        if (data !== undefined) {
-            if (config.regex) {
-                const checkRegex = matchRegex(config);
-                extractedResult = extractField(data, checkRegex, config.multivalue);
-            } else if (config.start && config.end) {
-                const { start, end } = config;
-                const sliceString = getSubslice(start, end);
-                extractedResult = extractField(data, sliceString, config.multivalue);
-            } else if (config.exp) {
-                extractedResult = callExpression(config.exp, origin);
-            } else {
-                extractedResult = data;
-            }
-        } else if (config.exp && config.source === undefined) {
-            // this should be a set operation
-            extractedResult = callExpression(config.exp, origin);
+        if (regex) {
+            extractedResult = extractField(input, matchRegex);
+        } else if (start && end) {
+            extractedResult = extractField(input, getSubslice);
+        } else if (jexlExp) {
+            extractedResult = callExpression();
+        } else {
+            extractedResult = input;
         }
-
-        if (extractedResult !== undefined && extractedResult !== null) {
-            set(dest, config.target, extractedResult);
-            dest.setMetadata('hasExtractions', true);
-        }
+        return extractedResult;
     }
 
-    function hasExtracted(record: DataEntity) {
-        return record.getMetadata('hasExtractions') === true;
-    }
-
-    function getData(config: ExtractionConfig, record: DataEntity) {
-        if (config.deepSourceField) {
-            return get(record, config.source as string);
-        }
-        return record[config.source as string];
-    }
-
-    export default class Extraction {
-        private isMutation: boolean;
-        private configs: ExtractionConfig[];
-        static cardinality: InputOutputCardinality = 'one-to-one';
-
-        constructor(configArgs: ExtractionConfig | ExtractionConfig[]) {
-            let configs: ExtractionConfig[];
-            // if its not an array then its a post_process,
-            if (!Array.isArray(configArgs)) {
-                // we normalize configs
-                configs = [configArgs];
-            } else {
-                configs = configArgs;
-            }
-
-            this.isMutation = isMutation(configs);
-
-            configs = configs.map((config) => {
-                if (config.end === 'EOP') config.end = '&';
-                if (config.source && config.source.includes('.')) config.deepSourceField = true;
-                return config;
-            });
-
-            this.configs = configs;
-        }
-
-        run(doc: DataEntity): DataEntity | null {
-            let record: DataEntity;
-
-            if (this.isMutation) {
-                record = doc;
-            } else {
-                record = DataEntity.fork(doc, false);
-            }
-
-            for (const config of this.configs) {
-                const data = getData(config, doc);
-                extractAndTransferFields(data, record, config, doc);
-            }
-
-            if (hasExtracted(record) || this.isMutation) return record;
-            return null;
-        }
-
-        extractionPhaseRun(doc: DataEntity, results: { entity: DataEntity; metadata: any }) {
-            for (const config of this.configs) {
-                const data = getData(config, doc);
-                extractAndTransferFields(data, results.entity, config, doc);
-            }
-        }
-    }
-
+    const results = extractAndTransferFields();
+    if (!results) throw new Error('Was not able to extract anything');
 }

@@ -6,6 +6,7 @@ import {
     GeoShapeRelation,
     CoordinateTuple,
     Variables,
+    ESGeoShape
 } from '../interfaces';
 
 export type SortOrder = 'asc'|'desc';

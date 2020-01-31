@@ -1,16 +1,16 @@
 import { AnyObject } from '@terascope/utils';
 
-type GeoPointArr = [number, number];
-type GeoPointStr = string;
-type GeoObjShort = {lat: string | number; lon: string | number};
-type GeoObjLong = {latitude: string | number; longitude: string | number};
-
-export type GeoPointInput =
-    GeoPointArr|
-    GeoPointStr|
-    GeoObjShort|
-    GeoObjLong|
-    GeoShapePoint;
+export {
+    GeoShapePoint,
+    GeoShapeType,
+    CoordinateTuple,
+    GeoPointInput,
+    GeoShapePolygon,
+    GeoShapeMultiPolygon,
+    GeoShape,
+    ESGeoShapeType,
+    ESGeoShape
+} from '@terascope/datalib/src/interfaces';
 
 export interface GeoDistanceObj {
     distance: number;
@@ -28,7 +28,6 @@ export enum GeoShapeRelation {
     Within = 'within',
     Contains = 'contains'
 }
-
 
 export type GeoDistanceUnit = 'miles'|'yards'|'feet'|'inch'|'kilometers'|'meters'|'centimeters'|'millimeters'|'nauticalmiles';
 
