@@ -5,3 +5,8 @@ export interface ExtractFieldConfig {
     start?: any;
     end?: any;
 }
+
+export interface MacAddressConfig {
+    casing?: 'lowercase' | 'uppercase';
+    preserveColons?: boolean;
+}

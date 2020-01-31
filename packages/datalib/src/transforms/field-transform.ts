@@ -2,15 +2,17 @@ import * as ts from '@terascope/utils';
 import crypto from 'crypto';
 import PhoneValidator from 'awesome-phonenumber';
 import jexl from 'jexl';
-import { ExtractFieldConfig } from './interfaces';
+import { ExtractFieldConfig, MacAddressConfig } from './interfaces';
 import { parseGeoPoint } from './helpers';
-import { isString } from '../validations/field-validator';
+import { isString, isTimestamp } from '../validations/field-validator';
 import { Repository } from '../interfaces';
 
 export const respoitory: Repository = {
     uppercase: { fn: toUpperCase, config: {} },
     truncate: { fn: truncate, config: { size: { type: 'Int!' } } },
     toBoolean: { fn: toBoolean, config: {} },
+    removeIpZoneId: { fn: removeIpZoneId, config: {} },
+    replace: { fn: replace, config: {} }
 };
 
 export function toBoolean(input: any) {
@@ -42,28 +44,26 @@ export function truncate(input: string, args: ts.AnyObject) {
 }
 
 // TODO: could this have a number input?
-export function toISDN(input: string) {
-    const phoneNumber = new PhoneValidator(`+${input}`);
+export function toISDN(input: any) {
+    let testNumber = ts.toString(input).trim();
+    if (testNumber.charAt(0) === '0') testNumber = testNumber.slice(1);
+    // needs to start with a +
+    if (testNumber.charAt(0) !== '+') testNumber = `+${testNumber}`;
+    const phoneNumber = new PhoneValidator(testNumber);
     const fullNumber = phoneNumber.getNumber();
     if (fullNumber) return String(fullNumber).slice(1);
-    throw Error('could not genereate ISDN');
+    throw Error('Could not determine the incoming phone number');
 }
-type Case = 'lowercase' | 'uppercase';
 
-// export function normalizeMacAddress(
-//     input: any,
-//     case = 'lowercase',
-//     preserveColons = false,
-// ){
-//     if (!isString(input)) throw new Error('Input must be a string')
-
-//     let results = input;
-//         if (typeof input !== 'string') throw new Error('data must be a string');
-//         if (case === 'lowercase') results = results.toLowerCase();
-//         if (case === 'uppercase') results = results.toUpperCase();
-//         if (!preserveColons) results = results.replace(/:/gi, '');
-//         return results;
-// }
+export function normalizeMacAddress(input: any, { casing = 'lowercase', preserveColons }: MacAddressConfig) {
+    if (!isString(input)) throw new Error('Input must be a string');
+    let results = input;
+    if (typeof input !== 'string') throw new Error('data must be a string');
+    if (casing === 'lowercase') results = results.toLowerCase();
+    if (casing === 'uppercase') results = results.toUpperCase();
+    if (!preserveColons) results = results.replace(/:/gi, '');
+    return results;
+}
 
 export function normalizeNumber(input: any) {
     if (typeof input === 'number') return input;
@@ -231,4 +231,70 @@ export function extract(
 
     const results = extractAndTransferFields();
     if (!results) throw new Error('Was not able to extract anything');
+}
+
+export function removeIpZoneId(input: string): string {
+    // removes the zone id from ipv6 addresses
+    // fe80:3438:7667:5c77:ce27%18 -> fe80:3438:7667:5c77:ce27
+    if (input.indexOf('%') > -1) {
+        return input.slice(0, input.indexOf('%'));
+    }
+
+    return input;
+}
+
+interface ReplaceConfig {
+    searchValue: string;
+    replaceValue: string;
+    global?: boolean;
+    ignoreCase?: boolean;
+}
+
+export function replace(
+    input: string,
+    {
+        searchValue, replaceValue, global, ignoreCase
+    }: ReplaceConfig
+): string {
+    // special regex chars like *, ., [] must be escaped by user inorder to be taken literally
+    let ops = '';
+
+    if (global) ops += 'g';
+    if (ignoreCase) ops += 'i';
+
+    try {
+        const re = new RegExp(searchValue, ops);
+        return input.replace(re, replaceValue);
+    } catch (e) {
+        throw new Error(e.message);
+    }
+}
+
+export function toUnixTime(input: any): number {
+    if (!isTimestamp(input)) {
+        throw new Error('Not a valid date, cannot transform to unix time');
+    }
+
+    let unixTime = isNaN(input) ? Date.parse(input) : Number(input);
+
+    if (`${unixTime}`.length === 10) unixTime *= 1000;
+
+    return unixTime;
+}
+
+export function toUUID(input: string, args?: { lowercase: boolean }): string {
+    // uuid should be in format of 8-4-4-4-12, 32 hexidecimal chars
+    let allAlpha = `${input}`.replace(/\W/g, '');
+
+    const hexidecimalChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+
+    if (allAlpha.length !== 32
+        || allAlpha.split('').some((char: string | number) => !hexidecimalChars.includes(String(char).toLowerCase()))) {
+        throw new Error('Cannot create a valid UUID number');
+    }
+
+    if (args && args.lowercase) allAlpha = allAlpha.toLowerCase();
+
+    return `${allAlpha.slice(0, 8)}-${allAlpha.slice(8, 12)}`
+        + `-${allAlpha.slice(12, 16)}-${allAlpha.slice(16, 20)}-${allAlpha.slice(20,)}`;
 }
