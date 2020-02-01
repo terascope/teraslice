@@ -34,6 +34,85 @@ const matchingPoint: i.GeoShapePoint = {
 };
 
 describe('field validators', () => {
+    fdescribe('isNumber should', () => {
+        it('return true for a valid number', () => {
+            expect(FieldValidator.isNumber(1)).toBe(true);
+            expect(FieldValidator.isNumber(-11232)).toBe(true);
+            expect(FieldValidator.isNumber(0o32)).toBe(true);
+            expect(FieldValidator.isNumber(17.343)).toBe(true);
+            expect(FieldValidator.isNumber(Infinity)).toBe(true);
+        });
+
+        it('return false for not a number', () => {
+            expect(FieldValidator.isNumber('1')).toBe(false);
+            expect(FieldValidator.isNumber(true)).toBe(false);
+            expect(FieldValidator.isNumber({})).toBe(false);
+            expect(FieldValidator.isNumber([])).toBe(false);
+            expect(FieldValidator.isNumber(null)).toBe(false);
+            expect(FieldValidator.isNumber(undefined)).toBe(false);
+            expect(FieldValidator.isNumber('astring')).toBe(false);
+        })
+
+        it('validate for a number string if args set', () => {
+            expect(FieldValidator.isNumber('1', { coerceStrings: true })).toBe(true);
+            expect(FieldValidator.isNumber('-11343.343', { coerceStrings: true })).toBe(true);
+            expect(FieldValidator.isNumber('0034598348554784', { coerceStrings: true })).toBe(true);
+        })
+
+        it('validate for a int if args set', () => {
+            expect(FieldValidator.isNumber(10, { integer: true })).toBe(true);
+            expect(FieldValidator.isNumber('1', { integer: true })).toBe(false);
+            expect(FieldValidator.isNumber(true, { integer: true })).toBe(false);
+            expect(FieldValidator.isNumber('-11343.343', { coerceStrings: true, integer: true })).toBe(false);
+            expect(FieldValidator.isNumber('0034598348554784', { coerceStrings: true, integer: true })).toBe(true);
+        })
+
+        it('validate if num in a range and args set', () => {
+            expect(FieldValidator.isNumber('1', { coerceStrings: true, min: -10, max: 5 })).toBe(true);
+            expect(FieldValidator.isNumber(1232, { coerceStrings: true, min: -10, max: 5 })).toBe(false);
+            expect(FieldValidator.isNumber(11343.343, { min: 10 })).toBe(true);
+            expect(FieldValidator.isNumber(11343.343, { min: 10, integer: true })).toBe(false);
+        })
+    });
+
+    describe('inRange should', () => {
+        it('return true if number in range', () => {
+            expect(FieldValidator.inRange(44, { min: 0, max: 45 })).toBe(true);
+            expect(FieldValidator.inRange(-12, { min: -100, max: 45 })).toBe(true);
+            expect(FieldValidator.inRange(0, { max: 45 })).toBe(true);
+            expect(FieldValidator.inRange(0, { min: -45 })).toBe(true);
+        });
+
+        it('return false if number out of range', () => {
+            expect(FieldValidator.inRange(44, { min: 0, max: 25 })).toBe(false);
+            expect(FieldValidator.inRange(-12, { min: -10, max: 45 })).toBe(false);
+            expect(FieldValidator.inRange(0, { max: -45 })).toBe(false);
+            expect(FieldValidator.inRange(0, { min: 45 })).toBe(false);
+        });
+
+        it('throw error if not a min and a max', () => {
+            try { expect(FieldValidator.inRange(44, {})).toBe(true); }
+            catch (e) { expect(e.message).toBe('Options must contain min or max'); }
+        });
+    });
+
+    describe('isMacAddress should', () => {
+        it('return true for a valid mac address', () => {
+            expect(FieldValidator.isMacAddress('00:1f:f3:5b:2b:1f')).toBe(true);
+            expect(FieldValidator.isMacAddress('00-1f-f3-5b-2b-1f')).toBe(true);
+            expect(FieldValidator.isMacAddress('001f.f35b.2b1f')).toBe(true);
+            expect(FieldValidator.isMacAddress('00 1f f3 5b 2b 1f')).toBe(true);
+            expect(FieldValidator.isMacAddress('001ff35b2b1f')).toBe(true);
+        });
+
+        it('return false for a invalid mac address', () => {
+            expect(FieldValidator.isMacAddress('00:1:f:5b:2b:1f')).toBe(false);
+            expect(FieldValidator.isMacAddress('00-1Z-fG-5b-2b-1322f')).toBe(false);
+            expect(FieldValidator.isMacAddress('23423423')).toBe(false);
+            expect(FieldValidator.isMacAddress('00_1Z_fG_5b_2b_13')).toBe(false);
+        });
+    });
+
     describe('validValue', () => {
         it('should validate against null and undefined', () => {
             expect(FieldValidator.validValue(undefined)).toBe(false);
@@ -98,10 +177,8 @@ describe('field validators', () => {
             expect(FieldValidator.isTimestamp('23 Jan 2012')).toBe(true);
             expect(FieldValidator.isTimestamp('12.03.2012')).toBe(true);
 
-            // timestamp will milliseconds
+            // millisecond and second timestamps
             expect(FieldValidator.isTimestamp('1552000139673')).toBe(true);
-
-            // timestamp with seconds
             expect(FieldValidator.isTimestamp('1552000139')).toBe(true);
 
             // date object

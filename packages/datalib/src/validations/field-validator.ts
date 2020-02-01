@@ -107,13 +107,51 @@ export function isISDN(input: any) {
     return phoneNumber.isValid();
 }
 
-export function isMacAddress(input: any, { preserveColons = false }) {
-    const options = { no_colons: !preserveColons };
-    return isString(input) && validator.isMACAddress(input, options);
+export function isMacAddress(input: string) {
+    const macAddress = /^([0-9a-fA-F][0-9a-fA-F](:|-|\s)){5}([0-9a-fA-F][0-9a-fA-F])$/;
+    const macAddressNoD = /^([0-9a-fA-F]){12}$/;
+    const macAddressWithDots = /^([0-9a-fA-F]{4}\.){2}([0-9a-fA-F]{4})$/;
+
+    return macAddress.test(input) || macAddressNoD.test(input) || macAddressWithDots.test(input);
 }
 
-export function isNumber(input: any): input is number {
-    return ts.isNumber(input);
+export function inRange(input: number, args: { min?: number, max?: number }) {
+    const { min, max} = args;
+
+    if (min == null && max == null) {
+        throw new Error('Options must contain min or max');
+    }
+
+    let range = true;
+
+    if (min && input < min) range = false;
+    if (max && input > max) range = false;
+
+    return range;
+ }
+
+export function isNumber(input: any, args?: { coerceStrings?: boolean, integer?: boolean, min?: number, max?: number }): input is number {
+    let num = input;
+    let range = true;
+    let int = true;
+
+    if (args && args.coerceStrings) {
+        num = ts.toNumber(num);
+    }
+
+    if (!ts.isNumber(num)) return false;
+
+    if (args) {
+        if (args.min || args.max) {
+            range = inRange(num, { min: args.min, max: args.max });
+        }
+
+        if (args.integer) {
+            int = ts.isInteger(num);
+        }
+    }
+
+    return range && int;
 }
 
 export function isString(input: any) {
@@ -215,10 +253,12 @@ export function validValue(input: any, options?: { invalidValues: any[] }): bool
 
 export function isTimestamp(input: any) {
     // string must be a recognized date format, milliseconds or seconds
-    if (!isNumber(input) || ts.isValidDate(input)) {
+    if (isNaN(input) || Object.prototype.toString.call(input) === '[object Date]') {
         return !isNaN(Date.parse(input));
     }
 
+    // techinally valid timestamps could have different lenths...need to consider the other implications of this
+    // possibly use an option to specificy timestamp ranges
     // if it is a number then it must have 10 digits for seconds or 13 for milliseconds
     return `${input}`.length === 10 || `${input}`.length === 13;
 }

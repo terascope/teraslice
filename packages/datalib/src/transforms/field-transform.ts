@@ -4,20 +4,32 @@ import PhoneValidator from 'awesome-phonenumber';
 import jexl from 'jexl';
 import { ExtractFieldConfig, MacAddressConfig } from './interfaces';
 import { parseGeoPoint } from './helpers';
-import { isString, isTimestamp } from '../validations/field-validator';
+import { isString, isTimestamp, isMacAddress } from '../validations/field-validator';
 import { Repository } from '../interfaces';
+import { valid } from 'semver';
 
 export const respoitory: Repository = {
-    uppercase: { fn: toUpperCase, config: {} },
+    normalizeMacAddress: {
+        fn: normalizeMacAddress,
+        config: {
+            casing: { type: 'uppercase | lowercase' },
+            removeGroups: { type: 'boolean' }
+        } 
+    },
+    removeIpZoneId: { fn: removeIpZoneId, config: {} },
+    replace: { fn: replace, config: {} },
     truncate: { fn: truncate, config: { size: { type: 'Int!' } } },
     toBoolean: { fn: toBoolean, config: {} },
-    removeIpZoneId: { fn: removeIpZoneId, config: {} },
-    replace: { fn: replace, config: {} }
+    toISDN: { fn: toISDN, config: {} },
+    toLowerCase: { fn: toLowerCase, config: {} },
+    toNumber: { fn: toNumber, config: { booleanLike: { type: 'boolean' } } },
+    toUpperCase: { fn: toUpperCase, config: {} },
+    trim: { fn: trim, config: {} },
 };
 
 export function toBoolean(input: any) {
     return ts.toBoolean(input);
-}
+} 
 
 export function toUpperCase(input: string) {
     if (!isString(input)) throw new Error('Input must be a string');
@@ -34,7 +46,7 @@ export function trim(input: string) {
     return ts.trim(input);
 }
 // TODO: fix types here
-export function truncate(input: string, args: ts.AnyObject) {
+export function truncate(input: string, args: { size: number }) {
     if (!isString(input)) throw new Error('Input must be a string');
 
     const { size } = args;
@@ -43,42 +55,46 @@ export function truncate(input: string, args: ts.AnyObject) {
     return input.slice(0, size);
 }
 
-// TODO: could this have a number input?
 export function toISDN(input: any) {
     let testNumber = ts.toString(input).trim();
     if (testNumber.charAt(0) === '0') testNumber = testNumber.slice(1);
+
     // needs to start with a +
     if (testNumber.charAt(0) !== '+') testNumber = `+${testNumber}`;
-    const phoneNumber = new PhoneValidator(testNumber);
-    const fullNumber = phoneNumber.getNumber();
+
+    const fullNumber = new PhoneValidator(testNumber).getNumber();
     if (fullNumber) return String(fullNumber).slice(1);
+
     throw Error('Could not determine the incoming phone number');
 }
 
-export function normalizeMacAddress(input: any, { casing = 'lowercase', preserveColons }: MacAddressConfig) {
-    if (!isString(input)) throw new Error('Input must be a string');
+export function normalizeMacAddress(input: any, args?: MacAddressConfig) {
     let results = input;
-    if (typeof input !== 'string') throw new Error('data must be a string');
-    if (casing === 'lowercase') results = results.toLowerCase();
-    if (casing === 'uppercase') results = results.toUpperCase();
-    if (!preserveColons) results = results.replace(/:/gi, '');
+
+    if (!ts.isString(input) || !isMacAddress(input)) {
+        throw new Error('Not a valid mac address');
+    }
+
+    if (args) {
+        if (args.casing === 'lowercase') results = results.toLowerCase();
+        if (args.casing === 'uppercase') results = results.toUpperCase();
+        if (args.removeGroups) results = results.replace(/:|\.|-|\s/g, '');
+    }
+
     return results;
 }
 
-export function normalizeNumber(input: any) {
-    if (typeof input === 'number') return input;
-    if (typeof input === 'string') {
-        const results = ts.toNumber(input);
-        if (Number.isNaN(results)) throw new Error('could not convert to a number');
-        return results;
-    }
-    throw new Error('could not convert to a number');
-}
+export function toNumber(input: any, args?: { booleanLike?: boolean }) {
+    let result = input;
 
-export function toNumber(input: any) {
-    // TODO: does this check for isNAN
-    if (ts.isNumber(input)) return ts.toNumber(input);
-    throw new Error('Input could not convert to a number');
+    if (args && args.booleanLike && ts.isBooleanLike(input)) {
+        result = ts.toNumber(toBoolean(result));
+    }
+
+    result = ts.toNumber(result);
+
+    if (isNaN(result)) throw new Error('could not convert to a number');
+    return result;
 }
 
 export function decodeBase64(input: string) {
@@ -277,9 +293,18 @@ export function toUnixTime(input: any): number {
 
     let unixTime = isNaN(input) ? Date.parse(input) : Number(input);
 
+    // need to consider how to approach this - args? check_seconds?
     if (`${unixTime}`.length === 10) unixTime *= 1000;
 
     return unixTime;
+}
+
+export function toISO8601(input: any): string {
+    if (!isTimestamp(input)) {
+        throw new Error('Not a valid date');
+    }
+
+    return new Date(input).toISOString();
 }
 
 export function toUUID(input: string, args?: { lowercase: boolean }): string {

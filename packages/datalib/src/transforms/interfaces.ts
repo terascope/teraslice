@@ -8,5 +8,5 @@ export interface ExtractFieldConfig {
 
 export interface MacAddressConfig {
     casing?: 'lowercase' | 'uppercase';
-    preserveColons?: boolean;
+    removeGroups?: boolean;
 }

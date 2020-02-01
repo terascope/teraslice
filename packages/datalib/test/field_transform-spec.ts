@@ -1,6 +1,142 @@
 import * as transform from '../src/transforms/field-transform';
 
 describe('field transforms', () => {
+    describe('toBoolean should', () => {
+        it('return true for truthy values', () => {
+            [32, '1', 'string', true, [], {}, Infinity, new Date(), -87]
+                .forEach((v) => expect(transform.toBoolean(v)).toBe(true));
+        });
+
+        it('return false for falsy values', () => {
+            [0, false, undefined, null, NaN, '', "", ``]
+                .forEach((v) => expect(transform.toBoolean(v)).toBe(false));
+        });
+
+        it('return false for defined falsy values', () => {
+            ['0', 'false', 'no']
+                .forEach((v) => expect(transform.toBoolean(v)).toBe(false));
+        });
+    });
+
+    describe('toUpperCase should', () => {
+        it('return an upper case string', () => {
+            expect(transform.toUpperCase('lowercase')).toBe('LOWERCASE');
+            expect(transform.toUpperCase('11111')).toBe('11111');
+            expect(transform.toUpperCase('MixEdCAsE')).toBe('MIXEDCASE');
+        });    
+    });
+
+    describe('toLowerCase should', () => {
+        it('return a lower case string', () => {
+            expect(transform.toLowerCase('UPPERCASE')).toBe('uppercase');
+            expect(transform.toLowerCase('11111')).toBe('11111');
+            expect(transform.toLowerCase('MixEdCAsE')).toBe('mixedcase');
+        });    
+    });
+
+    describe('trim should', () => {
+        it('trim left and right spaces from a string', () => {
+            expect(transform.trim('   string    ')).toBe('string');
+            expect(transform.trim('   left')).toBe('left');
+            expect(transform.trim('right    ')).toBe('right');
+        });    
+    });
+
+    describe('truncate should', () => {
+        it('return string of designated length', () => {
+            expect(transform.truncate('thisisalongstring', { size: 4 })).toBe('this');
+        });
+
+        it('throw an error if args does not have a valid size', () => {
+            try {
+                expect(transform.truncate('astring', { size: -120 })).toBe('astring');
+            } catch (e) {
+                expect(e.message).toBe('Invalid size paramter for truncate')
+            }
+        });
+    });
+
+    describe('normalize mac address should', () => {
+        it('return the mac address with no changes', () => {
+            expect(transform.normalizeMacAddress('00:1f:f3:5b:2b:1f')).toBe('00:1f:f3:5b:2b:1f');
+            expect(transform.normalizeMacAddress('00-1f-f3-5b-2b-1f')).toBe('00-1f-f3-5b-2b-1f');
+            expect(transform.normalizeMacAddress('001f.f35b.2b1f')).toBe('001f.f35b.2b1f');
+            expect(transform.normalizeMacAddress('001ff35b2b1f')).toBe('001ff35b2b1f');
+        });
+
+        it('return the mac address with proper casing', () => {
+            expect(transform.normalizeMacAddress('00 1f f3 5b 2b 1f', { casing: 'uppercase' })).toBe('00 1F F3 5B 2B 1F');
+            expect(transform.normalizeMacAddress('00-1f-3f-5b-2b-1f', { casing: 'uppercase' })).toBe('00-1F-3F-5B-2B-1F');
+            expect(transform.normalizeMacAddress('001F.F35B.2B1F', { casing: 'lowercase' })).toBe('001f.f35b.2b1f');
+            expect(transform.normalizeMacAddress('001Ff35B2b1F', { casing: 'lowercase' })).toBe('001ff35b2b1f');
+            expect(transform.normalizeMacAddress('001Ff35B2b1F', { casing: 'uppercase' })).toBe('001FF35B2B1F');
+        });
+
+        it('return the mac address and strip the delimiter', () => {
+            expect(transform.normalizeMacAddress('00 1f f3 5b 2b 1f', { casing: 'lowercase', removeGroups: true })).toBe('001ff35b2b1f');
+            expect(transform.normalizeMacAddress('00-1f-3f-5b-2b-1f', { casing: 'uppercase', removeGroups: true })).toBe('001F3F5B2B1F');
+            expect(transform.normalizeMacAddress('001F.F35B.2B1F', { casing: 'lowercase', removeGroups: true })).toBe('001ff35b2b1f');
+            expect(transform.normalizeMacAddress('00:1f:f3:5b:2b:1f', { casing: 'lowercase', removeGroups: true })).toBe('001ff35b2b1f');
+        });
+
+        it('return the mac address and remove group delimiter', () => {
+            expect(transform.normalizeMacAddress('00 1f f3 5b 2b 1f', { casing: 'lowercase', removeGroups: true })).toBe('001ff35b2b1f');
+            expect(transform.normalizeMacAddress('00-1f-3f-5b-2b-1f', { casing: 'uppercase', removeGroups: true })).toBe('001F3F5B2B1F');
+            expect(transform.normalizeMacAddress('001F.F35B.2B1F', { casing: 'lowercase', removeGroups: true })).toBe('001ff35b2b1f');
+            expect(transform.normalizeMacAddress('00:1f:f3:5b:2b:1f', { casing: 'lowercase', removeGroups: true })).toBe('001ff35b2b1f');
+        });
+
+        it('throw an error if an invalid mac address', () => {
+            try {
+                expect(transform.normalizeMacAddress('thisisabadmacaddress', { casing: 'lowercase', removeGroups: true })).toBe('001ff35b2b1f');
+            } catch (e) {
+                expect(e.message).toBe('Not a valid mac address')
+            }
+
+            try {
+                expect(transform.normalizeMacAddress(true)).toBe('001ff35b2b1f');
+            } catch (e) {
+                expect(e.message).toBe('Not a valid mac address')
+            }
+
+            try {
+                expect(transform.normalizeMacAddress(23423432)).toBe('001ff35b2b1f');
+            } catch (e) {
+                expect(e.message).toBe('Not a valid mac address')
+            }
+        });
+    });
+
+    fdescribe('toNumber should', () => {
+        it('return a number from a number string or number', () => {
+            expect(transform.toNumber(12321)).toBe(12321);
+            expect(transform.toNumber('12321')).toBe(12321);
+            expect(transform.toNumber('000011')).toBe(11);
+            expect(transform.toNumber('000011.9834')).toBe(11.9834);
+            expect(transform.toNumber(-34.23432)).toBe(-34.23432);
+            expect(transform.toNumber(Infinity)).toBe(Infinity);
+            expect(transform.toNumber(true)).toBe(1);
+        });
+
+        it('return a number for boolean like if selected in args', () => {
+            expect(transform.toNumber(undefined, { booleanLike: true })).toBe(0);
+            expect(transform.toNumber('true', { booleanLike: true })).toBe(1);
+            expect(transform.toNumber('no', { booleanLike: true })).toBe(0);
+            expect(transform.toNumber(null, { booleanLike: true })).toBe(0);
+        });
+
+        it('throw an error if input cannot be coerced to a number', () => {
+            try { expect(transform.toNumber('bobsyouruncle')).toBe(12321); }
+            catch(e) { expect(e.message).toBe('could not convert to a number'); }
+
+            try { expect(transform.toNumber({})).toBe(12321); }
+            catch(e) { expect(e.message).toBe('could not convert to a number'); }
+
+            try { expect(transform.toNumber(undefined)).toBe(12321); }
+            catch(e) { expect(e.message).toBe('could not convert to a number'); }
+        });
+    });
+
     describe('removeIpZoneId should', () => {
         it('remove zone id and return ip address', () => {
             expect(transform.removeIpZoneId('8.8.8.8')).toBe('8.8.8.8');
@@ -12,6 +148,7 @@ describe('field transforms', () => {
     });
 
     describe('replace should', () => {
+        // TODO: this needs more testing
         it('find and replace values in string', () => {
             expect(transform.replace('this-is-a-string', { searchValue: '-', replaceValue: ' ' })).toBe('this is-a-string');
             expect(transform.replace('this-is-a-string', { searchValue: '-', replaceValue: ' ', global: true })).toBe('this is a string');
@@ -54,24 +191,88 @@ describe('field transforms', () => {
         });
     });
 
+    describe('toUnixTime should', () => {
+        it('convert date iso strings and date objects to unix time', () => {
+            const testDate = new Date();
+            const unixTime = testDate.getTime();
+            const isoTime = testDate.toISOString();
+
+            expect(transform.toUnixTime(testDate)).toBe(unixTime);
+            expect(transform.toUnixTime(isoTime)).toBe(unixTime);
+            expect(transform.toUnixTime(unixTime)).toBe(unixTime);
+        });
+
+        it('convert date time in seconds to unix time', () => {
+            expect(transform.toUnixTime(1580418907)).toBe(1580418907000);
+            expect(transform.toUnixTime('1580418907')).toBe(1580418907000);
+        });
+
+        it('convert string dates to unix time', () => {
+            expect(transform.toUnixTime('2020-01-01')).toBe(1577836800000);
+            expect(transform.toUnixTime('Jan 1, 2020 UTC')).toBe(1577836800000);
+            expect(transform.toUnixTime('2020 Jan, 1 UTC')).toBe(1577836800000);
+        });
+
+        it('invalid dates will throw errors', () => {
+            try {
+                transform.toUnixTime('notADate');
+            } catch (e) {
+                expect(e.message).toBe('Not a valid date, cannot transform to unix time');
+            }
+        });
+    });
+
+    xdescribe('toISO8601 should', () => {
+        it('convert date iso strings and date objects to unix time', () => {
+            const testDate = new Date();
+            const unixTime = testDate.getTime();
+            const isoTime = testDate.toISOString();
+
+            expect(transform.toISO8601(testDate)).toBe(isoTime);
+            expect(transform.toISO8601(isoTime)).toBe(isoTime);
+            expect(transform.toISO8601(unixTime)).toBe(isoTime);
+        });
+
+        it('convert date time in seconds to unix time', () => {
+            expect(transform.toISO8601(1580418907)).toBe('2020-01-30T21:15:07.000Z');
+            expect(transform.toISO8601('1580418907')).toBe('2020-01-30T21:15:07.000Z');
+        });
+
+        it('convert string dates to unix time', () => {
+            expect(transform.toISO8601('2020-01-01')).toBe('2020-01-01T00:00:00.000Z');
+            expect(transform.toISO8601('Jan 1, 2020 UTC')).toBe('2020-01-01T00:00:00.000Z');
+            expect(transform.toISO8601('2020 Jan, 1 UTC')).toBe('2020-01-01T00:00:00.000Z');
+        });
+
+        it('invalid dates will throw errors', () => {
+            try {
+                transform.toUnixTime('notADate');
+            } catch (e) {
+                expect(e.message).toBe('Not a valid date, cannot transform to unix time');
+            }
+        });
+    });
+
     describe('formatPhoneNumber should', () => {
         it('return phone number without dashes, spaces, or +', () => {
             expect(transform.toISDN('4917600000000')).toBe('4917600000000');
             expect(transform.toISDN('    1 (555) 555 2311     ')).toBe('15555552311');
             expect(transform.toISDN('+33-1-22-33-44-55')).toBe('33122334455');
-            // second 1 is not returned
             expect(transform.toISDN('+11 7 812 222 2323')).toBe('178122222323');
             expect(transform.toISDN('1.555.555.2311')).toBe('15555552311');
             expect(transform.toISDN('1234')).toBe('1234');
             expect(transform.toISDN('86 591 83123456')).toBe('8659183123456');
-            // the leading 0 in the second group is removed
             expect(transform.toISDN('33 08 54 23 12 00')).toBe('33854231200');
-            // same 0 is removed but without the international formating
             expect(transform.toISDN('+330854231200')).toBe('33854231200');
             expect(transform.toISDN('49 116 4331 12348')).toBe('49116433112348');
             expect(transform.toISDN('1(800)FloWErs')).toBe('18003569377');
             expect(transform.toISDN('86 598 13411-859395')).toBe('8659813411859395');
             expect(transform.toISDN('467*(070)1.23[45]/67')).toBe('4670701234567');
+        });
+
+        it('return phone number if input is a number', () => {
+            expect(transform.toISDN(4917600000000)).toBe('4917600000000');
+            expect(transform.toISDN(49187484)).toBe('49187484');
         });
 
         it('throw an error when it can not determine the phone number', () => {
