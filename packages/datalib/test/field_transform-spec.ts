@@ -107,7 +107,7 @@ describe('field transforms', () => {
         });
     });
 
-    fdescribe('toNumber should', () => {
+    describe('toNumber should', () => {
         it('return a number from a number string or number', () => {
             expect(transform.toNumber(12321)).toBe(12321);
             expect(transform.toNumber('12321')).toBe(12321);

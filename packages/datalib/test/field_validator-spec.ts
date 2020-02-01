@@ -34,7 +34,7 @@ const matchingPoint: i.GeoShapePoint = {
 };
 
 describe('field validators', () => {
-    fdescribe('isNumber should', () => {
+    describe('isNumber should', () => {
         it('return true for a valid number', () => {
             expect(FieldValidator.isNumber(1)).toBe(true);
             expect(FieldValidator.isNumber(-11232)).toBe(true);
@@ -53,13 +53,13 @@ describe('field validators', () => {
             expect(FieldValidator.isNumber('astring')).toBe(false);
         })
 
-        it('validate for a number string if args set', () => {
+        it('validate a number string if args set', () => {
             expect(FieldValidator.isNumber('1', { coerceStrings: true })).toBe(true);
             expect(FieldValidator.isNumber('-11343.343', { coerceStrings: true })).toBe(true);
             expect(FieldValidator.isNumber('0034598348554784', { coerceStrings: true })).toBe(true);
         })
 
-        it('validate for a int if args set', () => {
+        it('validate an int if args set', () => {
             expect(FieldValidator.isNumber(10, { integer: true })).toBe(true);
             expect(FieldValidator.isNumber('1', { integer: true })).toBe(false);
             expect(FieldValidator.isNumber(true, { integer: true })).toBe(false);
@@ -134,34 +134,6 @@ describe('field validators', () => {
             expect(FieldValidator.validValue(12345, options)).toBe(false);
         });
     });
-
-    // describe('isInteger', () => {
-    //     it('should validate ints', () => {
-    //         expect(FieldValidator.isInteger(3)).toBe(true);
-    //         expect(FieldValidator.isInteger('3')).toBe(true);
-    //         expect(FieldValidator.isInteger('0003433')).toBe(true);
-    //         expect(FieldValidator.isInteger('-12321')).toBe(true);
-    //         expect(FieldValidator.isInteger(0)).toBe(true);
-
-    //         expect(FieldValidator.isInteger(3.14159)).toBe(false);
-    //         expect(FieldValidator.isInteger('3.14159')).toBe(false);
-    //         expect(FieldValidator.isInteger(true)).toBe(false);
-    //         expect(FieldValidator.isInteger(['1232', 343])).toBe(false);
-    //         expect(FieldValidator.isInteger(undefined)).toBe(false);
-    //         expect(FieldValidator.isInteger('bob')).toBe(false);
-    //     });
-
-    //     it('validate ints with a options', () => {
-    //         expect(FieldValidator.isInteger('3', { min: 0, max: 100 })).toBe(true);
-    //         expect(FieldValidator.isInteger(1032, { min: 100 })).toBe(true);
-    //         expect(FieldValidator.isInteger('12', { max: 100 })).toBe(true);
-    //         expect(FieldValidator.isInteger('-1343', { min: 0, max: 100 })).toBe(false);
-    //         expect(FieldValidator.isInteger('bob', { min: 0, max: 100 })).toBe(false);
-    //         expect(FieldValidator.isInteger(undefined, { min: 0, max: 100 })).toBe(false);
-    //         expect(FieldValidator.isInteger(true, { min: 0 })).toBe(false);
-    //         expect(FieldValidator.isInteger(1032, { max: 100 })).toBe(false);
-    //     });
-    // });
 
     describe('isTimestamp should', () => {
         it('validate timestamps', () => {
