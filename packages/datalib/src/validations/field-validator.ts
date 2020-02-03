@@ -97,10 +97,35 @@ export function isGeoShapeMultiPolygon(input: i.JoinGeoShape) {
     return isGeoJSON(input)
     && (input.type === i.GeoShapeType.MultiPolygon || input.type === i.ESGeoShapeType.MultiPolygon);
 }
-// TODO: test pass this
-export function isIP(input: any) {
+
+export function isIP(input: any, args?: { public: boolean }) {
     if (checkIp(input) === 0) return false;
+
+    // needed to check for inputs like - '::192.168.1.18'
+    if (input.includes(':') && input.includes('.')) return false;
+
+    if (args) {
+        if (args.public) return isPublicIp(input);
+
+        return isPublicIp(input, { private: true });
+    }
+
     return true;
+}
+
+export function isPublicIp(input: any, options?: { private: boolean }) {
+    if (!isIP(input)) return false;
+
+    const range = ipaddr.parse(input).range();
+
+    // ipv6 private is parsed as uniqueLocal
+    const privateIp = range === 'private' || range === 'uniqueLocal' ? true : false;
+
+    if (options && options.private) {
+        return privateIp;
+    }
+
+    return !privateIp;
 }
 
 export function isISDN(input: any) {
@@ -110,10 +135,10 @@ export function isISDN(input: any) {
 
 export function isMacAddress(input: string) {
     const macAddress = /^([0-9a-fA-F][0-9a-fA-F](:|-|\s)){5}([0-9a-fA-F][0-9a-fA-F])$/;
-    const macAddressNoD = /^([0-9a-fA-F]){12}$/;
+    const macAddressNoDelimiter = /^([0-9a-fA-F]){12}$/;
     const macAddressWithDots = /^([0-9a-fA-F]{4}\.){2}([0-9a-fA-F]{4})$/;
 
-    return macAddress.test(input) || macAddressNoD.test(input) || macAddressWithDots.test(input);
+    return macAddress.test(input) || macAddressNoDelimiter.test(input) || macAddressWithDots.test(input);
 }
 
 export function inRange(input: number, args: { min?: number, max?: number }) {
@@ -259,27 +284,7 @@ export function isTimestamp(input: any) {
     }
 
     // techinally valid timestamps could have different lenths...need to consider the other implications of this
-    // possibly use an option to specificy timestamp ranges
+    // possibly use an option to specificy timestamp ranges or date ranges in general
     // if it is a number then it must have 10 digits for seconds or 13 for milliseconds
     return `${input}`.length === 10 || `${input}`.length === 13;
-}
-
-export function isPublicIp(input: any, options?: { private: boolean }) {
-    let range;
-    let result = true;
-
-    try {
-        range = ipaddr.parse(input).range();
-    } catch (e) {
-        return false;
-    }
-
-    // ipv6 private is parsed as uniqueLocal
-    if (range === 'private' || range === 'uniqueLocal') {
-        result = false;
-    }
-
-    if (options && options.private) return !result;
-
-    return result;
 }
