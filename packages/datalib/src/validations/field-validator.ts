@@ -1,6 +1,7 @@
 import * as ts from '@terascope/utils';
 import ipaddr from 'ipaddr.js';
-import { isIP as checkIp } from 'net';
+import { isIP as checkIP, isIPv6 } from 'net';
+import isCidr from 'is-cidr';
 import PhoneValidator from 'awesome-phonenumber';
 import validator from 'validator';
 import * as url from 'valid-url';
@@ -25,7 +26,7 @@ export const respoitory: i.Repository = {
     isGeoShapePoint: { fn: isGeoShapePoint, config: {} },
     isGeoShapePolygon: { fn: isGeoShapePolygon, config: {} },
     isGeoShapeMultiPolygon: { fn: isGeoShapeMultiPolygon, config: {} },
-    isIP: { fn: isIP, config: {} },
+    isIP: { fn: isIp, config: {} },
     isISDN: { fn: isISDN, config: {} },
     isMacAddress: { fn: isMacAddress, config: { preserveColons: { type: 'Boolean!' } } },
     isNumber: { fn: isNumber, config: { coerceStrings: { type: 'Boolean!' }, integer: { type: 'Boolean!' }, min: { type: 'Number!' }, max: { type: 'Number!' } } },
@@ -98,8 +99,8 @@ export function isGeoShapeMultiPolygon(input: i.JoinGeoShape) {
     && (input.type === i.GeoShapeType.MultiPolygon || input.type === i.ESGeoShapeType.MultiPolygon);
 }
 
-export function isIP(input: any, args?: { public: boolean }) {
-    if (checkIp(input) === 0) return false;
+export function isIp(input: any, args?: { public: boolean }) {
+    if (checkIP(input) === 0) return false;
 
     // needed to check for inputs like - '::192.168.1.18'
     if (input.includes(':') && input.includes('.')) return false;
@@ -114,7 +115,7 @@ export function isIP(input: any, args?: { public: boolean }) {
 }
 
 export function isPublicIp(input: any, options?: { private: boolean }) {
-    if (!isIP(input)) return false;
+    if (!isIp(input)) return false;
 
     const range = ipaddr.parse(input).range();
 
@@ -127,6 +128,43 @@ export function isPublicIp(input: any, options?: { private: boolean }) {
 
     return !privateIp;
 }
+
+export function isIpCidr(input: any) {
+    try {
+        const res = isCidr(input);
+        if (res > 0) return true;
+    } catch(e) {
+        return false;
+    }
+
+    return false;
+}
+
+/*
+export function inIpRange(input: any, args: { min?: string, max?: string, cidr?: string } ) {
+    const MIN_IPV4_IP = '0.0.0.0';
+    const MAX_IPV4_IP = '255.255.255.255';
+    const MIN_IPV6_IP = '::';
+    const MAX_IPV6_IP = 'ffff.ffff.ffff.ffff.ffff.ffff.ffff.ffff';
+
+    if (!isIp(input)) return false;
+
+    if (args.cidr && isCidr(args.cidr)) {
+        const sub = ip6addr.createCIDR(args.cidr);
+        return sub.contains(input);
+    }
+
+    if ((args.min && isIp(args.min)) || (args.max && isIp(args.max))) {
+        const min = !args.min && isIPv6(input) ? MIN_IPV6_IP : MIN_IPV4_IP;
+        const max = !args.max && isIPv6(input) ? MIN_IPV6_IP : MIN_IPV4_IP;
+
+        const sub = ip6addr.createAddrRange(min, max);
+        return sub.contains(input);
+    }
+
+    return false;
+}
+*/
 
 export function isISDN(input: any) {
     const phoneNumber = new PhoneValidator(`+${input}`);
@@ -143,10 +181,6 @@ export function isMacAddress(input: string) {
 
 export function inRange(input: number, args: { min?: number, max?: number }) {
     const { min, max} = args;
-
-    if (min == null && max == null) {
-        throw new Error('Options must contain min or max');
-    }
 
     let range = true;
 

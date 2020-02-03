@@ -98,44 +98,44 @@ describe('field validators', () => {
 
     fdescribe('isIp should', () => {
         it('return true for valid ips', () => {
-            expect(FieldValidator.isIP('8.8.8.8')).toBe(true);
-            expect(FieldValidator.isIP('192.172.1.18')).toBe(true);
-            expect(FieldValidator.isIP('11.0.1.18')).toBe(true);
-            expect(FieldValidator.isIP('2001:db8:85a3:8d3:1319:8a2e:370:7348')).toBe(true);
-            expect(FieldValidator.isIP('fe80::1ff:fe23:4567:890a%eth2')).toBe(true);
-            expect(FieldValidator.isIP('2001:DB8::1')).toBe(true);
-            expect(FieldValidator.isIP('172.16.0.1')).toBe(true);
-            expect(FieldValidator.isIP('10.168.0.1')).toBe(true);
-            expect(FieldValidator.isIP('fc00:db8:85a3:8d3:1319:8a2e:370:7348')).toBe(true);
+            expect(FieldValidator.isIp('8.8.8.8')).toBe(true);
+            expect(FieldValidator.isIp('192.172.1.18')).toBe(true);
+            expect(FieldValidator.isIp('11.0.1.18')).toBe(true);
+            expect(FieldValidator.isIp('2001:db8:85a3:8d3:1319:8a2e:370:7348')).toBe(true);
+            expect(FieldValidator.isIp('fe80::1ff:fe23:4567:890a%eth2')).toBe(true);
+            expect(FieldValidator.isIp('2001:DB8::1')).toBe(true);
+            expect(FieldValidator.isIp('172.16.0.1')).toBe(true);
+            expect(FieldValidator.isIp('10.168.0.1')).toBe(true);
+            expect(FieldValidator.isIp('fc00:db8:85a3:8d3:1319:8a2e:370:7348')).toBe(true);
         });
 
         it('return true for private or public ips if specified', () => {
-            expect(FieldValidator.isIP('8.8.8.8', { public: true })).toBe(true);
-            expect(FieldValidator.isIP('192.172.1.18', { private: true })).toBe(false);
-            expect(FieldValidator.isIP('2001:db8:85a3:8d3:1319:8a2e:370:7348', { public: true })).toBe(true);
-            expect(FieldValidator.isIP('fe80::1ff:fe23:4567:890a%eth2', { private: true })).toBe(false);
+            expect(FieldValidator.isIp('8.8.8.8', { public: true })).toBe(true);
+            expect(FieldValidator.isIp('192.172.1.18', { public: false })).toBe(false);
+            expect(FieldValidator.isIp('2001:db8:85a3:8d3:1319:8a2e:370:7348', { public: true })).toBe(true);
+            expect(FieldValidator.isIp('fe80::1ff:fe23:4567:890a%eth2', { public: false })).toBe(false);
 
-            expect(FieldValidator.isIP('172.16.0.1', { public: true })).toBe(false);
-            expect(FieldValidator.isIP('10.168.0.1', { private: true })).toBe(true);
-            expect(FieldValidator.isIP('fc00:db8:85a3:8d3:1319:8a2e:370:7348', { private: true })).toBe(true);
-            expect(FieldValidator.isIP('fc00:db8::1', { public: true })).toBe(false);
+            expect(FieldValidator.isIp('172.16.0.1', { public: true })).toBe(false);
+            expect(FieldValidator.isIp('10.168.0.1', { public: false })).toBe(true);
+            expect(FieldValidator.isIp('fc00:db8:85a3:8d3:1319:8a2e:370:7348', { public: false })).toBe(true);
+            expect(FieldValidator.isIp('fc00:db8::1', { public: true })).toBe(false);
         });
 
         it('return false for invalid ip addresses', () => {
-            expect(FieldValidator.isIP('NA')).toBe(false);
-            expect(FieldValidator.isIP('')).toBe(false);
-            expect(FieldValidator.isIP('172.394.0.1')).toBe(false);
-            expect(FieldValidator.isIP(undefined)).toBe(false);
-            expect(FieldValidator.isIP('ZXXY:db8:85a3:8d3:1319:8a2e:370:7348')).toBe(false);
-            expect(FieldValidator.isIP('::192.168.1.18')).toBe(false);
-            expect(FieldValidator.isIP('11.222.33.001')).toBe(false);
-            expect(FieldValidator.isIP('87')).toBe(false);
-            expect(FieldValidator.isIP('02751178')).toBe(false);
-            expect(FieldValidator.isIP(true)).toBe(false);
-            expect(FieldValidator.isIP({})).toBe(false);
-            expect(FieldValidator.isIP([])).toBe(false);
-            expect(FieldValidator.isIP(123456678)).toBe(false);
-            expect(FieldValidator.isIP(12.4345)).toBe(false);
+            expect(FieldValidator.isIp('NA')).toBe(false);
+            expect(FieldValidator.isIp('')).toBe(false);
+            expect(FieldValidator.isIp('172.394.0.1')).toBe(false);
+            expect(FieldValidator.isIp(undefined)).toBe(false);
+            expect(FieldValidator.isIp('ZXXY:db8:85a3:8d3:1319:8a2e:370:7348')).toBe(false);
+            expect(FieldValidator.isIp('::192.168.1.18')).toBe(false);
+            expect(FieldValidator.isIp('11.222.33.001')).toBe(false);
+            expect(FieldValidator.isIp('87')).toBe(false);
+            expect(FieldValidator.isIp('02751178')).toBe(false);
+            expect(FieldValidator.isIp(true)).toBe(false);
+            expect(FieldValidator.isIp({})).toBe(false);
+            expect(FieldValidator.isIp([])).toBe(false);
+            expect(FieldValidator.isIp(123456678)).toBe(false);
+            expect(FieldValidator.isIp(12.4345)).toBe(false);
         });
     });
 
