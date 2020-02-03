@@ -9,13 +9,14 @@ import {
 } from './helpers';
 import { parseGeoPoint } from '../../../utils';
 import * as i from '../../interfaces';
-import { AnyQuery, ESGeoShapeType, GeoQuery } from '../../../translator/interfaces';
+import { AnyQuery, GeoQuery } from '../../../translator/interfaces';
 import {
     FieldType,
     GeoShapeRelation,
     CoordinateTuple,
     GeoShapeType,
     GeoShape,
+    ESGeoShapeType
 } from '../../../interfaces';
 import { isWildCardString, parseWildCard, matchString } from '../../../document-matcher/logic-builder/string';
 

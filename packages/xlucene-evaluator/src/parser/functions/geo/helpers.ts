@@ -31,8 +31,9 @@ import {
     GeoShapePolygon,
     GeoShapeMultiPolygon,
     GeoShape,
+    ESGeoShapeType,
+    ESGeoShape
 } from '../../../interfaces';
-import { ESGeoShapeType, ESGeoShape } from '../../../translator/interfaces';
 
 export function polyHasPoint(polygon: any) {
     return (fieldData: GeoPointInput) => {

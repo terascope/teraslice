@@ -3,9 +3,14 @@ import { debugLogger } from '@terascope/utils';
 import { randomPolygon } from '@turf/random';
 import { getCoords } from '@turf/invariant';
 import { Parser } from '../../src';
-import { UtilsTranslateQueryOptions, ESGeoShapeType } from '../../src/translator/interfaces';
+import { UtilsTranslateQueryOptions } from '../../src/translator/interfaces';
 import {
-    TypeConfig, FieldType, GeoShapeRelation, GeoShapeType, CoordinateTuple
+    TypeConfig,
+    FieldType,
+    GeoShapeRelation,
+    GeoShapeType,
+    CoordinateTuple,
+    ESGeoShapeType
 } from '../../src/interfaces';
 
 describe('geoPolygon', () => {

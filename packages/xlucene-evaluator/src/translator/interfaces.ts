@@ -6,6 +6,7 @@ import {
     GeoShapeRelation,
     CoordinateTuple,
     Variables,
+    ESGeoShape
 } from '../interfaces';
 
 export type SortOrder = 'asc'|'desc';
@@ -65,29 +66,6 @@ export interface ExistsQuery {
         field: string;
     };
 }
-
-export enum ESGeoShapeType {
-    Point = 'point',
-    Polygon = 'polygon',
-    MultiPolygon = 'multipolygon'
-}
-
-export type ESGeoShapePoint = {
-    type: ESGeoShapeType.Point;
-    coordinates: CoordinateTuple;
-}
-
-export type ESGeoShapePolygon = {
-    type: ESGeoShapeType.Polygon;
-    coordinates: CoordinateTuple[][];
-}
-
-export type ESGeoShapeMultiPolygon = {
-    type: ESGeoShapeType.MultiPolygon;
-    coordinates: CoordinateTuple[][][];
-}
-
-export type ESGeoShape = ESGeoShapePoint | ESGeoShapePolygon | ESGeoShapeMultiPolygon
 
 export interface GeoQuery {
     geo_bounding_box?: {

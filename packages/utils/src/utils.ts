@@ -70,13 +70,6 @@ export function isFunction(input: any): input is Function {
     return !!(input && typeof input === 'function');
 }
 
-/** Convert any input into a boolean, this will work with stringified boolean */
-export function toBoolean(input: any): boolean {
-    const val: any = isString(input) ? trimAndToLower(input) : input;
-    const thruthy = [1, '1', true, 'true', 'yes'];
-    return thruthy.includes(val);
-}
-
 export function isBuffer(input: any): input is Buffer {
     return input != null && Buffer.isBuffer(input);
 }
@@ -91,6 +84,23 @@ export function ensureBuffer(input: string|Buffer, encoding: BufferEncoding = 'u
     throw new Error(`Invalid input given, expected string or buffer, got ${getTypeOf(input)}`);
 }
 
+function isFalsy(input: any) {
+    return [0, '0', 'false', 'no'].includes(input);
+}
+
+function isTruthy(input: any) {
+    return [1, '1', 'true', 'yes'].includes(input);
+}
+
+/** Convert any input into a boolean, this will work with stringified boolean */
+export function toBoolean(input: any): boolean {
+    const val: string = isString(input) ? trimAndToLower(input) : `${input}`;
+    if (isTruthy(val)) return true;
+    if (isFalsy(val)) return false;
+
+    return Boolean(input);
+}
+
 export function isBoolean(input: any): input is boolean {
     if (typeof input === 'boolean') return true;
     return false;
@@ -99,7 +109,7 @@ export function isBoolean(input: any): input is boolean {
 export function isBooleanLike(input: any): boolean {
     if (input == null) return true;
     if (typeof input === 'boolean') return true;
-    if (input === 1 || input === 0) return true;
+    if (isFalsy(input) || isTruthy(input)) return true;
     return false;
 }
 

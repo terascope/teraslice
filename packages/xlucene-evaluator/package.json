@@ -31,6 +31,7 @@
     },
     "dependencies": {
         "@terascope/utils": "^0.22.0",
+        "@terascope/datalib": "^0.1.0",
         "@turf/bbox": "^6.0.1",
         "@turf/bbox-polygon": "^6.0.1",
         "@turf/boolean-contains": "^6.0.1",
