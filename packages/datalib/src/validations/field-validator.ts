@@ -27,7 +27,7 @@ export const respoitory: i.Repository = {
     isGeoShapePoint: { fn: isGeoShapePoint, config: {} },
     isGeoShapePolygon: { fn: isGeoShapePolygon, config: {} },
     isGeoShapeMultiPolygon: { fn: isGeoShapeMultiPolygon, config: {} },
-    isIP: { fn: isIp, config: {} },
+    isIp: { fn: isIp, config: {} },
     isISDN: { fn: isISDN, config: {} },
     isMacAddress: { fn: isMacAddress, config: { preserveColons: { type: 'Boolean!' } } },
     isNumber: { fn: isNumber, config: { coerceStrings: { type: 'Boolean!' }, integer: { type: 'Boolean!' }, min: { type: 'Number!' }, max: { type: 'Number!' } } },
@@ -221,47 +221,62 @@ export function isNumber(input: any, args?: { coerceStrings?: boolean, integer?:
     return range && int;
 }
 
-export function isString(input: any) {
+export function isString(input: any): boolean {
     return ts.isString(input);
 }
 
-export function isUrl(input: string) {
-    return isString(input) && url.isUri(input);
+export function isUrl(input: any): boolean {
+    if (!isString(input) || url.isUri(input) == null) return false;
+
+    return true;
 }
 
-export function isUUID(input: any) {
+export function isUUID(input: any): boolean {
     return isString(input) && validator.isUUID(input);
 }
 
-export function contains(input: any, { value }: { value: string }) {
-    return isString(input) && input.contains(value);
+// test arrays too?
+export function contains(input: any, { value }: { value: string }): boolean {
+    return isString(input) && input.includes(value);
 }
 // TODO: should this do more
-export function equals(input: any, { value }: { value: string }) {
+// convert to string and then check?
+export function equals(input: any, { value }: { value: string }): boolean {
     return isString(input) && input === value;
 }
 
-export function isAlpha(input: any) {
-    return isString(input) && validator.isAlpha(input);
+export function isAlpha(input: any, args?: { locale: validator.AlphaLocale }): boolean {
+    let locale: validator.AlphaLocale = 'en-US';
+    if (args && args.locale) locale = args.locale;
+
+    return isString(input) && validator.isAlpha(input, locale);
 }
 
-export function isAlphanumeric(input: any) {
-    return isString(input) && validator.isAlphanumeric(input);
+export function isAlphanumeric(input: any, args?: { locale: validator.AlphanumericLocale }): boolean {
+    let locale: validator.AlphanumericLocale = 'en-US';
+    if (args && args.locale) locale = args.locale;
+
+    return isString(input) && validator.isAlphanumeric(input, locale);
 }
 
-export function isAscii(input: any) {
+export function isAscii(input: any): boolean {
     return isString(input) && validator.isAscii(input);
 }
 
-export function isBase64(input: any) {
+export function isBase64(input: any): boolean {
     return isString(input) && validator.isBase64(input);
 }
 
-export function isEmpty(input: any) {
-    return ts.isEmpty(input);
+export function isEmpty(input: any, args?: { ignore_whitespace: boolean }): boolean {
+    let value = input;
+    if (isString(value) && args && args.ignore_whitespace) {
+        value = value.trim();
+    }
+
+    return ts.isEmpty(value);
 }
 
-export function isFQDN(input: any, config?: FQDNOptions) {
+export function isFQDN(input: any, config?: FQDNOptions): boolean {
     return isString(input) && validator.isFQDN(input, config);
 }
 
