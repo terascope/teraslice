@@ -173,12 +173,12 @@ export function inIpRange(input: any, args: { min?: string, max?: string, cidr?:
     return ip6addr.createAddrRange(min, max).contains(input);
 }
 
-export function isISDN(input: any) {
+export function isISDN(input: any): boolean {
     const phoneNumber = new PhoneValidator(`+${input}`);
     return phoneNumber.isValid();
 }
 
-export function isMacAddress(input: string) {
+export function isMacAddress(input: string): boolean {
     const macAddress = /^([0-9a-fA-F][0-9a-fA-F](:|-|\s)){5}([0-9a-fA-F][0-9a-fA-F])$/;
     const macAddressNoDelimiter = /^([0-9a-fA-F]){12}$/;
     const macAddressWithDots = /^([0-9a-fA-F]{4}\.){2}([0-9a-fA-F]{4})$/;
@@ -186,7 +186,7 @@ export function isMacAddress(input: string) {
     return macAddress.test(input) || macAddressNoDelimiter.test(input) || macAddressWithDots.test(input);
 }
 
-export function inRange(input: number, args: { min?: number, max?: number }) {
+export function inRange(input: number, args: { min?: number, max?: number }): boolean {
     const { min, max} = args;
 
     let range = true;
@@ -280,35 +280,36 @@ export function isFQDN(input: any, config?: FQDNOptions): boolean {
     return isString(input) && validator.isFQDN(input, config);
 }
 
-export function isHash(input: any, { algo }: HashConfig) {
+export function isHash(input: any, { algo }: HashConfig): boolean {
     return isString(input) && validator.isHash(input, algo);
 }
 
-export function isISBN(input: any) {
+// is this needed?  International Standard Book Number?
+export function isISBN(input: any): boolean {
     return isString(input) && validator.isISBN(input);
 }
 
-export function isISO31661Alpha2(input: any) {
+export function isISO31661Alpha2(input: any): boolean {
     return isString(input) && validator.isISO31661Alpha2(input);
 }
 
-export function isISO8601(input: any) {
+export function isISO8601(input: any): boolean {
     return isString(input) && validator.isISO8601(input);
 }
 
-export function isISSN(input: any, { caseSensitive = false, requireHyphen = false }) {
-    const options = { case_sensitive: caseSensitive, require_hyphen: requireHyphen };
-    return isString(input) && validator.isISSN(input, options);
+export function isISSN(input: any, args?: { case_sensitive?: boolean, require_hyphen?: boolean }): boolean {
+    return isString(input) && validator.isISSN(input, args);
 }
 
-export function isRFC3339(input: any) {
+export function isRFC3339(input: any): boolean {
     return isString(input) && validator.isRFC3339(input);
 }
 
-export function isJSON(input: any) {
+export function isJSON(input: any): boolean {
     return isString(input) && validator.isJSON(input);
 }
 
+// if no min/max/size should it return true?
 export function isLength(input: any, { size, min, max }: LengthConfig) {
     if (isString(input)) {
         if (size) return input.length === size;
@@ -317,17 +318,17 @@ export function isLength(input: any, { size, min, max }: LengthConfig) {
     return false;
 }
 
-export function isMimeType(input: any) {
+export function isMimeType(input: any): boolean {
     return isString(input) && validator.isMimeType(input);
 }
 
-export function isPostalCode(input: any, { locale = 'any' }: { locale: 'any' | PostalCodeLocale }) {
+export function isPostalCode(input: any, { locale }: { locale: 'any' | PostalCodeLocale }): boolean {
     return isString(input) && validator.isPostalCode(input, locale);
 }
 
-export function validValue(input: any, options?: { invalidValues: any[] }): boolean {
-    if (options && options.invalidValues) {
-        return input != null && !options.invalidValues.includes(input);
+export function validValue(input: any, args?: { invalidValues: any[] }): boolean {
+    if (args && args.invalidValues) {
+        return input != null && !args.invalidValues.includes(input);
     }
 
     return input != null;

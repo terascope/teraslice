@@ -711,8 +711,197 @@ describe('field validators', () => {
     });
 
     describe('isFQDN', () => {
-        it('should return true for valid fully qualified domain name', () => {
-            
+        it('should return true for valid fully qualified domain names', () => {
+            expect(FieldValidator.isFQDN('john.com')).toBe(true);
+            expect(FieldValidator.isFQDN('john.com.uk.bob')).toBe(true);
+        });
+
+        it('should return false for invalid fully qualified domain names', () => {
+            expect(FieldValidator.isFQDN(true)).toBe(false);
+            expect(FieldValidator.isFQDN(12345)).toBe(false);
+            expect(FieldValidator.isFQDN('notadomain')).toBe(false);
+            expect(FieldValidator.isFQDN([])).toBe(false);
+            expect(FieldValidator.isFQDN('')).toBe(false);
+            expect(FieldValidator.isFQDN('example.com/help/hello')).toBe(false);
+        });
+    });
+
+    describe('isHash', () => {
+        it('should return true for valid hash strings', () => {
+            expect(FieldValidator.isHash('6201b3d1815444c87e00963fcf008c1e', { algo: 'md5' })).toBe(true);
+            expect(FieldValidator.isHash('85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33', { algo: 'sha256' })).toBe(true);
+            expect(FieldValidator.isHash('98fc121ea4c749f2b06e4a768b92ef1c740625a0', { algo: 'sha1' })).toBe(true);
+        });
+
+        it('should return false for invalid hash strings', () => {
+            expect(FieldValidator.isHash('6201b3d18157e00963fcf008c1e', { algo: 'md5' })).toBe(false);
+            expect(FieldValidator.isHash('85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c107e33', { algo: 'sha256' })).toBe(false);
+            expect(FieldValidator.isHash('98fc121easdfasdfasdfads749f2b06e4a768b92ef1c740625a0', { algo: 'sha1' })).toBe(false);
+            expect(FieldValidator.isHash(12345, { algo: 'sha1' })).toBe(false);
+            expect(FieldValidator.isHash(true, { algo: 'sha1' })).toBe(false);
+            expect(FieldValidator.isHash([], { algo: 'sha1' })).toBe(false);
+            expect(FieldValidator.isHash('', { algo: 'sha1' })).toBe(false);
+            expect(FieldValidator.isHash('6201b3d1815444c87e00963fcf008c1e', { algo: 'sha1' })).toBe(false);
+        });
+    });
+
+    describe('isISO31661Alpha2', () => {
+        it('should return true for valid 2 letter country codes', () => {
+            expect(FieldValidator.isISO31661Alpha2('US')).toBe(true);
+            expect(FieldValidator.isISO31661Alpha2('IS')).toBe(true);
+            expect(FieldValidator.isISO31661Alpha2('RU')).toBe(true);
+            expect(FieldValidator.isISO31661Alpha2('ru')).toBe(true);
+        });
+
+        it('should return false for invalid 2 letter country codes', () => {
+            expect(FieldValidator.isISO31661Alpha2('USA')).toBe(false);
+            expect(FieldValidator.isISO31661Alpha2('')).toBe(false);
+            expect(FieldValidator.isISO31661Alpha2('XX')).toBe(false);
+            expect(FieldValidator.isISO31661Alpha2(12)).toBe(false);
+            expect(FieldValidator.isISO31661Alpha2(true)).toBe(false);
+            expect(FieldValidator.isISO31661Alpha2([])).toBe(false);
+            expect(FieldValidator.isISO31661Alpha2({})).toBe(false);
+        });
+    });
+
+    describe('isISO8601', () => {
+        it('should return true for valid ISO8601 string dates', () => {
+            expect(FieldValidator.isISO8601('2020-01-01T12:03:03.494Z')).toBe(true);
+            expect(FieldValidator.isISO8601('2020-01-01')).toBe(true);
+            expect(FieldValidator.isISO8601('2020-01-01T12:03:03')).toBe(true);
+        });
+
+        it('should return false for invalid ISO8601 string dates', () => {
+            expect(FieldValidator.isISO8601('2020-22-01T12:03:03.494Z')).toBe(false);
+            expect(FieldValidator.isISO8601('Jan 1, 2020')).toBe(false);
+            expect(FieldValidator.isISO8601('2020/02/13')).toBe(false);
+            expect(FieldValidator.isISO8601(true)).toBe(false);
+            expect(FieldValidator.isISO8601('')).toBe(false);
+            expect(FieldValidator.isISO8601([])).toBe(false);
+            expect(FieldValidator.isISO8601('somestring')).toBe(false);
+            expect(FieldValidator.isISO8601(12321321321123)).toBe(false);
+        });
+    });
+
+    describe('isISSN', () => {
+        it('should return true for valid ISSN numbers', () => {
+            expect(FieldValidator.isISSN('0378-5955')).toBe(true);
+            expect(FieldValidator.isISSN('03785955')).toBe(true);
+            expect(FieldValidator.isISSN('0378-5955', { require_hyphen: true })).toBe(true);
+            expect(FieldValidator.isISSN('0000-006x')).toBe(true);
+            expect(FieldValidator.isISSN('0000-006X', { require_hyphen: true, case_sensitive: true })).toBe(true);
+        });
+
+        it('should return false for invalid ISSN numbers', () => {
+            expect(FieldValidator.isISSN('0375955')).toBe(false);
+            expect(FieldValidator.isISSN('03785955', { require_hyphen: true })).toBe(false);
+            expect(FieldValidator.isISSN('0000-006x', { case_sensitive: true })).toBe(false);
+            expect(FieldValidator.isISSN('0000-006x', { case_sensitive: true })).toBe(false);
+            expect(FieldValidator.isISSN('hellothere')).toBe(false);
+            expect(FieldValidator.isISSN(123456)).toBe(false);
+            expect(FieldValidator.isISSN(true)).toBe(false);
+            expect(FieldValidator.isISSN([])).toBe(false);
+            expect(FieldValidator.isISSN('')).toBe(false);
+        });
+    });
+
+    describe('isRFC3339', () => {
+        it('should return true for valid RFC3339 dates', () => {
+            expect(FieldValidator.isRFC3339('2020-01-01T12:05:05.001Z')).toBe(true);
+            expect(FieldValidator.isRFC3339('2020-01-01 12:05:05.001Z')).toBe(true);
+            expect(FieldValidator.isRFC3339('2020-01-01T12:05:05Z')).toBe(true);
+        });
+
+        it('should return false for invalid RFC3339 dates', () => {
+            expect(FieldValidator.isRFC3339('2020-01-01')).toBe(false);
+            expect(FieldValidator.isRFC3339('20-01-01 12:05:05.001Z')).toBe(false);
+            expect(FieldValidator.isRFC3339('')).toBe(false);
+            expect(FieldValidator.isRFC3339(true)).toBe(false);
+            expect(FieldValidator.isRFC3339(12345)).toBe(false);
+            expect(FieldValidator.isRFC3339(null)).toBe(false);
+            expect(FieldValidator.isRFC3339({})).toBe(false);
+        });
+    });
+
+    describe('isJSON', () => {
+        it('should return true for valid JSON', () => {
+            expect(FieldValidator.isJSON('{ "bob": "gibson" }')).toBe(true);
+            expect(FieldValidator.isJSON('[{ "bob": "gibson" }, { "dizzy": "dean" }]')).toBe(true);
+            expect(FieldValidator.isJSON('[]')).toBe(true);
+            expect(FieldValidator.isJSON('{}')).toBe(true);
+        });
+
+        it('should return false for invalid JSON', () => {
+            expect(FieldValidator.isJSON('{ bob: "gibson" }')).toBe(false);
+            expect(FieldValidator.isJSON('[{ "bob": "gibson" }, { "dizzy": "dean" }, ]')).toBe(false);
+            expect(FieldValidator.isJSON([])).toBe(false);
+            expect(FieldValidator.isJSON({})).toBe(false);
+            expect(FieldValidator.isJSON({ bob: 'gibson' })).toBe(false);
+            expect(FieldValidator.isJSON(true)).toBe(false);
+            expect(FieldValidator.isJSON('a great string')).toBe(false);
+            expect(FieldValidator.isJSON(123456)).toBe(false);
+            expect(FieldValidator.isJSON(null)).toBe(false);
+        });
+    });
+
+    describe('isLength', () => {
+        it('should return true for strings of length or strings within length min/ max', () => {
+            expect(FieldValidator.isLength('astring', { size: 7 })).toBe(true);
+            expect(FieldValidator.isLength('astring', { min: 4 })).toBe(true);
+            expect(FieldValidator.isLength('astring', { max: 10 })).toBe(true);
+            expect(FieldValidator.isLength('astring', { min: 5, max: 10 })).toBe(true);
+            expect(FieldValidator.isLength('astring', { min: 7, max: 10 })).toBe(true);
+            expect(FieldValidator.isLength('astring', { min: 5, max: 7 })).toBe(true);
+        });
+
+        it('should return false for strings not of length or strings outside length min/ max', () => {
+            expect(FieldValidator.isLength('astring', { size: 5 })).toBe(false);
+            expect(FieldValidator.isLength('astring', { min: 8 })).toBe(false);
+            expect(FieldValidator.isLength('astring', { max: 6 })).toBe(false);
+            expect(FieldValidator.isLength('astring', { min: 1, max: 5 })).toBe(false);
+            expect(FieldValidator.isLength(true, { min: 1, max: 5 })).toBe(false);
+            expect(FieldValidator.isLength(['astring'], { min: 1, max: 5 })).toBe(false);
+            expect(FieldValidator.isLength(undefined, { min: 1, max: 5 })).toBe(false);
+            expect(FieldValidator.isLength(1234, { min: 1, max: 5 })).toBe(false);
+            expect(FieldValidator.isLength({ string: 'astring' }, { min: 1, max: 5 })).toBe(false);
+            expect(FieldValidator.isLength('astring', {})).toBe(false);
+        });
+    });
+
+    describe('isMimeType', () => {
+        it('should return true for valid mime/ media types', () => {
+            expect(FieldValidator.isMimeType('application/javascript')).toBe(true);
+            expect(FieldValidator.isMimeType('application/graphql')).toBe(true);
+            expect(FieldValidator.isMimeType('text/html')).toBe(true);
+            expect(FieldValidator.isMimeType('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')).toBe(true);
+        });
+
+        it('should return false for invalid mime/ media types', () => {
+            expect(FieldValidator.isMimeType('application')).toBe(false);
+            expect(FieldValidator.isMimeType('')).toBe(false);
+            expect(FieldValidator.isMimeType(false)).toBe(false);
+            expect(FieldValidator.isMimeType({})).toBe(false);
+            expect(FieldValidator.isMimeType(12345)).toBe(false);
+        });
+    });
+
+    describe('isPostalCode', () => {
+        it('should return true for valid postal codes', () => {
+            expect(FieldValidator.isPostalCode('85249', { locale: 'any' })).toBe(true);
+            expect(FieldValidator.isPostalCode('85249', { locale: 'ES' })).toBe(true);
+            expect(FieldValidator.isPostalCode('85249', { locale: 'ES' })).toBe(true);
+            expect(FieldValidator.isPostalCode('852', { locale: 'IS' })).toBe(true);
+            expect(FieldValidator.isPostalCode('885 49', { locale: 'SE' })).toBe(true);
+        });
+
+        it('should return false for invalid postal codes', () => {
+            expect(FieldValidator.isPostalCode('', { locale: 'any' })).toBe(false);
+            expect(FieldValidator.isPostalCode(123345, { locale: 'ES' })).toBe(false);
+            expect(FieldValidator.isPostalCode({}, { locale: 'ES' })).toBe(false);
+            expect(FieldValidator.isPostalCode('8522-342', { locale: 'IS' })).toBe(false);
+            expect(FieldValidator.isPostalCode('885%49', { locale: 'SE' })).toBe(false);
+            expect(FieldValidator.isPostalCode(true, { locale: 'any' })).toBe(false);
+            expect(FieldValidator.isPostalCode(null, { locale: 'ES' })).toBe(false);
         });
     });
 });
