@@ -29,6 +29,11 @@ export interface LengthConfig {
     max?: number;
 }
 
+export interface IssnOptions {
+    require_hyphen?: boolean;
+    case_sensitive?: boolean;
+}
+
 export type PostalCodeLocale =
         | 'AD'
         | 'AT'

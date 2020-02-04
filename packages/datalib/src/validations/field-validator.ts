@@ -1,7 +1,8 @@
 import * as ts from '@terascope/utils';
 import ipaddr, { IPv6 } from 'ipaddr.js';
-import { isIP as checkIP, isIPv6 } from 'net';
-const ip6addr = require('ip6addr');
+import { isIP as checkIP, isIPv6 } from 'net';            
+// @ts-ignore
+import ip6addr from 'ip6addr';
 import isCidr from 'is-cidr';
 import PhoneValidator from 'awesome-phonenumber';
 import validator from 'validator';
@@ -10,7 +11,8 @@ import {
     FQDNOptions,
     HashConfig,
     LengthConfig,
-    PostalCodeLocale
+    PostalCodeLocale,
+    IssnOptions
 } from './interfaces';
 import { parseGeoPoint } from '../transforms/helpers';
 import * as i from '../interfaces';
@@ -27,11 +29,11 @@ export const respoitory: i.Repository = {
     isGeoShapePoint: { fn: isGeoShapePoint, config: {} },
     isGeoShapePolygon: { fn: isGeoShapePolygon, config: {} },
     isGeoShapeMultiPolygon: { fn: isGeoShapeMultiPolygon, config: {} },
-    isIp: { fn: isIp, config: {} },
+    isIp: { fn: isIP, config: {} },
     isISDN: { fn: isISDN, config: {} },
     isMacAddress: { fn: isMacAddress, config: { preserveColons: { type: 'Boolean!' } } },
-    isNumber: { fn: isNumber, config: { coerceStrings: { type: 'Boolean!' }, integer: { type: 'Boolean!' }, min: { type: 'Number!' }, max: { type: 'Number!' } } },
-    inRange: { fn: inRange, config: { min: { type: 'Number!' }, max: { type: 'Number!' } } },
+    isNumber: { fn: isNumber, config: {} },
+    inRange: { fn: inNumberRange, config: { min: { type: 'Number!' }, max: { type: 'Number!' } } },
     isString: { fn: isString, config: {} },
     isUrl: { fn: isUrl, config: {} },
     isUUID: { fn: isUUID, config: {} },
@@ -54,7 +56,8 @@ export const respoitory: i.Repository = {
     isMimeType: { fn: isMimeType, config: {} },
     isPostalCode: { fn: isPostalCode, config: {} },
     isTimestamp: { fn: isTimestamp, config: {} },
-    isPublicIp: { fn: isPublicIp, config: {} },
+    isRoutableIp: { fn: isRoutableIP, config: {} },
+    isNonRoutableIp: { fn: isNonRoutableIP, config: {} },
 };
 
 export function isBoolean(input: any): boolean {
@@ -100,74 +103,58 @@ export function isGeoShapeMultiPolygon(input: i.JoinGeoShape) {
     && (input.type === i.GeoShapeType.MultiPolygon || input.type === i.ESGeoShapeType.MultiPolygon);
 }
 
-export function isIp(input: any, args?: { public: boolean }) {
+export function isIP(input: any) {
     if (checkIP(input) === 0) return false;
 
     // needed to check for inputs like - '::192.168.1.18'
     if (input.includes(':') && input.includes('.')) return false;
 
-    if (args) {
-        if (args.public) return isPublicIp(input);
-
-        return isPublicIp(input, { private: true });
-    }
-
     return true;
 }
 
-export function isPublicIp(input: any, options?: { private: boolean }) {
-    if (!isIp(input)) return false;
+export function isRoutableIP(input: any, args?: { non_routable: boolean }): boolean {
+    if (!isIP(input)) return false;
 
     const range = ipaddr.parse(input).range();
 
-    // ipv6 private is parsed as uniqueLocal
-    const privateIp = range === 'private' || range === 'uniqueLocal' ? true : false;
+    const nonRoutable = range === 'private' || range === 'uniqueLocal' ? true : false;
 
-    if (options && options.private) {
-        return privateIp;
-    }
+    if (args && args.non_routable) return nonRoutable;
 
-    return !privateIp;
+    return !nonRoutable;
 }
 
-export function isIpCidr(input: any) {
+export function isNonRoutableIP(input: any): boolean {
+    return isRoutableIP(input, { non_routable: true });
+}
+
+export function isIPCidr(input: any) {
     if (isCidr(input) > 0) return true;
 
     return false;
 }
 
-export function inIpRange(input: any, args: { min?: string, max?: string, cidr?: string, exclusive?: boolean } ) {
+export function inIPRange(input: any, args: { min?: string, max?: string, cidr?: string } ) {
     const MIN_IPV4_IP = '0.0.0.0';
     const MAX_IPV4_IP = '255.255.255.255';
     const MIN_IPV6_IP = '::';
     const MAX_IPV6_IP = 'ffff.ffff.ffff.ffff.ffff.ffff.ffff.ffff';
-    let min;
-    let max;
 
-    if (!isIp(input)) return false;
+    if (!isIP(input)) return false;
 
     // assign min/max ip range values
     if (args.cidr) {
-        if (!isIpCidr(args.cidr)) return false;
-
-        const cidrRange = ip6addr.createCIDR(args.cidr);
-        min = cidrRange.first().toString();
-        max = cidrRange.last().toString();
-    } else {
-        // assign upper/lower bound even if min or max is missing
-        min = args.min ? args.min : isIPv6(input) ? MIN_IPV6_IP : MIN_IPV4_IP;
-        max = args.max ? args.max : isIPv6(input) ? MAX_IPV6_IP : MAX_IPV4_IP;
+        if (!isIPCidr(args.cidr)) return false;
+        return ip6addr.createCIDR(args.cidr).contains(input);
     }
+
+    // assign upper/lower bound even if min or max is missing
+    const min = args.min ? args.min : isIPv6(input) ? MIN_IPV6_IP : MIN_IPV4_IP;
+    const max = args.max ? args.max : isIPv6(input) ? MAX_IPV6_IP : MAX_IPV4_IP;
 
     // min and max must be valid ips, same ip type, and min < max
-    if (!isIp(min) || !isIp(max) || isIPv6(min) !== isIPv6(max) || ip6addr.compare(max, min) === -1) {
+    if (!isIP(min) || !isIP(max) || isIPv6(min) !== isIPv6(max) || ip6addr.compare(max, min) === -1) {
         return false;
-    }
-
-    // default is inclusive, adjust min/max if exclusive is requested
-    if (args.exclusive) {
-        min = ip6addr.parse(min).offset(1).toString();
-        max = ip6addr.parse(max).offset(-1).toString();
     }
 
     return ip6addr.createAddrRange(min, max).contains(input);
@@ -186,39 +173,23 @@ export function isMacAddress(input: string): boolean {
     return macAddress.test(input) || macAddressNoDelimiter.test(input) || macAddressWithDots.test(input);
 }
 
-export function inRange(input: number, args: { min?: number, max?: number }): boolean {
-    const { min, max} = args;
+export function inNumberRange(input: number, args: { min?: number, max?: number , inclusive?: boolean }): boolean {
+    const min = args.min ? args.min : -Infinity;
+    const max = args.max ? args.max : Infinity;
 
-    let range = true;
+    if (args.inclusive) {
+        return (input >= min && input <= max);
+    }
 
-    if (min && input < min) range = false;
-    if (max && input > max) range = false;
-
-    return range;
+    return (input > min && input < max);
  }
 
-export function isNumber(input: any, args?: { coerceStrings?: boolean, integer?: boolean, min?: number, max?: number }): input is number {
-    let num = input;
-    let range = true;
-    let int = true;
+export function isNumber(input: any): input is number {
+    return ts.isNumber(input);
+}
 
-    if (args && args.coerceStrings) {
-        num = ts.toNumber(num);
-    }
-
-    if (!ts.isNumber(num)) return false;
-
-    if (args) {
-        if (args.min || args.max) {
-            range = inRange(num, { min: args.min, max: args.max });
-        }
-
-        if (args.integer) {
-            int = ts.isInteger(num);
-        }
-    }
-
-    return range && int;
+export function isInteger(input: any): boolean {
+    return ts.isInteger(input);
 }
 
 export function isString(input: any): boolean {
@@ -235,27 +206,21 @@ export function isUUID(input: any): boolean {
     return isString(input) && validator.isUUID(input);
 }
 
-// test arrays too?
 export function contains(input: any, { value }: { value: string }): boolean {
     return isString(input) && input.includes(value);
 }
 // TODO: should this do more
-// convert to string and then check?
 export function equals(input: any, { value }: { value: string }): boolean {
     return isString(input) && input === value;
 }
 
 export function isAlpha(input: any, args?: { locale: validator.AlphaLocale }): boolean {
-    let locale: validator.AlphaLocale = 'en-US';
-    if (args && args.locale) locale = args.locale;
-
+    const locale: validator.AlphaLocale = args && args.locale ? args.locale : 'en-US';
     return isString(input) && validator.isAlpha(input, locale);
 }
 
 export function isAlphanumeric(input: any, args?: { locale: validator.AlphanumericLocale }): boolean {
-    let locale: validator.AlphanumericLocale = 'en-US';
-    if (args && args.locale) locale = args.locale;
-
+    const locale: validator.AlphanumericLocale = args && args.locale ? args.locale : 'en-US';
     return isString(input) && validator.isAlphanumeric(input, locale);
 }
 
@@ -269,6 +234,7 @@ export function isBase64(input: any): boolean {
 
 export function isEmpty(input: any, args?: { ignore_whitespace: boolean }): boolean {
     let value = input;
+
     if (isString(value) && args && args.ignore_whitespace) {
         value = value.trim();
     }
@@ -297,7 +263,7 @@ export function isISO8601(input: any): boolean {
     return isString(input) && validator.isISO8601(input);
 }
 
-export function isISSN(input: any, args?: { case_sensitive?: boolean, require_hyphen?: boolean }): boolean {
+export function isISSN(input: any, args?: IssnOptions): boolean {
     return isString(input) && validator.isISSN(input, args);
 }
 

@@ -221,151 +221,130 @@ describe('field validators', () => {
 
     describe('isIp should', () => {
         it('return true for valid ips', () => {
-            expect(FieldValidator.isIp('8.8.8.8')).toBe(true);
-            expect(FieldValidator.isIp('192.172.1.18')).toBe(true);
-            expect(FieldValidator.isIp('11.0.1.18')).toBe(true);
-            expect(FieldValidator.isIp('2001:db8:85a3:8d3:1319:8a2e:370:7348')).toBe(true);
-            expect(FieldValidator.isIp('fe80::1ff:fe23:4567:890a%eth2')).toBe(true);
-            expect(FieldValidator.isIp('2001:DB8::1')).toBe(true);
-            expect(FieldValidator.isIp('172.16.0.1')).toBe(true);
-            expect(FieldValidator.isIp('10.168.0.1')).toBe(true);
-            expect(FieldValidator.isIp('fc00:db8:85a3:8d3:1319:8a2e:370:7348')).toBe(true);
-        });
-
-        it('return true for private or public ips if specified', () => {
-            expect(FieldValidator.isIp('8.8.8.8', { public: true })).toBe(true);
-            expect(FieldValidator.isIp('192.172.1.18', { public: false })).toBe(false);
-            expect(FieldValidator.isIp('2001:db8:85a3:8d3:1319:8a2e:370:7348', { public: true })).toBe(true);
-            expect(FieldValidator.isIp('fe80::1ff:fe23:4567:890a%eth2', { public: false })).toBe(false);
-
-            expect(FieldValidator.isIp('172.16.0.1', { public: true })).toBe(false);
-            expect(FieldValidator.isIp('10.168.0.1', { public: false })).toBe(true);
-            expect(FieldValidator.isIp('fc00:db8:85a3:8d3:1319:8a2e:370:7348', { public: false })).toBe(true);
-            expect(FieldValidator.isIp('fc00:db8::1', { public: true })).toBe(false);
+            expect(FieldValidator.isIP('8.8.8.8')).toBe(true);
+            expect(FieldValidator.isIP('192.172.1.18')).toBe(true);
+            expect(FieldValidator.isIP('11.0.1.18')).toBe(true);
+            expect(FieldValidator.isIP('2001:db8:85a3:8d3:1319:8a2e:370:7348')).toBe(true);
+            expect(FieldValidator.isIP('fe80::1ff:fe23:4567:890a%eth2')).toBe(true);
+            expect(FieldValidator.isIP('2001:DB8::1')).toBe(true);
+            expect(FieldValidator.isIP('172.16.0.1')).toBe(true);
+            expect(FieldValidator.isIP('10.168.0.1')).toBe(true);
+            expect(FieldValidator.isIP('fc00:db8:85a3:8d3:1319:8a2e:370:7348')).toBe(true);
         });
 
         it('return false for invalid ip addresses', () => {
-            expect(FieldValidator.isIp('NA')).toBe(false);
-            expect(FieldValidator.isIp('')).toBe(false);
-            expect(FieldValidator.isIp('172.394.0.1')).toBe(false);
-            expect(FieldValidator.isIp(undefined)).toBe(false);
-            expect(FieldValidator.isIp('ZXXY:db8:85a3:8d3:1319:8a2e:370:7348')).toBe(false);
-            expect(FieldValidator.isIp('::192.168.1.18')).toBe(false);
-            expect(FieldValidator.isIp('11.222.33.001')).toBe(false);
-            expect(FieldValidator.isIp('87')).toBe(false);
-            expect(FieldValidator.isIp('02751178')).toBe(false);
-            expect(FieldValidator.isIp(true)).toBe(false);
-            expect(FieldValidator.isIp({})).toBe(false);
-            expect(FieldValidator.isIp([])).toBe(false);
-            expect(FieldValidator.isIp(123456678)).toBe(false);
-            expect(FieldValidator.isIp(12.4345)).toBe(false);
+            expect(FieldValidator.isIP('NA')).toBe(false);
+            expect(FieldValidator.isIP('')).toBe(false);
+            expect(FieldValidator.isIP('172.394.0.1')).toBe(false);
+            expect(FieldValidator.isIP(undefined)).toBe(false);
+            expect(FieldValidator.isIP('ZXXY:db8:85a3:8d3:1319:8a2e:370:7348')).toBe(false);
+            expect(FieldValidator.isIP('::192.168.1.18')).toBe(false);
+            expect(FieldValidator.isIP('11.222.33.001')).toBe(false);
+            expect(FieldValidator.isIP('87')).toBe(false);
+            expect(FieldValidator.isIP('02751178')).toBe(false);
+            expect(FieldValidator.isIP(true)).toBe(false);
+            expect(FieldValidator.isIP({})).toBe(false);
+            expect(FieldValidator.isIP([])).toBe(false);
+            expect(FieldValidator.isIP(123456678)).toBe(false);
+            expect(FieldValidator.isIP(12.4345)).toBe(false);
         });
     });
 
-    describe('isPublicIp', () => {
-        it('should check if an ip is public', () => {
-            // private ips
-            expect(FieldValidator.isPublicIp('192.168.0.1')).toBe(false);
-            expect(FieldValidator.isPublicIp('fc00:db8::1')).toBe(false);
-
+    describe('isRoutableIP', () => {
+        it('should return true for a routable ip address', () => {
             // public ips
-            expect(FieldValidator.isPublicIp('8.8.8.8')).toBe(true);
-            expect(FieldValidator.isPublicIp('2001:db8::1')).toBe(true);
-            expect(FieldValidator.isPublicIp('172.194.0.1')).toBe(true);
-
-            // bad ip address
-            expect(FieldValidator.isPublicIp('badIpaddress')).toBe(false);
+            expect(FieldValidator.isRoutableIP('8.8.8.8')).toBe(true);
+            expect(FieldValidator.isRoutableIP('2001:db8::1')).toBe(true);
+            expect(FieldValidator.isRoutableIP('172.194.0.1')).toBe(true);
         });
 
-        it('should check if an ip is prive based on options', () => {
-            // private ips
-            expect(FieldValidator.isPublicIp('192.168.0.1', { private: true })).toBe(true);
-            expect(FieldValidator.isPublicIp('fc00:db8::1', { private: true })).toBe(true);
+        it('should return false for a non-routable ip address or invalid ip address', () => {
+            expect(FieldValidator.isRoutableIP('192.168.0.1')).toBe(false);
+            expect(FieldValidator.isRoutableIP('fc00:db8::1')).toBe(false);
+            expect(FieldValidator.isRoutableIP('badIpaddress')).toBe(false);
+        });
+    });
 
-            // public ips
-            expect(FieldValidator.isPublicIp('8.8.8.8', { private: true })).toBe(false);
-            expect(FieldValidator.isPublicIp('2001:db8::1', { private: true })).toBe(false);
-            expect(FieldValidator.isPublicIp('172.194.0.1', { private: true })).toBe(false);
+    describe('isNonRoutableIP', () => {
+        it('should return true for a non routable ip address', () => {
+            expect(FieldValidator.isNonRoutableIP('192.168.0.1')).toBe(true);
+            expect(FieldValidator.isNonRoutableIP('10.16.32.210')).toBe(true);
+            expect(FieldValidator.isNonRoutableIP('172.18.12.74')).toBe(true);
+            expect(FieldValidator.isNonRoutableIP('fc00:db8::1')).toBe(true);
+        });
 
-            // bad ip address
-            expect(FieldValidator.isPublicIp('badIpaddress', { private: true })).toBe(false);
+        it('should return false for a routable ip address or invalid ip address', () => {
+            expect(FieldValidator.isNonRoutableIP('8.8.8.8')).toBe(false);
+            expect(FieldValidator.isNonRoutableIP('2001:db8::1')).toBe(false);
+            expect(FieldValidator.isNonRoutableIP('172.194.0.1')).toBe(false);
+            expect(FieldValidator.isNonRoutableIP('badIpaddress')).toBe(false);
         });
     });
 
     describe('isIpCidr', () => {
         it('should return true for valid ips with cidr notation', () => {
-            expect(FieldValidator.isIpCidr('1.2.3.4/32')).toBe(true);
-            expect(FieldValidator.isIpCidr('8.8.0.0/12')).toBe(true);
-            expect(FieldValidator.isIpCidr('2001:0db8:0123:4567:89ab:cdef:1234:5678/128')).toBe(true);
-            expect(FieldValidator.isIpCidr('2001::1234:5678/128')).toBe(true);
+            expect(FieldValidator.isIPCidr('1.2.3.4/32')).toBe(true);
+            expect(FieldValidator.isIPCidr('8.8.0.0/12')).toBe(true);
+            expect(FieldValidator.isIPCidr('2001:0db8:0123:4567:89ab:cdef:1234:5678/128')).toBe(true);
+            expect(FieldValidator.isIPCidr('2001::1234:5678/128')).toBe(true);
         });
 
         it('should return false for invalid ips with cidr notation', () => {
-            expect(FieldValidator.isIpCidr('1.2.3.4/128')).toBe(false);
-            expect(FieldValidator.isIpCidr('notanipaddress/12')).toBe(false);
-            expect(FieldValidator.isIpCidr('2001:0db8:0123:4567:89ab:cdef:1234:5678/412')).toBe(false);
-            expect(FieldValidator.isIpCidr('2001::1234:5678/b')).toBe(false);
-            expect(FieldValidator.isIpCidr('8.8.8.10')).toBe(false);
-            expect(FieldValidator.isIpCidr(true)).toBe(false);
-            expect(FieldValidator.isIpCidr({})).toBe(false);
+            expect(FieldValidator.isIPCidr('1.2.3.4/128')).toBe(false);
+            expect(FieldValidator.isIPCidr('notanipaddress/12')).toBe(false);
+            expect(FieldValidator.isIPCidr('2001:0db8:0123:4567:89ab:cdef:1234:5678/412')).toBe(false);
+            expect(FieldValidator.isIPCidr('2001::1234:5678/b')).toBe(false);
+            expect(FieldValidator.isIPCidr('8.8.8.10')).toBe(false);
+            expect(FieldValidator.isIPCidr(true)).toBe(false);
+            expect(FieldValidator.isIPCidr({})).toBe(false);
         });
     });
 
     describe('should inIpRange', () => {
         it('return true for ip addresses in a given range using cidr notation', () => {
-            expect(FieldValidator.inIpRange('8.8.8.8', { cidr: '8.8.8.0/24'})).toBe(true);
-            expect(FieldValidator.inIpRange('2001:0db8:0123:4567:89ab:cdef:1234:5678', { cidr: '2001:0db8:0123:4567:89ab:cdef:1234:0/112'})).toBe(true);
-        });
-
-        it('should validate based on exclusive options', () => {
-            expect(FieldValidator.inIpRange('8.8.8.8', { cidr: '8.8.8.0/24', exclusive: true })).toBe(true);
-            expect(FieldValidator.inIpRange('8.8.8.0', { cidr: '8.8.8.0/24', exclusive: true })).toBe(false);
-            expect(FieldValidator.inIpRange('2001:0db8::5678', { cidr: '2001:0db8::0/112', exclusive: true })).toBe(true);
-            expect(FieldValidator.inIpRange('2001:0db8::ffff', { cidr: '2001:0db8::0/112', exclusive: true })).toBe(false);
-            expect(FieldValidator.inIpRange('2001:0db8::0', { min: '2001:0db8::0', exclusive: true })).toBe(false);
-            expect(FieldValidator.inIpRange('2001:0db8::ffff', { min: '2001:0db8::0', max: '2001:0db8::ffff', exclusive: true })).toBe(false);
-            expect(FieldValidator.inIpRange('2001:0db8::ab00', { min: '2001:0db8::0', max: '2001:0db8::ffff', exclusive: true })).toBe(true);
+            expect(FieldValidator.inIPRange('8.8.8.8', { cidr: '8.8.8.0/24'})).toBe(true);
+            expect(FieldValidator.inIPRange('2001:0db8:0123:4567:89ab:cdef:1234:5678', { cidr: '2001:0db8:0123:4567:89ab:cdef:1234:0/112'})).toBe(true);
         });
 
         it('should return true for valid ips in a range with max and min', () => {
-            expect(FieldValidator.inIpRange('8.8.8.8', { min: '8.8.8.0', max: '8.8.8.64' })).toBe(true);
-            expect(FieldValidator.inIpRange('8.8.8.8', { max: '8.8.8.64' })).toBe(true);
-            expect(FieldValidator.inIpRange('8.8.8.8', { min: '8.8.8.0' })).toBe(true);
-            expect(FieldValidator.inIpRange('8.8.8.0', { min: '8.8.8.0' })).toBe(true);
-            expect(FieldValidator.inIpRange('8.8.8.64', { max: '8.8.8.64' })).toBe(true);
-            expect(FieldValidator.inIpRange('fd00::b000', { min: 'fd00::123', max: 'fd00::ea00' })).toBe(true);
-            expect(FieldValidator.inIpRange('fd00::b000', { max: 'fd00::ea00' })).toBe(true);
-            expect(FieldValidator.inIpRange('fd00::b000', { max: 'fd00::ea00' })).toBe(true);
-            expect(FieldValidator.inIpRange('fd00::b000', { min: 'fd00::b000', max: 'fd00::ea00' })).toBe(true)
+            expect(FieldValidator.inIPRange('8.8.8.8', { min: '8.8.8.0', max: '8.8.8.64' })).toBe(true);
+            expect(FieldValidator.inIPRange('8.8.8.8', { max: '8.8.8.64' })).toBe(true);
+            expect(FieldValidator.inIPRange('8.8.8.8', { min: '8.8.8.0' })).toBe(true);
+            expect(FieldValidator.inIPRange('8.8.8.0', { min: '8.8.8.0' })).toBe(true);
+            expect(FieldValidator.inIPRange('8.8.8.64', { max: '8.8.8.64' })).toBe(true);
+            expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::123', max: 'fd00::ea00' })).toBe(true);
+            expect(FieldValidator.inIPRange('fd00::b000', { max: 'fd00::ea00' })).toBe(true);
+            expect(FieldValidator.inIPRange('fd00::b000', { max: 'fd00::ea00' })).toBe(true);
+            expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::b000', max: 'fd00::ea00' })).toBe(true)
         });
 
         it('should return false for ips out of the ranges, cidr notation defined range', () => {
-            expect(FieldValidator.inIpRange('8.8.8.8', { cidr: '8.8.8.10/32'})).toBe(false);
-            expect(FieldValidator.inIpRange('1.2.3.4', { cidr: '8.8.2.0/24'})).toBe(false);
-            expect(FieldValidator.inIpRange('fd00::b000', { cidr: '8.8.2.0/24'})).toBe(false);
-            expect(FieldValidator.inIpRange('badIpAddress', { cidr: '8.8.2.0/24'})).toBe(false);
-            expect(FieldValidator.inIpRange('8.8.1.12', { cidr: '8.8.2.0/23'})).toBe(false);
-            expect(FieldValidator.inIpRange('8.8.1.12', { cidr: 'badCidr'})).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.8.8', { cidr: '8.8.8.10/32'})).toBe(false);
+            expect(FieldValidator.inIPRange('1.2.3.4', { cidr: '8.8.2.0/24'})).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', { cidr: '8.8.2.0/24'})).toBe(false);
+            expect(FieldValidator.inIPRange('badIpAddress', { cidr: '8.8.2.0/24'})).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.1.12', { cidr: '8.8.2.0/23'})).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.1.12', { cidr: 'badCidr'})).toBe(false);
         });
 
         it('should return false for ips out of range, min and max defined range', () => {
-            expect(FieldValidator.inIpRange('8.8.8.8', { min: '8.8.8.24', max: '8.8.8.32' })).toBe(false);
-            expect(FieldValidator.inIpRange('8.8.8.8', { min: '8.8.8.102', max: '8.8.8.32' })).toBe(false);
-            expect(FieldValidator.inIpRange('badIpAddress', { min: '8.8.8.24', max: '8.8.8.32' })).toBe(false);
-            expect(FieldValidator.inIpRange('8.8.8.8', { min: 'badIpAddress', max: '8.8.8.32' })).toBe(false);
-            expect(FieldValidator.inIpRange('8.8.8.8', { min: '8.8.8.24', max: 'badIpAddress' })).toBe(false);
-            expect(FieldValidator.inIpRange('fd00::b000', { min: '8.8.8.24', max: '8.8.8.32' })).toBe(false);
-            expect(FieldValidator.inIpRange('8.8.8.8', { min: 'fd00::b000', max: '8.8.8.32' })).toBe(false);
-            expect(FieldValidator.inIpRange('8.8.8.8', { min: '8.8.8.0', max: 'fd00::b000' })).toBe(false);
-            expect(FieldValidator.inIpRange('8.8.8.8', { min: 'fd00::a000', max: 'fd00::b000' })).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.8.8', { min: '8.8.8.24', max: '8.8.8.32' })).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.8.8', { min: '8.8.8.102', max: '8.8.8.32' })).toBe(false);
+            expect(FieldValidator.inIPRange('badIpAddress', { min: '8.8.8.24', max: '8.8.8.32' })).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.8.8', { min: 'badIpAddress', max: '8.8.8.32' })).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.8.8', { min: '8.8.8.24', max: 'badIpAddress' })).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', { min: '8.8.8.24', max: '8.8.8.32' })).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.8.8', { min: 'fd00::b000', max: '8.8.8.32' })).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.8.8', { min: '8.8.8.0', max: 'fd00::b000' })).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.8.8', { min: 'fd00::a000', max: 'fd00::b000' })).toBe(false);
 
-            expect(FieldValidator.inIpRange('fd00::b000', { min: 'fd00::c000', max: 'fd00::f000'})).toBe(false);
-            expect(FieldValidator.inIpRange('fd00::b000', { min: 'fd00::f000', max: 'fd00::1000'})).toBe(false);
-            expect(FieldValidator.inIpRange('fd00::b000', { min: '8.8.8.24', max: 'fd00::b000'})).toBe(false);
-            expect(FieldValidator.inIpRange('fd00::b000', { min: 'fd00::a000', max: '8.8.8.24'})).toBe(false);
-            expect(FieldValidator.inIpRange('fd00::b000', { min: '8.8.8.0', max: '8.8.8.24'})).toBe(false);
-            expect(FieldValidator.inIpRange('fd00::b000', { max: 'fd00::1000' })).toBe(false);
-            expect(FieldValidator.inIpRange('fd00::b000', { min: 'fd00::f000' })).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::c000', max: 'fd00::f000'})).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::f000', max: 'fd00::1000'})).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', { min: '8.8.8.24', max: 'fd00::b000'})).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::a000', max: '8.8.8.24'})).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', { min: '8.8.8.0', max: '8.8.8.24'})).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', { max: 'fd00::1000' })).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::f000' })).toBe(false);
         });
     });
 
@@ -480,19 +459,19 @@ describe('field validators', () => {
         });
     });
 
-    describe('inRange', () => {
+    describe('inNumberRange', () => {
         it('should return true if number in range', () => {
-            expect(FieldValidator.inRange(44, { min: 0, max: 45 })).toBe(true);
-            expect(FieldValidator.inRange(-12, { min: -100, max: 45 })).toBe(true);
-            expect(FieldValidator.inRange(0, { max: 45 })).toBe(true);
-            expect(FieldValidator.inRange(0, { min: -45 })).toBe(true);
+            expect(FieldValidator.inNumberRange(44, { min: 0, max: 45 })).toBe(true);
+            expect(FieldValidator.inNumberRange(-12, { min: -100, max: 45 })).toBe(true);
+            expect(FieldValidator.inNumberRange(0, { max: 45 })).toBe(true);
+            expect(FieldValidator.inNumberRange(0, { min: -45 })).toBe(true);
         });
 
         it('should return false if number out of range', () => {
-            expect(FieldValidator.inRange(44, { min: 0, max: 25 })).toBe(false);
-            expect(FieldValidator.inRange(-12, { min: -10, max: 45 })).toBe(false);
-            expect(FieldValidator.inRange(0, { max: -45 })).toBe(false);
-            expect(FieldValidator.inRange(0, { min: 45 })).toBe(false);
+            expect(FieldValidator.inNumberRange(44, { min: 0, max: 25 })).toBe(false);
+            expect(FieldValidator.inNumberRange(-12, { min: -10, max: 45 })).toBe(false);
+            expect(FieldValidator.inNumberRange(0, { max: -45 })).toBe(false);
+            expect(FieldValidator.inNumberRange(0, { min: 45 })).toBe(false);
         });
     });
 
@@ -513,27 +492,6 @@ describe('field validators', () => {
             expect(FieldValidator.isNumber(null)).toBe(false);
             expect(FieldValidator.isNumber(undefined)).toBe(false);
             expect(FieldValidator.isNumber('astring')).toBe(false);
-        })
-
-        it('should validate a number string if args set', () => {
-            expect(FieldValidator.isNumber('1', { coerceStrings: true })).toBe(true);
-            expect(FieldValidator.isNumber('-11343.343', { coerceStrings: true })).toBe(true);
-            expect(FieldValidator.isNumber('0034598348554784', { coerceStrings: true })).toBe(true);
-        })
-
-        it('should validate an int if args set', () => {
-            expect(FieldValidator.isNumber(10, { integer: true })).toBe(true);
-            expect(FieldValidator.isNumber('1', { integer: true })).toBe(false);
-            expect(FieldValidator.isNumber(true, { integer: true })).toBe(false);
-            expect(FieldValidator.isNumber('-11343.343', { coerceStrings: true, integer: true })).toBe(false);
-            expect(FieldValidator.isNumber('0034598348554784', { coerceStrings: true, integer: true })).toBe(true);
-        })
-
-        it('should validate if num in a range and args set', () => {
-            expect(FieldValidator.isNumber('1', { coerceStrings: true, min: -10, max: 5 })).toBe(true);
-            expect(FieldValidator.isNumber(1232, { coerceStrings: true, min: -10, max: 5 })).toBe(false);
-            expect(FieldValidator.isNumber(11343.343, { min: 10 })).toBe(true);
-            expect(FieldValidator.isNumber(11343.343, { min: 10, integer: true })).toBe(false);
         })
     });
 
