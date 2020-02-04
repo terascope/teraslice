@@ -1,6 +1,7 @@
 import * as ts from '@terascope/utils';
-import ipaddr from 'ipaddr.js';
+import ipaddr, { IPv6 } from 'ipaddr.js';
 import { isIP as checkIP, isIPv6 } from 'net';
+const ip6addr = require('ip6addr');
 import isCidr from 'is-cidr';
 import PhoneValidator from 'awesome-phonenumber';
 import validator from 'validator';
@@ -130,41 +131,47 @@ export function isPublicIp(input: any, options?: { private: boolean }) {
 }
 
 export function isIpCidr(input: any) {
-    try {
-        const res = isCidr(input);
-        if (res > 0) return true;
-    } catch(e) {
-        return false;
-    }
+    if (isCidr(input) > 0) return true;
 
     return false;
 }
 
-/*
-export function inIpRange(input: any, args: { min?: string, max?: string, cidr?: string } ) {
+export function inIpRange(input: any, args: { min?: string, max?: string, cidr?: string, exclusive?: boolean } ) {
     const MIN_IPV4_IP = '0.0.0.0';
     const MAX_IPV4_IP = '255.255.255.255';
     const MIN_IPV6_IP = '::';
     const MAX_IPV6_IP = 'ffff.ffff.ffff.ffff.ffff.ffff.ffff.ffff';
+    let min;
+    let max;
 
     if (!isIp(input)) return false;
 
-    if (args.cidr && isCidr(args.cidr)) {
-        const sub = ip6addr.createCIDR(args.cidr);
-        return sub.contains(input);
+    // assign min/max ip range values
+    if (args.cidr) {
+        if (!isIpCidr(args.cidr)) return false;
+
+        const cidrRange = ip6addr.createCIDR(args.cidr);
+        min = cidrRange.first().toString();
+        max = cidrRange.last().toString();
+    } else {
+        // assign upper/lower bound even if min or max is missing
+        min = args.min ? args.min : isIPv6(input) ? MIN_IPV6_IP : MIN_IPV4_IP;
+        max = args.max ? args.max : isIPv6(input) ? MAX_IPV6_IP : MAX_IPV4_IP;
     }
 
-    if ((args.min && isIp(args.min)) || (args.max && isIp(args.max))) {
-        const min = !args.min && isIPv6(input) ? MIN_IPV6_IP : MIN_IPV4_IP;
-        const max = !args.max && isIPv6(input) ? MIN_IPV6_IP : MIN_IPV4_IP;
-
-        const sub = ip6addr.createAddrRange(min, max);
-        return sub.contains(input);
+    // min and max must be valid ips, same ip type, and min < max
+    if (!isIp(min) || !isIp(max) || isIPv6(min) !== isIPv6(max) || ip6addr.compare(max, min) === -1) {
+        return false;
     }
 
-    return false;
+    // default is inclusive, adjust min/max if exclusive is requested
+    if (args.exclusive) {
+        min = ip6addr.parse(min).offset(1).toString();
+        max = ip6addr.parse(max).offset(-1).toString();
+    }
+
+    return ip6addr.createAddrRange(min, max).contains(input);
 }
-*/
 
 export function isISDN(input: any) {
     const phoneNumber = new PhoneValidator(`+${input}`);
