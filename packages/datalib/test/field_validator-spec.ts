@@ -484,7 +484,7 @@ describe('field validators', () => {
             expect(FieldValidator.isNumber(Infinity)).toBe(true);
         });
 
-        it(' should return false for not a number', () => {
+        it(' should return false if not a number', () => {
             expect(FieldValidator.isNumber('1')).toBe(false);
             expect(FieldValidator.isNumber(true)).toBe(false);
             expect(FieldValidator.isNumber({})).toBe(false);
@@ -492,6 +492,27 @@ describe('field validators', () => {
             expect(FieldValidator.isNumber(null)).toBe(false);
             expect(FieldValidator.isNumber(undefined)).toBe(false);
             expect(FieldValidator.isNumber('astring')).toBe(false);
+        })
+    });
+
+    describe('isInteger', () => {
+        it('should return true for a valid integer', () => {
+            expect(FieldValidator.isInteger(1)).toBe(true);
+            expect(FieldValidator.isInteger(-11232)).toBe(true);
+            expect(FieldValidator.isInteger(0o32)).toBe(true);
+        });
+
+        it(' should return false if not an integer', () => {
+            expect(FieldValidator.isInteger(Infinity)).toBe(false);
+            expect(FieldValidator.isInteger('1')).toBe(false);
+            expect(FieldValidator.isInteger(1.3432)).toBe(false);
+            expect(FieldValidator.isInteger(true)).toBe(false);
+            expect(FieldValidator.isInteger(false)).toBe(false);
+            expect(FieldValidator.isInteger({})).toBe(false);
+            expect(FieldValidator.isInteger([])).toBe(false);
+            expect(FieldValidator.isInteger(null)).toBe(false);
+            expect(FieldValidator.isInteger(undefined)).toBe(false);
+            expect(FieldValidator.isInteger('astring')).toBe(false);
         })
     });
 
