@@ -147,82 +147,54 @@ describe('field transforms', () => {
         });
     });
 
-    describe('replace should', () => {
-        // TODO: this needs more testing
-        it('find and replace values in string', () => {
-            expect(transform.replace('this-is-a-string', { searchValue: '-', replaceValue: ' ' })).toBe('this is-a-string');
-            expect(transform.replace('this-is-a-string', { searchValue: '-', replaceValue: ' ', global: true })).toBe('this is a string');
-            expect(transform.replace('this-is-a-string', { searchValue: 'can', replaceValue: ' ' })).toBe('this-is-a-string');
-            expect(transform.replace('this*is*a*string', { searchValue: '\\*', replaceValue: '.', global: true })).toBe('this.is.a.string');
-            expect(transform.replace('this CAN be a string', {
-                searchValue: 'can ', replaceValue: '', global: true, ignoreCase: true
-            })).toBe('this be a string');
+    describe('replaceLiteral', () => {
+        it('should find and replace values in string', () => {
+            expect(transform.replaceLiteral('Hi bob', { search: 'bob', replace: 'mel' })).toBe('Hi mel');
+            expect(transform.replaceLiteral('Hi Bob', { search: 'bob', replace: 'Mel ' })).toBe('Hi Bob');
         });
     });
 
-    describe('toUnixTime should', () => {
+    describe('replaceRegex', () => {
+        it('should return string with replaced values', () => {
+            expect(transform.replaceRegex('somestring', { regex: 's|e', replace: 'd' })).toBe('domestring');
+            expect(transform.replaceRegex('somestring', { regex: 's|e', replace: 'd', global: true })).toBe('domddtring');
+            expect(transform.replaceRegex('soMesTring', { regex: 'm|t', replace: 'W', global: true, ignore_case: true })).toBe('soWesWring');
+            expect(transform.replaceRegex('a***a***a', { regex: '\\*', replace: '', global: true })).toBe('aaa');
+        });
+    });
+
+    fdescribe('toUnixTime should', () => {
         it('convert date iso strings and date objects to unix time', () => {
             const testDate = new Date();
-            const unixTime = testDate.getTime();
+            const milli = testDate.getTime();
             const isoTime = testDate.toISOString();
 
-            expect(transform.toUnixTime(testDate)).toBe(unixTime);
-            expect(transform.toUnixTime(isoTime)).toBe(unixTime);
-            expect(transform.toUnixTime(unixTime)).toBe(unixTime);
+            expect(transform.toUnixTime(testDate)).toBe(Math.floor(milli/1000));
+            expect(transform.toUnixTime(isoTime)).toBe(Math.floor(milli/1000));
+            expect(transform.toUnixTime(milli)).toBe(Math.floor(milli/1000));
         });
 
-        it('convert date time in seconds to unix time', () => {
-            expect(transform.toUnixTime(1580418907)).toBe(1580418907000);
-            expect(transform.toUnixTime('1580418907')).toBe(1580418907000);
+        it('convert date time in milliseconds to unix time', () => {
+            expect(transform.toUnixTime(1580418907000)).toBe(1580418907);
+            expect(transform.toUnixTime('1580418907000')).toBe(1580418907);
         });
 
         it('convert string dates to unix time', () => {
-            expect(transform.toUnixTime('2020-01-01')).toBe(1577836800000);
-            expect(transform.toUnixTime('Jan 1, 2020 UTC')).toBe(1577836800000);
-            expect(transform.toUnixTime('2020 Jan, 1 UTC')).toBe(1577836800000);
+            expect(transform.toUnixTime('2020-01-01')).toBe(1577836800);
+            expect(transform.toUnixTime('Jan 1, 2020 UTC')).toBe(1577836800);
+            expect(transform.toUnixTime('2020 Jan, 1 UTC')).toBe(1577836800);
         });
 
         it('invalid dates will throw errors', () => {
             try {
-                transform.toUnixTime('notADate');
+                expect(transform.toUnixTime('notADate')).toBe(1577836800);
             } catch (e) {
                 expect(e.message).toBe('Not a valid date, cannot transform to unix time');
             }
         });
     });
 
-    describe('toUnixTime should', () => {
-        it('convert date iso strings and date objects to unix time', () => {
-            const testDate = new Date();
-            const unixTime = testDate.getTime();
-            const isoTime = testDate.toISOString();
-
-            expect(transform.toUnixTime(testDate)).toBe(unixTime);
-            expect(transform.toUnixTime(isoTime)).toBe(unixTime);
-            expect(transform.toUnixTime(unixTime)).toBe(unixTime);
-        });
-
-        it('convert date time in seconds to unix time', () => {
-            expect(transform.toUnixTime(1580418907)).toBe(1580418907000);
-            expect(transform.toUnixTime('1580418907')).toBe(1580418907000);
-        });
-
-        it('convert string dates to unix time', () => {
-            expect(transform.toUnixTime('2020-01-01')).toBe(1577836800000);
-            expect(transform.toUnixTime('Jan 1, 2020 UTC')).toBe(1577836800000);
-            expect(transform.toUnixTime('2020 Jan, 1 UTC')).toBe(1577836800000);
-        });
-
-        it('invalid dates will throw errors', () => {
-            try {
-                transform.toUnixTime('notADate');
-            } catch (e) {
-                expect(e.message).toBe('Not a valid date, cannot transform to unix time');
-            }
-        });
-    });
-
-    xdescribe('toISO8601 should', () => {
+    fdescribe('toISO8601 should', () => {
         it('convert date iso strings and date objects to unix time', () => {
             const testDate = new Date();
             const unixTime = testDate.getTime();

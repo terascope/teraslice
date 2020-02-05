@@ -2,11 +2,12 @@ import * as ts from '@terascope/utils';
 import crypto from 'crypto';
 import PhoneValidator from 'awesome-phonenumber';
 import jexl from 'jexl';
-import { ExtractFieldConfig, MacAddressConfig } from './interfaces';
+import { ExtractFieldConfig, MacAddressConfig, ReplaceLiteralConfig, ReplaceRegexConfig } from './interfaces';
 import { parseGeoPoint } from './helpers';
-import { isString, isTimestamp, isMacAddress, isUUID } from '../validations/field-validator';
+import { isString, isMacAddress, isUUID } from '../validations/field-validator';
 import { Repository } from '../interfaces';
 import { valid } from 'semver';
+import { getUnixTime } from 'date-fns';
 
 export const respoitory: Repository = {
     normalizeMacAddress: {
@@ -17,7 +18,8 @@ export const respoitory: Repository = {
         } 
     },
     removeIpZoneId: { fn: removeIpZoneId, config: {} },
-    replace: { fn: replace, config: {} },
+    replaceLiteral: { fn: replaceLiteral, config: { search: { type: 'String!'}, replace: { type: 'String!' } } },
+    replaceRegex: { fn: replaceRegex, config: { regex: { type: 'String!' }, replace: { type: 'String!' }, global: { type: 'Boolean!' }, ignore_case: { type: 'Boolean!' } } },
     truncate: { fn: truncate, config: { size: { type: 'Int!' } } },
     toBoolean: { fn: toBoolean, config: {} },
     toISDN: { fn: toISDN, config: {} },
@@ -68,6 +70,7 @@ export function toISDN(input: any) {
     throw Error('Could not determine the incoming phone number');
 }
 
+// probably not needed, can distill this down to remove delimiter and lowercase or uppercase
 export function normalizeMacAddress(input: any, args?: MacAddressConfig) {
     let results = input;
 
@@ -249,6 +252,7 @@ export function extract(
     if (!results) throw new Error('Was not able to extract anything');
 }
 
+// distill down to trim after char
 export function removeIpZoneId(input: string): string {
     // removes the zone id from ipv6 addresses
     // fe80:3438:7667:5c77:ce27%18 -> fe80:3438:7667:5c77:ce27
@@ -259,48 +263,48 @@ export function removeIpZoneId(input: string): string {
     return input;
 }
 
-interface ReplaceConfig {
-    searchValue: string;
-    replaceValue: string;
-    global?: boolean;
-    ignoreCase?: boolean;
-}
+export function replaceRegex(input: string, { regex, replace, ignore_case, global }: ReplaceRegexConfig): string {
+    let options = '';
 
-export function replace(
-    input: string,
-    {
-        searchValue, replaceValue, global, ignoreCase
-    }: ReplaceConfig
-): string {
-    // special regex chars like *, ., [] must be escaped by user inorder to be taken literally
-    let ops = '';
-
-    if (global) ops += 'g';
-    if (ignoreCase) ops += 'i';
+    if (ignore_case) options += 'i';
+    if (global) options += 'g';
 
     try {
-        const re = new RegExp(searchValue, ops);
-        return input.replace(re, replaceValue);
+        const re = new RegExp(regex, options);
+        return input.replace(re, replace);
     } catch (e) {
         throw new Error(e.message);
     }
 }
 
-export function toUnixTime(input: any): number {
-    // make this to seconds
-    if (!isTimestamp(input)) {
-        throw new Error('Not a valid date, cannot transform to unix time');
+export function replaceLiteral(input: string, { search, replace }: ReplaceLiteralConfig ): string {
+    try {
+        return input.replace(search, replace);
+    } catch (e) {
+        throw new Error(`Could not replace ${search} with ${replace}`);
     }
+}
 
-    let unixTime = isNaN(input) ? Date.parse(input) : Number(input);
+export function toUnixTime(input: any): number {
+    const parse = isNaN(input) ? Date.parse(input) : Number(input);
 
-    // need to consider how to approach this - args? check_seconds?
-    if (`${unixTime}`.length === 10) unixTime *= 1000;
+    const unixTime = getUnixTime(parse);
 
+    if (String(unixTime) === 'NaN') {
+        throw new Error('Not a valid date, cannot transform to unix time');
+    } 
+    
     return unixTime;
 }
 
+// unix timestamp to date object
+export function fromUnixTime(input: number) {
+
+}
+
 export function toISO8601(input: any): string {
+    // convert timestamps, date objects other formats to iso8601
+
     if (!isTimestamp(input)) {
         throw new Error('Not a valid date');
     }
@@ -308,6 +312,7 @@ export function toISO8601(input: any): string {
     return new Date(input).toISOString();
 }
 
+// format/ noramlize UUID? option to choose delimiter
 export function toUUID(input: string, args?: { lowercase: boolean }): string {
     // uuid should be in format of 8-4-4-4-12, 32 hexidecimal chars
     let allAlpha = `${input}`.replace(/\W/g, '');

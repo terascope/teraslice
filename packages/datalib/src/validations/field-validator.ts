@@ -35,7 +35,8 @@ export const respoitory: i.Repository = {
     isISDN: { fn: isISDN, config: {} },
     isMacAddress: { fn: isMacAddress, config: { delimiter: { type: 'String!' } } },
     isNumber: { fn: isNumber, config: {} },
-    inRange: { fn: inNumberRange, config: { min: { type: 'Number!' }, max: { type: 'Number!' } } },
+    isInteger: { fn: isInteger, config: {} },
+    inNumberRange: { fn: inNumberRange, config: { min: { type: 'Number!' }, max: { type: 'Number!' } } },
     isString: { fn: isString, config: {} },
     isUrl: { fn: isUrl, config: {} },
     isUUID: { fn: isUUID, config: {} },
@@ -57,9 +58,9 @@ export const respoitory: i.Repository = {
     isLength: { fn: isLength, config: {} },
     isMimeType: { fn: isMimeType, config: {} },
     isPostalCode: { fn: isPostalCode, config: {} },
-    isTimestamp: { fn: isTimestamp, config: {} },
     isRoutableIp: { fn: isRoutableIP, config: {} },
     isNonRoutableIp: { fn: isNonRoutableIP, config: {} },
+    inIPRange: { fn: inIPRange, config: { min: { type: 'String!' }, max: { type: 'String!' }, cidr: { type: 'String!' } } }
 };
 
 export function isBoolean(input: any): boolean {
@@ -320,14 +321,15 @@ export function validValue(input: any, args?: { invalidValues: any[] }): boolean
     return input != null;
 }
 
-export function isTimestamp(input: any) {
-    // string must be a recognized date format, milliseconds or seconds
+/*
+not sure how much value this addes beyond the ISO8601 and rfc3339 date validations
+export function isDate(input: any) {
+    // validates string and object dates
     if (isNaN(input) || Object.prototype.toString.call(input) === '[object Date]') {
         return !isNaN(Date.parse(input));
     }
 
-    // techinally valid timestamps could have different lenths...need to consider the other implications of this
-    // possibly use an option to specificy timestamp ranges or date ranges in general
-    // if it is a number then it must have 10 digits for seconds or 13 for milliseconds
-    return `${input}`.length === 10 || `${input}`.length === 13;
+    // integers are dates...but may not be dates
+    return isInteger(input);
 }
+*/
