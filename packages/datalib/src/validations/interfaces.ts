@@ -34,6 +34,12 @@ export interface IssnOptions {
     case_sensitive?: boolean;
 }
 
+export type MACDelimiter = 'space' | 'colon' | 'dash' | 'dot' | 'none' | 'any';
+
+export interface MACAddress {
+    delimiter: MACDelimiter | MACDelimiter[];
+}
+
 export type PostalCodeLocale =
         | 'AD'
         | 'AT'

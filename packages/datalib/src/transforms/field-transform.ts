@@ -4,7 +4,7 @@ import PhoneValidator from 'awesome-phonenumber';
 import jexl from 'jexl';
 import { ExtractFieldConfig, MacAddressConfig } from './interfaces';
 import { parseGeoPoint } from './helpers';
-import { isString, isTimestamp, isMacAddress } from '../validations/field-validator';
+import { isString, isTimestamp, isMacAddress, isUUID } from '../validations/field-validator';
 import { Repository } from '../interfaces';
 import { valid } from 'semver';
 
@@ -287,6 +287,7 @@ export function replace(
 }
 
 export function toUnixTime(input: any): number {
+    // make this to seconds
     if (!isTimestamp(input)) {
         throw new Error('Not a valid date, cannot transform to unix time');
     }
@@ -311,10 +312,7 @@ export function toUUID(input: string, args?: { lowercase: boolean }): string {
     // uuid should be in format of 8-4-4-4-12, 32 hexidecimal chars
     let allAlpha = `${input}`.replace(/\W/g, '');
 
-    const hexidecimalChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
-
-    if (allAlpha.length !== 32
-        || allAlpha.split('').some((char: string | number) => !hexidecimalChars.includes(String(char).toLowerCase()))) {
+    if (!isUUID(allAlpha)) {
         throw new Error('Cannot create a valid UUID number');
     }
 

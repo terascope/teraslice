@@ -453,9 +453,27 @@ describe('field validators', () => {
 
         it('should return false for a invalid mac address', () => {
             expect(FieldValidator.isMacAddress('00:1:f:5b:2b:1f')).toBe(false);
+            expect(FieldValidator.isMacAddress('00.1f.f3.5b.2b.1f')).toBe(false);
             expect(FieldValidator.isMacAddress('00-1Z-fG-5b-2b-1322f')).toBe(false);
             expect(FieldValidator.isMacAddress('23423423')).toBe(false);
             expect(FieldValidator.isMacAddress('00_1Z_fG_5b_2b_13')).toBe(false);
+            expect(FieldValidator.isMacAddress(1233456)).toBe(false);
+            expect(FieldValidator.isMacAddress({})).toBe(false);
+            expect(FieldValidator.isMacAddress(true)).toBe(false);
+        });
+
+        it('should validate based on specified delimiter', () => {
+            expect(FieldValidator.isMacAddress('001ff35b2b1f', { delimiter: 'any' })).toBe(true);
+            expect(FieldValidator.isMacAddress('00:1f:f3:5b:2b:1f', { delimiter: 'colon' })).toBe(true);
+            expect(FieldValidator.isMacAddress('00-1f-f3-5b-2b-1f', { delimiter: 'dash' })).toBe(true);
+            expect(FieldValidator.isMacAddress('00 1f f3 5b 2b 1f', { delimiter: 'space' })).toBe(true);
+            expect(FieldValidator.isMacAddress('001f.f35b.2b1f', { delimiter: 'dot' })).toBe(true);
+            expect(FieldValidator.isMacAddress('001ff35b2b1f', { delimiter: 'none' })).toBe(true);
+            expect(FieldValidator.isMacAddress('00:1f:f3:5b:2b:1f', { delimiter: ['dash', 'colon'] })).toBe(true);
+            expect(FieldValidator.isMacAddress('00:1f:f3:5b:2b:1f', { delimiter: 'dash' })).toBe(false);
+            expect(FieldValidator.isMacAddress('00 1f f3 5b 2b 1f', { delimiter: 'colon' })).toBe(false);
+            expect(FieldValidator.isMacAddress('001ff35b2b1f', { delimiter: 'colon' })).toBe(false);
+            expect(FieldValidator.isMacAddress('001ff35b2b1f', { delimiter: ['dash', 'colon'] })).toBe(false);
         });
     });
 

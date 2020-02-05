@@ -12,7 +12,9 @@ import {
     HashConfig,
     LengthConfig,
     PostalCodeLocale,
-    IssnOptions
+    IssnOptions,
+    MACDelimiter,
+    MACAddress
 } from './interfaces';
 import { parseGeoPoint } from '../transforms/helpers';
 import * as i from '../interfaces';
@@ -29,9 +31,9 @@ export const respoitory: i.Repository = {
     isGeoShapePoint: { fn: isGeoShapePoint, config: {} },
     isGeoShapePolygon: { fn: isGeoShapePolygon, config: {} },
     isGeoShapeMultiPolygon: { fn: isGeoShapeMultiPolygon, config: {} },
-    isIp: { fn: isIP, config: {} },
+    isIP: { fn: isIP, config: {} },
     isISDN: { fn: isISDN, config: {} },
-    isMacAddress: { fn: isMacAddress, config: { preserveColons: { type: 'Boolean!' } } },
+    isMacAddress: { fn: isMacAddress, config: { delimiter: { type: 'String!' } } },
     isNumber: { fn: isNumber, config: {} },
     inRange: { fn: inNumberRange, config: { min: { type: 'Number!' }, max: { type: 'Number!' } } },
     isString: { fn: isString, config: {} },
@@ -165,12 +167,30 @@ export function isISDN(input: any): boolean {
     return phoneNumber.isValid();
 }
 
-export function isMacAddress(input: string): boolean {
-    const macAddress = /^([0-9a-fA-F][0-9a-fA-F](:|-|\s)){5}([0-9a-fA-F][0-9a-fA-F])$/;
-    const macAddressNoDelimiter = /^([0-9a-fA-F]){12}$/;
-    const macAddressWithDots = /^([0-9a-fA-F]{4}\.){2}([0-9a-fA-F]{4})$/;
+export function isMacAddress(input: any, args?: MACAddress ): boolean {
+    if (!isString(input)) return false;
 
-    return macAddress.test(input) || macAddressNoDelimiter.test(input) || macAddressWithDots.test(input);
+    const delimiters = {
+        colon: /^([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])$/,
+        space: /^([0-9a-fA-F][0-9a-fA-F]\s){5}([0-9a-fA-F][0-9a-fA-F])$/,
+        dash: /^([0-9a-fA-F][0-9a-fA-F]-){5}([0-9a-fA-F][0-9a-fA-F])$/,
+        dot: /^([0-9a-fA-F]{4}\.){2}([0-9a-fA-F]{4})$/,
+        none: /^([0-9a-fA-F]){12}$/
+    }
+
+    const delimiter = args && args.delimiter ? args.delimiter : 'any';
+
+    if (delimiter === 'any') {
+        return Object.keys(delimiters).some((d) => {
+            return delimiters[d].test(input);
+        });
+    }
+
+    if (Array.isArray(delimiter)) {
+        return delimiter.some((d) => delimiters[d].test(input));
+    }
+
+    return delimiters[delimiter].test(input);
 }
 
 export function inNumberRange(input: number, args: { min?: number, max?: number , inclusive?: boolean }): boolean {
