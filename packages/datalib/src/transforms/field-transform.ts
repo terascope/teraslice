@@ -2,13 +2,13 @@ import * as ts from '@terascope/utils';
 import crypto from 'crypto';
 import PhoneValidator from 'awesome-phonenumber';
 import jexl from 'jexl';
-import { getUnixTime } from 'date-fns';
+import { getUnixTime, format as dateFormat, parse } from 'date-fns';
 import {
     ExtractFieldConfig, MacAddressConfig, ReplaceLiteralConfig, ReplaceRegexConfig
 } from './interfaces';
 import { parseGeoPoint } from './helpers';
 import {
-    isString, isMacAddress, isUUID, isDateLike
+    isString, isMacAddress, isValidDate, isNumber
 } from '../validations/field-validator';
 import { Repository } from '../interfaces';
 
@@ -25,7 +25,7 @@ export const respoitory: Repository = {
     replaceRegex: {
         fn: replaceRegex,
         config: {
-            regex: { type: 'String!' }, replace: { type: 'String!' }, global: { type: 'Boolean!' }, ignore_case: { type: 'Boolean!' }
+            regex: { type: 'String!' }, replace: { type: 'String!' }, global: { type: '' }, ignore_case: { type: 'Boolean!' }
         }
     },
     truncate: { fn: truncate, config: { size: { type: 'Int!' } } },
@@ -35,6 +35,7 @@ export const respoitory: Repository = {
     toNumber: { fn: toNumber, config: { booleanLike: { type: 'boolean' } } },
     toUpperCase: { fn: toUpperCase, config: {} },
     trim: { fn: trim, config: {} },
+    trimChar: { fn: trimChar, config: { char: { type: 'string' }, direction: { type: 'string' } } }
 };
 
 export function toBoolean(input: any) {
@@ -55,6 +56,21 @@ export function trim(input: string) {
     if (!isString(input)) throw new Error('Input must be a string');
     return ts.trim(input);
 }
+
+export function trimChar(input: string, args: { char: string; direction: 'start' | 'end' }): string {
+    const { char, direction } = args;
+
+    const index = direction === 'start' ? input.indexOf(char) : input.lastIndexOf(char);
+
+    if (index === -1) return input;
+
+    if (direction === 'start') {
+        return input.slice(index + char.length);
+    }
+
+    return input.slice(0, index);
+}
+
 // TODO: fix types here
 export function truncate(input: string, args: { size: number }) {
     if (!isString(input)) throw new Error('Input must be a string');
@@ -82,7 +98,7 @@ export function toISDN(input: any) {
 export function normalizeMacAddress(input: any, args?: MacAddressConfig) {
     let results = input;
 
-    if (!ts.isString(input) || !isMacAddress(input)) {
+    if (!isMacAddress(input, { delimiter: 'any' })) {
         throw new Error('Not a valid mac address');
     }
 
@@ -297,49 +313,49 @@ export function replaceLiteral(input: string, { search, replace }: ReplaceLitera
 
 // option to specify, seconds, millisecond, microseconds?
 export function toUnixTime(input: any): number {
-    if (!isDateLike(input)) {
+    if (!isValidDate(input)) {
         throw new Error('Not a valid date, cannot transform to unix time');
     }
 
-    const parse = isNaN(input) ? Date.parse(input) : Number(input);
+    const parsed = isNaN(input) ? Date.parse(input) : Number(input);
 
-    const unixTime = getUnixTime(parse);
-
-    if (String(unixTime) === 'NaN') {
-        throw new Error('Not a valid date, cannot transform to unix time');
-    }
+    const unixTime = getUnixTime(parsed);
 
     return unixTime;
 }
 
-// unix timestamp to date object
-export function fromUnixTime(input: number) {
-
-}
-
-export function toISO8601(input: any): string {
-    // convert timestamps, date objects other formats to iso8601
-
-    /*
-    if (!isTimestamp(input)) {
+export function toISO8601(input: any, args?: { resolution?: 'seconds' | 'milliseconds' }): string {
+    if (!isValidDate(input)) {
         throw new Error('Not a valid date');
     }
-    */
 
-    return new Date(input).toISOString();
+    let value = input;
+    if (isNumber(input) && args && args.resolution) value *= 1000;
+
+    return new Date(value).toISOString();
 }
 
-// format/ noramlize UUID? option to choose delimiter
-export function toUUID(input: string, args?: { lowercase: boolean }): string {
-    // uuid should be in format of 8-4-4-4-12, 32 hexidecimal chars
-    let allAlpha = `${input}`.replace(/\W/g, '');
-
-    if (!isUUID(allAlpha)) {
-        throw new Error('Cannot create a valid UUID number');
+export function formatDate(input: any, format: string, args?: { resolution?: 'seconds' | 'milliseconds' }): string {
+    // convert string to date
+    // validate input as datelike
+    if (!isValidDate(input)) {
+        throw new Error('Not a valid date');
     }
 
-    if (args && args.lowercase) allAlpha = allAlpha.toLowerCase();
+    let value = input;
 
-    return `${allAlpha.slice(0, 8)}-${allAlpha.slice(8, 12)}`
-        + `-${allAlpha.slice(12, 16)}-${allAlpha.slice(16, 20)}-${allAlpha.slice(20,)}`;
+    if (isString(value)) value = new Date(value);
+    if (isNumber(value) && args && args.resolution === 'seconds') value *= 1000;
+
+    return dateFormat(value, format);
+}
+
+export function parseDate(input: any, format: string) {
+    const parsed = parse(input, format, new Date());
+
+    if (String(parsed) === 'Invalid Date') {
+        throw new Error('Cannot parse date');
+    }
+
+    return parsed;
 }

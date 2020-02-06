@@ -323,13 +323,14 @@ export function validValue(input: any, args?: { invalidValues: any[] }): boolean
 }
 
 /*
-string dates must be month/ day / year
-year can be 2 or 4 digits, if 2 digits it must be after month and day
+  string dates must be month/ day / year
+  year can be 2 or 4 digits, if 2 digits it must be after month and day
 */
-export function isDateLike(input: any): boolean {
+export function isValidDate(input: any): boolean {
+    /*
     let value = input;
-
-    if (isBoolean(value)) return false;
     if (isString(input) && !isNaN(input)) value = ts.toNumber(input);
-    return ts.isValidDate(value);
+    */
+
+    return !isBoolean(input) && ts.isValidDate(input);
 }
