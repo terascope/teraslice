@@ -1,6 +1,6 @@
 import * as ts from '@terascope/utils';
-import ipaddr, { IPv6 } from 'ipaddr.js';
-import { isIP as checkIP, isIPv6 } from 'net';            
+import ipaddr from 'ipaddr.js';
+import { isIP as checkIP, isIPv6 } from 'net';
 // @ts-ignore
 import ip6addr from 'ip6addr';
 import isCidr from 'is-cidr';
@@ -13,7 +13,6 @@ import {
     LengthConfig,
     PostalCodeLocale,
     IssnOptions,
-    MACDelimiter,
     MACAddress
 } from './interfaces';
 import { parseGeoPoint } from '../transforms/helpers';
@@ -120,7 +119,7 @@ export function isRoutableIP(input: any, args?: { non_routable: boolean }): bool
 
     const range = ipaddr.parse(input).range();
 
-    const nonRoutable = range === 'private' || range === 'uniqueLocal' ? true : false;
+    const nonRoutable = range === 'private' || range === 'uniqueLocal';
 
     if (args && args.non_routable) return nonRoutable;
 
@@ -137,7 +136,7 @@ export function isIPCidr(input: any) {
     return false;
 }
 
-export function inIPRange(input: any, args: { min?: string, max?: string, cidr?: string } ) {
+export function inIPRange(input: any, args: { min?: string; max?: string; cidr?: string }) {
     const MIN_IPV4_IP = '0.0.0.0';
     const MAX_IPV4_IP = '255.255.255.255';
     const MIN_IPV6_IP = '::';
@@ -152,11 +151,13 @@ export function inIPRange(input: any, args: { min?: string, max?: string, cidr?:
     }
 
     // assign upper/lower bound even if min or max is missing
-    const min = args.min ? args.min : isIPv6(input) ? MIN_IPV6_IP : MIN_IPV4_IP;
-    const max = args.max ? args.max : isIPv6(input) ? MAX_IPV6_IP : MAX_IPV4_IP;
+    let { min, max } = args;
+    if (!min) min = isIPv6(input) ? MIN_IPV6_IP : MIN_IPV4_IP;
+    if (!max) max = isIPv6(input) ? MAX_IPV6_IP : MAX_IPV4_IP;
 
     // min and max must be valid ips, same ip type, and min < max
-    if (!isIP(min) || !isIP(max) || isIPv6(min) !== isIPv6(max) || ip6addr.compare(max, min) === -1) {
+    if (!isIP(min) || !isIP(max) || isIPv6(min) !== isIPv6(max)
+        || ip6addr.compare(max, min) === -1) {
         return false;
     }
 
@@ -168,7 +169,7 @@ export function isISDN(input: any): boolean {
     return phoneNumber.isValid();
 }
 
-export function isMacAddress(input: any, args?: MACAddress ): boolean {
+export function isMacAddress(input: any, args?: MACAddress): boolean {
     if (!isString(input)) return false;
 
     const delimiters = {
@@ -177,14 +178,12 @@ export function isMacAddress(input: any, args?: MACAddress ): boolean {
         dash: /^([0-9a-fA-F][0-9a-fA-F]-){5}([0-9a-fA-F][0-9a-fA-F])$/,
         dot: /^([0-9a-fA-F]{4}\.){2}([0-9a-fA-F]{4})$/,
         none: /^([0-9a-fA-F]){12}$/
-    }
+    };
 
     const delimiter = args && args.delimiter ? args.delimiter : 'any';
 
     if (delimiter === 'any') {
-        return Object.keys(delimiters).some((d) => {
-            return delimiters[d].test(input);
-        });
+        return Object.keys(delimiters).some((d) => delimiters[d].test(input));
     }
 
     if (Array.isArray(delimiter)) {
@@ -194,7 +193,8 @@ export function isMacAddress(input: any, args?: MACAddress ): boolean {
     return delimiters[delimiter].test(input);
 }
 
-export function inNumberRange(input: number, args: { min?: number, max?: number , inclusive?: boolean }): boolean {
+export function inNumberRange(input: number,
+    args: { min?: number; max?: number; inclusive?: boolean }): boolean {
     const min = args.min ? args.min : -Infinity;
     const max = args.max ? args.max : Infinity;
 
@@ -203,7 +203,7 @@ export function inNumberRange(input: number, args: { min?: number, max?: number 
     }
 
     return (input > min && input < max);
- }
+}
 
 export function isNumber(input: any): input is number {
     return ts.isNumber(input);
@@ -240,7 +240,8 @@ export function isAlpha(input: any, args?: { locale: validator.AlphaLocale }): b
     return isString(input) && validator.isAlpha(input, locale);
 }
 
-export function isAlphanumeric(input: any, args?: { locale: validator.AlphanumericLocale }): boolean {
+export function isAlphanumeric(input: any,
+    args?: { locale: validator.AlphanumericLocale }): boolean {
     const locale: validator.AlphanumericLocale = args && args.locale ? args.locale : 'en-US';
     return isString(input) && validator.isAlphanumeric(input, locale);
 }
@@ -321,18 +322,14 @@ export function validValue(input: any, args?: { invalidValues: any[] }): boolean
     return input != null;
 }
 
-// not sure how much value this addes beyond the ISO8601 and rfc3339 date validations
+/*
+string dates must be month/ day / year
+year can be 2 or 4 digits, if 2 digits it must be after month and day
+*/
 export function isDateLike(input: any): boolean {
-    // only string, date object, number should be tested
-    // validates string and object dates
-    if (isEmpty(input, { ignore_whitespace: true })) {
-        console.log(input);
-        return false;
-    }
+    let value = input;
 
-    if (isNaN(input) || Object.prototype.toString.call(input) === '[object Date]') {
-        return !isNaN(Date.parse(input));
-    }
-
-    return isInteger(ts.toNumber(input));
+    if (isBoolean(value)) return false;
+    if (isString(input) && !isNaN(input)) value = ts.toNumber(input);
+    return ts.isValidDate(value);
 }

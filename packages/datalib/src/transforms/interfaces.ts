@@ -20,5 +20,5 @@ export interface ReplaceRegexConfig {
     regex: string;
     replace: string;
     global?: boolean;
-    ignore_case?: boolean;
+    ignoreCase?: boolean;
 }

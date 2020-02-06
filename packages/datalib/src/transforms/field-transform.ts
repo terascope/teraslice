@@ -2,12 +2,15 @@ import * as ts from '@terascope/utils';
 import crypto from 'crypto';
 import PhoneValidator from 'awesome-phonenumber';
 import jexl from 'jexl';
-import { ExtractFieldConfig, MacAddressConfig, ReplaceLiteralConfig, ReplaceRegexConfig } from './interfaces';
-import { parseGeoPoint } from './helpers';
-import { isString, isMacAddress, isUUID, isDateLike } from '../validations/field-validator';
-import { Repository } from '../interfaces';
-import { valid } from 'semver';
 import { getUnixTime } from 'date-fns';
+import {
+    ExtractFieldConfig, MacAddressConfig, ReplaceLiteralConfig, ReplaceRegexConfig
+} from './interfaces';
+import { parseGeoPoint } from './helpers';
+import {
+    isString, isMacAddress, isUUID, isDateLike
+} from '../validations/field-validator';
+import { Repository } from '../interfaces';
 
 export const respoitory: Repository = {
     normalizeMacAddress: {
@@ -15,11 +18,16 @@ export const respoitory: Repository = {
         config: {
             casing: { type: 'uppercase | lowercase' },
             removeGroups: { type: 'boolean' }
-        } 
+        }
     },
     removeIpZoneId: { fn: removeIpZoneId, config: {} },
-    replaceLiteral: { fn: replaceLiteral, config: { search: { type: 'String!'}, replace: { type: 'String!' } } },
-    replaceRegex: { fn: replaceRegex, config: { regex: { type: 'String!' }, replace: { type: 'String!' }, global: { type: 'Boolean!' }, ignore_case: { type: 'Boolean!' } } },
+    replaceLiteral: { fn: replaceLiteral, config: { search: { type: 'String!' }, replace: { type: 'String!' } } },
+    replaceRegex: {
+        fn: replaceRegex,
+        config: {
+            regex: { type: 'String!' }, replace: { type: 'String!' }, global: { type: 'Boolean!' }, ignore_case: { type: 'Boolean!' }
+        }
+    },
     truncate: { fn: truncate, config: { size: { type: 'Int!' } } },
     toBoolean: { fn: toBoolean, config: {} },
     toISDN: { fn: toISDN, config: {} },
@@ -31,7 +39,7 @@ export const respoitory: Repository = {
 
 export function toBoolean(input: any) {
     return ts.toBoolean(input);
-} 
+}
 
 export function toUpperCase(input: string) {
     if (!isString(input)) throw new Error('Input must be a string');
@@ -263,10 +271,12 @@ export function removeIpZoneId(input: string): string {
     return input;
 }
 
-export function replaceRegex(input: string, { regex, replace, ignore_case, global }: ReplaceRegexConfig): string {
+export function replaceRegex(input: string, {
+    regex, replace, ignoreCase, global
+}: ReplaceRegexConfig): string {
     let options = '';
 
-    if (ignore_case) options += 'i';
+    if (ignoreCase) options += 'i';
     if (global) options += 'g';
 
     try {
@@ -277,7 +287,7 @@ export function replaceRegex(input: string, { regex, replace, ignore_case, globa
     }
 }
 
-export function replaceLiteral(input: string, { search, replace }: ReplaceLiteralConfig ): string {
+export function replaceLiteral(input: string, { search, replace }: ReplaceLiteralConfig): string {
     try {
         return input.replace(search, replace);
     } catch (e) {
@@ -294,12 +304,11 @@ export function toUnixTime(input: any): number {
     const parse = isNaN(input) ? Date.parse(input) : Number(input);
 
     const unixTime = getUnixTime(parse);
-    console.log('input:', input, 'parsed', parse, 'unix time', unixTime);
 
     if (String(unixTime) === 'NaN') {
         throw new Error('Not a valid date, cannot transform to unix time');
-    } 
-    
+    }
+
     return unixTime;
 }
 

@@ -8,7 +8,7 @@ describe('field transforms', () => {
         });
 
         it('return false for falsy values', () => {
-            [0, false, undefined, null, NaN, '', "", ``]
+            [0, false, undefined, null, NaN, '']
                 .forEach((v) => expect(transform.toBoolean(v)).toBe(false));
         });
 
@@ -23,7 +23,7 @@ describe('field transforms', () => {
             expect(transform.toUpperCase('lowercase')).toBe('LOWERCASE');
             expect(transform.toUpperCase('11111')).toBe('11111');
             expect(transform.toUpperCase('MixEdCAsE')).toBe('MIXEDCASE');
-        });    
+        });
     });
 
     describe('toLowerCase should', () => {
@@ -31,7 +31,7 @@ describe('field transforms', () => {
             expect(transform.toLowerCase('UPPERCASE')).toBe('uppercase');
             expect(transform.toLowerCase('11111')).toBe('11111');
             expect(transform.toLowerCase('MixEdCAsE')).toBe('mixedcase');
-        });    
+        });
     });
 
     describe('trim should', () => {
@@ -39,7 +39,7 @@ describe('field transforms', () => {
             expect(transform.trim('   string    ')).toBe('string');
             expect(transform.trim('   left')).toBe('left');
             expect(transform.trim('right    ')).toBe('right');
-        });    
+        });
     });
 
     describe('truncate should', () => {
@@ -51,7 +51,7 @@ describe('field transforms', () => {
             try {
                 expect(transform.truncate('astring', { size: -120 })).toBe('astring');
             } catch (e) {
-                expect(e.message).toBe('Invalid size paramter for truncate')
+                expect(e.message).toBe('Invalid size paramter for truncate');
             }
         });
     });
@@ -90,19 +90,19 @@ describe('field transforms', () => {
             try {
                 expect(transform.normalizeMacAddress('thisisabadmacaddress', { casing: 'lowercase', removeGroups: true })).toBe('001ff35b2b1f');
             } catch (e) {
-                expect(e.message).toBe('Not a valid mac address')
+                expect(e.message).toBe('Not a valid mac address');
             }
 
             try {
                 expect(transform.normalizeMacAddress(true)).toBe('001ff35b2b1f');
             } catch (e) {
-                expect(e.message).toBe('Not a valid mac address')
+                expect(e.message).toBe('Not a valid mac address');
             }
 
             try {
                 expect(transform.normalizeMacAddress(23423432)).toBe('001ff35b2b1f');
             } catch (e) {
-                expect(e.message).toBe('Not a valid mac address')
+                expect(e.message).toBe('Not a valid mac address');
             }
         });
     });
@@ -126,14 +126,17 @@ describe('field transforms', () => {
         });
 
         it('throw an error if input cannot be coerced to a number', () => {
-            try { expect(transform.toNumber('bobsyouruncle')).toBe(12321); }
-            catch(e) { expect(e.message).toBe('could not convert to a number'); }
+            try {
+                expect(transform.toNumber('bobsyouruncle')).toBe(12321);
+            } catch (e) { expect(e.message).toBe('could not convert to a number'); }
 
-            try { expect(transform.toNumber({})).toBe(12321); }
-            catch(e) { expect(e.message).toBe('could not convert to a number'); }
+            try {
+                expect(transform.toNumber({})).toBe(12321);
+            } catch (e) { expect(e.message).toBe('could not convert to a number'); }
 
-            try { expect(transform.toNumber(undefined)).toBe(12321); }
-            catch(e) { expect(e.message).toBe('could not convert to a number'); }
+            try {
+                expect(transform.toNumber(undefined)).toBe(12321);
+            } catch (e) { expect(e.message).toBe('could not convert to a number'); }
         });
     });
 
@@ -158,7 +161,9 @@ describe('field transforms', () => {
         it('should return string with replaced values', () => {
             expect(transform.replaceRegex('somestring', { regex: 's|e', replace: 'd' })).toBe('domestring');
             expect(transform.replaceRegex('somestring', { regex: 's|e', replace: 'd', global: true })).toBe('domddtring');
-            expect(transform.replaceRegex('soMesTring', { regex: 'm|t', replace: 'W', global: true, ignore_case: true })).toBe('soWesWring');
+            expect(transform.replaceRegex('soMesTring', {
+                regex: 'm|t', replace: 'W', global: true, ignoreCase: true
+            })).toBe('soWesWring');
             expect(transform.replaceRegex('a***a***a', { regex: '\\*', replace: '', global: true })).toBe('aaa');
         });
     });
@@ -169,9 +174,9 @@ describe('field transforms', () => {
             const milli = testDate.getTime();
             const isoTime = testDate.toISOString();
 
-            expect(transform.toUnixTime(testDate)).toBe(Math.floor(milli/1000));
-            expect(transform.toUnixTime(isoTime)).toBe(Math.floor(milli/1000));
-            expect(transform.toUnixTime(milli)).toBe(Math.floor(milli/1000));
+            expect(transform.toUnixTime(testDate)).toBe(Math.floor(milli / 1000));
+            expect(transform.toUnixTime(isoTime)).toBe(Math.floor(milli / 1000));
+            expect(transform.toUnixTime(milli)).toBe(Math.floor(milli / 1000));
         });
 
         it('convert date time in milliseconds to unix time', () => {
@@ -188,27 +193,19 @@ describe('field transforms', () => {
         it('invalid dates will throw errors', () => {
             try {
                 expect(transform.toUnixTime('notADate')).toBe(1577836800);
-            } catch (e) {
-                expect(e.message).toBe('Not a valid date, cannot transform to unix time');
-            }
+            } catch (e) { expect(e.message).toBe('Not a valid date, cannot transform to unix time'); }
 
             try {
                 expect(transform.toUnixTime(true)).toBe(1577836800);
-            } catch (e) {
-                expect(e.message).toBe('Not a valid date, cannot transform to unix time');
-            }
+            } catch (e) { expect(e.message).toBe('Not a valid date, cannot transform to unix time'); }
 
             try {
                 expect(transform.toUnixTime(undefined)).toBe(1577836800);
-            } catch (e) {
-                expect(e.message).toBe('Not a valid date, cannot transform to unix time');
-            }
+            } catch (e) { expect(e.message).toBe('Not a valid date, cannot transform to unix time'); }
 
             try {
                 expect(transform.toUnixTime({})).toBe(1577836800);
-            } catch (e) {
-                expect(e.message).toBe('Not a valid date, cannot transform to unix time');
-            }
+            } catch (e) { expect(e.message).toBe('Not a valid date, cannot transform to unix time'); }
         });
     });
 
@@ -268,27 +265,19 @@ describe('field transforms', () => {
         it('throw an error when it can not determine the phone number', () => {
             try {
                 transform.toISDN('34');
-            } catch (e) {
-                expect(e.message).toBe('Could not determine the incoming phone number');
-            }
+            } catch (e) { expect(e.message).toBe('Could not determine the incoming phone number'); }
 
             try {
                 transform.toISDN('notAphoneNumber');
-            } catch (e) {
-                expect(e.message).toBe('Could not determine the incoming phone number');
-            }
+            } catch (e) { expect(e.message).toBe('Could not determine the incoming phone number'); }
 
             try {
                 transform.toISDN('n/a');
-            } catch (e) {
-                expect(e.message).toBe('Could not determine the incoming phone number');
-            }
+            } catch (e) { expect(e.message).toBe('Could not determine the incoming phone number'); }
 
             try {
                 transform.toISDN('+467+070+123+4567');
-            } catch (e) {
-                expect(e.message).toBe('Could not determine the incoming phone number');
-            }
+            } catch (e) { expect(e.message).toBe('Could not determine the incoming phone number'); }
         });
     });
 
@@ -306,21 +295,15 @@ describe('field transforms', () => {
         it('thow an error for a bad UUID', () => {
             try {
                 expect(transform.toUUID('95ecc49B6C751B66DD541E', { lowercase: true })).toBe(false);
-            } catch (e) {
-                expect(e.message).toBe('Cannot create a valid UUID number');
-            }
+            } catch (e) { expect(e.message).toBe('Cannot create a valid UUID number'); }
 
             try {
                 expect(transform.toUUID('95ecc380afe911e49B6C751B66DD541Z', { lowercase: true })).toBe(false);
-            } catch (e) {
-                expect(e.message).toBe('Cannot create a valid UUID number');
-            }
+            } catch (e) { expect(e.message).toBe('Cannot create a valid UUID number'); }
 
             try {
                 expect(transform.toUUID('95XXX380afe911eW9B6C751B66DD541A', { lowercase: true })).toBe(false);
-            } catch (e) {
-                expect(e.message).toBe('Cannot create a valid UUID number');
-            }
+            } catch (e) { expect(e.message).toBe('Cannot create a valid UUID number'); }
         });
     });
 });
