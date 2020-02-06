@@ -370,48 +370,47 @@ describe('field validators', () => {
         });
     });
 
-    describe('isTimestamp', () => {
-        it('should validate timestamps', () => {
-            // iso8601 string dates
-            expect(FieldValidator.isTimestamp('2019-03-07T23:08:59.673Z')).toBe(true);
-            expect(FieldValidator.isTimestamp('2019-03-07')).toBe(true);
-            expect(FieldValidator.isTimestamp('2019-03-07T23:08:59')).toBe(true);
+    describe('isDateLike', () => {
+        it('should return true for strings that can be parsed into a date', () => {
+            expect(FieldValidator.isDateLike('2019-03-17T23:08:59.673Z')).toBe(true);
+            expect(FieldValidator.isDateLike('2019-03-17')).toBe(true);
+            expect(FieldValidator.isDateLike('2019-03-17T23:08:59')).toBe(true);
+            expect(FieldValidator.isDateLike('03/17/2019')).toBe(true);
+            expect(FieldValidator.isDateLike('03-17-2019')).toBe(true);
+            expect(FieldValidator.isDateLike('Jan 22, 2012')).toBe(true);
+            expect(FieldValidator.isDateLike('23 Jan 2012')).toBe(true);
+            expect(FieldValidator.isDateLike('12.23.2012')).toBe(true);
+            expect(FieldValidator.isDateLike('12.23.12')).toBe(true);
+            expect(FieldValidator.isDateLike('2020/01/23')).toBe(true);
+            expect(FieldValidator.isDateLike('01/23/20')).toBe(true);
+        });
 
-            // different string date formats
-            expect(FieldValidator.isTimestamp('03/07/2019')).toBe(true);
-            expect(FieldValidator.isTimestamp('03-07-2019')).toBe(true);
-            expect(FieldValidator.isTimestamp('Jan 12, 2012')).toBe(true);
-            expect(FieldValidator.isTimestamp('23 Jan 2012')).toBe(true);
-            expect(FieldValidator.isTimestamp('12.03.2012')).toBe(true);
+        it('should return true for numbers and string numbers that can be parsed to a date', () => {
+            expect(FieldValidator.isDateLike('1552000139673')).toBe(true);
+            expect(FieldValidator.isDateLike('1552000139')).toBe(true);
+            expect(FieldValidator.isDateLike(1552000139)).toBe(true);
+        })
 
-            // millisecond and second timestamps
-            expect(FieldValidator.isTimestamp('1552000139673')).toBe(true);
-            expect(FieldValidator.isTimestamp('1552000139')).toBe(true);
-
+        it('should return false for anything that cannot be parsed to a date', () => {
             // date object
-            expect(FieldValidator.isTimestamp(new Date())).toBe(true);
+            expect(FieldValidator.isDateLike(new Date())).toBe(true);
 
             // bad dates
-            expect(FieldValidator.isTimestamp('2020-23-09')).toBe(false);
-            expect(FieldValidator.isTimestamp('21.03.2012')).toBe(false);
-            expect(FieldValidator.isTimestamp('21/01/2019')).toBe(false);
-            expect(FieldValidator.isTimestamp('123432as;ldkfjasoej293432423')).toBe(false);
-            expect(FieldValidator.isTimestamp('1552000        139673')).toBe(false);
-            expect(FieldValidator.isTimestamp('unknown')).toBe(false);
-            expect(FieldValidator.isTimestamp('1')).toBe(false);
-            expect(FieldValidator.isTimestamp('undefined')).toBe(false);
-            expect(FieldValidator.isTimestamp(0)).toBe(false);
-            expect(FieldValidator.isTimestamp('baddate')).toBe(false);
-            expect(FieldValidator.isTimestamp(null)).toBe(false);
-            expect(FieldValidator.isTimestamp(undefined)).toBe(false);
-            expect(FieldValidator.isTimestamp(true)).toBe(false);
-            expect(FieldValidator.isTimestamp(false)).toBe(false);
-            expect(FieldValidator.isTimestamp('')).toBe(false);
-            expect(FieldValidator.isTimestamp('    ')).toBe(false);
-            // 9 digits
-            expect(FieldValidator.isTimestamp('155200013')).toBe(false);
-            // 14 digits
-            expect(FieldValidator.isTimestamp('15520001333212')).toBe(false);
+            expect(FieldValidator.isDateLike('20/01/23')).toBe(false);
+            expect(FieldValidator.isDateLike('2020-23-09')).toBe(false);
+            expect(FieldValidator.isDateLike('21.03.2012')).toBe(false);
+            expect(FieldValidator.isDateLike('21/01/2019')).toBe(false);
+            expect(FieldValidator.isDateLike('123432as;ldkfjasoej293432423')).toBe(false);
+            expect(FieldValidator.isDateLike('1552000        139673')).toBe(false);
+            expect(FieldValidator.isDateLike('unknown')).toBe(false);
+            expect(FieldValidator.isDateLike('undefined')).toBe(false);
+            expect(FieldValidator.isDateLike('baddate')).toBe(false);
+            expect(FieldValidator.isDateLike(null)).toBe(false);
+            expect(FieldValidator.isDateLike(undefined)).toBe(false);
+            expect(FieldValidator.isDateLike(true)).toBe(false);
+            expect(FieldValidator.isDateLike(false)).toBe(false);
+            expect(FieldValidator.isDateLike('')).toBe(false);
+            expect(FieldValidator.isDateLike('    ')).toBe(false);
         });
     });
 
@@ -686,7 +685,7 @@ describe('field validators', () => {
     });
 
     describe('isEmpty', () => {
-        it('should return true for empty input', () => {
+        it('should return true for empty strings, object, and arrays', () => {
             expect(FieldValidator.isEmpty('')).toBe(true);
             expect(FieldValidator.isEmpty(undefined)).toBe(true);
             expect(FieldValidator.isEmpty(null)).toBe(true);
@@ -697,13 +696,9 @@ describe('field validators', () => {
 
         it('should return false for non-empty inputs', () => {
             expect(FieldValidator.isEmpty('not empty')).toBe(false);
-            // expect(FieldValidator.isEmpty(123445)).toBe(false);
-            // expect(FieldValidator.isEmpty(0)).toBe(false);
             expect(FieldValidator.isEmpty({ a: 'something' })).toBe(false);
             expect(FieldValidator.isEmpty(['one', 2, 'three'])).toBe(false);
             expect(FieldValidator.isEmpty('     ')).toBe(false);
-            // expect(FieldValidator.isEmpty(true)).toBe(false);
-            // expect(FieldValidator.isEmpty(false)).toBe(false);
         });
     });
 

@@ -191,10 +191,28 @@ describe('field transforms', () => {
             } catch (e) {
                 expect(e.message).toBe('Not a valid date, cannot transform to unix time');
             }
+
+            try {
+                expect(transform.toUnixTime(true)).toBe(1577836800);
+            } catch (e) {
+                expect(e.message).toBe('Not a valid date, cannot transform to unix time');
+            }
+
+            try {
+                expect(transform.toUnixTime(undefined)).toBe(1577836800);
+            } catch (e) {
+                expect(e.message).toBe('Not a valid date, cannot transform to unix time');
+            }
+
+            try {
+                expect(transform.toUnixTime({})).toBe(1577836800);
+            } catch (e) {
+                expect(e.message).toBe('Not a valid date, cannot transform to unix time');
+            }
         });
     });
 
-    fdescribe('toISO8601 should', () => {
+    describe('toISO8601 should', () => {
         it('convert date iso strings and date objects to unix time', () => {
             const testDate = new Date();
             const unixTime = testDate.getTime();

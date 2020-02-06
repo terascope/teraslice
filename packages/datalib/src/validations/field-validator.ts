@@ -321,15 +321,18 @@ export function validValue(input: any, args?: { invalidValues: any[] }): boolean
     return input != null;
 }
 
-/*
-not sure how much value this addes beyond the ISO8601 and rfc3339 date validations
-export function isDate(input: any) {
+// not sure how much value this addes beyond the ISO8601 and rfc3339 date validations
+export function isDateLike(input: any): boolean {
+    // only string, date object, number should be tested
     // validates string and object dates
+    if (isEmpty(input, { ignore_whitespace: true })) {
+        console.log(input);
+        return false;
+    }
+
     if (isNaN(input) || Object.prototype.toString.call(input) === '[object Date]') {
         return !isNaN(Date.parse(input));
     }
 
-    // integers are dates...but may not be dates
-    return isInteger(input);
+    return isInteger(ts.toNumber(input));
 }
-*/

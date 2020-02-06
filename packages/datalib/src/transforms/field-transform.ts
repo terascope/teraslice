@@ -4,7 +4,7 @@ import PhoneValidator from 'awesome-phonenumber';
 import jexl from 'jexl';
 import { ExtractFieldConfig, MacAddressConfig, ReplaceLiteralConfig, ReplaceRegexConfig } from './interfaces';
 import { parseGeoPoint } from './helpers';
-import { isString, isMacAddress, isUUID } from '../validations/field-validator';
+import { isString, isMacAddress, isUUID, isDateLike } from '../validations/field-validator';
 import { Repository } from '../interfaces';
 import { valid } from 'semver';
 import { getUnixTime } from 'date-fns';
@@ -285,10 +285,16 @@ export function replaceLiteral(input: string, { search, replace }: ReplaceLitera
     }
 }
 
+// option to specify, seconds, millisecond, microseconds?
 export function toUnixTime(input: any): number {
+    if (!isDateLike(input)) {
+        throw new Error('Not a valid date, cannot transform to unix time');
+    }
+
     const parse = isNaN(input) ? Date.parse(input) : Number(input);
 
     const unixTime = getUnixTime(parse);
+    console.log('input:', input, 'parsed', parse, 'unix time', unixTime);
 
     if (String(unixTime) === 'NaN') {
         throw new Error('Not a valid date, cannot transform to unix time');
@@ -305,9 +311,11 @@ export function fromUnixTime(input: number) {
 export function toISO8601(input: any): string {
     // convert timestamps, date objects other formats to iso8601
 
+    /*
     if (!isTimestamp(input)) {
         throw new Error('Not a valid date');
     }
+    */
 
     return new Date(input).toISOString();
 }
