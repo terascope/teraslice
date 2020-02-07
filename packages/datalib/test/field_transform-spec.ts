@@ -42,6 +42,23 @@ describe('field transforms', () => {
         });
     });
 
+    describe('trimChar should', () => {
+        it('should return the string trimmed from the start', () => {
+            expect(transform.trimChar('thisisastring', { char: 's', direction: 'start' })).toBe('isastring');
+            expect(transform.trimChar('thisisastring', { char: 'isa', direction: 'start' })).toBe('string');
+        });
+
+        it('should return the string trimmed from the end', () => {
+            expect(transform.trimChar('this is a string', { char: 's', direction: 'end' })).toBe('this is a ');
+            expect(transform.trimChar('this is a string', { char: 'is a', direction: 'end' })).toBe('this ');
+        });
+
+        it('should return the string if char is not found', () => {
+            expect(transform.trimChar('this is a string', { char: 'b', direction: 'start' })).toBe('this is a string');
+            expect(transform.trimChar('this is a string', { char: 'b', direction: 'end' })).toBe('this is a string');
+        });
+    });
+
     describe('truncate should', () => {
         it('return string of designated length', () => {
             expect(transform.truncate('thisisalongstring', { size: 4 })).toBe('this');
@@ -168,7 +185,7 @@ describe('field transforms', () => {
         });
     });
 
-    fdescribe('toUnixTime should', () => {
+    describe('toUnixTime should', () => {
         it('convert date iso strings and date objects to unix time', () => {
             const testDate = new Date();
             const milli = testDate.getTime();
@@ -181,7 +198,6 @@ describe('field transforms', () => {
 
         it('convert date time in milliseconds to unix time', () => {
             expect(transform.toUnixTime(1580418907000)).toBe(1580418907);
-            expect(transform.toUnixTime('1580418907000')).toBe(1580418907);
         });
 
         it('convert string dates to unix time', () => {
@@ -221,8 +237,7 @@ describe('field transforms', () => {
         });
 
         it('convert date time in seconds to unix time', () => {
-            expect(transform.toISO8601(1580418907)).toBe('2020-01-30T21:15:07.000Z');
-            expect(transform.toISO8601('1580418907')).toBe('2020-01-30T21:15:07.000Z');
+            expect(transform.toISO8601(1580418907, { resolution: 'seconds' })).toBe('2020-01-30T21:15:07.000Z');
         });
 
         it('convert string dates to unix time', () => {
@@ -237,6 +252,45 @@ describe('field transforms', () => {
             } catch (e) {
                 expect(e.message).toBe('Not a valid date, cannot transform to unix time');
             }
+        });
+    });
+
+    describe('formatDate', () => {
+        it('should return the formated date from a date object', () => {
+            expect(transform.formatDate(new Date(2020, 2, 18), 'MM-dd-yyyy')).toBe('03-18-2020');
+            expect(transform.formatDate(new Date('Jan 3 2001'), 'MM-dd-yyyy')).toBe('01-03-2001');
+        });
+
+        it('should return the formated date from a valid string date', () => {
+            expect(transform.formatDate('2020-01-14T20:34:01.034Z', 'MMM do yy')).toBe('Jan 14th 20');
+            expect(transform.formatDate('March 3, 2019', 'M/d/yyyy')).toBe('3/3/2019');
+        });
+
+        it('should return formated date from millitime time', () => {
+            expect(transform.formatDate(1581013130856, 'yyyy-MM-dd')).toBe('2020-02-06');
+            expect(transform.formatDate(1581013130, 'yyyy-MM-dd', { resolution: 'seconds' })).toBe('2020-02-06');
+        });
+
+        it('should throw error if date cannot be formated', () => {
+            try {
+                expect(transform.formatDate('bad date', 'yyyy-MM-dd')).toBe('2020-02-06');
+            } catch (e) { expect(e.message).toBe('Not a valid date'); }
+        });
+    });
+
+    describe('parseDate', () => {
+        it('should return date object from date string', () => {
+            expect(transform.parseDate('2020-01-10-00:00', 'yyyy-MM-ddxxx')).toStrictEqual(new Date('2020-01-10T00:00:00.000Z'));
+            expect(transform.parseDate('Jan 10, 2020-00:00', 'MMM dd, yyyyxxx')).toStrictEqual(new Date('2020-01-10T00:00:00.000Z'));
+            expect(transform.parseDate(1581025950223, 'T')).toStrictEqual(new Date('2020-02-06T21:52:30.223Z'));
+            expect(transform.parseDate(1581025950, 't')).toStrictEqual(new Date('2020-02-06T21:52:30.000Z'));
+            expect(transform.parseDate('1581025950', 't')).toStrictEqual(new Date('2020-02-06T21:52:30.000Z'));
+        });
+
+        it('should throw error if cannot parse', () => {
+            try {
+                expect(transform.parseDate('2020-01-10', 't')).toStrictEqual(new Date('2020-01-10T00:00:00.000Z'));
+            } catch (e) { expect(e.message).toBe('Cannot parse date'); }
         });
     });
 
@@ -278,32 +332,6 @@ describe('field transforms', () => {
             try {
                 transform.toISDN('+467+070+123+4567');
             } catch (e) { expect(e.message).toBe('Could not determine the incoming phone number'); }
-        });
-    });
-
-    describe('toUUID should', () => {
-        it('return a valid UUID', () => {
-            expect(transform.toUUID('95ecc380-afe9-11e4-9b6c-751b66dd541e')).toBe('95ecc380-afe9-11e4-9b6c-751b66dd541e');
-            expect(transform.toUUID('95ecc380afe911e49b6c751b66dd541e')).toBe('95ecc380-afe9-11e4-9b6c-751b66dd541e');
-            expect(transform.toUUID('95ecc380afe911e49B6C751B66DD541E')).toBe('95ecc380-afe9-11e4-9B6C-751B66DD541E');
-        });
-
-        it('return lowercased UUID if specified', () => {
-            expect(transform.toUUID('95ecc380afe911e49B6C751B66DD541E', { lowercase: true })).toBe('95ecc380-afe9-11e4-9b6c-751b66dd541e');
-        });
-
-        it('thow an error for a bad UUID', () => {
-            try {
-                expect(transform.toUUID('95ecc49B6C751B66DD541E', { lowercase: true })).toBe(false);
-            } catch (e) { expect(e.message).toBe('Cannot create a valid UUID number'); }
-
-            try {
-                expect(transform.toUUID('95ecc380afe911e49B6C751B66DD541Z', { lowercase: true })).toBe(false);
-            } catch (e) { expect(e.message).toBe('Cannot create a valid UUID number'); }
-
-            try {
-                expect(transform.toUUID('95XXX380afe911eW9B6C751B66DD541A', { lowercase: true })).toBe(false);
-            } catch (e) { expect(e.message).toBe('Cannot create a valid UUID number'); }
         });
     });
 });
