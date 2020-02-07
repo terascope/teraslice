@@ -4,7 +4,7 @@ import { formatSchema, formatGQLComment } from './graphql-helper';
 import * as i from './interfaces';
 import BaseType from './types/base-type';
 import * as utils from './utils';
-import { getTypes, LATEST_VERSION } from './types';
+import { getTypes, LATEST_VERSION, getGroupedFields } from './types';
 
 /**
  * A DataType is used to define the structure of data with version support
@@ -19,6 +19,8 @@ export class DataType {
     readonly description?: string;
     readonly fields: i.TypeConfigFields;
     readonly version: i.AvailableVersion;
+    /** An object of base fields with their child fields */
+    readonly groupedFields: i.GroupedFields;
 
     private readonly _types: BaseType[];
 
@@ -26,7 +28,8 @@ export class DataType {
     static mergeGraphQLDataTypes(types: DataType[], options: i.MergeGraphQLOptions = {}) {
         const {
             references: typeReferences = {},
-            removeScalars = false
+            removeScalars = false,
+            useSnakeCase = false
         } = options;
 
         const customTypes: string[] = [...(options.customTypes ?? [])];
@@ -44,7 +47,7 @@ export class DataType {
             names.push(type.name);
 
             if (options.createInputTypes) {
-                const inputName = `${type.name}Input`;
+                const inputName = useSnakeCase ? `${type.name}_input` : `${type.name}Input`;
 
                 if (names.includes(inputName)) {
                     throw new Error(`Unable to process duplicate DataType "${inputName}" input`);
@@ -61,6 +64,7 @@ export class DataType {
 
             const result = type.toGraphQLTypes({
                 references,
+                useSnakeCase,
                 createInputType: options.createInputTypes,
                 includeAllInputFields: options.includeAllInputFields,
             });
@@ -90,7 +94,8 @@ export class DataType {
         this.fields = fields;
         this.version = version;
 
-        this._types = getTypes(fields, version);
+        this.groupedFields = getGroupedFields(fields);
+        this._types = getTypes(fields, this.groupedFields, version);
     }
 
     /**
@@ -152,6 +157,7 @@ export class DataType {
         const {
             typeName = this.name,
             references = [],
+            useSnakeCase = false,
             description = this.description,
             createInputType = false
         } = args;
@@ -160,25 +166,29 @@ export class DataType {
             throw new ts.TSError('No typeName was specified to create the graphql type representing this data structure');
         }
 
-        const inputName = `${typeName}Input`;
+        const inputName = useSnakeCase ? `${typeName}_input` : `${typeName}Input`;
 
         const customTypes: string[] = [];
         const baseProperties: string[] = [];
         const inputProperties: string[] = [];
 
         this._types.forEach((typeClass) => {
-            const result = typeClass.toGraphQL(typeName);
+            const result = typeClass.toGraphQL({
+                typeName,
+                useSnakeCase,
+            });
             baseProperties.push(result.type);
             customTypes.push(...result.customTypes);
 
             if (createInputType) {
                 if (args.includeAllInputFields
                     || !ts.startsWith(typeClass.field, '_')) {
-                    const inputResult = typeClass.toGraphQL(
+                    const inputResult = typeClass.toGraphQL({
                         typeName,
-                        true,
-                        args.includeAllInputFields
-                    );
+                        isInput: true,
+                        useSnakeCase,
+                        includePrivate: args.includeAllInputFields
+                    });
                     inputProperties.push(inputResult.type);
                     customTypes.push(...inputResult.customTypes);
                 }
