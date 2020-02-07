@@ -7,6 +7,7 @@ import isCidr from 'is-cidr';
 import PhoneValidator from 'awesome-phonenumber';
 import validator from 'validator';
 import * as url from 'valid-url';
+
 import {
     FQDNOptions,
     HashConfig,
@@ -15,6 +16,7 @@ import {
     IssnOptions,
     MACAddress
 } from './interfaces';
+
 import { parseGeoPoint } from '../transforms/helpers';
 import * as i from '../interfaces';
 
@@ -32,15 +34,15 @@ export const respoitory: i.Repository = {
     isGeoShapeMultiPolygon: { fn: isGeoShapeMultiPolygon, config: {} },
     isIP: { fn: isIP, config: {} },
     isISDN: { fn: isISDN, config: {} },
-    isMacAddress: { fn: isMacAddress, config: { delimiter: { type: 'String!' } } },
+    isMacAddress: { fn: isMacAddress, config: { delimiter: { type: 'String' } } },
     isNumber: { fn: isNumber, config: {} },
     isInteger: { fn: isInteger, config: {} },
-    inNumberRange: { fn: inNumberRange, config: { min: { type: 'Number!' }, max: { type: 'Number!' } } },
+    inNumberRange: { fn: inNumberRange, config: { min: { type: 'Number' }, max: { type: 'Number' } } },
     isString: { fn: isString, config: {} },
     isUrl: { fn: isUrl, config: {} },
     isUUID: { fn: isUUID, config: {} },
-    contains: { fn: contains, config: { value: { type: 'String!' } } },
-    equals: { fn: equals, config: { value: { type: 'String!' } } },
+    contains: { fn: contains, config: { value: { type: 'String' } } },
+    equals: { fn: equals, config: { value: { type: 'String' } } },
     isAlpha: { fn: isAlpha, config: {} },
     isAlphanumeric: { fn: isAlphanumeric, config: {} },
     isAscii: { fn: isAscii, config: {} },
@@ -59,7 +61,7 @@ export const respoitory: i.Repository = {
     isPostalCode: { fn: isPostalCode, config: {} },
     isRoutableIp: { fn: isRoutableIP, config: {} },
     isNonRoutableIp: { fn: isNonRoutableIP, config: {} },
-    inIPRange: { fn: inIPRange, config: { min: { type: 'String!' }, max: { type: 'String!' }, cidr: { type: 'String!' } } }
+    inIPRange: { fn: inIPRange, config: { min: { type: 'String' }, max: { type: 'String' }, cidr: { type: 'String' } } }
 };
 
 export function isBoolean(input: any): boolean {

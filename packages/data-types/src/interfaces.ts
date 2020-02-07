@@ -69,7 +69,9 @@ export type AvailableType =
     | 'NgramTokens'
     | 'Object'
     | 'Short'
-    | 'Text';
+    | 'Text'
+    | 'String'
+    | 'Number';
 
 export const AvailableTypes: AvailableType[] = [
     'Boolean',
@@ -96,6 +98,8 @@ export const AvailableTypes: AvailableType[] = [
     'Object',
     'Short',
     'Text',
+    'String',
+    'Number'
 ];
 
 export type AvailableVersion = 1;

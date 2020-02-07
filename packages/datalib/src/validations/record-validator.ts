@@ -2,7 +2,7 @@ import { AnyObject } from '@terascope/utils';
 import { Repository } from '../interfaces';
 
 export const respoitory: Repository = {
-    required: { fn: required, config: { fields: { type: 'String[]!' } } },
+    required: { fn: required, config: { fields: { type: 'String', array: true } } },
 };
 
 export function required(obj: AnyObject, fields: string[]) {

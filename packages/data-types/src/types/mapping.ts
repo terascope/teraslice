@@ -24,6 +24,8 @@ import KeywordTokensCaseInsensitiveV1 from './v1/keyword-tokens-case-insensitive
 import KeywordPathAnalyzerV1 from './v1/keyword-path-analyzer';
 import NgramTokensV1 from './v1/ngram-tokens';
 import BoundaryV1 from './v1/boundary';
+import StringV1 from './v1/string';
+import NumberV1 from './v1/number';
 
 export const mapping: DataTypeMapping = {
     1: {
@@ -51,5 +53,7 @@ export const mapping: DataTypeMapping = {
         NgramTokens: NgramTokensV1,
         Boundary: BoundaryV1,
         Object: ObjectV1,
+        String: StringV1,
+        Number: NumberV1
     },
 };

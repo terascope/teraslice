@@ -29,6 +29,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
+        "@terascope/data-types": "^0.11.1",
         "@terascope/utils": "^0.22.0",
         "awesome-phonenumber": "^2.25.0",
         "date-fns": "^2.9.0",

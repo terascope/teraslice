@@ -1,6 +1,7 @@
 import { EmptyObject } from '@terascope/utils';
+import { FieldTypeConfig } from '@terascope/data-types';
 
-export type RepoConfig = Config | EmptyObject;
+export type RepoConfig = Config & EmptyObject;
 
 export interface Repository {
     [key: string]: {
@@ -10,9 +11,7 @@ export interface Repository {
 }
 
 interface Config {
-    [key: string]: {
-        type: string;
-    };
+    [key: string]: FieldTypeConfig;
 }
 
 export enum ESGeoShapeType {
