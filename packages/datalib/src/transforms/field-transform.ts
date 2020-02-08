@@ -11,16 +11,9 @@ import {
     isString, isMacAddress, isValidDate, isNumber
 } from '../validations/field-validator';
 import { Repository } from '../interfaces';
+import { match } from 'assert';
 
-export const respoitory: Repository = {
-    normalizeMacAddress: {
-        fn: normalizeMacAddress,
-        config: {
-            casing: { type: 'uppercase | lowercase' },
-            removeGroups: { type: 'boolean' }
-        }
-    },
-    removeIpZoneId: { fn: removeIpZoneId, config: {} },
+export const respository: Repository = {
     replaceLiteral: { fn: replaceLiteral, config: { search: { type: 'String!' }, replace: { type: 'String!' } } },
     replaceRegex: {
         fn: replaceRegex,
@@ -35,7 +28,8 @@ export const respoitory: Repository = {
     toNumber: { fn: toNumber, config: { booleanLike: { type: 'boolean' } } },
     toUpperCase: { fn: toUpperCase, config: {} },
     trim: { fn: trim, config: {} },
-    trimChar: { fn: trimChar, config: { char: { type: 'string' }, direction: { type: 'string' } } }
+    trimStart: { fn: trimStart, config: { char: { type: 'string' } } },
+    trimEnd: { fn: trimEnd, config: { char: { type: 'string' } } },
 };
 
 export function toBoolean(input: any) {
@@ -52,23 +46,51 @@ export function toLowerCase(input: string) {
     return input.toLowerCase();
 }
 
-export function trim(input: string) {
-    if (!isString(input)) throw new Error('Input must be a string');
-    return ts.trim(input);
+export function trim(input: string, args?: { char: string }) {
+    const char = args ? args.char : ' ';
+    return trimEnd(trimStart(input, { char }), { char });
 }
 
-export function trimChar(input: string, args: { char: string; direction: 'start' | 'end' }): string {
-    const { char, direction } = args;
+export function trimStart(input: string, args?: { char: string }): string {
+    const char = args ? args.char : ' ';
+    let start = 0;
+    let match = 0;
 
-    const index = direction === 'start' ? input.indexOf(char) : input.lastIndexOf(char);
-
-    if (index === -1) return input;
-
-    if (direction === 'start') {
-        return input.slice(index + char.length);
+    for (let i = 0; i < input.length;) {
+        if (input.slice(i, i + char.length) === char) {
+            start = i + char.length;
+            i += char.length;
+            match = 1;
+        } else {
+            if (match === 1) break;
+            i++;
+        }
     }
 
-    return input.slice(0, index);
+    if (start === input.length) return input;
+
+    return input.slice(start);
+}
+
+export function trimEnd(input: string, args?: { char: string }): string {
+    const char = args ? args.char : ' ';
+    let end = 0;
+    let match = 0;
+
+    for (let i = input.length; i >= 0;) {
+        if (input.slice(i - char.length, i) === char) {
+            end = i - char.length;
+            i -= char.length;
+            match = 1;
+        } else {
+            if (match === 1) break;
+            i--;
+        }
+    }
+
+    if (end === 0) return input;
+
+    return input.slice(0, end);
 }
 
 // TODO: fix types here
@@ -92,23 +114,6 @@ export function toISDN(input: any) {
     if (fullNumber) return String(fullNumber).slice(1);
 
     throw Error('Could not determine the incoming phone number');
-}
-
-// probably not needed, can distill this down to remove delimiter and lowercase or uppercase
-export function normalizeMacAddress(input: any, args?: MacAddressConfig) {
-    let results = input;
-
-    if (!isMacAddress(input, { delimiter: 'any' })) {
-        throw new Error('Not a valid mac address');
-    }
-
-    if (args) {
-        if (args.casing === 'lowercase') results = results.toLowerCase();
-        if (args.casing === 'uppercase') results = results.toUpperCase();
-        if (args.removeGroups) results = results.replace(/:|\.|-|\s/g, '');
-    }
-
-    return results;
 }
 
 export function toNumber(input: any, args?: { booleanLike?: boolean }) {
@@ -276,17 +281,6 @@ export function extract(
     if (!results) throw new Error('Was not able to extract anything');
 }
 
-// distill down to trim after char
-export function removeIpZoneId(input: string): string {
-    // removes the zone id from ipv6 addresses
-    // fe80:3438:7667:5c77:ce27%18 -> fe80:3438:7667:5c77:ce27
-    if (input.indexOf('%') > -1) {
-        return input.slice(0, input.indexOf('%'));
-    }
-
-    return input;
-}
-
 export function replaceRegex(input: string, {
     regex, replace, ignoreCase, global
 }: ReplaceRegexConfig): string {
@@ -309,6 +303,12 @@ export function replaceLiteral(input: string, { search, replace }: ReplaceLitera
     } catch (e) {
         throw new Error(`Could not replace ${search} with ${replace}`);
     }
+}
+
+export function toArray(input: string, args?: { delimiter: string }): any[] {
+    const delimiter = args ? args.delimiter : '';
+
+    return input.split(delimiter);
 }
 
 // option to specify, seconds, millisecond, microseconds?
@@ -358,4 +358,24 @@ export function parseDate(input: any, format: string) {
     }
 
     return parsed;
+}
+
+export function toCamelCase(input: string): string {
+    return ts.toCamelCase(input);
+}
+
+export function toKebabCase(input: string): string {
+    return ts.toKebabCase(input);
+}
+
+export function toPascalCase(input: string): string {
+    return ts.toPascalCase(input);
+}
+
+export function toSnakeCase(input: string): string {
+    return ts.toSnakeCase(input);
+}
+
+export function toTitleCase(input: string): string {
+    return ts.firstToUpper(ts.getWordParts(input).map((str) => ts.firstToUpper(str)).join(' '));
 }

@@ -39,23 +39,43 @@ describe('field transforms', () => {
             expect(transform.trim('   string    ')).toBe('string');
             expect(transform.trim('   left')).toBe('left');
             expect(transform.trim('right    ')).toBe('right');
-        });
-    });
-
-    describe('trimChar should', () => {
-        it('should return the string trimmed from the start', () => {
-            expect(transform.trimChar('thisisastring', { char: 's', direction: 'start' })).toBe('isastring');
-            expect(transform.trimChar('thisisastring', { char: 'isa', direction: 'start' })).toBe('string');
-        });
-
-        it('should return the string trimmed from the end', () => {
-            expect(transform.trimChar('this is a string', { char: 's', direction: 'end' })).toBe('this is a ');
-            expect(transform.trimChar('this is a string', { char: 'is a', direction: 'end' })).toBe('this ');
+            expect(transform.trim('fast cars race fast', { char: 'fast' })).toBe(' cars race ');
+            expect(transform.trim('.*.*a regex test.*.*.*.* stuff', { char: '.*' })).toBe('a regex test');
+            expect(transform.trim('\t\r\rtrim this\r\r', { char: '\r' })).toBe('trim this');
         });
 
         it('should return the string if char is not found', () => {
-            expect(transform.trimChar('this is a string', { char: 'b', direction: 'start' })).toBe('this is a string');
-            expect(transform.trimChar('this is a string', { char: 'b', direction: 'end' })).toBe('this is a string');
+            expect(transform.trim('this is a string', { char: 'b' })).toBe('this is a string');
+        });
+    });
+
+    describe('trimStart should', () => {
+        it('should return the string trimmed from the start', () => {
+            expect(transform.trimStart('thisisastring', { char: 's' })).toBe('isastring');
+            expect(transform.trimStart('thisisastring', { char: 'isa' })).toBe('string');
+            expect(transform.trimStart('    Hello Bob    ')).toBe('Hello Bob    ');
+            expect(transform.trimStart('iiii-wordiwords-iii', { char: 'i' })).toBe('-wordiwords-iii');
+            expect(transform.trimStart('__--__--__some__--__word', { char: '__--' })).toBe('__some__--__word');
+            expect(transform.trimStart('fast cars race fast', { char: 'fast' })).toBe(' cars race fast');
+
+        });
+
+        it('should return the string if char is not found', () => {
+            expect(transform.trimStart('this is a string', { char: 'b' })).toBe('this is a string');
+        });
+    });
+
+    describe('trimEnd should', () => {
+        it('should return the string trimmed from the end', () => {
+            expect(transform.trimEnd('this is a string', { char: 's' })).toBe('this is a ');
+            expect(transform.trimEnd('this is a string', { char: 'is a' })).toBe('this ');
+            expect(transform.trimEnd('    Hello Bob    ')).toBe('    Hello Bob');
+            expect(transform.trimEnd('*****Hello****Bob*****', { char: '*' })).toBe('*****Hello****Bob');
+            expect(transform.trimEnd('fast cars race fast', { char: 'fast' })).toBe('fast cars race ');
+        });
+
+        it('should return the string if char is not found', () => {
+            expect(transform.trimEnd('this is a string', { char: 'b' })).toBe('this is a string');
         });
     });
 
@@ -73,54 +93,12 @@ describe('field transforms', () => {
         });
     });
 
-    describe('normalize mac address should', () => {
-        it('return the mac address with no changes', () => {
-            expect(transform.normalizeMacAddress('00:1f:f3:5b:2b:1f')).toBe('00:1f:f3:5b:2b:1f');
-            expect(transform.normalizeMacAddress('00-1f-f3-5b-2b-1f')).toBe('00-1f-f3-5b-2b-1f');
-            expect(transform.normalizeMacAddress('001f.f35b.2b1f')).toBe('001f.f35b.2b1f');
-            expect(transform.normalizeMacAddress('001ff35b2b1f')).toBe('001ff35b2b1f');
-        });
-
-        it('return the mac address with proper casing', () => {
-            expect(transform.normalizeMacAddress('00 1f f3 5b 2b 1f', { casing: 'uppercase' })).toBe('00 1F F3 5B 2B 1F');
-            expect(transform.normalizeMacAddress('00-1f-3f-5b-2b-1f', { casing: 'uppercase' })).toBe('00-1F-3F-5B-2B-1F');
-            expect(transform.normalizeMacAddress('001F.F35B.2B1F', { casing: 'lowercase' })).toBe('001f.f35b.2b1f');
-            expect(transform.normalizeMacAddress('001Ff35B2b1F', { casing: 'lowercase' })).toBe('001ff35b2b1f');
-            expect(transform.normalizeMacAddress('001Ff35B2b1F', { casing: 'uppercase' })).toBe('001FF35B2B1F');
-        });
-
-        it('return the mac address and strip the delimiter', () => {
-            expect(transform.normalizeMacAddress('00 1f f3 5b 2b 1f', { casing: 'lowercase', removeGroups: true })).toBe('001ff35b2b1f');
-            expect(transform.normalizeMacAddress('00-1f-3f-5b-2b-1f', { casing: 'uppercase', removeGroups: true })).toBe('001F3F5B2B1F');
-            expect(transform.normalizeMacAddress('001F.F35B.2B1F', { casing: 'lowercase', removeGroups: true })).toBe('001ff35b2b1f');
-            expect(transform.normalizeMacAddress('00:1f:f3:5b:2b:1f', { casing: 'lowercase', removeGroups: true })).toBe('001ff35b2b1f');
-        });
-
-        it('return the mac address and remove group delimiter', () => {
-            expect(transform.normalizeMacAddress('00 1f f3 5b 2b 1f', { casing: 'lowercase', removeGroups: true })).toBe('001ff35b2b1f');
-            expect(transform.normalizeMacAddress('00-1f-3f-5b-2b-1f', { casing: 'uppercase', removeGroups: true })).toBe('001F3F5B2B1F');
-            expect(transform.normalizeMacAddress('001F.F35B.2B1F', { casing: 'lowercase', removeGroups: true })).toBe('001ff35b2b1f');
-            expect(transform.normalizeMacAddress('00:1f:f3:5b:2b:1f', { casing: 'lowercase', removeGroups: true })).toBe('001ff35b2b1f');
-        });
-
-        it('throw an error if an invalid mac address', () => {
-            try {
-                expect(transform.normalizeMacAddress('thisisabadmacaddress', { casing: 'lowercase', removeGroups: true })).toBe('001ff35b2b1f');
-            } catch (e) {
-                expect(e.message).toBe('Not a valid mac address');
-            }
-
-            try {
-                expect(transform.normalizeMacAddress(true)).toBe('001ff35b2b1f');
-            } catch (e) {
-                expect(e.message).toBe('Not a valid mac address');
-            }
-
-            try {
-                expect(transform.normalizeMacAddress(23423432)).toBe('001ff35b2b1f');
-            } catch (e) {
-                expect(e.message).toBe('Not a valid mac address');
-            }
+    describe('toArray', () => {
+        it('should return an array from a string', () => {
+            expect(transform.toArray('astring')).toEqual(['a', 's', 't', 'r', 'i', 'n', 'g']);
+            expect(transform.toArray('astring', { delimiter: ',' })).toEqual(['astring']);
+            expect(transform.toArray('a-stri-ng', { delimiter: '-' })).toEqual(['a', 'stri', 'ng']);
+            expect(transform.toArray('a string', { delimiter: ' ' })).toEqual(['a', 'string']);
         });
     });
 
@@ -154,16 +132,6 @@ describe('field transforms', () => {
             try {
                 expect(transform.toNumber(undefined)).toBe(12321);
             } catch (e) { expect(e.message).toBe('could not convert to a number'); }
-        });
-    });
-
-    describe('removeIpZoneId should', () => {
-        it('remove zone id and return ip address', () => {
-            expect(transform.removeIpZoneId('8.8.8.8')).toBe('8.8.8.8');
-            expect(transform.removeIpZoneId('172.35.12.18')).toBe('172.35.12.18');
-            expect(transform.removeIpZoneId('2001:db8::1')).toBe('2001:db8::1');
-            expect(transform.removeIpZoneId('fe80::1ff:fe23:4567:890a%eth2')).toBe('fe80::1ff:fe23:4567:890a');
-            expect(transform.removeIpZoneId('2001:DB8::1')).toBe('2001:DB8::1');
         });
     });
 
@@ -332,6 +300,56 @@ describe('field transforms', () => {
             try {
                 transform.toISDN('+467+070+123+4567');
             } catch (e) { expect(e.message).toBe('Could not determine the incoming phone number'); }
+        });
+    });
+
+    describe('toCamelCase', () => {
+        it('should return a camel case string', () => {
+            expect(transform.toCamelCase('I need camel case')).toBe('iNeedCamelCase');
+            expect(transform.toCamelCase('happyBirthday')).toBe('happyBirthday');
+            expect(transform.toCamelCase('what_is_this')).toBe('whatIsThis');
+            expect(transform.toCamelCase('this-should-be-camel')).toBe('thisShouldBeCamel');
+            expect(transform.toCamelCase('Cased   to Pass---this_____TEST')).toBe('casedToPassThisTEST');
+        });
+    });
+
+    describe('toKebabCase', () => {
+        it('should return a kebab case string', () => {
+            expect(transform.toKebabCase('I need kebab case')).toBe('i-need-kebab-case');
+            expect(transform.toKebabCase('happyBirthday')).toBe('happy-birthday');
+            expect(transform.toKebabCase('what_is_this')).toBe('what-is-this');
+            expect(transform.toKebabCase('this-should-be-kebab')).toBe('this-should-be-kebab');
+            expect(transform.toKebabCase('Cased   to Pass---this_____TEST')).toBe('cased-to-pass-this-test');
+        });
+    });
+
+    describe('toPascalCase', () => {
+        it('should return a pascal case string', () => {
+            expect(transform.toPascalCase('I need pascal case')).toBe('INeedPascalCase');
+            expect(transform.toPascalCase('happyBirthday')).toBe('HappyBirthday');
+            expect(transform.toPascalCase('what_is_this')).toBe('WhatIsThis');
+            expect(transform.toPascalCase('this-should-be-pascal')).toBe('ThisShouldBePascal');
+            expect(transform.toPascalCase('Cased   to Pass---this_____TEST')).toBe('CasedToPassThisTEST');
+        });
+    });
+
+    describe('toSnakeCase', () => {
+        it('should return a pascal case string', () => {
+            expect(transform.toSnakeCase('I need snake case')).toBe('i_need_snake_case');
+            expect(transform.toSnakeCase('happyBirthday')).toBe('happy_birthday');
+            expect(transform.toSnakeCase('what_is_this')).toBe('what_is_this');
+            expect(transform.toSnakeCase('this-should-be-snake')).toBe('this_should_be_snake');
+            expect(transform.toSnakeCase('Cased   to Pass---this_____TEST')).toBe('cased_to_pass_this_test');
+        });
+    });
+
+    describe('toTitleCase', () => {
+        it('should return a string with every word capitalized', () => {
+            expect(transform.toTitleCase('I need some capitols')).toBe('I Need Some Capitols');
+            expect(transform.toTitleCase('happyBirthday')).toBe('Happy Birthday');
+            expect(transform.toTitleCase('what_is_this')).toBe('What Is This');
+            expect(transform.toTitleCase('this-should-be-capital')).toBe('This Should Be Capital');
+            expect(transform.toTitleCase('Cased   to Pass---this_____TEST')).toBe('Cased To Pass This TEST');
         });
     });
 });
