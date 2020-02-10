@@ -11403,10 +11403,10 @@ tsutils@^3.17.1:
   dependencies:
     tslib "^1.8.1"
 
-tty-table@^2.8.4:
-  version "2.8.6"
-  resolved "https://registry.yarnpkg.com/tty-table/-/tty-table-2.8.6.tgz#503d75cbb28bc1f3d6836e74ee6fdc63a28dd3cd"
-  integrity sha512-RFjw8e1BRHuy1PQfb3h1JpmubFCjoltongMIMIu28CnpmZuEvsfvMFZyU7jRr5oFvPAIv3UJemJowGDrBPKSPQ==
+tty-table@^2.8.7:
+  version "2.8.7"
+  resolved "https://registry.yarnpkg.com/tty-table/-/tty-table-2.8.7.tgz#2fda5f5e477610a4f0722576157488b30b1033d3"
+  integrity sha512-rD5fD1AHytRYqj0v8udWhNx32zj3JXSmiK33zYWnM+DfRACSCdJ9FJO6+5j8zZNBpLHR/4O+Bqp39k8v36MVQw==
   dependencies:
     chalk "^2.4.2"
     csv "^5.3.1"
