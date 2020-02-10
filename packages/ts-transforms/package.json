@@ -39,7 +39,7 @@
         "@terascope/utils": "^0.22.0",
         "@types/graphlib": "^2.1.5",
         "@types/shortid": "^0.0.29",
-        "awesome-phonenumber": "^2.24.0",
+        "awesome-phonenumber": "^2.26.0",
         "graphlib": "^2.1.8",
         "jexl": "^2.2.1",
         "shortid": "^2.2.14",
