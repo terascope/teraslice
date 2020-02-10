@@ -42,6 +42,7 @@ describe('field transforms', () => {
             expect(transform.trim('fast cars race fast', { char: 'fast' })).toBe(' cars race ');
             expect(transform.trim('.*.*a regex test.*.*.*.* stuff', { char: '.*' })).toBe('a regex test');
             expect(transform.trim('\t\r\rtrim this\r\r', { char: '\r' })).toBe('trim this');
+            expect(transform.trim('        ')).toBe('');
         });
 
         it('should return the string if char is not found', () => {
@@ -57,6 +58,9 @@ describe('field transforms', () => {
             expect(transform.trimStart('iiii-wordiwords-iii', { char: 'i' })).toBe('-wordiwords-iii');
             expect(transform.trimStart('__--__--__some__--__word', { char: '__--' })).toBe('__some__--__word');
             expect(transform.trimStart('fast cars race fast', { char: 'fast' })).toBe(' cars race fast');
+            expect(transform.trimStart('        ')).toBe('');
+            expect(transform.trimStart('start    ')).toBe('start    ');
+            expect(transform.trimStart('     start')).toBe('start');
 
         });
 
@@ -68,10 +72,12 @@ describe('field transforms', () => {
     describe('trimEnd should', () => {
         it('should return the string trimmed from the end', () => {
             expect(transform.trimEnd('this is a string', { char: 's' })).toBe('this is a ');
-            expect(transform.trimEnd('this is a string', { char: 'is a' })).toBe('this ');
             expect(transform.trimEnd('    Hello Bob    ')).toBe('    Hello Bob');
             expect(transform.trimEnd('*****Hello****Bob*****', { char: '*' })).toBe('*****Hello****Bob');
             expect(transform.trimEnd('fast cars race fast', { char: 'fast' })).toBe('fast cars race ');
+            expect(transform.trimEnd('        ')).toBe('');
+            expect(transform.trimEnd('    end')).toBe('    end');
+            expect(transform.trimEnd('end    ')).toBe('end');
         });
 
         it('should return the string if char is not found', () => {

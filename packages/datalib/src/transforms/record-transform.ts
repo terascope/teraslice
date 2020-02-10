@@ -13,3 +13,17 @@ export function renameField(record: any, args: { oldFieldName: string; newFieldN
     return record;
 }
 
+export function setField(record: any, args: { name: string, value: any }) {
+    return record[args.name] = args.value;
+}
+
+export function dropField(record: any, args: { name: string }) {
+    delete record[args.name];
+
+    return record;
+}
+
+
+// copy field
+
+

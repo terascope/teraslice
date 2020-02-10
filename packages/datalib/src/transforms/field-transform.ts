@@ -53,42 +53,32 @@ export function trim(input: string, args?: { char: string }) {
 
 export function trimStart(input: string, args?: { char: string }): string {
     const char = args ? args.char : ' ';
-    let start = 0;
-    let match = 0;
 
-    for (let i = 0; i < input.length;) {
-        if (input.slice(i, i + char.length) === char) {
-            start = i + char.length;
-            i += char.length;
-            match = 1;
-        } else {
-            if (match === 1) break;
-            i++;
+    let start = input.indexOf(char);
+    if (start === -1 || start > (input.length/2)) return input;
+    
+    for (start; start < input.length;) {
+        if (input.slice(start, start + char.length) !== char) {
+            break;
         }
+        start += char.length;
     }
-
-    if (start === input.length) return input;
 
     return input.slice(start);
 }
 
 export function trimEnd(input: string, args?: { char: string }): string {
     const char = args ? args.char : ' ';
-    let end = 0;
-    let match = 0;
 
-    for (let i = input.length; i >= 0;) {
-        if (input.slice(i - char.length, i) === char) {
-            end = i - char.length;
-            i -= char.length;
-            match = 1;
-        } else {
-            if (match === 1) break;
-            i--;
+    let end = input.lastIndexOf(char);
+    if (end === -1 || end < (input.length/2)) return input;
+
+    for (end; end >= 0;) {
+        if (input.slice(end - char.length, end) !== char) {
+            break
         }
+        end -= char.length;
     }
-
-    if (end === 0) return input;
 
     return input.slice(0, end);
 }
