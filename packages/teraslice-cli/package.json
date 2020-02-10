@@ -54,7 +54,7 @@
         "signale": "^1.4.0",
         "teraslice-client-js": "^0.13.2",
         "tmp": "^0.1.0",
-        "tty-table": "^2.8.4",
+        "tty-table": "^2.8.7",
         "yargs": "^15.1.0",
         "yeoman-environment": "^2.7.0",
         "yeoman-generator": "^4.5.0",
