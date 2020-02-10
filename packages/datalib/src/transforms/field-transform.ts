@@ -4,38 +4,125 @@ import PhoneValidator from 'awesome-phonenumber';
 import jexl from 'jexl';
 import { getUnixTime, format as dateFormat, parse } from 'date-fns';
 import {
-    ExtractFieldConfig, MacAddressConfig, ReplaceLiteralConfig, ReplaceRegexConfig
+    ExtractFieldConfig,
+    MacAddressConfig,
+    ReplaceLiteralConfig,
+    ReplaceRegexConfig
 } from './interfaces';
 import { parseGeoPoint } from './helpers';
 import {
-    isString, isMacAddress, isValidDate, isNumber
+    isString,
+    isMacAddress,
+    isValidDate,
+    isNumber
 } from '../validations/field-validator';
 import { Repository } from '../interfaces';
 
 export const respoitory: Repository = {
+    toBoolean: { fn: toBoolean, config: {} },
+    toUpperCase: { fn: toUpperCase, config: {} },
+    toLowerCase: { fn: toLowerCase, config: {} },
+    trim: { fn: trim, config: {} },
+    trimChar: {
+        fn: trimChar,
+        config: {
+            char: {
+                type: 'String'
+            },
+            direction: {
+                type: 'String',
+                description: 'this may be set to start | end'
+            }
+        }
+    },
+    truncate: {
+        fn: truncate,
+        config: {
+            size: { type: 'Number' }
+        }
+    },
+    toISDN: { fn: toISDN, config: {} },
     normalizeMacAddress: {
         fn: normalizeMacAddress,
         config: {
-            casing: { type: 'uppercase | lowercase' },
-            removeGroups: { type: 'boolean' }
+            casing: {
+                type: 'String',
+                description: 'may be set to uppercase | lowercase'
+            },
+            removeGroups: { type: 'Boolean' }
+        }
+    },
+    toNumber: {
+        fn: toNumber,
+        config: {
+            booleanLike: { type: 'Boolean' }
+        }
+    },
+    decodeBase64: { fn: decodeBase64, config: {} },
+    encodeBase64: { fn: encodeBase64, config: {} },
+    decodeUrl: { fn: decodeUrl, config: {} },
+    encodeUrl: { fn: encodeUrl, config: {} },
+    decodeHex: { fn: decodeHex, config: {} },
+    encodeHex: { fn: encodeHex, config: {} },
+    encodeMD5: { fn: encodeMD5, config: {} },
+    encodeSHA: {
+        fn: encodeHex,
+        config: {
+            hash: { type: 'String' },
+            digest: { type: 'String' }
+        }
+    },
+    encodeSHA1: { fn: encodeSHA1, config: {} },
+    decodeSHA1: { fn: decodeSHA1, config: {} },
+    parseJSON: { fn: parseJSON, config: {} },
+    dedup: { fn: dedup, config: {} },
+    toGeoPoint: { fn: toGeoPoint, config: {} },
+    extract: {
+        fn: extract,
+        config: {
+            regex: { type: 'String' },
+            isMultiValue: { type: 'Boolean' },
+            jexlExp: { type: 'String' },
+            start: { type: 'String' },
+            end: { type: 'String' }
         }
     },
     removeIpZoneId: { fn: removeIpZoneId, config: {} },
-    replaceLiteral: { fn: replaceLiteral, config: { search: { type: 'String!' }, replace: { type: 'String!' } } },
     replaceRegex: {
         fn: replaceRegex,
         config: {
-            regex: { type: 'String!' }, replace: { type: 'String!' }, global: { type: '' }, ignore_case: { type: 'Boolean!' }
+            regex: { type: 'String' },
+            replace: { type: 'String' },
+            global: { type: 'String' },
+            ignore_case: { type: 'Boolean' }
         }
     },
-    truncate: { fn: truncate, config: { size: { type: 'Int!' } } },
-    toBoolean: { fn: toBoolean, config: {} },
-    toISDN: { fn: toISDN, config: {} },
-    toLowerCase: { fn: toLowerCase, config: {} },
-    toNumber: { fn: toNumber, config: { booleanLike: { type: 'boolean' } } },
-    toUpperCase: { fn: toUpperCase, config: {} },
-    trim: { fn: trim, config: {} },
-    trimChar: { fn: trimChar, config: { char: { type: 'string' }, direction: { type: 'string' } } }
+    replaceLiteral: {
+        fn: replaceLiteral,
+        config: {
+            search: {
+                type: 'String'
+            },
+            replace: {
+                type: 'String'
+            }
+        }
+    },
+    toUnixTime: { fn: toUnixTime, config: {} },
+    // TODO: FIXME:
+    toISO8601: {
+        fn: toISO8601,
+        config: {
+            resolution: {
+                type: 'String',
+                describe: 'may be set to seconds | milliseconds'
+            }
+        }
+    },
+    // TODO:
+    formatDate: { fn: formatDate, config: {} },
+    // TODO:
+    parseDate: { fn: parseDate, config: {} },
 };
 
 export function toBoolean(input: any) {
@@ -71,7 +158,6 @@ export function trimChar(input: string, args: { char: string; direction: 'start'
     return input.slice(0, index);
 }
 
-// TODO: fix types here
 export function truncate(input: string, args: { size: number }) {
     if (!isString(input)) throw new Error('Input must be a string');
 
