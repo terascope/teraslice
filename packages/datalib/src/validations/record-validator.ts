@@ -10,7 +10,7 @@ export function required(obj: AnyObject, fields: string[]) {
     return fields.every((rField) => keys.includes(rField));
 }
 
-// filter on field value
+//ilter on field value
 
 // export function filter() {
 //     return documentMatcher.match(doc)

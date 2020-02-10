@@ -23,7 +23,8 @@ export function dropField(record: any, args: { name: string }) {
     return record;
 }
 
+export function copyField(record: any, args: { name: string, copyTo: string }) {
+    record[args.copyTo] = record.name;
 
-// copy field
-
-
+    return record;
+}
