@@ -156,8 +156,6 @@ export function isGeoJSONData(input: any): input is GeoShape {
         && input.type != null;
 }
 
-type JoinGeoShape = GeoShape | ESGeoShape;
-
 export function isGeoShapePoint(shape: JoinGeoShape): shape is GeoShapePoint {
     return shape.type === GeoShapeType.Point || shape.type === ESGeoShapeType.Point;
 }

@@ -1319,16 +1319,6 @@
   dependencies:
     defer-to-connect "^1.0.1"
 
-"@terascope/data-types@^0.11.1":
-  version "0.11.1"
-  resolved "https://registry.yarnpkg.com/@terascope/data-types/-/data-types-0.11.1.tgz#2eaa0e718c7e38adedc6bf5f76fabfcc36a6bf6e"
-  integrity sha512-ruXVUYodw8YwoKe/caBw1d0m7W7rvA2J14m+Jc6KvG7IqUDlI7BTYmRM1xiQdK1IKLjyk0jRH36dVwxhKozfkg==
-  dependencies:
-    "@terascope/utils" "^0.22.0"
-    graphql "^14.3.1"
-    lodash.defaultsdeep "^4.6.1"
-    yargs "^15.1.0"
-
 "@terascope/fetch-github-release@^0.6.0":
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/@terascope/fetch-github-release/-/fetch-github-release-0.6.1.tgz#a66c2a17734a8a58d669f087910312653396a21d"
@@ -5742,7 +5732,7 @@ graphql-tools@^4.0.6:
     iterall "^1.1.3"
     uuid "^3.1.0"
 
-graphql@^14.3.1, graphql@^14.5.8:
+graphql@^14.5.8:
   version "14.5.8"
   resolved "https://registry.yarnpkg.com/graphql/-/graphql-14.5.8.tgz#504f3d3114cb9a0a3f359bbbcf38d9e5bf6a6b3c"
   integrity sha512-MMwmi0zlVLQKLdGiMfWkgQD7dY/TUKt4L+zgJ/aR0Howebod3aNgP5JkgvAULiR2HPVZaP2VEElqtdidHweLkg==
@@ -7159,7 +7149,7 @@ jest@^25.1.0:
     import-local "^3.0.2"
     jest-cli "^25.1.0"
 
-jexl@^2.2.1, jexl@^2.2.2:
+jexl@^2.2.2:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/jexl/-/jexl-2.2.2.tgz#eb06cd84684a52b6408be94604c5529f416ccd2f"
   integrity sha512-HYDGbiZtGLbaxp1b0S7Nqbtegu5zhxaUBzsrMIpoEJDNr1M8lSuowpO7ziXldc/+wGGvwkZYQSS8mW2cPpiGgA==

@@ -26,6 +26,9 @@
     // these project references should be ordered by dependants first
     "references": [
         {
+            "path": "packages/types"
+        },
+        {
             "path": "packages/utils"
         },
         {

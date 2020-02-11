@@ -1,9 +1,9 @@
 {
-    "name": "@terascope/datalib",
-    "displayName": "Datalib",
+    "name": "xlucene-matcher",
+    "displayName": "xLucene Matcher",
     "version": "0.1.0",
-    "description": "Library of data validations/transformations",
-    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/datalib#readme",
+    "description": "xLucene docuemnt matcher",
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-matcher#readme",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/terascope/teraslice.git"
@@ -20,7 +20,6 @@
         "test": "test"
     },
     "scripts": {
-        "benchmark": "yarn build && node bench/index.js",
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
         "prepublishOnly": "yarn build",
@@ -29,18 +28,31 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/data-types": "^0.12.0",
+        "@terascope/datalib": "^0.1.0",
         "@terascope/utils": "^0.22.0",
-        "awesome-phonenumber": "^2.26.0",
+        "@turf/bbox": "^6.0.1",
+        "@turf/bbox-polygon": "^6.0.1",
+        "@turf/boolean-contains": "^6.0.1",
+        "@turf/boolean-disjoint": "^6.0.2",
+        "@turf/boolean-equal": "^6.0.1",
+        "@turf/boolean-overlap": "^6.0.1",
+        "@turf/boolean-point-in-polygon": "^6.0.1",
+        "@turf/boolean-within": "^6.0.1",
+        "@turf/circle": "^6.0.1",
+        "@turf/helpers": "^6.1.4",
+        "@turf/line-to-polygon": "^6.0.1",
+        "@turf/random": "^6.0.2",
         "date-fns": "^2.9.0",
-        "graphql": "^14.5.8",
-        "graphql-tools": "^4.0.6",
-        "jexl": "^2.2.2",
+        "ip6addr": "^0.2.2",
+        "is-cidr": "^3.0.0",
         "latlon-geohash": "^1.1.0",
-        "valid-url": "^1.0.9",
-        "validator": "^12.2.0"
+        "lodash": "^4.17.11"
     },
-    "devDependencies": {},
+    "devDependencies": {
+        "elasticsearch": "^15.4.1",
+        "pegjs": "^0.10.0",
+        "ts-pegjs": "^0.2.6"
+    },
     "engines": {
         "node": ">=8.0.0"
     },

@@ -1,41 +1,14 @@
-import { Logger } from '@terascope/utils';
-import {
-    GeoPoint,
-    GeoDistanceUnit,
-    TypeConfig,
-    GeoShapeRelation,
-    CoordinateTuple,
-    Variables,
-    ESGeoShape
-} from '../interfaces';
+import * as geo from './geo-interfaces';
 
 export type SortOrder = 'asc'|'desc';
-
-export type TranslatorOptions = {
-    logger?: Logger;
-    type_config?: TypeConfig;
-    default_geo_field?: string;
-    default_geo_sort_order?: SortOrder;
-    default_geo_sort_unit?: GeoDistanceUnit|string;
-    variables?: Variables;
-};
-
-export type UtilsTranslateQueryOptions = {
-    logger: Logger;
-    type_config: TypeConfig;
-    default_geo_field?: string;
-    geo_sort_point?: GeoPoint;
-    geo_sort_order: SortOrder;
-    geo_sort_unit: GeoDistanceUnit;
-};
 
 export type ElasticsearchDSLOptions = {
     /**
      * If a default_geo_field is set, this is required to enable sorting
     */
-    geo_sort_point?: GeoPoint;
+    geo_sort_point?: geo.GeoPoint;
     geo_sort_order?: SortOrder;
-    geo_sort_unit?: GeoDistanceUnit;
+    geo_sort_unit?: geo.GeoDistanceUnit;
 };
 
 export type BoolQuery = {
@@ -70,23 +43,23 @@ export interface ExistsQuery {
 export interface GeoQuery {
     geo_bounding_box?: {
         [field: string]: {
-            top_left: GeoPoint | string;
-            bottom_right: GeoPoint | string;
+            top_left: geo.GeoPoint | string;
+            bottom_right: geo.GeoPoint | string;
         };
     };
     geo_distance?: {
         distance: string;
-        [field: string]: GeoPoint | string;
+        [field: string]: geo.GeoPoint | string;
     };
     geo_polygon?: {
         [field: string]: {
-            points: GeoPoint[] | string[] | CoordinateTuple[];
+            points: geo.GeoPoint[] | string[] | geo.CoordinateTuple[];
         };
     };
     geo_shape?: {
         [field: string]: {
-            shape: ESGeoShape;
-            relation: GeoShapeRelation;
+            shape: geo.ESGeoShape;
+            relation: geo.GeoShapeRelation;
         };
     };
 }
@@ -164,7 +137,7 @@ export type MatchAllQuery = {
 };
 
 export type GeoDistanceSort = {
-    [field: string]: SortOrder | GeoDistanceUnit | {
+    [field: string]: SortOrder | geo.GeoDistanceUnit | {
         lat: number;
         lon: number;
     };
