@@ -300,7 +300,7 @@ describe('field validators', () => {
         });
     });
 
-    describe('should inIpRange', () => {
+    describe('inIPRange', () => {
         it('return true for ip addresses in a given range using cidr notation', () => {
             expect(FieldValidator.inIPRange('8.8.8.8', { cidr: '8.8.8.0/24'})).toBe(true);
             expect(FieldValidator.inIPRange('2001:0db8:0123:4567:89ab:cdef:1234:5678', { cidr: '2001:0db8:0123:4567:89ab:cdef:1234:0/112'})).toBe(true);
@@ -345,28 +345,6 @@ describe('field validators', () => {
             expect(FieldValidator.inIPRange('fd00::b000', { min: '8.8.8.0', max: '8.8.8.24'})).toBe(false);
             expect(FieldValidator.inIPRange('fd00::b000', { max: 'fd00::1000' })).toBe(false);
             expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::f000' })).toBe(false);
-        });
-    });
-
-    describe('validValue', () => {
-        it('should validate against null and undefined', () => {
-            expect(FieldValidator.isValid(undefined)).toBe(false);
-            expect(FieldValidator.isValid(null)).toBe(false);
-            expect(FieldValidator.isValid(false)).toBe(true);
-            expect(FieldValidator.isValid(324324)).toBe(true);
-            expect(FieldValidator.isValid('bob')).toBe(true);
-        });
-
-        it('should validate using options.invalidValues', () => {
-            const options = {
-                invalid: ['', 'n/a', 'NA', 12345]
-            };
-            expect(FieldValidator.isValid('bob', options)).toBe(true);
-            expect(FieldValidator.isValid(true, options)).toBe(true);
-            expect(FieldValidator.isValid('', options)).toBe(false);
-            expect(FieldValidator.isValid('n/a', options)).toBe(false);
-            expect(FieldValidator.isValid('NA', options)).toBe(false);
-            expect(FieldValidator.isValid(12345, options)).toBe(false);
         });
     });
 
@@ -736,22 +714,22 @@ describe('field validators', () => {
         });
     });
 
-    describe('isISO31661Alpha2', () => {
+    describe('isCountryCode', () => {
         it('should return true for valid 2 letter country codes', () => {
-            expect(FieldValidator.isISO31661Alpha2('US')).toBe(true);
-            expect(FieldValidator.isISO31661Alpha2('IS')).toBe(true);
-            expect(FieldValidator.isISO31661Alpha2('RU')).toBe(true);
-            expect(FieldValidator.isISO31661Alpha2('ru')).toBe(true);
+            expect(FieldValidator.isCountryCode('US')).toBe(true);
+            expect(FieldValidator.isCountryCode('IS')).toBe(true);
+            expect(FieldValidator.isCountryCode('RU')).toBe(true);
+            expect(FieldValidator.isCountryCode('ru')).toBe(true);
         });
 
         it('should return false for invalid 2 letter country codes', () => {
-            expect(FieldValidator.isISO31661Alpha2('USA')).toBe(false);
-            expect(FieldValidator.isISO31661Alpha2('')).toBe(false);
-            expect(FieldValidator.isISO31661Alpha2('XX')).toBe(false);
-            expect(FieldValidator.isISO31661Alpha2(12)).toBe(false);
-            expect(FieldValidator.isISO31661Alpha2(true)).toBe(false);
-            expect(FieldValidator.isISO31661Alpha2([])).toBe(false);
-            expect(FieldValidator.isISO31661Alpha2({})).toBe(false);
+            expect(FieldValidator.isCountryCode('USA')).toBe(false);
+            expect(FieldValidator.isCountryCode('')).toBe(false);
+            expect(FieldValidator.isCountryCode('XX')).toBe(false);
+            expect(FieldValidator.isCountryCode(12)).toBe(false);
+            expect(FieldValidator.isCountryCode(true)).toBe(false);
+            expect(FieldValidator.isCountryCode([])).toBe(false);
+            expect(FieldValidator.isCountryCode({})).toBe(false);
         });
     });
 
@@ -893,6 +871,20 @@ describe('field validators', () => {
             expect(FieldValidator.isPostalCode('885%49', { locale: 'SE' })).toBe(false);
             expect(FieldValidator.isPostalCode(true, { locale: 'any' })).toBe(false);
             expect(FieldValidator.isPostalCode(null, { locale: 'ES' })).toBe(false);
+        });
+    });
+
+    describe('isDefined', () => {
+        it('should return true for undefined values', () => {
+            expect(FieldValidator.isDefined('defined')).toBe(true);
+            expect(FieldValidator.isDefined(false)).toBe(true);
+            expect(FieldValidator.isDefined([])).toBe(true);
+            expect(FieldValidator.isDefined(NaN)).toBe(true);
+        });
+
+        it('should return false for non null or non undefined values', () => {
+            expect(FieldValidator.isDefined(null)).toBe(false);
+            expect(FieldValidator.isDefined(undefined)).toBe(false);
         });
     });
 });
