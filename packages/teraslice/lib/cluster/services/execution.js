@@ -15,6 +15,8 @@ const {
     cloneDeep,
 } = require('@terascope/utils');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
+// FIXME: Where should this module go?
+const { waitForTcpPortOpen } = require('./cluster/backends/kubernetes/net');
 
 /**
  * New execution result
@@ -325,6 +327,25 @@ module.exports = function executionService(context, { clusterMasterServer }) {
                     slicer_port: execution.slicer_port,
                     slicer_hostname: execution.slicer_hostname
                 });
+
+                // This blocks until the execution controller responds to ensure
+                // the execution controller is up when the workers are started.
+                try {
+                    await waitForTcpPortOpen({
+                        host: execution.slicer_hostname,
+                        port: execution.slicer_port,
+                        logger,
+                        // FIXME: Should we create a new timeout setting for this?
+                        // This is how long the master will retry connecting to
+                        // the execution controller before it errors out.
+                        retryTimeout: 60000
+                    });
+                } catch (err) {
+                    // FIXME: We should error out the job here too, right?
+                    throw new TSError(err, {
+                        reason: `Execution controller for ${execution.ex_id} did not start within timeout`
+                    });
+                }
 
                 try {
                     await clusterService.allocateWorkers(execution, execution.workers);
