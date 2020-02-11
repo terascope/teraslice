@@ -53,6 +53,12 @@
             "path": "packages/xlucene-evaluator"
         },
         {
+            "path": "packages/xlucene-matcher"
+        },
+        {
+            "path": "packages/xlucene-translator"
+        },
+        {
             "path": "packages/data-types"
         },
         {
