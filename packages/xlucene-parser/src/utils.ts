@@ -9,18 +9,24 @@ import {
     TSError,
     startsWith
 } from '@terascope/utils';
-import { Range, RangeNode } from './parser/interfaces';
+
 import {
-    GeoDistanceObj,
     GeoPointInput,
     GeoPoint,
     GeoDistanceUnit,
-    FieldType,
     CoordinateTuple,
     GeoShapeRelation,
+    GEO_DISTANCE_UNITS
+} from '@terascope/types';
+
+import { Range, RangeNode } from './parser/interfaces';
+import {
+    GeoDistanceObj,
+    FieldType,
     JoinQueryResult,
     CreateJoinQueryOptions
 } from './interfaces';
+
 import {
     isGeoJSONData,
     isGeoShapePolygon,

@@ -149,21 +149,3 @@ export function getRelationFn(relation: GeoShapeRelation, queryPolygon: any) {
 export function makeCoordinatesFromGeoPoint(point: GeoPoint): CoordinateTuple {
     return [point.lon, point.lat];
 }
-
-export function isGeoJSONData(input: any): input is GeoShape {
-    return input.coordinates != null
-        && Array.isArray(input.coordinates)
-        && input.type != null;
-}
-
-export function isGeoShapePoint(shape: JoinGeoShape): shape is GeoShapePoint {
-    return shape.type === GeoShapeType.Point || shape.type === ESGeoShapeType.Point;
-}
-
-export function isGeoShapePolygon(shape: JoinGeoShape): shape is GeoShapePolygon {
-    return shape.type === GeoShapeType.Polygon || shape.type === ESGeoShapeType.Polygon;
-}
-
-export function isGeoShapeMultiPolygon(shape: JoinGeoShape): shape is GeoShapeMultiPolygon {
-    return shape.type === GeoShapeType.MultiPolygon || shape.type === ESGeoShapeType.MultiPolygon;
-}
