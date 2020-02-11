@@ -381,23 +381,6 @@ equals('hello', { value: 'hello' }); # true
 equals('hello', { value: 'ello' }); # false
 ```
 
-### isDefined
-
-`isDefined(INPUT) - returns true for values that are not null or undefined`
-
-```bash
-isDefined('string'); # true
-isDefined({}); # true
-isDefined(undefined); # false
-isDefined(null); # false
-```
-
-isGeoJSON: { fn: isGeoJSON, config: {} },
-isGeoPoint: { fn: isGeoPoint, config: {} },
-isGeoShapePoint: { fn: isGeoShapePoint, config: {} },
-isGeoShapePolygon: { fn: isGeoShapePolygon, config: {} },
-isGeoShapeMultiPolygon: { fn: isGeoShapeMultiPolygon, config: {} },
-
 ##Record Validations
 ##Field Transforms
 ##Record Transforms

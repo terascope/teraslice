@@ -873,18 +873,4 @@ describe('field validators', () => {
             expect(FieldValidator.isPostalCode(null, { locale: 'ES' })).toBe(false);
         });
     });
-
-    describe('isDefined', () => {
-        it('should return true for undefined values', () => {
-            expect(FieldValidator.isDefined('defined')).toBe(true);
-            expect(FieldValidator.isDefined(false)).toBe(true);
-            expect(FieldValidator.isDefined([])).toBe(true);
-            expect(FieldValidator.isDefined(NaN)).toBe(true);
-        });
-
-        it('should return false for non null or non undefined values', () => {
-            expect(FieldValidator.isDefined(null)).toBe(false);
-            expect(FieldValidator.isDefined(undefined)).toBe(false);
-        });
-    });
 });

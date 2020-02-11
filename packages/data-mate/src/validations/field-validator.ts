@@ -310,7 +310,3 @@ export function isPostalCode(input: any, { locale }: { locale: 'any' | PostalCod
 export function isValidDate(input: any): boolean {
     return !isBoolean(input) && ts.isValidDate(input);
 }
-
-export function isDefined(input: any): boolean {
-    return input != null;
-}
