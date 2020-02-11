@@ -58,7 +58,7 @@ export const respoitory: i.Repository = {
     isRoutableIp: { fn: isRoutableIP, config: {} },
     isNonRoutableIP: { fn: isNonRoutableIP, config: {} },
     inIPRange: { fn: inIPRange, config: { min: { type: 'String!' }, max: { type: 'String!' }, cidr: { type: 'String!' } } },
-    isDefined: { fn: isDefined, config: { } }
+    isIPCidr: { fn: isIPCidr, config: {} }
 };
 
 export function isBoolean(input: any): boolean {
@@ -113,20 +113,20 @@ export function isIP(input: any) {
     return true;
 }
 
-export function isRoutableIP(input: any, args?: { non_routable: boolean }): boolean {
+export function isRoutableIP(input: any): boolean {
     if (!isIP(input)) return false;
 
     const range = ipaddr.parse(input).range();
 
-    const nonRoutable = range === 'private' || range === 'uniqueLocal';
-
-    if (args && args.non_routable) return nonRoutable;
-
-    return !nonRoutable;
+    return range !== 'private' && range !== 'uniqueLocal';
 }
 
 export function isNonRoutableIP(input: any): boolean {
-    return isRoutableIP(input, { non_routable: true });
+    if (!isIP(input)) return false;
+
+    const range = ipaddr.parse(input).range();
+
+    return range === 'private' || range === 'uniqueLocal';
 }
 
 export function isIPCidr(input: any) {

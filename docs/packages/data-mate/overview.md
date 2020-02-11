@@ -20,34 +20,6 @@ npm install --save @terascope/data-mate
 
 `functionName(INPUT, { arg1: 'ARG1', arg2: 'ARG2', etc... })`
 
-### isNumber
-
-`isNumber(INPUT) - returns true if input is a valid number`
-
-```bash
-isNumber(42.32); # true;
-isNumber('NOT A NUMBER'); # false
-```
-
-### isInteger
-
-`isInteger(INPUT) - returns true if input is a valid integer`
-
-```bash
-isInteger(42); # true
-isInteger(3.14); # false
-```
-
-### isString:
-
-`isString(INPUT) - returns true for valid strings`
-
-```bash
-isString('this is a string'); # true
-isString(true); # false
-```
-
-
 ### isBoolean 
 
 `isBoolean(INPUT) - returns true if input is a boolean`
@@ -73,52 +45,22 @@ isBooleanLike('no'); # true
 isBooleanLike('a string') # false
 ```
 
-### isEmpty
-`isEmpty(INPUT) - returns true for an empty string, array, or object`
+### isNumber
+
+`isNumber(INPUT) - returns true if input is a valid number`
 
 ```bash
-isEmpty([]); # true
-isEmpty({ foo: 'bar' }); # false
+isNumber(42.32); # true;
+isNumber('NOT A NUMBER'); # false
 ```
 
-### isEmail
+### isInteger
 
-`isEmail(INPUT) - returns true if input is an email`
-
-```bash
-isEmail('email@example.com'); # true
-isEmail(12345); # false
-```
-
-### isISDN
-
-`isISDN(INPUT) - returns true for valid phone numbers.  Based on googles libphonenumber library.`
+`isInteger(INPUT) - returns true if input is a valid integer`
 
 ```bash
-isISDN('46707123456'); # true
-isISDN('1-808-915-6800'); # true
-isISDN('NOT A PHONE NUMBER'); # false
-```
-
-### isMacAddress
-
-`isMacAddress(INPUT, args) - returns true for valid mac address, othewise returns false`
-
-`Optional arg { delimiter: ['colon', 'dash', 'space', 'dot', 'none', 'any']`  
-
-`delimiter can be a string of one delimiter or an array of multiple delimiters`
-
-`'none' means no delimiter in the mac address and 'any' checks all delimiters for a valid mac address`
-
-`Default is 'any'`
-
-```bash
-isMacAddress('00:1f:f3:5b:2b:1f'); # true
-isMacAddress('001ff35b2b1f'); # true
-isMacAddress('001f.f35b.2b1f', { delimiter: 'dot' }); # true
-isMacAddress('00-1f-f3-5b-2b-1f', { delimiter: ['dash', 'colon', 'space'] }); # true
-isMacAddress(12345); # false
-isMacAddress('00-1f-f3-5b-2b-1f', { delimiter: ['colon', 'space'] }); # false, specified colon and space delimiter only
+isInteger(42); # true
+isInteger(3.14); # false
 ```
 
 ### inNumberRange
@@ -137,21 +79,55 @@ inNumberRange(42, { min: 0, max: 42 }); # false without the inclusive option
 inNumberRange(42, { min: 0, max: 42, inclusive: true }); # true with the inclusive option
 ```  
 
-### isUrl
+### isString:
 
-`isUrl(INPUT) - returns true for valid url`
+`isString(INPUT) - returns true for valid strings`
 
 ```bash
-isUrl('http://example.com'); # true
-isUrl('BAD-URL'); # false
+isString('this is a string'); # true
+isString(true); # false
 ```
 
-### isUUID
-`isUUID(INPUT) - returns true for valid UUID`
+### isEmpty
+`isEmpty(INPUT) - returns true for an empty string, array, or object`
 
 ```bash
-isUUID('0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B'); # true
-isUUID('BAD-UUID'); # false
+isEmpty([]); # true
+isEmpty({ foo: 'bar' }); # false
+```
+
+### contains
+
+`contains(INPUT, args) - returns true if string contains args value`
+
+`Required args: { value: STRING }`
+
+```bash
+contains('hello', { value: 'ell' }); # true
+contains('hello', { value: 'bye' }); # bye
+```
+
+### equals
+
+`equals(INPUT, args) - returns true if input equals args value`
+
+`Required args: { value: 'STRING' }`
+
+```bash
+equals('hello', { value: 'hello' }); # true
+equals('hello', { value: 'ello' }); # false
+```
+
+### isLength
+
+`isLength(INPUT, args) - returns true if string is of specifid length or in a range`
+
+`Optional args: { length: NUMBER, min: NUMBER, max: NUMBER }`
+
+```bash
+isLength('astring', { size: 7 }); # true
+isLength('astring', { min: 3, max: 10 }); # true
+isLength('astring', { size: 10 }); # false
 ```
 
 ### isAlpha
@@ -200,37 +176,14 @@ isBase64('ZWFzdXJlLg=='); # true
 isBase64('not base 64'); # false
 ```
 
+### isValidDate
 
-### isFQDN
-
-`isFQDN(INPUT) - returns true for valid fully qualified domain names`
-
-```bash
-isFQDN('example.com.uk'); # true
-isFQDN('notadomain'); # false
-```
-
-### isHash
-
-`isHash(INPUT, args) - returns true if string is a valid hash must include hash algorithm`
-
-`Required arg: { algo: 'ANY HASH OPTION DEFINED BELOW'}`
-
-`Hash options: md4, md5, sha1, sha256, sha384, sha512, ripemd128, ripemd160, tiger128, tiger160, tiger192, crc32, crc32b`
+`isValidDate(INPUT) - returns true for valid date strings, date objects, and integer dates (epoch/ unix time)`
 
 ```bash
-isHash('6201b3d1815444c87e00963fcf008c1e', { algo: 'md5' }); # true
-isHas('12345', { algo: 'sha1' }); # false
-```
-
-### isCountryCode
-
-`isCountryCode(INPUT) - returns true if string is a ISO-31661 alpha-2 country code`
-
-```bash
-isCountryCode('IS'); # true
-isCountryCode('ru'); # true
-isCountryCode('USA'); # false
+isValidDate('2019-03-17'); # true
+isValidDate(1552000139); # true
+isValidDate('1552000139'); # false
 ```
 
 ### isISO8601
@@ -240,17 +193,6 @@ isCountryCode('USA'); # false
 ```bash
 isISO8601('2020-01-01T12:03:03.494Z'); # true
 isISO8601('Jan 1, 2020'); # false
-```
-
-### isISSN
-
-`isISSN(INPUT, args) - returns true if input is a valid international standard serial number`
-
-`Optional args: { require_hyphen: BOOLEAN, case_sensitive: BOOLEAN }`
-
-```bash
-isISSN('0378-5955'); # true
-isISSN('0000-006x', { require_hyphen, case_sensitive }); # true
 ```
 
 ### isRFC3339
@@ -271,41 +213,32 @@ isRFC3339('2020-01-01'); # false
  isJSON({ bob: 'gibson' }); # false
 ```
 
-### isLength
 
-`isLength(INPUT, args) - returns true if string is of specifid length or in a range`
+### isEmail
 
-`Optional args: { length: NUMBER, min: NUMBER, max: NUMBER }`
+`isEmail(INPUT) - returns true if input is an email`
 
 ```bash
-isLength('astring', { size: 7 }); # true
-isLength('astring', { min: 3, max: 10 }); # true
-isLength('astring', { size: 10 }); # false
+isEmail('email@example.com'); # true
+isEmail(12345); # false
 ```
 
-### isMimeType
+### isFQDN
 
-`isMimeType(INPUT) - returns true for valid mime types`
+`isFQDN(INPUT) - returns true for valid fully qualified domain names`
 
 ```bash
-isMimeType('application/javascript'); # true
-isMimeType(12345); # false
+isFQDN('example.com.uk'); # true
+isFQDN('notadomain'); # false
 ```
 
-### isPostalCode
+### isUrl
 
-`isPostalCode(INPUT, args) - returns true for valid postal code`
-
-`Optional arg: { locale: 'ANY OF THE DEFINED LOCATIONS BELOW' }`
-
-`locations: AD, AT, AU, BE, BG, BR, CA, CH, CZ, DE, DK, DZ, EE, ES, FI, FR, GB, GR, HR, HU, ID, IE, IL, IN, IS, IT, JP, KE, LI, LT, LU, LV, MX, MT, NL, NO, NZ, PL, PR, PT, RO, RU, SA, SE, SI, SK, TN, TW, UA, US, ZA, ZM`
-
-`default locale is any`
+`isUrl(INPUT) - returns true for valid url`
 
 ```bash
-isPostalCode('85249'); # true
-isPostalCode('885 49', { locale: 'SE' });# true
-isPostalCode(1234567890); # false
+isUrl('http://example.com'); # true
+isUrl('BAD-URL'); # false
 ```
 
 ### isIP
@@ -345,6 +278,18 @@ isNonRoutableIP('8.8.8.8'); # false
 isNonRoutableIP('2001:db8::1'); # false
 ```
 
+### isIPCidr
+
+`isIPCidr(INPUT) - returns true if input is an IP address with cidr notation`
+
+`Works for both IPv4 and IPv6 addresses`
+
+```bash
+isIPCidr('8.8.0.0/12'); # true
+isIPCidr('2001::1234:5678/128'); # true
+isIPCidr('8.8.8.10'); # false
+```
+
 ### inIPRange
 
 `inIPRange(INPUT, args) - returns true if input is in the provided IP range`
@@ -359,26 +304,102 @@ inIPRange('fd00::b000', { min: 'fd00::123', max: 'fd00::ea00' }); # true;
 inIPRange('8.8.8.8', { cidr: '8.8.8.10/32' }); # false
 ```
 
-### contains
+### isISDN
 
-`contains(INPUT, args) - returns true if string contains args value`
-
-`Required args: { value: STRING }`
+`isISDN(INPUT) - returns true for valid phone numbers.  Based on googles libphonenumber library.`
 
 ```bash
-contains('hello', { value: 'ell' }); # true
-contains('hello', { value: 'bye' }); # bye
+isISDN('46707123456'); # true
+isISDN('1-808-915-6800'); # true
+isISDN('NOT A PHONE NUMBER'); # false
 ```
 
-### equals
+### isMacAddress
 
-`equals(INPUT, args) - returns true if input equals args value`
+`isMacAddress(INPUT, args) - returns true for valid mac address, othewise returns false`
 
-`Required args: { value: 'STRING' }`
+`Optional arg { delimiter: ['colon', 'dash', 'space', 'dot', 'none', 'any']`  
+
+`delimiter can be a string of one delimiter or an array of multiple delimiters`
+
+`'none' means no delimiter in the mac address and 'any' checks all delimiters for a valid mac address`
+
+`Default is 'any'`
 
 ```bash
-equals('hello', { value: 'hello' }); # true
-equals('hello', { value: 'ello' }); # false
+isMacAddress('00:1f:f3:5b:2b:1f'); # true
+isMacAddress('001ff35b2b1f'); # true
+isMacAddress('001f.f35b.2b1f', { delimiter: 'dot' }); # true
+isMacAddress('00-1f-f3-5b-2b-1f', { delimiter: ['dash', 'colon', 'space'] }); # true
+isMacAddress(12345); # false
+isMacAddress('00-1f-f3-5b-2b-1f', { delimiter: ['colon', 'space'] }); # false, specified colon and space delimiter only
+```
+
+### isUUID
+`isUUID(INPUT) - returns true for valid UUID`
+
+```bash
+isUUID('0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B'); # true
+isUUID('BAD-UUID'); # false
+```
+
+### isHash
+
+`isHash(INPUT, args) - returns true if string is a valid hash must include hash algorithm`
+
+`Required arg: { algo: 'ANY HASH OPTION DEFINED BELOW'}`
+
+`Hash options: md4, md5, sha1, sha256, sha384, sha512, ripemd128, ripemd160, tiger128, tiger160, tiger192, crc32, crc32b`
+
+```bash
+isHash('6201b3d1815444c87e00963fcf008c1e', { algo: 'md5' }); # true
+isHas('12345', { algo: 'sha1' }); # false
+```
+
+### isCountryCode
+
+`isCountryCode(INPUT) - returns true if string is a ISO-31661 alpha-2 country code`
+
+```bash
+isCountryCode('IS'); # true
+isCountryCode('ru'); # true
+isCountryCode('USA'); # false
+```
+
+### isMimeType
+
+`isMimeType(INPUT) - returns true for valid mime types`
+
+```bash
+isMimeType('application/javascript'); # true
+isMimeType(12345); # false
+```
+
+### isISSN
+
+`isISSN(INPUT, args) - returns true if input is a valid international standard serial number`
+
+`Optional args: { require_hyphen: BOOLEAN, case_sensitive: BOOLEAN }`
+
+```bash
+isISSN('0378-5955'); # true
+isISSN('0000-006x', { require_hyphen, case_sensitive }); # true
+```
+
+### isPostalCode
+
+`isPostalCode(INPUT, args) - returns true for valid postal code`
+
+`Optional arg: { locale: 'ANY OF THE DEFINED LOCATIONS BELOW' }`
+
+`locations: AD, AT, AU, BE, BG, BR, CA, CH, CZ, DE, DK, DZ, EE, ES, FI, FR, GB, GR, HR, HU, ID, IE, IL, IN, IS, IT, JP, KE, LI, LT, LU, LV, MX, MT, NL, NO, NZ, PL, PR, PT, RO, RU, SA, SE, SI, SK, TN, TW, UA, US, ZA, ZM`
+
+`default locale is any`
+
+```bash
+isPostalCode('85249'); # true
+isPostalCode('885 49', { locale: 'SE' });# true
+isPostalCode(1234567890); # false
 ```
 
 ##Record Validations

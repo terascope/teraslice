@@ -382,6 +382,7 @@ describe('field validators', () => {
             expect(FieldValidator.isValidDate('undefined')).toBe(false);
             expect(FieldValidator.isValidDate('baddate')).toBe(false);
             expect(FieldValidator.isValidDate(null)).toBe(false);
+            expect(FieldValidator.isValidDate('1581461626643')).toBe(false);
             expect(FieldValidator.isValidDate(43546577754.434)).toBe(false);
             expect(FieldValidator.isValidDate(undefined)).toBe(false);
             expect(FieldValidator.isValidDate(true)).toBe(false);
