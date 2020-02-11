@@ -34,9 +34,9 @@
         "yargs": "^15.1.0"
     },
     "devDependencies": {
+        "@terascope/types": "^0.1.0",
         "@types/lodash.defaultsdeep": "^4.6.6",
-        "@types/yargs": "^15.0.1",
-        "xlucene-evaluator": "^0.17.0"
+        "@types/yargs": "^15.0.1"
     },
     "engines": {
         "node": ">=8.0.0"

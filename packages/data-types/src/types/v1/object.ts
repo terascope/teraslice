@@ -1,4 +1,4 @@
-import { FieldType } from 'xlucene-evaluator';
+import { XluceneFieldType } from '@terascope/types';
 import BaseType from '../base-type';
 import { ESTypeMapping } from '../../interfaces';
 
@@ -16,6 +16,6 @@ export default class ObjectType extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: FieldType.Object };
+        return { [this.field]: XluceneFieldType.Object };
     }
 }
