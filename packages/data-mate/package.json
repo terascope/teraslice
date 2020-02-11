@@ -1,9 +1,9 @@
 {
-    "name": "@terascope/datalib",
-    "displayName": "Datalib",
+    "name": "@terascope/data-mate",
+    "displayName": "Data-Mate",
     "version": "0.1.0",
     "description": "Library of data validations/transformations",
-    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/datalib#readme",
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/data-mate#readme",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/terascope/teraslice.git"

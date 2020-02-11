@@ -27,10 +27,10 @@ export const respoitory: i.Repository = {
     isBooleanLike: { fn: isBooleanLike, config: {} },
     isEmail: { fn: isEmail, config: {} },
     validValue: {
-        fn: validValue,
+        fn: isValid,
         config: {
             // TODO: doing this to get type JSON, need to allow 'any' type
-            invalidValues: { type: 'Object', array: true }
+            invalid: { type: 'Object', array: true }
         }
     },
     isGeoJSON: { fn: isGeoJSON, config: {} },
@@ -43,7 +43,7 @@ export const respoitory: i.Repository = {
     isMacAddress: {
         fn: isMacAddress,
         config: {
-            delimiter: { type: 'String' }
+            delimiter: { type: 'String', array: true }
         }
     },
     isNumber: { fn: isNumber, config: {} },
@@ -402,23 +402,14 @@ export function isPostalCode(input: any, { locale }: { locale: 'any' | PostalCod
     return isString(input) && validator.isPostalCode(input, locale);
 }
 
-export function validValue(input: any, args?: { invalidValues: any[] }): boolean {
-    if (args && args.invalidValues) {
-        return input != null && !args.invalidValues.includes(input);
+export function isValid(input: any, args?: { invalid: any[] }): boolean {
+    if (args && args.invalid) {
+        return input != null && !args.invalid.includes(input);
     }
 
     return input != null;
 }
 
-/*
-  string dates must be month/ day / year
-  year can be 2 or 4 digits, if 2 digits it must be after month and day
-*/
 export function isValidDate(input: any): boolean {
-    /*
-    let value = input;
-    if (isString(input) && !isNaN(input)) value = ts.toNumber(input);
-    */
-
     return !isBoolean(input) && ts.isValidDate(input);
 }

@@ -350,23 +350,23 @@ describe('field validators', () => {
 
     describe('validValue', () => {
         it('should validate against null and undefined', () => {
-            expect(FieldValidator.validValue(undefined)).toBe(false);
-            expect(FieldValidator.validValue(null)).toBe(false);
-            expect(FieldValidator.validValue(false)).toBe(true);
-            expect(FieldValidator.validValue(324324)).toBe(true);
-            expect(FieldValidator.validValue('bob')).toBe(true);
+            expect(FieldValidator.isValid(undefined)).toBe(false);
+            expect(FieldValidator.isValid(null)).toBe(false);
+            expect(FieldValidator.isValid(false)).toBe(true);
+            expect(FieldValidator.isValid(324324)).toBe(true);
+            expect(FieldValidator.isValid('bob')).toBe(true);
         });
 
         it('should validate using options.invalidValues', () => {
             const options = {
-                invalidValues: ['', 'n/a', 'NA', 12345]
+                invalid: ['', 'n/a', 'NA', 12345]
             };
-            expect(FieldValidator.validValue('bob', options)).toBe(true);
-            expect(FieldValidator.validValue(true, options)).toBe(true);
-            expect(FieldValidator.validValue('', options)).toBe(false);
-            expect(FieldValidator.validValue('n/a', options)).toBe(false);
-            expect(FieldValidator.validValue('NA', options)).toBe(false);
-            expect(FieldValidator.validValue(12345, options)).toBe(false);
+            expect(FieldValidator.isValid('bob', options)).toBe(true);
+            expect(FieldValidator.isValid(true, options)).toBe(true);
+            expect(FieldValidator.isValid('', options)).toBe(false);
+            expect(FieldValidator.isValid('n/a', options)).toBe(false);
+            expect(FieldValidator.isValid('NA', options)).toBe(false);
+            expect(FieldValidator.isValid(12345, options)).toBe(false);
         });
     });
 
