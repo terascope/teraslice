@@ -36,7 +36,7 @@
         "graphql": "^14.5.8",
         "graphql-tools": "^4.0.6",
         "jexl": "^2.2.2",
-        "latlon-geohash": "^2.0.0",
+        "latlon-geohash": "^1.1.0",
         "valid-url": "^1.0.9",
         "validator": "^12.2.0"
     },

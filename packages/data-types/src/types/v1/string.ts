@@ -2,7 +2,7 @@ import { FieldType } from 'xlucene-evaluator';
 import BaseType from '../base-type';
 import { ElasticSearchTypes } from '../../interfaces';
 
-export default class String extends BaseType {
+export default class StringClass extends BaseType {
     toESMapping(_version?: number) {
         return { mapping: { [this.field]: { type: 'keyword' as ElasticSearchTypes } } };
     }

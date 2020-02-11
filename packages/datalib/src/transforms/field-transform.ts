@@ -5,14 +5,12 @@ import jexl from 'jexl';
 import { getUnixTime, format as dateFormat, parse } from 'date-fns';
 import {
     ExtractFieldConfig,
-    MacAddressConfig,
     ReplaceLiteralConfig,
     ReplaceRegexConfig
 } from './interfaces';
 import { parseGeoPoint } from './helpers';
 import {
     isString,
-    isMacAddress,
     isValidDate,
     isNumber
 } from '../validations/field-validator';
@@ -23,18 +21,6 @@ export const respoitory: Repository = {
     toUpperCase: { fn: toUpperCase, config: {} },
     toLowerCase: { fn: toLowerCase, config: {} },
     trim: { fn: trim, config: {} },
-    trimChar: {
-        fn: trimChar,
-        config: {
-            char: {
-                type: 'String'
-            },
-            direction: {
-                type: 'String',
-                description: 'this may be set to start | end'
-            }
-        }
-    },
     truncate: {
         fn: truncate,
         config: {
@@ -42,16 +28,6 @@ export const respoitory: Repository = {
         }
     },
     toISDN: { fn: toISDN, config: {} },
-    normalizeMacAddress: {
-        fn: normalizeMacAddress,
-        config: {
-            casing: {
-                type: 'String',
-                description: 'may be set to uppercase | lowercase'
-            },
-            removeGroups: { type: 'Boolean' }
-        }
-    },
     toNumber: {
         fn: toNumber,
         config: {
@@ -87,7 +63,6 @@ export const respoitory: Repository = {
             end: { type: 'String' }
         }
     },
-    removeIpZoneId: { fn: removeIpZoneId, config: {} },
     replaceRegex: {
         fn: replaceRegex,
         config: {
@@ -123,6 +98,8 @@ export const respoitory: Repository = {
     formatDate: { fn: formatDate, config: {} },
     // TODO:
     parseDate: { fn: parseDate, config: {} },
+    trimStart: { fn: trimStart, config: { char: { type: 'String' } } },
+    trimEnd: { fn: trimEnd, config: { char: { type: 'String' } } },
 };
 
 export function toBoolean(input: any) {
@@ -139,23 +116,41 @@ export function toLowerCase(input: string) {
     return input.toLowerCase();
 }
 
-export function trim(input: string) {
-    if (!isString(input)) throw new Error('Input must be a string');
-    return ts.trim(input);
+export function trim(input: string, args?: { char: string }) {
+    const char = args ? args.char : ' ';
+    return trimEnd(trimStart(input, { char }), { char });
 }
 
-export function trimChar(input: string, args: { char: string; direction: 'start' | 'end' }): string {
-    const { char, direction } = args;
+export function trimStart(input: string, args?: { char: string }): string {
+    const char = args ? args.char : ' ';
 
-    const index = direction === 'start' ? input.indexOf(char) : input.lastIndexOf(char);
+    let start = input.indexOf(char);
+    if (start === -1 || start > (input.length / 2)) return input;
 
-    if (index === -1) return input;
-
-    if (direction === 'start') {
-        return input.slice(index + char.length);
+    for (start; start < input.length;) {
+        if (input.slice(start, start + char.length) !== char) {
+            break;
+        }
+        start += char.length;
     }
 
-    return input.slice(0, index);
+    return input.slice(start);
+}
+
+export function trimEnd(input: string, args?: { char: string }): string {
+    const char = args ? args.char : ' ';
+
+    let end = input.lastIndexOf(char);
+    if (end === -1 || end < (input.length / 2)) return input;
+
+    for (end; end >= 0;) {
+        if (input.slice(end - char.length, end) !== char) {
+            break;
+        }
+        end -= char.length;
+    }
+
+    return input.slice(0, end);
 }
 
 export function truncate(input: string, args: { size: number }) {
@@ -178,23 +173,6 @@ export function toISDN(input: any) {
     if (fullNumber) return String(fullNumber).slice(1);
 
     throw Error('Could not determine the incoming phone number');
-}
-
-// probably not needed, can distill this down to remove delimiter and lowercase or uppercase
-export function normalizeMacAddress(input: any, args?: MacAddressConfig) {
-    let results = input;
-
-    if (!isMacAddress(input, { delimiter: 'any' })) {
-        throw new Error('Not a valid mac address');
-    }
-
-    if (args) {
-        if (args.casing === 'lowercase') results = results.toLowerCase();
-        if (args.casing === 'uppercase') results = results.toUpperCase();
-        if (args.removeGroups) results = results.replace(/:|\.|-|\s/g, '');
-    }
-
-    return results;
 }
 
 export function toNumber(input: any, args?: { booleanLike?: boolean }) {
@@ -362,17 +340,6 @@ export function extract(
     if (!results) throw new Error('Was not able to extract anything');
 }
 
-// distill down to trim after char
-export function removeIpZoneId(input: string): string {
-    // removes the zone id from ipv6 addresses
-    // fe80:3438:7667:5c77:ce27%18 -> fe80:3438:7667:5c77:ce27
-    if (input.indexOf('%') > -1) {
-        return input.slice(0, input.indexOf('%'));
-    }
-
-    return input;
-}
-
 export function replaceRegex(input: string, {
     regex, replace, ignoreCase, global
 }: ReplaceRegexConfig): string {
@@ -395,6 +362,12 @@ export function replaceLiteral(input: string, { search, replace }: ReplaceLitera
     } catch (e) {
         throw new Error(`Could not replace ${search} with ${replace}`);
     }
+}
+
+export function toArray(input: string, args?: { delimiter: string }): any[] {
+    const delimiter = args ? args.delimiter : '';
+
+    return input.split(delimiter);
 }
 
 // option to specify, seconds, millisecond, microseconds?
@@ -444,4 +417,24 @@ export function parseDate(input: any, format: string) {
     }
 
     return parsed;
+}
+
+export function toCamelCase(input: string): string {
+    return ts.toCamelCase(input);
+}
+
+export function toKebabCase(input: string): string {
+    return ts.toKebabCase(input);
+}
+
+export function toPascalCase(input: string): string {
+    return ts.toPascalCase(input);
+}
+
+export function toSnakeCase(input: string): string {
+    return ts.toSnakeCase(input);
+}
+
+export function toTitleCase(input: string): string {
+    return ts.firstToUpper(ts.getWordParts(input).map((str) => ts.firstToUpper(str)).join(' '));
 }

@@ -302,8 +302,8 @@ describe('field validators', () => {
 
     describe('should inIpRange', () => {
         it('return true for ip addresses in a given range using cidr notation', () => {
-            expect(FieldValidator.inIPRange('8.8.8.8', { cidr: '8.8.8.0/24'})).toBe(true);
-            expect(FieldValidator.inIPRange('2001:0db8:0123:4567:89ab:cdef:1234:5678', { cidr: '2001:0db8:0123:4567:89ab:cdef:1234:0/112'})).toBe(true);
+            expect(FieldValidator.inIPRange('8.8.8.8', { cidr: '8.8.8.0/24' })).toBe(true);
+            expect(FieldValidator.inIPRange('2001:0db8:0123:4567:89ab:cdef:1234:5678', { cidr: '2001:0db8:0123:4567:89ab:cdef:1234:0/112' })).toBe(true);
         });
 
         it('should return true for valid ips in a range with max and min', () => {
@@ -315,16 +315,16 @@ describe('field validators', () => {
             expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::123', max: 'fd00::ea00' })).toBe(true);
             expect(FieldValidator.inIPRange('fd00::b000', { max: 'fd00::ea00' })).toBe(true);
             expect(FieldValidator.inIPRange('fd00::b000', { max: 'fd00::ea00' })).toBe(true);
-            expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::b000', max: 'fd00::ea00' })).toBe(true)
+            expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::b000', max: 'fd00::ea00' })).toBe(true);
         });
 
         it('should return false for ips out of the ranges, cidr notation defined range', () => {
-            expect(FieldValidator.inIPRange('8.8.8.8', { cidr: '8.8.8.10/32'})).toBe(false);
-            expect(FieldValidator.inIPRange('1.2.3.4', { cidr: '8.8.2.0/24'})).toBe(false);
-            expect(FieldValidator.inIPRange('fd00::b000', { cidr: '8.8.2.0/24'})).toBe(false);
-            expect(FieldValidator.inIPRange('badIpAddress', { cidr: '8.8.2.0/24'})).toBe(false);
-            expect(FieldValidator.inIPRange('8.8.1.12', { cidr: '8.8.2.0/23'})).toBe(false);
-            expect(FieldValidator.inIPRange('8.8.1.12', { cidr: 'badCidr'})).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.8.8', { cidr: '8.8.8.10/32' })).toBe(false);
+            expect(FieldValidator.inIPRange('1.2.3.4', { cidr: '8.8.2.0/24' })).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', { cidr: '8.8.2.0/24' })).toBe(false);
+            expect(FieldValidator.inIPRange('badIpAddress', { cidr: '8.8.2.0/24' })).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.1.12', { cidr: '8.8.2.0/23' })).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.1.12', { cidr: 'badCidr' })).toBe(false);
         });
 
         it('should return false for ips out of range, min and max defined range', () => {
@@ -338,11 +338,11 @@ describe('field validators', () => {
             expect(FieldValidator.inIPRange('8.8.8.8', { min: '8.8.8.0', max: 'fd00::b000' })).toBe(false);
             expect(FieldValidator.inIPRange('8.8.8.8', { min: 'fd00::a000', max: 'fd00::b000' })).toBe(false);
 
-            expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::c000', max: 'fd00::f000'})).toBe(false);
-            expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::f000', max: 'fd00::1000'})).toBe(false);
-            expect(FieldValidator.inIPRange('fd00::b000', { min: '8.8.8.24', max: 'fd00::b000'})).toBe(false);
-            expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::a000', max: '8.8.8.24'})).toBe(false);
-            expect(FieldValidator.inIPRange('fd00::b000', { min: '8.8.8.0', max: '8.8.8.24'})).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::c000', max: 'fd00::f000' })).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::f000', max: 'fd00::1000' })).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', { min: '8.8.8.24', max: 'fd00::b000' })).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::a000', max: '8.8.8.24' })).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', { min: '8.8.8.0', max: '8.8.8.24' })).toBe(false);
             expect(FieldValidator.inIPRange('fd00::b000', { max: 'fd00::1000' })).toBe(false);
             expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::f000' })).toBe(false);
         });
@@ -529,7 +529,7 @@ describe('field validators', () => {
             expect(FieldValidator.isInteger(null)).toBe(false);
             expect(FieldValidator.isInteger(undefined)).toBe(false);
             expect(FieldValidator.isInteger('astring')).toBe(false);
-        })
+        });
     });
 
     describe('isString', () => {
@@ -540,7 +540,7 @@ describe('field validators', () => {
         });
 
         it('should return false for non-strings', () => {
-            expect(FieldValidator.isString(new Buffer('some string', 'utf8'))).toBe(false);
+            expect(FieldValidator.isString(Buffer.from('some string', 'utf8'))).toBe(false);
             expect(FieldValidator.isString(true)).toBe(false);
             expect(FieldValidator.isString(12345)).toBe(false);
             expect(FieldValidator.isString({})).toBe(false);
@@ -562,7 +562,7 @@ describe('field validators', () => {
             expect(FieldValidator.isUrl('')).toBe(false);
             expect(FieldValidator.isUrl('null')).toBe(false);
             expect(FieldValidator.isUrl(true)).toBe(false);
-            expect(FieldValidator.isUrl({ url: 'http:thisisaurl.com'})).toBe(false);
+            expect(FieldValidator.isUrl({ url: 'http:thisisaurl.com' })).toBe(false);
             expect(FieldValidator.isUrl(12345)).toBe(false);
         });
     });
@@ -597,7 +597,7 @@ describe('field validators', () => {
             expect(FieldValidator.contains('hello', { value: 'bye' })).toBe(false);
             expect(FieldValidator.contains(true, { value: 'rue' })).toBe(false);
             expect(FieldValidator.contains(12345, { value: '12' })).toBe(false);
-            expect(FieldValidator.contains([ 'hello' ], { value: 'hello' })).toBe(false);
+            expect(FieldValidator.contains(['hello'], { value: 'hello' })).toBe(false);
             expect(FieldValidator.contains({}, { value: 'hello' })).toBe(false);
         });
     });
@@ -613,7 +613,7 @@ describe('field validators', () => {
             expect(FieldValidator.equals('hello', { value: 'llo' })).toBe(false);
             expect(FieldValidator.equals(true, { value: 'true' })).toBe(false);
             expect(FieldValidator.equals(12345, { value: '12345' })).toBe(false);
-            expect(FieldValidator.equals([ 'hello' ], { value: 'hello' })).toBe(false);
+            expect(FieldValidator.equals(['hello'], { value: 'hello' })).toBe(false);
             expect(FieldValidator.equals({}, { value: 'hello' })).toBe(false);
         });
     });
@@ -690,7 +690,7 @@ describe('field validators', () => {
             expect(FieldValidator.isEmpty(null)).toBe(true);
             expect(FieldValidator.isEmpty({})).toBe(true);
             expect(FieldValidator.isEmpty([])).toBe(true);
-            expect(FieldValidator.isEmpty('     ', { ignore_whitespace: true })).toBe(true);
+            expect(FieldValidator.isEmpty('     ', { ignoreWhitespace: true })).toBe(true);
         });
 
         it('should return false for non-empty inputs', () => {
@@ -778,16 +778,16 @@ describe('field validators', () => {
         it('should return true for valid ISSN numbers', () => {
             expect(FieldValidator.isISSN('0378-5955')).toBe(true);
             expect(FieldValidator.isISSN('03785955')).toBe(true);
-            expect(FieldValidator.isISSN('0378-5955', { require_hyphen: true })).toBe(true);
+            expect(FieldValidator.isISSN('0378-5955', { requireHyphen: true })).toBe(true);
             expect(FieldValidator.isISSN('0000-006x')).toBe(true);
-            expect(FieldValidator.isISSN('0000-006X', { require_hyphen: true, case_sensitive: true })).toBe(true);
+            expect(FieldValidator.isISSN('0000-006X', { requireHyphen: true, caseSensitive: true })).toBe(true);
         });
 
         it('should return false for invalid ISSN numbers', () => {
             expect(FieldValidator.isISSN('0375955')).toBe(false);
-            expect(FieldValidator.isISSN('03785955', { require_hyphen: true })).toBe(false);
-            expect(FieldValidator.isISSN('0000-006x', { case_sensitive: true })).toBe(false);
-            expect(FieldValidator.isISSN('0000-006x', { case_sensitive: true })).toBe(false);
+            expect(FieldValidator.isISSN('03785955', { requireHyphen: true })).toBe(false);
+            expect(FieldValidator.isISSN('0000-006x', { caseSensitive: true })).toBe(false);
+            expect(FieldValidator.isISSN('0000-006x', { caseSensitive: true })).toBe(false);
             expect(FieldValidator.isISSN('hellothere')).toBe(false);
             expect(FieldValidator.isISSN(123456)).toBe(false);
             expect(FieldValidator.isISSN(true)).toBe(false);

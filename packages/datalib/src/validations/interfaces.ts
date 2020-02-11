@@ -1,7 +1,7 @@
 export interface FQDNOptions {
-    require_tld?: boolean;
-    allow_underscores?: boolean;
-    allow_trailing_dot?: boolean;
+    requireTld?: boolean;
+    allowUnderscores?: boolean;
+    allowTrailingDot?: boolean;
 }
 
 export type ValidatorHashValues =
@@ -29,9 +29,9 @@ export interface LengthConfig {
     max?: number;
 }
 
-export interface IssnOptions {
-    require_hyphen?: boolean;
-    case_sensitive?: boolean;
+export interface ArgsISSNOptions {
+    requireHyphen?: boolean;
+    caseSensitive?: boolean;
 }
 
 export type MACDelimiter = 'space' | 'colon' | 'dash' | 'dot' | 'none' | 'any';

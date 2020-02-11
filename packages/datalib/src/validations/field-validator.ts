@@ -13,7 +13,7 @@ import {
     HashConfig,
     LengthConfig,
     PostalCodeLocale,
-    IssnOptions,
+    ArgsISSNOptions,
     MACAddress
 } from './interfaces';
 
@@ -26,7 +26,13 @@ export const respoitory: i.Repository = {
     isBoolean: { fn: isBoolean, config: {} },
     isBooleanLike: { fn: isBooleanLike, config: {} },
     isEmail: { fn: isEmail, config: {} },
-    validValue: { fn: validValue, config: {} },
+    validValue: {
+        fn: validValue,
+        config: {
+            // TODO: doing this to get type JSON, need to allow 'any' type
+            invalidValues: { type: 'Object', array: true }
+        }
+    },
     isGeoJSON: { fn: isGeoJSON, config: {} },
     isGeoPoint: { fn: isGeoPoint, config: {} },
     isGeoShapePoint: { fn: isGeoShapePoint, config: {} },
@@ -34,34 +40,106 @@ export const respoitory: i.Repository = {
     isGeoShapeMultiPolygon: { fn: isGeoShapeMultiPolygon, config: {} },
     isIP: { fn: isIP, config: {} },
     isISDN: { fn: isISDN, config: {} },
-    isMacAddress: { fn: isMacAddress, config: { delimiter: { type: 'String' } } },
+    isMacAddress: {
+        fn: isMacAddress,
+        config: {
+            delimiter: { type: 'String' }
+        }
+    },
     isNumber: { fn: isNumber, config: {} },
     isInteger: { fn: isInteger, config: {} },
-    inNumberRange: { fn: inNumberRange, config: { min: { type: 'Number' }, max: { type: 'Number' } } },
+    inNumberRange: {
+        fn: inNumberRange,
+        config: {
+            min: { type: 'Number' },
+            max: { type: 'Number' },
+            inclusive: { type: 'Boolean' }
+        }
+    },
     isString: { fn: isString, config: {} },
     isUrl: { fn: isUrl, config: {} },
     isUUID: { fn: isUUID, config: {} },
-    contains: { fn: contains, config: { value: { type: 'String' } } },
-    equals: { fn: equals, config: { value: { type: 'String' } } },
-    isAlpha: { fn: isAlpha, config: {} },
-    isAlphanumeric: { fn: isAlphanumeric, config: {} },
+    contains: {
+        fn: contains,
+        config: {
+            value: { type: 'String' }
+        }
+    },
+    equals: {
+        fn: equals,
+        config: { value: { type: 'String' } }
+    },
+    isAlpha: {
+        fn: isAlpha,
+        config: {
+            locale: { type: 'String' }
+        }
+    },
+    isAlphanumeric: {
+        fn: isAlphanumeric,
+        config: {
+            locale: { type: 'String' }
+        }
+    },
     isAscii: { fn: isAscii, config: {} },
     isBase64: { fn: isBase64, config: {} },
-    isEmpty: { fn: isEmpty, config: {} },
-    isFQDN: { fn: isFQDN, config: {} }, // TODO:
-    isHash: { fn: isHash, config: {} },
+    isEmpty: {
+        fn: isEmpty,
+        config: {
+            ignoreWhitespace: { type: 'Boolean' }
+        }
+    },
+    isFQDN: {
+        fn: isFQDN,
+        config: {
+            requireTld: { type: 'Boolean' },
+            allowUnderscores: { type: 'Boolean' },
+            allowTrailingDot: { type: 'Boolean' },
+        }
+    },
+    isHash: {
+        fn: isHash,
+        config: {
+            algo: { type: 'String' }
+        }
+    },
     isISBN: { fn: isISBN, config: {} },
     isISO31661Alpha2: { fn: isISO31661Alpha2, config: {} },
     isISO8601: { fn: isISO8601, config: {} },
-    isISSN: { fn: isISSN, config: {} },
+    isISSN: {
+        fn: isISSN,
+        config: {
+            caseSensitive: { type: 'Boolean' },
+            requireHyphen: { type: 'Boolean' }
+        }
+    },
     isRFC3339: { fn: isRFC3339, config: {} },
     isJSON: { fn: isJSON, config: {} },
-    isLength: { fn: isLength, config: {} },
+    isLength: {
+        fn: isLength,
+        config: {
+            size: { type: 'Number' },
+            min: { type: 'Number' },
+            max: { type: 'Number' },
+        }
+    },
     isMimeType: { fn: isMimeType, config: {} },
-    isPostalCode: { fn: isPostalCode, config: {} },
+    isPostalCode: {
+        fn: isPostalCode,
+        config: {
+            locale: { type: 'String' }
+        }
+    },
     isRoutableIp: { fn: isRoutableIP, config: {} },
     isNonRoutableIp: { fn: isNonRoutableIP, config: {} },
-    inIPRange: { fn: inIPRange, config: { min: { type: 'String' }, max: { type: 'String' }, cidr: { type: 'String' } } }
+    inIPRange: {
+        fn: inIPRange,
+        config: {
+            min: { type: 'String' },
+            max: { type: 'String' },
+            cidr: { type: 'String' }
+        }
+    }
 };
 
 export function isBoolean(input: any): boolean {
@@ -116,20 +194,17 @@ export function isIP(input: any) {
     return true;
 }
 
-export function isRoutableIP(input: any, args?: { non_routable: boolean }): boolean {
+export function isRoutableIP(input: any): boolean {
     if (!isIP(input)) return false;
 
     const range = ipaddr.parse(input).range();
-
     const nonRoutable = range === 'private' || range === 'uniqueLocal';
-
-    if (args && args.non_routable) return nonRoutable;
 
     return !nonRoutable;
 }
 
 export function isNonRoutableIP(input: any): boolean {
-    return isRoutableIP(input, { non_routable: true });
+    return !isRoutableIP(input);
 }
 
 export function isIPCidr(input: any) {
@@ -256,17 +331,23 @@ export function isBase64(input: any): boolean {
     return isString(input) && validator.isBase64(input);
 }
 
-export function isEmpty(input: any, args?: { ignore_whitespace: boolean }): boolean {
+export function isEmpty(input: any, args?: { ignoreWhitespace: boolean }): boolean {
     let value = input;
 
-    if (isString(value) && args && args.ignore_whitespace) {
+    if (isString(value) && args && args.ignoreWhitespace) {
         value = value.trim();
     }
 
     return ts.isEmpty(value);
 }
 
-export function isFQDN(input: any, config?: FQDNOptions): boolean {
+export function isFQDN(input: any, args?: FQDNOptions): boolean {
+    const config = {
+        require_tld: args?.requireTld || true,
+        allow_underscores: args?.allowUnderscores || false,
+        allow_trailing_dot: args?.allowTrailingDot || false
+    };
+
     return isString(input) && validator.isFQDN(input, config);
 }
 
@@ -287,8 +368,13 @@ export function isISO8601(input: any): boolean {
     return isString(input) && validator.isISO8601(input);
 }
 
-export function isISSN(input: any, args?: IssnOptions): boolean {
-    return isString(input) && validator.isISSN(input, args);
+export function isISSN(input: any, args?: ArgsISSNOptions): boolean {
+    const config = {
+        case_sensitive: args?.caseSensitive || false,
+        require_hyphen: args?.requireHyphen || false
+    };
+
+    return isString(input) && validator.isISSN(input, config);
 }
 
 export function isRFC3339(input: any): boolean {

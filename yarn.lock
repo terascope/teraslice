@@ -1319,6 +1319,16 @@
   dependencies:
     defer-to-connect "^1.0.1"
 
+"@terascope/data-types@^0.11.1":
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/@terascope/data-types/-/data-types-0.11.1.tgz#2eaa0e718c7e38adedc6bf5f76fabfcc36a6bf6e"
+  integrity sha512-ruXVUYodw8YwoKe/caBw1d0m7W7rvA2J14m+Jc6KvG7IqUDlI7BTYmRM1xiQdK1IKLjyk0jRH36dVwxhKozfkg==
+  dependencies:
+    "@terascope/utils" "^0.22.0"
+    graphql "^14.3.1"
+    lodash.defaultsdeep "^4.6.1"
+    yargs "^15.1.0"
+
 "@terascope/fetch-github-release@^0.6.0":
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/@terascope/fetch-github-release/-/fetch-github-release-0.6.1.tgz#a66c2a17734a8a58d669f087910312653396a21d"
@@ -7410,11 +7420,6 @@ latlon-geohash@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/latlon-geohash/-/latlon-geohash-1.1.0.tgz#7abe15224c4800e3eaecac71c753a20bfb6cbf65"
   integrity sha1-er4VIkxIAOPq7Kxxx1OiC/tsv2U=
-
-latlon-geohash@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/latlon-geohash/-/latlon-geohash-2.0.0.tgz#2b0203ab30ef56a18600b0312b8c3a627cbd17d1"
-  integrity sha512-OKBswTwrvTdtenV+9C9euBmvgGuqyjJNAzpQCarRz1m8/pYD2nz9fKkXmLs2S3jeXaLi3Ry76twQplKKUlgS/g==
 
 lazy-cache@^0.2.3:
   version "0.2.7"
