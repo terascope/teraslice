@@ -1,4 +1,4 @@
-import { TypeConfig } from 'xlucene-evaluator';
+import { XluceneTypeConfig } from '@terascope/types';
 import { DataEntity } from '@terascope/utils';
 import { Extraction } from '../src/operations';
 
@@ -85,7 +85,7 @@ export interface PluginClassType {
 export type PluginList = PluginClassConstructor[];
 
 export type BaseOperationClass = {
-    new (config: any, types?: TypeConfig): Operation;
+    new (config: any, types?: XluceneTypeConfig): Operation;
     cardinality: InputOutputCardinality;
 };
 
@@ -112,7 +112,7 @@ export interface OperationsMapping {
 
 export interface WatcherConfig {
     rules?: string[];
-    types?: TypeConfig;
+    types?: XluceneTypeConfig;
     notification_rules?: string;
 }
 

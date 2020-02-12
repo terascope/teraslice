@@ -103,3 +103,8 @@ export const GEO_DISTANCE_UNITS: { readonly [key: string]: GeoDistanceUnit } = {
     ft: 'feet',
     feet: 'feet',
 };
+
+export interface GeoDistanceObj {
+    distance: number;
+    unit: GeoDistanceUnit;
+}

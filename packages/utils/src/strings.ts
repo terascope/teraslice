@@ -279,14 +279,19 @@ export function formatRegex(str: string): FormatRegexResult {
 }
 
 export function match(regexp: string, value: string) {
+    if (!isString(regexp) || !isString(value)) return null;
+
     const [reg, options] = formatRegex(regexp);
     const regex = new RegExp(reg, options);
     const results = regex.exec(value);
+
     if (results) return results[0];
     return results;
 }
 
-export function matchAll(regexp: string, str: string): string[]|null {
+export function matchAll(regexp: string, value: string): string[]|null {
+    if (!isString(regexp) || !isString(value)) return null;
+
     const [reg, formatOptions] = formatRegex(regexp);
     let options = formatOptions || 'g';
 
@@ -294,7 +299,7 @@ export function matchAll(regexp: string, str: string): string[]|null {
 
     const regex = new RegExp(reg, options);
     const matches: string[] = [];
-    let matchedData = regex.exec(str);
+    let matchedData = regex.exec(value);
 
     while (matchedData != null && matchedData[0]) {
         if (matchedData && matchedData.length > 1) {
@@ -302,9 +307,33 @@ export function matchAll(regexp: string, str: string): string[]|null {
         } else {
             matches.push(matchedData[0]);
         }
-        matchedData = regex.exec(str);
+        matchedData = regex.exec(value);
     }
 
     if (matches.length === 0) return null;
     return matches;
+}
+
+export function isWildCardString(term: string): boolean {
+    if (isString(term)) {
+        if (term.match('[?+*+]')) return true;
+    }
+    return false;
+}
+
+export function wildCardToRegex(term: string): RegExp {
+    const baseRegex = term
+        .replace('.', '\\.{0,1}')
+        .replace(/\*/g, '.*')
+        .replace(/\?/g, '[^\\n\\r\\s]');
+
+    return new RegExp(`^${baseRegex}$`);
+}
+
+export function matchWildcard(wildCard: string, value: string) {
+    if (isWildCardString(wildCard)) {
+        const regex = wildCardToRegex(wildCard);
+        return value.match(regex) != null;
+    }
+    return false;
 }

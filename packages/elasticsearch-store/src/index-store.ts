@@ -1,13 +1,8 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import {
-    TypeConfig,
-    CachedTranslator,
-    createJoinQuery,
-    JoinQueryResult,
-    QueryAccess,
-    RestrictOptions
-} from 'xlucene-evaluator';
+import { XluceneTypeConfig } from '@terascope/types';
+import { CachedTranslator, QueryAccess, RestrictOptions } from 'xlucene-translator';
+import { toXluceneQuery, XluceneQueryResult } from '@terascope/data-mate';
 import IndexManager from './index-manager';
 import * as i from './interfaces';
 import * as utils from './utils';
@@ -23,7 +18,7 @@ export default class IndexStore<T extends Record<string, any>> {
     readonly name: string;
     refreshByDefault = true;
     protected _defaultQueryAccess: QueryAccess<T>|undefined;
-    readonly xluceneTypeConfig: TypeConfig;
+    readonly xluceneTypeConfig: XluceneTypeConfig;
 
     readonly writeHooks = new Set<WriteHook<T>>();
     readonly readHooks = new Set<ReadHook<T>>();
@@ -595,8 +590,8 @@ export default class IndexStore<T extends Record<string, any>> {
         return this._toRecords(results.hits.hits, critical);
     }
 
-    createJoinQuery(fields: AnyInput<T>, joinBy: JoinBy = 'AND', variables = {}): JoinQueryResult {
-        const result = createJoinQuery(fields, {
+    createJoinQuery(fields: AnyInput<T>, joinBy: JoinBy = 'AND', variables = {}): XluceneQueryResult {
+        const result = toXluceneQuery(fields, {
             joinBy,
             typeConfig: this.xluceneTypeConfig,
             variables

@@ -1,7 +1,7 @@
 import { debugLogger } from '@terascope/utils';
+import { Parser } from 'xlucene-parser';
 import { BooleanCB, DocumentMatcherOptions } from './interfaces';
 import logicBuilder from './logic-builder';
-import { Parser } from '../parser';
 
 const _logger = debugLogger('document-matcher');
 

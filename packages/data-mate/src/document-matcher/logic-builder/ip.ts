@@ -2,8 +2,9 @@ import isCidr from 'is-cidr';
 // @ts-ignore TODO we should add types
 import ip6addr from 'ip6addr';
 import { isIPv6, isIP } from 'net';
-import { isInfiniteMin, isInfiniteMax, parseRange } from '../../utils';
-import { Term, Range } from '../../parser';
+import {
+    Term, Range, isInfiniteMin, isInfiniteMax, parseRange
+} from 'xlucene-parser';
 
 const MIN_IPV4_IP = '0.0.0.0';
 const MAX_IPV4_IP = '255.255.255.255';

@@ -1,4 +1,4 @@
-import { FieldType } from '../../../src';
+import { XluceneFieldType } from '@terascope/types';
 
 export default [
     [
@@ -70,7 +70,7 @@ export default [
             true,
             false,
         ],
-        { _created: FieldType.Date }
+        { _created: XluceneFieldType.Date }
     ],
     [
         'can match dates, with type changes',
@@ -85,7 +85,7 @@ export default [
             false,
             false,
         ],
-        { _created: FieldType.Date }
+        { _created: XluceneFieldType.Date }
     ],
     [
         'can match dates, with type changes',
@@ -100,7 +100,7 @@ export default [
             false,
             true,
         ],
-        { _created: FieldType.Date }
+        { _created: XluceneFieldType.Date }
     ],
     [
         'can accept unquoted dates',
@@ -113,7 +113,7 @@ export default [
             true,
             true,
         ],
-        { date: FieldType.Date }
+        { date: XluceneFieldType.Date }
     ],
     [
         'date fields do not throw with wrong data',
@@ -132,7 +132,7 @@ export default [
             false,
             false,
         ],
-        { _created: FieldType.Date }
+        { _created: XluceneFieldType.Date }
     ],
     [
         'can handle ">=", with type changes',
@@ -151,7 +151,7 @@ export default [
             true,
             false,
         ],
-        { _created: FieldType.Date }
+        { _created: XluceneFieldType.Date }
     ],
     [
         'can handle "<", with type changes',
@@ -171,7 +171,7 @@ export default [
             true,
 
         ],
-        { _created: FieldType.Date }
+        { _created: XluceneFieldType.Date }
     ],
     [
         'can handle "<=", with type changes',
@@ -190,7 +190,7 @@ export default [
             false,
             true,
         ],
-        { _created: FieldType.Date }
+        { _created: XluceneFieldType.Date }
     ],
     [
         'can handle "[]", with type changes',
@@ -209,7 +209,7 @@ export default [
             true,
             false,
         ],
-        { _created: FieldType.Date }
+        { _created: XluceneFieldType.Date }
     ],
     [
         'can handle "{}", with type changes',
@@ -228,7 +228,7 @@ export default [
             false,
             true,
         ],
-        { _created: FieldType.Date }
+        { _created: XluceneFieldType.Date }
     ],
     [
         'can handle mixed"[}", with type changes',
@@ -247,6 +247,6 @@ export default [
             false,
             false,
         ],
-        { _created: FieldType.Date }
+        { _created: XluceneFieldType.Date }
     ],
 ];

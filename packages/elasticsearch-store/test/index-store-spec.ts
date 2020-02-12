@@ -2,7 +2,7 @@ import 'jest-extended';
 import {
     times, pDelay, DataEntity, Omit, TSError, debugLogger
 } from '@terascope/utils';
-import { Translator } from 'xlucene-evaluator';
+import { Translator } from 'xlucene-translator';
 import {
     SimpleRecord, SimpleRecordInput, dataType, schema
 } from './helpers/simple-index';

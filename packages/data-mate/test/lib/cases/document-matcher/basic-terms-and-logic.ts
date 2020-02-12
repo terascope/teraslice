@@ -1,4 +1,4 @@
-import { FieldType } from '../../../src';
+import { XluceneFieldType } from '@terascope/types';
 
 export default [
     [
@@ -6,7 +6,7 @@ export default [
         'hello:world',
         [{ hello: 'world' }, { hello: 'goodbye' }, { something: 'else' }, {}],
         [true, false, false, false],
-        { hello: FieldType.String }
+        { hello: XluceneFieldType.String }
     ],
     [
         'can match basic terms in objects',
@@ -31,28 +31,28 @@ export default [
         'bool:true',
         [{ bool: false }, { bool: true }, { bool: 'false' }, { bool: 'true' }, { something: 'else' }, {}],
         [false, false, false, true, false, false],
-        { bool: FieldType.String }
+        { bool: XluceneFieldType.String }
     ],
     [
         'can match boolean false with String type',
         'bool:false',
         [{ bool: false }, { bool: true }, { bool: 'false' }, { bool: 'true' }, { something: 'else' }, {}],
         [false, false, true, false, false, false],
-        { bool: FieldType.String }
+        { bool: XluceneFieldType.String }
     ],
     [
         'can match quoted boolean false',
         'bool:"false"',
         [{ bool: false }, { bool: true }, { bool: 'false' }, { bool: 'true' }, { something: 'else' }, {}],
         [true, false, false, false, false, false],
-        { bool: FieldType.Boolean }
+        { bool: XluceneFieldType.Boolean }
     ],
     [
         'can match quoted boolean true',
         'bool:"true"',
         [{ bool: false }, { bool: true }, { bool: 'false' }, { bool: 'true' }, { something: 'else' }, {}],
         [false, true, false, false, false, false],
-        { bool: FieldType.Boolean }
+        { bool: XluceneFieldType.Boolean }
     ],
     [
         'can match basic terms in objects',

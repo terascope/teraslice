@@ -1,6 +1,7 @@
 import 'jest-extended';
 import _ from 'lodash';
-import { DocumentMatcher, TypeConfig, FieldType } from '../src';
+import { XluceneFieldType, XluceneTypeConfig } from '@terascope/types';
+import { DocumentMatcher } from '../../src';
 import allTestCases from './cases/document-matcher';
 
 describe('Document-Matcher', () => {
@@ -28,10 +29,10 @@ describe('Document-Matcher', () => {
         };
 
         const clone = _.cloneDeep(data);
-        const typeConfig: TypeConfig = {
-            ipfield: FieldType.IP,
-            _created: FieldType.Date,
-            location: FieldType.Geo
+        const typeConfig: XluceneTypeConfig = {
+            ipfield: XluceneFieldType.IP,
+            _created: XluceneFieldType.Date,
+            location: XluceneFieldType.Geo
         };
 
         const query = 'ipfield:[192.198.0.0 TO 192.198.0.255] AND _created:[2018-10-18T18:13:20.683Z TO *] AND key:/ab{2}c{3}/ AND location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902")';

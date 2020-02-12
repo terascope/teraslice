@@ -8,7 +8,6 @@ import {
     ReplaceLiteralConfig,
     ReplaceRegexConfig
 } from './interfaces';
-import { parseGeoPoint } from './helpers';
 import {
     isString,
     isValidDate,
@@ -253,7 +252,7 @@ export function dedup(input: any[]) {
 }
 
 export function toGeoPoint(input: any) {
-    return parseGeoPoint(input, true);
+    return ts.parseGeoPoint(input, true);
 }
 
 export function extract(

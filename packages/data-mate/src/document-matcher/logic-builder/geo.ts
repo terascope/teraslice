@@ -4,8 +4,8 @@ import createCircle from '@turf/circle';
 import bbox from '@turf/bbox';
 import bboxPolygon from '@turf/bbox-polygon';
 import { lineString } from '@turf/helpers';
-import { parseGeoPoint } from '../../utils';
-import { GeoDistance, GeoBoundingBox } from '../../parser';
+import { parseGeoPoint } from '@terascope/utils';
+import { GeoDistance, GeoBoundingBox } from 'xlucene-parser';
 
 // TODO: we can delete this file when we remove old geo grammer syntax
 

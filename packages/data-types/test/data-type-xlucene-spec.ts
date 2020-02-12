@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { TypeConfig, FieldType } from 'xlucene-evaluator';
+import { XluceneTypeConfig, XluceneFieldType } from '@terascope/types';
 import {
     DataType, DataTypeConfig, LATEST_VERSION
 } from '../src';
@@ -29,9 +29,9 @@ describe('DataType (xlucene)', () => {
         });
 
         it('should be able to work with nested field', () => {
-            const expected: TypeConfig = {
-                hello: FieldType.Object,
-                'hello.there': FieldType.String
+            const expected: XluceneTypeConfig = {
+                hello: XluceneFieldType.Object,
+                'hello.there': XluceneFieldType.String
             };
 
             expect(new DataType({

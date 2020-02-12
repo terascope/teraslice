@@ -70,7 +70,7 @@ export function translateQuery(
         if (p.isWildcardField(node)) {
             if (isEmpty(typeConfig)) throw new TSError(`Configuration for type_config needs to be provided with fields related to ${node.field}`);
             const should = Object.keys(typeConfig)
-                .filter((field) => matchWildcard(node.field, field))
+                .filter((field) => matchWildcard(node.field as string, field))
                 .map((field) => Object.assign({}, node, { field }))
                 .map((newNode) => buildTermLevelQuery(newNode)) as i.AnyQuery[];
 

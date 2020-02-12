@@ -5,8 +5,9 @@ import parseISODate from 'date-fns/parseISO';
 import subMilliseconds from 'date-fns/subMilliseconds';
 import addMilliseconds from 'date-fns/addMilliseconds';
 import { getValidDate, isInteger, isString } from '@terascope/utils';
-import { Term, Range } from '../../parser';
-import { isInfiniteMax, isInfiniteMin, parseRange } from '../../utils';
+import {
+    Term, Range, isInfiniteMax, isInfiniteMin, parseRange
+} from 'xlucene-parser';
 
 // TODO: handle datemath
 

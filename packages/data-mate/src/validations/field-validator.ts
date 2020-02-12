@@ -7,6 +7,7 @@ import isCidr from 'is-cidr';
 import PhoneValidator from 'awesome-phonenumber';
 import validator from 'validator';
 import * as url from 'valid-url';
+import { JoinGeoShape } from '@terascope/types';
 
 import {
     FQDNOptions,
@@ -17,10 +18,7 @@ import {
     MACAddress
 } from './interfaces';
 
-import { parseGeoPoint } from '../transforms/helpers';
 import * as i from '../interfaces';
-
-const geoJSONTypes = Object.keys(i.GeoShapeType).map((key) => key.toLowerCase());
 
 export const respoitory: i.Repository = {
     isBoolean: { fn: isBoolean, config: {} },
@@ -160,29 +158,24 @@ export function isEmail(input: any): boolean {
 }
 
 export function isGeoPoint(input: any) {
-    const results = parseGeoPoint(input, false);
+    const results = ts.parseGeoPoint(input, false);
     return results != null;
 }
 
 export function isGeoJSON(input: any) {
-    return ts.isPlainObject(input)
-        && Array.isArray(input.coordinates)
-        && geoJSONTypes.includes(input.type.toLowerCase());
+    return ts.isGeoJSON(input);
 }
 
-export function isGeoShapePoint(input: i.JoinGeoShape) {
-    return isGeoJSON(input)
-    && (input.type === i.GeoShapeType.Point || input.type === i.ESGeoShapeType.Point);
+export function isGeoShapePoint(input: JoinGeoShape) {
+    return ts.isGeoShapePoint(input);
 }
 
-export function isGeoShapePolygon(input: i.JoinGeoShape) {
-    return isGeoJSON(input)
-    && (input.type === i.GeoShapeType.Polygon || input.type === i.ESGeoShapeType.Polygon);
+export function isGeoShapePolygon(input: JoinGeoShape) {
+    return ts.isGeoShapePolygon(input);
 }
 
-export function isGeoShapeMultiPolygon(input: i.JoinGeoShape) {
-    return isGeoJSON(input)
-    && (input.type === i.GeoShapeType.MultiPolygon || input.type === i.ESGeoShapeType.MultiPolygon);
+export function isGeoShapeMultiPolygon(input: JoinGeoShape) {
+    return ts.isGeoShapeMultiPolygon(input);
 }
 
 export function isIP(input: any) {

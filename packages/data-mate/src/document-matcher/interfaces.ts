@@ -1,4 +1,4 @@
-import { ParserOptions } from '../parser';
+import { ParserOptions } from 'xlucene-parser';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface DocumentMatcherOptions extends ParserOptions {

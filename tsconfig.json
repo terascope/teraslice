@@ -50,10 +50,10 @@
             "path": "packages/teraslice-messaging"
         },
         {
-            "path": "packages/xlucene-evaluator"
+            "path": "packages/data-mate"
         },
         {
-            "path": "packages/xlucene-matcher"
+            "path": "packages/xlucene-parser"
         },
         {
             "path": "packages/xlucene-translator"
@@ -67,9 +67,9 @@
         {
             "path": "packages/teraslice-client-js"
         },
-        {
-            "path": "packages/elasticsearch-store"
-        },
+        // {
+        //     "path": "packages/elasticsearch-store"
+        // },
         {
             "path": "packages/teraslice-test-harness"
         },
@@ -78,9 +78,6 @@
         },
         {
             "path": "packages/teraslice-cli"
-        },
-        {
-            "path": "packages/datalib"
         }
     ]
 }

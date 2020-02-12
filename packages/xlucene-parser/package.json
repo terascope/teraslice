@@ -30,7 +30,6 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/datalib": "^0.1.0",
         "@terascope/types": "^0.1.0",
         "@terascope/utils": "^0.22.0",
         "@turf/bbox": "^6.0.1",
@@ -52,6 +51,7 @@
         "lodash": "^4.17.11"
     },
     "devDependencies": {
+        "@terascope/types": "^0.1.0",
         "elasticsearch": "^15.4.1",
         "pegjs": "^0.10.0",
         "ts-pegjs": "^0.2.6"

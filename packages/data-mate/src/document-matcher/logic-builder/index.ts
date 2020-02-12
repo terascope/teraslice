@@ -1,16 +1,17 @@
 import _ from 'lodash';
 import fp from 'lodash/fp';
+import { XluceneFieldType, XluceneTypeConfig } from '@terascope/types';
+import * as p from 'xlucene-parser';
+import { isWildCardString } from '@terascope/utils';
 import { geoDistance, geoBoundingBox } from './geo';
 import { compareTermDates, dateRange } from './dates';
 import {
-    regexp, wildcard, findWildcardField, isWildCardString
+    regexp, wildcard, findWildcardField
 } from './string';
 import { BooleanCB } from '../interfaces';
 import { ipTerm, ipRange } from './ip';
-import * as p from '../../parser';
-import { TypeConfig, FieldType } from '../../interfaces';
 
-export default function buildLogicFn(parser: p.Parser, typeConfig: TypeConfig = {}) {
+export default function buildLogicFn(parser: p.Parser, typeConfig: XluceneTypeConfig = {}) {
     return walkAst(parser.ast, typeConfig);
 }
 
@@ -82,7 +83,7 @@ function isFalse() {
     return false;
 }
 
-function walkAst(node: p.AnyAST, typeConfig: TypeConfig): BooleanCB {
+function walkAst(node: p.AnyAST, typeConfig: XluceneTypeConfig): BooleanCB {
     if (p.isEmptyAST(node)) {
         return isFalse;
     }
@@ -135,18 +136,18 @@ function walkAst(node: p.AnyAST, typeConfig: TypeConfig): BooleanCB {
     return isFalse;
 }
 
-function typeFunctions(node: p.Term|p.Range, typeConfig: TypeConfig, defaultCb: BooleanCB) {
+function typeFunctions(node: p.Term|p.Range, typeConfig: XluceneTypeConfig, defaultCb: BooleanCB) {
     if (node.field == null) return defaultCb;
 
-    const type: FieldType = typeConfig[node.field];
-    if (type === FieldType.Date) {
+    const type: XluceneFieldType = typeConfig[node.field];
+    if (type === XluceneFieldType.Date) {
         if (p.isRange(node)) {
             return dateRange(node);
         }
         return compareTermDates(node);
     }
 
-    if (type === FieldType.IP) {
+    if (type === XluceneFieldType.IP) {
         if (p.isRange(node)) {
             return ipRange(node);
         }
@@ -162,12 +163,12 @@ function makeIsValue(value: any) {
     };
 }
 
-function makeConjunctionFn(conjunction: p.Conjunction, typeConfig: TypeConfig) {
+function makeConjunctionFn(conjunction: p.Conjunction, typeConfig: XluceneTypeConfig) {
     const fns = conjunction.nodes.map((node) => walkAst(node, typeConfig));
     return makeAllPassFn(fns);
 }
 
-function makeGroupFn(node: p.GroupLikeAST, typeConfig: TypeConfig) {
+function makeGroupFn(node: p.GroupLikeAST, typeConfig: XluceneTypeConfig) {
     const fns = node.flow.map((conjunction) => makeConjunctionFn(conjunction, typeConfig));
     return makeAnyPassFn(fns);
 }

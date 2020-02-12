@@ -38,9 +38,12 @@
         "jexl": "^2.2.2",
         "latlon-geohash": "^1.1.0",
         "valid-url": "^1.0.9",
-        "validator": "^12.2.0"
+        "validator": "^12.2.0",
+        "xlucene-parser": "^0.17.0"
     },
-    "devDependencies": {},
+    "devDependencies": {
+        "@terascope/types": "^0.1.0"
+    },
     "engines": {
         "node": ">=8.0.0"
     },
