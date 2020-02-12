@@ -432,7 +432,7 @@ NegativeInfinityType
     = '*' {
         return {
             type: i.ASTType.Term,
-            field_type: FieldType.Integer,
+            field_type: XluceneFieldType.Integer,
             value: Number.NEGATIVE_INFINITY
         }
     }
@@ -441,7 +441,7 @@ PostiveInfinityType
     = '*' {
         return {
             type: i.ASTType.Term,
-            field_type: FieldType.Integer,
+            field_type: XluceneFieldType.Integer,
             value: Number.POSITIVE_INFINITY
         }
     }
@@ -459,7 +459,7 @@ FloatType
     = value:Float {
         return {
             type: i.ASTType.Term,
-            field_type: FieldType.Float,
+            field_type: XluceneFieldType.Float,
             value
         }
     }
@@ -468,7 +468,7 @@ IntegerType
     = value:Integer {
         return {
             type: i.ASTType.Term,
-            field_type: FieldType.Integer,
+            field_type: XluceneFieldType.Integer,
             value
         }
     }
@@ -477,7 +477,7 @@ BooleanType
   = value:Boolean &(EOF / ws+ / ParensEnd / ']') {
       return {
         type: i.ASTType.Term,
-        field_type: FieldType.Boolean,
+        field_type: XluceneFieldType.Boolean,
         value
       }
   }
@@ -486,7 +486,7 @@ RegexpType
     = value:Regex {
         return {
             type: i.ASTType.Regexp,
-            field_type: FieldType.String,
+            field_type: XluceneFieldType.String,
             value
         }
     }
@@ -495,7 +495,7 @@ WildcardType
   = value:Wildcard {
        return {
            type: i.ASTType.Wildcard,
-           field_type: FieldType.String,
+           field_type: XluceneFieldType.String,
            value
        };
     }
@@ -504,7 +504,7 @@ QuotedStringType
     = value:QuotedTerm {
         return {
             type: i.ASTType.Term,
-            field_type: FieldType.String,
+            field_type: XluceneFieldType.String,
             quoted: true,
             value
         };
@@ -514,7 +514,7 @@ UnqoutedStringType
     = value:UnquotedTerm {
        return {
            type: i.ASTType.Term,
-           field_type: FieldType.String,
+           field_type: XluceneFieldType.String,
            quoted: false,
            value
        };
@@ -524,7 +524,7 @@ RestrictedStringType
     = value:RestrictedString {
        return {
            type: i.ASTType.Term,
-           field_type: FieldType.String,
+           field_type: XluceneFieldType.String,
            restricted: true,
            quoted: false,
            value

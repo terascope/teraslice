@@ -20,20 +20,19 @@ import {
 // @ts-ignore
 import lineToPolygon from '@turf/line-to-polygon';
 import { getCoords } from '@turf/invariant';
-import { parseGeoPoint } from '../../../utils';
+import {
+    parseGeoPoint,
+    isGeoShapePoint,
+    isGeoShapeMultiPolygon,
+    isGeoShapePolygon
+} from '@terascope/utils';
 import {
     GeoShapeRelation,
     GeoPoint,
     CoordinateTuple,
     GeoPointInput,
-    GeoShapeType,
-    GeoShapePoint,
-    GeoShapePolygon,
-    GeoShapeMultiPolygon,
-    GeoShape,
-    ESGeoShapeType,
-    ESGeoShape
-} from '../../../interfaces';
+    JoinGeoShape
+} from '@terascope/types';
 
 export function polyHasPoint(polygon: any) {
     return (fieldData: GeoPointInput) => {

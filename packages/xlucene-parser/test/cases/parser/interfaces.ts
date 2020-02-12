@@ -1,4 +1,6 @@
-import { AST, TypeConfig, Variables } from '../../../src';
+import { XluceneVariables, XluceneTypeConfig } from '@terascope/types';
+
+import { AST } from '../../../src';
 
 export type TestCase = [
     // when give query %s
@@ -8,6 +10,6 @@ export type TestCase = [
     // toMatchObject(%j)
     AST,
     // Type config to pass in
-    TypeConfig?,
-    Variables?
+    XluceneTypeConfig?,
+    XluceneVariables?
 ];

@@ -1,7 +1,7 @@
+import { AnyQuery } from '@terascope/types';
+import { parseGeoPoint } from '@terascope/utils';
 import { polyHasPoint, makeBBox } from './helpers';
 import * as i from '../../interfaces';
-import { parseGeoPoint } from '../../../utils';
-import { AnyQuery } from '../../../translator';
 
 function validate(params: i.Term[]) {
     const topLeftParam = params.find((node) => node.field === 'top_left');

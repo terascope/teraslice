@@ -1,9 +1,9 @@
 {
-    "name": "xlucene-evaluator",
-    "displayName": "xLucene Evaluator",
+    "name": "xlucene-parser",
+    "displayName": "xLucene Parser",
     "version": "0.17.0",
     "description": "Flexible Lucene-like evalutor and language parser",
-    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-evaluator#readme",
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-parser#readme",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/terascope/teraslice.git"

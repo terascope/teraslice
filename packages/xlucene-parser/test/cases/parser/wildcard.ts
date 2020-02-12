@@ -1,4 +1,5 @@
-import { FieldType, ASTType } from '../../../src';
+import { XluceneFieldType } from '@terascope/types';
+import { ASTType } from '../../../src';
 import { TestCase } from './interfaces';
 
 export default [
@@ -7,7 +8,7 @@ export default [
         'value with ? wildcard',
         {
             type: ASTType.Wildcard,
-            field_type: FieldType.String,
+            field_type: XluceneFieldType.String,
             field: 'hi',
             value: 'the?e',
         },
@@ -17,12 +18,12 @@ export default [
         'value with a prefix wildcard',
         {
             type: ASTType.Wildcard,
-            field_type: FieldType.String,
+            field_type: XluceneFieldType.String,
             field: 'hi',
             value: '?here',
         },
         {
-            hi: FieldType.String
+            hi: XluceneFieldType.String
         }
     ],
     [
@@ -30,12 +31,12 @@ export default [
         'value with a * wildcard',
         {
             type: ASTType.Wildcard,
-            field_type: FieldType.String,
+            field_type: XluceneFieldType.String,
             field: 'hi',
             value: 'ther*',
         },
         {
-            hi: FieldType.String
+            hi: XluceneFieldType.String
         }
     ],
     [
@@ -43,12 +44,12 @@ export default [
         'value with a * and ? wildcard',
         {
             type: ASTType.Wildcard,
-            field_type: FieldType.String,
+            field_type: XluceneFieldType.String,
             field: 'hi',
             value: 'the?*',
         },
         {
-            hi: FieldType.String
+            hi: XluceneFieldType.String
         }
     ],
     [
@@ -56,12 +57,12 @@ export default [
         'value with a * and ? wildcard',
         {
             type: ASTType.Wildcard,
-            field_type: FieldType.String,
+            field_type: XluceneFieldType.String,
             field: 'hi',
             value: 'th?r*',
         },
         {
-            hi: FieldType.String
+            hi: XluceneFieldType.String
         }
     ],
     [

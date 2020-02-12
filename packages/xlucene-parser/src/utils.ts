@@ -1,38 +1,121 @@
-import geoHash from 'latlon-geohash';
 import {
-    trim,
-    toNumber,
+    isString,
+    isEmpty,
     isPlainObject,
-    parseNumberList,
-    isNumber,
-    AnyObject,
     TSError,
-    startsWith
+    isWildCardString
 } from '@terascope/utils';
+import { XluceneFieldType, XluceneVariables, CoordinateTuple } from '@terascope/types';
+import * as i from './interfaces';
 
-import {
-    GeoPointInput,
-    GeoPoint,
-    GeoDistanceUnit,
-    CoordinateTuple,
-    GeoShapeRelation,
-    GEO_DISTANCE_UNITS
-} from '@terascope/types';
+export function isLogicalGroup(node: any): node is i.LogicalGroup {
+    return node && node.type === i.ASTType.LogicalGroup;
+}
 
-import { Range, RangeNode } from './parser/interfaces';
-import {
-    GeoDistanceObj,
-    FieldType,
-    JoinQueryResult,
-    CreateJoinQueryOptions
-} from './interfaces';
+export function isConjunction(node: any): node is i.Conjunction {
+    return node && node.type === i.ASTType.Conjunction;
+}
 
-import {
-    isGeoJSONData,
-    isGeoShapePolygon,
-    isGeoShapeMultiPolygon,
-    isGeoShapePoint
-} from './parser/functions/geo/helpers';
+export function isNegation(node: any): node is i.Negation {
+    return node && node.type === i.ASTType.Negation;
+}
+
+export function isFieldGroup(node: any): node is i.FieldGroup {
+    return node && node.type === i.ASTType.FieldGroup;
+}
+
+export function isExists(node: any): node is i.Exists {
+    return node && node.type === i.ASTType.Exists;
+}
+
+export function isRange(node: any): node is i.Range {
+    return node && node.type === i.ASTType.Range;
+}
+
+export function isGeoDistance(node: any): node is i.GeoDistance {
+    return node && node.type === i.ASTType.GeoDistance;
+}
+
+export function isGeoBoundingBox(node: any): node is i.GeoBoundingBox {
+    return node && node.type === i.ASTType.GeoBoundingBox;
+}
+
+export function isFunctionExpression(node: any): node is i.FunctionNode {
+    return node && node.type === i.ASTType.Function;
+}
+
+export function isRegexp(node: any): node is i.Regexp {
+    return node && node.type === i.ASTType.Regexp;
+}
+
+export function isWildcard(node: any): node is i.Wildcard {
+    return node && node.type === i.ASTType.Wildcard;
+}
+
+export function isWildcardField(node: any) {
+    return node && isWildCardString(node.field);
+}
+
+export function isTerm(node: any): node is i.Term {
+    return node && node.type === i.ASTType.Term;
+}
+
+export function isEmptyAST(node: any): node is i.EmptyAST {
+    return isEmpty(node) || (node && node.type === i.ASTType.Empty);
+}
+
+export function isStringDataType(node: any): node is i.StringDataType {
+    return node && node.field_type === 'string';
+}
+
+export const numberDataTypes: XluceneFieldType[] = [
+    XluceneFieldType.Integer, XluceneFieldType.Float
+];
+
+export function isNumberDataType(node: any): node is i.NumberDataType {
+    return node && numberDataTypes.includes(node.field_type);
+}
+
+export function isBooleanDataType(node: any): node is i.BooleanDataType {
+    return node && node.field_type === 'boolean';
+}
+
+export function getAnyValue(node: any): any {
+    return node && node.value;
+}
+
+export function getField(node: any): string|undefined {
+    if (!node) return;
+    if (!node.field || !isString(node.field)) return;
+    return node.field;
+}
+
+/** term level queries with field (string|null)  */
+export const termTypes: i.ASTType[] = [
+    i.ASTType.Term,
+    i.ASTType.Regexp,
+    i.ASTType.Range,
+    i.ASTType.Wildcard,
+    i.ASTType.GeoDistance,
+    i.ASTType.GeoBoundingBox,
+    i.ASTType.Function
+];
+
+export function isTermType(node: any): node is i.TermLike {
+    return node && termTypes.includes(node.type);
+}
+
+/** logical group or field group with flow */
+export const groupTypes: i.ASTType[] = [i.ASTType.LogicalGroup, i.ASTType.FieldGroup];
+
+export function isGroupLike(node: any): node is i.GroupLikeAST {
+    return node && groupTypes.includes(node.type);
+}
+
+export function validateVariables(obj: XluceneVariables): XluceneVariables {
+    if (!isPlainObject(obj)) throw new TSError('Invalid XluceneVariables configuration provided, it must be an object');
+    return { ...obj };
+}
 
 export function isInfiniteValue(input?: number|string) {
     return input === '*' || input === Number.NEGATIVE_INFINITY || input === Number.POSITIVE_INFINITY;
@@ -55,7 +138,7 @@ export interface ParsedRange {
     'lt'?: number|string;
 }
 
-export function parseRange(node: Range, excludeInfinite = false): ParsedRange {
+export function parseRange(node: i.Range, excludeInfinite = false): ParsedRange {
     const results = {};
 
     if (!excludeInfinite || !isInfiniteValue(node.left.value)) {
@@ -70,12 +153,12 @@ export function parseRange(node: Range, excludeInfinite = false): ParsedRange {
     return results;
 }
 
-function isGreaterThan(node: RangeNode) {
+function isGreaterThan(node: i.RangeNode) {
     if (node.operator === 'gte' || node.operator === 'gt') return true;
     return false;
 }
 
-export function buildRangeQueryString(node: Range): string | undefined {
+export function buildRangeQueryString(node: i.Range): string | undefined {
     if (node.right) {
         const leftBrace = node.left.operator === 'gte' ? '[' : '{';
         const rightBrace = node.right.operator === 'lte' ? ']' : '}';
@@ -97,272 +180,7 @@ export function buildRangeQueryString(node: Range): string | undefined {
     return `[* TO ${node.left.value}}`;
 }
 
-export function parseGeoDistance(str: string): GeoDistanceObj {
-    const matches = trim(str).match(/(\d+)(.*)$/);
-
-    if (!matches || !matches.length) {
-        throw new Error(`Incorrect geo distance parameter provided: ${str}`);
-    }
-
-    const distance = Number(matches[1]);
-    const unit = parseGeoDistanceUnit(matches[2]);
-
-    return { distance, unit };
-}
-
-export function parseGeoDistanceUnit(input: string): GeoDistanceUnit {
-    const unit = GEO_DISTANCE_UNITS[trim(input)];
-    if (!unit) {
-        throw new Error(`Incorrect distance unit provided: ${input}`);
-    }
-    return unit;
-}
-
-/** @returns {[lat, lon]} */
-export function getLonAndLat(input: any, throwInvalid = true): [number, number] | null {
-    let lat = input.lat || input.latitude;
-    let lon = input.lon || input.longitude;
-
-    if (isGeoShapePoint(input)) {
-        [lon, lat] = input.coordinates;
-    }
-
-    if (throwInvalid && (!lat || !lon)) {
-        throw new Error('Invalid geopoint object, it must contain keys lat,lon or latitude/longitude');
-    }
-
-    lat = toNumber(lat);
-    lon = toNumber(lon);
-    if (!isNumber(lat) || !isNumber(lon)) {
-        if (throwInvalid) throw new Error('Invalid geopoint, lat and lon must be numbers');
-        return null;
-    }
-
-    return [lat, lon];
-}
-
-export function parseGeoPoint(point: GeoPointInput): GeoPoint;
-export function parseGeoPoint(point: GeoPointInput, throwInvalid: true): GeoPoint;
-export function parseGeoPoint(point: GeoPointInput, throwInvalid: false): GeoPoint | null;
-export function parseGeoPoint(point: GeoPointInput, throwInvalid = true): GeoPoint | null {
-    let lat: number | undefined;
-    let lon: number | undefined;
-
-    if (typeof point === 'string') {
-        if (point.match(',')) {
-            [lat, lon] = parseNumberList(point);
-        } else {
-            try {
-                [lat, lon] = Object.values(geoHash.decode(point));
-            } catch (err) {
-                // do nothing
-            }
-        }
-    } else if (Array.isArray(point)) {
-        // array of points are meant to be lon/lat format
-        [lon, lat] = parseNumberList(point);
-    } else if (isPlainObject(point)) {
-        const results = getLonAndLat(point, throwInvalid);
-        if (results) [lat, lon] = results;
-    }
-
-    if (throwInvalid && (lat == null || lon == null)) {
-        throw new TSError(`Invalid geopoint given to parse, point:${point}`);
-    }
-
-    // data incoming is lat,lon and we must return lon,lat
-    if (lat != null && lon != null) {
-        return {
-            lat,
-            lon
-        };
-    }
-    return null;
-}
-
-const relationList = Object.values(GeoShapeRelation);
-
-function makeXluceneGeoDistanceQuery(
-    variableState: VariableState,
-    field: string,
-    value: GeoPointInput,
-    fieldParam?: string
-) {
-    const dValue = fieldParam || '100m';
-    const results = parseGeoPoint(value, false);
-    if (!results) return '';
-    const vDistance = variableState.createVariable('distance', dValue);
-    const vPoint = variableState.createVariable('point', `${results.lat},${results.lon}`);
-    return `${field}:geoDistance(point: ${vPoint}, distance: ${vDistance})`;
-}
-
-function makeXlucenePolyContainsPoint(
-    variableState: VariableState,
-    field: string,
-    value: GeoPointInput
-) {
-    const results = parseGeoPoint(value, false);
-    if (!results) return '';
-    const vPoint = variableState.createVariable('point', `${results.lat},${results.lon}`);
-    return `${field}:geoContainsPoint(point: ${vPoint})`;
-}
-
 export function coordinateToXlucene(cord: CoordinateTuple) {
     // tuple is [lon, lat], need to return "lat, lon"
     return `"${cord[1]}, ${cord[0]}"`;
-}
-
-function geoPolyQuery(field: string, polyVariableName: string, vParam?: string) {
-    if (vParam) {
-        return `${field}:geoPolygon(points: ${polyVariableName}, relation: ${vParam})`;
-    }
-    return `${field}:geoPolygon(points: ${polyVariableName})`;
-}
-
-function makeXlucenePolyQuery(
-    variableState: VariableState,
-    field: string,
-    polyVariableName: string,
-    fieldParam?: string
-) {
-    let vParam: string | undefined;
-
-    if (fieldParam && relationList.includes(fieldParam as GeoShapeRelation)) {
-        vParam = variableState.createVariable('relation', fieldParam) as string;
-    }
-
-    return geoPolyQuery(field, polyVariableName, vParam);
-}
-
-function createGeoQuery(
-    variableState: VariableState,
-    field: string,
-    value: any,
-    targetType: FieldType,
-    fieldParam?: string
-) {
-    if (isGeoJSONData(value)) {
-        if (isGeoShapePolygon(value) || isGeoShapeMultiPolygon(value)) {
-            // geoPolygon internally takes care of poly/multipoly.
-            // need to preserve original poly in variables
-            const polyVariableName = variableState.createVariable('points', value);
-            return makeXlucenePolyQuery(variableState, field, polyVariableName, fieldParam);
-        }
-
-        if (isGeoShapePoint(value)) {
-            if (isGeoPointType(targetType)) {
-                return makeXluceneGeoDistanceQuery(
-                    variableState,
-                    field,
-                    value.coordinates,
-                    fieldParam
-                );
-            }
-            return makeXlucenePolyContainsPoint(variableState, field, value.coordinates);
-        }
-        // We do not support any other geoJSON types;
-        return '';
-    }
-    // incoming value is a geo-point and we compare to another geo-point by geoDistance query
-    if (isGeoPointType(targetType)) {
-        return makeXluceneGeoDistanceQuery(variableState, field, value, fieldParam);
-    }
-
-    if (isGeoJSONType(targetType)) return makeXlucenePolyContainsPoint(variableState, field, value);
-    // if here then return a noop
-    return '';
-}
-
-function isGeoQuery(type: FieldType) {
-    return isGeoPointType(type) || isGeoJSONType(type);
-}
-
-function isGeoPointType(type: FieldType) {
-    return type === FieldType.Geo || type === FieldType.GeoPoint;
-}
-
-function isGeoJSONType(type: FieldType) {
-    return type === FieldType.GeoJSON;
-}
-
-// TODO: handle variables and query from before
-export function createJoinQuery(
-    input: AnyObject,
-    options: CreateJoinQueryOptions = {}
-): JoinQueryResult {
-    const {
-        fieldParams = {},
-        joinBy = 'AND',
-        typeConfig = {},
-        variables
-    } = options;
-
-    const variableState = new VariableState(variables);
-    const query = Object.entries(input)
-        .map(([field, val]) => {
-            if (val == null) return '';
-
-            const config = typeConfig[field];
-
-            if (isGeoQuery(config)) {
-                return createGeoQuery(
-                    variableState,
-                    field,
-                    val,
-                    config,
-                    fieldParams[field]
-                );
-            }
-
-            const value = variableState.createVariable(field, val);
-            return `${field}: ${value}`;
-        })
-        .filter(Boolean)
-        .join(` ${joinBy} `)
-        .trim();
-
-    const finalVariables = variableState.getVariables();
-    return { query, variables: finalVariables };
-}
-
-export class VariableState {
-    private variables: AnyObject;
-
-    constructor(variables?: AnyObject) {
-        this.variables = { ...variables };
-    }
-
-    private _makeKey(field: string) {
-        let num = 1;
-        let name = `${field}_${num}`;
-
-        while (this.variables[name] !== undefined) {
-            num += 1;
-            name = `${field}_${num}`;
-        }
-
-        return name;
-    }
-
-    createVariable(field: string, value: any) {
-        if (typeof value === 'string' && startsWith(value, '$')) {
-            const vField = value.slice(1);
-            if (this.variables[vField] === undefined) throw new Error(`Must provide variable "${vField}" in the variables config`);
-            return value;
-        }
-        const key = this._makeKey(field);
-        this.variables[key] = value;
-        return `$${key}`;
-    }
-
-    /**
-     * Shallow clones and sorts the keys
-    */
-    getVariables() {
-        const result: AnyObject = {};
-        for (const key of Object.keys(this.variables).sort()) {
-            result[key] = this.variables[key];
-        }
-        return result;
-    }
 }

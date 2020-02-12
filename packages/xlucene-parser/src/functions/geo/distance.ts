@@ -1,8 +1,7 @@
+import { AnyQuery } from '@terascope/types';
+import { parseGeoPoint, parseGeoDistance } from '@terascope/utils';
 import { polyHasPoint, makeCircle } from './helpers';
-import { parseGeoPoint, parseGeoDistance } from '../../../utils';
 import * as i from '../../interfaces';
-import { UtilsTranslateQueryOptions } from '../../../translator/interfaces';
-import { AnyQuery } from '../../../translator';
 
 function validate(params: i.Term[]) {
     const distanceParam = params.find((node) => node.field === 'distance');
@@ -29,7 +28,7 @@ const geoDistance: i.FunctionDefinition = {
             lat, lon, distance, unit: paramUnit
         } = validate(params);
 
-        function toElasticsearchQuery(field: string, options: UtilsTranslateQueryOptions) {
+        function toElasticsearchQuery(field: string, options: i.FunctionElasticsearchOptions) {
             const unit = paramUnit || options.geo_sort_unit;
             const order = options.geo_sort_order;
 

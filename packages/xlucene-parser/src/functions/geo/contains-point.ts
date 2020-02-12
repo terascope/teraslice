@@ -1,9 +1,8 @@
+import { AnyQuery, GeoShapeRelation, ESGeoShapeType } from '@terascope/types';
+import { parseGeoPoint } from '@terascope/utils';
 import { point } from '@turf/helpers';
 import { pointInGeoShape } from './helpers';
-import { parseGeoPoint } from '../../../utils';
 import * as i from '../../interfaces';
-import { AnyQuery } from '../../../translator/interfaces';
-import { GeoShapeRelation, ESGeoShapeType } from '../../../interfaces';
 
 function validate(params: i.Term[]) {
     const geoPointParam = params.find((node) => node.field === 'point');

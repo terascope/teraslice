@@ -1,22 +1,22 @@
 import 'jest-extended';
 import { debugLogger } from '@terascope/utils';
+import {
+    XluceneFieldType,
+    XluceneTypeConfig,
+    GeoShapeType,
+    CoordinateTuple,
+    ESGeoShapeType,
+    GeoShapeRelation
+} from '@terascope/types';
 import { randomPolygon } from '@turf/random';
 import { getCoords } from '@turf/invariant';
 import { Parser } from '../../src';
-import { UtilsTranslateQueryOptions } from '../../src/translator/interfaces';
-import {
-    TypeConfig,
-    FieldType,
-    GeoShapeRelation,
-    GeoShapeType,
-    CoordinateTuple,
-    ESGeoShapeType
-} from '../../src/interfaces';
+import { FunctionElasticsearchOptions } from '../../src/interfaces';
 
 describe('geoPolygon', () => {
     describe('with typeconfig field set to GeoPoint', () => {
-        const typeConfig: TypeConfig = { location: FieldType.GeoPoint };
-        const options: UtilsTranslateQueryOptions = {
+        const typeConfig: XluceneTypeConfig = { location: XluceneFieldType.GeoPoint };
+        const options: FunctionElasticsearchOptions = {
             logger: debugLogger('test'),
             geo_sort_order: 'asc',
             geo_sort_unit: 'meters',
@@ -259,8 +259,8 @@ describe('geoPolygon', () => {
     });
 
     describe('with typeconfig field set to GeoJSON', () => {
-        const typeConfig: TypeConfig = { location: FieldType.GeoJSON };
-        const options: UtilsTranslateQueryOptions = {
+        const typeConfig: XluceneTypeConfig = { location: XluceneFieldType.GeoJSON };
+        const options: FunctionElasticsearchOptions = {
             logger: debugLogger('test'),
             geo_sort_order: 'asc',
             geo_sort_unit: 'meters',

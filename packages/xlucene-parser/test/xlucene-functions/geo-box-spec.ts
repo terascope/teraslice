@@ -1,12 +1,12 @@
 import 'jest-extended';
+import { XluceneFieldType, XluceneTypeConfig, GeoShapeType } from '@terascope/types';
 import { debugLogger } from '@terascope/utils';
 import { Parser, } from '../../src';
-import { UtilsTranslateQueryOptions } from '../../src/translator';
-import { TypeConfig, FieldType, GeoShapeType } from '../../src/interfaces';
+import { FunctionElasticsearchOptions } from '../../src/interfaces';
 
 describe('geoBox', () => {
-    const typeConfig: TypeConfig = { location: FieldType.GeoPoint };
-    const options: UtilsTranslateQueryOptions = {
+    const typeConfig: XluceneTypeConfig = { location: XluceneFieldType.GeoPoint };
+    const options: FunctionElasticsearchOptions = {
         logger: debugLogger('test'),
         geo_sort_order: 'asc',
         geo_sort_unit: 'meters',

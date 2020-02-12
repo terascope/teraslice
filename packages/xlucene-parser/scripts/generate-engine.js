@@ -17,7 +17,7 @@ function generate() {
     }
 
     const input = path.join(__dirname, '..', 'peg', 'lucene.pegjs');
-    const output = path.join(__dirname, '..', 'src', 'parser', 'peg-engine.ts');
+    const output = path.join(__dirname, '..', 'src', 'peg-engine.ts');
 
     const current = fs.existsSync(output) && fs.readFileSync(output, 'utf8');
     const grammar = fs.readFileSync(input, 'utf8');
@@ -29,7 +29,7 @@ function generate() {
         format: 'commonjs',
         tspegjs: {
             noTslint: true,
-            customHeader: "import makeContext from './context';\nimport * as i from './interfaces';\nimport { FieldType } from '../interfaces';"
+            customHeader: "import makeContext from './context';\nimport * as i from './interfaces';\n import { XluceneFieldType } from '@terascope/types';"
         },
     });
 

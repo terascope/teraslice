@@ -4,7 +4,7 @@ const fs = require('fs');
 const readline = require('readline');
 
 const filePath = process.argv[2];
-const { DocumentMatcher } = require('../dist/src');
+const { Parser } = require('../dist/src');
 
 if (!filePath) throw new Error('A file path must be provided ie "node scripts/parse_file.js path/to/file.txt"');
 
@@ -16,7 +16,7 @@ rl.on('line', (input) => {
     try {
         // eslint-disable-next-line
         let matcher;
-        if (input.length > 0 && input.trim()[0] !== '#') matcher = new DocumentMatcher(input);
+        if (input.length > 0 && input.trim()[0] !== '#') matcher = new Parser(input);
     } catch (err) {
         // eslint-disable-next-line no-console
         console.log(`error while parsing input ${input}`, err);
