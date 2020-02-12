@@ -1,6 +1,6 @@
 import { escapeString } from '@terascope/utils';
+import { XluceneFieldType } from '@terascope/types';
 import { TestCase } from './interfaces';
-import { FieldType } from '../../../src/interfaces';
 
 export default [
     [
@@ -53,7 +53,7 @@ export default [
         },
         {
             type_config: {
-                firstname: FieldType.String
+                firstname: XluceneFieldType.String
             }
         }
     ],
@@ -67,8 +67,8 @@ export default [
         },
         {
             type_config: {
-                other: FieldType.String,
-                'other.value': FieldType.String
+                other: XluceneFieldType.String,
+                'other.value': XluceneFieldType.String
             }
         }
     ],
@@ -330,8 +330,8 @@ export default [
         ],
         {
             type_config: {
-                field_one: FieldType.GeoPoint,
-                field_two: FieldType.GeoPoint
+                field_one: XluceneFieldType.GeoPoint,
+                field_two: XluceneFieldType.GeoPoint
             }
         }
     ],
@@ -358,8 +358,8 @@ export default [
         ],
         {
             type_config: {
-                field_one: FieldType.GeoPoint,
-                field_two: FieldType.GeoPoint
+                field_one: XluceneFieldType.GeoPoint,
+                field_two: XluceneFieldType.GeoPoint
             }
         }
     ],

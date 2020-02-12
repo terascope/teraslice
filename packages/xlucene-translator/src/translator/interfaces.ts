@@ -1,24 +1,24 @@
 import { Logger } from '@terascope/utils';
 import {
-    GeoPoint,
+    SortOrder,
+    XluceneTypeConfig,
+    XluceneVariables,
     GeoDistanceUnit,
-    TypeConfig,
-    Variables,
-    SortOrder
-} from '../interfaces';
+    GeoPoint
+} from '@terascope/types';
 
 export type TranslatorOptions = {
     logger?: Logger;
-    type_config?: TypeConfig;
+    type_config?: XluceneTypeConfig;
     default_geo_field?: string;
     default_geo_sort_order?: SortOrder;
     default_geo_sort_unit?: GeoDistanceUnit|string;
-    variables?: Variables;
+    variables?: XluceneVariables;
 };
 
 export type UtilsTranslateQueryOptions = {
     logger: Logger;
-    type_config: TypeConfig;
+    type_config: XluceneTypeConfig;
     default_geo_field?: string;
     geo_sort_point?: GeoPoint;
     geo_sort_order: SortOrder;

@@ -1,7 +1,7 @@
 import { isString } from '@terascope/utils';
+import { Parser } from 'xlucene-parser';
 import { TranslatorOptions } from './interfaces';
 import { Translator } from './translator';
-import { Parser } from '../parser';
 
 type Cached = { [query: string]: Translator };
 const _cache = new WeakMap<CachedTranslator, Cached>();

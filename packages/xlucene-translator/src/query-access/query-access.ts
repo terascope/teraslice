@@ -1,15 +1,15 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import * as p from '../parser';
-import { CachedTranslator, SortOrder } from '../translator';
-import * as i from './interfaces';
+import * as p from 'xlucene-parser';
 import {
+    SortOrder,
     GeoDistanceUnit,
-    TypeConfig,
-    FieldType,
-    Variables,
-} from '../interfaces';
-import { parseWildCard, matchString } from '../document-matcher/logic-builder/string';
+    XluceneVariables,
+    XluceneTypeConfig,
+    XluceneFieldType
+} from '@terascope/types';
+import { CachedTranslator } from '../translator';
+import * as i from './interfaces';
 
 const _logger = ts.debugLogger('xlucene-query-access');
 
@@ -23,9 +23,9 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     readonly defaultGeoSortOrder?: SortOrder;
     readonly defaultGeoSortUnit?: GeoDistanceUnit|string;
     readonly allowEmpty: boolean;
-    readonly typeConfig: TypeConfig;
-    readonly parsedTypeConfig: TypeConfig;
-    readonly variables: Variables;
+    readonly typeConfig: XluceneTypeConfig;
+    readonly parsedTypeConfig: XluceneTypeConfig;
+    readonly variables: XluceneVariables;
     logger: ts.Logger;
 
     private readonly _parser: p.CachedParser = new p.CachedParser();
@@ -155,8 +155,8 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         return this._addConstraints(parser, parserOptions);
     }
 
-    private _restrictTypeConfig(): TypeConfig {
-        const parsedConfig: TypeConfig = {};
+    private _restrictTypeConfig(): XluceneTypeConfig {
+        const parsedConfig: XluceneTypeConfig = {};
 
         for (const [typeField, value] of Object.entries(this.typeConfig)) {
             const excluded = this.excludes.filter((restrictField) => matchTypeField(
@@ -279,12 +279,12 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
     private _isFieldRestricted(field: string): boolean {
         return !Object.entries(this.parsedTypeConfig).some(([typeField, fieldType]) => {
-            if (fieldType === FieldType.Object) return false;
+            if (fieldType === XluceneFieldType.Object) return false;
             const parts = typeField.split('.');
 
             if (parts.length > 1) {
                 const firstPart = parts.slice(0, -1).join('.');
-                if (this.typeConfig[firstPart] === FieldType.Object) {
+                if (this.typeConfig[firstPart] === XluceneFieldType.Object) {
                     return matchFieldObject(typeField, field);
                 }
             }
@@ -303,11 +303,10 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 }
 
 function matchFieldObject(typeField: string, field: string) {
-    const wildcardQuery = parseWildCard(field).replace(/\$$/, '');
     let s = '';
     for (const part of typeField.split('.')) {
         s += part;
-        if (matchString(s, wildcardQuery)) {
+        if (ts.matchWildcard(field, s)) {
             return true;
         }
 
@@ -320,8 +319,7 @@ function matchField(typeField: string, field: string) {
     let s = '';
     for (const part of field.split('.')) {
         s += part;
-        const wildcardQuery = parseWildCard(s);
-        if (matchString(typeField, wildcardQuery)) {
+        if (ts.matchWildcard(s, typeField)) {
             return true;
         }
 

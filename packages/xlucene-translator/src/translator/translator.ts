@@ -1,7 +1,14 @@
-import { debugLogger, isString, Logger } from '@terascope/utils';
-import { Parser } from '../parser';
-import { TypeConfig, GeoDistanceUnit, Variables } from '../interfaces';
-import { parseGeoDistanceUnit } from '../utils';
+import {
+    debugLogger, isString, Logger, parseGeoDistanceUnit
+} from '@terascope/utils';
+import {
+    XluceneVariables,
+    XluceneTypeConfig,
+    GeoDistanceUnit,
+    ElasticsearchDSLOptions,
+    ElasticsearchDSLResult
+} from '@terascope/types';
+import { Parser } from 'xlucene-parser';
 import * as i from './interfaces';
 import * as utils from './utils';
 
@@ -10,8 +17,8 @@ const _logger = debugLogger('xlucene-translator');
 export class Translator {
     readonly query: string;
     logger: Logger;
-    readonly typeConfig: TypeConfig;
-    readonly variables: Variables | undefined;
+    readonly typeConfig: XluceneTypeConfig;
+    readonly variables: XluceneVariables | undefined;
     private readonly _parser: Parser;
     private _defaultGeoField?: string;
     private _defaultGeoSortOrder: 'asc'|'desc' = 'asc';
@@ -47,7 +54,7 @@ export class Translator {
         this.query = this._parser.query;
     }
 
-    toElasticsearchDSL(opts: i.ElasticsearchDSLOptions = {}): i.ElasticsearchDSLResult {
+    toElasticsearchDSL(opts: ElasticsearchDSLOptions = {}): ElasticsearchDSLResult {
         const result = utils.translateQuery(this._parser, {
             logger: this.logger,
             type_config: this.typeConfig,

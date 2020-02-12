@@ -1,11 +1,16 @@
 import { SearchParams } from 'elasticsearch';
 import { AnyObject } from '@terascope/utils';
-import { SortOrder, ElasticsearchDSLOptions } from '../translator/interfaces';
-import { ParserOptions } from '../parser';
-import { TypeConfig, GeoDistanceUnit, Variables } from '../interfaces';
+import {
+    SortOrder,
+    ElasticsearchDSLOptions,
+    XluceneTypeConfig,
+    XluceneVariables,
+    GeoDistanceUnit
+} from '@terascope/types';
+import { ParserOptions } from 'xlucene-parser';
 
 export interface RestrictSearchQueryOptions extends ElasticsearchDSLOptions {
-    variables?: Variables;
+    variables?: XluceneVariables;
     /**
      * Elasticsearch search parameters
      * _sourceInclude and _sourceExclude will be filtered based
@@ -20,7 +25,7 @@ export interface RestrictSearchQueryOptions extends ElasticsearchDSLOptions {
 }
 
 export interface RestrictOptions {
-    variables?: Variables;
+    variables?: XluceneVariables;
 }
 
 export interface QueryAccessConfig<T extends AnyObject = AnyObject> {
@@ -33,7 +38,7 @@ export interface QueryAccessConfig<T extends AnyObject = AnyObject> {
     default_geo_field?: string;
     default_geo_sort_order?: SortOrder;
     default_geo_sort_unit?: GeoDistanceUnit|string;
-    type_config?: TypeConfig;
+    type_config?: XluceneTypeConfig;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

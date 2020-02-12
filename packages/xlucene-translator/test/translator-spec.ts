@@ -1,10 +1,10 @@
 /* eslint-disable no-self-compare */
 import 'jest-extended';
 import { debugLogger, get, times } from '@terascope/utils';
+import { XluceneFieldType, XluceneTypeConfig } from '@terascope/types';
+import { Parser } from 'xlucene-parser';
 import { translateQuery } from '../src/translator/utils';
-import {
-    Translator, TypeConfig, FieldType, Parser
-} from '../src';
+import { Translator } from '../src';
 import allTestCases from './cases/translator';
 
 const logger = debugLogger('translator-spec');
@@ -37,8 +37,8 @@ describe('Translator', () => {
 
     it('should have the typeConfig property', () => {
         const query = 'foo:bar';
-        const typeConfig: TypeConfig = {
-            location: FieldType.Geo,
+        const typeConfig: XluceneTypeConfig = {
+            location: XluceneFieldType.Geo,
         };
 
         const translator = new Translator(query, {

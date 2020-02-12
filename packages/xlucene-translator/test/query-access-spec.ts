@@ -1,7 +1,8 @@
 import 'jest-extended';
 import { SearchParams } from 'elasticsearch';
+import { XluceneFieldType } from '@terascope/types';
 import { TSError } from '@terascope/utils';
-import { QueryAccess, FieldType } from '../src';
+import { QueryAccess } from '../src';
 
 describe('QueryAccess', () => {
     describe('when constructed without type_config', () => {
@@ -12,7 +13,7 @@ describe('QueryAccess', () => {
 
     describe('when constructed without exclude', () => {
         it('should set an empty array', () => {
-            const queryAccess = new QueryAccess({}, { type_config: { foo: FieldType.String } });
+            const queryAccess = new QueryAccess({}, { type_config: { foo: XluceneFieldType.String } });
 
             expect(queryAccess.excludes).toBeArrayOfSize(0);
         });
@@ -23,18 +24,18 @@ describe('QueryAccess', () => {
             excludes: ['bar', 'moo', 'baa.maa', 'a.b'],
         }, {
             type_config: {
-                foo: FieldType.String,
-                bar: FieldType.String,
-                moo: FieldType.String,
-                baa: FieldType.Object,
-                'baa.maa': FieldType.String,
-                'baa.chaa': FieldType.String,
-                a: FieldType.Object,
-                'a.b': FieldType.Object,
-                'a.b.c': FieldType.String,
-                'a.c': FieldType.Object,
-                'a.c.b': FieldType.String,
-                mood: FieldType.String
+                foo: XluceneFieldType.String,
+                bar: XluceneFieldType.String,
+                moo: XluceneFieldType.String,
+                baa: XluceneFieldType.Object,
+                'baa.maa': XluceneFieldType.String,
+                'baa.chaa': XluceneFieldType.String,
+                a: XluceneFieldType.Object,
+                'a.b': XluceneFieldType.Object,
+                'a.b.c': XluceneFieldType.String,
+                'a.c': XluceneFieldType.Object,
+                'a.c.b': XluceneFieldType.String,
+                mood: XluceneFieldType.String
             }
         });
 
@@ -57,13 +58,13 @@ describe('QueryAccess', () => {
 
             it('can restrict types', () => {
                 const expected = {
-                    baa: FieldType.Object,
-                    a: FieldType.Object,
-                    foo: FieldType.String,
-                    mood: FieldType.String,
-                    'baa.chaa': FieldType.String,
-                    'a.c': FieldType.Object,
-                    'a.c.b': FieldType.String,
+                    baa: XluceneFieldType.Object,
+                    a: XluceneFieldType.Object,
+                    foo: XluceneFieldType.String,
+                    mood: XluceneFieldType.String,
+                    'baa.chaa': XluceneFieldType.String,
+                    'a.c': XluceneFieldType.Object,
+                    'a.c.b': XluceneFieldType.String,
                 };
                 expect(queryAccess.parsedTypeConfig).toEqual(expected);
             });
@@ -139,9 +140,9 @@ describe('QueryAccess', () => {
             includes: ['bar', 'star', 'baz'],
         }, {
             type_config: {
-                bar: FieldType.Integer,
-                star: FieldType.Integer,
-                baz: FieldType.String
+                bar: XluceneFieldType.Integer,
+                star: XluceneFieldType.Integer,
+                baz: XluceneFieldType.String
             }
         });
 
@@ -191,7 +192,7 @@ describe('QueryAccess', () => {
                 allow_implicit_queries: true,
             }, {
                 type_config: {
-                    bar: FieldType.String,
+                    bar: XluceneFieldType.String,
                 }
             }).restrict(query);
 
@@ -209,7 +210,7 @@ describe('QueryAccess', () => {
                 allow_empty_queries: false,
             }, {
                 type_config: {
-                    bar: FieldType.String,
+                    bar: XluceneFieldType.String,
                 }
             }).restrict('')).toThrowWithMessage(TSError, 'Empty queries are restricted');
         });
@@ -220,7 +221,7 @@ describe('QueryAccess', () => {
                     allow_empty_queries: true,
                 }, {
                     type_config: {
-                        bar: FieldType.String,
+                        bar: XluceneFieldType.String,
                     }
                 }).restrict('')
             ).toEqual('');
@@ -233,9 +234,9 @@ describe('QueryAccess', () => {
                     constraint: 'foo:bar',
                 }, {
                     type_config: {
-                        foo: FieldType.String,
-                        bar: FieldType.Integer,
-                        star: FieldType.Integer
+                        foo: XluceneFieldType.String,
+                        bar: XluceneFieldType.Integer,
+                        star: XluceneFieldType.Integer
                     }
                 }).restrict('')
             ).toEqual('foo:bar');
@@ -259,7 +260,7 @@ describe('QueryAccess', () => {
                     constraint: 'foo:bar',
                 }, {
                     type_config: {
-                        foo: FieldType.String,
+                        foo: XluceneFieldType.String,
                     }
                 }).restrict('');
                 expect(result).toEqual('foo:bar');
@@ -275,7 +276,7 @@ describe('QueryAccess', () => {
                     constraint: 'foo:bar',
                 }, {
                     type_config: {
-                        foo: FieldType.String,
+                        foo: XluceneFieldType.String,
                     }
                 }).restrict(query);
                 expect(result).toEqual('foo:bar');
@@ -291,7 +292,7 @@ describe('QueryAccess', () => {
                     constraint: 'foo:bar',
                 }, {
                     type_config: {
-                        foo: FieldType.String,
+                        foo: XluceneFieldType.String,
                     }
                 }).restrict(query);
                 expect(result).toEqual('foo:bar');
@@ -305,8 +306,8 @@ describe('QueryAccess', () => {
                 includes: ['field_one', 'field_two'],
             }, {
                 type_config: {
-                    field_one: FieldType.String,
-                    field_two: FieldType.String,
+                    field_one: XluceneFieldType.String,
+                    field_two: XluceneFieldType.String,
                 }
             });
 
@@ -319,9 +320,9 @@ describe('QueryAccess', () => {
                 includes: ['field_one', 'field_two'],
             }, {
                 type_config: {
-                    field_one: FieldType.String,
-                    field_two: FieldType.String,
-                    foo: FieldType.String
+                    field_one: XluceneFieldType.String,
+                    field_two: XluceneFieldType.String,
+                    foo: XluceneFieldType.String
                 }
             });
 
@@ -334,8 +335,8 @@ describe('QueryAccess', () => {
                 includes: ['field_one'],
             }, {
                 type_config: {
-                    field_one: FieldType.String,
-                    field_two: FieldType.String,
+                    field_one: XluceneFieldType.String,
+                    field_two: XluceneFieldType.String,
                 }
             });
 
@@ -348,8 +349,8 @@ describe('QueryAccess', () => {
                 excludes: ['field_one', 'field_two'],
             }, {
                 type_config: {
-                    field_one: FieldType.String,
-                    field_two: FieldType.String,
+                    field_one: XluceneFieldType.String,
+                    field_two: XluceneFieldType.String,
                 }
             });
 
@@ -362,8 +363,8 @@ describe('QueryAccess', () => {
                 excludes: ['field_two'],
             }, {
                 type_config: {
-                    field_one: FieldType.String,
-                    field_two: FieldType.String,
+                    field_one: XluceneFieldType.String,
+                    field_two: XluceneFieldType.String,
                 }
             });
 
@@ -376,8 +377,8 @@ describe('QueryAccess', () => {
                 excludes: ['field_one', 'field_two'],
             }, {
                 type_config: {
-                    field_one: FieldType.String,
-                    field_two: FieldType.String,
+                    field_one: XluceneFieldType.String,
+                    field_two: XluceneFieldType.String,
                 }
             });
 
@@ -390,8 +391,8 @@ describe('QueryAccess', () => {
                 includes: ['foo'],
             }, {
                 type_config: {
-                    foo: FieldType.Object,
-                    'foo.a': FieldType.String
+                    foo: XluceneFieldType.Object,
+                    'foo.a': XluceneFieldType.String
                 }
             });
 
@@ -404,9 +405,9 @@ describe('QueryAccess', () => {
                 excludes: ['foo.bar'],
             }, {
                 type_config: {
-                    foo: FieldType.Object,
-                    'foo.bar': FieldType.String,
-                    'foo.baz': FieldType.String,
+                    foo: XluceneFieldType.Object,
+                    'foo.bar': XluceneFieldType.String,
+                    'foo.baz': XluceneFieldType.String,
                 }
             });
 
@@ -419,8 +420,8 @@ describe('QueryAccess', () => {
                 includes: ['field_'],
             }, {
                 type_config: {
-                    field_one: FieldType.String,
-                    field_two: FieldType.String,
+                    field_one: XluceneFieldType.String,
+                    field_two: XluceneFieldType.String,
                 }
             });
 
@@ -433,8 +434,8 @@ describe('QueryAccess', () => {
                 excludes: ['field'],
             }, {
                 type_config: {
-                    field_one: FieldType.String,
-                    field_two: FieldType.String,
+                    field_one: XluceneFieldType.String,
+                    field_two: XluceneFieldType.String,
                 }
             });
 
@@ -449,8 +450,8 @@ describe('QueryAccess', () => {
             constraint,
         }, {
             type_config: {
-                foo: FieldType.String,
-                hello: FieldType.String
+                foo: XluceneFieldType.String,
+                hello: XluceneFieldType.String
             }
         });
 
@@ -467,8 +468,8 @@ describe('QueryAccess', () => {
             excludes: ['hello'],
         }, {
             type_config: {
-                foo: FieldType.String,
-                hello: FieldType.String,
+                foo: XluceneFieldType.String,
+                hello: XluceneFieldType.String,
             }
         });
 
@@ -484,9 +485,9 @@ describe('QueryAccess', () => {
             prevent_prefix_wildcard: true,
         }, {
             type_config: {
-                bar: FieldType.String,
-                hello: FieldType.String,
-                bytes: FieldType.Integer
+                bar: XluceneFieldType.String,
+                hello: XluceneFieldType.String,
+                bytes: XluceneFieldType.Integer
             }
         });
 
@@ -518,8 +519,8 @@ describe('QueryAccess', () => {
                 includes: [],
             }, {
                 type_config: {
-                    foo: FieldType.String,
-                    bar: FieldType.String,
+                    foo: XluceneFieldType.String,
+                    bar: XluceneFieldType.String,
                 }
             });
             const result = await qa.restrictSearchQuery('foo:bar', {
@@ -543,10 +544,10 @@ describe('QueryAccess', () => {
             includes: ['foo', 'moo'],
         }, {
             type_config: {
-                moo: FieldType.GeoPoint,
-                bar: FieldType.String,
-                baz: FieldType.String,
-                foo: FieldType.String,
+                moo: XluceneFieldType.GeoPoint,
+                bar: XluceneFieldType.String,
+                baz: XluceneFieldType.String,
+                foo: XluceneFieldType.String,
             }
         });
 
@@ -691,8 +692,8 @@ describe('QueryAccess', () => {
             includes: [],
         }, {
             type_config: {
-                foo: FieldType.String,
-                bar: FieldType.String,
+                foo: XluceneFieldType.String,
+                bar: XluceneFieldType.String,
             },
             variables: {
                 foo1: 'hello world',

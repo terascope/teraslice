@@ -1,8 +1,13 @@
-import { TSError, isString, isEmpty } from '@terascope/utils';
-import * as p from '../parser';
-import * as i from './interfaces';
-import { parseRange } from '../utils';
-import { parseWildCard, matchString } from '../document-matcher/logic-builder/string';
+import {
+    TSError,
+    isString,
+    isEmpty,
+    matchWildcard
+} from '@terascope/utils';
+import * as p from 'xlucene-parser';
+import * as i from '@terascope/types';
+import { UtilsTranslateQueryOptions } from './interfaces';
+// import { parseWildCard, matchString }
 
 type WildCardQueryResults = i.WildcardQuery | i.MultiMatchQuery
 
@@ -19,7 +24,7 @@ type RangeQueryResults =
 
 export function translateQuery(
     parser: p.Parser,
-    options: i.UtilsTranslateQueryOptions
+    options: UtilsTranslateQueryOptions
 ): i.ElasticsearchDSLResult {
     const { logger, type_config: typeConfig } = options;
     let sort: i.AnyQuerySort|i.AnyQuerySort[]|undefined;
@@ -64,9 +69,8 @@ export function translateQuery(
     function buildTermLevelQuery(node: p.TermLikeAST): i.AnyQuery | i.BoolQuery | undefined {
         if (p.isWildcardField(node)) {
             if (isEmpty(typeConfig)) throw new TSError(`Configuration for type_config needs to be provided with fields related to ${node.field}`);
-            const regex = parseWildCard(node.field as string);
             const should = Object.keys(typeConfig)
-                .filter((field) => matchString(field, regex))
+                .filter((field) => matchWildcard(node.field, field))
                 .map((field) => Object.assign({}, node, { field }))
                 .map((newNode) => buildTermLevelQuery(newNode)) as i.AnyQuery[];
 
@@ -200,7 +204,7 @@ export function translateQuery(
         const field = getTermField(node);
         const rangeQuery: i.RangeQuery = {
             range: {
-                [field]: parseRange(node, true),
+                [field]: p.parseRange(node, true),
             },
         };
 

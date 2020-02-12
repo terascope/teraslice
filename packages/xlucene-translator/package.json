@@ -28,27 +28,12 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/datalib": "^0.1.0",
         "@terascope/utils": "^0.22.0",
-        "@turf/bbox": "^6.0.1",
-        "@turf/bbox-polygon": "^6.0.1",
-        "@turf/boolean-contains": "^6.0.1",
-        "@turf/boolean-disjoint": "^6.0.2",
-        "@turf/boolean-equal": "^6.0.1",
-        "@turf/boolean-overlap": "^6.0.1",
-        "@turf/boolean-point-in-polygon": "^6.0.1",
-        "@turf/boolean-within": "^6.0.1",
-        "@turf/circle": "^6.0.1",
-        "@turf/helpers": "^6.1.4",
-        "@turf/line-to-polygon": "^6.0.1",
-        "@turf/random": "^6.0.2",
-        "date-fns": "^2.9.0",
-        "ip6addr": "^0.2.2",
-        "is-cidr": "^3.0.0",
         "latlon-geohash": "^1.1.0",
-        "lodash": "^4.17.11"
+        "xlucene-parser": "^0.17.0"
     },
     "devDependencies": {
+        "@terascope/types": "^0.1.0",
         "elasticsearch": "^15.4.1"
     },
     "engines": {
