@@ -54,7 +54,7 @@ describe('waitForTcpPortOpen', () => {
                 retryFrequency: 100,
                 retryTimeout: 2000,
             };
-            await expect(waitForTcpPortOpen(options)).resolves.toBe();
+            await expect(waitForTcpPortOpen(options)).toResolve();
         });
     });
 
