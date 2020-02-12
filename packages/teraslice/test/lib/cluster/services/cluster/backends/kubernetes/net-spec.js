@@ -58,7 +58,6 @@ describe('waitForTcpPortOpen', () => {
         });
     });
 
-    // eslint-disable-next-line jest/no-disabled-tests
     describe('with service not running', () => {
         beforeEach(async () => {
             await setServerPort();
