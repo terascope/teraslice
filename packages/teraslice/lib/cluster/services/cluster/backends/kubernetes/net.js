@@ -56,7 +56,7 @@ async function waitForTcpPortOpen(options) {
                     // exit after retryTimeout has been exceeded
                     logger.error(`Timeout expired: ${options.retryTimeout}`);
                     socket.destroy();
-                    reject(new Error('Timeout'));
+                    reject(new Error(`Timeout connecting to ${options.host}:${options.port}`));
                 } else {
                     // retry as long as retryTimeout has not been exceeded
                     logger.debug(`retry: ${diff} ms`);
