@@ -35,7 +35,7 @@ async function startServer() {
 }
 
 async function stopServer() {
-    await server.close();
+    return new Promise((resolve) => server.close(() => { resolve(); });
 }
 
 describe('waitForTcpPortOpen', () => {
