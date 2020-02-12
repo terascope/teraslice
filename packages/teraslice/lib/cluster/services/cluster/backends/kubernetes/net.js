@@ -30,7 +30,7 @@ async function waitForTcpPortOpen(options) {
 
         // Functions to handle socket events
         function connectEventHandler() {
-            logger.info('connected');
+            logger.info(`Connected to ${options.host}:${options.port}`);
             retrying = false;
             done = true;
             socket.destroy();
