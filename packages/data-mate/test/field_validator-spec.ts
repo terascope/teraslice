@@ -300,7 +300,7 @@ describe('field validators', () => {
         });
     });
 
-    describe('should inIpRange', () => {
+    describe('inIPRange', () => {
         it('return true for ip addresses in a given range using cidr notation', () => {
             expect(FieldValidator.inIPRange('8.8.8.8', { cidr: '8.8.8.0/24' })).toBe(true);
             expect(FieldValidator.inIPRange('2001:0db8:0123:4567:89ab:cdef:1234:5678', { cidr: '2001:0db8:0123:4567:89ab:cdef:1234:0/112' })).toBe(true);
@@ -348,28 +348,6 @@ describe('field validators', () => {
         });
     });
 
-    describe('validValue', () => {
-        it('should validate against null and undefined', () => {
-            expect(FieldValidator.isValid(undefined)).toBe(false);
-            expect(FieldValidator.isValid(null)).toBe(false);
-            expect(FieldValidator.isValid(false)).toBe(true);
-            expect(FieldValidator.isValid(324324)).toBe(true);
-            expect(FieldValidator.isValid('bob')).toBe(true);
-        });
-
-        it('should validate using options.invalidValues', () => {
-            const options = {
-                invalid: ['', 'n/a', 'NA', 12345]
-            };
-            expect(FieldValidator.isValid('bob', options)).toBe(true);
-            expect(FieldValidator.isValid(true, options)).toBe(true);
-            expect(FieldValidator.isValid('', options)).toBe(false);
-            expect(FieldValidator.isValid('n/a', options)).toBe(false);
-            expect(FieldValidator.isValid('NA', options)).toBe(false);
-            expect(FieldValidator.isValid(12345, options)).toBe(false);
-        });
-    });
-
     describe('isValidDate', () => {
         it('should return true for strings that can be parsed into a date', () => {
             expect(FieldValidator.isValidDate('2019-03-17T23:08:59.673Z')).toBe(true);
@@ -404,6 +382,7 @@ describe('field validators', () => {
             expect(FieldValidator.isValidDate('undefined')).toBe(false);
             expect(FieldValidator.isValidDate('baddate')).toBe(false);
             expect(FieldValidator.isValidDate(null)).toBe(false);
+            expect(FieldValidator.isValidDate('1581461626643')).toBe(false);
             expect(FieldValidator.isValidDate(43546577754.434)).toBe(false);
             expect(FieldValidator.isValidDate(undefined)).toBe(false);
             expect(FieldValidator.isValidDate(true)).toBe(false);
@@ -736,22 +715,22 @@ describe('field validators', () => {
         });
     });
 
-    describe('isISO31661Alpha2', () => {
+    describe('isCountryCode', () => {
         it('should return true for valid 2 letter country codes', () => {
-            expect(FieldValidator.isISO31661Alpha2('US')).toBe(true);
-            expect(FieldValidator.isISO31661Alpha2('IS')).toBe(true);
-            expect(FieldValidator.isISO31661Alpha2('RU')).toBe(true);
-            expect(FieldValidator.isISO31661Alpha2('ru')).toBe(true);
+            expect(FieldValidator.isCountryCode('US')).toBe(true);
+            expect(FieldValidator.isCountryCode('IS')).toBe(true);
+            expect(FieldValidator.isCountryCode('RU')).toBe(true);
+            expect(FieldValidator.isCountryCode('ru')).toBe(true);
         });
 
         it('should return false for invalid 2 letter country codes', () => {
-            expect(FieldValidator.isISO31661Alpha2('USA')).toBe(false);
-            expect(FieldValidator.isISO31661Alpha2('')).toBe(false);
-            expect(FieldValidator.isISO31661Alpha2('XX')).toBe(false);
-            expect(FieldValidator.isISO31661Alpha2(12)).toBe(false);
-            expect(FieldValidator.isISO31661Alpha2(true)).toBe(false);
-            expect(FieldValidator.isISO31661Alpha2([])).toBe(false);
-            expect(FieldValidator.isISO31661Alpha2({})).toBe(false);
+            expect(FieldValidator.isCountryCode('USA')).toBe(false);
+            expect(FieldValidator.isCountryCode('')).toBe(false);
+            expect(FieldValidator.isCountryCode('XX')).toBe(false);
+            expect(FieldValidator.isCountryCode(12)).toBe(false);
+            expect(FieldValidator.isCountryCode(true)).toBe(false);
+            expect(FieldValidator.isCountryCode([])).toBe(false);
+            expect(FieldValidator.isCountryCode({})).toBe(false);
         });
     });
 

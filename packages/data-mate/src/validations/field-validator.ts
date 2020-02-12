@@ -24,13 +24,6 @@ export const respoitory: i.Repository = {
     isBoolean: { fn: isBoolean, config: {} },
     isBooleanLike: { fn: isBooleanLike, config: {} },
     isEmail: { fn: isEmail, config: {} },
-    validValue: {
-        fn: isValid,
-        config: {
-            // TODO: doing this to get type JSON, need to allow 'any' type
-            invalid: { type: 'Object', array: true }
-        }
-    },
     isGeoJSON: { fn: isGeoJSON, config: {} },
     isGeoPoint: { fn: isGeoPoint, config: {} },
     isGeoShapePoint: { fn: isGeoShapePoint, config: {} },
@@ -101,8 +94,7 @@ export const respoitory: i.Repository = {
             algo: { type: 'String' }
         }
     },
-    isISBN: { fn: isISBN, config: {} },
-    isISO31661Alpha2: { fn: isISO31661Alpha2, config: {} },
+    isCountryCode: { fn: isCountryCode, config: {} },
     isISO8601: { fn: isISO8601, config: {} },
     isISSN: {
         fn: isISSN,
@@ -137,7 +129,8 @@ export const respoitory: i.Repository = {
             max: { type: 'String' },
             cidr: { type: 'String' }
         }
-    }
+    },
+    isIPCidr: { fn: isIPCidr, config: {} }
 };
 
 export function isBoolean(input: any): boolean {
@@ -348,12 +341,7 @@ export function isHash(input: any, { algo }: HashConfig): boolean {
     return isString(input) && validator.isHash(input, algo);
 }
 
-// is this needed?  International Standard Book Number?
-export function isISBN(input: any): boolean {
-    return isString(input) && validator.isISBN(input);
-}
-
-export function isISO31661Alpha2(input: any): boolean {
+export function isCountryCode(input: any): boolean {
     return isString(input) && validator.isISO31661Alpha2(input);
 }
 
@@ -378,7 +366,6 @@ export function isJSON(input: any): boolean {
     return isString(input) && validator.isJSON(input);
 }
 
-// if no min/max/size should it return true?
 export function isLength(input: any, { size, min, max }: LengthConfig) {
     if (isString(input)) {
         if (size) return input.length === size;
@@ -393,14 +380,6 @@ export function isMimeType(input: any): boolean {
 
 export function isPostalCode(input: any, { locale }: { locale: 'any' | PostalCodeLocale }): boolean {
     return isString(input) && validator.isPostalCode(input, locale);
-}
-
-export function isValid(input: any, args?: { invalid: any[] }): boolean {
-    if (args && args.invalid) {
-        return input != null && !args.invalid.includes(input);
-    }
-
-    return input != null;
 }
 
 export function isValidDate(input: any): boolean {
