@@ -31,7 +31,7 @@ async function setServerPort() {
 
 async function startServer() {
     server = await net.createServer();
-    await server.listen(serverPort, () => { });
+    return new Promise((resolve) => server.listen(serverPort, () => { resolve(); });
 }
 
 async function stopServer() {
