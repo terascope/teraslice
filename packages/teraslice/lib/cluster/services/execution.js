@@ -304,6 +304,51 @@ module.exports = function executionService(context, { clusterMasterServer }) {
         return { job_id: ex.job_id, ex_id: ex.ex_id };
     }
 
+    async function _waitForExecutionAllocation(execution) {
+        // This blocks until the execution controller responds to ensure
+        // the execution controller is up when the workers are started.
+        try {
+            await waitForTcpPortOpen({
+                host: execution.slicer_hostname,
+                port: execution.slicer_port,
+                logger,
+                // FIXME: Should we create a new timeout setting for this?
+                // This is how long the master will retry connecting to
+                // the execution controller before it errors out.
+                retryTimeout: 60000
+            });
+        } catch (err) {
+            // FIXME: We should error out the job here too, right?
+            throw new TSError(err, {
+                reason: `Execution controller for ${execution.ex_id} did not start within timeout`
+            });
+        }
+        try {
+            await clusterService.allocateWorkers(execution, execution.workers);
+        } catch (err) {
+            throw new TSError(err, {
+                reason: `Failure to allocateWorkers ${execution.ex_id}`
+            });
+        }
+    }
+
+    async function _handleAllocationFailure(err, execution) {
+        const error = new TSError(err, {
+            reason: `Failured to provision execution ${execution.ex_id}`
+        });
+        try {
+            await exStore.setStatus(
+                execution.ex_id,
+                'failed',
+                exStore.executionMetaData(null, getFullErrorStack(error))
+            );
+        } catch (failedErr) {
+            logger.error(new TSError(err, {
+                reason: 'Failure to set execution status to failed after provision failed'
+            }));
+        }
+    }
+
     function _executionAllocator() {
         let allocatingExecution = false;
         const { readyForAllocation } = clusterService;
@@ -312,64 +357,22 @@ module.exports = function executionService(context, { clusterMasterServer }) {
                 && pendingExecutionQueue.size() > 0
                 && readyForAllocation();
             if (!canAllocate) return;
-
             allocatingExecution = true;
             let execution = pendingExecutionQueue.dequeue();
-
             logger.info(`Scheduling execution: ${execution.ex_id}`);
-
             try {
                 execution = await exStore.setStatus(execution.ex_id, 'scheduling');
-
                 execution = await clusterService.allocateSlicer(execution);
-
                 execution = await exStore.setStatus(execution.ex_id, 'initializing', {
                     slicer_port: execution.slicer_port,
                     slicer_hostname: execution.slicer_hostname
                 });
 
-                // This blocks until the execution controller responds to ensure
-                // the execution controller is up when the workers are started.
-                try {
-                    await waitForTcpPortOpen({
-                        host: execution.slicer_hostname,
-                        port: execution.slicer_port,
-                        logger,
-                        // FIXME: Should we create a new timeout setting for this?
-                        // This is how long the master will retry connecting to
-                        // the execution controller before it errors out.
-                        retryTimeout: 60000
-                    });
-                } catch (err) {
-                    // FIXME: We should error out the job here too, right?
-                    throw new TSError(err, {
-                        reason: `Execution controller for ${execution.ex_id} did not start within timeout`
-                    });
-                }
-
-                try {
-                    await clusterService.allocateWorkers(execution, execution.workers);
-                } catch (err) {
-                    throw new TSError(err, {
-                        reason: `Failure to allocateWorkers ${execution.ex_id}`
-                    });
-                }
+                // run this in the background
+                _waitForExecutionAllocation(execution)
+                    .catch((err) => _handleAllocationFailure(err, execution));
             } catch (err) {
-                const error = new TSError(err, {
-                    reason: `Failured to provision execution ${execution.ex_id}`
-                });
-
-                try {
-                    await exStore.setStatus(
-                        execution.ex_id,
-                        'failed',
-                        exStore.executionMetaData(null, getFullErrorStack(error))
-                    );
-                } catch (failedErr) {
-                    logger.error(new TSError(err, {
-                        reason: 'Failure to set execution status to failed after provision failed'
-                    }));
-                }
+                await _handleAllocationFailure(err);
             } finally {
                 allocatingExecution = false;
                 allocator();

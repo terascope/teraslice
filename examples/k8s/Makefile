@@ -99,7 +99,7 @@ setup: configs k8s-master ## setup teraslice
 
 # We don't bother calling stop here because everything just gets deleted anyway
 destroy: deregister ## delete k8s deployments and services
-	kubectl delete --namespace $(NAMESPACE) deployments,jobs,services,pods -l app=teraslice --grace-period=1
+	kubectl delete --namespace $(NAMESPACE) deployments,jobs,services,pods -l app=teraslice --grace-period=1 || echo "* it is okay..."
 	kubectl delete --namespace $(NAMESPACE) configmap teraslice-master || echo "* it is okay..."
 	kubectl delete --namespace $(NAMESPACE) configmap teraslice-worker || echo "* it is okay..."
 	curl -fsS -XDELETE "$(ES_URL)/ts-dev1*" || echo '* it is okay'
