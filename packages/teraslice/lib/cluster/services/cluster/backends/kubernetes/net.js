@@ -42,24 +42,24 @@ async function waitForTcpPortOpen(options) {
 
         function closeEventHandler() {
             const diff = Date.now() - now;
-            logger.debug('close');
+            logger.trace('waitForTcpPortOpen closeEventHandler called');
 
             // We're done anytime we've connected, we should just exit at this point.
             if (!done) {
                 if (!retrying) {
                     now = Date.now();
                     retrying = true;
-                    logger.info('Reconnecting...');
+                    logger.info(`Reconnecting to execution controller ${options.host}:${options.port}`);
                 }
 
                 if (diff > options.retryTimeout) {
                     // exit after retryTimeout has been exceeded
                     logger.error(`Timeout expired: ${options.retryTimeout}`);
                     socket.destroy();
-                    reject(new Error(`Timeout connecting to ${options.host}:${options.port}`));
+                    reject(new Error(`Timeout connecting to execution controller ${options.host}:${options.port}`));
                 } else {
                     // retry as long as retryTimeout has not been exceeded
-                    logger.debug(`retry: ${diff} ms`);
+                    logger.trace(`retry: ${diff} ms`);
                     setTimeout(makeConnection, options.retryFrequency);
                 }
             } else {
