@@ -20,7 +20,7 @@ import {
 
 import * as i from '../interfaces';
 
-export const respoitory: i.Repository = {
+export const respository: i.Repository = {
     isBoolean: { fn: isBoolean, config: {} },
     isBooleanLike: { fn: isBooleanLike, config: {} },
     isEmail: { fn: isEmail, config: {} },
@@ -184,13 +184,14 @@ export function isRoutableIP(input: any): boolean {
     if (!isIP(input)) return false;
 
     const range = ipaddr.parse(input).range();
-    const nonRoutable = range === 'private' || range === 'uniqueLocal';
-
-    return !nonRoutable;
+    return range !== 'private' && range !== 'uniqueLocal';
 }
 
 export function isNonRoutableIP(input: any): boolean {
-    return !isRoutableIP(input);
+    if (!isIP(input)) return false;
+
+    const range = ipaddr.parse(input).range();
+    return range === 'private' || range === 'uniqueLocal';
 }
 
 export function isIPCidr(input: any) {

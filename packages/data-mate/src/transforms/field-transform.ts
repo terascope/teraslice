@@ -15,7 +15,7 @@ import {
 } from '../validations/field-validator';
 import { Repository } from '../interfaces';
 
-export const respoitory: Repository = {
+export const respository: Repository = {
     toBoolean: { fn: toBoolean, config: {} },
     toUpperCase: { fn: toUpperCase, config: {} },
     toLowerCase: { fn: toLowerCase, config: {} },
