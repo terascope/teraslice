@@ -97,7 +97,7 @@ export type GetTypeArg = {
     version?: AvailableVersion;
 };
 
-function getType({
+export function getType({
     field, config, version = LATEST_VERSION
 }: GetTypeArg): BaseType {
     const TypeClass = ts.get(mapping, [version, config.type]) as IBaseType;

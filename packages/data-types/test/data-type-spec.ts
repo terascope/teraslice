@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { TSError } from '@terascope/utils';
 import {
-    DataType, DataTypeConfig, LATEST_VERSION
+    DataType, DataTypeConfig, LATEST_VERSION, getType, TypeConfigFields, GroupedFields
 } from '../src';
 
 describe('DataType', () => {
