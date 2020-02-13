@@ -46,7 +46,7 @@
         "ms": "^2.1.2",
         "package-json": "^6.5.0",
         "pkg-up": "^3.1.0",
-        "semver": "^7.1.1",
+        "semver": "^7.1.2",
         "signale": "^1.4.0",
         "sort-package-json": "^1.35.0",
         "typedoc": "~0.15.6",
