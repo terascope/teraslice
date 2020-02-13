@@ -16,10 +16,16 @@ import {
 import { Repository } from '../interfaces';
 
 export const respoitory: Repository = {
+    toString: { fn: toString, config: {} },
     toBoolean: { fn: toBoolean, config: {} },
     toUpperCase: { fn: toUpperCase, config: {} },
     toLowerCase: { fn: toLowerCase, config: {} },
-    trim: { fn: trim, config: {} },
+    trim: {
+        fn: trim,
+        config: {
+            char: { type: 'String' }
+        }
+    },
     truncate: {
         fn: truncate,
         config: {
@@ -41,7 +47,7 @@ export const respoitory: Repository = {
     encodeHex: { fn: encodeHex, config: {} },
     encodeMD5: { fn: encodeMD5, config: {} },
     encodeSHA: {
-        fn: encodeHex,
+        fn: encodeSHA,
         config: {
             hash: { type: 'String' },
             digest: { type: 'String' }
@@ -83,7 +89,6 @@ export const respoitory: Repository = {
         }
     },
     toUnixTime: { fn: toUnixTime, config: {} },
-    // TODO: FIXME:
     toISO8601: {
         fn: toISO8601,
         config: {
@@ -93,13 +98,41 @@ export const respoitory: Repository = {
             }
         }
     },
-    // TODO:
-    formatDate: { fn: formatDate, config: {} },
-    // TODO:
-    parseDate: { fn: parseDate, config: {} },
-    trimStart: { fn: trimStart, config: { char: { type: 'String' } } },
-    trimEnd: { fn: trimEnd, config: { char: { type: 'String' } } },
+    formatDate: {
+        fn: formatDate,
+        config: {
+            format: { type: 'String' },
+            resolution: { type: 'String', description: 'may be set to seconds | milliseconds' },
+        }
+    },
+    parseDate: {
+        fn: parseDate,
+        config: {
+            format: { type: 'String' },
+        }
+    },
+    trimStart: {
+        fn: trimStart,
+        config: {
+            char: { type: 'String' }
+        }
+    },
+    trimEnd: {
+        fn: trimEnd,
+        config: {
+            char: { type: 'String' }
+        }
+    },
+    toCamelCase: { fn: toCamelCase, config: {} },
+    toKebabCase: { fn: toKebabCase, config: {} },
+    toPascalCase: { fn: toPascalCase, config: {} },
+    toSnakeCase: { fn: toSnakeCase, config: {} },
+    toTitleCase: { fn: toTitleCase, config: {} },
 };
+
+export function toString(input: any) {
+    return ts.toString(input);
+}
 
 export function toBoolean(input: any) {
     return ts.toBoolean(input);
@@ -154,9 +187,8 @@ export function trimEnd(input: string, args?: { char: string }): string {
 
 export function truncate(input: string, args: { size: number }) {
     if (!isString(input)) throw new Error('Input must be a string');
-
     const { size } = args;
-    // should we be throwing
+
     if (!size || !ts.isNumber(size) || size <= 0) throw new Error('Invalid size paramter for truncate');
     return input.slice(0, size);
 }
@@ -393,7 +425,9 @@ export function toISO8601(input: any, args?: { resolution?: 'seconds' | 'millise
     return new Date(value).toISOString();
 }
 
-export function formatDate(input: any, format: string, args?: { resolution?: 'seconds' | 'milliseconds' }): string {
+export function formatDate(input: any, args: { format: string; resolution?: 'seconds' | 'milliseconds' }): string {
+    const { format, resolution } = args;
+    if (!isString(format)) throw new Error('Invalid parameter format, must be a string');
     // convert string to date
     // validate input as datelike
     if (!isValidDate(input)) {
@@ -403,12 +437,15 @@ export function formatDate(input: any, format: string, args?: { resolution?: 'se
     let value = input;
 
     if (isString(value)) value = new Date(value);
-    if (isNumber(value) && args && args.resolution === 'seconds') value *= 1000;
+    if (isNumber(value) && resolution === 'seconds') value *= 1000;
 
     return dateFormat(value, format);
 }
 
-export function parseDate(input: any, format: string) {
+export function parseDate(input: any, args: { format: string }) {
+    const { format } = args;
+    if (!isString(format)) throw new Error('Invalid parameter format, must be a string');
+
     const parsed = parse(input, format, new Date());
 
     if (String(parsed) === 'Invalid Date') {
@@ -435,5 +472,5 @@ export function toSnakeCase(input: string): string {
 }
 
 export function toTitleCase(input: string): string {
-    return ts.firstToUpper(ts.getWordParts(input).map((str) => ts.firstToUpper(str)).join(' '));
+    return ts.toTitleCase(input);
 }

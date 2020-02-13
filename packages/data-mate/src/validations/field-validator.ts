@@ -7,7 +7,7 @@ import isCidr from 'is-cidr';
 import PhoneValidator from 'awesome-phonenumber';
 import validator from 'validator';
 import * as url from 'valid-url';
-import { JoinGeoShape } from '@terascope/types';
+import { JoinGeoShape, MACAddress } from '@terascope/types';
 
 import {
     FQDNOptions,
@@ -15,7 +15,6 @@ import {
     LengthConfig,
     PostalCodeLocale,
     ArgsISSNOptions,
-    MACAddress
 } from './interfaces';
 
 import * as i from '../interfaces';
@@ -142,12 +141,7 @@ export function isBooleanLike(input: any): boolean {
 }
 
 export function isEmail(input: any): boolean {
-    // Email Validation as per RFC2822 standards. Straight from .net helpfiles
-    // eslint-disable-next-line
-    const regex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
-    if (ts.isString(input) && input.toLowerCase().match(regex)) return true;
-
-    return false;
+    return ts.isEmail(input);
 }
 
 export function isGeoPoint(input: any) {
@@ -233,39 +227,12 @@ export function isISDN(input: any): boolean {
 }
 
 export function isMacAddress(input: any, args?: MACAddress): boolean {
-    if (!isString(input)) return false;
-
-    const delimiters = {
-        colon: /^([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])$/,
-        space: /^([0-9a-fA-F][0-9a-fA-F]\s){5}([0-9a-fA-F][0-9a-fA-F])$/,
-        dash: /^([0-9a-fA-F][0-9a-fA-F]-){5}([0-9a-fA-F][0-9a-fA-F])$/,
-        dot: /^([0-9a-fA-F]{4}\.){2}([0-9a-fA-F]{4})$/,
-        none: /^([0-9a-fA-F]){12}$/
-    };
-
-    const delimiter = args && args.delimiter ? args.delimiter : 'any';
-
-    if (delimiter === 'any') {
-        return Object.keys(delimiters).some((d) => delimiters[d].test(input));
-    }
-
-    if (Array.isArray(delimiter)) {
-        return delimiter.some((d) => delimiters[d].test(input));
-    }
-
-    return delimiters[delimiter].test(input);
+    return ts.isMacAddress(input, args);
 }
 
 export function inNumberRange(input: number,
     args: { min?: number; max?: number; inclusive?: boolean }): boolean {
-    const min = args.min ? args.min : -Infinity;
-    const max = args.max ? args.max : Infinity;
-
-    if (args.inclusive) {
-        return (input >= min && input <= max);
-    }
-
-    return (input > min && input < max);
+    return ts.inNumberRange(input, args);
 }
 
 export function isNumber(input: any): input is number {

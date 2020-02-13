@@ -230,39 +230,41 @@ describe('field transforms', () => {
 
     describe('formatDate', () => {
         it('should return the formated date from a date object', () => {
-            expect(transform.formatDate(new Date(2020, 2, 18), 'MM-dd-yyyy')).toBe('03-18-2020');
-            expect(transform.formatDate(new Date('Jan 3 2001'), 'MM-dd-yyyy')).toBe('01-03-2001');
+            const config = { format: 'MM-dd-yyyy' };
+
+            expect(transform.formatDate(new Date(2020, 2, 18), config)).toBe('03-18-2020');
+            expect(transform.formatDate(new Date('Jan 3 2001'), config)).toBe('01-03-2001');
         });
 
         it('should return the formated date from a valid string date', () => {
-            expect(transform.formatDate('2020-01-14T20:34:01.034Z', 'MMM do yy')).toBe('Jan 14th 20');
-            expect(transform.formatDate('March 3, 2019', 'M/d/yyyy')).toBe('3/3/2019');
+            expect(transform.formatDate('2020-01-14T20:34:01.034Z', { format: 'MMM do yy' })).toBe('Jan 14th 20');
+            expect(transform.formatDate('March 3, 2019', { format: 'M/d/yyyy' })).toBe('3/3/2019');
         });
 
         it('should return formated date from millitime time', () => {
-            expect(transform.formatDate(1581013130856, 'yyyy-MM-dd')).toBe('2020-02-06');
-            expect(transform.formatDate(1581013130, 'yyyy-MM-dd', { resolution: 'seconds' })).toBe('2020-02-06');
+            expect(transform.formatDate(1581013130856, { format: 'yyyy-MM-dd' })).toBe('2020-02-06');
+            expect(transform.formatDate(1581013130, { format: 'yyyy-MM-dd', resolution: 'seconds' })).toBe('2020-02-06');
         });
 
         it('should throw error if date cannot be formated', () => {
             try {
-                expect(transform.formatDate('bad date', 'yyyy-MM-dd')).toBe('2020-02-06');
+                expect(transform.formatDate('bad date', { format: 'yyyy-MM-dd' })).toBe('2020-02-06');
             } catch (e) { expect(e.message).toBe('Not a valid date'); }
         });
     });
 
     describe('parseDate', () => {
         it('should return date object from date string', () => {
-            expect(transform.parseDate('2020-01-10-00:00', 'yyyy-MM-ddxxx')).toStrictEqual(new Date('2020-01-10T00:00:00.000Z'));
-            expect(transform.parseDate('Jan 10, 2020-00:00', 'MMM dd, yyyyxxx')).toStrictEqual(new Date('2020-01-10T00:00:00.000Z'));
-            expect(transform.parseDate(1581025950223, 'T')).toStrictEqual(new Date('2020-02-06T21:52:30.223Z'));
-            expect(transform.parseDate(1581025950, 't')).toStrictEqual(new Date('2020-02-06T21:52:30.000Z'));
-            expect(transform.parseDate('1581025950', 't')).toStrictEqual(new Date('2020-02-06T21:52:30.000Z'));
+            expect(transform.parseDate('2020-01-10-00:00', { format: 'yyyy-MM-ddxxx' })).toStrictEqual(new Date('2020-01-10T00:00:00.000Z'));
+            expect(transform.parseDate('Jan 10, 2020-00:00', { format: 'MMM dd, yyyyxxx' })).toStrictEqual(new Date('2020-01-10T00:00:00.000Z'));
+            expect(transform.parseDate(1581025950223, { format: 'T' })).toStrictEqual(new Date('2020-02-06T21:52:30.223Z'));
+            expect(transform.parseDate(1581025950, { format: 't' })).toStrictEqual(new Date('2020-02-06T21:52:30.000Z'));
+            expect(transform.parseDate('1581025950', { format: 't' })).toStrictEqual(new Date('2020-02-06T21:52:30.000Z'));
         });
 
         it('should throw error if cannot parse', () => {
             try {
-                expect(transform.parseDate('2020-01-10', 't')).toStrictEqual(new Date('2020-01-10T00:00:00.000Z'));
+                expect(transform.parseDate('2020-01-10', { format: 't' })).toStrictEqual(new Date('2020-01-10T00:00:00.000Z'));
             } catch (e) { expect(e.message).toBe('Cannot parse date'); }
         });
     });
