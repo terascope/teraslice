@@ -31,11 +31,15 @@ async function setServerPort() {
 
 async function startServer() {
     server = await net.createServer();
-    return new Promise((resolve) => server.listen(serverPort, () => { resolve(); });
+    return new Promise((resolve) => server.listen(
+        serverPort, () => { resolve(); }
+    ));
 }
 
 async function stopServer() {
-    return new Promise((resolve) => server.close(() => { resolve(); });
+    return new Promise((resolve) => server.close(
+        () => { resolve(); }
+    ));
 }
 
 describe('waitForTcpPortOpen', () => {
