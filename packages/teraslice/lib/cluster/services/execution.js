@@ -312,13 +312,9 @@ module.exports = function executionService(context, { clusterMasterServer }) {
                 host: execution.slicer_hostname,
                 port: execution.slicer_port,
                 logger,
-                // FIXME: Should we create a new timeout setting for this?
-                // This is how long the master will retry connecting to
-                // the execution controller before it errors out.
-                retryTimeout: 60000
+                retryTimeout: context.sysconfig.teraslice.slicer_timeout
             });
         } catch (err) {
-            // FIXME: We should error out the job here too, right?
             throw new TSError(err, {
                 reason: `Execution controller for ${execution.ex_id} did not start within timeout`
             });
