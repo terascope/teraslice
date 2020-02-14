@@ -39,10 +39,10 @@
         "awesome-phonenumber": "^2.26.0",
         "date-fns": "^2.9.0",
         "ip6addr": "^0.2.3",
-        "is-cidr": "^3.1.0",
         "ipaddr.js": "^1.9.1",
-        "lodash": "^4.17.11",
+        "is-cidr": "^3.1.0",
         "jexl": "^2.2.2",
+        "lodash": "^4.17.11",
         "valid-url": "^1.0.9",
         "validator": "^12.2.0",
         "xlucene-parser": "^0.17.0"
