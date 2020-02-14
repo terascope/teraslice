@@ -67,9 +67,9 @@
         {
             "path": "packages/teraslice-client-js"
         },
-        // {
-        //     "path": "packages/elasticsearch-store"
-        // },
+        {
+            "path": "packages/elasticsearch-store"
+        },
         {
             "path": "packages/teraslice-test-harness"
         },
