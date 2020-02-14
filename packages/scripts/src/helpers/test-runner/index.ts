@@ -245,12 +245,14 @@ async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
 
     try {
         const devImage = await pullDevDockerImage();
-        try {
-            signale.debug(`pushing ${devImage}...`);
-            await dockerPush(devImage);
-            signale.debug(`pushed ${devImage} image`);
-        } catch (err) {
-            signale.warn(err, `failure to push ${devImage}`);
+        if (isCI) {
+            try {
+                signale.debug(`pushing ${devImage}...`);
+                await dockerPush(devImage);
+                signale.debug(`pushed ${devImage} image`);
+            } catch (err) {
+                signale.warn(err, `failure to push ${devImage}`);
+            }
         }
         await dockerTag(devImage, e2eImage);
     } catch (err) {
