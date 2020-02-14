@@ -306,6 +306,7 @@ function matchFieldObject(typeField: string, field: string) {
     let s = '';
     for (const part of typeField.split('.')) {
         s += part;
+
         if (ts.matchWildcard(field, s)) {
             return true;
         }
@@ -319,6 +320,7 @@ function matchField(typeField: string, field: string) {
     let s = '';
     for (const part of field.split('.')) {
         s += part;
+
         if (ts.matchWildcard(s, typeField)) {
             return true;
         }

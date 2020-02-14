@@ -336,7 +336,7 @@ export function wildCardToRegex(term: string): RegExp {
 }
 
 export function matchWildcard(wildCard: string, value: string) {
-    if (isWildCardString(wildCard)) {
+    if (isString(wildCard) && isString(value)) {
         const regex = wildCardToRegex(wildCard);
         return value.match(regex) != null;
     }

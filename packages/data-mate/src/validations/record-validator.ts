@@ -48,7 +48,7 @@ export const respoitory: Repository = {
     },
 };
 
-export function required(obj: AnyObject, fields: string[]) {
+export function required(obj: AnyObject, { fields }: { fields: string[] }) {
     const keys = Object.keys(obj);
     return fields.every((rField) => keys.includes(rField));
 }

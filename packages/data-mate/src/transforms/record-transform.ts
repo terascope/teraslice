@@ -76,6 +76,6 @@ export function copyField(record: any, args: { field: string; copyTo: string }) 
     const { field, copyTo } = args;
     if (!isString(field) || !isString(copyTo)) throw new Error('Invalid parameters, field/copyTo must be supplied be be a string');
 
-    record[args.copyTo] = record.name;
+    record[copyTo] = record[field];
     return record;
 }

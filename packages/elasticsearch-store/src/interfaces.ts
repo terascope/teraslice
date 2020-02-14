@@ -1,5 +1,5 @@
 import { Logger, Omit } from '@terascope/utils';
-import { XluceneVariables} from '@terascope/types';
+import { XluceneVariables } from '@terascope/types';
 import { QueryAccess } from 'xlucene-translator';
 import { ESIndexSettings, DataType } from '@terascope/data-types';
 

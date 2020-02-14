@@ -29,7 +29,6 @@
     },
     "dependencies": {
         "@terascope/utils": "^0.22.0",
-        "latlon-geohash": "^1.1.0",
         "xlucene-parser": "^0.17.0"
     },
     "devDependencies": {

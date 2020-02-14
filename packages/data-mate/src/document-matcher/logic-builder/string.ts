@@ -8,7 +8,7 @@ import { BooleanCB } from '../interfaces';
 
 export function regexp(regexStr: string) {
     return function regexpTerm(str: string) {
-        return match(regexStr, str) != null;
+        return match(`^${regexStr}$`, str) != null;
     };
 }
 

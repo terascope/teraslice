@@ -13,7 +13,10 @@ describe('QueryAccess', () => {
 
     describe('when constructed without exclude', () => {
         it('should set an empty array', () => {
-            const queryAccess = new QueryAccess({}, { type_config: { foo: XluceneFieldType.String } });
+            const queryAccess = new QueryAccess(
+                {},
+                { type_config: { foo: XluceneFieldType.String } }
+            );
 
             expect(queryAccess.excludes).toBeArrayOfSize(0);
         });
