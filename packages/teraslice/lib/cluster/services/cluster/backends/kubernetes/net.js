@@ -18,6 +18,8 @@ async function waitForTcpPortOpen(options) {
     let retrying = false;
     let now = Date.now();
     let done = false;
+    const retryFrequency = options.retryFrequency || 1000; // 1s
+    const retryTimeout = options.retryTimeout || 60000; // 60s
     const { logger } = options;
 
     return new Promise((resolve, reject) => {
@@ -30,7 +32,7 @@ async function waitForTcpPortOpen(options) {
 
         // Functions to handle socket events
         function connectEventHandler() {
-            logger.info(`Connected to ${options.host}:${options.port}`);
+            logger.info(`waitForTcpPortOpen Connected to ${options.host}:${options.port}`);
             retrying = false;
             done = true;
             socket.destroy();
@@ -49,21 +51,21 @@ async function waitForTcpPortOpen(options) {
                 if (!retrying) {
                     now = Date.now();
                     retrying = true;
-                    logger.info(`Reconnecting to execution controller ${options.host}:${options.port}`);
+                    logger.info(`waitForTcpPortOpen Reconnecting to execution controller ${options.host}:${options.port}`);
                 }
 
-                if (diff > options.retryTimeout) {
+                if (diff > retryTimeout) {
                     // exit after retryTimeout has been exceeded
-                    logger.error(`Timeout expired: ${options.retryTimeout}`);
+                    logger.error(`waitForTcpPortOpen Timeout expired: ${retryTimeout}`);
                     socket.destroy();
                     reject(new Error(`Timeout connecting to execution controller ${options.host}:${options.port}`));
                 } else {
                     // retry as long as retryTimeout has not been exceeded
-                    logger.debug(`retry: ${diff} ms`);
-                    setTimeout(makeConnection, options.retryFrequency);
+                    logger.debug(`waitForTcpPortOpen retryTimeout: ${retryTimeout} not expired: ${diff} ms`);
+                    setTimeout(makeConnection, retryFrequency);
                 }
             } else {
-                logger.info('Execution Controller responding, closing test socket.');
+                logger.info('waitForTcpPortOpen Execution Controller responding, closing test socket.');
                 resolve();
             }
         }
