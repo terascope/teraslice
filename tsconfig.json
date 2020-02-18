@@ -41,6 +41,9 @@
             "path": "packages/docker-compose-js"
         },
         {
+            "path": "packages/data-types"
+        },
+        {
             "path": "packages/terafoundation"
         },
         {
@@ -57,9 +60,6 @@
         },
         {
             "path": "packages/xlucene-translator"
-        },
-        {
-            "path": "packages/data-types"
         },
         {
             "path": "packages/ts-transforms"
