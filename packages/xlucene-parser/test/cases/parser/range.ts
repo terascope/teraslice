@@ -237,4 +237,22 @@ export default [
             value: 10,
         }
     }],
+    [
+        'date:[2020-02-10T10:06:06.0 TO 2020-02-10T10:06:07.199999999999999]',
+        'left unbounded range', {
+            type: ASTType.Range,
+            field: 'date',
+            left: {
+                field_type: XluceneFieldType.String,
+                value: '2020-02-10T10:06:06.0',
+                operator: 'gte'
+            },
+            right: {
+                operator: 'lte',
+                field_type: XluceneFieldType.String,
+                value: '2020-02-10T10:06:07.199999999999999'
+            }
+        },
+        { date: XluceneFieldType.Date }
+    ],
 ] as TestCase[];
