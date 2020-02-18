@@ -1,9 +1,10 @@
+import { TerasliceClient, ExecutionStatus } from 'teraslice-client-js';
 import Reply from '../cmds/lib/reply';
 
 const reply = new Reply();
 
 export default class TjmUtil {
-    client: any;
+    client: TerasliceClient;
     job: any;
 
     constructor(client: any, job: any) {
@@ -30,6 +31,24 @@ export default class TjmUtil {
         }
     }
 
+    async pause() {
+        try {
+            const response = await this.client.jobs.wrap(this.job.id).pause();
+            reply.green(`> job: ${this.job.name}, id: ${this.job.id} has been ${response.status}`);
+        } catch (e) {
+            reply.fatal(e.message);
+        }
+    }
+
+    async resume() {
+        try {
+            const response = await this.client.jobs.wrap(this.job.id).resume();
+            reply.green(`> job: ${this.job.name}, id: ${this.job.id} has been ${response.status}`);
+        } catch (e) {
+            reply.fatal(e.message);
+        }
+    }
+
     async stop() {
         const terminalStatuses = [
             'stopped',
@@ -45,7 +64,7 @@ export default class TjmUtil {
 
             if (status === 'stopping') {
                 reply.green(`job: ${this.job.name} is stopping, wait for job to stop`);
-                await this.client.jobs.wrap(this.job.id).waitForStatus('stopped');
+                await this.client.jobs.wrap(this.job.id).waitForStatus(ExecutionStatus.stopped);
                 reply.green(`Stopped job ${this.job.name} on ${this.job.clusterUrl}`);
                 return;
             }
@@ -55,7 +74,7 @@ export default class TjmUtil {
             } else {
                 reply.green(`attempting to stop job: ${this.job.name}, job id: ${this.job.id}, on cluster ${this.job.clusterUrl}`);
                 const response = await this.client.jobs.wrap(this.job.id).stop();
-                const jobStatus = response.status.status || response.status;
+                const jobStatus = response.status;
 
                 if (jobStatus !== 'stopped') {
                     reply.fatal(`Could not stop ${this.job.name} on ${this.job.clusterUrl}`);
