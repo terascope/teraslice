@@ -15,8 +15,7 @@ const {
     cloneDeep,
 } = require('@terascope/utils');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
-// FIXME: Where should this module go?
-const { waitForTcpPortOpen } = require('./cluster/backends/kubernetes/net');
+const { waitForTcpPortOpen } = require('../../utils/port_utils');
 
 /**
  * New execution result

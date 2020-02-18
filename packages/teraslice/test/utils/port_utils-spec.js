@@ -5,7 +5,7 @@ const Porty = require('porty');
 
 const {
     waitForTcpPortOpen
-} = require('../../../../../../../lib/cluster/services/cluster/backends/kubernetes/net');
+} = require('../../lib/utils/port_utils');
 
 // Run tests with DEBUG=True to see output
 function l(msg) {
