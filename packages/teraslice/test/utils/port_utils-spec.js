@@ -8,14 +8,6 @@ const {
     waitForTcpPortOpen
 } = require('../../lib/utils/port_utils');
 
-// Run tests with DEBUG=True to see output
-function l(msg) {
-    if (process.env.DEBUG) {
-        // eslint-disable-next-line no-console
-        console.log(msg);
-    }
-}
-
 const logger = debugLogger('port_utils');
 
 let server;
