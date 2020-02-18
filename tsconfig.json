@@ -50,10 +50,10 @@
             "path": "packages/teraslice-messaging"
         },
         {
-            "path": "packages/data-mate"
+            "path": "packages/xlucene-parser"
         },
         {
-            "path": "packages/xlucene-parser"
+            "path": "packages/data-mate"
         },
         {
             "path": "packages/xlucene-translator"
