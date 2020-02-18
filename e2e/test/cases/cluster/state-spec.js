@@ -140,7 +140,7 @@ describe('cluster state', () => {
         jobSpec.operations[1].index = specIndex;
 
         const ex = await submitAndStart(jobSpec, 5000);
-        await pDelay(1000);
+
         const exId = ex.id();
 
         const state = await teraslice.cluster.state();

@@ -39,7 +39,7 @@ async function waitForTcpPortOpen(options) {
         }
 
         function errorEventHandler(msg) {
-            logger.debug(`error: ${msg}`);
+            logger.debug(`waitForTcpPortOpen error: ${msg}`);
         }
 
         function closeEventHandler() {

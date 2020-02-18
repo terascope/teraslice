@@ -64,6 +64,11 @@ async function submitAndStart(jobSpec, delay) {
 
     const ex = await executions.submit(jobSpec);
     await wait.waitForExStatus(ex, 'running');
+    try {
+        await wait.forLength(ex.workers, jobSpec.workers || 1, 10);
+    } catch (error) {
+        signale.warn(error);
+    }
     return ex;
 }
 
@@ -96,6 +101,7 @@ async function testJobLifeCycle(jobSpec, delay = 3000) {
 
     ex = await executions.submit(jobSpec);
     await waitForStatus('running');
+    await wait.forLength(ex.workers, jobSpec.workers || 1, 10);
 
     let p = waitForStatus('paused');
     ex.pause();
