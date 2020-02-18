@@ -2,6 +2,7 @@
 
 const net = require('net');
 const Porty = require('porty');
+const { debugLogger } = require('@terascope/utils');
 
 const {
     waitForTcpPortOpen
@@ -15,11 +16,7 @@ function l(msg) {
     }
 }
 
-const logger = {
-    debug: (msg) => l(`[DEBUG]: ${msg}`),
-    error: (msg) => l(`[ERROR]: ${msg}`),
-    info: (msg) => l(`[INFO]: ${msg}`),
-};
+const logger = debugLogger('port_utils');
 
 let server;
 let serverPort;
