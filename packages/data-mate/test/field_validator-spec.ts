@@ -96,27 +96,6 @@ describe('field validators', () => {
         });
     });
 
-    describe('isGeoJSON', () => {
-        it('should check if a value is GeoJSON', () => {
-            // @ts-ignore
-            expect(FieldValidator.isGeoJSON()).toEqual(false);
-            expect(FieldValidator.isGeoJSON(['asdf'])).toEqual(false);
-            expect(FieldValidator.isGeoJSON({ one: 1 })).toEqual(false);
-            expect(FieldValidator.isGeoJSON(3)).toEqual(false);
-            expect(FieldValidator.isGeoJSON('hello')).toEqual(false);
-
-            const list = [
-                matchingPoint,
-                polygon,
-                polygonWithHoles,
-                multiPolygon
-            ];
-
-            const results = list.map(FieldValidator.isGeoJSON);
-            expect(results.every((val) => val === true)).toEqual(true);
-        });
-    });
-
     describe('isGeoShapePoint', () => {
         it('should check if a value is GeoShapePoint', () => {
             // @ts-ignore
@@ -174,27 +153,6 @@ describe('field validators', () => {
             expect(FieldValidator.isGeoShapeMultiPolygon(polygon)).toEqual(false);
             expect(FieldValidator.isGeoShapeMultiPolygon(polygonWithHoles)).toEqual(false);
             expect(FieldValidator.isGeoShapeMultiPolygon(multiPolygon)).toEqual(true);
-        });
-    });
-
-    describe('isGeoJSON', () => {
-        it('should check if a value is GeoJSON', () => {
-            // @ts-ignore
-            expect(FieldValidator.isGeoJSON()).toEqual(false);
-            expect(FieldValidator.isGeoJSON(['asdf'])).toEqual(false);
-            expect(FieldValidator.isGeoJSON({ one: 1 })).toEqual(false);
-            expect(FieldValidator.isGeoJSON(3)).toEqual(false);
-            expect(FieldValidator.isGeoJSON('hello')).toEqual(false);
-
-            const list = [
-                matchingPoint,
-                polygon,
-                polygonWithHoles,
-                multiPolygon
-            ];
-
-            const results = list.map(FieldValidator.isGeoJSON);
-            expect(results.every((val) => val === true)).toEqual(true);
         });
     });
 
