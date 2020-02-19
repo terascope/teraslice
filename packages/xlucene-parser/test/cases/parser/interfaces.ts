@@ -1,4 +1,4 @@
-import { XluceneVariables, XluceneTypeConfig } from '@terascope/types';
+import { xLuceneVariables, xLuceneTypeConfig } from '@terascope/types';
 
 import { AST } from '../../../src';
 
@@ -10,6 +10,6 @@ export type TestCase = [
     // toMatchObject(%j)
     AST,
     // Type config to pass in
-    XluceneTypeConfig?,
-    XluceneVariables?
+    xLuceneTypeConfig?,
+    xLuceneVariables?
 ];

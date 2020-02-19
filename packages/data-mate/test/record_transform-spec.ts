@@ -4,7 +4,7 @@ import { RecordTransform } from '../src';
 describe('record transforms', () => {
     it('can rename a field', () => {
         const obj = { hello: 'world' };
-        const config = { oldFieldName: 'hello', newFieldName: 'goodbye' };
+        const config = { from: 'hello', to: 'goodbye' };
 
         const results = RecordTransform.renameField(cloneDeep(obj), config);
 

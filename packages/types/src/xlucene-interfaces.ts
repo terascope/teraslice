@@ -1,4 +1,4 @@
-export enum XluceneFieldType {
+export enum xLuceneFieldType {
     Geo = 'geo',
     Date = 'date',
     IP = 'ip',
@@ -12,10 +12,10 @@ export enum XluceneFieldType {
     Number = 'number'
 }
 
-export interface XluceneTypeConfig {
-    [field: string]: XluceneFieldType;
+export interface xLuceneTypeConfig {
+    [field: string]: xLuceneFieldType;
 }
 
-export interface XluceneVariables {
+export interface xLuceneVariables {
     [key: string]: any;
 }

@@ -24,7 +24,7 @@ sidebar_label: LegacyFoundationApis
 
 ▸ **getConnection**(`config`: [ConnectionConfig](connectionconfig.md)): *object*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:56](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/interfaces.ts#L56)*
+*Defined in [packages/terafoundation/src/interfaces.ts:56](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/interfaces.ts#L56)*
 
 **Parameters:**
 
@@ -40,7 +40,7 @@ ___
 
 ▸ **getEventEmitter**(): *EventEmitter*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:55](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/interfaces.ts#L55)*
+*Defined in [packages/terafoundation/src/interfaces.ts:55](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/interfaces.ts#L55)*
 
 **Returns:** *EventEmitter*
 
@@ -50,7 +50,7 @@ ___
 
 ▸ **makeLogger**(`metadata?`: Record‹string, string›): *Logger*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:52](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/interfaces.ts#L52)*
+*Defined in [packages/terafoundation/src/interfaces.ts:52](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/interfaces.ts#L52)*
 
 Create a child logger
 
@@ -64,7 +64,7 @@ Name | Type |
 
 ▸ **makeLogger**(`name`: string, `filename`: string): *Logger*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:54](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/interfaces.ts#L54)*
+*Defined in [packages/terafoundation/src/interfaces.ts:54](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/interfaces.ts#L54)*
 
 Create the root logger (usually done automatically)
 
@@ -83,7 +83,7 @@ ___
 
 ▸ **startWorkers**(`num`: number, `envOptions`: Record‹string, string›): *void*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:57](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/interfaces.ts#L57)*
+*Defined in [packages/terafoundation/src/interfaces.ts:57](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/interfaces.ts#L57)*
 
 **Parameters:**
 

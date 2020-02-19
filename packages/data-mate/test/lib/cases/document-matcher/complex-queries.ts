@@ -1,4 +1,4 @@
-import { XluceneFieldType } from '@terascope/types';
+import { xLuceneFieldType } from '@terascope/types';
 
 export default [
     [
@@ -15,9 +15,9 @@ export default [
         ],
         [false, false],
         {
-            ip: XluceneFieldType.IP,
-            created: XluceneFieldType.Date,
-            location: XluceneFieldType.Geo,
+            ip: xLuceneFieldType.IP,
+            created: xLuceneFieldType.Date,
+            location: xLuceneFieldType.Geo,
         },
     ],
     [
@@ -232,9 +232,9 @@ export default [
         ],
         [true, false, false, false, false],
         {
-            date1: XluceneFieldType.Date,
-            ip_field: XluceneFieldType.IP,
-            date2: XluceneFieldType.Date
+            date1: xLuceneFieldType.Date,
+            ip_field: xLuceneFieldType.IP,
+            date2: xLuceneFieldType.Date
         },
     ],
     [
@@ -248,6 +248,6 @@ export default [
             { field1: 'something else', ip_field: '192.168.196.145', date: '2048-09-30T23:20:01Z' },
         ],
         [false, false, true, false, false],
-        { ip_field: XluceneFieldType.IP, date: XluceneFieldType.Date },
+        { ip_field: xLuceneFieldType.IP, date: xLuceneFieldType.Date },
     ],
 ];

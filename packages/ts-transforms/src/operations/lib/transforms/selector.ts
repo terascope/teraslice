@@ -1,5 +1,5 @@
 import { DocumentMatcher } from '@terascope/data-mate';
-import { XluceneTypeConfig } from '@terascope/types';
+import { xLuceneTypeConfig } from '@terascope/types';
 import { DataEntity } from '@terascope/utils';
 import { InputOutputCardinality, SelectorConfig } from '../../../interfaces';
 
@@ -10,7 +10,7 @@ export default class Selector {
 
     static cardinality: InputOutputCardinality = 'one-to-one';
 
-    constructor(config: SelectorConfig, types?: XluceneTypeConfig) {
+    constructor(config: SelectorConfig, types?: xLuceneTypeConfig) {
         let luceneQuery = config.selector as string;
         if (typeof luceneQuery !== 'string') throw new Error('selector must be a string');
         this.selector = luceneQuery;

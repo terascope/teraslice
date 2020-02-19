@@ -471,7 +471,7 @@ describe('IndexStore', () => {
                 });
 
                 const translated = new Translator(q, {
-                    type_config: indexStore.xluceneTypeConfig
+                    type_config: indexStore.xLuceneTypeConfig
                 }).toElasticsearchDSL();
 
                 // eslint-disable-next-line no-console

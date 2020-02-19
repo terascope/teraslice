@@ -1,10 +1,10 @@
 import { AnyObject, isPlainObject } from '@terascope/utils';
-import { XluceneTypeConfig, XluceneVariables } from '@terascope/types';
+import { xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import DocumentMatcher from '../document-matcher';
 import { Repository } from '../interfaces';
 import { isString } from '../validations/field-validator';
 
-export const respoitory: Repository = {
+export const repository: Repository = {
     required: {
         fn: required,
         config: {
@@ -55,8 +55,8 @@ export function required(obj: AnyObject, { fields }: { fields: string[] }) {
 
 interface DMOptions {
     query: string;
-    typeConfig?: XluceneTypeConfig;
-    variables?: XluceneVariables;
+    typeConfig?: xLuceneTypeConfig;
+    variables?: xLuceneVariables;
 }
 
 export function select(obj: AnyObject, args: DMOptions) {

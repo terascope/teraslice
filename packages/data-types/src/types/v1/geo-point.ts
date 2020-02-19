@@ -1,4 +1,4 @@
-import { XluceneFieldType } from '@terascope/types';
+import { xLuceneFieldType } from '@terascope/types';
 import BaseType, { ToGraphQLOptions } from '../base-type';
 import { ElasticSearchTypes } from '../../interfaces';
 
@@ -20,6 +20,6 @@ export default class GeoPointType extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: XluceneFieldType.GeoPoint };
+        return { [this.field]: xLuceneFieldType.GeoPoint };
     }
 }

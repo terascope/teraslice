@@ -27,7 +27,7 @@ sidebar_label: NativeProcess
 
 • **assignment**: *Assignment*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:107](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L107)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:107](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L107)*
 
 ___
 
@@ -35,7 +35,7 @@ ___
 
 • **ex_id**? : *undefined | string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:109](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L109)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:109](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L109)*
 
 ___
 
@@ -43,7 +43,7 @@ ___
 
 • **job_id**? : *undefined | string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:110](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L110)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:110](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L110)*
 
 ___
 
@@ -51,7 +51,7 @@ ___
 
 • **pid**: *number*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:108](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L108)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:108](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L108)*
 
 ___
 
@@ -59,4 +59,4 @@ ___
 
 • **worker_id**: *string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:106](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L106)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:106](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L106)*

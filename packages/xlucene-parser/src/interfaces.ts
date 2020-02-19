@@ -2,9 +2,9 @@ import { Logger } from '@terascope/utils';
 import * as t from '@terascope/types';
 
 export interface ParserOptions {
-    type_config?: t.XluceneTypeConfig;
+    type_config?: t.xLuceneTypeConfig;
     logger?: Logger;
-    variables?: t.XluceneVariables;
+    variables?: t.xLuceneVariables;
 }
 
 export type AST = EmptyAST & LogicalGroup & Term
@@ -68,24 +68,24 @@ export interface AnyDataType {
      * The field type here may be the field type specified
      * in the type_config
     */
-    field_type: t.XluceneFieldType;
+    field_type: t.xLuceneFieldType;
     value: string|number|boolean|any;
 }
 
 export interface NumberDataType {
-    field_type: t.XluceneFieldType.Integer | t.XluceneFieldType.Float;
+    field_type: t.xLuceneFieldType.Integer | t.xLuceneFieldType.Float;
     value: number;
 }
 
 export interface StringDataType {
-    field_type: t.XluceneFieldType.String;
+    field_type: t.xLuceneFieldType.String;
     value: string;
     quoted: boolean;
     restricted?: boolean;
 }
 
 export interface BooleanDataType {
-    field_type: t.XluceneFieldType.Boolean;
+    field_type: t.xLuceneFieldType.Boolean;
     value: boolean;
 }
 
@@ -116,7 +116,7 @@ export interface Exists {
 export type RangeOperator = 'gte'|'gt'|'lt'|'lte';
 export interface Range extends TermLikeAST {
     type: ASTType.Range;
-    field_type: t.XluceneFieldType;
+    field_type: t.xLuceneFieldType;
     left: RangeNode;
     right?: RangeNode;
 }
@@ -127,14 +127,14 @@ export interface RangeNode extends NumberDataType {
 
 export interface GeoDistance extends t.GeoPoint, TermLikeAST {
     type: ASTType.GeoDistance;
-    field_type: t.XluceneFieldType.Geo;
+    field_type: t.xLuceneFieldType.Geo;
     distance: number;
     unit: t.GeoDistanceUnit;
 }
 
 export interface GeoBoundingBox extends TermLikeAST {
     type: ASTType.GeoBoundingBox;
-    field_type: t.XluceneFieldType.Geo;
+    field_type: t.xLuceneFieldType.Geo;
     top_left: t.GeoPoint;
     bottom_right: t.GeoPoint;
 }
@@ -160,7 +160,7 @@ export interface Term extends AnyDataType, TermLikeAST {
 
 export interface FunctionConfig {
     logger: Logger;
-    typeConfig: t.XluceneTypeConfig;
+    typeConfig: t.xLuceneTypeConfig;
 }
 
 export interface FunctionDefinition {
@@ -179,7 +179,7 @@ export interface FunctionMethodsResults {
 }
 
 export type FunctionElasticsearchOptions =
-    { logger: Logger; type_config: t.XluceneTypeConfig }
+    { logger: Logger; type_config: t.xLuceneTypeConfig }
     & Record<string, any>
 
 export interface FunctionMethods {

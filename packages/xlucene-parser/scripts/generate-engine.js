@@ -29,7 +29,7 @@ function generate() {
         format: 'commonjs',
         tspegjs: {
             noTslint: true,
-            customHeader: "import makeContext from './context';\nimport * as i from './interfaces';\n import { XluceneFieldType } from '@terascope/types';"
+            customHeader: "import makeContext from './context';\nimport * as i from './interfaces';\n import { xLuceneFieldType } from '@terascope/types';"
         },
     });
 

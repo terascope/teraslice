@@ -19,7 +19,7 @@ import {
 
 import * as i from '../interfaces';
 
-export const respository: i.Repository = {
+export const repository: i.Repository = {
     isBoolean: { fn: isBoolean, config: {} },
     isBooleanLike: { fn: isBooleanLike, config: {} },
     isEmail: { fn: isEmail, config: {} },

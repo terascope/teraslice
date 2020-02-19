@@ -1,4 +1,4 @@
-import { XluceneTypeConfig } from '@terascope/types';
+import { xLuceneTypeConfig } from '@terascope/types';
 import { firstToUpper } from '@terascope/utils';
 import * as i from '../interfaces';
 import BaseType, { ToGraphQLOptions } from './base-type';
@@ -88,7 +88,7 @@ export default class GroupType extends BaseType {
         return this._formatGql(customTypeName, customTypes);
     }
 
-    toXlucene(): XluceneTypeConfig {
+    toXlucene(): xLuceneTypeConfig {
         const configs = Object.values(this.types).map((type) => type.toXlucene());
         return Object.assign({}, ...configs);
     }

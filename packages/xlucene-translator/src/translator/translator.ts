@@ -2,8 +2,8 @@ import {
     debugLogger, isString, Logger, parseGeoDistanceUnit
 } from '@terascope/utils';
 import {
-    XluceneVariables,
-    XluceneTypeConfig,
+    xLuceneVariables,
+    xLuceneTypeConfig,
     GeoDistanceUnit,
     ElasticsearchDSLOptions,
     ElasticsearchDSLResult
@@ -17,8 +17,8 @@ const _logger = debugLogger('xlucene-translator');
 export class Translator {
     readonly query: string;
     logger: Logger;
-    readonly typeConfig: XluceneTypeConfig;
-    readonly variables: XluceneVariables | undefined;
+    readonly typeConfig: xLuceneTypeConfig;
+    readonly variables: xLuceneVariables | undefined;
     private readonly _parser: Parser;
     private _defaultGeoField?: string;
     private _defaultGeoSortOrder: 'asc'|'desc' = 'asc';

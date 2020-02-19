@@ -1,12 +1,11 @@
-import { EmptyObject } from '@terascope/utils';
 import { FieldTypeConfig } from '@terascope/data-types';
 
-export type RepoConfig = Config & EmptyObject;
+export type ArgSchema = Config & { describe?: string };
 
 export interface Repository {
     [key: string]: {
         fn: any;
-        config: RepoConfig;
+        config: ArgSchema;
     };
 }
 

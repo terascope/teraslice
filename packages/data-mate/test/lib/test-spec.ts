@@ -1,7 +1,7 @@
 /* eslint-disable no-useless-escape */
 import 'jest-extended';
 import {
-    XluceneFieldType,
+    xLuceneFieldType,
     GeoShapeType,
     GeoShapePoint,
     GeoShapePolygon,
@@ -122,7 +122,7 @@ describe('Utils', () => {
         it('can make a geoDistance join if field type is set to "geo"', () => {
             const input = { location: '60,90' };
             const options: CreateJoinQueryOptions = {
-                typeConfig: { location: XluceneFieldType.Geo }
+                typeConfig: { location: xLuceneFieldType.Geo }
             };
             const { query, variables } = toXluceneQuery(input, options);
 
@@ -135,7 +135,7 @@ describe('Utils', () => {
             const input = { location: '60,90' };
             const options: CreateJoinQueryOptions = {
                 fieldParams: { location: '50km' },
-                typeConfig: { location: XluceneFieldType.Geo }
+                typeConfig: { location: xLuceneFieldType.Geo }
             };
             const { query, variables } = toXluceneQuery(input, options);
 
@@ -147,7 +147,7 @@ describe('Utils', () => {
             const input = { location: '60,90' };
             const options: CreateJoinQueryOptions = {
                 fieldParams: { location: '50km' },
-                typeConfig: { location: XluceneFieldType.GeoPoint }
+                typeConfig: { location: xLuceneFieldType.GeoPoint }
             };
             const { query, variables } = toXluceneQuery(input, options);
 
@@ -158,7 +158,7 @@ describe('Utils', () => {
         it('will return an empty string if field type is set to "geoPoint" with bad data', () => {
             const input = { location: 23452345 };
             const options: CreateJoinQueryOptions = {
-                typeConfig: { location: XluceneFieldType.GeoPoint }
+                typeConfig: { location: xLuceneFieldType.GeoPoint }
             };
             const { query } = toXluceneQuery(input, options);
 
@@ -175,7 +175,7 @@ describe('Utils', () => {
             };
             const options: CreateJoinQueryOptions = {
                 fieldParams: { location: '50km' },
-                typeConfig: { location: XluceneFieldType.GeoPoint }
+                typeConfig: { location: xLuceneFieldType.GeoPoint }
             };
             const { query, variables } = toXluceneQuery(input, options);
 
@@ -192,7 +192,7 @@ describe('Utils', () => {
                 location: data
             };
             const options: CreateJoinQueryOptions = {
-                typeConfig: { location: XluceneFieldType.GeoPoint }
+                typeConfig: { location: xLuceneFieldType.GeoPoint }
             };
             const { query, variables } = toXluceneQuery(input, options);
 
@@ -212,7 +212,7 @@ describe('Utils', () => {
                 location: data
             };
             const options: CreateJoinQueryOptions = {
-                typeConfig: { location: XluceneFieldType.GeoPoint }
+                typeConfig: { location: xLuceneFieldType.GeoPoint }
             };
             const { query, variables } = toXluceneQuery(input, options);
 
@@ -229,7 +229,7 @@ describe('Utils', () => {
                 location: data
             };
             const options: CreateJoinQueryOptions = {
-                typeConfig: { location: XluceneFieldType.GeoPoint }
+                typeConfig: { location: xLuceneFieldType.GeoPoint }
             };
             const { query, variables } = toXluceneQuery(input, options);
 
@@ -240,7 +240,7 @@ describe('Utils', () => {
         it('will return an empty string if field type is set to "geoJSON" with bad data', () => {
             const input = { location: 23452345 };
             const options: CreateJoinQueryOptions = {
-                typeConfig: { location: XluceneFieldType.GeoJSON }
+                typeConfig: { location: xLuceneFieldType.GeoJSON }
             };
             const { query, variables } = toXluceneQuery(input, options);
 
@@ -251,7 +251,7 @@ describe('Utils', () => {
         it('can make a geoContainsPoint join if field type is set to "geoJSON" with geoPoint data', () => {
             const input = { location: '60,90' };
             const options: CreateJoinQueryOptions = {
-                typeConfig: { location: XluceneFieldType.GeoJSON }
+                typeConfig: { location: xLuceneFieldType.GeoJSON }
             };
             const { query, variables } = toXluceneQuery(input, options);
 
@@ -268,7 +268,7 @@ describe('Utils', () => {
                 location: data
             };
             const options: CreateJoinQueryOptions = {
-                typeConfig: { location: XluceneFieldType.GeoJSON }
+                typeConfig: { location: xLuceneFieldType.GeoJSON }
             };
             const { query, variables } = toXluceneQuery(input, options);
 
@@ -285,7 +285,7 @@ describe('Utils', () => {
                 location: data
             };
             const options: CreateJoinQueryOptions = {
-                typeConfig: { location: XluceneFieldType.GeoJSON }
+                typeConfig: { location: xLuceneFieldType.GeoJSON }
             };
             const { query, variables } = toXluceneQuery(input, options);
 
@@ -303,7 +303,7 @@ describe('Utils', () => {
             };
             const options: CreateJoinQueryOptions = {
                 fieldParams: { location: GeoShapeRelation.Disjoint },
-                typeConfig: { location: XluceneFieldType.GeoJSON }
+                typeConfig: { location: xLuceneFieldType.GeoJSON }
             };
             const { query, variables } = toXluceneQuery(input, options);
 
@@ -323,7 +323,7 @@ describe('Utils', () => {
                 location: data
             };
             const options: CreateJoinQueryOptions = {
-                typeConfig: { location: XluceneFieldType.GeoJSON }
+                typeConfig: { location: xLuceneFieldType.GeoJSON }
             };
             const { query, variables } = toXluceneQuery(input, options);
 
@@ -343,7 +343,7 @@ describe('Utils', () => {
                 location: data
             };
             const options: CreateJoinQueryOptions = {
-                typeConfig: { location: XluceneFieldType.GeoJSON }
+                typeConfig: { location: xLuceneFieldType.GeoJSON }
             };
             const { query, variables } = toXluceneQuery(input, options);
 
@@ -364,7 +364,7 @@ describe('Utils', () => {
             };
             const options: CreateJoinQueryOptions = {
                 fieldParams: { location: GeoShapeRelation.Within },
-                typeConfig: { location: XluceneFieldType.GeoPoint }
+                typeConfig: { location: xLuceneFieldType.GeoPoint }
             };
             const { query, variables } = toXluceneQuery(input, options);
 
@@ -390,7 +390,7 @@ describe('Utils', () => {
                 location: data
             };
             const options: CreateJoinQueryOptions = {
-                typeConfig: { location: XluceneFieldType.GeoPoint }
+                typeConfig: { location: xLuceneFieldType.GeoPoint }
             };
             const { query, variables } = toXluceneQuery(input, options);
 
@@ -411,7 +411,7 @@ describe('Utils', () => {
             };
             const options: CreateJoinQueryOptions = {
                 fieldParams: { location: GeoShapeRelation.Within },
-                typeConfig: { location: XluceneFieldType.GeoJSON }
+                typeConfig: { location: xLuceneFieldType.GeoJSON }
             };
             const { query, variables } = toXluceneQuery(input, options);
 
@@ -437,7 +437,7 @@ describe('Utils', () => {
                 location: data
             };
             const options: CreateJoinQueryOptions = {
-                typeConfig: { location: XluceneFieldType.GeoJSON }
+                typeConfig: { location: xLuceneFieldType.GeoJSON }
             };
             const { query, variables } = toXluceneQuery(input, options);
 

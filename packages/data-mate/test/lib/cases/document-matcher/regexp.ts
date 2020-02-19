@@ -1,4 +1,4 @@
-import { XluceneFieldType } from '@terascope/types';
+import { xLuceneFieldType } from '@terascope/types';
 
 export default [
     [
@@ -128,6 +128,6 @@ export default [
             true,
             true,
         ],
-        { _created: XluceneFieldType.Date }
+        { _created: xLuceneFieldType.Date }
     ],
 ];

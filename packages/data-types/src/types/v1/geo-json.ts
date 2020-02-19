@@ -1,4 +1,4 @@
-import { XluceneFieldType } from '@terascope/types';
+import { xLuceneFieldType } from '@terascope/types';
 import BaseType from '../base-type';
 import { ElasticSearchTypes } from '../../interfaces';
 
@@ -23,6 +23,6 @@ export default class GeoJSON extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: XluceneFieldType.GeoJSON };
+        return { [this.field]: xLuceneFieldType.GeoJSON };
     }
 }

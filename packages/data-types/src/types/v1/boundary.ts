@@ -1,4 +1,4 @@
-import { XluceneFieldType } from '@terascope/types';
+import { xLuceneFieldType } from '@terascope/types';
 import BaseType, { ToGraphQLOptions } from '../base-type';
 import { ElasticSearchTypes } from '../../interfaces';
 
@@ -29,6 +29,6 @@ export default class Boundary extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: XluceneFieldType.Geo };
+        return { [this.field]: xLuceneFieldType.Geo };
     }
 }

@@ -88,8 +88,8 @@ const geoPolygon: i.FunctionDefinition = {
             // can remove the second check when "geo" if fully deprecated
         }
 
-        const targetIsGeoPoint = type === t.XluceneFieldType.GeoPoint
-                || type === t.XluceneFieldType.Geo
+        const targetIsGeoPoint = type === t.xLuceneFieldType.GeoPoint
+                || type === t.xLuceneFieldType.Geo
                 || type === undefined;
 
         function ESPolyQuery(field: string, points: t.CoordinateTuple[]) {

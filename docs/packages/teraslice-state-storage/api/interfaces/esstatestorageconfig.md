@@ -33,7 +33,7 @@ sidebar_label: ESStateStorageConfig
 
 *Inherited from [CacheConfig](cacheconfig.md).[cache_size](cacheconfig.md#cache_size)*
 
-*Defined in [packages/teraslice-state-storage/src/interfaces.ts:14](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/interfaces.ts#L14)*
+*Defined in [packages/teraslice-state-storage/src/interfaces.ts:14](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/interfaces.ts#L14)*
 
 ___
 
@@ -41,7 +41,7 @@ ___
 
 • **chunk_size**: *number*
 
-*Defined in [packages/teraslice-state-storage/src/interfaces.ts:8](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/interfaces.ts#L8)*
+*Defined in [packages/teraslice-state-storage/src/interfaces.ts:8](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/interfaces.ts#L8)*
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **concurrency**: *number*
 
-*Defined in [packages/teraslice-state-storage/src/interfaces.ts:6](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/interfaces.ts#L6)*
+*Defined in [packages/teraslice-state-storage/src/interfaces.ts:6](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/interfaces.ts#L6)*
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **index**: *string*
 
-*Defined in [packages/teraslice-state-storage/src/interfaces.ts:4](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/interfaces.ts#L4)*
+*Defined in [packages/teraslice-state-storage/src/interfaces.ts:4](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/interfaces.ts#L4)*
 
 ___
 
@@ -67,7 +67,7 @@ ___
 
 *Inherited from [CacheConfig](cacheconfig.md).[max_big_map_size](cacheconfig.md#optional-max_big_map_size)*
 
-*Defined in [packages/teraslice-state-storage/src/interfaces.ts:15](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/interfaces.ts#L15)*
+*Defined in [packages/teraslice-state-storage/src/interfaces.ts:15](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/interfaces.ts#L15)*
 
 ___
 
@@ -75,7 +75,7 @@ ___
 
 • **persist**: *boolean*
 
-*Defined in [packages/teraslice-state-storage/src/interfaces.ts:9](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/interfaces.ts#L9)*
+*Defined in [packages/teraslice-state-storage/src/interfaces.ts:9](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/interfaces.ts#L9)*
 
 ___
 
@@ -83,7 +83,7 @@ ___
 
 • **persist_field**? : *undefined | string*
 
-*Defined in [packages/teraslice-state-storage/src/interfaces.ts:10](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/interfaces.ts#L10)*
+*Defined in [packages/teraslice-state-storage/src/interfaces.ts:10](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/interfaces.ts#L10)*
 
 ___
 
@@ -91,7 +91,7 @@ ___
 
 • **source_fields**: *string[]*
 
-*Defined in [packages/teraslice-state-storage/src/interfaces.ts:7](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/interfaces.ts#L7)*
+*Defined in [packages/teraslice-state-storage/src/interfaces.ts:7](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/interfaces.ts#L7)*
 
 ___
 
@@ -99,4 +99,4 @@ ___
 
 • **type**: *string*
 
-*Defined in [packages/teraslice-state-storage/src/interfaces.ts:5](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/interfaces.ts#L5)*
+*Defined in [packages/teraslice-state-storage/src/interfaces.ts:5](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/interfaces.ts#L5)*

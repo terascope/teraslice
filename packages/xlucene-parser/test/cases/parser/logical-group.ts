@@ -1,4 +1,4 @@
-import { XluceneFieldType } from '@terascope/types';
+import { xLuceneFieldType } from '@terascope/types';
 import { ASTType } from '../../../src';
 import { TestCase } from './interfaces';
 
@@ -50,7 +50,7 @@ export default [
                 },
             ],
         },
-        { a: XluceneFieldType.Integer, b: XluceneFieldType.Integer },
+        { a: xLuceneFieldType.Integer, b: xLuceneFieldType.Integer },
         { foo: 1, bar: 1 }
     ],
     [
@@ -169,7 +169,7 @@ export default [
             ],
         },
         {
-            foo: XluceneFieldType.Integer
+            foo: xLuceneFieldType.Integer
         },
         {
             bar: [1, 2, 3]
@@ -341,7 +341,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            field_type: XluceneFieldType.String,
+                            field_type: xLuceneFieldType.String,
                             value: 'AqMvPMCS76u0',
                         },
                     ],
@@ -351,7 +351,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            field_type: XluceneFieldType.String,
+                            field_type: xLuceneFieldType.String,
                             value: 'foo',
                         },
                     ],
@@ -419,7 +419,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            field_type: XluceneFieldType.String,
+                            field_type: xLuceneFieldType.String,
                             restricted: true,
                             field: null,
                             value: 'foo',
@@ -431,7 +431,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            field_type: XluceneFieldType.String,
+                            field_type: xLuceneFieldType.String,
                             field: null,
                             quoted: true,
                             value: 'bar',
@@ -452,7 +452,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            field_type: XluceneFieldType.String,
+                            field_type: xLuceneFieldType.String,
                             field: null,
                             quoted: true,
                             value: 'foo',
@@ -464,7 +464,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            field_type: XluceneFieldType.String,
+                            field_type: xLuceneFieldType.String,
                             field: 'bar',
                             value: 'baz',
                         },
@@ -484,7 +484,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            field_type: XluceneFieldType.String,
+                            field_type: xLuceneFieldType.String,
                             field: 'hi',
                             quoted: true,
                             value: 'foo',
@@ -496,7 +496,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            field_type: XluceneFieldType.String,
+                            field_type: xLuceneFieldType.String,
                             field: 'hello',
                             quoted: true,
                             value: 'bar',
@@ -517,7 +517,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            field_type: XluceneFieldType.String,
+                            field_type: xLuceneFieldType.String,
                             field: 'foo',
                             quoted: false,
                             value: 'bar',
@@ -529,7 +529,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            field_type: XluceneFieldType.String,
+                            field_type: xLuceneFieldType.String,
                             field: null,
                             quoted: false,
                             value: 'baz',
@@ -604,7 +604,7 @@ export default [
                                     type: ASTType.Conjunction,
                                     nodes: [
                                         {
-                                            field_type: XluceneFieldType.Integer,
+                                            field_type: xLuceneFieldType.Integer,
                                             field: 'a',
                                             value: 1,
                                         },
@@ -614,7 +614,7 @@ export default [
                                     type: ASTType.Conjunction,
                                     nodes: [
                                         {
-                                            field_type: XluceneFieldType.Integer,
+                                            field_type: xLuceneFieldType.Integer,
                                             field: 'b',
                                             value: 1,
                                         },
@@ -629,7 +629,7 @@ export default [
                                     type: ASTType.Conjunction,
                                     nodes: [
                                         {
-                                            field_type: XluceneFieldType.Integer,
+                                            field_type: xLuceneFieldType.Integer,
                                             field: 'c',
                                             value: 1,
                                         },
@@ -639,7 +639,7 @@ export default [
                                     type: ASTType.Conjunction,
                                     nodes: [
                                         {
-                                            field_type: XluceneFieldType.Integer,
+                                            field_type: xLuceneFieldType.Integer,
                                             field: 'd',
                                             value: 1,
                                         },
@@ -687,7 +687,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            field_type: XluceneFieldType.String,
+                            field_type: xLuceneFieldType.String,
                             restricted: true,
                             quoted: false,
                             value: 'value',
@@ -700,7 +700,7 @@ export default [
                     nodes: [
                         {
                             type: ASTType.Term,
-                            field_type: XluceneFieldType.String,
+                            field_type: xLuceneFieldType.String,
                             restricted: true,
                             quoted: false,
                             value: 'value',

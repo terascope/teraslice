@@ -18,6 +18,34 @@ export function toString(val: any): string {
     return JSON.stringify(val);
 }
 
+export function trimStart(input: string, char = ' '): string {
+    let start = input.indexOf(char);
+    if (start === -1 || start > (input.length / 2)) return input;
+
+    for (start; start < input.length;) {
+        if (input.slice(start, start + char.length) !== char) {
+            break;
+        }
+        start += char.length;
+    }
+
+    return input.slice(start);
+}
+
+export function trimEnd(input: string, char = ' '): string {
+    let end = input.lastIndexOf(char);
+    if (end === -1 || end < (input.length / 2)) return input;
+
+    for (end; end >= 0;) {
+        if (input.slice(end - char.length, end) !== char) {
+            break;
+        }
+        end -= char.length;
+    }
+
+    return input.slice(0, end);
+}
+
 /** safely trim and to lower a input, useful for string comparison */
 export function trimAndToLower(input?: string): string {
     return trim(input).toLowerCase();

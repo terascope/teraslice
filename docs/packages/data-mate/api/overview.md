@@ -5,47 +5,42 @@ sidebar_label: API
 
 ## Index
 
-### Enumerations
+### Classes
 
-* [ESGeoShapeType](enums/esgeoshapetype.md)
-* [GeoShapeType](enums/geoshapetype.md)
+* [DocumentMatcher](classes/documentmatcher.md)
+* [VariableState](classes/variablestate.md)
 
 ### Interfaces
 
+* [ArgsISSNOptions](interfaces/argsissnoptions.md)
+* [DocumentMatcherOptions](interfaces/documentmatcheroptions.md)
 * [ExtractFieldConfig](interfaces/extractfieldconfig.md)
 * [FQDNOptions](interfaces/fqdnoptions.md)
-* [GeoPoint](interfaces/geopoint.md)
 * [HashConfig](interfaces/hashconfig.md)
-* [IssnOptions](interfaces/issnoptions.md)
 * [LengthConfig](interfaces/lengthconfig.md)
-* [MACAddress](interfaces/macaddress.md)
 * [MacAddressConfig](interfaces/macaddressconfig.md)
 * [ReplaceLiteralConfig](interfaces/replaceliteralconfig.md)
 * [ReplaceRegexConfig](interfaces/replaceregexconfig.md)
 * [Repository](interfaces/repository.md)
+* [XluceneQueryResult](interfaces/xlucenequeryresult.md)
 
 ### Type aliases
 
-* [CoordinateTuple](overview.md#coordinatetuple)
-* [ESGeoShape](overview.md#esgeoshape)
-* [ESGeoShapeMultiPolygon](overview.md#esgeoshapemultipolygon)
-* [ESGeoShapePoint](overview.md#esgeoshapepoint)
-* [ESGeoShapePolygon](overview.md#esgeoshapepolygon)
-* [GeoPointInput](overview.md#geopointinput)
-* [GeoShape](overview.md#geoshape)
-* [GeoShapeMultiPolygon](overview.md#geoshapemultipolygon)
-* [GeoShapePoint](overview.md#geoshapepoint)
-* [GeoShapePolygon](overview.md#geoshapepolygon)
-* [JoinGeoShape](overview.md#joingeoshape)
-* [MACDelimiter](overview.md#macdelimiter)
+* [BooleanCB](overview.md#booleancb)
+* [CreateJoinQueryOptions](overview.md#createjoinqueryoptions)
+* [DateInput](overview.md#dateinput)
+* [JoinBy](overview.md#joinby)
 * [PostalCodeLocale](overview.md#postalcodelocale)
 * [RepoConfig](overview.md#repoconfig)
 * [ValidatorHashValues](overview.md#validatorhashvalues)
 
 ### Functions
 
+* [buildLogicFn](overview.md#buildlogicfn)
+* [compareTermDates](overview.md#comparetermdates)
 * [contains](overview.md#contains)
 * [copyField](overview.md#copyfield)
+* [dateRange](overview.md#daterange)
 * [decodeBase64](overview.md#decodebase64)
 * [decodeHex](overview.md#decodehex)
 * [decodeSHA1](overview.md#decodesha1)
@@ -60,16 +55,21 @@ sidebar_label: API
 * [encodeUrl](overview.md#encodeurl)
 * [equals](overview.md#equals)
 * [extract](overview.md#extract)
+* [findWildcardField](overview.md#findwildcardfield)
 * [formatDate](overview.md#formatdate)
-* [getLonAndLat](overview.md#getlonandlat)
+* [geoBoundingBox](overview.md#geoboundingbox)
+* [geoDistance](overview.md#geodistance)
 * [inIPRange](overview.md#iniprange)
 * [inNumberRange](overview.md#innumberrange)
+* [ipRange](overview.md#iprange)
+* [ipTerm](overview.md#ipterm)
 * [isAlpha](overview.md#isalpha)
 * [isAlphanumeric](overview.md#isalphanumeric)
 * [isAscii](overview.md#isascii)
 * [isBase64](overview.md#isbase64)
 * [isBoolean](overview.md#isboolean)
 * [isBooleanLike](overview.md#isbooleanlike)
+* [isCountryCode](overview.md#iscountrycode)
 * [isEmail](overview.md#isemail)
 * [isEmpty](overview.md#isempty)
 * [isFQDN](overview.md#isfqdn)
@@ -81,9 +81,7 @@ sidebar_label: API
 * [isHash](overview.md#ishash)
 * [isIP](overview.md#isip)
 * [isIPCidr](overview.md#isipcidr)
-* [isISBN](overview.md#isisbn)
 * [isISDN](overview.md#isisdn)
-* [isISO31661Alpha2](overview.md#isiso31661alpha2)
 * [isISO8601](overview.md#isiso8601)
 * [isISSN](overview.md#isissn)
 * [isInteger](overview.md#isinteger)
@@ -101,12 +99,14 @@ sidebar_label: API
 * [isUrl](overview.md#isurl)
 * [isValidDate](overview.md#isvaliddate)
 * [parseDate](overview.md#parsedate)
-* [parseGeoPoint](overview.md#parsegeopoint)
 * [parseJSON](overview.md#parsejson)
+* [regexp](overview.md#regexp)
+* [reject](overview.md#reject)
 * [renameField](overview.md#renamefield)
 * [replaceLiteral](overview.md#replaceliteral)
 * [replaceRegex](overview.md#replaceregex)
 * [required](overview.md#required)
+* [select](overview.md#select)
 * [setField](overview.md#setfield)
 * [toArray](overview.md#toarray)
 * [toBoolean](overview.md#toboolean)
@@ -119,14 +119,16 @@ sidebar_label: API
 * [toNumber](overview.md#tonumber)
 * [toPascalCase](overview.md#topascalcase)
 * [toSnakeCase](overview.md#tosnakecase)
+* [toString](overview.md#tostring)
 * [toTitleCase](overview.md#totitlecase)
 * [toUnixTime](overview.md#tounixtime)
 * [toUpperCase](overview.md#touppercase)
+* [toXluceneQuery](overview.md#toxlucenequery)
 * [trim](overview.md#trim)
 * [trimEnd](overview.md#trimend)
 * [trimStart](overview.md#trimstart)
 * [truncate](overview.md#truncate)
-* [validValue](overview.md#validvalue)
+* [wildcard](overview.md#wildcard)
 
 ### Object literals
 
@@ -135,111 +137,47 @@ sidebar_label: API
 
 ## Type aliases
 
-###  CoordinateTuple
+###  BooleanCB
 
-Ƭ **CoordinateTuple**: *[number, number]*
+Ƭ **BooleanCB**: *function*
 
-Defined in interfaces.ts:66
+*Defined in [data-mate/src/document-matcher/interfaces.ts:7](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/document-matcher/interfaces.ts#L7)*
+
+#### Type declaration:
+
+▸ (`data`: any): *boolean*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`data` | any |
 
 ___
 
-###  ESGeoShape
+###  CreateJoinQueryOptions
 
-Ƭ **ESGeoShape**: *[ESGeoShapePoint](overview.md#esgeoshapepoint) | [ESGeoShapePolygon](overview.md#esgeoshapepolygon) | [ESGeoShapeMultiPolygon](overview.md#esgeoshapemultipolygon)*
+Ƭ **CreateJoinQueryOptions**: *object*
 
-Defined in interfaces.ts:39
-
-___
-
-###  ESGeoShapeMultiPolygon
-
-Ƭ **ESGeoShapeMultiPolygon**: *object*
-
-Defined in interfaces.ts:34
+*Defined in [data-mate/src/transforms/helpers.ts:26](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/helpers.ts#L26)*
 
 #### Type declaration:
 
 ___
 
-###  ESGeoShapePoint
+###  DateInput
 
-Ƭ **ESGeoShapePoint**: *object*
+Ƭ **DateInput**: *string | number*
 
-Defined in interfaces.ts:24
-
-#### Type declaration:
+*Defined in [data-mate/src/document-matcher/interfaces.ts:8](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/document-matcher/interfaces.ts#L8)*
 
 ___
 
-###  ESGeoShapePolygon
+###  JoinBy
 
-Ƭ **ESGeoShapePolygon**: *object*
+Ƭ **JoinBy**: *"AND" | "OR"*
 
-Defined in interfaces.ts:29
-
-#### Type declaration:
-
-___
-
-###  GeoPointInput
-
-Ƭ **GeoPointInput**: *GeoPointArr | GeoPointStr | GeoObjShort | GeoObjLong | [GeoShapePoint](overview.md#geoshapepoint)*
-
-Defined in interfaces.ts:73
-
-___
-
-###  GeoShape
-
-Ƭ **GeoShape**: *[GeoShapePoint](overview.md#geoshapepoint) | [GeoShapePolygon](overview.md#geoshapepolygon) | [GeoShapeMultiPolygon](overview.md#geoshapemultipolygon)*
-
-Defined in interfaces.ts:62
-
-___
-
-###  GeoShapeMultiPolygon
-
-Ƭ **GeoShapeMultiPolygon**: *object*
-
-Defined in interfaces.ts:57
-
-#### Type declaration:
-
-___
-
-###  GeoShapePoint
-
-Ƭ **GeoShapePoint**: *object*
-
-Defined in interfaces.ts:47
-
-#### Type declaration:
-
-___
-
-###  GeoShapePolygon
-
-Ƭ **GeoShapePolygon**: *object*
-
-Defined in interfaces.ts:52
-
-#### Type declaration:
-
-___
-
-###  JoinGeoShape
-
-Ƭ **JoinGeoShape**: *[GeoShape](overview.md#geoshape) | [ESGeoShape](overview.md#esgeoshape)*
-
-Defined in interfaces.ts:64
-
-___
-
-###  MACDelimiter
-
-Ƭ **MACDelimiter**: *"space" | "colon" | "dash" | "dot" | "none" | "any"*
-
-Defined in validations/interfaces.ts:37
+*Defined in [data-mate/src/transforms/helpers.ts:19](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/helpers.ts#L19)*
 
 ___
 
@@ -247,15 +185,15 @@ ___
 
 Ƭ **PostalCodeLocale**: *"AD" | "AT" | "AU" | "BE" | "BG" | "BR" | "CA" | "CH" | "CZ" | "DE" | "DK" | "DZ" | "EE" | "ES" | "FI" | "FR" | "GB" | "GR" | "HR" | "HU" | "ID" | "IE" | "IL" | "IN" | "IS" | "IT" | "JP" | "KE" | "LI" | "LT" | "LU" | "LV" | "MX" | "MT" | "NL" | "NO" | "NZ" | "PL" | "PR" | "PT" | "RO" | "RU" | "SA" | "SE" | "SI" | "SK" | "TN" | "TW" | "UA" | "US" | "ZA" | "ZM"*
 
-Defined in validations/interfaces.ts:43
+*Defined in [data-mate/src/validations/interfaces.ts:37](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/interfaces.ts#L37)*
 
 ___
 
 ###  RepoConfig
 
-Ƭ **RepoConfig**: *Config | EmptyObject*
+Ƭ **RepoConfig**: *Config & EmptyObject*
 
-Defined in interfaces.ts:3
+*Defined in [data-mate/src/interfaces.ts:4](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/interfaces.ts#L4)*
 
 ___
 
@@ -263,15 +201,56 @@ ___
 
 Ƭ **ValidatorHashValues**: *"md4" | "md5" | "sha1" | "sha256" | "sha384" | "sha512" | "ripemd128" | "ripemd160" | "tiger128" | "tiger160" | "tiger192" | "crc32" | "crc32b"*
 
-Defined in validations/interfaces.ts:7
+*Defined in [data-mate/src/validations/interfaces.ts:7](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/interfaces.ts#L7)*
 
 ## Functions
+
+###  buildLogicFn
+
+▸ **buildLogicFn**(`parser`: Parser, `typeConfig`: XluceneTypeConfig): *function*
+
+*Defined in [data-mate/src/document-matcher/logic-builder/index.ts:14](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/document-matcher/logic-builder/index.ts#L14)*
+
+**Parameters:**
+
+Name | Type | Default |
+------ | ------ | ------ |
+`parser` | Parser | - |
+`typeConfig` | XluceneTypeConfig |  {} |
+
+**Returns:** *function*
+
+▸ (`data`: any): *boolean*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`data` | any |
+
+___
+
+###  compareTermDates
+
+▸ **compareTermDates**(`node`: Term): *dateTerm*
+
+*Defined in [data-mate/src/document-matcher/logic-builder/dates.ts:14](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/document-matcher/logic-builder/dates.ts#L14)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`node` | Term |
+
+**Returns:** *dateTerm*
+
+___
 
 ###  contains
 
 ▸ **contains**(`input`: any, `__namedParameters`: object): *boolean*
 
-Defined in validations/field-validator.ts:230
+*Defined in [data-mate/src/validations/field-validator.ts:261](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L261)*
 
 **Parameters:**
 
@@ -288,7 +267,7 @@ ___
 
 ▸ **copyField**(`record`: any, `args`: object): *any*
 
-Defined in transforms/record-transform.ts:26
+*Defined in [data-mate/src/transforms/record-transform.ts:75](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/record-transform.ts#L75)*
 
 **Parameters:**
 
@@ -301,11 +280,27 @@ Name | Type |
 
 ___
 
+###  dateRange
+
+▸ **dateRange**(`node`: Range): *dateRangeTerm*
+
+*Defined in [data-mate/src/document-matcher/logic-builder/dates.ts:50](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/document-matcher/logic-builder/dates.ts#L50)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`node` | Range |
+
+**Returns:** *dateRangeTerm*
+
+___
+
 ###  decodeBase64
 
 ▸ **decodeBase64**(`input`: string): *string*
 
-Defined in transforms/field-transform.ts:122
+*Defined in [data-mate/src/transforms/field-transform.ts:222](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L222)*
 
 **Parameters:**
 
@@ -321,7 +316,7 @@ ___
 
 ▸ **decodeHex**(`input`: string): *string*
 
-Defined in transforms/field-transform.ts:142
+*Defined in [data-mate/src/transforms/field-transform.ts:242](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L242)*
 
 **Parameters:**
 
@@ -337,7 +332,7 @@ ___
 
 ▸ **decodeSHA1**(`input`: string): *string*
 
-Defined in transforms/field-transform.ts:171
+*Defined in [data-mate/src/transforms/field-transform.ts:271](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L271)*
 
 **Parameters:**
 
@@ -353,7 +348,7 @@ ___
 
 ▸ **decodeUrl**(`input`: string): *string*
 
-Defined in transforms/field-transform.ts:132
+*Defined in [data-mate/src/transforms/field-transform.ts:232](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L232)*
 
 **Parameters:**
 
@@ -369,7 +364,7 @@ ___
 
 ▸ **dedup**(`input`: any[]): *any[]*
 
-Defined in transforms/field-transform.ts:181
+*Defined in [data-mate/src/transforms/field-transform.ts:281](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L281)*
 
 **Parameters:**
 
@@ -385,7 +380,7 @@ ___
 
 ▸ **dropField**(`record`: any, `args`: object): *any*
 
-Defined in transforms/record-transform.ts:20
+*Defined in [data-mate/src/transforms/record-transform.ts:67](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/record-transform.ts#L67)*
 
 **Parameters:**
 
@@ -402,7 +397,7 @@ ___
 
 ▸ **encodeBase64**(`input`: string): *string*
 
-Defined in transforms/field-transform.ts:127
+*Defined in [data-mate/src/transforms/field-transform.ts:227](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L227)*
 
 **Parameters:**
 
@@ -418,7 +413,7 @@ ___
 
 ▸ **encodeHex**(`input`: string): *string*
 
-Defined in transforms/field-transform.ts:147
+*Defined in [data-mate/src/transforms/field-transform.ts:247](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L247)*
 
 **Parameters:**
 
@@ -434,7 +429,7 @@ ___
 
 ▸ **encodeMD5**(`input`: string): *string*
 
-Defined in transforms/field-transform.ts:152
+*Defined in [data-mate/src/transforms/field-transform.ts:252](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L252)*
 
 **Parameters:**
 
@@ -450,7 +445,7 @@ ___
 
 ▸ **encodeSHA**(`input`: any, `__namedParameters`: object): *Buffer‹› & string*
 
-Defined in transforms/field-transform.ts:158
+*Defined in [data-mate/src/transforms/field-transform.ts:258](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L258)*
 
 **Parameters:**
 
@@ -467,7 +462,7 @@ ___
 
 ▸ **encodeSHA1**(`input`: string): *string*
 
-Defined in transforms/field-transform.ts:166
+*Defined in [data-mate/src/transforms/field-transform.ts:266](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L266)*
 
 **Parameters:**
 
@@ -483,7 +478,7 @@ ___
 
 ▸ **encodeUrl**(`input`: string): *string*
 
-Defined in transforms/field-transform.ts:137
+*Defined in [data-mate/src/transforms/field-transform.ts:237](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L237)*
 
 **Parameters:**
 
@@ -499,7 +494,7 @@ ___
 
 ▸ **equals**(`input`: any, `__namedParameters`: object): *boolean*
 
-Defined in validations/field-validator.ts:234
+*Defined in [data-mate/src/validations/field-validator.ts:265](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L265)*
 
 **Parameters:**
 
@@ -516,7 +511,7 @@ ___
 
 ▸ **extract**(`input`: any, `__namedParameters`: object): *void*
 
-Defined in transforms/field-transform.ts:190
+*Defined in [data-mate/src/transforms/field-transform.ts:290](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L290)*
 
 **Parameters:**
 
@@ -529,38 +524,69 @@ Name | Type |
 
 ___
 
+###  findWildcardField
+
+▸ **findWildcardField**(`field`: string, `cb`: [BooleanCB](overview.md#booleancb)): *WildcardField*
+
+*Defined in [data-mate/src/document-matcher/logic-builder/string.ts:21](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/document-matcher/logic-builder/string.ts#L21)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`field` | string |
+`cb` | [BooleanCB](overview.md#booleancb) |
+
+**Returns:** *WildcardField*
+
+___
+
 ###  formatDate
 
-▸ **formatDate**(`input`: any, `format`: string, `args?`: undefined | object): *string*
+▸ **formatDate**(`input`: any, `args`: object): *string*
 
-Defined in transforms/field-transform.ts:328
+*Defined in [data-mate/src/transforms/field-transform.ts:428](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L428)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `input` | any |
-`format` | string |
-`args?` | undefined &#124; object |
+`args` | object |
 
 **Returns:** *string*
 
 ___
 
-###  getLonAndLat
+###  geoBoundingBox
 
-▸ **getLonAndLat**(`input`: any, `throwInvalid`: boolean): *[number, number] | null*
+▸ **geoBoundingBox**(`node`: GeoBoundingBox): *(Anonymous function)*
 
-Defined in transforms/helpers.ts:11
+*Defined in [data-mate/src/document-matcher/logic-builder/geo.ts:39](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/document-matcher/logic-builder/geo.ts#L39)*
 
 **Parameters:**
 
-Name | Type | Default |
------- | ------ | ------ |
-`input` | any | - |
-`throwInvalid` | boolean | true |
+Name | Type |
+------ | ------ |
+`node` | GeoBoundingBox |
 
-**Returns:** *[number, number] | null*
+**Returns:** *(Anonymous function)*
+
+___
+
+###  geoDistance
+
+▸ **geoDistance**(`node`: GeoDistance): *(Anonymous function)*
+
+*Defined in [data-mate/src/document-matcher/logic-builder/geo.ts:18](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/document-matcher/logic-builder/geo.ts#L18)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`node` | GeoDistance |
+
+**Returns:** *(Anonymous function)*
 
 ___
 
@@ -568,7 +594,7 @@ ___
 
 ▸ **inIPRange**(`input`: any, `args`: object): *any*
 
-Defined in validations/field-validator.ts:139
+*Defined in [data-mate/src/validations/field-validator.ts:197](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L197)*
 
 **Parameters:**
 
@@ -585,7 +611,7 @@ ___
 
 ▸ **inNumberRange**(`input`: number, `args`: object): *boolean*
 
-Defined in validations/field-validator.ts:196
+*Defined in [data-mate/src/validations/field-validator.ts:234](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L234)*
 
 **Parameters:**
 
@@ -598,11 +624,43 @@ Name | Type |
 
 ___
 
+###  ipRange
+
+▸ **ipRange**(`node`: Range): *checkIp*
+
+*Defined in [data-mate/src/document-matcher/logic-builder/ip.ts:90](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/document-matcher/logic-builder/ip.ts#L90)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`node` | Range |
+
+**Returns:** *checkIp*
+
+___
+
+###  ipTerm
+
+▸ **ipTerm**(`node`: Term): *checkIp*
+
+*Defined in [data-mate/src/document-matcher/logic-builder/ip.ts:27](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/document-matcher/logic-builder/ip.ts#L27)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`node` | Term |
+
+**Returns:** *checkIp*
+
+___
+
 ###  isAlpha
 
 ▸ **isAlpha**(`input`: any, `args?`: undefined | object): *boolean*
 
-Defined in validations/field-validator.ts:238
+*Defined in [data-mate/src/validations/field-validator.ts:269](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L269)*
 
 **Parameters:**
 
@@ -619,7 +677,7 @@ ___
 
 ▸ **isAlphanumeric**(`input`: any, `args?`: undefined | object): *boolean*
 
-Defined in validations/field-validator.ts:243
+*Defined in [data-mate/src/validations/field-validator.ts:274](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L274)*
 
 **Parameters:**
 
@@ -636,7 +694,7 @@ ___
 
 ▸ **isAscii**(`input`: any): *boolean*
 
-Defined in validations/field-validator.ts:249
+*Defined in [data-mate/src/validations/field-validator.ts:280](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L280)*
 
 **Parameters:**
 
@@ -652,7 +710,7 @@ ___
 
 ▸ **isBase64**(`input`: any): *boolean*
 
-Defined in validations/field-validator.ts:253
+*Defined in [data-mate/src/validations/field-validator.ts:284](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L284)*
 
 **Parameters:**
 
@@ -668,7 +726,7 @@ ___
 
 ▸ **isBoolean**(`input`: any): *boolean*
 
-Defined in validations/field-validator.ts:65
+*Defined in [data-mate/src/validations/field-validator.ts:135](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L135)*
 
 **Parameters:**
 
@@ -684,7 +742,23 @@ ___
 
 ▸ **isBooleanLike**(`input`: any): *boolean*
 
-Defined in validations/field-validator.ts:69
+*Defined in [data-mate/src/validations/field-validator.ts:139](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L139)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`input` | any |
+
+**Returns:** *boolean*
+
+___
+
+###  isCountryCode
+
+▸ **isCountryCode**(`input`: any): *boolean*
+
+*Defined in [data-mate/src/validations/field-validator.ts:312](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L312)*
 
 **Parameters:**
 
@@ -700,7 +774,7 @@ ___
 
 ▸ **isEmail**(`input`: any): *boolean*
 
-Defined in validations/field-validator.ts:73
+*Defined in [data-mate/src/validations/field-validator.ts:143](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L143)*
 
 **Parameters:**
 
@@ -716,7 +790,7 @@ ___
 
 ▸ **isEmpty**(`input`: any, `args?`: undefined | object): *boolean*
 
-Defined in validations/field-validator.ts:257
+*Defined in [data-mate/src/validations/field-validator.ts:288](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L288)*
 
 **Parameters:**
 
@@ -731,16 +805,16 @@ ___
 
 ###  isFQDN
 
-▸ **isFQDN**(`input`: any, `config?`: [FQDNOptions](interfaces/fqdnoptions.md)): *boolean*
+▸ **isFQDN**(`input`: any, `args?`: [FQDNOptions](interfaces/fqdnoptions.md)): *boolean*
 
-Defined in validations/field-validator.ts:267
+*Defined in [data-mate/src/validations/field-validator.ts:298](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L298)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `input` | any |
-`config?` | [FQDNOptions](interfaces/fqdnoptions.md) |
+`args?` | [FQDNOptions](interfaces/fqdnoptions.md) |
 
 **Returns:** *boolean*
 
@@ -750,7 +824,7 @@ ___
 
 ▸ **isGeoJSON**(`input`: any): *boolean*
 
-Defined in validations/field-validator.ts:87
+*Defined in [data-mate/src/validations/field-validator.ts:152](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L152)*
 
 **Parameters:**
 
@@ -766,7 +840,7 @@ ___
 
 ▸ **isGeoPoint**(`input`: any): *boolean*
 
-Defined in validations/field-validator.ts:82
+*Defined in [data-mate/src/validations/field-validator.ts:147](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L147)*
 
 **Parameters:**
 
@@ -780,15 +854,15 @@ ___
 
 ###  isGeoShapeMultiPolygon
 
-▸ **isGeoShapeMultiPolygon**(`input`: i.JoinGeoShape): *boolean*
+▸ **isGeoShapeMultiPolygon**(`input`: JoinGeoShape): *boolean*
 
-Defined in validations/field-validator.ts:103
+*Defined in [data-mate/src/validations/field-validator.ts:164](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L164)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`input` | i.JoinGeoShape |
+`input` | JoinGeoShape |
 
 **Returns:** *boolean*
 
@@ -796,15 +870,15 @@ ___
 
 ###  isGeoShapePoint
 
-▸ **isGeoShapePoint**(`input`: i.JoinGeoShape): *boolean*
+▸ **isGeoShapePoint**(`input`: JoinGeoShape): *boolean*
 
-Defined in validations/field-validator.ts:93
+*Defined in [data-mate/src/validations/field-validator.ts:156](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L156)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`input` | i.JoinGeoShape |
+`input` | JoinGeoShape |
 
 **Returns:** *boolean*
 
@@ -812,15 +886,15 @@ ___
 
 ###  isGeoShapePolygon
 
-▸ **isGeoShapePolygon**(`input`: i.JoinGeoShape): *boolean*
+▸ **isGeoShapePolygon**(`input`: JoinGeoShape): *boolean*
 
-Defined in validations/field-validator.ts:98
+*Defined in [data-mate/src/validations/field-validator.ts:160](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L160)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`input` | i.JoinGeoShape |
+`input` | JoinGeoShape |
 
 **Returns:** *boolean*
 
@@ -830,7 +904,7 @@ ___
 
 ▸ **isHash**(`input`: any, `__namedParameters`: object): *boolean*
 
-Defined in validations/field-validator.ts:271
+*Defined in [data-mate/src/validations/field-validator.ts:308](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L308)*
 
 **Parameters:**
 
@@ -847,7 +921,7 @@ ___
 
 ▸ **isIP**(`input`: any): *boolean*
 
-Defined in validations/field-validator.ts:108
+*Defined in [data-mate/src/validations/field-validator.ts:168](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L168)*
 
 **Parameters:**
 
@@ -863,23 +937,7 @@ ___
 
 ▸ **isIPCidr**(`input`: any): *boolean*
 
-Defined in validations/field-validator.ts:133
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`input` | any |
-
-**Returns:** *boolean*
-
-___
-
-###  isISBN
-
-▸ **isISBN**(`input`: any): *boolean*
-
-Defined in validations/field-validator.ts:276
+*Defined in [data-mate/src/validations/field-validator.ts:191](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L191)*
 
 **Parameters:**
 
@@ -895,23 +953,7 @@ ___
 
 ▸ **isISDN**(`input`: any): *boolean*
 
-Defined in validations/field-validator.ts:167
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`input` | any |
-
-**Returns:** *boolean*
-
-___
-
-###  isISO31661Alpha2
-
-▸ **isISO31661Alpha2**(`input`: any): *boolean*
-
-Defined in validations/field-validator.ts:280
+*Defined in [data-mate/src/validations/field-validator.ts:225](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L225)*
 
 **Parameters:**
 
@@ -927,7 +969,7 @@ ___
 
 ▸ **isISO8601**(`input`: any): *boolean*
 
-Defined in validations/field-validator.ts:284
+*Defined in [data-mate/src/validations/field-validator.ts:316](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L316)*
 
 **Parameters:**
 
@@ -941,16 +983,16 @@ ___
 
 ###  isISSN
 
-▸ **isISSN**(`input`: any, `args?`: [IssnOptions](interfaces/issnoptions.md)): *boolean*
+▸ **isISSN**(`input`: any, `args?`: [ArgsISSNOptions](interfaces/argsissnoptions.md)): *boolean*
 
-Defined in validations/field-validator.ts:288
+*Defined in [data-mate/src/validations/field-validator.ts:320](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L320)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `input` | any |
-`args?` | [IssnOptions](interfaces/issnoptions.md) |
+`args?` | [ArgsISSNOptions](interfaces/argsissnoptions.md) |
 
 **Returns:** *boolean*
 
@@ -960,7 +1002,7 @@ ___
 
 ▸ **isInteger**(`input`: any): *boolean*
 
-Defined in validations/field-validator.ts:212
+*Defined in [data-mate/src/validations/field-validator.ts:243](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L243)*
 
 **Parameters:**
 
@@ -976,7 +1018,7 @@ ___
 
 ▸ **isJSON**(`input`: any): *boolean*
 
-Defined in validations/field-validator.ts:296
+*Defined in [data-mate/src/validations/field-validator.ts:333](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L333)*
 
 **Parameters:**
 
@@ -992,7 +1034,7 @@ ___
 
 ▸ **isLength**(`input`: any, `__namedParameters`: object): *boolean*
 
-Defined in validations/field-validator.ts:301
+*Defined in [data-mate/src/validations/field-validator.ts:337](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L337)*
 
 **Parameters:**
 
@@ -1007,16 +1049,16 @@ ___
 
 ###  isMacAddress
 
-▸ **isMacAddress**(`input`: any, `args?`: [MACAddress](interfaces/macaddress.md)): *boolean*
+▸ **isMacAddress**(`input`: any, `args?`: MACAddress): *boolean*
 
-Defined in validations/field-validator.ts:172
+*Defined in [data-mate/src/validations/field-validator.ts:230](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L230)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `input` | any |
-`args?` | [MACAddress](interfaces/macaddress.md) |
+`args?` | MACAddress |
 
 **Returns:** *boolean*
 
@@ -1026,7 +1068,7 @@ ___
 
 ▸ **isMimeType**(`input`: any): *boolean*
 
-Defined in validations/field-validator.ts:309
+*Defined in [data-mate/src/validations/field-validator.ts:345](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L345)*
 
 **Parameters:**
 
@@ -1042,7 +1084,7 @@ ___
 
 ▸ **isNonRoutableIP**(`input`: any): *boolean*
 
-Defined in validations/field-validator.ts:129
+*Defined in [data-mate/src/validations/field-validator.ts:184](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L184)*
 
 **Parameters:**
 
@@ -1058,7 +1100,7 @@ ___
 
 ▸ **isNumber**(`input`: any): *input is number*
 
-Defined in validations/field-validator.ts:208
+*Defined in [data-mate/src/validations/field-validator.ts:239](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L239)*
 
 **Parameters:**
 
@@ -1074,7 +1116,7 @@ ___
 
 ▸ **isPostalCode**(`input`: any, `__namedParameters`: object): *boolean*
 
-Defined in validations/field-validator.ts:313
+*Defined in [data-mate/src/validations/field-validator.ts:349](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L349)*
 
 **Parameters:**
 
@@ -1091,7 +1133,7 @@ ___
 
 ▸ **isRFC3339**(`input`: any): *boolean*
 
-Defined in validations/field-validator.ts:292
+*Defined in [data-mate/src/validations/field-validator.ts:329](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L329)*
 
 **Parameters:**
 
@@ -1105,16 +1147,15 @@ ___
 
 ###  isRoutableIP
 
-▸ **isRoutableIP**(`input`: any, `args?`: undefined | object): *boolean*
+▸ **isRoutableIP**(`input`: any): *boolean*
 
-Defined in validations/field-validator.ts:117
+*Defined in [data-mate/src/validations/field-validator.ts:177](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L177)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `input` | any |
-`args?` | undefined &#124; object |
 
 **Returns:** *boolean*
 
@@ -1124,7 +1165,7 @@ ___
 
 ▸ **isString**(`input`: any): *boolean*
 
-Defined in validations/field-validator.ts:216
+*Defined in [data-mate/src/validations/field-validator.ts:247](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L247)*
 
 **Parameters:**
 
@@ -1140,7 +1181,7 @@ ___
 
 ▸ **isUUID**(`input`: any): *boolean*
 
-Defined in validations/field-validator.ts:226
+*Defined in [data-mate/src/validations/field-validator.ts:257](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L257)*
 
 **Parameters:**
 
@@ -1156,7 +1197,7 @@ ___
 
 ▸ **isUrl**(`input`: any): *boolean*
 
-Defined in validations/field-validator.ts:220
+*Defined in [data-mate/src/validations/field-validator.ts:251](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L251)*
 
 **Parameters:**
 
@@ -1172,7 +1213,7 @@ ___
 
 ▸ **isValidDate**(`input`: any): *boolean*
 
-Defined in validations/field-validator.ts:329
+*Defined in [data-mate/src/validations/field-validator.ts:353](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L353)*
 
 **Parameters:**
 
@@ -1186,60 +1227,18 @@ ___
 
 ###  parseDate
 
-▸ **parseDate**(`input`: any, `format`: string): *Date*
+▸ **parseDate**(`input`: any, `args`: object): *Date*
 
-Defined in transforms/field-transform.ts:343
+*Defined in [data-mate/src/transforms/field-transform.ts:445](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L445)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `input` | any |
-`format` | string |
+`args` | object |
 
 **Returns:** *Date*
-
-___
-
-###  parseGeoPoint
-
-▸ **parseGeoPoint**(`point`: [GeoPointInput](overview.md#geopointinput)): *[GeoPoint](interfaces/geopoint.md)*
-
-Defined in transforms/helpers.ts:33
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`point` | [GeoPointInput](overview.md#geopointinput) |
-
-**Returns:** *[GeoPoint](interfaces/geopoint.md)*
-
-▸ **parseGeoPoint**(`point`: [GeoPointInput](overview.md#geopointinput), `throwInvalid`: true): *[GeoPoint](interfaces/geopoint.md)*
-
-Defined in transforms/helpers.ts:34
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`point` | [GeoPointInput](overview.md#geopointinput) |
-`throwInvalid` | true |
-
-**Returns:** *[GeoPoint](interfaces/geopoint.md)*
-
-▸ **parseGeoPoint**(`point`: [GeoPointInput](overview.md#geopointinput), `throwInvalid`: false): *[GeoPoint](interfaces/geopoint.md) | null*
-
-Defined in transforms/helpers.ts:35
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`point` | [GeoPointInput](overview.md#geopointinput) |
-`throwInvalid` | false |
-
-**Returns:** *[GeoPoint](interfaces/geopoint.md) | null*
 
 ___
 
@@ -1247,7 +1246,7 @@ ___
 
 ▸ **parseJSON**(`input`: any): *any*
 
-Defined in transforms/field-transform.ts:176
+*Defined in [data-mate/src/transforms/field-transform.ts:276](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L276)*
 
 **Parameters:**
 
@@ -1259,11 +1258,44 @@ Name | Type |
 
 ___
 
+###  regexp
+
+▸ **regexp**(`regexStr`: string): *regexpTerm*
+
+*Defined in [data-mate/src/document-matcher/logic-builder/string.ts:9](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/document-matcher/logic-builder/string.ts#L9)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`regexStr` | string |
+
+**Returns:** *regexpTerm*
+
+___
+
+###  reject
+
+▸ **reject**(`obj`: AnyObject, `args`: DMOptions): *boolean*
+
+*Defined in [data-mate/src/validations/record-validator.ts:73](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/record-validator.ts#L73)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`obj` | AnyObject |
+`args` | DMOptions |
+
+**Returns:** *boolean*
+
+___
+
 ###  renameField
 
 ▸ **renameField**(`record`: any, `args`: object): *any*
 
-Defined in transforms/record-transform.ts:6
+*Defined in [data-mate/src/transforms/record-transform.ts:49](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/record-transform.ts#L49)*
 
 **Parameters:**
 
@@ -1280,7 +1312,7 @@ ___
 
 ▸ **replaceLiteral**(`input`: string, `__namedParameters`: object): *string*
 
-Defined in transforms/field-transform.ts:290
+*Defined in [data-mate/src/transforms/field-transform.ts:390](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L390)*
 
 **Parameters:**
 
@@ -1297,7 +1329,7 @@ ___
 
 ▸ **replaceRegex**(`input`: string, `__namedParameters`: object): *string*
 
-Defined in transforms/field-transform.ts:274
+*Defined in [data-mate/src/transforms/field-transform.ts:374](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L374)*
 
 **Parameters:**
 
@@ -1312,16 +1344,33 @@ ___
 
 ###  required
 
-▸ **required**(`obj`: AnyObject, `fields`: string[]): *boolean*
+▸ **required**(`obj`: AnyObject, `__namedParameters`: object): *boolean*
 
-Defined in validations/record-validator.ts:8
+*Defined in [data-mate/src/validations/record-validator.ts:51](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/record-validator.ts#L51)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
 `obj` | AnyObject |
-`fields` | string[] |
+`__namedParameters` | object |
+
+**Returns:** *boolean*
+
+___
+
+###  select
+
+▸ **select**(`obj`: AnyObject, `args`: DMOptions): *boolean*
+
+*Defined in [data-mate/src/validations/record-validator.ts:62](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/record-validator.ts#L62)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`obj` | AnyObject |
+`args` | DMOptions |
 
 **Returns:** *boolean*
 
@@ -1331,7 +1380,7 @@ ___
 
 ▸ **setField**(`record`: any, `args`: object): *any*
 
-Defined in transforms/record-transform.ts:16
+*Defined in [data-mate/src/transforms/record-transform.ts:59](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/record-transform.ts#L59)*
 
 **Parameters:**
 
@@ -1348,7 +1397,7 @@ ___
 
 ▸ **toArray**(`input`: string, `args?`: undefined | object): *any[]*
 
-Defined in transforms/field-transform.ts:298
+*Defined in [data-mate/src/transforms/field-transform.ts:398](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L398)*
 
 **Parameters:**
 
@@ -1365,7 +1414,7 @@ ___
 
 ▸ **toBoolean**(`input`: any): *boolean*
 
-Defined in transforms/field-transform.ts:35
+*Defined in [data-mate/src/transforms/field-transform.ts:137](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L137)*
 
 **Parameters:**
 
@@ -1381,7 +1430,7 @@ ___
 
 ▸ **toCamelCase**(`input`: string): *string*
 
-Defined in transforms/field-transform.ts:353
+*Defined in [data-mate/src/transforms/field-transform.ts:458](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L458)*
 
 **Parameters:**
 
@@ -1395,9 +1444,9 @@ ___
 
 ###  toGeoPoint
 
-▸ **toGeoPoint**(`input`: any): *[GeoPoint](interfaces/geopoint.md)*
+▸ **toGeoPoint**(`input`: any): *GeoPoint*
 
-Defined in transforms/field-transform.ts:186
+*Defined in [data-mate/src/transforms/field-transform.ts:286](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L286)*
 
 **Parameters:**
 
@@ -1405,7 +1454,7 @@ Name | Type |
 ------ | ------ |
 `input` | any |
 
-**Returns:** *[GeoPoint](interfaces/geopoint.md)*
+**Returns:** *GeoPoint*
 
 ___
 
@@ -1413,7 +1462,7 @@ ___
 
 ▸ **toISDN**(`input`: any): *string*
 
-Defined in transforms/field-transform.ts:96
+*Defined in [data-mate/src/transforms/field-transform.ts:196](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L196)*
 
 **Parameters:**
 
@@ -1429,7 +1478,7 @@ ___
 
 ▸ **toISO8601**(`input`: any, `args?`: undefined | object): *string*
 
-Defined in transforms/field-transform.ts:317
+*Defined in [data-mate/src/transforms/field-transform.ts:417](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L417)*
 
 **Parameters:**
 
@@ -1446,7 +1495,7 @@ ___
 
 ▸ **toKebabCase**(`input`: string): *string*
 
-Defined in transforms/field-transform.ts:357
+*Defined in [data-mate/src/transforms/field-transform.ts:462](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L462)*
 
 **Parameters:**
 
@@ -1462,7 +1511,7 @@ ___
 
 ▸ **toLowerCase**(`input`: string): *string*
 
-Defined in transforms/field-transform.ts:44
+*Defined in [data-mate/src/transforms/field-transform.ts:146](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L146)*
 
 **Parameters:**
 
@@ -1478,7 +1527,7 @@ ___
 
 ▸ **toNumber**(`input`: any, `args?`: undefined | object): *any*
 
-Defined in transforms/field-transform.ts:109
+*Defined in [data-mate/src/transforms/field-transform.ts:209](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L209)*
 
 **Parameters:**
 
@@ -1495,7 +1544,7 @@ ___
 
 ▸ **toPascalCase**(`input`: string): *string*
 
-Defined in transforms/field-transform.ts:361
+*Defined in [data-mate/src/transforms/field-transform.ts:466](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L466)*
 
 **Parameters:**
 
@@ -1511,7 +1560,7 @@ ___
 
 ▸ **toSnakeCase**(`input`: string): *string*
 
-Defined in transforms/field-transform.ts:365
+*Defined in [data-mate/src/transforms/field-transform.ts:470](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L470)*
 
 **Parameters:**
 
@@ -1523,11 +1572,27 @@ Name | Type |
 
 ___
 
+###  toString
+
+▸ **toString**(`input`: any): *string*
+
+*Defined in [data-mate/src/transforms/field-transform.ts:133](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L133)*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`input` | any |
+
+**Returns:** *string*
+
+___
+
 ###  toTitleCase
 
 ▸ **toTitleCase**(`input`: string): *string*
 
-Defined in transforms/field-transform.ts:369
+*Defined in [data-mate/src/transforms/field-transform.ts:474](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L474)*
 
 **Parameters:**
 
@@ -1543,7 +1608,7 @@ ___
 
 ▸ **toUnixTime**(`input`: any): *number*
 
-Defined in transforms/field-transform.ts:305
+*Defined in [data-mate/src/transforms/field-transform.ts:405](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L405)*
 
 **Parameters:**
 
@@ -1559,7 +1624,7 @@ ___
 
 ▸ **toUpperCase**(`input`: string): *string*
 
-Defined in transforms/field-transform.ts:39
+*Defined in [data-mate/src/transforms/field-transform.ts:141](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L141)*
 
 **Parameters:**
 
@@ -1571,11 +1636,28 @@ Name | Type |
 
 ___
 
+###  toXluceneQuery
+
+▸ **toXluceneQuery**(`input`: AnyObject, `options`: [CreateJoinQueryOptions](overview.md#createjoinqueryoptions)): *[XluceneQueryResult](interfaces/xlucenequeryresult.md)*
+
+*Defined in [data-mate/src/transforms/helpers.ts:133](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/helpers.ts#L133)*
+
+**Parameters:**
+
+Name | Type | Default |
+------ | ------ | ------ |
+`input` | AnyObject | - |
+`options` | [CreateJoinQueryOptions](overview.md#createjoinqueryoptions) |  {} |
+
+**Returns:** *[XluceneQueryResult](interfaces/xlucenequeryresult.md)*
+
+___
+
 ###  trim
 
 ▸ **trim**(`input`: string, `args?`: undefined | object): *string*
 
-Defined in transforms/field-transform.ts:49
+*Defined in [data-mate/src/transforms/field-transform.ts:151](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L151)*
 
 **Parameters:**
 
@@ -1592,7 +1674,7 @@ ___
 
 ▸ **trimEnd**(`input`: string, `args?`: undefined | object): *string*
 
-Defined in transforms/field-transform.ts:70
+*Defined in [data-mate/src/transforms/field-transform.ts:172](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L172)*
 
 **Parameters:**
 
@@ -1609,7 +1691,7 @@ ___
 
 ▸ **trimStart**(`input`: string, `args?`: undefined | object): *string*
 
-Defined in transforms/field-transform.ts:54
+*Defined in [data-mate/src/transforms/field-transform.ts:156](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L156)*
 
 **Parameters:**
 
@@ -1626,7 +1708,7 @@ ___
 
 ▸ **truncate**(`input`: string, `args`: object): *string*
 
-Defined in transforms/field-transform.ts:87
+*Defined in [data-mate/src/transforms/field-transform.ts:188](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L188)*
 
 **Parameters:**
 
@@ -1639,20 +1721,19 @@ Name | Type |
 
 ___
 
-###  validValue
+###  wildcard
 
-▸ **validValue**(`input`: any, `args?`: undefined | object): *boolean*
+▸ **wildcard**(`wildcardStr`: string): *wildcardTerm*
 
-Defined in validations/field-validator.ts:317
+*Defined in [data-mate/src/document-matcher/logic-builder/string.ts:15](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/document-matcher/logic-builder/string.ts#L15)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`input` | any |
-`args?` | undefined &#124; object |
+`wildcardStr` | string |
 
-**Returns:** *boolean*
+**Returns:** *wildcardTerm*
 
 ## Object literals
 
@@ -1660,367 +1741,241 @@ Name | Type |
 
 ### ▪ **respoitory**: *object*
 
-Defined in validations/field-validator.ts:23
+*Defined in [data-mate/src/transforms/field-transform.ts:18](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L18)*
 
-Defined in transforms/record-transform.ts:3
+*Defined in [data-mate/src/transforms/record-transform.ts:4](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/record-transform.ts#L4)*
 
-▪ **contains**: *object*
+*Defined in [data-mate/src/validations/record-validator.ts:7](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/record-validator.ts#L7)*
 
-Defined in validations/field-validator.ts:42
+▪ **copyField**: *object*
 
-* **fn**: *[contains](overview.md#contains)* =  contains
+*Defined in [data-mate/src/transforms/record-transform.ts:36](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/record-transform.ts#L36)*
 
-* **config**: *object*
-
-  * **value**: *object*
-
-    * **type**: *string* = "String!"
-
-▪ **equals**: *object*
-
-Defined in validations/field-validator.ts:43
-
-* **fn**: *[equals](overview.md#equals)* =  equals
+* **fn**: *[copyField](overview.md#copyfield)* =  copyField
 
 * **config**: *object*
 
-  * **value**: *object*
+  * **copyTo**: *object*
 
-    * **type**: *string* = "String!"
+    * **type**: *"String"* = "String"
 
-▪ **inIPRange**: *object*
+  * **field**: *object*
 
-Defined in validations/field-validator.ts:62
+    * **type**: *"String"* = "String"
 
-* **fn**: *[inIPRange](overview.md#iniprange)* =  inIPRange
+▪ **decodeBase64**: *object*
+
+*Defined in [data-mate/src/transforms/field-transform.ts:42](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L42)*
+
+* **config**(): *object*
+
+* **fn**: *[decodeBase64](overview.md#decodebase64)* =  decodeBase64
+
+▪ **decodeHex**: *object*
+
+*Defined in [data-mate/src/transforms/field-transform.ts:46](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L46)*
+
+* **config**(): *object*
+
+* **fn**: *[decodeHex](overview.md#decodehex)* =  decodeHex
+
+▪ **decodeSHA1**: *object*
+
+*Defined in [data-mate/src/transforms/field-transform.ts:57](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L57)*
+
+* **config**(): *object*
+
+* **fn**: *[decodeSHA1](overview.md#decodesha1)* =  decodeSHA1
+
+▪ **decodeUrl**: *object*
+
+*Defined in [data-mate/src/transforms/field-transform.ts:44](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L44)*
+
+* **config**(): *object*
+
+* **fn**: *[decodeUrl](overview.md#decodeurl)* =  decodeUrl
+
+▪ **dedup**: *object*
+
+*Defined in [data-mate/src/transforms/field-transform.ts:59](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L59)*
+
+* **config**(): *object*
+
+* **fn**: *[dedup](overview.md#dedup)* =  dedup
+
+▪ **dropField**: *object*
+
+*Defined in [data-mate/src/transforms/record-transform.ts:28](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/record-transform.ts#L28)*
+
+* **fn**: *[dropField](overview.md#dropfield)* =  dropField
 
 * **config**: *object*
 
-  * **cidr**: *object*
+  * **field**: *object*
 
-    * **type**: *string* = "String!"
+    * **type**: *"String"* = "String"
 
-  * **max**: *object*
+▪ **encodeBase64**: *object*
 
-    * **type**: *string* = "String!"
+*Defined in [data-mate/src/transforms/field-transform.ts:43](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L43)*
 
-  * **min**: *object*
+* **config**(): *object*
 
-    * **type**: *string* = "String!"
+* **fn**: *[encodeBase64](overview.md#encodebase64)* =  encodeBase64
 
-▪ **inNumberRange**: *object*
+▪ **encodeHex**: *object*
 
-Defined in validations/field-validator.ts:38
+*Defined in [data-mate/src/transforms/field-transform.ts:47](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L47)*
 
-* **fn**: *[inNumberRange](overview.md#innumberrange)* =  inNumberRange
+* **config**(): *object*
+
+* **fn**: *[encodeHex](overview.md#encodehex)* =  encodeHex
+
+▪ **encodeMD5**: *object*
+
+*Defined in [data-mate/src/transforms/field-transform.ts:48](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L48)*
+
+* **config**(): *object*
+
+* **fn**: *[encodeMD5](overview.md#encodemd5)* =  encodeMD5
+
+▪ **encodeSHA**: *object*
+
+*Defined in [data-mate/src/transforms/field-transform.ts:49](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L49)*
+
+* **fn**: *[encodeSHA](overview.md#encodesha)* =  encodeSHA
 
 * **config**: *object*
 
-  * **max**: *object*
+  * **digest**: *object*
 
-    * **type**: *string* = "Number!"
+    * **type**: *"String"* = "String"
 
-  * **min**: *object*
+  * **hash**: *object*
 
-    * **type**: *string* = "Number!"
+    * **type**: *"String"* = "String"
 
-▪ **isAlpha**: *object*
+▪ **encodeSHA1**: *object*
 
-Defined in validations/field-validator.ts:44
-
-* **config**(): *object*
-
-* **fn**: *[isAlpha](overview.md#isalpha)* =  isAlpha
-
-▪ **isAlphanumeric**: *object*
-
-Defined in validations/field-validator.ts:45
+*Defined in [data-mate/src/transforms/field-transform.ts:56](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L56)*
 
 * **config**(): *object*
 
-* **fn**: *[isAlphanumeric](overview.md#isalphanumeric)* =  isAlphanumeric
+* **fn**: *[encodeSHA1](overview.md#encodesha1)* =  encodeSHA1
 
-▪ **isAscii**: *object*
+▪ **encodeUrl**: *object*
 
-Defined in validations/field-validator.ts:46
-
-* **config**(): *object*
-
-* **fn**: *[isAscii](overview.md#isascii)* =  isAscii
-
-▪ **isBase64**: *object*
-
-Defined in validations/field-validator.ts:47
+*Defined in [data-mate/src/transforms/field-transform.ts:45](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L45)*
 
 * **config**(): *object*
 
-* **fn**: *[isBase64](overview.md#isbase64)* =  isBase64
+* **fn**: *[encodeUrl](overview.md#encodeurl)* =  encodeUrl
 
-▪ **isBoolean**: *object*
+▪ **extract**: *object*
 
-Defined in validations/field-validator.ts:24
+*Defined in [data-mate/src/transforms/field-transform.ts:61](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L61)*
 
-* **config**(): *object*
-
-* **fn**: *[isBoolean](overview.md#isboolean)* =  isBoolean
-
-▪ **isBooleanLike**: *object*
-
-Defined in validations/field-validator.ts:25
-
-* **config**(): *object*
-
-* **fn**: *[isBooleanLike](overview.md#isbooleanlike)* =  isBooleanLike
-
-▪ **isEmail**: *object*
-
-Defined in validations/field-validator.ts:26
-
-* **config**(): *object*
-
-* **fn**: *[isEmail](overview.md#isemail)* =  isEmail
-
-▪ **isEmpty**: *object*
-
-Defined in validations/field-validator.ts:48
-
-* **config**(): *object*
-
-* **fn**: *[isEmpty](overview.md#isempty)* =  isEmpty
-
-▪ **isFQDN**: *object*
-
-Defined in validations/field-validator.ts:49
-
-* **config**(): *object*
-
-* **fn**: *[isFQDN](overview.md#isfqdn)* =  isFQDN
-
-▪ **isGeoJSON**: *object*
-
-Defined in validations/field-validator.ts:28
-
-* **config**(): *object*
-
-* **fn**: *[isGeoJSON](overview.md#isgeojson)* =  isGeoJSON
-
-▪ **isGeoPoint**: *object*
-
-Defined in validations/field-validator.ts:29
-
-* **config**(): *object*
-
-* **fn**: *[isGeoPoint](overview.md#isgeopoint)* =  isGeoPoint
-
-▪ **isGeoShapeMultiPolygon**: *object*
-
-Defined in validations/field-validator.ts:32
-
-* **config**(): *object*
-
-* **fn**: *[isGeoShapeMultiPolygon](overview.md#isgeoshapemultipolygon)* =  isGeoShapeMultiPolygon
-
-▪ **isGeoShapePoint**: *object*
-
-Defined in validations/field-validator.ts:30
-
-* **config**(): *object*
-
-* **fn**: *[isGeoShapePoint](overview.md#isgeoshapepoint)* =  isGeoShapePoint
-
-▪ **isGeoShapePolygon**: *object*
-
-Defined in validations/field-validator.ts:31
-
-* **config**(): *object*
-
-* **fn**: *[isGeoShapePolygon](overview.md#isgeoshapepolygon)* =  isGeoShapePolygon
-
-▪ **isHash**: *object*
-
-Defined in validations/field-validator.ts:50
-
-* **config**(): *object*
-
-* **fn**: *[isHash](overview.md#ishash)* =  isHash
-
-▪ **isIP**: *object*
-
-Defined in validations/field-validator.ts:33
-
-* **config**(): *object*
-
-* **fn**: *[isIP](overview.md#isip)* =  isIP
-
-▪ **isISBN**: *object*
-
-Defined in validations/field-validator.ts:51
-
-* **config**(): *object*
-
-* **fn**: *[isISBN](overview.md#isisbn)* =  isISBN
-
-▪ **isISDN**: *object*
-
-Defined in validations/field-validator.ts:34
-
-* **config**(): *object*
-
-* **fn**: *[isISDN](overview.md#isisdn)* =  isISDN
-
-▪ **isISO31661Alpha2**: *object*
-
-Defined in validations/field-validator.ts:52
-
-* **config**(): *object*
-
-* **fn**: *[isISO31661Alpha2](overview.md#isiso31661alpha2)* =  isISO31661Alpha2
-
-▪ **isISO8601**: *object*
-
-Defined in validations/field-validator.ts:53
-
-* **config**(): *object*
-
-* **fn**: *[isISO8601](overview.md#isiso8601)* =  isISO8601
-
-▪ **isISSN**: *object*
-
-Defined in validations/field-validator.ts:54
-
-* **config**(): *object*
-
-* **fn**: *[isISSN](overview.md#isissn)* =  isISSN
-
-▪ **isInteger**: *object*
-
-Defined in validations/field-validator.ts:37
-
-* **config**(): *object*
-
-* **fn**: *[isInteger](overview.md#isinteger)* =  isInteger
-
-▪ **isJSON**: *object*
-
-Defined in validations/field-validator.ts:56
-
-* **config**(): *object*
-
-* **fn**: *[isJSON](overview.md#isjson)* =  isJSON
-
-▪ **isLength**: *object*
-
-Defined in validations/field-validator.ts:57
-
-* **config**(): *object*
-
-* **fn**: *[isLength](overview.md#islength)* =  isLength
-
-▪ **isMacAddress**: *object*
-
-Defined in validations/field-validator.ts:35
-
-* **fn**: *[isMacAddress](overview.md#ismacaddress)* =  isMacAddress
+* **fn**: *[extract](overview.md#extract)* =  extract
 
 * **config**: *object*
 
-  * **delimiter**: *object*
+  * **end**: *object*
 
-    * **type**: *string* = "String!"
+    * **type**: *"String"* = "String"
 
-▪ **isMimeType**: *object*
+  * **isMultiValue**: *object*
 
-Defined in validations/field-validator.ts:58
+    * **type**: *"Boolean"* = "Boolean"
 
-* **config**(): *object*
+  * **jexlExp**: *object*
 
-* **fn**: *[isMimeType](overview.md#ismimetype)* =  isMimeType
+    * **type**: *"String"* = "String"
 
-▪ **isNonRoutableIp**: *object*
+  * **regex**: *object*
 
-Defined in validations/field-validator.ts:61
+    * **type**: *"String"* = "String"
 
-* **config**(): *object*
+  * **start**: *object*
 
-* **fn**: *[isNonRoutableIP](overview.md#isnonroutableip)* =  isNonRoutableIP
+    * **type**: *"String"* = "String"
 
-▪ **isNumber**: *object*
+▪ **formatDate**: *object*
 
-Defined in validations/field-validator.ts:36
+*Defined in [data-mate/src/transforms/field-transform.ts:101](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L101)*
 
-* **config**(): *object*
+* **fn**: *[formatDate](overview.md#formatdate)* =  formatDate
 
-* **fn**: *[isNumber](overview.md#isnumber)* =  isNumber
+* **config**: *object*
 
-▪ **isPostalCode**: *object*
+  * **format**: *object*
 
-Defined in validations/field-validator.ts:59
+    * **type**: *"String"* = "String"
 
-* **config**(): *object*
+  * **resolution**: *object*
 
-* **fn**: *[isPostalCode](overview.md#ispostalcode)* =  isPostalCode
+    * **description**: *string* = "may be set to seconds | milliseconds"
 
-▪ **isRFC3339**: *object*
+    * **type**: *"String"* = "String"
 
-Defined in validations/field-validator.ts:55
+▪ **parseDate**: *object*
 
-* **config**(): *object*
+*Defined in [data-mate/src/transforms/field-transform.ts:108](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L108)*
 
-* **fn**: *[isRFC3339](overview.md#isrfc3339)* =  isRFC3339
+* **fn**: *[parseDate](overview.md#parsedate)* =  parseDate
 
-▪ **isRoutableIp**: *object*
+* **config**: *object*
 
-Defined in validations/field-validator.ts:60
+  * **format**: *object*
 
-* **config**(): *object*
+    * **type**: *"String"* = "String"
 
-* **fn**: *[isRoutableIP](overview.md#isroutableip)* =  isRoutableIP
+▪ **parseJSON**: *object*
 
-▪ **isString**: *object*
-
-Defined in validations/field-validator.ts:39
+*Defined in [data-mate/src/transforms/field-transform.ts:58](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L58)*
 
 * **config**(): *object*
 
-* **fn**: *[isString](overview.md#isstring)* =  isString
+* **fn**: *[parseJSON](overview.md#parsejson)* =  parseJSON
 
-▪ **isUUID**: *object*
+▪ **reject**: *object*
 
-Defined in validations/field-validator.ts:41
+*Defined in [data-mate/src/validations/record-validator.ts:33](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/record-validator.ts#L33)*
 
-* **config**(): *object*
+* **fn**: *[reject](overview.md#reject)* =  reject
 
-* **fn**: *[isUUID](overview.md#isuuid)* =  isUUID
+* **config**: *object*
 
-▪ **isUrl**: *object*
+  * **query**: *object*
 
-Defined in validations/field-validator.ts:40
+    * **type**: *"String"* = "String"
 
-* **config**(): *object*
+  * **typeConfig**: *object*
 
-* **fn**: *[isUrl](overview.md#isurl)* =  isUrl
+    * **type**: *"Object"* = "Object"
 
-▪ **validValue**: *object*
+  * **variables**: *object*
 
-Defined in validations/field-validator.ts:27
+    * **type**: *"Object"* = "Object"
 
-* **config**(): *object*
+▪ **renameField**: *object*
 
-* **fn**: *[validValue](overview.md#validvalue)* =  validValue
+*Defined in [data-mate/src/transforms/record-transform.ts:5](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/record-transform.ts#L5)*
 
-___
+* **fn**: *[renameField](overview.md#renamefield)* =  renameField
 
-### `Const` respository
+* **config**: *object*
 
-### ▪ **respository**: *object*
+  * **newFieldName**: *object*
 
-Defined in transforms/field-transform.ts:16
+    * **type**: *"String"* = "String"
 
-Defined in validations/record-validator.ts:4
+  * **oldFieldName**: *object*
+
+    * **type**: *"String"* = "String"
 
 ▪ **replaceLiteral**: *object*
 
-Defined in transforms/field-transform.ts:17
+*Defined in [data-mate/src/transforms/field-transform.ts:80](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L80)*
 
 * **fn**: *[replaceLiteral](overview.md#replaceliteral)* =  replaceLiteral
 
@@ -2028,15 +1983,15 @@ Defined in transforms/field-transform.ts:17
 
   * **replace**: *object*
 
-    * **type**: *string* = "String!"
+    * **type**: *"String"* = "String"
 
   * **search**: *object*
 
-    * **type**: *string* = "String!"
+    * **type**: *"String"* = "String"
 
 ▪ **replaceRegex**: *object*
 
-Defined in transforms/field-transform.ts:18
+*Defined in [data-mate/src/transforms/field-transform.ts:71](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L71)*
 
 * **fn**: *[replaceRegex](overview.md#replaceregex)* =  replaceRegex
 
@@ -2044,23 +1999,23 @@ Defined in transforms/field-transform.ts:18
 
   * **global**: *object*
 
-    * **type**: *string* = ""
+    * **type**: *"String"* = "String"
 
   * **ignore_case**: *object*
 
-    * **type**: *string* = "Boolean!"
+    * **type**: *"Boolean"* = "Boolean"
 
   * **regex**: *object*
 
-    * **type**: *string* = "String!"
+    * **type**: *"String"* = "String"
 
   * **replace**: *object*
 
-    * **type**: *string* = "String!"
+    * **type**: *"String"* = "String"
 
 ▪ **required**: *object*
 
-Defined in validations/record-validator.ts:5
+*Defined in [data-mate/src/validations/record-validator.ts:8](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/record-validator.ts#L8)*
 
 * **fn**: *[required](overview.md#required)* =  required
 
@@ -2068,27 +2023,103 @@ Defined in validations/record-validator.ts:5
 
   * **fields**: *object*
 
-    * **type**: *string* = "String[]!"
+    * **array**: *true* = true
+
+    * **type**: *"String"* = "String"
+
+▪ **select**: *object*
+
+*Defined in [data-mate/src/validations/record-validator.ts:17](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/record-validator.ts#L17)*
+
+* **fn**: *[select](overview.md#select)* =  select
+
+* **config**: *object*
+
+  * **query**: *object*
+
+    * **type**: *"String"* = "String"
+
+  * **typeConfig**: *object*
+
+    * **type**: *"Object"* = "Object"
+
+  * **variables**: *object*
+
+    * **type**: *"Object"* = "Object"
+
+▪ **setField**: *object*
+
+*Defined in [data-mate/src/transforms/record-transform.ts:16](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/record-transform.ts#L16)*
+
+* **fn**: *[setField](overview.md#setfield)* =  setField
+
+* **config**: *object*
+
+  * **field**: *object*
+
+    * **type**: *"String"* = "String"
+
+  * **value**: *object*
+
+    * **type**: *"Object"* = "Object"
 
 ▪ **toBoolean**: *object*
 
-Defined in transforms/field-transform.ts:25
+*Defined in [data-mate/src/transforms/field-transform.ts:20](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L20)*
 
 * **config**(): *object*
 
 * **fn**: *[toBoolean](overview.md#toboolean)* =  toBoolean
 
+▪ **toCamelCase**: *object*
+
+*Defined in [data-mate/src/transforms/field-transform.ts:126](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L126)*
+
+* **config**(): *object*
+
+* **fn**: *[toCamelCase](overview.md#tocamelcase)* =  toCamelCase
+
+▪ **toGeoPoint**: *object*
+
+*Defined in [data-mate/src/transforms/field-transform.ts:60](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L60)*
+
+* **config**(): *object*
+
+* **fn**: *[toGeoPoint](overview.md#togeopoint)* =  toGeoPoint
+
 ▪ **toISDN**: *object*
 
-Defined in transforms/field-transform.ts:26
+*Defined in [data-mate/src/transforms/field-transform.ts:35](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L35)*
 
 * **config**(): *object*
 
 * **fn**: *[toISDN](overview.md#toisdn)* =  toISDN
 
+▪ **toISO8601**: *object*
+
+*Defined in [data-mate/src/transforms/field-transform.ts:92](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L92)*
+
+* **fn**: *[toISO8601](overview.md#toiso8601)* =  toISO8601
+
+* **config**: *object*
+
+  * **resolution**: *object*
+
+    * **describe**: *string* = "may be set to seconds | milliseconds"
+
+    * **type**: *"String"* = "String"
+
+▪ **toKebabCase**: *object*
+
+*Defined in [data-mate/src/transforms/field-transform.ts:127](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L127)*
+
+* **config**(): *object*
+
+* **fn**: *[toKebabCase](overview.md#tokebabcase)* =  toKebabCase
+
 ▪ **toLowerCase**: *object*
 
-Defined in transforms/field-transform.ts:27
+*Defined in [data-mate/src/transforms/field-transform.ts:22](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L22)*
 
 * **config**(): *object*
 
@@ -2096,7 +2127,7 @@ Defined in transforms/field-transform.ts:27
 
 ▪ **toNumber**: *object*
 
-Defined in transforms/field-transform.ts:28
+*Defined in [data-mate/src/transforms/field-transform.ts:36](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L36)*
 
 * **fn**: *[toNumber](overview.md#tonumber)* =  toNumber
 
@@ -2104,11 +2135,51 @@ Defined in transforms/field-transform.ts:28
 
   * **booleanLike**: *object*
 
-    * **type**: *string* = "boolean"
+    * **type**: *"Boolean"* = "Boolean"
+
+▪ **toPascalCase**: *object*
+
+*Defined in [data-mate/src/transforms/field-transform.ts:128](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L128)*
+
+* **config**(): *object*
+
+* **fn**: *[toPascalCase](overview.md#topascalcase)* =  toPascalCase
+
+▪ **toSnakeCase**: *object*
+
+*Defined in [data-mate/src/transforms/field-transform.ts:129](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L129)*
+
+* **config**(): *object*
+
+* **fn**: *[toSnakeCase](overview.md#tosnakecase)* =  toSnakeCase
+
+▪ **toString**: *object*
+
+*Defined in [data-mate/src/transforms/field-transform.ts:19](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L19)*
+
+* **config**(): *object*
+
+* **fn**: *[toString](overview.md#tostring)* =  toString
+
+▪ **toTitleCase**: *object*
+
+*Defined in [data-mate/src/transforms/field-transform.ts:130](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L130)*
+
+* **config**(): *object*
+
+* **fn**: *[toTitleCase](overview.md#totitlecase)* =  toTitleCase
+
+▪ **toUnixTime**: *object*
+
+*Defined in [data-mate/src/transforms/field-transform.ts:91](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L91)*
+
+* **config**(): *object*
+
+* **fn**: *[toUnixTime](overview.md#tounixtime)* =  toUnixTime
 
 ▪ **toUpperCase**: *object*
 
-Defined in transforms/field-transform.ts:29
+*Defined in [data-mate/src/transforms/field-transform.ts:21](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L21)*
 
 * **config**(): *object*
 
@@ -2116,15 +2187,19 @@ Defined in transforms/field-transform.ts:29
 
 ▪ **trim**: *object*
 
-Defined in transforms/field-transform.ts:30
-
-* **config**(): *object*
+*Defined in [data-mate/src/transforms/field-transform.ts:23](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L23)*
 
 * **fn**: *[trim](overview.md#trim)* =  trim
 
+* **config**: *object*
+
+  * **char**: *object*
+
+    * **type**: *"String"* = "String"
+
 ▪ **trimEnd**: *object*
 
-Defined in transforms/field-transform.ts:32
+*Defined in [data-mate/src/transforms/field-transform.ts:120](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L120)*
 
 * **fn**: *[trimEnd](overview.md#trimend)* =  trimEnd
 
@@ -2132,11 +2207,11 @@ Defined in transforms/field-transform.ts:32
 
   * **char**: *object*
 
-    * **type**: *string* = "string"
+    * **type**: *"String"* = "String"
 
 ▪ **trimStart**: *object*
 
-Defined in transforms/field-transform.ts:31
+*Defined in [data-mate/src/transforms/field-transform.ts:114](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L114)*
 
 * **fn**: *[trimStart](overview.md#trimstart)* =  trimStart
 
@@ -2144,11 +2219,11 @@ Defined in transforms/field-transform.ts:31
 
   * **char**: *object*
 
-    * **type**: *string* = "string"
+    * **type**: *"String"* = "String"
 
 ▪ **truncate**: *object*
 
-Defined in transforms/field-transform.ts:24
+*Defined in [data-mate/src/transforms/field-transform.ts:29](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/field-transform.ts#L29)*
 
 * **fn**: *[truncate](overview.md#truncate)* =  truncate
 
@@ -2156,4 +2231,406 @@ Defined in transforms/field-transform.ts:24
 
   * **size**: *object*
 
-    * **type**: *string* = "Int!"
+    * **type**: *"Number"* = "Number"
+
+___
+
+### `Const` respository
+
+### ▪ **respository**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:22](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L22)*
+
+▪ **contains**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:52](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L52)*
+
+* **fn**: *[contains](overview.md#contains)* =  contains
+
+* **config**: *object*
+
+  * **value**: *object*
+
+    * **type**: *"String"* = "String"
+
+▪ **equals**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:58](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L58)*
+
+* **fn**: *[equals](overview.md#equals)* =  equals
+
+* **config**: *object*
+
+  * **value**: *object*
+
+    * **type**: *"String"* = "String"
+
+▪ **inIPRange**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:124](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L124)*
+
+* **fn**: *[inIPRange](overview.md#iniprange)* =  inIPRange
+
+* **config**: *object*
+
+  * **cidr**: *object*
+
+    * **type**: *"String"* = "String"
+
+  * **max**: *object*
+
+    * **type**: *"String"* = "String"
+
+  * **min**: *object*
+
+    * **type**: *"String"* = "String"
+
+▪ **inNumberRange**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:41](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L41)*
+
+* **fn**: *[inNumberRange](overview.md#innumberrange)* =  inNumberRange
+
+* **config**: *object*
+
+  * **inclusive**: *object*
+
+    * **type**: *"Boolean"* = "Boolean"
+
+  * **max**: *object*
+
+    * **type**: *"Number"* = "Number"
+
+  * **min**: *object*
+
+    * **type**: *"Number"* = "Number"
+
+▪ **isAlpha**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:62](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L62)*
+
+* **fn**: *[isAlpha](overview.md#isalpha)* =  isAlpha
+
+* **config**: *object*
+
+  * **locale**: *object*
+
+    * **type**: *"String"* = "String"
+
+▪ **isAlphanumeric**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:68](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L68)*
+
+* **fn**: *[isAlphanumeric](overview.md#isalphanumeric)* =  isAlphanumeric
+
+* **config**: *object*
+
+  * **locale**: *object*
+
+    * **type**: *"String"* = "String"
+
+▪ **isAscii**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:74](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L74)*
+
+* **config**(): *object*
+
+* **fn**: *[isAscii](overview.md#isascii)* =  isAscii
+
+▪ **isBase64**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:75](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L75)*
+
+* **config**(): *object*
+
+* **fn**: *[isBase64](overview.md#isbase64)* =  isBase64
+
+▪ **isBoolean**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:23](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L23)*
+
+* **config**(): *object*
+
+* **fn**: *[isBoolean](overview.md#isboolean)* =  isBoolean
+
+▪ **isBooleanLike**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:24](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L24)*
+
+* **config**(): *object*
+
+* **fn**: *[isBooleanLike](overview.md#isbooleanlike)* =  isBooleanLike
+
+▪ **isCountryCode**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:96](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L96)*
+
+* **config**(): *object*
+
+* **fn**: *[isCountryCode](overview.md#iscountrycode)* =  isCountryCode
+
+▪ **isEmail**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:25](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L25)*
+
+* **config**(): *object*
+
+* **fn**: *[isEmail](overview.md#isemail)* =  isEmail
+
+▪ **isEmpty**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:76](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L76)*
+
+* **fn**: *[isEmpty](overview.md#isempty)* =  isEmpty
+
+* **config**: *object*
+
+  * **ignoreWhitespace**: *object*
+
+    * **type**: *"Boolean"* = "Boolean"
+
+▪ **isFQDN**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:82](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L82)*
+
+* **fn**: *[isFQDN](overview.md#isfqdn)* =  isFQDN
+
+* **config**: *object*
+
+  * **allowTrailingDot**: *object*
+
+    * **type**: *"Boolean"* = "Boolean"
+
+  * **allowUnderscores**: *object*
+
+    * **type**: *"Boolean"* = "Boolean"
+
+  * **requireTld**: *object*
+
+    * **type**: *"Boolean"* = "Boolean"
+
+▪ **isGeoJSON**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:26](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L26)*
+
+* **config**(): *object*
+
+* **fn**: *[isGeoJSON](overview.md#isgeojson)* =  isGeoJSON
+
+▪ **isGeoPoint**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:27](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L27)*
+
+* **config**(): *object*
+
+* **fn**: *[isGeoPoint](overview.md#isgeopoint)* =  isGeoPoint
+
+▪ **isGeoShapeMultiPolygon**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:30](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L30)*
+
+* **config**(): *object*
+
+* **fn**: *[isGeoShapeMultiPolygon](overview.md#isgeoshapemultipolygon)* =  isGeoShapeMultiPolygon
+
+▪ **isGeoShapePoint**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:28](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L28)*
+
+* **config**(): *object*
+
+* **fn**: *[isGeoShapePoint](overview.md#isgeoshapepoint)* =  isGeoShapePoint
+
+▪ **isGeoShapePolygon**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:29](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L29)*
+
+* **config**(): *object*
+
+* **fn**: *[isGeoShapePolygon](overview.md#isgeoshapepolygon)* =  isGeoShapePolygon
+
+▪ **isHash**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:90](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L90)*
+
+* **fn**: *[isHash](overview.md#ishash)* =  isHash
+
+* **config**: *object*
+
+  * **algo**: *object*
+
+    * **type**: *"String"* = "String"
+
+▪ **isIP**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:31](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L31)*
+
+* **config**(): *object*
+
+* **fn**: *[isIP](overview.md#isip)* =  isIP
+
+▪ **isIPCidr**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:132](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L132)*
+
+* **config**(): *object*
+
+* **fn**: *[isIPCidr](overview.md#isipcidr)* =  isIPCidr
+
+▪ **isISDN**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:32](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L32)*
+
+* **config**(): *object*
+
+* **fn**: *[isISDN](overview.md#isisdn)* =  isISDN
+
+▪ **isISO8601**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:97](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L97)*
+
+* **config**(): *object*
+
+* **fn**: *[isISO8601](overview.md#isiso8601)* =  isISO8601
+
+▪ **isISSN**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:98](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L98)*
+
+* **fn**: *[isISSN](overview.md#isissn)* =  isISSN
+
+* **config**: *object*
+
+  * **caseSensitive**: *object*
+
+    * **type**: *"Boolean"* = "Boolean"
+
+  * **requireHyphen**: *object*
+
+    * **type**: *"Boolean"* = "Boolean"
+
+▪ **isInteger**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:40](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L40)*
+
+* **config**(): *object*
+
+* **fn**: *[isInteger](overview.md#isinteger)* =  isInteger
+
+▪ **isJSON**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:106](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L106)*
+
+* **config**(): *object*
+
+* **fn**: *[isJSON](overview.md#isjson)* =  isJSON
+
+▪ **isLength**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:107](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L107)*
+
+* **fn**: *[isLength](overview.md#islength)* =  isLength
+
+* **config**: *object*
+
+  * **max**: *object*
+
+    * **type**: *"Number"* = "Number"
+
+  * **min**: *object*
+
+    * **type**: *"Number"* = "Number"
+
+  * **size**: *object*
+
+    * **type**: *"Number"* = "Number"
+
+▪ **isMacAddress**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:33](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L33)*
+
+* **fn**: *[isMacAddress](overview.md#ismacaddress)* =  isMacAddress
+
+* **config**: *object*
+
+  * **delimiter**: *object*
+
+    * **array**: *true* = true
+
+    * **type**: *"String"* = "String"
+
+▪ **isMimeType**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:115](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L115)*
+
+* **config**(): *object*
+
+* **fn**: *[isMimeType](overview.md#ismimetype)* =  isMimeType
+
+▪ **isNonRoutableIp**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:123](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L123)*
+
+* **config**(): *object*
+
+* **fn**: *[isNonRoutableIP](overview.md#isnonroutableip)* =  isNonRoutableIP
+
+▪ **isNumber**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:39](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L39)*
+
+* **config**(): *object*
+
+* **fn**: *[isNumber](overview.md#isnumber)* =  isNumber
+
+▪ **isPostalCode**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:116](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L116)*
+
+* **fn**: *[isPostalCode](overview.md#ispostalcode)* =  isPostalCode
+
+* **config**: *object*
+
+  * **locale**: *object*
+
+    * **type**: *"String"* = "String"
+
+▪ **isRFC3339**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:105](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L105)*
+
+* **config**(): *object*
+
+* **fn**: *[isRFC3339](overview.md#isrfc3339)* =  isRFC3339
+
+▪ **isRoutableIp**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:122](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L122)*
+
+* **config**(): *object*
+
+* **fn**: *[isRoutableIP](overview.md#isroutableip)* =  isRoutableIP
+
+▪ **isString**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:49](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L49)*
+
+* **config**(): *object*
+
+* **fn**: *[isString](overview.md#isstring)* =  isString
+
+▪ **isUUID**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:51](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L51)*
+
+* **config**(): *object*
+
+* **fn**: *[isUUID](overview.md#isuuid)* =  isUUID
+
+▪ **isUrl**: *object*
+
+*Defined in [data-mate/src/validations/field-validator.ts:50](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/field-validator.ts#L50)*
+
+* **config**(): *object*
+
+* **fn**: *[isUrl](overview.md#isurl)* =  isUrl

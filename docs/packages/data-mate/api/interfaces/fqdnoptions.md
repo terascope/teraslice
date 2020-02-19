@@ -13,30 +13,30 @@ sidebar_label: FQDNOptions
 
 ### Properties
 
-* [allow_trailing_dot](fqdnoptions.md#optional-allow_trailing_dot)
-* [allow_underscores](fqdnoptions.md#optional-allow_underscores)
-* [require_tld](fqdnoptions.md#optional-require_tld)
+* [allowTrailingDot](fqdnoptions.md#optional-allowtrailingdot)
+* [allowUnderscores](fqdnoptions.md#optional-allowunderscores)
+* [requireTld](fqdnoptions.md#optional-requiretld)
 
 ## Properties
 
-### `Optional` allow_trailing_dot
+### `Optional` allowTrailingDot
 
-• **allow_trailing_dot**? : *undefined | false | true*
+• **allowTrailingDot**? : *undefined | false | true*
 
-Defined in validations/interfaces.ts:4
-
-___
-
-### `Optional` allow_underscores
-
-• **allow_underscores**? : *undefined | false | true*
-
-Defined in validations/interfaces.ts:3
+*Defined in [data-mate/src/validations/interfaces.ts:4](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/interfaces.ts#L4)*
 
 ___
 
-### `Optional` require_tld
+### `Optional` allowUnderscores
 
-• **require_tld**? : *undefined | false | true*
+• **allowUnderscores**? : *undefined | false | true*
 
-Defined in validations/interfaces.ts:2
+*Defined in [data-mate/src/validations/interfaces.ts:3](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/interfaces.ts#L3)*
+
+___
+
+### `Optional` requireTld
+
+• **requireTld**? : *undefined | false | true*
+
+*Defined in [data-mate/src/validations/interfaces.ts:2](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/interfaces.ts#L2)*

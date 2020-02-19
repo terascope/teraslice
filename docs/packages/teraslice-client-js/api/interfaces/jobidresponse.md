@@ -22,7 +22,7 @@ sidebar_label: JobIDResponse
 
 • **ex_id**? : *undefined | string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:176](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L176)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:176](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L176)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **job_id**: *string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:175](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L175)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:175](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L175)*

@@ -24,7 +24,7 @@ sidebar_label: TestClientConfig
 
 • **config**? : *undefined | object*
 
-*Defined in [packages/terafoundation/src/test-context.ts:18](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/test-context.ts#L18)*
+*Defined in [packages/terafoundation/src/test-context.ts:18](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/test-context.ts#L18)*
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **create**: *i.ClientFactoryFn*
 
-*Defined in [packages/terafoundation/src/test-context.ts:17](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/test-context.ts#L17)*
+*Defined in [packages/terafoundation/src/test-context.ts:17](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/test-context.ts#L17)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **endpoint**? : *undefined | string*
 
-*Defined in [packages/terafoundation/src/test-context.ts:19](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/test-context.ts#L19)*
+*Defined in [packages/terafoundation/src/test-context.ts:19](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/test-context.ts#L19)*
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **type**: *string*
 
-*Defined in [packages/terafoundation/src/test-context.ts:16](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/test-context.ts#L16)*
+*Defined in [packages/terafoundation/src/test-context.ts:16](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/test-context.ts#L16)*

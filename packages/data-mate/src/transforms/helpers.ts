@@ -8,9 +8,9 @@ import {
 } from '@terascope/utils';
 import {
     GeoPointInput,
-    XluceneTypeConfig,
-    XluceneVariables,
-    XluceneFieldType,
+    xLuceneTypeConfig,
+    xLuceneVariables,
+    xLuceneFieldType,
     GeoShapeRelation
 } from '@terascope/types';
 import { isGeoShapePoint } from '../validations/field-validator';
@@ -20,26 +20,26 @@ export type JoinBy = 'AND'|'OR';
 
 export interface XluceneQueryResult {
     query: string;
-    variables: XluceneVariables;
+    variables: xLuceneVariables;
 }
 
 export type CreateJoinQueryOptions = {
-    typeConfig?: XluceneTypeConfig;
+    typeConfig?: xLuceneTypeConfig;
     fieldParams?: Record<string, string>;
     joinBy?: JoinBy;
     variables?: AnyObject;
 };
 
-function isGeoQuery(type: XluceneFieldType) {
+function isGeoQuery(type: xLuceneFieldType) {
     return isGeoPointType(type) || isGeoJSONType(type);
 }
 
-function isGeoPointType(type: XluceneFieldType) {
-    return type === XluceneFieldType.Geo || type === XluceneFieldType.GeoPoint;
+function isGeoPointType(type: xLuceneFieldType) {
+    return type === xLuceneFieldType.Geo || type === xLuceneFieldType.GeoPoint;
 }
 
-function isGeoJSONType(type: XluceneFieldType) {
-    return type === XluceneFieldType.GeoJSON;
+function isGeoJSONType(type: xLuceneFieldType) {
+    return type === xLuceneFieldType.GeoJSON;
 }
 
 const relationList = Object.values(GeoShapeRelation);
@@ -95,7 +95,7 @@ function createGeoQuery(
     variableState: VariableState,
     field: string,
     value: any,
-    targetType: XluceneFieldType,
+    targetType: xLuceneFieldType,
     fieldParam?: string
 ) {
     if (isGeoJSON(value)) {

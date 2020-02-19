@@ -1,6 +1,6 @@
 import path from 'path';
 import { DataEntity } from '@terascope/utils';
-import { XluceneFieldType } from '@terascope/types';
+import { xLuceneFieldType } from '@terascope/types';
 import TestHarness from './test-harness';
 import { WatcherConfig } from '../src';
 
@@ -16,7 +16,7 @@ describe('matcher', () => {
     it('can return matching documents', async () => {
         const config: WatcherConfig = {
             rules: [matchRules1Path],
-            types: { _created: XluceneFieldType.Date },
+            types: { _created: xLuceneFieldType.Date },
         };
 
         const data = DataEntity.makeArray([
@@ -36,7 +36,7 @@ describe('matcher', () => {
     it('should add metadata to returning docs', async () => {
         const config: WatcherConfig = {
             rules: [matchRules1Path],
-            types: { _created: XluceneFieldType.Date },
+            types: { _created: xLuceneFieldType.Date },
         };
 
         const data = DataEntity.makeArray([
@@ -57,7 +57,7 @@ describe('matcher', () => {
     it('should match multiple rules', async () => {
         const config: WatcherConfig = {
             rules: [matchRules1Path],
-            types: { _created: XluceneFieldType.Date },
+            types: { _created: xLuceneFieldType.Date },
         };
 
         const data = DataEntity.makeArray([
@@ -82,7 +82,7 @@ describe('matcher', () => {
         ];
 
         const config: WatcherConfig = {
-            types: { _created: XluceneFieldType.Date },
+            types: { _created: xLuceneFieldType.Date },
             notification_rules: rules.join('\n')
         };
 
@@ -106,7 +106,7 @@ describe('matcher', () => {
         ];
 
         const config1: WatcherConfig = {
-            types: { _created: XluceneFieldType.Date },
+            types: { _created: xLuceneFieldType.Date },
             notification_rules: rules1.join('\n')
         };
 

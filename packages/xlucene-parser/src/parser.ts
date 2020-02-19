@@ -4,7 +4,7 @@ import {
     TSError,
     trim
 } from '@terascope/utils';
-import { XluceneVariables } from '@terascope/types';
+import { xLuceneVariables } from '@terascope/types';
 import { parse } from './peg-engine';
 import * as i from './interfaces';
 import * as utils from './utils';
@@ -14,7 +14,7 @@ const _logger = debugLogger('xlucene-parser');
 export class Parser {
     readonly ast: i.AST;
     readonly query: string;
-    readonly variables: XluceneVariables;
+    readonly variables: xLuceneVariables;
     logger: Logger;
 
     constructor(query: string, options: i.ParserOptions = {}) {

@@ -4,9 +4,9 @@ import * as p from 'xlucene-parser';
 import {
     SortOrder,
     GeoDistanceUnit,
-    XluceneVariables,
-    XluceneTypeConfig,
-    XluceneFieldType
+    xLuceneVariables,
+    xLuceneTypeConfig,
+    xLuceneFieldType
 } from '@terascope/types';
 import { CachedTranslator } from '../translator';
 import * as i from './interfaces';
@@ -23,9 +23,9 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     readonly defaultGeoSortOrder?: SortOrder;
     readonly defaultGeoSortUnit?: GeoDistanceUnit|string;
     readonly allowEmpty: boolean;
-    readonly typeConfig: XluceneTypeConfig;
-    readonly parsedTypeConfig: XluceneTypeConfig;
-    readonly variables: XluceneVariables;
+    readonly typeConfig: xLuceneTypeConfig;
+    readonly parsedTypeConfig: xLuceneTypeConfig;
+    readonly variables: xLuceneVariables;
     logger: ts.Logger;
 
     private readonly _parser: p.CachedParser = new p.CachedParser();
@@ -155,8 +155,8 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         return this._addConstraints(parser, parserOptions);
     }
 
-    private _restrictTypeConfig(): XluceneTypeConfig {
-        const parsedConfig: XluceneTypeConfig = {};
+    private _restrictTypeConfig(): xLuceneTypeConfig {
+        const parsedConfig: xLuceneTypeConfig = {};
 
         for (const [typeField, value] of Object.entries(this.typeConfig)) {
             const excluded = this.excludes.filter((restrictField) => matchTypeField(
@@ -279,12 +279,12 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
     private _isFieldRestricted(field: string): boolean {
         return !Object.entries(this.parsedTypeConfig).some(([typeField, fieldType]) => {
-            if (fieldType === XluceneFieldType.Object) return false;
+            if (fieldType === xLuceneFieldType.Object) return false;
             const parts = typeField.split('.');
 
             if (parts.length > 1) {
                 const firstPart = parts.slice(0, -1).join('.');
-                if (this.typeConfig[firstPart] === XluceneFieldType.Object) {
+                if (this.typeConfig[firstPart] === xLuceneFieldType.Object) {
                     return matchFieldObject(typeField, field);
                 }
             }

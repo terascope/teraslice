@@ -5,7 +5,7 @@ import {
     TSError,
     isWildCardString
 } from '@terascope/utils';
-import { XluceneFieldType, XluceneVariables, CoordinateTuple } from '@terascope/types';
+import { xLuceneFieldType, xLuceneVariables, CoordinateTuple } from '@terascope/types';
 import * as i from './interfaces';
 
 export function isLogicalGroup(node: any): node is i.LogicalGroup {
@@ -68,8 +68,8 @@ export function isStringDataType(node: any): node is i.StringDataType {
     return node && node.field_type === 'string';
 }
 
-export const numberDataTypes: XluceneFieldType[] = [
-    XluceneFieldType.Integer, XluceneFieldType.Float
+export const numberDataTypes: xLuceneFieldType[] = [
+    xLuceneFieldType.Integer, xLuceneFieldType.Float
 ];
 
 export function isNumberDataType(node: any): node is i.NumberDataType {
@@ -112,8 +112,8 @@ export function isGroupLike(node: any): node is i.GroupLikeAST {
     return node && groupTypes.includes(node.type);
 }
 
-export function validateVariables(obj: XluceneVariables): XluceneVariables {
-    if (!isPlainObject(obj)) throw new TSError('Invalid XluceneVariables configuration provided, it must be an object');
+export function validateVariables(obj: xLuceneVariables): xLuceneVariables {
+    if (!isPlainObject(obj)) throw new TSError('Invalid xLuceneVariables configuration provided, it must be an object');
     return { ...obj };
 }
 

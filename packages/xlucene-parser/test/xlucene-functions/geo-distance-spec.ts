@@ -1,13 +1,13 @@
 import 'jest-extended';
 import {
-    XluceneFieldType, XluceneTypeConfig, GeoShapeType,
+    xLuceneFieldType, xLuceneTypeConfig, GeoShapeType,
 } from '@terascope/types';
 import { debugLogger } from '@terascope/utils';
 import { Parser } from '../../src';
 import { FunctionElasticsearchOptions } from '../../src/interfaces';
 
 describe('geoDistance', () => {
-    const typeConfig: XluceneTypeConfig = { location: XluceneFieldType.GeoPoint };
+    const typeConfig: xLuceneTypeConfig = { location: xLuceneFieldType.GeoPoint };
     const options: FunctionElasticsearchOptions = {
         logger: debugLogger('test'),
         geo_sort_order: 'asc',

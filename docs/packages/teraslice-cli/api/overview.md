@@ -48,7 +48,7 @@ sidebar_label: API
 
 Ƭ **CMD**: *CommandModule*
 
-*Defined in [packages/teraslice-cli/src/interfaces.ts:3](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/interfaces.ts#L3)*
+*Defined in [packages/teraslice-cli/src/interfaces.ts:3](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/interfaces.ts#L3)*
 
 ## Functions
 
@@ -56,7 +56,7 @@ sidebar_label: API
 
 ▸ **annotate**(`cliConfig`: any): *Promise‹object›*
 
-*Defined in [packages/teraslice-cli/src/cmds/lib/annotation.ts:38](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/cmds/lib/annotation.ts#L38)*
+*Defined in [packages/teraslice-cli/src/cmds/lib/annotation.ts:38](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/cmds/lib/annotation.ts#L38)*
 
 **Parameters:**
 
@@ -72,7 +72,7 @@ ___
 
 ▸ **camelCase**(`str`: string): *string*
 
-*Defined in [packages/teraslice-cli/src/helpers/utils.ts:28](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/utils.ts#L28)*
+*Defined in [packages/teraslice-cli/src/helpers/utils.ts:28](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/utils.ts#L28)*
 
 **Parameters:**
 
@@ -88,7 +88,7 @@ ___
 
 ▸ **displayModule**(): *object*
 
-*Defined in [packages/teraslice-cli/src/cmds/lib/display.ts:118](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/cmds/lib/display.ts#L118)*
+*Defined in [packages/teraslice-cli/src/cmds/lib/display.ts:118](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/cmds/lib/display.ts#L118)*
 
 **Returns:** *object*
 
@@ -98,7 +98,7 @@ ___
 
 ▸ **getPackage**(`filePath?`: undefined | string): *any*
 
-*Defined in [packages/teraslice-cli/src/helpers/utils.ts:33](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/utils.ts#L33)*
+*Defined in [packages/teraslice-cli/src/helpers/utils.ts:33](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/utils.ts#L33)*
 
 **Parameters:**
 
@@ -114,7 +114,7 @@ ___
 
 ▸ **getTemplatePath**(`name`: string): *string*
 
-*Defined in [packages/teraslice-cli/src/generators/utils.ts:4](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/generators/utils.ts#L4)*
+*Defined in [packages/teraslice-cli/src/generators/utils.ts:4](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/generators/utils.ts#L4)*
 
 **Parameters:**
 
@@ -130,7 +130,7 @@ ___
 
 ▸ **getTerasliceClient**(`cliConfig`: any): *TerasliceClient*
 
-*Defined in [packages/teraslice-cli/src/helpers/utils.ts:43](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/utils.ts#L43)*
+*Defined in [packages/teraslice-cli/src/helpers/utils.ts:43](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/utils.ts#L43)*
 
 **Parameters:**
 
@@ -146,7 +146,7 @@ ___
 
 ▸ **getTerasliceClusterType**(`terasliceClient`: any): *Promise‹string›*
 
-*Defined in [packages/teraslice-cli/src/helpers/utils.ts:48](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/utils.ts#L48)*
+*Defined in [packages/teraslice-cli/src/helpers/utils.ts:48](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/utils.ts#L48)*
 
 **Parameters:**
 
@@ -162,7 +162,7 @@ ___
 
 ▸ **handleWrapper**(`fn`: any): *(Anonymous function)*
 
-*Defined in [packages/teraslice-cli/src/helpers/utils.ts:68](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/utils.ts#L68)*
+*Defined in [packages/teraslice-cli/src/helpers/utils.ts:68](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/utils.ts#L68)*
 
 **Parameters:**
 
@@ -178,7 +178,7 @@ ___
 
 ▸ **kebabCase**(`str`: string): *string*
 
-*Defined in [packages/teraslice-cli/src/helpers/utils.ts:11](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/utils.ts#L11)*
+*Defined in [packages/teraslice-cli/src/helpers/utils.ts:11](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/utils.ts#L11)*
 
 **Parameters:**
 
@@ -194,7 +194,7 @@ ___
 
 ▸ **snakeCase**(`str`: string): *string*
 
-*Defined in [packages/teraslice-cli/src/helpers/utils.ts:18](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/utils.ts#L18)*
+*Defined in [packages/teraslice-cli/src/helpers/utils.ts:18](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/utils.ts#L18)*
 
 **Parameters:**
 

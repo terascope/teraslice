@@ -1,6 +1,6 @@
 import 'jest-extended';
 import {
-    XluceneFieldType, XluceneTypeConfig, GeoShapeType, CoordinateTuple
+    xLuceneFieldType, xLuceneTypeConfig, GeoShapeType, CoordinateTuple
 } from '@terascope/types';
 import { debugLogger } from '@terascope/utils';
 import { Parser } from '../../src';
@@ -8,7 +8,7 @@ import { coordinateToXlucene } from '../../src/utils';
 import { FunctionElasticsearchOptions } from '../../src/interfaces';
 
 describe('geoContainsPoint', () => {
-    const typeConfig: XluceneTypeConfig = { location: XluceneFieldType.GeoJSON };
+    const typeConfig: xLuceneTypeConfig = { location: xLuceneFieldType.GeoJSON };
     const options: FunctionElasticsearchOptions = {
         logger: debugLogger('test'),
         geo_sort_order: 'asc',

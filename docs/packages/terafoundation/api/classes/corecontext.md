@@ -54,7 +54,7 @@ CoreContext
 
 \+ **new CoreContext**(`config`: i.FoundationConfig‹S, A, D›, `cluster`: i.Cluster, `sysconfig`: i.FoundationSysConfig‹S›, `assignment?`: D): *[CoreContext](corecontext.md)*
 
-*Defined in [packages/terafoundation/src/core-context.ts:22](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/core-context.ts#L22)*
+*Defined in [packages/terafoundation/src/core-context.ts:22](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/core-context.ts#L22)*
 
 **Parameters:**
 
@@ -73,7 +73,7 @@ Name | Type |
 
 • **apis**: *i.ContextAPIs & A*
 
-*Defined in [packages/terafoundation/src/core-context.ts:15](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/core-context.ts#L15)*
+*Defined in [packages/terafoundation/src/core-context.ts:15](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/core-context.ts#L15)*
 
 ___
 
@@ -81,7 +81,7 @@ ___
 
 • **arch**: *string* =  process.arch
 
-*Defined in [packages/terafoundation/src/core-context.ts:19](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/core-context.ts#L19)*
+*Defined in [packages/terafoundation/src/core-context.ts:19](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/core-context.ts#L19)*
 
 ___
 
@@ -89,7 +89,7 @@ ___
 
 • **assignment**: *D*
 
-*Defined in [packages/terafoundation/src/core-context.ts:21](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/core-context.ts#L21)*
+*Defined in [packages/terafoundation/src/core-context.ts:21](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/core-context.ts#L21)*
 
 ___
 
@@ -97,7 +97,7 @@ ___
 
 • **cluster**: *i.Cluster*
 
-*Defined in [packages/terafoundation/src/core-context.ts:13](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/core-context.ts#L13)*
+*Defined in [packages/terafoundation/src/core-context.ts:13](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/core-context.ts#L13)*
 
 ___
 
@@ -105,7 +105,7 @@ ___
 
 • **cluster_name**? : *undefined | string*
 
-*Defined in [packages/terafoundation/src/core-context.ts:22](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/core-context.ts#L22)*
+*Defined in [packages/terafoundation/src/core-context.ts:22](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/core-context.ts#L22)*
 
 ___
 
@@ -113,7 +113,7 @@ ___
 
 • **foundation**: *[LegacyFoundationApis](../interfaces/legacyfoundationapis.md)*
 
-*Defined in [packages/terafoundation/src/core-context.ts:16](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/core-context.ts#L16)*
+*Defined in [packages/terafoundation/src/core-context.ts:16](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/core-context.ts#L16)*
 
 ___
 
@@ -121,7 +121,7 @@ ___
 
 • **logger**: *Logger*
 
-*Defined in [packages/terafoundation/src/core-context.ts:17](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/core-context.ts#L17)*
+*Defined in [packages/terafoundation/src/core-context.ts:17](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/core-context.ts#L17)*
 
 ___
 
@@ -129,7 +129,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [packages/terafoundation/src/core-context.ts:18](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/core-context.ts#L18)*
+*Defined in [packages/terafoundation/src/core-context.ts:18](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/core-context.ts#L18)*
 
 ___
 
@@ -137,7 +137,7 @@ ___
 
 • **platform**: *"aix" | "android" | "darwin" | "freebsd" | "linux" | "openbsd" | "sunos" | "win32" | "cygwin" | "netbsd"* =  process.platform
 
-*Defined in [packages/terafoundation/src/core-context.ts:20](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/core-context.ts#L20)*
+*Defined in [packages/terafoundation/src/core-context.ts:20](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/core-context.ts#L20)*
 
 ___
 
@@ -145,4 +145,4 @@ ___
 
 • **sysconfig**: *i.FoundationSysConfig‹S›*
 
-*Defined in [packages/terafoundation/src/core-context.ts:14](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/core-context.ts#L14)*
+*Defined in [packages/terafoundation/src/core-context.ts:14](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/core-context.ts#L14)*

@@ -15,7 +15,7 @@ import {
 } from '../validations/field-validator';
 import { Repository } from '../interfaces';
 
-export const respoitory: Repository = {
+export const repository: Repository = {
     toString: { fn: toString, config: {} },
     toBoolean: { fn: toBoolean, config: {} },
     toUpperCase: { fn: toUpperCase, config: {} },
@@ -56,7 +56,7 @@ export const respoitory: Repository = {
     encodeSHA1: { fn: encodeSHA1, config: {} },
     decodeSHA1: { fn: decodeSHA1, config: {} },
     parseJSON: { fn: parseJSON, config: {} },
-    dedup: { fn: dedup, config: {} },
+    dedupe: { fn: dedupe, config: {} },
     toGeoPoint: { fn: toGeoPoint, config: {} },
     extract: {
         fn: extract,
@@ -154,35 +154,17 @@ export function trim(input: string, args?: { char: string }) {
 }
 
 export function trimStart(input: string, args?: { char: string }): string {
-    const char = args ? args.char : ' ';
+    if (!isString(input)) throw new Error('Input must be a string');
+    if (args?.char && !isString(args.char)) throw new Error('Input must be a string');
 
-    let start = input.indexOf(char);
-    if (start === -1 || start > (input.length / 2)) return input;
-
-    for (start; start < input.length;) {
-        if (input.slice(start, start + char.length) !== char) {
-            break;
-        }
-        start += char.length;
-    }
-
-    return input.slice(start);
+    return ts.trimStart(input, args?.char);
 }
 
 export function trimEnd(input: string, args?: { char: string }): string {
-    const char = args ? args.char : ' ';
+    if (!isString(input)) throw new Error('Input must be a string');
+    if (args?.char && !isString(args.char)) throw new Error('Input must be a string');
 
-    let end = input.lastIndexOf(char);
-    if (end === -1 || end < (input.length / 2)) return input;
-
-    for (end; end >= 0;) {
-        if (input.slice(end - char.length, end) !== char) {
-            break;
-        }
-        end -= char.length;
-    }
-
-    return input.slice(0, end);
+    return ts.trimEnd(input, args?.char);
 }
 
 export function truncate(input: string, args: { size: number }) {
@@ -209,7 +191,7 @@ export function toISDN(input: any) {
 export function toNumber(input: any, args?: { booleanLike?: boolean }) {
     let result = input;
 
-    if (args && args.booleanLike && ts.isBooleanLike(input)) {
+    if (args?.booleanLike && ts.isBooleanLike(input)) {
         result = ts.toNumber(toBoolean(result));
     }
 
@@ -219,66 +201,56 @@ export function toNumber(input: any, args?: { booleanLike?: boolean }) {
     return result;
 }
 
-export function decodeBase64(input: string) {
-    if (!isString(input)) throw new Error('Input must be a string');
+export function decodeBase64(input: any) {
     return Buffer.from(input, 'base64').toString('utf8');
 }
 
-export function encodeBase64(input: string) {
-    if (!isString(input)) throw new Error('Input must be a string');
+export function encodeBase64(input: any) {
     return Buffer.from(input).toString('base64');
 }
 
 export function decodeUrl(input: string) {
-    if (!isString(input)) throw new Error('Input must be a string');
     return decodeURIComponent(input);
 }
 
 export function encodeUrl(input: string) {
-    if (!isString(input)) throw new Error('Input must be a string');
     return encodeURIComponent(input);
 }
 
-export function decodeHex(input: string) {
-    if (!isString(input)) throw new Error('Input must be a string');
+export function decodeHex(input: any) {
     return Buffer.from(input, 'hex').toString('utf8');
 }
 
-export function encodeHex(input: string) {
-    if (!isString(input)) throw new Error('Input must be a string');
+export function encodeHex(input: any) {
     return Buffer.from(input).toString('hex');
 }
 
-export function encodeMD5(input: string) {
-    if (!isString(input)) throw new Error('Input must be a string');
+export function encodeMD5(input: any) {
     return crypto.createHash('md5').update(input).digest('hex');
 }
 
 // TODO: better types for this
-export function encodeSHA(input: any, { hash = 'sha256', digest = 'hex' }) {
-    if (!isString(input)) throw new Error('Input must be a string');
+export function encodeSHA(input: any, { hash = 'sha256', digest = 'hex' } = {}) {
     // TODO: guard for hash ??
-    if (!['latin1', 'hex', 'base64'].includes(digest)) throw new Error('Parameter digest is misconfigured');
+    if (!['ascii', 'utf8', 'utf16le', 'ucs2', 'base64', 'latin1', 'hex', 'binary'].includes(digest)) throw new Error('Parameter digest is misconfigured');
     // @ts-ignore
-    return crypto.createHash(hash).update(input).digest(digest);
+    return crypto.createHash(hash).update(input).digest('ascii');
 }
 
-export function encodeSHA1(input: string) {
-    if (!isString(input)) throw new Error('Input must be a string');
+export function encodeSHA1(input: any) {
     return crypto.createHash('sha1').update(input).digest('hex');
 }
 
-export function decodeSHA1(input: string) {
-    if (!isString(input)) throw new Error('Input must be a string');
+export function decodeSHA1(input: any) {
     return crypto.createHash('sha1').update(input).digest('hex');
 }
 
 export function parseJSON(input: any) {
-    if (!isString(input)) throw new Error('Input must be a string');
     return JSON.parse(input);
 }
 
-export function dedup(input: any[]) {
+export function dedupe(input: any[]) {
+    // TODO: figure out if we need more than reference equality
     if (!Array.isArray(input)) throw new Error('Input must be an array');
     return ts.uniq(input);
 }
@@ -368,7 +340,7 @@ export function extract(
     }
 
     const results = extractAndTransferFields();
-    if (!results) throw new Error('Was not able to extract anything');
+    if (results == null) throw new Error('Nothing to extract');
 }
 
 export function replaceRegex(input: string, {

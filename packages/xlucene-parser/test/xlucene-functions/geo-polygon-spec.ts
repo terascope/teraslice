@@ -1,8 +1,8 @@
 import 'jest-extended';
 import { debugLogger } from '@terascope/utils';
 import {
-    XluceneFieldType,
-    XluceneTypeConfig,
+    xLuceneFieldType,
+    xLuceneTypeConfig,
     GeoShapeType,
     CoordinateTuple,
     ESGeoShapeType,
@@ -15,7 +15,7 @@ import { FunctionElasticsearchOptions } from '../../src/interfaces';
 
 describe('geoPolygon', () => {
     describe('with typeconfig field set to GeoPoint', () => {
-        const typeConfig: XluceneTypeConfig = { location: XluceneFieldType.GeoPoint };
+        const typeConfig: xLuceneTypeConfig = { location: xLuceneFieldType.GeoPoint };
         const options: FunctionElasticsearchOptions = {
             logger: debugLogger('test'),
             geo_sort_order: 'asc',
@@ -259,7 +259,7 @@ describe('geoPolygon', () => {
     });
 
     describe('with typeconfig field set to GeoJSON', () => {
-        const typeConfig: XluceneTypeConfig = { location: XluceneFieldType.GeoJSON };
+        const typeConfig: xLuceneTypeConfig = { location: xLuceneFieldType.GeoJSON };
         const options: FunctionElasticsearchOptions = {
             logger: debugLogger('test'),
             geo_sort_order: 'asc',

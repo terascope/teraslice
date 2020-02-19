@@ -1,4 +1,4 @@
-import { XluceneFieldType } from '@terascope/types';
+import { xLuceneFieldType } from '@terascope/types';
 import BaseType from '../base-type';
 
 export default class KeywordTokens extends BaseType {
@@ -23,6 +23,6 @@ export default class KeywordTokens extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: XluceneFieldType.String };
+        return { [this.field]: xLuceneFieldType.String };
     }
 }

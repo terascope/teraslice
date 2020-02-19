@@ -23,7 +23,7 @@ sidebar_label: TypeESMapping
 
 • **analyzer**? : *undefined | object*
 
-*Defined in [data-types/src/interfaces.ts:184](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/interfaces.ts#L184)*
+*Defined in [data-types/src/interfaces.ts:193](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L193)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **mapping**: *object*
 
-*Defined in [data-types/src/interfaces.ts:181](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/interfaces.ts#L181)*
+*Defined in [data-types/src/interfaces.ts:190](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L190)*
 
 #### Type declaration:
 
@@ -43,4 +43,4 @@ ___
 
 • **tokenizer**? : *undefined | object*
 
-*Defined in [data-types/src/interfaces.ts:187](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/interfaces.ts#L187)*
+*Defined in [data-types/src/interfaces.ts:196](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L196)*

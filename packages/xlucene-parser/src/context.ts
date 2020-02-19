@@ -5,15 +5,15 @@ import {
     parseGeoDistance,
     parseGeoPoint
 } from '@terascope/utils';
-import { XluceneFieldType, XluceneVariables, XluceneTypeConfig } from '@terascope/types';
+import { xLuceneFieldType, xLuceneVariables, xLuceneTypeConfig } from '@terascope/types';
 import { isRegExp } from 'util';
 import * as i from './interfaces';
 import * as utils from './utils';
 import xluceneFunctions from './functions';
 
 export default function makeContext(args: any) {
-    let typeConfig: XluceneTypeConfig;
-    let variables: XluceneVariables;
+    let typeConfig: xLuceneTypeConfig;
+    let variables: xLuceneVariables;
     let logger: Logger;
     // eslint-disable-next-line
     ({ typeConfig = {}, variables = {}, logger } = args);
@@ -56,7 +56,7 @@ export default function makeContext(args: any) {
     // peg grammar because this is based off configuration passed
     // in and cannot be inferred by the syntax
 
-    function getFieldType(field: string): XluceneFieldType|undefined {
+    function getFieldType(field: string): xLuceneFieldType|undefined {
         if (!field) return;
         return typeConfig[field];
     }
@@ -68,7 +68,7 @@ export default function makeContext(args: any) {
         return variable;
     }
 
-    const inferredFieldTypes = [XluceneFieldType.String];
+    const inferredFieldTypes = [xLuceneFieldType.String];
 
     function isInferredTermType(field: string): boolean {
         const fieldType = getFieldType(field);
@@ -84,7 +84,7 @@ export default function makeContext(args: any) {
             field_type: fieldType,
         };
 
-        if (fieldType === XluceneFieldType.String) {
+        if (fieldType === xLuceneFieldType.String) {
             term.quoted = false;
             term.value = `${value}`;
             return term;
@@ -138,12 +138,12 @@ export default function makeContext(args: any) {
         // node to indicate so non-term level queries can be performed
         if (utils.isTermType(node) && field.includes('.') && !typeConfig[field]) {
             const parentField = field.split('.').slice(0, -1);
-            if (typeConfig[parentField] && typeConfig[parentField] !== XluceneFieldType.Object) {
+            if (typeConfig[parentField] && typeConfig[parentField] !== xLuceneFieldType.Object) {
                 node.tokenizer = parentField;
             }
         }
 
-        if (fieldType === XluceneFieldType.Boolean) {
+        if (fieldType === xLuceneFieldType.Boolean) {
             node.field_type = fieldType;
             delete node.quoted;
             delete node.restricted;
@@ -156,7 +156,7 @@ export default function makeContext(args: any) {
             return;
         }
 
-        if (fieldType === XluceneFieldType.Integer) {
+        if (fieldType === xLuceneFieldType.Integer) {
             if (utils.isRange(node)) {
                 node.left.field_type = fieldType;
                 if (node.right) node.right.field_type = fieldType;
@@ -169,7 +169,7 @@ export default function makeContext(args: any) {
             return;
         }
 
-        if (fieldType === XluceneFieldType.Float) {
+        if (fieldType === xLuceneFieldType.Float) {
             node.field_type = fieldType;
             delete node.quoted;
             delete node.restricted;
@@ -177,7 +177,7 @@ export default function makeContext(args: any) {
             return;
         }
 
-        if (fieldType === XluceneFieldType.String) {
+        if (fieldType === xLuceneFieldType.String) {
             node.field_type = fieldType;
 
             if (isRegExp(node.value)) {

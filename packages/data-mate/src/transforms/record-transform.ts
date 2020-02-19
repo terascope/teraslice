@@ -1,14 +1,14 @@
 import { Repository } from '../interfaces';
 import { isString } from '../validations/field-validator';
 
-export const respoitory: Repository = {
+export const repository: Repository = {
     renameField: {
         fn: renameField,
         config: {
-            oldFieldName: {
+            from: {
                 type: 'String'
             },
-            newFieldName: {
+            to: {
                 type: 'String'
             }
         }
@@ -46,12 +46,12 @@ export const respoitory: Repository = {
     },
 };
 
-export function renameField(record: any, args: { oldFieldName: string; newFieldName: string }) {
-    const { oldFieldName, newFieldName } = args;
-    if (!isString(oldFieldName) || !isString(newFieldName)) throw new Error('Invalid parameters, oldFieldName/newFieldName must be supplied be be a string');
+export function renameField(record: any, args: { from: string; to: string }) {
+    const { from, to } = args;
+    if (!isString(from) || !isString(to)) throw new Error('Invalid parameters, from/to must be supplied be be a string');
 
-    record[newFieldName] = record[oldFieldName];
-    delete record[oldFieldName];
+    record[to] = record[from];
+    delete record[from];
 
     return record;
 }

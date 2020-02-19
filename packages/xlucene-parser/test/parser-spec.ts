@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { TSError, times } from '@terascope/utils';
-import { XluceneFieldType } from '@terascope/types';
+import { xLuceneFieldType } from '@terascope/types';
 import allTestCases from './cases/parser';
 import { Parser, ASTType } from '../src';
 
@@ -112,7 +112,7 @@ describe('Parser', () => {
 
     it('restricted variables will throw if given bad values', () => {
         const query = 'foo: $bar';
-        const typeConfig = { foo: XluceneFieldType.String };
+        const typeConfig = { foo: xLuceneFieldType.String };
         const errMsg = 'Unsupported type of';
 
         function test(val: any) {

@@ -58,7 +58,9 @@ sidebar_label: CachedStateStorage
 
 \+ **new CachedStateStorage**(`config`: [CacheConfig](../interfaces/cacheconfig.md)): *[CachedStateStorage](cachedstatestorage.md)*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:10](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L10)*
+*Overrides void*
+
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:10](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L10)*
 
 **Parameters:**
 
@@ -76,7 +78,7 @@ Name | Type |
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/events.d.ts:18
+Defined in node_modules/@types/node/events.d.ts:45
 
 ## Methods
 
@@ -86,9 +88,7 @@ Defined in node_modules/@types/node/events.d.ts:18
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:20
+Defined in node_modules/@types/node/globals.d.ts:541
 
 **Parameters:**
 
@@ -112,7 +112,7 @@ ___
 
 ▸ **clear**(): *void*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:63](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L63)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:63](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L63)*
 
 **Returns:** *void*
 
@@ -122,7 +122,7 @@ ___
 
 ▸ **count**(): *number*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:44](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L44)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:44](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L44)*
 
 **Returns:** *number*
 
@@ -134,9 +134,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:32
+Defined in node_modules/@types/node/globals.d.ts:551
 
 **Parameters:**
 
@@ -155,9 +153,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:33
+Defined in node_modules/@types/node/globals.d.ts:556
 
 **Returns:** *Array‹string | symbol›*
 
@@ -167,7 +163,7 @@ ___
 
 ▸ **get**(`key`: string | number): *T | undefined*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:19](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L19)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:19](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L19)*
 
 **Parameters:**
 
@@ -185,9 +181,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:29
+Defined in node_modules/@types/node/globals.d.ts:548
 
 **Returns:** *number*
 
@@ -197,7 +191,7 @@ ___
 
 ▸ **has**(`key`: string | number): *boolean*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:59](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L59)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:59](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L59)*
 
 **Parameters:**
 
@@ -215,9 +209,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:34
+Defined in node_modules/@types/node/globals.d.ts:552
 
 **Parameters:**
 
@@ -235,9 +227,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:30
+Defined in node_modules/@types/node/globals.d.ts:549
 
 **Parameters:**
 
@@ -253,7 +243,7 @@ ___
 
 ▸ **mget**(`keyArray`: string | number[]): *[MGetCacheResponse](../interfaces/mgetcacheresponse.md)*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:23](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L23)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:23](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L23)*
 
 **Parameters:**
 
@@ -269,7 +259,7 @@ ___
 
 ▸ **mset**(`docArray`: [SetTuple](../interfaces/settuple.md)‹T›[]): *void*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:38](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L38)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:38](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L38)*
 
 **Parameters:**
 
@@ -287,9 +277,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:26
+Defined in node_modules/@types/node/globals.d.ts:545
 
 **Parameters:**
 
@@ -315,9 +303,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:21
+Defined in node_modules/@types/node/globals.d.ts:542
 
 **Parameters:**
 
@@ -343,9 +329,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:22
+Defined in node_modules/@types/node/globals.d.ts:543
 
 **Parameters:**
 
@@ -371,9 +355,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:23
+Defined in node_modules/@types/node/globals.d.ts:554
 
 **Parameters:**
 
@@ -399,9 +381,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:24
+Defined in node_modules/@types/node/globals.d.ts:555
 
 **Parameters:**
 
@@ -427,9 +407,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:31
+Defined in node_modules/@types/node/globals.d.ts:550
 
 **Parameters:**
 
@@ -447,9 +425,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:27
+Defined in node_modules/@types/node/globals.d.ts:546
 
 **Parameters:**
 
@@ -467,9 +443,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:25
+Defined in node_modules/@types/node/globals.d.ts:544
 
 **Parameters:**
 
@@ -493,7 +467,7 @@ ___
 
 ▸ **set**(`key`: string | number, `value`: T): *void*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:31](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L31)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:31](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L31)*
 
 **Parameters:**
 
@@ -512,9 +486,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:28
+Defined in node_modules/@types/node/globals.d.ts:547
 
 **Parameters:**
 
@@ -530,7 +502,7 @@ ___
 
 ▸ **values**(`fn`: [ValuesFn](../overview.md#valuesfn)‹T›): *Promise‹void›*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:48](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L48)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:48](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L48)*
 
 **Parameters:**
 
@@ -548,7 +520,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/events.d.ts:17
+Defined in node_modules/@types/node/events.d.ts:44
 
 **`deprecated`** since v4.0.0
 

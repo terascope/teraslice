@@ -1,4 +1,4 @@
-import { XluceneFieldType } from '@terascope/types';
+import { xLuceneFieldType } from '@terascope/types';
 import { ASTType } from '../../../src';
 import { TestCase } from './interfaces';
 
@@ -10,7 +10,7 @@ export default [
             type: ASTType.Negation,
             node: {
                 type: ASTType.Term,
-                field_type: XluceneFieldType.String,
+                field_type: xLuceneFieldType.String,
                 field: 'name',
                 value: 'Madman',
             },
@@ -23,7 +23,7 @@ export default [
             type: ASTType.Negation,
             node: {
                 type: ASTType.Term,
-                field_type: XluceneFieldType.String,
+                field_type: xLuceneFieldType.String,
                 field: 'name',
                 value: 'Madman',
             },
@@ -36,7 +36,7 @@ export default [
             type: ASTType.Negation,
             node: {
                 type: ASTType.Term,
-                field_type: XluceneFieldType.String,
+                field_type: xLuceneFieldType.String,
                 field: 'name',
                 value: 'Madman',
             },
@@ -49,12 +49,12 @@ export default [
             type: ASTType.Negation,
             node: {
                 type: ASTType.Term,
-                field_type: XluceneFieldType.String,
+                field_type: xLuceneFieldType.String,
                 field: 'name',
                 value: 'Madman',
             },
         },
-        { name: XluceneFieldType.String },
+        { name: xLuceneFieldType.String },
         { foo: 'Madman' }
     ],
     [
@@ -64,12 +64,12 @@ export default [
             type: ASTType.Negation,
             node: {
                 type: ASTType.Term,
-                field_type: XluceneFieldType.String,
+                field_type: xLuceneFieldType.String,
                 field: 'name',
                 value: 'Madman',
             },
         },
-        { name: XluceneFieldType.String },
+        { name: xLuceneFieldType.String },
         { foo: 'Madman' }
     ],
     [
@@ -79,12 +79,12 @@ export default [
             type: ASTType.Negation,
             node: {
                 type: ASTType.Term,
-                field_type: XluceneFieldType.String,
+                field_type: xLuceneFieldType.String,
                 field: 'name',
                 value: 'Madman',
             },
         },
-        { name: XluceneFieldType.String },
+        { name: xLuceneFieldType.String },
         { foo: 'Madman' }
     ],
     [
@@ -94,12 +94,12 @@ export default [
             type: ASTType.Negation,
             node: {
                 type: ASTType.Term,
-                field_type: XluceneFieldType.String,
+                field_type: xLuceneFieldType.String,
                 field: 'name',
                 value: 'Madman',
             },
         },
-        { name: XluceneFieldType.String },
+        { name: xLuceneFieldType.String },
         { foo: 'Madman' }
     ],
     [
@@ -120,7 +120,7 @@ export default [
                             type: ASTType.Negation,
                             node: {
                                 type: ASTType.Term,
-                                field_type: XluceneFieldType.String,
+                                field_type: xLuceneFieldType.String,
                                 field: 'name',
                                 value: 'Madman',
                             },
@@ -153,7 +153,7 @@ export default [
                             type: ASTType.Negation,
                             node: {
                                 type: ASTType.Term,
-                                field_type: XluceneFieldType.String,
+                                field_type: xLuceneFieldType.String,
                                 field: 'name',
                                 value: 'Madman',
                             },
@@ -181,7 +181,7 @@ export default [
                             type: ASTType.Negation,
                             node: {
                                 type: ASTType.Term,
-                                field_type: XluceneFieldType.String,
+                                field_type: xLuceneFieldType.String,
                                 field: 'name',
                                 value: 'Madman',
                             },
@@ -214,7 +214,7 @@ export default [
                             type: ASTType.Negation,
                             node: {
                                 type: ASTType.Term,
-                                field_type: XluceneFieldType.String,
+                                field_type: xLuceneFieldType.String,
                                 field: 'name',
                                 value: 'Madman',
                             },
@@ -247,7 +247,7 @@ export default [
                             type: ASTType.Negation,
                             node: {
                                 type: ASTType.Term,
-                                field_type: XluceneFieldType.String,
+                                field_type: xLuceneFieldType.String,
                                 field: 'name',
                                 value: 'Madman',
                             },

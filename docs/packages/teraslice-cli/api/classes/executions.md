@@ -30,7 +30,7 @@ sidebar_label: Executions
 
 \+ **new Executions**(`cliConfig`: any): *[Executions](executions.md)*
 
-*Defined in [packages/teraslice-cli/src/helpers/executions.ts:13](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/executions.ts#L13)*
+*Defined in [packages/teraslice-cli/src/helpers/executions.ts:13](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/executions.ts#L13)*
 
 **Parameters:**
 
@@ -46,7 +46,7 @@ Name | Type |
 
 • **config**: *any*
 
-*Defined in [packages/teraslice-cli/src/helpers/executions.ts:12](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/executions.ts#L12)*
+*Defined in [packages/teraslice-cli/src/helpers/executions.ts:12](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/executions.ts#L12)*
 
 **`param`** config object
 
@@ -56,7 +56,7 @@ ___
 
 • **teraslice**: *[TerasliceUtil](terasliceutil.md)*
 
-*Defined in [packages/teraslice-cli/src/helpers/executions.ts:13](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/executions.ts#L13)*
+*Defined in [packages/teraslice-cli/src/helpers/executions.ts:13](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/executions.ts#L13)*
 
 ## Methods
 
@@ -64,6 +64,6 @@ ___
 
 ▸ **recover**(): *Promise‹void›*
 
-*Defined in [packages/teraslice-cli/src/helpers/executions.ts:20](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/helpers/executions.ts#L20)*
+*Defined in [packages/teraslice-cli/src/helpers/executions.ts:20](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/executions.ts#L20)*
 
 **Returns:** *Promise‹void›*

@@ -42,6 +42,7 @@ sidebar_label: RequestOptions
 * [json](requestoptions.md#optional-json)
 * [key](requestoptions.md#optional-key)
 * [localAddress](requestoptions.md#optional-localaddress)
+* [maxHeaderSize](requestoptions.md#optional-maxheadersize)
 * [maxVersion](requestoptions.md#optional-maxversion)
 * [method](requestoptions.md#optional-method)
 * [minVersion](requestoptions.md#optional-minversion)
@@ -75,7 +76,7 @@ sidebar_label: RequestOptions
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/http.d.ts:85
+Defined in node_modules/@types/node/http.d.ts:89
 
 ___
 
@@ -97,7 +98,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/http.d.ts:83
+Defined in node_modules/@types/node/http.d.ts:87
 
 ___
 
@@ -115,7 +116,7 @@ ___
 
 • **body**? : *any*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:43](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L43)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:43](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L43)*
 
 ___
 
@@ -125,7 +126,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/tls.d.ts:503
+Defined in node_modules/@types/node/tls.d.ts:560
 
 Optionally override the trusted CA certificates. Default is to trust
 the well-known CAs curated by Mozilla. Mozilla's CAs are completely
@@ -149,7 +150,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/tls.d.ts:515
+Defined in node_modules/@types/node/tls.d.ts:572
 
  Cert chains in PEM format. One cert chain should be provided per
  private key. Each cert chain should consist of the PEM formatted
@@ -169,7 +170,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/tls.d.ts:529
+Defined in node_modules/@types/node/tls.d.ts:586
 
 Cipher suite specification, replacing the default. For more
 information, see modifying the default cipher suite. Permitted
@@ -184,7 +185,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/tls.d.ts:533
+Defined in node_modules/@types/node/tls.d.ts:590
 
 Name of an OpenSSL engine which can provide the client certificate.
 
@@ -206,7 +207,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/http.d.ts:89
+Defined in node_modules/@types/node/http.d.ts:93
 
 ___
 
@@ -216,7 +217,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/tls.d.ts:537
+Defined in node_modules/@types/node/tls.d.ts:594
 
 PEM formatted CRLs (Certificate Revocation Lists).
 
@@ -248,7 +249,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/tls.d.ts:546
+Defined in node_modules/@types/node/tls.d.ts:603
 
 Diffie Hellman parameters, required for Perfect Forward Secrecy. Use
 openssl dhparam to create the parameters. The key length must be
@@ -265,7 +266,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/tls.d.ts:556
+Defined in node_modules/@types/node/tls.d.ts:613
 
 A string describing a named curve or a colon separated list of curve
 NIDs or names, for example P-521:P-384:P-256, to use for ECDH key
@@ -313,7 +314,7 @@ ___
 
 *Overrides void*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:44](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L44)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:44](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L44)*
 
 ___
 
@@ -323,7 +324,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/tls.d.ts:562
+Defined in node_modules/@types/node/tls.d.ts:619
 
 Attempt to use the server's cipher suite preferences instead of the
 client's. When true, causes SSL_OP_CIPHER_SERVER_PREFERENCE to be
@@ -355,7 +356,7 @@ ___
 
 • **json**? : *undefined | false | true*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:45](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L45)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:45](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L45)*
 
 ___
 
@@ -365,7 +366,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/tls.d.ts:573
+Defined in node_modules/@types/node/tls.d.ts:630
 
 Private keys in PEM format. PEM allows the option of private keys
 being encrypted. Encrypted keys will be decrypted with
@@ -388,13 +389,25 @@ Defined in node_modules/@types/node/http.d.ts:78
 
 ___
 
+### `Optional` maxHeaderSize
+
+• **maxHeaderSize**? : *undefined | number*
+
+*Inherited from void*
+
+Defined in node_modules/@types/node/http.d.ts:83
+
+**`default`** 8192
+
+___
+
 ### `Optional` maxVersion
 
 • **maxVersion**? : *SecureVersion*
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/tls.d.ts:593
+Defined in node_modules/@types/node/tls.d.ts:650
 
 Optionally set the maximum TLS version to allow. One
 of `'TLSv1.3'`, `'TLSv1.2'`, `'TLSv1.1'`, or `'TLSv1'`. Cannot be specified along with the
@@ -411,7 +424,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/http.d.ts:80
+Defined in node_modules/@types/node/http.d.ts:84
 
 ___
 
@@ -421,7 +434,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/tls.d.ts:604
+Defined in node_modules/@types/node/tls.d.ts:661
 
 Optionally set the minimum TLS version to allow. One
 of `'TLSv1.3'`, `'TLSv1.2'`, `'TLSv1.1'`, or `'TLSv1'`. Cannot be specified along with the
@@ -440,7 +453,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/tls.d.ts:608
+Defined in node_modules/@types/node/tls.d.ts:665
 
 Shared passphrase used for a single private key and/or a PFX.
 
@@ -452,7 +465,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/http.d.ts:81
+Defined in node_modules/@types/node/http.d.ts:85
 
 ___
 
@@ -462,7 +475,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/tls.d.ts:619
+Defined in node_modules/@types/node/tls.d.ts:676
 
 PFX or PKCS12 encoded private key and certificate chain. pfx is an
 alternative to providing key and cert individually. PFX is usually
@@ -491,7 +504,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/tls.d.ts:578
+Defined in node_modules/@types/node/tls.d.ts:635
 
 Name of an OpenSSL engine to get private key from. Should be used
 together with privateKeyIdentifier.
@@ -504,7 +517,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/tls.d.ts:584
+Defined in node_modules/@types/node/tls.d.ts:641
 
 Identifier of a private key managed by an OpenSSL engine. Should be
 used together with privateKeyEngine. Should not be set together with
@@ -528,7 +541,7 @@ ___
 
 *Overrides void*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:46](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-client-js/src/interfaces.ts#L46)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:46](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L46)*
 
 ___
 
@@ -568,7 +581,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/tls.d.ts:625
+Defined in node_modules/@types/node/tls.d.ts:682
 
 Optionally affect the OpenSSL protocol behavior, which is not
 usually necessary. This should be used carefully if at all! Value is
@@ -582,7 +595,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/tls.d.ts:637
+Defined in node_modules/@types/node/tls.d.ts:694
 
 Legacy mechanism to select the TLS protocol version to use, it does
 not support independent control of the minimum and maximum version,
@@ -612,7 +625,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/tls.d.ts:642
+Defined in node_modules/@types/node/tls.d.ts:699
 
 Opaque identifier used by servers to ensure session state is not
 shared between applications. Unused by clients.
@@ -625,7 +638,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/http.d.ts:87
+Defined in node_modules/@types/node/http.d.ts:91
 
 ___
 
@@ -635,7 +648,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/tls.d.ts:522
+Defined in node_modules/@types/node/tls.d.ts:579
 
  Colon-separated list of supported signature algorithms. The list
  can contain digest algorithms (SHA256, MD5 etc.), public key

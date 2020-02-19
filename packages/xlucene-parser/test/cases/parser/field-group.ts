@@ -1,4 +1,4 @@
-import { XluceneFieldType } from '@terascope/types';
+import { xLuceneFieldType } from '@terascope/types';
 import { ASTType } from '../../../src';
 import { TestCase } from './interfaces';
 
@@ -15,7 +15,7 @@ export default [
                         field: 'count',
                         left: {
                             operator: 'gte',
-                            field_type: XluceneFieldType.Integer,
+                            field_type: xLuceneFieldType.Integer,
                             value: 10,
                         }
                     },
@@ -24,7 +24,7 @@ export default [
                         field: 'count',
                         left: {
                             operator: 'lte',
-                            field_type: XluceneFieldType.Integer,
+                            field_type: xLuceneFieldType.Integer,
                             value: 20,
                         }
                     },
@@ -33,7 +33,7 @@ export default [
                         field: 'count',
                         left: {
                             operator: 'gte',
-                            field_type: XluceneFieldType.Integer,
+                            field_type: xLuceneFieldType.Integer,
                             value: 100,
                         }
                     }
@@ -53,7 +53,7 @@ export default [
                         field: 'count',
                         left: {
                             operator: 'gte',
-                            field_type: XluceneFieldType.Integer,
+                            field_type: xLuceneFieldType.Integer,
                             value: 10,
                         }
                     },
@@ -62,7 +62,7 @@ export default [
                         field: 'count',
                         left: {
                             operator: 'lte',
-                            field_type: XluceneFieldType.Integer,
+                            field_type: xLuceneFieldType.Integer,
                             value: 20,
                         }
                     },
@@ -71,14 +71,14 @@ export default [
                         field: 'count',
                         left: {
                             operator: 'gte',
-                            field_type: XluceneFieldType.Integer,
+                            field_type: xLuceneFieldType.Integer,
                             value: 100,
                         }
                     }
                 ]
             }
         ]
-    }, { count: XluceneFieldType.Integer }, { foo: 10, bar: 20, baz: 100 }],
+    }, { count: xLuceneFieldType.Integer }, { foo: 10, bar: 20, baz: 100 }],
     ['count:(>=10 OR <=20 OR >=100)', 'a chained OR field group expression with ranges', {
         type: 'field-group',
         field: 'count',
@@ -91,7 +91,7 @@ export default [
                         field: 'count',
                         left: {
                             operator: 'gte',
-                            field_type: XluceneFieldType.Integer,
+                            field_type: xLuceneFieldType.Integer,
                             value: 10,
                         }
                     },
@@ -105,7 +105,7 @@ export default [
                         field: 'count',
                         left: {
                             operator: 'lte',
-                            field_type: XluceneFieldType.Integer,
+                            field_type: xLuceneFieldType.Integer,
                             value: 20,
                         }
                     },
@@ -119,7 +119,7 @@ export default [
                         field: 'count',
                         left: {
                             operator: 'gte',
-                            field_type: XluceneFieldType.Integer,
+                            field_type: xLuceneFieldType.Integer,
                             value: 100,
                         }
                     }
@@ -136,7 +136,7 @@ export default [
                 nodes: [
                     {
                         type: ASTType.Term,
-                        field_type: XluceneFieldType.String,
+                        field_type: xLuceneFieldType.String,
                         value: 'AqMvPMCS76u0',
                     }
                 ]
@@ -146,7 +146,7 @@ export default [
                 nodes: [
                     {
                         type: ASTType.Term,
-                        field_type: XluceneFieldType.String,
+                        field_type: xLuceneFieldType.String,
                         value: '497qIZuha9_u',
                     }
                 ]
@@ -156,7 +156,7 @@ export default [
                 nodes: [
                     {
                         type: ASTType.Term,
-                        field_type: XluceneFieldType.String,
+                        field_type: xLuceneFieldType.String,
                         value: 'Oc2DG0O2gbcY',
                     }
                 ]
@@ -197,7 +197,7 @@ export default [
                     {
                         type: ASTType.Term,
                         field: 'count',
-                        field_type: XluceneFieldType.Integer,
+                        field_type: xLuceneFieldType.Integer,
                         value: 155
                     },
                 ]
@@ -208,7 +208,7 @@ export default [
                     {
                         type: ASTType.Term,
                         field: 'count',
-                        field_type: XluceneFieldType.String,
+                        field_type: xLuceneFieldType.String,
                         quoted: true,
                         value: '223'
                     }
@@ -226,7 +226,7 @@ export default [
                     {
                         type: ASTType.Term,
                         field: 'count',
-                        field_type: XluceneFieldType.Integer,
+                        field_type: xLuceneFieldType.Integer,
                         value: 155
                     },
                 ]
@@ -237,13 +237,13 @@ export default [
                     {
                         type: ASTType.Term,
                         field: 'count',
-                        field_type: XluceneFieldType.Integer,
+                        field_type: xLuceneFieldType.Integer,
                         value: 223
                     }
                 ]
             }
         ]
-    }, { count: XluceneFieldType.Integer }, { foo: 155, bar: 223 }],
+    }, { count: xLuceneFieldType.Integer }, { foo: 155, bar: 223 }],
     [
         'count:(155 OR "223")',
         'OR grouping with quoted and unqouted integers',
@@ -257,7 +257,7 @@ export default [
                         {
                             type: ASTType.Term,
                             field: 'count',
-                            field_type: XluceneFieldType.Integer,
+                            field_type: xLuceneFieldType.Integer,
                             value: 155
                         },
                     ]
@@ -268,7 +268,7 @@ export default [
                         {
                             type: ASTType.Term,
                             field: 'count',
-                            field_type: XluceneFieldType.Integer,
+                            field_type: xLuceneFieldType.Integer,
                             value: 223
                         }
                     ]
@@ -276,7 +276,7 @@ export default [
             ]
         },
         {
-            count: XluceneFieldType.Integer
+            count: xLuceneFieldType.Integer
         }
     ],
     [
@@ -292,7 +292,7 @@ export default [
                         {
                             type: ASTType.Term,
                             field: 'count',
-                            field_type: XluceneFieldType.Integer,
+                            field_type: xLuceneFieldType.Integer,
                             value: 155
                         },
                     ]
@@ -303,7 +303,7 @@ export default [
                         {
                             type: ASTType.Term,
                             field: 'count',
-                            field_type: XluceneFieldType.Integer,
+                            field_type: xLuceneFieldType.Integer,
                             value: 223
                         }
                     ]
@@ -311,7 +311,7 @@ export default [
             ]
         },
         {
-            count: XluceneFieldType.Integer
+            count: xLuceneFieldType.Integer
         },
         { foo: 155, bar: 223 }
     ],
@@ -328,7 +328,7 @@ export default [
                         {
                             type: ASTType.Term,
                             field: 'bool',
-                            field_type: XluceneFieldType.Boolean,
+                            field_type: xLuceneFieldType.Boolean,
                             value: true
                         },
                     ]
@@ -339,7 +339,7 @@ export default [
                         {
                             type: ASTType.Term,
                             field: 'bool',
-                            field_type: XluceneFieldType.Boolean,
+                            field_type: xLuceneFieldType.Boolean,
                             value: false
                         }
                     ]
@@ -347,7 +347,7 @@ export default [
             ]
         },
         {
-            bool: XluceneFieldType.Boolean
+            bool: xLuceneFieldType.Boolean
         }
     ],
     ['example:("foo" AND ("bar" OR "baz"))', 'implicit or grouping', {
@@ -360,7 +360,7 @@ export default [
                     {
                         type: ASTType.Term,
                         field: 'example',
-                        field_type: XluceneFieldType.String,
+                        field_type: xLuceneFieldType.String,
                         value: 'foo'
                     },
                     {
@@ -372,7 +372,7 @@ export default [
                                     {
                                         type: ASTType.Term,
                                         field: 'example',
-                                        field_type: XluceneFieldType.String,
+                                        field_type: xLuceneFieldType.String,
                                         value: 'bar'
                                     },
                                 ]
@@ -383,7 +383,7 @@ export default [
                                     {
                                         type: ASTType.Term,
                                         field: 'example',
-                                        field_type: XluceneFieldType.String,
+                                        field_type: xLuceneFieldType.String,
                                         value: 'baz'
                                     },
                                 ]
@@ -403,14 +403,14 @@ export default [
                 nodes: [
                     {
                         type: ASTType.Term,
-                        field_type: XluceneFieldType.String,
+                        field_type: xLuceneFieldType.String,
                         field: 'example',
                         value: 'foo'
                     },
                     {
                         type: ASTType.Term,
                         field: 'other',
-                        field_type: XluceneFieldType.String,
+                        field_type: xLuceneFieldType.String,
                         value: 'bar'
                     },
                 ]
@@ -429,14 +429,14 @@ export default [
                         node: {
                             type: ASTType.Term,
                             field: 'val',
-                            field_type: XluceneFieldType.Integer,
+                            field_type: xLuceneFieldType.Integer,
                             value: 1,
                         }
                     },
                     {
                         type: ASTType.Term,
                         field: 'val',
-                        field_type: XluceneFieldType.Integer,
+                        field_type: xLuceneFieldType.Integer,
                         value: 2
                     }
                 ]
@@ -455,24 +455,24 @@ export default [
                         node: {
                             type: ASTType.Term,
                             field: 'val',
-                            field_type: XluceneFieldType.Integer,
+                            field_type: xLuceneFieldType.Integer,
                             value: 1,
                         }
                     },
                     {
                         type: ASTType.Term,
                         field: 'val',
-                        field_type: XluceneFieldType.Integer,
+                        field_type: xLuceneFieldType.Integer,
                         value: 2
                     }
                 ]
             }
         ]
-    }, { val: XluceneFieldType.Integer }, { foo: 1, bar: 2 }],
+    }, { val: xLuceneFieldType.Integer }, { foo: 1, bar: 2 }],
     ['some_ref:("A")', 'single value field group',
         {
             type: ASTType.Term,
-            field_type: XluceneFieldType.String,
+            field_type: xLuceneFieldType.String,
             field: 'some_ref',
             quoted: true,
             value: 'A',
@@ -480,7 +480,7 @@ export default [
     ["some_ref:('A')", 'single value field group',
         {
             type: ASTType.Term,
-            field_type: XluceneFieldType.String,
+            field_type: xLuceneFieldType.String,
             field: 'some_ref',
             quoted: true,
             value: 'A',
