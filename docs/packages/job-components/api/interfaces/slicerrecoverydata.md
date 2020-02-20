@@ -24,7 +24,7 @@ The metadata given to Slicer after succefully recovering the execution
 
 • **lastSlice**? : *[SliceRequest](slicerequest.md)*
 
-*Defined in [packages/job-components/src/interfaces/operations.ts:68](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/operations.ts#L68)*
+*Defined in [packages/job-components/src/interfaces/operations.ts:68](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/operations.ts#L68)*
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **slicer_id**: *number*
 
-*Defined in [packages/job-components/src/interfaces/operations.ts:67](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/operations.ts#L67)*
+*Defined in [packages/job-components/src/interfaces/operations.ts:67](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/operations.ts#L67)*

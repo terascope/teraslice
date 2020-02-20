@@ -1,4 +1,4 @@
-import { FieldType } from 'xlucene-evaluator';
+import { xLuceneFieldType } from '@terascope/types';
 import BaseType from '../base-type';
 import { ElasticSearchTypes } from '../../interfaces';
 
@@ -41,6 +41,6 @@ export default class Hostname extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: FieldType.String };
+        return { [this.field]: xLuceneFieldType.String };
     }
 }

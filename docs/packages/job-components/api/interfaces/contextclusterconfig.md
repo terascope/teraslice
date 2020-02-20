@@ -21,6 +21,6 @@ sidebar_label: ContextClusterConfig
 
 • **worker**: *object*
 
-*Defined in [packages/job-components/src/interfaces/context.ts:169](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/context.ts#L169)*
+*Defined in [packages/job-components/src/interfaces/context.ts:169](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/context.ts#L169)*
 
 #### Type declaration:

@@ -1,4 +1,5 @@
 import jsStringEscape from 'js-string-escape';
+import { MACAddress } from '@terascope/types';
 
 /** A simplified implemation of lodash isString */
 export function isString(val: any): val is string {
@@ -15,6 +16,34 @@ export function toString(val: any): string {
     }
 
     return JSON.stringify(val);
+}
+
+export function trimStart(input: string, char = ' '): string {
+    let start = input.indexOf(char);
+    if (start === -1 || start > (input.length / 2)) return input;
+
+    for (start; start < input.length;) {
+        if (input.slice(start, start + char.length) !== char) {
+            break;
+        }
+        start += char.length;
+    }
+
+    return input.slice(start);
+}
+
+export function trimEnd(input: string, char = ' '): string {
+    let end = input.lastIndexOf(char);
+    if (end === -1 || end < (input.length / 2)) return input;
+
+    for (end; end >= 0;) {
+        if (input.slice(end - char.length, end) !== char) {
+            break;
+        }
+        end -= char.length;
+    }
+
+    return input.slice(0, end);
 }
 
 /** safely trim and to lower a input, useful for string comparison */
@@ -219,6 +248,10 @@ export function toSnakeCase(input: string): string {
     return getWordParts(input).join('_').toLowerCase();
 }
 
+export function toTitleCase(input: string): string {
+    return firstToUpper(getWordParts(input).map((str) => firstToUpper(str)).join(' '));
+}
+
 /**
  * Make a string url/elasticsearch safe.
  * safeString converts the string to lower case,
@@ -279,14 +312,19 @@ export function formatRegex(str: string): FormatRegexResult {
 }
 
 export function match(regexp: string, value: string) {
+    if (!isString(regexp) || !isString(value)) return null;
+
     const [reg, options] = formatRegex(regexp);
     const regex = new RegExp(reg, options);
     const results = regex.exec(value);
+
     if (results) return results[0];
     return results;
 }
 
-export function matchAll(regexp: string, str: string): string[]|null {
+export function matchAll(regexp: string, value: string): string[]|null {
+    if (!isString(regexp) || !isString(value)) return null;
+
     const [reg, formatOptions] = formatRegex(regexp);
     let options = formatOptions || 'g';
 
@@ -294,7 +332,7 @@ export function matchAll(regexp: string, str: string): string[]|null {
 
     const regex = new RegExp(reg, options);
     const matches: string[] = [];
-    let matchedData = regex.exec(str);
+    let matchedData = regex.exec(value);
 
     while (matchedData != null && matchedData[0]) {
         if (matchedData && matchedData.length > 1) {
@@ -302,9 +340,66 @@ export function matchAll(regexp: string, str: string): string[]|null {
         } else {
             matches.push(matchedData[0]);
         }
-        matchedData = regex.exec(str);
+        matchedData = regex.exec(value);
     }
 
     if (matches.length === 0) return null;
     return matches;
+}
+
+export function isWildCardString(term: string): boolean {
+    if (isString(term)) {
+        if (term.match('[?+*+]')) return true;
+    }
+    return false;
+}
+
+export function wildCardToRegex(term: string): RegExp {
+    const baseRegex = term
+        .replace('.', '\\.{0,1}')
+        .replace(/\*/g, '.*')
+        .replace(/\?/g, '[^\\n\\r\\s]');
+
+    return new RegExp(`^${baseRegex}$`);
+}
+
+export function matchWildcard(wildCard: string, value: string) {
+    if (isString(wildCard) && isString(value)) {
+        const regex = wildCardToRegex(wildCard);
+        return value.match(regex) != null;
+    }
+    return false;
+}
+
+export function isEmail(input: any): boolean {
+    // Email Validation as per RFC2822 standards. Straight from .net helpfiles
+    // eslint-disable-next-line
+    const regex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
+    if (isString(input) && input.toLowerCase().match(regex)) return true;
+
+    return false;
+}
+
+export function isMacAddress(input: any, args?: MACAddress): boolean {
+    if (!isString(input)) return false;
+
+    const delimiters = {
+        colon: /^([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])$/,
+        space: /^([0-9a-fA-F][0-9a-fA-F]\s){5}([0-9a-fA-F][0-9a-fA-F])$/,
+        dash: /^([0-9a-fA-F][0-9a-fA-F]-){5}([0-9a-fA-F][0-9a-fA-F])$/,
+        dot: /^([0-9a-fA-F]{4}\.){2}([0-9a-fA-F]{4})$/,
+        none: /^([0-9a-fA-F]){12}$/
+    };
+
+    const delimiter = args && args.delimiter ? args.delimiter : 'any';
+
+    if (delimiter === 'any') {
+        return Object.keys(delimiters).some((d) => delimiters[d].test(input));
+    }
+
+    if (Array.isArray(delimiter)) {
+        return delimiter.some((d) => delimiters[d].test(input));
+    }
+
+    return delimiters[delimiter].test(input);
 }

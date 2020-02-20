@@ -149,14 +149,6 @@
                     "packages/utils/overview",
                     "packages/utils/api/overview"
                 ]
-            },
-            {
-                "type": "subcategory",
-                "label": "xlucene-evaluator",
-                "ids": [
-                    "packages/xlucene-evaluator/overview",
-                    "packages/xlucene-evaluator/api/overview"
-                ]
             }
         ],
         "Legacy": [

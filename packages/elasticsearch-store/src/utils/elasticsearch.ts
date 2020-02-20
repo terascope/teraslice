@@ -4,7 +4,7 @@ import { getErrorType } from './errors';
 import * as i from '../interfaces';
 
 export function getTimeByField(field = ''): (input: any) => number {
-    return (input) => ts.getUnixTime(ts.get(input, field)) || Date.now();
+    return (input) => ts.getTime(ts.get(input, field)) || Date.now();
 }
 
 export function shardsPath(index: string): (stats: any) => i.Shard[] {

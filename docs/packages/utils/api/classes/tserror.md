@@ -43,7 +43,7 @@ like statusCode and fatalError
 
 \+ **new TSError**(`input`: any, `config`: [TSErrorConfig](../interfaces/tserrorconfig.md)): *[TSError](tserror.md)*
 
-*Defined in [packages/utils/src/errors.ts:48](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L48)*
+*Defined in [packages/utils/src/errors.ts:48](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L48)*
 
 **Parameters:**
 
@@ -60,7 +60,7 @@ Name | Type | Default |
 
 • **code**: *string*
 
-*Defined in [packages/utils/src/errors.ts:18](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L18)*
+*Defined in [packages/utils/src/errors.ts:18](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L18)*
 
 An descriptive error code that specifies the error type, this follows more
 node convention
@@ -71,7 +71,7 @@ ___
 
 • **context**: *[TSErrorContext](../interfaces/tserrorcontext.md)*
 
-*Defined in [packages/utils/src/errors.ts:40](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L40)*
+*Defined in [packages/utils/src/errors.ts:40](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L40)*
 
 Additional context metadata
 
@@ -81,7 +81,7 @@ ___
 
 • **fatalError**: *boolean*
 
-*Defined in [packages/utils/src/errors.ts:28](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L28)*
+*Defined in [packages/utils/src/errors.ts:28](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L28)*
 
 Used to indicate the an error is fatal
 
@@ -111,7 +111,7 @@ ___
 
 • **retryable**? : *undefined | false | true*
 
-*Defined in [packages/utils/src/errors.ts:35](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L35)*
+*Defined in [packages/utils/src/errors.ts:35](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L35)*
 
 Used sometimes to indicate whether an error is retryable
 
@@ -125,8 +125,6 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
 Defined in node_modules/typescript/lib/lib.es5.d.ts:975
 
 ___
@@ -135,7 +133,7 @@ ___
 
 • **statusCode**: *number*
 
-*Defined in [packages/utils/src/errors.ts:23](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L23)*
+*Defined in [packages/utils/src/errors.ts:23](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L23)*
 
 A HTTP status code for easy use
 
@@ -153,7 +151,7 @@ Defined in node_modules/typescript/lib/lib.es5.d.ts:984
 
 ▸ **cause**(): *any*
 
-*Defined in [packages/utils/src/errors.ts:80](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L80)*
+*Defined in [packages/utils/src/errors.ts:80](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L80)*
 
 **Returns:** *any*
 
@@ -163,7 +161,7 @@ ___
 
 ▸ **[Symbol.hasInstance]**(`instance`: any): *boolean*
 
-*Defined in [packages/utils/src/errors.ts:42](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L42)*
+*Defined in [packages/utils/src/errors.ts:42](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L42)*
 
 **Parameters:**
 

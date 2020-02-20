@@ -1,4 +1,4 @@
-import { FieldType } from 'xlucene-evaluator';
+import { xLuceneFieldType } from '@terascope/types';
 import BaseType from '../base-type';
 import { ElasticSearchTypes } from '../../interfaces';
 
@@ -12,6 +12,6 @@ export default class IpRangeType extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: FieldType.IP };
+        return { [this.field]: xLuceneFieldType.IP };
     }
 }

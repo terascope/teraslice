@@ -62,7 +62,9 @@ sidebar_label: Core
 
 \+ **new Core**(`opts`: [CoreOptions](../interfaces/coreoptions.md)): *[Core](core.md)*
 
-*Defined in [packages/teraslice-messaging/src/messenger/core.ts:16](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-messaging/src/messenger/core.ts#L16)*
+*Overrides void*
+
+*Defined in [packages/teraslice-messaging/src/messenger/core.ts:16](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-messaging/src/messenger/core.ts#L16)*
 
 **Parameters:**
 
@@ -78,7 +80,7 @@ Name | Type |
 
 • **actionTimeout**: *number*
 
-*Defined in [packages/teraslice-messaging/src/messenger/core.ts:15](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-messaging/src/messenger/core.ts#L15)*
+*Defined in [packages/teraslice-messaging/src/messenger/core.ts:15](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-messaging/src/messenger/core.ts#L15)*
 
 ___
 
@@ -86,7 +88,7 @@ ___
 
 • **closed**: *boolean* = false
 
-*Defined in [packages/teraslice-messaging/src/messenger/core.ts:12](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-messaging/src/messenger/core.ts#L12)*
+*Defined in [packages/teraslice-messaging/src/messenger/core.ts:12](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-messaging/src/messenger/core.ts#L12)*
 
 ___
 
@@ -94,7 +96,7 @@ ___
 
 • **logger**: *Logger*
 
-*Defined in [packages/teraslice-messaging/src/messenger/core.ts:16](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-messaging/src/messenger/core.ts#L16)*
+*Defined in [packages/teraslice-messaging/src/messenger/core.ts:16](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-messaging/src/messenger/core.ts#L16)*
 
 ___
 
@@ -102,7 +104,7 @@ ___
 
 • **networkLatencyBuffer**: *number*
 
-*Defined in [packages/teraslice-messaging/src/messenger/core.ts:14](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-messaging/src/messenger/core.ts#L14)*
+*Defined in [packages/teraslice-messaging/src/messenger/core.ts:14](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-messaging/src/messenger/core.ts#L14)*
 
 ___
 
@@ -112,7 +114,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/events.d.ts:18
+Defined in node_modules/@types/node/events.d.ts:45
 
 ## Methods
 
@@ -122,9 +124,7 @@ Defined in node_modules/@types/node/events.d.ts:18
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:20
+Defined in node_modules/@types/node/globals.d.ts:541
 
 **Parameters:**
 
@@ -148,7 +148,7 @@ ___
 
 ▸ **close**(): *void*
 
-*Defined in [packages/teraslice-messaging/src/messenger/core.ts:38](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-messaging/src/messenger/core.ts#L38)*
+*Defined in [packages/teraslice-messaging/src/messenger/core.ts:38](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-messaging/src/messenger/core.ts#L38)*
 
 **Returns:** *void*
 
@@ -160,7 +160,7 @@ ___
 
 *Overrides void*
 
-*Defined in [packages/teraslice-messaging/src/messenger/core.ts:130](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-messaging/src/messenger/core.ts#L130)*
+*Defined in [packages/teraslice-messaging/src/messenger/core.ts:130](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-messaging/src/messenger/core.ts#L130)*
 
 **Parameters:**
 
@@ -179,9 +179,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:33
+Defined in node_modules/@types/node/globals.d.ts:556
 
 **Returns:** *Array‹string | symbol›*
 
@@ -193,9 +191,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:29
+Defined in node_modules/@types/node/globals.d.ts:548
 
 **Returns:** *number*
 
@@ -205,7 +201,7 @@ ___
 
 ▸ **getTimeout**(`timeout?`: undefined | number): *number*
 
-*Defined in [packages/teraslice-messaging/src/messenger/core.ts:125](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-messaging/src/messenger/core.ts#L125)*
+*Defined in [packages/teraslice-messaging/src/messenger/core.ts:125](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-messaging/src/messenger/core.ts#L125)*
 
 **Parameters:**
 
@@ -221,7 +217,7 @@ ___
 
 ▸ **getTimeoutWithMax**(`maxTimeout`: number): *number*
 
-*Defined in [packages/teraslice-messaging/src/messenger/core.ts:120](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-messaging/src/messenger/core.ts#L120)*
+*Defined in [packages/teraslice-messaging/src/messenger/core.ts:120](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-messaging/src/messenger/core.ts#L120)*
 
 **Parameters:**
 
@@ -237,7 +233,7 @@ ___
 
 ▸ **handleResponse**(`socket`: [SocketEmitter](../interfaces/socketemitter.md), `eventName`: string, `fn`: [MessageHandler](../interfaces/messagehandler.md)): *void*
 
-*Defined in [packages/teraslice-messaging/src/messenger/core.ts:64](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-messaging/src/messenger/core.ts#L64)*
+*Defined in [packages/teraslice-messaging/src/messenger/core.ts:64](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-messaging/src/messenger/core.ts#L64)*
 
 **Parameters:**
 
@@ -255,7 +251,7 @@ ___
 
 ▸ **handleSendResponse**(`sent`: [Message](../interfaces/message.md)): *Promise‹[Message](../interfaces/message.md) | null›*
 
-*Defined in [packages/teraslice-messaging/src/messenger/core.ts:43](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-messaging/src/messenger/core.ts#L43)*
+*Defined in [packages/teraslice-messaging/src/messenger/core.ts:43](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-messaging/src/messenger/core.ts#L43)*
 
 **Parameters:**
 
@@ -271,7 +267,7 @@ ___
 
 ▸ **isClientReady**(`clientId?`: undefined | string): *boolean*
 
-*Defined in [packages/teraslice-messaging/src/messenger/core.ts:101](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-messaging/src/messenger/core.ts#L101)*
+*Defined in [packages/teraslice-messaging/src/messenger/core.ts:101](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-messaging/src/messenger/core.ts#L101)*
 
 **Parameters:**
 
@@ -289,9 +285,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:34
+Defined in node_modules/@types/node/globals.d.ts:552
 
 **Parameters:**
 
@@ -309,9 +303,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:30
+Defined in node_modules/@types/node/globals.d.ts:549
 
 **Parameters:**
 
@@ -329,9 +321,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:26
+Defined in node_modules/@types/node/globals.d.ts:545
 
 **Parameters:**
 
@@ -357,9 +347,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:21
+Defined in node_modules/@types/node/globals.d.ts:542
 
 **Parameters:**
 
@@ -385,9 +373,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:22
+Defined in node_modules/@types/node/globals.d.ts:543
 
 **Parameters:**
 
@@ -411,7 +397,7 @@ ___
 
 ▸ **onceWithTimeout**(`eventName`: string, `timeout?`: undefined | number): *Promise‹any›*
 
-*Defined in [packages/teraslice-messaging/src/messenger/core.ts:137](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-messaging/src/messenger/core.ts#L137)*
+*Defined in [packages/teraslice-messaging/src/messenger/core.ts:137](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-messaging/src/messenger/core.ts#L137)*
 
 **Parameters:**
 
@@ -430,9 +416,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:23
+Defined in node_modules/@types/node/globals.d.ts:554
 
 **Parameters:**
 
@@ -458,9 +442,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:24
+Defined in node_modules/@types/node/globals.d.ts:555
 
 **Parameters:**
 
@@ -486,9 +468,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:31
+Defined in node_modules/@types/node/globals.d.ts:550
 
 **Parameters:**
 
@@ -506,9 +486,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:27
+Defined in node_modules/@types/node/globals.d.ts:546
 
 **Parameters:**
 
@@ -526,9 +504,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:25
+Defined in node_modules/@types/node/globals.d.ts:544
 
 **Parameters:**
 
@@ -554,9 +530,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:28
+Defined in node_modules/@types/node/globals.d.ts:547
 
 **Parameters:**
 
@@ -572,7 +546,7 @@ ___
 
 ▸ **waitForClientReady**(`clientId`: string, `timeout?`: undefined | number): *Promise‹boolean›*
 
-*Defined in [packages/teraslice-messaging/src/messenger/core.ts:106](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-messaging/src/messenger/core.ts#L106)*
+*Defined in [packages/teraslice-messaging/src/messenger/core.ts:106](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-messaging/src/messenger/core.ts#L106)*
 
 **Parameters:**
 
@@ -591,7 +565,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/events.d.ts:17
+Defined in node_modules/@types/node/events.d.ts:44
 
 **`deprecated`** since v4.0.0
 

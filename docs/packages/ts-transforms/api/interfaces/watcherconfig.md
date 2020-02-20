@@ -25,7 +25,7 @@ sidebar_label: WatcherConfig
 
 • **notification_rules**? : *undefined | string*
 
-*Defined in [interfaces.ts:116](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L116)*
+*Defined in [interfaces.ts:116](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L116)*
 
 ___
 
@@ -33,12 +33,12 @@ ___
 
 • **rules**? : *string[]*
 
-*Defined in [interfaces.ts:114](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L114)*
+*Defined in [interfaces.ts:114](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L114)*
 
 ___
 
 ### `Optional` types
 
-• **types**? : *TypeConfig*
+• **types**? : *XluceneTypeConfig*
 
-*Defined in [interfaces.ts:115](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L115)*
+*Defined in [interfaces.ts:115](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L115)*

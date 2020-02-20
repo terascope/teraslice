@@ -35,7 +35,7 @@ sidebar_label: API
 
 Ƭ **ESBulkQuery**: *[ESQuery](interfaces/esquery.md) | DataEntity*
 
-*Defined in [packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts:312](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L312)*
+*Defined in [packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts:312](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L312)*
 
 ___
 
@@ -43,7 +43,7 @@ ___
 
 Ƭ **UpdateCacheFn**: *function*
 
-*Defined in [packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts:296](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L296)*
+*Defined in [packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts:296](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L296)*
 
 #### Type declaration:
 
@@ -63,7 +63,7 @@ ___
 
 Ƭ **ValuesFn**: *function*
 
-*Defined in [packages/teraslice-state-storage/src/interfaces.ts:22](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-state-storage/src/interfaces.ts#L22)*
+*Defined in [packages/teraslice-state-storage/src/interfaces.ts:22](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/interfaces.ts#L22)*
 
 #### Type declaration:
 

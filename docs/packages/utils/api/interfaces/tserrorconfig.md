@@ -29,7 +29,7 @@ sidebar_label: TSErrorConfig
 
 • **code**? : *undefined | string*
 
-*Defined in [packages/utils/src/errors.ts:90](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L90)*
+*Defined in [packages/utils/src/errors.ts:90](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L90)*
 
 An descriptive error code that specifies the error type, this follows more
 node convention
@@ -40,7 +40,7 @@ ___
 
 • **context**? : *[AnyObject](anyobject.md)*
 
-*Defined in [packages/utils/src/errors.ts:120](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L120)*
+*Defined in [packages/utils/src/errors.ts:120](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L120)*
 
 Attach any context metadata to the error
 
@@ -50,7 +50,7 @@ ___
 
 • **defaultErrorMsg**? : *undefined | string*
 
-*Defined in [packages/utils/src/errors.ts:123](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L123)*
+*Defined in [packages/utils/src/errors.ts:123](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L123)*
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 • **defaultStatusCode**? : *undefined | number*
 
-*Defined in [packages/utils/src/errors.ts:122](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L122)*
+*Defined in [packages/utils/src/errors.ts:122](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L122)*
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 • **fatalError**? : *undefined | false | true*
 
-*Defined in [packages/utils/src/errors.ts:100](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L100)*
+*Defined in [packages/utils/src/errors.ts:100](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L100)*
 
 Used to indicate the an error is fatal
 
@@ -76,7 +76,7 @@ ___
 
 • **message**? : *undefined | string*
 
-*Defined in [packages/utils/src/errors.ts:115](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L115)*
+*Defined in [packages/utils/src/errors.ts:115](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L115)*
 
 Override the message when given an error
 
@@ -86,7 +86,7 @@ ___
 
 • **reason**? : *undefined | string*
 
-*Defined in [packages/utils/src/errors.ts:110](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L110)*
+*Defined in [packages/utils/src/errors.ts:110](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L110)*
 
 Prefix the error message with a reason
 
@@ -96,7 +96,7 @@ ___
 
 • **retryable**? : *undefined | false | true*
 
-*Defined in [packages/utils/src/errors.ts:105](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L105)*
+*Defined in [packages/utils/src/errors.ts:105](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L105)*
 
 Used sometimes to indicate whether an error is retryable
 
@@ -106,6 +106,6 @@ ___
 
 • **statusCode**? : *undefined | number*
 
-*Defined in [packages/utils/src/errors.ts:95](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L95)*
+*Defined in [packages/utils/src/errors.ts:95](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L95)*
 
 A HTTP status code for easy use

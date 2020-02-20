@@ -25,7 +25,7 @@ sidebar_label: IndexModelRecord
 
 • **_created**: *string*
 
-*Defined in [interfaces.ts:202](https://github.com/terascope/teraslice/blob/78714a985/packages/elasticsearch-store/src/interfaces.ts#L202)*
+*Defined in [interfaces.ts:208](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/interfaces.ts#L208)*
 
 Creation date
 
@@ -35,7 +35,7 @@ ___
 
 • **_deleted**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:192](https://github.com/terascope/teraslice/blob/78714a985/packages/elasticsearch-store/src/interfaces.ts#L192)*
+*Defined in [interfaces.ts:198](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/interfaces.ts#L198)*
 
 Indicates whether the record is deleted or not
 
@@ -45,7 +45,7 @@ ___
 
 • **_key**: *string*
 
-*Defined in [interfaces.ts:182](https://github.com/terascope/teraslice/blob/78714a985/packages/elasticsearch-store/src/interfaces.ts#L182)*
+*Defined in [interfaces.ts:188](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/interfaces.ts#L188)*
 
 A unique ID for the record - nanoid 12 digit
 
@@ -55,7 +55,7 @@ ___
 
 • **_updated**: *string*
 
-*Defined in [interfaces.ts:197](https://github.com/terascope/teraslice/blob/78714a985/packages/elasticsearch-store/src/interfaces.ts#L197)*
+*Defined in [interfaces.ts:203](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/interfaces.ts#L203)*
 
 Updated date
 
@@ -65,6 +65,6 @@ ___
 
 • **client_id**: *number*
 
-*Defined in [interfaces.ts:187](https://github.com/terascope/teraslice/blob/78714a985/packages/elasticsearch-store/src/interfaces.ts#L187)*
+*Defined in [interfaces.ts:193](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/interfaces.ts#L193)*
 
 The mutli-tenant ID representing the client

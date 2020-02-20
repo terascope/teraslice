@@ -46,7 +46,7 @@ sidebar_label: PostProcessConfig
 
 • **__id**: *string*
 
-*Defined in [interfaces.ts:18](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L18)*
+*Defined in [interfaces.ts:18](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L18)*
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 • **__pipeline**? : *undefined | string*
 
-*Defined in [interfaces.ts:50](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L50)*
+*Defined in [interfaces.ts:50](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L50)*
 
 ___
 
@@ -62,7 +62,7 @@ ___
 
 • **case**? : *[Case](../overview.md#case)*
 
-*Defined in [interfaces.ts:44](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L44)*
+*Defined in [interfaces.ts:44](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L44)*
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 • **decoder**? : *undefined | string*
 
-*Defined in [interfaces.ts:33](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L33)*
+*Defined in [interfaces.ts:33](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L33)*
 
 ___
 
@@ -78,7 +78,7 @@ ___
 
 • **delimiter**? : *undefined | string*
 
-*Defined in [interfaces.ts:40](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L40)*
+*Defined in [interfaces.ts:40](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L40)*
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 • **end**? : *undefined | string*
 
-*Defined in [interfaces.ts:29](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L29)*
+*Defined in [interfaces.ts:29](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L29)*
 
 ___
 
@@ -94,7 +94,7 @@ ___
 
 • **fields**? : *string[]*
 
-*Defined in [interfaces.ts:39](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L39)*
+*Defined in [interfaces.ts:39](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L39)*
 
 ___
 
@@ -102,7 +102,7 @@ ___
 
 • **follow**: *string*
 
-*Defined in [interfaces.ts:25](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L25)*
+*Defined in [interfaces.ts:25](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L25)*
 
 ___
 
@@ -110,7 +110,7 @@ ___
 
 • **hash**? : *undefined | string*
 
-*Defined in [interfaces.ts:48](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L48)*
+*Defined in [interfaces.ts:48](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L48)*
 
 ___
 
@@ -118,7 +118,7 @@ ___
 
 • **length**? : *undefined | number*
 
-*Defined in [interfaces.ts:38](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L38)*
+*Defined in [interfaces.ts:38](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L38)*
 
 ___
 
@@ -126,7 +126,7 @@ ___
 
 • **max**? : *undefined | number*
 
-*Defined in [interfaces.ts:42](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L42)*
+*Defined in [interfaces.ts:42](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L42)*
 
 ___
 
@@ -134,7 +134,7 @@ ___
 
 • **min**? : *undefined | number*
 
-*Defined in [interfaces.ts:41](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L41)*
+*Defined in [interfaces.ts:41](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L41)*
 
 ___
 
@@ -142,7 +142,7 @@ ___
 
 • **mutate**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:35](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L35)*
+*Defined in [interfaces.ts:35](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L35)*
 
 ___
 
@@ -150,7 +150,7 @@ ___
 
 • **other_match_required**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:36](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L36)*
+*Defined in [interfaces.ts:36](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L36)*
 
 ___
 
@@ -158,7 +158,7 @@ ___
 
 • **output**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:46](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L46)*
+*Defined in [interfaces.ts:46](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L46)*
 
 ___
 
@@ -166,7 +166,7 @@ ___
 
 • **post_process**? : *undefined | string*
 
-*Defined in [interfaces.ts:34](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L34)*
+*Defined in [interfaces.ts:34](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L34)*
 
 ___
 
@@ -174,7 +174,7 @@ ___
 
 • **preserve_colons**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:43](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L43)*
+*Defined in [interfaces.ts:43](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L43)*
 
 ___
 
@@ -182,7 +182,7 @@ ___
 
 • **regex**? : *undefined | string*
 
-*Defined in [interfaces.ts:30](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L30)*
+*Defined in [interfaces.ts:30](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L30)*
 
 ___
 
@@ -190,7 +190,7 @@ ___
 
 • **selector**? : *undefined | string*
 
-*Defined in [interfaces.ts:20](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L20)*
+*Defined in [interfaces.ts:20](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L20)*
 
 ___
 
@@ -198,7 +198,7 @@ ___
 
 • **source**? : *undefined | string*
 
-*Defined in [interfaces.ts:21](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L21)*
+*Defined in [interfaces.ts:21](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L21)*
 
 ___
 
@@ -206,7 +206,7 @@ ___
 
 • **sources**? : *string[]*
 
-*Defined in [interfaces.ts:22](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L22)*
+*Defined in [interfaces.ts:22](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L22)*
 
 ___
 
@@ -214,7 +214,7 @@ ___
 
 • **start**? : *undefined | string*
 
-*Defined in [interfaces.ts:28](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L28)*
+*Defined in [interfaces.ts:28](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L28)*
 
 ___
 
@@ -222,7 +222,7 @@ ___
 
 • **tags**? : *string[]*
 
-*Defined in [interfaces.ts:26](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L26)*
+*Defined in [interfaces.ts:26](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L26)*
 
 ___
 
@@ -230,7 +230,7 @@ ___
 
 • **target**? : *undefined | string*
 
-*Defined in [interfaces.ts:23](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L23)*
+*Defined in [interfaces.ts:23](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L23)*
 
 ___
 
@@ -238,7 +238,7 @@ ___
 
 • **validation**? : *undefined | string*
 
-*Defined in [interfaces.ts:32](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L32)*
+*Defined in [interfaces.ts:32](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L32)*
 
 ___
 
@@ -246,4 +246,4 @@ ___
 
 • **value**? : *any*
 
-*Defined in [interfaces.ts:45](https://github.com/terascope/teraslice/blob/78714a985/packages/ts-transforms/src/interfaces.ts#L45)*
+*Defined in [interfaces.ts:45](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L45)*

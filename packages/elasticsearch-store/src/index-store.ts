@@ -1,13 +1,8 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import {
-    TypeConfig,
-    CachedTranslator,
-    createJoinQuery,
-    JoinQueryResult,
-    QueryAccess,
-    RestrictOptions
-} from 'xlucene-evaluator';
+import { xLuceneTypeConfig } from '@terascope/types';
+import { CachedTranslator, QueryAccess, RestrictOptions } from 'xlucene-translator';
+import { toXluceneQuery, xLuceneQueryResult } from '@terascope/data-mate';
 import IndexManager from './index-manager';
 import * as i from './interfaces';
 import * as utils from './utils';
@@ -23,7 +18,7 @@ export default class IndexStore<T extends Record<string, any>> {
     readonly name: string;
     refreshByDefault = true;
     protected _defaultQueryAccess: QueryAccess<T>|undefined;
-    readonly xluceneTypeConfig: TypeConfig;
+    readonly xLuceneTypeConfig: xLuceneTypeConfig;
 
     readonly writeHooks = new Set<WriteHook<T>>();
     readonly readHooks = new Set<ReadHook<T>>();
@@ -69,7 +64,7 @@ export default class IndexStore<T extends Record<string, any>> {
             wait: this._bulkMaxWait,
         });
 
-        this.xluceneTypeConfig = config.data_type.toXlucene();
+        this.xLuceneTypeConfig = config.data_type.toXlucene();
 
         if (config.data_schema != null) {
             const validator = utils.makeDataValidator(config.data_schema, this._logger);
@@ -595,10 +590,10 @@ export default class IndexStore<T extends Record<string, any>> {
         return this._toRecords(results.hits.hits, critical);
     }
 
-    createJoinQuery(fields: AnyInput<T>, joinBy: JoinBy = 'AND', variables = {}): JoinQueryResult {
-        const result = createJoinQuery(fields, {
+    createJoinQuery(fields: AnyInput<T>, joinBy: JoinBy = 'AND', variables = {}): xLuceneQueryResult {
+        const result = toXluceneQuery(fields, {
             joinBy,
-            typeConfig: this.xluceneTypeConfig,
+            typeConfig: this.xLuceneTypeConfig,
             variables
         });
         if (result) return result;
@@ -762,7 +757,7 @@ export default class IndexStore<T extends Record<string, any>> {
             : q;
 
         const translator = this._translator.make(query, {
-            type_config: this.xluceneTypeConfig,
+            type_config: this.xLuceneTypeConfig,
             logger: this._logger,
             variables: options?.variables
         });

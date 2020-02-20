@@ -22,7 +22,7 @@ sidebar_label: IndexRolloverFrequency
 
 • **analytics**: *[RolloverFrequency](../overview.md#rolloverfrequency)*
 
-*Defined in [packages/job-components/src/interfaces/context.ts:14](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/context.ts#L14)*
+*Defined in [packages/job-components/src/interfaces/context.ts:14](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/context.ts#L14)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **state**: *[RolloverFrequency](../overview.md#rolloverfrequency)*
 
-*Defined in [packages/job-components/src/interfaces/context.ts:13](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/context.ts#L13)*
+*Defined in [packages/job-components/src/interfaces/context.ts:13](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/context.ts#L13)*

@@ -29,7 +29,7 @@ sidebar_label: ESIndexSettings
 
 • **analysis**? : *undefined | object*
 
-*Defined in [data-types/src/interfaces.ts:237](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/interfaces.ts#L237)*
+*Defined in [data-types/src/interfaces.ts:246](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L246)*
 
 ___
 
@@ -37,7 +37,7 @@ ___
 
 • **index.max_result_window**? : *undefined | number*
 
-*Defined in [data-types/src/interfaces.ts:236](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/interfaces.ts#L236)*
+*Defined in [data-types/src/interfaces.ts:245](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L245)*
 
 ___
 
@@ -45,7 +45,7 @@ ___
 
 • **index.number_of_replicas**? : *undefined | number*
 
-*Defined in [data-types/src/interfaces.ts:234](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/interfaces.ts#L234)*
+*Defined in [data-types/src/interfaces.ts:243](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L243)*
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 • **index.number_of_shards**? : *undefined | number*
 
-*Defined in [data-types/src/interfaces.ts:233](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/interfaces.ts#L233)*
+*Defined in [data-types/src/interfaces.ts:242](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L242)*
 
 ___
 
@@ -61,4 +61,4 @@ ___
 
 • **index.refresh_interval**? : *undefined | string*
 
-*Defined in [data-types/src/interfaces.ts:235](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/interfaces.ts#L235)*
+*Defined in [data-types/src/interfaces.ts:244](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L244)*

@@ -22,7 +22,7 @@ sidebar_label: ClientSocketMetadata
 
 • **clientId**: *string*
 
-*Defined in [packages/teraslice-messaging/src/messenger/interfaces.ts:82](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-messaging/src/messenger/interfaces.ts#L82)*
+*Defined in [packages/teraslice-messaging/src/messenger/interfaces.ts:82](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-messaging/src/messenger/interfaces.ts#L82)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **clientType**: *string*
 
-*Defined in [packages/teraslice-messaging/src/messenger/interfaces.ts:83](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-messaging/src/messenger/interfaces.ts#L83)*
+*Defined in [packages/teraslice-messaging/src/messenger/interfaces.ts:83](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-messaging/src/messenger/interfaces.ts#L83)*
