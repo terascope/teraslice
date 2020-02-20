@@ -1,5 +1,5 @@
 import { TSError } from '@terascope/utils';
-import { FieldType } from 'xlucene-evaluator';
+import { xLuceneFieldType } from '@terascope/types';
 import DoubleType from '../../../src/types/v1/double';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
@@ -40,7 +40,7 @@ describe('Double V1', () => {
 
     it('can get proper xlucene properties', () => {
         const xlucene = new DoubleType(field, typeConfig).toXlucene();
-        const results = { [field]: FieldType.Float };
+        const results = { [field]: xLuceneFieldType.Float };
 
         expect(xlucene).toEqual(results);
     });

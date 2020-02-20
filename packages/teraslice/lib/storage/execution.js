@@ -120,9 +120,9 @@ module.exports = async function executionStorage(context) {
 
     function _addMetadataFns() {
         if (!context.apis.executionContext) return;
-
-        context.apis.executionContext._getMetadata = getMetadata;
-        context.apis.executionContext._updateMetadata = updateMetadata;
+        context.apis.executionContext.registerMetadataFns(
+            { get: getMetadata, update: updateMetadata }
+        );
     }
 
     async function getStatus(exId) {

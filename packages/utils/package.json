@@ -1,7 +1,7 @@
 {
     "name": "@terascope/utils",
     "displayName": "Utils",
-    "version": "0.22.0",
+    "version": "0.23.0",
     "description": "A collection of Teraslice Utilities",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/utils#readme",
     "bugs": {
@@ -32,12 +32,14 @@
         "is-plain-object": "^3.0.0",
         "js-string-escape": "^1.0.1",
         "kind-of": "^6.0.3",
+        "latlon-geohash": "^1.1.0",
         "lodash.clonedeep": "^4.5.0",
         "lodash.get": "^4.4.2",
         "lodash.set": "^4.3.2",
         "lodash.unset": "^4.5.2"
     },
     "devDependencies": {
+        "@terascope/types": "^0.1.0",
         "@types/debug": "^4.1.5",
         "@types/js-string-escape": "^1.0.0",
         "@types/lodash.clonedeep": "^4.5.6",

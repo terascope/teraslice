@@ -1,6 +1,7 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { QueryAccess, JoinBy, RestrictOptions } from 'xlucene-evaluator';
+import { JoinBy } from '@terascope/data-mate';
+import { QueryAccess, RestrictOptions } from 'xlucene-translator';
 import IndexStore, { AnyInput } from './index-store';
 import * as utils from './utils';
 import * as i from './interfaces';

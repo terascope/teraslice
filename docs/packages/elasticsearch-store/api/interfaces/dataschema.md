@@ -25,7 +25,7 @@ Data Schema and Version
 
 • **all_formatters**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:149](https://github.com/terascope/teraslice/blob/78714a985/packages/elasticsearch-store/src/interfaces.ts#L149)*
+*Defined in [interfaces.ts:155](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/interfaces.ts#L155)*
 
 If enabled this will allow the use of some of
 the slower but more correct JSON Schema's formatters:
@@ -44,7 +44,7 @@ ___
 
 • **schema**: *any*
 
-*Defined in [interfaces.ts:127](https://github.com/terascope/teraslice/blob/78714a985/packages/elasticsearch-store/src/interfaces.ts#L127)*
+*Defined in [interfaces.ts:133](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/interfaces.ts#L133)*
 
 The Data Schema in JSON Schema format
 
@@ -54,7 +54,7 @@ ___
 
 • **strict**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:135](https://github.com/terascope/teraslice/blob/78714a985/packages/elasticsearch-store/src/interfaces.ts#L135)*
+*Defined in [interfaces.ts:141](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/interfaces.ts#L141)*
 
 If enabled and the data fails to match the schema or version
 an error will thrown

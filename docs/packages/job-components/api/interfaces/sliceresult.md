@@ -23,7 +23,7 @@ sidebar_label: SliceResult
 
 • **analytics**: *[SliceAnalyticsData](sliceanalyticsdata.md)*
 
-*Defined in [packages/job-components/src/interfaces/operations.ts:103](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/operations.ts#L103)*
+*Defined in [packages/job-components/src/interfaces/operations.ts:103](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/operations.ts#L103)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **error**? : *undefined | string*
 
-*Defined in [packages/job-components/src/interfaces/operations.ts:104](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/operations.ts#L104)*
+*Defined in [packages/job-components/src/interfaces/operations.ts:104](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/operations.ts#L104)*
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 • **slice**: *[Slice](slice.md)*
 
-*Defined in [packages/job-components/src/interfaces/operations.ts:102](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/operations.ts#L102)*
+*Defined in [packages/job-components/src/interfaces/operations.ts:102](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/operations.ts#L102)*

@@ -5,7 +5,8 @@ import {
     OperationAPI,
     newTestJobConfig,
     TestContext,
-    TestClientConfig
+    TestClientConfig,
+    AnyObject
 } from '../src';
 
 describe('registerApis', () => {
@@ -283,6 +284,33 @@ describe('registerApis', () => {
 
             it('should throw if setting without a key', async () => {
                 await expect(context.apis.executionContext.setMetadata(null)).toReject();
+            });
+
+            it('can register get and update apis', async () => {
+                const data = { iAmTest: true };
+                const testExId = 'testId';
+                const metaData = { metadata: true };
+
+                async function getApi(_exId?: string) {
+                    return Object.assign({}, data);
+                }
+
+                async function updateApi(_exId: string, metadata: AnyObject) {
+                    return Object.assign({}, metadata);
+                }
+
+                const apis = { get: getApi, update: updateApi };
+
+                const getTestExpectations = await getApi();
+                const updateTestExpectations = await updateApi(testExId, metaData);
+
+                context.apis.executionContext.registerMetadataFns(apis);
+
+                const getResults = await context.apis.executionContext.getMetadata();
+                await context.apis.executionContext.setMetadata(testExId, metaData);
+
+                expect(getResults).toEqual(getTestExpectations);
+                expect(metaData).toEqual(updateTestExpectations);
             });
         });
     });

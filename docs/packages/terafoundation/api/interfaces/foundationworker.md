@@ -21,7 +21,6 @@ sidebar_label: FoundationWorker
 * [id](foundationworker.md#id)
 * [process](foundationworker.md#process)
 * [service_context](foundationworker.md#service_context)
-* [defaultMaxListeners](foundationworker.md#static-defaultmaxlisteners)
 
 ### Methods
 
@@ -46,7 +45,6 @@ sidebar_label: FoundationWorker
 * [removeListener](foundationworker.md#removelistener)
 * [send](foundationworker.md#send)
 * [setMaxListeners](foundationworker.md#setmaxlisteners)
-* [listenerCount](foundationworker.md#static-listenercount)
 
 ## Properties
 
@@ -54,7 +52,7 @@ sidebar_label: FoundationWorker
 
 • **__process_restart**? : *undefined | false | true*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:72](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/interfaces.ts#L72)*
+*Defined in [packages/terafoundation/src/interfaces.ts:72](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/interfaces.ts#L72)*
 
 ___
 
@@ -62,7 +60,7 @@ ___
 
 • **assignment**: *string*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:74](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/interfaces.ts#L74)*
+*Defined in [packages/terafoundation/src/interfaces.ts:74](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/interfaces.ts#L74)*
 
 ___
 
@@ -100,17 +98,7 @@ ___
 
 • **service_context**: *any*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:73](https://github.com/terascope/teraslice/blob/78714a985/packages/terafoundation/src/interfaces.ts#L73)*
-
-___
-
-### `Static` defaultMaxListeners
-
-▪ **defaultMaxListeners**: *number*
-
-*Inherited from void*
-
-Defined in node_modules/@types/node/events.d.ts:18
+*Defined in [packages/terafoundation/src/interfaces.ts:73](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/interfaces.ts#L73)*
 
 ## Methods
 
@@ -443,9 +431,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:33
+Defined in node_modules/@types/node/globals.d.ts:556
 
 **Returns:** *Array‹string | symbol›*
 
@@ -457,9 +443,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:29
+Defined in node_modules/@types/node/globals.d.ts:548
 
 **Returns:** *number*
 
@@ -513,9 +497,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:34
+Defined in node_modules/@types/node/globals.d.ts:552
 
 **Parameters:**
 
@@ -533,9 +515,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:30
+Defined in node_modules/@types/node/globals.d.ts:549
 
 **Parameters:**
 
@@ -553,9 +533,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:26
+Defined in node_modules/@types/node/globals.d.ts:545
 
 **Parameters:**
 
@@ -1229,9 +1207,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:31
+Defined in node_modules/@types/node/globals.d.ts:550
 
 **Parameters:**
 
@@ -1249,9 +1225,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:27
+Defined in node_modules/@types/node/globals.d.ts:546
 
 **Parameters:**
 
@@ -1269,9 +1243,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:25
+Defined in node_modules/@types/node/globals.d.ts:544
 
 **Parameters:**
 
@@ -1293,7 +1265,7 @@ ___
 
 ###  send
 
-▸ **send**(`message`: any, `sendHandle?`: any, `callback?`: undefined | function): *boolean*
+▸ **send**(`message`: child.Serializable, `sendHandle?`: child.SendHandle, `callback?`: undefined | function): *boolean*
 
 *Inherited from void*
 
@@ -1303,8 +1275,8 @@ Defined in node_modules/@types/node/cluster.d.ts:27
 
 Name | Type |
 ------ | ------ |
-`message` | any |
-`sendHandle?` | any |
+`message` | child.Serializable |
+`sendHandle?` | child.SendHandle |
 `callback?` | undefined &#124; function |
 
 **Returns:** *boolean*
@@ -1317,9 +1289,7 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:28
+Defined in node_modules/@types/node/globals.d.ts:547
 
 **Parameters:**
 
@@ -1328,24 +1298,3 @@ Name | Type |
 `n` | number |
 
 **Returns:** *this*
-
-___
-
-### `Static` listenerCount
-
-▸ **listenerCount**(`emitter`: EventEmitter, `event`: string | symbol): *number*
-
-*Inherited from void*
-
-Defined in node_modules/@types/node/events.d.ts:17
-
-**`deprecated`** since v4.0.0
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`emitter` | EventEmitter |
-`event` | string &#124; symbol |
-
-**Returns:** *number*

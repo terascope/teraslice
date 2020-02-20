@@ -26,7 +26,7 @@ sidebar_label: ESMapping
 
 • **aliases**? : *AnyObject*
 
-*Defined in [data-types/src/interfaces.ts:227](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/interfaces.ts#L227)*
+*Defined in [data-types/src/interfaces.ts:236](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L236)*
 
 ___
 
@@ -34,7 +34,7 @@ ___
 
 • **index_patterns**? : *string[]*
 
-*Defined in [data-types/src/interfaces.ts:228](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/interfaces.ts#L228)*
+*Defined in [data-types/src/interfaces.ts:237](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L237)*
 
 ___
 
@@ -42,7 +42,7 @@ ___
 
 • **mappings**: *object*
 
-*Defined in [data-types/src/interfaces.ts:222](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/interfaces.ts#L222)*
+*Defined in [data-types/src/interfaces.ts:231](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L231)*
 
 #### Type declaration:
 
@@ -54,7 +54,7 @@ ___
 
 • **order**? : *undefined | number*
 
-*Defined in [data-types/src/interfaces.ts:226](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/interfaces.ts#L226)*
+*Defined in [data-types/src/interfaces.ts:235](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L235)*
 
 ___
 
@@ -62,7 +62,7 @@ ___
 
 • **settings**: *[ESIndexSettings](esindexsettings.md)*
 
-*Defined in [data-types/src/interfaces.ts:229](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/interfaces.ts#L229)*
+*Defined in [data-types/src/interfaces.ts:238](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L238)*
 
 ___
 
@@ -70,4 +70,4 @@ ___
 
 • **template**? : *undefined | string*
 
-*Defined in [data-types/src/interfaces.ts:225](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/interfaces.ts#L225)*
+*Defined in [data-types/src/interfaces.ts:234](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L234)*

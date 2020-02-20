@@ -13,6 +13,6 @@ sidebar_label: SlicerFn
 
 ▸ (): *Promise‹[SlicerResult](../overview.md#slicerresult)›*
 
-*Defined in [packages/job-components/src/interfaces/operations.ts:107](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/operations.ts#L107)*
+*Defined in [packages/job-components/src/interfaces/operations.ts:107](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/operations.ts#L107)*
 
 **Returns:** *Promise‹[SlicerResult](../overview.md#slicerresult)›*

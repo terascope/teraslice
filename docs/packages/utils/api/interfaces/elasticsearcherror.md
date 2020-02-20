@@ -43,7 +43,7 @@ ___
 
 • **body**? : *undefined | object*
 
-*Defined in [packages/utils/src/errors.ts:384](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L384)*
+*Defined in [packages/utils/src/errors.ts:384](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L384)*
 
 ___
 
@@ -51,7 +51,7 @@ ___
 
 • **index**? : *undefined | string*
 
-*Defined in [packages/utils/src/errors.ts:402](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L402)*
+*Defined in [packages/utils/src/errors.ts:402](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L402)*
 
 ___
 
@@ -79,7 +79,7 @@ ___
 
 • **reason**? : *undefined | string*
 
-*Defined in [packages/utils/src/errors.ts:401](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L401)*
+*Defined in [packages/utils/src/errors.ts:401](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L401)*
 
 ___
 
@@ -89,8 +89,6 @@ ___
 
 *Inherited from void*
 
-*Overrides void*
-
 Defined in node_modules/typescript/lib/lib.es5.d.ts:975
 
 ___
@@ -99,7 +97,7 @@ ___
 
 • **status**? : *undefined | number*
 
-*Defined in [packages/utils/src/errors.ts:399](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L399)*
+*Defined in [packages/utils/src/errors.ts:399](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L399)*
 
 ___
 
@@ -107,7 +105,7 @@ ___
 
 • **type**? : *undefined | string*
 
-*Defined in [packages/utils/src/errors.ts:400](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L400)*
+*Defined in [packages/utils/src/errors.ts:400](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L400)*
 
 ## Methods
 
@@ -115,6 +113,6 @@ ___
 
 ▸ **toJSON**(): *object*
 
-*Defined in [packages/utils/src/errors.ts:404](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/errors.ts#L404)*
+*Defined in [packages/utils/src/errors.ts:404](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/errors.ts#L404)*
 
 **Returns:** *object*

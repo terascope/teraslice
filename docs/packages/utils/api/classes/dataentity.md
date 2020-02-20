@@ -68,7 +68,7 @@ in production for potential performance gains
 
 \+ **new DataEntity**(`data`: T | null | undefined, `metadata?`: M): *[DataEntity](dataentity.md)*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:169](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L169)*
+*Defined in [packages/utils/src/entities/data-entity.ts:169](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L169)*
 
 **Parameters:**
 
@@ -85,7 +85,7 @@ Name | Type |
 
 ▸ **getCreateTime**(): *Date*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:245](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L245)*
+*Defined in [packages/utils/src/entities/data-entity.ts:245](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L245)*
 
 Get the time at which this entity was created.
 
@@ -97,7 +97,7 @@ ___
 
 ▸ **getEventTime**(): *Date | false | undefined*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:317](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L317)*
+*Defined in [packages/utils/src/entities/data-entity.ts:317](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L317)*
 
 Get time associated from a specific field on source data or message
 
@@ -112,7 +112,7 @@ ___
 
 ▸ **getIngestTime**(): *Date | false | undefined*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:261](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L261)*
+*Defined in [packages/utils/src/entities/data-entity.ts:261](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L261)*
 
 Get the time at which the data was ingested into the source data
 
@@ -127,7 +127,7 @@ ___
 
 ▸ **getKey**(): *string | number*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:221](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L221)*
+*Defined in [packages/utils/src/entities/data-entity.ts:221](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L221)*
 
 Get the unique document `_key` from the metadata.
 If no `_key` is found, an error will be thrown
@@ -140,7 +140,7 @@ ___
 
 ▸ **getMetadata**(`key?`: undefined): *i._DataEntityMetadata‹M›*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:188](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L188)*
+*Defined in [packages/utils/src/entities/data-entity.ts:188](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L188)*
 
 Get the metadata for the DataEntity.
 If a field is specified, it will get that property of the metadata
@@ -155,7 +155,7 @@ Name | Type |
 
 ▸ **getMetadata**<**K**>(`key`: K): *i.EntityMetadataValue‹M, K›*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:189](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L189)*
+*Defined in [packages/utils/src/entities/data-entity.ts:189](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L189)*
 
 **Type parameters:**
 
@@ -175,7 +175,7 @@ ___
 
 ▸ **getProcessTime**(): *Date | false | undefined*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:289](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L289)*
+*Defined in [packages/utils/src/entities/data-entity.ts:289](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L289)*
 
 Get the time at which the data was consumed by the reader.
 
@@ -190,7 +190,7 @@ ___
 
 ▸ **getRawData**(): *Buffer*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:343](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L343)*
+*Defined in [packages/utils/src/entities/data-entity.ts:343](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L343)*
 
 Get the raw data, usually used for encoding type `raw`.
 If there is no data, an error will be thrown
@@ -203,7 +203,7 @@ ___
 
 ▸ **setEventTime**(`val?`: string | number | Date): *void*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:330](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L330)*
+*Defined in [packages/utils/src/entities/data-entity.ts:330](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L330)*
 
 Set time associated from a specific field on source data or message
 
@@ -224,7 +224,7 @@ ___
 
 ▸ **setIngestTime**(`val?`: string | number | Date): *void*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:274](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L274)*
+*Defined in [packages/utils/src/entities/data-entity.ts:274](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L274)*
 
 Set the time at which the data was ingested into the source data
 
@@ -245,7 +245,7 @@ ___
 
 ▸ **setKey**(`key`: string | number): *void*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:234](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L234)*
+*Defined in [packages/utils/src/entities/data-entity.ts:234](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L234)*
 
 Set the unique document `_key` from the metadata.
 If no `_key` is found, an error will be thrown
@@ -264,7 +264,7 @@ ___
 
 ▸ **setMetadata**<**K**, **V**>(`field`: K, `value`: V): *void*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:203](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L203)*
+*Defined in [packages/utils/src/entities/data-entity.ts:203](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L203)*
 
 Given a field and value set the metadata on the record
 
@@ -289,7 +289,7 @@ ___
 
 ▸ **setProcessTime**(`val?`: string | number | Date): *void*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:302](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L302)*
+*Defined in [packages/utils/src/entities/data-entity.ts:302](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L302)*
 
 Set the time at which the data was consumed by the reader
 
@@ -310,7 +310,7 @@ ___
 
 ▸ **setRawData**(`buf`: Buffer | string | null): *void*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:354](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L354)*
+*Defined in [packages/utils/src/entities/data-entity.ts:354](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L354)*
 
 Set the raw data, usually used for encoding type `raw`
 If given `null`, it will unset the data
@@ -329,7 +329,7 @@ ___
 
 ▸ **toBuffer**(`opConfig`: [EncodingConfig](../interfaces/encodingconfig.md)): *Buffer*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:369](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L369)*
+*Defined in [packages/utils/src/entities/data-entity.ts:369](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L369)*
 
 Convert the DataEntity to an encoded buffer
 
@@ -349,7 +349,7 @@ ___
 
 ▸ **[Symbol.hasInstance]**(`instance`: any): *boolean*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:156](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L156)*
+*Defined in [packages/utils/src/entities/data-entity.ts:156](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L156)*
 
 **Parameters:**
 
@@ -365,7 +365,7 @@ ___
 
 ▸ **fork**<**T**>(`input`: T, `withData`: boolean): *T*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:75](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L75)*
+*Defined in [packages/utils/src/entities/data-entity.ts:75](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L75)*
 
 Create a new instance of a DataEntity.
 
@@ -393,7 +393,7 @@ ___
 
 ▸ **fromBuffer**<**T**, **M**>(`input`: Buffer | string, `opConfig`: [EncodingConfig](../interfaces/encodingconfig.md), `metadata?`: M): *[DataEntity](dataentity.md)‹T, M›*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:97](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L97)*
+*Defined in [packages/utils/src/entities/data-entity.ts:97](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L97)*
 
 A utility for converting a `Buffer` to a `DataEntity`,
 using the DataEntity encoding.
@@ -420,7 +420,7 @@ ___
 
 ▸ **getMetadata**(`input`: any, `field?`: any): *any*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:146](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L146)*
+*Defined in [packages/utils/src/entities/data-entity.ts:146](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L146)*
 
 Safely get the metadata from a `DataEntity`.
 If the input is object it will get the property from the object
@@ -445,7 +445,7 @@ ___
 
 ▸ **isDataEntity**<**T**, **M**>(`input`: any): *input is DataEntity<T, M>*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:119](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L119)*
+*Defined in [packages/utils/src/entities/data-entity.ts:119](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L119)*
 
 Verify that an input is the `DataEntity`
 
@@ -469,7 +469,7 @@ ___
 
 ▸ **isDataEntityArray**<**T**, **M**>(`input`: any): *input is DataEntity<T, M>[]*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:128](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L128)*
+*Defined in [packages/utils/src/entities/data-entity.ts:128](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L128)*
 
 Verify that an input is an Array of DataEntities,
 
@@ -493,7 +493,7 @@ ___
 
 ▸ **make**<**T**, **M**>(`input`: T, `metadata?`: M): *T*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:32](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L32)*
+*Defined in [packages/utils/src/entities/data-entity.ts:32](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L32)*
 
 A utility for safely converting an object a `DataEntity`.
 If the input is a DataEntity it will return it and have no side-effect.
@@ -518,7 +518,7 @@ Name | Type |
 
 ▸ **make**<**T**, **M**>(`input`: Record‹string, any›, `metadata?`: M): *[DataEntity](dataentity.md)‹T, M›*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:36](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L36)*
+*Defined in [packages/utils/src/entities/data-entity.ts:36](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L36)*
 
 **Type parameters:**
 
@@ -541,7 +541,7 @@ ___
 
 ▸ **makeArray**<**T**, **M**>(`input`: [DataArrayInput](../overview.md#dataarrayinput)): *[DataEntity](dataentity.md)‹T, M›[]*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:53](https://github.com/terascope/teraslice/blob/78714a985/packages/utils/src/entities/data-entity.ts#L53)*
+*Defined in [packages/utils/src/entities/data-entity.ts:53](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/entities/data-entity.ts#L53)*
 
 A utility for safely converting an input of an object,
 or an array of objects, to an array of DataEntities.

@@ -42,7 +42,7 @@ sidebar_label: ValidatedJobConfig
 
 • **analytics**: *boolean*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:64](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L64)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:64](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L64)*
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 • **apis**: *[APIConfig](apiconfig.md)[]*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:72](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L72)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:72](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L72)*
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 • **assetIds**? : *string[]*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:67](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L67)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:67](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L67)*
 
 This may not exist until ran in an execution
 
@@ -68,7 +68,7 @@ ___
 
 • **assets**: *string[]*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:65](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L65)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:65](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L65)*
 
 ___
 
@@ -76,7 +76,7 @@ ___
 
 • **autorecover**? : *undefined | false | true*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:68](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L68)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:68](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L68)*
 
 ___
 
@@ -84,7 +84,7 @@ ___
 
 • **cpu**? : *undefined | number*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:84](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L84)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:84](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L84)*
 
 This will only be available in the context of k8s
 
@@ -94,7 +94,7 @@ ___
 
 • **env_vars**: *object*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:76](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L76)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:76](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L76)*
 
 #### Type declaration:
 
@@ -106,7 +106,7 @@ ___
 
 • **kubernetes_image**? : *undefined | string*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:90](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L90)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:90](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L90)*
 
 This will only be available in the context of k8s
 
@@ -116,7 +116,7 @@ ___
 
 • **labels**? : *undefined | object*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:80](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L80)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:80](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L80)*
 
 This will only be available in the context of k8s
 
@@ -126,7 +126,7 @@ ___
 
 • **lifecycle**: *[LifeCycle](../overview.md#lifecycle)*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:69](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L69)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:69](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L69)*
 
 ___
 
@@ -134,7 +134,7 @@ ___
 
 • **max_retries**: *number*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:70](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L70)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:70](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L70)*
 
 ___
 
@@ -142,7 +142,7 @@ ___
 
 • **memory**? : *undefined | number*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:86](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L86)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:86](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L86)*
 
 This will only be available in the context of k8s
 
@@ -152,7 +152,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:71](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L71)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:71](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L71)*
 
 ___
 
@@ -160,7 +160,7 @@ ___
 
 • **operations**: *[OpConfig](opconfig.md)[]*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:73](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L73)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:73](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L73)*
 
 ___
 
@@ -168,7 +168,7 @@ ___
 
 • **performance_metrics**? : *undefined | false | true*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:75](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L75)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:75](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L75)*
 
 ___
 
@@ -176,7 +176,7 @@ ___
 
 • **probation_window**: *number*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:74](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L74)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:74](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L74)*
 
 ___
 
@@ -184,7 +184,7 @@ ___
 
 • **slicers**: *number*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:77](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L77)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:77](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L77)*
 
 ___
 
@@ -192,7 +192,7 @@ ___
 
 • **targets**? : *[Targets](targets.md)[]*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:82](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L82)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:82](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L82)*
 
 This will only be available in the context of k8s
 
@@ -202,7 +202,7 @@ ___
 
 • **volumes**? : *[Volume](volume.md)[]*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:88](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L88)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:88](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L88)*
 
 This will only be available in the context of k8s
 
@@ -212,4 +212,4 @@ ___
 
 • **workers**: *number*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:78](https://github.com/terascope/teraslice/blob/78714a985/packages/job-components/src/interfaces/jobs.ts#L78)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:78](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L78)*

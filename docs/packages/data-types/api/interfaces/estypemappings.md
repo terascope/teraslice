@@ -29,7 +29,7 @@ sidebar_label: ESTypeMappings
 
 • **_all**? : *undefined | object*
 
-*Defined in [data-types/src/interfaces.ts:211](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/interfaces.ts#L211)*
+*Defined in [data-types/src/interfaces.ts:220](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L220)*
 
 ___
 
@@ -37,7 +37,7 @@ ___
 
 • **dynamic**? : *undefined | false | true*
 
-*Defined in [data-types/src/interfaces.ts:215](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/interfaces.ts#L215)*
+*Defined in [data-types/src/interfaces.ts:224](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L224)*
 
 ___
 
@@ -45,7 +45,7 @@ ___
 
 • **properties**: *object*
 
-*Defined in [data-types/src/interfaces.ts:216](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/interfaces.ts#L216)*
+*Defined in [data-types/src/interfaces.ts:225](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L225)*
 
 #### Type declaration:
 

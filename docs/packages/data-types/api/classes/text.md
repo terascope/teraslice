@@ -21,6 +21,7 @@ sidebar_label: Text
 
 * [config](text.md#config)
 * [field](text.md#field)
+* [version](text.md#version)
 
 ### Methods
 
@@ -34,18 +35,19 @@ sidebar_label: Text
 
 ###  constructor
 
-\+ **new Text**(`field`: string, `config`: [FieldTypeConfig](../overview.md#fieldtypeconfig)): *[Text](text.md)*
+\+ **new Text**(`field`: string, `config`: [FieldTypeConfig](../overview.md#fieldtypeconfig), `version`: number): *[Text](text.md)*
 
 *Inherited from [BaseType](basetype.md).[constructor](basetype.md#constructor)*
 
-*Defined in [data-types/src/types/base-type.ts:15](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/types/base-type.ts#L15)*
+*Defined in [data-types/src/types/base-type.ts:23](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/types/base-type.ts#L23)*
 
 **Parameters:**
 
-Name | Type |
------- | ------ |
-`field` | string |
-`config` | [FieldTypeConfig](../overview.md#fieldtypeconfig) |
+Name | Type | Default |
+------ | ------ | ------ |
+`field` | string | - |
+`config` | [FieldTypeConfig](../overview.md#fieldtypeconfig) | - |
+`version` | number | 1 |
 
 **Returns:** *[Text](text.md)*
 
@@ -57,7 +59,7 @@ Name | Type |
 
 *Inherited from [BaseType](basetype.md).[config](basetype.md#config)*
 
-*Defined in [data-types/src/types/base-type.ts:15](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/types/base-type.ts#L15)*
+*Defined in [data-types/src/types/base-type.ts:22](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/types/base-type.ts#L22)*
 
 ___
 
@@ -67,26 +69,35 @@ ___
 
 *Inherited from [BaseType](basetype.md).[field](basetype.md#field)*
 
-*Defined in [data-types/src/types/base-type.ts:14](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/types/base-type.ts#L14)*
+*Defined in [data-types/src/types/base-type.ts:21](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/types/base-type.ts#L21)*
+
+___
+
+###  version
+
+• **version**: *number*
+
+*Inherited from [BaseType](basetype.md).[version](basetype.md#version)*
+
+*Defined in [data-types/src/types/base-type.ts:23](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/types/base-type.ts#L23)*
 
 ## Methods
 
 ###  _formatGQLTypeName
 
-▸ **_formatGQLTypeName**(`typeName`: string, `isInput?`: undefined | false | true, `includeField?`: undefined | false | true, `version?`: undefined | number): *string*
+▸ **_formatGQLTypeName**(`typeName`: string, `isInput?`: undefined | false | true, `inputSuffix`: string): *string*
 
 *Inherited from [BaseType](basetype.md).[_formatGQLTypeName](basetype.md#_formatgqltypename)*
 
-*Defined in [data-types/src/types/base-type.ts:46](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/types/base-type.ts#L46)*
+*Defined in [data-types/src/types/base-type.ts:55](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/types/base-type.ts#L55)*
 
 **Parameters:**
 
-Name | Type |
------- | ------ |
-`typeName` | string |
-`isInput?` | undefined &#124; false &#124; true |
-`includeField?` | undefined &#124; false &#124; true |
-`version?` | undefined &#124; number |
+Name | Type | Default |
+------ | ------ | ------ |
+`typeName` | string | - |
+`isInput?` | undefined &#124; false &#124; true | - |
+`inputSuffix` | string | "Input" |
 
 **Returns:** *string*
 
@@ -98,7 +109,7 @@ ___
 
 *Inherited from [BaseType](basetype.md).[_formatGql](basetype.md#protected-_formatgql)*
 
-*Defined in [data-types/src/types/base-type.ts:29](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/types/base-type.ts#L29)*
+*Defined in [data-types/src/types/base-type.ts:38](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/types/base-type.ts#L38)*
 
 **Parameters:**
 
@@ -117,7 +128,7 @@ ___
 
 *Overrides [BaseType](basetype.md).[toESMapping](basetype.md#abstract-toesmapping)*
 
-*Defined in [data-types/src/types/v1/text.ts:6](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/types/v1/text.ts#L6)*
+*Defined in [data-types/src/types/v1/text.ts:6](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/types/v1/text.ts#L6)*
 
 **Parameters:**
 
@@ -135,7 +146,7 @@ ___
 
 *Overrides [BaseType](basetype.md).[toGraphQL](basetype.md#abstract-tographql)*
 
-*Defined in [data-types/src/types/v1/text.ts:10](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/types/v1/text.ts#L10)*
+*Defined in [data-types/src/types/v1/text.ts:10](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/types/v1/text.ts#L10)*
 
 **Returns:** *[GraphQLType](../interfaces/graphqltype.md)*
 
@@ -147,6 +158,6 @@ ___
 
 *Overrides [BaseType](basetype.md).[toXlucene](basetype.md#abstract-toxlucene)*
 
-*Defined in [data-types/src/types/v1/text.ts:14](https://github.com/terascope/teraslice/blob/78714a985/packages/data-types/src/types/v1/text.ts#L14)*
+*Defined in [data-types/src/types/v1/text.ts:14](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/types/v1/text.ts#L14)*
 
 **Returns:** *object*

@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import {
-    get, set, AnyObject, Logger, isTest, isProd, isString
+    get, set, AnyObject, Logger, isTest, isString
 } from '@terascope/utils';
 import {
     OpAPI, Context, ExecutionConfig, APIConfig, WorkerContext
@@ -9,6 +9,13 @@ import { isOperationAPI, getOperationAPIType } from './utils';
 import { Observer, APIConstructor } from '../operations';
 import { JobAPIInstances } from './interfaces';
 import { makeExContextLogger } from '../utils';
+
+interface MetadataFns {
+    update: (exId: string, metadata: AnyObject) => Promise<void>;
+    get: (exId: string) => Promise<AnyObject>;
+}
+
+const _metadataFns = new WeakMap<WorkerContext, MetadataFns>();
 
 /**
  * A utility API exposed on the Terafoundation Context APIs.
@@ -40,6 +47,14 @@ export class ExecutionContextAPI {
 
     get apis(): Readonly<JobAPIInstances> {
         return this._apis;
+    }
+
+    registerMetadataFns(fns: MetadataFns) {
+        if (_metadataFns.has(this._context)) {
+            throw new Error('Metadata functions can only be registered once');
+        }
+
+        _metadataFns.set(this._context, fns);
     }
 
     /** Add an API constructor to the registry */
@@ -150,6 +165,7 @@ export class ExecutionContextAPI {
         }
         const exId = this._executionConfig.ex_id;
         const metadata: AnyObject = await this._getMetadata(exId);
+
         set(metadata, key, value);
         this._logger.warn('updating execution metadata', metadata);
         await this._updateMetadata(exId, metadata);
@@ -158,6 +174,7 @@ export class ExecutionContextAPI {
     async getMetadata(key?: string): Promise<AnyObject> {
         const exId = this._executionConfig.ex_id;
         const metadata = await this._getMetadata(exId);
+
         if (key) return get(metadata, key);
         this._logger.warn('updating execution metadata', metadata);
         return metadata;
@@ -165,15 +182,23 @@ export class ExecutionContextAPI {
 
     // These methods will be replaced to actually update the
     // execution metadata when running in production
-    private async _updateMetadata(_exId: string, metadata: AnyObject): Promise<void> {
-        if (isProd) throw new Error('This should have been replaced by in the execution store');
+    private async _updateMetadata(exId: string, metadata: AnyObject): Promise<void> {
+        const api = _metadataFns.get(this._context);
+        if (api && api.update) {
+            return api.update(exId, metadata);
+        }
+
         this._executionConfig.metadata = metadata;
     }
 
     // These methods will be replaced to actually get the
     // execution metadata when running in production
-    private async _getMetadata(_exId: string): Promise<AnyObject> {
-        if (isProd) throw new Error('This should have been replaced by in the execution store');
+    private async _getMetadata(exId: string): Promise<AnyObject> {
+        const api = _metadataFns.get(this._context);
+        if (api && api.get) {
+            return api.get(exId);
+        }
+
         return this._executionConfig.metadata || {};
     }
 }

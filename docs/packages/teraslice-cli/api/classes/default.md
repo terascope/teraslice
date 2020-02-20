@@ -49,7 +49,6 @@ sidebar_label: default
 * [resolved](default.md#resolved)
 * [useYarn](default.md#optional-useyarn)
 * [user](default.md#user)
-* [defaultMaxListeners](default.md#static-defaultmaxlisteners)
 
 ### Methods
 
@@ -101,7 +100,6 @@ sidebar_label: default
 * [templatePath](default.md#templatepath)
 * [usage](default.md#usage)
 * [yarnInstall](default.md#yarninstall)
-* [listenerCount](default.md#static-listenercount)
 
 ## Type aliases
 
@@ -141,7 +139,7 @@ Defined in node_modules/@types/yeoman-generator/index.d.ts:28
 
 *Overrides void*
 
-*Defined in [packages/teraslice-cli/src/generators/new-processor/index.ts:7](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/generators/new-processor/index.ts#L7)*
+*Defined in [packages/teraslice-cli/src/generators/new-processor/index.ts:7](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/generators/new-processor/index.ts#L7)*
 
 **Parameters:**
 
@@ -158,9 +156,9 @@ Name | Type |
 
 • **answers**: *any*
 
-*Defined in [packages/teraslice-cli/src/generators/new-processor/index.ts:7](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/generators/new-processor/index.ts#L7)*
+*Defined in [packages/teraslice-cli/src/generators/new-processor/index.ts:7](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/generators/new-processor/index.ts#L7)*
 
-*Defined in [packages/teraslice-cli/src/generators/new-asset/index.ts:8](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/generators/new-asset/index.ts#L8)*
+*Defined in [packages/teraslice-cli/src/generators/new-asset/index.ts:8](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/generators/new-asset/index.ts#L8)*
 
 ___
 
@@ -270,7 +268,7 @@ ___
 
 • **useYarn**? : *undefined | false | true*
 
-*Defined in [packages/teraslice-cli/src/generators/new-asset/index.ts:9](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/generators/new-asset/index.ts#L9)*
+*Defined in [packages/teraslice-cli/src/generators/new-asset/index.ts:9](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/generators/new-asset/index.ts#L9)*
 
 ___
 
@@ -286,25 +284,13 @@ Defined in node_modules/@types/yeoman-generator/index.d.ts:200
 
 #### Type declaration:
 
-___
-
-### `Static` defaultMaxListeners
-
-▪ **defaultMaxListeners**: *number*
-
-*Inherited from void*
-
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:18
-
 ## Methods
 
 ###  addExampleProcessor
 
 ▸ **addExampleProcessor**(): *void*
 
-*Defined in [packages/teraslice-cli/src/generators/new-asset/index.ts:80](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/generators/new-asset/index.ts#L80)*
+*Defined in [packages/teraslice-cli/src/generators/new-asset/index.ts:80](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/generators/new-asset/index.ts#L80)*
 
 **Returns:** *void*
 
@@ -318,7 +304,7 @@ ___
 
 *Overrides void*
 
-Defined in node_modules/@types/node/events.d.ts:20
+Defined in node_modules/@types/node/globals.d.ts:541
 
 **Parameters:**
 
@@ -441,7 +427,7 @@ ___
 
 ▸ **createProcessor**(): *void*
 
-*Defined in [packages/teraslice-cli/src/generators/new-processor/index.ts:49](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/generators/new-processor/index.ts#L49)*
+*Defined in [packages/teraslice-cli/src/generators/new-processor/index.ts:49](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/generators/new-processor/index.ts#L49)*
 
 **Returns:** *void*
 
@@ -451,7 +437,7 @@ ___
 
 ▸ **default**(): *void*
 
-*Defined in [packages/teraslice-cli/src/generators/new-asset/index.ts:43](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/generators/new-asset/index.ts#L43)*
+*Defined in [packages/teraslice-cli/src/generators/new-asset/index.ts:43](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/generators/new-asset/index.ts#L43)*
 
 **Returns:** *void*
 
@@ -539,7 +525,7 @@ ___
 
 *Overrides void*
 
-Defined in node_modules/@types/node/events.d.ts:32
+Defined in node_modules/@types/node/globals.d.ts:551
 
 **Parameters:**
 
@@ -560,7 +546,7 @@ ___
 
 *Overrides void*
 
-Defined in node_modules/@types/node/events.d.ts:33
+Defined in node_modules/@types/node/globals.d.ts:556
 
 **Returns:** *Array‹string | symbol›*
 
@@ -574,7 +560,7 @@ ___
 
 *Overrides void*
 
-Defined in node_modules/@types/node/events.d.ts:29
+Defined in node_modules/@types/node/globals.d.ts:548
 
 **Returns:** *number*
 
@@ -598,7 +584,7 @@ ___
 
 ▸ **install**(): *void*
 
-*Defined in [packages/teraslice-cli/src/generators/new-asset/index.ts:89](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/generators/new-asset/index.ts#L89)*
+*Defined in [packages/teraslice-cli/src/generators/new-asset/index.ts:89](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/generators/new-asset/index.ts#L89)*
 
 **Returns:** *void*
 
@@ -647,7 +633,7 @@ ___
 
 *Overrides void*
 
-Defined in node_modules/@types/node/events.d.ts:34
+Defined in node_modules/@types/node/globals.d.ts:552
 
 **Parameters:**
 
@@ -667,7 +653,7 @@ ___
 
 *Overrides void*
 
-Defined in node_modules/@types/node/events.d.ts:30
+Defined in node_modules/@types/node/globals.d.ts:549
 
 **Parameters:**
 
@@ -734,7 +720,7 @@ ___
 
 *Overrides void*
 
-Defined in node_modules/@types/node/events.d.ts:26
+Defined in node_modules/@types/node/globals.d.ts:545
 
 **Parameters:**
 
@@ -762,7 +748,7 @@ ___
 
 *Overrides void*
 
-Defined in node_modules/@types/node/events.d.ts:21
+Defined in node_modules/@types/node/globals.d.ts:542
 
 **Parameters:**
 
@@ -790,7 +776,7 @@ ___
 
 *Overrides void*
 
-Defined in node_modules/@types/node/events.d.ts:22
+Defined in node_modules/@types/node/globals.d.ts:543
 
 **Parameters:**
 
@@ -849,7 +835,7 @@ ___
 
 ▸ **paths**(): *void*
 
-*Defined in [packages/teraslice-cli/src/generators/new-processor/index.ts:45](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/generators/new-processor/index.ts#L45)*
+*Defined in [packages/teraslice-cli/src/generators/new-processor/index.ts:45](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/generators/new-processor/index.ts#L45)*
 
 **Returns:** *void*
 
@@ -863,7 +849,7 @@ ___
 
 *Overrides void*
 
-Defined in node_modules/@types/node/events.d.ts:23
+Defined in node_modules/@types/node/globals.d.ts:554
 
 **Parameters:**
 
@@ -891,7 +877,7 @@ ___
 
 *Overrides void*
 
-Defined in node_modules/@types/node/events.d.ts:24
+Defined in node_modules/@types/node/globals.d.ts:555
 
 **Parameters:**
 
@@ -939,7 +925,7 @@ ___
 
 ▸ **prompting**(): *Promise‹void›*
 
-*Defined in [packages/teraslice-cli/src/generators/new-processor/index.ts:16](https://github.com/terascope/teraslice/blob/78714a985/packages/teraslice-cli/src/generators/new-processor/index.ts#L16)*
+*Defined in [packages/teraslice-cli/src/generators/new-processor/index.ts:16](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/generators/new-processor/index.ts#L16)*
 
 **Returns:** *Promise‹void›*
 
@@ -953,7 +939,7 @@ ___
 
 *Overrides void*
 
-Defined in node_modules/@types/node/events.d.ts:31
+Defined in node_modules/@types/node/globals.d.ts:550
 
 **Parameters:**
 
@@ -993,7 +979,7 @@ ___
 
 *Overrides void*
 
-Defined in node_modules/@types/node/events.d.ts:27
+Defined in node_modules/@types/node/globals.d.ts:546
 
 **Parameters:**
 
@@ -1013,7 +999,7 @@ ___
 
 *Overrides void*
 
-Defined in node_modules/@types/node/events.d.ts:25
+Defined in node_modules/@types/node/globals.d.ts:544
 
 **Parameters:**
 
@@ -1117,7 +1103,7 @@ ___
 
 *Overrides void*
 
-Defined in node_modules/@types/node/events.d.ts:28
+Defined in node_modules/@types/node/globals.d.ts:547
 
 **Parameters:**
 
@@ -1250,26 +1236,3 @@ Name | Type | Description |
 `spawnOptions?` | undefined &#124; object | Options to pass `child_process.spawn`.  |
 
 **Returns:** *void*
-
-___
-
-### `Static` listenerCount
-
-▸ **listenerCount**(`emitter`: EventEmitter, `event`: string | symbol): *number*
-
-*Inherited from void*
-
-*Overrides void*
-
-Defined in node_modules/@types/node/events.d.ts:17
-
-**`deprecated`** since v4.0.0
-
-**Parameters:**
-
-Name | Type |
------- | ------ |
-`emitter` | EventEmitter |
-`event` | string &#124; symbol |
-
-**Returns:** *number*

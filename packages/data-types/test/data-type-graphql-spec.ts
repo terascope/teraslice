@@ -46,7 +46,7 @@ describe('DataType (graphql)', () => {
                         # location test
                         location: DTGeoPointV1
                         # some number test
-                        someNum: Int
+                        someNum: Float
                     }
                 `);
 
@@ -116,7 +116,7 @@ describe('DataType (graphql)', () => {
                         hello: String
                         ip: String
                         location: DTGeoPointV1
-                        someNum: Int
+                        someNum: Float
                     }
                 `);
 
@@ -180,7 +180,7 @@ describe('DataType (graphql)', () => {
                     hello: String
                     ip: String
                     location: DTGeoPointV1
-                    someNum: Int
+                    someNum: Float
                 }
 
                 type DTGeoPointV1 {
@@ -274,7 +274,7 @@ describe('DataType (graphql)', () => {
                     hello: String
                     ip: String
                     location: DTGeoPointV1
-                    someNum: Int
+                    someNum: Float
                 }
 
                 # Input for first_type
@@ -283,7 +283,7 @@ describe('DataType (graphql)', () => {
                     hello: String
                     ip: String
                     location: DTGeoPointInputV1
-                    someNum: Int
+                    someNum: Float
                 }
 
                 type second_type {
@@ -478,7 +478,7 @@ describe('DataType (graphql)', () => {
                         hello: String
                         ip: String
                         location: DTGeoPointV1
-                        long_number: Int
+                        long_number: Float
                         # references and virtual fields
                         info(query: String): Info
                         num_parents: Int

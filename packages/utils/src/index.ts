@@ -14,4 +14,5 @@ export * from './promises';
 export * from './errors';
 export * from './strings';
 export * from './utils';
+export * from './geo';
 export { STATUS_CODES };
