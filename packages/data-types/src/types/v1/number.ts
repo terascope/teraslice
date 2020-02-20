@@ -8,7 +8,7 @@ export default class NumberClass extends BaseType {
     }
 
     toGraphQL() {
-        return this._formatGql('Int');
+        return this._formatGql('Float');
     }
 
     toXlucene() {

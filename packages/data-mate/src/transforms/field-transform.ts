@@ -94,7 +94,7 @@ export const repository: Repository = {
         config: {
             resolution: {
                 type: 'String',
-                describe: 'may be set to seconds | milliseconds'
+                description: 'may be set to seconds | milliseconds'
             }
         }
     },
@@ -197,7 +197,7 @@ export function toNumber(input: any, args?: { booleanLike?: boolean }) {
 
     result = ts.toNumber(result);
 
-    if (isNaN(result)) throw new Error('could not convert to a number');
+    if (Number.isNaN(result)) throw new Error('could not convert to a number');
     return result;
 }
 
@@ -379,7 +379,7 @@ export function toUnixTime(input: any): number {
         throw new Error('Not a valid date, cannot transform to unix time');
     }
 
-    const parsed = isNaN(input) ? Date.parse(input) : Number(input);
+    const parsed = Number.isNaN(input) ? Date.parse(input) : Number(input);
 
     const unixTime = getUnixTime(parsed);
 

@@ -2,7 +2,7 @@ import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import { xLuceneTypeConfig } from '@terascope/types';
 import { CachedTranslator, QueryAccess, RestrictOptions } from 'xlucene-translator';
-import { toXluceneQuery, XluceneQueryResult } from '@terascope/data-mate';
+import { toXluceneQuery, xLuceneQueryResult } from '@terascope/data-mate';
 import IndexManager from './index-manager';
 import * as i from './interfaces';
 import * as utils from './utils';
@@ -590,7 +590,7 @@ export default class IndexStore<T extends Record<string, any>> {
         return this._toRecords(results.hits.hits, critical);
     }
 
-    createJoinQuery(fields: AnyInput<T>, joinBy: JoinBy = 'AND', variables = {}): XluceneQueryResult {
+    createJoinQuery(fields: AnyInput<T>, joinBy: JoinBy = 'AND', variables = {}): xLuceneQueryResult {
         const result = toXluceneQuery(fields, {
             joinBy,
             typeConfig: this.xLuceneTypeConfig,

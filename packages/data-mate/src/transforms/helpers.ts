@@ -18,7 +18,7 @@ import { isGeoShapePoint } from '../validations/field-validator';
 // TODO: move these
 export type JoinBy = 'AND'|'OR';
 
-export interface XluceneQueryResult {
+export interface xLuceneQueryResult {
     query: string;
     variables: xLuceneVariables;
 }
@@ -133,7 +133,7 @@ function createGeoQuery(
 export function toXluceneQuery(
     input: AnyObject,
     options: CreateJoinQueryOptions = {}
-): XluceneQueryResult {
+): xLuceneQueryResult {
     const {
         fieldParams = {},
         joinBy = 'AND',

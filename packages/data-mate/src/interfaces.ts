@@ -1,6 +1,6 @@
 import { FieldTypeConfig } from '@terascope/data-types';
 
-export type ArgSchema = Config & { describe?: string };
+export type ArgSchema = Config & { description?: string };
 
 export interface Repository {
     [key: string]: {
