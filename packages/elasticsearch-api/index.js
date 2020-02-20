@@ -8,7 +8,13 @@ const {
     isFatalError,
     parseError,
     getBackoffDelay,
-    isRetryableError
+    isRetryableError,
+    get,
+    toNumber,
+    isString,
+    castArray,
+    flatten,
+    uniq
 } = require('@terascope/utils');
 
 const DOCUMENT_EXISTS = 409;
@@ -29,14 +35,14 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         'The elasticsearch cluster queues are overloaded, resubmitting failed queries from bulk'
     );
 
-    const retryStart = _.get(client, '__testing.start', 5000);
-    const retryLimit = _.get(client, '__testing.limit', 10000);
+    const retryStart = get(client, '__testing.start', 5000);
+    const retryLimit = get(client, '__testing.limit', 10000);
 
     const { connection = 'unknown' } = config;
 
     function count(query) {
         query.size = 0;
-        return _searchES(query).then((data) => _.get(data, 'hits.total.value', _.get(data, 'hits.total')));
+        return _searchES(query).then((data) => get(data, 'hits.total.value', get(data, 'hits.total')));
     }
 
     function search(query) {
@@ -55,7 +61,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             if (config.full_response) {
                 return data;
             }
-            return _.map(data.hits.hits, (doc) => doc._source);
+            return data.hits.hits.map((doc) => doc._source);
         });
     }
 
@@ -86,7 +92,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         return _clientRequest('mget', query);
     }
 
-    function get(query, fullResponse = false) {
+    function getFn(query, fullResponse = false) {
         if (fullResponse) {
             return _clientRequest('get', query);
         }
@@ -153,7 +159,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             }
         } else {
             // check to see if regex picks up indices
-            _.forOwn(indexObj, (value, key) => {
+            Object.entries(indexObj).forEach(([key, value]) => {
                 if (key.match(regex) !== null) {
                     wasFound = true;
                     if (value.settings.index.max_result_window) {
@@ -227,7 +233,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         let reason = '';
         for (let i = 0; i < items.length; i += 1) {
             // key could either be create or delete etc, just want the actual data at the value spot
-            const item = _.values(items[i])[0];
+            const item = Object.values(items[i])[0];
             if (item.error) {
                 // On a create request if a document exists it's not an error.
                 // are there cases where this is incorrect?
@@ -526,7 +532,9 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                             return;
                         }
 
-                        const reasons = _.uniq(_.flatMap(failures, (shard) => shard.reason.type));
+                        const reasons = uniq(
+                            flatten(failures.map((shard) => shard.reason.type))
+                        );
 
                         if (
                             reasons.length > 1
@@ -616,8 +624,8 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             if (isRetryableError(err)) {
                 retryable = true;
             } else {
-                const isRejectedError = _.get(err, 'body.error.type') === 'es_rejected_execution_exception';
-                const isConnectionError = _.get(err, 'message', '').includes('No Living connections');
+                const isRejectedError = get(err, 'body.error.type') === 'es_rejected_execution_exception';
+                const isConnectionError = get(err, 'message', '').includes('No Living connections');
                 if (isRejectedError || isConnectionError) {
                     retryable = true;
                 }
@@ -704,14 +712,14 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
      * @returns {boolean} if client is working state it will return true
     */
     function verifyClient() {
-        const closed = _.get(client, 'transport.closed', false);
+        const closed = get(client, 'transport.closed', false);
         if (closed) {
             throw new TSError('Elasticsearch Client is closed', {
                 fatalError: true
             });
         }
 
-        const alive = _.get(client, 'transport.connectionPool._conns.alive');
+        const alive = get(client, 'transport.connectionPool._conns.alive');
         // so we don't break existing tests with mocked clients, we will default to 1
         const aliveCount = alive && Array.isArray(alive) ? alive.length : 1;
         if (!aliveCount) {
@@ -722,10 +730,10 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function getESVersion() {
-        const esVersion = _.get(client, 'transport._config.apiVersion', '6.5');
-        if (esVersion && _.isString(esVersion)) {
+        const esVersion = get(client, 'transport._config.apiVersion', '6.5');
+        if (esVersion && isString(esVersion)) {
             const [majorVersion] = esVersion.split('.');
-            return _.toNumber(majorVersion);
+            return toNumber(majorVersion);
         }
         return 6;
     }
@@ -741,14 +749,14 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         if (esVersion >= 6) {
             if (params.body.template) {
                 if (isTemplate) {
-                    params.body.index_patterns = _.castArray(params.body.template).slice();
+                    params.body.index_patterns = castArray(params.body.template).slice();
                 }
                 delete params.body.template;
             }
         }
 
         if (esVersion >= 7) {
-            const typeMappings = _.get(params.body, 'mappings', {});
+            const typeMappings = get(params.body, 'mappings', {});
             if (typeMappings.properties) {
                 defaultParams.includeTypeName = false;
             } else {
@@ -1008,7 +1016,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     return {
         search,
         count,
-        get,
+        get: getFn,
         mget,
         index: indexFn,
         indexWithId,

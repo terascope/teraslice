@@ -1,5 +1,4 @@
-import times from 'lodash/times';
-import { Slicer } from '@terascope/job-components';
+import { Slicer, times } from '@terascope/job-components';
 import { SimpleReaderConfig } from './interfaces';
 import SimpleClient from '../simple-connector/client';
 

@@ -1,11 +1,11 @@
 'use strict';
 
-const _ = require('lodash');
 const {
     readerShim,
     processorShim,
     registerApis,
-    DataEntity
+    DataEntity,
+    times,
 } = require('@terascope/job-components');
 const { bindThis } = require('./utils');
 
@@ -81,21 +81,31 @@ class OperationTester {
 
             const slices = this.operation.getSlices(10000);
             const sliceRequests = [];
-            const slicesBySlicers = _.values(_.groupBy(slices, 'slicer_id'));
+            const slicesBySlicers = [];
+
+            for (const slice of slices) {
+                if (slicesBySlicers[slice.slicer_id] == null) {
+                    slicesBySlicers[slice.slicer_id] = [];
+                }
+                slicesBySlicers[slice.slicer_id].push(slice);
+            }
 
             for (const perSlicer of slicesBySlicers) {
-                const sorted = _.sortBy(perSlicer, 'slicer_order');
-                if (data && data.fullSlice) {
+                const sorted = perSlicer.sort((a, b) => a.slicer_order - b.slicer_order);
+                sorted.forEach((slice) => {
+                    this.executionContext.onSliceEnqueued(slice);
+                });
+
+                if (data.fullSlice) {
                     sliceRequests.push(...sorted);
                 } else {
-                    const mapped = _.map(sorted, 'request');
+                    const mapped = sorted.map(({ request }) => request);
                     sliceRequests.push(...mapped);
                 }
             }
-
             const remaining = slicers - sliceRequests.length;
             if (remaining > 0) {
-                const nulls = _.times(remaining, () => null);
+                const nulls = times(remaining, () => null);
                 return sliceRequests.concat(nulls);
             }
 

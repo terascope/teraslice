@@ -28,13 +28,13 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
+        "@terascope/types": "^0.1.0",
         "@terascope/utils": "^0.23.0",
         "graphql": "^14.5.8",
         "lodash.defaultsdeep": "^4.6.1",
         "yargs": "^15.1.0"
     },
     "devDependencies": {
-        "@terascope/types": "^0.1.0",
         "@types/lodash.defaultsdeep": "^4.6.6",
         "@types/yargs": "^15.0.1"
     },

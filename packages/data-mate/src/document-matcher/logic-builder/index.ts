@@ -1,8 +1,6 @@
-import _ from 'lodash';
-import fp from 'lodash/fp';
 import { xLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';
 import * as p from 'xlucene-parser';
-import { isWildCardString } from '@terascope/utils';
+import { isWildCardString, get } from '@terascope/utils';
 import { geoDistance, geoBoundingBox } from './geo';
 import { compareTermDates, dateRange } from './dates';
 import {
@@ -16,8 +14,8 @@ export default function buildLogicFn(parser: p.Parser, typeConfig: xLuceneTypeCo
 }
 
 function makeGetFn(field?: string) {
-    if (!field) return fp.values;
-    if (field.includes('.')) return fp.get(field);
+    if (!field) return (obj: any) => Object.values(obj);
+    if (field.includes('.')) return (obj: any) => get(obj, field);
 
     return function getProp(obj: any) {
         return obj[field];
@@ -28,11 +26,11 @@ function logicNode(field: string|undefined, cb: BooleanCB) {
     if (field && isWildCardString(field)) {
         return findWildcardField(field, cb);
     }
-    const get = makeGetFn(field);
+    const getFn = makeGetFn(field);
     const getAnyData = makeSomeFn(cb);
 
     return function _logicNode(obj: any) {
-        const data = get(obj);
+        const data = getFn(obj);
 
         if (Array.isArray(data)) {
             return getAnyData(data);
@@ -54,10 +52,18 @@ function makeNegate(fn: any) {
 }
 
 const rangeMapping = {
-    gte: _.gte,
-    gt: _.gt,
-    lte: _.lte,
-    lt: _.lt
+    gte(value: any, other: any) {
+        return value >= other;
+    },
+    gt(value: any, other: any) {
+        return value > other;
+    },
+    lte(value: any, other: any) {
+        return value <= other;
+    },
+    lt(value: any, other: any) {
+        return value < other;
+    }
 };
 
 function rangeFn(node: p.Range): BooleanCB {

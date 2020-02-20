@@ -1437,10 +1437,10 @@
     "@turf/destination" "6.x"
     "@turf/helpers" "6.x"
 
-"@turf/clean-coords@6.0.0":
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/@turf/clean-coords/-/clean-coords-6.0.0.tgz#edac2b00dcbfd61c42dd035bfd5f21075c887565"
-  integrity sha512-yBjEq3qglN5qv7zYutDlpTXnV2bmTKroaALqVM4IH/fUuMDufLXj+J8koLyCKa/GsmyyGyh3qOIRdYcurx2yMA==
+"@turf/clean-coords@6.0.0", "@turf/clean-coords@^6.0.1":
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/@turf/clean-coords/-/clean-coords-6.0.1.tgz#162eb24c33bb3d484efaf3298787909498a9bc81"
+  integrity sha512-qpPT+YqWHIKCC0ryIhcle7nEVqJJ6RhEZNVy5t/PyzR+E8Q+RRAeiMCaPjLnT7Rem8VPOcF+bBoCdub1KyHhdw==
   dependencies:
     "@turf/helpers" "6.x"
     "@turf/invariant" "6.x"

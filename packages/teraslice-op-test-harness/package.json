@@ -19,8 +19,7 @@
     },
     "dependencies": {
         "@terascope/job-components": "^0.28.0",
-        "bluebird": "^3.7.2",
-        "lodash": "^4.17.11"
+        "bluebird": "^3.7.2"
     },
     "devDependencies": {},
     "publishConfig": {

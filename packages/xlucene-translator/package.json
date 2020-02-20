@@ -28,11 +28,11 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
+        "@terascope/types": "^0.1.0",
         "@terascope/utils": "^0.23.0",
         "xlucene-parser": "^0.18.0"
     },
     "devDependencies": {
-        "@terascope/types": "^0.1.0",
         "elasticsearch": "^15.4.1"
     },
     "engines": {

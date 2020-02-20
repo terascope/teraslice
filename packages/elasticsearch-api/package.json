@@ -19,10 +19,11 @@
     },
     "dependencies": {
         "@terascope/utils": "^0.23.0",
-        "bluebird": "^3.7.2",
-        "lodash": "^4.17.11"
+        "bluebird": "^3.7.2"
     },
-    "devDependencies": {},
+    "devDependencies": {
+        "@types/elasticsearch": "^5.0.35"
+    },
     "publishConfig": {
         "access": "public",
         "registry": "https://registry.npmjs.org/"

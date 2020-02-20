@@ -28,13 +28,18 @@
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
     },
+    "resolutions": {
+        "@turf/clean-coords": "^6.0.1"
+    },
     "dependencies": {
         "@terascope/data-types": "^0.13.0",
+        "@terascope/types": "^0.1.0",
         "@terascope/utils": "^0.23.0",
         "@turf/bbox": "^6.0.1",
         "@turf/bbox-polygon": "^6.0.1",
         "@turf/boolean-point-in-polygon": "^6.0.1",
         "@turf/circle": "^6.0.1",
+        "@turf/clean-coords": "^6.0.1",
         "@turf/helpers": "^6.1.4",
         "awesome-phonenumber": "^2.26.0",
         "date-fns": "^2.9.0",
@@ -42,14 +47,11 @@
         "ipaddr.js": "^1.9.1",
         "is-cidr": "^3.1.0",
         "jexl": "^2.2.2",
-        "lodash": "^4.17.11",
         "valid-url": "^1.0.9",
         "validator": "^12.2.0",
         "xlucene-parser": "^0.18.0"
     },
-    "devDependencies": {
-        "@terascope/types": "^0.1.0"
-    },
+    "devDependencies": {},
     "engines": {
         "node": ">=8.0.0"
     },

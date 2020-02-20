@@ -26,13 +26,13 @@
     "dependencies": {
         "@terascope/data-mate": "^0.2.0",
         "@terascope/data-types": "^0.13.0",
+        "@terascope/types": "^0.1.0",
         "@terascope/utils": "^0.23.0",
         "ajv": "^6.11.0",
         "nanoid": "^2.1.10",
         "xlucene-translator": "^0.2.0"
     },
     "devDependencies": {
-        "@terascope/types": "^0.1.0",
         "elasticsearch": "^15.4.1"
     },
     "publishConfig": {
