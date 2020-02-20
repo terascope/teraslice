@@ -2,7 +2,7 @@ import * as ts from '@terascope/utils';
 import crypto from 'crypto';
 import PhoneValidator from 'awesome-phonenumber';
 import jexl from 'jexl';
-import { getUnixTime, format as dateFormat, parse } from 'date-fns';
+import { format as dateFormat, parse } from 'date-fns';
 import {
     ExtractFieldConfig,
     ReplaceLiteralConfig,
