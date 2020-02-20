@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { unset } from '@terascope/utils';
 import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
@@ -21,7 +21,7 @@ export = {
     async handler(argv) {
         const job = new JobSrc(argv);
         job.init();
-        _.unset(job.content, '__metadata');
+        unset(job.content, '__metadata');
         job.overwrite();
         reply.green(`Removed metadata from ${argv.jobFile}`);
     }

@@ -1,6 +1,6 @@
 'use strict';
 
-const _ = require('lodash');
+const isEqual = require('lodash.isequal');
 const Promise = require('bluebird');
 const {
     isTest,
@@ -14,7 +14,9 @@ const {
     isString,
     castArray,
     flatten,
-    uniq
+    uniq,
+    random,
+    cloneDeep
 } = require('@terascope/utils');
 
 const DOCUMENT_EXISTS = 409;
@@ -307,7 +309,18 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function _warn(warnLogger, msg) {
-        return _.throttle(() => warnLogger.warn(msg), 5000);
+        let _lastTime = null;
+        return () => {
+            const lastTime = _lastTime;
+            _lastTime = Date.now();
+            if (lastTime != null) {
+                const elapsed = Date.now() - lastTime;
+                if (elapsed < 5000) {
+                    return;
+                }
+            }
+            warnLogger.warn(msg);
+        };
     }
 
     function validateGeoParameters(opConfig) {
@@ -571,7 +584,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         const startTime = Date.now();
 
         // set different values for when process.env.NODE_ENV === test
-        const timeoutMs = isTest ? 1000 : _.random(5000, 15000);
+        const timeoutMs = isTest ? 1000 : random(5000, 15000);
         const intervalMs = isTest ? 50 : 100;
 
         // avoiding setting the interval if we don't need to
@@ -742,7 +755,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         if (!_params || !_params.body) {
             throw new Error('Invalid mapping request');
         }
-        const params = _.cloneDeep(_params);
+        const params = cloneDeep(_params);
         const defaultParams = {};
 
         const esVersion = getESVersion();
@@ -889,9 +902,9 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         sysMapping[index] = { mappings: configMapping.mappings };
         // elasticsearch for some reason converts false to 'false' for dynamic key
         if (mapping[index].mappings[recordType].dynamic !== undefined) {
-            mapping[index].mappings[recordType].dynamic = !'false';
+            mapping[index].mappings[recordType].dynamic = 'false';
         }
-        const areEqual = _.isEqual(mapping, sysMapping);
+        const areEqual = isEqual(mapping, sysMapping);
         return { areEqual };
     }
 
@@ -974,11 +987,10 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                             .then((results) => {
                                 let bool = false;
                                 if (Object.keys(results).length !== 0) {
-                                    const isPrimary = _.filter(
-                                        results[newIndex].shards,
+                                    const isPrimary = results[newIndex].shards.filter(
                                         (shard) => shard.primary === true
                                     );
-                                    bool = _.every(isPrimary, (shard) => shard.stage === 'DONE');
+                                    bool = isPrimary.every((shard) => shard.stage === 'DONE');
                                 }
                                 if (bool) {
                                     logger.info('connection to elasticsearch has been established');

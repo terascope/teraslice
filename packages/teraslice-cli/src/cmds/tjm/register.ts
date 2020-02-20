@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { get } from '@terascope/utils';
 import Config from '../../helpers/config';
 import TjmUtil from '../../helpers/tjm-util';
 import { getTerasliceClient } from '../../helpers/utils';
@@ -34,7 +34,7 @@ export = {
         const client = getTerasliceClient(cliConfig);
 
         if (job.hasMetaData) {
-            const regCluster = _.get(job.content, '__metadata.cli.cluster');
+            const regCluster = get(job.content, '__metadata.cli.cluster');
             reply.fatal(`job has already been registered on ${regCluster}`);
         }
         job.readFile();

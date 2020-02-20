@@ -92,11 +92,8 @@ class OperationTester {
 
             for (const perSlicer of slicesBySlicers) {
                 const sorted = perSlicer.sort((a, b) => a.slicer_order - b.slicer_order);
-                sorted.forEach((slice) => {
-                    this.executionContext.onSliceEnqueued(slice);
-                });
 
-                if (data.fullSlice) {
+                if (data && data.fullSlice) {
                     sliceRequests.push(...sorted);
                 } else {
                     const mapped = sorted.map(({ request }) => request);

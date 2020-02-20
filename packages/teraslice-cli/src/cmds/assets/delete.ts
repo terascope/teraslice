@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { has } from '@terascope/utils';
 import { CMD } from '../../interfaces';
 import Reply from '../lib/reply';
 import Config from '../../helpers/config';
@@ -26,7 +26,7 @@ export = {
         try {
             const resp = await terasliceClient.assets.delete(cliConfig.args.assetId);
 
-            if (_.has(resp, 'error')) {
+            if (has(resp, 'error')) {
                 // @ts-ignore
                 reply.yellow(`WARNING: Error (${resp.error}): ${resp.message}`);
             } else {
