@@ -47,13 +47,6 @@ jobs:
       script: yarn --silent test --suite unit-b
 
     - script:
-      name: 'ES Test Suite (elasticsearch 5) (node 10)'
-      node_js: '10.16'
-      # run only on pull-requests
-      if: branch = master AND type IN (pull_request) AND commit_message !~ /^WIP/
-      script: yarn --silent test --suite elasticsearch --elasticsearch-version 5.6.16 --elasticsearch-api-version 5.6 --report-coverage false
-
-    - script:
       name: 'ES Test Suite (elasticsearch 6) (node 12)'
       node_js: '12.14'
       # run only on pull-requests and cron
