@@ -31,7 +31,7 @@ describe('record transforms', () => {
 
     it('can copy a field', () => {
         const obj = { hello: 'world', other: 'stuff' };
-        const config = { field: 'other', copyTo: 'myCopy' };
+        const config = { from: 'other', to: 'myCopy' };
 
         const results = RecordTransform.copyField(cloneDeep(obj), config);
 

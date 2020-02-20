@@ -72,10 +72,10 @@ export function dropField(record: any, args: { field: string }) {
     return record;
 }
 
-export function copyField(record: any, args: { field: string; copyTo: string }) {
-    const { field, copyTo } = args;
-    if (!isString(field) || !isString(copyTo)) throw new Error('Invalid parameters, field/copyTo must be supplied be be a string');
+export function copyField(record: any, args: { from: string; to: string }) {
+    const { from, to } = args;
+    if (!isString(from) || !isString(to)) throw new Error('Invalid parameters, field/copyTo must be supplied be be a string');
 
-    record[copyTo] = record[field];
+    record[to] = record[from];
     return record;
 }

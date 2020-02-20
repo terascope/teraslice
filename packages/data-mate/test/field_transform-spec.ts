@@ -167,10 +167,15 @@ describe('field transforms', () => {
             expect(transform.toUnixTime(testDate)).toBe(Math.floor(milli / 1000));
             expect(transform.toUnixTime(isoTime)).toBe(Math.floor(milli / 1000));
             expect(transform.toUnixTime(milli)).toBe(Math.floor(milli / 1000));
+            expect(transform.toUnixTime(milli, { ms: true })).toBe(milli);
         });
 
-        it('convert date time in milliseconds to unix time', () => {
+        it('convert date time in milliseconds to unix time s', () => {
             expect(transform.toUnixTime(1580418907000)).toBe(1580418907);
+        });
+
+        it('convert date time in milliseconds to unix time ms', () => {
+            expect(transform.toUnixTime(1580418907000, { ms: true })).toBe(1580418907000);
         });
 
         it('convert string dates to unix time', () => {

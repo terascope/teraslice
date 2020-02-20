@@ -27,11 +27,17 @@ export function isValidDateInstance(val: Date): boolean {
 }
 
 /** Ensure unix time */
-export function getUnixTime(val?: string|number|Date): number | false {
+export function getTime(val?: string|number|Date): number | false {
     if (val == null) return Date.now();
     const result = getValidDate(val);
     if (result === false) return false;
     return result.getTime();
+}
+
+export function getUnixTime(val?: string|number|Date): number | false {
+    const time = getTime(val);
+    if (time !== false) return Math.floor(time / 1000);
+    return time;
 }
 
 /**

@@ -374,16 +374,17 @@ export function toArray(input: string, args?: { delimiter: string }): any[] {
 }
 
 // option to specify, seconds, millisecond, microseconds?
-export function toUnixTime(input: any): number {
-    if (!isValidDate(input)) {
-        throw new Error('Not a valid date, cannot transform to unix time');
+export function toUnixTime(input: any, { ms = false } = {}): number {
+    if (!isValidDate(input)) throw new Error('Not a valid date, cannot transform to unix time');
+    let time: boolean | number;
+
+    if (ms) {
+        time = ts.getTime(input);
+    } else {
+        time = ts.getUnixTime(input);
     }
 
-    const parsed = Number.isNaN(input) ? Date.parse(input) : Number(input);
-
-    const unixTime = getUnixTime(parsed);
-
-    return unixTime;
+    return time as number;
 }
 
 export function toISO8601(input: any, args?: { resolution?: 'seconds' | 'milliseconds' }): string {

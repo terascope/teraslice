@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { getValidDate, getUnixTime } from '../dates';
+import { getValidDate, getTime } from '../dates';
 import { isSimpleObject } from '../objects';
 import {
     parseJSON,
@@ -272,7 +272,7 @@ export class DataEntity<
      */
     @locked()
     setIngestTime(val?: string|number|Date): void {
-        const unixTime = getUnixTime(val);
+        const unixTime = getTime(val);
         if (unixTime === false) {
             throw new Error(`Invalid date format, got ${getTypeOf(val)}`);
         }
@@ -300,7 +300,7 @@ export class DataEntity<
     */
     @locked()
     setProcessTime(val?: string|number|Date): void {
-        const unixTime = getUnixTime(val);
+        const unixTime = getTime(val);
         if (unixTime === false) {
             throw new Error(`Invalid date format, got ${getTypeOf(val)}`);
         }
@@ -328,7 +328,7 @@ export class DataEntity<
      */
     @locked()
     setEventTime(val?: string|number|Date): void {
-        const unixTime = getUnixTime(val);
+        const unixTime = getTime(val);
         if (unixTime === false) {
             throw new Error(`Invalid date format, got ${getTypeOf(val)}`);
         }
