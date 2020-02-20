@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/class-name-casing */
 export enum xLuceneFieldType {
     Geo = 'geo',
     Date = 'date',
