@@ -1,24 +1,26 @@
 'use strict';
 
-const _ = require('lodash');
+const { BatchProcessor } = require('@terascope/job-components');
 
-function newProcessor(context, opConfig, jobConfig) {
-    const { logger } = jobConfig;
+class Summarize extends BatchProcessor {
+    async initialize() {
+        this.logger.debug('summarizing...');
+    }
 
-    logger.debug('summarizing...');
-    return function processFn(data) {
+    onBatch(data) {
         // Collect the data types we're interested in
         const urls = {};
         const ips = {};
 
-        data.forEach((item) => {
-            countKey(urls, item.url);
-            countKey(ips, item.ip);
-        });
+        for (const item of data) {
+            this.countKey(urls, item.url);
+            this.countKey(ips, item.ip);
+        }
 
         // flatten into the records we'll index
         const result = [];
-        _.forOwn(urls, (record, url) => {
+
+        Object.entries(urls).forEach(([url, record]) => {
             result.push({
                 _key: url,
                 type: 'url',
@@ -28,7 +30,7 @@ function newProcessor(context, opConfig, jobConfig) {
             });
         });
 
-        _.forOwn(ips, (record, ip) => {
+        Object.entries(ips).forEach(([ip, record]) => {
             result.push({
                 _key: ip,
                 type: 'ip',
@@ -39,23 +41,15 @@ function newProcessor(context, opConfig, jobConfig) {
         });
 
         return result;
-    };
-}
+    }
 
-function countKey(collection, key) {
-    if (!Object.hasOwnProperty.call(collection, key)) {
-        collection[key] = 1;
-    } else {
-        collection[key]++;
+    countKey(collection, key) {
+        if (!Object.hasOwnProperty.call(collection, key)) {
+            collection[key] = 1;
+        } else {
+            collection[key]++;
+        }
     }
 }
 
-function schema() {
-    return {
-    };
-}
-
-module.exports = {
-    newProcessor,
-    schema
-};
+module.exports = Summarize;
