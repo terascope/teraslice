@@ -1,7 +1,7 @@
 import Node from './node';
 
 /** A basic FIFO queue */
-export default class Queue<T> {
+export class Queue<T> {
     head?: Node<T>;
     tail?: Node<T>;
     private _size = 0;

@@ -34,7 +34,6 @@
         "ms": "^2.1.2"
     },
     "dependencies": {
-        "@terascope/queue": "^1.1.8",
         "@terascope/utils": "^0.23.1",
         "ms": "^2.1.2",
         "nanoid": "^2.1.10",

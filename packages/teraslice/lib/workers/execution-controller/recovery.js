@@ -1,7 +1,8 @@
 'use strict';
 
-const { pRaceWithTimeout, logError, cloneDeep } = require('@terascope/utils');
-const Queue = require('@terascope/queue');
+const {
+    pRaceWithTimeout, logError, cloneDeep, Queue
+} = require('@terascope/utils');
 const { makeLogger } = require('../helpers/terafoundation');
 
 function recoveryModule(context, stateStore, executionContext) {

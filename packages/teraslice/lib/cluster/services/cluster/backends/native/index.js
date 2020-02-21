@@ -1,9 +1,8 @@
 'use strict';
 
 const _ = require('lodash');
-const Queue = require('@terascope/queue');
 const {
-    TSError, getFullErrorStack, pDelay, cloneDeep
+    Queue, TSError, getFullErrorStack, pDelay, cloneDeep
 } = require('@terascope/utils');
 const { makeLogger } = require('../../../../../workers/helpers/terafoundation');
 const stateUtils = require('../state-utils');
