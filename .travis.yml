@@ -2,7 +2,7 @@
 dist: bionic
 os: linux
 language: node_js
-node_js: '10.16'
+node_js: '10.19'
 
 cache:
   npm: false
@@ -20,7 +20,7 @@ jobs:
   include:
     - stage: "Verify"
       name: 'Verify Build'
-      node_js: '10.16'
+      node_js: '10.19'
       # run on any pull_request
       if: branch = master AND type IN (pull_request)
       # only cache on verify build
@@ -35,7 +35,7 @@ jobs:
 
     - stage: "Tests"
       name: 'Unit Test Suite (node 10)'
-      node_js: '10.16'
+      node_js: '10.19'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite unit-a

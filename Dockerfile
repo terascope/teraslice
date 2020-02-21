@@ -1,4 +1,4 @@
-FROM terascope/node-base:10.16.3
+FROM terascope/node-base:10.19.0-1
 
 # [INSTALL AND BUILD PACKAGES]
 ENV NODE_ENV development
@@ -53,4 +53,4 @@ EXPOSE 5678
 VOLUME /app/config /app/logs /app/assets
 ENV TERAFOUNDATION_CONFIG /app/config/teraslice.yaml
 
-CMD ["node", "service.js"]
+CMD ["yarn", "node", "service.js"]
