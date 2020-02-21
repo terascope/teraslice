@@ -1,0 +1,6 @@
+workspaces-experimental true
+prefer-offline true
+ignore-optional true
+progress false
+yarn-offline-mirror-pruning false
+yarn-offline-mirror .yarn-offline-cache

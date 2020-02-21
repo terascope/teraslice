@@ -88,8 +88,24 @@ export async function formatDailyTag() {
     return `daily-${date}-${hash}`;
 }
 
-export async function pullDevDockerImage(): Promise<string> {
+export async function buildDevDockerImage(cacheFromPrev?: boolean): Promise<string> {
+    const devImage = getDevDockerImage();
     const startTime = Date.now();
+    signale.pending(`building docker image ${devImage}`);
+
+    try {
+        await dockerBuild(devImage, cacheFromPrev ? [devImage] : []);
+    } catch (err) {
+        throw new TSError(err, {
+            message: `Failed to build ${devImage} docker image`,
+        });
+    }
+
+    signale.success(`built docker image ${devImage}, took ${ms(Date.now() - startTime)}`);
+    return devImage;
+}
+
+export async function pullDevDockerImage(): Promise<string> {
     const devImage = getDevDockerImage();
 
     let pulled = false;
@@ -104,16 +120,5 @@ export async function pullDevDockerImage(): Promise<string> {
         }
     }
 
-    signale.pending(`building docker image ${devImage}`);
-
-    try {
-        await dockerBuild(devImage, pulled ? [devImage] : []);
-    } catch (err) {
-        throw new TSError(err, {
-            message: `Failed to build ${devImage} docker image`,
-        });
-    }
-
-    signale.success(`built docker image ${devImage}, took ${ms(Date.now() - startTime)}`);
-    return devImage;
+    return buildDevDockerImage(pulled);
 }

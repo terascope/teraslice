@@ -6,14 +6,11 @@ export default new Signale({
     logLevel: isTest ? 'error' : 'info',
     stream: process.stderr,
     types: {
-        log: {
-            stream: [process.stdout],
-        },
         debug: {
             color: 'cyan',
-        },
+        } as any,
         pending: {
             badge: '*',
-        },
+        } as any,
     },
 });

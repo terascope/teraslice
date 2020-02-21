@@ -10,15 +10,15 @@
     "repository": "git@github.com:terascope/teraslice.git",
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
-    "files": [
-        "dist/src/**/*",
-        "bin/*"
-    ],
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
     "bin": {
         "data-types": "./bin/data-types.js"
     },
+    "files": [
+        "dist/src/**/*",
+        "bin/*"
+    ],
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",

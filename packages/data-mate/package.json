@@ -10,15 +10,15 @@
     },
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
-    "files": [
-        "dist/src/**/*"
-    ],
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
     "directories": {
         "lib": "dist/src",
         "test": "test"
     },
+    "files": [
+        "dist/src/**/*"
+    ],
     "scripts": {
         "benchmark": "yarn build && node bench/index.js",
         "build": "tsc --build",
