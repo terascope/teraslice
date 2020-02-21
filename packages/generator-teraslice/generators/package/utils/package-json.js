@@ -75,7 +75,6 @@ module.exports = (options) => {
         typings: 'dist/src/index.d.ts',
         devDependencies: getPkgValues({}),
         scripts: {
-            prepublishOnly: 'yarn build',
             build: 'tsc --build',
             'build:watch': 'yarn build --watch',
         },
