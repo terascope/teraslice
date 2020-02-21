@@ -1,6 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
 const Promise = require('bluebird');
 const {
     validateJobConfig,
@@ -9,6 +8,8 @@ const {
     TestContext,
     newTestExecutionConfig,
     schemaShim,
+    isFunction,
+    cloneDeep,
 } = require('@terascope/job-components');
 const { bindThis } = require('./lib/utils');
 const Operation = require('./lib/operation');
@@ -53,7 +54,7 @@ class TestHarness {
     setClients(clients = []) {
         const testClients = clients.map((config) => {
             const { client } = config;
-            if (!_.isFunction(config.create)) {
+            if (!isFunction(config.create)) {
                 config.create = () => ({ client });
             }
             return config;
@@ -168,7 +169,7 @@ class TestHarness {
         // complete and convict validated configs
         const jobConfig = validateJobConfig(schema, { operations: [{ _op: 'noop' }, opConfig] });
         return operation.newProcessor(
-            _.assign({}, context, extraContext),
+            Object.assign({}, context, extraContext),
             validateOpConfig(operation.schema(), opConfig),
             jobConfig
         );
@@ -216,7 +217,7 @@ class TestHarness {
     }
 
     get data() {
-        return _.cloneDeep({
+        return cloneDeep({
             simple: simpleData,
             arrayLike: sampleDataArrayLike,
             esLike: sampleDataEsLike

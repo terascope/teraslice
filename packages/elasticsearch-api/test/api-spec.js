@@ -1,6 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
 const Promise = require('bluebird');
 const { debugLogger } = require('@terascope/utils');
 const esApi = require('..');
@@ -181,8 +180,8 @@ describe('elasticsearch-api', () => {
         if (bulkError) {
             response.errors = true;
             response.items = results.body.map((obj, index) => {
-                _.forOwn(obj, (value, key) => {
-                    obj[key] = _.assign(value, {
+                Object.entries(obj).forEach(([key, value]) => {
+                    obj[key] = Object.assign(value, {
                         error: { type: bulkError[index] || 'someType', reason: 'someReason' }
                     });
                 });

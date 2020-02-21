@@ -1,43 +1,22 @@
-FROM terascope/node-base:10.16.3
+FROM terascope/node-base:10.19.0-1
 
 # [INSTALL AND BUILD PACKAGES]
 ENV NODE_ENV development
 
-COPY package.json yarn.lock lerna.json .yarnrc /app/source/
-
-# remove the workspaces to the package.json
-RUN docker-pkg-fix "pre"
-
-# install both dev and production dependencies
-RUN yarn \
-    --prod=false \
-    --no-progress \
-    --frozen-lockfile \
-    --ignore-optional
-
-# add back the workspaces to the package.json
-RUN docker-pkg-fix "post"
-
-# Add all of the packages and other required files
+COPY package.json yarn.lock lerna.json tsconfig.json /app/source/
+COPY .docker.yarnrc /app/source/.yarnrc
 COPY packages /app/source/packages
-
-# install the missing packages
-RUN yarn \
-    --prod=false \
-    --no-cache \
-    --prefer-offline \
-    --frozen-lockfile \
-    --ignore-optional
-
+COPY .yarn-offline-cache /app/source/.yarn-offline-cache
 COPY types /app/source/types
-COPY tsconfig.json /app/source/
 COPY scripts /app/source/scripts
 
-# link and build the missing packages
-RUN yarn quick:setup
-
-# [BUILD THE PRODUCTION IMAGE]
 ENV NODE_ENV production
+
+ENV YARN_SETUP_ARGS "--prod=false --silent --no-cache --offline --frozen-lockfile"
+RUN yarn setup
+
+# Create a smaller build
+RUN rm -rf .yarn-offline-cache/*.tar.gz
 
 COPY service.js /app/source/
 
@@ -53,4 +32,4 @@ EXPOSE 5678
 VOLUME /app/config /app/logs /app/assets
 ENV TERAFOUNDATION_CONFIG /app/config/teraslice.yaml
 
-CMD ["node", "service.js"]
+CMD ["yarn", "node", "service.js"]

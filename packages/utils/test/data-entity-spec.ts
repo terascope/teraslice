@@ -643,10 +643,9 @@ describe('DataEntity', () => {
         it('should throw an error if given an unsupported encoding', () => {
             const buf = Buffer.from(JSON.stringify({ hi: 'there' }));
             expect(() => {
-                // @ts-ignore
                 DataEntity.fromBuffer(buf, {
                     _op: 'test',
-                    _encoding: 'crazy',
+                    _encoding: 'crazy' as any,
                 });
             }).toThrowError('Unsupported encoding type, got "crazy"');
         });

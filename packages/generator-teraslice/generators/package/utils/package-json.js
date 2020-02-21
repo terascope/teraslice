@@ -1,6 +1,7 @@
 'use strict';
 
-const _ = require('lodash');
+const { times, get } = require('@terascope/utils');
+const defaultsDeep = require('lodash.defaultsdeep');
 const path = require('path');
 const fs = require('fs');
 
@@ -8,7 +9,7 @@ module.exports = (options) => {
     const rootPkgJSON = readRootPkgJSON();
 
     function readRootPkgJSON() {
-        const upDirs = _.times(5, () => '..');
+        const upDirs = times(5, () => '..');
         const pkgPath = path.join(__dirname, ...upDirs, 'package.json');
         try {
             return JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
@@ -18,12 +19,13 @@ module.exports = (options) => {
     }
 
     function getPkgValues(packages) {
-        return _.mapValues(packages, (val, name) => {
-            if (_.has(rootPkgJSON, ['dependencies', name])) {
-                return _.get(rootPkgJSON, ['dependencies', name], val);
+        const result = {};
+        Object.entries(packages).forEach(([name, val]) => {
+            if (get(rootPkgJSON, ['dependencies', name])) {
+                result[name] = get(rootPkgJSON, ['dependencies', name], val);
             }
-            if (_.has(rootPkgJSON, ['devDependencies', name])) {
-                return _.get(rootPkgJSON, ['devDependencies', name], val);
+            if (get(rootPkgJSON, ['devDependencies', name])) {
+                result[name] = get(rootPkgJSON, ['devDependencies', name], val);
             }
             return val;
         });
@@ -59,21 +61,20 @@ module.exports = (options) => {
     };
 
     if (!typescript) {
-        return _.defaultsDeep(common, {
+        return defaultsDeep(common, {
             main: 'index.js',
             files: ['*.js', 'lib/**/*'],
             devDependencies: getPkgValues({}),
         });
     }
 
-    return _.defaultsDeep(common, {
+    return defaultsDeep(common, {
         files: ['dist/src/**/*'],
         srcMain: 'src/index.ts',
         main: 'dist/src/index.js',
         typings: 'dist/src/index.d.ts',
         devDependencies: getPkgValues({}),
         scripts: {
-            prepublishOnly: 'yarn build',
             build: 'tsc --build',
             'build:watch': 'yarn build --watch',
         },

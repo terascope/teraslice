@@ -2,25 +2,30 @@
 dist: bionic
 os: linux
 language: node_js
-node_js: '10.16'
+node_js: '10.19'
+# use a smaller depth for faster builds
+git:
+  depth: 10
 
 cache:
   npm: false
   yarn: false
 
 before_install: . ./scripts/ci-setup.sh
-install: yarn setup
+install:
+  - export YARN_SETUP_ARGS="--prod=false --no-cache"
+  - yarn setup
 
 # set up build matrix
 # specify jobs (stages are serial, and scripts are parallel within a stage)
 jobs:
   # stop if given a reason
-  fast-finish: true
+  fast_finish: true
 
   include:
     - stage: "Verify"
       name: 'Verify Build'
-      node_js: '10.16'
+      node_js: '10.19'
       # run on any pull_request
       if: branch = master AND type IN (pull_request)
       # only cache on verify build
@@ -35,41 +40,34 @@ jobs:
 
     - stage: "Tests"
       name: 'Unit Test Suite (node 10)'
-      node_js: '10.16'
+      node_js: '10.19'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite unit-a
 
     - name: 'Unit Test Suite (node 12)'
-      node_js: '12.14'
+      node_js: '12.16'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite unit-b
 
     - script:
-      name: 'ES Test Suite (elasticsearch 5) (node 10)'
-      node_js: '10.16'
-      # run only on pull-requests
-      if: branch = master AND type IN (pull_request) AND commit_message !~ /^WIP/
-      script: yarn --silent test --suite elasticsearch --elasticsearch-version 5.6.16 --elasticsearch-api-version 5.6 --report-coverage false
-
-    - script:
       name: 'ES Test Suite (elasticsearch 6) (node 12)'
-      node_js: '12.14'
+      node_js: '12.16'
       # run only on pull-requests and cron
       if: branch = master AND type IN (pull_request, cron)
-      script: yarn --silent test --suite elasticsearch --elasticsearch-version 6.8.2 --elasticsearch-api-version 6.5
+      script: yarn --silent test --suite elasticsearch --elasticsearch-version 6.8.6 --elasticsearch-api-version 6.5
 
     - script:
       name: 'ES Test Suite (elasticsearch 7) (node 10)'
-      node_js: '12.14'
+      node_js: '12.16'
       # run only on pull-requests
       if: branch = master AND type IN (pull_request) AND commit_message !~ /^WIP/
       script: yarn --silent test --suite elasticsearch --elasticsearch-version 7.2.1 --elasticsearch-api-version 7.0 --report-coverage false
 
     - script:
       name: 'End-to-End Test Suite (elasticsearch 6) (node 10)'
-      node_js: '12.14'
+      node_js: '12.16'
       # run only on pull-requests and cron
       if: branch = master AND type IN (pull_request, cron) AND fork = false
       script:
@@ -83,25 +81,25 @@ jobs:
       script: true
       deploy:
           - provider: script
-            skip_cleanup: true
+            cleanup: false
             script: yarn ts-scripts publish -t dev npm
 
     - script:
       name: 'Publish packages, docs and expiremental docker image'
-      node_js: '12.14'
+      node_js: '12.16'
       # run a push to master
       if: tag IS blank AND branch = master AND type NOT IN (pull_request, cron)
       # run the tests with coverage (and less logging)
       script: yarn test -- -- --verbose=false
       deploy:
           - provider: script
-            skip_cleanup: true
+            cleanup: false
             script: yarn ts-scripts publish npm
           - provider: script
-            skip_cleanup: true
+            cleanup: false
             script: ./scripts/publish-documentation.sh
           - provider: script
-            skip_cleanup: true
+            cleanup: false
             script: yarn ts-scripts publish -t dev docker
 
     - script:
@@ -112,13 +110,13 @@ jobs:
       script: true
       deploy:
         - provider: script
-          skip_cleanup: true
+          cleanup: false
           script: yarn ts-scripts publish -t tag npm
           on:
             all_branches: true
             tags: true
         - provider: script
-          skip_cleanup: true
+          cleanup: false
           script: yarn ts-scripts publish -t tag docker
           on:
             all_branches: true
@@ -132,5 +130,5 @@ jobs:
       script: true
       deploy:
         - provider: script
-          skip_cleanup: true
+          cleanup: false
           script: yarn ts-scripts publish -t daily docker

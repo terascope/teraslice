@@ -1,8 +1,8 @@
-import isCI from 'is-ci';
 import { CommandModule } from 'yargs';
 import { syncAll, syncPackages } from '../helpers/sync';
 import { PackageInfo, GlobalCMDOptions } from '../helpers/interfaces';
 import { coercePkgArg } from '../helpers/args';
+import { isCI } from '../helpers/config';
 
 type Options = {
     verify: boolean;

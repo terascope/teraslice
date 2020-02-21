@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
 import path from 'path';
-import _ from 'lodash';
+import { has, set } from '@terascope/utils';
 import Reply from '../cmds/lib/reply';
 import { getPackage } from '../../src/helpers/utils';
 
@@ -48,9 +48,9 @@ export default class JobFile {
         // TODO: use @teraslice/job-components job-validator to validate job file
         // this minimum requirement will work for now
         if (!(
-            _.has(this.content, 'name')
-            && _.has(this.content, 'workers')
-            && _.has(this.content, 'operations')
+            has(this.content, 'name')
+            && has(this.content, 'workers')
+            && has(this.content, 'operations')
             && this.content.operations.length >= 2
         )) {
             reply.fatal('Job must have a name, workers, and at least 2 operations');
@@ -71,14 +71,14 @@ export default class JobFile {
     }
 
     addMetaData(id: string, clusterUrl: string) {
-        _.set(this.content, '__metadata.cli.cluster', clusterUrl);
-        _.set(this.content, '__metadata.cli.version', this.version);
-        _.set(this.content, '__metadata.cli.job_id', id);
-        _.set(this.content, '__metadata.cli.updated', new Date().toISOString());
+        set(this.content, '__metadata.cli.cluster', clusterUrl);
+        set(this.content, '__metadata.cli.version', this.version);
+        set(this.content, '__metadata.cli.job_id', id);
+        set(this.content, '__metadata.cli.updated', new Date().toISOString());
     }
 
     get hasMetaData() {
-        return _.has(this.content, '__metadata');
+        return has(this.content, '__metadata');
     }
 
     overwrite() {

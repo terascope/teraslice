@@ -1,7 +1,7 @@
 {
     "name": "xlucene-parser",
     "displayName": "xLucene Parser",
-    "version": "0.18.0",
+    "version": "0.18.1",
     "description": "Flexible Lucene-like evalutor and language parser",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-parser#readme",
     "repository": {
@@ -10,28 +10,30 @@
     },
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
-    "files": [
-        "dist/src/**/*"
-    ],
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
     "directories": {
         "lib": "dist/src",
         "test": "test"
     },
+    "files": [
+        "dist/src/**/*"
+    ],
     "scripts": {
         "benchmark": "yarn build && node bench/index.js",
         "prebuild": "./scripts/generate-engine.js",
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "prepublishOnly": "yarn build",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
     },
+    "resolutions": {
+        "@turf/clean-coords": "^6.0.1"
+    },
     "dependencies": {
-        "@terascope/types": "^0.1.0",
-        "@terascope/utils": "^0.23.0",
+        "@terascope/types": "^0.1.1",
+        "@terascope/utils": "^0.23.1",
         "@turf/bbox": "^6.0.1",
         "@turf/bbox-polygon": "^6.0.1",
         "@turf/boolean-contains": "^6.0.1",
@@ -41,13 +43,13 @@
         "@turf/boolean-point-in-polygon": "^6.0.1",
         "@turf/boolean-within": "^6.0.1",
         "@turf/circle": "^6.0.1",
+        "@turf/clean-coords": "^6.0.1",
         "@turf/helpers": "^6.1.4",
         "@turf/invariant": "^6.1.2",
         "@turf/line-to-polygon": "^6.0.1",
         "@turf/random": "^6.0.2"
     },
     "devDependencies": {
-        "@terascope/types": "^0.1.0",
         "pegjs": "^0.10.0",
         "ts-pegjs": "^0.2.6"
     },

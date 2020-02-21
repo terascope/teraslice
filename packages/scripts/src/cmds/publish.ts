@@ -1,9 +1,9 @@
-import isCI from 'is-ci';
 import { CommandModule } from 'yargs';
 import { GlobalCMDOptions } from '../helpers/interfaces';
 import { PublishAction, PublishType } from '../helpers/publish/interfaces';
 import { publish } from '../helpers/publish';
 import { syncAll } from '../helpers/sync';
+import { isCI } from '../helpers/config';
 
 type Options = {
     type: PublishType;

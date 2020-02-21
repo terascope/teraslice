@@ -1,9 +1,8 @@
 'use strict';
 
 const {
-    noop, pDelay, get, toString, makeISODate, logError, pWhile
+    Queue, noop, pDelay, get, toString, makeISODate, logError, pWhile
 } = require('@terascope/utils');
-const Queue = require('@terascope/queue');
 const makeExecutionRecovery = require('./recovery');
 const { makeLogger } = require('../helpers/terafoundation');
 

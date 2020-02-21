@@ -1,7 +1,7 @@
 {
     "name": "@terascope/teraslice-messaging",
     "displayName": "Teraslice Messaging",
-    "version": "0.7.0",
+    "version": "0.7.1",
     "description": "An internal teraslice messaging library using socket.io",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-messaging#readme",
     "bugs": {
@@ -13,19 +13,18 @@
     },
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
-    "files": [
-        "dist/src/**/*"
-    ],
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
     "directories": {
         "lib": "dist/src",
         "test": "test"
     },
+    "files": [
+        "dist/src/**/*"
+    ],
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "prepublishOnly": "yarn build",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
@@ -35,8 +34,7 @@
         "ms": "^2.1.2"
     },
     "dependencies": {
-        "@terascope/queue": "^1.1.7",
-        "@terascope/utils": "^0.23.0",
+        "@terascope/utils": "^0.23.1",
         "ms": "^2.1.2",
         "nanoid": "^2.1.10",
         "p-event": "^4.1.0",

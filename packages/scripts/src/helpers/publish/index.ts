@@ -46,7 +46,9 @@ async function npmPublish(pkgInfo: PackageInfo, options: PublishOptions) {
 
     if (options.dryRun) {
         signale.info(`[DRY RUN] - skipping publish for package ${pkgInfo.name}@v${pkgInfo.version} (${tag})`);
-        await yarnRun('prepublishOnly', [], pkgInfo.dir);
+        await yarnRun('build', [], pkgInfo.dir, {
+            NODE_ENV: 'production'
+        }, true);
     } else {
         const registry: string|undefined = get(pkgInfo, 'publishConfig.registry');
         await yarnPublish(pkgInfo, tag, registry);

@@ -1,5 +1,4 @@
 import fs from 'fs';
-import _ from 'lodash';
 import { has } from '@terascope/utils';
 import Aliases from './aliases';
 import { camelCase } from '../helpers/utils';
@@ -21,7 +20,10 @@ export default class Config {
     constructor(cliArgs: any) {
         // We do this so that the command line options can be like 'cluster-url'
         // but the js properties are camelCase
-        this.args = _.mapKeys(cliArgs, (value, key) => camelCase(key));
+        this.args = {};
+        Object.entries(cliArgs).forEach(([key, value]) => {
+            this.args[camelCase(key)] = value;
+        });
         this.configDir = this.args.configDir;
         this._setupConfigDir();
         this.aliases = new Aliases(this.aliasesFile);

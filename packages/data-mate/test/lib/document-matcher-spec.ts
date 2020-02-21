@@ -1,5 +1,5 @@
 import 'jest-extended';
-import _ from 'lodash';
+import { cloneDeep } from '@terascope/utils';
 import { xLuceneFieldType, xLuceneTypeConfig } from '@terascope/types';
 import { DocumentMatcher } from '../../src';
 import allTestCases from './cases/document-matcher';
@@ -28,7 +28,7 @@ describe('Document-Matcher', () => {
             _created: '2018-11-18T18:13:20.683Z'
         };
 
-        const clone = _.cloneDeep(data);
+        const clone = cloneDeep(data);
         const typeConfig: xLuceneTypeConfig = {
             ipfield: xLuceneFieldType.IP,
             _created: xLuceneFieldType.Date,

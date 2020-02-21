@@ -1,8 +1,8 @@
 {
     "name": "@terascope/types",
     "displayName": "Types",
-    "version": "0.1.0",
-    "description": "collection of typescript interfaces",
+    "version": "0.1.1",
+    "description": "A collection of typescript interfaces",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/types#readme",
     "bugs": {
         "url": "https://github.com/terascope/teraslice/issues"
@@ -10,15 +10,14 @@
     "repository": "git@github.com:terascope/teraslice.git",
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
     "files": [
         "dist/src/**/*"
     ],
-    "main": "dist/src/index.js",
-    "typings": "dist/src/index.d.ts",
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "prepublishOnly": "yarn build",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"

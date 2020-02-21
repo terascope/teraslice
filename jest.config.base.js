@@ -2,8 +2,9 @@
 
 const fs = require('fs');
 const path = require('path');
-const isCI = require('is-ci');
 const { jest: lernaAliases } = require('lerna-alias');
+
+const isCI = process.env.CI === 'true';
 
 module.exports = (projectDir) => {
     let parentFolder;

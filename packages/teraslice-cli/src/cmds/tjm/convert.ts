@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { unset } from '@terascope/utils';
 import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
@@ -25,7 +25,7 @@ export = {
         const jobId = job.content.tjm.job_id;
         const { cluster } = job.content.tjm;
         job.addMetaData(jobId, cluster);
-        _.unset(job.content, 'tjm');
+        unset(job.content, 'tjm');
         job.overwrite();
         reply.green(`Converted ${argv.jobFile} to be compatable with all teraslice-cli tjm commands`);
     }

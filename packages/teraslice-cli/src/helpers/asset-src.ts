@@ -1,5 +1,4 @@
 import { spawnSync } from 'child_process';
-import _ from 'lodash';
 import fs from 'fs-extra';
 import archiver from 'archiver';
 import path from 'path';
@@ -93,7 +92,7 @@ export default class AssetSrc {
         this._yarnCmd(path.join(tmpDir.name, 'asset'), ['--prod', '--no-progress']);
 
         // run yarn --cwd srcDir --prod --silent --no-progress asset:build
-        if (_.has(this.packageJson, ['scripts', 'asset:build'])) {
+        if (this.packageJson?.scripts && this.packageJson.scripts['asset:build']) {
             this._yarnCmd(tmpDir.name, ['run', 'asset:build']);
         }
 

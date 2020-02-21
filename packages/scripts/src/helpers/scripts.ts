@@ -115,13 +115,25 @@ export async function setup(): Promise<void> {
     await yarnRun('setup');
 }
 
-export async function yarnRun(script: string, args: string[] = [], cwd?: string) {
+export async function yarnRun(
+    script: string,
+    args: string[] = [],
+    cwd?: string,
+    env?: Record<string, string>,
+    log?: boolean
+) {
     const dir = cwd || getRootDir();
     const pkgJSON = await fse.readJSON(path.join(dir, 'package.json'));
     const hasScript = Boolean(get(pkgJSON, ['scripts', script]));
     if (!hasScript) return;
 
-    await fork({ cmd: 'yarn', args: ['run', script, ...args], cwd: dir });
+    const _args = ['run', script, ...args];
+    if (log) {
+        signale.info(`running yarn ${_args.join(' ')}...`);
+    }
+    await fork({
+        cmd: 'yarn', args: _args, cwd: dir, env
+    });
 }
 
 export async function runJest(
@@ -435,5 +447,8 @@ export async function yarnPublish(
             tag
         ],
         cwd: pkgInfo.dir,
+        env: {
+            NODE_ENV: 'production'
+        }
     });
 }
