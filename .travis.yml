@@ -3,6 +3,8 @@ dist: bionic
 os: linux
 language: node_js
 node_js: '10.19'
+# use a smaller depth for faster builds
+depth: 10
 
 cache:
   npm: false
