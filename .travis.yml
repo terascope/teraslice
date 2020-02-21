@@ -81,7 +81,7 @@ jobs:
       script: true
       deploy:
           - provider: script
-            cleanup: false
+            skip_cleanup: true
             script: yarn ts-scripts publish -t dev npm
 
     - script:
@@ -93,13 +93,13 @@ jobs:
       script: yarn test -- -- --verbose=false
       deploy:
           - provider: script
-            cleanup: false
+            skip_cleanup: true
             script: yarn ts-scripts publish npm
           - provider: script
-            cleanup: false
+            skip_cleanup: true
             script: ./scripts/publish-documentation.sh
           - provider: script
-            cleanup: false
+            skip_cleanup: true
             script: yarn ts-scripts publish -t dev docker
 
     - script:
@@ -110,13 +110,13 @@ jobs:
       script: true
       deploy:
         - provider: script
-          cleanup: false
+          skip_cleanup: true
           script: yarn ts-scripts publish -t tag npm
           on:
             all_branches: true
             tags: true
         - provider: script
-          cleanup: false
+          skip_cleanup: true
           script: yarn ts-scripts publish -t tag docker
           on:
             all_branches: true
@@ -130,5 +130,5 @@ jobs:
       script: true
       deploy:
         - provider: script
-          cleanup: false
+          skip_cleanup: true
           script: yarn ts-scripts publish -t daily docker
