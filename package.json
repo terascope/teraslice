@@ -23,8 +23,7 @@
         "docs": "ts-scripts docs",
         "lint": "eslint --cache --ext .js,.jsx,.ts,.tsx .",
         "lint:fix": "yarn lint --fix && yarn sync",
-        "quick:setup": "lerna link --force-local && lerna run prebuild && tsc --build",
-        "setup": "yarn && lerna link --force-local && ./scripts/build-cleanup.sh && lerna run prebuild && tsc --build && ts-scripts sync -q",
+        "setup": "yarn $YARN_SETUP_ARGS && lerna link --force-local && ./scripts/build-cleanup.sh && lerna run prebuild && tsc --build",
         "start": "node service.js",
         "sync": "ts-scripts sync",
         "test": "ts-scripts test"

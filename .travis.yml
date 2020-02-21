@@ -9,7 +9,9 @@ cache:
   yarn: false
 
 before_install: . ./scripts/ci-setup.sh
-install: yarn setup
+install:
+  - export YARN_SETUP_ARGS="--prod=false --no-cache --ignore-optional"
+  - yarn setup
 
 # set up build matrix
 # specify jobs (stages are serial, and scripts are parallel within a stage)

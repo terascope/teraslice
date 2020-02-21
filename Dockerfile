@@ -3,33 +3,17 @@ FROM terascope/node-base:10.19.0-1
 # [INSTALL AND BUILD PACKAGES]
 ENV NODE_ENV development
 
-COPY package.json yarn.lock lerna.json /app/source/
+COPY package.json yarn.lock lerna.json tsconfig.json /app/source/
 COPY .docker.yarnrc /app/source/.yarnrc
-
-# Add all of the packages and other required files
 COPY packages /app/source/packages
-
-# COPY the yarn offline cache
 COPY .yarn-offline-cache /app/source/.yarn-offline-cache
-
-# install the missing packages
-RUN yarn \
-    --prod=false \
-    --silent \
-    --no-cache \
-    --offline \
-    --frozen-lockfile \
-    --ignore-optional
-
 COPY types /app/source/types
-COPY tsconfig.json /app/source/
 COPY scripts /app/source/scripts
 
-# [BUILD THE PRODUCTION IMAGE]
 ENV NODE_ENV production
 
-# link and build the missing packages
-RUN yarn quick:setup
+ENV YARN_SETUP_ARGS "--prod=false --silent --no-cache --offline --frozen-lockfile --ignore-optional"
+RUN yarn setup
 
 # Create a smaller build
 RUN rm -rf .yarn-offline-cache/*.tar.gz
