@@ -17,7 +17,7 @@ install:
 # specify jobs (stages are serial, and scripts are parallel within a stage)
 jobs:
   # stop if given a reason
-  fast-finish: true
+  fast_finish: true
 
   include:
     - stage: "Verify"
