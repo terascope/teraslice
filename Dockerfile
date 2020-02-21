@@ -12,7 +12,7 @@ COPY scripts /app/source/scripts
 
 ENV NODE_ENV production
 
-ENV YARN_SETUP_ARGS "--prod=false --silent --no-cache --offline --frozen-lockfile --ignore-optional"
+ENV YARN_SETUP_ARGS "--prod=false --silent --no-cache --offline --frozen-lockfile"
 RUN yarn setup
 
 # Create a smaller build

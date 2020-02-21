@@ -4,7 +4,8 @@ os: linux
 language: node_js
 node_js: '10.19'
 # use a smaller depth for faster builds
-depth: 10
+git:
+  depth: 10
 
 cache:
   npm: false
@@ -12,7 +13,7 @@ cache:
 
 before_install: . ./scripts/ci-setup.sh
 install:
-  - export YARN_SETUP_ARGS="--prod=false --no-cache --ignore-optional"
+  - export YARN_SETUP_ARGS="--prod=false --no-cache"
   - yarn setup
 
 # set up build matrix
@@ -80,7 +81,7 @@ jobs:
       script: true
       deploy:
           - provider: script
-            skip_cleanup: true
+            cleanup: false
             script: yarn ts-scripts publish -t dev npm
 
     - script:
@@ -92,13 +93,13 @@ jobs:
       script: yarn test -- -- --verbose=false
       deploy:
           - provider: script
-            skip_cleanup: true
+            cleanup: false
             script: yarn ts-scripts publish npm
           - provider: script
-            skip_cleanup: true
+            cleanup: false
             script: ./scripts/publish-documentation.sh
           - provider: script
-            skip_cleanup: true
+            cleanup: false
             script: yarn ts-scripts publish -t dev docker
 
     - script:
@@ -109,13 +110,13 @@ jobs:
       script: true
       deploy:
         - provider: script
-          skip_cleanup: true
+          cleanup: false
           script: yarn ts-scripts publish -t tag npm
           on:
             all_branches: true
             tags: true
         - provider: script
-          skip_cleanup: true
+          cleanup: false
           script: yarn ts-scripts publish -t tag docker
           on:
             all_branches: true
@@ -129,5 +130,5 @@ jobs:
       script: true
       deploy:
         - provider: script
-          skip_cleanup: true
+          cleanup: false
           script: yarn ts-scripts publish -t daily docker
