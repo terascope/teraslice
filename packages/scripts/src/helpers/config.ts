@@ -1,6 +1,7 @@
-import isCI from 'is-ci';
 import { address } from 'ip';
 import { toBoolean, toSafeString } from '@terascope/utils';
+
+export const isCI = toBoolean(process.env.CI);
 
 const forceColor = process.env.FORCE_COLOR || '1';
 export const FORCE_COLOR = toBoolean(forceColor)

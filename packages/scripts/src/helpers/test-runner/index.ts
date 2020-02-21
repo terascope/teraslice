@@ -1,6 +1,5 @@
 import ms from 'ms';
 import path from 'path';
-import isCI from 'is-ci';
 import {
     debugLogger,
     chunk,
@@ -27,6 +26,7 @@ import * as utils from './utils';
 import signale from '../signale';
 import { getE2EDir } from '../packages';
 import { pullDevDockerImage } from '../publish/utils';
+import { isCI } from '../config';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 

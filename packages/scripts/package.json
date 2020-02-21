@@ -34,13 +34,11 @@
     "dependencies": {
         "@lerna/query-graph": "^3.18.5",
         "@terascope/utils": "^0.23.0",
-        "@types/is-ci": "^2.0.0",
         "codecov": "^3.6.5",
         "execa": "^4.0.0",
         "fs-extra": "^8.1.0",
         "got": "^9.6.0",
         "ip": "^1.1.5",
-        "is-ci": "^2.0.0",
         "lodash.defaultsdeep": "^4.6.1",
         "micromatch": "^4.0.2",
         "ms": "^2.1.2",

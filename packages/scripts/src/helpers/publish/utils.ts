@@ -1,5 +1,4 @@
 import ms from 'ms';
-import isCI from 'is-ci';
 import semver from 'semver';
 import { TSError } from '@terascope/utils';
 import {
@@ -12,6 +11,7 @@ import { PackageInfo } from '../interfaces';
 import signale from '../signale';
 import { getRemotePackageVersion, getPublishTag, isMainPackage } from '../packages';
 import { getDevDockerImage } from '../misc';
+import { isCI } from '../config';
 
 export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType): Promise<boolean> {
     if (pkgInfo.private) return false;

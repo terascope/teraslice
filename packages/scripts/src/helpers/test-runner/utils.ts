@@ -1,5 +1,4 @@
 import path from 'path';
-import isCI from 'is-ci';
 import fse from 'fs-extra';
 import {
     debugLogger,
@@ -236,8 +235,8 @@ export async function logE2E(dir: string, failed: boolean): Promise<void> {
 
     const errLogs = await getE2ELogs(dir, {
         LOG_LEVEL: 'INFO',
-        RAW_LOGS: isCI ? 'true' : 'false',
-        FORCE_COLOR: isCI ? '0' : '1',
+        RAW_LOGS: config.isCI ? 'true' : 'false',
+        FORCE_COLOR: config.isCI ? '0' : '1',
     });
     process.stderr.write(`${errLogs}\n`);
 }
