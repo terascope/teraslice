@@ -175,16 +175,8 @@ post_cleanup() {
         echoerr "* running yarn jest --clear-cache" &&
         yarn jest --clear-cache
 
-    prompt "Do you want to remove the node_modules?" &&
-        echoerr "* running rm -rf node_modules" &&
-        rm -rf node_modules
-
-    prompt "Do you want to rebuild the packages?" &&
-        echoerr "* running yarn setup" &&
-        yarn --force --check-files && yarn setup &&
-        echoerr "* running yarn --cwd e2e setup" &&
-        yarn --cwd e2e --force --check-files &&
-        yarn --cwd e2e setup
+    prompt "Do you want to reinstall and setup the packages?" &&
+        ./scripts/reinstall.sh
 
      prompt "Do you want to run lint:fix?" &&
         echoerr "* running yarn lint:fix" &&
