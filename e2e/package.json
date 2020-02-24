@@ -23,7 +23,7 @@
         "clean": "docker-compose down --volumes --remove-orphans --timeout=5",
         "logs": "./scripts/logs.sh",
         "logs-follow": "./scripts/logs.sh -f",
-        "setup": "yarn",
+        "setup": "yarn $YARN_SETUP_ARGS",
         "test": "../node_modules/.bin/ts-scripts test --suite e2e --",
         "test:debug": "../node_modules/.bin/ts-scripts test --suite e2e --debug --",
         "test:watch": "../node_modules/.bin/ts-scripts test --suite e2e --watch --"

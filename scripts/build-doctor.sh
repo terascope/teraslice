@@ -22,7 +22,7 @@ USAGE
 
 prompt() {
     local question="$1"
-    local option="$2"
+    local option="${2:-recommended}"
 
     if [ "$CI" == "true" ] || [ "$SAY_YES" == "true" ]; then
         if [ "$option" == "optional" ]; then
