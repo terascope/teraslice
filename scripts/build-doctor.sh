@@ -126,7 +126,7 @@ cleanup_e2e_tests() {
     ps_result="$(docker-compose --project-directory "./e2e" -f "./e2e/docker-compose.yml" ps -q 2>/dev/null)"
     if [ -n "$ps_result" ]; then
         echoerr "* removing running e2e test docker containers" &&
-            yarn run --cwd="./e2e" clean
+            yarn run --cwd="./e2e" clean || echo '* it is okay'
     fi
 
     for asset in e2e/autoload/*; do
@@ -173,7 +173,7 @@ post_cleanup() {
 
     prompt "Do you want to clear your jest cache?" "optional" &&
         echoerr "* running yarn jest --clear-cache" &&
-        yarn jest --clear-cache
+        yarn jest --clear-cache || echo '* it is okay'
 
     prompt "Do you want to reinstall and setup the packages?" &&
         ./scripts/reinstall.sh

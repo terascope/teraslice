@@ -13,7 +13,7 @@ cache:
 
 before_install: . ./scripts/ci-setup.sh
 install:
-  - export YARN_SETUP_ARGS="--prod=false --no-cache"
+  - export YARN_SETUP_ARGS="--prod=false --offline --silent"
   - yarn setup
 
 # set up build matrix
