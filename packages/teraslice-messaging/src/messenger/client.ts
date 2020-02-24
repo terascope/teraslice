@@ -5,7 +5,7 @@ import {
 } from '@terascope/utils';
 import * as i from './interfaces';
 import { Core } from './core';
-import { newMsgId } from '../utils';
+import { newMsgId, waitForTcpPortOpen } from '../utils';
 
 const _logger = debugLogger('teraslice-messaging:client');
 
@@ -111,6 +111,19 @@ export class Client extends Core {
     async connect() {
         if (this.socket.connected) {
             return;
+        }
+
+        try {
+            const { hostname, port } = new URL(this.hostUrl);
+            await waitForTcpPortOpen({
+                host: hostname,
+                port,
+                logger: this.logger,
+                retryTimeout: this.connectTimeout
+            });
+        } catch (err) {
+            // FIXME: I am unfamiliar with this messaging code, is it OK to throw?
+            throw new Error(`Could not connect to execution controller at: ${this.hostUrl}`);
         }
 
         await this._connect(this.connectTimeout);

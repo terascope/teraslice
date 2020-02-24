@@ -41,9 +41,9 @@ export function formatURL(hostname = os.hostname(), port: number): string {
 export async function waitForTcpPortOpen(options: {
     retryFrequency?: number;
     retryTimeout?: number;
-    port?: any;
-    host?: any;
-    logger?: any;
+    port: any;
+    host: any;
+    logger: any;
 }) {
     let retrying = false;
     let now = Date.now();
