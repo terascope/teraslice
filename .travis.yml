@@ -13,7 +13,7 @@ cache:
 
 before_install: . ./scripts/ci-setup.sh
 install:
-  - export YARN_SETUP_ARGS="--prod=false --no-cache"
+  - export YARN_SETUP_ARGS="--prod=false --offline --silent"
   - yarn setup
 
 # set up build matrix
@@ -97,10 +97,11 @@ jobs:
             script: yarn ts-scripts publish npm
           - provider: script
             skip_cleanup: true
-            script: ./scripts/publish-documentation.sh
+            script: yarn ts-scripts publish -t dev docker
+          # this should be last
           - provider: script
             skip_cleanup: true
-            script: yarn ts-scripts publish -t dev docker
+            script: ./scripts/publish-documentation.sh
 
     - script:
       name: 'Create Tag Release'

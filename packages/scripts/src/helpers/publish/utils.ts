@@ -3,7 +3,6 @@ import semver from 'semver';
 import { TSError } from '@terascope/utils';
 import {
     getCommitHash,
-    dockerPull,
     dockerBuild,
 } from '../scripts';
 import { PublishType } from './interfaces';
@@ -11,7 +10,6 @@ import { PackageInfo } from '../interfaces';
 import signale from '../signale';
 import { getRemotePackageVersion, getPublishTag, isMainPackage } from '../packages';
 import { getDevDockerImage } from '../misc';
-import { isCI } from '../config';
 
 export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType): Promise<boolean> {
     if (pkgInfo.private) return false;
@@ -103,22 +101,4 @@ export async function buildDevDockerImage(cacheFromPrev?: boolean): Promise<stri
 
     signale.success(`built docker image ${devImage}, took ${ms(Date.now() - startTime)}`);
     return devImage;
-}
-
-export async function pullDevDockerImage(): Promise<string> {
-    const devImage = getDevDockerImage();
-
-    let pulled = false;
-    if (isCI) {
-        try {
-            signale.debug(`pulling ${devImage}...`);
-            await dockerPull(devImage);
-            signale.debug(`pulled ${devImage}`);
-            pulled = true;
-        } catch (err) {
-            // do nothing
-        }
-    }
-
-    return buildDevDockerImage(pulled);
 }
