@@ -119,12 +119,10 @@ export class Client extends Core {
                 host: hostname,
                 port,
                 logger: this.logger,
-                // FIXME: I don't have acces to context, should I use connectTimeout?
                 retryTimeout: this.connectTimeout
             });
         } catch (err) {
-            // FIXME: I am unfamiliar with this messaging code, is it OK to throw?
-            throw new Error(`Could not connect to: ${this.hostUrl}`);
+            throw new Error(`Unable to connect to ${this.hostUrl} after ${ms(this.connectTimeout)}`);
         }
 
         await this._connect(this.connectTimeout);
