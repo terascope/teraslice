@@ -1,10 +1,4 @@
 import {
-    sortBy,
-    map,
-    groupBy,
-    times
-} from 'lodash';
-import {
     SlicerExecutionContext,
     JobConfig,
     Slice,
@@ -14,6 +8,7 @@ import {
     SlicerCore,
     TSError,
     SlicerRecoveryData,
+    times,
     isPlainObject,
 } from '@terascope/job-components';
 import BaseTestHarness from './base-test-harness';
@@ -93,10 +88,17 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
 
         const slices = this.slicer().getSlices(10000);
         const sliceRequests = [];
-        const slicesBySlicers = Object.values(groupBy(slices, 'slicer_id'));
+        const slicesBySlicers: (Slice[])[] = [];
+
+        for (const slice of slices) {
+            if (slicesBySlicers[slice.slicer_id] == null) {
+                slicesBySlicers[slice.slicer_id] = [];
+            }
+            slicesBySlicers[slice.slicer_id].push(slice);
+        }
 
         for (const perSlicer of slicesBySlicers) {
-            const sorted = sortBy(perSlicer, 'slicer_order');
+            const sorted = perSlicer.sort((a, b) => a.slicer_order - b.slicer_order);
             sorted.forEach((slice) => {
                 this.executionContext.onSliceEnqueued(slice);
             });
@@ -104,7 +106,7 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
             if (fullResponse) {
                 sliceRequests.push(...sorted);
             } else {
-                const mapped = map(sorted, 'request');
+                const mapped = sorted.map(({ request }) => request);
                 sliceRequests.push(...mapped);
             }
         }

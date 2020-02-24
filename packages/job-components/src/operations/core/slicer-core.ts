@@ -1,5 +1,7 @@
 import uuidv4 from 'uuid/v4';
-import Queue from '@terascope/queue';
+import {
+    Queue
+} from '@terascope/utils';
 import {
     OpConfig,
     ExecutionConfig,

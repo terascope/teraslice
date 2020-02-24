@@ -3,7 +3,7 @@
 
 import path from 'path';
 import fs from 'fs-extra';
-import _ from 'lodash';
+import { has } from '@terascope/utils';
 import AssetSrc from '../../helpers/asset-src';
 import GithubAsset from '../../helpers/github-asset';
 
@@ -126,7 +126,7 @@ export = {
                 const assetToReplace = clusterAssetData
                     .filter((clusterAsset: any) => clusterAsset.version === asset.version)[0];
 
-                if (_.has(assetToReplace, 'id')) {
+                if (has(assetToReplace, 'id')) {
                     const response = await terasliceClient.assets.delete(assetToReplace.id);
                     if (!cliConfig.args.quiet) {
                         // Support different teraslice api/client versions

@@ -1,5 +1,5 @@
 import fs from 'fs';
-import _ from 'lodash';
+import { has } from '@terascope/utils';
 // @ts-ignore
 import yaml from 'node-yaml';
 import displayModule from '../cmds/lib/display';
@@ -39,7 +39,7 @@ export default class Aliases {
     //   1: a valid URL
     //   2: an actual cluster that responds
     add(newClusterAlias: string, newClusterUrl: string) {
-        if (_.has(this.config.clusters, newClusterAlias)) {
+        if (has(this.config.clusters, newClusterAlias)) {
             throw new Error(`${newClusterAlias} already exists`);
         } else {
             this.config.clusters[newClusterAlias] = {
@@ -51,20 +51,21 @@ export default class Aliases {
 
     list(output = 'txt') {
         const header = ['cluster', 'host'];
-        const clusters = _.map(
-            _.mapValues(this.config.clusters, (o) => o.host),
-            (value, key) => ({ cluster: key, host: value })
-        );
+        const clusters: any[] = [];
+        Object.entries(this.config.clusters)
+            .forEach(([cluster, val]: [string, any]) => {
+                clusters.push({ cluster, host: val.host });
+            });
 
         display.display(header, clusters, output);
     }
 
     present(alias: string) {
-        return _.has(this.config.clusters, alias);
+        return has(this.config.clusters, alias);
     }
 
     remove(clusterAlias: string) {
-        if (_.has(this.config.clusters, clusterAlias)) {
+        if (has(this.config.clusters, clusterAlias)) {
             delete this.config.clusters[clusterAlias];
             yaml.writeSync(this.aliasesFile, this.config);
         } else {
@@ -73,7 +74,7 @@ export default class Aliases {
     }
 
     update(clusterAlias: string, newClusterUrl: string) {
-        if (_.has(this.config.clusters, clusterAlias)) {
+        if (has(this.config.clusters, clusterAlias)) {
             this.config.clusters[clusterAlias] = {
                 host: newClusterUrl,
             };

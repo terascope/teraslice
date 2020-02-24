@@ -1,10 +1,10 @@
 'use strict';
 
 const fs = require('fs');
-const _ = require('lodash');
 const path = require('path');
 const chalk = require('chalk');
 const yosay = require('yosay');
+const { toKebabCase, trim } = require('@terascope/utils');
 const Generator = require('yeoman-generator');
 const genPackageJSON = require('./utils/package-json');
 
@@ -26,7 +26,7 @@ module.exports = class extends Generator {
             license,
             version
         } = this.fs.readJSON(pkgJsonPath, {
-            name: _.kebabCase(appName),
+            name: toKebabCase(appName),
             description: 'A Teraslice package',
             license: 'MIT',
             version: '0.1.0'
@@ -44,19 +44,19 @@ module.exports = class extends Generator {
                 type: 'input',
                 name: 'name',
                 message: 'What is the package name?',
-                default: _.trim(config.name || name),
+                default: trim(config.name || name),
                 transform(input) {
                     if (name.includes('@terascope')) {
-                        return _.trim(input);
+                        return trim(input);
                     }
-                    return _.kebabCase(_.trim(input));
+                    return toKebabCase(trim(input));
                 }
             },
             {
                 type: 'input',
                 name: 'description',
                 message: 'Describe what this package does?',
-                default: _.trim(description || config.description)
+                default: trim(description || config.description)
             },
             {
                 type: 'confirm',
@@ -82,7 +82,7 @@ module.exports = class extends Generator {
                 type: 'list',
                 name: 'license',
                 message: 'What is the license for this package?',
-                default: _.trim(license),
+                default: trim(license),
                 choices: ['MIT', 'Apache-2.0'],
             }
         ];

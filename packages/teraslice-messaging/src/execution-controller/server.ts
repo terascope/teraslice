@@ -1,5 +1,4 @@
-import { isNumber, get } from '@terascope/utils';
-import Queue from '@terascope/queue';
+import { isNumber, get, Queue } from '@terascope/utils';
 import * as core from '../messenger';
 import * as i from './interfaces';
 

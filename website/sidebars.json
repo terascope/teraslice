@@ -64,6 +64,14 @@
             },
             {
                 "type": "subcategory",
+                "label": "data-mate",
+                "ids": [
+                    "packages/data-mate/overview",
+                    "packages/data-mate/api/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
                 "label": "elasticsearch-store",
                 "ids": [
                     "packages/elasticsearch-store/overview",
@@ -83,14 +91,6 @@
                 "ids": [
                     "packages/job-components/overview",
                     "packages/job-components/api/overview"
-                ]
-            },
-            {
-                "type": "subcategory",
-                "label": "queue",
-                "ids": [
-                    "packages/queue/overview",
-                    "packages/queue/api/overview"
                 ]
             },
             {
@@ -144,6 +144,22 @@
             },
             {
                 "type": "subcategory",
+                "label": "xlucene-parser",
+                "ids": [
+                    "packages/xlucene-parser/overview",
+                    "packages/xlucene-parser/api/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "xlucene-translator",
+                "ids": [
+                    "packages/xlucene-translator/overview",
+                    "packages/xlucene-translator/api/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
                 "label": "utils",
                 "ids": [
                     "packages/utils/overview",
@@ -152,13 +168,6 @@
             }
         ],
         "Legacy": [
-            {
-                "type": "subcategory",
-                "label": "error-parser",
-                "ids": [
-                    "packages/error-parser/overview"
-                ]
-            },
             {
                 "type": "subcategory",
                 "label": "teraslice-op-test-harness",

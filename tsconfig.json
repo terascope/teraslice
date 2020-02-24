@@ -35,9 +35,6 @@
             "path": "packages/scripts"
         },
         {
-            "path": "packages/queue"
-        },
-        {
             "path": "packages/docker-compose-js"
         },
         {

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { unset, get } from '@terascope/utils';
 import TjmUtil from '../../helpers/tjm-util';
 import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
@@ -30,12 +30,11 @@ const cmd: CMD = {
         const jobJson = job.content;
 
         // remove metadata from the jobJson before sending it to the cluster
-        _.unset(jobJson, '__metadata');
+        unset(jobJson, '__metadata');
 
         try {
             const update = await client.cluster.put(`/jobs/${job.id}`, jobJson);
-            // @ts-ignore TODO: review this
-            if (!_.get(update, 'job_id') === job.job_id) {
+            if (get(update, 'job_id') !== job.id) {
                 reply.fatal(`Could not be updated job ${job.id} on ${job.clusterUrl}`);
             }
         } catch (e) {

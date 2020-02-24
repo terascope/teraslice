@@ -17,6 +17,7 @@
 .cache
 .*cache
 .vscode
+!.yarn-offline-cache
 docs
 assets
 autoload

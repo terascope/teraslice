@@ -1,4 +1,3 @@
-import isCI from 'is-ci';
 import path from 'path';
 import semver from 'semver';
 import { getFirstChar, uniq, trim } from '@terascope/utils';
@@ -8,6 +7,7 @@ import { PackageInfo, RootPackageInfo } from '../interfaces';
 import { formatList, getRootDir } from '../misc';
 import { getChangedFiles, gitDiff } from '../scripts';
 import { DepKey, SyncOptions } from './interfaces';
+import { isCI } from '../config';
 import signale from '../signale';
 
 const topLevelFiles: readonly string[] = [

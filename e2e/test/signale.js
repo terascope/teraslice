@@ -6,9 +6,6 @@ module.exports = new Signale({
     logLevel: 'info',
     stream: process.stderr,
     types: {
-        log: {
-            stream: [process.stdout]
-        },
         debug: {
             color: 'cyan'
         },

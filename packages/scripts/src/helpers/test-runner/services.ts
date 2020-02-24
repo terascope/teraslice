@@ -61,19 +61,24 @@ export async function pullServices(suite: string, options: TestOptions) {
     const launchServices = getServicesForSuite(suite);
 
     try {
-        const promises: Promise<void>[] = [];
+        const images: string[] = [];
 
         if (launchServices.includes(Service.Elasticsearch)) {
             const image = `${config.ELASTICSEARCH_DOCKER_IMAGE}:${options.elasticsearchVersion}`;
-            promises.push(dockerPull(image));
+            images.push(image);
         }
 
         if (launchServices.includes(Service.Kafka)) {
             const image = `${config.KAFKA_DOCKER_IMAGE}:${options.kafkaVersion}`;
-            promises.push(dockerPull(image));
+            images.push(image);
         }
 
-        await Promise.all(promises);
+        await Promise.all(images.map(async (image) => {
+            const label = `docker pull ${image}`;
+            signale.time(label);
+            await dockerPull(image);
+            signale.timeEnd(label);
+        }));
     } catch (err) {
         throw new ts.TSError(err, {
             message: `Failed to pull services for test suite "${suite}"`,

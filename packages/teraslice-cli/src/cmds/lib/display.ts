@@ -5,12 +5,12 @@ import ttyTable from 'tty-table';
 // @ts-ignore
 import CliTable from 'cli-table3';
 import easyTable from 'easy-table';
-import _ from 'lodash';
 import prompts from 'prompts';
+import { toTitleCase } from '@terascope/utils';
 
 async function pretty(headerValues: any, rows: any) {
     const header: any[] = [];
-    _.each(headerValues, (item) => {
+    headerValues.forEach((item: any) => {
         const col: any = [];
         col.value = item;
         header.push(col);
@@ -31,7 +31,7 @@ async function pretty(headerValues: any, rows: any) {
 async function horizontal(rows: any, opts: any) {
     const table = new CliTable(opts);
 
-    _.each(rows, (item) => {
+    rows.forEach((item: any) => {
         table.push(item);
     });
 
@@ -39,11 +39,11 @@ async function horizontal(rows: any, opts: any) {
 }
 
 async function vertical(header: any, rows: any, style: any) {
-    _.each(rows, (keys) => {
+    rows.forEach((keys: any) => {
         const table = new CliTable(style);
 
         console.log(`\n${header} -> ${keys[header]}`);
-        _.each(keys, (value, key) => {
+        Object.entries(keys).forEach(([key, value]) => {
             const val: any = {};
             val[key] = value;
             table.push(val);
@@ -54,9 +54,9 @@ async function vertical(header: any, rows: any, style: any) {
 
 async function text(headerValues: any, items: any) {
     const rows: any[] = [];
-    _.each(items, (item) => {
+    items.forEach((item: any) => {
         const row = {};
-        _.each(headerValues, (headerValue) => {
+        headerValues.forEach((headerValue: any) => {
             row[headerValue] = item[headerValue];
         });
         rows.push(row);
@@ -78,22 +78,22 @@ async function text(headerValues: any, items: any) {
 */
 async function parseResponse(header: any, response: any, active = false, id?: string) {
     const rows: any[] = [];
-    _.each(response, (value, key) => {
+    Object.entries(response).forEach(([key, value]: [string, any]) => {
         let row: any[] = [];
         if (active) {
-            _.each(response[key].active, (activeValue) => {
+            value.active.forEach((activeValue: any) => {
                 row = [];
                 // filter by id
                 if (id === undefined || activeValue.job_id === id || activeValue.ex_id === id) {
-                    _.each(header, (item) => {
+                    header.forEach((item: any) => {
                         if (item === 'teraslice_version') {
-                            row.push(response[key].teraslice_version);
+                            row.push(value.teraslice_version);
                         } else if (item === 'node_id') {
-                            row.push(response[key].node_id);
+                            row.push(value.node_id);
                         } else if (item === 'hostname') {
-                            row.push(response[key].hostname);
+                            row.push(value.hostname);
                         } else if (item === 'node_version') {
-                            row.push(response[key].node_version);
+                            row.push(value.node_version);
                         } else {
                             row.push(activeValue[item]);
                         }
@@ -102,7 +102,7 @@ async function parseResponse(header: any, response: any, active = false, id?: st
                 }
             });
         } else {
-            _.each(header, (item) => {
+            header.forEach((item: any) => {
                 if (item === 'active') {
                     row.push(response[key][item].length);
                 } else {
@@ -228,7 +228,7 @@ export default function displayModule() {
             name: 'continue',
             initial: false,
             style: 'default',
-            message: `${_.startCase(action)} ${message}`
+            message: `${toTitleCase(action)} ${message}`
         });
 
         return response.continue;

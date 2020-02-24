@@ -1,8 +1,8 @@
 'use strict';
 
 const sortBy = require('lodash/sortBy');
-const Queue = require('@terascope/queue');
 const {
+    Queue,
     TSError,
     getFullErrorStack,
     logError,

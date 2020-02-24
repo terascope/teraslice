@@ -1,7 +1,7 @@
 {
     "name": "teraslice-cli",
     "displayName": "Teraslice CLI",
-    "version": "0.16.0",
+    "version": "0.16.1",
     "description": "Command line manager for teraslice jobs, assets, and cluster references.",
     "keywords": [
         "teraslice"
@@ -13,11 +13,6 @@
     "repository": "git@github.com:terascope/teraslice.git",
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
-    "files": [
-        "bin/**/*",
-        "generator-templates/**/*",
-        "dist/src/**/*"
-    ],
     "main": "dist/src/command.js",
     "typings": "dist/src/index.d.ts",
     "bin": {
@@ -28,17 +23,21 @@
         "lib": "dist/src",
         "test": "test"
     },
+    "files": [
+        "bin/**/*",
+        "generator-templates/**/*",
+        "dist/src/**/*"
+    ],
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "prepublishOnly": "yarn build",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
         "@terascope/fetch-github-release": "^0.6.0",
-        "@terascope/utils": "^0.23.0",
+        "@terascope/utils": "^0.23.1",
         "archiver": "^3.0.0",
         "bluebird": "^3.7.2",
         "chalk": "^3.0.0",
@@ -46,13 +45,12 @@
         "easy-table": "^1.1.1",
         "fs-extra": "^8.1.0",
         "js-yaml": "^3.13.1",
-        "lodash": "^4.17.11",
         "node-yaml": "^4.0.0",
         "prompts": "^2.1.0",
         "request": "^2.88.0",
         "request-promise": "^4.2.5",
         "signale": "^1.4.0",
-        "teraslice-client-js": "^0.14.0",
+        "teraslice-client-js": "^0.14.1",
         "tmp": "^0.1.0",
         "tty-table": "^2.8.7",
         "yargs": "^15.1.0",
