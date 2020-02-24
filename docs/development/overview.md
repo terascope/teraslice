@@ -95,7 +95,11 @@ docker run -it --rm -v ./teraslice-master.yaml:/app/config/teraslice.yml terasli
     "files.watcherExclude": {
         "**/.git/objects/**": true,
         "**/.git/subtree-cache/**": true,
+        "**/.jest-cache/**": true,
         "**/.yarn-cache/**": true,
+        "**/.yarn/cache/**": true,
+        "**/.yarn-offline-cache/**": true,
+        "**/.babel-cache/**": true,
         "**/build/**": true,
         "**/coverage/**": true,
         "**/node_modules/**": true,
@@ -104,7 +108,11 @@ docker run -it --rm -v ./teraslice-master.yaml:/app/config/teraslice.yml terasli
         "assets/**": true
     },
     "search.exclude": {
-        "**/.yarn-cache": true,
+        "**/.jest-cache/**": true,
+        "**/.yarn-cache/**": true,
+        "**/.yarn/cache/**": true,
+        "**/.yarn-offline-cache/**": true,
+        "**/.babel-cache/**": true,
         "**/bower_components/**": true,
         "**/build/**": true,
         "**/coverage/**": true,
