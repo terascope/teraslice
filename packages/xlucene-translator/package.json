@@ -1,7 +1,7 @@
 {
     "name": "xlucene-translator",
     "displayName": "xLucene Translator",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "description": "Translate xlucene query to database queries",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-translator#readme",
     "repository": {
@@ -10,6 +10,7 @@
     },
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
+    "sideEffects": false,
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
     "directories": {
@@ -27,9 +28,9 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/types": "^0.1.1",
-        "@terascope/utils": "^0.23.1",
-        "xlucene-parser": "^0.18.1"
+        "@terascope/types": "^0.1.2",
+        "@terascope/utils": "^0.23.2",
+        "xlucene-parser": "^0.18.2"
     },
     "devDependencies": {
         "elasticsearch": "^15.4.1"

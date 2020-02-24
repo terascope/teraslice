@@ -32,7 +32,7 @@
     },
     "dependencies": {
         "@lerna/query-graph": "^3.18.5",
-        "@terascope/utils": "^0.23.1",
+        "@terascope/utils": "^0.23.2",
         "codecov": "^3.6.5",
         "execa": "^4.0.0",
         "fs-extra": "^8.1.0",

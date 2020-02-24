@@ -1,7 +1,7 @@
 {
     "name": "xlucene-parser",
     "displayName": "xLucene Parser",
-    "version": "0.18.1",
+    "version": "0.18.2",
     "description": "Flexible Lucene-like evalutor and language parser",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-parser#readme",
     "repository": {
@@ -10,6 +10,7 @@
     },
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
+    "sideEffects": false,
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
     "directories": {
@@ -32,8 +33,8 @@
         "@turf/clean-coords": "^6.0.1"
     },
     "dependencies": {
-        "@terascope/types": "^0.1.1",
-        "@terascope/utils": "^0.23.1",
+        "@terascope/types": "^0.1.2",
+        "@terascope/utils": "^0.23.2",
         "@turf/bbox": "^6.0.1",
         "@turf/bbox-polygon": "^6.0.1",
         "@turf/boolean-contains": "^6.0.1",
