@@ -6,7 +6,7 @@ import { PublishAction, PublishOptions, PublishType } from './interfaces';
 import {
     shouldNPMPublish,
     formatDailyTag,
-    pullDevDockerImage,
+    buildDevDockerImage,
 } from './utils';
 import {
     yarnPublish,
@@ -61,7 +61,7 @@ async function publishToDocker(options: PublishOptions) {
 
     const { registries } = rootInfo.terascope.docker;
 
-    const devImage = await pullDevDockerImage();
+    const devImage = await buildDevDockerImage();
 
     for (const registry of registries) {
         let imageToBuild = '';
