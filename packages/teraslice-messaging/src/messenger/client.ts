@@ -122,7 +122,7 @@ export class Client extends Core {
                 retryTimeout: this.connectTimeout
             });
         } catch (err) {
-            throw new Error(`Unable to connect to ${this.hostUrl} after ${ms(this.connectTimeout)}`);
+            throw new Error(`Unable to connect to ${this.serverName} at ${this.hostUrl} after ${ms(this.connectTimeout)}`);
         }
 
         await this._connect(this.connectTimeout);
