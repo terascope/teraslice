@@ -572,6 +572,41 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         });
     }
 
+    function msearch(query) {
+        const esVersion = getESVersion();
+        if (esVersion >= 7) {
+            if (query._sourceExclude) {
+                query._sourceExcludes = query._sourceExclude.slice();
+                delete query._sourceExclude;
+            }
+            if (query._sourceInclude) {
+                query._sourceIncludes = query._sourceInclude.slice();
+                delete query._sourceInclude;
+            }
+        }
+        return _msearchES(query).then((data) => {
+            if (config.full_response) {
+                return data;
+            }
+            const resultData = [];
+            try {
+                const results = data.map((doc) => doc.hits.hits);
+                for (const result of results) {
+                    resultData.push(result.map((doc) => doc._source));
+                }
+            } catch (error) {
+                logger.error(error);
+            }
+
+            return resultData;
+        });
+    }
+
+    async function _msearchES(query) {
+        const result = await _clientRequest('msearch', query);
+        return result.responses;
+    }
+
     /**
      * Wait for the client to be available before resolving,
      * this will also naturally stagger many in-flight requests
@@ -1027,6 +1062,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
 
     return {
         search,
+        msearch,
         count,
         get: getFn,
         mget,

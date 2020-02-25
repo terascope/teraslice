@@ -12,6 +12,7 @@ describe('elasticsearch-api', () => {
     let total = 0;
     let bulkError = false;
     let searchError = false;
+    let msearchError = false;
     let elasticDown = false;
     let recoverError = false;
     let changeMappings = false;
@@ -25,6 +26,7 @@ describe('elasticsearch-api', () => {
     beforeEach(() => {
         searchQuery = null;
         searchError = false;
+        msearchError = false;
         failed = 0;
         failures = [];
         bulkError = false;
@@ -49,6 +51,47 @@ describe('elasticsearch-api', () => {
                 total,
                 hits: recordsReturned
             }
+        };
+    }
+    function getDataMsearch() {
+        return {
+            responses: [{
+                _shards: {
+                    failed: 0, skipped: 0, successful: 10, total: 10
+                },
+                hits: {
+                    hits: [{
+                        _source: {
+                            test_field: 'test1'
+                        },
+                        _type: '_doc'
+                    }, {
+                        _source: {
+                            test_field: 'test2',
+                        },
+                        _type: '_doc'
+                    }],
+                    total: 2
+                },
+            }, {
+                _shards: {
+                    failed: 0, skipped: 0, successful: 10, total: 10
+                },
+                hits: {
+                    hits: [{
+                        _source: {
+                            test_field: 'test3'
+                        },
+                        _type: '_doc'
+                    }, {
+                        _source: {
+                            test_field: 'test4'
+                        },
+                        _type: '_doc'
+                    }],
+                    total: 2
+                },
+            }]
         };
     }
 
@@ -226,6 +269,11 @@ describe('elasticsearch-api', () => {
             if (searchError) return Promise.reject(searchError);
             return Promise.resolve(getData());
         },
+        msearch: (_query) => {
+            searchQuery = _query;
+            if (msearchError) return Promise.reject(msearchError);
+            return Promise.resolve(getDataMsearch());
+        },
         reindex: () => {
             reindexCalled = true;
             return Promise.resolve(true);
@@ -292,6 +340,8 @@ describe('elasticsearch-api', () => {
         expect(typeof api).toEqual('object');
         expect(api.search).toBeDefined();
         expect(typeof api.search).toEqual('function');
+        expect(api.msearch).toBeDefined();
+        expect(typeof api.msearch).toEqual('function');
         expect(api.count).toBeDefined();
         expect(typeof api.count).toEqual('function');
         expect(api.get).toBeDefined();
@@ -968,5 +1018,75 @@ describe('elasticsearch-api', () => {
         expect(reindexCalled).toEqual(true);
         expect(indicesDeleteCalled).toEqual(true);
         expect(indicesPutAliasCalled).toEqual(true);
+    });
+
+    it('can msearch (full-response)', async () => {
+        const query = {
+            body: [
+                { index: 'test' },
+                { query: 'someQuery1' },
+                { index: 'test' },
+                { query: 'someQuery2' }
+            ]
+        };
+        const apiFullResponse = esApi(client, logger, { full_response: true });
+        const resultsFullResponse = await apiFullResponse.msearch(query);
+        expect(resultsFullResponse[0]._shards.total).toBe(10);
+        expect(resultsFullResponse[1]._shards.total).toBe(10);
+        expect(resultsFullResponse[0].hits.hits[0]._source.test_field).toBe('test1');
+        expect(resultsFullResponse[0].hits.hits[1]._source.test_field).toBe('test2');
+        expect(resultsFullResponse[1].hits.hits[0]._source.test_field).toBe('test3');
+        expect(resultsFullResponse[1].hits.hits[1]._source.test_field).toBe('test4');
+    });
+    it('can msearch', async () => {
+        const query = {
+            body: [
+                { index: 'test' },
+                { query: 'someQuery1' },
+                { index: 'test' },
+                { query: 'someQuery2' }
+            ]
+        };
+        const api = esApi(client, logger);
+        const results = await api.msearch(query);
+
+        expect(results[0][0].test_field).toBe('test1');
+        expect(results[0][1].test_field).toBe('test2');
+        expect(results[1][0].test_field).toBe('test3');
+        expect(results[1][1].test_field).toBe('test4');
+    });
+    it('msearch can handle errors', async () => {
+        const query = {
+            body: [
+                { index: 'test' },
+                { query: 'someQuery1' },
+                { index: 'test' },
+                { query: 'someQuery2' }
+            ]
+        };
+        const api = esApi(client, logger);
+        let queryFailed = false;
+        msearchError = { body: { error: { type: 'es_rejected_execution_exception' } } };
+        recordsReturned = [{ _source: { some: 'data' } }];
+
+        const [results] = await Promise.all([
+            api.msearch(query),
+            waitFor(50, () => {
+                msearchError = false;
+            })
+        ]);
+        expect(results[0][0].test_field).toBe('test1');
+        expect(results[0][1].test_field).toBe('test2');
+        expect(results[1][0].test_field).toBe('test3');
+        expect(results[1][1].test_field).toBe('test4');
+
+        msearchError = { body: { responses: [{ error: { type: 'some_thing_else' } }] } };
+
+        try {
+            await api.msearch(query);
+        } catch (e) {
+            queryFailed = true;
+        }
+        return expect(queryFailed).toEqual(true);
     });
 });
