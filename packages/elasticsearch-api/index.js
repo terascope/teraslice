@@ -14,6 +14,7 @@ const {
     isString,
     castArray,
     flatten,
+    toBoolean,
     uniq,
     random,
     cloneDeep
@@ -63,6 +64,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             if (config.full_response) {
                 return data;
             }
+            if (!data.hits.hits) return [];
             return data.hits.hits.map((doc) => doc._source);
         });
     }
@@ -900,9 +902,10 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         const sysMapping = {};
         const index = Object.keys(mapping)[0];
         sysMapping[index] = { mappings: configMapping.mappings };
+        const { dynamic } = mapping[index].mappings[recordType];
         // elasticsearch for some reason converts false to 'false' for dynamic key
-        if (mapping[index].mappings[recordType].dynamic !== undefined) {
-            mapping[index].mappings[recordType].dynamic = 'false';
+        if (dynamic !== undefined) {
+            mapping[index].mappings[recordType].dynamic = toBoolean(dynamic);
         }
         const areEqual = isEqual(mapping, sysMapping);
         return { areEqual };
