@@ -64,6 +64,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             if (config.full_response) {
                 return data;
             }
+            if (!data.hits.hits) return [];
             return data.hits.hits.map((doc) => doc._source);
         });
     }
