@@ -94,3 +94,12 @@ export type FilteredResult<T, I extends(keyof T), E extends (keyof T)> = {
         P extends E ? never : T[P]
     )
 };
+
+/**
+ * From https://www.typescriptlang.org/docs/handbook/advanced-types.html#type-inference-in-conditional-types
+*/
+export type Unpacked<T> =
+T extends (infer U)[] ? U :
+    T extends (...args: any[]) => infer U ? U :
+        T extends Promise<infer U> ? U :
+            T;

@@ -7,6 +7,7 @@ import {
     parseError,
     isFatalError
 } from './errors';
+import { chunk } from './arrays';
 
 const logger = debugLogger('utils:promises');
 
@@ -359,4 +360,22 @@ export function pDefer() {
         reject: reject!,
         promise
     };
+}
+
+/**
+ * Similar to Bluebird.map, with concurrency control
+*/
+export async function pMap<T extends any[]>(
+    items: T,
+    fn: <K extends keyof T>(value: K, index: T[K]) => Promise<any>,
+    options?: { concurrency?: number }
+) {
+    const chunked = chunk(items, options?.concurrency || items.length);
+    let results: any[] = [];
+    for (const nextChunk of chunked) {
+        results = results.concat(
+            await Promise.all(nextChunk.map(fn))
+        );
+    }
+    return results;
 }
