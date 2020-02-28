@@ -104,7 +104,11 @@ module.exports = async function executionStorage(context) {
      */
 
     /**
-     * Format the execution error stats
+     * Format the execution error stats, primarly used for updating the
+     * status.
+     *
+     * If no error message is passed, it will reset the _has_errors and _failureReason.
+     * If execution stats is provided it will set the _slicer_stats
      *
      * @param stats {import(
      *  '../workers/execution-controller/execution-analytics.js'
@@ -114,7 +118,7 @@ module.exports = async function executionStorage(context) {
     */
     function executionMetaData(stats, errMsg) {
         const errMetadata = {
-            _has_errors: true,
+            _has_errors: false,
             _failureReason: ''
         };
         const statsMetadata = {};
