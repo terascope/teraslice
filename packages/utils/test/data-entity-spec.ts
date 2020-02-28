@@ -1,13 +1,15 @@
 import 'jest-extended'; // require for type definitions
 import {
     DataEntity,
-    parseJSON,
     DataEncoding,
     __IS_DATAENTITY_KEY,
     __ENTITY_METADATA_KEY,
+    DataEntityMetadata,
+} from '../src/entities';
+import {
+    parseJSON,
     cloneDeep,
     fastCloneDeep,
-    DataEntityMetadata,
     firstToLower,
 } from '../src';
 

@@ -42,10 +42,11 @@ export type Optional<T, K extends keyof T> = {
     [P in keyof T]: P extends K ? (NonNullable<T[P]> | undefined) : NonNullable<T[P]>
 };
 
+export type Nil = null|undefined;
 /**
  * Without null or undefined properties
  */
-export type WithoutNil<T> = { [P in keyof T]: T[P] extends (undefined | null) ? never : T[P] };
+export type WithoutNil<T> = { [P in keyof T]: T[P] extends Nil ? never : T[P] };
 
 /** A simple definitions of array */
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

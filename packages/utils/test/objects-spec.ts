@@ -1,13 +1,13 @@
 import 'jest-extended';
+import { DataEntity } from '../src/entities';
 import {
-    DataEntity,
     isPlainObject,
     has,
     getFirstKey,
     getFirstValue,
     withoutNil,
     filterObject,
-} from '../src';
+} from '../src/objects';
 
 describe('Objects', () => {
     class TestObj {

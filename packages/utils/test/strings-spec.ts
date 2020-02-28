@@ -12,7 +12,7 @@ import {
     toPascalCase,
     toSnakeCase,
     toKebabCase
-} from '../src';
+} from '../src/strings';
 
 describe('String Utils', () => {
     describe('toSafeString', () => {

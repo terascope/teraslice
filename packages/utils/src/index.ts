@@ -6,6 +6,7 @@ export * from './collector';
 export * from './entities';
 export * from './dates';
 export * from './errors';
+export * from './functions';
 export * from './geo';
 export * from './interfaces';
 export * from './logger';

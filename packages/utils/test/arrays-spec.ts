@@ -3,7 +3,7 @@ import {
     uniqBy,
     includes,
     sortBy,
-} from '../src';
+} from '../src/arrays';
 
 describe('Array Utils', () => {
     describe('uniqBy', () => {

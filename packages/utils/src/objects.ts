@@ -4,6 +4,7 @@ import unset from 'lodash.unset';
 import cloneDeep from 'lodash.clonedeep';
 import isPlainObject from 'is-plain-object';
 import { WithoutNil, FilteredResult } from './interfaces';
+import { isBooleanLike } from './utils';
 
 export function getFirstValue<T>(input: { [key: string]: T }): T | undefined {
     return Object.values(input)[0];
@@ -112,6 +113,53 @@ export function filterObject<
         });
 
     return result as FilteredResult<T, I, E>;
+}
+
+/**
+ * A typesafe get function (will always return the correct type)
+ *
+ * **IMPORTANT** This does not behave like lodash.get,
+ * it does not deal with dot notation (nested fields)
+ * and it will use the default when dealing with OR statements
+ */
+export function getField<V>(
+    input: undefined,
+    field: string,
+    defaultVal?: V
+): V;
+export function getField<T extends {}, P extends keyof T>(
+    input: T,
+    field: P
+): T[P];
+export function getField<T extends {}, P extends keyof T>(
+    input: T | undefined,
+    field: P
+): T[P];
+export function getField<T extends {}, P extends keyof T>(
+    input: T | undefined,
+    field: P,
+    defaultVal: never[]
+): T[P];
+export function getField<T extends {}, P extends keyof T, V>(
+    input: T | undefined,
+    field: P,
+    defaultVal: V
+): T[P] | V;
+export function getField<T extends {}, P extends keyof T, V extends T[P]>(
+    input: T | undefined,
+    field: P, defaultVal: V
+): T[P];
+export function getField<T, P extends keyof T, V>(
+    input: T,
+    field: P,
+    defaultVal?: V
+): any {
+    const result = get(input, field);
+    if (isBooleanLike(defaultVal)) {
+        if (result == null) return defaultVal;
+        return result;
+    }
+    return result || defaultVal;
 }
 
 // export a few dependencies
