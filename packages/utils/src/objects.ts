@@ -61,6 +61,28 @@ export function sortKeys<T extends object>(
     return result as T;
 }
 
+/** Map the values of an object */
+export function mapValues<T, R = T>(input: T, fn: (value: T[keyof T], key: (keyof T)) => any): R {
+    const result = Object.create(null) as Partial<R>;
+
+    for (const [key, val] of Object.entries(input)) {
+        result[key] = fn(val, key as keyof T);
+    }
+
+    return result as R;
+}
+
+/** Map the keys of an object */
+export function mapKeys<T, R = T>(input: T, fn: (value: T[keyof T], key: (keyof T)) => any): R {
+    const result = Object.create(null) as Partial<R>;
+
+    for (const [key, val] of Object.entries(input)) {
+        result[fn(val, key as keyof T)] = val;
+    }
+
+    return result as R;
+}
+
 /** Build a new object without null or undefined values (shallow) */
 export function withoutNil<T extends object>(input: T): WithoutNil<T> {
     const result: Partial<WithoutNil<T>> = Object.create(null);
