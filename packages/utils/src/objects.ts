@@ -42,6 +42,24 @@ export function fastAssign<T, U>(target: T, source: U) {
     return target;
 }
 
+/** Sort keys on an object */
+export function sortKeys<T extends object>(
+    input: T,
+    options: { deep?: boolean } = {}
+): T {
+    const result: Partial<T> = Object.create(null);
+
+    for (const key of Object.keys(input).sort()) {
+        if (options.deep && isPlainObject(input)) {
+            result[key] = sortKeys(input, options);
+        } else {
+            result[key] = input[key];
+        }
+    }
+
+    return result as T;
+}
+
 /** Build a new object without null or undefined values (shallow) */
 export function withoutNil<T extends object>(input: T): WithoutNil<T> {
     const result: Partial<WithoutNil<T>> = Object.create(null);
