@@ -3,6 +3,7 @@ import get from 'lodash.get';
 import unset from 'lodash.unset';
 import cloneDeep from 'lodash.clonedeep';
 import isPlainObject from 'is-plain-object';
+import { WithoutNil } from './interfaces';
 
 export function getFirstValue<T>(input: { [key: string]: T }): T | undefined {
     return Object.values(input)[0];
@@ -39,6 +40,19 @@ export function fastAssign<T, U>(target: T, source: U) {
     }
 
     return target;
+}
+
+/** Build a new object without null or undefined values (shallow) */
+export function withoutNil<T extends object>(input: T): WithoutNil<T> {
+    const result: Partial<WithoutNil<T>> = Object.create(null);
+
+    for (const key of Object.keys(input).sort()) {
+        if (input[key] != null) {
+            result[key] = input[key];
+        }
+    }
+
+    return result as WithoutNil<T>;
 }
 
 /**

@@ -1,46 +1,25 @@
 import 'jest-extended';
 import {
-    withoutNil,
+    uniqBy,
     includes,
 } from '../src';
 
 describe('Array Utils', () => {
-    describe('withoutNil', () => {
-        let input: any;
-        let output: any;
-
-        beforeEach(() => {
-            input = {
-                a: 1,
-                b: null,
-                c: 0,
-                d: undefined,
-                e: {
-                    example: true,
-                    other: null,
-                }
-            };
-
-            output = withoutNil(input);
+    describe('uniqBy', () => {
+        it('should be able to remove the uniq values by path', () => {
+            const input = [{ a: 1 }, { a: 2 }, { a: 1 }];
+            expect(uniqBy(input, 'a')).toStrictEqual([
+                { a: 1, },
+                { a: 2, },
+            ]);
         });
 
-        it('should copy the top level object', () => {
-            expect(output).not.toBe(input);
-        });
-
-        it('should not copy a nested object', () => {
-            expect(output.e).toBe(input.e);
-        });
-
-        it('should remove the nil values from the object', () => {
-            expect(output).toHaveProperty('a', 1);
-            expect(output).not.toHaveProperty('b');
-            expect(output).toHaveProperty('c', 0);
-            expect(output).not.toHaveProperty('d');
-            expect(output).toHaveProperty('e', {
-                example: true,
-                other: null,
-            });
+        it('should be able to remove the uniq values by function', () => {
+            const input = [{ a: 2 }, { a: 2 }, { a: 1 }];
+            expect(uniqBy(input, (obj) => obj.a + 1)).toStrictEqual([
+                { a: 2, },
+                { a: 1, },
+            ]);
         });
     });
 
@@ -57,9 +36,8 @@ describe('Array Utils', () => {
             [null, 'uhoh', false],
             ['hello', 'hello', true],
             ['foo', 'bar', false],
-        // @ts-ignore
         ])('should convert %j to be %j', (input: any, key: string, expected: boolean) => {
-            expect(includes(input, key)).toEqual(expected);
+            expect(includes(input, key)).toStrictEqual(expected);
         });
     });
 });

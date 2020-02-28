@@ -1,4 +1,5 @@
-import { Many, WithoutNil, ListOfRecursiveArraysOrValues } from './interfaces';
+import get from 'lodash.get';
+import { Many, ListOfRecursiveArraysOrValues } from './interfaces';
 
 /** A native implemation of lodash flatten */
 export function flatten<T>(val: Many<T[]>): T[] {
@@ -32,24 +33,32 @@ export function concat<T>(arr: T|T[], arr1?: T|T[]): T[] {
     );
 }
 
-/** Build a new object without null or undefined values (shallow) */
-export function withoutNil<T extends object>(input: T): WithoutNil<T> {
-    // @ts-ignore
-    const result: WithoutNil<T> = {};
-
-    for (const key of Object.keys(input).sort()) {
-        if (input[key] != null) {
-            result[key] = input[key];
-        }
-    }
-
-    return result;
-}
-
 /** A native implemation of lodash uniq */
 export function uniq<T>(arr: T[]|Set<T>): T[] {
     if (arr instanceof Set) return [...arr];
     return [...new Set(arr)];
+}
+
+/**
+ * Get the unique values by a path or function that returns the unique values
+*/
+export function uniqBy<T, V = any>(
+    values: T[]|readonly T[],
+    fnOrPath: ((value: T) => V)|string,
+): T[] {
+    const _values = new Set<V>();
+    const result: T[] = [];
+    for (const value of values) {
+        const uniqVal = typeof fnOrPath === 'function'
+            ? fnOrPath(value)
+            : get(value, fnOrPath);
+
+        if (uniqVal != null && !_values.has(uniqVal)) {
+            _values.add(uniqVal);
+            result.push(value);
+        }
+    }
+    return result;
 }
 
 /** A native implemation of lodash times */
