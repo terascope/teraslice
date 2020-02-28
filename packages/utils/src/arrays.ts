@@ -39,6 +39,49 @@ export function uniq<T>(arr: T[]|Set<T>): T[] {
     return [...new Set(arr)];
 }
 
+/** Sort an arr or set */
+export function sort<T>(
+    arr: T[]|Set<T>,
+    compare?: (a: T, b: T) => number
+): T[] {
+    if (arr instanceof Set) return [...arr].sort(compare);
+    if (Array.isArray(arr)) return arr.sort(compare);
+    return arr;
+}
+
+const numLike = Object.freeze({
+    bigint: true,
+    number: true,
+});
+
+/** Sort by path or function that returns the values to sort with */
+export function sortBy<T, V = any>(
+    arr: T[]|Set<T>,
+    fnOrPath: ((value: T) => V)|string,
+): T[] {
+    return sort(arr, (a, b) => {
+        const aVal = _getValFnOrPath(a, fnOrPath);
+        const bVal = _getValFnOrPath(b, fnOrPath);
+        if (numLike[typeof aVal] && numLike[typeof bVal]) {
+            return (aVal as any) - (bVal as any);
+        }
+        if (aVal < bVal) {
+            return -1;
+        }
+        if (aVal > bVal) {
+            return 1;
+        }
+        return 0;
+    });
+}
+
+function _getValFnOrPath<T, V = any>(value: T, fnOrPath: ((value: T) => V)|string): V {
+    const uniqVal = typeof fnOrPath === 'function'
+        ? fnOrPath(value)
+        : get(value, fnOrPath);
+    return uniqVal;
+}
+
 /**
  * Get the unique values by a path or function that returns the unique values
 */
@@ -49,10 +92,7 @@ export function uniqBy<T, V = any>(
     const _values = new Set<V>();
     const result: T[] = [];
     for (const value of values) {
-        const uniqVal = typeof fnOrPath === 'function'
-            ? fnOrPath(value)
-            : get(value, fnOrPath);
-
+        const uniqVal = _getValFnOrPath(value, fnOrPath);
         if (uniqVal != null && !_values.has(uniqVal)) {
             _values.add(uniqVal);
             result.push(value);

@@ -2,6 +2,7 @@ import 'jest-extended';
 import {
     uniqBy,
     includes,
+    sortBy,
 } from '../src';
 
 describe('Array Utils', () => {
@@ -19,6 +20,35 @@ describe('Array Utils', () => {
             expect(uniqBy(input, (obj) => obj.a + 1)).toStrictEqual([
                 { a: 2, },
                 { a: 1, },
+            ]);
+        });
+    });
+
+    describe('sortBy', () => {
+        it('should be able to sort values by path', () => {
+            const input = [{ a: 2 }, { a: 3 }, { a: 1 }, { a: '0' }];
+            expect(sortBy(input, 'a')).toStrictEqual([
+                { a: '0', },
+                { a: 1, },
+                { a: 2, },
+                { a: 3, },
+            ]);
+        });
+
+        it('should be able to sort string values by path', () => {
+            const input = [{ a: 'DD' }, { a: 'CC' }, { a: 'EE' }, { a: 'AA' }];
+            expect(sortBy(input, 'a')).toStrictEqual([
+                { a: 'AA', },
+                { a: 'CC', },
+                { a: 'DD', },
+                { a: 'EE', },
+            ]);
+        });
+
+        it('should be able to sort values by function', () => {
+            const input = [{ a: 2, b: 1 }, { a: 2, b: 0 }, { a: 2, b: 1 }];
+            expect(sortBy(input, (obj) => obj.a + obj.b)).toStrictEqual([
+                { a: 2, b: 0 }, { a: 2, b: 1 }, { a: 2, b: 1 }
             ]);
         });
     });
