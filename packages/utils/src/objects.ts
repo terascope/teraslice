@@ -3,7 +3,7 @@ import get from 'lodash.get';
 import unset from 'lodash.unset';
 import cloneDeep from 'lodash.clonedeep';
 import isPlainObject from 'is-plain-object';
-import { WithoutNil } from './interfaces';
+import { WithoutNil, FilteredResult } from './interfaces';
 
 export function getFirstValue<T>(input: { [key: string]: T }): T | undefined {
     return Object.values(input)[0];
@@ -65,6 +65,35 @@ export function isSimpleObject(input: any): input is object {
     if (input instanceof Set) return false;
     if (input instanceof Map) return false;
     return typeof input === 'object';
+}
+
+/**
+ * Filters the keys of an object, by list of included key and excluded
+*/
+export function filterObject<
+    T, I extends(keyof T), E extends (keyof T)
+>(data: T, by?: {
+    includes?: I[];
+    excludes?: E[];
+}): FilteredResult<T, I, E> {
+    const {
+        includes = [],
+        excludes = []
+    } = by || {};
+
+    const result: Partial<FilteredResult<T, I, E>> = Object.create(null);
+    Object.keys(data)
+        .filter((key) => {
+            const included = includes.length ? includes.includes(key as I) : true;
+            const excluded = excludes.length ? excludes.includes(key as E) : false;
+            return included && !excluded;
+        })
+        .sort()
+        .forEach((key) => {
+            result[key] = data[key];
+        });
+
+    return result as FilteredResult<T, I, E>;
 }
 
 // export a few dependencies

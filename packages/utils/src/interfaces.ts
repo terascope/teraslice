@@ -84,3 +84,12 @@ export type Filter<T, U> = T extends U ? T : never;
  * Get the types object (the opposite of keyof)
 */
 export type ValueOf<T> = T[keyof T];
+
+/**
+ * Filters the keys of an object (T), by list of included keys (I) and excluded (E)
+*/
+export type FilteredResult<T, I extends(keyof T), E extends (keyof T)> = {
+    [P in keyof T]: P extends I ? T[P] : (
+        P extends E ? never : T[P]
+    )
+};

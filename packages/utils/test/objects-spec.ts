@@ -4,7 +4,9 @@ import {
     isPlainObject,
     has,
     getFirstKey,
-    getFirstValue
+    getFirstValue,
+    withoutNil,
+    filterObject,
 } from '../src';
 
 describe('Objects', () => {
@@ -173,6 +175,56 @@ describe('Objects', () => {
         describe('when given an empty object', () => {
             it('should return nil', () => {
                 expect(getFirstKey({})).toBeNil();
+            });
+        });
+    });
+
+    describe('filterObject', () => {
+        it('should be able to filter out the keys using excludes', () => {
+            expect(filterObject({
+                a: 1,
+                b: 2,
+            }, {
+                excludes: ['b']
+            })).toEqual({
+                a: 1,
+            });
+        });
+
+        it('should be able to filter out the keys using includes', () => {
+            expect(filterObject({
+                a: 1,
+                b: 2,
+            }, {
+                includes: ['b']
+            })).toEqual({
+                b: 2,
+            });
+        });
+
+        it('should be able to filter out the keys using includes and excludes', () => {
+            expect(filterObject({
+                b: 2,
+                c: 3,
+                a: 1,
+            }, {
+                includes: ['a', 'b', 'c'],
+                excludes: ['b']
+            })).toEqual({
+                a: 1,
+                c: 3,
+            });
+        });
+
+        it('should return the whole object if not given a filter', () => {
+            expect(filterObject({
+                c: 3,
+                a: 1,
+                b: 2,
+            })).toEqual({
+                c: 3,
+                a: 1,
+                b: 2,
             });
         });
     });
