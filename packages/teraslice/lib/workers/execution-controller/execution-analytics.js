@@ -3,6 +3,25 @@
 const { makeISODate, get, has } = require('@terascope/utils');
 const { makeLogger } = require('../helpers/terafoundation');
 
+/**
+ * @typedef ExecutionStats
+ * @property workers_available {number}
+ * @property workers_active {number}
+ * @property workers_joined {number}
+ * @property workers_reconnected {number}
+ * @property workers_disconnected {number}
+ * @property job_duration {number}
+ * @property failed {number}
+ * @property subslices {number}
+ * @property queued {number}
+ * @property slice_range_expansion {number}
+ * @property processed {number}
+ * @property slicers {number}
+ * @property subslice_by_key {number}
+ * @property started {String} a date string
+ * @property queuing_complete {String} a date string
+*/
+
 class ExecutionAnalytics {
     constructor(context, executionContext, client) {
         this.logger = makeLogger(context, 'execution_analytics');
@@ -13,6 +32,7 @@ class ExecutionAnalytics {
         this._handlers = {};
         this._pushing = false;
 
+        /** @property {ExecutionStats} */
         this.executionAnalytics = {
             workers_available: 0,
             workers_active: 0,
