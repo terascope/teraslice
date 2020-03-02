@@ -1,4 +1,4 @@
-import { ESTypeMapping } from '@terascope/types';
+import { ESTypeMapping, ESMapping } from '@terascope/types';
 import BaseType from './types/base-type';
 
 /** An object of base fields with their child fields */
@@ -153,4 +153,22 @@ export interface TypeESMapping {
     tokenizer?: {
         [key: string]: any;
     };
+}
+
+export interface ESMappingOptions {
+    /**
+     * The elasticsearch index type
+     */
+    typeName?: string;
+    /**
+     * Any elasitcsearch mapping overrides,
+     * uses a deep assignment so nested fields can be overwritten.
+     */
+    overrides?: Partial<ESMapping>;
+
+    /**
+     * The version of the elasticsearch cluster
+     * @default 6
+     */
+    version?: number;
 }

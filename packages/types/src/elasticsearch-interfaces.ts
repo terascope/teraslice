@@ -197,24 +197,6 @@ export type PropertyESTypeMapping = {
     };
 };
 
-export interface ESMappingOptions {
-    /**
-     * The elasticsearch index type
-     */
-    typeName?: string;
-    /**
-     * Any elasitcsearch mapping overrides,
-     * uses a deep assignment so nested fields can be overwritten.
-     */
-    overrides?: Partial<ESMapping>;
-
-    /**
-     * The version of the elasticsearch cluster
-     * @default 6
-     */
-    version?: number;
-}
-
 export interface ESTypeMappings {
     [prop: string]: any;
     _all?: {

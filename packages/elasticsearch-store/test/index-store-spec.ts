@@ -260,7 +260,7 @@ describe('IndexStore', () => {
                 expect(metadata).toMatchObject({
                     _index: index,
                     _key: record.test_id,
-                    _type: `${TEST_INDEX_PREFIX}store`,
+                    _type: indexStore.esVersion >= 7 ? '_doc' : indexStore.config.name,
                 });
 
                 expect(metadata._processTime).toBeNumber();
@@ -674,13 +674,17 @@ describe('IndexStore', () => {
                             });
                         }
                         if (inputType === 'output') {
-                            return _client.index({
+                            const indexParams = {
                                 index,
-                                type: `${TEST_INDEX_PREFIX}store`,
+                                type: indexStore.config.name,
                                 id: record.test_id,
                                 body: record,
                                 refresh: false,
-                            });
+                            };
+                            if (indexStore.esVersion >= 7) {
+                                delete indexParams.type;
+                            }
+                            return _client.index(indexParams);
                         }
                         throw new Error('Invalid Input Type');
                     })
