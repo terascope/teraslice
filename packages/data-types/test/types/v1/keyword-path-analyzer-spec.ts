@@ -1,6 +1,7 @@
 import { TSError } from '@terascope/utils';
+import { ESFieldType } from '@terascope/types';
 import KeywordPathAnalyzer from '../../../src/types/v1/keyword-path-analyzer';
-import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
+import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('KeywordPathAnalyzer V1', () => {
     const field = 'someField';
@@ -28,7 +29,7 @@ describe('KeywordPathAnalyzer V1', () => {
         const results = {
             mapping: {
                 [field]: {
-                    type: 'keyword' as ElasticSearchTypes,
+                    type: 'keyword' as ESFieldType,
                     fields: {
                         tokens: {
                             type: 'text',

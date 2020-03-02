@@ -1,6 +1,5 @@
-import { xLuceneTypeConfig } from '@terascope/types';
+import { xLuceneTypeConfig, PropertyESTypeMapping, PropertyESTypes } from '@terascope/types';
 import { firstToUpper } from '@terascope/utils';
-import * as i from '../interfaces';
 import BaseType, { ToGraphQLOptions } from './base-type';
 
 export type NestedTypes = { [field: string]: BaseType };
@@ -19,7 +18,7 @@ export default class GroupType extends BaseType {
             analyzer = {},
             tokenizer = {},
         } = this.types[this.field].toESMapping(version);
-        const baseMapping = mapping[this.field] as i.PropertyESTypeMapping;
+        const baseMapping = mapping[this.field] as PropertyESTypeMapping;
         if (!baseMapping.properties) {
             baseMapping.properties = {};
         }
@@ -32,7 +31,7 @@ export default class GroupType extends BaseType {
             const fieldResult = type.toESMapping(version);
 
             const nestedField = this._removeBase(field);
-            const fieldMapping = fieldResult.mapping[field] as i.PropertyESTypes;
+            const fieldMapping = fieldResult.mapping[field] as PropertyESTypes;
             baseMapping.properties[nestedField] = fieldMapping;
 
             Object.assign(tokenizer, fieldResult.tokenizer);

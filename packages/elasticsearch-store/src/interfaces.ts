@@ -1,7 +1,7 @@
 import { Logger, Omit } from '@terascope/utils';
-import { xLuceneVariables } from '@terascope/types';
+import { xLuceneVariables, ESIndexSettings } from '@terascope/types';
 import { QueryAccess } from 'xlucene-translator';
-import { ESIndexSettings, DataType } from '@terascope/data-types';
+import { DataType } from '@terascope/data-types';
 
 /** A versioned Index Configuration */
 export interface IndexConfig<T = any> {

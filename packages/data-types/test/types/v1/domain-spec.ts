@@ -1,6 +1,7 @@
 import { TSError } from '@terascope/utils';
+import { ESFieldType } from '@terascope/types';
 import Domain from '../../../src/types/v1/domain';
-import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
+import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Domain V1', () => {
     const field = 'someField';
@@ -28,15 +29,15 @@ describe('Domain V1', () => {
         const results = {
             mapping: {
                 [field]: {
-                    type: 'text' as ElasticSearchTypes,
+                    type: 'text' as ESFieldType,
                     analyzer: 'lowercase_keyword_analyzer',
                     fields: {
                         tokens: {
-                            type: 'text' as ElasticSearchTypes,
+                            type: 'text' as ESFieldType,
                             analyzer: 'standard',
                         },
                         right: {
-                            type: 'text' as ElasticSearchTypes,
+                            type: 'text' as ESFieldType,
                             analyzer: 'domain_analyzer',
                             search_analyzer: 'lowercase_keyword_analyzer',
                         },

@@ -1,6 +1,7 @@
 import { TSError } from '@terascope/utils';
+import { ESFieldType } from '@terascope/types';
 import Boundary from '../../../src/types/v1/boundary';
-import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
+import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Boundary V1', () => {
     const field = 'someField';
@@ -29,8 +30,8 @@ describe('Boundary V1', () => {
             mapping: {
                 [field]: {
                     properties: {
-                        lat: { type: 'float' as ElasticSearchTypes },
-                        lon: { type: 'float' as ElasticSearchTypes },
+                        lat: { type: 'float' as ESFieldType },
+                        lon: { type: 'float' as ESFieldType },
                     },
                 },
             },

@@ -1,6 +1,7 @@
 import { TSError } from '@terascope/utils';
+import { ESFieldType } from '@terascope/types';
 import NgramTokens from '../../../src/types/v1/ngram-tokens';
-import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
+import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('NgramTokens V1', () => {
     const field = 'someField';
@@ -29,10 +30,10 @@ describe('NgramTokens V1', () => {
             mapping: {
                 [field]: {
                     // TODO: this is wrong, I dont think analyzer can be at this level
-                    type: 'keyword' as ElasticSearchTypes,
+                    type: 'keyword' as ESFieldType,
                     fields: {
                         tokens: {
-                            type: 'text' as ElasticSearchTypes,
+                            type: 'text' as ESFieldType,
                             analyzer: 'ngram_analyzer',
                         },
                     },

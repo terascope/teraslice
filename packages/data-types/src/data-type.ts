@@ -1,4 +1,8 @@
 import * as ts from '@terascope/utils';
+import {
+    ESMapping,
+    ESMappingOptions
+} from '@terascope/types';
 import defaultsDeep from 'lodash.defaultsdeep';
 import { formatSchema, formatGQLComment } from './graphql-helper';
 import * as i from './interfaces';
@@ -101,7 +105,7 @@ export class DataType {
     /**
      * Convert the DataType to an elasticsearch mapping.
      */
-    toESMapping({ typeName, overrides, version = 6 }: i.ESMappingOptions = {}): i.ESMapping {
+    toESMapping({ typeName, overrides, version = 6 }: ESMappingOptions = {}): ESMapping {
         const indexType = typeName || this.name || '_doc';
         const mappingSettings = {
             dynamic: false,
@@ -116,7 +120,7 @@ export class DataType {
             });
         }
 
-        const esMapping: i.ESMapping = {
+        const esMapping: ESMapping = {
             settings: {},
             mappings: {
                 [indexType]: mappingSettings,
