@@ -1,8 +1,7 @@
 'use strict';
 
 const { TSError, get, isEmpty } = require('@terascope/utils');
-const { KubeConfig } = require('kubernetes-client');
-const { Client } = require('kubernetes-client');
+const { Client, KubeConfig } = require('kubernetes-client');
 const Request = require('kubernetes-client/backends/request');
 
 class K8s {
