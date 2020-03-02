@@ -24,15 +24,35 @@ export function isSimpleObject(input: any): input is object {
 }
 
 const _cloneTypeHandlers = Object.freeze({
-    object(input: any): any {
-        const res = new input.constructor();
-        // eslint-disable-next-line guard-for-in
-        for (const key in input) {
-            res[key] = cloneDeep(input[key]);
+    Object(input: any): any {
+        if (typeof input.constructor === 'function') {
+            const res = new input.constructor();
+            // eslint-disable-next-line guard-for-in
+            for (const key in input) {
+                res[key] = cloneDeep(input[key]);
+            }
+            return res;
         }
-        return res;
+        return input;
     },
-    array(input: any): any {
+    DataEntity(input: any): any {
+        if (typeof input.constructor === 'function') {
+            const res = new input.constructor();
+            // eslint-disable-next-line guard-for-in
+            for (const key in input) {
+                res[key] = cloneDeep(input[key]);
+            }
+            res.__IS_DATAENTITY_KEY = true;
+            if (input.___EntityMetadata) {
+                res.___EntityMetadata.rawData = clone(input.___EntityMetadata.rawData);
+                res.___EntityMetadata.metadata = cloneDeep(input.___EntityMetadata.metadata);
+                res.___EntityMetadata.metadata._createTime = Date.now();
+            }
+            return res;
+        }
+        return input;
+    },
+    Array(input: any): any {
         const res = new input.constructor(input.length);
         for (let i = 0; i < input.length; i++) {
             res[i] = cloneDeep(input[i]);
@@ -42,7 +62,7 @@ const _cloneTypeHandlers = Object.freeze({
 });
 
 export function cloneDeep<T = any>(input: T): T {
-    const handler = _cloneTypeHandlers[kindOf(input)] || clone;
+    const handler = _cloneTypeHandlers[getTypeOf(input)] || clone;
     return handler(input);
 }
 

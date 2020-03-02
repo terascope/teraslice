@@ -167,16 +167,10 @@ describe('DataEntity', () => {
 
                     newDataEntity.setMetadata('test', 'hello');
 
-                    if (!useClass && cloneMethod === 'cloneDeep') {
-                        expect(newDataEntity.getMetadata()).toMatchObject({
-                            test: 'hello'
-                        });
-                    } else {
-                        expect(newDataEntity.getMetadata()).toMatchObject({
-                            ...newMetadata,
-                            test: 'hello'
-                        });
-                    }
+                    expect(newDataEntity.getMetadata()).toMatchObject({
+                        ...newMetadata,
+                        test: 'hello'
+                    });
                     const ogCreateTime = dataEntity.getMetadata('_createTime');
                     expect(newDataEntity.getMetadata('_createTime')).not.toEqual(ogCreateTime);
                     expect(newDataEntity.getMetadata()).not.toMatchObject(dataEntity.getMetadata());
