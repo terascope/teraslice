@@ -236,8 +236,8 @@ export default class IndexManager {
 
     async getMapping(index: string) {
         const params: any = { index };
-        if (this.esVersion >= 6) {
-            params.includeTypeName = this.esVersion === 6;
+        if (this.esVersion === 7) {
+            params.includeTypeName = false;
         }
         return this.client.indices.getMapping(params);
     }
@@ -253,9 +253,6 @@ export default class IndexManager {
         if (this.esVersion >= 7) {
             delete params.type;
             params.includeTypeName = false;
-        }
-        if (this.esVersion === 6) {
-            params.includeTypeName = true;
         }
         return this.client.indices.putMapping(params);
     }
@@ -310,8 +307,8 @@ export default class IndexManager {
 
     async getTemplate(name: string, flatSettings: boolean) {
         const params: any = { name, flatSettings };
-        if (this.esVersion >= 6) {
-            params.includeTypeName = this.esVersion === 6;
+        if (this.esVersion === 7) {
+            params.includeTypeName = false;
         }
         return this.client.indices.getTemplate(params);
     }
