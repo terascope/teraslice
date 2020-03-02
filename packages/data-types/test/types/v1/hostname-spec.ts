@@ -1,4 +1,3 @@
-import { TSError } from '@terascope/utils';
 import { ESFieldType } from '@terascope/types';
 import Hostname from '../../../src/types/v1/hostname';
 import { FieldTypeConfig } from '../../../src/interfaces';
@@ -8,15 +7,6 @@ describe('Hostname V1', () => {
     const typeConfig: FieldTypeConfig = { type: 'Hostname' };
 
     it('can requires a field and proper configs', () => {
-        try {
-            // @ts-ignore
-            new Hostname();
-            throw new Error('it should have errored with no configs');
-        } catch (err) {
-            expect(err).toBeInstanceOf(TSError);
-            expect(err.message).toInclude('A field must be provided and must be of type string');
-        }
-
         const type = new Hostname(field, typeConfig);
         expect(type).toBeDefined();
         expect(type.toESMapping).toBeDefined();
