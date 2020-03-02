@@ -37,7 +37,14 @@ export class DataEntity<
         T extends Record<string, any>|DataEntity<any, any> = Record<string, any>,
         M extends i._DataEntityMetadataType = {}
     >(input: T, metadata?: M): T|DataEntity<T, M> {
-        if (DataEntity.isDataEntity(input)) return input;
+        if (DataEntity.isDataEntity(input)) {
+            if (metadata) {
+                for (const [key, val] of Object.entries(metadata)) {
+                    input.setMetadata(key, val);
+                }
+            }
+            return input;
+        }
         return new DataEntity(input, metadata);
     }
 
@@ -75,10 +82,11 @@ export class DataEntity<
         if (!DataEntity.isDataEntity(input)) {
             throw new Error(`Invalid input to fork, expected DataEntity, got ${getTypeOf(input)}`);
         }
+        const { _createTime, ...metadata } = input.getMetadata();
         if (withData) {
-            return DataEntity.make(input, input.getMetadata()) as T;
+            return DataEntity.make(input, metadata) as T;
         }
-        return DataEntity.make({}, input.getMetadata()) as T;
+        return DataEntity.make({}, metadata) as T;
     }
 
     /**
