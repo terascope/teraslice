@@ -1,9 +1,10 @@
-import isPlainObject from 'is-plain-object';
 import { Logger } from './logger-interface';
 import STATUS_CODES from './status-codes';
 import { AnyObject } from './interfaces';
 import { getFirst } from './arrays';
-import * as utils from './utils';
+import { isFunction } from './functions';
+import { getTypeOf, isPlainObject } from './core';
+import { tryParseJSON } from './json';
 import * as s from './strings';
 
 /**
@@ -153,7 +154,7 @@ export function getFullErrorStack(err: any): string {
 }
 
 function getCauseStack(err: any) {
-    if (!err || !utils.isFunction(err.cause)) return '';
+    if (!err || !isFunction(err.cause)) return '';
     const cause = err.cause();
     if (!cause) return '';
     return `\nCaused by: ${getFullErrorStack(cause)}`;
@@ -226,7 +227,7 @@ export function logError(logger: Logger, err: any, ...messages: any[]) {
     }
 
     // make sure we don't lose the stack
-    logger.error(new TSError(err), ...messages, `invalid message format ${utils.getTypeOf(err)} error`);
+    logger.error(new TSError(err), ...messages, `invalid message format ${getTypeOf(err)} error`);
 }
 
 function createErrorContext(input: any, config: TSErrorConfig = {}) {
@@ -284,7 +285,7 @@ function _parseESErrorInfo(
 
     const metadata = input.toJSON();
     if (metadata.response) {
-        const response = utils.tryParseJSON(metadata.response);
+        const response = tryParseJSON(metadata.response);
         metadata.response = response;
     } else if (input.body) {
         metadata.response = input.body as any;
@@ -377,7 +378,7 @@ export function isTSError(err: any): err is TSError {
 
 /** Check is a elasticsearch error */
 export function isElasticsearchError(err: any): err is ElasticsearchError {
-    return err && utils.isFunction(err.toJSON);
+    return err && isFunction(err.toJSON);
 }
 
 export interface ElasticsearchError extends Error {
@@ -442,7 +443,7 @@ export function stripErrorMessage(
         defaultErrorMsg: reason,
         context: error && error.context,
     });
-    const messages = utils.parseList(message.split('caused by'));
+    const messages = s.parseList(message.split('caused by'));
 
     const firstErr = getFirst(messages);
     if (!firstErr) return reason;

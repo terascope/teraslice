@@ -1,5 +1,5 @@
-import get from 'lodash.get';
 import { Many, ListOfRecursiveArraysOrValues } from './interfaces';
+import { get } from './core';
 
 /** A native implemation of lodash flatten */
 export function flatten<T>(val: Many<T[]>): T[] {
@@ -157,4 +157,8 @@ export function includes(input: any, key: string): boolean {
  */
 export function getFirst<T>(input: T | T[]): T {
     return castArray(input)[0];
+}
+
+export function isArray<T = any>(input: any): input is T[] {
+    return Array.isArray(input);
 }

@@ -46,3 +46,8 @@ export function memoize<T extends MemoizeFn>(fn: T): T {
     };
     return _memoize;
 }
+
+/** Verify an input is a function */
+export function isFunction(input: any): input is Function {
+    return !!(input && typeof input === 'function');
+}

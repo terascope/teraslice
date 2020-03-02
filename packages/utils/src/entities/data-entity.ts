@@ -1,15 +1,11 @@
 /* eslint-disable max-len */
 import { getValidDate, getTime } from '../dates';
-import { isSimpleObject } from '../objects';
-import {
-    parseJSON,
-    getTypeOf,
-    ensureBuffer,
-    isBuffer,
-} from '../utils';
+import { isSimpleObject, getTypeOf } from '../core';
+import { ensureBuffer, isBuffer } from '../buffers';
+import { parseJSON } from '../json';
 import * as i from './interfaces';
 import * as utils from './utils';
-import { locked } from '../misc';
+import { locked } from '../decorators';
 
 /**
  * A wrapper for data that can hold additional metadata properties.

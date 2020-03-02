@@ -34,16 +34,17 @@
         "js-string-escape": "^1.0.1",
         "kind-of": "^6.0.3",
         "latlon-geohash": "^1.1.0",
-        "lodash.clonedeep": "^4.5.0",
         "lodash.get": "^4.4.2",
+        "lodash.has": "^4.5.2",
         "lodash.set": "^4.3.2",
-        "lodash.unset": "^4.5.2"
+        "lodash.unset": "^4.5.2",
+        "shallow-clone": "^3.0.1"
     },
     "devDependencies": {
         "@types/debug": "^4.1.5",
         "@types/js-string-escape": "^1.0.0",
-        "@types/lodash.clonedeep": "^4.5.6",
         "@types/lodash.get": "^4.4.6",
+        "@types/lodash.has": "^4.5.6",
         "@types/lodash.set": "^4.3.6",
         "@types/lodash.unset": "^4.5.6",
         "benchmark": "^2.1.4"
