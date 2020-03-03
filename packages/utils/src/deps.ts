@@ -22,12 +22,37 @@ function _cloneDataEntity(input: any) {
     for (const key in input) {
         res[key] = cloneDeep(input[key]);
     }
-    res.__IS_DATAENTITY_KEY = true;
+
+    try {
+        Object.defineProperty(res, '__IS_DATAENTITY_KEY', {
+            value: true,
+            configurable: false,
+            enumerable: false,
+            writable: false,
+        });
+    } catch (_err) {
+        res.__IS_DATAENTITY_KEY = true;
+    }
+
+    try {
+        Object.defineProperty(res, '__ENTITY_METADATA_KEY', {
+            value: {},
+            configurable: false,
+            enumerable: false,
+            writable: false,
+        });
+    // eslint-disable-next-line no-empty
+    } catch (_err) {}
+
     if (input.___EntityMetadata) {
         res.___EntityMetadata.rawData = clone(input.___EntityMetadata.rawData);
         res.___EntityMetadata.metadata = cloneDeep(input.___EntityMetadata.metadata);
         res.___EntityMetadata.metadata._createTime = Date.now();
+    } else {
+        res.___EntityMetadata.metadata = {};
+        res.___EntityMetadata.metadata._createTime = Date.now();
     }
+
     return res;
 }
 

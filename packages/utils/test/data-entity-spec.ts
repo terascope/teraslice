@@ -157,6 +157,7 @@ describe('DataEntity', () => {
                     const cloned = cloneMethods[cloneMethod](dataEntity);
                     if (cloneMethod === 'cloneDeep') {
                         expect(DataEntity.isDataEntity(cloned)).toBeTrue();
+                        expect(Object.keys(cloned)).not.toContain(['__IS_DATAENTITY_KEY', '__ENTITY_METADATA_KEY']);
                     } else {
                         expect(DataEntity.isDataEntity(cloned)).toBeFalse();
                     }

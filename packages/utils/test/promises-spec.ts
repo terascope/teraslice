@@ -204,7 +204,7 @@ describe('Utils', () => {
             const items: number[] = [1, 2, 3];
             const start = Date.now();
             const concurrency = 1;
-            const wait = 200;
+            const wait = 300;
 
             const result = pMap(items, async (item, i) => {
                 const diff = Date.now() - start;
@@ -216,7 +216,7 @@ describe('Utils', () => {
                 concurrency
             });
             return expect(result).resolves.toEqual([
-                0, 200, 400
+                0, 300, 600
             ]);
         });
 
@@ -224,7 +224,7 @@ describe('Utils', () => {
             const items: number[] = [1, 2, 3, 4, 5];
             const start = Date.now();
             const concurrency = 2;
-            const wait = 200;
+            const wait = 300;
 
             const result = pMap(items, async (item, i) => {
                 const diff = Date.now() - start;
@@ -236,7 +236,7 @@ describe('Utils', () => {
                 concurrency
             });
             return expect(result).resolves.toEqual([
-                0, 0, 200, 200, 400
+                0, 0, 300, 300, 600
             ]);
         });
     });
