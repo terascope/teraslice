@@ -50,10 +50,11 @@ export function sortKeys<T extends object>(
     const result: Partial<T> = Object.create(null);
 
     for (const key of Object.keys(input).sort()) {
-        if (options.deep && isPlainObject(input)) {
-            result[key] = sortKeys(input, options);
+        const val = input[key];
+        if (options.deep && isPlainObject(val)) {
+            result[key] = sortKeys(val, options);
         } else {
-            result[key] = input[key];
+            result[key] = val;
         }
     }
 
