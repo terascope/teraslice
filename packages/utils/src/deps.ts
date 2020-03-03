@@ -1,5 +1,6 @@
 /**
- * This file exports tiny facades over the external packages
+ * This file exports tiny facades over the external packages.
+ * The behaviour of a dependency can be overridden here
 */
 import has from 'lodash.has';
 import set from 'lodash.set';

@@ -1,5 +1,5 @@
 import { toString } from './strings';
-import { getTypeOf } from './core';
+import { getTypeOf } from './deps';
 
 export function tryParseJSON(input: any) {
     try {

@@ -1,6 +1,6 @@
 import { WithoutNil, FilteredResult } from './interfaces';
 import { isBooleanLike } from './booleans';
-import { get, isPlainObject } from './core';
+import { get, isPlainObject } from './deps';
 
 export function getFirstValue<T>(input: { [key: string]: T }): T | undefined {
     return Object.values(input)[0];

@@ -11,7 +11,7 @@ import {
     GeoShapePolygon,
     GeoShapeMultiPolygon
 } from '@terascope/types';
-import { isPlainObject, geoHash } from './core';
+import { isPlainObject, geoHash } from './deps';
 import { trim } from './strings';
 import { parseNumberList, toNumber, isNumber } from './numbers';
 import { TSError } from './errors';

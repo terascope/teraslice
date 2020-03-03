@@ -1,5 +1,5 @@
 import { Many, ListOfRecursiveArraysOrValues } from './interfaces';
-import { get } from './core';
+import { get } from './deps';
 
 /** A native implemation of lodash flatten */
 export function flatten<T>(val: Many<T[]>): T[] {

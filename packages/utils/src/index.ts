@@ -5,7 +5,7 @@ export * from './big-map';
 export * from './booleans';
 export * from './buffers';
 export * from './collector';
-export * from './core';
+export * from './deps';
 export * from './entities';
 export * from './dates';
 export * from './decorators';

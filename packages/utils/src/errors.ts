@@ -3,7 +3,7 @@ import STATUS_CODES from './status-codes';
 import { AnyObject } from './interfaces';
 import { getFirst } from './arrays';
 import { isFunction } from './functions';
-import { getTypeOf, isPlainObject } from './core';
+import { getTypeOf, isPlainObject } from './deps';
 import { tryParseJSON } from './json';
 import * as s from './strings';
 

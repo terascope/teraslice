@@ -1,6 +1,6 @@
 import debugFn from 'debug';
 import { EventEmitter } from 'events';
-import { isPlainObject } from './core';
+import { isPlainObject } from './deps';
 import { toString, isString, trimAndToLower } from './strings';
 import { Logger } from './logger-interface';
 import { uniq } from './arrays';

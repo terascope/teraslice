@@ -3,9 +3,9 @@ import { DataEntity } from '../src/entities';
 import {
     getTypeOf,
     isPlainObject,
-} from '../src/core';
+} from '../src/deps';
 
-describe('Core Utils', () => {
+describe('Dependency Utils', () => {
     class TestObj {
         hi = true
         has() {}

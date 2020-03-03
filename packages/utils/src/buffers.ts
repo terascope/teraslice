@@ -1,4 +1,4 @@
-import { getTypeOf } from './core';
+import { getTypeOf } from './deps';
 
 export function ensureBuffer(input: string|Buffer, encoding: BufferEncoding = 'utf8'): Buffer {
     if (typeof input === 'string') {

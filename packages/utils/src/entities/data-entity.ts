@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import { getValidDate, getTime } from '../dates';
-import { isSimpleObject, getTypeOf } from '../core';
+import { isSimpleObject, getTypeOf } from '../deps';
 import { ensureBuffer, isBuffer } from '../buffers';
 import { parseJSON } from '../json';
 import * as i from './interfaces';
