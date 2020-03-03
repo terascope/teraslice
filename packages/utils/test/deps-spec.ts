@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 import 'jest-extended';
 import { DataEntity } from '../src/entities';
 import {
@@ -32,11 +33,15 @@ describe('Dependency Utils', () => {
     });
 
     describe('getTypeOf', () => {
+        class TestData extends DataEntity {
+            test = true
+        }
         it('should return the correct kind', () => {
             expect(getTypeOf({})).toEqual('Object');
 
             expect(getTypeOf(new DataEntity({}))).toEqual('DataEntity');
             expect(getTypeOf(DataEntity.make({}))).toEqual('DataEntity');
+            expect(getTypeOf(new TestData({}))).toEqual('TestData');
 
             expect(getTypeOf([])).toEqual('Array');
 

@@ -12,21 +12,32 @@ import kindOf from 'kind-of';
 import jsStringEscape from 'js-string-escape';
 import geoHash from 'latlon-geohash';
 
-/**
- * Similar to is-plain-object but works better when clone deeping a DataEntity
-*/
-export function isSimpleObject(input: any): input is object {
-    if (input == null) return false;
-    if (Buffer.isBuffer(input)) return false;
-    if (Array.isArray(input)) return false;
-    if (input instanceof Set) return false;
-    if (input instanceof Map) return false;
-    return typeof input === 'object';
+function _isDataEntity(input: any): boolean {
+    return input && typeof input === 'object' && Boolean(input.__isDataEntity);
+}
+
+function _cloneDataEntity(input: any) {
+    const res = new input.constructor();
+    // eslint-disable-next-line guard-for-in
+    for (const key in input) {
+        res[key] = cloneDeep(input[key]);
+    }
+    res.__IS_DATAENTITY_KEY = true;
+    if (input.___EntityMetadata) {
+        res.___EntityMetadata.rawData = clone(input.___EntityMetadata.rawData);
+        res.___EntityMetadata.metadata = cloneDeep(input.___EntityMetadata.metadata);
+        res.___EntityMetadata.metadata._createTime = Date.now();
+    }
+    return res;
 }
 
 const _cloneTypeHandlers = Object.freeze({
-    Object(input: any): any {
+    object(input: any): any {
         if (typeof input.constructor === 'function') {
+            if (_isDataEntity(input)) {
+                return _cloneDataEntity(input);
+            }
+
             const res = new input.constructor();
             // eslint-disable-next-line guard-for-in
             for (const key in input) {
@@ -37,23 +48,9 @@ const _cloneTypeHandlers = Object.freeze({
         return input;
     },
     DataEntity(input: any): any {
-        if (typeof input.constructor === 'function') {
-            const res = new input.constructor();
-            // eslint-disable-next-line guard-for-in
-            for (const key in input) {
-                res[key] = cloneDeep(input[key]);
-            }
-            res.__IS_DATAENTITY_KEY = true;
-            if (input.___EntityMetadata) {
-                res.___EntityMetadata.rawData = clone(input.___EntityMetadata.rawData);
-                res.___EntityMetadata.metadata = cloneDeep(input.___EntityMetadata.metadata);
-                res.___EntityMetadata.metadata._createTime = Date.now();
-            }
-            return res;
-        }
         return input;
     },
-    Array(input: any): any {
+    array(input: any): any {
         const res = new input.constructor(input.length);
         for (let i = 0; i < input.length; i++) {
             res[i] = cloneDeep(input[i]);
@@ -63,7 +60,7 @@ const _cloneTypeHandlers = Object.freeze({
 });
 
 export function cloneDeep<T = any>(input: T): T {
-    const handler = _cloneTypeHandlers[getTypeOf(input)] || clone;
+    const handler = _cloneTypeHandlers[kindOf(input)] || clone;
     return handler(input);
 }
 
@@ -75,8 +72,16 @@ export function getTypeOf(val: any): string {
     if (val === undefined) return 'undefined';
     if (val === null) return 'null';
 
+    if (_isDataEntity(val)) {
+        if (val.constructor && val.constructor.name !== 'Object') {
+            return val.constructor.name;
+        }
+        // since the DataEntity may not be a instance of a class
+        // we need to return a fixed string DataEntity
+        return 'DataEntity';
+    }
+
     if (typeof val === 'object') {
-        if (val.__isDataEntity) return 'DataEntity';
         if (val.constructor && val.constructor.name) {
             return val.constructor.name;
         }

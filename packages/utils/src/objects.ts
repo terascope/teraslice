@@ -2,9 +2,22 @@ import { WithoutNil, FilteredResult } from './interfaces';
 import { isBooleanLike } from './booleans';
 import { get, isPlainObject } from './deps';
 
+/**
+ * Similar to is-plain-object but works better when clone deeping a DataEntity
+*/
+export function isSimpleObject(input: any): input is object {
+    if (input == null) return false;
+    if (Buffer.isBuffer(input)) return false;
+    if (Array.isArray(input)) return false;
+    if (input instanceof Set) return false;
+    if (input instanceof Map) return false;
+    return typeof input === 'object';
+}
+
 export function getFirstValue<T>(input: { [key: string]: T }): T | undefined {
     return Object.values(input)[0];
 }
+
 export function getFirstKey<T>(input: T): (keyof T) | undefined {
     return Object.keys(input)[0] as keyof T;
 }
