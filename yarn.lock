@@ -10549,10 +10549,10 @@ smart-buffer@^4.1.0:
   resolved "https://registry.yarnpkg.com/smart-buffer/-/smart-buffer-4.1.0.tgz#91605c25d91652f4661ea69ccf45f1b331ca21ba"
   integrity sha512-iVICrxOzCynf/SNaBQCw34eM9jROU/s5rzIhpOvzhzuYHfJR/DhZfDkXiZSgKXfgv26HT3Yni3AV/DGw0cGnnw==
 
-smartwrap@^1.2.3:
-  version "1.2.5"
-  resolved "https://registry.yarnpkg.com/smartwrap/-/smartwrap-1.2.5.tgz#45ee3e09ac234e5f7f17c16e916f511834f3cd23"
-  integrity sha512-bzWRwHwu0RnWjwU7dFy7tF68pDAx/zMSu3g7xr9Nx5J0iSImYInglwEVExyHLxXljy6PWMjkSAbwF7t2mPnRmg==
+smartwrap@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/smartwrap/-/smartwrap-2.0.0.tgz#f74dedd9ebf41db63aac84a8a469a9e93b7f7e12"
+  integrity sha512-POeNwjVZLe5l7ZSwZ/+BIbneogBGTB5wOjSstkcdoZklrNwCthuh4t/fvRBmecXHFdFTEKcZ9+kSUHeZuaHlBA==
   dependencies:
     breakword "^1.0.5"
     grapheme-splitter "^1.0.4"
@@ -11491,14 +11491,14 @@ tsutils@^3.17.1:
   dependencies:
     tslib "^1.8.1"
 
-tty-table@^2.8.7:
-  version "2.8.12"
-  resolved "https://registry.yarnpkg.com/tty-table/-/tty-table-2.8.12.tgz#cee2ec298a6116d56cbf09dffad279c0e7b273f9"
-  integrity sha512-QSOxdMM0VnDmDDr1Itw/JkrwjPp3WbuzCRbgydns5mFo6UOuiZOqpGZVp9MP+S8v57awzzRSHSkI8t2bpiM+Og==
+tty-table@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/tty-table/-/tty-table-3.2.0.tgz#885af230caca397b5d956c7c2ca58202f7bfcc58"
+  integrity sha512-wdCoXi8FKKAkC2V9bFUr9eMAXsfV+508XfJhWyUgD9G63lJv3iEUIIQAvv339qmgMYzE3WKvwni3dPMjIQISbQ==
   dependencies:
+    chalk "^3.0.0"
     csv "^5.3.1"
-    kleur "^3.0.3"
-    smartwrap "^1.2.3"
+    smartwrap "^2.0.0"
     strip-ansi "^6.0.0"
     wcwidth "^1.0.1"
     yargs "^15.1.0"
