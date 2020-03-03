@@ -1,7 +1,7 @@
 import 'jest-extended';
 import {
     escapeString
-} from '../src/core';
+} from '../src/deps';
 import {
     toSafeString,
     unescapeString,
