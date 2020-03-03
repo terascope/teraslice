@@ -25,7 +25,7 @@ export function isTruthy(input: any): boolean {
 }
 
 export function isFalsy(input: any): boolean {
-    if (input === false || input == null) return true;
+    if (input === false || input == null || input === '') return true;
     const val = typeof input === 'string' ? input.trim().toLowerCase() : String(input);
     return _falsy[val] === true;
 }
