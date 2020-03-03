@@ -1,21 +1,12 @@
-import { TSError } from '@terascope/utils';
+import { ESFieldType } from '@terascope/types';
 import KeywordTokensCaseInsensitive from '../../../src/types/v1/keyword-tokens-case-insensitive';
-import { FieldTypeConfig, ElasticSearchTypes } from '../../../src/interfaces';
+import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('KeywordTokensCaseInsensitive V1', () => {
     const field = 'someField';
     const typeConfig: FieldTypeConfig = { type: 'KeywordTokensCaseInsensitive' };
 
     it('can requires a field and proper configs', () => {
-        try {
-            // @ts-ignore
-            new KeywordTokensCaseInsensitive();
-            throw new Error('it should have errored with no configs');
-        } catch (err) {
-            expect(err).toBeInstanceOf(TSError);
-            expect(err.message).toInclude('A field must be provided and must be of type string');
-        }
-
         const type = new KeywordTokensCaseInsensitive(field, typeConfig);
         expect(type).toBeDefined();
         expect(type.toESMapping).toBeDefined();
@@ -29,11 +20,11 @@ describe('KeywordTokensCaseInsensitive V1', () => {
             mapping: {
                 [field]: {
                     // TODO: this is wrong, I dont think analyzer can be at this level
-                    type: 'text' as ElasticSearchTypes,
+                    type: 'text' as ESFieldType,
                     analyzer: 'lowercase_keyword_analyzer',
                     fields: {
                         tokens: {
-                            type: 'text' as ElasticSearchTypes,
+                            type: 'text' as ESFieldType,
                             analyzer: 'standard',
                         },
                     },

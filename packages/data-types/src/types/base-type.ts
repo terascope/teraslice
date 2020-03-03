@@ -23,9 +23,6 @@ export default abstract class BaseType {
     readonly version: number;
 
     constructor(field: string, config: FieldTypeConfig, version = 1) {
-        if (!field || !ts.isString(field)) {
-            throw new ts.TSError('A field must be provided and must be of type string');
-        }
         this.version = version;
         this.field = field;
         this.config = config;

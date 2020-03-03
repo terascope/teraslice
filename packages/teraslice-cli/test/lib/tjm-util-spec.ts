@@ -1,4 +1,3 @@
-import Promise from 'bluebird';
 import TjmUtil from '../../src/helpers/tjm-util';
 
 let startResponse: any;

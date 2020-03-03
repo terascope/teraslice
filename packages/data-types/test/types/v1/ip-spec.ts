@@ -1,5 +1,4 @@
-import { TSError } from '@terascope/utils';
-import IpType from '../../../src/types/v1/ip';
+import IPType from '../../../src/types/v1/ip';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('IP V1', () => {
@@ -7,16 +6,7 @@ describe('IP V1', () => {
     const typeConfig: FieldTypeConfig = { type: 'IP' };
 
     it('can requires a field and proper configs', () => {
-        try {
-            // @ts-ignore
-            new IpType();
-            throw new Error('it should have errored with no configs');
-        } catch (err) {
-            expect(err).toBeInstanceOf(TSError);
-            expect(err.message).toInclude('A field must be provided and must be of type string');
-        }
-
-        const type = new IpType(field, typeConfig);
+        const type = new IPType(field, typeConfig);
         expect(type).toBeDefined();
         expect(type.toESMapping).toBeDefined();
         expect(type.toGraphQL).toBeDefined();
@@ -24,21 +14,21 @@ describe('IP V1', () => {
     });
 
     it('can get proper ES Mappings', () => {
-        const esMapping = new IpType(field, typeConfig).toESMapping();
+        const esMapping = new IPType(field, typeConfig).toESMapping();
         const results = { mapping: { [field]: { type: 'ip' } } };
 
         expect(esMapping).toEqual(results);
     });
 
     it('can get proper graphql types', () => {
-        const graphQlTypes = new IpType(field, typeConfig).toGraphQL();
+        const graphQlTypes = new IPType(field, typeConfig).toGraphQL();
         const results = { type: `${field}: String`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });
 
     it('can get proper xlucene properties', () => {
-        const xlucene = new IpType(field, typeConfig).toXlucene();
+        const xlucene = new IPType(field, typeConfig).toXlucene();
         const results = { [field]: 'ip' };
 
         expect(xlucene).toEqual(results);

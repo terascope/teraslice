@@ -1,8 +1,7 @@
 import * as ts from '@terascope/utils';
-import {
-    GraphQLScalarType, ASTNode, buildSchema, printSchema
-} from 'graphql';
-import { Kind, StringValueNode } from 'graphql/language';
+import { Kind, StringValueNode, ASTNode } from 'graphql/language';
+import { GraphQLScalarType } from 'graphql/type/definition';
+import { buildSchema, printSchema } from 'graphql/utilities';
 
 function serialize(value: any) {
     return value;

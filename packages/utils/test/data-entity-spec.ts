@@ -1,13 +1,15 @@
 import 'jest-extended'; // require for type definitions
 import {
     DataEntity,
-    parseJSON,
     DataEncoding,
     __IS_DATAENTITY_KEY,
     __ENTITY_METADATA_KEY,
+    DataEntityMetadata,
+} from '../src/entities';
+import {
+    parseJSON,
     cloneDeep,
     fastCloneDeep,
-    DataEntityMetadata,
     firstToLower,
 } from '../src';
 
@@ -153,7 +155,11 @@ describe('DataEntity', () => {
                 (cloneMethod) => {
                     const newMetadata = { _key: 'hello' };
                     const cloned = cloneMethods[cloneMethod](dataEntity);
-                    expect(DataEntity.isDataEntity(cloned)).toBeFalse();
+                    if (cloneMethod === 'cloneDeep') {
+                        expect(DataEntity.isDataEntity(cloned)).toBeTrue();
+                    } else {
+                        expect(DataEntity.isDataEntity(cloned)).toBeFalse();
+                    }
 
                     const newDataEntity = useClass
                         ? new DataEntity(cloned, newMetadata)

@@ -58,7 +58,9 @@ describe('IndexManager->migrateIndex()', () => {
             times(10, (n) => {
                 body.push(
                     {
-                        index: {
+                        index: indexManager.esVersion >= 7 ? {
+                            _index: previousIndex,
+                        } : {
                             _index: previousIndex,
                             _type: previousConfig.name,
                         },

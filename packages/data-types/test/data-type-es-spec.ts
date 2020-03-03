@@ -25,7 +25,7 @@ describe('DataType (elasticsearch)', () => {
             }
         });
 
-        it('can create an elasticsearch mapping', () => {
+        it('can create a elasticsearch 6 mapping', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
@@ -39,7 +39,7 @@ describe('DataType (elasticsearch)', () => {
 
             const results = {
                 mappings: {
-                    events: {
+                    _doc: {
                         _all: {
                             enabled: false,
                         },
@@ -58,7 +58,34 @@ describe('DataType (elasticsearch)', () => {
 
             const dataType = new DataType(typeConfig);
 
-            expect(dataType.toESMapping({ typeName: 'events' })).toEqual(results);
+            expect(dataType.toESMapping({
+                version: 6,
+            })).toEqual(results);
+        });
+
+        it('can create a elasticsearch 7 mapping', () => {
+            const typeConfig: DataTypeConfig = {
+                version: LATEST_VERSION,
+                fields: {
+                    foo: { type: 'String' },
+                    bar: { type: 'String' },
+                },
+            };
+
+            const results = {
+                mappings: {
+                    dynamic: false,
+                    properties: {
+                        foo: { type: 'keyword' },
+                        bar: { type: 'keyword' },
+                    },
+                },
+                settings: {},
+            };
+
+            const dataType = new DataType(typeConfig);
+
+            expect(dataType.toESMapping({ version: 7 })).toEqual(results);
         });
 
         it('can create an elasticsearch mapping with nested objects', () => {

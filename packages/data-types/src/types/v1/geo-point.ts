@@ -1,10 +1,9 @@
-import { xLuceneFieldType } from '@terascope/types';
+import { xLuceneFieldType, ESFieldType } from '@terascope/types';
 import BaseType, { ToGraphQLOptions } from '../base-type';
-import { ElasticSearchTypes } from '../../interfaces';
 
 export default class GeoPointType extends BaseType {
     toESMapping(_version?: number) {
-        return { mapping: { [this.field]: { type: 'geo_point' as ElasticSearchTypes } } };
+        return { mapping: { [this.field]: { type: 'geo_point' as ESFieldType } } };
     }
 
     toGraphQL({ isInput }: ToGraphQLOptions = {}) {

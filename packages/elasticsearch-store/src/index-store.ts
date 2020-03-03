@@ -17,6 +17,7 @@ export default class IndexStore<T extends Record<string, any>> {
     readonly manager: IndexManager;
     readonly name: string;
     refreshByDefault = true;
+    readonly esVersion: number;
     protected _defaultQueryAccess: QueryAccess<T>|undefined;
     readonly xLuceneTypeConfig: xLuceneTypeConfig;
 
@@ -45,6 +46,7 @@ export default class IndexStore<T extends Record<string, any>> {
         this.config = config;
         this.name = utils.toInstanceName(this.config.name);
         this.manager = new IndexManager(client);
+        this.esVersion = this.manager.esVersion;
 
         this.indexQuery = this.manager.formatIndexName(config);
 
@@ -90,7 +92,9 @@ export default class IndexStore<T extends Record<string, any>> {
     async bulk(action: 'update', doc?: Partial<T>, id?: string): Promise<void>;
     async bulk(action: i.BulkAction, ...args: any[]) {
         const metadata: BulkRequestMetadata = {};
-        metadata[action] = {
+        metadata[action] = this.esVersion >= 7 ? {
+            _index: this.indexQuery,
+        } : {
             _index: this.indexQuery,
             _type: this.config.name,
         };
@@ -337,8 +341,7 @@ export default class IndexStore<T extends Record<string, any>> {
             const existing = await this.get(id) as any;
             const params: any = {};
             if (ts.DataEntity.isDataEntity(existing)) {
-                const esVersion = utils.getESVersion(this.client);
-                if (esVersion >= 7) {
+                if (this.esVersion >= 7) {
                     params.if_seq_no = existing.getMetadata('_seq_no');
                     params.if_primary_term = existing.getMetadata('_primary_term');
                 } else {
@@ -361,7 +364,9 @@ export default class IndexStore<T extends Record<string, any>> {
 
     getDefaultParams(...params: any[]) {
         return Object.assign(
-            {
+            this.esVersion >= 7 ? {
+                index: this.indexQuery,
+            } : {
                 index: this.indexQuery,
                 type: this.config.name,
             },
@@ -547,8 +552,7 @@ export default class IndexStore<T extends Record<string, any>> {
         params: PartialParam<SearchParams<T>>,
         critical?: boolean
     ): Promise<T[]> {
-        const esVersion = utils.getESVersion(this.client);
-        if (esVersion >= 7) {
+        if (this.esVersion >= 7) {
             const p: any = params;
             if (p._sourceExclude) {
                 p._sourceExcludes = p._sourceExclude.slice();
@@ -779,7 +783,7 @@ type BulkRequestData<T> = T | { doc: Partial<T> } | null;
 type BulkRequestMetadata = {
     [key in i.BulkAction]?: {
         _index: string;
-        _type: string;
+        _type?: string;
         _id?: string;
     }
 };

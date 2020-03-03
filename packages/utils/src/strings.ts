@@ -1,4 +1,3 @@
-import jsStringEscape from 'js-string-escape';
 import { MACAddress } from '@terascope/types';
 
 /** A simplified implemation of lodash isString */
@@ -9,8 +8,11 @@ export function isString(val: any): val is string {
 /** Safely convert any input to a string */
 export function toString(val: any): string {
     if (val == null) return '';
-    if (isString(val)) return val;
-    if (typeof val === 'number' && !Number.isNaN(val)) return `${val}`;
+    const type = typeof val;
+    if (type === 'string') return val;
+    if (type === 'bigint' || type === 'number' || type === 'symbol' || type === 'boolean') {
+        return String(val);
+    }
     if (val.message && val.stack) {
         return val.toString();
     }
@@ -54,11 +56,6 @@ export function trimAndToLower(input?: string): string {
 /** safely trim and to lower a input, useful for string comparison */
 export function trimAndToUpper(input?: string): string {
     return trim(input).toUpperCase();
-}
-
-/** Escape characters in string and avoid double escaping */
-export function escapeString(input: string|number): string {
-    return jsStringEscape(`${input}`);
 }
 
 /** Unescape characters in string and avoid double escaping */
@@ -402,4 +399,25 @@ export function isMacAddress(input: any, args?: MACAddress): boolean {
     }
 
     return delimiters[delimiter].test(input);
+}
+
+/**
+ * Maps an array of strings and and trims the result, or
+ * parses a comma separated list and trims the result
+ */
+export function parseList(input: any): string[] {
+    let strings: string[] = [];
+
+    if (isString(input)) {
+        strings = input.split(',');
+    } else if (Array.isArray(input)) {
+        strings = input.map((val) => {
+            if (!val) return '';
+            return toString(val);
+        });
+    } else {
+        return [];
+    }
+
+    return strings.map((s) => s.trim()).filter((s) => !!s);
 }

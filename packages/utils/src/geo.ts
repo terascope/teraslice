@@ -11,8 +11,7 @@ import {
     GeoShapePolygon,
     GeoShapeMultiPolygon
 } from '@terascope/types';
-import geoHash from 'latlon-geohash';
-import { isPlainObject } from './objects';
+import { isPlainObject, geoHash } from './deps';
 import { trim } from './strings';
 import { parseNumberList, toNumber, isNumber } from './numbers';
 import { TSError } from './errors';

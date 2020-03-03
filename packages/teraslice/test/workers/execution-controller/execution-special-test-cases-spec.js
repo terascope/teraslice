@@ -1,6 +1,6 @@
 'use strict';
 
-const uuidv4 = require('uuid/v4');
+const { v4: uuidv4 } = require('uuid');
 const { pDelay, times, random } = require('@terascope/utils');
 const { RecoveryCleanupType } = require('@terascope/job-components');
 const Messaging = require('@terascope/teraslice-messaging');

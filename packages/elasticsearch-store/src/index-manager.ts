@@ -10,6 +10,7 @@ const _loggers = new WeakMap<IndexConfig, ts.Logger>();
  */
 export default class IndexManager {
     readonly client: es.Client;
+    readonly esVersion: number;
 
     constructor(client: es.Client) {
         if (!utils.isValidClient(client)) {
@@ -18,6 +19,7 @@ export default class IndexManager {
             });
         }
 
+        this.esVersion = utils.getESVersion(client);
         this.client = client;
     }
 
@@ -77,12 +79,11 @@ export default class IndexManager {
             await ts.pDelay(ts.random(0, 5000));
         }
 
-        const esVersion = utils.getESVersion(this.client);
-        logger.trace(`Using elasticsearch version ${esVersion}`);
+        logger.trace(`Using elasticsearch version ${this.esVersion}`);
 
         const body: any = config.data_type.toESMapping({
             typeName: config.name,
-            version: esVersion,
+            version: this.esVersion,
             overrides: {
                 settings,
             }
@@ -235,9 +236,8 @@ export default class IndexManager {
 
     async getMapping(index: string) {
         const params: any = { index };
-        const esVersion = utils.getESVersion(this.client);
-        if (esVersion > 6) {
-            params.includeTypeName = true;
+        if (this.esVersion === 7) {
+            params.includeTypeName = false;
         }
         return this.client.indices.getMapping(params);
     }
@@ -250,9 +250,9 @@ export default class IndexManager {
                 properties,
             },
         };
-        const esVersion = utils.getESVersion(this.client);
-        if (esVersion > 6) {
-            params.includeTypeName = true;
+        if (this.esVersion >= 7) {
+            delete params.type;
+            params.includeTypeName = false;
         }
         return this.client.indices.putMapping(params);
     }
@@ -264,8 +264,13 @@ export default class IndexManager {
      */
     async updateMapping(index: string, type: string, mapping: any, logger: ts.Logger) {
         const result = await this.getMapping(index);
-        const existing = ts.get(result, [index, 'mappings', type, 'properties'], {});
-        const current = ts.get(mapping, ['mappings', type, 'properties'], {});
+
+        const propertiesPath = this.esVersion >= 7 ? [
+            'mappings', 'properties'
+        ] : ['mappings', type, 'properties'];
+
+        const existing = ts.get(result[index], propertiesPath, {});
+        const current = ts.get(mapping, propertiesPath, {});
 
         let breakingChange = false;
         let safeChange = false;
@@ -302,9 +307,8 @@ export default class IndexManager {
 
     async getTemplate(name: string, flatSettings: boolean) {
         const params: any = { name, flatSettings };
-        const esVersion = utils.getESVersion(this.client);
-        if (esVersion > 6) {
-            params.includeTypeName = true;
+        if (this.esVersion === 7) {
+            params.includeTypeName = false;
         }
         return this.client.indices.getTemplate(params);
     }

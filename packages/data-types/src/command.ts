@@ -2,8 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import yargs from 'yargs';
 import { TSError, get, set } from '@terascope/utils';
+import { ESMapping } from '@terascope/types';
 import { DataType, DataTypeConfig } from './index';
-import { ESMapping } from './interfaces';
 import { validateDataTypeConfig } from './utils';
 
 // change pathing due to /dist/src issues

@@ -1,6 +1,5 @@
-import { xLuceneFieldType } from '@terascope/types';
+import { xLuceneFieldType, ESFieldType } from '@terascope/types';
 import BaseType, { ToGraphQLOptions } from '../base-type';
-import { ElasticSearchTypes } from '../../interfaces';
 
 export default class Boundary extends BaseType {
     toESMapping(_version?: number) {
@@ -8,8 +7,8 @@ export default class Boundary extends BaseType {
             mapping: {
                 [this.field]: {
                     properties: {
-                        lat: { type: 'float' as ElasticSearchTypes },
-                        lon: { type: 'float' as ElasticSearchTypes },
+                        lat: { type: 'float' as ESFieldType },
+                        lon: { type: 'float' as ESFieldType },
                     },
                 },
             },

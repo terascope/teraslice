@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { Queue } from '../src';
+import { Queue } from '../src/queue';
 
 describe('Queue', () => {
     it('has methods enqueue, dequeue and size', () => {

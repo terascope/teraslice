@@ -1,5 +1,5 @@
 import { cpus } from 'os';
-import { times } from '@terascope/utils';
+import { times, once } from '@terascope/utils';
 import * as i from './interfaces';
 
 export default function masterModule<S = {}, A = {}, D extends string = string>(
@@ -34,13 +34,10 @@ export default function masterModule<S = {}, A = {}, D extends string = string>(
         let funcRun = 0;
         let shutdownInterval: NodeJS.Timer;
 
-        let emittedShutdown = false;
-        const emitShutdown = () => {
-            if (emittedShutdown) return;
-            emittedShutdown = true;
+        const emitShutdown = once(() => {
             // optional hook for shutdown sequences
             events.emit('terafoundation:shutdown');
-        };
+        });
 
         function shutdownWorkers() {
             workersAlive = 0;

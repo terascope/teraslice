@@ -1,9 +1,11 @@
 import 'jest-extended';
 import {
+    escapeString
+} from '../src/deps';
+import {
     toSafeString,
     unescapeString,
     getWordParts,
-    escapeString,
     matchAll,
     match,
     formatRegex,
@@ -11,8 +13,9 @@ import {
     toCamelCase,
     toPascalCase,
     toSnakeCase,
-    toKebabCase
-} from '../src';
+    toKebabCase,
+    parseList
+} from '../src/strings';
 
 describe('String Utils', () => {
     describe('toSafeString', () => {
@@ -156,9 +159,20 @@ describe('String Utils', () => {
             ['/<(.*?)>/gmi', '<tag1> something <tag2>', ['tag1', 'tag2']],
             ['/.*/', 'something', ['something']],
             ['<(\\w+)>.*<(\\d+)>', '<tag1> hello <1234>', ['tag1', '1234']]
-            // @ts-ignore
         ])('should match %s to %s', (regex: string, input: string, expected: any) => {
             expect(matchAll(regex, input)).toEqual(expected);
+        });
+    });
+
+    describe('parseList', () => {
+        test.each([
+            ['a', ['a']],
+            ['a,b,c', ['a', 'b', 'c']],
+            ['a , b,c,   ', ['a', 'b', 'c']],
+            [['a ', ' b ', 'c ', false, '', null], ['a', 'b', 'c']],
+            [null, []]
+        ])('should parse %j to be %j', (input, expected) => {
+            expect(parseList(input)).toEqual(expected);
         });
     });
 });
