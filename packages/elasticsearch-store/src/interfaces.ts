@@ -277,3 +277,9 @@ export interface MigrateIndexOptions {
 }
 
 export type MigrateIndexStoreOptions = Omit<MigrateIndexOptions, 'config'>;
+
+export type SearchResult<T> = {
+    _total: number;
+    _fetched: number;
+    results: T[];
+};
