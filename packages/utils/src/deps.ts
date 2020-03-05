@@ -15,7 +15,7 @@ import geoHash from 'latlon-geohash';
 /**
  * Detect if an object created by Object.create(null)
 */
-export function isNullObject(input: any): boolean {
+function isNullObject(input: any): boolean {
     return input != null && typeof input === 'object' && input.constructor === undefined;
 }
 
