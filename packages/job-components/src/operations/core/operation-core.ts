@@ -33,7 +33,7 @@ export default class OperationCore<T = OpConfig>
         });
         super(context, executionConfig, logger);
 
-        this.deadLetterAction = opConfig._dead_letter_action || 'none';
+        this.deadLetterAction = opConfig._dead_letter_action || 'throw';
         this.opConfig = opConfig;
     }
 
@@ -94,12 +94,12 @@ export default class OperationCore<T = OpConfig>
      * @returns null
      */
     rejectRecord(input: any, err: Error): never | null {
-        if (!this.deadLetterAction) return null;
-        if (this.deadLetterAction === 'none') return null;
-
-        if (this.deadLetterAction === 'throw') {
+        if (this.deadLetterAction === 'throw' || !this.deadLetterAction) {
             throw err;
         }
+
+        if (this.deadLetterAction === 'none') return null;
+
         if (this.deadLetterAction === 'log') {
             this.logger.error(err, 'Bad record', input);
             return null;

@@ -305,7 +305,7 @@ describe('when using native clustering', () => {
             expect(config).toEqual({
                 _op: 'some-op',
                 _encoding: 'json',
-                _dead_letter_action: 'none',
+                _dead_letter_action: 'throw',
                 example: 'example',
                 formatted_value: 'hi',
                 test: true,
@@ -324,7 +324,7 @@ describe('when using native clustering', () => {
             expect(config).toEqual({
                 _op: 'some-op',
                 _encoding: 'json',
-                _dead_letter_action: 'none',
+                _dead_letter_action: 'throw',
                 example: 'example',
                 formatted_value: 'hi',
                 test: true,
