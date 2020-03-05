@@ -6,11 +6,38 @@ import has from 'lodash.has';
 import set from 'lodash.set';
 import get from 'lodash.get';
 import unset from 'lodash.unset';
-import isPlainObject from 'is-plain-object';
-import clone from 'shallow-clone';
+import _isPlainObject from 'is-plain-object';
+import _clone from 'shallow-clone';
 import kindOf from 'kind-of';
 import jsStringEscape from 'js-string-escape';
 import geoHash from 'latlon-geohash';
+
+/**
+ * Detect if an object created by Object.create(null)
+*/
+export function isNullObject(input: any): boolean {
+    return input != null && typeof input === 'object' && input.constructor === undefined;
+}
+
+/**
+ * Detect if value is a plain object, that is, an object created by the Object constructor or one via Object.create(null)
+*/
+export function isPlainObject(input: any): boolean {
+    if (input == null) return false;
+    if (_isPlainObject(input)) return true;
+    if (isNullObject(input)) return true;
+    return false;
+}
+
+/**
+ * Shallow clone an object
+*/
+export function clone(input: any): boolean {
+    if (isNullObject(input)) {
+        return Object.assign(Object.create(null), input);
+    }
+    return _clone(input);
+}
 
 function _isDataEntity(input: any): boolean {
     return input && typeof input === 'object' && Boolean(input.__isDataEntity);
@@ -58,11 +85,11 @@ function _cloneDataEntity(input: any) {
 
 const _cloneTypeHandlers = Object.freeze({
     object(input: any): any {
-        if (typeof input.constructor === 'function') {
-            if (_isDataEntity(input)) {
-                return _cloneDataEntity(input);
-            }
+        if (_isDataEntity(input)) {
+            return _cloneDataEntity(input);
+        }
 
+        if (typeof input.constructor === 'function') {
             const res = new input.constructor();
             // eslint-disable-next-line guard-for-in
             for (const key in input) {
@@ -70,10 +97,17 @@ const _cloneTypeHandlers = Object.freeze({
             }
             return res;
         }
-        return input;
-    },
-    DataEntity(input: any): any {
-        return input;
+
+        if (isNullObject(input)) {
+            const res = Object.create(null);
+            // eslint-disable-next-line guard-for-in
+            for (const key in input) {
+                res[key] = cloneDeep(input[key]);
+            }
+            return res;
+        }
+
+        return clone(input);
     },
     array(input: any): any {
         const res = new input.constructor(input.length);
@@ -126,8 +160,6 @@ export function escapeString(input: string|number): string {
 }
 
 export {
-    clone,
-    isPlainObject,
     get,
     set,
     unset,

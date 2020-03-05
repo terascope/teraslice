@@ -40,6 +40,7 @@ describe('Dependency Utils', () => {
     describe('getTypeOf', () => {
         it('should return the correct kind', () => {
             expect(getTypeOf({})).toEqual('Object');
+            expect(getTypeOf(Object.create(null))).toEqual('Object');
 
             expect(getTypeOf(new DataEntity({}))).toEqual('DataEntity');
             expect(getTypeOf(DataEntity.make({}))).toEqual('DataEntity');
@@ -78,6 +79,17 @@ describe('Dependency Utils', () => {
             output.b.c = 3;
             expect(output.b.c).toBe(3);
             expect(input.b.c).toBe(2);
+        });
+
+        it('should clone deep an object created by Object.create(null)', () => {
+            const input: any = Object.create(null);
+            input.foo = { bar: true };
+            const output = cloneDeep(input);
+            expect(output).not.toBe(input);
+            expect(output.foo).not.toBe(input.foo);
+            output.foo.bar = false;
+            expect(output.foo.bar).toBe(false);
+            expect(input.foo.bar).toBe(true);
         });
 
         it('should clone deep an array of objects', () => {
@@ -121,6 +133,16 @@ describe('Dependency Utils', () => {
             output.setRawData(Buffer.from('changed'));
             expect(output.getRawData().toString('utf-8')).toEqual('changed');
             expect(input.getRawData().toString('utf-8')).toEqual('foo-bar');
+        });
+
+        it('should clone deep an object with classes', () => {
+            const input = { obj: new TestObj() };
+            const output = cloneDeep(input);
+            expect(output).not.toBe(input);
+            expect(output.obj).not.toBe(input.obj);
+            output.obj.hi = false;
+            expect(output.obj.hi).toBe(false);
+            expect(input.obj.hi).toBe(true);
         });
     });
 });
