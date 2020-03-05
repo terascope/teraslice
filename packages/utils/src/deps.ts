@@ -44,58 +44,17 @@ function _isDataEntity(input: any): boolean {
     return input && typeof input === 'object' && Boolean(input.__isDataEntity);
 }
 
-function _cloneDataEntity(input: any) {
-    const res = new input.constructor();
-    // eslint-disable-next-line guard-for-in
-    for (const key in input) {
-        res[key] = cloneDeep(input[key]);
-    }
-
-    try {
-        Object.defineProperty(res, '__IS_DATAENTITY_KEY', {
-            value: true,
-            configurable: false,
-            enumerable: false,
-            writable: false,
-        });
-    } catch (_err) {
-        res.__IS_DATAENTITY_KEY = true;
-    }
-
-    try {
-        Object.defineProperty(res, '__ENTITY_METADATA_KEY', {
-            value: {},
-            configurable: false,
-            enumerable: false,
-            writable: false,
-        });
-    // eslint-disable-next-line no-empty
-    } catch (_err) {}
-
-    if (input.___EntityMetadata) {
-        res.___EntityMetadata.rawData = clone(input.___EntityMetadata.rawData);
-        res.___EntityMetadata.metadata = cloneDeep(input.___EntityMetadata.metadata);
-        res.___EntityMetadata.metadata._createTime = Date.now();
-    } else {
-        res.___EntityMetadata.metadata = {};
-        res.___EntityMetadata.metadata._createTime = Date.now();
-    }
-
-    return res;
-}
-
 const _cloneTypeHandlers = Object.freeze({
     object(input: any): any {
-        if (_isDataEntity(input)) {
-            return _cloneDataEntity(input);
-        }
-
-        const res = Object.create(isNullObject(input) ? null : input);
+        const descriptors = Object.getOwnPropertyDescriptors(input);
         // eslint-disable-next-line guard-for-in
-        for (const key in input) {
-            res[key] = cloneDeep(input[key]);
+        for (const key in descriptors) {
+            descriptors[key].value = cloneDeep(descriptors[key].value);
         }
-        return res;
+        return Object.create(
+            Object.getPrototypeOf(input),
+            descriptors
+        );
     },
     array(input: any): any {
         const res = new input.constructor(input.length);

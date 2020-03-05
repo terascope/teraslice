@@ -173,7 +173,9 @@ describe('DataEntity', () => {
                         test: 'hello'
                     });
                     const ogCreateTime = dataEntity.getMetadata('_createTime');
-                    expect(newDataEntity.getMetadata('_createTime')).not.toEqual(ogCreateTime);
+                    if (cloneMethod !== 'cloneDeep') {
+                        expect(newDataEntity.getMetadata('_createTime')).not.toEqual(ogCreateTime);
+                    }
                     expect(newDataEntity.getMetadata()).not.toMatchObject(dataEntity.getMetadata());
                 }
             );

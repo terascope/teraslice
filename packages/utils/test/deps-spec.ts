@@ -102,6 +102,15 @@ describe('Dependency Utils', () => {
             expect(input.foo.bar).toEqual(true);
         });
 
+        it('should clone deeping a freezed object', () => {
+            const input: Readonly<{ foo: { bar: true }}> = Object.freeze({
+                foo: { bar: true }
+            });
+            const output = cloneDeep(input);
+            expect(output).not.toBe(input);
+            expect(output.foo).not.toBe(input.foo);
+        });
+
         it('should clone deep an array of objects', () => {
             const input = [{ foo: { bar: 1 } }, { foo: { bar: 1 } }];
             const output = cloneDeep(input);
