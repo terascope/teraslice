@@ -17,6 +17,16 @@ describe('Dependency Utils', () => {
         test = true
     }
 
+    class ClassWithValidation {
+        value: number
+        constructor(value: number) {
+            if (typeof value !== 'number') {
+                throw new Error('Expected number');
+            }
+            this.value = value;
+        }
+    }
+
     describe('isPlainObject', () => {
         it('should correctly detect the an object type', () => {
             // @ts-ignore
@@ -77,8 +87,8 @@ describe('Dependency Utils', () => {
             expect(output).not.toBe(input);
             expect(output.b).not.toBe(input.b);
             output.b.c = 3;
-            expect(output.b.c).toBe(3);
-            expect(input.b.c).toBe(2);
+            expect(output.b.c).toEqual(3);
+            expect(input.b.c).toEqual(2);
         });
 
         it('should clone deep an object created by Object.create(null)', () => {
@@ -88,8 +98,8 @@ describe('Dependency Utils', () => {
             expect(output).not.toBe(input);
             expect(output.foo).not.toBe(input.foo);
             output.foo.bar = false;
-            expect(output.foo.bar).toBe(false);
-            expect(input.foo.bar).toBe(true);
+            expect(output.foo.bar).toEqual(false);
+            expect(input.foo.bar).toEqual(true);
         });
 
         it('should clone deep an array of objects', () => {
@@ -101,8 +111,8 @@ describe('Dependency Utils', () => {
                 const outputItem = output[i++];
                 expect(outputItem).not.toBe(inputItem);
                 outputItem.foo.bar = 10;
-                expect(outputItem.foo.bar).toBe(10);
-                expect(inputItem.foo.bar).toBe(1);
+                expect(outputItem.foo.bar).toEqual(10);
+                expect(inputItem.foo.bar).toEqual(1);
             }
         });
 
@@ -116,14 +126,14 @@ describe('Dependency Utils', () => {
             expect(output).not.toBe(input);
             expect(output.b).not.toBe(input.b);
             output.b.c = 3;
-            expect(output.b.c).toBe(3);
-            expect(input.b.c).toBe(2);
+            expect(output.b.c).toEqual(3);
+            expect(input.b.c).toEqual(2);
 
             // Test metadata mutation
-            expect(output.getMetadata('_key')).toBe('foo');
+            expect(output.getMetadata('_key')).toEqual('foo');
             output.setMetadata('_key', 'bar');
-            expect(output.getMetadata('_key')).toBe('bar');
-            expect(input.getMetadata('_key')).toBe('foo');
+            expect(output.getMetadata('_key')).toEqual('bar');
+            expect(input.getMetadata('_key')).toEqual('foo');
 
             // Test raw data mutation
             expect(output.getRawData()).not.toBe(input.getRawData());
@@ -140,9 +150,21 @@ describe('Dependency Utils', () => {
             const output = cloneDeep(input);
             expect(output).not.toBe(input);
             expect(output.obj).not.toBe(input.obj);
+            expect(output.obj).toBeInstanceOf(TestObj);
             output.obj.hi = false;
-            expect(output.obj.hi).toBe(false);
-            expect(input.obj.hi).toBe(true);
+            expect(output.obj.hi).toEqual(false);
+            expect(input.obj.hi).toEqual(true);
+        });
+
+        it('should clone deep a class with validation', () => {
+            const input = new ClassWithValidation(123);
+            const output = cloneDeep(input);
+            expect(output).not.toBe(input);
+            expect(output).toBeInstanceOf(ClassWithValidation);
+            expect(output.value).toEqual(123);
+            output.value = 456;
+            expect(output.value).toBe(456);
+            expect(input.value).toBe(123);
         });
     });
 });

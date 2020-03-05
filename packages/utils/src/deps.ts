@@ -20,7 +20,8 @@ export function isNullObject(input: any): boolean {
 }
 
 /**
- * Detect if value is a plain object, that is, an object created by the Object constructor or one via Object.create(null)
+ * Detect if value is a plain object, that is,
+ * an object created by the Object constructor or one via Object.create(null)
 */
 export function isPlainObject(input: any): boolean {
     if (input == null) return false;
@@ -89,25 +90,12 @@ const _cloneTypeHandlers = Object.freeze({
             return _cloneDataEntity(input);
         }
 
-        if (typeof input.constructor === 'function') {
-            const res = new input.constructor();
-            // eslint-disable-next-line guard-for-in
-            for (const key in input) {
-                res[key] = cloneDeep(input[key]);
-            }
-            return res;
+        const res = Object.create(isNullObject(input) ? null : input);
+        // eslint-disable-next-line guard-for-in
+        for (const key in input) {
+            res[key] = cloneDeep(input[key]);
         }
-
-        if (isNullObject(input)) {
-            const res = Object.create(null);
-            // eslint-disable-next-line guard-for-in
-            for (const key in input) {
-                res[key] = cloneDeep(input[key]);
-            }
-            return res;
-        }
-
-        return clone(input);
+        return res;
     },
     array(input: any): any {
         const res = new input.constructor(input.length);
