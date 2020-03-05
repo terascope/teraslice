@@ -200,31 +200,11 @@ describe('Utils', () => {
             ]);
         });
 
-        it('should be able to work with a concurrency of 1', async () => {
-            const items: number[] = [1, 2, 3];
-            const start = Date.now();
-            const concurrency = 1;
-            const wait = 300;
-
-            const result = pMap(items, async (item, i) => {
-                const diff = Date.now() - start;
-                if (i % concurrency === 0) {
-                    await pDelay(wait);
-                }
-                return Math.floor(diff / wait) * wait;
-            }, {
-                concurrency
-            });
-            return expect(result).resolves.toEqual([
-                0, 300, 600
-            ]);
-        });
-
         it('should be able to work with a concurrency of 2', async () => {
             const items: number[] = [1, 2, 3, 4, 5];
             const start = Date.now();
             const concurrency = 2;
-            const wait = 300;
+            const wait = 500;
 
             const result = pMap(items, async (item, i) => {
                 const diff = Date.now() - start;
@@ -236,7 +216,7 @@ describe('Utils', () => {
                 concurrency
             });
             return expect(result).resolves.toEqual([
-                0, 0, 300, 300, 600
+                0, 0, 500, 500, 1000
             ]);
         });
     });
