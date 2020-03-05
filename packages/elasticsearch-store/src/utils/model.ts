@@ -78,6 +78,5 @@ export function toInstanceName(name: string): string {
 
 const _wildcardRegex = /[^A-Za-z0-9]/gm;
 export function uniqueFieldQuery(field: string): string {
-    if (!_wildcardRegex.test(field)) return `"${field}"`;
-    return field.replace(_wildcardRegex, '?');
+    return `/${field.replace(_wildcardRegex, '.')}/`;
 }

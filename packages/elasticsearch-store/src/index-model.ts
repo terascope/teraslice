@@ -200,7 +200,9 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
             }
             if (existing && existing[field] === record[field]) continue;
 
-            let query = `${field}:${utils.uniqueFieldQuery(String(record[field]))}`;
+            const fieldKey = this._hasTextAnalyzer(field) ? `${field}.text` : field;
+
+            let query = `${fieldKey}:${utils.uniqueFieldQuery(String(record[field]))}`;
             if (record.client_id && record.client_id > 0) {
                 query += ` AND client_id: ${record.client_id}`;
             }
@@ -213,5 +215,13 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
                 });
             }
         }
+    }
+
+    private _hasTextAnalyzer(field: keyof T): boolean {
+        const fieldConfig = this.config.data_type.fields[field as string];
+        if (!fieldConfig) return false;
+        if (fieldConfig.type !== 'KeywordCaseInsensitive') return false;
+        if (!fieldConfig.use_fields_hack) return false;
+        return true;
     }
 }

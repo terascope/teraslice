@@ -175,6 +175,20 @@ describe('IndexModel', () => {
                     expect(err.statusCode).toEqual(409);
                 }
             });
+            it('should NOT be able to create a record with a similar lowercased name and client', async () => {
+                try {
+                    await expect(indexModel.createRecord({
+                        client_id: 5,
+                        name: name.toLowerCase(),
+                        type: name,
+                        config: {},
+                    })).toReject();
+                } catch (err) {
+                    expect(err.message).toEqual('ExampleModel requires name to be unique');
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.statusCode).toEqual(409);
+                }
+            });
 
             it('should be able to create the same name in different client', async () => {
                 await expect(indexModel.createRecord({

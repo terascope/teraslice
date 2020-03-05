@@ -9,28 +9,28 @@ import {
 
 describe('Elasticsearch Store Utils', () => {
     describe('uniqueFieldQuery', () => {
-        it('should return a quouted value when there are no special characters', () => {
+        it('should return not return an dots for a valid string', () => {
             expect(
-                uniqueFieldQuery('fooBar')
-            ).toEqual('"fooBar"');
+                uniqueFieldQuery('fooBar0123')
+            ).toEqual('/fooBar0123/');
         });
 
-        it('should return a wildcard with a ? for dashes', () => {
+        it('should return . for each dashe', () => {
             expect(
                 uniqueFieldQuery('test-a-b-c')
-            ).toEqual('test?a?b?c');
+            ).toEqual('/test.a.b.c/');
         });
 
-        it('should return a wildcard with a ? for underscores', () => {
+        it('should return . for each underscore', () => {
             expect(
                 uniqueFieldQuery('test_a_b_c')
-            ).toEqual('test?a?b?c');
+            ).toEqual('/test.a.b.c/');
         });
 
-        it('should return a wildcard with a ? for other misc characters', () => {
+        it('should return . for each special characters', () => {
             expect(
-                uniqueFieldQuery('h*ll@^[]{})"\'`hih/\\ AND (')
-            ).toEqual('h?ll??????????hih???AND??');
+                uniqueFieldQuery('h*ll.?@^[]{})"\'`hih/\\ AND (')
+            ).toEqual('/h.ll............hih...AND../');
         });
     });
 
