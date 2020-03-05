@@ -47,7 +47,7 @@ export function sortKeys<T extends object>(
     input: T,
     options: { deep?: boolean } = {}
 ): T {
-    const result: Partial<T> = Object.create(null);
+    const result: Partial<T> = {};
 
     for (const key of Object.keys(input).sort()) {
         const val = input[key];
@@ -63,7 +63,7 @@ export function sortKeys<T extends object>(
 
 /** Map the values of an object */
 export function mapValues<T, R = T>(input: T, fn: (value: T[keyof T], key: (keyof T)) => any): R {
-    const result = Object.create(null) as Partial<R>;
+    const result = {} as Partial<R>;
 
     for (const [key, val] of Object.entries(input)) {
         result[key] = fn(val, key as keyof T);
@@ -74,7 +74,7 @@ export function mapValues<T, R = T>(input: T, fn: (value: T[keyof T], key: (keyo
 
 /** Map the keys of an object */
 export function mapKeys<T, R = T>(input: T, fn: (value: T[keyof T], key: (keyof T)) => any): R {
-    const result = Object.create(null) as Partial<R>;
+    const result = {} as Partial<R>;
 
     for (const [key, val] of Object.entries(input)) {
         result[fn(val, key as keyof T)] = val;
@@ -85,7 +85,7 @@ export function mapKeys<T, R = T>(input: T, fn: (value: T[keyof T], key: (keyof 
 
 /** Build a new object without null or undefined values (shallow) */
 export function withoutNil<T extends object>(input: T): WithoutNil<T> {
-    const result: Partial<WithoutNil<T>> = Object.create(null);
+    const result: Partial<WithoutNil<T>> = {};
 
     for (const key of Object.keys(input).sort()) {
         if (input[key] != null) {
@@ -110,7 +110,7 @@ export function filterObject<
         excludes = []
     } = by || {};
 
-    const result: Partial<FilteredResult<T, I, E>> = Object.create(null);
+    const result: Partial<FilteredResult<T, I, E>> = {};
     Object.keys(data)
         .filter((key) => {
             const included = includes.length ? includes.includes(key as I) : true;
