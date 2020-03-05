@@ -200,9 +200,12 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
             }
             if (existing && existing[field] === record[field]) continue;
 
-            const count = await this.countRecords({
-                [field]: record[field],
-            } as AnyInput<T>, record.client_id);
+            let query = `${field}:${utils.uniqueFieldQuery(String(record[field]))}`;
+            if (record.client_id && record.client_id > 0) {
+                query += ` AND client_id: ${record.client_id}`;
+            }
+            query += ' AND _deleted:false';
+            const count = await this.count(query);
 
             if (count > 0) {
                 throw new ts.TSError(`${this.name} requires ${field} to be unique`, {

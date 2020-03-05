@@ -134,7 +134,7 @@ describe('IndexModel', () => {
         });
 
         describe('when testing uniqueness', () => {
-            const name = 'SomeBody';
+            const name = 'Some@Body_ _hello*';
             let id: string;
 
             beforeAll(async () => {
@@ -148,12 +148,27 @@ describe('IndexModel', () => {
 
             it('should NOT be able to create a record with the same name and client', async () => {
                 try {
-                    await indexModel.createRecord({
+                    await expect(indexModel.createRecord({
                         client_id: 5,
                         name,
                         type: name,
                         config: {},
-                    });
+                    })).toReject();
+                } catch (err) {
+                    expect(err.message).toEqual('ExampleModel requires name to be unique');
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.statusCode).toEqual(409);
+                }
+            });
+
+            it('should NOT be able to create a record with a similiar name and client', async () => {
+                try {
+                    await expect(indexModel.createRecord({
+                        client_id: 5,
+                        name: 'Some-Body_(_hello?',
+                        type: name,
+                        config: {},
+                    })).toReject();
                 } catch (err) {
                     expect(err.message).toEqual('ExampleModel requires name to be unique');
                     expect(err).toBeInstanceOf(TSError);
@@ -189,10 +204,8 @@ describe('IndexModel', () => {
         });
 
         it('should not be able to create the record without a name', async () => {
-            expect.hasAssertions();
-
             try {
-                await indexModel.createRecord({} as any);
+                await expect(indexModel.createRecord({} as any)).toReject();
             } catch (err) {
                 expect(err.message).toEqual('ExampleModel requires field name');
                 expect(err).toBeInstanceOf(TSError);
@@ -203,9 +216,8 @@ describe('IndexModel', () => {
         describe('when using the convience method findAndApply', () => {
             describe('when given null', () => {
                 it('should throw an error', async () => {
-                    expect.hasAssertions();
                     try {
-                        await indexModel.findAndApply(undefined);
+                        await expect(indexModel.findAndApply(undefined)).toReject();
                     } catch (err) {
                         expect(err.message).toEqual('Invalid input for ExampleModel');
                         expect(err).toBeInstanceOf(TSError);
@@ -229,9 +241,7 @@ describe('IndexModel', () => {
             });
         });
 
-        it('should not be able to update with a different name', async () => {
-            expect.hasAssertions();
-
+        it('should NOT be able to update with a different name', async () => {
             const name = 'fooooobarrr';
             await indexModel.createRecord({
                 name,
@@ -241,10 +251,10 @@ describe('IndexModel', () => {
             });
 
             try {
-                await indexModel.updateRecord(created._key, {
+                await expect(indexModel.updateRecord(created._key, {
                     type: 'billy',
                     name,
-                });
+                })).toReject();
             } catch (err) {
                 expect(err.message).toEqual('ExampleModel requires name to be unique');
                 expect(err).toBeInstanceOf(TSError);
@@ -253,10 +263,10 @@ describe('IndexModel', () => {
         });
 
         it('should not be able to update without an _key', async () => {
-            expect.hasAssertions();
-
             try {
-                await indexModel.updateRecord(undefined as any, {} as any);
+                await expect(
+                    indexModel.updateRecord(undefined as any, {} as any)
+                ).toReject();
             } catch (err) {
                 expect(err.message).toStartWith('Invalid ID given to updateRecord, expected string');
                 expect(err).toBeInstanceOf(TSError);
@@ -285,10 +295,10 @@ describe('IndexModel', () => {
         });
 
         it('should not be able to find by name an incorrect name', async () => {
-            expect.hasAssertions();
-
             try {
-                await indexModel.fetchRecord('WrongBilly');
+                await expect(
+                    indexModel.fetchRecord('WrongBilly')
+                ).toReject();
             } catch (err) {
                 expect(err.message).toEqual('Unable to find ExampleModel by _key: WrongBilly OR name: WrongBilly');
                 expect(err.statusCode).toEqual(404);
@@ -320,12 +330,11 @@ describe('IndexModel', () => {
         });
 
         it('should be able to soft delete the record', async () => {
-            expect.hasAssertions();
             await expect(indexModel.deleteRecord(fetched._key)).resolves.toBeTrue();
             await expect(indexModel.deleteRecord(fetched._key)).resolves.toBeFalse();
 
             try {
-                await indexModel.findById(fetched._key);
+                await expect(indexModel.findById(fetched._key)).toReject();
             } catch (err) {
                 expect(err.message).toInclude('Unable to find');
                 expect(err.statusCode).toEqual(404);
