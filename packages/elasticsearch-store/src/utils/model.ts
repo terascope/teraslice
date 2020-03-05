@@ -1,7 +1,5 @@
 import * as dt from '@terascope/data-types';
 import * as ts from '@terascope/utils';
-import generate from 'nanoid/generate';
-import nanoid from 'nanoid/async';
 
 /** JSON Schema */
 export const schema = {
@@ -50,21 +48,6 @@ export function makeRecordDataType(arg: {
 
 export function addDefaultSchema(input: object) {
     return mergeDefaults(input, schema);
-}
-
-const badIdRegex = new RegExp(/^[-_]+/);
-
-/**
- * Make unique URL friendly id
- */
-export async function makeId(len = 12): Promise<string> {
-    const id = await nanoid(len);
-    const result = badIdRegex.exec(id);
-    if (result && result[0].length) {
-        const chars = generate('1234567890abcdef', result[0].length);
-        return id.replace(badIdRegex, chars);
-    }
-    return id;
 }
 
 /**

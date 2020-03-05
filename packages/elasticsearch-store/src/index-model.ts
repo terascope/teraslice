@@ -2,6 +2,7 @@ import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import { JoinBy } from '@terascope/data-mate';
 import { QueryAccess, RestrictOptions } from 'xlucene-translator';
+import { v4 as uuid } from 'uuid';
 import IndexStore, { AnyInput } from './index-store';
 import * as utils from './utils';
 import * as i from './interfaces';
@@ -94,7 +95,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
             _updated: ts.makeISODate(),
         } as T;
 
-        const id = await utils.makeId();
+        const id = uuid();
         docInput._key = id;
 
         const doc = this._sanitizeRecord(docInput);
