@@ -407,7 +407,7 @@ export default class IndexStore<T extends Record<string, any>> {
     ) {
         const { query, variables } = this.createJoinQuery(fields, joinBy, options?.variables);
 
-        const results = await this.search(
+        const { results } = await this.search(
             query,
             {
                 ...options,
@@ -440,12 +440,14 @@ export default class IndexStore<T extends Record<string, any>> {
     ): Promise<T[]> {
         const { query, variables } = this.createJoinQuery(fields, joinBy, options?.variables);
 
-        return this.search(
+        const { results } = await this.search(
             query,
             { variables, size: 10000, ...options },
             queryAccess,
             false
         );
+
+        return results;
     }
 
     async findById(
@@ -490,7 +492,7 @@ export default class IndexStore<T extends Record<string, any>> {
             [this.config.id_field!]: _ids
         } as AnyInput<T>, 'AND', { variables: options?.variables });
 
-        const result = await this.search(
+        const { results: result } = await this.search(
             query,
             {
                 ...options,
@@ -519,7 +521,7 @@ export default class IndexStore<T extends Record<string, any>> {
         options: i.FindOptions<T> = {},
         queryAccess?: QueryAccess<T>,
         critical?: boolean
-    ): Promise<T[]> {
+    ): Promise<i.SearchResult<T>> {
         const params: Partial<es.SearchParams> = {
             size: options.size,
             sort: options.sort,
@@ -551,7 +553,7 @@ export default class IndexStore<T extends Record<string, any>> {
     async searchRequest(
         params: PartialParam<SearchParams<T>>,
         critical?: boolean
-    ): Promise<T[]> {
+    ): Promise<i.SearchResult<T>> {
         if (this.esVersion >= 7) {
             const p: any = params;
             if (p._sourceExclude) {
@@ -564,7 +566,7 @@ export default class IndexStore<T extends Record<string, any>> {
             }
         }
 
-        const results = await ts.pRetry(async () => this.client.search<T>(
+        const response = await ts.pRetry(async () => this.client.search<T>(
             this.getDefaultParams(
                 {
                     sort: this.config.default_sort,
@@ -573,7 +575,7 @@ export default class IndexStore<T extends Record<string, any>> {
             )
         ), utils.getRetryConfig());
 
-        const { failures, failed } = results._shards as any;
+        const { failures, failed } = response._shards as any;
 
         if (failed) {
             const failureTypes = failures.flatMap((shard: any) => shard.reason.type);
@@ -591,7 +593,13 @@ export default class IndexStore<T extends Record<string, any>> {
             }
         }
 
-        return this._toRecords(results.hits.hits, critical);
+        const total = ts.get(response, 'hits.total.value', ts.get(response, 'hits.total', 0));
+        const results = this._toRecords(response.hits.hits, critical);
+        return {
+            _total: total,
+            _fetched: results.length,
+            results,
+        };
     }
 
     createJoinQuery(fields: AnyInput<T>, joinBy: JoinBy = 'AND', variables = {}): xLuceneQueryResult {

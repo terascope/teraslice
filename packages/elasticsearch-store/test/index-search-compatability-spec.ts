@@ -203,7 +203,8 @@ describe('IndexSearchCompatability', () => {
     });
 
     async function search(q: string) {
-        return indexModel.search(q, { sort: 'id:asc' }, queryAccess);
+        const { results } = await indexModel.search(q, { sort: 'id:asc' }, queryAccess);
+        return results;
     }
 
     describe('search compatability', () => {
