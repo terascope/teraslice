@@ -17,12 +17,11 @@ USAGE
 }
 
 upgrade_interactive() {
-    echoerr "* upgrading packages in $PWD..." &&
-        yarn && yarn upgrade-interactive --latest --caret &&
-        echoerr '* reinstalling node_modules .' &&
-        rm -rf node_modules && yarn --force --check-files --update-checksums &&
-        echoerr '* running yarn setup...' &&
-        yarn setup
+    local cwd_arg="$1"
+
+    echoerr "* upgrading packages in $cwd_arg..." &&
+        yarn --cwd "$cwd_arg" &&
+        yarn --cwd "$cwd_arg" upgrade-interactive --latest
 }
 
 main() {
@@ -34,8 +33,12 @@ main() {
         ;;
     esac
 
-    upgrade_interactive
-    cd e2e && upgrade_interactive;
+    rm -rf packages/*/node_modules
+
+    upgrade_interactive "."
+    upgrade_interactive "e2e"
+
+    ./scripts/reinstall.sh
 }
 
 main "$@"

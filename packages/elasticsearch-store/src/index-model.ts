@@ -28,6 +28,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
             name: modelConfig.name,
             namespace: options.namespace,
             data_type: modelConfig.data_type,
+            enable_index_mutations: options.enable_index_mutations,
             index_schema: {
                 version: modelConfig.version,
             },
