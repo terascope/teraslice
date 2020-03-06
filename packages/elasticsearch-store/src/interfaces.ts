@@ -17,7 +17,7 @@ export interface IndexConfig<T = any> {
     namespace?: string;
 
     /**
-     * Enable index mutations so index won't be auto-created updated
+     * Enable index mutations so indexes will be auto created or updated
     */
     enable_index_mutations?: boolean;
 
@@ -253,9 +253,23 @@ export type SanitizeFields = {
     [field: string]: 'trimAndToLower' | 'trim' | 'toSafeString';
 };
 
+/**
+ * A list of options that are configured during run time and will always override
+ * the config
+*/
 export interface IndexModelOptions {
+    /**
+     * The namespace that will be prefixed to the name value when generating
+     * the index name or anything else that needs to be namespaced.
+     */
     namespace?: string;
+    /**
+     * The logger to use
+    */
     logger?: Logger;
+    /**
+     * Enable index mutations so indexes will be auto created or updated
+    */
     enable_index_mutations?: boolean;
 }
 
