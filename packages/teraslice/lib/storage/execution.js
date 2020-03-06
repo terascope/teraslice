@@ -3,7 +3,7 @@
 const {
     TSError, includes, getTypeOf, makeISODate
 } = require('@terascope/utils');
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 const { RecoveryCleanupType } = require('@terascope/job-components');
 const { makeLogger } = require('../workers/helpers/terafoundation');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
