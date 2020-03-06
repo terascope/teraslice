@@ -17,6 +17,11 @@ export interface IndexConfig<T = any> {
     namespace?: string;
 
     /**
+     * Enable index mutations so index won't be auto-created updated
+    */
+    enable_index_mutations?: boolean;
+
+    /**
      * Data Version, this allows multiple versions of an index to exist with the same Schema
      */
     version?: number;
@@ -251,6 +256,7 @@ export type SanitizeFields = {
 export interface IndexModelOptions {
     namespace?: string;
     logger?: Logger;
+    enable_index_mutations?: boolean;
 }
 
 export type FindOptions<T> = {

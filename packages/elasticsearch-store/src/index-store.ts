@@ -8,7 +8,8 @@ import * as i from './interfaces';
 import * as utils from './utils';
 
 /**
- * @todo add the ability to enable/disable refresh by default
+ * A single index elasticearch-store with some specific requirements around
+ * the index name, and record data
  */
 export default class IndexStore<T extends Record<string, any>> {
     readonly client: es.Client;

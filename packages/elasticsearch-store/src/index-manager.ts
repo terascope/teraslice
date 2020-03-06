@@ -11,14 +11,16 @@ const _loggers = new WeakMap<IndexConfig, ts.Logger>();
 export default class IndexManager {
     readonly client: es.Client;
     readonly esVersion: number;
+    enableIndexMutations: boolean;
 
-    constructor(client: es.Client) {
+    constructor(client: es.Client, enableIndexMutations = ts.isTest) {
         if (!utils.isValidClient(client)) {
             throw new ts.TSError('IndexManager requires elasticsearch client', {
                 fatalError: true,
             });
         }
 
+        this.enableIndexMutations = enableIndexMutations;
         this.esVersion = utils.getESVersion(client);
         this.client = client;
     }
@@ -74,11 +76,6 @@ export default class IndexManager {
 
         const settings = Object.assign({}, config.index_settings);
 
-        if (!ts.isTest) {
-            // stagger the index creation in start up when in non test mode
-            await ts.pDelay(ts.random(0, 5000));
-        }
-
         logger.trace(`Using elasticsearch version ${this.esVersion}`);
 
         const body: any = config.data_type.toESMapping({
@@ -89,7 +86,7 @@ export default class IndexManager {
             }
         });
 
-        if (utils.isTemplatedIndex(config.index_schema)) {
+        if (this.enableIndexMutations && utils.isTemplatedIndex(config.index_schema)) {
             const templateName = this.formatTemplateName(config);
             const schemaVersion = utils.getSchemaVersion(config);
 
@@ -105,12 +102,23 @@ export default class IndexManager {
         }
 
         if (await this.exists(indexName)) {
-            logger.trace(`Index "${indexName}" already exists`);
+            if (!this.enableIndexMutations) {
+                logger.trace(`Index for config ${config.name} already exists`);
+                return false;
+            }
+
+            logger.info(`Index for config ${config.name} already exists, updating the mappings`);
             await this.updateMapping(indexName, config.name, body, logger);
             return false;
         }
 
-        logger.debug(`Creating "${indexName}"...`, body);
+        if (!this.enableIndexMutations) {
+            throw new Error(
+                `Refusing to create index for config ${config.name} since mutations are disabled`
+            );
+        }
+
+        logger.info(`Creating index "${indexName}" for config ${config.name}...`);
 
         try {
             await this.client.indices.create(
