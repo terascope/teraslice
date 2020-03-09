@@ -18,6 +18,7 @@ export interface IndexConfig<T = any> {
 
     /**
      * Enable index mutations so indexes will be auto created or updated
+     * @default false
     */
     enable_index_mutations?: boolean;
 
@@ -45,11 +46,6 @@ export interface IndexConfig<T = any> {
      * The data schema format
      */
     data_schema?: DataSchema;
-
-    /**
-     * When false this will disable the ability to create or migrate an index
-     */
-    is_master?: boolean;
 
     /**
      * The maximum amount of time to wait for before send the bulk request

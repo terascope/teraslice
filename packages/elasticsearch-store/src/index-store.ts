@@ -46,7 +46,7 @@ export default class IndexStore<T extends Record<string, any>> {
         this.client = client;
         this.config = config;
         this.name = utils.toInstanceName(this.config.name);
-        this.manager = new IndexManager(client);
+        this.manager = new IndexManager(client, config.enable_index_mutations);
         this.esVersion = this.manager.esVersion;
 
         this.indexQuery = this.manager.formatIndexName(config);
