@@ -44,7 +44,7 @@
         "shortid": "^2.2.14",
         "valid-url": "^1.0.9",
         "validator": "^12.2.0",
-        "yargs": "^15.1.0"
+        "yargs": "^15.3.0"
     },
     "devDependencies": {
         "@types/graphlib": "^2.1.5",
