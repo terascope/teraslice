@@ -37,7 +37,7 @@
     },
     "dependencies": {},
     "devDependencies": {
-        "@types/bluebird": "^3.5.28",
+        "@types/bluebird": "^3.5.30",
         "@types/convict": "^4.2.1",
         "@types/elasticsearch": "^5.0.35",
         "@types/fs-extra": "^8.0.1",
