@@ -43,7 +43,9 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
             },
             default_query_access: new QueryAccess({
                 type_config: modelConfig.data_type.toXlucene(),
-                constraint: '_deleted: false'
+                constraint: '_deleted: false',
+            }, {
+                logger: options.logger,
             })
         };
 

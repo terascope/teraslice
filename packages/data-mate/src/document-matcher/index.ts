@@ -9,9 +9,7 @@ export default class DocumentMatcher {
     private filterFn: BooleanCB;
 
     constructor(query: string, options: DocumentMatcherOptions = {}) {
-        const logger = options.logger != null
-            ? options.logger.child({ module: 'document-matcher' })
-            : _logger;
+        const logger = options.logger || _logger;
 
         const parser = new Parser(query, {
             type_config: options.type_config,

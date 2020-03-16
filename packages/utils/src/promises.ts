@@ -92,7 +92,6 @@ export async function pRetry<T = any>(
             maxDelay: 60000,
             backoff: 2,
             matches: [],
-            logError: logger.warn,
             _currentDelay: 0,
             // @ts-ignore
             _context: undefined as PRetryContext,
@@ -156,10 +155,12 @@ export async function pRetry<T = any>(
 
             await pDelay(config._currentDelay);
 
-            config.logError(err, 'retry error, retrying...', {
-                ...config,
-                _context: null,
-            });
+            if (config.logError) {
+                config.logError(err, 'retry error, retrying...', {
+                    ...config,
+                    _context: null,
+                });
+            }
             return pRetry(fn, config);
         }
 
