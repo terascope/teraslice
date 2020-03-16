@@ -4,7 +4,7 @@ import { Logger } from '@terascope/utils';
 import { defer, promisifyAll } from 'bluebird';
 
 function create(customConfig: any, logger: Logger) {
-    const AWS = require('aws-sdk');
+    const S3 = require('aws-sdk/clients/s3');
 
     logger.info(`Using S3 endpoint: ${customConfig.endpoint}`);
 
@@ -32,14 +32,14 @@ function create(customConfig: any, logger: Logger) {
         });
     }
 
-    const client = new AWS.S3(customConfig);
+    const client = new S3(customConfig);
 
     return {
         client: promisifyAll(client, { suffix: '_Async' })
     };
 }
 
-module.exports = {
+export default {
     create,
     config_schema() {
         return {

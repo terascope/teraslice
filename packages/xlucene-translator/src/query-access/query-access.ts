@@ -45,9 +45,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         if (ts.isEmpty(typeConfig)) throw new Error('Configuration for type_config must be provided');
         this.typeConfig = { ...typeConfig };
 
-        this.logger = options.logger != null
-            ? options.logger.child({ module: 'xlucene-query-access' })
-            : _logger;
+        this.logger = options.logger || _logger;
 
         this.excludes = excludes?.slice();
         this.includes = includes?.slice();
