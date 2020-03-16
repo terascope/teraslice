@@ -1,4 +1,3 @@
-import { isEmpty } from './empty';
 import { debugLogger } from './logger';
 import { toHumanTime, trackTimeout } from './dates';
 import {
@@ -115,7 +114,7 @@ export async function pRetry<T = any>(
     } catch (_err) {
         let matches = true;
 
-        if (!isEmpty(config.matches)) {
+        if (config.matches?.length) {
             const rawErr = parseError(_err);
             matches = config.matches.some((match) => {
                 const reg = new RegExp(match);
