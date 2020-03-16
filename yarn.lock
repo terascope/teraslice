@@ -11533,13 +11533,14 @@ tsutils@^3.17.1:
   dependencies:
     tslib "^1.8.1"
 
-tty-table@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/tty-table/-/tty-table-4.0.0.tgz#f50bbb7d6a6ad8e79db0540b4cb6ff04d03101bf"
-  integrity sha512-QENvUC19MmUmCVy9NRSPl21Wq0LZ/IKLLiLDBs0BUUU1X6sRB7NnttQytJRWZXYvAi9p39SEmI6VT47+6kqGWQ==
+tty-table@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/tty-table/-/tty-table-4.1.1.tgz#4abdff899b7b7f421af756fda352c6b78120524f"
+  integrity sha512-iCxPm5DCPgqs3ELrUDEe+JsOcQOSPZSe+dwM5oIQZk5OfyzQWPVQwkHjyFp4aoDHC0HTM47jd0TkQZUBpxnN0Q==
   dependencies:
     chalk "^3.0.0"
     csv "^5.3.1"
+    kleur "^3.0.3"
     smartwrap "^2.0.1"
     strip-ansi "^6.0.0"
     wcwidth "^1.0.1"
