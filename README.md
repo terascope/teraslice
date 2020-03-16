@@ -29,8 +29,8 @@ This monorepo contains sub-packages for various Terascope projects.
     - [Source Code](https://github.com/terascope/teraslice/tree/master/packages/ts-transforms)
     - [Documentation](https://terascope.github.io/teraslice/docs/packages/ts-transforms/overview)
 - xLucene - Extensible Lucene query syntax parser and executor
-    - [Source Code](https://github.com/terascope/teraslice/tree/master/packages/xlucene-evaluator)
-    - [Documentation](https://terascope.github.io/teraslice/docs/packages/xlucene-evaluator/overview)
+    - Source Code: ([Parser](https://github.com/terascope/teraslice/tree/master/packages/xlucene-parser)) - ([Translator](https://github.com/terascope/teraslice/tree/master/packages/xlucene-translator))
+    - Documentation: ([Parser](https://terascope.github.io/teraslice/docs/packages/xlucene-parser/overview)) - ([Translator](https://terascope.github.io/teraslice/docs/packages/xlucene-translator/overview))
 - Other - Various supporting packages
     - [Source Code](https://github.com/terascope/teraslice/tree/master/packages)
     - [Documentation](https://terascope.github.io/teraslice/docs/packages)
