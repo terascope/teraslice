@@ -6182,23 +6182,23 @@ inquirer@^6.0.0, inquirer@^6.2.0, inquirer@^6.3.1:
     strip-ansi "^5.1.0"
     through "^2.3.6"
 
-inquirer@^7.0.0, inquirer@^7.0.3:
-  version "7.0.4"
-  resolved "https://registry.yarnpkg.com/inquirer/-/inquirer-7.0.4.tgz#99af5bde47153abca23f5c7fc30db247f39da703"
-  integrity sha512-Bu5Td5+j11sCkqfqmUTiwv+tWisMtP0L7Q8WrqA2C/BbBhy1YTdFrvjjlrKq8oagA/tLQBski2Gcx/Sqyi2qSQ==
+inquirer@^7.0.0, inquirer@^7.1.0:
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/inquirer/-/inquirer-7.1.0.tgz#1298a01859883e17c7264b82870ae1034f92dd29"
+  integrity sha512-5fJMWEmikSYu0nv/flMc475MhGbB7TSPd/2IpFV4I4rMklboCH2rQjYY5kKiYGHqUF9gvaambupcJFFG9dvReg==
   dependencies:
     ansi-escapes "^4.2.1"
-    chalk "^2.4.2"
+    chalk "^3.0.0"
     cli-cursor "^3.1.0"
     cli-width "^2.0.0"
     external-editor "^3.0.3"
     figures "^3.0.0"
     lodash "^4.17.15"
     mute-stream "0.0.8"
-    run-async "^2.2.0"
+    run-async "^2.4.0"
     rxjs "^6.5.3"
     string-width "^4.1.0"
-    strip-ansi "^5.1.0"
+    strip-ansi "^6.0.0"
     through "^2.3.6"
 
 insight@^0.10.3:
@@ -10240,7 +10240,7 @@ rsvp@^4.8.4:
   resolved "https://registry.yarnpkg.com/rsvp/-/rsvp-4.8.5.tgz#c8f155311d167f68f21e168df71ec5b083113734"
   integrity sha512-nfMOlASu9OnRJo1mbEk2cz0D56a1MBNrJ7orjRZQG10XDyuvwksKbuXNp6qa+kbn839HwjwhBzhFmdsaEAfauA==
 
-run-async@^2.0.0, run-async@^2.2.0:
+run-async@^2.0.0, run-async@^2.2.0, run-async@^2.4.0:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/run-async/-/run-async-2.4.0.tgz#e59054a5b86876cfae07f431d18cbaddc594f1e8"
   integrity sha512-xJTbh/d7Lm7SBhc1tNvTpeCHaEzoyxPrqNlvSdMfBTYwaY++UJFyXUOxAtsRUXjlqOfj8luNaR9vjCh4KeV+pg==
@@ -12414,10 +12414,10 @@ yeoman-doctor@^4.0.0:
     twig "^1.10.5"
     user-home "^2.0.0"
 
-yeoman-environment@^2.3.4, yeoman-environment@^2.4.0, yeoman-environment@^2.7.0:
-  version "2.8.0"
-  resolved "https://registry.yarnpkg.com/yeoman-environment/-/yeoman-environment-2.8.0.tgz#003f7d3f506e868b86dbc1c1265a963a236807fa"
-  integrity sha512-BbJeEna23Qx90fBiJt1awcZ9okfPY/rP3xZYsk1rD3x8LuQgpo4BfegPvQT1sqqh2+gYVZmYZMv5pS8+Muyr9Q==
+yeoman-environment@^2.3.4, yeoman-environment@^2.4.0, yeoman-environment@^2.7.0, yeoman-environment@^2.8.1:
+  version "2.8.1"
+  resolved "https://registry.yarnpkg.com/yeoman-environment/-/yeoman-environment-2.8.1.tgz#76c52fcccf26bcbd7ded35d9e22a9f3f1394d241"
+  integrity sha512-MV6yeJfnSsZBv/VuWvw82bN6hF6KIXRUwhEPaO+RHJAWeNCQAF+iYfBNsJOo4tx5Puch300h+DF9QZceKkbzQg==
   dependencies:
     chalk "^2.4.1"
     cross-spawn "^6.0.5"
@@ -12435,10 +12435,10 @@ yeoman-environment@^2.3.4, yeoman-environment@^2.4.0, yeoman-environment@^2.7.0:
     text-table "^0.2.0"
     untildify "^3.0.3"
 
-yeoman-generator@^4.4.0, yeoman-generator@^4.7.0:
-  version "4.7.0"
-  resolved "https://registry.yarnpkg.com/yeoman-generator/-/yeoman-generator-4.7.0.tgz#6ca51a1d6b09f2cb859406a9c9be7fb66071208f"
-  integrity sha512-feJdiC7CeRfKlB0mNqX9r3Hkh2TE6NHI3uSlmy7JRup2STOdUM5MMzf/IXAvi+vvAsxTRHDY+6xDhl2D2Em/sQ==
+yeoman-generator@^4.7.0, yeoman-generator@^4.7.1:
+  version "4.7.2"
+  resolved "https://registry.yarnpkg.com/yeoman-generator/-/yeoman-generator-4.7.2.tgz#07edfc14208b1411032711ba89330915b9da345f"
+  integrity sha512-huqFGIDkS8tPWl9cnOsied8eYz0l4wh6O6Ce71y86Phiq9E2WCrpoqRFL4C6znkgmzTAq5QX3eh9IYeuxZMqzQ==
   dependencies:
     async "^2.6.2"
     chalk "^2.4.2"
@@ -12466,19 +12466,19 @@ yeoman-generator@^4.4.0, yeoman-generator@^4.7.0:
     through2 "^3.0.1"
     yeoman-environment "^2.3.4"
 
-yeoman-test@^2.0.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/yeoman-test/-/yeoman-test-2.2.0.tgz#c7d9ef22a37bfa0ae21b1702c8142d8b789703f2"
-  integrity sha512-JxZSiPnuxRR/7ESx0A/VK2HREbhnaCEtDK3vx4XwM8ltgdVe+jm4bCTXpBJVoWqcZ9JxGmUKxiS6TOQl5C+2fg==
+yeoman-test@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/yeoman-test/-/yeoman-test-2.3.0.tgz#4f37c6a15b1ccc24fc971d93933de87d331f5d16"
+  integrity sha512-4noKP8/rN/CwKxC4Qf6y4IfI4IJKn3dcLPPrh693TKDmh3k0P4ZqXK1OInaCFxbtIFVrTJMbmlallRr9T5322w==
   dependencies:
-    inquirer "^7.0.3"
+    inquirer "^7.1.0"
     lodash "^4.17.15"
     mkdirp "^0.5.1"
     pinkie-promise "^2.0.1"
     rimraf "^3.0.0"
     sinon "^8.0.4"
-    yeoman-environment "^2.7.0"
-    yeoman-generator "^4.4.0"
+    yeoman-environment "^2.8.1"
+    yeoman-generator "^4.7.1"
 
 yo@^3.1.1:
   version "3.1.1"
