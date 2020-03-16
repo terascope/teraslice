@@ -72,7 +72,7 @@
         "jest-fixtures": "^0.6.0",
         "nock": "^12.0.2",
         "yeoman-assert": "^3.1.1",
-        "yeoman-test": "^2.0.0"
+        "yeoman-test": "^2.3.0"
     },
     "publishConfig": {
         "access": "public",
