@@ -59,7 +59,8 @@ export type AvailableType =
     | 'Short'
     | 'Text'
     | 'String'
-    | 'Number';
+    | 'Number'
+    | 'Any';
 
 export const AvailableTypes: AvailableType[] = [
     'Boolean',
@@ -87,7 +88,8 @@ export const AvailableTypes: AvailableType[] = [
     'Short',
     'Text',
     'String',
-    'Number'
+    'Number',
+    'Any'
 ];
 
 export type AvailableVersion = 1;
