@@ -1,4 +1,5 @@
 import * as ts from '@terascope/utils';
+import { AvailableType } from '@terascope/data-types';
 import crypto from 'crypto';
 import PhoneValidator from 'awesome-phonenumber';
 import jexl from 'jexl';
@@ -16,48 +17,56 @@ import {
 import { Repository } from '../interfaces';
 
 export const repository: Repository = {
-    toString: { fn: toString, config: {} },
-    toBoolean: { fn: toBoolean, config: {} },
-    toUpperCase: { fn: toUpperCase, config: {} },
-    toLowerCase: { fn: toLowerCase, config: {} },
+    toString: {
+        fn: toString,
+        config: {},
+        output: 'String' as AvailableType
+    },
+    toBoolean: { fn: toBoolean, config: {}, output: 'Boolean' as AvailableType },
+    toUpperCase: { fn: toUpperCase, config: {}, output: 'String' as AvailableType },
+    toLowerCase: { fn: toLowerCase, config: {}, output: 'String' as AvailableType },
     trim: {
         fn: trim,
         config: {
             char: { type: 'String' }
-        }
+        },
+        output: 'String' as AvailableType
     },
     truncate: {
         fn: truncate,
         config: {
             size: { type: 'Number' }
-        }
+        },
+        output: 'String' as AvailableType
     },
-    toISDN: { fn: toISDN, config: {} },
+    toISDN: { fn: toISDN, config: {}, output: 'String' as AvailableType },
     toNumber: {
         fn: toNumber,
         config: {
             booleanLike: { type: 'Boolean' }
-        }
+        },
+        output: 'Number' as AvailableType
     },
-    decodeBase64: { fn: decodeBase64, config: {} },
-    encodeBase64: { fn: encodeBase64, config: {} },
-    decodeUrl: { fn: decodeUrl, config: {} },
-    encodeUrl: { fn: encodeUrl, config: {} },
-    decodeHex: { fn: decodeHex, config: {} },
-    encodeHex: { fn: encodeHex, config: {} },
-    encodeMD5: { fn: encodeMD5, config: {} },
+    decodeBase64: { fn: decodeBase64, config: {}, output: 'String' as AvailableType },
+    encodeBase64: { fn: encodeBase64, config: {}, output: 'String' as AvailableType },
+    decodeUrl: { fn: decodeUrl, config: {}, output: 'String' as AvailableType },
+    encodeUrl: { fn: encodeUrl, config: {}, output: 'String' as AvailableType },
+    decodeHex: { fn: decodeHex, config: {}, output: 'String' as AvailableType },
+    encodeHex: { fn: encodeHex, config: {}, output: 'String' as AvailableType },
+    encodeMD5: { fn: encodeMD5, config: {}, output: 'String' as AvailableType },
     encodeSHA: {
         fn: encodeSHA,
         config: {
             hash: { type: 'String' },
             digest: { type: 'String' }
-        }
+        },
+        output: 'String' as AvailableType
     },
-    encodeSHA1: { fn: encodeSHA1, config: {} },
-    decodeSHA1: { fn: decodeSHA1, config: {} },
-    parseJSON: { fn: parseJSON, config: {} },
-    dedupe: { fn: dedupe, config: {} },
-    toGeoPoint: { fn: toGeoPoint, config: {} },
+    encodeSHA1: { fn: encodeSHA1, config: {}, output: 'String' as AvailableType },
+    decodeSHA1: { fn: decodeSHA1, config: {}, output: 'String' as AvailableType },
+    parseJSON: { fn: parseJSON, config: {}, output: 'Any' as AvailableType },
+    dedupe: { fn: dedupe, config: {}, output: 'Any' as AvailableType },
+    toGeoPoint: { fn: toGeoPoint, config: {}, output: 'GeoPoint' as AvailableType },
     extract: {
         fn: extract,
         config: {
@@ -66,7 +75,8 @@ export const repository: Repository = {
             jexlExp: { type: 'String' },
             start: { type: 'String' },
             end: { type: 'String' }
-        }
+        },
+        output: 'Any' as AvailableType
     },
     replaceRegex: {
         fn: replaceRegex,
@@ -75,7 +85,8 @@ export const repository: Repository = {
             replace: { type: 'String' },
             global: { type: 'String' },
             ignore_case: { type: 'Boolean' }
-        }
+        },
+        output: 'String' as AvailableType
     },
     replaceLiteral: {
         fn: replaceLiteral,
@@ -86,9 +97,10 @@ export const repository: Repository = {
             replace: {
                 type: 'String'
             }
-        }
+        },
+        output: 'String' as AvailableType
     },
-    toUnixTime: { fn: toUnixTime, config: {} },
+    toUnixTime: { fn: toUnixTime, config: {}, output: 'Number' as AvailableType },
     toISO8601: {
         fn: toISO8601,
         config: {
@@ -96,38 +108,43 @@ export const repository: Repository = {
                 type: 'String',
                 description: 'may be set to seconds | milliseconds'
             }
-        }
+        },
+        output: 'String' as AvailableType
     },
     formatDate: {
         fn: formatDate,
         config: {
             format: { type: 'String' },
             resolution: { type: 'String', description: 'may be set to seconds | milliseconds' },
-        }
+        },
+        output: 'String' as AvailableType
     },
     parseDate: {
         fn: parseDate,
         config: {
             format: { type: 'String' },
-        }
+        },
+        output: 'Date' as AvailableType
     },
     trimStart: {
         fn: trimStart,
         config: {
             char: { type: 'String' }
-        }
+        },
+        output: 'String' as AvailableType
     },
     trimEnd: {
         fn: trimEnd,
         config: {
             char: { type: 'String' }
-        }
+        },
+        output: 'String' as AvailableType
     },
-    toCamelCase: { fn: toCamelCase, config: {} },
-    toKebabCase: { fn: toKebabCase, config: {} },
-    toPascalCase: { fn: toPascalCase, config: {} },
-    toSnakeCase: { fn: toSnakeCase, config: {} },
-    toTitleCase: { fn: toTitleCase, config: {} },
+    toCamelCase: { fn: toCamelCase, config: {}, output: 'String' as AvailableType },
+    toKebabCase: { fn: toKebabCase, config: {}, output: 'String' as AvailableType },
+    toPascalCase: { fn: toPascalCase, config: {}, output: 'String' as AvailableType },
+    toSnakeCase: { fn: toSnakeCase, config: {}, output: 'String' as AvailableType },
+    toTitleCase: { fn: toTitleCase, config: {}, output: 'String' as AvailableType },
 };
 
 export function toString(input: any) {

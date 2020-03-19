@@ -1,4 +1,5 @@
 import * as ts from '@terascope/utils';
+import { AvailableType } from '@terascope/data-types';
 import ipaddr from 'ipaddr.js';
 import { isIP as checkIP, isIPv6 } from 'net';
 // @ts-ignore
@@ -20,64 +21,71 @@ import {
 import * as i from '../interfaces';
 
 export const repository: i.Repository = {
-    isBoolean: { fn: isBoolean, config: {} },
-    isBooleanLike: { fn: isBooleanLike, config: {} },
-    isEmail: { fn: isEmail, config: {} },
-    isGeoJSON: { fn: isGeoJSON, config: {} },
-    isGeoPoint: { fn: isGeoPoint, config: {} },
-    isGeoShapePoint: { fn: isGeoShapePoint, config: {} },
-    isGeoShapePolygon: { fn: isGeoShapePolygon, config: {} },
-    isGeoShapeMultiPolygon: { fn: isGeoShapeMultiPolygon, config: {} },
-    isIP: { fn: isIP, config: {} },
-    isISDN: { fn: isISDN, config: {} },
+    isBoolean: { fn: isBoolean, config: {}, output: 'Boolean' as AvailableType },
+    isBooleanLike: { fn: isBooleanLike, config: {}, output: 'Any' as AvailableType },
+    isEmail: { fn: isEmail, config: {}, output: 'String' as AvailableType },
+    isGeoJSON: { fn: isGeoJSON, config: {}, output: 'GeoShape' as AvailableType },
+    isGeoPoint: { fn: isGeoPoint, config: {}, output: 'GeoPoint' as AvailableType },
+    isGeoShapePoint: { fn: isGeoShapePoint, config: {}, output: 'GeoShape' as AvailableType },
+    isGeoShapePolygon: { fn: isGeoShapePolygon, config: {}, output: 'GeoShape' as AvailableType },
+    isGeoShapeMultiPolygon: { fn: isGeoShapeMultiPolygon, config: {}, output: 'GeoShape' as AvailableType },
+    isIP: { fn: isIP, config: {}, output: 'String' as AvailableType },
+    isISDN: { fn: isISDN, config: {}, output: 'String' as AvailableType },
     isMacAddress: {
         fn: isMacAddress,
         config: {
             delimiter: { type: 'String', array: true }
-        }
+        },
+        output: 'String' as AvailableType
     },
-    isNumber: { fn: isNumber, config: {} },
-    isInteger: { fn: isInteger, config: {} },
+    isNumber: { fn: isNumber, config: {}, output: 'Number' as AvailableType },
+    isInteger: { fn: isInteger, config: {}, output: 'Integer' as AvailableType },
     inNumberRange: {
         fn: inNumberRange,
         config: {
             min: { type: 'Number' },
             max: { type: 'Number' },
             inclusive: { type: 'Boolean' }
-        }
+        },
+        output: 'Number' as AvailableType
     },
-    isString: { fn: isString, config: {} },
-    isUrl: { fn: isUrl, config: {} },
-    isUUID: { fn: isUUID, config: {} },
+    isString: { fn: isString, config: {}, output: 'String' as AvailableType },
+    isUrl: { fn: isUrl, config: {}, output: 'String' as AvailableType },
+    isUUID: { fn: isUUID, config: {}, output: 'String' as AvailableType },
     contains: {
         fn: contains,
         config: {
             value: { type: 'String' }
-        }
+        },
+        output: 'String' as AvailableType
     },
     equals: {
         fn: equals,
-        config: { value: { type: 'String' } }
+        config: { value: { type: 'String' } },
+        output: 'String' as AvailableType
     },
     isAlpha: {
         fn: isAlpha,
         config: {
             locale: { type: 'String' }
-        }
+        },
+        output: 'String' as AvailableType
     },
     isAlphanumeric: {
         fn: isAlphanumeric,
         config: {
             locale: { type: 'String' }
-        }
+        },
+        output: 'String' as AvailableType
     },
-    isAscii: { fn: isAscii, config: {} },
-    isBase64: { fn: isBase64, config: {} },
+    isAscii: { fn: isAscii, config: {}, output: 'String' as AvailableType },
+    isBase64: { fn: isBase64, config: {}, output: 'String' as AvailableType },
     isEmpty: {
         fn: isEmpty,
         config: {
             ignoreWhitespace: { type: 'Boolean' }
-        }
+        },
+        output: 'String' as AvailableType
     },
     isFQDN: {
         fn: isFQDN,
@@ -85,51 +93,57 @@ export const repository: i.Repository = {
             requireTld: { type: 'Boolean' },
             allowUnderscores: { type: 'Boolean' },
             allowTrailingDot: { type: 'Boolean' },
-        }
+        },
+        output: 'String' as AvailableType
     },
     isHash: {
         fn: isHash,
         config: {
             algo: { type: 'String' }
-        }
+        },
+        output: 'String' as AvailableType
     },
-    isCountryCode: { fn: isCountryCode, config: {} },
-    isISO8601: { fn: isISO8601, config: {} },
+    isCountryCode: { fn: isCountryCode, config: {}, output: 'String' as AvailableType },
+    isISO8601: { fn: isISO8601, config: {}, output: 'String' as AvailableType },
     isISSN: {
         fn: isISSN,
         config: {
             caseSensitive: { type: 'Boolean' },
             requireHyphen: { type: 'Boolean' }
-        }
+        },
+        output: 'String' as AvailableType
     },
-    isRFC3339: { fn: isRFC3339, config: {} },
-    isJSON: { fn: isJSON, config: {} },
+    isRFC3339: { fn: isRFC3339, config: {}, output: 'String' as AvailableType },
+    isJSON: { fn: isJSON, config: {}, output: 'String' as AvailableType },
     isLength: {
         fn: isLength,
         config: {
             size: { type: 'Number' },
             min: { type: 'Number' },
             max: { type: 'Number' },
-        }
+        },
+        output: 'String' as AvailableType
     },
-    isMimeType: { fn: isMimeType, config: {} },
+    isMimeType: { fn: isMimeType, config: {}, output: 'String' as AvailableType },
     isPostalCode: {
         fn: isPostalCode,
         config: {
             locale: { type: 'String' }
-        }
+        },
+        output: 'String' as AvailableType
     },
-    isRoutableIp: { fn: isRoutableIP, config: {} },
-    isNonRoutableIp: { fn: isNonRoutableIP, config: {} },
+    isRoutableIp: { fn: isRoutableIP, config: {}, output: 'IP' as AvailableType },
+    isNonRoutableIp: { fn: isNonRoutableIP, config: {}, output: 'IP' as AvailableType },
     inIPRange: {
         fn: inIPRange,
         config: {
             min: { type: 'String' },
             max: { type: 'String' },
             cidr: { type: 'String' }
-        }
+        },
+        output: 'IP' as AvailableType
     },
-    isIPCidr: { fn: isIPCidr, config: {} }
+    isIPCidr: { fn: isIPCidr, config: {}, output: 'String' as AvailableType }
 };
 
 export function isBoolean(input: any): boolean {

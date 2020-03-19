@@ -1,3 +1,4 @@
+import { AvailableType } from '@terascope/data-types';
 import { Repository } from '../interfaces';
 import { isString } from '../validations/field-validator';
 
@@ -11,7 +12,8 @@ export const repository: Repository = {
             to: {
                 type: 'String'
             }
-        }
+        },
+        output: 'Object' as AvailableType
     },
     setField: {
         fn: setField,
@@ -20,10 +22,10 @@ export const repository: Repository = {
                 type: 'String'
             },
             value: {
-                // We do this for JSON type, its a poor man's ANY type
-                type: 'Object'
+                type: 'Any'
             }
-        }
+        },
+        output: 'Object' as AvailableType
     },
     dropField: {
         fn: dropField,
@@ -31,7 +33,8 @@ export const repository: Repository = {
             field: {
                 type: 'String'
             }
-        }
+        },
+        output: 'Object' as AvailableType
     },
     copyField: {
         fn: copyField,
@@ -42,7 +45,8 @@ export const repository: Repository = {
             copyTo: {
                 type: 'String'
             }
-        }
+        },
+        output: 'Object' as AvailableType
     },
 };
 

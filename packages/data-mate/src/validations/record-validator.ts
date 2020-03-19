@@ -1,4 +1,5 @@
 import { AnyObject, isPlainObject } from '@terascope/utils';
+import { AvailableType } from '@terascope/data-types';
 import { xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import DocumentMatcher from '../document-matcher';
 import { Repository } from '../interfaces';
@@ -12,7 +13,8 @@ export const repository: Repository = {
                 type: 'String',
                 array: true
             }
-        }
+        },
+        output: 'Object' as AvailableType
     },
     select: {
         fn: select,
@@ -21,14 +23,13 @@ export const repository: Repository = {
                 type: 'String',
             },
             typeConfig: {
-                // Doing this for JSON type => which is ANY type
                 type: 'Object'
             },
             variables: {
-                // Doing this for JSON type => which is ANY type
                 type: 'Object'
             }
-        }
+        },
+        output: 'Object' as AvailableType
     },
     reject: {
         fn: reject,
@@ -44,7 +45,8 @@ export const repository: Repository = {
                 // Doing this for JSON type => which is ANY type
                 type: 'Object'
             }
-        }
+        },
+        output: 'Object' as AvailableType
     },
 };
 
