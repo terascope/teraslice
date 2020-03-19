@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+
 import { toString } from './strings';
 
 type ArgType<T> = T extends (...args: infer A) => any ? A : any;
@@ -8,7 +10,11 @@ type ArgType<T> = T extends (...args: infer A) => any ? A : any;
 export function once<T extends((...args: any[]) => any)>(fn: T) {
     let called = false;
     function _fn(...args: ArgType<T>): ReturnType<T>|undefined {
-        if (called) return undefined;
+        if (called) {
+            // @ts-ignore
+            fn = undefined;
+            return undefined;
+        }
         called = true;
         return fn(...args);
     }

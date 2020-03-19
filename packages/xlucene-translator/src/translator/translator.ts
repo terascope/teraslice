@@ -26,9 +26,7 @@ export class Translator {
 
     constructor(input: string | Parser, options: i.TranslatorOptions = {}) {
         this.variables = options.variables;
-        this.logger = options.logger != null
-            ? options.logger.child({ module: 'xlucene-translator' })
-            : _logger;
+        this.logger = options.logger || _logger;
 
         this.typeConfig = options.type_config || {};
         if (isString(input)) {

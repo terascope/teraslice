@@ -1,4 +1,3 @@
-import { isEmpty } from './empty';
 import { debugLogger } from './logger';
 import { toHumanTime, trackTimeout } from './dates';
 import {
@@ -92,7 +91,6 @@ export async function pRetry<T = any>(
             maxDelay: 60000,
             backoff: 2,
             matches: [],
-            logError: logger.warn,
             _currentDelay: 0,
             // @ts-ignore
             _context: undefined as PRetryContext,
@@ -116,7 +114,7 @@ export async function pRetry<T = any>(
     } catch (_err) {
         let matches = true;
 
-        if (!isEmpty(config.matches)) {
+        if (config.matches?.length) {
             const rawErr = parseError(_err);
             matches = config.matches.some((match) => {
                 const reg = new RegExp(match);
@@ -156,10 +154,12 @@ export async function pRetry<T = any>(
 
             await pDelay(config._currentDelay);
 
-            config.logError(err, 'retry error, retrying...', {
-                ...config,
-                _context: null,
-            });
+            if (config.logError) {
+                config.logError(err, 'retry error, retrying...', {
+                    ...config,
+                    _context: null,
+                });
+            }
             return pRetry(fn, config);
         }
 
