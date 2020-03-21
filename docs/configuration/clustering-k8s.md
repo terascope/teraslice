@@ -329,6 +329,12 @@ uniqueness of job names, so doing so here wouldn't make sense.
 
 ## Development
 
+### Running the Master in Minikube
+
+This development setup should be used after most of your dev iterations are
+complete to more fully emulate a production environment.  The Teraslice master
+will be built as a container and executed in Minikube.
+
 There is a `Makefile` I use to help bootstrap Teraslice and do repetitive tasks,
 you can type `make` to see all of the possible targets.
 
@@ -402,3 +408,27 @@ make destroy-all
 ```
 
 and start at `make build` above.
+
+### Running the Master in Locally
+
+This development setup allows for quicker iterations because the Teraslice
+master runs outside of Minikube and doesn't require a docker build to happen.
+Though this method is only suitable for work that doesn't require changes to the
+containers used by the Teraslice Workers or Execution Controllers.  Only changes
+local to the master will work.
+
+```bash
+cd examples/k8s
+export NAMESPACE=ts-dev1
+export TERASLICE_K8S_IMAGE=teraslice-k8sdev:1
+export TERASLICE_MODE=hybrid
+minikube start --memory 4096 --cpus 4
+eval $(minikube docker-env)
+make build
+make setup-all
+make show
+make register
+make start
+# restart master
+make master-stop
+```
