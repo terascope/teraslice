@@ -42,7 +42,7 @@
         "@turf/clean-coords": "^6.0.1",
         "@turf/helpers": "^6.1.4",
         "awesome-phonenumber": "^2.28.0",
-        "date-fns": "^2.9.0",
+        "date-fns": "^2.11.0",
         "ip6addr": "^0.2.3",
         "ipaddr.js": "^1.9.1",
         "is-cidr": "^3.1.0",
