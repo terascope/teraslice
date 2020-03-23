@@ -171,6 +171,23 @@ export default [
         },
     ],
     [
+        'phone.tokens:3848',
+        'query.constant_score.filter',
+        {
+            match: {
+                'phone.tokens': {
+                    operator: 'and',
+                    query: '3848'
+                },
+            },
+        },
+        {
+            type_config: {
+                phone: 'string',
+            }
+        }
+    ],
+    [
         `word:"${escapeString('/value\\\\')}"`,
         'query.constant_score.filter',
         {
