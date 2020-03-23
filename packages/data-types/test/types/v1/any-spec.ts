@@ -1,9 +1,9 @@
 import AnyType from '../../../src/types/v1/any';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
-describe('Boolean V1', () => {
+describe('Any V1', () => {
     const field = 'someField';
-    const typeConfig: FieldTypeConfig = { type: 'Boolean' };
+    const typeConfig: FieldTypeConfig = { type: 'Any' };
 
     it('can requires a field and proper configs', () => {
         const type = new AnyType(field, typeConfig);
@@ -15,7 +15,7 @@ describe('Boolean V1', () => {
 
     it('can get proper ES Mappings', () => {
         const esMapping = new AnyType(field, typeConfig).toESMapping();
-        const results = { mapping: {} };
+        const results = { mapping: { [field]: { enabled: false } } };
 
         expect(esMapping).toEqual(results);
     });
