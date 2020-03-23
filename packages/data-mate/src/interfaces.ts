@@ -6,7 +6,7 @@ export interface Repository {
     [key: string]: {
         fn: any;
         config: ArgSchema;
-        output: AvailableType;
+        output_type?: AvailableType;
     };
 }
 

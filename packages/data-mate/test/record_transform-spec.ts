@@ -21,10 +21,10 @@ describe('record transforms', () => {
     });
 
     it('can drop a field', () => {
-        const obj = { hello: 'world', other: 'stuff' };
-        const config = { field: 'other' };
+        const obj = { hello: 'world', other: 'stuff', last: 'thing' };
+        const config = { fields: ['other', 'last'] };
 
-        const results = RecordTransform.dropField(cloneDeep(obj), config);
+        const results = RecordTransform.dropFields(cloneDeep(obj), config);
 
         expect(results).toEqual({ hello: 'world' });
     });

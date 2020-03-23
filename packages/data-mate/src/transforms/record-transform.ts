@@ -13,7 +13,7 @@ export const repository: Repository = {
                 type: 'String'
             }
         },
-        output: 'Object' as AvailableType
+        output_type: 'Object' as AvailableType
     },
     setField: {
         fn: setField,
@@ -25,28 +25,29 @@ export const repository: Repository = {
                 type: 'Any'
             }
         },
-        output: 'Object' as AvailableType
+        output_type: 'Object' as AvailableType
     },
-    dropField: {
-        fn: dropField,
+    dropFields: {
+        fn: dropFields,
         config: {
-            field: {
-                type: 'String'
+            fields: {
+                type: 'String',
+                array: true
             }
         },
-        output: 'Object' as AvailableType
+        output_type: 'Object' as AvailableType
     },
     copyField: {
         fn: copyField,
         config: {
-            field: {
+            from: {
                 type: 'String'
             },
-            copyTo: {
+            to: {
                 type: 'String'
             }
         },
-        output: 'Object' as AvailableType
+        output_type: 'Object' as AvailableType
     },
 };
 
@@ -68,11 +69,14 @@ export function setField(record: any, args: { field: string; value: any }) {
     return record;
 }
 
-export function dropField(record: any, args: { field: string }) {
-    const { field } = args;
-    if (!isString(field)) throw new Error('Invalid parameters, field must be supplied be be a string');
+export function dropFields(record: any, args: { fields: string[] }) {
+    const { fields } = args;
+    if (!fields.every(isString)) throw new Error('Invalid parameters, field must be supplied be be a string');
 
-    delete record[field];
+    for (const field of fields) {
+        delete record[field];
+    }
+
     return record;
 }
 
