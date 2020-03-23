@@ -8166,10 +8166,10 @@ mkdirp@0.5.1, mkdirp@0.x, mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~0.5.1:
   dependencies:
     minimist "0.0.8"
 
-mnemonist@^0.33.1:
-  version "0.33.1"
-  resolved "https://registry.yarnpkg.com/mnemonist/-/mnemonist-0.33.1.tgz#b4fb0d1b193625cd2ad2d3972d9538fa657ec53b"
-  integrity sha512-+uOVZaYbCrp+Mf7POOW5No0WC9HfvU7o2CRh3nqvAOZnd/VSkuh4BfnDpFmvVVpZyrudAJaCNrOKH20S4Hki3Q==
+mnemonist@^0.34.0:
+  version "0.34.0"
+  resolved "https://registry.yarnpkg.com/mnemonist/-/mnemonist-0.34.0.tgz#94244ba4f8922ee25863d4624b3c6cccfd81b126"
+  integrity sha512-eKQxmumFOJhd7ea/u8zVvj7gA2tD6QFkuDfUIvoT/VIq+yR1VzXpp0tM8QFgeSRig5brIN/3NUE72/wvvyc9ug==
   dependencies:
     obliterator "^1.6.1"
 
