@@ -48,7 +48,7 @@
         "is-cidr": "^3.1.0",
         "jexl": "^2.2.2",
         "valid-url": "^1.0.9",
-        "validator": "^12.2.0",
+        "validator": "^13.0.0",
         "xlucene-parser": "^0.19.5"
     },
     "devDependencies": {},
