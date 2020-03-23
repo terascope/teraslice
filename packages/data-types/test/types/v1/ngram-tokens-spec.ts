@@ -19,7 +19,6 @@ describe('NgramTokens V1', () => {
         const results = {
             mapping: {
                 [field]: {
-                    // TODO: this is wrong, I dont think analyzer can be at this level
                     type: 'keyword' as ESFieldType,
                     fields: {
                         tokens: {
