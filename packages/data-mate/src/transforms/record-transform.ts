@@ -1,3 +1,4 @@
+import { AvailableType } from '@terascope/data-types';
 import { Repository } from '../interfaces';
 import { isString } from '../validations/field-validator';
 
@@ -11,7 +12,8 @@ export const repository: Repository = {
             to: {
                 type: 'String'
             }
-        }
+        },
+        output_type: 'Object' as AvailableType
     },
     setField: {
         fn: setField,
@@ -20,29 +22,32 @@ export const repository: Repository = {
                 type: 'String'
             },
             value: {
-                // We do this for JSON type, its a poor man's ANY type
-                type: 'Object'
+                type: 'Any'
             }
-        }
+        },
+        output_type: 'Object' as AvailableType
     },
-    dropField: {
-        fn: dropField,
+    dropFields: {
+        fn: dropFields,
         config: {
-            field: {
-                type: 'String'
+            fields: {
+                type: 'String',
+                array: true
             }
-        }
+        },
+        output_type: 'Object' as AvailableType
     },
     copyField: {
         fn: copyField,
         config: {
-            field: {
+            from: {
                 type: 'String'
             },
-            copyTo: {
+            to: {
                 type: 'String'
             }
-        }
+        },
+        output_type: 'Object' as AvailableType
     },
 };
 
@@ -64,11 +69,14 @@ export function setField(record: any, args: { field: string; value: any }) {
     return record;
 }
 
-export function dropField(record: any, args: { field: string }) {
-    const { field } = args;
-    if (!isString(field)) throw new Error('Invalid parameters, field must be supplied be be a string');
+export function dropFields(record: any, args: { fields: string[] }) {
+    const { fields } = args;
+    if (!fields.every(isString)) throw new Error('Invalid parameters, field must be supplied be be a string');
 
-    delete record[field];
+    for (const field of fields) {
+        delete record[field];
+    }
+
     return record;
 }
 

@@ -171,12 +171,20 @@ export type ESFieldType =
     | 'geo_shape'
     | 'object';
 
-export type ESTypeMapping = PropertyESTypeMapping | FieldsESTypeMapping | BasicESTypeMapping;
+export type ESTypeMapping =
+    | PropertyESTypeMapping
+    | FieldsESTypeMapping
+    | BasicESTypeMapping
+    | IgnoredESTypeMapping;
 
 type BasicESTypeMapping = {
     type: ESFieldType;
     [prop: string]: any;
 };
+
+type IgnoredESTypeMapping = {
+    enabled: boolean;
+}
 
 type FieldsESTypeMapping = {
     type: ESFieldType | string;
