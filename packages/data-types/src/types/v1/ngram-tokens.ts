@@ -6,7 +6,6 @@ export default class NgramTokens extends BaseType {
         return {
             mapping: {
                 [this.field]: {
-                    // TODO: this is wrong, I dont think analyzer can be at this level
                     type: 'keyword' as ESFieldType,
                     fields: {
                         tokens: {

@@ -49,7 +49,7 @@
         "jexl": "^2.2.2",
         "valid-url": "^1.0.9",
         "validator": "^12.2.0",
-        "xlucene-parser": "^0.19.4"
+        "xlucene-parser": "^0.19.5"
     },
     "devDependencies": {},
     "engines": {

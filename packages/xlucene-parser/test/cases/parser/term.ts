@@ -114,6 +114,21 @@ export default [
         }
     ],
     [
+        'phone.tokens:3848',
+        'an analyzed field',
+        {
+            type: ASTType.Term,
+            field_type: xLuceneFieldType.String,
+            field: 'phone.tokens',
+            quoted: false,
+            tokenizer: 'phone',
+            value: '3848',
+        },
+        {
+            phone: xLuceneFieldType.String
+        }
+    ],
+    [
         'foo:   bar',
         'field with space between string value',
         {

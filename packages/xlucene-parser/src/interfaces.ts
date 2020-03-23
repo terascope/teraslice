@@ -38,7 +38,7 @@ export type TermLikeType =
 export interface TermLikeAST {
     type: TermLikeType;
     field: Field;
-    tokenizer?: boolean;
+    tokenizer?: string;
 }
 
 export enum ASTType {

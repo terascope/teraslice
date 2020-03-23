@@ -127,7 +127,7 @@ export default function makeContext(args: any) {
         const field = node.field || _field;
         if (!field) return;
 
-        const fieldType = getFieldType(field);
+        let fieldType = getFieldType(field);
         if (fieldType === node.field_type) return;
 
         logger.trace(
@@ -136,9 +136,11 @@ export default function makeContext(args: any) {
 
         // in the case of tokenized fields we should update the
         // node to indicate so non-term level queries can be performed
-        if (utils.isTermType(node) && field.includes('.') && !typeConfig[field]) {
-            const parentField = field.split('.').slice(0, -1);
-            if (typeConfig[parentField] && typeConfig[parentField] !== xLuceneFieldType.Object) {
+        if (utils.isTermType(node) && !typeConfig[field] && field.includes('.')) {
+            const parentField = field.split('.').slice(0, -1)[0];
+            const parentType = typeConfig[parentField];
+            if (parentType && parentType !== xLuceneFieldType.Object) {
+                fieldType = parentType;
                 node.tokenizer = parentField;
             }
         }
