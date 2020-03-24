@@ -22,10 +22,7 @@ class K8s {
             this.client = new Client({ backend });
         } else {
             // configures the client from .kube/config file
-            const kubeconfig = new KubeConfig();
-            kubeconfig.loadFromDefault();
-            const backend = new Request({ kubeconfig });
-            this.client = new Client({ backend });
+            this.client = new Client({ version: '1.13' });
         }
     }
 
