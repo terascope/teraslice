@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const uuidv4 = require('uuid/v4');
+const { v4: uuidv4 } = require('uuid');
 const { pDelay } = require('@terascope/utils');
 const TestContext = require('../helpers/test-context');
 const Scheduler = require('../../../lib/workers/execution-controller/scheduler');

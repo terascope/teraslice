@@ -129,17 +129,10 @@ export function fixMappingRequest(client: Client, _params: any, isTemplate: bool
     }
 
     if (esVersion >= 7) {
-        const typeMappings = ts.get(params.body, 'mappings', {});
-        if (typeMappings.properties) {
-            defaultParams.includeTypeName = false;
-        } else {
-            defaultParams.includeTypeName = true;
-            Object.values(typeMappings).forEach((typeMapping: any) => {
-                if (typeMapping && typeMapping._all) {
-                    delete typeMapping._all;
-                }
-                return '';
-            });
+        const typeMapping = ts.get(params.body, 'mappings', {});
+        defaultParams.includeTypeName = false;
+        if (typeMapping) {
+            delete typeMapping._all;
         }
     }
 

@@ -1,4 +1,4 @@
-import { AnyObject } from '@terascope/utils';
+import { ESTypeMapping, ESMapping } from '@terascope/types';
 import BaseType from './types/base-type';
 
 /** An object of base fields with their child fields */
@@ -33,23 +33,6 @@ export type GraphQLTypeReferences = { __all?: string[] } & {
     [typeName: string]: string[];
 };
 
-export type ElasticSearchTypes =
-    | 'long'
-    | 'integer'
-    | 'short'
-    | 'byte'
-    | 'double'
-    | 'float'
-    | 'keyword'
-    | 'text'
-    | 'boolean'
-    | 'ip'
-    | 'ip_range'
-    | 'date'
-    | 'geo_point'
-    | 'geo_shape'
-    | 'object';
-
 export type AvailableType =
     | 'Boolean'
     | 'Boundary'
@@ -76,7 +59,8 @@ export type AvailableType =
     | 'Short'
     | 'Text'
     | 'String'
-    | 'Number';
+    | 'Number'
+    | 'Any';
 
 export const AvailableTypes: AvailableType[] = [
     'Boolean',
@@ -104,7 +88,8 @@ export const AvailableTypes: AvailableType[] = [
     'Short',
     'Text',
     'String',
-    'Number'
+    'Number',
+    'Any'
 ];
 
 export type AvailableVersion = 1;
@@ -160,32 +145,6 @@ export interface GraphQLType {
     customTypes: string[];
 }
 
-export type ESTypeMapping = PropertyESTypeMapping | FieldsESTypeMapping | BasicESTypeMapping;
-
-type BasicESTypeMapping = {
-    type: ElasticSearchTypes;
-    [prop: string]: any;
-};
-
-type FieldsESTypeMapping = {
-    type: ElasticSearchTypes | string;
-    fields: {
-        [key: string]: {
-            type: ElasticSearchTypes | string;
-            index?: boolean | string;
-            analyzer?: string;
-        };
-    };
-};
-
-export type PropertyESTypes = FieldsESTypeMapping | BasicESTypeMapping;
-export type PropertyESTypeMapping = {
-    type?: 'nested' | 'object';
-    properties: {
-        [key: string]: PropertyESTypes;
-    };
-};
-
 export interface TypeESMapping {
     mapping: {
         [key: string]: ESTypeMapping;
@@ -214,42 +173,4 @@ export interface ESMappingOptions {
      * @default 6
      */
     version?: number;
-}
-
-export interface ESTypeMappings extends AnyObject {
-    _all?: {
-        enabled?: boolean;
-        [key: string]: any;
-    };
-    dynamic?: boolean;
-    properties: {
-        [key: string]: ESTypeMapping;
-    };
-}
-
-export interface ESMapping {
-    mappings: {
-        [typeName: string]: ESTypeMappings;
-    };
-    template?: string;
-    order?: number;
-    aliases?: AnyObject;
-    index_patterns?: string[];
-    settings: ESIndexSettings;
-}
-
-export interface ESIndexSettings {
-    'index.number_of_shards'?: number;
-    'index.number_of_replicas'?: number;
-    'index.refresh_interval'?: string;
-    'index.max_result_window'?: number;
-    analysis?: {
-        analyzer?: {
-            [key: string]: any;
-        };
-        tokenizer?: {
-            [key: string]: any;
-        };
-    };
-    [setting: string]: any;
 }

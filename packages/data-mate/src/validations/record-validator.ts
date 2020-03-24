@@ -21,11 +21,9 @@ export const repository: Repository = {
                 type: 'String',
             },
             typeConfig: {
-                // Doing this for JSON type => which is ANY type
                 type: 'Object'
             },
             variables: {
-                // Doing this for JSON type => which is ANY type
                 type: 'Object'
             }
         }

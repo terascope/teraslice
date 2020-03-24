@@ -167,10 +167,6 @@ cleanup_top_level() {
 }
 
 post_cleanup() {
-    prompt "Do you want to clear your yarn cache?" "optional" &&
-        echoerr "* running yarn cache clean" &&
-        yarn cache clean
-
     prompt "Do you want to clear your jest cache?" "optional" &&
         echoerr "* running yarn jest --clear-cache" &&
         yarn jest --clear-cache || echo '* it is okay'

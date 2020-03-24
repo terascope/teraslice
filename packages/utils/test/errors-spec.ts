@@ -5,10 +5,10 @@ import {
     isFatalError,
     isRetryableError,
     parseError,
-    times,
     isTSError,
     stripErrorMessage
-} from '../src';
+} from '../src/errors';
+import { times } from '../src';
 
 describe('Error Utils', () => {
     describe('TSError', () => {

@@ -26,6 +26,7 @@ import NgramTokensV1 from './v1/ngram-tokens';
 import BoundaryV1 from './v1/boundary';
 import StringV1 from './v1/string';
 import NumberV1 from './v1/number';
+import AnyV1 from './v1/any';
 
 export const mapping: DataTypeMapping = {
     1: {
@@ -54,6 +55,7 @@ export const mapping: DataTypeMapping = {
         Boundary: BoundaryV1,
         Object: ObjectV1,
         String: StringV1,
-        Number: NumberV1
+        Number: NumberV1,
+        Any: AnyV1
     },
 };

@@ -1,6 +1,5 @@
-import { xLuceneFieldType } from '@terascope/types';
+import { xLuceneFieldType, ESTypeMapping } from '@terascope/types';
 import BaseType from '../base-type';
-import { ESTypeMapping } from '../../interfaces';
 
 export default class ObjectType extends BaseType {
     toESMapping(_version?: number) {

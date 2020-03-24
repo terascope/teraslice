@@ -1,4 +1,3 @@
-import { TSError } from '@terascope/utils';
 import DateType from '../../../src/types/v1/date';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
@@ -7,15 +6,6 @@ describe('Date V1', () => {
     const typeConfig: FieldTypeConfig = { type: 'Date' };
 
     it('can requires a field and proper configs', () => {
-        try {
-            // @ts-ignore
-            new DateType();
-            throw new Error('it should have errored with no configs');
-        } catch (err) {
-            expect(err).toBeInstanceOf(TSError);
-            expect(err.message).toInclude('A field must be provided and must be of type string');
-        }
-
         const type = new DateType(field, typeConfig);
         expect(type).toBeDefined();
         expect(type.toESMapping).toBeDefined();

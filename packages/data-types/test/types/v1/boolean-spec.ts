@@ -1,4 +1,3 @@
-import { TSError } from '@terascope/utils';
 import BooleanType from '../../../src/types/v1/boolean';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
@@ -7,15 +6,6 @@ describe('Boolean V1', () => {
     const typeConfig: FieldTypeConfig = { type: 'Boolean' };
 
     it('can requires a field and proper configs', () => {
-        try {
-            // @ts-ignore
-            new BooleanType();
-            throw new Error('it should have errored with no configs');
-        } catch (err) {
-            expect(err).toBeInstanceOf(TSError);
-            expect(err.message).toInclude('A field must be provided and must be of type string');
-        }
-
         const type = new BooleanType(field, typeConfig);
         expect(type).toBeDefined();
         expect(type.toESMapping).toBeDefined();

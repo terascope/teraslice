@@ -1,6 +1,6 @@
 'use strict';
 
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 const { TSError, makeISODate } = require('@terascope/utils');
 const { makeLogger } = require('../workers/helpers/terafoundation');
 const elasticsearchBackend = require('./backends/elasticsearch_store');

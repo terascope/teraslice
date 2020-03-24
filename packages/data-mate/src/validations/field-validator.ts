@@ -34,7 +34,8 @@ export const repository: i.Repository = {
         fn: isMacAddress,
         config: {
             delimiter: { type: 'String', array: true }
-        }
+        },
+
     },
     isNumber: { fn: isNumber, config: {} },
     isInteger: { fn: isInteger, config: {} },
@@ -44,7 +45,8 @@ export const repository: i.Repository = {
             min: { type: 'Number' },
             max: { type: 'Number' },
             inclusive: { type: 'Boolean' }
-        }
+        },
+
     },
     isString: { fn: isString, config: {} },
     isUrl: { fn: isUrl, config: {} },
@@ -53,23 +55,27 @@ export const repository: i.Repository = {
         fn: contains,
         config: {
             value: { type: 'String' }
-        }
+        },
+
     },
     equals: {
         fn: equals,
-        config: { value: { type: 'String' } }
+        config: { value: { type: 'String' } },
+
     },
     isAlpha: {
         fn: isAlpha,
         config: {
             locale: { type: 'String' }
-        }
+        },
+
     },
     isAlphanumeric: {
         fn: isAlphanumeric,
         config: {
             locale: { type: 'String' }
-        }
+        },
+
     },
     isAscii: { fn: isAscii, config: {} },
     isBase64: { fn: isBase64, config: {} },
@@ -77,7 +83,8 @@ export const repository: i.Repository = {
         fn: isEmpty,
         config: {
             ignoreWhitespace: { type: 'Boolean' }
-        }
+        },
+
     },
     isFQDN: {
         fn: isFQDN,
@@ -85,13 +92,15 @@ export const repository: i.Repository = {
             requireTld: { type: 'Boolean' },
             allowUnderscores: { type: 'Boolean' },
             allowTrailingDot: { type: 'Boolean' },
-        }
+        },
+
     },
     isHash: {
         fn: isHash,
         config: {
             algo: { type: 'String' }
-        }
+        },
+
     },
     isCountryCode: { fn: isCountryCode, config: {} },
     isISO8601: { fn: isISO8601, config: {} },
@@ -100,7 +109,8 @@ export const repository: i.Repository = {
         config: {
             caseSensitive: { type: 'Boolean' },
             requireHyphen: { type: 'Boolean' }
-        }
+        },
+
     },
     isRFC3339: { fn: isRFC3339, config: {} },
     isJSON: { fn: isJSON, config: {} },
@@ -110,14 +120,16 @@ export const repository: i.Repository = {
             size: { type: 'Number' },
             min: { type: 'Number' },
             max: { type: 'Number' },
-        }
+        },
+
     },
     isMimeType: { fn: isMimeType, config: {} },
     isPostalCode: {
         fn: isPostalCode,
         config: {
             locale: { type: 'String' }
-        }
+        },
+
     },
     isRoutableIp: { fn: isRoutableIP, config: {} },
     isNonRoutableIp: { fn: isNonRoutableIP, config: {} },
@@ -127,7 +139,8 @@ export const repository: i.Repository = {
             min: { type: 'String' },
             max: { type: 'String' },
             cidr: { type: 'String' }
-        }
+        },
+
     },
     isIPCidr: { fn: isIPCidr, config: {} }
 };

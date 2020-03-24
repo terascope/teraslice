@@ -13,7 +13,7 @@ cache:
 
 before_install: . ./scripts/ci-setup.sh
 install:
-  - export YARN_SETUP_ARGS="--prod=false --offline --silent"
+  - export YARN_SETUP_ARGS="--prod=false --silent"
   - yarn setup
 
 # set up build matrix
@@ -89,19 +89,15 @@ jobs:
       node_js: '12.16'
       # run a push to master
       if: tag IS blank AND branch = master AND type NOT IN (pull_request, cron)
-      # run the tests with coverage (and less logging)
-      script: yarn test -- -- --verbose=false
-      deploy:
-          - provider: script
-            skip_cleanup: true
-            script: yarn ts-scripts publish npm
-          - provider: script
-            skip_cleanup: true
-            script: yarn ts-scripts publish -t dev docker
-          # this should be last
-          - provider: script
-            skip_cleanup: true
-            script: ./scripts/publish-documentation.sh
+      script:
+        # publish to NPM first
+        - yarn ts-scripts publish npm
+        # run the tests with coverage coverage
+        - yarn test
+        # Publish to dev docker image
+        - yarn ts-scripts publish -t dev docker
+        # do this last
+        - ./scripts/publish-documentation.sh
 
     - script:
       name: 'Create Tag Release'

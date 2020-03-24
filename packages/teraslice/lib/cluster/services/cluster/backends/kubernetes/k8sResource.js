@@ -6,7 +6,7 @@ const path = require('path');
 const barbe = require('barbe');
 const _ = require('lodash');
 
-const { safeEncode } = require('../../../../../../lib/utils/encoding_utils');
+const { safeEncode } = require('../../../../../utils/encoding_utils');
 const { addEnvToContainerEnv } = require('./utils');
 
 class K8sResource {

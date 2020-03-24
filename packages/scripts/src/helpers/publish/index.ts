@@ -44,11 +44,12 @@ async function npmPublish(pkgInfo: PackageInfo, options: PublishOptions) {
 
     const tag = getPublishTag(pkgInfo.version);
 
+    await yarnRun('build', [], pkgInfo.dir, {
+        NODE_ENV: 'production'
+    }, true);
+
     if (options.dryRun) {
         signale.info(`[DRY RUN] - skipping publish for package ${pkgInfo.name}@v${pkgInfo.version} (${tag})`);
-        await yarnRun('build', [], pkgInfo.dir, {
-            NODE_ENV: 'production'
-        }, true);
     } else {
         const registry: string|undefined = get(pkgInfo, 'publishConfig.registry');
         await yarnPublish(pkgInfo, tag, registry);

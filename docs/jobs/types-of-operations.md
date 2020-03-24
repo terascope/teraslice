@@ -21,7 +21,7 @@ The simpiliest varient of a "Slicer" that only handles on running "Slicer".
 <!--DOCUSAURUS_CODE_TABS-->
 <!--TypeScript-->
 ```ts
-import uuidv4 from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import { Slicer, SlicerRecoveryData } from '@terascope/job-components';
 
 export default class ExampleSlicer extends Slicer {
@@ -30,7 +30,7 @@ export default class ExampleSlicer extends Slicer {
     // will finish
     async slice() {
         return {
-            id: uuidv4(),
+            id: uuid(),
             foo: 'bar',
         };
     }

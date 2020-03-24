@@ -188,8 +188,8 @@ describe('IndexStore', () => {
 
                 await indexStore.indexById(testRecord.test_id, testRecord);
 
-                const [results] = await indexStore.search('test_keyword:$word', { variables });
-                expect(results).toEqual(testRecord);
+                const { results } = await indexStore.search('test_keyword:$word', { variables });
+                expect(results).toEqual([testRecord]);
             });
 
             it('can use findBy with variables', async () => {
@@ -260,7 +260,7 @@ describe('IndexStore', () => {
                 expect(metadata).toMatchObject({
                     _index: index,
                     _key: record.test_id,
-                    _type: `${TEST_INDEX_PREFIX}store`,
+                    _type: indexStore.esVersion >= 7 ? '_doc' : indexStore.config.name,
                 });
 
                 expect(metadata._processTime).toBeNumber();
@@ -361,12 +361,24 @@ describe('IndexStore', () => {
             });
 
             it('should be able to search the records', async () => {
-                const result = await indexStore.search(`test_keyword: ${keyword}`, {
+                const {
+                    results,
+                } = await indexStore.search(`test_keyword: ${keyword}`, {
                     sort: 'test_id',
                 });
 
-                expect(DataEntity.isDataEntityArray(result)).toBeTrue();
-                expect(result).toEqual(records);
+                expect(DataEntity.isDataEntityArray(results)).toBeTrue();
+                expect(results).toEqual(records);
+            });
+
+            it('should be able to search the records and get the total', async () => {
+                const {
+                    results
+                } = await indexStore.search(`test_keyword: ${keyword}`, {
+                    sort: 'test_id',
+                });
+
+                expect(results).toEqual(records);
             });
         });
 
@@ -420,7 +432,9 @@ describe('IndexStore', () => {
                     sort: 'test_number:asc',
                     size: 200,
                 });
-                const xluceneResult = await indexStore.search(q, {
+                const {
+                    results: xluceneResult
+                } = await indexStore.search(q, {
                     size: 200,
                     includes: ['test_id', 'test_boolean'],
                     sort: 'test_number:asc',
@@ -499,33 +513,39 @@ describe('IndexStore', () => {
             });
 
             it('should be able to search the records', async () => {
-                const result = await indexStore.search(`test_keyword: ${keyword}`, {
+                const {
+                    results
+                } = await indexStore.search(`test_keyword: ${keyword}`, {
                     sort: 'test_number',
                     size: records.length + 1,
                 });
 
-                expect(result).toBeArrayOfSize(records.length);
-                expect(DataEntity.isDataEntityArray(result)).toBeTrue();
+                expect(results).toBeArrayOfSize(records.length);
+                expect(DataEntity.isDataEntityArray(results)).toBeTrue();
             });
 
             it('should be able use exists and range xlucene syntax', async () => {
-                const result = await indexStore.search('_exists_:test_number AND test_number: <100', {
+                const {
+                    results
+                } = await indexStore.search('_exists_:test_number AND test_number: <100', {
                     sort: 'test_number',
                     size: 5,
                 });
 
-                expect(result).toBeArrayOfSize(5);
-                expect(DataEntity.isDataEntityArray(result)).toBeTrue();
+                expect(results).toBeArrayOfSize(5);
+                expect(DataEntity.isDataEntityArray(results)).toBeTrue();
             });
 
             it('should be able use multi-term xlucene syntax', async () => {
                 const query = 'test_id:/bulk-.*/ AND test_number:(20 OR 22 OR 26)';
-                const result = await indexStore.search(query, {
+                const {
+                    results
+                } = await indexStore.search(query, {
                     sort: 'test_number',
                 });
 
-                expect(result).toBeArrayOfSize(3);
-                expect(DataEntity.isDataEntityArray(result)).toBeTrue();
+                expect(results).toBeArrayOfSize(3);
+                expect(DataEntity.isDataEntityArray(results)).toBeTrue();
             });
 
             it('should be able to bulk update the records', async () => {
@@ -544,12 +564,14 @@ describe('IndexStore', () => {
                 await indexStore.flush(true);
                 await indexStore.refresh();
 
-                const result = await indexStore.search(`test_keyword: ${keyword}`, {
+                const {
+                    results
+                } = await indexStore.search(`test_keyword: ${keyword}`, {
                     sort: 'test_id',
                     size: records.length + 1,
                 });
 
-                expect(result[0]).toHaveProperty('test_object', {
+                expect(results[0]).toHaveProperty('test_object', {
                     updated: true,
                 });
             });
@@ -563,12 +585,14 @@ describe('IndexStore', () => {
 
                 await indexStore.refresh();
 
-                const result = await indexStore.search(`test_keyword: ${keyword}`, {
+                const {
+                    results
+                } = await indexStore.search(`test_keyword: ${keyword}`, {
                     sort: 'test_id',
                     size: records.length + 1,
                 });
 
-                expect(result).toBeArrayOfSize(0);
+                expect(results).toBeArrayOfSize(0);
             });
         });
     });
@@ -674,13 +698,17 @@ describe('IndexStore', () => {
                             });
                         }
                         if (inputType === 'output') {
-                            return _client.index({
+                            const indexParams = {
                                 index,
-                                type: `${TEST_INDEX_PREFIX}store`,
+                                type: indexStore.config.name,
                                 id: record.test_id,
                                 body: record,
                                 refresh: false,
-                            });
+                            };
+                            if (indexStore.esVersion >= 7) {
+                                delete indexParams.type;
+                            }
+                            return _client.index(indexParams);
                         }
                         throw new Error('Invalid Input Type');
                     })
@@ -690,12 +718,14 @@ describe('IndexStore', () => {
             });
 
             it('should have created all of the records', async () => {
-                const result = await indexStore.search(`test_keyword: ${keyword}`, {
+                const {
+                    results,
+                } = await indexStore.search(`test_keyword: ${keyword}`, {
                     sort: 'test_id',
                 });
 
-                expect(DataEntity.isDataEntityArray(result)).toBeTrue();
-                expect(result).toEqual(expected);
+                expect(DataEntity.isDataEntityArray(results)).toBeTrue();
+                expect(results).toEqual(expected);
 
                 const record = await indexStore.get(expected[0].test_id);
 

@@ -2,7 +2,9 @@ import 'jest-extended';
 import { debugLogger, get } from '@terascope/utils';
 import * as simple from './helpers/simple-index';
 import * as template from './helpers/template-index';
-import { IndexManager, timeseriesIndex, IndexConfig } from '../src';
+import {
+    IndexManager, timeseriesIndex, IndexConfig, getESVersion
+} from '../src';
 import { makeClient, cleanupIndex } from './helpers/elasticsearch';
 import { TEST_INDEX_PREFIX } from './helpers/config';
 
@@ -11,6 +13,7 @@ describe('IndexManager->indexSetup()', () => {
 
     describe('using a mapped index', () => {
         const client = makeClient();
+        const esVersion = getESVersion(client);
 
         const config: IndexConfig = {
             name: `${TEST_INDEX_PREFIX}simple`,
@@ -57,7 +60,9 @@ describe('IndexManager->indexSetup()', () => {
             const mapping = await indexManager.getMapping(index);
 
             expect(mapping).toHaveProperty(index);
-            expect(mapping[index].mappings).toHaveProperty(config.name);
+            if (esVersion < 7) {
+                expect(mapping[index].mappings).toHaveProperty(config.name);
+            }
         });
 
         it('should be able to call create again', async () => {
@@ -68,6 +73,7 @@ describe('IndexManager->indexSetup()', () => {
 
     describe('using a templated index', () => {
         const client = makeClient();
+        const esVersion = getESVersion(client);
 
         const config: IndexConfig = {
             name: `${TEST_INDEX_PREFIX}template`,
@@ -121,22 +127,29 @@ describe('IndexManager->indexSetup()', () => {
             const mapping = await indexManager.getMapping(index);
 
             expect(mapping).toHaveProperty(index);
-            expect(mapping[index].mappings).toHaveProperty(config.name);
+            if (esVersion < 7) {
+                expect(mapping[index].mappings).toHaveProperty(config.name);
+            }
         });
 
         it('should create the template', async () => {
             const temp = await indexManager.getTemplate(templateName, false);
 
             expect(temp).toHaveProperty(templateName);
-            expect(temp[templateName].mappings).toHaveProperty(config.name);
+            if (esVersion < 7) {
+                expect(temp[templateName].mappings).toHaveProperty(config.name);
+            }
             expect(temp[templateName]).toHaveProperty('version', 1);
         });
 
         it('should be able upsert the same template safely', async () => {
             const { version } = config.index_schema!;
 
-            const { mappings } = config.data_type.toESMapping({
+            const { mappings } = config.data_type.toESMapping(esVersion < 7 ? {
                 typeName: config.name,
+                version: esVersion,
+            } : {
+                version: esVersion,
             });
 
             await indexManager.upsertTemplate({
@@ -156,8 +169,9 @@ describe('IndexManager->indexSetup()', () => {
             const mapping = get(config, ['index_schema', 'mapping'], {});
             const version = get(config, ['index_schema', 'version'], 1);
 
-            const mappings = {};
-            mappings[config.name] = mapping;
+            const mappings = esVersion >= 7 ? mapping : {
+                [config.name]: mapping
+            };
 
             const newVersion = version + 1;
             await indexManager.upsertTemplate({
@@ -181,6 +195,7 @@ describe('IndexManager->indexSetup()', () => {
 
     describe('using a timeseries index', () => {
         const client = makeClient();
+        const esVersion = getESVersion(client);
 
         const config: IndexConfig = {
             name: `${TEST_INDEX_PREFIX}timeseries`,
@@ -231,14 +246,18 @@ describe('IndexManager->indexSetup()', () => {
         it('should create the mapping', async () => {
             const mapping = await indexManager.getMapping(index);
 
-            expect(mapping[currentIndexName].mappings).toHaveProperty(config.name);
+            if (esVersion < 7) {
+                expect(mapping[currentIndexName].mappings).toHaveProperty(config.name);
+            }
         });
 
         it('should create the template', async () => {
             const temp = await indexManager.getTemplate(templateName, false);
 
             expect(temp).toHaveProperty(templateName);
-            expect(temp[templateName].mappings).toHaveProperty(config.name);
+            if (esVersion < 7) {
+                expect(temp[templateName].mappings).toHaveProperty(config.name);
+            }
             expect(temp[templateName]).toHaveProperty('version', 1);
         });
 

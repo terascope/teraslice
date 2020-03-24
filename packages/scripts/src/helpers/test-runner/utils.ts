@@ -46,6 +46,10 @@ export function getArgs(options: TestOptions): ArgsMap {
         }
     }
 
+    if (config.isCI) {
+        args.verbose = 'false';
+    }
+
     if (options.watch) {
         args.watch = '';
         args.coverage = 'false';

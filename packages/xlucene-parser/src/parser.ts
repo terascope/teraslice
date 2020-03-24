@@ -18,9 +18,7 @@ export class Parser {
     logger: Logger;
 
     constructor(query: string, options: i.ParserOptions = {}) {
-        this.logger = options.logger != null
-            ? options.logger.child({ module: 'xlucene-parser' })
-            : _logger;
+        this.logger = options.logger || _logger;
 
         this.query = trim(query || '');
 

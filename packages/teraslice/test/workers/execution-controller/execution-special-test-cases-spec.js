@@ -1,6 +1,6 @@
 'use strict';
 
-const uuidv4 = require('uuid/v4');
+const { v4: uuidv4 } = require('uuid');
 const { pDelay, times, random } = require('@terascope/utils');
 const { RecoveryCleanupType } = require('@terascope/job-components');
 const Messaging = require('@terascope/teraslice-messaging');
@@ -567,7 +567,9 @@ describe('ExecutionController Special Tests', () => {
         it('should have the correct execution status', () => {
             const { exId } = testContext.executionContext;
             expect(exStatus).toBeObject();
-            expect(exStatus).toHaveProperty('_slicer_stats');
+            expect(exStatus).toHaveProperty('_slicer_stats.processed');
+            expect(exStatus).toHaveProperty('_slicer_stats.queued');
+            expect(exStatus).toHaveProperty('_slicer_stats.slicers');
 
             if (shutdownEarly) {
                 expect(exStatus).toHaveProperty(

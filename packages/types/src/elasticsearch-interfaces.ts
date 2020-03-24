@@ -153,3 +153,93 @@ export type ElasticsearchDSLResult = {
     query: ConstantScoreQuery | MatchAllQuery;
     sort?: AnyQuerySort|AnyQuerySort[];
 };
+
+export type ESFieldType =
+    | 'long'
+    | 'integer'
+    | 'short'
+    | 'byte'
+    | 'double'
+    | 'float'
+    | 'keyword'
+    | 'text'
+    | 'boolean'
+    | 'ip'
+    | 'ip_range'
+    | 'date'
+    | 'geo_point'
+    | 'geo_shape'
+    | 'object';
+
+export type ESTypeMapping =
+    | PropertyESTypeMapping
+    | FieldsESTypeMapping
+    | BasicESTypeMapping
+    | IgnoredESTypeMapping;
+
+type BasicESTypeMapping = {
+    type: ESFieldType;
+    [prop: string]: any;
+};
+
+type IgnoredESTypeMapping = {
+    enabled: boolean;
+}
+
+type FieldsESTypeMapping = {
+    type: ESFieldType | string;
+    fields: {
+        [key: string]: {
+            type: ESFieldType | string;
+            index?: boolean | string;
+            analyzer?: string;
+        };
+    };
+};
+
+export type PropertyESTypes = FieldsESTypeMapping | BasicESTypeMapping;
+export type PropertyESTypeMapping = {
+    type?: 'nested' | 'object';
+    properties: {
+        [key: string]: PropertyESTypes;
+    };
+};
+
+export interface ESTypeMappings {
+    [prop: string]: any;
+    _all?: {
+        enabled?: boolean;
+        [key: string]: any;
+    };
+    dynamic?: boolean;
+    properties: {
+        [key: string]: ESTypeMapping;
+    };
+}
+
+export interface ESMapping {
+    mappings: {
+        [typeName: string]: ESTypeMappings;
+    };
+    template?: string;
+    order?: number;
+    aliases?: any;
+    index_patterns?: string[];
+    settings: ESIndexSettings;
+}
+
+export interface ESIndexSettings {
+    'index.number_of_shards'?: number;
+    'index.number_of_replicas'?: number;
+    'index.refresh_interval'?: string;
+    'index.max_result_window'?: number;
+    analysis?: {
+        analyzer?: {
+            [key: string]: any;
+        };
+        tokenizer?: {
+            [key: string]: any;
+        };
+    };
+    [setting: string]: any;
+}
