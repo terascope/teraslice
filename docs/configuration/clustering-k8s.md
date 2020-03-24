@@ -345,6 +345,7 @@ version `0.5.1` or higher:
 cd examples/k8s
 export NAMESPACE=ts-dev1
 export TERASLICE_K8S_IMAGE=teraslice-k8sdev:1
+export TERASLICE_MODE=minikube
 minikube start --memory 4096 --cpus 4
 eval $(minikube docker-env)
 make build
@@ -431,4 +432,67 @@ make register
 make start
 # restart master
 make master-stop
+```
+
+At this point you should be able to access your Teraslice instance on port 5678
+on localhost:
+
+```bash
+curl -Ss localhost:5678
+{
+    "arch": "x64",
+    "clustering_type": "kubernetes",
+    "name": "ts-dev1",
+    "node_version": "v8.12.0",
+    "platform": "linux",
+    "teraslice_version": "v0.49.0"
+}
+```
+
+Or using `ts-top`:
+
+```bash
+ts-top
+```
+
+And Elasticsearch should be accessible on port 30200, just like in the minikube
+case:
+
+```bash
+curl -Ss $(minikube ip):30200
+{
+  "name" : "0iE0zM1",
+  "cluster_name" : "elasticsearch",
+  "cluster_uuid" : "_Ba0EHSLSCmN_ebEfc4eGg",
+  "version" : {
+    "number" : "5.6.10",
+    "build_hash" : "b727a60",
+    "build_date" : "2018-06-06T15:48:34.860Z",
+    "build_snapshot" : false,
+    "lucene_version" : "6.6.1"
+  },
+  "tagline" : "You Know, for Search"
+}
+```
+
+When you need to make another change to Teraslice, stop, then start the master
+and run a new job:
+
+```bash
+# stop currently running job
+make stop
+# stop teraslice master
+make master-stop
+# use ps to wait for the teraslice master to stop
+# make changes to code
+# start teraslice master
+make master-start
+# start job
+make start
+```
+
+To tear everything down and start over, all you have to do is run:
+
+```bash
+make destroy-all
 ```

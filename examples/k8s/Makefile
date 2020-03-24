@@ -82,7 +82,7 @@ ifeq ($(TERASLICE_MODE),minikube)
 	# Stop master in Kubernetes
 	#???
 else
-	tail -f master.log | bunyan
+	tail -F master.log | bunyan
 endif
 
 master-status: ## show status of teraslice master
@@ -130,6 +130,8 @@ showauth: ## Show roles and roleBindings
 configs: ## create the configmaps
 ifeq ($(TERASLICE_MODE),minikube)
 	yq w teraslice-worker.yaml.tpl teraslice.kubernetes_image $(TERASLICE_K8S_IMAGE) | yq w - teraslice.kubernetes_namespace $(NAMESPACE) > teraslice.yaml
+	kubectl create --namespace $(NAMESPACE) configmap teraslice-worker --from-file=teraslice.yaml || echo "* it is okay..."
+	rm teraslice.yaml
 	yq w teraslice-master.yaml.tpl teraslice.kubernetes_image $(TERASLICE_K8S_IMAGE) | yq w - teraslice.kubernetes_namespace $(NAMESPACE) > teraslice.yaml
 	kubectl create --namespace $(NAMESPACE) configmap teraslice-master --from-file=teraslice.yaml
 	rm teraslice.yaml
@@ -137,13 +139,13 @@ else
 	# This adds the minikube vm's host machines IP where the master runs in the
 	# hybrid case
 	yq w teraslice-worker.yaml.tpl teraslice.kubernetes_image $(TERASLICE_K8S_IMAGE) | yq w - teraslice.master_hostname $(HOST_IP) | yq w - teraslice.kubernetes_namespace $(NAMESPACE) > teraslice.yaml
+	kubectl create --namespace $(NAMESPACE) configmap teraslice-worker --from-file=teraslice.yaml || echo "* it is okay..."
+	rm teraslice.yaml
 	# FIXME: Figure out where to clean this up
 	# Note that the ES Port Here is 30200 because that is the port the service
 	# NodePort gets exposed on
 	yq w teraslice-master.yaml.tpl terafoundation.connectors.elasticsearch.default.host[0] $(shell minikube ip):30200 | yq w - teraslice.kubernetes_image $(TERASLICE_K8S_IMAGE) | yq w - teraslice.assets_directory /tmp/assets > teraslice-master-local.yaml
 endif
-	kubectl create --namespace $(NAMESPACE) configmap teraslice-worker --from-file=teraslice.yaml || echo "* it is okay..."
-	rm teraslice.yaml
 
 build: ## builds docker images
 	docker build -t $(TERASLICE_K8S_IMAGE) ../..
