@@ -145,61 +145,57 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
     if (dockerGateways.includes(config.ELASTICSEARCH_HOSTNAME)) return;
 
-    try {
-        await ts.pWhile(
-            async () => {
-                if (options.trace) {
-                    signale.debug(`checking elasticsearch at ${elasticsearchHost}`);
-                } else {
-                    logger.debug(`checking elasticsearch at ${elasticsearchHost}`);
-                }
-
-                let body: any;
-                try {
-                    ({ body } = await got(elasticsearchHost, {
-                        json: true,
-                        throwHttpErrors: true,
-                        retry: 0,
-                    }));
-                } catch (err) {
-                    return false;
-                }
-
-                if (options.trace) {
-                    signale.debug('got response from elasticsearch service', body);
-                } else {
-                    logger.debug('got response from elasticsearch service', body);
-                }
-
-                if (!body?.version?.number) {
-                    return false;
-                }
-
-                const actual: string = body.version.number;
-                const expected = options.elasticsearchVersion;
-
-                const satifies = semver.satisfies(actual, `^${expected}`);
-                if (satifies) {
-                    const took = ms(Date.now() - startTime);
-                    signale.success(`elasticsearch@${actual} is running at ${elasticsearchHost}, took ${took}`);
-                    return true;
-                }
-
-                throw new ts.TSError(
-                    `Elasticsearch at ${elasticsearchHost} does not satify required version of ${expected}, got ${actual}`,
-                    {
-                        retryable: false,
-                    }
-                );
-            },
-            {
-                timeoutMs: ms('1m'),
-                enabledJitter: true,
+    await ts.pWhile(
+        async () => {
+            if (options.trace) {
+                signale.debug(`checking elasticsearch at ${elasticsearchHost}`);
+            } else {
+                logger.debug(`checking elasticsearch at ${elasticsearchHost}`);
             }
-        );
-    } catch (err) {
-        signale.error(err);
-    }
+
+            let body: any;
+            try {
+                ({ body } = await got(elasticsearchHost, {
+                    json: true,
+                    throwHttpErrors: true,
+                    retry: 0,
+                }));
+            } catch (err) {
+                return false;
+            }
+
+            if (options.trace) {
+                signale.debug('got response from elasticsearch service', body);
+            } else {
+                logger.debug('got response from elasticsearch service', body);
+            }
+
+            if (!body?.version?.number) {
+                return false;
+            }
+
+            const actual: string = body.version.number;
+            const expected = options.elasticsearchVersion;
+
+            const satifies = semver.satisfies(actual, `^${expected}`);
+            if (satifies) {
+                const took = ms(Date.now() - startTime);
+                signale.success(`elasticsearch@${actual} is running at ${elasticsearchHost}, took ${took}`);
+                return true;
+            }
+
+            throw new ts.TSError(
+                `Elasticsearch at ${elasticsearchHost} does not satify required version of ${expected}, got ${actual}`,
+                {
+                    retryable: false,
+                }
+            );
+        },
+        {
+            timeoutMs: ms('30s'),
+            enabledJitter: true,
+        }
+    );
 }
 
 async function checkKafka(options: TestOptions, startTime: number) {
