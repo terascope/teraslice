@@ -1,13 +1,14 @@
 import path from 'path';
 import semver from 'semver';
-import { getFirstChar, uniq, trim } from '@terascope/utils';
+import {
+    getFirstChar, uniq, trim, isCI
+} from '@terascope/utils';
 import { getDocPath, updatePkgJSON, fixDepPkgName } from '../packages';
 import { updateReadme, ensureOverview } from '../docs/overview';
 import { PackageInfo, RootPackageInfo } from '../interfaces';
 import { formatList, getRootDir } from '../misc';
 import { getChangedFiles, gitDiff } from '../scripts';
 import { DepKey, SyncOptions } from './interfaces';
-import { isCI } from '../config';
 import signale from '../signale';
 
 const topLevelFiles: readonly string[] = [
