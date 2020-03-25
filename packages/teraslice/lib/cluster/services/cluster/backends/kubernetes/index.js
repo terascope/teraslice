@@ -43,13 +43,14 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
     }
 
     /**
-     * Creates clusterState by iterating over all k8s pods with the label
-     * `app.kubernetes.io/name=teraslice`
+     * Creates clusterState by iterating over all k8s pods matching both labels
+     *   app.kubernetes.io/name=teraslice
+     *   app.kubernetes.io/instance=${clusterNameLabel}
      * @constructor
      * @return      {Promise} [description]
      */
     function _getClusterState() {
-        return k8s.list('app.kubernetes.io/name=teraslice', 'pods')
+        return k8s.list(`app.kubernetes.io/name=teraslice,app.kubernetes.io/instance=${clusterNameLabel}`, 'pods')
             .then((k8sPods) => k8sState.gen(k8sPods, clusterState, clusterNameLabel))
             .catch((err) => {
                 // TODO: We might need to do more here.  I think it's OK to just
