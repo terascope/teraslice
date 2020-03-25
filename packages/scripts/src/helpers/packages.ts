@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import fse from 'fs-extra';
 import semver from 'semver';
+import globby from 'globby';
 import {
     uniq, fastCloneDeep, get, trim
 } from '@terascope/utils';
@@ -26,32 +27,64 @@ export function getE2EDir(): string|undefined {
     return undefined;
 }
 
+function _loadPackage(packagePath: string): i.PackageInfo|undefined {
+    const pkgJsonPath = path.join(packagePath, 'package.json');
+    if (fs.existsSync(pkgJsonPath)) {
+        return readPackageInfo(packagePath);
+    }
+    return undefined;
+}
+
+function _resolveWorkspaces(workspaces: string[], rootDir: string) {
+    return workspaces
+        .reduce(
+            (pkgDirs, pkgGlob) => [
+                ...pkgDirs,
+                ...(globby.hasMagic(pkgGlob)
+                    ? globby.sync(path.join(rootDir, pkgGlob), {
+                        onlyDirectories: true,
+                    })
+                    : [path.join(rootDir, pkgGlob)]),
+            ],
+            [] as string[]
+        );
+}
+
 export function listPackages(): i.PackageInfo[] {
     if (_packages && _packages.length) return _packages.slice();
 
-    const packagesPath = path.join(misc.getRootDir(), 'packages');
-    if (!fs.existsSync(packagesPath)) {
-        return [];
+    const rootPkg = misc.getRootInfo();
+    if (!rootPkg.workspaces) return [];
+
+    const workspaces = Array.isArray(rootPkg.workspaces)
+        ? rootPkg.workspaces
+        : rootPkg.workspaces.packages;
+
+    if (!workspaces) return [];
+
+    const hasE2E = workspaces.find((workspacePath) => workspacePath.includes('e2e'));
+    if (!hasE2E) {
+        workspaces.push('e2e');
     }
 
-    const extraPaths: string[] = [];
-    const e2eDir = getE2EDir();
-    if (e2eDir) {
-        extraPaths.push(e2eDir);
-    }
-
-    const packages = fs
-        .readdirSync(packagesPath)
-        .map((fileName) => path.join(packagesPath, fileName))
-        .concat(extraPaths)
-        .filter((filePath: string) => {
-            if (!fs.statSync(filePath).isDirectory()) return false;
-            return fs.existsSync(path.join(filePath, 'package.json'));
-        })
-        .map((filePath) => readPackageInfo(filePath));
+    const workspacePaths = _resolveWorkspaces(workspaces, misc.getRootDir());
+    const packages = workspacePaths
+        .map(_loadPackage)
+        .filter((pkg) => pkg?.name);
 
     _packages = QueryGraph.toposort(packages);
     return _packages;
+}
+
+export function getJestAliases() {
+    const aliases: Record<string, string> = {};
+    listPackages().forEach((pkg) => {
+        const key = `^${pkg.name}$`;
+        const mainFile = pkg.srcMain || pkg.main;
+        if (!mainFile) return;
+        aliases[key] = path.join(pkg.dir, mainFile);
+    });
+    return aliases;
 }
 
 export function getMainPackageInfo(): i.PackageInfo | undefined {

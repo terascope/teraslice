@@ -8,7 +8,8 @@
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "workspaces": [
-        "packages/*"
+        "packages/*",
+        "e2e"
     ],
     "scripts": {
         "benchmark": "lerna run --concurrency=1 --no-prefix --stream benchmark",
@@ -51,7 +52,6 @@
         "jest-extended": "^0.11.5",
         "jest-watch-typeahead": "^0.4.0",
         "lerna": "^3.20.1",
-        "lerna-alias": "^3.0.2",
         "node-notifier": "^6.0.0",
         "ts-jest": "^25.0.0",
         "typescript": "^3.8.3"

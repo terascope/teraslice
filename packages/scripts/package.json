@@ -36,6 +36,7 @@
         "codecov": "^3.6.5",
         "execa": "^4.0.0",
         "fs-extra": "^8.1.0",
+        "globby": "^11.0.0",
         "got": "^9.6.0",
         "ip": "^1.1.5",
         "lodash.defaultsdeep": "^4.6.1",
@@ -51,6 +52,7 @@
         "yargs": "^15.3.1"
     },
     "devDependencies": {
+        "@types/globby": "^9.1.0",
         "@types/got": "^9.6.8",
         "@types/ip": "^1.1.0",
         "@types/lodash.defaultsdeep": "^4.6.6",
