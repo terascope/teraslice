@@ -56,9 +56,11 @@ export function listPackages(): i.PackageInfo[] {
     const rootPkg = misc.getRootInfo();
     if (!rootPkg.workspaces) return [];
 
-    const workspaces = Array.isArray(rootPkg.workspaces)
-        ? rootPkg.workspaces
-        : rootPkg.workspaces.packages;
+    const workspaces = (
+        Array.isArray(rootPkg.workspaces)
+            ? rootPkg.workspaces
+            : rootPkg.workspaces.packages
+    ).slice();
 
     if (!workspaces) return [];
 
