@@ -2,9 +2,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const { jest: lernaAliases } = require('lerna-alias');
-
-const isCI = process.env.CI === 'true';
+const { isCI } = require('@terascope/utils');
+const { getJestAliases } = require('@terascope/scripts');
 
 module.exports = (projectDir) => {
     let parentFolder;
@@ -53,7 +52,7 @@ module.exports = (projectDir) => {
             `<rootDir>/${parentFolder}/teraslice-cli/test/fixtures/`
         ],
         transformIgnorePatterns: ['^.+\\.js$'],
-        moduleNameMapper: lernaAliases({ mainFields: ['srcMain', 'main'] }),
+        moduleNameMapper: getJestAliases(),
         moduleFileExtensions: ['ts', 'js', 'json', 'node', 'pegjs'],
         collectCoverage: true,
         coveragePathIgnorePatterns: ['/node_modules/', '/test/'],

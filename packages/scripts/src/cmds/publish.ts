@@ -1,9 +1,9 @@
 import { CommandModule } from 'yargs';
+import { isCI } from '@terascope/utils';
 import { GlobalCMDOptions } from '../helpers/interfaces';
 import { PublishAction, PublishType } from '../helpers/publish/interfaces';
 import { publish } from '../helpers/publish';
 import { syncAll } from '../helpers/sync';
-import { isCI } from '../helpers/config';
 
 type Options = {
     type: PublishType;

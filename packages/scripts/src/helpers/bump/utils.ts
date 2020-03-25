@@ -54,6 +54,8 @@ export async function getPackagesToBump(
     }
 
     async function _bumpPackage(pkgInfo: PackageInfo) {
+        if (pkgInfo.private) return;
+
         await _resetVersion(pkgInfo);
 
         const from = pkgInfo.version;
