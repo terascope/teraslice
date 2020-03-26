@@ -26,24 +26,38 @@ export default class PhaseManager {
 
     public async init(Plugins?: PluginList) {
         const opsManager = new OperationsManager(Plugins);
-        const phaseConfiguration = await this.loader.load(opsManager);
+        const {
+            selectors,
+            extractions,
+            postProcessing,
+            output
+        } = await this.loader.load(opsManager);
+
         const sequence: PhaseBase[] = [
-            new SelectionPhase(this.opConfig, phaseConfiguration.selectors, opsManager)
+            new SelectionPhase(this.opConfig, selectors, opsManager)
         ];
 
         if (!this.isMatcher) {
-            sequence.push(
-                new ExtractionPhase(this.opConfig, phaseConfiguration.extractions, opsManager),
-                new PostProcessPhase(this.opConfig, phaseConfiguration.postProcessing, opsManager)
-            );
+            if (Object.keys(extractions).length) {
+                sequence.push(
+                    new ExtractionPhase(this.opConfig, extractions, opsManager)
+                );
+            }
+
+            if (Object.keys(postProcessing).length) {
+                sequence.push(
+                    new PostProcessPhase(this.opConfig, postProcessing, opsManager)
+                );
+            }
         }
 
-        sequence.push(new OutputPhase(this.opConfig, phaseConfiguration.output, opsManager));
+        sequence.push(new OutputPhase(this.opConfig, output, opsManager));
         this.sequence = sequence;
     }
 
     public run(input: object[]): DataEntity[] {
         const data = DataEntity.makeArray(input);
+
         return this.sequence.reduce<DataEntity[]>(
             (dataArray, phase: PhaseBase) => phase.run(dataArray),
             data as DataEntity[]

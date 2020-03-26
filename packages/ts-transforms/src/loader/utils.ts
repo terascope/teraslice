@@ -19,6 +19,10 @@ const {
     alg: { topsort, findCycles },
 } = graphlib;
 
+function makeSelectorTag(name: string) {
+    return `selector:${name}`;
+}
+
 export function parseConfig(
     configList: OperationConfig[],
     opsManager: OperationsManager,
@@ -36,12 +40,17 @@ export function parseConfig(
                 if (!tagMapping[tag]) {
                     tagMapping[tag] = [];
                 }
-                tagMapping[tag].push(configId);
+
+                if (isPrimaryConfig(config) && !hasPrimaryExtractions(config)) {
+                    tagMapping[tag].push(makeSelectorTag(config.selector as string));
+                } else {
+                    tagMapping[tag].push(configId);
+                }
             });
         }
 
         if (isPrimaryConfig(config)) {
-            const selectorNode = `selector:${config.selector}`;
+            const selectorNode = makeSelectorTag(config.selector as string);
 
             if (!graph.hasNode(selectorNode)) {
                 graph.setNode(selectorNode, config);
@@ -76,6 +85,7 @@ export function parseConfig(
     }
 
     const cycles = findCycles(graph);
+
     if (cycles.length > 0) {
         const errMsg = 'A cyclic tag => follow sequence has been found, cycles: ';
         const errList: string[] = [];
@@ -92,6 +102,7 @@ export function parseConfig(
     const normalizedConfig = normalizeConfig(configListOrder, opsManager, tagMapping);
     const results = createResults(normalizedConfig);
     validateOtherMatchRequired(results.extractions, logger);
+
     return results;
 }
 
@@ -109,16 +120,19 @@ function normalizeConfig(
             // This works becuase topsort orders them
             const fieldsConfigs = findConfigs(config, list, tagMapping);
             if (isOneToOne(opsManager, config)) {
-                list.push(...createMatchingConfig(fieldsConfigs, config, tagMapping));
+                const stuff = createMatchingConfig(fieldsConfigs, config, tagMapping);
+                list.push(...stuff);
             } else {
                 const [pipeline] = fieldsConfigs.map((obj) => obj.pipeline);
                 config.__pipeline = pipeline;
                 config.sources = [...new Set(fieldsConfigs.map((obj) => obj.source))];
+
                 if (targetField && !Array.isArray(targetField)) {
                     config.target = targetField;
                 } else {
                     checkForTarget(config);
                 }
+
                 list.push(config);
             }
         } else {
@@ -144,7 +158,15 @@ function findConfigs(
     const results: FieldSourceConfigs[] = [];
 
     configList
-        .filter((obj) => nodeIds.includes(obj.__id) && has(obj, 'target'))
+        .filter((obj) => {
+            let selectorId;
+            if (obj.selector) selectorId = makeSelectorTag(obj.selector);
+
+            const foundNode = nodeIds.includes(obj.__id)
+                || (selectorId && nodeIds.includes(selectorId));
+
+            return foundNode;
+        })
         .forEach((obj) => {
             if (!mapping[obj.__id]) {
                 mapping[obj.__id] = true;
@@ -153,7 +175,6 @@ function findConfigs(
             }
         });
 
-    if (!(results.some((obj) => obj.source != null))) throw new Error(`could not find source field for config ${JSON.stringify(config)}`);
     return results;
 }
 
@@ -183,6 +204,7 @@ function createMatchingConfig(
         }
 
         if (!resultsObj.source) resultsObj.source = obj.source;
+
         if (config.target === undefined) {
             resultsObj.target = obj.source;
         } else if (Array.isArray(config.target)) {
@@ -201,6 +223,7 @@ function createMatchingConfig(
 function validateOtherMatchRequired(configDict: ExtractionProcessingDict, logger: Logger) {
     for (const [selector, opsList] of Object.entries(configDict)) {
         const hasMatchRequired = opsList.find((op) => !!op.other_match_required) != null;
+
         if (hasMatchRequired && opsList.length === 1) {
             logger.warn(
                 `
@@ -223,6 +246,7 @@ function isOneToOne(opsManager: OperationsManager, config: OperationConfig): boo
     if (isOnlySelector(config)) return true;
     const processType = config.validation || config.post_process || 'extraction';
     const Operation = opsManager.getTransform(processType as string);
+
     return Operation.cardinality === 'one-to-one';
 }
 
@@ -235,7 +259,7 @@ function checkForTarget(config: OperationConfig) {
 type Config = OperationConfig | OperationConfigInput;
 
 export function isPrimaryConfig(config: Config) {
-    return hasSelector(config) && !isPostProcessType(config, 'selector');
+    return hasSelector(config) && !hasPostProcess(config);
 }
 
 export function needsDefaultSelector(config: Config) {

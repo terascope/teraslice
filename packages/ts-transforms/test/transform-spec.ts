@@ -243,6 +243,7 @@ describe('can transform matches', () => {
         const results = await test.run(data);
 
         results.forEach((d, index) => {
+            // console.log('what is d', d)
             expect(DataEntity.isDataEntity(d)).toEqual(true);
             expect(d).toEqual(resultSet[index]);
             expect(d.getMetadata('selectors')).toBeDefined();
@@ -1087,5 +1088,45 @@ describe('can transform matches', () => {
         const results = await test.run(data);
 
         expect(results).toEqual([]);
+    });
+
+    it('should be able to turn a value into an array with jexl', async () => {
+        const config: WatcherConfig = {
+            rules: [getPath('regression-test1.txt')],
+        };
+
+        const data = [
+            new DataEntity({ other: 'stuff' }),
+            new DataEntity({ field: 'value', other: 'stuff' }),
+            new DataEntity({ field: 'value' }),
+        ];
+
+        const test = await opTest.init(config, [Plugins]);
+        const results = await test.run(data);
+
+        expect(results).toEqual([
+            { field: ['value'], other: 'stuff' },
+            { field: ['value'] }
+        ]);
+    });
+
+    it('should be able to turn a value into an array with array post_process', async () => {
+        const config: WatcherConfig = {
+            rules: [getPath('regression-test2.txt')],
+        };
+
+        const data = [
+            new DataEntity({ other: 'stuff' }),
+            new DataEntity({ field: 'value', other: 'stuff' }),
+            new DataEntity({ field: 'value' }),
+        ];
+
+        const test = await opTest.init(config, [Plugins]);
+        const results = await test.run(data);
+
+        expect(results).toEqual([
+            { field: ['value'], other: 'stuff' },
+            { field: ['value'] }
+        ]);
     });
 });
