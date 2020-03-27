@@ -213,7 +213,7 @@ async function initCommand() {
     try {
         const opConfig: PhaseConfig = {
             rules: parseList(filePath).map((pathing) => path.resolve(pathing)),
-            types: typesConfig,
+            type_config: typesConfig,
             type,
         };
         let plugins = [];

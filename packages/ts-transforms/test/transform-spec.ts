@@ -25,7 +25,7 @@ describe('can transform matches', () => {
     it('should transform matching data', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules1.txt')],
-            types: { _created: xLuceneFieldType.Date },
+            type_config: { _created: xLuceneFieldType.Date },
         };
 
         const data = DataEntity.makeArray([
@@ -50,7 +50,7 @@ describe('can transform matches', () => {
     it('can uses typeConifg', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules1.txt')],
-            types: { location: xLuceneFieldType.Geo },
+            type_config: { location: xLuceneFieldType.Geo },
         };
 
         const data = DataEntity.makeArray([

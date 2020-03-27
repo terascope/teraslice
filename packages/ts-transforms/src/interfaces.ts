@@ -117,7 +117,7 @@ export interface OperationsMapping {
 
 export interface WatcherConfig {
     rules?: string[];
-    types?: xLuceneTypeConfig;
+    type_config?: xLuceneTypeConfig;
     variables?: xLuceneVariables;
     notification_rules?: string;
 }

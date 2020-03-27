@@ -17,7 +17,7 @@ describe('matcher', () => {
     it('can return matching documents', async () => {
         const config: WatcherConfig = {
             rules: [matchRules1Path],
-            types: { _created: xLuceneFieldType.Date },
+            type_config: { _created: xLuceneFieldType.Date },
         };
 
         const data = DataEntity.makeArray([
@@ -37,7 +37,7 @@ describe('matcher', () => {
     it('should add metadata to returning docs', async () => {
         const config: WatcherConfig = {
             rules: [matchRules1Path],
-            types: { _created: xLuceneFieldType.Date },
+            type_config: { _created: xLuceneFieldType.Date },
         };
 
         const data = DataEntity.makeArray([
@@ -58,7 +58,7 @@ describe('matcher', () => {
     it('should match multiple rules', async () => {
         const config: WatcherConfig = {
             rules: [matchRules1Path],
-            types: { _created: xLuceneFieldType.Date },
+            type_config: { _created: xLuceneFieldType.Date },
         };
 
         const data = DataEntity.makeArray([
@@ -79,7 +79,7 @@ describe('matcher', () => {
     it('can return matching documents with queries that have variables', async () => {
         const config: WatcherConfig = {
             rules: [matchVariableRulesPath],
-            types: {
+            type_config: {
                 foo: xLuceneFieldType.String,
                 bar: xLuceneFieldType.Number
             },
@@ -112,7 +112,7 @@ describe('matcher', () => {
         ];
 
         const config: WatcherConfig = {
-            types: { _created: xLuceneFieldType.Date },
+            type_config: { _created: xLuceneFieldType.Date },
             notification_rules: rules.join('\n')
         };
 
@@ -136,7 +136,7 @@ describe('matcher', () => {
         ];
 
         const config1: WatcherConfig = {
-            types: { _created: xLuceneFieldType.Date },
+            type_config: { _created: xLuceneFieldType.Date },
             notification_rules: rules1.join('\n')
         };
 

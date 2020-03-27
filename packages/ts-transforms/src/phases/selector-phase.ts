@@ -15,7 +15,7 @@ export default class SelectionPhase extends PhaseBase {
         this.opConfig = opConfig;
 
         const matcherConfig: i.MatcherConfig = {
-            type_config: opConfig.types,
+            type_config: opConfig.type_config,
             variables: opConfig.variables
         };
 
