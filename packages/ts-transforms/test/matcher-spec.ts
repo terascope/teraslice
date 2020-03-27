@@ -76,7 +76,7 @@ describe('matcher', () => {
         expect(results[0].getMetadata('selectors')).toEqual(rules);
     });
 
-    fit('can return matching documents with queries that have variables', async () => {
+    it('can return matching documents with queries that have variables', async () => {
         const config: WatcherConfig = {
             rules: [matchVariableRulesPath],
             types: {
@@ -97,7 +97,7 @@ describe('matcher', () => {
 
         const test = await opTest.init(config);
         const results = await test.run(data);
-        console.log('results', results)
+
         expect(results.length).toEqual(2);
         expect(results).toEqual([
             { foo: 'hello', bar: 200 },
