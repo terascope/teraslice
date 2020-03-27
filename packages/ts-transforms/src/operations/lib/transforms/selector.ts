@@ -9,17 +9,14 @@ export default class Selector {
 
     static cardinality: InputOutputCardinality = 'one-to-one';
 
-    constructor(config: SelectorConfig, { typeConfig, variables }: MatcherConfig = {}) {
+    constructor(config: SelectorConfig, matcherConfig: MatcherConfig = {}) {
         let luceneQuery = config.selector as string;
         if (typeof luceneQuery !== 'string') throw new Error('selector must be a string');
         this.selector = luceneQuery;
         this.isMatchAll = luceneQuery === '*';
         if (this.isMatchAll) luceneQuery = '';
 
-        this.documentMatcher = new DocumentMatcher(luceneQuery, {
-            type_config: typeConfig,
-            variables
-        });
+        this.documentMatcher = new DocumentMatcher(luceneQuery, matcherConfig);
     }
 
     addMetaData(doc: DataEntity, selector: string) {

@@ -58,7 +58,7 @@ export interface SelectorConfig {
 }
 
 export interface MatcherConfig {
-    typeConfig?: xLuceneTypeConfig;
+    type_config?: xLuceneTypeConfig;
     variables?: xLuceneVariables;
 }
 
