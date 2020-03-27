@@ -6,6 +6,7 @@ import { WatcherConfig } from '../src';
 
 describe('matcher', () => {
     const matchRules1Path = path.join(__dirname, './fixtures/matchRules1.txt');
+    const matchVariableRulesPath = path.join(__dirname, './fixtures/matchRules2.txt');
 
     let opTest: TestHarness;
 
@@ -73,6 +74,35 @@ describe('matcher', () => {
         // each match will be inserted into the results
         expect(results.length).toEqual(1);
         expect(results[0].getMetadata('selectors')).toEqual(rules);
+    });
+
+    fit('can return matching documents with queries that have variables', async () => {
+        const config: WatcherConfig = {
+            rules: [matchVariableRulesPath],
+            types: {
+                foo: xLuceneFieldType.String,
+                bar: xLuceneFieldType.Number
+            },
+            variables: {
+                foo: 'hello',
+                bar: 3
+            }
+        };
+
+        const data = DataEntity.makeArray([
+            { foo: 'data', bar: 1200 },
+            { foo: 'hello', bar: 200 },
+            { foo: 'other', bar: 3 },
+        ]);
+
+        const test = await opTest.init(config);
+        const results = await test.run(data);
+        console.log('results', results)
+        expect(results.length).toEqual(2);
+        expect(results).toEqual([
+            { foo: 'hello', bar: 200 },
+            { foo: 'other', bar: 3 },
+        ]);
     });
 
     it('matcher can run with notification rules', async () => {

@@ -1129,4 +1129,21 @@ describe('can transform matches', () => {
             { field: ['value'] }
         ]);
     });
+
+    it('can run with variables', async () => {
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules28.txt')],
+            variables: {
+                hello: 'world'
+            }
+        };
+
+        const data = [new DataEntity({ hello: 'world', field1: 'hello', field2: 'world' }), new DataEntity({ field: 'null' })];
+
+        const test = await opTest.init(config);
+        const results = await test.run(data);
+
+        expect(results.length).toEqual(1);
+        expect(results[0]).toEqual({ results: ['hello', 'world'] });
+    });
 });
