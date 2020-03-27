@@ -57,10 +57,12 @@ function runProcessors(phase: OperationsPipline, record: DataEntity, metadata: a
 
 function process(phase: Operation[], record: MaybeRecord): MaybeRecord {
     let results = record;
+
     for (const op of phase) {
         if (!results) continue;
         results = op.run(results);
     }
+
     return results;
 }
 

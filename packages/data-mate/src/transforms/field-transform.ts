@@ -145,7 +145,22 @@ export const repository: Repository = {
     toPascalCase: { fn: toPascalCase, config: {}, output_type: 'String' as AvailableType },
     toSnakeCase: { fn: toSnakeCase, config: {}, output_type: 'String' as AvailableType },
     toTitleCase: { fn: toTitleCase, config: {}, output_type: 'String' as AvailableType },
+    setField: {
+        fn: setField,
+        config: {
+            value: {
+                type: 'Any'
+            }
+        },
+        output_type: 'Any' as AvailableType
+    },
 };
+
+// TODO: this is currently a hack for directives, this will evolve, do not use it for other purposes
+export function setField(_input: any, args: { field: string; value: any }) {
+    const { value } = args;
+    return value;
+}
 
 export function toString(input: any) {
     return ts.toString(input);
@@ -358,6 +373,8 @@ export function extract(
 
     const results = extractAndTransferFields();
     if (results == null) throw new Error('Nothing to extract');
+
+    return results;
 }
 
 export function replaceRegex(input: string, {

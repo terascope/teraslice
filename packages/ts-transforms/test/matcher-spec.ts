@@ -6,6 +6,7 @@ import { WatcherConfig } from '../src';
 
 describe('matcher', () => {
     const matchRules1Path = path.join(__dirname, './fixtures/matchRules1.txt');
+    const matchVariableRulesPath = path.join(__dirname, './fixtures/matchRules2.txt');
 
     let opTest: TestHarness;
 
@@ -16,7 +17,7 @@ describe('matcher', () => {
     it('can return matching documents', async () => {
         const config: WatcherConfig = {
             rules: [matchRules1Path],
-            types: { _created: xLuceneFieldType.Date },
+            type_config: { _created: xLuceneFieldType.Date },
         };
 
         const data = DataEntity.makeArray([
@@ -36,7 +37,7 @@ describe('matcher', () => {
     it('should add metadata to returning docs', async () => {
         const config: WatcherConfig = {
             rules: [matchRules1Path],
-            types: { _created: xLuceneFieldType.Date },
+            type_config: { _created: xLuceneFieldType.Date },
         };
 
         const data = DataEntity.makeArray([
@@ -57,7 +58,7 @@ describe('matcher', () => {
     it('should match multiple rules', async () => {
         const config: WatcherConfig = {
             rules: [matchRules1Path],
-            types: { _created: xLuceneFieldType.Date },
+            type_config: { _created: xLuceneFieldType.Date },
         };
 
         const data = DataEntity.makeArray([
@@ -75,6 +76,35 @@ describe('matcher', () => {
         expect(results[0].getMetadata('selectors')).toEqual(rules);
     });
 
+    it('can return matching documents with queries that have variables', async () => {
+        const config: WatcherConfig = {
+            rules: [matchVariableRulesPath],
+            type_config: {
+                foo: xLuceneFieldType.String,
+                bar: xLuceneFieldType.Number
+            },
+            variables: {
+                foo: 'hello',
+                bar: 3
+            }
+        };
+
+        const data = DataEntity.makeArray([
+            { foo: 'data', bar: 1200 },
+            { foo: 'hello', bar: 200 },
+            { foo: 'other', bar: 3 },
+        ]);
+
+        const test = await opTest.init(config);
+        const results = await test.run(data);
+
+        expect(results.length).toEqual(2);
+        expect(results).toEqual([
+            { foo: 'hello', bar: 200 },
+            { foo: 'other', bar: 3 },
+        ]);
+    });
+
     it('matcher can run with notification rules', async () => {
         const rules = [
             'some:data AND bytes:>=1000',
@@ -82,7 +112,7 @@ describe('matcher', () => {
         ];
 
         const config: WatcherConfig = {
-            types: { _created: xLuceneFieldType.Date },
+            type_config: { _created: xLuceneFieldType.Date },
             notification_rules: rules.join('\n')
         };
 
@@ -106,7 +136,7 @@ describe('matcher', () => {
         ];
 
         const config1: WatcherConfig = {
-            types: { _created: xLuceneFieldType.Date },
+            type_config: { _created: xLuceneFieldType.Date },
             notification_rules: rules1.join('\n')
         };
 
