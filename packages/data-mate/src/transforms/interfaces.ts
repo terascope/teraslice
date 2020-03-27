@@ -1,6 +1,6 @@
 export interface ExtractFieldConfig {
     regex?: string;
-    isMultiValue: boolean;
+    isMultiValue?: boolean;
     jexlExp?: string;
     start?: any;
     end?: any;

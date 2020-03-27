@@ -34,6 +34,28 @@ describe('field transforms', () => {
         });
     });
 
+    describe('extract should', () => {
+        it('return whats between start and end', () => {
+            const results = transform.extract('<hello>', { start: '<', end: '>' });
+            expect(results).toEqual('hello');
+        });
+
+        it('can run a jexl expression', () => {
+            const results = transform.extract({ foo: 'bar' }, { jexlExp: '[foo]' });
+            expect(results).toEqual(['bar']);
+        });
+
+        it('run a regex to extract a value', () => {
+            const results = transform.extract('hello', { regex: 'he.*' });
+            expect(results).toEqual(['hello']);
+        });
+
+        it('can return a singular value', () => {
+            const results = transform.extract('hello', { regex: 'he.*', isMultiValue: false });
+            expect(results).toEqual('hello');
+        });
+    });
+
     describe('trim should', () => {
         it('trim left and right spaces from a string', () => {
             expect(transform.trim('   string    ')).toBe('string');
