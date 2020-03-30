@@ -25,7 +25,7 @@
     "dependencies": {
         "@terascope/elasticsearch-api": "^2.6.4",
         "@terascope/utils": "^0.24.4",
-        "mnemonist": "^0.34.0"
+        "mnemonist": "^0.35.0"
     },
     "publishConfig": {
         "access": "public",

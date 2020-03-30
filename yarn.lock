@@ -8285,10 +8285,10 @@ mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@^0.5.4, mkdirp@~0.5.1:
   dependencies:
     minimist "^1.2.5"
 
-mnemonist@^0.34.0:
-  version "0.34.0"
-  resolved "https://registry.yarnpkg.com/mnemonist/-/mnemonist-0.34.0.tgz#94244ba4f8922ee25863d4624b3c6cccfd81b126"
-  integrity sha512-eKQxmumFOJhd7ea/u8zVvj7gA2tD6QFkuDfUIvoT/VIq+yR1VzXpp0tM8QFgeSRig5brIN/3NUE72/wvvyc9ug==
+mnemonist@^0.35.0:
+  version "0.35.0"
+  resolved "https://registry.yarnpkg.com/mnemonist/-/mnemonist-0.35.0.tgz#318fb69b79b98309a97ebf7f1d9f5873c3d86605"
+  integrity sha512-dewrFCpMv4jfEIxZLZufkxieuib2Q7bkZviiDyQnsDzNkkk7e1YV93tdY8sgwe+XuFQ5e+CJ+kR8qQ3jbzF9KQ==
   dependencies:
     obliterator "^1.6.1"
 
