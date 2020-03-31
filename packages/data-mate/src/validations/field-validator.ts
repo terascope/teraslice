@@ -142,7 +142,12 @@ export const repository: i.Repository = {
         },
 
     },
-    isIPCidr: { fn: isIPCidr, config: {} }
+    isIPCidr: { fn: isIPCidr, config: {} },
+    exists: { fn: exists, config: {} },
+    guard: { fn: guard, config: {} },
+    isArray: { fn: isArray, config: {} },
+    some: { fn: some, config: { fn: { type: 'String' } } },
+    every: { fn: every, config: { fn: { type: 'String' } } },
 };
 
 export function isBoolean(input: any): boolean {
@@ -365,4 +370,37 @@ export function isPostalCode(input: any, { locale }: { locale: 'any' | PostalCod
 
 export function isValidDate(input: any): boolean {
     return !isBoolean(input) && ts.isValidDate(input);
+}
+
+// NOTE: this function will throw compared to all other validations
+export function guard(input: any) {
+    if (input === undefined) throw new Error('input is empty');
+    return true;
+}
+
+export function exists(input: any): boolean {
+    return input !== undefined;
+}
+
+export function isArray(input: any): boolean {
+    if (Array.isArray(input)) return true;
+    return false;
+}
+
+export function some(input: any, { fn }: { fn: string }): boolean {
+    if (!isArray(input)) return false;
+
+    const repoConfig = repository[fn];
+    if (!repoConfig) throw new Error(`No function ${fn} was found in the field validator respository`);
+
+    return input.some(repoConfig.fn);
+}
+
+export function every(input: any, { fn }: { fn: string }): boolean {
+    if (!isArray(input)) return false;
+
+    const repoConfig = repository[fn];
+    if (!repoConfig) throw new Error(`No function ${fn} was found in the field validator respository`);
+
+    return input.every(repoConfig.fn);
 }

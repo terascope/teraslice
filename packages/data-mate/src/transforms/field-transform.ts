@@ -12,7 +12,8 @@ import {
 import {
     isString,
     isValidDate,
-    isNumber
+    isNumber,
+    isArray
 } from '../validations/field-validator';
 import { Repository } from '../interfaces';
 
@@ -154,7 +155,45 @@ export const repository: Repository = {
         },
         output_type: 'Any' as AvailableType
     },
+    setDefault: {
+        fn: setDefault,
+        config: {
+            value: {
+                type: 'Any'
+            }
+        },
+        output_type: 'Any' as AvailableType
+    },
+    map: {
+        fn: map,
+        config: {
+            fn: {
+                type: 'String'
+            },
+            args: {
+                type: 'Object'
+            }
+        },
+        output_type: 'Any' as AvailableType
+    },
 };
+
+export function setDefault(input: any, args: { value: any }) {
+    if (input === undefined) {
+        if (args.value === undefined) throw new Error('Parameter value cannot be set to undefined');
+        return args.value;
+    }
+    return input;
+}
+
+export function map(input: any[], args: { fn: string; options?: any }) {
+    if (!isArray(input)) throw new Error('Input must be an array');
+    const { fn, options } = args;
+    const repoConfig = repository[fn];
+    if (!repoConfig) throw new Error(`No function ${fn} was found in the field transform respository`);
+
+    return input.map((data) => repoConfig.fn(data, options));
+}
 
 // TODO: this is currently a hack for directives, this will evolve, do not use it for other purposes
 export function setField(_input: any, args: { field: string; value: any }) {
@@ -372,7 +411,7 @@ export function extract(
     }
 
     const results = extractAndTransferFields();
-    if (results == null) throw new Error('Nothing to extract');
+    if (results == null) return null;
 
     return results;
 }

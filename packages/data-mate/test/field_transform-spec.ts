@@ -34,6 +34,26 @@ describe('field transforms', () => {
         });
     });
 
+    describe('setDefault should', () => {
+        it('return a value if nothing is provided', () => {
+            expect(transform.setDefault('foo', { value: true })).toEqual('foo');
+            expect(transform.setDefault({ hello: 'world' }, { value: true })).toEqual({ hello: 'world' });
+            expect(transform.setDefault(null, { value: true })).toEqual(null);
+            expect(transform.setDefault(undefined, { value: true })).toEqual(true);
+        });
+    });
+
+    describe('map should', () => {
+        it('map a field transform function to an array', () => {
+            const array = ['hello', 'world', 'goodbye'];
+            const results1 = array.map(transform.toUpperCase);
+            const results2 = array.map((data) => transform.truncate(data, { size: 2 }));
+
+            expect(transform.map(array, { fn: 'toUpperCase' })).toEqual(results1);
+            expect(transform.map(array, { fn: 'truncate', options: { size: 2 } })).toEqual(results2);
+        });
+    });
+
     describe('extract should', () => {
         it('return whats between start and end', () => {
             const results = transform.extract('<hello>', { start: '<', end: '>' });
@@ -53,6 +73,11 @@ describe('field transforms', () => {
         it('can return a singular value', () => {
             const results = transform.extract('hello', { regex: 'he.*', isMultiValue: false });
             expect(results).toEqual('hello');
+        });
+
+        it('should not throw if it cannot extract anything', () => {
+            const results = transform.extract('boo', { regex: 'he.*', isMultiValue: false });
+            expect(results).toEqual(null);
         });
     });
 

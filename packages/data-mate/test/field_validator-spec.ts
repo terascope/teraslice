@@ -539,6 +539,52 @@ describe('field validators', () => {
         });
     });
 
+    describe('guard', () => {
+        it('should throw if undefined', () => {
+            expect(FieldValidator.guard('hello')).toBe(true);
+            expect(FieldValidator.guard(23423)).toBe(true);
+            expect(FieldValidator.guard({ hello: 'world' })).toBe(true);
+            expect(FieldValidator.guard(null)).toBe(true);
+            expect(() => FieldValidator.guard(undefined)).toThrow();
+        });
+    });
+
+    describe('some', () => {
+        it('should indicate if some elements of an array pass the validation', () => {
+            expect(FieldValidator.some(['hello', 3, { some: 'obj' }], { fn: 'isString' })).toBe(true);
+            expect(FieldValidator.some(['hello', 3, { some: 'obj' }], { fn: 'isBoolean' })).toBe(false);
+        });
+    });
+
+    describe('every', () => {
+        it('should indicate if every elements of an array pass the validation', () => {
+            expect(FieldValidator.every(['hello', 3, { some: 'obj' }], { fn: 'isString' })).toBe(false);
+            expect(FieldValidator.every(['hello', 'world'], { fn: 'isString' })).toBe(true);
+        });
+    });
+
+    describe('isArray', () => {
+        it('should indicate if an array was given', () => {
+            expect(FieldValidator.isArray('hello')).toBe(false);
+            expect(FieldValidator.isArray(23423)).toBe(false);
+            expect(FieldValidator.isArray({ hello: 'world' })).toBe(false);
+            expect(FieldValidator.isArray(null)).toBe(false);
+            expect(FieldValidator.isArray(undefined)).toBe(false);
+            expect(FieldValidator.isArray([1, 2, 3])).toBe(true);
+            expect(FieldValidator.isArray([])).toBe(true);
+        });
+    });
+
+    describe('exists', () => {
+        it('should indicate if a value was given', () => {
+            expect(FieldValidator.exists('hello')).toBe(true);
+            expect(FieldValidator.exists(23423)).toBe(true);
+            expect(FieldValidator.exists({ hello: 'world' })).toBe(true);
+            expect(FieldValidator.exists(null)).toBe(true);
+            expect(FieldValidator.exists(undefined)).toBe(false);
+        });
+    });
+
     describe('equals', () => {
         it('should return true if string is equal to a value', () => {
             expect(FieldValidator.equals('hello', { value: 'hello' })).toBe(true);
