@@ -209,6 +209,7 @@ export function toString(input: any) {
 }
 
 export function toBoolean(input: any) {
+    if (ts.isNil(input)) return null;
     return ts.toBoolean(input);
 }
 
