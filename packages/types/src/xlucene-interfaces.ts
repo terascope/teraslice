@@ -4,13 +4,14 @@ export enum xLuceneFieldType {
     Date = 'date',
     IP = 'ip',
     String = 'string',
+    AnalyzedString = '~string',
     Integer = 'integer',
     Float = 'float',
     Boolean = 'boolean',
     Object = 'object',
     GeoPoint = 'geo-point',
     GeoJSON = 'geo-json',
-    Number = 'number'
+    Number = 'number',
 }
 
 export interface xLuceneTypeConfig {

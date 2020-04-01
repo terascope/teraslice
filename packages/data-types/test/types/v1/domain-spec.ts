@@ -66,7 +66,7 @@ describe('Domain V1', () => {
 
     it('can get proper xlucene properties', () => {
         const xlucene = new Domain(field, typeConfig).toXlucene();
-        const results = { [field]: 'string' };
+        const results = { [field]: '~string' };
 
         expect(xlucene).toEqual(results);
     });

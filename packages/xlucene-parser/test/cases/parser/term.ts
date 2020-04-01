@@ -121,7 +121,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'phone.tokens',
             quoted: false,
-            tokenizer: 'phone',
+            analyzed: true,
             value: '3848',
         },
         {
