@@ -286,7 +286,10 @@ export function translateQuery(
 
         const regexQuery: i.RegExprQuery = {
             regexp: {
-                [field]: node.value,
+                [field]: {
+                    value: node.value,
+                    flags: 'COMPLEMENT|EMPTY|INTERSECTION|INTERVAL'
+                }
             },
         };
 

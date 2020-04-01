@@ -120,13 +120,6 @@ export default function makeContext(args: any) {
             };
         });
     }
-    // cannot allow variables that are objects, errors, maps, sets, buffers
-    function validateRestrictedVariable(variable: any, varName: string) {
-        const type = getTypeOf(variable);
-        if (!['String', 'Number', 'Boolean', 'RegExp'].includes(type)) {
-            throw new Error(`Unsupported type of ${type} received for variable $${varName}`);
-        }
-    }
 
     function coerceTermType(node: any, _field?: string) {
         if (!node) return;
@@ -214,4 +207,19 @@ export default function makeContext(args: any) {
         makeFlow,
         validateRestrictedVariable
     };
+}
+
+const variableTypes = Object.freeze({
+    String: true,
+    Number: true,
+    Boolean: true,
+    RegExp: true,
+});
+
+// cannot allow variables that are objects, errors, maps, sets, buffers
+function validateRestrictedVariable(variable: any, varName: string) {
+    const type = getTypeOf(variable);
+    if (!variableTypes[type]) {
+        throw new Error(`Unsupported type of ${type} received for variable $${varName}`);
+    }
 }

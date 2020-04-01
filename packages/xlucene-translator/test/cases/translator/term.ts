@@ -38,7 +38,10 @@ export default [
         'query.constant_score.filter',
         {
             regexp: {
-                hello: 'w.*ld',
+                hello: {
+                    value: 'w.*ld',
+                    flags: 'COMPLEMENT|EMPTY|INTERSECTION|INTERVAL'
+                }
             },
         },
     ],
@@ -62,7 +65,10 @@ export default [
         'query.constant_score.filter',
         {
             regexp: {
-                'other.value': '[a-z]{1,3}',
+                'other.value': {
+                    value: '[a-z]{1,3}',
+                    flags: 'COMPLEMENT|EMPTY|INTERSECTION|INTERVAL'
+                }
             },
         },
         {
@@ -324,12 +330,18 @@ export default [
         [
             {
                 regexp: {
-                    field_one: 'wo.*d'
+                    field_one: {
+                        value: 'wo.*d',
+                        flags: 'COMPLEMENT|EMPTY|INTERSECTION|INTERVAL'
+                    }
                 }
             },
             {
                 regexp: {
-                    field_two: 'wo.*d'
+                    field_two: {
+                        value: 'wo.*d',
+                        flags: 'COMPLEMENT|EMPTY|INTERSECTION|INTERVAL'
+                    }
                 }
             }
         ],
