@@ -188,6 +188,23 @@ export default [
         }
     ],
     [
+        'name:test',
+        'query.constant_score.filter',
+        {
+            match: {
+                name: {
+                    operator: 'and',
+                    query: 'test'
+                },
+            },
+        },
+        {
+            type_config: {
+                name: '~string',
+            }
+        }
+    ],
+    [
         `word:"${escapeString('/value\\\\')}"`,
         'query.constant_score.filter',
         {

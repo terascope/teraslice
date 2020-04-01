@@ -47,6 +47,8 @@ export default class Domain extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: xLuceneFieldType.String };
+        return {
+            [this.field]: xLuceneFieldType.AnalyzedString
+        };
     }
 }

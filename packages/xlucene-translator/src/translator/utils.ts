@@ -68,7 +68,11 @@ export function translateQuery(
 
     function buildTermLevelQuery(node: p.TermLikeAST): i.AnyQuery | i.BoolQuery | undefined {
         if (p.isWildcardField(node)) {
-            if (isEmpty(typeConfig)) throw new TSError(`Configuration for type_config needs to be provided with fields related to ${node.field}`);
+            if (isEmpty(typeConfig)) {
+                throw new Error(
+                    `Configuration for type_config needs to be provided with fields related to ${node.field}`
+                );
+            }
             const should = Object.keys(typeConfig)
                 .filter((field) => matchWildcard(node.field as string, field))
                 .map((field) => Object.assign({}, node, { field }))
@@ -271,7 +275,7 @@ export function translateQuery(
 
         const field = getTermField(node);
 
-        if (node.tokenizer) {
+        if (node.analyzed) {
             return {
                 query_string: {
                     fields: [field],

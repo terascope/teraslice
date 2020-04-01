@@ -3,13 +3,21 @@ import {
     TSError,
     getTypeOf,
     parseGeoDistance,
-    parseGeoPoint
+    parseGeoPoint,
+    isRegExp
 } from '@terascope/utils';
-import { xLuceneFieldType, xLuceneVariables, xLuceneTypeConfig } from '@terascope/types';
-import { isRegExp } from 'util';
+import {
+    xLuceneFieldType,
+    xLuceneVariables,
+    xLuceneTypeConfig,
+} from '@terascope/types';
 import * as i from './interfaces';
 import * as utils from './utils';
 import xluceneFunctions from './functions';
+
+const inferredFieldTypes = Object.freeze({
+    [xLuceneFieldType.String]: true,
+});
 
 export default function makeContext(args: any) {
     let typeConfig: xLuceneTypeConfig;
@@ -18,7 +26,7 @@ export default function makeContext(args: any) {
     // eslint-disable-next-line
     ({ typeConfig = {}, variables = {}, logger } = args);
     if (!typeConfig || !logger) {
-        throw new Error('Peg Engine given invalid context');
+        throw new Error('xLucene Parser given invalid context');
     }
 
     /**
@@ -68,12 +76,10 @@ export default function makeContext(args: any) {
         return variable;
     }
 
-    const inferredFieldTypes = [xLuceneFieldType.String];
-
     function isInferredTermType(field: string): boolean {
         const fieldType = getFieldType(field);
         if (!fieldType) return false;
-        return inferredFieldTypes.includes(fieldType);
+        return inferredFieldTypes[fieldType] === true;
     }
 
     // parse an inferred field type
@@ -86,7 +92,7 @@ export default function makeContext(args: any) {
 
         if (fieldType === xLuceneFieldType.String) {
             term.quoted = false;
-            term.value = `${value}`;
+            term.value = String(value);
             return term;
         }
 
@@ -128,20 +134,23 @@ export default function makeContext(args: any) {
         if (!field) return;
 
         let fieldType = getFieldType(field);
+        if (fieldType === xLuceneFieldType.AnalyzedString) {
+            node.analyzed = true;
+        }
         if (fieldType === node.field_type) return;
 
         logger.trace(
             `coercing field "${field}":${node.value} type of ${node.field_type} to ${fieldType}`
         );
 
-        // in the case of tokenized fields we should update the
+        // in the case of analyzed fields we should update the
         // node to indicate so non-term level queries can be performed
-        if (utils.isTermType(node) && !typeConfig[field] && field.includes('.')) {
+        if (!node.analyzed && utils.isTermType(node) && !typeConfig[field] && field.includes('.')) {
             const parentField = field.split('.').slice(0, -1)[0];
             const parentType = typeConfig[parentField];
             if (parentType && parentType !== xLuceneFieldType.Object) {
                 fieldType = parentType;
-                node.tokenizer = parentField;
+                node.analyzed = true;
             }
         }
 
