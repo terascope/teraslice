@@ -3,11 +3,12 @@ import BaseType from '../base-type';
 
 export default class ObjectType extends BaseType {
     toESMapping(_version?: number) {
-        const type: ESTypeMapping = { type: 'object' };
+        const type = this.config.array ? 'nested' : 'object';
+        const typeConfig: ESTypeMapping = { type };
         if (this.config.indexed === false) {
-            type.enabled = false;
+            typeConfig.enabled = false;
         }
-        return { mapping: { [this.field]: type } };
+        return { mapping: { [this.field]: typeConfig } };
     }
 
     toGraphQL() {

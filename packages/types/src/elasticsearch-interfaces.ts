@@ -169,7 +169,8 @@ export type ESFieldType =
     | 'date'
     | 'geo_point'
     | 'geo_shape'
-    | 'object';
+    | 'object'
+    | 'nested';
 
 export type ESTypeMapping =
     | PropertyESTypeMapping

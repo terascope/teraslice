@@ -1,7 +1,7 @@
 {
     "name": "@terascope/teraslice-messaging",
     "displayName": "Teraslice Messaging",
-    "version": "0.8.4",
+    "version": "0.9.0",
     "description": "An internal teraslice messaging library using socket.io",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-messaging#readme",
     "bugs": {
@@ -34,7 +34,7 @@
         "ms": "^2.1.2"
     },
     "dependencies": {
-        "@terascope/utils": "^0.24.4",
+        "@terascope/utils": "^0.25.0",
         "ms": "^2.1.2",
         "nanoid": "^2.1.10",
         "p-event": "^4.1.0",
