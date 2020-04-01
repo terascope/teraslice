@@ -185,7 +185,6 @@ describe('field transforms', () => {
         it('will return null when given undefined or null', () => {
             expect(transform.toNumber(undefined)).toBe(null);
             expect(transform.toNumber(null)).toBe(null);
-
         });
     });
 
