@@ -8,7 +8,7 @@ describe('field transforms', () => {
         });
 
         it('return false for falsy values', () => {
-            [0, false, undefined, null, NaN, '']
+            [0, false, NaN, '']
                 .forEach((v) => expect(transform.toBoolean(v)).toBe(false));
         });
 
