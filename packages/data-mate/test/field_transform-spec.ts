@@ -38,7 +38,7 @@ describe('field transforms', () => {
         it('return a value if nothing is provided', () => {
             expect(transform.setDefault('foo', { value: true })).toEqual('foo');
             expect(transform.setDefault({ hello: 'world' }, { value: true })).toEqual({ hello: 'world' });
-            expect(transform.setDefault(null, { value: true })).toEqual(null);
+            expect(transform.setDefault(null, { value: true })).toEqual(true);
             expect(transform.setDefault(undefined, { value: true })).toEqual(true);
         });
     });
@@ -175,15 +175,17 @@ describe('field transforms', () => {
         it('throw an error if input cannot be coerced to a number', () => {
             try {
                 expect(transform.toNumber('bobsyouruncle')).toBe(12321);
-            } catch (e) { expect(e.message).toBe('could not convert to a number'); }
+            } catch (e) { expect(e.message).toBe('Could not convert input of type String to a number'); }
 
             try {
                 expect(transform.toNumber({})).toBe(12321);
-            } catch (e) { expect(e.message).toBe('could not convert to a number'); }
+            } catch (e) { expect(e.message).toBe('Could not convert input of type Object to a number'); }
+        });
 
-            try {
-                expect(transform.toNumber(undefined)).toBe(12321);
-            } catch (e) { expect(e.message).toBe('could not convert to a number'); }
+        it('will return null when given undefined or null', () => {
+            expect(transform.toNumber(undefined)).toBe(null);
+            expect(transform.toNumber(null)).toBe(null);
+
         });
     });
 

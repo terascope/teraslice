@@ -146,8 +146,20 @@ export const repository: i.Repository = {
     exists: { fn: exists, config: {} },
     guard: { fn: guard, config: {} },
     isArray: { fn: isArray, config: {} },
-    some: { fn: some, config: { fn: { type: 'String' } } },
-    every: { fn: every, config: { fn: { type: 'String' } } },
+    some: {
+        fn: some,
+        config: {
+            fn: { type: 'String' },
+            options: { type: 'Object' }
+        }
+    },
+    every: {
+        fn: every,
+        config: {
+            fn: { type: 'String' },
+            options: { type: 'Object' }
+        }
+    },
 };
 
 export function isBoolean(input: any): boolean {
@@ -387,20 +399,20 @@ export function isArray(input: any): boolean {
     return false;
 }
 
-export function some(input: any, { fn }: { fn: string }): boolean {
+export function some(input: any, { fn, options }: { fn: string; options?: any }): boolean {
     if (!isArray(input)) return false;
 
     const repoConfig = repository[fn];
     if (!repoConfig) throw new Error(`No function ${fn} was found in the field validator respository`);
 
-    return input.some(repoConfig.fn);
+    return input.some((data: any) => repoConfig.fn(data, options));
 }
 
-export function every(input: any, { fn }: { fn: string }): boolean {
+export function every(input: any, { fn, options }: { fn: string; options?: any }): boolean {
     if (!isArray(input)) return false;
 
     const repoConfig = repository[fn];
     if (!repoConfig) throw new Error(`No function ${fn} was found in the field validator respository`);
 
-    return input.every(repoConfig.fn);
+    return input.every((data: any) => repoConfig.fn(data, options));
 }
