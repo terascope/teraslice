@@ -386,7 +386,7 @@ export function isValidDate(input: any): boolean {
 
 // NOTE: this function will throw compared to all other validations
 export function guard(input: any) {
-    if (ts.isNil(input)) throw new Error('input is empty');
+    if (ts.isNil(input)) throw new Error('Expected value not to be empty');
     return true;
 }
 
