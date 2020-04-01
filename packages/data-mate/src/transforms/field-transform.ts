@@ -187,6 +187,8 @@ export function setDefault(input: any, args: { value: any }) {
 }
 
 export function map(input: any[], args: { fn: string; options?: any }) {
+    if (ts.isNil(input)) return null;
+
     if (!isArray(input)) throw new Error(`Input must be an array, received ${ts.getTypeOf(input)}`);
     const { fn, options } = args;
     const repoConfig = repository[fn];
@@ -274,6 +276,7 @@ export function toNumber(input: any, args?: { booleanLike?: boolean }) {
     if (args?.booleanLike && ts.isBooleanLike(input)) {
         result = ts.toNumber(toBoolean(result));
     }
+
     if (ts.isNil(result)) return null;
     result = ts.toNumber(result);
 

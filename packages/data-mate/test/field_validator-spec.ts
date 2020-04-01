@@ -544,7 +544,7 @@ describe('field validators', () => {
             expect(FieldValidator.guard('hello')).toBe(true);
             expect(FieldValidator.guard(23423)).toBe(true);
             expect(FieldValidator.guard({ hello: 'world' })).toBe(true);
-            expect(FieldValidator.guard(null)).toBe(true);
+            expect(() => FieldValidator.guard(null)).toThrow();
             expect(() => FieldValidator.guard(undefined)).toThrow();
         });
     });
@@ -580,7 +580,7 @@ describe('field validators', () => {
             expect(FieldValidator.exists('hello')).toBe(true);
             expect(FieldValidator.exists(23423)).toBe(true);
             expect(FieldValidator.exists({ hello: 'world' })).toBe(true);
-            expect(FieldValidator.exists(null)).toBe(true);
+            expect(FieldValidator.exists(null)).toBe(false);
             expect(FieldValidator.exists(undefined)).toBe(false);
         });
     });

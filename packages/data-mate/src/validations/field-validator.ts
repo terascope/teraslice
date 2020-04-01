@@ -386,12 +386,12 @@ export function isValidDate(input: any): boolean {
 
 // NOTE: this function will throw compared to all other validations
 export function guard(input: any) {
-    if (input === undefined) throw new Error('input is empty');
+    if (ts.isNil(input)) throw new Error('input is empty');
     return true;
 }
 
 export function exists(input: any): boolean {
-    return input !== undefined;
+    return !ts.isNil(input);
 }
 
 export function isArray(input: any): boolean {
