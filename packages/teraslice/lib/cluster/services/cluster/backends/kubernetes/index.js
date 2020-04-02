@@ -94,6 +94,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         // execution.slicer_port = get(exService, 'spec.ports[0].targetPort');
         // execution.slicer_hostname = get(exService, 'metadata.name');
 
+        execution.slicer_port = 45680;
         const exJobResource = new K8sResource(
             'jobs', 'execution_controller', context.sysconfig.teraslice, execution
         );
@@ -111,7 +112,6 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
 
         logger.debug(`Slicer is using IP: ${pod.status.podIP}`);
 
-        execution.slicer_port = 45680;
         execution.slicer_hostname = `${pod.status.podIP}`;
 
         return execution;
