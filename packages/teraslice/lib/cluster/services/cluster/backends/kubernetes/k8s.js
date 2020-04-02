@@ -2,7 +2,7 @@
 
 const { TSError, get, isEmpty } = require('@terascope/utils');
 const { Client, KubeConfig } = require('kubernetes-client');
-const Request = require('kubernetes-client/backends/request');
+const { Request } = require('kubernetes-client/backends/request');
 
 class K8s {
     constructor(logger, clientConfig, defaultNamespace = 'default') {
@@ -55,6 +55,33 @@ class K8s {
             throw error;
         }
         return namespaces.body;
+    }
+
+    sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    async waitForSelectedPod({ selector, ns, timeout = 10000 }) {
+        const namespace = ns || this.defaultNamespace;
+        let now = (new Date()).getTime();
+        const end = now + timeout;
+        while (true) {
+            const result = await this.client.api.v1.namespaces(namespace)
+                .pods().get({ qs: { labelSelector: selector } });
+
+            // FIXME: This grabs the first pod because the initial use case for
+            // this function is to find the pod from the execution controller
+            // k8s job, which should only ever return one given the selector
+            // if this method were used for something else it could very well be
+            // problematic
+            const pod = result.body.items[0];
+
+            if (pod.status.phase === 'Running') return pod;
+            if (now > end) throw new Error('timeout');
+
+            await this.sleep(500);
+            now = (new Date()).getTime();
+        }
     }
 
     /**
