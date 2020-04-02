@@ -1,6 +1,8 @@
 'use strict';
 
-const { TSError, get, isEmpty } = require('@terascope/utils');
+const {
+    TSError, get, isEmpty, pDelay
+} = require('@terascope/utils');
 const { Client, KubeConfig } = require('kubernetes-client');
 const { Request } = require('kubernetes-client/backends/request');
 
@@ -57,29 +59,34 @@ class K8s {
         return namespaces.body;
     }
 
-    sleep(ms) {
-        return new Promise((resolve) => setTimeout(resolve, ms));
-    }
-
-    async waitForSelectedPod({ selector, ns, timeout = 10000 }) {
+    /**
+     * Rerturns the first pod matching the provided selector after it has
+     * entered the `Running` state.
+     *
+     * NOTE: If your selector will return multiple pods, this method probably
+     * won't work for you.
+     * @param {String} selector kubernetes selector, like 'controller-uid=XXX'
+     * @param {String} ns       namespace to search, this will override the default
+     * @param {Number} timeout  time, in ms, to wait for pod to start
+     */
+    async waitForSelectedPod(selector, ns, timeout = 10000) {
         const namespace = ns || this.defaultNamespace;
         let now = (new Date()).getTime();
         const end = now + timeout;
+
+        // eslint-disable-next-line no-constant-condition
         while (true) {
             const result = await this.client.api.v1.namespaces(namespace)
                 .pods().get({ qs: { labelSelector: selector } });
 
-            // FIXME: This grabs the first pod because the initial use case for
-            // this function is to find the pod from the execution controller
-            // k8s job, which should only ever return one given the selector
-            // if this method were used for something else it could very well be
-            // problematic
+            // NOTE: This assumes the first pod returned.
             const pod = result.body.items[0];
 
             if (pod.status.phase === 'Running') return pod;
             if (now > end) throw new Error('timeout');
+            this.logger.debug(`waiting for pod matching: ${selector}`);
 
-            await this.sleep(500);
+            await pDelay(500);
             now = (new Date()).getTime();
         }
     }
@@ -259,7 +266,6 @@ class K8s {
         return Promise.all([
             this._deleteObjByExId(exId, 'worker', 'deployments'),
             this._deleteObjByExId(exId, 'execution_controller', 'jobs'),
-            this._deleteObjByExId(exId, 'execution_controller', 'services')
         ]);
     }
 

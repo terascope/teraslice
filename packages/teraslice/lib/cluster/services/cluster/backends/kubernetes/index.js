@@ -85,14 +85,6 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      */
     async function allocateSlicer(ex) {
         const execution = cloneDeep(ex);
-        // const exSvcResource = new K8sResource(
-        //     'services', 'execution_controller', context.sysconfig.teraslice, execution
-        // );
-
-        // const exService = exSvcResource.resource;
-
-        // execution.slicer_port = get(exService, 'spec.ports[0].targetPort');
-        // execution.slicer_hostname = get(exService, 'metadata.name');
 
         execution.slicer_port = 45680;
         const exJobResource = new K8sResource(
@@ -106,12 +98,10 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         const jobResult = await k8s.post(exJob, 'job');
         logger.debug(jobResult, 'k8s slicer job submitted');
 
-        // TODO: use this selector to find the pod created and wait for it
         const controllerUid = jobResult.spec.selector.matchLabels['controller-uid'];
-        const pod = await k8s.waitForSelectedPod({ selector: `controller-uid=${controllerUid}` });
+        const pod = await k8s.waitForSelectedPod(`controller-uid=${controllerUid}`);
 
         logger.debug(`Slicer is using IP: ${pod.status.podIP}`);
-
         execution.slicer_hostname = `${pod.status.podIP}`;
 
         return execution;
