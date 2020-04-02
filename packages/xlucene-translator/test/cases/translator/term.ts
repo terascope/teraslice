@@ -211,6 +211,21 @@ export default [
         }
     ],
     [
+        'other_name:test*',
+        'query.constant_score.filter',
+        {
+            query_string: {
+                fields: ['other_name'],
+                query: 'test*'
+            },
+        },
+        {
+            type_config: {
+                other_name: '~string',
+            }
+        }
+    ],
+    [
         `word:"${escapeString('/value\\\\')}"`,
         'query.constant_score.filter',
         {

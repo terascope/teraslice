@@ -7,9 +7,11 @@ import {
 import * as p from 'xlucene-parser';
 import * as i from '@terascope/types';
 import { UtilsTranslateQueryOptions } from './interfaces';
-// import { parseWildCard, matchString }
 
-type WildCardQueryResults = i.WildcardQuery | i.MultiMatchQuery
+type WildCardQueryResults =
+    i.WildcardQuery
+    | i.MultiMatchQuery
+    | i.QueryStringQuery;
 
 type TermQueryResults =
     | i.TermQuery
@@ -224,7 +226,7 @@ export function translateQuery(
 
         const field = getTermField(node);
 
-        if (isString(node.value)) {
+        if (isString(node.value) || node.analyzed) {
             const matchQuery: i.MatchQuery = {
                 match: {
                     [field]: {
@@ -255,6 +257,16 @@ export function translateQuery(
         }
 
         const field = getTermField(node);
+
+        if (node.analyzed) {
+            return {
+                query_string: {
+                    fields: [field],
+                    query: `${node.value}`
+                }
+            };
+        }
+
         const wildcardQuery: i.WildcardQuery = {
             wildcard: {
                 [field]: node.value,
