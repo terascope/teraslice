@@ -37,7 +37,7 @@ export default abstract class BaseType {
         customType?: string|(string[])
     ): GraphQLType {
         const desc = this.config.description;
-        if (type !== 'JSONObject' && this.config.array) {
+        if (this.config.array) {
             return {
                 type: formatGQLType(`${this.field}: [${type}]`, desc),
                 customTypes: makeCustomTypes(customType),

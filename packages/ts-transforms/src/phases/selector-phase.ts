@@ -1,22 +1,27 @@
 import { DataEntity } from '@terascope/utils';
-import { WatcherConfig, Operation, SelectorConfig } from '../interfaces';
+import * as i from '../interfaces';
 import PhaseBase from './base';
 import { OperationsManager } from '../operations';
 
 export default class SelectionPhase extends PhaseBase {
-    readonly selectionPhase: Operation[];
+    readonly selectionPhase: i.Operation[];
 
     constructor(
-        opConfig: WatcherConfig,
-        selectorList: SelectorConfig[],
+        opConfig: i.WatcherConfig,
+        selectorList: i.SelectorConfig[],
         opsManager: OperationsManager
     ) {
         super(opConfig);
         this.opConfig = opConfig;
 
+        const matcherConfig: i.MatcherConfig = {
+            type_config: opConfig.type_config,
+            variables: opConfig.variables
+        };
+
         const Selector = opsManager.getTransform('selector');
         this.selectionPhase = selectorList
-            .map((config) => new Selector(config, this.opConfig.types));
+            .map((config) => new Selector(config, matcherConfig));
     }
 
     public run(data: DataEntity[]): DataEntity[] {

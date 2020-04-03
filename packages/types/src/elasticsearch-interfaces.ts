@@ -66,7 +66,11 @@ export interface GeoQuery {
 
 export interface RegExprQuery {
     regexp: {
-        [field: string]: string;
+        [field: string]: string|{
+            value: string;
+            flags?: string;
+            max_determinized_states?: number;
+        };
     };
 }
 
@@ -169,7 +173,8 @@ export type ESFieldType =
     | 'date'
     | 'geo_point'
     | 'geo_shape'
-    | 'object';
+    | 'object'
+    | 'nested';
 
 export type ESTypeMapping =
     | PropertyESTypeMapping

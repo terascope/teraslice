@@ -6,7 +6,8 @@ import {
     TSError,
     isFunction,
     flatten,
-    toBoolean
+    toBoolean,
+    isCI
 } from '@terascope/utils';
 import {
     ArgsMap,
@@ -46,7 +47,7 @@ export function getArgs(options: TestOptions): ArgsMap {
         }
     }
 
-    if (config.isCI) {
+    if (isCI) {
         args.verbose = 'false';
     }
 
@@ -239,8 +240,8 @@ export async function logE2E(dir: string, failed: boolean): Promise<void> {
 
     const errLogs = await getE2ELogs(dir, {
         LOG_LEVEL: 'INFO',
-        RAW_LOGS: config.isCI ? 'true' : 'false',
-        FORCE_COLOR: config.isCI ? '0' : '1',
+        RAW_LOGS: isCI ? 'true' : 'false',
+        FORCE_COLOR: isCI ? '0' : '1',
     });
     process.stderr.write(`${errLogs}\n`);
 }

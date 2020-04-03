@@ -12,7 +12,8 @@ import {
 import {
     isString,
     isValidDate,
-    isNumber
+    isNumber,
+    isArray
 } from '../validations/field-validator';
 import { Repository } from '../interfaces';
 
@@ -145,47 +146,111 @@ export const repository: Repository = {
     toPascalCase: { fn: toPascalCase, config: {}, output_type: 'String' as AvailableType },
     toSnakeCase: { fn: toSnakeCase, config: {}, output_type: 'String' as AvailableType },
     toTitleCase: { fn: toTitleCase, config: {}, output_type: 'String' as AvailableType },
+    setField: {
+        fn: setField,
+        config: {
+            value: {
+                type: 'Any'
+            }
+        },
+        output_type: 'Any' as AvailableType
+    },
+    setDefault: {
+        fn: setDefault,
+        config: {
+            value: {
+                type: 'Any'
+            }
+        },
+        output_type: 'Any' as AvailableType
+    },
+    map: {
+        fn: map,
+        config: {
+            fn: {
+                type: 'String'
+            },
+            options: {
+                type: 'Object'
+            }
+        },
+        output_type: 'Any' as AvailableType
+    },
 };
 
+export function setDefault(input: any, args: { value: any }) {
+    if (ts.isNil(input)) {
+        if (ts.isNil(args.value)) throw new Error('Parameter value cannot be set to undefined or null');
+        return args.value;
+    }
+    return input;
+}
+
+export function map(input: any[], args: { fn: string; options?: any }) {
+    if (ts.isNil(input)) return null;
+
+    if (!isArray(input)) throw new Error(`Input must be an array, received ${ts.getTypeOf(input)}`);
+    const { fn, options } = args;
+    const repoConfig = repository[fn];
+    if (!repoConfig) throw new Error(`No function ${fn} was found in the field transform respository`);
+
+    return input.map((data) => repoConfig.fn(data, options));
+}
+
+// TODO: this is currently a hack for directives, this will evolve, do not use it for other purposes
+export function setField(_input: any, args: { value: any }) {
+    const { value } = args;
+    return value;
+}
+
 export function toString(input: any) {
+    if (ts.isNil(input)) return null;
     return ts.toString(input);
 }
 
 export function toBoolean(input: any) {
+    if (ts.isNil(input)) return null;
     return ts.toBoolean(input);
 }
 
 export function toUpperCase(input: string) {
-    if (!isString(input)) throw new Error('Input must be a string');
+    if (ts.isNil(input)) return null;
+    if (!isString(input)) throw new Error(`Input must be a string, received ${ts.getTypeOf(input)}`);
     return input.toUpperCase();
 }
 
 export function toLowerCase(input: string) {
-    if (!isString(input)) throw new Error('Input must be a string');
+    if (ts.isNil(input)) return null;
+    if (!isString(input)) throw new Error(`Input must be a string, received ${ts.getTypeOf(input)}`);
     return input.toLowerCase();
 }
 
 export function trim(input: string, args?: { char: string }) {
-    const char = args ? args.char : ' ';
+    if (ts.isNil(input)) return null;
+    const char: string = (args?.char && isString(args.char)) ? args.char : ' ';
+    // @ts-ignore its complaining about passing a string into something thats either string or null
     return trimEnd(trimStart(input, { char }), { char });
 }
 
-export function trimStart(input: string, args?: { char: string }): string {
-    if (!isString(input)) throw new Error('Input must be a string');
-    if (args?.char && !isString(args.char)) throw new Error('Input must be a string');
+export function trimStart(input: string, args?: { char: string }) {
+    if (ts.isNil(input)) return null;
+    if (!isString(input)) throw new Error(`Input must be a string, received ${ts.getTypeOf(input)}`);
+    if (args?.char && !isString(args.char)) throw new Error(`Parameter char must be a string, received ${ts.getTypeOf(input)}`);
 
     return ts.trimStart(input, args?.char);
 }
 
-export function trimEnd(input: string, args?: { char: string }): string {
-    if (!isString(input)) throw new Error('Input must be a string');
-    if (args?.char && !isString(args.char)) throw new Error('Input must be a string');
+export function trimEnd(input: string, args?: { char: string }) {
+    if (ts.isNil(input)) return null;
+    if (!isString(input)) throw new Error(`Input must be a string, received ${ts.getTypeOf(input)}`);
+    if (args?.char && !isString(args.char)) throw new Error(`Parameter char must be a string, received ${ts.getTypeOf(input)}`);
 
     return ts.trimEnd(input, args?.char);
 }
 
 export function truncate(input: string, args: { size: number }) {
-    if (!isString(input)) throw new Error('Input must be a string');
+    if (ts.isNil(input)) return null;
+    if (!isString(input)) throw new Error(`Input must be a string, received ${ts.getTypeOf(input)}`);
     const { size } = args;
 
     if (!size || !ts.isNumber(size) || size <= 0) throw new Error('Invalid size paramter for truncate');
@@ -193,6 +258,7 @@ export function truncate(input: string, args: { size: number }) {
 }
 
 export function toISDN(input: any) {
+    if (ts.isNil(input)) return null;
     let testNumber = ts.toString(input).trim();
     if (testNumber.charAt(0) === '0') testNumber = testNumber.slice(1);
 
@@ -212,42 +278,51 @@ export function toNumber(input: any, args?: { booleanLike?: boolean }) {
         result = ts.toNumber(toBoolean(result));
     }
 
+    if (ts.isNil(result)) return null;
     result = ts.toNumber(result);
 
-    if (Number.isNaN(result)) throw new Error('could not convert to a number');
+    if (Number.isNaN(result)) throw new Error(`Could not convert input of type ${ts.getTypeOf(input)} to a number`);
     return result;
 }
 
 export function decodeBase64(input: any) {
+    if (ts.isNil(input)) return null;
     return Buffer.from(input, 'base64').toString('utf8');
 }
 
 export function encodeBase64(input: any) {
+    if (ts.isNil(input)) return null;
     return Buffer.from(input).toString('base64');
 }
 
 export function decodeUrl(input: string) {
+    if (ts.isNil(input)) return null;
     return decodeURIComponent(input);
 }
 
 export function encodeUrl(input: string) {
+    if (ts.isNil(input)) return null;
     return encodeURIComponent(input);
 }
 
 export function decodeHex(input: any) {
+    if (ts.isNil(input)) return null;
     return Buffer.from(input, 'hex').toString('utf8');
 }
 
 export function encodeHex(input: any) {
+    if (ts.isNil(input)) return null;
     return Buffer.from(input).toString('hex');
 }
 
 export function encodeMD5(input: any) {
+    if (ts.isNil(input)) return null;
     return crypto.createHash('md5').update(input).digest('hex');
 }
 
 // TODO: better types for this
 export function encodeSHA(input: any, { hash = 'sha256', digest = 'hex' } = {}) {
+    if (ts.isNil(input)) return null;
     // TODO: guard for hash ??
     if (!['ascii', 'utf8', 'utf16le', 'ucs2', 'base64', 'latin1', 'hex', 'binary'].includes(digest)) throw new Error('Parameter digest is misconfigured');
     // @ts-ignore
@@ -255,24 +330,29 @@ export function encodeSHA(input: any, { hash = 'sha256', digest = 'hex' } = {}) 
 }
 
 export function encodeSHA1(input: any) {
+    if (ts.isNil(input)) return null;
     return crypto.createHash('sha1').update(input).digest('hex');
 }
 
 export function decodeSHA1(input: any) {
+    if (ts.isNil(input)) return null;
     return crypto.createHash('sha1').update(input).digest('hex');
 }
 
 export function parseJSON(input: any) {
+    if (ts.isNil(input)) return null;
     return JSON.parse(input);
 }
 
 export function dedupe(input: any[]) {
+    if (ts.isNil(input)) return null;
     // TODO: figure out if we need more than reference equality
-    if (!Array.isArray(input)) throw new Error('Input must be an array');
+    if (!Array.isArray(input)) throw new Error(`Input must be an array, recieved ${ts.getTypeOf(input)}`);
     return ts.uniq(input);
 }
 
 export function toGeoPoint(input: any) {
+    if (ts.isNil(input)) return null;
     return ts.parseGeoPoint(input, true);
 }
 
@@ -282,6 +362,8 @@ export function extract(
         regex, isMultiValue = true, jexlExp, start, end
     }: ExtractFieldConfig
 ) {
+    if (ts.isNil(input)) return null;
+
     function getSubslice() {
         const indexStart = input.indexOf(start);
         if (indexStart !== -1) {
@@ -357,12 +439,15 @@ export function extract(
     }
 
     const results = extractAndTransferFields();
-    if (results == null) throw new Error('Nothing to extract');
+    if (results == null) return null;
+
+    return results;
 }
 
 export function replaceRegex(input: string, {
     regex, replace, ignoreCase, global
-}: ReplaceRegexConfig): string {
+}: ReplaceRegexConfig) {
+    if (ts.isNil(input)) return null;
     let options = '';
 
     if (ignoreCase) options += 'i';
@@ -376,7 +461,8 @@ export function replaceRegex(input: string, {
     }
 }
 
-export function replaceLiteral(input: string, { search, replace }: ReplaceLiteralConfig): string {
+export function replaceLiteral(input: string, { search, replace }: ReplaceLiteralConfig) {
+    if (ts.isNil(input)) return null;
     try {
         return input.replace(search, replace);
     } catch (e) {
@@ -384,14 +470,16 @@ export function replaceLiteral(input: string, { search, replace }: ReplaceLitera
     }
 }
 
-export function toArray(input: string, args?: { delimiter: string }): any[] {
+export function toArray(input: string, args?: { delimiter: string }): string[] | null {
+    if (ts.isNil(input)) return null;
+
     const delimiter = args ? args.delimiter : '';
 
     return input.split(delimiter);
 }
 
 // option to specify, seconds, millisecond, microseconds?
-export function toUnixTime(input: any, { ms = false } = {}): number {
+export function toUnixTime(input: any, { ms = false } = {}) {
     if (!isValidDate(input)) throw new Error('Not a valid date, cannot transform to unix time');
     let time: boolean | number;
 
@@ -404,7 +492,8 @@ export function toUnixTime(input: any, { ms = false } = {}): number {
     return time as number;
 }
 
-export function toISO8601(input: any, args?: { resolution?: 'seconds' | 'milliseconds' }): string {
+export function toISO8601(input: any, args?: { resolution?: 'seconds' | 'milliseconds' }) {
+    if (ts.isNil(input)) return null;
     if (!isValidDate(input)) {
         throw new Error('Not a valid date');
     }
@@ -415,9 +504,10 @@ export function toISO8601(input: any, args?: { resolution?: 'seconds' | 'millise
     return new Date(value).toISOString();
 }
 
-export function formatDate(input: any, args: { format: string; resolution?: 'seconds' | 'milliseconds' }): string {
+export function formatDate(input: any, args: { format: string; resolution?: 'seconds' | 'milliseconds' }) {
+    if (ts.isNil(input)) return null;
     const { format, resolution } = args;
-    if (!isString(format)) throw new Error('Invalid parameter format, must be a string');
+    if (!isString(format)) throw new Error(`Invalid parameter format, must be a string, recieved ${ts.getTypeOf(input)}`);
     // convert string to date
     // validate input as datelike
     if (!isValidDate(input)) {
@@ -433,8 +523,10 @@ export function formatDate(input: any, args: { format: string; resolution?: 'sec
 }
 
 export function parseDate(input: any, args: { format: string }) {
+    if (ts.isNil(input)) return null;
+
     const { format } = args;
-    if (!isString(format)) throw new Error('Invalid parameter format, must be a string');
+    if (!isString(format)) throw new Error(`Invalid parameter format, must be a string, recieved ${ts.getTypeOf(input)}`);
 
     const parsed = parse(input, format, new Date());
 
@@ -445,22 +537,32 @@ export function parseDate(input: any, args: { format: string }) {
     return parsed;
 }
 
-export function toCamelCase(input: string): string {
+export function toCamelCase(input: string) {
+    if (ts.isNil(input)) return null;
+
     return ts.toCamelCase(input);
 }
 
-export function toKebabCase(input: string): string {
+export function toKebabCase(input: string) {
+    if (ts.isNil(input)) return null;
+
     return ts.toKebabCase(input);
 }
 
-export function toPascalCase(input: string): string {
+export function toPascalCase(input: string) {
+    if (ts.isNil(input)) return null;
+
     return ts.toPascalCase(input);
 }
 
-export function toSnakeCase(input: string): string {
+export function toSnakeCase(input: string) {
+    if (ts.isNil(input)) return null;
+
     return ts.toSnakeCase(input);
 }
 
-export function toTitleCase(input: string): string {
+export function toTitleCase(input: string) {
+    if (ts.isNil(input)) return null;
+
     return ts.toTitleCase(input);
 }

@@ -42,6 +42,7 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
+    "srcMain": "src/index.ts",
     "terascope": {
         "testSuite": "disabled",
         "enableTypedoc": true

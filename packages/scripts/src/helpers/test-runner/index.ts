@@ -5,6 +5,7 @@ import {
     chunk,
     TSError,
     getFullErrorStack,
+    isCI
 } from '@terascope/utils';
 import {
     writePkgHeader,
@@ -25,7 +26,6 @@ import * as utils from './utils';
 import signale from '../signale';
 import { getE2EDir } from '../packages';
 import { buildDevDockerImage } from '../publish/utils';
-import { isCI } from '../config';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 

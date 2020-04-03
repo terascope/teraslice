@@ -20,6 +20,14 @@ describe('Object V1', () => {
         expect(esMapping).toEqual(results);
     });
 
+    it('can get proper ES Mappings if given an array', () => {
+        const newTypeConfig = Object.assign({}, { array: true }, typeConfig);
+        const esMapping = new ObejctType(field, newTypeConfig).toESMapping();
+        const results = { mapping: { [field]: { type: 'nested' } } };
+
+        expect(esMapping).toEqual(results);
+    });
+
     it('can get proper ES Mappings when not indexed', () => {
         const esMapping = new ObejctType(field, {
             ...typeConfig,
@@ -39,7 +47,7 @@ describe('Object V1', () => {
 
     it('can get proper graphql types when given an array', () => {
         const graphQlTypes = new ObejctType(field, { ...typeConfig, array: true }).toGraphQL();
-        const results = { type: `${field}: JSONObject`, customTypes: ['scalar JSONObject'] };
+        const results = { type: `${field}: [JSONObject]`, customTypes: ['scalar JSONObject'] };
 
         expect(graphQlTypes).toEqual(results);
     });

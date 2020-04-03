@@ -7,9 +7,11 @@ import {
 import * as p from 'xlucene-parser';
 import * as i from '@terascope/types';
 import { UtilsTranslateQueryOptions } from './interfaces';
-// import { parseWildCard, matchString }
 
-type WildCardQueryResults = i.WildcardQuery | i.MultiMatchQuery
+type WildCardQueryResults =
+    i.WildcardQuery
+    | i.MultiMatchQuery
+    | i.QueryStringQuery;
 
 type TermQueryResults =
     | i.TermQuery
@@ -68,7 +70,11 @@ export function translateQuery(
 
     function buildTermLevelQuery(node: p.TermLikeAST): i.AnyQuery | i.BoolQuery | undefined {
         if (p.isWildcardField(node)) {
-            if (isEmpty(typeConfig)) throw new TSError(`Configuration for type_config needs to be provided with fields related to ${node.field}`);
+            if (isEmpty(typeConfig)) {
+                throw new Error(
+                    `Configuration for type_config needs to be provided with fields related to ${node.field}`
+                );
+            }
             const should = Object.keys(typeConfig)
                 .filter((field) => matchWildcard(node.field as string, field))
                 .map((field) => Object.assign({}, node, { field }))
@@ -220,7 +226,7 @@ export function translateQuery(
 
         const field = getTermField(node);
 
-        if (isString(node.value)) {
+        if (isString(node.value) || node.analyzed) {
             const matchQuery: i.MatchQuery = {
                 match: {
                     [field]: {
@@ -251,6 +257,16 @@ export function translateQuery(
         }
 
         const field = getTermField(node);
+
+        if (node.analyzed) {
+            return {
+                query_string: {
+                    fields: [field],
+                    query: `${node.value}`
+                }
+            };
+        }
+
         const wildcardQuery: i.WildcardQuery = {
             wildcard: {
                 [field]: node.value,
@@ -271,7 +287,7 @@ export function translateQuery(
 
         const field = getTermField(node);
 
-        if (node.tokenizer) {
+        if (node.analyzed) {
             return {
                 query_string: {
                     fields: [field],
@@ -282,7 +298,10 @@ export function translateQuery(
 
         const regexQuery: i.RegExprQuery = {
             regexp: {
-                [field]: node.value,
+                [field]: {
+                    value: node.value,
+                    flags: 'COMPLEMENT|EMPTY|INTERSECTION|INTERVAL'
+                }
             },
         };
 

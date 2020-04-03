@@ -20,6 +20,7 @@ export * from './logger';
 export * from './numbers';
 export * from './objects';
 export * from './promises';
+export * from './regex';
 export * from './queue';
 export * from './strings';
 export { STATUS_CODES };

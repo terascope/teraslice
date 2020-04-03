@@ -9,12 +9,8 @@ export default class DocumentMatcher {
     private filterFn: BooleanCB;
 
     constructor(query: string, options: DocumentMatcherOptions = {}) {
-        const logger = options.logger || _logger;
-
-        const parser = new Parser(query, {
-            type_config: options.type_config,
-            logger,
-        });
+        const config = Object.assign({}, { logger: _logger }, options);
+        const parser = new Parser(query, config);
 
         this.filterFn = logicBuilder(parser, options.type_config);
     }

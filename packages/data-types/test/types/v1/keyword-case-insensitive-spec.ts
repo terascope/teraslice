@@ -72,6 +72,16 @@ describe('KeywordCaseInsensitive V1', () => {
 
     it('can get proper xlucene properties', () => {
         const xlucene = new KeywordCaseInsensitive(field, typeConfig).toXlucene();
+        const results = { [field]: '~string' };
+
+        expect(xlucene).toEqual(results);
+    });
+
+    it('can get proper xlucene properties with fields hack', () => {
+        const xlucene = new KeywordCaseInsensitive(field, {
+            ...typeConfig,
+            use_fields_hack: true
+        }).toXlucene();
         const results = { [field]: 'string' };
 
         expect(xlucene).toEqual(results);

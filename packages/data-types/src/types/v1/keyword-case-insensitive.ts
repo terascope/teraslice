@@ -32,6 +32,13 @@ export default class KeywordCaseInsensitive extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: xLuceneFieldType.String };
+        if (this.config.use_fields_hack) {
+            return {
+                [this.field]: xLuceneFieldType.String
+            };
+        }
+        return {
+            [this.field]: xLuceneFieldType.AnalyzedString
+        };
     }
 }
