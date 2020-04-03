@@ -46,6 +46,14 @@ export const repository: Repository = {
     },
 };
 
+/**
+ *
+ *
+ * @export
+ * @param {AnyObject} obj
+ * @param {{ fields: string[] }} { fields }
+ * @returns
+ */
 export function required(obj: AnyObject, { fields }: { fields: string[] }) {
     const keys = Object.keys(obj);
     return fields.every((rField) => keys.includes(rField));
@@ -57,6 +65,14 @@ interface DMOptions {
     variables?: xLuceneVariables;
 }
 
+/**
+ *
+ *
+ * @export
+ * @param {AnyObject} obj
+ * @param {DMOptions} args
+ * @returns
+ */
 export function select(obj: AnyObject, args: DMOptions) {
     const { query = '*', typeConfig, variables } = args;
 
@@ -68,6 +84,14 @@ export function select(obj: AnyObject, args: DMOptions) {
     return matcher.match(obj);
 }
 
+/**
+ *
+ *
+ * @export
+ * @param {AnyObject} obj
+ * @param {DMOptions} args
+ * @returns
+ */
 export function reject(obj: AnyObject, args: DMOptions) {
     const { query = '*', typeConfig, variables } = args;
 

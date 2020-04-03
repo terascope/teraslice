@@ -51,6 +51,14 @@ export const repository: Repository = {
     },
 };
 
+/**
+ *
+ *
+ * @export
+ * @param {*} record
+ * @param {{ from: string; to: string }} args
+ * @returns
+ */
 export function renameField(record: any, args: { from: string; to: string }) {
     const { from, to } = args;
     if (!isString(from) || !isString(to)) throw new Error('Invalid parameters, from/to must be supplied be be a string');
@@ -61,6 +69,14 @@ export function renameField(record: any, args: { from: string; to: string }) {
     return record;
 }
 
+/**
+ *
+ *
+ * @export
+ * @param {*} record
+ * @param {{ field: string; value: any }} args
+ * @returns
+ */
 export function setField(record: any, args: { field: string; value: any }) {
     const { field, value } = args;
     if (!isString(field) || value === undefined) throw new Error('Invalid parameters, please set field/value');
@@ -69,6 +85,14 @@ export function setField(record: any, args: { field: string; value: any }) {
     return record;
 }
 
+/**
+ *
+ *
+ * @export
+ * @param {*} record
+ * @param {{ fields: string[] }} args
+ * @returns
+ */
 export function dropFields(record: any, args: { fields: string[] }) {
     const { fields } = args;
     if (!fields.every(isString)) throw new Error('Invalid parameters, field must be supplied be be a string');
@@ -80,6 +104,14 @@ export function dropFields(record: any, args: { fields: string[] }) {
     return record;
 }
 
+/**
+ *
+ *
+ * @export
+ * @param {*} record
+ * @param {{ from: string; to: string }} args
+ * @returns
+ */
 export function copyField(record: any, args: { from: string; to: string }) {
     const { from, to } = args;
     if (!isString(from) || !isString(to)) throw new Error('Invalid parameters, field/copyTo must be supplied be be a string');
