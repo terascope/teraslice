@@ -1,4 +1,5 @@
 import { AvailableType } from '@terascope/data-types';
+import { AnyObject } from '@terascope/utils';
 import { Repository } from '../interfaces';
 import { isString } from '../validations/field-validator';
 
@@ -67,7 +68,7 @@ export const repository: Repository = {
  * @returns object
  */
 
-export function renameField(record: any, args: { from: string; to: string }) {
+export function renameField(record: AnyObject, args: { from: string; to: string }) {
     const { from, to } = args;
     if (!isString(from) || !isString(to)) throw new Error('Invalid parameters, from/to must be supplied be be a string');
 
@@ -90,10 +91,10 @@ export function renameField(record: any, args: { from: string; to: string }) {
  * @export
  * @param {*} record
  * @param {{ field: string; value: any }} args
- * @returns
+ * @returns object
  */
 
-export function setField(record: any, args: { field: string; value: any }) {
+export function setField(record: AnyObject, args: { field: string; value: any }) {
     const { field, value } = args;
     if (!isString(field) || value === undefined) throw new Error('Invalid parameters, please set field/value');
 
@@ -114,10 +115,10 @@ export function setField(record: any, args: { field: string; value: any }) {
  * @export
  * @param {*} record
  * @param {{ fields: string[] }} args
- * @returns
+ * @returns object
  */
 
-export function dropFields(record: any, args: { fields: string[] }) {
+export function dropFields(record: AnyObject, args: { fields: string[] }) {
     const { fields } = args;
     if (!fields.every(isString)) throw new Error('Invalid parameters, field must be supplied be be a string');
 
@@ -140,10 +141,10 @@ export function dropFields(record: any, args: { fields: string[] }) {
  * @export
  * @param {*} record
  * @param {{ from: string; to: string }} args
- * @returns
+ * @returns object
  */
 
-export function copyField(record: any, args: { from: string; to: string }) {
+export function copyField(record: AnyObject, args: { from: string; to: string }) {
     const { from, to } = args;
     if (!isString(from) || !isString(to)) throw new Error('Invalid parameters, field/copyTo must be supplied be be a string');
 
