@@ -192,7 +192,7 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
             );
         },
         {
-            timeoutMs: ms('30s'),
+            timeoutMs: ms('60s'),
             enabledJitter: true,
         }
     );
