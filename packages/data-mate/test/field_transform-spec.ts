@@ -318,15 +318,15 @@ describe('field fieldTransforms', () => {
 
             try {
                 expect(fieldTransform.toUnixTime('notADate')).toBe(1577836800);
-            } catch (e) { expect(e.message).toBe('Not a valid date, cannot fieldTransform to unix time'); }
+            } catch (e) { expect(e.message).toBe('Not a valid date, cannot transform to unix time'); }
 
             try {
                 expect(fieldTransform.toUnixTime(true)).toBe(1577836800);
-            } catch (e) { expect(e.message).toBe('Not a valid date, cannot fieldTransform to unix time'); }
+            } catch (e) { expect(e.message).toBe('Not a valid date, cannot transform to unix time'); }
 
             try {
                 expect(fieldTransform.toUnixTime({})).toBe(1577836800);
-            } catch (e) { expect(e.message).toBe('Not a valid date, cannot fieldTransform to unix time'); }
+            } catch (e) { expect(e.message).toBe('Not a valid date, cannot transform to unix time'); }
         });
 
         it('convert an array of values, ignores undefined/null', () => {
@@ -360,7 +360,7 @@ describe('field fieldTransforms', () => {
             try {
                 fieldTransform.toUnixTime('notADate');
             } catch (e) {
-                expect(e.message).toBe('Not a valid date, cannot fieldTransform to unix time');
+                expect(e.message).toBe('Not a valid date, cannot transform to unix time');
             }
         });
 

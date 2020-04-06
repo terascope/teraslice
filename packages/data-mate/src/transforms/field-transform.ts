@@ -776,7 +776,7 @@ export function parseJSON(input: any) {
  *
  * @export
  * @param {*} input
- * @param {*} [{ pretty = false }={}]
+ * @param {*} [{ pretty = false }={}] setting pretty to true will format the json ouput
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
 export function toJSON(input: any, { pretty = false } = {}) {
@@ -846,15 +846,37 @@ export function toGeoPoint(input: any) {
 }
 
 /**
- *
+ * Can extract values from string input
+ * if given an array it will convert everything in the array excluding null/undefined values
+
  *
  * @export
  * @param {*} input
  * @param {ExtractFieldConfig} {
  *         regex, isMultiValue = true, jexlExp, start, end
  *     }
- * @returns
+ *  If regex is specified, it will run the regex against the value.
+ *  If isMultiValue is true, then an array containing the return results will be returned.
+ *  If it is set to false, then only the first possible extraction will be returned.
+ *  start/end are used as boundaries for extraction, should not be used with jexlExp or regex
+ *  jexlExp is a jexl expression  => https://github.com/TomFrost/Jexl
+ * @returns { string | string[] | null } returns null if input is null/undefined
+ *
+ * @example
+ *  const results1 = fieldTransform.extract('<hello>', { start: '<', end: '>' });
+ *  expect(results1).toEqual('hello');
+ *
+ * const results2 = fieldTransform.extract({ foo: 'bar' }, { jexlExp: '[foo]' });
+ * expect(results2).toEqual(['bar']);
+ *
+ * const results3 = fieldTransform.extract('hello', { regex: 'he.*' });
+ * expect(results3).toEqual(['hello']);
+ *
+ * const results = fieldTransform.extract('hello', { regex: 'he.*', isMultiValue: false });
+ * expect(results).toEqual('hello');
+ *
  */
+
 export function extract(
     input: any,
     {
@@ -944,14 +966,28 @@ export function extract(
 }
 
 /**
+ * This function replaces chars in a string based off the regex values provided
+ * @example
+ * const config1 =  { regex: 's|e', replace: 'd' };
+ * const results1 = fieldTransform.replaceRegex('somestring', config1)
+ * results1 === 'domestring'
  *
+ * const config2 = { regex: 's|e', replace: 'd', global: true };
+ * const results2 = fieldTransform.replaceRegex('somestring', config)
+ * results2 === 'domddtring'
+ *
+ * const config3 = {
+ *   regex: 'm|t', replace: 'W', global: true, ignoreCase: true
+ * };
+ * const results3 = fieldTransform.replaceRegex('soMesTring', config3))
+ * results3 === 'soWesWring'
  *
  * @export
  * @param {StringInput} input
  * @param {ReplaceRegexConfig} {
  *     regex, replace, ignoreCase, global
  * }
- * @returns
+ * @returns { string | string[] | null } returns null if input is null/undefined
  */
 export function replaceRegex(input: StringInput, {
     regex, replace, ignoreCase, global
@@ -976,13 +1012,21 @@ export function replaceRegex(input: StringInput, {
 }
 
 /**
+ * This function replaces whole words
+ *
+ * @example
+ *
+ * fieldTransform.replaceLiteral('Hi bob', { search: 'bob', replace: 'mel' }) === 'Hi mel';
+ * fieldTransform.replaceLiteral('Hi Bob', { search: 'bob', replace: 'Mel ' }) ===  'Hi Bob';
  *
  *
  * @export
  * @param {StringInput} input
  * @param {ReplaceLiteralConfig} { search, replace }
- * @returns
+ * search is the word that is to be changed to the value specified with the paramter replace
+ * @returns { string | string[] | null } returns null if input is null/undefined
  */
+
 export function replaceLiteral(input: StringInput, { search, replace }: ReplaceLiteralConfig) {
     if (ts.isNil(input)) return null;
 
@@ -1000,11 +1044,15 @@ export function replaceLiteral(input: StringInput, { search, replace }: ReplaceL
 }
 
 /**
- *
+ * Converts a string to an array of characters split by the delimiter provided
+ * @example
+ * expect(fieldTransform.toArray('astring')).toEqual(['a', 's', 't', 'r', 'i', 'n', 'g']);
+ * expect(fieldTransform.toArray('astring', { delimiter: ',' })).toEqual(['astring']);
+ * expect(fieldTransform.toArray('a-stri-ng', { delimiter: '-' })).toEqual(['a', 'stri', 'ng']);
  *
  * @export
  * @param {*} input
- * @param {{ delimiter: string }} [args]
+ * @param {{ delimiter: string }} [args] delimter defaults to an empty string
  * @returns {(string[] | null)}
  */
 export function toArray(input: any, args?: { delimiter: string }): string[] | null {
@@ -1020,13 +1068,6 @@ export function toArray(input: any, args?: { delimiter: string }): string[] | nu
     throw new Error('Input must be a string or an array');
 }
 
-/**
- *
- *
- * @param {*} input
- * @param {*} [{ ms = false }={}]
- * @returns
- */
 function makeUnitTime(input: any, { ms = false } = {}) {
     let time: boolean | number;
 
@@ -1041,13 +1082,23 @@ function makeUnitTime(input: any, { ms = false } = {}) {
 
 // option to specify, seconds, millisecond, microseconds?
 /**
+ * Converts a given date to its time in milliseconds or seconds
  *
+ * @example
+ *
+ * expect(fieldTransform.toUnixTime('2020-01-01')).toBe(1577836800);
+ * expect(fieldTransform.toUnixTime('Jan 1, 2020 UTC')).toBe(1577836800);
+ * expect(fieldTransform.toUnixTime('2020 Jan, 1 UTC')).toBe(1577836800);
+ *
+ * expect(fieldTransform.toUnixTime(1580418907000)).toBe(1580418907);
+ * expect(fieldTransform.toUnixTime(1580418907000, { ms: true })).toBe(1580418907000);
  *
  * @export
  * @param {*} input
- * @param {*} [{ ms = false }={}]
- * @returns
+ * @param {*} [{ ms = false }={}] set ms to true if you want time in milliseconds
+ * @returns { number | number[] | null} returns null if input is null/undefined
  */
+
 export function toUnixTime(input: any, { ms = false } = {}) {
     if (ts.isNil(input)) return null;
 
@@ -1068,13 +1119,21 @@ function makeIso(input: any, args?: { resolution?: 'seconds' | 'milliseconds' })
 }
 
 /**
+ * Converts a date string or number to an ISO date
  *
+ * @example
+ * expect(fieldTransform.toISO8601('2020-01-01')).toBe('2020-01-01T00:00:00.000Z');
+ *
+ * const config = { resolution: 'seconds' };
+ * expect(fieldTransform.toISO8601(1580418907, config)).toBe('2020-01-30T21:15:07.000Z');
  *
  * @export
  * @param {*} input
  * @param {({ resolution?: 'seconds' | 'milliseconds' })} [args]
- * @returns
+ * if input is a number, you may specify the resolution of that number, defaults to seconds
+ * @returns { string | string[] | null } returns null if input is null/undefined
  */
+
 export function toISO8601(input: any, args?: { resolution?: 'seconds' | 'milliseconds' }) {
     if (ts.isNil(input)) return null;
 
@@ -1113,12 +1172,25 @@ function _formatDate(input: any, args: FormatDateConfig) {
 }
 
 /**
+ * Function that will format a number or date string to a given date format provided
  *
+ * @example
+ *
+ * const resutls1 = fieldTransform.formatDate('2020-01-14T20:34:01.034Z', { format: 'MMM do yy' })
+ * results1 === 'Jan 14th 20';
+ *
+ * const results2 = fieldTransform.formatDate('March 3, 2019', { format: 'M/d/yyyy' })
+ * results2 === '3/3/2019';
+ *
+ * const config =  { format: 'yyyy-MM-dd', resolution: 'seconds' };
+ * const results3 = fieldTransform.formatDate(1581013130, config)
+ * results3 === '2020-02-06';
  *
  * @export
  * @param {*} input
- * @param {FormatDateConfig} args
- * @returns
+ * @param {{ format: string, resolution?: 'seconds' | 'milliseconds' }} args
+ * format is the shape that the date will be, resolution is only needed when input is a number
+ * @returns { string | string[] | null } returns null if input is null/undefined
  */
 export function formatDate(input: any, args: FormatDateConfig) {
     if (ts.isNil(input)) return null;
@@ -1152,13 +1224,31 @@ function _parseDate(input: any, args: ParseDateConfig) {
 }
 
 /**
+ * Will use date-fns parse against the input and return a date object
  *
+ * @example
+ *
+ * const resutls1 = fieldTransform.parseDate('2020-01-10-00:00', { format: 'yyyy-MM-ddxxx' })
+ * reuslts1 === new Date('2020-01-10T00:00:00.000Z');
+ *
+ * const resutls2 = fieldTransform.parseDate('Jan 10, 2020-00:00', { format: 'MMM dd, yyyyxxx' })
+ * resutls2 === new Date('2020-01-10T00:00:00.000Z');
+ *
+ * const resutls3 = fieldTransform.parseDate(1581025950223, { format: 'T' })
+ * resutls3 === new Date('2020-02-06T21:52:30.223Z');
+ *
+ * const resutls4 = fieldTransform.parseDate(1581025950, { format: 't' })
+ * resutls4 === new Date('2020-02-06T21:52:30.000Z');
+ *
+ * const resutls5 = fieldTransform.parseDate('1581025950', { format: 't' })
+ * resutls5 === new Date('2020-02-06T21:52:30.000Z');
  *
  * @export
  * @param {*} input
- * @param {ParseDateConfig} args
- * @returns
+ * @param { format: string } args
+ * @returns { string | string[] | null } returns null if input is null/undefined
  */
+
 export function parseDate(input: any, args: ParseDateConfig) {
     if (ts.isNil(input)) return null;
 
@@ -1172,12 +1262,18 @@ export function parseDate(input: any, args: ParseDateConfig) {
 }
 
 /**
+ * will camelcase a string
  *
+ * @example
+ * expect(fieldTransform.toCamelCase('I need camel case')).toBe('iNeedCamelCase');
+ * expect(fieldTransform.toCamelCase('happyBirthday')).toBe('happyBirthday');
+ * expect(fieldTransform.toCamelCase('what_is_this')).toBe('whatIsThis');
  *
  * @export
- * @param {string} input
- * @returns
+ * @param {string | string[]} input
+ * @returns { string | string[] | null } returns null if input is null/undefined
  */
+
 export function toCamelCase(input: string) {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toCamelCase);
@@ -1186,12 +1282,19 @@ export function toCamelCase(input: string) {
 }
 
 /**
+ * Will convert a string to kebab case
+ * @example
  *
- *
+ * expect(fieldTransform.toKebabCase('I need kebab case')).toBe('i-need-kebab-case');
+ * expect(fieldTransform.toKebabCase('happyBirthday')).toBe('happy-birthday');
+ * expect(fieldTransform.toKebabCase('what_is_this')).toBe('what-is-this');
+ * expect(fieldTransform.toKebabCase('this-should-be-kebab')).toBe('this-should-be-kebab');
+
  * @export
- * @param {string} input
- * @returns
+ * @param {string | string[]} input
+ * @returns { string | string[] | null } returns null if input is null/undefined
  */
+
 export function toKebabCase(input: string) {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toKebabCase);
@@ -1200,11 +1303,16 @@ export function toKebabCase(input: string) {
 }
 
 /**
+ * Converts a string to pascal case
  *
+ * @example
+ * expect(fieldTransform.toPascalCase('I need pascal case')).toBe('INeedPascalCase');
+ * expect(fieldTransform.toPascalCase('happyBirthday')).toBe('HappyBirthday');
+ * expect(fieldTransform.toPascalCase('what_is_this')).toBe('WhatIsThis');
  *
  * @export
- * @param {string} input
- * @returns
+ * @param {string | string[]} input
+ * @returns { string | string[] | null } returns null if input is null/undefined
  */
 export function toPascalCase(input: string) {
     if (ts.isNil(input)) return null;
@@ -1214,12 +1322,17 @@ export function toPascalCase(input: string) {
 }
 
 /**
- *
+ * Converts a string to snake case
+ * @example
+ * expect(fieldTransform.toSnakeCase('I need snake case')).toBe('i_need_snake_case');
+ * expect(fieldTransform.toSnakeCase('happyBirthday')).toBe('happy_birthday');
+ * expect(fieldTransform.toSnakeCase('what_is_this')).toBe('what_is_this');
  *
  * @export
- * @param {string} input
- * @returns
+ * @param {string | string[]} input
+ * @returns { string | string[] | null } returns null if input is null/undefined
  */
+
 export function toSnakeCase(input: string) {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toSnakeCase);
@@ -1228,12 +1341,17 @@ export function toSnakeCase(input: string) {
 }
 
 /**
- *
+ * Converts a string to title case
+ * @example
+ * expect(fieldTransform.toTitleCase('I need some capitols')).toBe('I Need Some Capitols');
+ * expect(fieldTransform.toTitleCase('happyBirthday')).toBe('Happy Birthday');
+ * expect(fieldTransform.toTitleCase('what_is_this')).toBe('What Is This');
  *
  * @export
- * @param {string} input
- * @returns
+ * @param {string | string[]} input
+ * @returns { string | string[] | null } returns null if input is null/undefined
  */
+
 export function toTitleCase(input: string) {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toTitleCase);
