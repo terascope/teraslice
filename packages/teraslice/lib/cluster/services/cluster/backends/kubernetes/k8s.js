@@ -83,11 +83,11 @@ class K8s {
             const pod = result.body.items[0];
 
             if (pod.status.phase === 'Running') return pod;
-            if (now > end) throw new Error('timeout');
+            if (now > end) throw new Error(`Timeout waiting for pod matching: ${selector}`);
             this.logger.debug(`waiting for pod matching: ${selector}`);
 
             await pDelay(500);
-            now = (new Date()).getTime();
+            now = Date.now();
         }
     }
 
