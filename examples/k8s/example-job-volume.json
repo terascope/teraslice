@@ -29,5 +29,13 @@
             "_op": "elasticsearch_bulk",
             "size": 5000
         }
-    ]
+    ],
+    "__metadata": {
+        "cli": {
+            "cluster": "http://192.168.64.19:30678",
+            "version": "0.14.1",
+            "job_id": "0c457565-d2bd-42e6-b7c2-ac4865169dde",
+            "updated": "2020-04-06T13:21:17.532Z"
+        }
+    }
 }
