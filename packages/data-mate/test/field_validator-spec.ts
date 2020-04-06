@@ -46,6 +46,11 @@ describe('field validators', () => {
             expect(FieldValidator.isBoolean(true)).toEqual(true);
             expect(FieldValidator.isBoolean(false)).toEqual(true);
         });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isBoolean([true, undefined])).toEqual(true);
+            expect(FieldValidator.isBoolean(['true', undefined])).toEqual(false);
+        });
     });
 
     describe('isBooleanLike', () => {
@@ -70,9 +75,23 @@ describe('field validators', () => {
             expect(FieldValidator.isBooleanLike('true')).toEqual(true);
             expect(FieldValidator.isBooleanLike('yes')).toEqual(true);
         });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isBooleanLike(['true', undefined])).toEqual(true);
+        });
     });
 
     describe('isEmail', () => {
+        const list = [
+            'ha3ke5@pawnage.com',
+            'ha3ke5@pawnage.com',
+            'user@blah@blah.com',
+            'junk user@blah.com',
+            'user@blah.com/junk.morejunk',
+            'user@blah.com&value=junk',
+            'user@blah.com/junk.junk?a=<tag value="junk"'
+        ];
+
         it('should check if a value is an email', () => {
             // @ts-ignore
             expect(FieldValidator.isEmail()).toEqual(false);
@@ -81,18 +100,40 @@ describe('field validators', () => {
             expect(FieldValidator.isEmail(3)).toEqual(false);
             expect(FieldValidator.isEmail('hello')).toEqual(false);
 
-            const list = [
-                'ha3ke5@pawnage.com',
-                'ha3ke5@pawnage.com',
-                'user@blah@blah.com',
-                'junk user@blah.com',
-                'user@blah.com/junk.morejunk',
-                'user@blah.com&value=junk',
-                'user@blah.com/junk.junk?a=<tag value="junk"'
-            ];
-
             const results = list.map(FieldValidator.isEmail);
             expect(results.every((val) => val === true)).toEqual(true);
+        });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            const newList = list.slice();
+            // @ts-ignore
+            newList.push(null);
+
+            expect(FieldValidator.isEmail(newList)).toEqual(true);
+        });
+    });
+
+    describe('isGeoPoint', () => {
+        it('should check if a value is GeoPoint', () => {
+            // @ts-ignore
+            expect(FieldValidator.isGeoPoint()).toEqual(false);
+            // @ts-ignore
+            expect(FieldValidator.isGeoPoint(['asdf'])).toEqual(false);
+            // @ts-ignore
+            expect(FieldValidator.isGeoPoint({ one: 1 })).toEqual(false);
+            // @ts-ignore
+            expect(FieldValidator.isGeoPoint(3)).toEqual(false);
+            // @ts-ignore
+            expect(FieldValidator.isGeoPoint('hello')).toEqual(false);
+
+            expect(FieldValidator.isGeoPoint('60,80')).toEqual(true);
+            expect(FieldValidator.isGeoPoint([80, 60])).toEqual(true);
+            expect(FieldValidator.isGeoPoint({ lat: 60, lon: 80 })).toEqual(true);
+            expect(FieldValidator.isGeoPoint({ latitude: 60, longitude: 80 })).toEqual(true);
+        });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isGeoPoint(['60,80', undefined])).toEqual(true);
         });
     });
 
@@ -114,6 +155,10 @@ describe('field validators', () => {
             expect(FieldValidator.isGeoShapePoint(polygonWithHoles)).toEqual(false);
             expect(FieldValidator.isGeoShapePoint(multiPolygon)).toEqual(false);
         });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isGeoShapePoint([matchingPoint, undefined])).toEqual(true);
+        });
     });
 
     describe('isGeoShapePolygon', () => {
@@ -133,6 +178,10 @@ describe('field validators', () => {
             expect(FieldValidator.isGeoShapePolygon(polygon)).toEqual(true);
             expect(FieldValidator.isGeoShapePolygon(polygonWithHoles)).toEqual(true);
             expect(FieldValidator.isGeoShapePolygon(multiPolygon)).toEqual(false);
+        });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isGeoShapePolygon([polygon, undefined])).toEqual(true);
         });
     });
 
@@ -154,9 +203,20 @@ describe('field validators', () => {
             expect(FieldValidator.isGeoShapeMultiPolygon(polygonWithHoles)).toEqual(false);
             expect(FieldValidator.isGeoShapeMultiPolygon(multiPolygon)).toEqual(true);
         });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isGeoShapeMultiPolygon([multiPolygon, undefined])).toEqual(true);
+        });
     });
 
     describe('isGeoJSON', () => {
+        const list = [
+            matchingPoint,
+            polygon,
+            polygonWithHoles,
+            multiPolygon
+        ];
+
         it('should check if a value is GeoJSON', () => {
             // @ts-ignore
             expect(FieldValidator.isGeoJSON()).toEqual(false);
@@ -165,15 +225,15 @@ describe('field validators', () => {
             expect(FieldValidator.isGeoJSON(3)).toEqual(false);
             expect(FieldValidator.isGeoJSON('hello')).toEqual(false);
 
-            const list = [
-                matchingPoint,
-                polygon,
-                polygonWithHoles,
-                multiPolygon
-            ];
-
             const results = list.map(FieldValidator.isGeoJSON);
             expect(results.every((val) => val === true)).toEqual(true);
+        });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            const newList = list.slice();
+            // @ts-ignore
+            newList.push(undefined);
+            expect(FieldValidator.isGeoJSON(newList)).toEqual(true);
         });
     });
 
@@ -206,6 +266,10 @@ describe('field validators', () => {
             expect(FieldValidator.isIP(123456678)).toBe(false);
             expect(FieldValidator.isIP(12.4345)).toBe(false);
         });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isIP(['172.16.0.1', undefined])).toEqual(true);
+        });
     });
 
     describe('isRoutableIP', () => {
@@ -220,6 +284,10 @@ describe('field validators', () => {
             expect(FieldValidator.isRoutableIP('192.168.0.1')).toBe(false);
             expect(FieldValidator.isRoutableIP('fc00:db8::1')).toBe(false);
             expect(FieldValidator.isRoutableIP('badIpaddress')).toBe(false);
+        });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isRoutableIP(['172.194.0.1', undefined])).toEqual(true);
         });
     });
 
@@ -236,6 +304,10 @@ describe('field validators', () => {
             expect(FieldValidator.isNonRoutableIP('2001:db8::1')).toBe(false);
             expect(FieldValidator.isNonRoutableIP('172.194.0.1')).toBe(false);
             expect(FieldValidator.isNonRoutableIP('badIpaddress')).toBe(false);
+        });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isNonRoutableIP(['fc00:db8::1', undefined])).toEqual(true);
         });
     });
 
@@ -255,6 +327,10 @@ describe('field validators', () => {
             expect(FieldValidator.isIPCidr('8.8.8.10')).toBe(false);
             expect(FieldValidator.isIPCidr(true)).toBe(false);
             expect(FieldValidator.isIPCidr({})).toBe(false);
+        });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isIPCidr(['8.8.0.0/12', undefined])).toEqual(true);
         });
     });
 
@@ -304,6 +380,10 @@ describe('field validators', () => {
             expect(FieldValidator.inIPRange('fd00::b000', { max: 'fd00::1000' })).toBe(false);
             expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::f000' })).toBe(false);
         });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.inIPRange(['8.8.8.64', undefined], { min: '8.8.8.0', max: '8.8.8.64' })).toEqual(true);
+        });
     });
 
     describe('isValidDate', () => {
@@ -348,6 +428,10 @@ describe('field validators', () => {
             expect(FieldValidator.isValidDate('')).toBe(false);
             expect(FieldValidator.isValidDate('    ')).toBe(false);
         });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isValidDate(['2019-03-17', undefined])).toEqual(true);
+        });
     });
 
     describe('isISDN', () => {
@@ -374,6 +458,10 @@ describe('field validators', () => {
             expect(FieldValidator.isISDN(true)).toBe(false);
             expect(FieldValidator.isISDN({})).toBe(false);
             expect(FieldValidator.isISDN([])).toBe(false);
+        });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isISDN(['+7-952-5554-602', undefined])).toEqual(true);
         });
     });
 
@@ -410,6 +498,10 @@ describe('field validators', () => {
             expect(FieldValidator.isMacAddress('001ff35b2b1f', { delimiter: 'colon' })).toBe(false);
             expect(FieldValidator.isMacAddress('001ff35b2b1f', { delimiter: ['dash', 'colon'] })).toBe(false);
         });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isMacAddress(['00 1f f3 5b 2b 1f', undefined], { delimiter: 'space' })).toBe(true);
+        });
     });
 
     describe('inNumberRange', () => {
@@ -425,6 +517,13 @@ describe('field validators', () => {
             expect(FieldValidator.inNumberRange(-12, { min: -10, max: 45 })).toBe(false);
             expect(FieldValidator.inNumberRange(0, { max: -45 })).toBe(false);
             expect(FieldValidator.inNumberRange(0, { min: 45 })).toBe(false);
+        });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.inNumberRange(
+                [0, 25, 33, 23, undefined],
+                { min: 0, max: 45 }
+            )).toBe(true);
         });
     });
 
@@ -445,6 +544,10 @@ describe('field validators', () => {
             expect(FieldValidator.isNumber(null)).toBe(false);
             expect(FieldValidator.isNumber(undefined)).toBe(false);
             expect(FieldValidator.isNumber('astring')).toBe(false);
+        });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isNumber([1, 34, undefined])).toBe(true);
         });
     });
 
@@ -467,6 +570,10 @@ describe('field validators', () => {
             expect(FieldValidator.isInteger(undefined)).toBe(false);
             expect(FieldValidator.isInteger('astring')).toBe(false);
         });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isInteger([1, 34, undefined])).toBe(true);
+        });
     });
 
     describe('isString', () => {
@@ -482,6 +589,10 @@ describe('field validators', () => {
             expect(FieldValidator.isString(12345)).toBe(false);
             expect(FieldValidator.isString({})).toBe(false);
             expect(FieldValidator.isString([])).toBe(false);
+        });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isString(['1', '34', undefined])).toBe(true);
         });
     });
 
@@ -502,6 +613,10 @@ describe('field validators', () => {
             expect(FieldValidator.isUrl({ url: 'http:thisisaurl.com' })).toBe(false);
             expect(FieldValidator.isUrl(12345)).toBe(false);
         });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isUrl(['http://someurl.com', undefined])).toBe(true);
+        });
     });
 
     describe('isUUID', () => {
@@ -521,6 +636,10 @@ describe('field validators', () => {
             expect(FieldValidator.isUUID(true)).toBe(false);
             expect(FieldValidator.isUUID({})).toBe(false);
         });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isUUID(['123e4567-e89b-82d3-f456-426655440000', undefined])).toBe(true);
+        });
     });
 
     describe('contains', () => {
@@ -534,8 +653,11 @@ describe('field validators', () => {
             expect(FieldValidator.contains('hello', { value: 'bye' })).toBe(false);
             expect(FieldValidator.contains(true, { value: 'rue' })).toBe(false);
             expect(FieldValidator.contains(12345, { value: '12' })).toBe(false);
-            expect(FieldValidator.contains(['hello'], { value: 'hello' })).toBe(false);
             expect(FieldValidator.contains({}, { value: 'hello' })).toBe(false);
+        });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.contains(['12345', undefined], { value: '45' })).toBe(true);
         });
     });
 
@@ -596,8 +718,11 @@ describe('field validators', () => {
             expect(FieldValidator.equals('hello', { value: 'llo' })).toBe(false);
             expect(FieldValidator.equals(true, { value: 'true' })).toBe(false);
             expect(FieldValidator.equals(12345, { value: '12345' })).toBe(false);
-            expect(FieldValidator.equals(['hello'], { value: 'hello' })).toBe(false);
             expect(FieldValidator.equals({}, { value: 'hello' })).toBe(false);
+        });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.equals(['12345', undefined], { value: '12345' })).toBe(true);
         });
     });
 
@@ -615,6 +740,10 @@ describe('field validators', () => {
             expect(FieldValidator.isAlpha('1234ThisiZĄĆĘŚŁ', { locale: 'pl-PL' })).toBe(false);
             expect(FieldValidator.isAlpha(['thisis a string'])).toBe(false);
             expect(FieldValidator.isAlpha('dude howdy')).toBe(false);
+        });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isAlpha(['ThiSisAsTRing', undefined])).toBe(true);
         });
     });
 
@@ -635,6 +764,10 @@ describe('field validators', () => {
             expect(FieldValidator.isAlphanumeric(123456)).toBe(false);
             expect(FieldValidator.isAlphanumeric({ string: 'somestring' })).toBe(false);
         });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isAlphanumeric(['1234', 'allalpa', undefined])).toBe(true);
+        });
     });
 
     describe('isAscii', () => {
@@ -650,6 +783,10 @@ describe('field validators', () => {
             expect(FieldValidator.isAscii('˜∆˙©∂ß')).toBe(false);
             expect(FieldValidator.isAscii('ڤقک')).toBe(false);
         });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isAscii(['sim,pleAscii\t8*7!@#"\n', undefined])).toBe(true);
+        });
     });
 
     describe('isBase64', () => {
@@ -663,6 +800,10 @@ describe('field validators', () => {
             expect(FieldValidator.isBase64(true)).toBe(false);
             expect(FieldValidator.isBase64([])).toBe(false);
             expect(FieldValidator.isBase64(123345)).toBe(false);
+        });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isBase64(['YW55IGNhcm5hbCBwbGVhc3Vy', undefined])).toBe(true);
         });
     });
 
@@ -698,6 +839,10 @@ describe('field validators', () => {
             expect(FieldValidator.isFQDN('')).toBe(false);
             expect(FieldValidator.isFQDN('example.com/help/hello')).toBe(false);
         });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isFQDN(['john.com', undefined])).toBe(true);
+        });
     });
 
     describe('isHash', () => {
@@ -716,6 +861,10 @@ describe('field validators', () => {
             expect(FieldValidator.isHash([], { algo: 'sha1' })).toBe(false);
             expect(FieldValidator.isHash('', { algo: 'sha1' })).toBe(false);
             expect(FieldValidator.isHash('6201b3d1815444c87e00963fcf008c1e', { algo: 'sha1' })).toBe(false);
+        });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isHash(['6201b3d1815444c87e00963fcf008c1e', undefined], { algo: 'md5' })).toBe(true);
         });
     });
 
@@ -736,6 +885,10 @@ describe('field validators', () => {
             expect(FieldValidator.isCountryCode([])).toBe(false);
             expect(FieldValidator.isCountryCode({})).toBe(false);
         });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isCountryCode(['US', undefined])).toBe(true);
+        });
     });
 
     describe('isISO8601', () => {
@@ -754,6 +907,10 @@ describe('field validators', () => {
             expect(FieldValidator.isISO8601([])).toBe(false);
             expect(FieldValidator.isISO8601('somestring')).toBe(false);
             expect(FieldValidator.isISO8601(12321321321123)).toBe(false);
+        });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isISO8601(['2020-01-01T12:03:03', undefined])).toBe(true);
         });
     });
 
@@ -777,6 +934,10 @@ describe('field validators', () => {
             expect(FieldValidator.isISSN([])).toBe(false);
             expect(FieldValidator.isISSN('')).toBe(false);
         });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isISSN(['03785955', undefined])).toBe(true);
+        });
     });
 
     describe('isRFC3339', () => {
@@ -794,6 +955,10 @@ describe('field validators', () => {
             expect(FieldValidator.isRFC3339(12345)).toBe(false);
             expect(FieldValidator.isRFC3339(null)).toBe(false);
             expect(FieldValidator.isRFC3339({})).toBe(false);
+        });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isRFC3339(['2020-01-01T12:05:05Z', undefined])).toBe(true);
         });
     });
 
@@ -815,6 +980,10 @@ describe('field validators', () => {
             expect(FieldValidator.isJSON('a great string')).toBe(false);
             expect(FieldValidator.isJSON(123456)).toBe(false);
             expect(FieldValidator.isJSON(null)).toBe(false);
+        });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isJSON(['{ "bob": "gibson" }', undefined])).toBe(true);
         });
     });
 
@@ -840,6 +1009,10 @@ describe('field validators', () => {
             expect(FieldValidator.isLength({ string: 'astring' }, { min: 1, max: 5 })).toBe(false);
             expect(FieldValidator.isLength('astring', {})).toBe(false);
         });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isLength(['astring', undefined], { min: 5, max: 10 })).toBe(true);
+        });
     });
 
     describe('isMimeType', () => {
@@ -856,6 +1029,10 @@ describe('field validators', () => {
             expect(FieldValidator.isMimeType(false)).toBe(false);
             expect(FieldValidator.isMimeType({})).toBe(false);
             expect(FieldValidator.isMimeType(12345)).toBe(false);
+        });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isMimeType(['application/javascript', undefined])).toBe(true);
         });
     });
 
@@ -876,6 +1053,10 @@ describe('field validators', () => {
             expect(FieldValidator.isPostalCode('885%49', { locale: 'SE' })).toBe(false);
             expect(FieldValidator.isPostalCode(true, { locale: 'any' })).toBe(false);
             expect(FieldValidator.isPostalCode(null, { locale: 'ES' })).toBe(false);
+        });
+
+        it('validates an array of values, ignores undefined/null', () => {
+            expect(FieldValidator.isPostalCode(['852', undefined], { locale: 'IS' })).toBe(true);
         });
     });
 });

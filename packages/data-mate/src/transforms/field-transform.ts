@@ -13,7 +13,8 @@ import {
     isString,
     isValidDate,
     isNumber,
-    isArray
+    isArray,
+    isTuple
 } from '../validations/field-validator';
 import { Repository } from '../interfaces';
 
@@ -812,14 +813,6 @@ export function dedupe(input: any[]) {
     // TODO: figure out if we need more than reference equality
     if (!isArray(input)) throw new Error(`Input must be an array, recieved ${ts.getTypeOf(input)}`);
     return ts.uniq(input);
-}
-
-function isTuple(input: any) {
-    if (isArray(input) && input.length === 2) {
-        return input.every(isNumber);
-    }
-
-    return false;
 }
 
 /**
