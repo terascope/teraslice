@@ -4,7 +4,7 @@ const {
     TSError, get, isEmpty, pDelay
 } = require('@terascope/utils');
 const { Client, KubeConfig } = require('kubernetes-client');
-const { Request } = require('kubernetes-client/backends/request');
+const Request = require('kubernetes-client/backends/request');
 
 class K8s {
     constructor(logger, clientConfig, defaultNamespace = 'default') {
@@ -71,7 +71,7 @@ class K8s {
      */
     async waitForSelectedPod(selector, ns, timeout = 10000) {
         const namespace = ns || this.defaultNamespace;
-        let now = (new Date()).getTime();
+        let now = Date.now();
         const end = now + timeout;
 
         // eslint-disable-next-line no-constant-condition
