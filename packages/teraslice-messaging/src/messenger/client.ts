@@ -5,7 +5,7 @@ import {
 } from '@terascope/utils';
 import * as i from './interfaces';
 import { Core } from './core';
-import { newMsgId, waitForTcpPortOpen } from '../utils';
+import { newMsgId } from '../utils';
 
 const _logger = debugLogger('teraslice-messaging:client');
 
@@ -111,18 +111,6 @@ export class Client extends Core {
     async connect() {
         if (this.socket.connected) {
             return;
-        }
-
-        try {
-            const { hostname, port } = new URL(this.hostUrl);
-            await waitForTcpPortOpen({
-                host: hostname,
-                port,
-                logger: this.logger,
-                retryTimeout: this.connectTimeout
-            });
-        } catch (err) {
-            throw new Error(`Unable to connect to ${this.serverName} at ${this.hostUrl} after ${ms(this.connectTimeout)}`);
         }
 
         await this._connect(this.connectTimeout);
