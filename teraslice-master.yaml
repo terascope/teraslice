@@ -35,6 +35,15 @@ terafoundation:
             dev_es_test:
                 host:
                     - es-test.tera1.lan
+            dev_es_gen3:
+                host:
+                    - es-gen3.tera1.lan
+            dev_scratch1:
+                host:
+                    - es-scratch1.tera1.lan
+            dev_es_s2_gcl:
+                host:
+                    - es-s2-gcl.tera1.lan
 
         kafka:
             homeslice:
