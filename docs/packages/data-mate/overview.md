@@ -6,7 +6,7 @@ sidebar_label: Data-Mate
 > A teraslice library for validating and transforming data
 
 ## Installation
-```bash
+```javascript
 # Using yarn
 yarn add @terascope/data-mate
 # Using npm
@@ -14,311 +14,446 @@ npm install --save @terascope/data-mate
 ```
 
 ## Usage
+```
+import { FieldValidator, FieldTransform } from '@terascope/data-mate';
+
+const data = ['60,80', 'not a point'];
+
+const points = data
+    .filter(FieldValidator.isGeoPoint)
+    .map(FieldTransform.toGeoPoint);
+
+points === [{ lat: 60, lon: 80 }]
+
+```
 ## Field Validations
 
-> Field validation functions accept an input and return a boolean.  Some functions also support an arg object.
+> Field validation functions accept an input and return a Boolean.  If additional arguments are needed then an object containing parameters is passed in.
 
 `functionName(INPUT, { arg1: 'ARG1', arg2: 'ARG2', etc... })`
 
 ### isBoolean
 
-`isBoolean(INPUT) - returns true if input is a boolean`
+`FieldValidator.isBoolean(INPUT) - Checks to see if input is a Boolean. If given an array, will check if all values are booleans ignoring any null/undefined values`
 
-```bash
-isBoolean(false); # true
-isBoolean('astring'); # false
-isBoolean(0); # false
+```javascript
+FieldValidator.isBoolean(false); # true
+FieldValidator.isBoolean('astring'); # false
+FieldValidator.isBoolean(0); # false
+FieldValidator.isBoolean([true, undefined]); # true
+FieldValidator.isBoolean(['true', undefined]; # false
 ```
 
 ### isBooleanLike
 
-`isBooleanLike(INPUT) - returns true if input is a boolean, truthy, or falsy`
+`isBooleanLike(INPUT) - returns true if input is a Boolean, truthy, or falsy. If an given an array, it will check to see if all values in the array are Boolean-like, does NOT ignore null/undefined values `
 
 `Additional truthy values are 1, '1', 'true', 'yes'`
 
 `Additional falsy values are 0, '0', 'false', 'no'`
 
-```bash
-isBooleanLike(0); # true
-isBooleanLike('true'); # true
-isBooleanLike('no'); # true
-isBooleanLike('a string') # false
+```javascript
+FieldValidator.isBooleanLike(0); # true
+FieldValidator.isBooleanLike('true'); # true
+FieldValidator.isBooleanLike('no'); # true
+FieldValidator.isBooleanLike('a string') # false
+FieldValidator.isBooleanLike(['true', 0, 'no']; # true
 ```
 
+### isGeoPoint
+
+`FieldValidator.isGeoPoint(INPUT) - Checks to see if input is a valid geo-point, or a list of valid geo-points excluding null/undefined values
+`
+
+```javascript
+ FieldValidator.isGeoPoint('60,80'); # true
+ FieldValidator.isGeoPoint([80, 60]); # true
+ FieldValidator.isGeoPoint({ lat: 60, lon: 80 }); # true
+ FieldValidator.isGeoPoint({ latitude: 60, longitude: 80 }); # true
+```
+
+### isGeoJSON
+
+`FieldValidator.isGeoJSON(INPUT) - Checks to see if input is a valid geo-json geometry, or a list of geo-json geometeries
+
+`
+
+```javascript
+  const polygon = {
+     type: "Polygon",
+     coordinates: [
+        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+     ]
+  };
+
+  FieldValidator.isGeoJSON(polygon); # true
+```
+
+### isGeoShapePoint
+
+`FieldValidator.isGeoShapePoint(INPUT) - Checks to see if input is a valid geo-json point, or a list of geo-json points
+`
+
+```javascript
+  const polygon = {
+     type: "Polygon",
+     coordinates: [
+        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+     ]
+  };
+
+  const point = {
+    type: 'Point',
+    coordinates: [12, 12]
+  };
+
+  FieldValidator.isGeoShapePoint(polygon); # false
+  FieldValidator.isGeoShapePoint(point); # true
+```
+
+### isGeoShapePolygon
+
+`FieldValidator.isGeoShapePolygon(INPUT) - Checks to see if input is a valid geo-json polygon, or a list of geo-json polygons
+`
+
+```javascript
+  const polygon = {
+     type: "Polygon",
+     coordinates: [
+        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+     ]
+  };
+
+  const point = {
+    type: 'Point',
+    coordinates: [12, 12]
+  };
+
+  FieldValidator.isGeoShapePolygon(polygon); # true
+  FieldValidator.isGeoShapePolygon(point); # false
+```
+
+### isGeoShapeMultiPolygon
+
+`FieldValidator.isGeoShapeMultiPolygon(INPUT) - Checks to see if input is a valid geo-json multipolygon or a list of geo-json multipolygons
+`
+
+```javascript
+  const polygon = {
+     type: "Polygon",
+     coordinates: [
+        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+     ]
+  };
+
+  const point = {
+    type: 'Point',
+    coordinates: [12, 12]
+  };
+
+  const multiPolygon = {
+    type: 'MultiPolygon',
+    coordinates: [
+        [
+            [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+        ],
+        [
+            [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
+        ]
+    ]
+  };
+
+  FieldValidator.isGeoShapeMultiPolygon(polygon); # false
+  FieldValidator.isGeoShapeMultiPolygon(point); # false
+  FieldValidator.isGeoShapeMultiPolygon(multiPolygon); # true
+```
 ### isNumber
 
-`isNumber(INPUT) - returns true if input is a valid number`
+`isNumber(INPUT) - Validates that input is a number or a list of numbers`
 
-```bash
-isNumber(42.32); # true;
-isNumber('NOT A NUMBER'); # false
+```javascript
+FieldValidator.isNumber(42.32); # true;
+FieldValidator.isNumber('NOT A Number'); # false
+FieldValidator.isNumber([42.32, 245]); # true;
 ```
 
 ### isInteger
 
-`isInteger(INPUT) - returns true if input is a valid integer`
+`isInteger(INPUT) - Validates that input is a integer or a list of integers`
 
-```bash
-isInteger(42); # true
-isInteger(3.14); # false
+```javascript
+FieldValidator.isInteger(42); # true
+FieldValidator.isInteger(3.14); # false
 ```
 
 ### inNumberRange
 
-`inNumberRange(INPUT, args) - returns true if input is a number within the min and max boundaries.`
+`inNumberRange(INPUT, args) - returns true if input is a Number within the min and max boundaries, or that the array on numbers are between the values`
 
-`Required args: { min: NUMBER,  max: NUMBER }`
-
-`Optional arg: { inclusive: BOOLEAN }`
+`args: { min: Number, max: Number, inclusive?: Boolean }`
 
 
-```
-inNumberRange(42, { min: 0, max: 100}); # true
-inNumberRange(-42, { min:0 , max: 100 }); # false
-inNumberRange(42, { min: 0, max: 42 }); # false without the inclusive option
-inNumberRange(42, { min: 0, max: 42, inclusive: true }); # true with the inclusive option
+```javascript
+FieldValidator.inNumberRange(42, { min: 0, max: 100}); # true
+FieldValidator.inNumberRange(-42, { min:0 , max: 100 }); # false
+FieldValidator.inNumberRange(42, { min: 0, max: 42 }); # false without the inclusive option
+FieldValidator.inNumberRange(42, { min: 0, max: 42, inclusive: true }); # true with the inclusive option
 ```
 
 ### isString:
 
-`isString(INPUT) - returns true for valid strings`
+`isString(INPUT) - Validates that input is a string or a list of strings`
 
-```bash
-isString('this is a string'); # true
-isString(true); # false
+```javascript
+FieldValidator.isString('this is a string'); # true
+FieldValidator.isString(true); # false
 ```
 
 ### isEmpty
-`isEmpty(INPUT) - returns true for an empty string, array, or object`
+`isEmpty(INPUT, args) - returns true for an empty string, array, or object`
 
-```bash
-isEmpty([]); # true
-isEmpty({ foo: 'bar' }); # false
+` args: { ignoreWhitespac?: Boolean }`
+
+`set ignoreWhitespac to true if you want the value to be trimed`
+
+```javascript
+FieldValidator.isEmpty([]); # true
+FieldValidator.isEmpty({ foo: 'bar' }); # false
+FieldValidator.isEmpty('     ', { ignoreWhitespace: true }); # true
 ```
 
 ### contains
 
-`contains(INPUT, args) - returns true if string contains args value`
+`contains(INPUT, args) - returns true if input contains args value, or the list of inputs contains args value`
 
-`Required args: { value: STRING }`
+` args: { value: String }`
 
-```bash
-contains('hello', { value: 'ell' }); # true
-contains('hello', { value: 'bye' }); # bye
+```javascript
+FieldValidator.contains('hello', { value: 'ell' }); # true
+FieldValidator.contains('hello', { value: 'bye' }); # bye
 ```
 
 ### equals
 
-`equals(INPUT, args) - returns true if input equals args value`
+`equals(INPUT, args) - Validates that the input matches the value, of that the input array matches the value provided`
 
-`Required args: { value: 'STRING' }`
+` args: { value: 'String' }`
 
-```bash
-equals('hello', { value: 'hello' }); # true
-equals('hello', { value: 'ello' }); # false
+```javascript
+FieldValidator.equals('hello', { value: 'hello' }); # true
+FieldValidator.equals('hello', { value: 'ello' }); # false
 ```
 
 ### isLength
 
-`isLength(INPUT, args) - returns true if string is of specifid length or in a range`
+`isLength(INPUT, args) - Check to see if input is a string with given length ranges, or a list of valid string lengths`
 
-`Optional args: { length: NUMBER, min: NUMBER, max: NUMBER }`
+`Optional args: { length: Number, min: Number, max: Number }`
 
-```bash
-isLength('astring', { size: 7 }); # true
-isLength('astring', { min: 3, max: 10 }); # true
-isLength('astring', { size: 10 }); # false
+```javascript
+FieldValidator.isLength('astring', { size: 7 }); # true
+FieldValidator.isLength('astring', { min: 3, max: 10 }); # true
+FieldValidator.isLength('astring', { size: 10 }); # false
 ```
 
 ### isAlpha
 
-`isAlpha(INPUT, args) - returns true if input is a string of alphabet characters`
+`isAlpha(INPUT, args) - Validates that the input is alpha or a list of alpha values`
 
-`Optional arg: { locale: ANY LOCALE OPTION DEFINED BELOW }, default locale is en-US`
+`arg: { locale?: ANY LOCALE OPTION DEFINED BELOW }, default locale is en-US`
 
 `Locale options: 'ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'fa-IR', 'he', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA'`
 
-```bash
-isAlpha('validString'); # true
-isAlpha('ThisiZĄĆĘŚŁ', { locale: 'pl-PL' }); # true
-isAlpha('1123_not-valid'); # false
+```javascript
+FieldValidator.isAlpha('validString'); # true
+FieldValidator.isAlpha('ThisiZĄĆĘŚŁ', { locale: 'pl-PL' }); # true
+FieldValidator.isAlpha('1123_not-valid'); # false
 ```
 
 ### isAlphanumeric
 
-`isAlphanumeric(INPUT, args) - return true if input is alphabet or numeric characters`
+`isAlphanumeric(INPUT, args) - Validates that the input is alphanumeric or a list of alphanumieric values`
 
 `Optional arg: { locale: ANY LOCALE OPTION DEFINED BELOW }, default locale is en-US`
 
 `Locale options: 'ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'fa-IR', 'he', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA'`
 
-```bash
-isAlphanumeric('123validString'); # true
-isAlphanumeric('فڤقکگ1234', { locale: 'ku-IQ' }); # true
-isAlphanumeric('-- not valid'); # false
+```javascript
+FieldValidator.isAlphanumeric('123validString'); # true
+FieldValidator.isAlphanumeric('فڤقکگ1234', { locale: 'ku-IQ' }); # true
+FieldValidator.isAlphanumeric('-- not valid'); # false
 ```
 
-### isAscii
+### isASCII
 
-`isAscii(INPUT) - returns true for a string of ascii characters`
+`isASCII(INPUT) - Validates that the input is ASCII chars or a list of ASCII chars`
 
-```bash
-isAscii('ascii\s__'); # true;
-isAscii('˜∆˙©∂ß'); # false
+```javascript
+FieldValidator.isASCII('ascii\s__'); # true;
+FieldValidator.isASCII('˜∆˙©∂ß'); # false
 ```
 
 ### isBase64
 
-`isBase64(INPUT) - returns true for a base64 encoded string`
+`isBase64(INPUT) - Validates that the input is a base64 encoded string or a list of base64 encoded strings`
 
-```bash
-isBase64('ZWFzdXJlLg=='); # true
-isBase64('not base 64'); # false
+```javascript
+FieldValidator.isBase64('ZWFzdXJlLg=='); # true
+FieldValidator.isBase64('not base 64'); # false
 ```
 
 ### isValidDate
 
-`isValidDate(INPUT) - returns true for valid date strings, date objects, and integer dates (epoch/ unix time)`
+`isValidDate(INPUT) - Validates that the input is a valid date or a list of valid dates (epoch/ unix time)`
 
-```bash
-isValidDate('2019-03-17'); # true
-isValidDate(1552000139); # true
-isValidDate('1552000139'); # false
+```javascript
+FieldValidator.isValidDate('2019-03-17'); # true
+FieldValidator.isValidDate(1552000139); # true
+FieldValidator.isValidDate('1552000139'); # false
 ```
 
 ### isISO8601
 
-`isISO8601(INPUT) - returns true if inuput is a ISO8601 date string`
+`isISO8601(INPUT) - Checks to see if input is a valid ISO8601 string dates or a list of valid dates`
 
-```bash
-isISO8601('2020-01-01T12:03:03.494Z'); # true
-isISO8601('Jan 1, 2020'); # false
+```javascript
+FieldValidator.isISO8601('2020-01-01T12:03:03.494Z'); # true
+FieldValidator.isISO8601('Jan 1, 2020'); # false
 ```
 
 ### isRFC3339
 
-`isRFC3339(INPUT) - returns true if input is a valid RFC3339 date string`
+`isRFC3339(INPUT) -  Validates that input is a valid RFC3339 dates or a list of valid RFC3339 dates`
 
-```bash
-isRFC3339('2020-01-01 12:05:05.001Z'); # true
-isRFC3339('2020-01-01'); # false
+```javascript
+FieldValidator.isRFC3339('2020-01-01 12:05:05.001Z'); # true
+FieldValidator.isRFC3339('2020-01-01'); # false
 ```
 
 ### isJSON
 
-`isJSON(INPUT) - returns true if input is valid json`
+`isJSON(INPUT) - Validates that input is a valid JSON string or a list of valid JSON`
 
-```bash
- isJSON('{ "bob": "gibson" }'); # true
- isJSON({ bob: 'gibson' }); # false
+```javascript
+ FieldValidator.isJSON('{ "bob": "gibson" }'); # true
+ FieldValidator.isJSON({ bob: 'gibson' }); # false
 ```
 
 
 ### isEmail
 
-`isEmail(INPUT) - returns true if input is an email`
+`isEmail(INPUT) - Return true if value is a valid email, or a list of valid emails`
 
-```bash
-isEmail('email@example.com'); # true
-isEmail(12345); # false
+```javascript
+FieldValidator.isEmail('email@example.com'); # true
+FieldValidator.isEmail(12345); # false
 ```
 
 ### isFQDN
 
-`isFQDN(INPUT) - returns true for valid fully qualified domain names`
+`isFQDN(INPUT, args) - Validate that the input is a valid domain name, or a list of domian names`
 
-```bash
-isFQDN('example.com.uk'); # true
-isFQDN('notadomain'); # false
+` args: { require_tld = true, allow_underscores = false, allow_trailing_dot = false }`
+
+```javascript
+FieldValidator.isFQDN('example.com.uk'); # true
+FieldValidator.isFQDN('notadomain'); # false
 ```
 
-### isUrl
+### isURL
 
-`isUrl(INPUT) - returns true for valid url`
+`isURL(INPUT) - Validates that the input is a url or a list of urls`
 
-```bash
-isUrl('http://example.com'); # true
-isUrl('BAD-URL'); # false
+```javascript
+FieldValidator.isURL('http://example.com'); # true
+FieldValidator.isURL('BAD-URL'); # false
 ```
 
 ### isIP
 
-`isIP(INPUT) - returns true if input is an IPv4 or IPv6 address`
+`isIP(INPUT) - Validates that the input is an IP address, or a list of IP addresses`
 
-```bash
-isIP('108.22.31.8'); # true
-isIP([]); # false
+```javascript
+FieldValidator.isIP('108.22.31.8'); # true
+FieldValidator.isIP([]); # false
+FieldValidator.isIP('2001:DB8::1'); # true
 ```
 
-### isRoutableIp
+### isRoutableIP
 
-`isRoutableIP(INPUT) - returns true for routable ip addresses`
+`isRoutableIP(INPUT) - Validate is input is a routable IP, or a list of routable IP's`
 
 `Works for both IPv4 and IPv6 addresses`
 
-```bash
-isRoutableIP('8.8.8.8'); # true
-isRoutableIP('2001:db8::1'); # true
-isRoutableIP('192.168.0.1'); # false
-isRoutableIP('10.16.32.210'); # false
-isRoutableIP('fc00:db8::1'); # false
+```javascript
+FieldValidator.isRoutableIP('8.8.8.8'); # true
+FieldValidator.isRoutableIP('2001:db8::1'); # true
+FieldValidator.isRoutableIP('192.168.0.1'); # false
+FieldValidator.isRoutableIP('10.16.32.210'); # false
+FieldValidator.isRoutableIP('fc00:db8::1'); # false
 ```
 
-### isNonRoutableIp
+### isNonRoutableIP
 
-`isNonRoutableIP(INPUT) - returns true for non routable ip addresses`
+`isNonRoutableIP(INPUT) - Validate is input is a non-routable IP, or a list of non-routable IP's`
 
 `Works for both IPv4 and IPv6 addresses`
 
-```bash
-isNonRoutableIP('192.168.0.1'); # true
-isNonRoutableIP('10.16.32.210'); # true
-isNonRoutableIP('fc00:db8::1'); # true
-isNonRoutableIP('8.8.8.8'); # false
-isNonRoutableIP('2001:db8::1'); # false
+```javascript
+FieldValidator.isNonRoutableIP('192.168.0.1'); # true
+FieldValidator.isNonRoutableIP('10.16.32.210'); # true
+FieldValidator.isNonRoutableIP('fc00:db8::1'); # true
+FieldValidator.isNonRoutableIP('8.8.8.8'); # false
+FieldValidator.isNonRoutableIP('2001:db8::1'); # false
 ```
 
-### isIPCidr
+### isCIDR
 
-`isIPCidr(INPUT) - returns true if input is an IP address with cidr notation`
+`isCIDR(INPUT) - Validates that input is a CIDR or a list of CIDR values`
 
 `Works for both IPv4 and IPv6 addresses`
 
-```bash
-isIPCidr('8.8.0.0/12'); # true
-isIPCidr('2001::1234:5678/128'); # true
-isIPCidr('8.8.8.10'); # false
+```javascript
+FieldValidator.isCIDR('8.8.0.0/12'); # true
+FieldValidator.isCIDR('2001::1234:5678/128'); # true
+FieldValidator.isCIDR('8.8.8.10'); # false
 ```
 
 ### inIPRange
 
-`inIPRange(INPUT, args) - returns true if input is in the provided IP range`
+`inIPRange(INPUT, args) - Validates if the input IP is within a given range of IP's, or that a list of inputs IP are in range`
 
-`Optional args: { min: IP_ADDRESS, max: IP_ADDRESS, cidr: IP_ADDRESS/CIDR }`
+`Optional args: { min?: IP_ADDRESS, max?: IP_ADDRESS, cidr?: IP_ADDRESS/CIDR }
+ default values:
+ -   MIN_IPV4_IP = '0.0.0.0';
+ -   MAX_IPV4_IP = '255.255.255.255';
+ -   MIN_IPV6_IP = '::';
+ -   MAX_IPV6_IP = 'ffff.ffff.ffff.ffff.ffff.ffff.ffff.ffff';
+`
 
 `Works for both IPv4 and IPv6 addresses`
 
-```bash
-inIPRange('8.8.8.8', { cidr: '8.8.8.0/24' }); # true
-inIPRange('fd00::b000', { min: 'fd00::123', max: 'fd00::ea00' }); # true;
-inIPRange('8.8.8.8', { cidr: '8.8.8.10/32' }); # false
+```javascript
+FieldValidator.inIPRange('8.8.8.8', { cidr: '8.8.8.0/24' }); # true
+FieldValidator.inIPRange('fd00::b000', { min: 'fd00::123', max: 'fd00::ea00' }); # true;
+FieldValidator.inIPRange('8.8.8.8', { cidr: '8.8.8.10/32' }); # false
 ```
 
 ### isISDN
 
-`isISDN(INPUT) - returns true for valid phone numbers.  Based on googles libphonenumber library.`
+`isISDN(INPUT) - Validates that the input is a valid phone Number, or a list of phone numbers.  Based on googles libphonenumber library.`
 
-```bash
-isISDN('46707123456'); # true
-isISDN('1-808-915-6800'); # true
-isISDN('NOT A PHONE NUMBER'); # false
+```javascript
+FieldValidator.isISDN('46707123456'); # true
+FieldValidator.isISDN('1-808-915-6800'); # true
+FieldValidator.isISDN('NOT A PHONE Number'); # false
 ```
 
-### isMacAddress
+### isMACAddress
 
-`isMacAddress(INPUT, args) - returns true for valid mac address, othewise returns false`
+`isMACAddress(INPUT, args) - Validates that the input is a MACAddress, or a list of MACAddressess`
 
-`Optional arg { delimiter: ['colon', 'dash', 'space', 'dot', 'none', 'any']`
+`Optional args { delimiter: ['colon', 'dash', 'space', 'dot', 'none', 'any']`
 
 `delimiter can be a string of one delimiter or an array of multiple delimiters`
 
@@ -326,80 +461,136 @@ isISDN('NOT A PHONE NUMBER'); # false
 
 `Default is 'any'`
 
-```bash
-isMacAddress('00:1f:f3:5b:2b:1f'); # true
-isMacAddress('001ff35b2b1f'); # true
-isMacAddress('001f.f35b.2b1f', { delimiter: 'dot' }); # true
-isMacAddress('00-1f-f3-5b-2b-1f', { delimiter: ['dash', 'colon', 'space'] }); # true
-isMacAddress(12345); # false
-isMacAddress('00-1f-f3-5b-2b-1f', { delimiter: ['colon', 'space'] }); # false, specified colon and space delimiter only
+```javascript
+FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f'); # true
+FieldValidator.isMACAddress('001ff35b2b1f'); # true
+FieldValidator.isMACAddress('001f.f35b.2b1f', { delimiter: 'dot' }); # true
+FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', { delimiter: ['dash', 'colon', 'space'] }); # true
+FieldValidator.isMACAddress(12345); # false
+FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', { delimiter: ['colon', 'space'] }); # false, specified colon and space delimiter only
 ```
 
 ### isUUID
-`isUUID(INPUT) - returns true for valid UUID`
+`isUUID(INPUT) - Validates that input is a UUID or a list of UUID's`
 
-```bash
-isUUID('0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B'); # true
-isUUID('BAD-UUID'); # false
+```javascript
+FieldValidator.isUUID('0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B'); # true
+FieldValidator.isUUID('BAD-UUID'); # false
 ```
 
 ### isHash
 
-`isHash(INPUT, args) - returns true if string is a valid hash must include hash algorithm`
+`isHash(INPUT, args) - Validates that the input is a hash, or a list of hashes`
 
-`Required arg: { algo: 'ANY HASH OPTION DEFINED BELOW'}`
+` arg: { algo: 'ANY HASH OPTION DEFINED BELOW'}`
 
 `Hash options: md4, md5, sha1, sha256, sha384, sha512, ripemd128, ripemd160, tiger128, tiger160, tiger192, crc32, crc32b`
 
-```bash
-isHash('6201b3d1815444c87e00963fcf008c1e', { algo: 'md5' }); # true
-isHas('12345', { algo: 'sha1' }); # false
+```javascript
+FieldValidator.isHash('6201b3d1815444c87e00963fcf008c1e', { algo: 'md5' }); # true
+FieldValidator.isHas('12345', { algo: 'sha1' }); # false
 ```
 
 ### isCountryCode
 
-`isCountryCode(INPUT) - returns true if string is a ISO-31661 alpha-2 country code`
+`isCountryCode(INPUT) - Validates that input is a valid country code or a list of country codes`
 
-```bash
-isCountryCode('IS'); # true
-isCountryCode('ru'); # true
-isCountryCode('USA'); # false
+```javascript
+FieldValidator.isCountryCode('IS'); # true
+FieldValidator.isCountryCode('ru'); # true
+FieldValidator.isCountryCode('USA'); # false
 ```
 
-### isMimeType
+### isMIMEType
 
-`isMimeType(INPUT) - returns true for valid mime types`
+`isMIMEType(INPUT) - Validates that input is a valid mimeType or a list of mimeTypes`
 
-```bash
-isMimeType('application/javascript'); # true
-isMimeType(12345); # false
+```javascript
+FieldValidator.isMIMEType('application/javascript'); # true
+FieldValidator.isMIMEType(12345); # false
 ```
 
 ### isISSN
 
-`isISSN(INPUT, args) - returns true if input is a valid international standard serial number`
+`isISSN(INPUT, args) - returns true if input is a valid international standard serial Number or a list of valid ISSN's`
 
-`Optional args: { require_hyphen: BOOLEAN, case_sensitive: BOOLEAN }`
+`args: { require_hyphen = false, case_sensitive = false }`
 
-```bash
-isISSN('0378-5955'); # true
-isISSN('0000-006x', { require_hyphen, case_sensitive }); # true
+```javascript
+FieldValidator.isISSN('03785955'); # true
+FieldValidator.isISSN('0378-5955', { requireHyphen: true }); # true
 ```
+
+### guard
+
+`guard(INPUT) - Will throw if input is null or undefined`
+
+
+```javascript
+FieldValidator.guard('03785955'); # true
+FieldValidator.guard(); # WILL THROW
+```
+
+### exists
+
+`exists(INPUT) - Will return false if input is null or undefined`
+
+```javascript
+FieldValidator.exists('03785955'); # true
+FieldValidator.exists(null); # false
+```
+
+### isArray
+
+`isArray(INPUT) - Validates that the input is an array`
+
+```javascript
+FieldValidator.isArray('03785955'); # false
+FieldValidator.isArray([]); # true
+FieldValidator.isArray(['some', 'stuff']); # true
+```
+
+### some
+
+`some(INPUT, args) - Validates that the function specified returns true at least once on the list of values`
+
+`args: { fn: String, options: Any }`
+
+`fn must be a function name from FieldValidator`
+
+```javascript
+FieldValidator.some(['hello', 3, { some: 'obj' }], { fn: 'isString' }); # true
+FieldValidator.some(['hello', 3, { some: 'obj' }], { fn: 'isBoolean' }); # false
+```
+
+### every
+
+`every(INPUT, args) - Validates that the function specified returns true for every single value in the list`
+
+`args: { fn: String, options: Any }`
+
+`fn must be a function name from FieldValidator`
+
+```javascript
+FieldValidator.every(['hello', 3, { some: 'obj' }], { fn: 'isString' }); # false
+FieldValidator.every(['hello', 'world'], { fn: 'isString' }); # true
+```
+
 
 ### isPostalCode
 
-`isPostalCode(INPUT, args) - returns true for valid postal code`
+`isPostalCode(INPUT, args) - Validates that input is a valid postal code or a list of postal codes`
 
-`Optional arg: { locale: 'ANY OF THE DEFINED LOCATIONS BELOW' }`
+`Optional arg: { locale?: 'ANY OF THE DEFINED LOCATIONS BELOW' }`
 
 `locations: AD, AT, AU, BE, BG, BR, CA, CH, CZ, DE, DK, DZ, EE, ES, FI, FR, GB, GR, HR, HU, ID, IE, IL, IN, IS, IT, JP, KE, LI, LT, LU, LV, MX, MT, NL, NO, NZ, PL, PR, PT, RO, RU, SA, SE, SI, SK, TN, TW, UA, US, ZA, ZM`
 
 `default locale is any`
 
-```bash
-isPostalCode('85249'); # true
-isPostalCode('885 49', { locale: 'SE' });# true
-isPostalCode(1234567890); # false
+```javascript
+FieldValidator.isPostalCode('85249'); # true
+FieldValidator.isPostalCode('885 49', { locale: 'SE' });# true
+FieldValidator.isPostalCode(1234567890); # false
 ```
 
 ##Record Validations

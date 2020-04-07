@@ -30,8 +30,8 @@ export const repository: i.Repository = {
     isGeoShapeMultiPolygon: { fn: isGeoShapeMultiPolygon, config: {} },
     isIP: { fn: isIP, config: {} },
     isISDN: { fn: isISDN, config: {} },
-    isMacAddress: {
-        fn: isMacAddress,
+    isMACAddress: {
+        fn: isMACAddress,
         config: {
             delimiter: { type: 'String', array: true }
         },
@@ -49,7 +49,7 @@ export const repository: i.Repository = {
 
     },
     isString: { fn: isString, config: {} },
-    isUrl: { fn: isUrl, config: {} },
+    isURL: { fn: isURL, config: {} },
     isUUID: { fn: isUUID, config: {} },
     contains: {
         fn: contains,
@@ -77,7 +77,7 @@ export const repository: i.Repository = {
         },
 
     },
-    isAscii: { fn: isAscii, config: {} },
+    isASCII: { fn: isASCII, config: {} },
     isBase64: { fn: isBase64, config: {} },
     isEmpty: {
         fn: isEmpty,
@@ -123,7 +123,7 @@ export const repository: i.Repository = {
         },
 
     },
-    isMimeType: { fn: isMimeType, config: {} },
+    isMIMEType: { fn: isMIMEType, config: {} },
     isPostalCode: {
         fn: isPostalCode,
         config: {
@@ -131,8 +131,8 @@ export const repository: i.Repository = {
         },
 
     },
-    isRoutableIp: { fn: isRoutableIP, config: {} },
-    isNonRoutableIp: { fn: isNonRoutableIP, config: {} },
+    isRoutableIP: { fn: isRoutableIP, config: {} },
+    isNonRoutableIP: { fn: isNonRoutableIP, config: {} },
     inIPRange: {
         fn: inIPRange,
         config: {
@@ -142,7 +142,7 @@ export const repository: i.Repository = {
         },
 
     },
-    isCidr: { fn: isCidr, config: {} },
+    isCIDR: { fn: isCIDR, config: {} },
     exists: { fn: exists, config: {} },
     guard: { fn: guard, config: {} },
     isArray: { fn: isArray, config: {} },
@@ -170,8 +170,8 @@ function lift(fn: any, input: any[], args?: any) {
 }
 
 /**
- * Checks to see if input is a boolean, strict check.
- * If given an array, will check if all values
+ * Checks to see if input is a boolean.
+ * If given an array, will check if all values are booleans
  *
  * @example
  * expect(FieldValidator.isBoolean('true')).toEqual(false);
@@ -190,7 +190,8 @@ export function isBoolean(input: any): boolean {
 }
 
 /**
- * Checks to see if input is a boolean, loose check, will attempt to common boolean values.
+ * Checks to see if input is a boolean-like value. If an given an array, it will check
+ * to see if all values in the array are boolean-like, does NOT ignore null/undefined values
  *
  * @example
  * expect(FieldValidator.isBooleanLike()).toEqual(true);
@@ -212,7 +213,7 @@ export function isBooleanLike(input: any): boolean {
 }
 
 /**
- * Return true if value is a valid email
+ * Return true if value is a valid email, or a list of valid emails
  *
  * @example
  * FieldValidator.isEmail('ha3ke5@pawnage.com') === true
@@ -230,7 +231,8 @@ export function isEmail(input: any): boolean {
 }
 
 /**
- * Checks to see if input is a valid geo-point
+ * Checks to see if input is a valid geo-point, or a list of valid geo-points
+ * excluding null/undefined values
  *
  * @example
  * expect(FieldValidator.isGeoPoint('60,80')).toEqual(true);
@@ -256,7 +258,7 @@ export function isGeoPoint(input: any) {
 }
 
 /**
- * Checks to see if input is a valid geojson geometry
+ * Checks to see if input is a valid geo-json geometry, or a list of geo-json geometeries
  *
  * @example
  * expect(FieldValidator.isGeoJSON('hello')).toEqual(false);
@@ -282,7 +284,7 @@ export function isGeoJSON(input: any) {
 }
 
 /**
- * Checks to see if input is a valid geojson point
+ * Checks to see if input is a valid geo-json point, or a list of geo-json points
  * @example
  * expect(FieldValidator.isGeoShapePoint(3)).toEqual(false);
  *
@@ -305,7 +307,7 @@ export function isGeoShapePoint(input: any) {
 }
 
 /**
- * Checks to see if input is a valid geojson polygon
+ * Checks to see if input is a valid geo-json polygon or a list of geo-json polygons
  * @example
  * expect(FieldValidator.isGeoShapePolygon(3)).toEqual(false);
  *
@@ -330,7 +332,7 @@ export function isGeoShapePolygon(input: any) {
 }
 
 /**
- * Checks to see if input is a valid geojson multipolygon
+ * Checks to see if input is a valid geo-json multipolygon or a list of geo-json multipolygons
  * @example
  * expect(FieldValidator.isGeoShapeMultiPolygon(3)).toEqual(false);
  *
@@ -360,7 +362,7 @@ export function isGeoShapeMultiPolygon(input: any) {
 }
 
 /**
- * Validates that the input is an ip address, or a list of ip addresses
+ * Validates that the input is an IP address, or a list of IP addresses
  *
  * @example
  * expect(FieldValidator.isIP('8.8.8.8')).toBe(true);
@@ -393,7 +395,7 @@ function _isIp(input: any) {
 }
 
 /**
- * Validate is input is a routable ip, or a list of routable ip's
+ * Validate is input is a routable IP, or a list of routable IP's
  *
  * @example
  * expect(FieldValidator.isRoutableIP('192.168.0.1')).toBe(false);
@@ -419,7 +421,7 @@ function _isRoutableIP(input: any): boolean {
 }
 
 /**
- * Validate is input is a non-routable ip, or a list of non-routable ip's
+ * Validate is input is a non-routable IP, or a list of non-routable IP's
  * @example
  * expect(FieldValidator.isRoutableIP('192.168.0.1')).toBe(true);
  * expect(FieldValidator.isRoutableIP('2001:db8::1')).toBe(false);
@@ -453,7 +455,7 @@ function _isNonRoutableIP(input: any): boolean {
  * @returns {boolean} boolean
  */
 
-export function isCidr(input: any) {
+export function isCIDR(input: any) {
     if (ts.isNil(input)) return false;
     if (isArray(input)) return lift(_isCidr, input);
 
@@ -465,7 +467,7 @@ function _isCidr(input: any): boolean {
 }
 
 /**
- * Validates if the input is within a given range of ip's
+ * Validates if the input is within a given range of IP's
  * @example
  * expect(FieldValidator.inIPRange('8.8.8.8', { min: '8.8.8.0', max: '8.8.8.64' })).toBe(true);
  * expect(FieldValidator.inIPRange('8.8.8.8', { max: '8.8.8.64' })).toBe(true);
@@ -491,9 +493,9 @@ function _inIPRange(input: any, args: { min?: string; max?: string; cidr?: strin
 
     if (!isIP(input)) return false;
 
-    // assign min/max ip range values
+    // assign min/max IP range values
     if (args.cidr) {
-        if (!isCidr(args.cidr)) return false;
+        if (!isCIDR(args.cidr)) return false;
         return ip6addr.createCIDR(args.cidr).contains(input);
     }
 
@@ -502,7 +504,7 @@ function _inIPRange(input: any, args: { min?: string; max?: string; cidr?: strin
     if (!min) min = isIPv6(input) ? MIN_IPV6_IP : MIN_IPV4_IP;
     if (!max) max = isIPv6(input) ? MAX_IPV6_IP : MAX_IPV4_IP;
 
-    // min and max must be valid ips, same ip type, and min < max
+    // min and max must be valid ips, same IP type, and min < max
     if (!isIP(min) || !isIP(max) || isIPv6(min) !== isIPv6(max)
         || ip6addr.compare(max, min) === -1) {
         return false;
@@ -548,7 +550,7 @@ export function isISDN(input: any): boolean {
  * @returns {boolean} boolean
  */
 
-export function isMacAddress(input: any, args?: MACAddress): boolean {
+export function isMACAddress(input: any, args?: MACAddress): boolean {
     if (ts.isNil(input)) return false;
     if (isArray(input)) return lift(ts.isMacAddress, input, args);
 
@@ -556,7 +558,8 @@ export function isMacAddress(input: any, args?: MACAddress): boolean {
 }
 
 /**
- * Will return true if number is between args provided
+ * Will return true if number is between args provided, or that the list
+ * of numbers are between the values
  *
  * @example
  * expect(FieldValidator.inNumberRange(-12, { min: -100, max: 45 })).toBe(true);
@@ -567,6 +570,7 @@ export function isMacAddress(input: any, args?: MACAddress): boolean {
  * @param {{ min?: number; max?: number; inclusive?: boolean }} args
  * @returns {boolean} boolean
  */
+
 export function inNumberRange(input: any,
     args: { min?: number; max?: number; inclusive?: boolean }): boolean {
     if (ts.isNil(input)) return false;
@@ -596,6 +600,7 @@ export function inNumberRange(input: any,
  * @param {*} input
  * @returns {boolean} boolean
  */
+
 export function isNumber(input: any): input is number {
     if (ts.isNil(input)) return false;
     if (isArray(input)) return lift(ts.isNumber, input);
@@ -649,16 +654,16 @@ export function isString(input: any): boolean {
  * Validates that the input is a url or a list of urls
  *
  * @example
- * expect(FieldValidator.isUrl('https://someurl.cc.ru.ch')).toBe(true);
- * expect(FieldValidator.isUrl('ftp://someurl.bom:8080?some=bar&hi=bob')).toBe(true);
- * expect(FieldValidator.isUrl('http://xn--fsqu00a.xn--3lr804guic')).toBe(true)
+ * expect(FieldValidator.isURL('https://someurl.cc.ru.ch')).toBe(true);
+ * expect(FieldValidator.isURL('ftp://someurl.bom:8080?some=bar&hi=bob')).toBe(true);
+ * expect(FieldValidator.isURL('http://xn--fsqu00a.xn--3lr804guic')).toBe(true)
  *
  * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
 
-export function isUrl(input: any): boolean {
+export function isURL(input: any): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
@@ -692,18 +697,19 @@ export function isUUID(input: any): boolean {
 }
 
 /**
- * Validates the input contains the values specified in args
+ * Validates the input contains the values specified in args,
+ * or that the array of inputs contains the value in args
  *
  * @example
- * expect(FieldValidator.equals('12345', { value: '12345' })).toBe(true);
- * expect(FieldValidator.equals('hello', { value: 'llo' })).toBe(false);
+ * expect(FieldValidator.contains('12345', { value: '12345' })).toBe(true);
+ * expect(FieldValidator.contains('hello', { value: 'llo' })).toBe(false);
  *
  * @export
  * @param {*} input
  * @param {{ value: string }} { value }
  * @returns {boolean} boolean
  */
-// TODO: better error handling on value
+
 export function contains(input: any, args: { value: string }): boolean {
     if (ts.isNil(input)) return false;
     if (!args.value) throw new Error('A value must provided with the input');
@@ -717,7 +723,7 @@ export function contains(input: any, args: { value: string }): boolean {
 }
 
 /**
- * Validates that the input matches the value
+ * Validates that the input matches the value, of that the input array matches the value provided
  *
  * @example
  * expect(FieldValidator.equals('12345', { value: '12345' })).toBe(true);
@@ -768,7 +774,7 @@ export function isAlpha(input: any, args?: { locale: validator.AlphaLocale }): b
 }
 
 /**
-* Validates that the input is alphanumeric or a list of alphanumieric values
+ * Validates that the input is alphanumeric or a list of alphanumieric values
  *
  * @example
  * expect(FieldValidator.isAlphanumeric('1234')).toBe(true);
@@ -803,7 +809,7 @@ export function isAlphanumeric(input: any,
  * @returns {boolean} boolean
  */
 
-export function isAscii(input: any): boolean {
+export function isASCII(input: any): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
@@ -815,7 +821,7 @@ export function isAscii(input: any): boolean {
 }
 
 /**
-* Validates that the input is base64 or a list of base64 chars
+ * Validates that the input is a base64 encoded string or a list of base64 encoded strings
  *
  * @example
  * expect(FieldValidator.isBase64('ZWFzdXJlLg==')).toBe(true);
@@ -951,7 +957,7 @@ export function isCountryCode(input: any): boolean {
 
 /**
  * Checks to see if input is a valid ISO8601 string dates or a list of valid dates
- *@example
+ * @example
  * expect(FieldValidator.isISO8601('2020-01-01T12:03:03.494Z')).toBe(true);
  * expect(FieldValidator.isISO8601('2020-01-01')).toBe(true);
  * expect(FieldValidator.isISO8601('2020-01-01T12:03:03')).toBe(true);
@@ -1088,15 +1094,15 @@ export function isLength(input: any, { size, min, max }: LengthConfig) {
  * Validates that input is a valid mimeType or a list of mimeTypes
  *
  * @example
- * expect(FieldValidator.isMimeType('application/javascript')).toBe(true);
- * expect(FieldValidator.isMimeType('application/graphql')).toBe(true);
+ * expect(FieldValidator.isMIMEType('application/javascript')).toBe(true);
+ * expect(FieldValidator.isMIMEType('application/graphql')).toBe(true);
  *
  * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
 
-export function isMimeType(input: any): boolean {
+export function isMIMEType(input: any): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
@@ -1139,7 +1145,7 @@ export function isPostalCode(input: any, args: { locale: 'any' | PostalCodeLocal
  * Validates that the input is a valid date or a list of valid dates
  *
  * @example
- *  expect(FieldValidator.isValidDate('2019-03-17T23:08:59.673Z')).toBe(true);
+ * expect(FieldValidator.isValidDate('2019-03-17T23:08:59.673Z')).toBe(true);
  * expect(FieldValidator.isValidDate('2019-03-17')).toBe(true);
  * expect(FieldValidator.isValidDate('2019-03-17T23:08:59')).toBe(true);
  * expect(FieldValidator.isValidDate('03/17/2019')).toBe(true);

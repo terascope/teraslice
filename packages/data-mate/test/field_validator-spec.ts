@@ -286,24 +286,24 @@ describe('field validators', () => {
 
     describe('isIpCidr', () => {
         it('should return true for valid ips with cidr notation', () => {
-            expect(FieldValidator.isCidr('1.2.3.4/32')).toBe(true);
-            expect(FieldValidator.isCidr('8.8.0.0/12')).toBe(true);
-            expect(FieldValidator.isCidr('2001:0db8:0123:4567:89ab:cdef:1234:5678/128')).toBe(true);
-            expect(FieldValidator.isCidr('2001::1234:5678/128')).toBe(true);
+            expect(FieldValidator.isCIDR('1.2.3.4/32')).toBe(true);
+            expect(FieldValidator.isCIDR('8.8.0.0/12')).toBe(true);
+            expect(FieldValidator.isCIDR('2001:0db8:0123:4567:89ab:cdef:1234:5678/128')).toBe(true);
+            expect(FieldValidator.isCIDR('2001::1234:5678/128')).toBe(true);
         });
 
         it('should return false for invalid ips with cidr notation', () => {
-            expect(FieldValidator.isCidr('1.2.3.4/128')).toBe(false);
-            expect(FieldValidator.isCidr('notanipaddress/12')).toBe(false);
-            expect(FieldValidator.isCidr('2001:0db8:0123:4567:89ab:cdef:1234:5678/412')).toBe(false);
-            expect(FieldValidator.isCidr('2001::1234:5678/b')).toBe(false);
-            expect(FieldValidator.isCidr('8.8.8.10')).toBe(false);
-            expect(FieldValidator.isCidr(true)).toBe(false);
-            expect(FieldValidator.isCidr({})).toBe(false);
+            expect(FieldValidator.isCIDR('1.2.3.4/128')).toBe(false);
+            expect(FieldValidator.isCIDR('notanipaddress/12')).toBe(false);
+            expect(FieldValidator.isCIDR('2001:0db8:0123:4567:89ab:cdef:1234:5678/412')).toBe(false);
+            expect(FieldValidator.isCIDR('2001::1234:5678/b')).toBe(false);
+            expect(FieldValidator.isCIDR('8.8.8.10')).toBe(false);
+            expect(FieldValidator.isCIDR(true)).toBe(false);
+            expect(FieldValidator.isCIDR({})).toBe(false);
         });
 
         it('validates an array of values, ignores undefined/null', () => {
-            expect(FieldValidator.isCidr(['8.8.0.0/12', undefined])).toEqual(true);
+            expect(FieldValidator.isCIDR(['8.8.0.0/12', undefined])).toEqual(true);
         });
     });
 
@@ -438,42 +438,42 @@ describe('field validators', () => {
         });
     });
 
-    describe('isMacAddress', () => {
+    describe('isMACAddress', () => {
         it('should return true for a valid mac address', () => {
-            expect(FieldValidator.isMacAddress('00:1f:f3:5b:2b:1f')).toBe(true);
-            expect(FieldValidator.isMacAddress('00-1f-f3-5b-2b-1f')).toBe(true);
-            expect(FieldValidator.isMacAddress('001f.f35b.2b1f')).toBe(true);
-            expect(FieldValidator.isMacAddress('00 1f f3 5b 2b 1f')).toBe(true);
-            expect(FieldValidator.isMacAddress('001ff35b2b1f')).toBe(true);
+            expect(FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f')).toBe(true);
+            expect(FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f')).toBe(true);
+            expect(FieldValidator.isMACAddress('001f.f35b.2b1f')).toBe(true);
+            expect(FieldValidator.isMACAddress('00 1f f3 5b 2b 1f')).toBe(true);
+            expect(FieldValidator.isMACAddress('001ff35b2b1f')).toBe(true);
         });
 
         it('should return false for a invalid mac address', () => {
-            expect(FieldValidator.isMacAddress('00:1:f:5b:2b:1f')).toBe(false);
-            expect(FieldValidator.isMacAddress('00.1f.f3.5b.2b.1f')).toBe(false);
-            expect(FieldValidator.isMacAddress('00-1Z-fG-5b-2b-1322f')).toBe(false);
-            expect(FieldValidator.isMacAddress('23423423')).toBe(false);
-            expect(FieldValidator.isMacAddress('00_1Z_fG_5b_2b_13')).toBe(false);
-            expect(FieldValidator.isMacAddress(1233456)).toBe(false);
-            expect(FieldValidator.isMacAddress({})).toBe(false);
-            expect(FieldValidator.isMacAddress(true)).toBe(false);
+            expect(FieldValidator.isMACAddress('00:1:f:5b:2b:1f')).toBe(false);
+            expect(FieldValidator.isMACAddress('00.1f.f3.5b.2b.1f')).toBe(false);
+            expect(FieldValidator.isMACAddress('00-1Z-fG-5b-2b-1322f')).toBe(false);
+            expect(FieldValidator.isMACAddress('23423423')).toBe(false);
+            expect(FieldValidator.isMACAddress('00_1Z_fG_5b_2b_13')).toBe(false);
+            expect(FieldValidator.isMACAddress(1233456)).toBe(false);
+            expect(FieldValidator.isMACAddress({})).toBe(false);
+            expect(FieldValidator.isMACAddress(true)).toBe(false);
         });
 
         it('should validate based on specified delimiter', () => {
-            expect(FieldValidator.isMacAddress('001ff35b2b1f', { delimiter: 'any' })).toBe(true);
-            expect(FieldValidator.isMacAddress('00:1f:f3:5b:2b:1f', { delimiter: 'colon' })).toBe(true);
-            expect(FieldValidator.isMacAddress('00-1f-f3-5b-2b-1f', { delimiter: 'dash' })).toBe(true);
-            expect(FieldValidator.isMacAddress('00 1f f3 5b 2b 1f', { delimiter: 'space' })).toBe(true);
-            expect(FieldValidator.isMacAddress('001f.f35b.2b1f', { delimiter: 'dot' })).toBe(true);
-            expect(FieldValidator.isMacAddress('001ff35b2b1f', { delimiter: 'none' })).toBe(true);
-            expect(FieldValidator.isMacAddress('00:1f:f3:5b:2b:1f', { delimiter: ['dash', 'colon'] })).toBe(true);
-            expect(FieldValidator.isMacAddress('00:1f:f3:5b:2b:1f', { delimiter: 'dash' })).toBe(false);
-            expect(FieldValidator.isMacAddress('00 1f f3 5b 2b 1f', { delimiter: 'colon' })).toBe(false);
-            expect(FieldValidator.isMacAddress('001ff35b2b1f', { delimiter: 'colon' })).toBe(false);
-            expect(FieldValidator.isMacAddress('001ff35b2b1f', { delimiter: ['dash', 'colon'] })).toBe(false);
+            expect(FieldValidator.isMACAddress('001ff35b2b1f', { delimiter: 'any' })).toBe(true);
+            expect(FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', { delimiter: 'colon' })).toBe(true);
+            expect(FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', { delimiter: 'dash' })).toBe(true);
+            expect(FieldValidator.isMACAddress('00 1f f3 5b 2b 1f', { delimiter: 'space' })).toBe(true);
+            expect(FieldValidator.isMACAddress('001f.f35b.2b1f', { delimiter: 'dot' })).toBe(true);
+            expect(FieldValidator.isMACAddress('001ff35b2b1f', { delimiter: 'none' })).toBe(true);
+            expect(FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', { delimiter: ['dash', 'colon'] })).toBe(true);
+            expect(FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', { delimiter: 'dash' })).toBe(false);
+            expect(FieldValidator.isMACAddress('00 1f f3 5b 2b 1f', { delimiter: 'colon' })).toBe(false);
+            expect(FieldValidator.isMACAddress('001ff35b2b1f', { delimiter: 'colon' })).toBe(false);
+            expect(FieldValidator.isMACAddress('001ff35b2b1f', { delimiter: ['dash', 'colon'] })).toBe(false);
         });
 
         it('validates an array of values, ignores undefined/null', () => {
-            expect(FieldValidator.isMacAddress(['00 1f f3 5b 2b 1f', undefined], { delimiter: 'space' })).toBe(true);
+            expect(FieldValidator.isMACAddress(['00 1f f3 5b 2b 1f', undefined], { delimiter: 'space' })).toBe(true);
         });
     });
 
@@ -569,26 +569,26 @@ describe('field validators', () => {
         });
     });
 
-    describe('isUrl', () => {
+    describe('isURL', () => {
         it('should return true for valid uris', () => {
-            expect(FieldValidator.isUrl('http://someurl.com')).toBe(true);
-            expect(FieldValidator.isUrl('http://someurl.com.uk')).toBe(true);
-            expect(FieldValidator.isUrl('https://someurl.cc.ru.ch')).toBe(true);
-            expect(FieldValidator.isUrl('ftp://someurl.bom:8080?some=bar&hi=bob')).toBe(true);
-            expect(FieldValidator.isUrl('http://xn--fsqu00a.xn--3lr804guic')).toBe(true);
-            expect(FieldValidator.isUrl('http://example.com/%E5%BC%95%E3%81%8D%E5%89%B2%E3%82%8A.html')).toBe(true);
+            expect(FieldValidator.isURL('http://someurl.com')).toBe(true);
+            expect(FieldValidator.isURL('http://someurl.com.uk')).toBe(true);
+            expect(FieldValidator.isURL('https://someurl.cc.ru.ch')).toBe(true);
+            expect(FieldValidator.isURL('ftp://someurl.bom:8080?some=bar&hi=bob')).toBe(true);
+            expect(FieldValidator.isURL('http://xn--fsqu00a.xn--3lr804guic')).toBe(true);
+            expect(FieldValidator.isURL('http://example.com/%E5%BC%95%E3%81%8D%E5%89%B2%E3%82%8A.html')).toBe(true);
         });
 
         it('should return false for invalid uris', () => {
-            expect(FieldValidator.isUrl('')).toBe(false);
-            expect(FieldValidator.isUrl('null')).toBe(false);
-            expect(FieldValidator.isUrl(true)).toBe(false);
-            expect(FieldValidator.isUrl({ url: 'http:thisisaurl.com' })).toBe(false);
-            expect(FieldValidator.isUrl(12345)).toBe(false);
+            expect(FieldValidator.isURL('')).toBe(false);
+            expect(FieldValidator.isURL('null')).toBe(false);
+            expect(FieldValidator.isURL(true)).toBe(false);
+            expect(FieldValidator.isURL({ url: 'http:thisisaurl.com' })).toBe(false);
+            expect(FieldValidator.isURL(12345)).toBe(false);
         });
 
         it('validates an array of values, ignores undefined/null', () => {
-            expect(FieldValidator.isUrl(['http://someurl.com', undefined])).toBe(true);
+            expect(FieldValidator.isURL(['http://someurl.com', undefined])).toBe(true);
         });
     });
 
@@ -743,22 +743,22 @@ describe('field validators', () => {
         });
     });
 
-    describe('isAscii', () => {
+    describe('isASCII', () => {
         it('should return true if string is all ascii chars', () => {
-            expect(FieldValidator.isAscii('sim,pleAscii\t8*7!@#"\n')).toBe(true);
-            expect(FieldValidator.isAscii('\x03, \x5A~')).toBe(true);
+            expect(FieldValidator.isASCII('sim,pleAscii\t8*7!@#"\n')).toBe(true);
+            expect(FieldValidator.isASCII('\x03, \x5A~')).toBe(true);
         });
 
         it('should return false for not ascii strings', () => {
-            expect(FieldValidator.isAscii(true)).toBe(false);
-            expect(FieldValidator.isAscii({})).toBe(false);
-            expect(FieldValidator.isAscii(12334)).toBe(false);
-            expect(FieldValidator.isAscii('˜∆˙©∂ß')).toBe(false);
-            expect(FieldValidator.isAscii('ڤقک')).toBe(false);
+            expect(FieldValidator.isASCII(true)).toBe(false);
+            expect(FieldValidator.isASCII({})).toBe(false);
+            expect(FieldValidator.isASCII(12334)).toBe(false);
+            expect(FieldValidator.isASCII('˜∆˙©∂ß')).toBe(false);
+            expect(FieldValidator.isASCII('ڤقک')).toBe(false);
         });
 
         it('validates an array of values, ignores undefined/null', () => {
-            expect(FieldValidator.isAscii(['sim,pleAscii\t8*7!@#"\n', undefined])).toBe(true);
+            expect(FieldValidator.isASCII(['sim,pleAscii\t8*7!@#"\n', undefined])).toBe(true);
         });
     });
 
@@ -988,24 +988,24 @@ describe('field validators', () => {
         });
     });
 
-    describe('isMimeType', () => {
+    describe('isMIMEType', () => {
         it('should return true for valid mime/ media types', () => {
-            expect(FieldValidator.isMimeType('application/javascript')).toBe(true);
-            expect(FieldValidator.isMimeType('application/graphql')).toBe(true);
-            expect(FieldValidator.isMimeType('text/html')).toBe(true);
-            expect(FieldValidator.isMimeType('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')).toBe(true);
+            expect(FieldValidator.isMIMEType('application/javascript')).toBe(true);
+            expect(FieldValidator.isMIMEType('application/graphql')).toBe(true);
+            expect(FieldValidator.isMIMEType('text/html')).toBe(true);
+            expect(FieldValidator.isMIMEType('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')).toBe(true);
         });
 
         it('should return false for invalid mime/ media types', () => {
-            expect(FieldValidator.isMimeType('application')).toBe(false);
-            expect(FieldValidator.isMimeType('')).toBe(false);
-            expect(FieldValidator.isMimeType(false)).toBe(false);
-            expect(FieldValidator.isMimeType({})).toBe(false);
-            expect(FieldValidator.isMimeType(12345)).toBe(false);
+            expect(FieldValidator.isMIMEType('application')).toBe(false);
+            expect(FieldValidator.isMIMEType('')).toBe(false);
+            expect(FieldValidator.isMIMEType(false)).toBe(false);
+            expect(FieldValidator.isMIMEType({})).toBe(false);
+            expect(FieldValidator.isMIMEType(12345)).toBe(false);
         });
 
         it('validates an array of values, ignores undefined/null', () => {
-            expect(FieldValidator.isMimeType(['application/javascript', undefined])).toBe(true);
+            expect(FieldValidator.isMIMEType(['application/javascript', undefined])).toBe(true);
         });
     });
 

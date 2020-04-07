@@ -51,8 +51,8 @@ export const repository: Repository = {
     },
     decodeBase64: { fn: decodeBase64, config: {}, output_type: 'String' as AvailableType },
     encodeBase64: { fn: encodeBase64, config: {}, output_type: 'String' as AvailableType },
-    decodeUrl: { fn: decodeUrl, config: {}, output_type: 'String' as AvailableType },
-    encodeUrl: { fn: encodeUrl, config: {}, output_type: 'String' as AvailableType },
+    decodeURL: { fn: decodeURL, config: {}, output_type: 'String' as AvailableType },
+    encodeURL: { fn: encodeURL, config: {}, output_type: 'String' as AvailableType },
     decodeHex: { fn: decodeHex, config: {}, output_type: 'String' as AvailableType },
     encodeHex: { fn: encodeHex, config: {}, output_type: 'String' as AvailableType },
     encodeMD5: { fn: encodeMD5, config: {}, output_type: 'String' as AvailableType },
@@ -580,14 +580,14 @@ export function encodeBase64(input: any) {
  * const source = 'HELLO AND GOODBYE';
  * const encoded = 'HELLO%20AND%20GOODBYE';
  *
- * expect(fieldTransform.decodeUrl(encoded)).toEqual(source);
+ * expect(fieldTransform.decodeURL(encoded)).toEqual(source);
  *
  * @export
  * @param {StringInput} input
  * @returns { string | null } returns null if input is null/undefined
  */
 
-export function decodeUrl(input: StringInput) {
+export function decodeURL(input: StringInput) {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) return input.filter(ts.isNotNil).map(decodeURIComponent);
@@ -604,14 +604,14 @@ export function decodeUrl(input: StringInput) {
  * const source = 'HELLO AND GOODBYE';
  * const encoded = 'HELLO%20AND%20GOODBYE';
  *
- * expect(fieldTransform.encodeUrl(source)).toEqual(encoded);
+ * expect(fieldTransform.encodeURL(source)).toEqual(encoded);
  *
  * @export
  * @param {StringInput} input
  * @returns { string | null } returns null if input is null/undefined
  */
 
-export function encodeUrl(input: StringInput) {
+export function encodeURL(input: StringInput) {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) return input.filter(ts.isNotNil).map(encodeURIComponent);
@@ -1200,6 +1200,7 @@ function _formatDate(input: any, args: FormatDateConfig) {
  * format is the shape that the date will be, resolution is only needed when input is a number
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
+
 export function formatDate(input: any, args: FormatDateConfig) {
     if (ts.isNil(input)) return null;
 

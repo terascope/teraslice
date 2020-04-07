@@ -499,13 +499,13 @@ describe('field fieldTransforms', () => {
         const encoded = 'HELLO%20AND%20GOODBYE';
 
         it('should decode values', () => {
-            expect(fieldTransform.decodeUrl(encoded)).toEqual(source);
-            expect(fieldTransform.decodeUrl(null)).toBe(null);
-            expect(fieldTransform.decodeUrl(undefined)).toBe(null);
+            expect(fieldTransform.decodeURL(encoded)).toEqual(source);
+            expect(fieldTransform.decodeURL(null)).toBe(null);
+            expect(fieldTransform.decodeURL(undefined)).toBe(null);
         });
 
         it('should parse encoded values in an array', () => {
-            expect(fieldTransform.decodeUrl([encoded, null] as any)).toEqual([
+            expect(fieldTransform.decodeURL([encoded, null] as any)).toEqual([
                 source,
             ]);
         });
@@ -516,13 +516,13 @@ describe('field fieldTransforms', () => {
         const encoded = encodeUrl(source);
 
         it('should encoded values', () => {
-            expect(fieldTransform.encodeUrl(source)).toEqual(encoded);
-            expect(fieldTransform.encodeUrl(null)).toBe(null);
-            expect(fieldTransform.encodeUrl(undefined)).toBe(null);
+            expect(fieldTransform.encodeURL(source)).toEqual(encoded);
+            expect(fieldTransform.encodeURL(null)).toBe(null);
+            expect(fieldTransform.encodeURL(undefined)).toBe(null);
         });
 
         it('should parse encoded values in an array', () => {
-            expect(fieldTransform.encodeUrl([source, null] as any)).toEqual([
+            expect(fieldTransform.encodeURL([source, null] as any)).toEqual([
                 encoded
             ]);
         });
