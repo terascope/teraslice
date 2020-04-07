@@ -26,7 +26,7 @@ sidebar_label: CachedParser
 
 \+ **new CachedParser**(): *[CachedParser](cachedparser.md)*
 
-*Defined in [packages/xlucene-parser/src/cached-parser.ts:7](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/cached-parser.ts#L7)*
+*Defined in [packages/xlucene-parser/src/cached-parser.ts:7](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/cached-parser.ts#L7)*
 
 **Returns:** *[CachedParser](cachedparser.md)*
 
@@ -36,7 +36,7 @@ sidebar_label: CachedParser
 
 ▸ **make**(`query`: string, `options?`: [ParserOptions](../interfaces/parseroptions.md)): *[Parser](parser.md)‹›*
 
-*Defined in [packages/xlucene-parser/src/cached-parser.ts:12](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/cached-parser.ts#L12)*
+*Defined in [packages/xlucene-parser/src/cached-parser.ts:12](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/cached-parser.ts#L12)*
 
 **Parameters:**
 
@@ -53,6 +53,6 @@ ___
 
 ▸ **reset**(): *void*
 
-*Defined in [packages/xlucene-parser/src/cached-parser.ts:16](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/cached-parser.ts#L16)*
+*Defined in [packages/xlucene-parser/src/cached-parser.ts:16](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/cached-parser.ts#L16)*
 
 **Returns:** *void*

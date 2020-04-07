@@ -22,7 +22,7 @@ sidebar_label: ReplaceLiteralConfig
 
 • **replace**: *string*
 
-*Defined in [data-mate/src/transforms/interfaces.ts:16](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/interfaces.ts#L16)*
+*Defined in [data-mate/src/transforms/interfaces.ts:16](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/transforms/interfaces.ts#L16)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **search**: *string*
 
-*Defined in [data-mate/src/transforms/interfaces.ts:15](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/interfaces.ts#L15)*
+*Defined in [data-mate/src/transforms/interfaces.ts:15](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/transforms/interfaces.ts#L15)*

@@ -33,7 +33,7 @@ ___
 
 ### `Optional` type_config
 
-• **type_config**? : *t.XluceneTypeConfig*
+• **type_config**? : *t.xLuceneTypeConfig*
 
 *Inherited from void*
 
@@ -43,7 +43,7 @@ ___
 
 ### `Optional` variables
 
-• **variables**? : *t.XluceneVariables*
+• **variables**? : *t.xLuceneVariables*
 
 *Inherited from void*
 

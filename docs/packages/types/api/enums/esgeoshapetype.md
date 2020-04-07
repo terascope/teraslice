@@ -19,7 +19,7 @@ sidebar_label: ESGeoShapeType
 
 • **MultiPolygon**: = "multipolygon"
 
-*Defined in [geo-interfaces.ts:4](https://github.com/terascope/teraslice/blob/653cf7530/packages/types/src/geo-interfaces.ts#L4)*
+*Defined in [geo-interfaces.ts:4](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/geo-interfaces.ts#L4)*
 
 ___
 
@@ -27,7 +27,7 @@ ___
 
 • **Point**: = "point"
 
-*Defined in [geo-interfaces.ts:2](https://github.com/terascope/teraslice/blob/653cf7530/packages/types/src/geo-interfaces.ts#L2)*
+*Defined in [geo-interfaces.ts:2](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/geo-interfaces.ts#L2)*
 
 ___
 
@@ -35,4 +35,4 @@ ___
 
 • **Polygon**: = "polygon"
 
-*Defined in [geo-interfaces.ts:3](https://github.com/terascope/teraslice/blob/653cf7530/packages/types/src/geo-interfaces.ts#L3)*
+*Defined in [geo-interfaces.ts:3](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/geo-interfaces.ts#L3)*

@@ -22,7 +22,7 @@ sidebar_label: Volume
 
 • **name**: *string*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:99](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L99)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:99](https://github.com/terascope/teraslice/blob/f95bb5556/packages/job-components/src/interfaces/jobs.ts#L99)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **path**: *string*
 
-*Defined in [packages/job-components/src/interfaces/jobs.ts:100](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/jobs.ts#L100)*
+*Defined in [packages/job-components/src/interfaces/jobs.ts:100](https://github.com/terascope/teraslice/blob/f95bb5556/packages/job-components/src/interfaces/jobs.ts#L100)*

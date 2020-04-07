@@ -23,7 +23,7 @@ sidebar_label: RunSliceResult
 
 • **analytics**? : *[SliceAnalyticsData](sliceanalyticsdata.md)*
 
-*Defined in [packages/job-components/src/execution-context/interfaces.ts:46](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/execution-context/interfaces.ts#L46)*
+*Defined in [packages/job-components/src/execution-context/interfaces.ts:46](https://github.com/terascope/teraslice/blob/f95bb5556/packages/job-components/src/execution-context/interfaces.ts#L46)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **results**: *DataEntity[]*
 
-*Defined in [packages/job-components/src/execution-context/interfaces.ts:47](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/execution-context/interfaces.ts#L47)*
+*Defined in [packages/job-components/src/execution-context/interfaces.ts:47](https://github.com/terascope/teraslice/blob/f95bb5556/packages/job-components/src/execution-context/interfaces.ts#L47)*
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 • **status**: *[SliceStatus](../overview.md#slicestatus)*
 
-*Defined in [packages/job-components/src/execution-context/interfaces.ts:45](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/execution-context/interfaces.ts#L45)*
+*Defined in [packages/job-components/src/execution-context/interfaces.ts:45](https://github.com/terascope/teraslice/blob/f95bb5556/packages/job-components/src/execution-context/interfaces.ts#L45)*

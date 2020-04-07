@@ -62,8 +62,7 @@ describe('field fieldTransforms', () => {
         });
 
         it('converts an array of values to uppercase, ignores undefined/null', () => {
-            // @ts-ignore
-            expect(fieldTransform.toUpperCase(['MixEdCAsE', undefined, 'lowercase'])).toEqual(['MIXEDCASE', 'LOWERCASE']);
+            expect(fieldTransform.toUpperCase(['MixEdCAsE', undefined, 'lowercase'] as any)).toEqual(['MIXEDCASE', 'LOWERCASE']);
         });
     });
 
@@ -75,8 +74,7 @@ describe('field fieldTransforms', () => {
         });
 
         it('converts an array of values to lowercase, ignores undefined/null', () => {
-            // @ts-ignore
-            expect(fieldTransform.toLowerCase(['MixEdCAsE', undefined, 'UPPERCASE'])).toEqual(['mixedcase', 'uppercase']);
+            expect(fieldTransform.toLowerCase(['MixEdCAsE', undefined, 'UPPERCASE'] as any)).toEqual(['mixedcase', 'uppercase']);
         });
     });
 
@@ -143,8 +141,7 @@ describe('field fieldTransforms', () => {
         });
 
         it('trims an array of values, ignores undefined/null', () => {
-            // @ts-ignore
-            expect(fieldTransform.trim(['   string    ', undefined, 'right    '])).toEqual(['string', 'right']);
+            expect(fieldTransform.trim(['   string    ', undefined, 'right    '] as any)).toEqual(['string', 'right']);
         });
     });
 
@@ -166,8 +163,7 @@ describe('field fieldTransforms', () => {
         });
 
         it('trims an array of values at start, ignores undefined/null', () => {
-            // @ts-ignore
-            expect(fieldTransform.trimStart(['    Hello Bob    ', undefined, '     start'])).toEqual(['Hello Bob    ', 'start']);
+            expect(fieldTransform.trimStart(['    Hello Bob    ', undefined, '     start'] as any)).toEqual(['Hello Bob    ', 'start']);
         });
     });
 
@@ -187,8 +183,7 @@ describe('field fieldTransforms', () => {
         });
 
         it('trims an array of values at end, ignores undefined/null', () => {
-            // @ts-ignore
-            expect(fieldTransform.trimEnd(['    Hello Bob    ', undefined, 'end    '])).toEqual(['    Hello Bob', 'end']);
+            expect(fieldTransform.trimEnd(['    Hello Bob    ', undefined, 'end    '] as any)).toEqual(['    Hello Bob', 'end']);
         });
     });
 
@@ -206,8 +201,7 @@ describe('field fieldTransforms', () => {
         });
 
         it('trim the size of an array of values, ignores undefined/null', () => {
-            // @ts-ignore
-            expect(fieldTransform.truncate(['hello', undefined, 'world'], { size: 2 })).toEqual(['he', 'wo']);
+            expect(fieldTransform.truncate(['hello', undefined, 'world'] as any, { size: 2 })).toEqual(['he', 'wo']);
         });
     });
 
@@ -254,7 +248,6 @@ describe('field fieldTransforms', () => {
         });
 
         it('convert an array of values, ignores undefined/null', () => {
-            // @ts-ignore
             expect(fieldTransform.toNumber(['1', undefined, '2'])).toEqual([1, 2]);
         });
     });
@@ -266,8 +259,7 @@ describe('field fieldTransforms', () => {
         });
 
         it('convert an array of values, ignores undefined/null', () => {
-            // @ts-ignore
-            expect(fieldTransform.replaceLiteral(['Hi bob', undefined], { search: 'bob', replace: 'mel' })).toEqual(['Hi mel']);
+            expect(fieldTransform.replaceLiteral(['Hi bob', undefined] as any, { search: 'bob', replace: 'mel' })).toEqual(['Hi mel']);
         });
     });
 
@@ -282,8 +274,7 @@ describe('field fieldTransforms', () => {
         });
 
         it('convert an array of values, ignores undefined/null', () => {
-            // @ts-ignore
-            expect(fieldTransform.replaceRegex(['somestring', undefined], { regex: 's|e', replace: 'd' })).toEqual(['domestring']);
+            expect(fieldTransform.replaceRegex(['somestring', undefined] as any, { regex: 's|e', replace: 'd' })).toEqual(['domestring']);
         });
     });
 
@@ -318,19 +309,18 @@ describe('field fieldTransforms', () => {
 
             try {
                 expect(fieldTransform.toUnixTime('notADate')).toBe(1577836800);
-            } catch (e) { expect(e.message).toBe('Not a valid date, cannot transform to unix time'); }
+            } catch (e) { expect(e.message).toBe('Not a valid date, cannot transform notADate to unix time'); }
 
             try {
                 expect(fieldTransform.toUnixTime(true)).toBe(1577836800);
-            } catch (e) { expect(e.message).toBe('Not a valid date, cannot transform to unix time'); }
+            } catch (e) { expect(e.message).toBe('Not a valid date, cannot transform true to unix time'); }
 
             try {
                 expect(fieldTransform.toUnixTime({})).toBe(1577836800);
-            } catch (e) { expect(e.message).toBe('Not a valid date, cannot transform to unix time'); }
+            } catch (e) { expect(e.message).toBe('Not a valid date, cannot transform [object Object] to unix time'); }
         });
 
         it('convert an array of values, ignores undefined/null', () => {
-            // @ts-ignore
             expect(fieldTransform.toUnixTime(['2020-01-01', undefined])).toEqual([1577836800]);
         });
     });
@@ -360,12 +350,11 @@ describe('field fieldTransforms', () => {
             try {
                 fieldTransform.toUnixTime('notADate');
             } catch (e) {
-                expect(e.message).toBe('Not a valid date, cannot transform to unix time');
+                expect(e.message).toBe('Not a valid date, cannot transform notADate to unix time');
             }
         });
 
         it('convert an array of values, ignores undefined/null', () => {
-            // @ts-ignore
             expect(fieldTransform.toISO8601(['2020-01-01', undefined])).toEqual(['2020-01-01T00:00:00.000Z']);
         });
     });
@@ -395,7 +384,6 @@ describe('field fieldTransforms', () => {
         });
 
         it('convert an array of values, ignores undefined/null', () => {
-            // @ts-ignore
             expect(fieldTransform.formatDate([1581013130856, undefined], { format: 'yyyy-MM-dd' })).toEqual(['2020-02-06']);
         });
     });
@@ -416,7 +404,6 @@ describe('field fieldTransforms', () => {
         });
 
         it('convert an array of values, ignores undefined/null', () => {
-            // @ts-ignore
             expect(fieldTransform.parseDate(['1581025950', undefined], { format: 't' })).toEqual([new Date('2020-02-06T21:52:30.000Z')]);
         });
     });
@@ -462,7 +449,6 @@ describe('field fieldTransforms', () => {
         });
 
         it('convert of an array of values, ignores undefined/null', () => {
-            // @ts-ignore
             expect(fieldTransform.toISDN(['1(800)FloWErs', undefined, '467*(070)1.23[45]/67'])).toEqual(['18003569377', '4670701234567']);
         });
     });
@@ -519,8 +505,7 @@ describe('field fieldTransforms', () => {
         });
 
         it('should parse encoded values in an array', () => {
-            // @ts-ignore
-            expect(fieldTransform.decodeUrl([encoded, null])).toEqual([
+            expect(fieldTransform.decodeUrl([encoded, null] as any)).toEqual([
                 source,
             ]);
         });
@@ -537,8 +522,7 @@ describe('field fieldTransforms', () => {
         });
 
         it('should parse encoded values in an array', () => {
-            // @ts-ignore
-            expect(fieldTransform.encodeUrl([source, null])).toEqual([
+            expect(fieldTransform.encodeUrl([source, null] as any)).toEqual([
                 encoded
             ]);
         });
@@ -554,7 +538,6 @@ describe('field fieldTransforms', () => {
         });
 
         it('should parse encoded values in an array', () => {
-            // @ts-ignore
             expect(fieldTransform.encodeHex([str, null])).toEqual([
                 encodeHex(str),
             ]);
@@ -572,7 +555,6 @@ describe('field fieldTransforms', () => {
         });
 
         it('should parse encoded values in an array', () => {
-            // @ts-ignore
             expect(fieldTransform.decodeHex([encoded, null])).toEqual([
                 source
             ]);
@@ -590,7 +572,6 @@ describe('field fieldTransforms', () => {
         });
 
         it('should parse encoded values in an array', () => {
-            // @ts-ignore
             expect(fieldTransform.parseJSON([json, null])).toEqual([
                 obj
             ]);
@@ -613,7 +594,6 @@ describe('field fieldTransforms', () => {
         });
 
         it('should stringify values in an array', () => {
-            // @ts-ignore
             expect(fieldTransform.toJSON([obj, null])).toEqual([
                 json
             ]);
@@ -625,10 +605,9 @@ describe('field fieldTransforms', () => {
             expect(
                 fieldTransform.dedupe([1, 2, 2, 3, 3, 3, undefined, 4])
             ).toEqual([1, 2, 3, undefined, 4]);
-            // @ts-ignore
-            expect(fieldTransform.dedupe(null)).toBe(null);
-            // @ts-ignore
-            expect(fieldTransform.dedupe(undefined)).toBe(null);
+
+            expect(fieldTransform.dedupe(null as any)).toBe(null);
+            expect(fieldTransform.dedupe(undefined as any)).toBe(null);
         });
     });
 
@@ -642,7 +621,6 @@ describe('field fieldTransforms', () => {
         });
 
         it('should parse values in an array', () => {
-            // @ts-ignore
             expect(fieldTransform.toGeoPoint(['60, 40', null, [50, 60]])).toEqual([
                 { lon: 40, lat: 60 },
                 { lon: 50, lat: 60 }
@@ -660,7 +638,6 @@ describe('field fieldTransforms', () => {
         });
 
         it('should encode values in an array', () => {
-            // @ts-ignore
             expect(fieldTransform.encodeMD5([source, null])).toBeArrayOfSize(1);
         });
     });
@@ -675,7 +652,6 @@ describe('field fieldTransforms', () => {
         });
 
         it('should encode values in an array', () => {
-            // @ts-ignore
             expect(fieldTransform.encodeSHA([source, null])).toBeArrayOfSize(1);
         });
     });
@@ -690,7 +666,6 @@ describe('field fieldTransforms', () => {
         });
 
         it('should encode values in an array', () => {
-            // @ts-ignore
             expect(fieldTransform.encodeSHA1([source, null])).toBeArrayOfSize(1);
         });
     });
@@ -705,8 +680,7 @@ describe('field fieldTransforms', () => {
         });
 
         it('convert an array of values, ignores undefined/null', () => {
-            // @ts-ignore
-            expect(fieldTransform.toCamelCase(['I need camel case', undefined])).toEqual(['iNeedCamelCase']);
+            expect(fieldTransform.toCamelCase(['I need camel case', undefined] as any)).toEqual(['iNeedCamelCase']);
         });
     });
 
@@ -720,8 +694,7 @@ describe('field fieldTransforms', () => {
         });
 
         it('convert an array of values, ignores undefined/null', () => {
-            // @ts-ignore
-            expect(fieldTransform.toKebabCase(['I need kebab case', undefined])).toEqual(['i-need-kebab-case']);
+            expect(fieldTransform.toKebabCase(['I need kebab case', undefined] as any)).toEqual(['i-need-kebab-case']);
         });
     });
 
@@ -735,8 +708,7 @@ describe('field fieldTransforms', () => {
         });
 
         it('convert an array of values, ignores undefined/null', () => {
-            // @ts-ignore
-            expect(fieldTransform.toPascalCase(['happyBirthday', undefined])).toEqual(['HappyBirthday']);
+            expect(fieldTransform.toPascalCase(['happyBirthday', undefined] as any)).toEqual(['HappyBirthday']);
         });
     });
 
@@ -750,8 +722,7 @@ describe('field fieldTransforms', () => {
         });
 
         it('convert an array of values, ignores undefined/null', () => {
-            // @ts-ignore
-            expect(fieldTransform.toSnakeCase(['happyBirthday', undefined])).toEqual(['happy_birthday']);
+            expect(fieldTransform.toSnakeCase(['happyBirthday', undefined] as any)).toEqual(['happy_birthday']);
         });
     });
 
@@ -765,8 +736,7 @@ describe('field fieldTransforms', () => {
         });
 
         it('convert an array of values, ignores undefined/null', () => {
-            // @ts-ignore
-            expect(fieldTransform.toTitleCase(['happyBirthday', undefined])).toEqual(['Happy Birthday']);
+            expect(fieldTransform.toTitleCase(['happyBirthday', undefined] as any)).toEqual(['Happy Birthday']);
         });
     });
 });

@@ -5,7 +5,8 @@ sidebar_label: IndexStore
 
 # Class: IndexStore <**T**>
 
-**`todo`** add the ability to enable/disable refresh by default
+A single index elasticearch-store with some specific requirements around
+the index name, and record data
 
 ## Type parameters
 
@@ -28,13 +29,14 @@ sidebar_label: IndexStore
 * [_defaultQueryAccess](indexstore.md#protected-_defaultqueryaccess)
 * [client](indexstore.md#client)
 * [config](indexstore.md#config)
+* [esVersion](indexstore.md#esversion)
 * [indexQuery](indexstore.md#indexquery)
 * [manager](indexstore.md#manager)
 * [name](indexstore.md#name)
 * [readHooks](indexstore.md#readhooks)
 * [refreshByDefault](indexstore.md#refreshbydefault)
 * [writeHooks](indexstore.md#writehooks)
-* [xluceneTypeConfig](indexstore.md#xlucenetypeconfig)
+* [xLuceneTypeConfig](indexstore.md#xlucenetypeconfig)
 
 ### Methods
 
@@ -77,7 +79,7 @@ sidebar_label: IndexStore
 
 \+ **new IndexStore**(`client`: Client, `config`: [IndexConfig](../interfaces/indexconfig.md)‹T›): *[IndexStore](indexstore.md)*
 
-*Defined in [index-store.ts:33](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L33)*
+*Defined in [index-store.ts:35](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L35)*
 
 **Parameters:**
 
@@ -94,7 +96,7 @@ Name | Type |
 
 • **_defaultQueryAccess**: *QueryAccess‹T› | undefined*
 
-*Defined in [index-store.ts:20](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L20)*
+*Defined in [index-store.ts:22](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L22)*
 
 ___
 
@@ -102,7 +104,7 @@ ___
 
 • **client**: *Client*
 
-*Defined in [index-store.ts:14](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L14)*
+*Defined in [index-store.ts:15](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L15)*
 
 ___
 
@@ -110,7 +112,15 @@ ___
 
 • **config**: *[IndexConfig](../interfaces/indexconfig.md)*
 
-*Defined in [index-store.ts:15](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L15)*
+*Defined in [index-store.ts:16](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L16)*
+
+___
+
+###  esVersion
+
+• **esVersion**: *number*
+
+*Defined in [index-store.ts:21](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L21)*
 
 ___
 
@@ -118,7 +128,7 @@ ___
 
 • **indexQuery**: *string*
 
-*Defined in [index-store.ts:16](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L16)*
+*Defined in [index-store.ts:17](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L17)*
 
 ___
 
@@ -126,7 +136,7 @@ ___
 
 • **manager**: *[IndexManager](indexmanager.md)*
 
-*Defined in [index-store.ts:17](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L17)*
+*Defined in [index-store.ts:18](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L18)*
 
 ___
 
@@ -134,7 +144,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [index-store.ts:18](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L18)*
+*Defined in [index-store.ts:19](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L19)*
 
 ___
 
@@ -142,7 +152,7 @@ ___
 
 • **readHooks**: *Set‹function›* =  new Set<ReadHook<T>>()
 
-*Defined in [index-store.ts:24](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L24)*
+*Defined in [index-store.ts:26](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L26)*
 
 ___
 
@@ -150,7 +160,7 @@ ___
 
 • **refreshByDefault**: *boolean* = true
 
-*Defined in [index-store.ts:19](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L19)*
+*Defined in [index-store.ts:20](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L20)*
 
 ___
 
@@ -158,15 +168,15 @@ ___
 
 • **writeHooks**: *Set‹function›* =  new Set<WriteHook<T>>()
 
-*Defined in [index-store.ts:23](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L23)*
+*Defined in [index-store.ts:25](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L25)*
 
 ___
 
-###  xluceneTypeConfig
+###  xLuceneTypeConfig
 
-• **xluceneTypeConfig**: *XluceneTypeConfig*
+• **xLuceneTypeConfig**: *xLuceneTypeConfig*
 
-*Defined in [index-store.ts:21](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L21)*
+*Defined in [index-store.ts:23](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L23)*
 
 ## Methods
 
@@ -174,7 +184,7 @@ ___
 
 ▸ **_toRecord**(`result`: RecordResponse‹T›, `critical`: boolean): *T*
 
-*Defined in [index-store.ts:688](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L688)*
+*Defined in [index-store.ts:701](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L701)*
 
 **Parameters:**
 
@@ -191,7 +201,7 @@ ___
 
 ▸ **_toRecords**(`results`: RecordResponse‹T›[], `critical`: boolean): *T[]*
 
-*Defined in [index-store.ts:698](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L698)*
+*Defined in [index-store.ts:711](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L711)*
 
 **Parameters:**
 
@@ -208,7 +218,7 @@ ___
 
 ▸ **appendToArray**(`id`: string, `field`: keyof T, `values`: string[] | string): *Promise‹void›*
 
-*Defined in [index-store.ts:608](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L608)*
+*Defined in [index-store.ts:621](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L621)*
 
 Append values from an array on a record.
 Use with caution, this may not work in all cases.
@@ -229,7 +239,7 @@ ___
 
 ▸ **bulk**(`action`: "delete", `id?`: undefined | string): *Promise‹void›*
 
-*Defined in [index-store.ts:88](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L88)*
+*Defined in [index-store.ts:91](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L91)*
 
 Safely add a create, index, or update requests to the bulk queue
 
@@ -249,7 +259,7 @@ Name | Type |
 
 ▸ **bulk**(`action`: "index" | "create", `doc?`: Partial‹T›, `id?`: undefined | string): *Promise‹void›*
 
-*Defined in [index-store.ts:89](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L89)*
+*Defined in [index-store.ts:92](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L92)*
 
 **Parameters:**
 
@@ -263,7 +273,7 @@ Name | Type |
 
 ▸ **bulk**(`action`: "update", `doc?`: Partial‹T›, `id?`: undefined | string): *Promise‹void›*
 
-*Defined in [index-store.ts:90](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L90)*
+*Defined in [index-store.ts:93](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L93)*
 
 **Parameters:**
 
@@ -281,7 +291,7 @@ ___
 
 ▸ **count**(`query`: string, `options?`: RestrictOptions, `queryAccess?`: QueryAccess‹T›): *Promise‹number›*
 
-*Defined in [index-store.ts:131](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L131)*
+*Defined in [index-store.ts:136](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L136)*
 
 Count records by a given Lucene Query
 
@@ -301,7 +311,7 @@ ___
 
 ▸ **countBy**(`fields`: [AnyInput](../overview.md#anyinput)‹T›, `joinBy?`: [JoinBy](../overview.md#joinby), `options?`: RestrictOptions, `queryAccess?`: QueryAccess‹T›): *Promise‹number›*
 
-*Defined in [index-store.ts:372](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L372)*
+*Defined in [index-store.ts:378](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L378)*
 
 **Parameters:**
 
@@ -320,7 +330,7 @@ ___
 
 ▸ **countRequest**(`params`: CountParams): *Promise‹number›*
 
-*Defined in [index-store.ts:141](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L141)*
+*Defined in [index-store.ts:146](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L146)*
 
 Count records by a given Elasticsearch Query DSL
 
@@ -338,7 +348,7 @@ ___
 
 ▸ **create**(`doc`: Partial‹T›, `params?`: PartialParam‹CreateDocumentParams, "body"›): *Promise‹T›*
 
-*Defined in [index-store.ts:163](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L163)*
+*Defined in [index-store.ts:168](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L168)*
 
 Create a document but will throw if doc already exists
 
@@ -359,7 +369,7 @@ ___
 
 ▸ **createById**(`id`: string, `doc`: Partial‹T›, `params?`: PartialParam‹CreateDocumentParams, "id" | "body"›): *Promise‹T›*
 
-*Defined in [index-store.ts:153](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L153)*
+*Defined in [index-store.ts:158](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L158)*
 
 Create a document with an id
 
@@ -379,9 +389,9 @@ ___
 
 ###  createJoinQuery
 
-▸ **createJoinQuery**(`fields`: [AnyInput](../overview.md#anyinput)‹T›, `joinBy`: [JoinBy](../overview.md#joinby), `variables`: object): *XluceneQueryResult*
+▸ **createJoinQuery**(`fields`: [AnyInput](../overview.md#anyinput)‹T›, `joinBy`: [JoinBy](../overview.md#joinby), `variables`: object): *xLuceneQueryResult*
 
-*Defined in [index-store.ts:593](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L593)*
+*Defined in [index-store.ts:606](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L606)*
 
 **Parameters:**
 
@@ -391,7 +401,7 @@ Name | Type | Default |
 `joinBy` | [JoinBy](../overview.md#joinby) | "AND" |
 `variables` | object |  {} |
 
-**Returns:** *XluceneQueryResult*
+**Returns:** *xLuceneQueryResult*
 
 ___
 
@@ -399,7 +409,7 @@ ___
 
 ▸ **deleteById**(`id`: string, `params?`: PartialParam‹DeleteDocumentParams›): *Promise‹void›*
 
-*Defined in [index-store.ts:277](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L277)*
+*Defined in [index-store.ts:282](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L282)*
 
 Deletes a document for a given id
 
@@ -418,7 +428,7 @@ ___
 
 ▸ **exists**(`id`: string[] | string, `options?`: RestrictOptions, `queryAccess?`: QueryAccess‹T›): *Promise‹boolean›*
 
-*Defined in [index-store.ts:382](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L382)*
+*Defined in [index-store.ts:388](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L388)*
 
 **Parameters:**
 
@@ -436,7 +446,7 @@ ___
 
 ▸ **findAll**(`ids`: string[] | string | undefined, `options?`: i.FindOneOptions‹T›, `queryAccess?`: QueryAccess‹T›): *Promise‹T[]›*
 
-*Defined in [index-store.ts:476](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L476)*
+*Defined in [index-store.ts:484](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L484)*
 
 **Parameters:**
 
@@ -454,7 +464,7 @@ ___
 
 ▸ **findAllBy**(`fields`: [AnyInput](../overview.md#anyinput)‹T›, `joinBy?`: [JoinBy](../overview.md#joinby), `options?`: i.FindOptions‹T›, `queryAccess?`: QueryAccess‹T›): *Promise‹T[]›*
 
-*Defined in [index-store.ts:430](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L430)*
+*Defined in [index-store.ts:436](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L436)*
 
 **Parameters:**
 
@@ -473,7 +483,7 @@ ___
 
 ▸ **findAndApply**(`updates`: Partial‹T› | undefined, `options?`: i.FindOneOptions‹T›, `queryAccess?`: QueryAccess‹T›): *Promise‹Partial‹T››*
 
-*Defined in [index-store.ts:458](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L458)*
+*Defined in [index-store.ts:466](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L466)*
 
 **Parameters:**
 
@@ -491,7 +501,7 @@ ___
 
 ▸ **findBy**(`fields`: [AnyInput](../overview.md#anyinput)‹T›, `joinBy?`: [JoinBy](../overview.md#joinby), `options?`: i.FindOneOptions‹T›, `queryAccess?`: QueryAccess‹T›): *Promise‹T›*
 
-*Defined in [index-store.ts:397](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L397)*
+*Defined in [index-store.ts:403](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L403)*
 
 **Parameters:**
 
@@ -510,7 +520,7 @@ ___
 
 ▸ **findById**(`id`: string, `options?`: i.FindOneOptions‹T›, `queryAccess?`: QueryAccess‹T›): *Promise‹T›*
 
-*Defined in [index-store.ts:446](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L446)*
+*Defined in [index-store.ts:454](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L454)*
 
 **Parameters:**
 
@@ -528,7 +538,7 @@ ___
 
 ▸ **flush**(`flushAll`: boolean): *Promise‹void›*
 
-*Defined in [index-store.ts:176](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L176)*
+*Defined in [index-store.ts:181](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L181)*
 
 **Parameters:**
 
@@ -544,7 +554,7 @@ ___
 
 ▸ **get**(`id`: string, `params?`: PartialParam‹GetParams›): *Promise‹T›*
 
-*Defined in [index-store.ts:193](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L193)*
+*Defined in [index-store.ts:198](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L198)*
 
 Get a single document
 
@@ -563,7 +573,7 @@ ___
 
 ▸ **getDefaultParams**(...`params`: any[]): *any*
 
-*Defined in [index-store.ts:362](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L362)*
+*Defined in [index-store.ts:366](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L366)*
 
 **Parameters:**
 
@@ -579,7 +589,7 @@ ___
 
 ▸ **index**(`doc`: T | Partial‹T›, `params?`: PartialParam‹IndexDocumentParams‹T›, "body"›): *Promise‹T›*
 
-*Defined in [index-store.ts:222](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L222)*
+*Defined in [index-store.ts:227](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L227)*
 
 Index a document
 
@@ -598,7 +608,7 @@ ___
 
 ▸ **indexById**(`id`: string, `doc`: T | Partial‹T›, `params?`: PartialParam‹IndexDocumentParams‹T›, "index" | "type" | "id"›): *Promise‹T›*
 
-*Defined in [index-store.ts:238](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L238)*
+*Defined in [index-store.ts:243](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L243)*
 
 A convenience method for indexing a document with an ID
 
@@ -618,7 +628,7 @@ ___
 
 ▸ **initialize**(): *Promise‹void›*
 
-*Defined in [index-store.ts:207](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L207)*
+*Defined in [index-store.ts:212](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L212)*
 
 Connect and validate the index configuration.
 
@@ -630,7 +640,7 @@ ___
 
 ▸ **mget**(`body`: any, `params?`: PartialParam‹MGetParams›): *Promise‹T[]›*
 
-*Defined in [index-store.ts:244](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L244)*
+*Defined in [index-store.ts:249](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L249)*
 
 Get multiple documents at the same time
 
@@ -649,7 +659,7 @@ ___
 
 ▸ **migrateIndex**(`options`: i.MigrateIndexStoreOptions): *Promise‹any›*
 
-*Defined in [index-store.ts:256](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L256)*
+*Defined in [index-store.ts:261](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L261)*
 
 **`see`** IndexManager#migrateIndex
 
@@ -667,7 +677,7 @@ ___
 
 ▸ **refresh**(`params?`: PartialParam‹IndicesRefreshParams›): *Promise‹void›*
 
-*Defined in [index-store.ts:263](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L263)*
+*Defined in [index-store.ts:268](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L268)*
 
 Refreshes the current index
 
@@ -685,7 +695,7 @@ ___
 
 ▸ **removeFromArray**(`id`: string, `field`: keyof T, `values`: string[] | string): *Promise‹void›*
 
-*Defined in [index-store.ts:638](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L638)*
+*Defined in [index-store.ts:651](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L651)*
 
 Remove values from an array on a record.
 Use with caution, this may not work in all cases.
@@ -704,9 +714,9 @@ ___
 
 ###  search
 
-▸ **search**(`q`: string, `options`: i.FindOptions‹T›, `queryAccess?`: QueryAccess‹T›, `critical?`: undefined | false | true): *Promise‹T[]›*
+▸ **search**(`q`: string, `options`: i.FindOptions‹T›, `queryAccess?`: QueryAccess‹T›, `critical?`: undefined | false | true): *Promise‹i.SearchResult‹T››*
 
-*Defined in [index-store.ts:512](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L512)*
+*Defined in [index-store.ts:520](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L520)*
 
 Search with a given Lucene Query
 
@@ -719,15 +729,15 @@ Name | Type | Default |
 `queryAccess?` | QueryAccess‹T› | - |
 `critical?` | undefined &#124; false &#124; true | - |
 
-**Returns:** *Promise‹T[]›*
+**Returns:** *Promise‹i.SearchResult‹T››*
 
 ___
 
 ###  searchRequest
 
-▸ **searchRequest**(`params`: PartialParam‹SearchParams‹T››, `critical?`: undefined | false | true): *Promise‹T[]›*
+▸ **searchRequest**(`params`: PartialParam‹SearchParams‹T››, `critical?`: undefined | false | true): *Promise‹i.SearchResult‹T››*
 
-*Defined in [index-store.ts:546](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L546)*
+*Defined in [index-store.ts:554](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L554)*
 
 Search using the underyling Elasticsearch Query DSL
 
@@ -738,7 +748,7 @@ Name | Type |
 `params` | PartialParam‹SearchParams‹T›› |
 `critical?` | undefined &#124; false &#124; true |
 
-**Returns:** *Promise‹T[]›*
+**Returns:** *Promise‹i.SearchResult‹T››*
 
 ___
 
@@ -746,7 +756,7 @@ ___
 
 ▸ **shutdown**(): *Promise‹void›*
 
-*Defined in [index-store.ts:295](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L295)*
+*Defined in [index-store.ts:300](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L300)*
 
 Shutdown, flush any pending requests and cleanup
 
@@ -758,7 +768,7 @@ ___
 
 ▸ **update**(`id`: string, `body`: [UpdateBody](../overview.md#updatebody)‹T›, `params?`: PartialParam‹UpdateDocumentParams, "body" | "id"›): *Promise‹void›*
 
-*Defined in [index-store.ts:308](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L308)*
+*Defined in [index-store.ts:313](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L313)*
 
 Update a document with a given id
 
@@ -778,7 +788,7 @@ ___
 
 ▸ **updatePartial**(`id`: string, `applyChanges`: ApplyPartialUpdates‹T›, `retriesOnConlfict`: number): *Promise‹T›*
 
-*Defined in [index-store.ts:330](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/index-store.ts#L330)*
+*Defined in [index-store.ts:335](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/index-store.ts#L335)*
 
 Safely apply updates to a document by applying the latest changes
 

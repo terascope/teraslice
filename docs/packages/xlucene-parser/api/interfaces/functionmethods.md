@@ -22,7 +22,7 @@ sidebar_label: FunctionMethods
 
 ▸ **match**(`arg`: any): *boolean*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:186](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L186)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:186](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L186)*
 
 **Parameters:**
 
@@ -38,7 +38,7 @@ ___
 
 ▸ **toElasticsearchQuery**(`field`: string, `options`: [FunctionElasticsearchOptions](../overview.md#functionelasticsearchoptions)): *[FunctionMethodsResults](functionmethodsresults.md)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:187](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L187)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:187](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L187)*
 
 **Parameters:**
 

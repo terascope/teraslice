@@ -52,7 +52,7 @@ sidebar_label: FoundationWorker
 
 • **__process_restart**? : *undefined | false | true*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:72](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/interfaces.ts#L72)*
+*Defined in [packages/terafoundation/src/interfaces.ts:72](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/interfaces.ts#L72)*
 
 ___
 
@@ -60,7 +60,7 @@ ___
 
 • **assignment**: *string*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:74](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/interfaces.ts#L74)*
+*Defined in [packages/terafoundation/src/interfaces.ts:74](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/interfaces.ts#L74)*
 
 ___
 
@@ -98,7 +98,7 @@ ___
 
 • **service_context**: *any*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:73](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/interfaces.ts#L73)*
+*Defined in [packages/terafoundation/src/interfaces.ts:73](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/interfaces.ts#L73)*
 
 ## Methods
 
@@ -431,7 +431,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:556
+Defined in node_modules/@types/node/globals.d.ts:562
 
 **Returns:** *Array‹string | symbol›*
 
@@ -443,7 +443,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:548
+Defined in node_modules/@types/node/globals.d.ts:554
 
 **Returns:** *number*
 
@@ -497,7 +497,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:552
+Defined in node_modules/@types/node/globals.d.ts:558
 
 **Parameters:**
 
@@ -515,7 +515,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:549
+Defined in node_modules/@types/node/globals.d.ts:555
 
 **Parameters:**
 
@@ -533,7 +533,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:545
+Defined in node_modules/@types/node/globals.d.ts:551
 
 **Parameters:**
 
@@ -1207,7 +1207,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:550
+Defined in node_modules/@types/node/globals.d.ts:556
 
 **Parameters:**
 
@@ -1225,7 +1225,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:546
+Defined in node_modules/@types/node/globals.d.ts:552
 
 **Parameters:**
 
@@ -1243,7 +1243,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:544
+Defined in node_modules/@types/node/globals.d.ts:550
 
 **Parameters:**
 
@@ -1289,7 +1289,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:547
+Defined in node_modules/@types/node/globals.d.ts:553
 
 **Parameters:**
 

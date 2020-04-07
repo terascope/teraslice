@@ -21,7 +21,7 @@ sidebar_label: RangeQuery
 
 • **range**: *object*
 
-*Defined in [elasticsearch-interfaces.ts:110](https://github.com/terascope/teraslice/blob/653cf7530/packages/types/src/elasticsearch-interfaces.ts#L110)*
+*Defined in [elasticsearch-interfaces.ts:114](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/elasticsearch-interfaces.ts#L114)*
 
 #### Type declaration:
 

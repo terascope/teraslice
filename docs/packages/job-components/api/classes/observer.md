@@ -53,7 +53,7 @@ An Observer factory class for operations
 
 *Overrides [Core](core.md).[constructor](core.md#constructor)*
 
-*Defined in [packages/job-components/src/operations/core/api-core.ts:17](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/operations/core/api-core.ts#L17)*
+*Defined in [packages/job-components/src/operations/core/api-core.ts:17](https://github.com/terascope/teraslice/blob/f95bb5556/packages/job-components/src/operations/core/api-core.ts#L17)*
 
 **Parameters:**
 
@@ -73,7 +73,7 @@ Name | Type |
 
 *Inherited from [APICore](apicore.md).[apiConfig](apicore.md#apiconfig)*
 
-*Defined in [packages/job-components/src/operations/core/api-core.ts:17](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/operations/core/api-core.ts#L17)*
+*Defined in [packages/job-components/src/operations/core/api-core.ts:17](https://github.com/terascope/teraslice/blob/f95bb5556/packages/job-components/src/operations/core/api-core.ts#L17)*
 
 ___
 
@@ -83,7 +83,7 @@ ___
 
 *Inherited from [Core](core.md).[context](core.md#context)*
 
-*Defined in [packages/job-components/src/operations/core/core.ts:10](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/operations/core/core.ts#L10)*
+*Defined in [packages/job-components/src/operations/core/core.ts:10](https://github.com/terascope/teraslice/blob/f95bb5556/packages/job-components/src/operations/core/core.ts#L10)*
 
 ___
 
@@ -93,7 +93,7 @@ ___
 
 *Inherited from [Core](core.md).[events](core.md#events)*
 
-*Defined in [packages/job-components/src/operations/core/core.ts:13](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/operations/core/core.ts#L13)*
+*Defined in [packages/job-components/src/operations/core/core.ts:13](https://github.com/terascope/teraslice/blob/f95bb5556/packages/job-components/src/operations/core/core.ts#L13)*
 
 ___
 
@@ -103,7 +103,7 @@ ___
 
 *Inherited from [Core](core.md).[executionConfig](core.md#executionconfig)*
 
-*Defined in [packages/job-components/src/operations/core/core.ts:11](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/operations/core/core.ts#L11)*
+*Defined in [packages/job-components/src/operations/core/core.ts:11](https://github.com/terascope/teraslice/blob/f95bb5556/packages/job-components/src/operations/core/core.ts#L11)*
 
 ___
 
@@ -113,7 +113,7 @@ ___
 
 *Inherited from [Core](core.md).[logger](core.md#logger)*
 
-*Defined in [packages/job-components/src/operations/core/core.ts:12](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/operations/core/core.ts#L12)*
+*Defined in [packages/job-components/src/operations/core/core.ts:12](https://github.com/terascope/teraslice/blob/f95bb5556/packages/job-components/src/operations/core/core.ts#L12)*
 
 ## Methods
 
@@ -125,7 +125,7 @@ ___
 
 *Overrides [Core](core.md).[initialize](core.md#abstract-initialize)*
 
-*Defined in [packages/job-components/src/operations/core/api-core.ts:32](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/operations/core/api-core.ts#L32)*
+*Defined in [packages/job-components/src/operations/core/api-core.ts:32](https://github.com/terascope/teraslice/blob/f95bb5556/packages/job-components/src/operations/core/api-core.ts#L32)*
 
 **Returns:** *Promise‹void›*
 
@@ -141,6 +141,6 @@ ___
 
 *Overrides [Core](core.md).[shutdown](core.md#abstract-shutdown)*
 
-*Defined in [packages/job-components/src/operations/core/api-core.ts:36](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/operations/core/api-core.ts#L36)*
+*Defined in [packages/job-components/src/operations/core/api-core.ts:36](https://github.com/terascope/teraslice/blob/f95bb5556/packages/job-components/src/operations/core/api-core.ts#L36)*
 
 **Returns:** *Promise‹void›*

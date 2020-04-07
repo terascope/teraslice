@@ -48,7 +48,7 @@ be more memory efficient.
 
 \+ **new Collector**(`max`: object): *[Collector](collector.md)*
 
-*Defined in [packages/utils/src/collector.ts:18](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/collector.ts#L18)*
+*Defined in [packages/utils/src/collector.ts:18](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/collector.ts#L18)*
 
 **Parameters:**
 
@@ -64,7 +64,7 @@ Name | Type |
 
 • **size**: *number*
 
-*Defined in [packages/utils/src/collector.ts:13](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/collector.ts#L13)*
+*Defined in [packages/utils/src/collector.ts:13](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/collector.ts#L13)*
 
 the maximum wait time to collect the batch
 
@@ -74,7 +74,7 @@ ___
 
 • **wait**: *number*
 
-*Defined in [packages/utils/src/collector.ts:15](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/collector.ts#L15)*
+*Defined in [packages/utils/src/collector.ts:15](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/collector.ts#L15)*
 
 the maximum batch size of the batch
 
@@ -84,7 +84,7 @@ the maximum batch size of the batch
 
 • **get length**(): *number*
 
-*Defined in [packages/utils/src/collector.ts:28](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/collector.ts#L28)*
+*Defined in [packages/utils/src/collector.ts:28](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/collector.ts#L28)*
 
 Get the current Queue Length
 
@@ -96,7 +96,7 @@ ___
 
 • **get queue**(): *T[]*
 
-*Defined in [packages/utils/src/collector.ts:35](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/collector.ts#L35)*
+*Defined in [packages/utils/src/collector.ts:35](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/collector.ts#L35)*
 
 Get the current queue
 
@@ -108,7 +108,7 @@ Get the current queue
 
 ▸ **add**(`_records`: T[] | T): *void*
 
-*Defined in [packages/utils/src/collector.ts:42](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/collector.ts#L42)*
+*Defined in [packages/utils/src/collector.ts:42](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/collector.ts#L42)*
 
 Add a record, or records, to the in-memory queue.
 
@@ -126,7 +126,7 @@ ___
 
 ▸ **flushAll**(): *T[]*
 
-*Defined in [packages/utils/src/collector.ts:75](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/collector.ts#L75)*
+*Defined in [packages/utils/src/collector.ts:75](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/collector.ts#L75)*
 
 Flush all of the records in the queue.
 
@@ -141,7 +141,7 @@ ___
 
 ▸ **getBatch**(): *T[] | null*
 
-*Defined in [packages/utils/src/collector.ts:57](https://github.com/terascope/teraslice/blob/653cf7530/packages/utils/src/collector.ts#L57)*
+*Defined in [packages/utils/src/collector.ts:57](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/collector.ts#L57)*
 
 Get the batch of data if it is full or has exceeded the time threshold.
 

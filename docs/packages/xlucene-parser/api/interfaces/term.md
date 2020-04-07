@@ -17,13 +17,23 @@ sidebar_label: Term
 
 ### Properties
 
+* [analyzed](term.md#optional-analyzed)
 * [field](term.md#field)
 * [field_type](term.md#field_type)
-* [tokenizer](term.md#optional-tokenizer)
 * [type](term.md#type)
 * [value](term.md#value)
 
 ## Properties
+
+### `Optional` analyzed
+
+• **analyzed**? : *undefined | false | true*
+
+*Inherited from [TermLikeAST](termlikeast.md).[analyzed](termlikeast.md#optional-analyzed)*
+
+*Defined in [packages/xlucene-parser/src/interfaces.ts:41](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L41)*
+
+___
 
 ###  field
 
@@ -31,30 +41,20 @@ sidebar_label: Term
 
 *Inherited from [TermLikeAST](termlikeast.md).[field](termlikeast.md#field)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:40](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L40)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:40](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L40)*
 
 ___
 
 ###  field_type
 
-• **field_type**: *XluceneFieldType*
+• **field_type**: *xLuceneFieldType*
 
 *Inherited from [AnyDataType](anydatatype.md).[field_type](anydatatype.md#field_type)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:71](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L71)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:71](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L71)*
 
 The field type here may be the field type specified
 in the type_config
-
-___
-
-### `Optional` tokenizer
-
-• **tokenizer**? : *undefined | false | true*
-
-*Inherited from [TermLikeAST](termlikeast.md).[tokenizer](termlikeast.md#optional-tokenizer)*
-
-*Defined in [packages/xlucene-parser/src/interfaces.ts:41](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L41)*
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 *Overrides [TermLikeAST](termlikeast.md).[type](termlikeast.md#type)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:158](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L158)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:158](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L158)*
 
 ___
 
@@ -74,4 +74,4 @@ ___
 
 *Inherited from [AnyDataType](anydatatype.md).[value](anydatatype.md#value)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:72](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L72)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:72](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L72)*

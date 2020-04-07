@@ -3,7 +3,7 @@ import ipaddr from 'ipaddr.js';
 import { isIP as checkIP, isIPv6 } from 'net';
 // @ts-ignore
 import ip6addr from 'ip6addr';
-import isCidr from 'is-cidr';
+import validateCidr from 'is-cidr';
 import PhoneValidator from 'awesome-phonenumber';
 import validator from 'validator';
 import * as url from 'valid-url';
@@ -142,7 +142,7 @@ export const repository: i.Repository = {
         },
 
     },
-    isIPCidr: { fn: isIPCidr, config: {} },
+    isCidr: { fn: isCidr, config: {} },
     exists: { fn: exists, config: {} },
     guard: { fn: guard, config: {} },
     isArray: { fn: isArray, config: {} },
@@ -246,7 +246,7 @@ export function isEmail(input: any): boolean {
 export function isGeoPoint(input: any) {
     if (ts.isNil(input)) return false;
 
-    if (isArray(input) && !isTuple(input)) {
+    if (isArray(input) && !isNumberTuple(input)) {
         return lift(ts.parseGeoPoint, input, false);
     }
 
@@ -261,8 +261,8 @@ export function isGeoPoint(input: any) {
  * @example
  * expect(FieldValidator.isGeoJSON('hello')).toEqual(false);
  *
- * const polygon: i.GeoShapePolygon = {
- *   type: i.GeoShapeType.Polygon,
+ * const polygon = {
+ *   type: "Polygon",
  *   coordinates: [
  *       [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
  *   ]
@@ -286,8 +286,8 @@ export function isGeoJSON(input: any) {
  * @example
  * expect(FieldValidator.isGeoShapePoint(3)).toEqual(false);
  *
- * const matchingPoint: i.GeoShapePoint = {
- *   type: i.GeoShapeType.Point,
+ * const matchingPoint = {
+ *   type: 'Point',
  *   coordinates: [12, 12]
  * };
  * expect(FieldValidator.isGeoShapePoint(matchingPoint)).toEqual(true);
@@ -309,8 +309,8 @@ export function isGeoShapePoint(input: any) {
  * @example
  * expect(FieldValidator.isGeoShapePolygon(3)).toEqual(false);
  *
- * const polygon: i.GeoShapePolygon = {
- *   type: i.GeoShapeType.Polygon,
+ * const polygon = {
+ *   type: 'Polygon',
  *   coordinates: [
  *       [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
  *   ]
@@ -334,8 +334,8 @@ export function isGeoShapePolygon(input: any) {
  * @example
  * expect(FieldValidator.isGeoShapeMultiPolygon(3)).toEqual(false);
  *
- * const multiPolygon: i.GeoShapeMultiPolygon = {
- *   type: i.GeoShapeType.MultiPolygon,
+ * const multiPolygon = {
+ *   type: 'MultiPolygon',
  *   coordinates: [
  *       [
  *           [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
@@ -453,15 +453,15 @@ function _isNonRoutableIP(input: any): boolean {
  * @returns {boolean} boolean
  */
 
-export function isIPCidr(input: any) {
+export function isCidr(input: any) {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return lift(_isIpCidr, input);
+    if (isArray(input)) return lift(_isCidr, input);
 
-    return _isIpCidr(input);
+    return _isCidr(input);
 }
 
-function _isIpCidr(input: any) {
-    return isCidr(input) > 0;
+function _isCidr(input: any): boolean {
+    return validateCidr(input) > 0;
 }
 
 /**
@@ -493,7 +493,7 @@ function _inIPRange(input: any, args: { min?: string; max?: string; cidr?: strin
 
     // assign min/max ip range values
     if (args.cidr) {
-        if (!isIPCidr(args.cidr)) return false;
+        if (!isCidr(args.cidr)) return false;
         return ip6addr.createCIDR(args.cidr).contains(input);
     }
 
@@ -1256,7 +1256,7 @@ export function every(input: any, { fn, options }: { fn: string; options?: any }
     return input.every((data: any) => repoConfig.fn(data, options));
 }
 
-export function isTuple(input: any) {
+export function isNumberTuple(input: any) {
     if (Array.isArray(input) && input.length === 2) {
         return input.every(isNumber);
     }

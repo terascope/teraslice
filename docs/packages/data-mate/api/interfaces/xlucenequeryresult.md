@@ -1,13 +1,13 @@
 ---
-title: Data-Mate: `XluceneQueryResult`
-sidebar_label: XluceneQueryResult
+title: Data-Mate: `xLuceneQueryResult`
+sidebar_label: xLuceneQueryResult
 ---
 
-# Interface: XluceneQueryResult
+# Interface: xLuceneQueryResult
 
 ## Hierarchy
 
-* **XluceneQueryResult**
+* **xLuceneQueryResult**
 
 ## Index
 
@@ -22,12 +22,12 @@ sidebar_label: XluceneQueryResult
 
 • **query**: *string*
 
-*Defined in [data-mate/src/transforms/helpers.ts:22](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/helpers.ts#L22)*
+*Defined in [data-mate/src/transforms/helpers.ts:23](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/transforms/helpers.ts#L23)*
 
 ___
 
 ###  variables
 
-• **variables**: *XluceneVariables*
+• **variables**: *xLuceneVariables*
 
-*Defined in [data-mate/src/transforms/helpers.ts:23](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/helpers.ts#L23)*
+*Defined in [data-mate/src/transforms/helpers.ts:24](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/transforms/helpers.ts#L24)*

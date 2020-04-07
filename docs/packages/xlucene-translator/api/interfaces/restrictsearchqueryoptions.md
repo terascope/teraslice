@@ -28,7 +28,7 @@ sidebar_label: RestrictSearchQueryOptions
 
 • **elasticsearch_version**? : *undefined | number*
 
-*Defined in [xlucene-translator/src/query-access/interfaces.ts:24](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-translator/src/query-access/interfaces.ts#L24)*
+*Defined in [xlucene-translator/src/query-access/interfaces.ts:24](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/query-access/interfaces.ts#L24)*
 
 The elasticsearch version (to format the request properly)
 
@@ -72,7 +72,7 @@ ___
 
 • **params**? : *Partial‹SearchParams›*
 
-*Defined in [xlucene-translator/src/query-access/interfaces.ts:19](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-translator/src/query-access/interfaces.ts#L19)*
+*Defined in [xlucene-translator/src/query-access/interfaces.ts:19](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/query-access/interfaces.ts#L19)*
 
 Elasticsearch search parameters
 _sourceInclude and _sourceExclude will be filtered based
@@ -82,6 +82,6 @@ ___
 
 ### `Optional` variables
 
-• **variables**? : *XluceneVariables*
+• **variables**? : *xLuceneVariables*
 
-*Defined in [xlucene-translator/src/query-access/interfaces.ts:13](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-translator/src/query-access/interfaces.ts#L13)*
+*Defined in [xlucene-translator/src/query-access/interfaces.ts:13](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/query-access/interfaces.ts#L13)*

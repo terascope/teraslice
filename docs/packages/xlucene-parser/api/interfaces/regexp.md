@@ -17,15 +17,25 @@ sidebar_label: Regexp
 
 ### Properties
 
+* [analyzed](regexp.md#optional-analyzed)
 * [field](regexp.md#field)
 * [field_type](regexp.md#field_type)
 * [quoted](regexp.md#quoted)
 * [restricted](regexp.md#optional-restricted)
-* [tokenizer](regexp.md#optional-tokenizer)
 * [type](regexp.md#type)
 * [value](regexp.md#value)
 
 ## Properties
+
+### `Optional` analyzed
+
+• **analyzed**? : *undefined | false | true*
+
+*Inherited from [TermLikeAST](termlikeast.md).[analyzed](termlikeast.md#optional-analyzed)*
+
+*Defined in [packages/xlucene-parser/src/interfaces.ts:41](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L41)*
+
+___
 
 ###  field
 
@@ -33,7 +43,7 @@ sidebar_label: Regexp
 
 *Inherited from [TermLikeAST](termlikeast.md).[field](termlikeast.md#field)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:40](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L40)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:40](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L40)*
 
 ___
 
@@ -43,7 +53,7 @@ ___
 
 *Inherited from [StringDataType](stringdatatype.md).[field_type](stringdatatype.md#field_type)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:81](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L81)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:81](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L81)*
 
 ___
 
@@ -53,7 +63,7 @@ ___
 
 *Inherited from [StringDataType](stringdatatype.md).[quoted](stringdatatype.md#quoted)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:83](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L83)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:83](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L83)*
 
 ___
 
@@ -63,17 +73,7 @@ ___
 
 *Inherited from [StringDataType](stringdatatype.md).[restricted](stringdatatype.md#optional-restricted)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:84](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L84)*
-
-___
-
-### `Optional` tokenizer
-
-• **tokenizer**? : *undefined | false | true*
-
-*Inherited from [TermLikeAST](termlikeast.md).[tokenizer](termlikeast.md#optional-tokenizer)*
-
-*Defined in [packages/xlucene-parser/src/interfaces.ts:41](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L41)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:84](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L84)*
 
 ___
 
@@ -83,7 +83,7 @@ ___
 
 *Overrides [TermLikeAST](termlikeast.md).[type](termlikeast.md#type)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:150](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L150)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:150](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L150)*
 
 ___
 
@@ -93,4 +93,4 @@ ___
 
 *Inherited from [StringDataType](stringdatatype.md).[value](stringdatatype.md#value)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:82](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L82)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:82](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L82)*

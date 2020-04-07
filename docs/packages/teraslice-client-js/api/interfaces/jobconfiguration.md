@@ -46,7 +46,7 @@ sidebar_label: JobConfiguration
 
 • **_context**: *"job"*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:169](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L169)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:169](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L169)*
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 • **_created**: *string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:170](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L170)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:170](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L170)*
 
 ___
 
@@ -62,7 +62,7 @@ ___
 
 • **_updated**: *string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:171](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L171)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:171](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L171)*
 
 ___
 
@@ -148,7 +148,7 @@ ___
 
 • **job_id**: *string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:168](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L168)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:168](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L168)*
 
 ___
 

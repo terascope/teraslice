@@ -1,13 +1,13 @@
 ---
-title: Types: `XluceneVariables`
-sidebar_label: XluceneVariables
+title: Types: `xLuceneVariables`
+sidebar_label: xLuceneVariables
 ---
 
-# Interface: XluceneVariables
+# Interface: xLuceneVariables
 
 ## Hierarchy
 
-* **XluceneVariables**
+* **xLuceneVariables**
 
 ## Indexable
 

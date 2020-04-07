@@ -1,14 +1,14 @@
 ---
-title: Types: `XluceneTypeConfig`
-sidebar_label: XluceneTypeConfig
+title: Types: `xLuceneTypeConfig`
+sidebar_label: xLuceneTypeConfig
 ---
 
-# Interface: XluceneTypeConfig
+# Interface: xLuceneTypeConfig
 
 ## Hierarchy
 
-* **XluceneTypeConfig**
+* **xLuceneTypeConfig**
 
 ## Indexable
 
-* \[ **field**: *string*\]: [XluceneFieldType](../enums/xlucenefieldtype.md)
+* \[ **field**: *string*\]: [xLuceneFieldType](../enums/xlucenefieldtype.md)

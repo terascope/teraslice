@@ -27,25 +27,25 @@ sidebar_label: TermLikeAST
 
 ### Properties
 
+* [analyzed](termlikeast.md#optional-analyzed)
 * [field](termlikeast.md#field)
-* [tokenizer](termlikeast.md#optional-tokenizer)
 * [type](termlikeast.md#type)
 
 ## Properties
+
+### `Optional` analyzed
+
+• **analyzed**? : *undefined | false | true*
+
+*Defined in [packages/xlucene-parser/src/interfaces.ts:41](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L41)*
+
+___
 
 ###  field
 
 • **field**: *[Field](../overview.md#field)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:40](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L40)*
-
-___
-
-### `Optional` tokenizer
-
-• **tokenizer**? : *undefined | false | true*
-
-*Defined in [packages/xlucene-parser/src/interfaces.ts:41](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L41)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:40](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L40)*
 
 ___
 
@@ -53,4 +53,4 @@ ___
 
 • **type**: *[TermLikeType](../overview.md#termliketype)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:39](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L39)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:39](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L39)*

@@ -17,22 +17,32 @@ sidebar_label: GeoDistance
 
 ### Properties
 
+* [analyzed](geodistance.md#optional-analyzed)
 * [distance](geodistance.md#distance)
 * [field](geodistance.md#field)
 * [field_type](geodistance.md#field_type)
 * [lat](geodistance.md#lat)
 * [lon](geodistance.md#lon)
-* [tokenizer](geodistance.md#optional-tokenizer)
 * [type](geodistance.md#type)
 * [unit](geodistance.md#unit)
 
 ## Properties
 
+### `Optional` analyzed
+
+• **analyzed**? : *undefined | false | true*
+
+*Inherited from [TermLikeAST](termlikeast.md).[analyzed](termlikeast.md#optional-analyzed)*
+
+*Defined in [packages/xlucene-parser/src/interfaces.ts:41](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L41)*
+
+___
+
 ###  distance
 
 • **distance**: *number*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:131](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L131)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:131](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L131)*
 
 ___
 
@@ -42,7 +52,7 @@ ___
 
 *Inherited from [TermLikeAST](termlikeast.md).[field](termlikeast.md#field)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:40](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L40)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:40](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L40)*
 
 ___
 
@@ -50,7 +60,7 @@ ___
 
 • **field_type**: *Geo*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:130](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L130)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:130](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L130)*
 
 ___
 
@@ -74,23 +84,13 @@ Defined in packages/types/dist/src/geo-interfaces.d.ts:52
 
 ___
 
-### `Optional` tokenizer
-
-• **tokenizer**? : *undefined | false | true*
-
-*Inherited from [TermLikeAST](termlikeast.md).[tokenizer](termlikeast.md#optional-tokenizer)*
-
-*Defined in [packages/xlucene-parser/src/interfaces.ts:41](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L41)*
-
-___
-
 ###  type
 
 • **type**: *[GeoDistance](../enums/asttype.md#geodistance)*
 
 *Overrides [TermLikeAST](termlikeast.md).[type](termlikeast.md#type)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:129](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L129)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:129](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L129)*
 
 ___
 
@@ -98,4 +98,4 @@ ___
 
 • **unit**: *t.GeoDistanceUnit*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:132](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/interfaces.ts#L132)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:132](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L132)*

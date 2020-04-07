@@ -22,7 +22,7 @@ sidebar_label: MacAddressConfig
 
 • **casing**? : *"lowercase" | "uppercase"*
 
-*Defined in [data-mate/src/transforms/interfaces.ts:10](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/interfaces.ts#L10)*
+*Defined in [data-mate/src/transforms/interfaces.ts:10](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/transforms/interfaces.ts#L10)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **removeGroups**? : *undefined | false | true*
 
-*Defined in [data-mate/src/transforms/interfaces.ts:11](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/interfaces.ts#L11)*
+*Defined in [data-mate/src/transforms/interfaces.ts:11](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/transforms/interfaces.ts#L11)*

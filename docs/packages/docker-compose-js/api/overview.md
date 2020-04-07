@@ -19,7 +19,7 @@ sidebar_label: API
 
 Ƭ **RunOptions**: *object*
 
-*Defined in [index.ts:7](https://github.com/terascope/teraslice/blob/653cf7530/packages/docker-compose-js/src/index.ts#L7)*
+*Defined in [index.ts:7](https://github.com/terascope/teraslice/blob/f95bb5556/packages/docker-compose-js/src/index.ts#L7)*
 
 #### Type declaration:
 

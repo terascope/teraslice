@@ -23,7 +23,7 @@ sidebar_label: GetClientConfig
 
 • **connection**? : *undefined | string*
 
-*Defined in [packages/job-components/src/interfaces/context.ts:102](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/context.ts#L102)*
+*Defined in [packages/job-components/src/interfaces/context.ts:102](https://github.com/terascope/teraslice/blob/f95bb5556/packages/job-components/src/interfaces/context.ts#L102)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **connection_cache**? : *undefined | false | true*
 
-*Defined in [packages/job-components/src/interfaces/context.ts:104](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/context.ts#L104)*
+*Defined in [packages/job-components/src/interfaces/context.ts:104](https://github.com/terascope/teraslice/blob/f95bb5556/packages/job-components/src/interfaces/context.ts#L104)*
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 • **endpoint**? : *undefined | string*
 
-*Defined in [packages/job-components/src/interfaces/context.ts:103](https://github.com/terascope/teraslice/blob/653cf7530/packages/job-components/src/interfaces/context.ts#L103)*
+*Defined in [packages/job-components/src/interfaces/context.ts:103](https://github.com/terascope/teraslice/blob/f95bb5556/packages/job-components/src/interfaces/context.ts#L103)*

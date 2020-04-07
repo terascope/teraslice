@@ -22,7 +22,7 @@ sidebar_label: ArgsISSNOptions
 
 • **caseSensitive**? : *undefined | false | true*
 
-*Defined in [data-mate/src/validations/interfaces.ts:34](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/interfaces.ts#L34)*
+*Defined in [data-mate/src/validations/interfaces.ts:34](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/validations/interfaces.ts#L34)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **requireHyphen**? : *undefined | false | true*
 
-*Defined in [data-mate/src/validations/interfaces.ts:33](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/validations/interfaces.ts#L33)*
+*Defined in [data-mate/src/validations/interfaces.ts:33](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/validations/interfaces.ts#L33)*

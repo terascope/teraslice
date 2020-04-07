@@ -22,7 +22,7 @@ sidebar_label: TestContextAPIs
 
 ▸ **getTestClients**(): *[TestClients](testclients.md)*
 
-*Defined in [packages/terafoundation/src/test-context.ts:32](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/test-context.ts#L32)*
+*Defined in [packages/terafoundation/src/test-context.ts:32](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/test-context.ts#L32)*
 
 **Returns:** *[TestClients](testclients.md)*
 
@@ -32,7 +32,7 @@ ___
 
 ▸ **setTestClients**(`clients`: [TestClientConfig](testclientconfig.md)[]): *void*
 
-*Defined in [packages/terafoundation/src/test-context.ts:31](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/test-context.ts#L31)*
+*Defined in [packages/terafoundation/src/test-context.ts:31](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/test-context.ts#L31)*
 
 **Parameters:**
 

@@ -34,7 +34,7 @@ sidebar_label: Aliases
 
 \+ **new Aliases**(`aliasesFile`: string): *[Aliases](aliases.md)*
 
-*Defined in [packages/teraslice-cli/src/helpers/aliases.ts:17](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/aliases.ts#L17)*
+*Defined in [packages/teraslice-cli/src/helpers/aliases.ts:17](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/aliases.ts#L17)*
 
 **Parameters:**
 
@@ -50,7 +50,7 @@ Name | Type |
 
 • **aliasesFile**: *string*
 
-*Defined in [packages/teraslice-cli/src/helpers/aliases.ts:17](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/aliases.ts#L17)*
+*Defined in [packages/teraslice-cli/src/helpers/aliases.ts:17](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/aliases.ts#L17)*
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 • **config**: *any*
 
-*Defined in [packages/teraslice-cli/src/helpers/aliases.ts:16](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/aliases.ts#L16)*
+*Defined in [packages/teraslice-cli/src/helpers/aliases.ts:16](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/aliases.ts#L16)*
 
 ## Methods
 
@@ -66,7 +66,7 @@ ___
 
 ▸ **add**(`newClusterAlias`: string, `newClusterUrl`: string): *void*
 
-*Defined in [packages/teraslice-cli/src/helpers/aliases.ts:41](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/aliases.ts#L41)*
+*Defined in [packages/teraslice-cli/src/helpers/aliases.ts:41](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/aliases.ts#L41)*
 
 **Parameters:**
 
@@ -83,7 +83,7 @@ ___
 
 ▸ **list**(`output`: string): *void*
 
-*Defined in [packages/teraslice-cli/src/helpers/aliases.ts:52](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/aliases.ts#L52)*
+*Defined in [packages/teraslice-cli/src/helpers/aliases.ts:52](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/aliases.ts#L52)*
 
 **Parameters:**
 
@@ -99,7 +99,7 @@ ___
 
 ▸ **present**(`alias`: string): *boolean*
 
-*Defined in [packages/teraslice-cli/src/helpers/aliases.ts:62](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/aliases.ts#L62)*
+*Defined in [packages/teraslice-cli/src/helpers/aliases.ts:63](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/aliases.ts#L63)*
 
 **Parameters:**
 
@@ -115,7 +115,7 @@ ___
 
 ▸ **remove**(`clusterAlias`: string): *void*
 
-*Defined in [packages/teraslice-cli/src/helpers/aliases.ts:66](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/aliases.ts#L66)*
+*Defined in [packages/teraslice-cli/src/helpers/aliases.ts:67](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/aliases.ts#L67)*
 
 **Parameters:**
 
@@ -131,7 +131,7 @@ ___
 
 ▸ **update**(`clusterAlias`: string, `newClusterUrl`: string): *void*
 
-*Defined in [packages/teraslice-cli/src/helpers/aliases.ts:75](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/aliases.ts#L75)*
+*Defined in [packages/teraslice-cli/src/helpers/aliases.ts:76](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/aliases.ts#L76)*
 
 **Parameters:**
 

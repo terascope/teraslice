@@ -29,16 +29,16 @@ sidebar_label: Selector
 
 ###  constructor
 
-\+ **new Selector**(`config`: [SelectorConfig](../interfaces/selectorconfig.md), `types?`: XluceneTypeConfig): *[Selector](selector.md)*
+\+ **new Selector**(`config`: [SelectorConfig](../interfaces/selectorconfig.md), `matcherConfig`: [MatcherConfig](../interfaces/matcherconfig.md)): *[Selector](selector.md)*
 
-*Defined in [operations/lib/transforms/selector.ts:11](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/operations/lib/transforms/selector.ts#L11)*
+*Defined in [operations/lib/transforms/selector.ts:10](https://github.com/terascope/teraslice/blob/f95bb5556/packages/ts-transforms/src/operations/lib/transforms/selector.ts#L10)*
 
 **Parameters:**
 
-Name | Type |
------- | ------ |
-`config` | [SelectorConfig](../interfaces/selectorconfig.md) |
-`types?` | XluceneTypeConfig |
+Name | Type | Default |
+------ | ------ | ------ |
+`config` | [SelectorConfig](../interfaces/selectorconfig.md) | - |
+`matcherConfig` | [MatcherConfig](../interfaces/matcherconfig.md) |  {} |
 
 **Returns:** *[Selector](selector.md)*
 
@@ -48,7 +48,7 @@ Name | Type |
 
 • **selector**: *string*
 
-*Defined in [operations/lib/transforms/selector.ts:8](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/operations/lib/transforms/selector.ts#L8)*
+*Defined in [operations/lib/transforms/selector.ts:7](https://github.com/terascope/teraslice/blob/f95bb5556/packages/ts-transforms/src/operations/lib/transforms/selector.ts#L7)*
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 ▪ **cardinality**: *[InputOutputCardinality](../overview.md#inputoutputcardinality)* = "one-to-one"
 
-*Defined in [operations/lib/transforms/selector.ts:11](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/operations/lib/transforms/selector.ts#L11)*
+*Defined in [operations/lib/transforms/selector.ts:10](https://github.com/terascope/teraslice/blob/f95bb5556/packages/ts-transforms/src/operations/lib/transforms/selector.ts#L10)*
 
 ## Methods
 
@@ -64,7 +64,7 @@ ___
 
 ▸ **addMetaData**(`doc`: DataEntity, `selector`: string): *void*
 
-*Defined in [operations/lib/transforms/selector.ts:24](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/operations/lib/transforms/selector.ts#L24)*
+*Defined in [operations/lib/transforms/selector.ts:22](https://github.com/terascope/teraslice/blob/f95bb5556/packages/ts-transforms/src/operations/lib/transforms/selector.ts#L22)*
 
 **Parameters:**
 
@@ -81,7 +81,7 @@ ___
 
 ▸ **run**(`doc`: DataEntity): *DataEntity | null*
 
-*Defined in [operations/lib/transforms/selector.ts:33](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/operations/lib/transforms/selector.ts#L33)*
+*Defined in [operations/lib/transforms/selector.ts:31](https://github.com/terascope/teraslice/blob/f95bb5556/packages/ts-transforms/src/operations/lib/transforms/selector.ts#L31)*
 
 **Parameters:**
 

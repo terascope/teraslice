@@ -116,7 +116,7 @@ ___
 
 • **body**? : *any*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:43](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L43)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:43](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L43)*
 
 ___
 
@@ -314,7 +314,7 @@ ___
 
 *Overrides void*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:44](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L44)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:44](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L44)*
 
 ___
 
@@ -356,7 +356,7 @@ ___
 
 • **json**? : *undefined | false | true*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:45](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L45)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:45](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L45)*
 
 ___
 
@@ -541,7 +541,7 @@ ___
 
 *Overrides void*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:46](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L46)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:46](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L46)*
 
 ___
 

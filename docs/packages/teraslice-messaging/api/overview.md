@@ -61,6 +61,7 @@ sidebar_label: API
 
 * [formatURL](overview.md#formaturl)
 * [newMsgId](overview.md#newmsgid)
+* [waitForTcpPortOpen](overview.md#waitfortcpportopen)
 
 ## Type aliases
 
@@ -68,7 +69,7 @@ sidebar_label: API
 
 Ƭ **ResponseError**: *[ErrorObj](interfaces/errorobj.md) | string*
 
-*Defined in [packages/teraslice-messaging/src/messenger/interfaces.ts:42](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-messaging/src/messenger/interfaces.ts#L42)*
+*Defined in [packages/teraslice-messaging/src/messenger/interfaces.ts:42](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-messaging/src/messenger/interfaces.ts#L42)*
 
 ## Functions
 
@@ -76,7 +77,7 @@ sidebar_label: API
 
 ▸ **formatURL**(`hostname`: string, `port`: number): *string*
 
-*Defined in [packages/teraslice-messaging/src/utils/index.ts:9](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-messaging/src/utils/index.ts#L9)*
+*Defined in [packages/teraslice-messaging/src/utils/index.ts:10](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-messaging/src/utils/index.ts#L10)*
 
 **Parameters:**
 
@@ -93,6 +94,26 @@ ___
 
 ▸ **newMsgId**(): *Promise‹string›*
 
-*Defined in [packages/teraslice-messaging/src/utils/index.ts:5](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-messaging/src/utils/index.ts#L5)*
+*Defined in [packages/teraslice-messaging/src/utils/index.ts:6](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-messaging/src/utils/index.ts#L6)*
 
 **Returns:** *Promise‹string›*
+
+___
+
+###  waitForTcpPortOpen
+
+▸ **waitForTcpPortOpen**(`options`: object): *Promise‹unknown›*
+
+*Defined in [packages/teraslice-messaging/src/utils/index.ts:41](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-messaging/src/utils/index.ts#L41)*
+
+waitForTcpPortOpen will try to connect to the specified host and port, if it
+connects it will exit without error, if it does not connect, it will time
+out
+
+**Parameters:**
+
+Name | Type | Description |
+------ | ------ | ------ |
+`options` | object | socket configuration options |
+
+**Returns:** *Promise‹unknown›*

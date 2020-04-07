@@ -28,7 +28,7 @@ sidebar_label: TestContextOptions
 
 • **assignment**? : *any*
 
-*Defined in [packages/terafoundation/src/test-context.ts:68](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/test-context.ts#L68)*
+*Defined in [packages/terafoundation/src/test-context.ts:68](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/test-context.ts#L68)*
 
 ___
 
@@ -36,7 +36,7 @@ ___
 
 • **clients**? : *[TestClientConfig](testclientconfig.md)[]*
 
-*Defined in [packages/terafoundation/src/test-context.ts:69](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/test-context.ts#L69)*
+*Defined in [packages/terafoundation/src/test-context.ts:69](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/test-context.ts#L69)*
 
 ___
 
@@ -44,7 +44,7 @@ ___
 
 • **name**? : *undefined | string*
 
-*Defined in [packages/terafoundation/src/test-context.ts:67](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/test-context.ts#L67)*
+*Defined in [packages/terafoundation/src/test-context.ts:67](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/test-context.ts#L67)*
 
 ___
 
@@ -52,4 +52,4 @@ ___
 
 • **sysconfig**? : *ts.PartialDeep‹i.FoundationSysConfig‹S››*
 
-*Defined in [packages/terafoundation/src/test-context.ts:70](https://github.com/terascope/teraslice/blob/653cf7530/packages/terafoundation/src/test-context.ts#L70)*
+*Defined in [packages/terafoundation/src/test-context.ts:70](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/test-context.ts#L70)*

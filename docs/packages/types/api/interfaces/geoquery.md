@@ -24,7 +24,7 @@ sidebar_label: GeoQuery
 
 • **geo_bounding_box**? : *undefined | object*
 
-*Defined in [elasticsearch-interfaces.ts:44](https://github.com/terascope/teraslice/blob/653cf7530/packages/types/src/elasticsearch-interfaces.ts#L44)*
+*Defined in [elasticsearch-interfaces.ts:44](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/elasticsearch-interfaces.ts#L44)*
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **geo_distance**? : *undefined | object*
 
-*Defined in [elasticsearch-interfaces.ts:50](https://github.com/terascope/teraslice/blob/653cf7530/packages/types/src/elasticsearch-interfaces.ts#L50)*
+*Defined in [elasticsearch-interfaces.ts:50](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/elasticsearch-interfaces.ts#L50)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **geo_polygon**? : *undefined | object*
 
-*Defined in [elasticsearch-interfaces.ts:54](https://github.com/terascope/teraslice/blob/653cf7530/packages/types/src/elasticsearch-interfaces.ts#L54)*
+*Defined in [elasticsearch-interfaces.ts:54](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/elasticsearch-interfaces.ts#L54)*
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **geo_shape**? : *undefined | object*
 
-*Defined in [elasticsearch-interfaces.ts:59](https://github.com/terascope/teraslice/blob/653cf7530/packages/types/src/elasticsearch-interfaces.ts#L59)*
+*Defined in [elasticsearch-interfaces.ts:59](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/elasticsearch-interfaces.ts#L59)*

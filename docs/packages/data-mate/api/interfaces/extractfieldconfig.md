@@ -14,7 +14,7 @@ sidebar_label: ExtractFieldConfig
 ### Properties
 
 * [end](extractfieldconfig.md#optional-end)
-* [isMultiValue](extractfieldconfig.md#ismultivalue)
+* [isMultiValue](extractfieldconfig.md#optional-ismultivalue)
 * [jexlExp](extractfieldconfig.md#optional-jexlexp)
 * [regex](extractfieldconfig.md#optional-regex)
 * [start](extractfieldconfig.md#optional-start)
@@ -25,15 +25,15 @@ sidebar_label: ExtractFieldConfig
 
 • **end**? : *any*
 
-*Defined in [data-mate/src/transforms/interfaces.ts:6](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/interfaces.ts#L6)*
+*Defined in [data-mate/src/transforms/interfaces.ts:6](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/transforms/interfaces.ts#L6)*
 
 ___
 
-###  isMultiValue
+### `Optional` isMultiValue
 
-• **isMultiValue**: *boolean*
+• **isMultiValue**? : *undefined | false | true*
 
-*Defined in [data-mate/src/transforms/interfaces.ts:3](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/interfaces.ts#L3)*
+*Defined in [data-mate/src/transforms/interfaces.ts:3](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/transforms/interfaces.ts#L3)*
 
 ___
 
@@ -41,7 +41,7 @@ ___
 
 • **jexlExp**? : *undefined | string*
 
-*Defined in [data-mate/src/transforms/interfaces.ts:4](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/interfaces.ts#L4)*
+*Defined in [data-mate/src/transforms/interfaces.ts:4](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/transforms/interfaces.ts#L4)*
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **regex**? : *undefined | string*
 
-*Defined in [data-mate/src/transforms/interfaces.ts:2](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/interfaces.ts#L2)*
+*Defined in [data-mate/src/transforms/interfaces.ts:2](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/transforms/interfaces.ts#L2)*
 
 ___
 
@@ -57,4 +57,4 @@ ___
 
 • **start**? : *any*
 
-*Defined in [data-mate/src/transforms/interfaces.ts:5](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-mate/src/transforms/interfaces.ts#L5)*
+*Defined in [data-mate/src/transforms/interfaces.ts:5](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/transforms/interfaces.ts#L5)*

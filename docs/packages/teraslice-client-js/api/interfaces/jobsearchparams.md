@@ -28,7 +28,7 @@ sidebar_label: JobSearchParams
 
 *Inherited from [APISearchParams](apisearchparams.md).[from](apisearchparams.md#optional-from)*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:24](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L24)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:24](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L24)*
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 *Inherited from [APISearchParams](apisearchparams.md).[size](apisearchparams.md#optional-size)*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:23](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L23)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:23](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L23)*
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 *Inherited from [APISearchParams](apisearchparams.md).[sort](apisearchparams.md#optional-sort)*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:25](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L25)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:25](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L25)*
 
 ___
 
@@ -56,4 +56,4 @@ ___
 
 • **status**: *[SearchJobStatus](../overview.md#searchjobstatus)*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:37](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L37)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:37](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L37)*

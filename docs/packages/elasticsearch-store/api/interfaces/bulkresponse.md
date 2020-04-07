@@ -23,7 +23,7 @@ sidebar_label: BulkResponse
 
 • **errors**: *boolean*
 
-*Defined in [interfaces.ts:177](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/interfaces.ts#L177)*
+*Defined in [interfaces.ts:178](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/interfaces.ts#L178)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **items**: *[BulkResponseItems](../overview.md#bulkresponseitems)[]*
 
-*Defined in [interfaces.ts:179](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/interfaces.ts#L179)*
+*Defined in [interfaces.ts:180](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/interfaces.ts#L180)*
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 • **took**: *number*
 
-*Defined in [interfaces.ts:178](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/interfaces.ts#L178)*
+*Defined in [interfaces.ts:179](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/interfaces.ts#L179)*

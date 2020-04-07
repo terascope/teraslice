@@ -45,7 +45,7 @@ sidebar_label: Compose
 
 \+ **new Compose**(`composeFile`: string): *[Compose](compose.md)*
 
-*Defined in [index.ts:13](https://github.com/terascope/teraslice/blob/653cf7530/packages/docker-compose-js/src/index.ts#L13)*
+*Defined in [index.ts:13](https://github.com/terascope/teraslice/blob/f95bb5556/packages/docker-compose-js/src/index.ts#L13)*
 
 **Parameters:**
 
@@ -61,7 +61,7 @@ Name | Type |
 
 • **composeFile**: *string*
 
-*Defined in [index.ts:13](https://github.com/terascope/teraslice/blob/653cf7530/packages/docker-compose-js/src/index.ts#L13)*
+*Defined in [index.ts:13](https://github.com/terascope/teraslice/blob/f95bb5556/packages/docker-compose-js/src/index.ts#L13)*
 
 ## Methods
 
@@ -69,7 +69,7 @@ Name | Type |
 
 ▸ **build**(`options?`: [RunOptions](../overview.md#runoptions)): *Promise‹unknown›*
 
-*Defined in [index.ts:97](https://github.com/terascope/teraslice/blob/653cf7530/packages/docker-compose-js/src/index.ts#L97)*
+*Defined in [index.ts:97](https://github.com/terascope/teraslice/blob/f95bb5556/packages/docker-compose-js/src/index.ts#L97)*
 
 **Parameters:**
 
@@ -85,7 +85,7 @@ ___
 
 ▸ **create**(`services?`: Services, `options?`: [RunOptions](../overview.md#runoptions)): *Promise‹unknown›*
 
-*Defined in [index.ts:121](https://github.com/terascope/teraslice/blob/653cf7530/packages/docker-compose-js/src/index.ts#L121)*
+*Defined in [index.ts:121](https://github.com/terascope/teraslice/blob/f95bb5556/packages/docker-compose-js/src/index.ts#L121)*
 
 **Parameters:**
 
@@ -102,7 +102,7 @@ ___
 
 ▸ **down**(`options?`: [RunOptions](../overview.md#runoptions)): *Promise‹unknown›*
 
-*Defined in [index.ts:100](https://github.com/terascope/teraslice/blob/653cf7530/packages/docker-compose-js/src/index.ts#L100)*
+*Defined in [index.ts:100](https://github.com/terascope/teraslice/blob/f95bb5556/packages/docker-compose-js/src/index.ts#L100)*
 
 **Parameters:**
 
@@ -118,7 +118,7 @@ ___
 
 ▸ **kill**(`services?`: Services, `options?`: [RunOptions](../overview.md#runoptions)): *Promise‹unknown›*
 
-*Defined in [index.ts:115](https://github.com/terascope/teraslice/blob/653cf7530/packages/docker-compose-js/src/index.ts#L115)*
+*Defined in [index.ts:115](https://github.com/terascope/teraslice/blob/f95bb5556/packages/docker-compose-js/src/index.ts#L115)*
 
 **Parameters:**
 
@@ -135,7 +135,7 @@ ___
 
 ▸ **pause**(`services?`: Services, `options?`: [RunOptions](../overview.md#runoptions)): *Promise‹unknown›*
 
-*Defined in [index.ts:127](https://github.com/terascope/teraslice/blob/653cf7530/packages/docker-compose-js/src/index.ts#L127)*
+*Defined in [index.ts:127](https://github.com/terascope/teraslice/blob/f95bb5556/packages/docker-compose-js/src/index.ts#L127)*
 
 **Parameters:**
 
@@ -152,7 +152,7 @@ ___
 
 ▸ **port**(`service`: string, `privatePort`: number | string, `options?`: [RunOptions](../overview.md#runoptions)): *Promise‹unknown›*
 
-*Defined in [index.ts:139](https://github.com/terascope/teraslice/blob/653cf7530/packages/docker-compose-js/src/index.ts#L139)*
+*Defined in [index.ts:139](https://github.com/terascope/teraslice/blob/f95bb5556/packages/docker-compose-js/src/index.ts#L139)*
 
 **Parameters:**
 
@@ -170,7 +170,7 @@ ___
 
 ▸ **ps**(`options?`: [RunOptions](../overview.md#runoptions)): *Promise‹unknown›*
 
-*Defined in [index.ts:103](https://github.com/terascope/teraslice/blob/653cf7530/packages/docker-compose-js/src/index.ts#L103)*
+*Defined in [index.ts:103](https://github.com/terascope/teraslice/blob/f95bb5556/packages/docker-compose-js/src/index.ts#L103)*
 
 **Parameters:**
 
@@ -186,7 +186,7 @@ ___
 
 ▸ **pull**(`services?`: Services, `options?`: [RunOptions](../overview.md#runoptions)): *Promise‹unknown›*
 
-*Defined in [index.ts:118](https://github.com/terascope/teraslice/blob/653cf7530/packages/docker-compose-js/src/index.ts#L118)*
+*Defined in [index.ts:118](https://github.com/terascope/teraslice/blob/f95bb5556/packages/docker-compose-js/src/index.ts#L118)*
 
 **Parameters:**
 
@@ -203,7 +203,7 @@ ___
 
 ▸ **restart**(`services?`: Services, `options?`: [RunOptions](../overview.md#runoptions)): *Promise‹unknown›*
 
-*Defined in [index.ts:112](https://github.com/terascope/teraslice/blob/653cf7530/packages/docker-compose-js/src/index.ts#L112)*
+*Defined in [index.ts:112](https://github.com/terascope/teraslice/blob/f95bb5556/packages/docker-compose-js/src/index.ts#L112)*
 
 **Parameters:**
 
@@ -220,7 +220,7 @@ ___
 
 ▸ **rm**(`services?`: Services, `options?`: [RunOptions](../overview.md#runoptions)): *Promise‹unknown›*
 
-*Defined in [index.ts:136](https://github.com/terascope/teraslice/blob/653cf7530/packages/docker-compose-js/src/index.ts#L136)*
+*Defined in [index.ts:136](https://github.com/terascope/teraslice/blob/f95bb5556/packages/docker-compose-js/src/index.ts#L136)*
 
 **Parameters:**
 
@@ -237,7 +237,7 @@ ___
 
 ▸ **runCmd**(`command`: string, `options`: [RunOptions](../overview.md#runoptions), `services?`: Services, ...`extraParams`: Arg[]): *Promise‹unknown›*
 
-*Defined in [index.ts:18](https://github.com/terascope/teraslice/blob/653cf7530/packages/docker-compose-js/src/index.ts#L18)*
+*Defined in [index.ts:18](https://github.com/terascope/teraslice/blob/f95bb5556/packages/docker-compose-js/src/index.ts#L18)*
 
 **Parameters:**
 
@@ -256,7 +256,7 @@ ___
 
 ▸ **scale**(`services?`: Services, `options?`: [RunOptions](../overview.md#runoptions)): *Promise‹unknown›*
 
-*Defined in [index.ts:133](https://github.com/terascope/teraslice/blob/653cf7530/packages/docker-compose-js/src/index.ts#L133)*
+*Defined in [index.ts:133](https://github.com/terascope/teraslice/blob/f95bb5556/packages/docker-compose-js/src/index.ts#L133)*
 
 **Parameters:**
 
@@ -273,7 +273,7 @@ ___
 
 ▸ **start**(`services?`: Services, `options?`: [RunOptions](../overview.md#runoptions)): *Promise‹unknown›*
 
-*Defined in [index.ts:106](https://github.com/terascope/teraslice/blob/653cf7530/packages/docker-compose-js/src/index.ts#L106)*
+*Defined in [index.ts:106](https://github.com/terascope/teraslice/blob/f95bb5556/packages/docker-compose-js/src/index.ts#L106)*
 
 **Parameters:**
 
@@ -290,7 +290,7 @@ ___
 
 ▸ **stop**(`services?`: Services, `options?`: [RunOptions](../overview.md#runoptions)): *Promise‹unknown›*
 
-*Defined in [index.ts:109](https://github.com/terascope/teraslice/blob/653cf7530/packages/docker-compose-js/src/index.ts#L109)*
+*Defined in [index.ts:109](https://github.com/terascope/teraslice/blob/f95bb5556/packages/docker-compose-js/src/index.ts#L109)*
 
 **Parameters:**
 
@@ -307,7 +307,7 @@ ___
 
 ▸ **unpause**(`services?`: Services, `options?`: [RunOptions](../overview.md#runoptions)): *Promise‹unknown›*
 
-*Defined in [index.ts:130](https://github.com/terascope/teraslice/blob/653cf7530/packages/docker-compose-js/src/index.ts#L130)*
+*Defined in [index.ts:130](https://github.com/terascope/teraslice/blob/f95bb5556/packages/docker-compose-js/src/index.ts#L130)*
 
 **Parameters:**
 
@@ -324,7 +324,7 @@ ___
 
 ▸ **up**(`options`: [RunOptions](../overview.md#runoptions), `services?`: string[] | string): *Promise‹unknown›*
 
-*Defined in [index.ts:93](https://github.com/terascope/teraslice/blob/653cf7530/packages/docker-compose-js/src/index.ts#L93)*
+*Defined in [index.ts:93](https://github.com/terascope/teraslice/blob/f95bb5556/packages/docker-compose-js/src/index.ts#L93)*
 
 **Parameters:**
 
@@ -341,7 +341,7 @@ ___
 
 ▸ **version**(`options?`: [RunOptions](../overview.md#runoptions)): *Promise‹unknown›*
 
-*Defined in [index.ts:124](https://github.com/terascope/teraslice/blob/653cf7530/packages/docker-compose-js/src/index.ts#L124)*
+*Defined in [index.ts:124](https://github.com/terascope/teraslice/blob/f95bb5556/packages/docker-compose-js/src/index.ts#L124)*
 
 **Parameters:**
 

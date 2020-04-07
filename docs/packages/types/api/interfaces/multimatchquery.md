@@ -21,6 +21,6 @@ sidebar_label: MultiMatchQuery
 
 • **multi_match**: *object*
 
-*Defined in [elasticsearch-interfaces.ts:116](https://github.com/terascope/teraslice/blob/653cf7530/packages/types/src/elasticsearch-interfaces.ts#L116)*
+*Defined in [elasticsearch-interfaces.ts:120](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/elasticsearch-interfaces.ts#L120)*
 
 #### Type declaration:

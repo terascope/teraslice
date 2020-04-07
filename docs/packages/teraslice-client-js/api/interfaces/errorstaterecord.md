@@ -29,7 +29,7 @@ sidebar_label: ErrorStateRecord
 
 • **_created**: *string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:334](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L334)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:334](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L334)*
 
 ___
 
@@ -37,7 +37,7 @@ ___
 
 • **_updated**: *string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:335](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L335)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:335](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L335)*
 
 ___
 
@@ -45,7 +45,7 @@ ___
 
 • **error**: *string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:333](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L333)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:333](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L333)*
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 • **ex_id**: *string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:327](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L327)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:327](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L327)*
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • **request**: *SliceRequest*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:331](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L331)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:331](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L331)*
 
 ___
 
@@ -69,7 +69,7 @@ ___
 
 • **slice_id**: *string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:328](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L328)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:328](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L328)*
 
 ___
 
@@ -77,7 +77,7 @@ ___
 
 • **slicer_id**: *string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:329](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L329)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:329](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L329)*
 
 ___
 
@@ -85,7 +85,7 @@ ___
 
 • **slicer_order**: *number*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:330](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L330)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:330](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L330)*
 
 ___
 
@@ -93,4 +93,4 @@ ___
 
 • **state**: *"error"*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:332](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L332)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:332](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L332)*

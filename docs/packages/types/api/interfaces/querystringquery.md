@@ -21,6 +21,6 @@ sidebar_label: QueryStringQuery
 
 • **query_string**: *object*
 
-*Defined in [elasticsearch-interfaces.ts:74](https://github.com/terascope/teraslice/blob/653cf7530/packages/types/src/elasticsearch-interfaces.ts#L74)*
+*Defined in [elasticsearch-interfaces.ts:78](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/elasticsearch-interfaces.ts#L78)*
 
 #### Type declaration:

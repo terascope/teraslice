@@ -21,4 +21,4 @@ sidebar_label: AssetIDResponse
 
 • **_id**: *string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:98](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L98)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:98](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L98)*

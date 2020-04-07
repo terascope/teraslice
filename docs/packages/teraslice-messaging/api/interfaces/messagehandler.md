@@ -13,7 +13,7 @@ sidebar_label: MessageHandler
 
 ▸ (`msg`: [Message](message.md)): *Promise‹[Payload](payload.md) | void› | [Payload](payload.md) | void*
 
-*Defined in [packages/teraslice-messaging/src/messenger/interfaces.ts:98](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-messaging/src/messenger/interfaces.ts#L98)*
+*Defined in [packages/teraslice-messaging/src/messenger/interfaces.ts:98](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-messaging/src/messenger/interfaces.ts#L98)*
 
 **Parameters:**
 

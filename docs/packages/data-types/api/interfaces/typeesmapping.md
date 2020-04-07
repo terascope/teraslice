@@ -23,7 +23,7 @@ sidebar_label: TypeESMapping
 
 • **analyzer**? : *undefined | object*
 
-*Defined in [data-types/src/interfaces.ts:193](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L193)*
+*Defined in [interfaces.ts:152](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/interfaces.ts#L152)*
 
 ___
 
@@ -31,11 +31,11 @@ ___
 
 • **mapping**: *object*
 
-*Defined in [data-types/src/interfaces.ts:190](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L190)*
+*Defined in [interfaces.ts:149](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/interfaces.ts#L149)*
 
 #### Type declaration:
 
-* \[ **key**: *string*\]: [ESTypeMapping](../overview.md#estypemapping)
+* \[ **key**: *string*\]: ESTypeMapping
 
 ___
 
@@ -43,4 +43,4 @@ ___
 
 • **tokenizer**? : *undefined | object*
 
-*Defined in [data-types/src/interfaces.ts:196](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L196)*
+*Defined in [interfaces.ts:155](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/interfaces.ts#L155)*

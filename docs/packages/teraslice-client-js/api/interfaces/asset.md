@@ -26,7 +26,7 @@ sidebar_label: Asset
 
 • **_created**: *string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:85](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L85)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:85](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L85)*
 
 ___
 
@@ -34,7 +34,7 @@ ___
 
 • **blob**? : *undefined | string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:90](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L90)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:90](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L90)*
 
 ___
 
@@ -42,7 +42,7 @@ ___
 
 • **description**? : *undefined | string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:89](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L89)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:89](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L89)*
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 • **id**: *string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:87](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L87)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:87](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L87)*
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:88](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L88)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:88](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L88)*
 
 ___
 
@@ -66,4 +66,4 @@ ___
 
 • **version**: *string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:86](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L86)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:86](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L86)*

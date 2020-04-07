@@ -21,7 +21,7 @@ sidebar_label: TermQuery
 
 • **term**: *object*
 
-*Defined in [elasticsearch-interfaces.ts:98](https://github.com/terascope/teraslice/blob/653cf7530/packages/types/src/elasticsearch-interfaces.ts#L98)*
+*Defined in [elasticsearch-interfaces.ts:102](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/elasticsearch-interfaces.ts#L102)*
 
 #### Type declaration:
 

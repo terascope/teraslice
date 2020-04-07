@@ -21,8 +21,8 @@ sidebar_label: RegExprQuery
 
 • **regexp**: *object*
 
-*Defined in [elasticsearch-interfaces.ts:68](https://github.com/terascope/teraslice/blob/653cf7530/packages/types/src/elasticsearch-interfaces.ts#L68)*
+*Defined in [elasticsearch-interfaces.ts:68](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/elasticsearch-interfaces.ts#L68)*
 
 #### Type declaration:
 
-* \[ **field**: *string*\]: string
+* \[ **field**: *string*\]: string | object

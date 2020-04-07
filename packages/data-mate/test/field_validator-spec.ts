@@ -36,8 +36,7 @@ const matchingPoint: i.GeoShapePoint = {
 describe('field validators', () => {
     describe('isBoolean', () => {
         it('should check if a value is a boolean', () => {
-            // @ts-ignore
-            expect(FieldValidator.isBoolean()).toEqual(false);
+            expect(FieldValidator.isBoolean(undefined)).toEqual(false);
             expect(FieldValidator.isBoolean(['asdf'])).toEqual(false);
             expect(FieldValidator.isBoolean({ one: 1 })).toEqual(false);
             expect(FieldValidator.isBoolean(3)).toEqual(false);
@@ -62,8 +61,8 @@ describe('field validators', () => {
 
             expect(FieldValidator.isBooleanLike(true)).toEqual(true);
             expect(FieldValidator.isBooleanLike(false)).toEqual(true);
-            // @ts-ignore
-            expect(FieldValidator.isBooleanLike()).toEqual(true);
+
+            expect(FieldValidator.isBooleanLike(undefined)).toEqual(true);
             expect(FieldValidator.isBooleanLike(null)).toEqual(true);
             expect(FieldValidator.isBooleanLike(0)).toEqual(true);
             expect(FieldValidator.isBooleanLike('0')).toEqual(true);
@@ -93,8 +92,7 @@ describe('field validators', () => {
         ];
 
         it('should check if a value is an email', () => {
-            // @ts-ignore
-            expect(FieldValidator.isEmail()).toEqual(false);
+            expect(FieldValidator.isEmail(undefined)).toEqual(false);
             expect(FieldValidator.isEmail(['asdf'])).toEqual(false);
             expect(FieldValidator.isEmail({ one: 1 })).toEqual(false);
             expect(FieldValidator.isEmail(3)).toEqual(false);
@@ -106,8 +104,8 @@ describe('field validators', () => {
 
         it('validates an array of values, ignores undefined/null', () => {
             const newList = list.slice();
-            // @ts-ignore
-            newList.push(null);
+
+            newList.push(null as any);
 
             expect(FieldValidator.isEmail(newList)).toEqual(true);
         });
@@ -115,17 +113,11 @@ describe('field validators', () => {
 
     describe('isGeoPoint', () => {
         it('should check if a value is GeoPoint', () => {
-            // @ts-ignore
-            expect(FieldValidator.isGeoPoint()).toEqual(false);
-            // @ts-ignore
+            expect(FieldValidator.isGeoPoint(undefined)).toEqual(false);
             expect(FieldValidator.isGeoPoint(['asdf'])).toEqual(false);
-            // @ts-ignore
             expect(FieldValidator.isGeoPoint({ one: 1 })).toEqual(false);
-            // @ts-ignore
             expect(FieldValidator.isGeoPoint(3)).toEqual(false);
-            // @ts-ignore
             expect(FieldValidator.isGeoPoint('hello')).toEqual(false);
-
             expect(FieldValidator.isGeoPoint('60,80')).toEqual(true);
             expect(FieldValidator.isGeoPoint([80, 60])).toEqual(true);
             expect(FieldValidator.isGeoPoint({ lat: 60, lon: 80 })).toEqual(true);
@@ -139,17 +131,11 @@ describe('field validators', () => {
 
     describe('isGeoShapePoint', () => {
         it('should check if a value is GeoShapePoint', () => {
-            // @ts-ignore
-            expect(FieldValidator.isGeoShapePoint()).toEqual(false);
-            // @ts-ignore
+            expect(FieldValidator.isGeoShapePoint(undefined)).toEqual(false);
             expect(FieldValidator.isGeoShapePoint(['asdf'])).toEqual(false);
-            // @ts-ignore
             expect(FieldValidator.isGeoShapePoint({ one: 1 })).toEqual(false);
-            // @ts-ignore
             expect(FieldValidator.isGeoShapePoint(3)).toEqual(false);
-            // @ts-ignore
             expect(FieldValidator.isGeoShapePoint('hello')).toEqual(false);
-
             expect(FieldValidator.isGeoShapePoint(matchingPoint)).toEqual(true);
             expect(FieldValidator.isGeoShapePoint(polygon)).toEqual(false);
             expect(FieldValidator.isGeoShapePoint(polygonWithHoles)).toEqual(false);
@@ -163,17 +149,11 @@ describe('field validators', () => {
 
     describe('isGeoShapePolygon', () => {
         it('should check if a value is GeoShapePolygon', () => {
-            // @ts-ignore
-            expect(FieldValidator.isGeoShapePolygon()).toEqual(false);
-            // @ts-ignore
+            expect(FieldValidator.isGeoShapePolygon(undefined)).toEqual(false);
             expect(FieldValidator.isGeoShapePolygon(['asdf'])).toEqual(false);
-            // @ts-ignore
             expect(FieldValidator.isGeoShapePolygon({ one: 1 })).toEqual(false);
-            // @ts-ignore
             expect(FieldValidator.isGeoShapePolygon(3)).toEqual(false);
-            // @ts-ignore
             expect(FieldValidator.isGeoShapePolygon('hello')).toEqual(false);
-
             expect(FieldValidator.isGeoShapePolygon(matchingPoint)).toEqual(false);
             expect(FieldValidator.isGeoShapePolygon(polygon)).toEqual(true);
             expect(FieldValidator.isGeoShapePolygon(polygonWithHoles)).toEqual(true);
@@ -187,17 +167,11 @@ describe('field validators', () => {
 
     describe('isGeoShapeMultiPolygon', () => {
         it('should check if a value is GeoShapeMultiPolygon', () => {
-            // @ts-ignore
-            expect(FieldValidator.isGeoShapeMultiPolygon()).toEqual(false);
-            // @ts-ignore
+            expect(FieldValidator.isGeoShapeMultiPolygon(undefined)).toEqual(false);
             expect(FieldValidator.isGeoShapeMultiPolygon(['asdf'])).toEqual(false);
-            // @ts-ignore
             expect(FieldValidator.isGeoShapeMultiPolygon({ one: 1 })).toEqual(false);
-            // @ts-ignore
             expect(FieldValidator.isGeoShapeMultiPolygon(3)).toEqual(false);
-            // @ts-ignore
             expect(FieldValidator.isGeoShapeMultiPolygon('hello')).toEqual(false);
-
             expect(FieldValidator.isGeoShapeMultiPolygon(matchingPoint)).toEqual(false);
             expect(FieldValidator.isGeoShapeMultiPolygon(polygon)).toEqual(false);
             expect(FieldValidator.isGeoShapeMultiPolygon(polygonWithHoles)).toEqual(false);
@@ -218,8 +192,7 @@ describe('field validators', () => {
         ];
 
         it('should check if a value is GeoJSON', () => {
-            // @ts-ignore
-            expect(FieldValidator.isGeoJSON()).toEqual(false);
+            expect(FieldValidator.isGeoJSON(undefined as any)).toEqual(false);
             expect(FieldValidator.isGeoJSON(['asdf'])).toEqual(false);
             expect(FieldValidator.isGeoJSON({ one: 1 })).toEqual(false);
             expect(FieldValidator.isGeoJSON(3)).toEqual(false);
@@ -231,8 +204,8 @@ describe('field validators', () => {
 
         it('validates an array of values, ignores undefined/null', () => {
             const newList = list.slice();
-            // @ts-ignore
-            newList.push(undefined);
+
+            newList.push(undefined as any);
             expect(FieldValidator.isGeoJSON(newList)).toEqual(true);
         });
     });
@@ -313,24 +286,24 @@ describe('field validators', () => {
 
     describe('isIpCidr', () => {
         it('should return true for valid ips with cidr notation', () => {
-            expect(FieldValidator.isIPCidr('1.2.3.4/32')).toBe(true);
-            expect(FieldValidator.isIPCidr('8.8.0.0/12')).toBe(true);
-            expect(FieldValidator.isIPCidr('2001:0db8:0123:4567:89ab:cdef:1234:5678/128')).toBe(true);
-            expect(FieldValidator.isIPCidr('2001::1234:5678/128')).toBe(true);
+            expect(FieldValidator.isCidr('1.2.3.4/32')).toBe(true);
+            expect(FieldValidator.isCidr('8.8.0.0/12')).toBe(true);
+            expect(FieldValidator.isCidr('2001:0db8:0123:4567:89ab:cdef:1234:5678/128')).toBe(true);
+            expect(FieldValidator.isCidr('2001::1234:5678/128')).toBe(true);
         });
 
         it('should return false for invalid ips with cidr notation', () => {
-            expect(FieldValidator.isIPCidr('1.2.3.4/128')).toBe(false);
-            expect(FieldValidator.isIPCidr('notanipaddress/12')).toBe(false);
-            expect(FieldValidator.isIPCidr('2001:0db8:0123:4567:89ab:cdef:1234:5678/412')).toBe(false);
-            expect(FieldValidator.isIPCidr('2001::1234:5678/b')).toBe(false);
-            expect(FieldValidator.isIPCidr('8.8.8.10')).toBe(false);
-            expect(FieldValidator.isIPCidr(true)).toBe(false);
-            expect(FieldValidator.isIPCidr({})).toBe(false);
+            expect(FieldValidator.isCidr('1.2.3.4/128')).toBe(false);
+            expect(FieldValidator.isCidr('notanipaddress/12')).toBe(false);
+            expect(FieldValidator.isCidr('2001:0db8:0123:4567:89ab:cdef:1234:5678/412')).toBe(false);
+            expect(FieldValidator.isCidr('2001::1234:5678/b')).toBe(false);
+            expect(FieldValidator.isCidr('8.8.8.10')).toBe(false);
+            expect(FieldValidator.isCidr(true)).toBe(false);
+            expect(FieldValidator.isCidr({})).toBe(false);
         });
 
         it('validates an array of values, ignores undefined/null', () => {
-            expect(FieldValidator.isIPCidr(['8.8.0.0/12', undefined])).toEqual(true);
+            expect(FieldValidator.isCidr(['8.8.0.0/12', undefined])).toEqual(true);
         });
     });
 

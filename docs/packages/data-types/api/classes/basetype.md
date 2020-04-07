@@ -61,6 +61,8 @@ sidebar_label: BaseType
 
   ↳ [NumberClass](numberclass.md)
 
+  ↳ [AnyType](anytype.md)
+
   ↳ [GroupType](grouptype.md)
 
 ## Index
@@ -89,7 +91,7 @@ sidebar_label: BaseType
 
 \+ **new BaseType**(`field`: string, `config`: [FieldTypeConfig](../overview.md#fieldtypeconfig), `version`: number): *[BaseType](basetype.md)*
 
-*Defined in [data-types/src/types/base-type.ts:23](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/types/base-type.ts#L23)*
+*Defined in [types/base-type.ts:23](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/base-type.ts#L23)*
 
 **Parameters:**
 
@@ -107,7 +109,7 @@ Name | Type | Default |
 
 • **config**: *[FieldTypeConfig](../overview.md#fieldtypeconfig)*
 
-*Defined in [data-types/src/types/base-type.ts:22](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/types/base-type.ts#L22)*
+*Defined in [types/base-type.ts:22](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/base-type.ts#L22)*
 
 ___
 
@@ -115,7 +117,7 @@ ___
 
 • **field**: *string*
 
-*Defined in [data-types/src/types/base-type.ts:21](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/types/base-type.ts#L21)*
+*Defined in [types/base-type.ts:21](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/base-type.ts#L21)*
 
 ___
 
@@ -123,7 +125,7 @@ ___
 
 • **version**: *number*
 
-*Defined in [data-types/src/types/base-type.ts:23](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/types/base-type.ts#L23)*
+*Defined in [types/base-type.ts:23](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/base-type.ts#L23)*
 
 ## Methods
 
@@ -131,7 +133,7 @@ ___
 
 ▸ **_formatGQLTypeName**(`typeName`: string, `isInput?`: undefined | false | true, `inputSuffix`: string): *string*
 
-*Defined in [data-types/src/types/base-type.ts:55](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/types/base-type.ts#L55)*
+*Defined in [types/base-type.ts:52](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/base-type.ts#L52)*
 
 **Parameters:**
 
@@ -149,7 +151,7 @@ ___
 
 ▸ **_formatGql**(`type`: string, `customType?`: string | Array): *[GraphQLType](../interfaces/graphqltype.md)*
 
-*Defined in [data-types/src/types/base-type.ts:38](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/types/base-type.ts#L38)*
+*Defined in [types/base-type.ts:35](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/base-type.ts#L35)*
 
 **Parameters:**
 
@@ -166,7 +168,7 @@ ___
 
 ▸ **toESMapping**(`version?`: undefined | number): *[TypeESMapping](../interfaces/typeesmapping.md)*
 
-*Defined in [data-types/src/types/base-type.ts:34](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/types/base-type.ts#L34)*
+*Defined in [types/base-type.ts:31](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/base-type.ts#L31)*
 
 **Parameters:**
 
@@ -182,7 +184,7 @@ ___
 
 ▸ **toGraphQL**(`options?`: [ToGraphQLOptions](../overview.md#tographqloptions)): *[GraphQLType](../interfaces/graphqltype.md)*
 
-*Defined in [data-types/src/types/base-type.ts:35](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/types/base-type.ts#L35)*
+*Defined in [types/base-type.ts:32](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/base-type.ts#L32)*
 
 **Parameters:**
 
@@ -196,8 +198,8 @@ ___
 
 ### `Abstract` toXlucene
 
-▸ **toXlucene**(): *XluceneTypeConfig*
+▸ **toXlucene**(): *xLuceneTypeConfig*
 
-*Defined in [data-types/src/types/base-type.ts:36](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/types/base-type.ts#L36)*
+*Defined in [types/base-type.ts:33](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/base-type.ts#L33)*
 
-**Returns:** *XluceneTypeConfig*
+**Returns:** *xLuceneTypeConfig*

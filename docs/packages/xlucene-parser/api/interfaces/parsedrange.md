@@ -24,7 +24,7 @@ sidebar_label: ParsedRange
 
 • **gt**? : *number | string*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:136](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/utils.ts#L136)*
+*Defined in [packages/xlucene-parser/src/utils.ts:136](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L136)*
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **gte**? : *number | string*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:135](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/utils.ts#L135)*
+*Defined in [packages/xlucene-parser/src/utils.ts:135](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L135)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **lt**? : *number | string*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:138](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/utils.ts#L138)*
+*Defined in [packages/xlucene-parser/src/utils.ts:138](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L138)*
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **lte**? : *number | string*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:137](https://github.com/terascope/teraslice/blob/653cf7530/packages/xlucene-parser/src/utils.ts#L137)*
+*Defined in [packages/xlucene-parser/src/utils.ts:137](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L137)*

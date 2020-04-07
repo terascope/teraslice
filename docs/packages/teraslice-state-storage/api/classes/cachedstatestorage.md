@@ -60,7 +60,7 @@ sidebar_label: CachedStateStorage
 
 *Overrides void*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:10](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L10)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:10](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L10)*
 
 **Parameters:**
 
@@ -88,7 +88,7 @@ Defined in node_modules/@types/node/events.d.ts:45
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:541
+Defined in node_modules/@types/node/globals.d.ts:547
 
 **Parameters:**
 
@@ -112,7 +112,7 @@ ___
 
 ▸ **clear**(): *void*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:63](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L63)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:63](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L63)*
 
 **Returns:** *void*
 
@@ -122,7 +122,7 @@ ___
 
 ▸ **count**(): *number*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:44](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L44)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:44](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L44)*
 
 **Returns:** *number*
 
@@ -134,7 +134,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:551
+Defined in node_modules/@types/node/globals.d.ts:557
 
 **Parameters:**
 
@@ -153,7 +153,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:556
+Defined in node_modules/@types/node/globals.d.ts:562
 
 **Returns:** *Array‹string | symbol›*
 
@@ -163,7 +163,7 @@ ___
 
 ▸ **get**(`key`: string | number): *T | undefined*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:19](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L19)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:19](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L19)*
 
 **Parameters:**
 
@@ -181,7 +181,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:548
+Defined in node_modules/@types/node/globals.d.ts:554
 
 **Returns:** *number*
 
@@ -191,7 +191,7 @@ ___
 
 ▸ **has**(`key`: string | number): *boolean*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:59](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L59)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:59](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L59)*
 
 **Parameters:**
 
@@ -209,7 +209,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:552
+Defined in node_modules/@types/node/globals.d.ts:558
 
 **Parameters:**
 
@@ -227,7 +227,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:549
+Defined in node_modules/@types/node/globals.d.ts:555
 
 **Parameters:**
 
@@ -243,7 +243,7 @@ ___
 
 ▸ **mget**(`keyArray`: string | number[]): *[MGetCacheResponse](../interfaces/mgetcacheresponse.md)*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:23](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L23)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:23](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L23)*
 
 **Parameters:**
 
@@ -259,7 +259,7 @@ ___
 
 ▸ **mset**(`docArray`: [SetTuple](../interfaces/settuple.md)‹T›[]): *void*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:38](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L38)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:38](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L38)*
 
 **Parameters:**
 
@@ -277,7 +277,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:545
+Defined in node_modules/@types/node/globals.d.ts:551
 
 **Parameters:**
 
@@ -303,7 +303,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:542
+Defined in node_modules/@types/node/globals.d.ts:548
 
 **Parameters:**
 
@@ -329,7 +329,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:543
+Defined in node_modules/@types/node/globals.d.ts:549
 
 **Parameters:**
 
@@ -355,7 +355,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:554
+Defined in node_modules/@types/node/globals.d.ts:560
 
 **Parameters:**
 
@@ -381,7 +381,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:555
+Defined in node_modules/@types/node/globals.d.ts:561
 
 **Parameters:**
 
@@ -407,7 +407,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:550
+Defined in node_modules/@types/node/globals.d.ts:556
 
 **Parameters:**
 
@@ -425,7 +425,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:546
+Defined in node_modules/@types/node/globals.d.ts:552
 
 **Parameters:**
 
@@ -443,7 +443,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:544
+Defined in node_modules/@types/node/globals.d.ts:550
 
 **Parameters:**
 
@@ -467,7 +467,7 @@ ___
 
 ▸ **set**(`key`: string | number, `value`: T): *void*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:31](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L31)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:31](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L31)*
 
 **Parameters:**
 
@@ -486,7 +486,7 @@ ___
 
 *Inherited from void*
 
-Defined in node_modules/@types/node/globals.d.ts:547
+Defined in node_modules/@types/node/globals.d.ts:553
 
 **Parameters:**
 
@@ -502,7 +502,7 @@ ___
 
 ▸ **values**(`fn`: [ValuesFn](../overview.md#valuesfn)‹T›): *Promise‹void›*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:48](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L48)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:48](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L48)*
 
 **Parameters:**
 

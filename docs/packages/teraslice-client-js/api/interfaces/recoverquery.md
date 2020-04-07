@@ -24,7 +24,7 @@ Recover Job / Execution Options
 
 • **cleanup**? : *RecoveryCleanupType*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:280](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L280)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:280](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L280)*
 
 **`deprecated`** use `cleanup_type`
 
@@ -34,4 +34,4 @@ ___
 
 • **cleanup_type**? : *RecoveryCleanupType*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:281](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L281)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:281](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L281)*

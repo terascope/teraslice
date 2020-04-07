@@ -13,6 +13,6 @@ sidebar_label: OnStateChangeFn
 
 ▸ (): *Promise‹void› | void*
 
-*Defined in [packages/teraslice-messaging/src/cluster-master/interfaces.ts:65](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L65)*
+*Defined in [packages/teraslice-messaging/src/cluster-master/interfaces.ts:65](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-messaging/src/cluster-master/interfaces.ts#L65)*
 
 **Returns:** *Promise‹void› | void*

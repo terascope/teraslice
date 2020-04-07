@@ -21,7 +21,7 @@ sidebar_label: WildcardQuery
 
 • **wildcard**: *object*
 
-*Defined in [elasticsearch-interfaces.ts:104](https://github.com/terascope/teraslice/blob/653cf7530/packages/types/src/elasticsearch-interfaces.ts#L104)*
+*Defined in [elasticsearch-interfaces.ts:108](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/elasticsearch-interfaces.ts#L108)*
 
 #### Type declaration:
 

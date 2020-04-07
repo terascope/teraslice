@@ -44,7 +44,7 @@ and can be converted to the following formats:
 
 \+ **new DataType**(`config`: Partial‹i.DataTypeConfig›, `typeName?`: undefined | string, `description?`: undefined | string): *[DataType](datatype.md)*
 
-*Defined in [data-types/src/data-type.ts:83](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/data-type.ts#L83)*
+*Defined in [data-type.ts:87](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/data-type.ts#L87)*
 
 **Parameters:**
 
@@ -62,7 +62,7 @@ Name | Type |
 
 • **description**? : *undefined | string*
 
-*Defined in [data-types/src/data-type.ts:19](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/data-type.ts#L19)*
+*Defined in [data-type.ts:23](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/data-type.ts#L23)*
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 • **fields**: *i.TypeConfigFields*
 
-*Defined in [data-types/src/data-type.ts:20](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/data-type.ts#L20)*
+*Defined in [data-type.ts:24](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/data-type.ts#L24)*
 
 ___
 
@@ -78,7 +78,7 @@ ___
 
 • **groupedFields**: *i.GroupedFields*
 
-*Defined in [data-types/src/data-type.ts:23](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/data-type.ts#L23)*
+*Defined in [data-type.ts:27](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/data-type.ts#L27)*
 
 An object of base fields with their child fields
 
@@ -88,7 +88,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [data-types/src/data-type.ts:18](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/data-type.ts#L18)*
+*Defined in [data-type.ts:22](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/data-type.ts#L22)*
 
 ___
 
@@ -96,15 +96,15 @@ ___
 
 • **version**: *i.AvailableVersion*
 
-*Defined in [data-types/src/data-type.ts:21](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/data-type.ts#L21)*
+*Defined in [data-type.ts:25](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/data-type.ts#L25)*
 
 ## Methods
 
 ###  toESMapping
 
-▸ **toESMapping**(`__namedParameters`: object): *[ESMapping](../interfaces/esmapping.md)*
+▸ **toESMapping**(`__namedParameters`: object): *ESMapping*
 
-*Defined in [data-types/src/data-type.ts:104](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/data-type.ts#L104)*
+*Defined in [data-type.ts:108](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/data-type.ts#L108)*
 
 Convert the DataType to an elasticsearch mapping.
 
@@ -114,7 +114,7 @@ Name | Type | Default |
 ------ | ------ | ------ |
 `__namedParameters` | object |  {} |
 
-**Returns:** *[ESMapping](../interfaces/esmapping.md)*
+**Returns:** *ESMapping*
 
 ___
 
@@ -122,7 +122,7 @@ ___
 
 ▸ **toGraphQL**(`args?`: i.GraphQLOptions, `removeScalars`: boolean): *string*
 
-*Defined in [data-types/src/data-type.ts:148](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/data-type.ts#L148)*
+*Defined in [data-type.ts:155](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/data-type.ts#L155)*
 
 **Parameters:**
 
@@ -139,7 +139,7 @@ ___
 
 ▸ **toGraphQLTypes**(`args`: i.GraphQLOptions): *i.GraphQLTypesResult*
 
-*Defined in [data-types/src/data-type.ts:156](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/data-type.ts#L156)*
+*Defined in [data-type.ts:163](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/data-type.ts#L163)*
 
 **Parameters:**
 
@@ -155,7 +155,7 @@ ___
 
 ▸ **toXlucene**(): *object*
 
-*Defined in [data-types/src/data-type.ts:230](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/data-type.ts#L230)*
+*Defined in [data-type.ts:237](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/data-type.ts#L237)*
 
 **Returns:** *object*
 
@@ -165,7 +165,7 @@ ___
 
 ▸ **mergeGraphQLDataTypes**(`types`: [DataType](datatype.md)[], `options`: i.MergeGraphQLOptions): *string*
 
-*Defined in [data-types/src/data-type.ts:28](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/data-type.ts#L28)*
+*Defined in [data-type.ts:32](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/data-type.ts#L32)*
 
 Merge multiple data types into one GraphQL schema, useful for removing duplicates
 

@@ -18,7 +18,8 @@ sidebar_label: PhaseConfig
 * [notification_rules](phaseconfig.md#optional-notification_rules)
 * [rules](phaseconfig.md#optional-rules)
 * [type](phaseconfig.md#type)
-* [types](phaseconfig.md#optional-types)
+* [type_config](phaseconfig.md#optional-type_config)
+* [variables](phaseconfig.md#optional-variables)
 
 ## Properties
 
@@ -28,7 +29,7 @@ sidebar_label: PhaseConfig
 
 *Inherited from [WatcherConfig](watcherconfig.md).[notification_rules](watcherconfig.md#optional-notification_rules)*
 
-*Defined in [interfaces.ts:116](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L116)*
+*Defined in [interfaces.ts:122](https://github.com/terascope/teraslice/blob/f95bb5556/packages/ts-transforms/src/interfaces.ts#L122)*
 
 ___
 
@@ -38,7 +39,7 @@ ___
 
 *Inherited from [WatcherConfig](watcherconfig.md).[rules](watcherconfig.md#optional-rules)*
 
-*Defined in [interfaces.ts:114](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L114)*
+*Defined in [interfaces.ts:119](https://github.com/terascope/teraslice/blob/f95bb5556/packages/ts-transforms/src/interfaces.ts#L119)*
 
 ___
 
@@ -46,14 +47,24 @@ ___
 
 • **type**: *string*
 
-*Defined in [interfaces.ts:120](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L120)*
+*Defined in [interfaces.ts:126](https://github.com/terascope/teraslice/blob/f95bb5556/packages/ts-transforms/src/interfaces.ts#L126)*
 
 ___
 
-### `Optional` types
+### `Optional` type_config
 
-• **types**? : *XluceneTypeConfig*
+• **type_config**? : *xLuceneTypeConfig*
 
-*Inherited from [WatcherConfig](watcherconfig.md).[types](watcherconfig.md#optional-types)*
+*Inherited from [WatcherConfig](watcherconfig.md).[type_config](watcherconfig.md#optional-type_config)*
 
-*Defined in [interfaces.ts:115](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L115)*
+*Defined in [interfaces.ts:120](https://github.com/terascope/teraslice/blob/f95bb5556/packages/ts-transforms/src/interfaces.ts#L120)*
+
+___
+
+### `Optional` variables
+
+• **variables**? : *xLuceneVariables*
+
+*Inherited from [WatcherConfig](watcherconfig.md).[variables](watcherconfig.md#optional-variables)*
+
+*Defined in [interfaces.ts:121](https://github.com/terascope/teraslice/blob/f95bb5556/packages/ts-transforms/src/interfaces.ts#L121)*

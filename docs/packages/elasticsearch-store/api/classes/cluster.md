@@ -32,7 +32,7 @@ Get Cluster Metadata and Stats
 
 \+ **new Cluster**(`client`: Client): *[Cluster](cluster.md)*
 
-*Defined in [cluster.ts:5](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/cluster.ts#L5)*
+*Defined in [cluster.ts:5](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/cluster.ts#L5)*
 
 **Parameters:**
 
@@ -48,7 +48,7 @@ Name | Type |
 
 • **client**: *Client*
 
-*Defined in [cluster.ts:5](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/cluster.ts#L5)*
+*Defined in [cluster.ts:5](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/cluster.ts#L5)*
 
 ## Methods
 
@@ -56,7 +56,7 @@ Name | Type |
 
 ▸ **nodeInfo**(`_params`: NodesInfoParams): *Promise‹void›*
 
-*Defined in [cluster.ts:14](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/cluster.ts#L14)*
+*Defined in [cluster.ts:14](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/cluster.ts#L14)*
 
 Get the Cluster Nodes Info
 
@@ -74,7 +74,7 @@ ___
 
 ▸ **nodeStats**(`_params`: NodesStatsParams): *Promise‹void›*
 
-*Defined in [cluster.ts:21](https://github.com/terascope/teraslice/blob/653cf7530/packages/elasticsearch-store/src/cluster.ts#L21)*
+*Defined in [cluster.ts:21](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/cluster.ts#L21)*
 
 Get the Cluster Nodes Stats
 

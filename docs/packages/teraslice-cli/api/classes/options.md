@@ -33,7 +33,7 @@ sidebar_label: Options
 
 \+ **new Options**(): *[Options](options.md)*
 
-*Defined in [packages/teraslice-cli/src/helpers/yargs-options.ts:17](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/yargs-options.ts#L17)*
+*Defined in [packages/teraslice-cli/src/helpers/yargs-options.ts:17](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/yargs-options.ts#L17)*
 
 **Returns:** *[Options](options.md)*
 
@@ -43,7 +43,7 @@ sidebar_label: Options
 
 • **coerce**: *any*
 
-*Defined in [packages/teraslice-cli/src/helpers/yargs-options.ts:17](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/yargs-options.ts#L17)*
+*Defined in [packages/teraslice-cli/src/helpers/yargs-options.ts:17](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/yargs-options.ts#L17)*
 
 ___
 
@@ -51,7 +51,7 @@ ___
 
 • **options**: *any*
 
-*Defined in [packages/teraslice-cli/src/helpers/yargs-options.ts:15](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/yargs-options.ts#L15)*
+*Defined in [packages/teraslice-cli/src/helpers/yargs-options.ts:15](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/yargs-options.ts#L15)*
 
 ___
 
@@ -59,7 +59,7 @@ ___
 
 • **positionals**: *any*
 
-*Defined in [packages/teraslice-cli/src/helpers/yargs-options.ts:16](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/yargs-options.ts#L16)*
+*Defined in [packages/teraslice-cli/src/helpers/yargs-options.ts:16](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/yargs-options.ts#L16)*
 
 ## Methods
 
@@ -67,7 +67,7 @@ ___
 
 ▸ **buildCoerce**(`key`: string): *any*
 
-*Defined in [packages/teraslice-cli/src/helpers/yargs-options.ts:244](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/yargs-options.ts#L244)*
+*Defined in [packages/teraslice-cli/src/helpers/yargs-options.ts:244](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/yargs-options.ts#L244)*
 
 **Parameters:**
 
@@ -83,7 +83,7 @@ ___
 
 ▸ **buildOption**(`key`: string, ...`args`: any[]): *any*
 
-*Defined in [packages/teraslice-cli/src/helpers/yargs-options.ts:236](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/yargs-options.ts#L236)*
+*Defined in [packages/teraslice-cli/src/helpers/yargs-options.ts:236](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/yargs-options.ts#L236)*
 
 **Parameters:**
 
@@ -100,7 +100,7 @@ ___
 
 ▸ **buildPositional**(`key`: string, ...`args`: any[]): *any*
 
-*Defined in [packages/teraslice-cli/src/helpers/yargs-options.ts:240](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-cli/src/helpers/yargs-options.ts#L240)*
+*Defined in [packages/teraslice-cli/src/helpers/yargs-options.ts:240](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/yargs-options.ts#L240)*
 
 **Parameters:**
 

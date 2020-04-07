@@ -21,9 +21,9 @@ sidebar_label: ESMappingOptions
 
 ### `Optional` overrides
 
-• **overrides**? : *Partial‹[ESMapping](esmapping.md)›*
+• **overrides**? : *Partial‹ESMapping›*
 
-*Defined in [data-types/src/interfaces.ts:210](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L210)*
+*Defined in [interfaces.ts:169](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/interfaces.ts#L169)*
 
 Any elasitcsearch mapping overrides,
 uses a deep assignment so nested fields can be overwritten.
@@ -34,7 +34,7 @@ ___
 
 • **typeName**? : *undefined | string*
 
-*Defined in [data-types/src/interfaces.ts:205](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L205)*
+*Defined in [interfaces.ts:164](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/interfaces.ts#L164)*
 
 The elasticsearch index type
 
@@ -44,7 +44,7 @@ ___
 
 • **version**? : *undefined | number*
 
-*Defined in [data-types/src/interfaces.ts:216](https://github.com/terascope/teraslice/blob/653cf7530/packages/data-types/src/interfaces.ts#L216)*
+*Defined in [interfaces.ts:175](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/interfaces.ts#L175)*
 
 The version of the elasticsearch cluster
 

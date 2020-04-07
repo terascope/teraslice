@@ -14,7 +14,7 @@ import {
     isValidDate,
     isNumber,
     isArray,
-    isTuple
+    isNumberTuple
 } from '../validations/field-validator';
 import { Repository } from '../interfaces';
 
@@ -829,7 +829,7 @@ export function toGeoPoint(input: any) {
     if (ts.isNil(input)) return null;
 
     // a tuple of numbers is a form of geo-point, do not map it
-    if (isArray(input) && !isTuple(input)) {
+    if (isArray(input) && !isNumberTuple(input)) {
         return input
             .filter(ts.isNotNil)
             .map((data: any) => ts.parseGeoPoint(data, true));
@@ -993,6 +993,7 @@ export function replaceRegex(input: StringInput, {
 
     if (isArray(input)) {
         return input.filter(ts.isNotNil).map((data: any) => {
+            if (!isString(data)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(input)}`);
             const re = new RegExp(regex, options);
             return data.replace(re, replace);
         });
@@ -1024,7 +1025,10 @@ export function replaceLiteral(input: StringInput, { search, replace }: ReplaceL
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
-        return input.filter(ts.isNotNil).map((data: any) => data.replace(search, replace));
+        return input.filter(ts.isNotNil).map((data: any) => {
+            if (!isString(data)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(data)}`);
+            return data.replace(search, replace);
+        });
     }
 
     if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(input)}`);
@@ -1048,6 +1052,7 @@ export function replaceLiteral(input: StringInput, { search, replace }: ReplaceL
  * @param {{ delimiter: string }} [args] delimter defaults to an empty string
  * @returns {(string[] | null)}
  */
+
 export function toArray(input: any, args?: { delimiter: string }): string[] | null {
     if (ts.isNil(input)) return null;
 
@@ -1058,10 +1063,10 @@ export function toArray(input: any, args?: { delimiter: string }): string[] | nu
         return input.split(delimiter);
     }
 
-    throw new Error('Input must be a string or an array');
+    throw new Error(`Input must be a string or an array, got ${ts.getTypeOf(input)}`);
 }
 
-function makeUnitTime(input: any, { ms = false } = {}) {
+function _makeUnitTime(input: any, { ms = false } = {}) {
     let time: boolean | number;
 
     if (ms) {
@@ -1096,15 +1101,19 @@ export function toUnixTime(input: any, { ms = false } = {}) {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
-        return input.filter(ts.isNotNil).map((data: any) => makeUnitTime(data, { ms }));
+        return input.filter(ts.isNotNil).map((data: any) => {
+            if (!isValidDate(data)) throw new Error(`Not a valid date, cannot transform ${data} to unix time`);
+
+            return _makeUnitTime(data, { ms });
+        });
     }
 
-    if (!isValidDate(input)) throw new Error('Not a valid date, cannot transform to unix time');
+    if (!isValidDate(input)) throw new Error(`Not a valid date, cannot transform ${input} to unix time`);
 
-    return makeUnitTime(input, { ms });
+    return _makeUnitTime(input, { ms });
 }
 
-function makeIso(input: any, args?: { resolution?: 'seconds' | 'milliseconds' }) {
+function _makeIso(input: any, args?: { resolution?: 'seconds' | 'milliseconds' }) {
     let value = input;
     if (isNumber(input) && args && args.resolution) value *= 1000;
 
@@ -1133,14 +1142,20 @@ export function toISO8601(input: any, args?: { resolution?: 'seconds' | 'millise
     if (isArray(input)) {
         return input
             .filter(ts.isNotNil)
-            .map((data: any) => makeIso(data, args));
+            .map((data: any) => {
+                if (!isValidDate(data)) {
+                    throw new Error(`Input is not valid date, recieved ${data}`);
+                }
+
+                return _makeIso(data, args);
+            });
     }
 
     if (!isValidDate(input)) {
-        throw new Error('Input is not valid date');
+        throw new Error(`Input is not valid date, recieved ${input}`);
     }
 
-    return makeIso(input, args);
+    return _makeIso(input, args);
 }
 
 interface FormatDateConfig {
@@ -1169,7 +1184,7 @@ function _formatDate(input: any, args: FormatDateConfig) {
  *
  * @example
  *
- * const resutls1 = fieldTransform.formatDate('2020-01-14T20:34:01.034Z', { format: 'MMM do yy' })
+ * const results1 = fieldTransform.formatDate('2020-01-14T20:34:01.034Z', { format: 'MMM do yy' })
  * results1 === 'Jan 14th 20';
  *
  * const results2 = fieldTransform.formatDate('March 3, 2019', { format: 'M/d/yyyy' })
@@ -1221,20 +1236,20 @@ function _parseDate(input: any, args: ParseDateConfig) {
  *
  * @example
  *
- * const resutls1 = fieldTransform.parseDate('2020-01-10-00:00', { format: 'yyyy-MM-ddxxx' })
- * reuslts1 === new Date('2020-01-10T00:00:00.000Z');
+ * const result = fieldTransform.parseDate('2020-01-10-00:00', { format: 'yyyy-MM-ddxxx' })
+ * result === new Date('2020-01-10T00:00:00.000Z');
  *
- * const resutls2 = fieldTransform.parseDate('Jan 10, 2020-00:00', { format: 'MMM dd, yyyyxxx' })
- * resutls2 === new Date('2020-01-10T00:00:00.000Z');
+ * const result = fieldTransform.parseDate('Jan 10, 2020-00:00', { format: 'MMM dd, yyyyxxx' })
+ * result === new Date('2020-01-10T00:00:00.000Z');
  *
- * const resutls3 = fieldTransform.parseDate(1581025950223, { format: 'T' })
- * resutls3 === new Date('2020-02-06T21:52:30.223Z');
+ * const result = fieldTransform.parseDate(1581025950223, { format: 'T' })
+ * result === new Date('2020-02-06T21:52:30.223Z');
  *
- * const resutls4 = fieldTransform.parseDate(1581025950, { format: 't' })
- * resutls4 === new Date('2020-02-06T21:52:30.000Z');
+ * const result = fieldTransform.parseDate(1581025950, { format: 't' })
+ * result === new Date('2020-02-06T21:52:30.000Z');
  *
- * const resutls5 = fieldTransform.parseDate('1581025950', { format: 't' })
- * resutls5 === new Date('2020-02-06T21:52:30.000Z');
+ * const result = fieldTransform.parseDate('1581025950', { format: 't' })
+ * result === new Date('2020-02-06T21:52:30.000Z');
  *
  * @export
  * @param {*} input

@@ -30,7 +30,7 @@ sidebar_label: JobNativeProcess
 
 *Inherited from [NativeProcess](nativeprocess.md).[assignment](nativeprocess.md#assignment)*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:107](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L107)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:107](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L107)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 *Inherited from [NativeProcess](nativeprocess.md).[ex_id](nativeprocess.md#optional-ex_id)*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:109](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L109)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:109](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L109)*
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 *Inherited from [NativeProcess](nativeprocess.md).[job_id](nativeprocess.md#optional-job_id)*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:110](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L110)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:110](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L110)*
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 • **node_id**: *string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:70](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L70)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:70](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L70)*
 
 ___
 
@@ -68,7 +68,7 @@ ___
 
 *Inherited from [NativeProcess](nativeprocess.md).[pid](nativeprocess.md#pid)*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:108](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L108)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:108](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L108)*
 
 ___
 
@@ -78,4 +78,4 @@ ___
 
 *Inherited from [NativeProcess](nativeprocess.md).[worker_id](nativeprocess.md#worker_id)*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:106](https://github.com/terascope/teraslice/blob/653cf7530/packages/teraslice-client-js/src/interfaces.ts#L106)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:106](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L106)*

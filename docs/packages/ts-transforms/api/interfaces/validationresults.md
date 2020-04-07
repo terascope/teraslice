@@ -24,7 +24,7 @@ sidebar_label: ValidationResults
 
 • **extractions**: *[ExtractionProcessingDict](extractionprocessingdict.md)*
 
-*Defined in [interfaces.ts:141](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L141)*
+*Defined in [interfaces.ts:147](https://github.com/terascope/teraslice/blob/f95bb5556/packages/ts-transforms/src/interfaces.ts#L147)*
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **output**: *[OutputValidation](outputvalidation.md)*
 
-*Defined in [interfaces.ts:143](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L143)*
+*Defined in [interfaces.ts:149](https://github.com/terascope/teraslice/blob/f95bb5556/packages/ts-transforms/src/interfaces.ts#L149)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **postProcessing**: *[PostProcessingDict](postprocessingdict.md)*
 
-*Defined in [interfaces.ts:142](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L142)*
+*Defined in [interfaces.ts:148](https://github.com/terascope/teraslice/blob/f95bb5556/packages/ts-transforms/src/interfaces.ts#L148)*
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **selectors**: *[SelectorConfig](selectorconfig.md)[]*
 
-*Defined in [interfaces.ts:140](https://github.com/terascope/teraslice/blob/653cf7530/packages/ts-transforms/src/interfaces.ts#L140)*
+*Defined in [interfaces.ts:146](https://github.com/terascope/teraslice/blob/f95bb5556/packages/ts-transforms/src/interfaces.ts#L146)*
