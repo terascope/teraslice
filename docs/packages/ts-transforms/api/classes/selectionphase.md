@@ -36,7 +36,7 @@ sidebar_label: SelectionPhase
 
 *Overrides [PhaseBase](phasebase.md).[constructor](phasebase.md#constructor)*
 
-*Defined in [phases/selector-phase.ts:7](https://github.com/terascope/teraslice/blob/f95bb5556/packages/ts-transforms/src/phases/selector-phase.ts#L7)*
+*Defined in [phases/selector-phase.ts:7](https://github.com/terascope/teraslice/blob/b843209f9/packages/ts-transforms/src/phases/selector-phase.ts#L7)*
 
 **Parameters:**
 
@@ -56,7 +56,7 @@ Name | Type |
 
 *Inherited from [PhaseBase](phasebase.md).[hasProcessing](phasebase.md#hasprocessing)*
 
-*Defined in [phases/base.ts:6](https://github.com/terascope/teraslice/blob/f95bb5556/packages/ts-transforms/src/phases/base.ts#L6)*
+*Defined in [phases/base.ts:6](https://github.com/terascope/teraslice/blob/b843209f9/packages/ts-transforms/src/phases/base.ts#L6)*
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 *Inherited from [PhaseBase](phasebase.md).[opConfig](phasebase.md#protected-opconfig)*
 
-*Defined in [phases/base.ts:7](https://github.com/terascope/teraslice/blob/f95bb5556/packages/ts-transforms/src/phases/base.ts#L7)*
+*Defined in [phases/base.ts:7](https://github.com/terascope/teraslice/blob/b843209f9/packages/ts-transforms/src/phases/base.ts#L7)*
 
 ___
 
@@ -76,7 +76,7 @@ ___
 
 *Inherited from [PhaseBase](phasebase.md).[phase](phasebase.md#phase)*
 
-*Defined in [phases/base.ts:5](https://github.com/terascope/teraslice/blob/f95bb5556/packages/ts-transforms/src/phases/base.ts#L5)*
+*Defined in [phases/base.ts:5](https://github.com/terascope/teraslice/blob/b843209f9/packages/ts-transforms/src/phases/base.ts#L5)*
 
 ___
 
@@ -84,7 +84,7 @@ ___
 
 • **selectionPhase**: *[Operation](../interfaces/operation.md)[]*
 
-*Defined in [phases/selector-phase.ts:7](https://github.com/terascope/teraslice/blob/f95bb5556/packages/ts-transforms/src/phases/selector-phase.ts#L7)*
+*Defined in [phases/selector-phase.ts:7](https://github.com/terascope/teraslice/blob/b843209f9/packages/ts-transforms/src/phases/selector-phase.ts#L7)*
 
 ## Methods
 
@@ -94,7 +94,7 @@ ___
 
 *Overrides [PhaseBase](phasebase.md).[run](phasebase.md#abstract-run)*
 
-*Defined in [phases/selector-phase.ts:27](https://github.com/terascope/teraslice/blob/f95bb5556/packages/ts-transforms/src/phases/selector-phase.ts#L27)*
+*Defined in [phases/selector-phase.ts:27](https://github.com/terascope/teraslice/blob/b843209f9/packages/ts-transforms/src/phases/selector-phase.ts#L27)*
 
 **Parameters:**
 

@@ -23,7 +23,7 @@ sidebar_label: ConnectionConfig
 
 • **cached**? : *undefined | false | true*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:30](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/interfaces.ts#L30)*
+*Defined in [packages/terafoundation/src/interfaces.ts:30](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/interfaces.ts#L30)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **endpoint**: *string*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:29](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/interfaces.ts#L29)*
+*Defined in [packages/terafoundation/src/interfaces.ts:29](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/interfaces.ts#L29)*
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 • **type**: *string*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:31](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/interfaces.ts#L31)*
+*Defined in [packages/terafoundation/src/interfaces.ts:31](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/interfaces.ts#L31)*

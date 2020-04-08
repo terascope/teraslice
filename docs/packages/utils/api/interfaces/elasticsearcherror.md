@@ -43,7 +43,7 @@ ___
 
 • **body**? : *undefined | object*
 
-*Defined in [packages/utils/src/errors.ts:385](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/errors.ts#L385)*
+*Defined in [packages/utils/src/errors.ts:385](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/errors.ts#L385)*
 
 ___
 
@@ -51,7 +51,7 @@ ___
 
 • **index**? : *undefined | string*
 
-*Defined in [packages/utils/src/errors.ts:403](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/errors.ts#L403)*
+*Defined in [packages/utils/src/errors.ts:403](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/errors.ts#L403)*
 
 ___
 
@@ -79,7 +79,7 @@ ___
 
 • **reason**? : *undefined | string*
 
-*Defined in [packages/utils/src/errors.ts:402](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/errors.ts#L402)*
+*Defined in [packages/utils/src/errors.ts:402](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/errors.ts#L402)*
 
 ___
 
@@ -97,7 +97,7 @@ ___
 
 • **status**? : *undefined | number*
 
-*Defined in [packages/utils/src/errors.ts:400](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/errors.ts#L400)*
+*Defined in [packages/utils/src/errors.ts:400](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/errors.ts#L400)*
 
 ___
 
@@ -105,7 +105,7 @@ ___
 
 • **type**? : *undefined | string*
 
-*Defined in [packages/utils/src/errors.ts:401](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/errors.ts#L401)*
+*Defined in [packages/utils/src/errors.ts:401](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/errors.ts#L401)*
 
 ## Methods
 
@@ -113,6 +113,6 @@ ___
 
 ▸ **toJSON**(): *object*
 
-*Defined in [packages/utils/src/errors.ts:405](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/errors.ts#L405)*
+*Defined in [packages/utils/src/errors.ts:405](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/errors.ts#L405)*
 
 **Returns:** *object*

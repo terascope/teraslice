@@ -22,7 +22,7 @@ sidebar_label: FunctionConfig
 
 • **logger**: *Logger*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:162](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L162)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:162](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L162)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **typeConfig**: *xLuceneTypeConfig*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:163](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L163)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:163](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L163)*

@@ -25,4 +25,4 @@ sidebar_label: SliceRequest
 
 • **request_worker**? : *undefined | string*
 
-*Defined in [packages/teraslice-messaging/src/execution-controller/interfaces.ts:53](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L53)*
+*Defined in [packages/teraslice-messaging/src/execution-controller/interfaces.ts:53](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L53)*

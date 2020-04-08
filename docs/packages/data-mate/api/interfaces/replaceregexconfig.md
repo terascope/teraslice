@@ -24,7 +24,7 @@ sidebar_label: ReplaceRegexConfig
 
 • **global**? : *undefined | false | true*
 
-*Defined in [data-mate/src/transforms/interfaces.ts:22](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/transforms/interfaces.ts#L22)*
+*Defined in [data-mate/src/transforms/interfaces.ts:22](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-mate/src/transforms/interfaces.ts#L22)*
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **ignoreCase**? : *undefined | false | true*
 
-*Defined in [data-mate/src/transforms/interfaces.ts:23](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/transforms/interfaces.ts#L23)*
+*Defined in [data-mate/src/transforms/interfaces.ts:23](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-mate/src/transforms/interfaces.ts#L23)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **regex**: *string*
 
-*Defined in [data-mate/src/transforms/interfaces.ts:20](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/transforms/interfaces.ts#L20)*
+*Defined in [data-mate/src/transforms/interfaces.ts:20](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-mate/src/transforms/interfaces.ts#L20)*
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **replace**: *string*
 
-*Defined in [data-mate/src/transforms/interfaces.ts:21](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/transforms/interfaces.ts#L21)*
+*Defined in [data-mate/src/transforms/interfaces.ts:21](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-mate/src/transforms/interfaces.ts#L21)*

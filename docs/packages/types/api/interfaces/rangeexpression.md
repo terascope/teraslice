@@ -24,7 +24,7 @@ sidebar_label: RangeExpression
 
 • **gt**? : *string | number*
 
-*Defined in [elasticsearch-interfaces.ts:129](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/elasticsearch-interfaces.ts#L129)*
+*Defined in [elasticsearch-interfaces.ts:129](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/elasticsearch-interfaces.ts#L129)*
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **gte**? : *string | number*
 
-*Defined in [elasticsearch-interfaces.ts:127](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/elasticsearch-interfaces.ts#L127)*
+*Defined in [elasticsearch-interfaces.ts:127](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/elasticsearch-interfaces.ts#L127)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **lt**? : *string | number*
 
-*Defined in [elasticsearch-interfaces.ts:130](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/elasticsearch-interfaces.ts#L130)*
+*Defined in [elasticsearch-interfaces.ts:130](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/elasticsearch-interfaces.ts#L130)*
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **lte**? : *string | number*
 
-*Defined in [elasticsearch-interfaces.ts:128](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/elasticsearch-interfaces.ts#L128)*
+*Defined in [elasticsearch-interfaces.ts:128](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/elasticsearch-interfaces.ts#L128)*

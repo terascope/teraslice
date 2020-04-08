@@ -23,7 +23,7 @@ sidebar_label: LengthConfig
 
 • **max**? : *undefined | number*
 
-*Defined in [data-mate/src/validations/interfaces.ts:29](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/validations/interfaces.ts#L29)*
+*Defined in [data-mate/src/validations/interfaces.ts:29](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-mate/src/validations/interfaces.ts#L29)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **min**? : *undefined | number*
 
-*Defined in [data-mate/src/validations/interfaces.ts:28](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/validations/interfaces.ts#L28)*
+*Defined in [data-mate/src/validations/interfaces.ts:28](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-mate/src/validations/interfaces.ts#L28)*
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 • **size**? : *undefined | number*
 
-*Defined in [data-mate/src/validations/interfaces.ts:27](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/validations/interfaces.ts#L27)*
+*Defined in [data-mate/src/validations/interfaces.ts:27](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-mate/src/validations/interfaces.ts#L27)*

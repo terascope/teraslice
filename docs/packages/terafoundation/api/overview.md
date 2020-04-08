@@ -59,7 +59,7 @@ sidebar_label: API
 
 Ƭ **ClientFactoryFn**: *function*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:34](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/interfaces.ts#L34)*
+*Defined in [packages/terafoundation/src/interfaces.ts:34](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/interfaces.ts#L34)*
 
 #### Type declaration:
 
@@ -79,7 +79,7 @@ ___
 
 Ƭ **Cluster**: *Overwrite‹NodeJSCluster, object›*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:77](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/interfaces.ts#L77)*
+*Defined in [packages/terafoundation/src/interfaces.ts:77](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/interfaces.ts#L77)*
 
 ___
 
@@ -87,7 +87,7 @@ ___
 
 Ƭ **ContextAPIs**: *object*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:60](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/interfaces.ts#L60)*
+*Defined in [packages/terafoundation/src/interfaces.ts:60](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/interfaces.ts#L60)*
 
 #### Type declaration:
 
@@ -97,7 +97,7 @@ ___
 
 Ƭ **FoundationConfig**: *object*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:9](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/interfaces.ts#L9)*
+*Defined in [packages/terafoundation/src/interfaces.ts:9](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/interfaces.ts#L9)*
 
 #### Type declaration:
 
@@ -107,7 +107,7 @@ ___
 
 Ƭ **FoundationContext**: *object*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:96](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/interfaces.ts#L96)*
+*Defined in [packages/terafoundation/src/interfaces.ts:96](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/interfaces.ts#L96)*
 
 #### Type declaration:
 
@@ -117,7 +117,7 @@ ___
 
 Ƭ **FoundationSysConfig**: *object & S*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:84](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/interfaces.ts#L84)*
+*Defined in [packages/terafoundation/src/interfaces.ts:84](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/interfaces.ts#L84)*
 
 ___
 
@@ -125,7 +125,7 @@ ___
 
 Ƭ **LogLevelConfig**: *string | Array*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:67](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/interfaces.ts#L67)*
+*Defined in [packages/terafoundation/src/interfaces.ts:67](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/interfaces.ts#L67)*
 
 ___
 
@@ -133,7 +133,7 @@ ___
 
 Ƭ **LogLevelType**: *"trace" | "debug" | "info" | "warn" | "error" | "fatal"*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:66](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/interfaces.ts#L66)*
+*Defined in [packages/terafoundation/src/interfaces.ts:66](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/interfaces.ts#L66)*
 
 ___
 
@@ -141,7 +141,7 @@ ___
 
 Ƭ **LogType**: *"console" | "file"*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:65](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/interfaces.ts#L65)*
+*Defined in [packages/terafoundation/src/interfaces.ts:65](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/interfaces.ts#L65)*
 
 ___
 
@@ -149,7 +149,7 @@ ___
 
 Ƭ **ParsedArgs**: *object*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:109](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/interfaces.ts#L109)*
+*Defined in [packages/terafoundation/src/interfaces.ts:109](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/interfaces.ts#L109)*
 
 #### Type declaration:
 
@@ -159,7 +159,7 @@ ___
 
 ▸ **createConnection**(`name`: string, `moduleConfig`: any, `logger`: Logger, `options`: any): *any*
 
-*Defined in [packages/terafoundation/src/connector-utils.ts:110](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/connector-utils.ts#L110)*
+*Defined in [packages/terafoundation/src/connector-utils.ts:110](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/connector-utils.ts#L110)*
 
 **Parameters:**
 
@@ -178,7 +178,7 @@ ___
 
 ▸ **createRootLogger**(`context`: i.FoundationContext‹__type›): *Logger*
 
-*Defined in [packages/terafoundation/src/api/utils.ts:27](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/api/utils.ts#L27)*
+*Defined in [packages/terafoundation/src/api/utils.ts:27](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/api/utils.ts#L27)*
 
 **Parameters:**
 
@@ -194,7 +194,7 @@ ___
 
 ▸ **getArgs**<**S**>(`defaultConfigFile?`: undefined | string): *i.ParsedArgs‹S›*
 
-*Defined in [packages/terafoundation/src/sysconfig.ts:42](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/sysconfig.ts#L42)*
+*Defined in [packages/terafoundation/src/sysconfig.ts:42](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/sysconfig.ts#L42)*
 
 **Type parameters:**
 
@@ -214,7 +214,7 @@ ___
 
 ▸ **getConnectorModule**(`name`: string, `reason`: string): *any*
 
-*Defined in [packages/terafoundation/src/connector-utils.ts:55](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/connector-utils.ts#L55)*
+*Defined in [packages/terafoundation/src/connector-utils.ts:55](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/connector-utils.ts#L55)*
 
 **Parameters:**
 
@@ -231,7 +231,7 @@ ___
 
 ▸ **getConnectorSchema**(`name`: string): *any*
 
-*Defined in [packages/terafoundation/src/connector-utils.ts:99](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/connector-utils.ts#L99)*
+*Defined in [packages/terafoundation/src/connector-utils.ts:99](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/connector-utils.ts#L99)*
 
 **Parameters:**
 
@@ -247,7 +247,7 @@ ___
 
 ▸ **getDefaultConfigFile**(): *undefined | string*
 
-*Defined in [packages/terafoundation/src/sysconfig.ts:8](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/sysconfig.ts#L8)*
+*Defined in [packages/terafoundation/src/sysconfig.ts:8](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/sysconfig.ts#L8)*
 
 **Returns:** *undefined | string*
 
@@ -257,7 +257,7 @@ ___
 
 ▸ **handleStdStreams**(): *void*
 
-*Defined in [packages/terafoundation/src/core-context.ts:49](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/core-context.ts#L49)*
+*Defined in [packages/terafoundation/src/core-context.ts:49](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/core-context.ts#L49)*
 
 **Returns:** *void*
 
@@ -267,7 +267,7 @@ ___
 
 ▸ **masterModule**<**S**, **A**, **D**>(`context`: i.FoundationContext‹S, A, D›, `config`: i.FoundationConfig‹S, A, D›): *void*
 
-*Defined in [packages/terafoundation/src/master.ts:5](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/master.ts#L5)*
+*Defined in [packages/terafoundation/src/master.ts:5](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/master.ts#L5)*
 
 **Type parameters:**
 
@@ -292,7 +292,7 @@ ___
 
 ▸ **parseConfigFile**(`file`: string): *any*
 
-*Defined in [packages/terafoundation/src/sysconfig.ts:65](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/sysconfig.ts#L65)*
+*Defined in [packages/terafoundation/src/sysconfig.ts:65](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/sysconfig.ts#L65)*
 
 **Parameters:**
 
@@ -308,7 +308,7 @@ ___
 
 ▸ **registerApis**(`context`: i.FoundationContext): *void*
 
-*Defined in [packages/terafoundation/src/api/index.ts:10](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/api/index.ts#L10)*
+*Defined in [packages/terafoundation/src/api/index.ts:10](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/api/index.ts#L10)*
 
 **Parameters:**
 
@@ -324,7 +324,7 @@ ___
 
 ▸ **validateConfigs**<**S**, **A**, **D**>(`cluster`: i.Cluster, `config`: i.FoundationConfig‹S, A, D›, `sysconfig`: PartialDeep‹i.FoundationSysConfig‹S››): *i.FoundationSysConfig‹S›*
 
-*Defined in [packages/terafoundation/src/validate-configs.ts:54](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/validate-configs.ts#L54)*
+*Defined in [packages/terafoundation/src/validate-configs.ts:54](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/validate-configs.ts#L54)*
 
 **Type parameters:**
 
@@ -350,7 +350,7 @@ ___
 
 ▸ **workerModule**(`context`: [FoundationContext](overview.md#foundationcontext)): *void*
 
-*Defined in [packages/terafoundation/src/worker.ts:3](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/worker.ts#L3)*
+*Defined in [packages/terafoundation/src/worker.ts:3](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/worker.ts#L3)*
 
 **Parameters:**
 

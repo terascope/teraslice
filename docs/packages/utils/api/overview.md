@@ -211,7 +211,7 @@ sidebar_label: API
 
 Ƭ **DataArrayInput**: *[DataInput](overview.md#datainput) | [DataInput](overview.md#datainput)[]*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:391](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/entities/data-entity.ts#L391)*
+*Defined in [packages/utils/src/entities/data-entity.ts:391](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/entities/data-entity.ts#L391)*
 
 ___
 
@@ -219,7 +219,7 @@ ___
 
 Ƭ **DataEntityMetadataValue**: *"_createTime" | "_ingestTime" | "_processTime" | "_eventTime" | "_key" | keyof M | string | number*
 
-*Defined in [packages/utils/src/entities/interfaces.ts:12](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/entities/interfaces.ts#L12)*
+*Defined in [packages/utils/src/entities/interfaces.ts:12](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/entities/interfaces.ts#L12)*
 
 ___
 
@@ -227,7 +227,7 @@ ___
 
 Ƭ **DataInput**: *Record‹string, any› | [DataEntity](classes/dataentity.md)*
 
-*Defined in [packages/utils/src/entities/data-entity.ts:390](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/entities/data-entity.ts#L390)*
+*Defined in [packages/utils/src/entities/data-entity.ts:390](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/entities/data-entity.ts#L390)*
 
 ___
 
@@ -235,7 +235,7 @@ ___
 
 Ƭ **Diff**: *T extends U ? never : T*
 
-*Defined in [packages/utils/src/interfaces.ts:77](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/interfaces.ts#L77)*
+*Defined in [packages/utils/src/interfaces.ts:77](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/interfaces.ts#L77)*
 
 Remove types from T that are assignable to U
 
@@ -245,7 +245,7 @@ ___
 
 Ƭ **EntityMetadataValue**:
 
-*Defined in [packages/utils/src/entities/interfaces.ts:18](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/entities/interfaces.ts#L18)*
+*Defined in [packages/utils/src/entities/interfaces.ts:18](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/entities/interfaces.ts#L18)*
 
 ___
 
@@ -253,7 +253,7 @@ ___
 
 Ƭ **Filter**: *T extends U ? T : never*
 
-*Defined in [packages/utils/src/interfaces.ts:82](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/interfaces.ts#L82)*
+*Defined in [packages/utils/src/interfaces.ts:82](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/interfaces.ts#L82)*
 
 Remove types from T that are NOT assignable to U
 
@@ -263,7 +263,7 @@ ___
 
 Ƭ **FilteredResult**: *object*
 
-*Defined in [packages/utils/src/interfaces.ts:92](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/interfaces.ts#L92)*
+*Defined in [packages/utils/src/interfaces.ts:92](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/interfaces.ts#L92)*
 
 Filters the keys of an object (T), by list of included keys (I) and excluded (E)
 
@@ -275,7 +275,7 @@ ___
 
 Ƭ **Nil**: *null | undefined*
 
-*Defined in [packages/utils/src/interfaces.ts:45](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/interfaces.ts#L45)*
+*Defined in [packages/utils/src/interfaces.ts:45](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/interfaces.ts#L45)*
 
 ___
 
@@ -283,7 +283,7 @@ ___
 
 Ƭ **Omit**: *Pick‹T, Exclude‹keyof T, K››*
 
-*Defined in [packages/utils/src/interfaces.ts:7](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/interfaces.ts#L7)*
+*Defined in [packages/utils/src/interfaces.ts:7](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/interfaces.ts#L7)*
 
 Omit the properties available to type.
 Useful for excluding properties from a type
@@ -296,7 +296,7 @@ ___
 
 Ƭ **Optional**: *object*
 
-*Defined in [packages/utils/src/interfaces.ts:41](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/interfaces.ts#L41)*
+*Defined in [packages/utils/src/interfaces.ts:41](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/interfaces.ts#L41)*
 
 Like Partial but makes certain properties optional
 
@@ -310,7 +310,7 @@ ___
 
 Ƭ **Override**: *object*
 
-*Defined in [packages/utils/src/interfaces.ts:23](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/interfaces.ts#L23)*
+*Defined in [packages/utils/src/interfaces.ts:23](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/interfaces.ts#L23)*
 
 Override specific properties on a type
 
@@ -324,7 +324,7 @@ ___
 
 Ƭ **Overwrite**: *object & T2*
 
-*Defined in [packages/utils/src/interfaces.ts:15](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/interfaces.ts#L15)*
+*Defined in [packages/utils/src/interfaces.ts:15](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/interfaces.ts#L15)*
 
 Overwrite a simple type with different properties.
 Useful changing and adding additional properties
@@ -337,7 +337,7 @@ ___
 
 Ƭ **PWhileOptions**: *object*
 
-*Defined in [packages/utils/src/promises.ts:175](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/promises.ts#L175)*
+*Defined in [packages/utils/src/promises.ts:175](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/promises.ts#L175)*
 
 #### Type declaration:
 
@@ -347,7 +347,7 @@ ___
 
 Ƭ **PartialDeep**: *object*
 
-*Defined in [packages/utils/src/interfaces.ts:70](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/interfaces.ts#L70)*
+*Defined in [packages/utils/src/interfaces.ts:70](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/interfaces.ts#L70)*
 
 A deep partial object
 
@@ -359,7 +359,7 @@ ___
 
 Ƭ **Required**: *object*
 
-*Defined in [packages/utils/src/interfaces.ts:32](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/interfaces.ts#L32)*
+*Defined in [packages/utils/src/interfaces.ts:32](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/interfaces.ts#L32)*
 
 Like Partial but makes certain properties required
 
@@ -373,7 +373,7 @@ ___
 
 Ƭ **TYPE_ENTITY_METADATA_KEY**: *"___EntityMetadata"*
 
-*Defined in [packages/utils/src/entities/interfaces.ts:4](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/entities/interfaces.ts#L4)*
+*Defined in [packages/utils/src/entities/interfaces.ts:4](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/entities/interfaces.ts#L4)*
 
 ___
 
@@ -381,7 +381,7 @@ ___
 
 Ƭ **TYPE_IS_DATAENTITY_KEY**: *"__isDataEntity"*
 
-*Defined in [packages/utils/src/entities/interfaces.ts:3](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/entities/interfaces.ts#L3)*
+*Defined in [packages/utils/src/entities/interfaces.ts:3](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/entities/interfaces.ts#L3)*
 
 ___
 
@@ -389,7 +389,7 @@ ___
 
 Ƭ **Unpacked**:
 
-*Defined in [packages/utils/src/interfaces.ts:101](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/interfaces.ts#L101)*
+*Defined in [packages/utils/src/interfaces.ts:101](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/interfaces.ts#L101)*
 
 From https://www.typescriptlang.org/docs/handbook/advanced-types.html#type-inference-in-conditional-types
 
@@ -399,7 +399,7 @@ ___
 
 Ƭ **ValueOf**: *T[keyof T]*
 
-*Defined in [packages/utils/src/interfaces.ts:87](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/interfaces.ts#L87)*
+*Defined in [packages/utils/src/interfaces.ts:87](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/interfaces.ts#L87)*
 
 Get the types object (the opposite of keyof)
 
@@ -409,7 +409,7 @@ ___
 
 Ƭ **WithoutNil**: *object*
 
-*Defined in [packages/utils/src/interfaces.ts:49](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/interfaces.ts#L49)*
+*Defined in [packages/utils/src/interfaces.ts:49](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/interfaces.ts#L49)*
 
 Without null or undefined properties
 
@@ -421,7 +421,7 @@ ___
 
 Ƭ **_DataEntityMetadata**: *M & [DataEntityMetadata](interfaces/dataentitymetadata.md) & [AnyObject](interfaces/anyobject.md)*
 
-*Defined in [packages/utils/src/entities/interfaces.ts:10](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/entities/interfaces.ts#L10)*
+*Defined in [packages/utils/src/entities/interfaces.ts:10](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/entities/interfaces.ts#L10)*
 
 ___
 
@@ -429,7 +429,7 @@ ___
 
 Ƭ **_DataEntityMetadataType**: *[DataEntityMetadata](interfaces/dataentitymetadata.md) | [AnyObject](interfaces/anyobject.md)*
 
-*Defined in [packages/utils/src/entities/interfaces.ts:9](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/entities/interfaces.ts#L9)*
+*Defined in [packages/utils/src/entities/interfaces.ts:9](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/entities/interfaces.ts#L9)*
 
 ## Variables
 
@@ -437,7 +437,7 @@ ___
 
 • **__ENTITY_METADATA_KEY**: *[TYPE_ENTITY_METADATA_KEY](overview.md#type_entity_metadata_key)* = "___EntityMetadata"
 
-*Defined in [packages/utils/src/entities/interfaces.ts:7](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/entities/interfaces.ts#L7)*
+*Defined in [packages/utils/src/entities/interfaces.ts:7](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/entities/interfaces.ts#L7)*
 
 ___
 
@@ -445,7 +445,7 @@ ___
 
 • **__IS_DATAENTITY_KEY**: *[TYPE_IS_DATAENTITY_KEY](overview.md#type_is_dataentity_key)* = "__isDataEntity"
 
-*Defined in [packages/utils/src/entities/interfaces.ts:6](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/entities/interfaces.ts#L6)*
+*Defined in [packages/utils/src/entities/interfaces.ts:6](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/entities/interfaces.ts#L6)*
 
 ___
 
@@ -453,7 +453,7 @@ ___
 
 • **dataEncodings**: *keyof DataEncoding[]* =  Object.values(DataEncoding)
 
-*Defined in [packages/utils/src/entities/interfaces.ts:74](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/entities/interfaces.ts#L74)*
+*Defined in [packages/utils/src/entities/interfaces.ts:74](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/entities/interfaces.ts#L74)*
 
 A list of supported encoding formats
 
@@ -463,7 +463,7 @@ ___
 
 • **geoJSONTypes**: *string[]* =  Object.keys(GeoShapeType).map((key) => key.toLowerCase())
 
-*Defined in [packages/utils/src/geo.ts:19](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/geo.ts#L19)*
+*Defined in [packages/utils/src/geo.ts:19](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/geo.ts#L19)*
 
 ___
 
@@ -471,7 +471,7 @@ ___
 
 • **isCI**: *boolean* =  process.env.CI === 'true'
 
-*Defined in [packages/utils/src/env.ts:6](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/env.ts#L6)*
+*Defined in [packages/utils/src/env.ts:6](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/env.ts#L6)*
 
 ___
 
@@ -479,7 +479,7 @@ ___
 
 • **isDev**: *boolean* =  NODE_ENV === 'development'
 
-*Defined in [packages/utils/src/env.ts:5](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/env.ts#L5)*
+*Defined in [packages/utils/src/env.ts:5](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/env.ts#L5)*
 
 ___
 
@@ -487,7 +487,7 @@ ___
 
 • **isProd**: *boolean* =  NODE_ENV === 'production'
 
-*Defined in [packages/utils/src/env.ts:3](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/env.ts#L3)*
+*Defined in [packages/utils/src/env.ts:3](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/env.ts#L3)*
 
 ___
 
@@ -495,7 +495,7 @@ ___
 
 • **isTest**: *boolean* =  NODE_ENV === 'test'
 
-*Defined in [packages/utils/src/env.ts:4](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/env.ts#L4)*
+*Defined in [packages/utils/src/env.ts:4](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/env.ts#L4)*
 
 ## Functions
 
@@ -503,7 +503,7 @@ ___
 
 ▸ **castArray**<**T**>(`input`: T | T[]): *T[]*
 
-*Defined in [packages/utils/src/arrays.ts:19](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/arrays.ts#L19)*
+*Defined in [packages/utils/src/arrays.ts:19](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/arrays.ts#L19)*
 
 A simplified implemation of lodash castArray
 
@@ -525,7 +525,7 @@ ___
 
 ▸ **chunk**<**T**>(`dataArray`: T[] | Set‹T›, `size`: number): *T[][]*
 
-*Defined in [packages/utils/src/arrays.ts:126](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/arrays.ts#L126)*
+*Defined in [packages/utils/src/arrays.ts:126](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/arrays.ts#L126)*
 
 Chunk an array into specific sizes
 
@@ -548,7 +548,7 @@ ___
 
 ▸ **clone**(`input`: any): *boolean*
 
-*Defined in [packages/utils/src/deps.ts:36](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/deps.ts#L36)*
+*Defined in [packages/utils/src/deps.ts:36](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/deps.ts#L36)*
 
 Shallow clone an object
 
@@ -566,7 +566,7 @@ ___
 
 ▸ **cloneDeep**<**T**>(`input`: T): *T*
 
-*Defined in [packages/utils/src/deps.ts:68](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/deps.ts#L68)*
+*Defined in [packages/utils/src/deps.ts:68](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/deps.ts#L68)*
 
 **Type parameters:**
 
@@ -586,7 +586,7 @@ ___
 
 ▸ **concat**<**T**>(`arr`: T | T[], `arr1?`: T | T[]): *T[]*
 
-*Defined in [packages/utils/src/arrays.ts:29](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/arrays.ts#L29)*
+*Defined in [packages/utils/src/arrays.ts:29](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/arrays.ts#L29)*
 
 Concat and unique the items in the array
 Any non-array value will be converted to an array
@@ -610,7 +610,7 @@ ___
 
 ▸ **configurable**(`value`: boolean): *_configurable*
 
-*Defined in [packages/utils/src/decorators.ts:15](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/decorators.ts#L15)*
+*Defined in [packages/utils/src/decorators.ts:15](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/decorators.ts#L15)*
 
 A decorator making changing the changing configurable property
 
@@ -628,7 +628,7 @@ ___
 
 ▸ **createCoreMetadata**<**M**>(): *i._DataEntityMetadata‹M›*
 
-*Defined in [packages/utils/src/entities/utils.ts:32](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/entities/utils.ts#L32)*
+*Defined in [packages/utils/src/entities/utils.ts:32](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/entities/utils.ts#L32)*
 
 **Type parameters:**
 
@@ -642,7 +642,7 @@ ___
 
 ▸ **createMetadata**<**M**>(`metadata`: M): *i._DataEntityMetadata‹M›*
 
-*Defined in [packages/utils/src/entities/utils.ts:21](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/entities/utils.ts#L21)*
+*Defined in [packages/utils/src/entities/utils.ts:21](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/entities/utils.ts#L21)*
 
 **Type parameters:**
 
@@ -662,7 +662,7 @@ ___
 
 ▸ **debugLogger**(`testName`: string, `param?`: debugParam, `otherName?`: undefined | string): *Logger*
 
-*Defined in [packages/utils/src/logger.ts:26](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/logger.ts#L26)*
+*Defined in [packages/utils/src/logger.ts:26](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/logger.ts#L26)*
 
 **Parameters:**
 
@@ -680,7 +680,7 @@ ___
 
 ▸ **defineEntityProperties**(`entity`: any): *void*
 
-*Defined in [packages/utils/src/entities/utils.ts:5](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/entities/utils.ts#L5)*
+*Defined in [packages/utils/src/entities/utils.ts:5](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/entities/utils.ts#L5)*
 
 **Parameters:**
 
@@ -696,7 +696,7 @@ ___
 
 ▸ **ensureBuffer**(`input`: string | Buffer, `encoding`: BufferEncoding): *Buffer*
 
-*Defined in [packages/utils/src/buffers.ts:3](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/buffers.ts#L3)*
+*Defined in [packages/utils/src/buffers.ts:3](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/buffers.ts#L3)*
 
 **Parameters:**
 
@@ -713,7 +713,7 @@ ___
 
 ▸ **enumerable**(`enabled`: boolean): *_enumerable*
 
-*Defined in [packages/utils/src/decorators.ts:26](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/decorators.ts#L26)*
+*Defined in [packages/utils/src/decorators.ts:26](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/decorators.ts#L26)*
 
 A decorator for making a method enumerable or none-enumerable
 
@@ -731,7 +731,7 @@ ___
 
 ▸ **escapeString**(`input`: string | number): *string*
 
-*Defined in [packages/utils/src/deps.ts:105](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/deps.ts#L105)*
+*Defined in [packages/utils/src/deps.ts:105](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/deps.ts#L105)*
 
 Escape characters in string and avoid double escaping
 
@@ -749,7 +749,7 @@ ___
 
 ▸ **fastAssign**<**T**, **U**>(`target`: T, `source`: U): *T*
 
-*Defined in [packages/utils/src/objects.ts:33](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/objects.ts#L33)*
+*Defined in [packages/utils/src/objects.ts:33](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/objects.ts#L33)*
 
 Perform a shallow clone of an object to another, in the fastest way possible
 
@@ -774,7 +774,7 @@ ___
 
 ▸ **fastCloneDeep**<**T**>(`input`: T): *T*
 
-*Defined in [packages/utils/src/objects.ts:28](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/objects.ts#L28)*
+*Defined in [packages/utils/src/objects.ts:28](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/objects.ts#L28)*
 
 A clone deep using `JSON.parse(JSON.stringify(input))`
 
@@ -796,7 +796,7 @@ ___
 
 ▸ **fastMap**<**T**, **U**>(`arr`: T[], `fn`: function): *U[]*
 
-*Defined in [packages/utils/src/arrays.ts:113](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/arrays.ts#L113)*
+*Defined in [packages/utils/src/arrays.ts:113](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/arrays.ts#L113)*
 
 Map an array faster without sparse array handling
 
@@ -829,7 +829,7 @@ ___
 
 ▸ **filterObject**<**T**, **I**, **E**>(`data`: T, `by?`: undefined | object): *[FilteredResult](overview.md#filteredresult)‹T, I, E›*
 
-*Defined in [packages/utils/src/objects.ts:102](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/objects.ts#L102)*
+*Defined in [packages/utils/src/objects.ts:102](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/objects.ts#L102)*
 
 Filters the keys of an object, by list of included key and excluded
 
@@ -856,7 +856,7 @@ ___
 
 ▸ **firstToLower**(`str`: string): *string*
 
-*Defined in [packages/utils/src/strings.ts:291](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L291)*
+*Defined in [packages/utils/src/strings.ts:291](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L291)*
 
 Change first character in string to lower case
 
@@ -874,7 +874,7 @@ ___
 
 ▸ **firstToUpper**(`str`: string): *string*
 
-*Defined in [packages/utils/src/strings.ts:285](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L285)*
+*Defined in [packages/utils/src/strings.ts:285](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L285)*
 
 Change first character in string to upper case
 
@@ -892,7 +892,7 @@ ___
 
 ▸ **flatten**<**T**>(`val`: [Many](interfaces/many.md)‹T[]›): *T[]*
 
-*Defined in [packages/utils/src/arrays.ts:5](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/arrays.ts#L5)*
+*Defined in [packages/utils/src/arrays.ts:5](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/arrays.ts#L5)*
 
 A native implemation of lodash flatten
 
@@ -914,7 +914,7 @@ ___
 
 ▸ **flattenDeep**<**T**>(`val`: [ListOfRecursiveArraysOrValues](interfaces/listofrecursivearraysorvalues.md)‹T›): *T[]*
 
-*Defined in [packages/utils/src/arrays.ts:9](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/arrays.ts#L9)*
+*Defined in [packages/utils/src/arrays.ts:9](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/arrays.ts#L9)*
 
 **Type parameters:**
 
@@ -934,7 +934,7 @@ ___
 
 ▸ **formatRegex**(`input`: RegExp | string, `flags?`: RegexFlag[]): *RegExp*
 
-*Defined in [packages/utils/src/regex.ts:32](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/regex.ts#L32)*
+*Defined in [packages/utils/src/regex.ts:32](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/regex.ts#L32)*
 
 **Parameters:**
 
@@ -951,7 +951,7 @@ ___
 
 ▸ **getBackoffDelay**(`current`: number, `factor`: number, `max`: number, `min`: number): *number*
 
-*Defined in [packages/utils/src/promises.ts:249](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/promises.ts#L249)*
+*Defined in [packages/utils/src/promises.ts:249](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/promises.ts#L249)*
 
 Get backoff delay that will safe to retry and is slightly staggered
 
@@ -972,7 +972,7 @@ ___
 
 ▸ **getErrorStatusCode**(`err`: any, `config`: [TSErrorConfig](interfaces/tserrorconfig.md), `defaultCode`: number): *number*
 
-*Defined in [packages/utils/src/errors.ts:416](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/errors.ts#L416)*
+*Defined in [packages/utils/src/errors.ts:416](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/errors.ts#L416)*
 
 **Parameters:**
 
@@ -990,7 +990,7 @@ ___
 
 ▸ **getField**<**V**>(`input`: undefined, `field`: string, `defaultVal?`: V): *V*
 
-*Defined in [packages/utils/src/objects.ts:135](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/objects.ts#L135)*
+*Defined in [packages/utils/src/objects.ts:135](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/objects.ts#L135)*
 
 A typesafe get function (will always return the correct type)
 
@@ -1014,7 +1014,7 @@ Name | Type |
 
 ▸ **getField**<**T**, **P**>(`input`: T, `field`: P): *T[P]*
 
-*Defined in [packages/utils/src/objects.ts:140](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/objects.ts#L140)*
+*Defined in [packages/utils/src/objects.ts:140](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/objects.ts#L140)*
 
 **Type parameters:**
 
@@ -1033,7 +1033,7 @@ Name | Type |
 
 ▸ **getField**<**T**, **P**>(`input`: T | undefined, `field`: P): *T[P]*
 
-*Defined in [packages/utils/src/objects.ts:144](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/objects.ts#L144)*
+*Defined in [packages/utils/src/objects.ts:144](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/objects.ts#L144)*
 
 **Type parameters:**
 
@@ -1052,7 +1052,7 @@ Name | Type |
 
 ▸ **getField**<**T**, **P**>(`input`: T | undefined, `field`: P, `defaultVal`: never[]): *T[P]*
 
-*Defined in [packages/utils/src/objects.ts:148](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/objects.ts#L148)*
+*Defined in [packages/utils/src/objects.ts:148](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/objects.ts#L148)*
 
 **Type parameters:**
 
@@ -1072,7 +1072,7 @@ Name | Type |
 
 ▸ **getField**<**T**, **P**, **V**>(`input`: T | undefined, `field`: P, `defaultVal`: V): *T[P] | V*
 
-*Defined in [packages/utils/src/objects.ts:153](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/objects.ts#L153)*
+*Defined in [packages/utils/src/objects.ts:153](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/objects.ts#L153)*
 
 **Type parameters:**
 
@@ -1094,7 +1094,7 @@ Name | Type |
 
 ▸ **getField**<**T**, **P**, **V**>(`input`: T | undefined, `field`: P, `defaultVal`: V): *T[P]*
 
-*Defined in [packages/utils/src/objects.ts:158](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/objects.ts#L158)*
+*Defined in [packages/utils/src/objects.ts:158](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/objects.ts#L158)*
 
 **Type parameters:**
 
@@ -1120,7 +1120,7 @@ ___
 
 ▸ **getFirst**<**T**>(`input`: T | T[]): *T*
 
-*Defined in [packages/utils/src/arrays.ts:158](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/arrays.ts#L158)*
+*Defined in [packages/utils/src/arrays.ts:158](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/arrays.ts#L158)*
 
 If the input is an array it will return the first item
 else if it will return the input
@@ -1143,7 +1143,7 @@ ___
 
 ▸ **getFirstChar**(`input`: string): *string*
 
-*Defined in [packages/utils/src/strings.ts:296](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L296)*
+*Defined in [packages/utils/src/strings.ts:296](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L296)*
 
 **Parameters:**
 
@@ -1159,7 +1159,7 @@ ___
 
 ▸ **getFirstKey**<**T**>(`input`: T): *keyof T | undefined*
 
-*Defined in [packages/utils/src/objects.ts:21](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/objects.ts#L21)*
+*Defined in [packages/utils/src/objects.ts:21](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/objects.ts#L21)*
 
 **Type parameters:**
 
@@ -1179,7 +1179,7 @@ ___
 
 ▸ **getFirstValue**<**T**>(`input`: object): *T | undefined*
 
-*Defined in [packages/utils/src/objects.ts:17](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/objects.ts#L17)*
+*Defined in [packages/utils/src/objects.ts:17](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/objects.ts#L17)*
 
 **Type parameters:**
 
@@ -1199,7 +1199,7 @@ ___
 
 ▸ **getFullErrorStack**(`err`: any): *string*
 
-*Defined in [packages/utils/src/errors.ts:152](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/errors.ts#L152)*
+*Defined in [packages/utils/src/errors.ts:152](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/errors.ts#L152)*
 
 Use following the chain of caused by stack of an error.
 Don't use this when logging the error, only when sending it
@@ -1218,7 +1218,7 @@ ___
 
 ▸ **getLonAndLat**(`input`: any, `throwInvalid`: boolean): *[number, number] | null*
 
-*Defined in [packages/utils/src/geo.ts:63](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/geo.ts#L63)*
+*Defined in [packages/utils/src/geo.ts:63](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/geo.ts#L63)*
 
 **Parameters:**
 
@@ -1235,7 +1235,7 @@ ___
 
 ▸ **getTime**(`val?`: string | number | Date): *number | false*
 
-*Defined in [packages/utils/src/dates.ts:30](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/dates.ts#L30)*
+*Defined in [packages/utils/src/dates.ts:30](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/dates.ts#L30)*
 
 Ensure unix time
 
@@ -1253,7 +1253,7 @@ ___
 
 ▸ **getTypeOf**(`val`: any): *string*
 
-*Defined in [packages/utils/src/deps.ts:77](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/deps.ts#L77)*
+*Defined in [packages/utils/src/deps.ts:77](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/deps.ts#L77)*
 
 Determine the type of an input
 
@@ -1273,7 +1273,7 @@ ___
 
 ▸ **getUnixTime**(`val?`: string | number | Date): *number | false*
 
-*Defined in [packages/utils/src/dates.ts:37](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/dates.ts#L37)*
+*Defined in [packages/utils/src/dates.ts:37](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/dates.ts#L37)*
 
 **Parameters:**
 
@@ -1289,7 +1289,7 @@ ___
 
 ▸ **getValidDate**(`val`: any): *Date | false*
 
-*Defined in [packages/utils/src/dates.ts:14](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/dates.ts#L14)*
+*Defined in [packages/utils/src/dates.ts:14](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/dates.ts#L14)*
 
 Check if the data is valid and return if it is
 
@@ -1307,7 +1307,7 @@ ___
 
 ▸ **getWordParts**(`input`: string): *string[]*
 
-*Defined in [packages/utils/src/strings.ts:182](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L182)*
+*Defined in [packages/utils/src/strings.ts:182](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L182)*
 
 Split a string and get the word parts
 
@@ -1325,7 +1325,7 @@ ___
 
 ▸ **inNumberRange**(`input`: number, `args`: object): *boolean*
 
-*Defined in [packages/utils/src/numbers.ts:59](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/numbers.ts#L59)*
+*Defined in [packages/utils/src/numbers.ts:59](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/numbers.ts#L59)*
 
 **Parameters:**
 
@@ -1342,7 +1342,7 @@ ___
 
 ▸ **includes**(`input`: any, `key`: string): *boolean*
 
-*Defined in [packages/utils/src/arrays.ts:144](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/arrays.ts#L144)*
+*Defined in [packages/utils/src/arrays.ts:144](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/arrays.ts#L144)*
 
 Safely check if an array, object, map, set has a key
 
@@ -1361,7 +1361,7 @@ ___
 
 ▸ **isArray**<**T**>(`input`: any): *input is T[]*
 
-*Defined in [packages/utils/src/arrays.ts:162](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/arrays.ts#L162)*
+*Defined in [packages/utils/src/arrays.ts:162](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/arrays.ts#L162)*
 
 **Type parameters:**
 
@@ -1381,7 +1381,7 @@ ___
 
 ▸ **isBoolean**(`input`: any): *input is boolean*
 
-*Defined in [packages/utils/src/booleans.ts:33](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/booleans.ts#L33)*
+*Defined in [packages/utils/src/booleans.ts:33](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/booleans.ts#L33)*
 
 **Parameters:**
 
@@ -1397,7 +1397,7 @@ ___
 
 ▸ **isBooleanLike**(`input`: any): *boolean*
 
-*Defined in [packages/utils/src/booleans.ts:38](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/booleans.ts#L38)*
+*Defined in [packages/utils/src/booleans.ts:38](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/booleans.ts#L38)*
 
 **Parameters:**
 
@@ -1413,7 +1413,7 @@ ___
 
 ▸ **isBuffer**(`input`: any): *input is Buffer*
 
-*Defined in [packages/utils/src/buffers.ts:13](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/buffers.ts#L13)*
+*Defined in [packages/utils/src/buffers.ts:13](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/buffers.ts#L13)*
 
 **Parameters:**
 
@@ -1429,7 +1429,7 @@ ___
 
 ▸ **isDataEntity**(`input`: any): *boolean*
 
-*Defined in [packages/utils/src/entities/utils.ts:48](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/entities/utils.ts#L48)*
+*Defined in [packages/utils/src/entities/utils.ts:48](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/entities/utils.ts#L48)*
 
 **Parameters:**
 
@@ -1445,7 +1445,7 @@ ___
 
 ▸ **isElasticsearchError**(`err`: any): *err is ElasticsearchError*
 
-*Defined in [packages/utils/src/errors.ts:380](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/errors.ts#L380)*
+*Defined in [packages/utils/src/errors.ts:380](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/errors.ts#L380)*
 
 Check is a elasticsearch error
 
@@ -1463,7 +1463,7 @@ ___
 
 ▸ **isEmail**(`input`: any): *boolean*
 
-*Defined in [packages/utils/src/strings.ts:301](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L301)*
+*Defined in [packages/utils/src/strings.ts:301](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L301)*
 
 **Parameters:**
 
@@ -1479,7 +1479,7 @@ ___
 
 ▸ **isEmpty**<**T**>(`val?`: T | null | undefined): *val is undefined*
 
-*Defined in [packages/utils/src/empty.ts:12](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/empty.ts#L12)*
+*Defined in [packages/utils/src/empty.ts:12](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/empty.ts#L12)*
 
 Check if an input is empty, similar to lodash.isEmpty
 
@@ -1501,7 +1501,7 @@ ___
 
 ▸ **isError**(`err`: any): *err is Error*
 
-*Defined in [packages/utils/src/errors.ts:366](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/errors.ts#L366)*
+*Defined in [packages/utils/src/errors.ts:366](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/errors.ts#L366)*
 
 Check if an input has an error compatible api
 
@@ -1519,7 +1519,7 @@ ___
 
 ▸ **isFalsy**(`input`: any): *boolean*
 
-*Defined in [packages/utils/src/booleans.ts:27](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/booleans.ts#L27)*
+*Defined in [packages/utils/src/booleans.ts:27](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/booleans.ts#L27)*
 
 **Parameters:**
 
@@ -1535,7 +1535,7 @@ ___
 
 ▸ **isFatalError**(`err`: any): *boolean*
 
-*Defined in [packages/utils/src/errors.ts:357](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/errors.ts#L357)*
+*Defined in [packages/utils/src/errors.ts:357](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/errors.ts#L357)*
 
 **Parameters:**
 
@@ -1551,7 +1551,7 @@ ___
 
 ▸ **isFunction**(`input`: any): *input is Function*
 
-*Defined in [packages/utils/src/functions.ts:57](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/functions.ts#L57)*
+*Defined in [packages/utils/src/functions.ts:57](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/functions.ts#L57)*
 
 Verify an input is a function
 
@@ -1569,7 +1569,7 @@ ___
 
 ▸ **isGeoJSON**(`input`: any): *boolean*
 
-*Defined in [packages/utils/src/geo.ts:21](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/geo.ts#L21)*
+*Defined in [packages/utils/src/geo.ts:21](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/geo.ts#L21)*
 
 **Parameters:**
 
@@ -1585,7 +1585,7 @@ ___
 
 ▸ **isGeoShapeMultiPolygon**(`input`: JoinGeoShape): *input is GeoShapeMultiPolygon*
 
-*Defined in [packages/utils/src/geo.ts:37](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/geo.ts#L37)*
+*Defined in [packages/utils/src/geo.ts:37](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/geo.ts#L37)*
 
 **Parameters:**
 
@@ -1601,7 +1601,7 @@ ___
 
 ▸ **isGeoShapePoint**(`input`: JoinGeoShape): *input is GeoShapePoint*
 
-*Defined in [packages/utils/src/geo.ts:27](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/geo.ts#L27)*
+*Defined in [packages/utils/src/geo.ts:27](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/geo.ts#L27)*
 
 **Parameters:**
 
@@ -1617,7 +1617,7 @@ ___
 
 ▸ **isGeoShapePolygon**(`input`: JoinGeoShape): *input is GeoShapePolygon*
 
-*Defined in [packages/utils/src/geo.ts:32](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/geo.ts#L32)*
+*Defined in [packages/utils/src/geo.ts:32](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/geo.ts#L32)*
 
 **Parameters:**
 
@@ -1633,7 +1633,7 @@ ___
 
 ▸ **isInteger**(`val`: any): *val is number*
 
-*Defined in [packages/utils/src/numbers.ts:2](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/numbers.ts#L2)*
+*Defined in [packages/utils/src/numbers.ts:2](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/numbers.ts#L2)*
 
 A simplified implemation of lodash isInteger
 
@@ -1651,7 +1651,7 @@ ___
 
 ▸ **isMacAddress**(`input`: any, `args?`: MACAddress): *boolean*
 
-*Defined in [packages/utils/src/strings.ts:310](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L310)*
+*Defined in [packages/utils/src/strings.ts:310](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L310)*
 
 **Parameters:**
 
@@ -1668,7 +1668,7 @@ ___
 
 ▸ **isNil**<**T**>(`input`: T | [Nil](overview.md#nil)): *input is Nil*
 
-*Defined in [packages/utils/src/empty.ts:3](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/empty.ts#L3)*
+*Defined in [packages/utils/src/empty.ts:3](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/empty.ts#L3)*
 
 **Type parameters:**
 
@@ -1688,7 +1688,7 @@ ___
 
 ▸ **isNotNil**<**T**>(`input`: T | [Nil](overview.md#nil)): *boolean*
 
-*Defined in [packages/utils/src/empty.ts:7](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/empty.ts#L7)*
+*Defined in [packages/utils/src/empty.ts:7](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/empty.ts#L7)*
 
 **Type parameters:**
 
@@ -1708,7 +1708,7 @@ ___
 
 ▸ **isNumber**(`input`: any): *input is number*
 
-*Defined in [packages/utils/src/numbers.ts:13](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/numbers.ts#L13)*
+*Defined in [packages/utils/src/numbers.ts:13](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/numbers.ts#L13)*
 
 Check if an input is a number
 
@@ -1726,7 +1726,7 @@ ___
 
 ▸ **isPlainObject**(`input`: any): *boolean*
 
-*Defined in [packages/utils/src/deps.ts:26](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/deps.ts#L26)*
+*Defined in [packages/utils/src/deps.ts:26](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/deps.ts#L26)*
 
 Detect if value is a plain object, that is,
 an object created by the Object constructor or one via Object.create(null)
@@ -1745,7 +1745,7 @@ ___
 
 ▸ **isRegExp**(`input`: any): *input is RegExp*
 
-*Defined in [packages/utils/src/regex.ts:1](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/regex.ts#L1)*
+*Defined in [packages/utils/src/regex.ts:1](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/regex.ts#L1)*
 
 **Parameters:**
 
@@ -1761,7 +1761,7 @@ ___
 
 ▸ **isRegExpLike**(`input`: any, `strict`: boolean): *boolean*
 
-*Defined in [packages/utils/src/regex.ts:9](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/regex.ts#L9)*
+*Defined in [packages/utils/src/regex.ts:9](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/regex.ts#L9)*
 
 **Parameters:**
 
@@ -1778,7 +1778,7 @@ ___
 
 ▸ **isRetryableError**(`err`: any): *boolean*
 
-*Defined in [packages/utils/src/errors.ts:361](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/errors.ts#L361)*
+*Defined in [packages/utils/src/errors.ts:361](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/errors.ts#L361)*
 
 **Parameters:**
 
@@ -1794,7 +1794,7 @@ ___
 
 ▸ **isSimpleObject**(`input`: any): *input is object*
 
-*Defined in [packages/utils/src/objects.ts:8](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/objects.ts#L8)*
+*Defined in [packages/utils/src/objects.ts:8](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/objects.ts#L8)*
 
 Similar to is-plain-object but works better when clone deeping a DataEntity
 
@@ -1812,7 +1812,7 @@ ___
 
 ▸ **isString**(`val`: any): *val is string*
 
-*Defined in [packages/utils/src/strings.ts:4](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L4)*
+*Defined in [packages/utils/src/strings.ts:4](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L4)*
 
 A simplified implemation of lodash isString
 
@@ -1830,7 +1830,7 @@ ___
 
 ▸ **isTSError**(`err`: any): *err is TSError*
 
-*Defined in [packages/utils/src/errors.ts:371](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/errors.ts#L371)*
+*Defined in [packages/utils/src/errors.ts:371](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/errors.ts#L371)*
 
 Check is a TSError
 
@@ -1848,7 +1848,7 @@ ___
 
 ▸ **isTruthy**(`input`: any): *boolean*
 
-*Defined in [packages/utils/src/booleans.ts:21](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/booleans.ts#L21)*
+*Defined in [packages/utils/src/booleans.ts:21](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/booleans.ts#L21)*
 
 **Parameters:**
 
@@ -1864,7 +1864,7 @@ ___
 
 ▸ **isValidDate**(`val`: any): *boolean*
 
-*Defined in [packages/utils/src/dates.ts:9](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/dates.ts#L9)*
+*Defined in [packages/utils/src/dates.ts:9](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/dates.ts#L9)*
 
 A simplified implemation of moment(new Date(val)).isValid()
 
@@ -1882,7 +1882,7 @@ ___
 
 ▸ **isValidDateInstance**(`val`: Date): *boolean*
 
-*Defined in [packages/utils/src/dates.ts:25](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/dates.ts#L25)*
+*Defined in [packages/utils/src/dates.ts:25](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/dates.ts#L25)*
 
 **Parameters:**
 
@@ -1898,7 +1898,7 @@ ___
 
 ▸ **isValidKey**(`key`: any): *key is string | number*
 
-*Defined in [packages/utils/src/entities/utils.ts:41](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/entities/utils.ts#L41)*
+*Defined in [packages/utils/src/entities/utils.ts:41](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/entities/utils.ts#L41)*
 
 **Parameters:**
 
@@ -1914,7 +1914,7 @@ ___
 
 ▸ **isWildCardString**(`term`: string): *boolean*
 
-*Defined in [packages/utils/src/regex.ts:78](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/regex.ts#L78)*
+*Defined in [packages/utils/src/regex.ts:78](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/regex.ts#L78)*
 
 **Parameters:**
 
@@ -1930,7 +1930,7 @@ ___
 
 ▸ **jsonToBuffer**(`input`: any): *Buffer*
 
-*Defined in [packages/utils/src/entities/utils.ts:37](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/entities/utils.ts#L37)*
+*Defined in [packages/utils/src/entities/utils.ts:37](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/entities/utils.ts#L37)*
 
 **Parameters:**
 
@@ -1946,7 +1946,7 @@ ___
 
 ▸ **locked**(): *_locked*
 
-*Defined in [packages/utils/src/decorators.ts:2](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/decorators.ts#L2)*
+*Defined in [packages/utils/src/decorators.ts:2](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/decorators.ts#L2)*
 
 A decorator for locking down a method
 
@@ -1958,7 +1958,7 @@ ___
 
 ▸ **logError**(`logger`: Logger, `err`: any, ...`messages`: any[]): *void*
 
-*Defined in [packages/utils/src/errors.ts:218](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/errors.ts#L218)*
+*Defined in [packages/utils/src/errors.ts:218](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/errors.ts#L218)*
 
 Safely log an error (with the error first Logger syntax)
 
@@ -1978,7 +1978,7 @@ ___
 
 ▸ **makeISODate**(): *string*
 
-*Defined in [packages/utils/src/dates.ts:4](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/dates.ts#L4)*
+*Defined in [packages/utils/src/dates.ts:4](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/dates.ts#L4)*
 
 A helper function for making an ISODate string
 
@@ -1990,7 +1990,7 @@ ___
 
 ▸ **makeMetadata**<**M**>(`metadata?`: M | undefined): *i._DataEntityMetadata‹M›*
 
-*Defined in [packages/utils/src/entities/utils.ts:25](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/entities/utils.ts#L25)*
+*Defined in [packages/utils/src/entities/utils.ts:25](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/entities/utils.ts#L25)*
 
 **Type parameters:**
 
@@ -2010,7 +2010,7 @@ ___
 
 ▸ **mapKeys**<**T**, **R**>(`input`: T, `fn`: function): *R*
 
-*Defined in [packages/utils/src/objects.ts:76](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/objects.ts#L76)*
+*Defined in [packages/utils/src/objects.ts:76](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/objects.ts#L76)*
 
 Map the keys of an object
 
@@ -2043,7 +2043,7 @@ ___
 
 ▸ **mapValues**<**T**, **R**>(`input`: T, `fn`: function): *R*
 
-*Defined in [packages/utils/src/objects.ts:65](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/objects.ts#L65)*
+*Defined in [packages/utils/src/objects.ts:65](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/objects.ts#L65)*
 
 Map the values of an object
 
@@ -2076,7 +2076,7 @@ ___
 
 ▸ **match**(`regexp`: string | RegExp, `value`: string): *null | string*
 
-*Defined in [packages/utils/src/regex.ts:47](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/regex.ts#L47)*
+*Defined in [packages/utils/src/regex.ts:47](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/regex.ts#L47)*
 
 **Parameters:**
 
@@ -2093,7 +2093,7 @@ ___
 
 ▸ **matchAll**(`regexp`: RegExp | string, `value`: string): *string[] | null*
 
-*Defined in [packages/utils/src/regex.ts:57](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/regex.ts#L57)*
+*Defined in [packages/utils/src/regex.ts:57](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/regex.ts#L57)*
 
 **Parameters:**
 
@@ -2110,7 +2110,7 @@ ___
 
 ▸ **matchWildcard**(`wildCard`: string, `value`: string): *boolean*
 
-*Defined in [packages/utils/src/regex.ts:94](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/regex.ts#L94)*
+*Defined in [packages/utils/src/regex.ts:94](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/regex.ts#L94)*
 
 **Parameters:**
 
@@ -2127,7 +2127,7 @@ ___
 
 ▸ **memoize**<**T**>(`fn`: T): *T*
 
-*Defined in [packages/utils/src/functions.ts:42](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/functions.ts#L42)*
+*Defined in [packages/utils/src/functions.ts:42](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/functions.ts#L42)*
 
 A replacement for lodash memoize
 
@@ -2149,7 +2149,7 @@ ___
 
 ▸ **noop**(...`_args`: any[]): *any*
 
-*Defined in [packages/utils/src/functions.ts:24](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/functions.ts#L24)*
+*Defined in [packages/utils/src/functions.ts:24](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/functions.ts#L24)*
 
 **Parameters:**
 
@@ -2165,7 +2165,7 @@ ___
 
 ▸ **once**<**T**>(`fn`: T): *_fn*
 
-*Defined in [packages/utils/src/functions.ts:10](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/functions.ts#L10)*
+*Defined in [packages/utils/src/functions.ts:10](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/functions.ts#L10)*
 
 Creates a function that is only invoked once
 
@@ -2187,7 +2187,7 @@ ___
 
 ▸ **pDefer**(): *object*
 
-*Defined in [packages/utils/src/promises.ts:349](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/promises.ts#L349)*
+*Defined in [packages/utils/src/promises.ts:349](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/promises.ts#L349)*
 
 An alternative to Bluebird.defer: http://bluebirdjs.com/docs/api/deferred-migration.html
 Considered bad practice in most cases, use the Promise constructor
@@ -2200,7 +2200,7 @@ ___
 
 ▸ **pDelay**<**T**>(`delay`: number, `arg?`: T): *Promise‹T›*
 
-*Defined in [packages/utils/src/promises.ts:14](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/promises.ts#L14)*
+*Defined in [packages/utils/src/promises.ts:14](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/promises.ts#L14)*
 
 promisified setTimeout
 
@@ -2223,7 +2223,7 @@ ___
 
 ▸ **pImmediate**<**T**>(`arg?`: T): *Promise‹T›*
 
-*Defined in [packages/utils/src/promises.ts:21](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/promises.ts#L21)*
+*Defined in [packages/utils/src/promises.ts:21](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/promises.ts#L21)*
 
 promisified setImmediate
 
@@ -2245,7 +2245,7 @@ ___
 
 ▸ **pMap**<**T**, **R**>(`items`: T[], `fn`: function, `options?`: undefined | object): *Promise‹R[]›*
 
-*Defined in [packages/utils/src/promises.ts:368](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/promises.ts#L368)*
+*Defined in [packages/utils/src/promises.ts:368](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/promises.ts#L368)*
 
 Similar to Bluebird.map, with concurrency control
 
@@ -2280,7 +2280,7 @@ ___
 
 ▸ **pRace**(`promises`: Promise‹any›[], `logError?`: undefined | function): *Promise‹any›*
 
-*Defined in [packages/utils/src/promises.ts:293](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/promises.ts#L293)*
+*Defined in [packages/utils/src/promises.ts:293](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/promises.ts#L293)*
 
 Run multiple promises at once, and resolve/reject when the first completes
 
@@ -2299,7 +2299,7 @@ ___
 
 ▸ **pRaceWithTimeout**(`promises`: Promise‹any›[] | Promise‹any›, `timeout`: number, `logError?`: undefined | function): *Promise‹any›*
 
-*Defined in [packages/utils/src/promises.ts:318](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/promises.ts#L318)*
+*Defined in [packages/utils/src/promises.ts:318](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/promises.ts#L318)*
 
 Similar to pRace but with
 
@@ -2319,7 +2319,7 @@ ___
 
 ▸ **pRetry**<**T**>(`fn`: PromiseFn‹T›, `options?`: Partial‹[PRetryConfig](interfaces/pretryconfig.md)›): *Promise‹T›*
 
-*Defined in [packages/utils/src/promises.ts:83](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/promises.ts#L83)*
+*Defined in [packages/utils/src/promises.ts:83](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/promises.ts#L83)*
 
 A promise retry fn.
 
@@ -2342,7 +2342,7 @@ ___
 
 ▸ **pWhile**(`fn`: PromiseFn, `options`: [PWhileOptions](overview.md#pwhileoptions)): *Promise‹void›*
 
-*Defined in [packages/utils/src/promises.ts:189](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/promises.ts#L189)*
+*Defined in [packages/utils/src/promises.ts:189](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/promises.ts#L189)*
 
 Run a function until it returns true or throws an error
 
@@ -2361,7 +2361,7 @@ ___
 
 ▸ **parseError**(`input`: any, `withStack`: boolean): *string*
 
-*Defined in [packages/utils/src/errors.ts:256](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/errors.ts#L256)*
+*Defined in [packages/utils/src/errors.ts:256](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/errors.ts#L256)*
 
 parse input to get error message or stack
 
@@ -2380,7 +2380,7 @@ ___
 
 ▸ **parseErrorInfo**(`input`: any, `config`: [TSErrorConfig](interfaces/tserrorconfig.md)): *ErrorInfo*
 
-*Defined in [packages/utils/src/errors.ts:164](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/errors.ts#L164)*
+*Defined in [packages/utils/src/errors.ts:164](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/errors.ts#L164)*
 
 parse error for info
 
@@ -2399,7 +2399,7 @@ ___
 
 ▸ **parseGeoDistance**(`str`: string): *GeoDistanceObj*
 
-*Defined in [packages/utils/src/geo.ts:42](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/geo.ts#L42)*
+*Defined in [packages/utils/src/geo.ts:42](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/geo.ts#L42)*
 
 **Parameters:**
 
@@ -2415,7 +2415,7 @@ ___
 
 ▸ **parseGeoDistanceUnit**(`input`: string): *GeoDistanceUnit*
 
-*Defined in [packages/utils/src/geo.ts:55](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/geo.ts#L55)*
+*Defined in [packages/utils/src/geo.ts:55](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/geo.ts#L55)*
 
 **Parameters:**
 
@@ -2431,7 +2431,7 @@ ___
 
 ▸ **parseGeoPoint**(`point`: GeoPointInput): *GeoPoint*
 
-*Defined in [packages/utils/src/geo.ts:85](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/geo.ts#L85)*
+*Defined in [packages/utils/src/geo.ts:85](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/geo.ts#L85)*
 
 **Parameters:**
 
@@ -2443,7 +2443,7 @@ Name | Type |
 
 ▸ **parseGeoPoint**(`point`: GeoPointInput, `throwInvalid`: true): *GeoPoint*
 
-*Defined in [packages/utils/src/geo.ts:86](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/geo.ts#L86)*
+*Defined in [packages/utils/src/geo.ts:86](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/geo.ts#L86)*
 
 **Parameters:**
 
@@ -2456,7 +2456,7 @@ Name | Type |
 
 ▸ **parseGeoPoint**(`point`: GeoPointInput, `throwInvalid`: false): *GeoPoint | null*
 
-*Defined in [packages/utils/src/geo.ts:87](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/geo.ts#L87)*
+*Defined in [packages/utils/src/geo.ts:87](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/geo.ts#L87)*
 
 **Parameters:**
 
@@ -2473,7 +2473,7 @@ ___
 
 ▸ **parseJSON**<**T**>(`buf`: Buffer | string): *T*
 
-*Defined in [packages/utils/src/json.ts:13](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/json.ts#L13)*
+*Defined in [packages/utils/src/json.ts:13](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/json.ts#L13)*
 
 JSON encoded buffer into a json object
 
@@ -2495,7 +2495,7 @@ ___
 
 ▸ **parseList**(`input`: any): *string[]*
 
-*Defined in [packages/utils/src/strings.ts:338](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L338)*
+*Defined in [packages/utils/src/strings.ts:338](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L338)*
 
 Maps an array of strings and and trims the result, or
 parses a comma separated list and trims the result
@@ -2514,7 +2514,7 @@ ___
 
 ▸ **parseNumberList**(`input`: any): *number[]*
 
-*Defined in [packages/utils/src/numbers.ts:35](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/numbers.ts#L35)*
+*Defined in [packages/utils/src/numbers.ts:35](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/numbers.ts#L35)*
 
 Like parseList, except it returns numbers
 
@@ -2532,7 +2532,7 @@ ___
 
 ▸ **prefixErrorMsg**(`input`: any, `prefix?`: undefined | string, `defaultMsg`: string): *string*
 
-*Defined in [packages/utils/src/errors.ts:347](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/errors.ts#L347)*
+*Defined in [packages/utils/src/errors.ts:347](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/errors.ts#L347)*
 
 **Parameters:**
 
@@ -2550,7 +2550,7 @@ ___
 
 ▸ **random**(`min`: number, `max`: number): *number*
 
-*Defined in [packages/utils/src/numbers.ts:8](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/numbers.ts#L8)*
+*Defined in [packages/utils/src/numbers.ts:8](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/numbers.ts#L8)*
 
 A native implemation of lodash random
 
@@ -2569,7 +2569,7 @@ ___
 
 ▸ **sort**<**T**>(`arr`: T[] | Set‹T›, `compare?`: undefined | function): *T[]*
 
-*Defined in [packages/utils/src/arrays.ts:43](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/arrays.ts#L43)*
+*Defined in [packages/utils/src/arrays.ts:43](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/arrays.ts#L43)*
 
 Sort an arr or set
 
@@ -2592,7 +2592,7 @@ ___
 
 ▸ **sortBy**<**T**, **V**>(`arr`: T[] | Set‹T›, `fnOrPath`: function | string): *T[]*
 
-*Defined in [packages/utils/src/arrays.ts:58](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/arrays.ts#L58)*
+*Defined in [packages/utils/src/arrays.ts:58](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/arrays.ts#L58)*
 
 Sort by path or function that returns the values to sort with
 
@@ -2617,7 +2617,7 @@ ___
 
 ▸ **sortKeys**<**T**>(`input`: T, `options`: object): *T*
 
-*Defined in [packages/utils/src/objects.ts:46](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/objects.ts#L46)*
+*Defined in [packages/utils/src/objects.ts:46](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/objects.ts#L46)*
 
 Sort keys on an object
 
@@ -2640,7 +2640,7 @@ ___
 
 ▸ **startsWith**(`str`: string, `val`: string): *boolean*
 
-*Defined in [packages/utils/src/strings.ts:86](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L86)*
+*Defined in [packages/utils/src/strings.ts:86](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L86)*
 
 A native implemation of lodash startsWith
 
@@ -2659,7 +2659,7 @@ ___
 
 ▸ **stripErrorMessage**(`error`: any, `reason`: string, `requireSafe`: boolean): *string*
 
-*Defined in [packages/utils/src/errors.ts:437](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/errors.ts#L437)*
+*Defined in [packages/utils/src/errors.ts:437](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/errors.ts#L437)*
 
 **Parameters:**
 
@@ -2677,7 +2677,7 @@ ___
 
 ▸ **times**(`n`: number): *number[]*
 
-*Defined in [packages/utils/src/arrays.ts:105](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/arrays.ts#L105)*
+*Defined in [packages/utils/src/arrays.ts:105](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/arrays.ts#L105)*
 
 A native implemation of lodash times
 
@@ -2691,7 +2691,7 @@ Name | Type |
 
 ▸ **times**<**T**>(`n`: number, `fn`: function): *T[]*
 
-*Defined in [packages/utils/src/arrays.ts:106](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/arrays.ts#L106)*
+*Defined in [packages/utils/src/arrays.ts:106](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/arrays.ts#L106)*
 
 **Type parameters:**
 
@@ -2719,7 +2719,7 @@ ___
 
 ▸ **toBoolean**(`input`: any): *boolean*
 
-*Defined in [packages/utils/src/booleans.ts:2](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/booleans.ts#L2)*
+*Defined in [packages/utils/src/booleans.ts:2](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/booleans.ts#L2)*
 
 Convert any input into a boolean, this will work with stringified boolean
 
@@ -2737,7 +2737,7 @@ ___
 
 ▸ **toCamelCase**(`input`: string): *string*
 
-*Defined in [packages/utils/src/strings.ts:226](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L226)*
+*Defined in [packages/utils/src/strings.ts:226](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L226)*
 
 **Parameters:**
 
@@ -2753,7 +2753,7 @@ ___
 
 ▸ **toHumanTime**(`ms`: number): *string*
 
-*Defined in [packages/utils/src/dates.ts:60](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/dates.ts#L60)*
+*Defined in [packages/utils/src/dates.ts:60](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/dates.ts#L60)*
 
 converts smaller than a week milliseconds to human readable time
 
@@ -2771,7 +2771,7 @@ ___
 
 ▸ **toInteger**(`input`: any): *number | false*
 
-*Defined in [packages/utils/src/numbers.ts:25](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/numbers.ts#L25)*
+*Defined in [packages/utils/src/numbers.ts:25](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/numbers.ts#L25)*
 
 Convert any input to a integer, return false if unable to convert input
 
@@ -2789,7 +2789,7 @@ ___
 
 ▸ **toKebabCase**(`input`: string): *string*
 
-*Defined in [packages/utils/src/strings.ts:240](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L240)*
+*Defined in [packages/utils/src/strings.ts:240](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L240)*
 
 **Parameters:**
 
@@ -2805,7 +2805,7 @@ ___
 
 ▸ **toNumber**(`input`: any): *number*
 
-*Defined in [packages/utils/src/numbers.ts:18](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/numbers.ts#L18)*
+*Defined in [packages/utils/src/numbers.ts:18](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/numbers.ts#L18)*
 
 Convert any input to a number, return Number.NaN if unable to convert input
 
@@ -2823,7 +2823,7 @@ ___
 
 ▸ **toPascalCase**(`input`: string): *string*
 
-*Defined in [packages/utils/src/strings.ts:233](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L233)*
+*Defined in [packages/utils/src/strings.ts:233](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L233)*
 
 **Parameters:**
 
@@ -2839,7 +2839,7 @@ ___
 
 ▸ **toSafeString**(`input`: string): *string*
 
-*Defined in [packages/utils/src/strings.ts:259](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L259)*
+*Defined in [packages/utils/src/strings.ts:259](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L259)*
 
 Make a string url/elasticsearch safe.
 safeString converts the string to lower case,
@@ -2861,7 +2861,7 @@ ___
 
 ▸ **toSnakeCase**(`input`: string): *string*
 
-*Defined in [packages/utils/src/strings.ts:244](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L244)*
+*Defined in [packages/utils/src/strings.ts:244](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L244)*
 
 **Parameters:**
 
@@ -2877,7 +2877,7 @@ ___
 
 ▸ **toStatusErrorCode**(`input`: string | undefined): *string*
 
-*Defined in [packages/utils/src/errors.ts:315](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/errors.ts#L315)*
+*Defined in [packages/utils/src/errors.ts:315](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/errors.ts#L315)*
 
 **Parameters:**
 
@@ -2893,7 +2893,7 @@ ___
 
 ▸ **toString**(`val`: any): *string*
 
-*Defined in [packages/utils/src/strings.ts:9](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L9)*
+*Defined in [packages/utils/src/strings.ts:9](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L9)*
 
 Safely convert any input to a string
 
@@ -2911,7 +2911,7 @@ ___
 
 ▸ **toTitleCase**(`input`: string): *string*
 
-*Defined in [packages/utils/src/strings.ts:248](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L248)*
+*Defined in [packages/utils/src/strings.ts:248](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L248)*
 
 **Parameters:**
 
@@ -2927,7 +2927,7 @@ ___
 
 ▸ **trackTimeout**(`timeoutMs`: number): *(Anonymous function)*
 
-*Defined in [packages/utils/src/dates.ts:47](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/dates.ts#L47)*
+*Defined in [packages/utils/src/dates.ts:47](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/dates.ts#L47)*
 
 track a timeout to see if it expires
 
@@ -2947,7 +2947,7 @@ ___
 
 ▸ **trim**(`input`: any): *string*
 
-*Defined in [packages/utils/src/strings.ts:81](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L81)*
+*Defined in [packages/utils/src/strings.ts:81](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L81)*
 
 safely trim an input
 
@@ -2965,7 +2965,7 @@ ___
 
 ▸ **trimAndToLower**(`input?`: undefined | string): *string*
 
-*Defined in [packages/utils/src/strings.ts:52](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L52)*
+*Defined in [packages/utils/src/strings.ts:52](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L52)*
 
 safely trim and to lower a input, useful for string comparison
 
@@ -2983,7 +2983,7 @@ ___
 
 ▸ **trimAndToUpper**(`input?`: undefined | string): *string*
 
-*Defined in [packages/utils/src/strings.ts:57](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L57)*
+*Defined in [packages/utils/src/strings.ts:57](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L57)*
 
 safely trim and to lower a input, useful for string comparison
 
@@ -3001,7 +3001,7 @@ ___
 
 ▸ **trimEnd**(`input`: string, `char`: string): *string*
 
-*Defined in [packages/utils/src/strings.ts:37](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L37)*
+*Defined in [packages/utils/src/strings.ts:37](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L37)*
 
 **Parameters:**
 
@@ -3018,7 +3018,7 @@ ___
 
 ▸ **trimStart**(`input`: string, `char`: string): *string*
 
-*Defined in [packages/utils/src/strings.ts:23](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L23)*
+*Defined in [packages/utils/src/strings.ts:23](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L23)*
 
 **Parameters:**
 
@@ -3035,7 +3035,7 @@ ___
 
 ▸ **truncate**(`str`: string, `len`: number): *string*
 
-*Defined in [packages/utils/src/strings.ts:91](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L91)*
+*Defined in [packages/utils/src/strings.ts:91](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L91)*
 
 **Parameters:**
 
@@ -3052,7 +3052,7 @@ ___
 
 ▸ **tryParseJSON**(`input`: any): *any*
 
-*Defined in [packages/utils/src/json.ts:4](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/json.ts#L4)*
+*Defined in [packages/utils/src/json.ts:4](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/json.ts#L4)*
 
 **Parameters:**
 
@@ -3068,7 +3068,7 @@ ___
 
 ▸ **unescapeString**(`str`: string): *string*
 
-*Defined in [packages/utils/src/strings.ts:62](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/strings.ts#L62)*
+*Defined in [packages/utils/src/strings.ts:62](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/strings.ts#L62)*
 
 Unescape characters in string and avoid double escaping
 
@@ -3086,7 +3086,7 @@ ___
 
 ▸ **uniq**<**T**>(`arr`: T[] | Set‹T›): *T[]*
 
-*Defined in [packages/utils/src/arrays.ts:37](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/arrays.ts#L37)*
+*Defined in [packages/utils/src/arrays.ts:37](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/arrays.ts#L37)*
 
 A native implemation of lodash uniq
 
@@ -3108,7 +3108,7 @@ ___
 
 ▸ **uniqBy**<**T**, **V**>(`values`: T[] | keyof T[], `fnOrPath`: function | string): *T[]*
 
-*Defined in [packages/utils/src/arrays.ts:88](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/arrays.ts#L88)*
+*Defined in [packages/utils/src/arrays.ts:88](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/arrays.ts#L88)*
 
 Get the unique values by a path or function that returns the unique values
 
@@ -3133,7 +3133,7 @@ ___
 
 ▸ **waterfall**(`input`: any, `fns`: PromiseFn[], `addBreak`: boolean): *Promise‹any›*
 
-*Defined in [packages/utils/src/promises.ts:282](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/promises.ts#L282)*
+*Defined in [packages/utils/src/promises.ts:282](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/promises.ts#L282)*
 
 Async waterfall function
 
@@ -3153,7 +3153,7 @@ ___
 
 ▸ **wildCardToRegex**(`term`: string): *RegExp*
 
-*Defined in [packages/utils/src/regex.ts:85](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/regex.ts#L85)*
+*Defined in [packages/utils/src/regex.ts:85](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/regex.ts#L85)*
 
 **Parameters:**
 
@@ -3169,7 +3169,7 @@ ___
 
 ▸ **withoutNil**<**T**>(`input`: T): *[WithoutNil](overview.md#withoutnil)‹T›*
 
-*Defined in [packages/utils/src/objects.ts:87](https://github.com/terascope/teraslice/blob/f95bb5556/packages/utils/src/objects.ts#L87)*
+*Defined in [packages/utils/src/objects.ts:87](https://github.com/terascope/teraslice/blob/b843209f9/packages/utils/src/objects.ts#L87)*
 
 Build a new object without null or undefined values (shallow)
 

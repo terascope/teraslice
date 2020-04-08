@@ -26,7 +26,7 @@ sidebar_label: CachedTranslator
 
 \+ **new CachedTranslator**(): *[CachedTranslator](cachedtranslator.md)*
 
-*Defined in [xlucene-translator/src/translator/cached-translator.ts:9](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/translator/cached-translator.ts#L9)*
+*Defined in [xlucene-translator/src/translator/cached-translator.ts:9](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/translator/cached-translator.ts#L9)*
 
 **Returns:** *[CachedTranslator](cachedtranslator.md)*
 
@@ -36,7 +36,7 @@ sidebar_label: CachedTranslator
 
 ▸ **make**(`input`: string | Parser, `options?`: [TranslatorOptions](../overview.md#translatoroptions)): *[Translator](translator.md)*
 
-*Defined in [xlucene-translator/src/translator/cached-translator.ts:14](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/translator/cached-translator.ts#L14)*
+*Defined in [xlucene-translator/src/translator/cached-translator.ts:14](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/translator/cached-translator.ts#L14)*
 
 **Parameters:**
 
@@ -53,6 +53,6 @@ ___
 
 ▸ **reset**(): *void*
 
-*Defined in [xlucene-translator/src/translator/cached-translator.ts:19](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/translator/cached-translator.ts#L19)*
+*Defined in [xlucene-translator/src/translator/cached-translator.ts:19](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/translator/cached-translator.ts#L19)*
 
 **Returns:** *void*

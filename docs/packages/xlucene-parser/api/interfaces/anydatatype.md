@@ -24,7 +24,7 @@ sidebar_label: AnyDataType
 
 • **field_type**: *xLuceneFieldType*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:71](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L71)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:71](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L71)*
 
 The field type here may be the field type specified
 in the type_config
@@ -35,4 +35,4 @@ ___
 
 • **value**: *string | number | boolean | any*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:72](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L72)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:72](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L72)*

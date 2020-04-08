@@ -25,7 +25,7 @@ sidebar_label: DocumentMatcher
 
 \+ **new DocumentMatcher**(`query`: string, `options`: [DocumentMatcherOptions](../interfaces/documentmatcheroptions.md)): *[DocumentMatcher](documentmatcher.md)*
 
-*Defined in [data-mate/src/document-matcher/index.ts:9](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/document-matcher/index.ts#L9)*
+*Defined in [data-mate/src/document-matcher/index.ts:9](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-mate/src/document-matcher/index.ts#L9)*
 
 **Parameters:**
 
@@ -42,7 +42,7 @@ Name | Type | Default |
 
 ▸ **match**(`doc`: object): *boolean*
 
-*Defined in [data-mate/src/document-matcher/index.ts:18](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/document-matcher/index.ts#L18)*
+*Defined in [data-mate/src/document-matcher/index.ts:18](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-mate/src/document-matcher/index.ts#L18)*
 
 **Parameters:**
 

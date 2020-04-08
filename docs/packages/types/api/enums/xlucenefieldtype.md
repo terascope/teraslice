@@ -28,7 +28,7 @@ sidebar_label: xLuceneFieldType
 
 • **AnalyzedString**: = "~string"
 
-*Defined in [xlucene-interfaces.ts:7](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/xlucene-interfaces.ts#L7)*
+*Defined in [xlucene-interfaces.ts:7](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/xlucene-interfaces.ts#L7)*
 
 ___
 
@@ -36,7 +36,7 @@ ___
 
 • **Boolean**: = "boolean"
 
-*Defined in [xlucene-interfaces.ts:10](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/xlucene-interfaces.ts#L10)*
+*Defined in [xlucene-interfaces.ts:10](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/xlucene-interfaces.ts#L10)*
 
 ___
 
@@ -44,7 +44,7 @@ ___
 
 • **Date**: = "date"
 
-*Defined in [xlucene-interfaces.ts:4](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/xlucene-interfaces.ts#L4)*
+*Defined in [xlucene-interfaces.ts:4](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/xlucene-interfaces.ts#L4)*
 
 ___
 
@@ -52,7 +52,7 @@ ___
 
 • **Float**: = "float"
 
-*Defined in [xlucene-interfaces.ts:9](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/xlucene-interfaces.ts#L9)*
+*Defined in [xlucene-interfaces.ts:9](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/xlucene-interfaces.ts#L9)*
 
 ___
 
@@ -60,7 +60,7 @@ ___
 
 • **Geo**: = "geo"
 
-*Defined in [xlucene-interfaces.ts:3](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/xlucene-interfaces.ts#L3)*
+*Defined in [xlucene-interfaces.ts:3](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/xlucene-interfaces.ts#L3)*
 
 ___
 
@@ -68,7 +68,7 @@ ___
 
 • **GeoJSON**: = "geo-json"
 
-*Defined in [xlucene-interfaces.ts:13](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/xlucene-interfaces.ts#L13)*
+*Defined in [xlucene-interfaces.ts:13](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/xlucene-interfaces.ts#L13)*
 
 ___
 
@@ -76,7 +76,7 @@ ___
 
 • **GeoPoint**: = "geo-point"
 
-*Defined in [xlucene-interfaces.ts:12](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/xlucene-interfaces.ts#L12)*
+*Defined in [xlucene-interfaces.ts:12](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/xlucene-interfaces.ts#L12)*
 
 ___
 
@@ -84,7 +84,7 @@ ___
 
 • **IP**: = "ip"
 
-*Defined in [xlucene-interfaces.ts:5](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/xlucene-interfaces.ts#L5)*
+*Defined in [xlucene-interfaces.ts:5](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/xlucene-interfaces.ts#L5)*
 
 ___
 
@@ -92,7 +92,7 @@ ___
 
 • **Integer**: = "integer"
 
-*Defined in [xlucene-interfaces.ts:8](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/xlucene-interfaces.ts#L8)*
+*Defined in [xlucene-interfaces.ts:8](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/xlucene-interfaces.ts#L8)*
 
 ___
 
@@ -100,7 +100,7 @@ ___
 
 • **Number**: = "number"
 
-*Defined in [xlucene-interfaces.ts:14](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/xlucene-interfaces.ts#L14)*
+*Defined in [xlucene-interfaces.ts:14](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/xlucene-interfaces.ts#L14)*
 
 ___
 
@@ -108,7 +108,7 @@ ___
 
 • **Object**: = "object"
 
-*Defined in [xlucene-interfaces.ts:11](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/xlucene-interfaces.ts#L11)*
+*Defined in [xlucene-interfaces.ts:11](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/xlucene-interfaces.ts#L11)*
 
 ___
 
@@ -116,4 +116,4 @@ ___
 
 • **String**: = "string"
 
-*Defined in [xlucene-interfaces.ts:6](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/xlucene-interfaces.ts#L6)*
+*Defined in [xlucene-interfaces.ts:6](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/xlucene-interfaces.ts#L6)*

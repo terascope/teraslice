@@ -27,7 +27,7 @@ Elasticsearch Index Schema, Mapping and Version
 
 • **rollover_frequency**? : *[TimeSeriesFormat](../overview.md#timeseriesformat)*
 
-*Defined in [interfaces.ts:116](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/interfaces.ts#L116)*
+*Defined in [interfaces.ts:116](https://github.com/terascope/teraslice/blob/b843209f9/packages/elasticsearch-store/src/interfaces.ts#L116)*
 
 Rollover Frequency for the Timeseries Index.
 This is only valid if timeseries is set to true
@@ -40,7 +40,7 @@ ___
 
 • **strict**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:124](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/interfaces.ts#L124)*
+*Defined in [interfaces.ts:124](https://github.com/terascope/teraslice/blob/b843209f9/packages/elasticsearch-store/src/interfaces.ts#L124)*
 
 If enabled and the index does not match the version and mapping.
 Additionally this will prevent any mapping changes to automatically happen.
@@ -53,7 +53,7 @@ ___
 
 • **template**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:103](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/interfaces.ts#L103)*
+*Defined in [interfaces.ts:103](https://github.com/terascope/teraslice/blob/b843209f9/packages/elasticsearch-store/src/interfaces.ts#L103)*
 
 Use a Templated Index
 
@@ -63,7 +63,7 @@ ___
 
 • **timeseries**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:108](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/interfaces.ts#L108)*
+*Defined in [interfaces.ts:108](https://github.com/terascope/teraslice/blob/b843209f9/packages/elasticsearch-store/src/interfaces.ts#L108)*
 
 Use a Timeseries Index
 
@@ -73,6 +73,6 @@ ___
 
 • **version**? : *undefined | number*
 
-*Defined in [interfaces.ts:98](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/interfaces.ts#L98)*
+*Defined in [interfaces.ts:98](https://github.com/terascope/teraslice/blob/b843209f9/packages/elasticsearch-store/src/interfaces.ts#L98)*
 
 The version of this particular Schema definition

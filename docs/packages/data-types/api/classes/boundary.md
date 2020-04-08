@@ -39,7 +39,7 @@ sidebar_label: Boundary
 
 *Inherited from [BaseType](basetype.md).[constructor](basetype.md#constructor)*
 
-*Defined in [types/base-type.ts:23](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/base-type.ts#L23)*
+*Defined in [types/base-type.ts:23](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-types/src/types/base-type.ts#L23)*
 
 **Parameters:**
 
@@ -59,7 +59,7 @@ Name | Type | Default |
 
 *Inherited from [BaseType](basetype.md).[config](basetype.md#config)*
 
-*Defined in [types/base-type.ts:22](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/base-type.ts#L22)*
+*Defined in [types/base-type.ts:22](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-types/src/types/base-type.ts#L22)*
 
 ___
 
@@ -69,7 +69,7 @@ ___
 
 *Inherited from [BaseType](basetype.md).[field](basetype.md#field)*
 
-*Defined in [types/base-type.ts:21](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/base-type.ts#L21)*
+*Defined in [types/base-type.ts:21](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-types/src/types/base-type.ts#L21)*
 
 ___
 
@@ -79,7 +79,7 @@ ___
 
 *Inherited from [BaseType](basetype.md).[version](basetype.md#version)*
 
-*Defined in [types/base-type.ts:23](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/base-type.ts#L23)*
+*Defined in [types/base-type.ts:23](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-types/src/types/base-type.ts#L23)*
 
 ## Methods
 
@@ -89,7 +89,7 @@ ___
 
 *Inherited from [BaseType](basetype.md).[_formatGQLTypeName](basetype.md#_formatgqltypename)*
 
-*Defined in [types/base-type.ts:52](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/base-type.ts#L52)*
+*Defined in [types/base-type.ts:52](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-types/src/types/base-type.ts#L52)*
 
 **Parameters:**
 
@@ -109,7 +109,7 @@ ___
 
 *Inherited from [BaseType](basetype.md).[_formatGql](basetype.md#protected-_formatgql)*
 
-*Defined in [types/base-type.ts:35](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/base-type.ts#L35)*
+*Defined in [types/base-type.ts:35](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-types/src/types/base-type.ts#L35)*
 
 **Parameters:**
 
@@ -128,7 +128,7 @@ ___
 
 *Overrides [BaseType](basetype.md).[toESMapping](basetype.md#abstract-toesmapping)*
 
-*Defined in [types/v1/boundary.ts:5](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/v1/boundary.ts#L5)*
+*Defined in [types/v1/boundary.ts:5](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-types/src/types/v1/boundary.ts#L5)*
 
 **Parameters:**
 
@@ -146,7 +146,7 @@ ___
 
 *Overrides [BaseType](basetype.md).[toGraphQL](basetype.md#abstract-tographql)*
 
-*Defined in [types/v1/boundary.ts:18](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/v1/boundary.ts#L18)*
+*Defined in [types/v1/boundary.ts:18](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-types/src/types/v1/boundary.ts#L18)*
 
 **Parameters:**
 
@@ -164,6 +164,6 @@ ___
 
 *Overrides [BaseType](basetype.md).[toXlucene](basetype.md#abstract-toxlucene)*
 
-*Defined in [types/v1/boundary.ts:30](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/v1/boundary.ts#L30)*
+*Defined in [types/v1/boundary.ts:30](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-types/src/types/v1/boundary.ts#L30)*
 
 **Returns:** *object*

@@ -29,7 +29,7 @@ sidebar_label: ClusterStateNodeKubernetes
 
 • **active**: *[KubernetesProcess](kubernetesprocess.md)[]*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:153](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L153)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:153](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L153)*
 
 ___
 
@@ -37,7 +37,7 @@ ___
 
 • **available**: *"N/A"*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:152](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L152)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:152](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L152)*
 
 ___
 
@@ -45,7 +45,7 @@ ___
 
 • **hostname**: *string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:146](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L146)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:146](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L146)*
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 • **node_id**: *string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:145](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L145)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:145](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L145)*
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • **node_version**: *"N/A"*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:148](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L148)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:148](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L148)*
 
 ___
 
@@ -69,7 +69,7 @@ ___
 
 • **pid**: *"N/A"*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:147](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L147)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:147](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L147)*
 
 ___
 
@@ -77,7 +77,7 @@ ___
 
 • **state**: *"connected"*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:151](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L151)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:151](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L151)*
 
 ___
 
@@ -85,7 +85,7 @@ ___
 
 • **teraslice_version**: *"N/A"*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:149](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L149)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:149](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L149)*
 
 ___
 
@@ -93,4 +93,4 @@ ___
 
 • **total**: *"N/A"*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:150](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L150)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:150](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L150)*

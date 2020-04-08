@@ -40,7 +40,7 @@ sidebar_label: GroupType
 
 *Overrides [BaseType](basetype.md).[constructor](basetype.md#constructor)*
 
-*Defined in [types/group-type.ts:8](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/group-type.ts#L8)*
+*Defined in [types/group-type.ts:8](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-types/src/types/group-type.ts#L8)*
 
 **Parameters:**
 
@@ -60,7 +60,7 @@ Name | Type |
 
 *Inherited from [BaseType](basetype.md).[config](basetype.md#config)*
 
-*Defined in [types/base-type.ts:22](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/base-type.ts#L22)*
+*Defined in [types/base-type.ts:22](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-types/src/types/base-type.ts#L22)*
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 *Inherited from [BaseType](basetype.md).[field](basetype.md#field)*
 
-*Defined in [types/base-type.ts:21](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/base-type.ts#L21)*
+*Defined in [types/base-type.ts:21](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-types/src/types/base-type.ts#L21)*
 
 ___
 
@@ -78,7 +78,7 @@ ___
 
 • **types**: *[NestedTypes](../overview.md#nestedtypes)*
 
-*Defined in [types/group-type.ts:8](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/group-type.ts#L8)*
+*Defined in [types/group-type.ts:8](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-types/src/types/group-type.ts#L8)*
 
 ___
 
@@ -88,7 +88,7 @@ ___
 
 *Inherited from [BaseType](basetype.md).[version](basetype.md#version)*
 
-*Defined in [types/base-type.ts:23](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/base-type.ts#L23)*
+*Defined in [types/base-type.ts:23](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-types/src/types/base-type.ts#L23)*
 
 ## Methods
 
@@ -98,7 +98,7 @@ ___
 
 *Inherited from [BaseType](basetype.md).[_formatGQLTypeName](basetype.md#_formatgqltypename)*
 
-*Defined in [types/base-type.ts:52](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/base-type.ts#L52)*
+*Defined in [types/base-type.ts:52](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-types/src/types/base-type.ts#L52)*
 
 **Parameters:**
 
@@ -118,7 +118,7 @@ ___
 
 *Inherited from [BaseType](basetype.md).[_formatGql](basetype.md#protected-_formatgql)*
 
-*Defined in [types/base-type.ts:35](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/base-type.ts#L35)*
+*Defined in [types/base-type.ts:35](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-types/src/types/base-type.ts#L35)*
 
 **Parameters:**
 
@@ -137,7 +137,7 @@ ___
 
 *Overrides [BaseType](basetype.md).[toESMapping](basetype.md#abstract-toesmapping)*
 
-*Defined in [types/group-type.ts:15](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/group-type.ts#L15)*
+*Defined in [types/group-type.ts:15](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-types/src/types/group-type.ts#L15)*
 
 **Parameters:**
 
@@ -155,7 +155,7 @@ ___
 
 *Overrides [BaseType](basetype.md).[toGraphQL](basetype.md#abstract-tographql)*
 
-*Defined in [types/group-type.ts:48](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/group-type.ts#L48)*
+*Defined in [types/group-type.ts:48](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-types/src/types/group-type.ts#L48)*
 
 **Parameters:**
 
@@ -173,6 +173,6 @@ ___
 
 *Overrides [BaseType](basetype.md).[toXlucene](basetype.md#abstract-toxlucene)*
 
-*Defined in [types/group-type.ts:90](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/group-type.ts#L90)*
+*Defined in [types/group-type.ts:90](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-types/src/types/group-type.ts#L90)*
 
 **Returns:** *xLuceneTypeConfig*

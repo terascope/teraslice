@@ -21,4 +21,4 @@ sidebar_label: ESQuery
 
 • **index**: *ESMeta*
 
-*Defined in [packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts:309](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L309)*
+*Defined in [packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts:309](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-state-storage/src/elasticsearch-state-storage/index.ts#L309)*

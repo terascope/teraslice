@@ -31,7 +31,7 @@ sidebar_label: Term
 
 *Inherited from [TermLikeAST](termlikeast.md).[analyzed](termlikeast.md#optional-analyzed)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:41](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L41)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:41](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L41)*
 
 ___
 
@@ -41,7 +41,7 @@ ___
 
 *Inherited from [TermLikeAST](termlikeast.md).[field](termlikeast.md#field)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:40](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L40)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:40](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L40)*
 
 ___
 
@@ -51,7 +51,7 @@ ___
 
 *Inherited from [AnyDataType](anydatatype.md).[field_type](anydatatype.md#field_type)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:71](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L71)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:71](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L71)*
 
 The field type here may be the field type specified
 in the type_config
@@ -64,7 +64,7 @@ ___
 
 *Overrides [TermLikeAST](termlikeast.md).[type](termlikeast.md#type)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:158](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L158)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:158](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L158)*
 
 ___
 
@@ -74,4 +74,4 @@ ___
 
 *Inherited from [AnyDataType](anydatatype.md).[value](anydatatype.md#value)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:72](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L72)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:72](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L72)*

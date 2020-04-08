@@ -40,7 +40,7 @@ sidebar_label: API
 
 Ƭ **TranslatorOptions**: *object*
 
-*Defined in [xlucene-translator/src/translator/interfaces.ts:10](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/translator/interfaces.ts#L10)*
+*Defined in [xlucene-translator/src/translator/interfaces.ts:10](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/translator/interfaces.ts#L10)*
 
 #### Type declaration:
 
@@ -50,7 +50,7 @@ ___
 
 Ƭ **UtilsTranslateQueryOptions**: *object*
 
-*Defined in [xlucene-translator/src/translator/interfaces.ts:19](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/translator/interfaces.ts#L19)*
+*Defined in [xlucene-translator/src/translator/interfaces.ts:19](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/translator/interfaces.ts#L19)*
 
 #### Type declaration:
 
@@ -60,7 +60,7 @@ ___
 
 ▸ **canFlattenBoolQuery**(`query`: i.BoolQuery, `flattenTo`: i.BoolQueryTypes): *boolean*
 
-*Defined in [xlucene-translator/src/translator/utils.ts:421](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/translator/utils.ts#L421)*
+*Defined in [xlucene-translator/src/translator/utils.ts:421](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/translator/utils.ts#L421)*
 
 This prevents double nested queries that do the same thing
 
@@ -79,7 +79,7 @@ ___
 
 ▸ **compactFinalQuery**(`query?`: i.AnyQuery): *i.AnyQuery | i.AnyQuery[]*
 
-*Defined in [xlucene-translator/src/translator/utils.ts:431](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/translator/utils.ts#L431)*
+*Defined in [xlucene-translator/src/translator/utils.ts:431](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/translator/utils.ts#L431)*
 
 **Parameters:**
 
@@ -95,7 +95,7 @@ ___
 
 ▸ **flattenQuery**(`query`: i.AnyQuery | undefined, `flattenTo`: i.BoolQueryTypes): *i.AnyQuery[]*
 
-*Defined in [xlucene-translator/src/translator/utils.ts:409](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/translator/utils.ts#L409)*
+*Defined in [xlucene-translator/src/translator/utils.ts:409](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/translator/utils.ts#L409)*
 
 **Parameters:**
 
@@ -112,7 +112,7 @@ ___
 
 ▸ **getTermField**(`node`: TermLikeAST): *string*
 
-*Defined in [xlucene-translator/src/translator/utils.ts:405](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/translator/utils.ts#L405)*
+*Defined in [xlucene-translator/src/translator/utils.ts:405](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/translator/utils.ts#L405)*
 
 **Parameters:**
 
@@ -128,7 +128,7 @@ ___
 
 ▸ **isBoolQuery**(`query`: any): *query is i.BoolQuery*
 
-*Defined in [xlucene-translator/src/translator/utils.ts:427](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/translator/utils.ts#L427)*
+*Defined in [xlucene-translator/src/translator/utils.ts:427](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/translator/utils.ts#L427)*
 
 **Parameters:**
 
@@ -144,7 +144,7 @@ ___
 
 ▸ **isMultiMatch**(`node`: TermLikeAST): *boolean*
 
-*Defined in [xlucene-translator/src/translator/utils.ts:401](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/translator/utils.ts#L401)*
+*Defined in [xlucene-translator/src/translator/utils.ts:401](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/translator/utils.ts#L401)*
 
 **Parameters:**
 
@@ -160,7 +160,7 @@ ___
 
 ▸ **translateQuery**(`parser`: Parser, `options`: [UtilsTranslateQueryOptions](overview.md#utilstranslatequeryoptions)): *i.ElasticsearchDSLResult*
 
-*Defined in [xlucene-translator/src/translator/utils.ts:27](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/translator/utils.ts#L27)*
+*Defined in [xlucene-translator/src/translator/utils.ts:27](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/translator/utils.ts#L27)*
 
 **Parameters:**
 

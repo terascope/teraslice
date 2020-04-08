@@ -22,7 +22,7 @@ sidebar_label: GeoPoint
 
 • **lat**: *number*
 
-*Defined in [geo-interfaces.ts:64](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/geo-interfaces.ts#L64)*
+*Defined in [geo-interfaces.ts:64](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/geo-interfaces.ts#L64)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **lon**: *number*
 
-*Defined in [geo-interfaces.ts:65](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/geo-interfaces.ts#L65)*
+*Defined in [geo-interfaces.ts:65](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/geo-interfaces.ts#L65)*

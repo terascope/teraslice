@@ -121,7 +121,7 @@ sidebar_label: API
 
 Ƭ **AST**: *[EmptyAST](interfaces/emptyast.md) & [LogicalGroup](interfaces/logicalgroup.md) & [Term](interfaces/term.md) & [Conjunction](interfaces/conjunction.md) & [Negation](interfaces/negation.md) & [FieldGroup](interfaces/fieldgroup.md) & [Exists](interfaces/exists.md) & [Range](interfaces/range.md) & [GeoDistance](interfaces/geodistance.md) & [GeoBoundingBox](interfaces/geoboundingbox.md) & [Regexp](interfaces/regexp.md) & [Wildcard](interfaces/wildcard.md) & [FunctionNode](interfaces/functionnode.md)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:10](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L10)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:10](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L10)*
 
 ___
 
@@ -129,7 +129,7 @@ ___
 
 Ƭ **AnyAST**: *[EmptyAST](interfaces/emptyast.md) | [LogicalGroup](interfaces/logicalgroup.md) | [Term](interfaces/term.md) | [Conjunction](interfaces/conjunction.md) | [Negation](interfaces/negation.md) | [FieldGroup](interfaces/fieldgroup.md) | [Exists](interfaces/exists.md) | [Range](interfaces/range.md) | [GeoDistance](interfaces/geodistance.md) | [GeoBoundingBox](interfaces/geoboundingbox.md) | [Regexp](interfaces/regexp.md) | [Wildcard](interfaces/wildcard.md) | [FunctionNode](interfaces/functionnode.md)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:15](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L15)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:15](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L15)*
 
 ___
 
@@ -145,7 +145,7 @@ ___
 
 Ƭ **Field**: *string | null*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:64](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L64)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:64](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L64)*
 
 ___
 
@@ -153,7 +153,7 @@ ___
 
 Ƭ **FunctionElasticsearchOptions**: *object & Record‹string, any›*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:181](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L181)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:181](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L181)*
 
 ___
 
@@ -161,7 +161,7 @@ ___
 
 Ƭ **GroupLike**: *[FieldGroup](interfaces/fieldgroup.md) | [LogicalGroup](interfaces/logicalgroup.md)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:20](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L20)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:20](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L20)*
 
 ___
 
@@ -169,7 +169,7 @@ ___
 
 Ƭ **GroupLikeType**: *[LogicalGroup](enums/asttype.md#logicalgroup) | [FieldGroup](enums/asttype.md#fieldgroup)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:21](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L21)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:21](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L21)*
 
 ___
 
@@ -196,7 +196,7 @@ ___
 
 Ƭ **RangeOperator**: *"gte" | "gt" | "lt" | "lte"*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:116](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L116)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:116](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L116)*
 
 ___
 
@@ -204,7 +204,7 @@ ___
 
 Ƭ **TermLike**: *[Term](interfaces/term.md) | [Regexp](interfaces/regexp.md) | [Range](interfaces/range.md) | [Wildcard](interfaces/wildcard.md) | [GeoBoundingBox](interfaces/geoboundingbox.md) | [GeoDistance](interfaces/geodistance.md) | [FunctionNode](interfaces/functionnode.md)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:28](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L28)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:28](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L28)*
 
 ___
 
@@ -212,7 +212,7 @@ ___
 
 Ƭ **TermLikeType**: *[Term](enums/asttype.md#term) | [Regexp](enums/asttype.md#regexp) | [Range](enums/asttype.md#range) | [Wildcard](enums/asttype.md#wildcard) | [GeoBoundingBox](enums/asttype.md#geoboundingbox) | [GeoDistance](enums/asttype.md#geodistance) | [Function](enums/asttype.md#function)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:29](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L29)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:29](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L29)*
 
 ## Variables
 
@@ -220,7 +220,7 @@ ___
 
 • **groupTypes**: *[ASTType](enums/asttype.md)[]* =  [i.ASTType.LogicalGroup, i.ASTType.FieldGroup]
 
-*Defined in [packages/xlucene-parser/src/utils.ts:109](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L109)*
+*Defined in [packages/xlucene-parser/src/utils.ts:109](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L109)*
 
 logical group or field group with flow
 
@@ -232,7 +232,7 @@ ___
     xLuceneFieldType.Integer, xLuceneFieldType.Float
 ]
 
-*Defined in [packages/xlucene-parser/src/utils.ts:71](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L71)*
+*Defined in [packages/xlucene-parser/src/utils.ts:71](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L71)*
 
 ___
 
@@ -256,7 +256,7 @@ ___
     i.ASTType.Function
 ]
 
-*Defined in [packages/xlucene-parser/src/utils.ts:94](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L94)*
+*Defined in [packages/xlucene-parser/src/utils.ts:94](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L94)*
 
 term level queries with field (string|null)
 
@@ -266,7 +266,7 @@ term level queries with field (string|null)
 
 ▸ **buildRangeQueryString**(`node`: [Range](interfaces/range.md)): *string | undefined*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:161](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L161)*
+*Defined in [packages/xlucene-parser/src/utils.ts:161](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L161)*
 
 **Parameters:**
 
@@ -282,7 +282,7 @@ ___
 
 ▸ **coordinateToXlucene**(`cord`: CoordinateTuple): *string*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:183](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L183)*
+*Defined in [packages/xlucene-parser/src/utils.ts:183](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L183)*
 
 **Parameters:**
 
@@ -298,7 +298,7 @@ ___
 
 ▸ **getAnyValue**(`node`: any): *any*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:83](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L83)*
+*Defined in [packages/xlucene-parser/src/utils.ts:83](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L83)*
 
 **Parameters:**
 
@@ -314,7 +314,7 @@ ___
 
 ▸ **getField**(`node`: any): *string | undefined*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:87](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L87)*
+*Defined in [packages/xlucene-parser/src/utils.ts:87](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L87)*
 
 **Parameters:**
 
@@ -330,7 +330,7 @@ ___
 
 ▸ **getRelationFn**(`relation`: GeoShapeRelation, `queryPolygon`: any): *(Anonymous function)*
 
-*Defined in [packages/xlucene-parser/src/functions/geo/helpers.ts:144](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/functions/geo/helpers.ts#L144)*
+*Defined in [packages/xlucene-parser/src/functions/geo/helpers.ts:144](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/functions/geo/helpers.ts#L144)*
 
 **Parameters:**
 
@@ -347,7 +347,7 @@ ___
 
 ▸ **isBooleanDataType**(`node`: any): *node is BooleanDataType*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:79](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L79)*
+*Defined in [packages/xlucene-parser/src/utils.ts:79](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L79)*
 
 **Parameters:**
 
@@ -363,7 +363,7 @@ ___
 
 ▸ **isConjunction**(`node`: any): *node is Conjunction*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:15](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L15)*
+*Defined in [packages/xlucene-parser/src/utils.ts:15](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L15)*
 
 **Parameters:**
 
@@ -379,7 +379,7 @@ ___
 
 ▸ **isEmptyAST**(`node`: any): *node is EmptyAST*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:63](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L63)*
+*Defined in [packages/xlucene-parser/src/utils.ts:63](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L63)*
 
 **Parameters:**
 
@@ -395,7 +395,7 @@ ___
 
 ▸ **isExists**(`node`: any): *node is Exists*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:27](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L27)*
+*Defined in [packages/xlucene-parser/src/utils.ts:27](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L27)*
 
 **Parameters:**
 
@@ -411,7 +411,7 @@ ___
 
 ▸ **isFieldGroup**(`node`: any): *node is FieldGroup*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:23](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L23)*
+*Defined in [packages/xlucene-parser/src/utils.ts:23](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L23)*
 
 **Parameters:**
 
@@ -427,7 +427,7 @@ ___
 
 ▸ **isFunctionExpression**(`node`: any): *node is FunctionNode*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:43](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L43)*
+*Defined in [packages/xlucene-parser/src/utils.ts:43](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L43)*
 
 **Parameters:**
 
@@ -443,7 +443,7 @@ ___
 
 ▸ **isGeoBoundingBox**(`node`: any): *node is GeoBoundingBox*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:39](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L39)*
+*Defined in [packages/xlucene-parser/src/utils.ts:39](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L39)*
 
 **Parameters:**
 
@@ -459,7 +459,7 @@ ___
 
 ▸ **isGeoDistance**(`node`: any): *node is GeoDistance*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:35](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L35)*
+*Defined in [packages/xlucene-parser/src/utils.ts:35](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L35)*
 
 **Parameters:**
 
@@ -475,7 +475,7 @@ ___
 
 ▸ **isGroupLike**(`node`: any): *node is GroupLikeAST*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:111](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L111)*
+*Defined in [packages/xlucene-parser/src/utils.ts:111](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L111)*
 
 **Parameters:**
 
@@ -491,7 +491,7 @@ ___
 
 ▸ **isInfiniteMax**(`max?`: number | string): *boolean*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:129](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L129)*
+*Defined in [packages/xlucene-parser/src/utils.ts:129](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L129)*
 
 **Parameters:**
 
@@ -507,7 +507,7 @@ ___
 
 ▸ **isInfiniteMin**(`min?`: number | string): *boolean*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:124](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L124)*
+*Defined in [packages/xlucene-parser/src/utils.ts:124](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L124)*
 
 **Parameters:**
 
@@ -523,7 +523,7 @@ ___
 
 ▸ **isInfiniteValue**(`input?`: number | string): *boolean*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:120](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L120)*
+*Defined in [packages/xlucene-parser/src/utils.ts:120](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L120)*
 
 **Parameters:**
 
@@ -539,7 +539,7 @@ ___
 
 ▸ **isLogicalGroup**(`node`: any): *node is LogicalGroup*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:11](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L11)*
+*Defined in [packages/xlucene-parser/src/utils.ts:11](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L11)*
 
 **Parameters:**
 
@@ -555,7 +555,7 @@ ___
 
 ▸ **isNegation**(`node`: any): *node is Negation*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:19](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L19)*
+*Defined in [packages/xlucene-parser/src/utils.ts:19](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L19)*
 
 **Parameters:**
 
@@ -571,7 +571,7 @@ ___
 
 ▸ **isNumberDataType**(`node`: any): *node is NumberDataType*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:75](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L75)*
+*Defined in [packages/xlucene-parser/src/utils.ts:75](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L75)*
 
 **Parameters:**
 
@@ -587,7 +587,7 @@ ___
 
 ▸ **isRange**(`node`: any): *node is Range*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:31](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L31)*
+*Defined in [packages/xlucene-parser/src/utils.ts:31](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L31)*
 
 **Parameters:**
 
@@ -603,7 +603,7 @@ ___
 
 ▸ **isRegexp**(`node`: any): *node is Regexp*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:47](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L47)*
+*Defined in [packages/xlucene-parser/src/utils.ts:47](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L47)*
 
 **Parameters:**
 
@@ -619,7 +619,7 @@ ___
 
 ▸ **isStringDataType**(`node`: any): *node is StringDataType*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:67](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L67)*
+*Defined in [packages/xlucene-parser/src/utils.ts:67](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L67)*
 
 **Parameters:**
 
@@ -635,7 +635,7 @@ ___
 
 ▸ **isTerm**(`node`: any): *node is Term*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:59](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L59)*
+*Defined in [packages/xlucene-parser/src/utils.ts:59](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L59)*
 
 **Parameters:**
 
@@ -651,7 +651,7 @@ ___
 
 ▸ **isTermType**(`node`: any): *node is i.TermLike*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:104](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L104)*
+*Defined in [packages/xlucene-parser/src/utils.ts:104](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L104)*
 
 **Parameters:**
 
@@ -667,7 +667,7 @@ ___
 
 ▸ **isWildcard**(`node`: any): *node is Wildcard*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:51](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L51)*
+*Defined in [packages/xlucene-parser/src/utils.ts:51](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L51)*
 
 **Parameters:**
 
@@ -683,7 +683,7 @@ ___
 
 ▸ **isWildcardField**(`node`: any): *boolean*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:55](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L55)*
+*Defined in [packages/xlucene-parser/src/utils.ts:55](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L55)*
 
 **Parameters:**
 
@@ -699,7 +699,7 @@ ___
 
 ▸ **makeBBox**(`point1`: GeoPoint, `point2`: GeoPoint): *Feature‹Polygon, null | object›*
 
-*Defined in [packages/xlucene-parser/src/functions/geo/helpers.ts:49](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/functions/geo/helpers.ts#L49)*
+*Defined in [packages/xlucene-parser/src/functions/geo/helpers.ts:49](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/functions/geo/helpers.ts#L49)*
 
 **Parameters:**
 
@@ -716,7 +716,7 @@ ___
 
 ▸ **makeCircle**(`point`: GeoPoint, `distance`: number, `config`: any): *any*
 
-*Defined in [packages/xlucene-parser/src/functions/geo/helpers.ts:45](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/functions/geo/helpers.ts#L45)*
+*Defined in [packages/xlucene-parser/src/functions/geo/helpers.ts:45](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/functions/geo/helpers.ts#L45)*
 
 **Parameters:**
 
@@ -734,7 +734,7 @@ ___
 
 ▸ **makeContext**(`args`: any): *object*
 
-*Defined in [packages/xlucene-parser/src/context.ts:22](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/context.ts#L22)*
+*Defined in [packages/xlucene-parser/src/context.ts:22](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/context.ts#L22)*
 
 **Parameters:**
 
@@ -750,7 +750,7 @@ ___
 
 ▸ **makeCoordinatesFromGeoPoint**(`point`: GeoPoint): *CoordinateTuple*
 
-*Defined in [packages/xlucene-parser/src/functions/geo/helpers.ts:148](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/functions/geo/helpers.ts#L148)*
+*Defined in [packages/xlucene-parser/src/functions/geo/helpers.ts:148](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/functions/geo/helpers.ts#L148)*
 
 **Parameters:**
 
@@ -766,7 +766,7 @@ ___
 
 ▸ **makeShape**(`geoShape`: JoinGeoShape): *any*
 
-*Defined in [packages/xlucene-parser/src/functions/geo/helpers.ts:79](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/functions/geo/helpers.ts#L79)*
+*Defined in [packages/xlucene-parser/src/functions/geo/helpers.ts:79](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/functions/geo/helpers.ts#L79)*
 
 **Parameters:**
 
@@ -782,7 +782,7 @@ ___
 
 ▸ **parseRange**(`node`: [Range](interfaces/range.md), `excludeInfinite`: boolean): *[ParsedRange](interfaces/parsedrange.md)*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:141](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L141)*
+*Defined in [packages/xlucene-parser/src/utils.ts:141](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L141)*
 
 **Parameters:**
 
@@ -799,7 +799,7 @@ ___
 
 ▸ **pointInGeoShape**(`searchPoint`: any): *(Anonymous function)*
 
-*Defined in [packages/xlucene-parser/src/functions/geo/helpers.ts:59](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/functions/geo/helpers.ts#L59)*
+*Defined in [packages/xlucene-parser/src/functions/geo/helpers.ts:59](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/functions/geo/helpers.ts#L59)*
 
 **Parameters:**
 
@@ -815,7 +815,7 @@ ___
 
 ▸ **polyHasPoint**(`polygon`: any): *(Anonymous function)*
 
-*Defined in [packages/xlucene-parser/src/functions/geo/helpers.ts:37](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/functions/geo/helpers.ts#L37)*
+*Defined in [packages/xlucene-parser/src/functions/geo/helpers.ts:37](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/functions/geo/helpers.ts#L37)*
 
 **Parameters:**
 
@@ -831,7 +831,7 @@ ___
 
 ▸ **polyHasShape**(`queryPolygon`: any, `relation`: GeoShapeRelation): *(Anonymous function)*
 
-*Defined in [packages/xlucene-parser/src/functions/geo/helpers.ts:103](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/functions/geo/helpers.ts#L103)*
+*Defined in [packages/xlucene-parser/src/functions/geo/helpers.ts:103](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/functions/geo/helpers.ts#L103)*
 
 **Parameters:**
 
@@ -848,7 +848,7 @@ ___
 
 ▸ **validateListCoords**(`coords`: CoordinateTuple[]): *any[]*
 
-*Defined in [packages/xlucene-parser/src/functions/geo/helpers.ts:96](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/functions/geo/helpers.ts#L96)*
+*Defined in [packages/xlucene-parser/src/functions/geo/helpers.ts:96](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/functions/geo/helpers.ts#L96)*
 
 **Parameters:**
 
@@ -864,7 +864,7 @@ ___
 
 ▸ **validateVariables**(`obj`: xLuceneVariables): *xLuceneVariables*
 
-*Defined in [packages/xlucene-parser/src/utils.ts:115](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/utils.ts#L115)*
+*Defined in [packages/xlucene-parser/src/utils.ts:115](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/utils.ts#L115)*
 
 **Parameters:**
 

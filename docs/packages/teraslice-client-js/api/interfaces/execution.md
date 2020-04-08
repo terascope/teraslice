@@ -56,7 +56,7 @@ sidebar_label: Execution
 
 • **_context**: *"ex"*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:251](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L251)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:251](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L251)*
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **_created**: *string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:252](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L252)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:252](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L252)*
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 • **_failureReason**? : *undefined | string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:256](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L256)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:256](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L256)*
 
 ___
 
@@ -80,7 +80,7 @@ ___
 
 • **_has_errors**? : *undefined | false | true*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:255](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L255)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:255](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L255)*
 
 ___
 
@@ -88,7 +88,7 @@ ___
 
 • **_slicer_stats**? : *[SlicerAnalytics](sliceranalytics.md)*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:257](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L257)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:257](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L257)*
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 • **_status**: *[ExecutionStatus](../enums/executionstatus.md)*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:254](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L254)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:254](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L254)*
 
 ___
 
@@ -104,7 +104,7 @@ ___
 
 • **_updated**: *string*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:253](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L253)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:253](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L253)*
 
 ___
 

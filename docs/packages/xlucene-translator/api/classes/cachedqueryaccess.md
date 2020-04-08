@@ -27,7 +27,7 @@ sidebar_label: CachedQueryAccess
 
 \+ **new CachedQueryAccess**(): *[CachedQueryAccess](cachedqueryaccess.md)*
 
-*Defined in [xlucene-translator/src/query-access/cached-query-access.ts:7](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/query-access/cached-query-access.ts#L7)*
+*Defined in [xlucene-translator/src/query-access/cached-query-access.ts:7](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/query-access/cached-query-access.ts#L7)*
 
 **Returns:** *[CachedQueryAccess](cachedqueryaccess.md)*
 
@@ -37,7 +37,7 @@ sidebar_label: CachedQueryAccess
 
 ▸ **make**<**T**>(`config`: [QueryAccessConfig](../interfaces/queryaccessconfig.md)‹T›, `options?`: [QueryAccessOptions](../interfaces/queryaccessoptions.md)): *[QueryAccess](queryaccess.md)‹T›*
 
-*Defined in [xlucene-translator/src/query-access/cached-query-access.ts:12](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/query-access/cached-query-access.ts#L12)*
+*Defined in [xlucene-translator/src/query-access/cached-query-access.ts:12](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/query-access/cached-query-access.ts#L12)*
 
 **Type parameters:**
 
@@ -58,7 +58,7 @@ ___
 
 ▸ **reset**(): *void*
 
-*Defined in [xlucene-translator/src/query-access/cached-query-access.ts:16](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/query-access/cached-query-access.ts#L16)*
+*Defined in [xlucene-translator/src/query-access/cached-query-access.ts:16](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/query-access/cached-query-access.ts#L16)*
 
 **Returns:** *void*
 
@@ -68,6 +68,6 @@ ___
 
 ▸ **resetInstances**(): *void*
 
-*Defined in [xlucene-translator/src/query-access/cached-query-access.ts:23](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/query-access/cached-query-access.ts#L23)*
+*Defined in [xlucene-translator/src/query-access/cached-query-access.ts:23](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/query-access/cached-query-access.ts#L23)*
 
 **Returns:** *void*

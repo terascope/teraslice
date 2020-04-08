@@ -22,7 +22,7 @@ sidebar_label: GeoDistanceObj
 
 • **distance**: *number*
 
-*Defined in [geo-interfaces.ts:108](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/geo-interfaces.ts#L108)*
+*Defined in [geo-interfaces.ts:108](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/geo-interfaces.ts#L108)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **unit**: *[GeoDistanceUnit](../overview.md#geodistanceunit)*
 
-*Defined in [geo-interfaces.ts:109](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/geo-interfaces.ts#L109)*
+*Defined in [geo-interfaces.ts:109](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/geo-interfaces.ts#L109)*

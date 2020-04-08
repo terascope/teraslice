@@ -26,7 +26,7 @@ the config
 
 • **enable_index_mutations**? : *undefined | false | true*
 
-*Defined in [interfaces.ts:269](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/interfaces.ts#L269)*
+*Defined in [interfaces.ts:269](https://github.com/terascope/teraslice/blob/b843209f9/packages/elasticsearch-store/src/interfaces.ts#L269)*
 
 Enable index mutations so indexes will be auto created or updated
 
@@ -36,7 +36,7 @@ ___
 
 • **logger**? : *Logger*
 
-*Defined in [interfaces.ts:265](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/interfaces.ts#L265)*
+*Defined in [interfaces.ts:265](https://github.com/terascope/teraslice/blob/b843209f9/packages/elasticsearch-store/src/interfaces.ts#L265)*
 
 The logger to use
 
@@ -46,7 +46,7 @@ ___
 
 • **namespace**? : *undefined | string*
 
-*Defined in [interfaces.ts:261](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/interfaces.ts#L261)*
+*Defined in [interfaces.ts:261](https://github.com/terascope/teraslice/blob/b843209f9/packages/elasticsearch-store/src/interfaces.ts#L261)*
 
 The namespace that will be prefixed to the name value when generating
 the index name or anything else that needs to be namespaced.

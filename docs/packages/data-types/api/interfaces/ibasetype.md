@@ -21,7 +21,7 @@ sidebar_label: IBaseType
 
 \+ **new IBaseType**(`field`: string, `config`: [FieldTypeConfig](../overview.md#fieldtypeconfig)): *[BaseType](../classes/basetype.md)*
 
-*Defined in [types/base-type.ts:9](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-types/src/types/base-type.ts#L9)*
+*Defined in [types/base-type.ts:9](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-types/src/types/base-type.ts#L9)*
 
 **Parameters:**
 

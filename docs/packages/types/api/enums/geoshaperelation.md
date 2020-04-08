@@ -20,7 +20,7 @@ sidebar_label: GeoShapeRelation
 
 • **Contains**: = "contains"
 
-*Defined in [geo-interfaces.ts:72](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/geo-interfaces.ts#L72)*
+*Defined in [geo-interfaces.ts:72](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/geo-interfaces.ts#L72)*
 
 ___
 
@@ -28,7 +28,7 @@ ___
 
 • **Disjoint**: = "disjoint"
 
-*Defined in [geo-interfaces.ts:70](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/geo-interfaces.ts#L70)*
+*Defined in [geo-interfaces.ts:70](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/geo-interfaces.ts#L70)*
 
 ___
 
@@ -36,7 +36,7 @@ ___
 
 • **Intersects**: = "intersects"
 
-*Defined in [geo-interfaces.ts:69](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/geo-interfaces.ts#L69)*
+*Defined in [geo-interfaces.ts:69](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/geo-interfaces.ts#L69)*
 
 ___
 
@@ -44,4 +44,4 @@ ___
 
 • **Within**: = "within"
 
-*Defined in [geo-interfaces.ts:71](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/geo-interfaces.ts#L71)*
+*Defined in [geo-interfaces.ts:71](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/geo-interfaces.ts#L71)*

@@ -21,4 +21,4 @@ sidebar_label: HashConfig
 
 • **algo**: *[ValidatorHashValues](../overview.md#validatorhashvalues)*
 
-*Defined in [data-mate/src/validations/interfaces.ts:23](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/validations/interfaces.ts#L23)*
+*Defined in [data-mate/src/validations/interfaces.ts:23](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-mate/src/validations/interfaces.ts#L23)*

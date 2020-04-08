@@ -24,7 +24,7 @@ sidebar_label: SliceCompletePayload
 
 • **analytics**: *[SliceAnalyticsData](sliceanalyticsdata.md)*
 
-*Defined in [packages/teraslice-messaging/src/execution-controller/interfaces.ts:39](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L39)*
+*Defined in [packages/teraslice-messaging/src/execution-controller/interfaces.ts:39](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L39)*
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **error**? : *undefined | string*
 
-*Defined in [packages/teraslice-messaging/src/execution-controller/interfaces.ts:41](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L41)*
+*Defined in [packages/teraslice-messaging/src/execution-controller/interfaces.ts:41](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L41)*
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **retry**? : *undefined | false | true*
 
-*Defined in [packages/teraslice-messaging/src/execution-controller/interfaces.ts:40](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L40)*
+*Defined in [packages/teraslice-messaging/src/execution-controller/interfaces.ts:40](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L40)*
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **slice**: *[Slice](slice.md)*
 
-*Defined in [packages/teraslice-messaging/src/execution-controller/interfaces.ts:38](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L38)*
+*Defined in [packages/teraslice-messaging/src/execution-controller/interfaces.ts:38](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L38)*

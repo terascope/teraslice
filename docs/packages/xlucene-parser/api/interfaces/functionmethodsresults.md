@@ -22,7 +22,7 @@ sidebar_label: FunctionMethodsResults
 
 • **query**: *t.AnyQuery*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:177](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L177)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:177](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L177)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **sort**? : *t.AnyQuerySort*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:178](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L178)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:178](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L178)*

@@ -21,6 +21,6 @@ sidebar_label: ExistsQuery
 
 • **exists**: *object*
 
-*Defined in [elasticsearch-interfaces.ts:38](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/elasticsearch-interfaces.ts#L38)*
+*Defined in [elasticsearch-interfaces.ts:38](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/elasticsearch-interfaces.ts#L38)*
 
 #### Type declaration:

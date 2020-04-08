@@ -22,7 +22,7 @@ sidebar_label: ErrorObj
 
 • **message**: *string*
 
-*Defined in [packages/teraslice-messaging/src/messenger/interfaces.ts:38](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-messaging/src/messenger/interfaces.ts#L38)*
+*Defined in [packages/teraslice-messaging/src/messenger/interfaces.ts:38](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-messaging/src/messenger/interfaces.ts#L38)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **stack**? : *undefined | string*
 
-*Defined in [packages/teraslice-messaging/src/messenger/interfaces.ts:39](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-messaging/src/messenger/interfaces.ts#L39)*
+*Defined in [packages/teraslice-messaging/src/messenger/interfaces.ts:39](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-messaging/src/messenger/interfaces.ts#L39)*

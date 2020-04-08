@@ -22,7 +22,7 @@ sidebar_label: ClusterStats
 
 • **controllers**: *[SliceAccumulationStats](sliceaccumulationstats.md)*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:194](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L194)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:194](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L194)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **slicer**: *[SliceAccumulationStats](sliceaccumulationstats.md)*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:195](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L195)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:195](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L195)*

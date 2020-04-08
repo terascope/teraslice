@@ -60,7 +60,7 @@ sidebar_label: CachedStateStorage
 
 *Overrides void*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:10](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L10)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:10](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L10)*
 
 **Parameters:**
 
@@ -112,7 +112,7 @@ ___
 
 ▸ **clear**(): *void*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:63](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L63)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:63](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L63)*
 
 **Returns:** *void*
 
@@ -122,7 +122,7 @@ ___
 
 ▸ **count**(): *number*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:44](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L44)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:44](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L44)*
 
 **Returns:** *number*
 
@@ -163,7 +163,7 @@ ___
 
 ▸ **get**(`key`: string | number): *T | undefined*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:19](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L19)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:19](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L19)*
 
 **Parameters:**
 
@@ -191,7 +191,7 @@ ___
 
 ▸ **has**(`key`: string | number): *boolean*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:59](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L59)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:59](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L59)*
 
 **Parameters:**
 
@@ -243,7 +243,7 @@ ___
 
 ▸ **mget**(`keyArray`: string | number[]): *[MGetCacheResponse](../interfaces/mgetcacheresponse.md)*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:23](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L23)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:23](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L23)*
 
 **Parameters:**
 
@@ -259,7 +259,7 @@ ___
 
 ▸ **mset**(`docArray`: [SetTuple](../interfaces/settuple.md)‹T›[]): *void*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:38](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L38)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:38](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L38)*
 
 **Parameters:**
 
@@ -467,7 +467,7 @@ ___
 
 ▸ **set**(`key`: string | number, `value`: T): *void*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:31](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L31)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:31](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L31)*
 
 **Parameters:**
 
@@ -502,7 +502,7 @@ ___
 
 ▸ **values**(`fn`: [ValuesFn](../overview.md#valuesfn)‹T›): *Promise‹void›*
 
-*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:48](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L48)*
+*Defined in [packages/teraslice-state-storage/src/cached-state-storage/index.ts:48](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-state-storage/src/cached-state-storage/index.ts#L48)*
 
 **Parameters:**
 

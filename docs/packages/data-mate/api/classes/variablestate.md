@@ -26,7 +26,7 @@ sidebar_label: VariableState
 
 \+ **new VariableState**(`variables?`: AnyObject): *[VariableState](variablestate.md)*
 
-*Defined in [data-mate/src/transforms/helpers.ts:174](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/transforms/helpers.ts#L174)*
+*Defined in [data-mate/src/transforms/helpers.ts:174](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-mate/src/transforms/helpers.ts#L174)*
 
 **Parameters:**
 
@@ -42,7 +42,7 @@ Name | Type |
 
 ▸ **createVariable**(`field`: string, `value`: any): *string*
 
-*Defined in [data-mate/src/transforms/helpers.ts:192](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/transforms/helpers.ts#L192)*
+*Defined in [data-mate/src/transforms/helpers.ts:192](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-mate/src/transforms/helpers.ts#L192)*
 
 **Parameters:**
 
@@ -59,7 +59,7 @@ ___
 
 ▸ **getVariables**(): *AnyObject*
 
-*Defined in [data-mate/src/transforms/helpers.ts:206](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/transforms/helpers.ts#L206)*
+*Defined in [data-mate/src/transforms/helpers.ts:206](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-mate/src/transforms/helpers.ts#L206)*
 
 Shallow clones and sorts the keys
 

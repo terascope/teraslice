@@ -21,7 +21,7 @@ sidebar_label: MatchQuery
 
 • **match**: *object*
 
-*Defined in [elasticsearch-interfaces.ts:85](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/elasticsearch-interfaces.ts#L85)*
+*Defined in [elasticsearch-interfaces.ts:85](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/elasticsearch-interfaces.ts#L85)*
 
 #### Type declaration:
 

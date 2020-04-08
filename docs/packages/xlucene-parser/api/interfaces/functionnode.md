@@ -30,7 +30,7 @@ sidebar_label: FunctionNode
 
 *Inherited from [TermLikeAST](termlikeast.md).[analyzed](termlikeast.md#optional-analyzed)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:41](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L41)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:41](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L41)*
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 • **description**? : *undefined | string*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:145](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L145)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:145](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L145)*
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 *Inherited from [TermLikeAST](termlikeast.md).[field](termlikeast.md#field)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:40](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L40)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:40](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L40)*
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 • **instance**: *[FunctionMethods](functionmethods.md)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:146](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L146)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:146](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L146)*
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:144](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L144)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:144](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L144)*
 
 ___
 
@@ -74,4 +74,4 @@ ___
 
 *Overrides [TermLikeAST](termlikeast.md).[type](termlikeast.md#type)*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:143](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L143)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:143](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L143)*

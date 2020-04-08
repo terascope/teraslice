@@ -23,7 +23,7 @@ sidebar_label: FunctionDefinition
 
 • **create**: *function*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:169](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L169)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:169](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L169)*
 
 #### Type declaration:
 
@@ -43,7 +43,7 @@ ___
 
 • **name**: *string*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:168](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L168)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:168](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L168)*
 
 ___
 
@@ -51,4 +51,4 @@ ___
 
 • **version**: *string*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:167](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L167)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:167](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L167)*

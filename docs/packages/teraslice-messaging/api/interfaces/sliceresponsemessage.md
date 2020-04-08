@@ -21,4 +21,4 @@ sidebar_label: SliceResponseMessage
 
 • **willProcess**? : *undefined | false | true*
 
-*Defined in [packages/teraslice-messaging/src/execution-controller/interfaces.ts:31](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L31)*
+*Defined in [packages/teraslice-messaging/src/execution-controller/interfaces.ts:31](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-messaging/src/execution-controller/interfaces.ts#L31)*

@@ -31,7 +31,7 @@ sidebar_label: ContextAPIs
 
 • **foundation**: *[FoundationApis](foundationapis.md)*
 
-*Defined in [packages/job-components/src/interfaces/context.ts:93](https://github.com/terascope/teraslice/blob/f95bb5556/packages/job-components/src/interfaces/context.ts#L93)*
+*Defined in [packages/job-components/src/interfaces/context.ts:93](https://github.com/terascope/teraslice/blob/b843209f9/packages/job-components/src/interfaces/context.ts#L93)*
 
 ## Methods
 
@@ -39,7 +39,7 @@ sidebar_label: ContextAPIs
 
 ▸ **registerAPI**(`namespace`: string, `apis`: any): *void*
 
-*Defined in [packages/job-components/src/interfaces/context.ts:94](https://github.com/terascope/teraslice/blob/f95bb5556/packages/job-components/src/interfaces/context.ts#L94)*
+*Defined in [packages/job-components/src/interfaces/context.ts:94](https://github.com/terascope/teraslice/blob/b843209f9/packages/job-components/src/interfaces/context.ts#L94)*
 
 **Parameters:**
 

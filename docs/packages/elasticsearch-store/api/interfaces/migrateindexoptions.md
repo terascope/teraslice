@@ -25,7 +25,7 @@ sidebar_label: MigrateIndexOptions
 
 • **config**: *[IndexConfig](indexconfig.md)*
 
-*Defined in [interfaces.ts:288](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/interfaces.ts#L288)*
+*Defined in [interfaces.ts:288](https://github.com/terascope/teraslice/blob/b843209f9/packages/elasticsearch-store/src/interfaces.ts#L288)*
 
 ___
 
@@ -33,7 +33,7 @@ ___
 
 • **previousName**? : *undefined | string*
 
-*Defined in [interfaces.ts:291](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/interfaces.ts#L291)*
+*Defined in [interfaces.ts:291](https://github.com/terascope/teraslice/blob/b843209f9/packages/elasticsearch-store/src/interfaces.ts#L291)*
 
 ___
 
@@ -41,7 +41,7 @@ ___
 
 • **previousNamespace**? : *undefined | string*
 
-*Defined in [interfaces.ts:290](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/interfaces.ts#L290)*
+*Defined in [interfaces.ts:290](https://github.com/terascope/teraslice/blob/b843209f9/packages/elasticsearch-store/src/interfaces.ts#L290)*
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **previousVersion**? : *undefined | number*
 
-*Defined in [interfaces.ts:292](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/interfaces.ts#L292)*
+*Defined in [interfaces.ts:292](https://github.com/terascope/teraslice/blob/b843209f9/packages/elasticsearch-store/src/interfaces.ts#L292)*
 
 ___
 
@@ -57,4 +57,4 @@ ___
 
 • **timeout**? : *undefined | string*
 
-*Defined in [interfaces.ts:289](https://github.com/terascope/teraslice/blob/f95bb5556/packages/elasticsearch-store/src/interfaces.ts#L289)*
+*Defined in [interfaces.ts:289](https://github.com/terascope/teraslice/blob/b843209f9/packages/elasticsearch-store/src/interfaces.ts#L289)*

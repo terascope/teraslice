@@ -23,7 +23,7 @@ sidebar_label: FQDNOptions
 
 • **allowTrailingDot**? : *undefined | false | true*
 
-*Defined in [data-mate/src/validations/interfaces.ts:4](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/validations/interfaces.ts#L4)*
+*Defined in [data-mate/src/validations/interfaces.ts:4](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-mate/src/validations/interfaces.ts#L4)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **allowUnderscores**? : *undefined | false | true*
 
-*Defined in [data-mate/src/validations/interfaces.ts:3](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/validations/interfaces.ts#L3)*
+*Defined in [data-mate/src/validations/interfaces.ts:3](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-mate/src/validations/interfaces.ts#L3)*
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 • **requireTld**? : *undefined | false | true*
 
-*Defined in [data-mate/src/validations/interfaces.ts:2](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/validations/interfaces.ts#L2)*
+*Defined in [data-mate/src/validations/interfaces.ts:2](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-mate/src/validations/interfaces.ts#L2)*

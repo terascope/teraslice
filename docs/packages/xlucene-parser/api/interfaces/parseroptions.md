@@ -23,7 +23,7 @@ sidebar_label: ParserOptions
 
 • **logger**? : *Logger*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:6](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L6)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:6](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L6)*
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **type_config**? : *t.xLuceneTypeConfig*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:5](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L5)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:5](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L5)*
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 • **variables**? : *t.xLuceneVariables*
 
-*Defined in [packages/xlucene-parser/src/interfaces.ts:7](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-parser/src/interfaces.ts#L7)*
+*Defined in [packages/xlucene-parser/src/interfaces.ts:7](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-parser/src/interfaces.ts#L7)*

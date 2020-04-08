@@ -22,7 +22,7 @@ sidebar_label: xLuceneQueryResult
 
 • **query**: *string*
 
-*Defined in [data-mate/src/transforms/helpers.ts:23](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/transforms/helpers.ts#L23)*
+*Defined in [data-mate/src/transforms/helpers.ts:23](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-mate/src/transforms/helpers.ts#L23)*
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • **variables**: *xLuceneVariables*
 
-*Defined in [data-mate/src/transforms/helpers.ts:24](https://github.com/terascope/teraslice/blob/f95bb5556/packages/data-mate/src/transforms/helpers.ts#L24)*
+*Defined in [data-mate/src/transforms/helpers.ts:24](https://github.com/terascope/teraslice/blob/b843209f9/packages/data-mate/src/transforms/helpers.ts#L24)*

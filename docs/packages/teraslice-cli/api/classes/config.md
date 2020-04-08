@@ -43,7 +43,7 @@ NOTE: All properties on this.args are mapped to camelCase
 
 \+ **new Config**(`cliArgs`: any): *[Config](config.md)*
 
-*Defined in [packages/teraslice-cli/src/helpers/config.ts:18](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/config.ts#L18)*
+*Defined in [packages/teraslice-cli/src/helpers/config.ts:18](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/helpers/config.ts#L18)*
 
 **Parameters:**
 
@@ -59,7 +59,7 @@ Name | Type |
 
 • **aliases**: *[Aliases](aliases.md)*
 
-*Defined in [packages/teraslice-cli/src/helpers/config.ts:18](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/config.ts#L18)*
+*Defined in [packages/teraslice-cli/src/helpers/config.ts:18](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/helpers/config.ts#L18)*
 
 ___
 
@@ -67,7 +67,7 @@ ___
 
 • **args**: *any*
 
-*Defined in [packages/teraslice-cli/src/helpers/config.ts:17](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/config.ts#L17)*
+*Defined in [packages/teraslice-cli/src/helpers/config.ts:17](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/helpers/config.ts#L17)*
 
 ## Accessors
 
@@ -75,7 +75,7 @@ ___
 
 • **get aliasesFile**(): *string*
 
-*Defined in [packages/teraslice-cli/src/helpers/config.ts:66](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/config.ts#L66)*
+*Defined in [packages/teraslice-cli/src/helpers/config.ts:66](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/helpers/config.ts#L66)*
 
 **Returns:** *string*
 
@@ -85,7 +85,7 @@ ___
 
 • **get allSubDirs**(): *string[]*
 
-*Defined in [packages/teraslice-cli/src/helpers/config.ts:82](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/config.ts#L82)*
+*Defined in [packages/teraslice-cli/src/helpers/config.ts:82](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/helpers/config.ts#L82)*
 
 **Returns:** *string[]*
 
@@ -95,7 +95,7 @@ ___
 
 • **get assetDir**(): *string*
 
-*Defined in [packages/teraslice-cli/src/helpers/config.ts:78](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/config.ts#L78)*
+*Defined in [packages/teraslice-cli/src/helpers/config.ts:78](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/helpers/config.ts#L78)*
 
 **Returns:** *string*
 
@@ -105,7 +105,7 @@ ___
 
 • **get clusterUrl**(): *any*
 
-*Defined in [packages/teraslice-cli/src/helpers/config.ts:55](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/config.ts#L55)*
+*Defined in [packages/teraslice-cli/src/helpers/config.ts:55](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/helpers/config.ts#L55)*
 
 Returns the URL of the appropriate cluster with the following order of
 precedence:
@@ -126,7 +126,7 @@ ___
 
 • **get jobStateDir**(): *string*
 
-*Defined in [packages/teraslice-cli/src/helpers/config.ts:70](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/config.ts#L70)*
+*Defined in [packages/teraslice-cli/src/helpers/config.ts:70](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/helpers/config.ts#L70)*
 
 **Returns:** *string*
 
@@ -136,6 +136,6 @@ ___
 
 • **get jobStateFile**(): *string*
 
-*Defined in [packages/teraslice-cli/src/helpers/config.ts:74](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/config.ts#L74)*
+*Defined in [packages/teraslice-cli/src/helpers/config.ts:74](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/helpers/config.ts#L74)*
 
 **Returns:** *string*

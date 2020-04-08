@@ -80,7 +80,7 @@ sidebar_label: API
 
 Ƭ **ChangeWorkerQueryParams**: *"add" | "remove" | "total"*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:305](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L305)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:305](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L305)*
 
 ___
 
@@ -88,7 +88,7 @@ ___
 
 Ƭ **ClusterProcess**: *[NativeProcess](interfaces/nativeprocess.md) | [KubernetesProcess](interfaces/kubernetesprocess.md)*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:161](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L161)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:161](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L161)*
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 Ƭ **ClusterState**: *[ClusterStateNative](interfaces/clusterstatenative.md) & [ClusterStateKubernetes](interfaces/clusterstatekubernetes.md)*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:160](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L160)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:160](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L160)*
 
 ___
 
@@ -104,7 +104,7 @@ ___
 
 Ƭ **ControllerState**: *[SlicerStats](interfaces/slicerstats.md)[]*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:320](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L320)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:320](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L320)*
 
 ___
 
@@ -112,7 +112,7 @@ ___
 
 Ƭ **ExecutionInitStatus**: *[pending](enums/executionstatus.md#pending) | [scheduling](enums/executionstatus.md#scheduling) | [recovering](enums/executionstatus.md#recovering)*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:220](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L220)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:220](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L220)*
 
 ___
 
@@ -120,7 +120,7 @@ ___
 
 Ƭ **ExecutionRunningStatus**: *[recovering](enums/executionstatus.md#recovering) | [running](enums/executionstatus.md#running) | [failing](enums/executionstatus.md#failing) | [paused](enums/executionstatus.md#paused) | [stopping](enums/executionstatus.md#stopping)*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:225](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L225)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:225](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L225)*
 
 ___
 
@@ -128,7 +128,7 @@ ___
 
 Ƭ **ExecutionTerminalStatus**: *[completed](enums/executionstatus.md#completed) | [stopped](enums/executionstatus.md#stopped) | [rejected](enums/executionstatus.md#rejected) | [failed](enums/executionstatus.md#failed) | [terminated](enums/executionstatus.md#terminated)*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:232](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L232)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:232](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L232)*
 
 ___
 
@@ -136,7 +136,7 @@ ___
 
 Ƭ **JobListStatusQuery**: *[SearchJobStatus](overview.md#searchjobstatus) | [JobSearchParams](interfaces/jobsearchparams.md)*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:34](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L34)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:34](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L34)*
 
 ___
 
@@ -144,7 +144,7 @@ ___
 
 Ƭ **JobProcesses**: *[JobNativeProcess](interfaces/jobnativeprocess.md) | [JobKubernetesProcess](interfaces/jobkubernetesprocess.md)*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:77](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L77)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:77](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L77)*
 
 ___
 
@@ -152,7 +152,7 @@ ___
 
 Ƭ **PostData**: *string | ReadableStream | Buffer*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:51](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L51)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:51](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L51)*
 
 ___
 
@@ -160,7 +160,7 @@ ___
 
 Ƭ **SearchJobStatus**: *"*" | [ExecutionStatus](enums/executionstatus.md)*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:32](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L32)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:32](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L32)*
 
 ___
 
@@ -168,7 +168,7 @@ ___
 
 Ƭ **SearchOptions**: *Omit‹[RequestOptions](interfaces/requestoptions.md), "query"›*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:49](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L49)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:49](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L49)*
 
 ___
 
@@ -176,7 +176,7 @@ ___
 
 Ƭ **SearchQuery**: *[APISearchParams](interfaces/apisearchparams.md) & Record‹string, any›*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:40](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L40)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:40](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L40)*
 
 ___
 
@@ -184,7 +184,7 @@ ___
 
 Ƭ **StateErrors**: *[ErrorStateRecord](interfaces/errorstaterecord.md)[]*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:338](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L338)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:338](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L338)*
 
 ___
 
@@ -192,7 +192,7 @@ ___
 
 Ƭ **TxtType**: *"assets" | "slicers" | "ex" | "jobs" | "nodes" | "workers"*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:53](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L53)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:53](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L53)*
 
 ___
 
@@ -200,4 +200,4 @@ ___
 
 Ƭ **WorkerJobProcesses**: *Overwrite‹[JobProcesses](overview.md#jobprocesses), object›*
 
-*Defined in [packages/teraslice-client-js/src/interfaces.ts:79](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-client-js/src/interfaces.ts#L79)*
+*Defined in [packages/teraslice-client-js/src/interfaces.ts:79](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-client-js/src/interfaces.ts#L79)*

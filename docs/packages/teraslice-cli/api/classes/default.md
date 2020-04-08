@@ -139,7 +139,7 @@ Defined in node_modules/@types/yeoman-generator/index.d.ts:28
 
 *Overrides void*
 
-*Defined in [packages/teraslice-cli/src/generators/new-processor/index.ts:7](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/generators/new-processor/index.ts#L7)*
+*Defined in [packages/teraslice-cli/src/generators/new-processor/index.ts:7](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/generators/new-processor/index.ts#L7)*
 
 **Parameters:**
 
@@ -156,9 +156,9 @@ Name | Type |
 
 • **answers**: *any*
 
-*Defined in [packages/teraslice-cli/src/generators/new-processor/index.ts:7](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/generators/new-processor/index.ts#L7)*
+*Defined in [packages/teraslice-cli/src/generators/new-processor/index.ts:7](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/generators/new-processor/index.ts#L7)*
 
-*Defined in [packages/teraslice-cli/src/generators/new-asset/index.ts:8](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/generators/new-asset/index.ts#L8)*
+*Defined in [packages/teraslice-cli/src/generators/new-asset/index.ts:8](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/generators/new-asset/index.ts#L8)*
 
 ___
 
@@ -268,7 +268,7 @@ ___
 
 • **useYarn**? : *undefined | false | true*
 
-*Defined in [packages/teraslice-cli/src/generators/new-asset/index.ts:9](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/generators/new-asset/index.ts#L9)*
+*Defined in [packages/teraslice-cli/src/generators/new-asset/index.ts:9](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/generators/new-asset/index.ts#L9)*
 
 ___
 
@@ -290,7 +290,7 @@ Defined in node_modules/@types/yeoman-generator/index.d.ts:200
 
 ▸ **addExampleProcessor**(): *void*
 
-*Defined in [packages/teraslice-cli/src/generators/new-asset/index.ts:80](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/generators/new-asset/index.ts#L80)*
+*Defined in [packages/teraslice-cli/src/generators/new-asset/index.ts:80](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/generators/new-asset/index.ts#L80)*
 
 **Returns:** *void*
 
@@ -427,7 +427,7 @@ ___
 
 ▸ **createProcessor**(): *void*
 
-*Defined in [packages/teraslice-cli/src/generators/new-processor/index.ts:49](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/generators/new-processor/index.ts#L49)*
+*Defined in [packages/teraslice-cli/src/generators/new-processor/index.ts:49](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/generators/new-processor/index.ts#L49)*
 
 **Returns:** *void*
 
@@ -437,7 +437,7 @@ ___
 
 ▸ **default**(): *void*
 
-*Defined in [packages/teraslice-cli/src/generators/new-asset/index.ts:43](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/generators/new-asset/index.ts#L43)*
+*Defined in [packages/teraslice-cli/src/generators/new-asset/index.ts:43](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/generators/new-asset/index.ts#L43)*
 
 **Returns:** *void*
 
@@ -584,7 +584,7 @@ ___
 
 ▸ **install**(): *void*
 
-*Defined in [packages/teraslice-cli/src/generators/new-asset/index.ts:89](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/generators/new-asset/index.ts#L89)*
+*Defined in [packages/teraslice-cli/src/generators/new-asset/index.ts:89](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/generators/new-asset/index.ts#L89)*
 
 **Returns:** *void*
 
@@ -835,7 +835,7 @@ ___
 
 ▸ **paths**(): *void*
 
-*Defined in [packages/teraslice-cli/src/generators/new-processor/index.ts:45](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/generators/new-processor/index.ts#L45)*
+*Defined in [packages/teraslice-cli/src/generators/new-processor/index.ts:45](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/generators/new-processor/index.ts#L45)*
 
 **Returns:** *void*
 
@@ -925,7 +925,7 @@ ___
 
 ▸ **prompting**(): *Promise‹void›*
 
-*Defined in [packages/teraslice-cli/src/generators/new-processor/index.ts:16](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/generators/new-processor/index.ts#L16)*
+*Defined in [packages/teraslice-cli/src/generators/new-processor/index.ts:16](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/generators/new-processor/index.ts#L16)*
 
 **Returns:** *Promise‹void›*
 

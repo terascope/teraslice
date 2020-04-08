@@ -32,7 +32,7 @@ sidebar_label: Translator
 
 \+ **new Translator**(`input`: string | Parser, `options`: i.TranslatorOptions): *[Translator](translator.md)*
 
-*Defined in [xlucene-translator/src/translator/translator.ts:25](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/translator/translator.ts#L25)*
+*Defined in [xlucene-translator/src/translator/translator.ts:25](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/translator/translator.ts#L25)*
 
 **Parameters:**
 
@@ -49,7 +49,7 @@ Name | Type | Default |
 
 • **logger**: *Logger*
 
-*Defined in [xlucene-translator/src/translator/translator.ts:19](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/translator/translator.ts#L19)*
+*Defined in [xlucene-translator/src/translator/translator.ts:19](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/translator/translator.ts#L19)*
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **query**: *string*
 
-*Defined in [xlucene-translator/src/translator/translator.ts:18](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/translator/translator.ts#L18)*
+*Defined in [xlucene-translator/src/translator/translator.ts:18](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/translator/translator.ts#L18)*
 
 ___
 
@@ -65,7 +65,7 @@ ___
 
 • **typeConfig**: *xLuceneTypeConfig*
 
-*Defined in [xlucene-translator/src/translator/translator.ts:20](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/translator/translator.ts#L20)*
+*Defined in [xlucene-translator/src/translator/translator.ts:20](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/translator/translator.ts#L20)*
 
 ___
 
@@ -73,7 +73,7 @@ ___
 
 • **variables**: *xLuceneVariables | undefined*
 
-*Defined in [xlucene-translator/src/translator/translator.ts:21](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/translator/translator.ts#L21)*
+*Defined in [xlucene-translator/src/translator/translator.ts:21](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/translator/translator.ts#L21)*
 
 ## Methods
 
@@ -81,7 +81,7 @@ ___
 
 ▸ **toElasticsearchDSL**(`opts`: ElasticsearchDSLOptions): *ElasticsearchDSLResult*
 
-*Defined in [xlucene-translator/src/translator/translator.ts:55](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/translator/translator.ts#L55)*
+*Defined in [xlucene-translator/src/translator/translator.ts:55](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/translator/translator.ts#L55)*
 
 **Parameters:**
 

@@ -21,4 +21,4 @@ sidebar_label: RestrictOptions
 
 • **variables**? : *xLuceneVariables*
 
-*Defined in [xlucene-translator/src/query-access/interfaces.ts:28](https://github.com/terascope/teraslice/blob/f95bb5556/packages/xlucene-translator/src/query-access/interfaces.ts#L28)*
+*Defined in [xlucene-translator/src/query-access/interfaces.ts:28](https://github.com/terascope/teraslice/blob/b843209f9/packages/xlucene-translator/src/query-access/interfaces.ts#L28)*

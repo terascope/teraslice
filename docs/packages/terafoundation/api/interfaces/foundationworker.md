@@ -52,7 +52,7 @@ sidebar_label: FoundationWorker
 
 • **__process_restart**? : *undefined | false | true*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:72](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/interfaces.ts#L72)*
+*Defined in [packages/terafoundation/src/interfaces.ts:72](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/interfaces.ts#L72)*
 
 ___
 
@@ -60,7 +60,7 @@ ___
 
 • **assignment**: *string*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:74](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/interfaces.ts#L74)*
+*Defined in [packages/terafoundation/src/interfaces.ts:74](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/interfaces.ts#L74)*
 
 ___
 
@@ -98,7 +98,7 @@ ___
 
 • **service_context**: *any*
 
-*Defined in [packages/terafoundation/src/interfaces.ts:73](https://github.com/terascope/teraslice/blob/f95bb5556/packages/terafoundation/src/interfaces.ts#L73)*
+*Defined in [packages/terafoundation/src/interfaces.ts:73](https://github.com/terascope/teraslice/blob/b843209f9/packages/terafoundation/src/interfaces.ts#L73)*
 
 ## Methods
 

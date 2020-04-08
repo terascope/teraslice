@@ -21,4 +21,4 @@ sidebar_label: MACAddress
 
 • **delimiter**: *[MACDelimiter](../overview.md#macdelimiter) | [MACDelimiter](../overview.md#macdelimiter)[]*
 
-*Defined in [misc.ts:4](https://github.com/terascope/teraslice/blob/f95bb5556/packages/types/src/misc.ts#L4)*
+*Defined in [misc.ts:4](https://github.com/terascope/teraslice/blob/b843209f9/packages/types/src/misc.ts#L4)*

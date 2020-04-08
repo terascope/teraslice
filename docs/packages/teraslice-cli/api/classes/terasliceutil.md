@@ -34,7 +34,7 @@ sidebar_label: TerasliceUtil
 
 \+ **new TerasliceUtil**(`cliConfig`: any): *[TerasliceUtil](terasliceutil.md)*
 
-*Defined in [packages/teraslice-cli/src/helpers/teraslice-util.ts:5](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/teraslice-util.ts#L5)*
+*Defined in [packages/teraslice-cli/src/helpers/teraslice-util.ts:5](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/helpers/teraslice-util.ts#L5)*
 
 **Parameters:**
 
@@ -50,7 +50,7 @@ Name | Type |
 
 • **config**: *any*
 
-*Defined in [packages/teraslice-cli/src/helpers/teraslice-util.ts:5](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/teraslice-util.ts#L5)*
+*Defined in [packages/teraslice-cli/src/helpers/teraslice-util.ts:5](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/helpers/teraslice-util.ts#L5)*
 
 ## Accessors
 
@@ -58,7 +58,7 @@ Name | Type |
 
 • **get client**(): *TerasliceClient*
 
-*Defined in [packages/teraslice-cli/src/helpers/teraslice-util.ts:10](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/teraslice-util.ts#L10)*
+*Defined in [packages/teraslice-cli/src/helpers/teraslice-util.ts:10](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/helpers/teraslice-util.ts#L10)*
 
 **Returns:** *TerasliceClient*
 
@@ -68,7 +68,7 @@ Name | Type |
 
 ▸ **info**(): *Promise‹RootResponse›*
 
-*Defined in [packages/teraslice-cli/src/helpers/teraslice-util.ts:14](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/teraslice-util.ts#L14)*
+*Defined in [packages/teraslice-cli/src/helpers/teraslice-util.ts:14](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/helpers/teraslice-util.ts#L14)*
 
 **Returns:** *Promise‹RootResponse›*
 
@@ -78,6 +78,6 @@ ___
 
 ▸ **type**(): *Promise‹string›*
 
-*Defined in [packages/teraslice-cli/src/helpers/teraslice-util.ts:18](https://github.com/terascope/teraslice/blob/f95bb5556/packages/teraslice-cli/src/helpers/teraslice-util.ts#L18)*
+*Defined in [packages/teraslice-cli/src/helpers/teraslice-util.ts:18](https://github.com/terascope/teraslice/blob/b843209f9/packages/teraslice-cli/src/helpers/teraslice-util.ts#L18)*
 
 **Returns:** *Promise‹string›*
