@@ -82,7 +82,7 @@ class K8s {
             let pod;
             if (typeof result !== 'undefined' && result) {
                 // NOTE: This assumes the first pod returned.
-                [pod] = get(result, 'body.items');
+                pod = get(result, 'body.items[0]');
             }
 
             if (typeof pod !== 'undefined' && pod) {
