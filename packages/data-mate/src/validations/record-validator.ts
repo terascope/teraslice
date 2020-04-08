@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import { AnyObject, isPlainObject } from '@terascope/utils';
 import { xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import DocumentMatcher from '../document-matcher';
@@ -20,7 +21,7 @@ export const repository: Repository = {
             query: {
                 type: 'String',
             },
-            typeConfig: {
+            type_config: {
                 type: 'Object'
             },
             variables: {
@@ -34,7 +35,7 @@ export const repository: Repository = {
             query: {
                 type: 'String',
             },
-            typeConfig: {
+            type_config: {
                 // Doing this for JSON type => which is ANY type
                 type: 'Object'
             },
@@ -60,7 +61,6 @@ export const repository: Repository = {
  * expect(results1).toEqual(true);
  * expect(results2).toEqual(false);
  *
- * @export
  * @param {AnyObject} obj
  * @param {{ fields: string[] }} { fields }
  * @returns boolean
@@ -73,7 +73,7 @@ export function required(obj: AnyObject, { fields }: { fields: string[] }) {
 
 interface DMOptions {
     query: string;
-    typeConfig?: xLuceneTypeConfig;
+    type_config?: xLuceneTypeConfig;
     variables?: xLuceneVariables;
 }
 
@@ -91,21 +91,20 @@ interface DMOptions {
  * expect(results1).toEqual(true);
  * expect(results2).toEqual(false);
  *
- * @export
  * @param {AnyObject} obj
- * @param {{ query: string, typeConfig: xLuceneTypeConfig, variables: xLuceneVariables }} args
- * shape is { query: string, typeConfig: xLuceneTypeConfig, variables: xLuceneVariables }
+ * @param {{ query: string, type_config: xLuceneTypeConfig, variables: xLuceneVariables }} args
+ * shape is { query: string, type_config: xLuceneTypeConfig, variables: xLuceneVariables }
  * @returns boolean
  */
 
 export function select(obj: AnyObject, args: DMOptions) {
-    const { query = '*', typeConfig, variables } = args;
+    const { query = '*', type_config, variables } = args;
 
     if (!isString(query)) throw new Error('Invalid query, must be a string');
-    if ((typeConfig && !isPlainObject(typeConfig))) throw new Error('Invalid argument typeConfig must be an object');
+    if ((type_config && !isPlainObject(type_config))) throw new Error('Invalid argument typeConfig must be an object');
     if ((variables && !isPlainObject(variables))) throw new Error('Invalid argument variables must be an object');
 
-    const matcher = new DocumentMatcher(query, { type_config: typeConfig, variables });
+    const matcher = new DocumentMatcher(query, { type_config, variables });
     return matcher.match(obj);
 }
 
@@ -117,26 +116,25 @@ export function select(obj: AnyObject, args: DMOptions) {
  * const obj2 = { foo: 123412 };
  * const args = { query: '_exists_:bar' };
  *
- * const results1 = RecordValidator.select(obj1, args);
- * const results2 = RecordValidator.select(obj2, args);
+ * const results1 = RecordValidator.reject(obj1, args);
+ * const results2 = RecordValidator.reject(obj2, args);
  *
  * expect(results1).toEqual(false);
  * expect(results2).toEqual(true);
  *
- * @export
  * @param {AnyObject} obj
  * @param {DMOptions} args
- * shape is { query: string, typeConfig: xLuceneTypeConfig, variables: xLuceneVariables }
+ * shape is { query: string, type_config: xLuceneTypeConfig, variables: xLuceneVariables }
  * @returns boolean
  */
 
 export function reject(obj: AnyObject, args: DMOptions) {
-    const { query = '*', typeConfig, variables } = args;
+    const { query = '*', type_config, variables } = args;
 
     if (!isString(query)) throw new Error('Invalid query, must be a string');
-    if ((typeConfig && !isPlainObject(typeConfig))) throw new Error('Invalid argument typeConfig must be an object');
+    if ((type_config && !isPlainObject(type_config))) throw new Error('Invalid argument typeConfig must be an object');
     if ((variables && !isPlainObject(variables))) throw new Error('Invalid argument variables must be an object');
 
-    const matcher = new DocumentMatcher(query, { type_config: typeConfig, variables });
+    const matcher = new DocumentMatcher(query, { type_config, variables });
     return !matcher.match(obj);
 }

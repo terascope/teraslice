@@ -177,7 +177,6 @@ function lift(fn: any, input: any[], args?: any) {
  * expect(FieldValidator.isBoolean('true')).toEqual(false);
  * expect(FieldValidator.isBoolean(false)).toEqual(true);
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -201,7 +200,7 @@ export function isBoolean(input: any): boolean {
  * expect(FieldValidator.isBooleanLike('false')).toEqual(true);
  * expect(FieldValidator.isBooleanLike('no')).toEqual(true);
  * expect(FieldValidator.isBooleanLike(['no', '0', null])).toEqual(true);
- * @export
+ *
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -218,7 +217,7 @@ export function isBooleanLike(input: any): boolean {
  * @example
  * FieldValidator.isEmail('ha3ke5@pawnage.com') === true
  * FieldValidator.isEmail('user@blah.com/junk.junk?a=<tag value="junk"') === true
- * @export
+ *
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -240,7 +239,6 @@ export function isEmail(input: any): boolean {
  * expect(FieldValidator.isGeoPoint({ lat: 60, lon: 80 })).toEqual(true);
  * expect(FieldValidator.isGeoPoint({ latitude: 60, longitude: 80 })).toEqual(true);
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -271,7 +269,6 @@ export function isGeoPoint(input: any) {
  * };
  * expect(FieldValidator.isGeoJSON(polygon)).toEqual(true);
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -294,7 +291,6 @@ export function isGeoJSON(input: any) {
  * };
  * expect(FieldValidator.isGeoShapePoint(matchingPoint)).toEqual(true);
  *
- * @export
  * @param {JoinGeoShape} input
  * @returns {boolean} boolean
  */
@@ -319,7 +315,6 @@ export function isGeoShapePoint(input: any) {
  * };
  * expect(FieldValidator.isGeoShapePolygon(matchingPoint)).toEqual(true);
  *
- * @export
  * @param {JoinGeoShape} input
  * @returns {boolean} boolean
  */
@@ -349,7 +344,6 @@ export function isGeoShapePolygon(input: any) {
  * };
  * expect(FieldValidator.isGeoShapeMultiPolygon(multiPolygon)).toEqual(true);
  *
- * @export
  * @param {JoinGeoShape} input
  * @returns {boolean} boolean
  */
@@ -373,7 +367,6 @@ export function isGeoShapeMultiPolygon(input: any) {
  * expect(FieldValidator.isIP('2001:DB8::1')).toBe(true);
  * expect(FieldValidator.isIP('172.16.0.1')).toBe(true);
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -401,7 +394,6 @@ function _isIp(input: any) {
  * expect(FieldValidator.isRoutableIP('192.168.0.1')).toBe(false);
  * expect(FieldValidator.isRoutableIP('2001:db8::1')).toBe(true);
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -425,7 +417,7 @@ function _isRoutableIP(input: any): boolean {
  * @example
  * expect(FieldValidator.isRoutableIP('192.168.0.1')).toBe(true);
  * expect(FieldValidator.isRoutableIP('2001:db8::1')).toBe(false);
- * @export
+ *
  * @param {*} input
  * @returns { boolean } boolean
  */
@@ -450,7 +442,6 @@ function _isNonRoutableIP(input: any): boolean {
  * @example
  * expect(FieldValidator.isIPCidr('8.8.0.0/12')).toBe(true);
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -472,7 +463,7 @@ function _isCidr(input: any): boolean {
  * expect(FieldValidator.inIPRange('8.8.8.8', { min: '8.8.8.0', max: '8.8.8.64' })).toBe(true);
  * expect(FieldValidator.inIPRange('8.8.8.8', { max: '8.8.8.64' })).toBe(true);
  * expect(FieldValidator.inIPRange('8.8.8.8', { min: '8.8.8.0' })).toBe(true);
- * @export
+ *
  * @param {*} input
  * @param {{ min?: string; max?: string; cidr?: string }} args
  * @returns {boolean} boolean
@@ -521,7 +512,7 @@ function _inIPRange(input: any, args: { min?: string; max?: string; cidr?: strin
  * expect(FieldValidator.isISDN('+7-952-5554-602')).toBe(true);
  * expect(FieldValidator.isISDN('79525554602')).toBe(true);
  * expect(FieldValidator.isISDN(79525554602)).toBe(true);
- * @export
+ *
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -544,7 +535,18 @@ export function isISDN(input: any): boolean {
 /**
  * Validates that the input is a MacAddress, or a list of MacAddresses
  *
- * @export
+ * @example
+ * FieldValidator.isMACAddress('001f.f35b.2b1f') === true
+ * FieldValidator.isMACAddress('001ff35b2b1f', { delimiter: 'any' }) === true
+ * FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', { delimiter: 'colon' }) === true
+ * FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', { delimiter: 'dash' }) === true
+ * FieldValidator.isMACAddress('001ff35b2b1f', { delimiter: 'none' }) === true
+ * FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', { delimiter: ['dash', 'colon'] }) === true
+ * FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', { delimiter: 'dash' }) === false
+ * FieldValidator.isMACAddress('00 1f f3 5b 2b 1f', { delimiter: 'colon' }) === false
+ * FieldValidator.isMACAddress('001ff35b2b1f', { delimiter: 'colon' }) === false
+ * FieldValidator.isMACAddress('001ff35b2b1f', { delimiter: ['dash', 'colon'] }) === false
+ *
  * @param {*} input
  * @param {{delimiter}} [{ delimiter?: string}] may be set to 'colon'|'space'|'dash'|'dot'|'none'
  * @returns {boolean} boolean
@@ -565,7 +567,6 @@ export function isMACAddress(input: any, args?: MACAddress): boolean {
  * expect(FieldValidator.inNumberRange(-12, { min: -100, max: 45 })).toBe(true);
  * expect(FieldValidator.inNumberRange(0, { max: 45 })).toBe(true);
  *
- * @export
  * @param {number} input
  * @param {{ min?: number; max?: number; inclusive?: boolean }} args
  * @returns {boolean} boolean
@@ -596,7 +597,6 @@ export function inNumberRange(input: any,
  * expect(FieldValidator.isNumber('1')).toBe(false);
  * expect(FieldValidator.isNumber(true)).toBe(false);
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -617,7 +617,6 @@ export function isNumber(input: any): input is number {
  * expect(FieldValidator.isInteger('1')).toBe(false);
  * expect(FieldValidator.isInteger(true)).toBe(false);
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -638,7 +637,6 @@ export function isInteger(input: any): boolean {
  * expect(FieldValidator.isInteger('1')).toBe(true);
  * expect(FieldValidator.isInteger(true)).toBe(false);
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -658,7 +656,6 @@ export function isString(input: any): boolean {
  * expect(FieldValidator.isURL('ftp://someurl.bom:8080?some=bar&hi=bob')).toBe(true);
  * expect(FieldValidator.isURL('http://xn--fsqu00a.xn--3lr804guic')).toBe(true)
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -680,7 +677,6 @@ export function isURL(input: any): boolean {
  * @example
  * expect(FieldValidator.isUUID('123e4567-e89b-82d3-f456-426655440000')).toBe(true);
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -704,7 +700,6 @@ export function isUUID(input: any): boolean {
  * expect(FieldValidator.contains('12345', { value: '12345' })).toBe(true);
  * expect(FieldValidator.contains('hello', { value: 'llo' })).toBe(false);
  *
- * @export
  * @param {*} input
  * @param {{ value: string }} { value }
  * @returns {boolean} boolean
@@ -729,7 +724,6 @@ export function contains(input: any, args: { value: string }): boolean {
  * expect(FieldValidator.equals('12345', { value: '12345' })).toBe(true);
  * expect(FieldValidator.equals('hello', { value: 'llo' })).toBe(false);
  *
- * @export
  * @param {*} input
  * @param {{ value: string }} { value }
  * @returns {boolean} boolean
@@ -754,7 +748,6 @@ export function equals(input: any, args: { value: string }): boolean {
  * expect(FieldValidator.isAlpha('ThiSisAsTRing')).toBe(true);
  * expect(FieldValidator.isAlpha('ThisiZĄĆĘŚŁ', { locale: 'pl-Pl' })).toBe(true);
  *
- * @export
  * @param {*} input
  * @param {{ locale: validator.AlphaLocale }} [args]
  * @returns {boolean} boolean
@@ -781,7 +774,6 @@ export function isAlpha(input: any, args?: { locale: validator.AlphaLocale }): b
  * expect(FieldValidator.isAlphanumeric('allalpa')).toBe(true);
  * expect(FieldValidator.isAlphanumeric('فڤقکگ1234', { locale: 'ku-IQ' })).toBe(true);
  *
- * @export
  * @param {*} input
  * @param {{ locale: validator.AlphanumericLocale }} [args]
  * @returns {boolean} boolean
@@ -804,7 +796,6 @@ export function isAlphanumeric(input: any,
 /**
  * Validates that the input is ascii chars or a list of ascii chars
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -826,7 +817,6 @@ export function isASCII(input: any): boolean {
  * @example
  * expect(FieldValidator.isBase64('ZWFzdXJlLg==')).toBe(true);
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -852,7 +842,6 @@ export function isBase64(input: any): boolean {
  * expect(FieldValidator.isEmpty([])).toBe(true);
  * expect(FieldValidator.isEmpty('     ', { ignoreWhitespace: true })).toBe(true);
  *
- * @export
  * @param {*} input
  * @param {{ ignoreWhitespace: boolean }} [args] set to true if you want the value to be trimed
  * @returns {boolean} boolean
@@ -875,7 +864,6 @@ export function isEmpty(input: any, args?: { ignoreWhitespace: boolean }): boole
  *
  * expect(FieldValidator.isFQDN('john.com.uk.bob')).toBe(true);
  *
- * @export
  * @param {*} input
  * @param {args} [{ require_tld = true, allow_underscores = false, allow_trailing_dot = false}]
  * @returns {boolean} boolean
@@ -913,7 +901,6 @@ export function isFQDN(input: any, args?: FQDNOptions): boolean {
  * )).toBe(true);
  * expect(FieldValidator.isHash('98fc121ea4c749f2b06e4a768b92ef1c740625a0', sha1Config)).toBe(true);
  *
- * @export
  * @param {*} input
  * @param {HashConfig} { algo }
  * @returns {boolean} boolean
@@ -939,7 +926,6 @@ export function isHash(input: any, args: HashConfig): boolean {
  * expect(FieldValidator.isCountryCode('RU')).toBe(true);
  * expect(FieldValidator.isCountryCode('ru')).toBe(true);
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -962,7 +948,6 @@ export function isCountryCode(input: any): boolean {
  * expect(FieldValidator.isISO8601('2020-01-01')).toBe(true);
  * expect(FieldValidator.isISO8601('2020-01-01T12:03:03')).toBe(true);
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -985,7 +970,6 @@ export function isISO8601(input: any): boolean {
  * expect(FieldValidator.isISSN('03785955')).toBe(true)
  * expect(FieldValidator.isISSN('0378-5955', { requireHyphen: true })).toBe(true);
  *
- * @export
  * @param {*} input
  * @param {ArgsISSNOptions} [{ requireHyphen?: boolean; caseSensitive?: boolean;}]
  * @returns {boolean} boolean
@@ -1015,7 +999,6 @@ export function isISSN(input: any, args?: ArgsISSNOptions): boolean {
  * expect(FieldValidator.isRFC3339('2020-01-01 12:05:05.001Z')).toBe(true);
  * expect(FieldValidator.isRFC3339('2020-01-01T12:05:05Z')).toBe(true);
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -1040,7 +1023,6 @@ export function isRFC3339(input: any): boolean {
  * expect(FieldValidator.isJSON('[]')).toBe(true);
  * expect(FieldValidator.isJSON('{}')).toBe(true);
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -1064,7 +1046,6 @@ export function isJSON(input: any): boolean {
  * expect(FieldValidator.isLength('astring', { size: 5 })).toBe(false);
  * expect(FieldValidator.isLength('astring', { min: 8 })).toBe(false);
  *
- * @export
  * @param {*} input
  * @param {LengthConfig} { size, min, max }
  * @returns {boolean} boolean
@@ -1097,7 +1078,6 @@ export function isLength(input: any, { size, min, max }: LengthConfig) {
  * expect(FieldValidator.isMIMEType('application/javascript')).toBe(true);
  * expect(FieldValidator.isMIMEType('application/graphql')).toBe(true);
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -1123,7 +1103,6 @@ export function isMIMEType(input: any): boolean {
  * expect(FieldValidator.isPostalCode('852', { locale: 'IS' })).toBe(true);
  * expect(FieldValidator.isPostalCode('885 49', { locale: 'SE' })).toBe(true);
  *
- * @export
  * @param {*} input
  * @param {({ locale: 'any' | PostalCodeLocale })} { locale }
  * @returns {boolean} boolean
@@ -1153,7 +1132,6 @@ export function isPostalCode(input: any, args: { locale: 'any' | PostalCodeLocal
  * expect(FieldValidator.isValidDate('Jan 22, 2012')).toBe(true);
  * expect(FieldValidator.isValidDate('23 Jan 2012')).toBe(true);
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -1174,7 +1152,6 @@ export function isValidDate(input: any): boolean {
  * expect(FieldValidator.guard({ hello: 'world' })).toBe(true);
  * expect(() => FieldValidator.guard(null)).toThrow();
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -1190,7 +1167,6 @@ export function guard(input: any) {
  * expect(FieldValidator.exists({ hello: 'world' })).toBe(true);
  * expect(FieldValidator.exists(null)).toBe(false);
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -1206,7 +1182,6 @@ export function exists(input: any): boolean {
  * expect(FieldValidator.isArray([1, 2, 3])).toBe(true);
  * expect(FieldValidator.isArray([])).toBe(true);
  *
- * @export
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -1223,7 +1198,6 @@ export function isArray(input: any): input is any[] {
  * expect(FieldValidator.some(['hello', 3, { some: 'obj' }], { fn: 'isString' })).toBe(true);
  * expect(FieldValidator.some(['hello', 3, { some: 'obj' }], { fn: 'isBoolean' })).toBe(false);
  *
- * @export
  * @param {*} input
  * @param {{ fn: string; options?: any }} { fn, options } fn is the name of method on FieldValidator
  * options is any other arguments nessecary for that function call
@@ -1246,7 +1220,6 @@ export function some(input: any, { fn, options }: { fn: string; options?: any })
  * expect(FieldValidator.every(['hello', 3, { some: 'obj' }], { fn: 'isString' })).toBe(false);
  * expect(FieldValidator.every(['hello', 'world'], { fn: 'isString' })).toBe(true);
  *
- * @export
  * @param {*} input
  * @param {{ fn: string; options?: any }} { fn, options } fn is the name of method on FieldValidator
  * options is any other arguments nessecary for that function call

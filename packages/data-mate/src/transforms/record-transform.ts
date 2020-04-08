@@ -53,7 +53,7 @@ export const repository: Repository = {
 };
 
 /**
- * This will set a new key name on a record
+ * This will migrate a fields value to a new field name
  *
  * @example
  *
@@ -62,7 +62,6 @@ export const repository: Repository = {
  * const results = RecordTransform.renameField(cloneDeep(obj), config);
  * results === { goodbye: 'world' };
  *
- * @export
  * @param {*} record
  * @param {{ from: string; to: string }} args
  * @returns object
@@ -79,16 +78,15 @@ export function renameField(record: AnyObject, args: { from: string; to: string 
 }
 
 /**
- * Sets a field on a record
+ * Sets a field on a record with the given value
  *
  * @example
  *
  * const obj = { hello: 'world' };
  * const config = { field: 'other', value: 'stuff' };
- * const results = RecordTransform.renameField(cloneDeep(obj), config);
+ * const results = RecordTransform.setField(cloneDeep(obj), config);
  * results === { hello: 'world', other: 'stuff' };
  *
- * @export
  * @param {*} record
  * @param {{ field: string; value: any }} args
  * @returns object
@@ -112,7 +110,6 @@ export function setField(record: AnyObject, args: { field: string; value: any })
  * const results = RecordTransform.dropFields(cloneDeep(obj), config);
  * expect(results).toEqual({ hello: 'world' });
  *
- * @export
  * @param {*} record
  * @param {{ fields: string[] }} args
  * @returns object
@@ -138,7 +135,6 @@ export function dropFields(record: AnyObject, args: { fields: string[] }) {
  * const results = RecordTransform.copyField(cloneDeep(obj), config);
  * expect(results).toEqual({ hello: 'world', other: 'stuff', myCopy: 'stuff' });
  *
- * @export
  * @param {*} record
  * @param {{ from: string; to: string }} args
  * @returns object

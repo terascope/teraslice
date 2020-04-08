@@ -191,10 +191,9 @@ type StringInput = string | string[] | null | undefined;
  * This function is used to set a value if input is null or undefined,
  * otherwise the input value is returned
  * @example
- * const results = fieldTransform.setDefault(undefined, { value: 'someValue' });
+ * const results = FieldTransform.setDefault(undefined, { value: 'someValue' });
  * results === 'someValue';
  *
- * @export
  * @param {*} input
  * @param {{ value: any }} args value is what will be given when input is null/undefined
  * @returns {*}
@@ -212,7 +211,7 @@ export function setDefault(input: any, args: { value: any }) {
  * This function is used to map an array of values with any FieldTransform method
  * @example
  *  const array = ['hello', 'world', 'goodbye'];
- *  const results = fieldTransform.map(array, { fn: 'truncate', options: { size: 3 } }
+ *  const results = FieldTransform.map(array, { fn: 'truncate', options: { size: 3 } }
  *  results === ['hel', 'wor', 'goo']
  *
  * @param  {any[]} input an array of any value
@@ -238,7 +237,6 @@ export function map(input: any[], args: { fn: string; options?: any }) {
  * This function is not meant to be used programatically
  * please use `RecordTransform.setField` instead
  *
- * @export
  * @param {*} _input This value will be discarded
  * @param {{ value: any }} args value will be used to set field
  * @returns
@@ -254,8 +252,7 @@ export function setField(_input: any, args: { value: any }) {
  * if given an array it will convert everything in the array excluding null/undefined values
  * @example
  *  expect(transform.toString(true)).toEqual('true');
-  * expect(fieldTransform.toString([true, undefined, false])).toEqual(['true', 'false']);
- * @export
+ * expect(FieldTransform.toString([true, undefined, false])).toEqual(['true', 'false']);
  * @param {*} input
  * @returns {String | null} returns null if input is null/undefined
  */
@@ -271,10 +268,9 @@ export function toString(input: any) {
  * Converts values to booleans
  * if given an array it will convert everything in the array excluding null/undefined values
  * @example
- * expect(fieldTransform.toBoolean('0')).toBe(false)
- * expect(fieldTransform.toBoolean(['foo', 'false', null])).toEqual([true, false]);
+ * expect(FieldTransform.toBoolean('0')).toBe(false)
+ * expect(FieldTransform.toBoolean(['foo', 'false', null])).toEqual([true, false]);
  *
- * @export
  * @param {*} input
  * @returns {Boolean | null} returns null if input is null/undefined
  */
@@ -290,10 +286,9 @@ export function toBoolean(input: any) {
  * Converts strings to UpperCase
  * if given an array it will convert everything in the array excluding null/undefined values
  * @example
- *  expect(fieldTransform.toUpperCase('lowercase')).toBe('LOWERCASE');
- *  expect(fieldTransform.toUpperCase(['MixEd', null, 'lower'])).toEqual(['MIXED', 'LOWER']);
+ *  expect(FieldTransform.toUpperCase('lowercase')).toBe('LOWERCASE');
+ *  expect(FieldTransform.toUpperCase(['MixEd', null, 'lower'])).toEqual(['MIXED', 'LOWER']);
  *
- * @export
  * @param {StringInput} input string or string[]
  * @returns { String | String[] | null } returns null if input is null/undefined
  */
@@ -310,10 +305,9 @@ export function toUpperCase(input: StringInput) {
  * Converts strings to lowercase
  * if given an array it will convert everything in the array excluding null/undefined values
  * @example
- *  expect(fieldTransform.toLowerCase('UPPERCASE')).toBe('uppercase');
- *  expect(fieldTransform.toLowerCase(['MixEd', null, 'UPPER'])).toEqual(['mixed', 'upper']);
+ *  expect(FieldTransform.toLowerCase('UPPERCASE')).toBe('uppercase');
+ *  expect(FieldTransform.toLowerCase(['MixEd', null, 'UPPER'])).toEqual(['mixed', 'upper']);
  *
- * @export
  * @param {StringInput} input string | string[]
  * @returns { String | String[] | null } returns null if input is null/undefined
  */
@@ -330,10 +324,9 @@ export function toLowerCase(input: StringInput) {
  * Will trim the input
  * if given an array it will convert everything in the array excluding null/undefined values
  * @example
- * expect(fieldTransform.trim('right    ')).toBe('right');
- * expect(fieldTransform.trim('fast cars race fast', { char: 'fast' })).toBe(' cars race ');
+ * expect(FieldTransform.trim('right    ')).toBe('right');
+ * expect(FieldTransform.trim('fast cars race fast', { char: 'fast' })).toBe(' cars race ');
  *
- * @export
  * @param {StringInput} input string | string[]
  * @param {{ char: string }} [args] a single char or word that will be cut out
  * @returns { String | String[] | null } returns null if input is null/undefined
@@ -356,11 +349,9 @@ export function trim(input: StringInput, args?: { char: string }) {
  * Will trim the beginning of the input
  * if given an array it will convert everything in the array excluding null/undefined values
  * @example
- * expect(fieldTransform.trimStart('    Hello Bob    ')).toBe('Hello Bob    ');
- * expect(fieldTransform.trimStart('iiii-wordiwords-iii', { char: 'i' })).toBe('-wordiwords-iii');
+ * expect(FieldTransform.trimStart('    Hello Bob    ')).toBe('Hello Bob    ');
+ * expect(FieldTransform.trimStart('iiii-wordiwords-iii', { char: 'i' })).toBe('-wordiwords-iii');
  *
- *
- * @export
  * @param {StringInput} input string | string[]
  * @param {{ char: string }} [args]
  * @returns { String | String[] | null } returns null if input is null/undefined
@@ -386,11 +377,9 @@ export function trimStart(input: StringInput, args?: { char: string }) {
  * if given an array it will convert everything in the array excluding null/undefined values
  *
  * @example
- * expect(fieldTransform.trimEnd('    Hello Bob    ')).toBe('    Hello Bob');
- * expect(fieldTransform.trimEnd('iiii-wordiwords-iii', { char: 'i' })).toBe('iiii-wordiwords');
+ * expect(FieldTransform.trimEnd('    Hello Bob    ')).toBe('    Hello Bob');
+ * expect(FieldTransform.trimEnd('iiii-wordiwords-iii', { char: 'i' })).toBe('iiii-wordiwords');
  *
- *
- * @export
  * @param {StringInput} input string | string[]
  * @param {{ char: string }} [args]
  * @returns { String | String[] | null } returns null if input is null/undefined
@@ -412,14 +401,13 @@ export function trimEnd(input: StringInput, args?: { char: string }) {
 }
 
 /**
- * Will truncate the input down the size given
+ * Will truncate the input to the length of the size given
  * if given an array it will convert everything in the array excluding null/undefined values
  *
  * @example
- * expect(fieldTransform.truncate('thisisalongstring', { size: 4 })).toBe('this');
- * expect(fieldTransform.truncate(['hello', null, 'world'], { size: 2 })).toEqual(['he', 'wo']);
+ * expect(FieldTransform.truncate('thisisalongstring', { size: 4 })).toBe('this');
+ * expect(FieldTransform.truncate(['hello', null, 'world'], { size: 2 })).toEqual(['he', 'wo']);
  *
- * @export
  * @param {StringInput} input string | string[]
  * @param {{ size: number }} args
  * @returns { String | String[] | null } returns null if input is null/undefined
@@ -460,10 +448,9 @@ function parsePhoneNumber(str: any) {
  * if given an array it will convert everything in the array excluding null/undefined values
  *
  * @example
- * expect(fieldTransform.toISDN('+33-1-22-33-44-55')).toBe('33122334455');
- * expect(fieldTransform.toISDN('1(800)FloWErs')).toBe('18003569377');
+ * expect(FieldTransform.toISDN('+33-1-22-33-44-55')).toBe('33122334455');
+ * expect(FieldTransform.toISDN('1(800)FloWErs')).toBe('18003569377');
  *
- * @export
  * @param {*} input string | string[] | number | number[]
  * @returns { String | String[] | null }  a fully validated phone number,
  * returns null if input is null/undefined
@@ -490,17 +477,16 @@ function convertToNumber(input: any, args?: { booleanLike?: boolean }) {
 }
 
 /**
- * Convert a value to a number if possible
+ * Converts a value to a number if possible
  * if given an array it will convert everything in the array excluding null/undefined values
  *
  * @example
- * expect(fieldTransform.toNumber('12321')).toBe(12321);
- * expect(fieldTransform.toNumber('000011')).toBe(11);
- * expect(fieldTransform.toNumber('true', { booleanLike: true })).toBe(1);
- * expect(fieldTransform.toNumber(null, { booleanLike: true })).toBe(0);
- * expect(fieldTransform.toNumber(null)).toBe(null);
+ * expect(FieldTransform.toNumber('12321')).toBe(12321);
+ * expect(FieldTransform.toNumber('000011')).toBe(11);
+ * expect(FieldTransform.toNumber('true', { booleanLike: true })).toBe(1);
+ * expect(FieldTransform.toNumber(null, { booleanLike: true })).toBe(0);
+ * expect(FieldTransform.toNumber(null)).toBe(null);
  *
- * @export
  * @param {*} input
  * @param {{ booleanLike?: boolean }} [args]
  * @returns { number | null } returns null if input is null/undefined
@@ -519,17 +505,16 @@ export function toNumber(input: any, args?: { booleanLike?: boolean }) {
 }
 
 /**
- * decodes a base64 hashed value
+ * decodes a base64 encoded value
  * if given an array it will convert everything in the array excluding null/undefined values
  *
  * @example
  * const str = 'hello world';
  * const encoded = encodeBase64(str);
  *
- * const results = fieldTransform.decodeBase64(encoded)
+ * const results = FieldTransform.decodeBase64(encoded)
  * results === str
  *
- * @export
  * @param {*} input
  * @returns { string | null } returns null if input is null/undefined
  */
@@ -547,15 +532,14 @@ export function decodeBase64(input: any) {
 }
 
 /**
- * encodes a value into base64
+ * converts a value into a base64 encoded value
  * if given an array it will convert everything in the array excluding null/undefined values
  *
  * @example
  * const str = 'hello world';
  *
- * const encodedValue = fieldTransform.decodeBase64(str);
+ * const encodedValue = FieldTransform.encodeBase64(str);
  *
- * @export
  * @param {*} input
  * @returns { string | null } returns null if input is null/undefined
  */
@@ -573,16 +557,15 @@ export function encodeBase64(input: any) {
 }
 
 /**
- * decodes a url encoded value
+ * decodes a URL encoded value
  * if given an array it will convert everything in the array excluding null/undefined values
  *
  * @example
  * const source = 'HELLO AND GOODBYE';
  * const encoded = 'HELLO%20AND%20GOODBYE';
  *
- * expect(fieldTransform.decodeURL(encoded)).toEqual(source);
+ * expect(FieldTransform.decodeURL(encoded)).toEqual(source);
  *
- * @export
  * @param {StringInput} input
  * @returns { string | null } returns null if input is null/undefined
  */
@@ -597,16 +580,15 @@ export function decodeURL(input: StringInput) {
 }
 
 /**
- * url encodes a value
+ * URL encodes a value
  * if given an array it will convert everything in the array excluding null/undefined values
  *
  * @example
  * const source = 'HELLO AND GOODBYE';
  * const encoded = 'HELLO%20AND%20GOODBYE';
  *
- * expect(fieldTransform.encodeURL(source)).toEqual(encoded);
+ * expect(FieldTransform.encodeURL(source)).toEqual(encoded);
  *
- * @export
  * @param {StringInput} input
  * @returns { string | null } returns null if input is null/undefined
  */
@@ -621,15 +603,14 @@ export function encodeURL(input: StringInput) {
 }
 
 /**
- * hex decodes the input
+ * decodes the hex encoded input
  * if given an array it will convert everything in the array excluding null/undefined values
  * @example
  * const source = 'hello world';
  * const encoded = encodeHex(source);
  *
- * expect(fieldTransform.decodeHex(encoded)).toEqual(source);
+ * expect(FieldTransform.decodeHex(encoded)).toEqual(source);
  *
- * @export
  * @param {*} input
  * @returns { string | null } returns null if input is null/undefined
  */
@@ -652,9 +633,8 @@ export function decodeHex(input: any) {
  * @example
  * const source = 'hello world';
  *
- * fieldTransform.encodeHex(source);
+ * FieldTransform.encodeHex(source);
  *
- * @export
  * @param {*} input
  * @returns { string | null } returns null if input is null/undefined
  */
@@ -677,9 +657,8 @@ export function encodeHex(input: any) {
  * @example
  * const source = 'hello world';
  *
- * fieldTransform.encodeMD5(source);
+ * FieldTransform.encodeMD5(source);
  *
- * @export
  * @param {*} input
  * @returns { string | null } returns null if input is null/undefined
  */
@@ -697,10 +676,12 @@ export function encodeMD5(input: any) {
 }
 
 /**
-* MD5 encodes the input
+* SHA encodes the input to the hash specified
  * if given an array it will convert everything in the array excluding null/undefined values
+ * @example
+ * const data = 'some string';
+ * FieldTransform.encodeSHA(data { hash: 'sha256', digest: 'hex'})
  *
- * @export
  * @param {*} input
  * @param {*} [{ hash = 'sha256', digest = 'hex' }={}]
  *  possible digest values ['ascii', 'utf8', 'utf16le', 'ucs2', 'base64', 'latin1', 'hex', 'binary']
@@ -725,14 +706,13 @@ export function encodeSHA(input: any, { hash = 'sha256', digest = 'hex' } = {}) 
 }
 
 /**
- * SHA1 encodes the input
+ * converts the value to a SHA1 encoded value
  * if given an array it will convert everything in the array excluding null/undefined values
  * @example
  * const source = 'hello world';
  *
- * fieldTransform.encodeSHA1(source);
+ * FieldTransform.encodeSHA1(source);
  *
- * @export
  * @param {*} input
  * @returns { string | null } returns null if input is null/undefined
  */
@@ -750,11 +730,15 @@ export function encodeSHA1(input: any) {
 }
 
 /**
- * Parses json input
+ * Parses the json input
  * if given an array it will convert everything in the array excluding null/undefined values
  *
+ * @example
+ * const obj = { hello: 'world' };
+ * const json = JSON.stringify(obj);
+ * const results = FieldTransform.parseJSON(json);
+ * results === obj
  *
- * @export
  * @param {*} input
  * @returns { any | null } returns null if input is null/undefined
  */
@@ -775,11 +759,16 @@ export function parseJSON(input: any) {
  * Converts input to JSON
  * if given an array it will convert everything in the array excluding null/undefined values
  *
- * @export
+ * @example
+ * const obj = { hello: 'world' };
+ * const results = FieldTransform.toJSON(obj);
+ * results === '{"hello": "world"}'
+ *
  * @param {*} input
  * @param {*} [{ pretty = false }={}] setting pretty to true will format the json ouput
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
+
 export function toJSON(input: any, { pretty = false } = {}) {
     if (ts.isNil(input)) return null;
 
@@ -800,10 +789,9 @@ export function toJSON(input: any, { pretty = false } = {}) {
  * returns an array with only unique values
  *
  * @example
- * const results = fieldTransform.dedupe([1, 2, 2, 3, 3, 3, undefined, 4])
+ * const results = FieldTransform.dedupe([1, 2, 2, 3, 3, 3, undefined, 4])
  * results === [1, 2, 3, undefined, 4]
  *
- * @export
  * @param {any[]} input
  * @returns {any[] | null } returns null if input is null/undefined
  */
@@ -819,7 +807,12 @@ export function dedupe(input: any[]) {
  * Converts the value into a geo-point
  * if given an array it will convert everything in the array excluding null/undefined values
  *
- * @export
+ * @example
+ * expect(fieldTransform.toGeoPoint('60, 40')).toEqual({ lon: 40, lat: 60 });
+ * expect(fieldTransform.toGeoPoint([40, 60])).toEqual({ lon: 40, lat: 60 });
+ * expect(fieldTransform.toGeoPoint({ lat: 40, lon: 60 })).toEqual({ lon: 60, lat: 40 });
+ * expect(fieldTransform.toGeoPoint({ latitude: 40, longitude: 60 })).toEqual({ lon: 60, lat: 40 })
+ *
  * @param {*} input
  * @returns {{ lat: number, lon: number } | { lat: number, lon: number }[] | null }
  * returns null if input is null/undefined
@@ -839,11 +832,10 @@ export function toGeoPoint(input: any) {
 }
 
 /**
- * Can extract values from string input
+ * Can extract values from a string input. You may either specify a regex, a jexl expression, or
+ * specify the start and end from which the extraction will take all values inbetween
  * if given an array it will convert everything in the array excluding null/undefined values
-
  *
- * @export
  * @param {*} input
  * @param {ExtractFieldConfig} {
  *         regex, isMultiValue = true, jexlExp, start, end
@@ -856,16 +848,16 @@ export function toGeoPoint(input: any) {
  * @returns { string | string[] | null } returns null if input is null/undefined
  *
  * @example
- *  const results1 = fieldTransform.extract('<hello>', { start: '<', end: '>' });
+ *  const results1 = FieldTransform.extract('<hello>', { start: '<', end: '>' });
  *  expect(results1).toEqual('hello');
  *
- * const results2 = fieldTransform.extract({ foo: 'bar' }, { jexlExp: '[foo]' });
+ * const results2 = FieldTransform.extract({ foo: 'bar' }, { jexlExp: '[foo]' });
  * expect(results2).toEqual(['bar']);
  *
- * const results3 = fieldTransform.extract('hello', { regex: 'he.*' });
+ * const results3 = FieldTransform.extract('hello', { regex: 'he.*' });
  * expect(results3).toEqual(['hello']);
  *
- * const results = fieldTransform.extract('hello', { regex: 'he.*', isMultiValue: false });
+ * const results = FieldTransform.extract('hello', { regex: 'he.*', isMultiValue: false });
  * expect(results).toEqual('hello');
  *
  */
@@ -959,29 +951,29 @@ export function extract(
 }
 
 /**
- * This function replaces chars in a string based off the regex values provided
+ * This function replaces chars in a string based off the regex value provided
  * @example
  * const config1 =  { regex: 's|e', replace: 'd' };
- * const results1 = fieldTransform.replaceRegex('somestring', config1)
+ * const results1 = FieldTransform.replaceRegex('somestring', config1)
  * results1 === 'domestring'
  *
  * const config2 = { regex: 's|e', replace: 'd', global: true };
- * const results2 = fieldTransform.replaceRegex('somestring', config)
+ * const results2 = FieldTransform.replaceRegex('somestring', config)
  * results2 === 'domddtring'
  *
  * const config3 = {
  *   regex: 'm|t', replace: 'W', global: true, ignoreCase: true
  * };
- * const results3 = fieldTransform.replaceRegex('soMesTring', config3))
+ * const results3 = FieldTransform.replaceRegex('soMesTring', config3))
  * results3 === 'soWesWring'
  *
- * @export
  * @param {StringInput} input
  * @param {ReplaceRegexConfig} {
  *     regex, replace, ignoreCase, global
  * }
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
+
 export function replaceRegex(input: StringInput, {
     regex, replace, ignoreCase, global
 }: ReplaceRegexConfig) {
@@ -1006,15 +998,13 @@ export function replaceRegex(input: StringInput, {
 }
 
 /**
- * This function replaces whole words
+ * This function replaces the searched value with the replace value
  *
  * @example
  *
- * fieldTransform.replaceLiteral('Hi bob', { search: 'bob', replace: 'mel' }) === 'Hi mel';
- * fieldTransform.replaceLiteral('Hi Bob', { search: 'bob', replace: 'Mel ' }) ===  'Hi Bob';
+ * FieldTransform.replaceLiteral('Hi bob', { search: 'bob', replace: 'mel' }) === 'Hi mel';
+ * FieldTransform.replaceLiteral('Hi Bob', { search: 'bob', replace: 'Mel ' }) ===  'Hi Bob';
  *
- *
- * @export
  * @param {StringInput} input
  * @param {ReplaceLiteralConfig} { search, replace }
  * search is the word that is to be changed to the value specified with the paramter replace
@@ -1043,11 +1033,10 @@ export function replaceLiteral(input: StringInput, { search, replace }: ReplaceL
 /**
  * Converts a string to an array of characters split by the delimiter provided
  * @example
- * expect(fieldTransform.toArray('astring')).toEqual(['a', 's', 't', 'r', 'i', 'n', 'g']);
- * expect(fieldTransform.toArray('astring', { delimiter: ',' })).toEqual(['astring']);
- * expect(fieldTransform.toArray('a-stri-ng', { delimiter: '-' })).toEqual(['a', 'stri', 'ng']);
+ * expect(FieldTransform.toArray('astring')).toEqual(['a', 's', 't', 'r', 'i', 'n', 'g']);
+ * expect(FieldTransform.toArray('astring', { delimiter: ',' })).toEqual(['astring']);
+ * expect(FieldTransform.toArray('a-stri-ng', { delimiter: '-' })).toEqual(['a', 'stri', 'ng']);
  *
- * @export
  * @param {*} input
  * @param {{ delimiter: string }} [args] delimter defaults to an empty string
  * @returns {(string[] | null)}
@@ -1078,20 +1067,18 @@ function _makeUnitTime(input: any, { ms = false } = {}) {
     return time as number;
 }
 
-// option to specify, seconds, millisecond, microseconds?
 /**
  * Converts a given date to its time in milliseconds or seconds
  *
  * @example
  *
- * expect(fieldTransform.toUnixTime('2020-01-01')).toBe(1577836800);
- * expect(fieldTransform.toUnixTime('Jan 1, 2020 UTC')).toBe(1577836800);
- * expect(fieldTransform.toUnixTime('2020 Jan, 1 UTC')).toBe(1577836800);
+ * expect(FieldTransform.toUnixTime('2020-01-01')).toBe(1577836800);
+ * expect(FieldTransform.toUnixTime('Jan 1, 2020 UTC')).toBe(1577836800);
+ * expect(FieldTransform.toUnixTime('2020 Jan, 1 UTC')).toBe(1577836800);
  *
- * expect(fieldTransform.toUnixTime(1580418907000)).toBe(1580418907);
- * expect(fieldTransform.toUnixTime(1580418907000, { ms: true })).toBe(1580418907000);
+ * expect(FieldTransform.toUnixTime(1580418907000)).toBe(1580418907);
+ * expect(FieldTransform.toUnixTime(1580418907000, { ms: true })).toBe(1580418907000);
  *
- * @export
  * @param {*} input
  * @param {*} [{ ms = false }={}] set ms to true if you want time in milliseconds
  * @returns { number | number[] | null} returns null if input is null/undefined
@@ -1124,12 +1111,11 @@ function _makeIso(input: any, args?: { resolution?: 'seconds' | 'milliseconds' }
  * Converts a date string or number to an ISO date
  *
  * @example
- * expect(fieldTransform.toISO8601('2020-01-01')).toBe('2020-01-01T00:00:00.000Z');
+ * expect(FieldTransform.toISO8601('2020-01-01')).toBe('2020-01-01T00:00:00.000Z');
  *
  * const config = { resolution: 'seconds' };
- * expect(fieldTransform.toISO8601(1580418907, config)).toBe('2020-01-30T21:15:07.000Z');
+ * expect(FieldTransform.toISO8601(1580418907, config)).toBe('2020-01-30T21:15:07.000Z');
  *
- * @export
  * @param {*} input
  * @param {({ resolution?: 'seconds' | 'milliseconds' })} [args]
  * if input is a number, you may specify the resolution of that number, defaults to seconds
@@ -1184,17 +1170,16 @@ function _formatDate(input: any, args: FormatDateConfig) {
  *
  * @example
  *
- * const results1 = fieldTransform.formatDate('2020-01-14T20:34:01.034Z', { format: 'MMM do yy' })
+ * const results1 = FieldTransform.formatDate('2020-01-14T20:34:01.034Z', { format: 'MMM do yy' })
  * results1 === 'Jan 14th 20';
  *
- * const results2 = fieldTransform.formatDate('March 3, 2019', { format: 'M/d/yyyy' })
+ * const results2 = FieldTransform.formatDate('March 3, 2019', { format: 'M/d/yyyy' })
  * results2 === '3/3/2019';
  *
  * const config =  { format: 'yyyy-MM-dd', resolution: 'seconds' };
- * const results3 = fieldTransform.formatDate(1581013130, config)
+ * const results3 = FieldTransform.formatDate(1581013130, config)
  * results3 === '2020-02-06';
  *
- * @export
  * @param {*} input
  * @param {{ format: string, resolution?: 'seconds' | 'milliseconds' }} args
  * format is the shape that the date will be, resolution is only needed when input is a number
@@ -1237,22 +1222,21 @@ function _parseDate(input: any, args: ParseDateConfig) {
  *
  * @example
  *
- * const result = fieldTransform.parseDate('2020-01-10-00:00', { format: 'yyyy-MM-ddxxx' })
+ * const result = FieldTransform.parseDate('2020-01-10-00:00', { format: 'yyyy-MM-ddxxx' })
  * result === new Date('2020-01-10T00:00:00.000Z');
  *
- * const result = fieldTransform.parseDate('Jan 10, 2020-00:00', { format: 'MMM dd, yyyyxxx' })
+ * const result = FieldTransform.parseDate('Jan 10, 2020-00:00', { format: 'MMM dd, yyyyxxx' })
  * result === new Date('2020-01-10T00:00:00.000Z');
  *
- * const result = fieldTransform.parseDate(1581025950223, { format: 'T' })
+ * const result = FieldTransform.parseDate(1581025950223, { format: 'T' })
  * result === new Date('2020-02-06T21:52:30.223Z');
  *
- * const result = fieldTransform.parseDate(1581025950, { format: 't' })
+ * const result = FieldTransform.parseDate(1581025950, { format: 't' })
  * result === new Date('2020-02-06T21:52:30.000Z');
  *
- * const result = fieldTransform.parseDate('1581025950', { format: 't' })
+ * const result = FieldTransform.parseDate('1581025950', { format: 't' })
  * result === new Date('2020-02-06T21:52:30.000Z');
  *
- * @export
  * @param {*} input
  * @param { format: string } args
  * @returns { string | string[] | null } returns null if input is null/undefined
@@ -1271,14 +1255,13 @@ export function parseDate(input: any, args: ParseDateConfig) {
 }
 
 /**
- * will camelcase a string
+ * Will convert a string, or an array of strings to camel case;
  *
  * @example
- * expect(fieldTransform.toCamelCase('I need camel case')).toBe('iNeedCamelCase');
- * expect(fieldTransform.toCamelCase('happyBirthday')).toBe('happyBirthday');
- * expect(fieldTransform.toCamelCase('what_is_this')).toBe('whatIsThis');
+ * expect(FieldTransform.toCamelCase('I need camel case')).toBe('iNeedCamelCase');
+ * expect(FieldTransform.toCamelCase('happyBirthday')).toBe('happyBirthday');
+ * expect(FieldTransform.toCamelCase('what_is_this')).toBe('whatIsThis');
  *
- * @export
  * @param {string | string[]} input
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
@@ -1291,15 +1274,14 @@ export function toCamelCase(input: string) {
 }
 
 /**
- * Will convert a string to kebab case
+ * Will convert a string, or an array of strings to kebab case
  * @example
  *
- * expect(fieldTransform.toKebabCase('I need kebab case')).toBe('i-need-kebab-case');
- * expect(fieldTransform.toKebabCase('happyBirthday')).toBe('happy-birthday');
- * expect(fieldTransform.toKebabCase('what_is_this')).toBe('what-is-this');
- * expect(fieldTransform.toKebabCase('this-should-be-kebab')).toBe('this-should-be-kebab');
-
- * @export
+ * expect(FieldTransform.toKebabCase('I need kebab case')).toBe('i-need-kebab-case');
+ * expect(FieldTransform.toKebabCase('happyBirthday')).toBe('happy-birthday');
+ * expect(FieldTransform.toKebabCase('what_is_this')).toBe('what-is-this');
+ * expect(FieldTransform.toKebabCase('this-should-be-kebab')).toBe('this-should-be-kebab');
+ *
  * @param {string | string[]} input
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
@@ -1312,17 +1294,17 @@ export function toKebabCase(input: string) {
 }
 
 /**
- * Converts a string to pascal case
+ * Converts a string, or an array of strings to pascal case
  *
  * @example
- * expect(fieldTransform.toPascalCase('I need pascal case')).toBe('INeedPascalCase');
- * expect(fieldTransform.toPascalCase('happyBirthday')).toBe('HappyBirthday');
- * expect(fieldTransform.toPascalCase('what_is_this')).toBe('WhatIsThis');
+ * expect(FieldTransform.toPascalCase('I need pascal case')).toBe('INeedPascalCase');
+ * expect(FieldTransform.toPascalCase('happyBirthday')).toBe('HappyBirthday');
+ * expect(FieldTransform.toPascalCase('what_is_this')).toBe('WhatIsThis');
  *
- * @export
  * @param {string | string[]} input
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
+
 export function toPascalCase(input: string) {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toPascalCase);
@@ -1331,13 +1313,12 @@ export function toPascalCase(input: string) {
 }
 
 /**
- * Converts a string to snake case
+ * Converts a string, or an array of strings to snake case
  * @example
- * expect(fieldTransform.toSnakeCase('I need snake case')).toBe('i_need_snake_case');
- * expect(fieldTransform.toSnakeCase('happyBirthday')).toBe('happy_birthday');
- * expect(fieldTransform.toSnakeCase('what_is_this')).toBe('what_is_this');
+ * expect(FieldTransform.toSnakeCase('I need snake case')).toBe('i_need_snake_case');
+ * expect(FieldTransform.toSnakeCase('happyBirthday')).toBe('happy_birthday');
+ * expect(FieldTransform.toSnakeCase('what_is_this')).toBe('what_is_this');
  *
- * @export
  * @param {string | string[]} input
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
@@ -1350,13 +1331,12 @@ export function toSnakeCase(input: string) {
 }
 
 /**
- * Converts a string to title case
+ * Converts a string, or an array of strings to title case
  * @example
- * expect(fieldTransform.toTitleCase('I need some capitols')).toBe('I Need Some Capitols');
- * expect(fieldTransform.toTitleCase('happyBirthday')).toBe('Happy Birthday');
- * expect(fieldTransform.toTitleCase('what_is_this')).toBe('What Is This');
+ * expect(FieldTransform.toTitleCase('I need some capitols')).toBe('I Need Some Capitols');
+ * expect(FieldTransform.toTitleCase('happyBirthday')).toBe('Happy Birthday');
+ * expect(FieldTransform.toTitleCase('what_is_this')).toBe('What Is This');
  *
- * @export
  * @param {string | string[]} input
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
