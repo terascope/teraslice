@@ -79,10 +79,15 @@ class K8s {
             const result = await this.client.api.v1.namespaces(namespace)
                 .pods().get({ qs: { labelSelector: selector } });
 
-            // NOTE: This assumes the first pod returned.
-            const pod = result.body.items[0];
+            let pod;
+            if (typeof result !== 'undefined' && result) {
+                // NOTE: This assumes the first pod returned.
+                [pod] = get(result, 'body.items');
+            }
 
-            if (pod.status.phase === 'Running') return pod;
+            if (typeof pod !== 'undefined' && pod) {
+                if (get(pod, 'status.phase') === 'Running') return pod;
+            }
             if (now > end) throw new Error(`Timeout waiting for pod matching: ${selector}`);
             this.logger.debug(`waiting for pod matching: ${selector}`);
 
