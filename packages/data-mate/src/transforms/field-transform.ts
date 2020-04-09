@@ -697,12 +697,11 @@ export function encodeSHA(input: any, { hash = 'sha256', digest = 'hex' } = {}) 
     if (isArray(input)) {
         return input
             .filter(ts.isNotNil)
-            // @ts-ignore
-            .map((data: any) => crypto.createHash(hash).update(data).digest('ascii'));
+            .map((data: any) => crypto.createHash(hash).update(data).digest(digest as any));
     }
 
     // @ts-ignore
-    return crypto.createHash(hash).update(input).digest('ascii');
+    return crypto.createHash(hash).update(input).digest(digest);
 }
 
 /**
@@ -1045,10 +1044,16 @@ export function replaceLiteral(input: StringInput, { search, replace }: ReplaceL
 export function toArray(input: any, args?: { delimiter: string }): string[] | null {
     if (ts.isNil(input)) return null;
 
-    if (isArray(input)) return input;
+    const delimiter = args ? args.delimiter : '';
+
+    if (isArray(input)) {
+        return input.filter(ts.isNotNil).map((data: any) => {
+            if (!isString(data)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(data)}`);
+            return data.split(delimiter);
+        });
+    }
 
     if (isString(input)) {
-        const delimiter = args ? args.delimiter : '';
         return input.split(delimiter);
     }
 

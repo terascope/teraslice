@@ -1,7 +1,7 @@
 import { AvailableType } from '@terascope/data-types';
-import { AnyObject } from '@terascope/utils';
-import { Repository } from '../interfaces';
-import { isString } from '../validations/field-validator';
+import * as ts from '@terascope/utils';
+import { Repository, RecordInput } from '../interfaces';
+import { isString, isArray } from '../validations/field-validator';
 
 export const repository: Repository = {
     renameField: {
@@ -67,14 +67,30 @@ export const repository: Repository = {
  * @returns object
  */
 
-export function renameField(record: AnyObject, args: { from: string; to: string }) {
+export function renameField(input: RecordInput, args: { from: string; to: string }) {
+    if (ts.isNil(input)) return null;
+    _validateArgs(args, ['from', 'to']);
+
     const { from, to } = args;
     if (!isString(from) || !isString(to)) throw new Error('Invalid parameters, from/to must be supplied be be a string');
 
-    record[to] = record[from];
-    delete record[from];
+    if (isArray(input)) {
+        return input
+            .map((data: any) => _migrate(data, from, to))
+            .filter(ts.isNotNil);
+        // we filter aftwards to remove nulls
+    }
 
-    return record;
+    return _migrate(input, from, to);
+}
+
+function _migrate(doc: ts.AnyObject, from: string, to: string) {
+    if (!ts.isPlainObject(doc)) return null;
+
+    doc[to] = doc[from];
+    delete doc[from];
+
+    return doc;
 }
 
 /**
@@ -92,12 +108,27 @@ export function renameField(record: AnyObject, args: { from: string; to: string 
  * @returns object
  */
 
-export function setField(record: AnyObject, args: { field: string; value: any }) {
+export function setField(input: RecordInput, args: { field: string; value: any }) {
+    if (ts.isNil(input)) return null;
+    _validateArgs(args, ['field', 'value']);
+
     const { field, value } = args;
     if (!isString(field) || value === undefined) throw new Error('Invalid parameters, please set field/value');
 
-    record[field] = value;
-    return record;
+    if (isArray(input)) {
+        return input
+            .map((data: any) => {
+                if (!ts.isPlainObject(data)) return null;
+                data[field] = value;
+                return data;
+            })
+            .filter(ts.isNotNil);
+    }
+
+    if (!ts.isPlainObject(input)) return null;
+
+    input[field] = value;
+    return input;
 }
 
 /**
@@ -115,15 +146,32 @@ export function setField(record: AnyObject, args: { field: string; value: any })
  * @returns object
  */
 
-export function dropFields(record: AnyObject, args: { fields: string[] }) {
-    const { fields } = args;
-    if (!fields.every(isString)) throw new Error('Invalid parameters, field must be supplied be be a string');
+export function dropFields(input: RecordInput, args: { fields: string[] }) {
+    if (ts.isNil(input)) return null;
+    _validateArgs(args, ['fields']);
 
-    for (const field of fields) {
-        delete record[field];
+    const { fields } = args;
+    if (!fields.every(isString)) throw new Error('Invalid parameters, field must be supplied and be a string');
+
+    if (isArray(input)) {
+        return input
+            .map((data: any) => _removeKeys(data, fields))
+            .filter(ts.isNotNil);
     }
 
-    return record;
+    return _removeKeys(input, fields);
+}
+
+function _removeKeys(obj: ts.AnyObject, fields: string[]) {
+    if (!ts.isPlainObject(obj)) return null;
+
+    for (const field of fields) {
+        delete obj[field];
+    }
+
+    if (Object.keys(obj).length === 0) return null;
+
+    return obj;
 }
 
 /**
@@ -140,10 +188,33 @@ export function dropFields(record: AnyObject, args: { fields: string[] }) {
  * @returns object
  */
 
-export function copyField(record: AnyObject, args: { from: string; to: string }) {
-    const { from, to } = args;
-    if (!isString(from) || !isString(to)) throw new Error('Invalid parameters, field/copyTo must be supplied be be a string');
+export function copyField(input: RecordInput, args: { from: string; to: string }) {
+    if (ts.isNil(input)) return null;
+    _validateArgs(args, ['from', 'to']);
 
-    record[to] = record[from];
-    return record;
+    const { from, to } = args;
+    if (!isString(from) || !isString(to)) throw new Error('Invalid parameters, field/copyTo must be supplied and be a string');
+
+    if (isArray(input)) {
+        return input
+            .map((data: any) => _copyField(data, from, to))
+            .filter(ts.isNotNil);
+    }
+
+    return _copyField(input, from, to);
+}
+
+function _copyField(doc: ts.AnyObject, from: string, to: string) {
+    if (!ts.isPlainObject(doc)) return null;
+
+    if (doc[from] !== undefined) doc[to] = doc[from];
+    return doc;
+}
+
+function _validateArgs(args: ts.AnyObject, fields: string[]) {
+    if (ts.isNil(args)) throw new Error('Paramter args must be provided');
+
+    for (const key of fields) {
+        if (args[key] === undefined) throw new Error(`key ${key} was not provided on args, it is required`);
+    }
 }

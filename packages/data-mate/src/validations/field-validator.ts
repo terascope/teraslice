@@ -162,7 +162,7 @@ export const repository: i.Repository = {
     },
 };
 
-function lift(fn: any, input: any[], args?: any) {
+function _lift(fn: any, input: any[], args?: any) {
     const sanitized = input.filter(ts.isNotNil);
     if (sanitized.length === 0) return false;
 
@@ -183,7 +183,7 @@ function lift(fn: any, input: any[], args?: any) {
 
 export function isBoolean(input: any): boolean {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return lift(ts.isBoolean, input);
+    if (isArray(input)) return _lift(ts.isBoolean, input);
 
     return ts.isBoolean(input);
 }
@@ -224,7 +224,7 @@ export function isBooleanLike(input: any): boolean {
 
 export function isEmail(input: any): boolean {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return lift(ts.isEmail, input);
+    if (isArray(input)) return _lift(ts.isEmail, input);
 
     return ts.isEmail(input);
 }
@@ -247,7 +247,7 @@ export function isGeoPoint(input: any) {
     if (ts.isNil(input)) return false;
 
     if (isArray(input) && !isNumberTuple(input)) {
-        return lift(ts.parseGeoPoint, input, false);
+        return _lift(ts.parseGeoPoint, input, false);
     }
 
     // TODO: check for tuple vs an array of numbers
@@ -275,7 +275,7 @@ export function isGeoPoint(input: any) {
 
 export function isGeoJSON(input: any) {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return lift(ts.isGeoJSON, input);
+    if (isArray(input)) return _lift(ts.isGeoJSON, input);
 
     return ts.isGeoJSON(input);
 }
@@ -297,7 +297,7 @@ export function isGeoJSON(input: any) {
 
 export function isGeoShapePoint(input: any) {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return lift(ts.isGeoShapePoint, input);
+    if (isArray(input)) return _lift(ts.isGeoShapePoint, input);
 
     return ts.isGeoShapePoint(input);
 }
@@ -321,7 +321,7 @@ export function isGeoShapePoint(input: any) {
 
 export function isGeoShapePolygon(input: any) {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return lift(ts.isGeoShapePolygon, input);
+    if (isArray(input)) return _lift(ts.isGeoShapePolygon, input);
 
     return ts.isGeoShapePolygon(input);
 }
@@ -350,7 +350,7 @@ export function isGeoShapePolygon(input: any) {
 
 export function isGeoShapeMultiPolygon(input: any) {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return lift(ts.isGeoShapeMultiPolygon, input);
+    if (isArray(input)) return _lift(ts.isGeoShapeMultiPolygon, input);
 
     return ts.isGeoShapeMultiPolygon(input);
 }
@@ -373,7 +373,7 @@ export function isGeoShapeMultiPolygon(input: any) {
 
 export function isIP(input: any) {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return lift(_isIp, input);
+    if (isArray(input)) return _lift(_isIp, input);
 
     return _isIp(input);
 }
@@ -400,7 +400,7 @@ function _isIp(input: any) {
 
 export function isRoutableIP(input: any): boolean {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return lift(_isRoutableIP, input);
+    if (isArray(input)) return _lift(_isRoutableIP, input);
 
     return _isRoutableIP(input);
 }
@@ -424,7 +424,7 @@ function _isRoutableIP(input: any): boolean {
 
 export function isNonRoutableIP(input: any): boolean {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return lift(_isNonRoutableIP, input);
+    if (isArray(input)) return _lift(_isNonRoutableIP, input);
 
     return _isNonRoutableIP(input);
 }
@@ -448,7 +448,7 @@ function _isNonRoutableIP(input: any): boolean {
 
 export function isCIDR(input: any) {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return lift(_isCidr, input);
+    if (isArray(input)) return _lift(_isCidr, input);
 
     return _isCidr(input);
 }
@@ -471,7 +471,7 @@ function _isCidr(input: any): boolean {
 
 export function inIPRange(input: any, args: { min?: string; max?: string; cidr?: string }) {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return lift(_inIPRange, input, args);
+    if (isArray(input)) return _lift(_inIPRange, input, args);
 
     return _inIPRange(input, args);
 }
@@ -525,7 +525,7 @@ export function isISDN(input: any): boolean {
             return phoneNumber.isValid();
         };
 
-        return lift(fn, input);
+        return _lift(fn, input);
     }
 
     const phoneNumber = new PhoneValidator(`+${input}`);
@@ -554,7 +554,7 @@ export function isISDN(input: any): boolean {
 
 export function isMACAddress(input: any, args?: MACAddress): boolean {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return lift(ts.isMacAddress, input, args);
+    if (isArray(input)) return _lift(ts.isMacAddress, input, args);
 
     return ts.isMacAddress(input, args);
 }
@@ -581,7 +581,7 @@ export function inNumberRange(input: any,
             return ts.inNumberRange(data, args);
         };
 
-        return lift(fn, input, args);
+        return _lift(fn, input, args);
     }
 
     if (!isNumber(input)) return false;
@@ -603,7 +603,7 @@ export function inNumberRange(input: any,
 
 export function isNumber(input: any): input is number {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return lift(ts.isNumber, input);
+    if (isArray(input)) return _lift(ts.isNumber, input);
 
     return ts.isNumber(input);
 }
@@ -623,7 +623,7 @@ export function isNumber(input: any): input is number {
 
 export function isInteger(input: any): boolean {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return lift(ts.isInteger, input);
+    if (isArray(input)) return _lift(ts.isInteger, input);
 
     return ts.isInteger(input);
 }
@@ -643,7 +643,7 @@ export function isInteger(input: any): boolean {
 
 export function isString(input: any): boolean {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return lift(ts.isString, input);
+    if (isArray(input)) return _lift(ts.isString, input);
 
     return ts.isString(input);
 }
@@ -665,7 +665,7 @@ export function isURL(input: any): boolean {
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && url.isUri(data) !== null;
-        return lift(fn, input);
+        return _lift(fn, input);
     }
 
     return isString(input) && url.isUri(input) != null;
@@ -686,7 +686,7 @@ export function isUUID(input: any): boolean {
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isUUID(data);
-        return lift(fn, input);
+        return _lift(fn, input);
     }
 
     return isString(input) && validator.isUUID(input);
@@ -707,14 +707,14 @@ export function isUUID(input: any): boolean {
 
 export function contains(input: any, args: { value: string }): boolean {
     if (ts.isNil(input)) return false;
-    if (!args.value) throw new Error('A value must provided with the input');
+    if (!args.value) throw new Error('Parameter value must provided');
 
     if (isArray(input)) {
-        const fn = (data: any) => isString(data) && data.includes(args.value);
-        return lift(fn, input);
+        const fn = (data: any) => ts.includes(data, args.value);
+        return _lift(fn, input);
     }
 
-    return isString(input) && input.includes(args.value);
+    return ts.includes(input, args.value);
 }
 
 /**
@@ -734,11 +734,11 @@ export function equals(input: any, args: { value: string }): boolean {
     if (!args.value) throw new Error('A value must provided with the input');
 
     if (isArray(input)) {
-        const fn = (data: any) => isString(data) && data === args.value;
-        return lift(fn, input);
+        const fn = (data: any) => Object.is(data, args.value);
+        return _lift(fn, input);
     }
 
-    return isString(input) && input === args.value;
+    return Object.is(input, args.value);
 }
 
 /**
@@ -760,7 +760,7 @@ export function isAlpha(input: any, args?: { locale: validator.AlphaLocale }): b
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isAlpha(data, locale);
-        return lift(fn, input);
+        return _lift(fn, input);
     }
 
     return isString(input) && validator.isAlpha(input, locale);
@@ -787,7 +787,7 @@ export function isAlphanumeric(input: any,
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isAlphanumeric(data, locale);
-        return lift(fn, input);
+        return _lift(fn, input);
     }
 
     return isString(input) && validator.isAlphanumeric(input, locale);
@@ -805,7 +805,7 @@ export function isASCII(input: any): boolean {
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isAscii(data);
-        return lift(fn, input);
+        return _lift(fn, input);
     }
 
     return isString(input) && validator.isAscii(input);
@@ -826,7 +826,7 @@ export function isBase64(input: any): boolean {
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isBase64(data);
-        return lift(fn, input);
+        return _lift(fn, input);
     }
 
     return isString(input) && validator.isBase64(input);
@@ -880,7 +880,7 @@ export function isFQDN(input: any, args?: FQDNOptions): boolean {
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isFQDN(data, config);
-        return lift(fn, input);
+        return _lift(fn, input);
     }
 
     return isString(input) && validator.isFQDN(input, config);
@@ -912,7 +912,7 @@ export function isHash(input: any, args: HashConfig): boolean {
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isHash(data, args.algo);
-        return lift(fn, input);
+        return _lift(fn, input);
     }
 
     return isString(input) && validator.isHash(input, args.algo);
@@ -935,7 +935,7 @@ export function isCountryCode(input: any): boolean {
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isISO31661Alpha2(data);
-        return lift(fn, input);
+        return _lift(fn, input);
     }
 
     return isString(input) && validator.isISO31661Alpha2(input);
@@ -957,7 +957,7 @@ export function isISO8601(input: any): boolean {
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isISO8601(data);
-        return lift(fn, input);
+        return _lift(fn, input);
     }
 
     return isString(input) && validator.isISO8601(input);
@@ -985,7 +985,7 @@ export function isISSN(input: any, args?: ArgsISSNOptions): boolean {
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isISSN(data, config);
-        return lift(fn, input);
+        return _lift(fn, input);
     }
 
     return isString(input) && validator.isISSN(input, config);
@@ -1008,7 +1008,7 @@ export function isRFC3339(input: any): boolean {
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isRFC3339(data);
-        return lift(fn, input);
+        return _lift(fn, input);
     }
 
     return isString(input) && validator.isRFC3339(input);
@@ -1032,7 +1032,7 @@ export function isJSON(input: any): boolean {
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isJSON(data);
-        return lift(fn, input);
+        return _lift(fn, input);
     }
 
     return isString(input) && validator.isJSON(input);
@@ -1060,7 +1060,7 @@ export function isLength(input: any, { size, min, max }: LengthConfig) {
             if (min || max) return validator.isLength(data, { min, max });
             return false;
         };
-        return lift(fn, input);
+        return _lift(fn, input);
     }
 
     if (isString(input)) {
@@ -1087,7 +1087,7 @@ export function isMIMEType(input: any): boolean {
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isMimeType(data);
-        return lift(fn, input);
+        return _lift(fn, input);
     }
 
     return isString(input) && validator.isMimeType(input);
@@ -1114,7 +1114,7 @@ export function isPostalCode(input: any, args: { locale: 'any' | PostalCodeLocal
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isPostalCode(data, args.locale);
-        return lift(fn, input);
+        return _lift(fn, input);
     }
 
     return isString(input) && validator.isPostalCode(input, args.locale);
@@ -1140,7 +1140,7 @@ export function isValidDate(input: any): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
-        return lift(ts.isValidDate, input);
+        return _lift(ts.isValidDate, input);
     }
 
     return !isBoolean(input) && ts.isValidDate(input);

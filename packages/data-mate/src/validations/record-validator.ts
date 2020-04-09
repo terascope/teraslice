@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { AnyObject, isPlainObject } from '@terascope/utils';
+import * as ts from '@terascope/utils';
 import { xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
+import { isArray } from './field-validator';
 import DocumentMatcher from '../document-matcher';
-import { Repository } from '../interfaces';
+import { Repository, RecordInput } from '../interfaces';
 import { isString } from '../validations/field-validator';
 
 export const repository: Repository = {
@@ -47,6 +48,13 @@ export const repository: Repository = {
     },
 };
 
+function _filterBy(fn: any, input: any[], args?: any) {
+    const sanitized = input.filter((data) => ts.isNotNil(data) && ts.isPlainObject(data));
+    if (sanitized.length === 0) return [];
+
+    return sanitized.filter((data) => fn(data, args));
+}
+
 /**
  * This function will return false if input record does not have all specified keys
  *
@@ -66,9 +74,27 @@ export const repository: Repository = {
  * @returns boolean
  */
 
-export function required(obj: AnyObject, { fields }: { fields: string[] }) {
-    const keys = Object.keys(obj);
-    return fields.every((rField) => keys.includes(rField));
+export function required(input: RecordInput, args: { fields: string[] }) {
+    if (ts.isNil(input)) return null;
+    if (!args?.fields || !isArray(args.fields) || !isString(args.fields)) {
+        throw new Error('Parameter fields must be provided and be an array of strings');
+    }
+
+    if (isArray(input)) {
+        return _filterBy(_checkKeys, input, args.fields);
+    }
+
+    return _checkKeys(input, args.fields);
+}
+
+function _checkKeys(data: ts.AnyObject, fields: string[]) {
+    try {
+        const keys = Object.keys(data);
+        if (fields.every((rField) => keys.includes(rField))) return data;
+        return null;
+    } catch (_err) {
+        return null;
+    }
 }
 
 interface DMOptions {
@@ -97,15 +123,32 @@ interface DMOptions {
  * @returns boolean
  */
 
-export function select(obj: AnyObject, args: DMOptions) {
+export function select(input: RecordInput, args: DMOptions) {
+    const matcher = _validateMatcher(input, args);
+    if (!matcher) return null;
+
+    if (isArray(input)) {
+        const fn = (data: ts.AnyObject) => ts.isPlainObject(data) && matcher.match(data);
+        return _filterBy(fn, input);
+    }
+
+    if (ts.isPlainObject(input) && matcher.match(input)) return input;
+    return null;
+}
+
+function _validateMatcher(input: RecordInput, args: DMOptions) {
+    if (ts.isNil(input)) return null;
+    if (ts.isNil(args) || !ts.isPlainObject(args)) {
+        throw new Error(`Parameter args must be provided and be an object, got ${ts.getTypeOf(args)}`);
+    }
+
     const { query = '*', type_config, variables } = args;
 
-    if (!isString(query)) throw new Error('Invalid query, must be a string');
-    if ((type_config && !isPlainObject(type_config))) throw new Error('Invalid argument typeConfig must be an object');
-    if ((variables && !isPlainObject(variables))) throw new Error('Invalid argument variables must be an object');
+    if (!isString(query)) throw new Error(`Invalid query, must be a string, got ${ts.getTypeOf(args)}`);
+    if ((type_config && !ts.isPlainObject(type_config))) throw new Error(`Invalid argument typeConfig must be an object got ${ts.getTypeOf(args)}`);
+    if ((variables && !ts.isPlainObject(variables))) throw new Error(`Invalid argument variables must be an object got ${ts.getTypeOf(args)}`);
 
-    const matcher = new DocumentMatcher(query, { type_config, variables });
-    return matcher.match(obj);
+    return new DocumentMatcher(query, { type_config, variables });
 }
 
 /**
@@ -128,13 +171,15 @@ export function select(obj: AnyObject, args: DMOptions) {
  * @returns boolean
  */
 
-export function reject(obj: AnyObject, args: DMOptions) {
-    const { query = '*', type_config, variables } = args;
+export function reject(input: RecordInput, args: DMOptions) {
+    const matcher = _validateMatcher(input, args);
+    if (!matcher) return null;
 
-    if (!isString(query)) throw new Error('Invalid query, must be a string');
-    if ((type_config && !isPlainObject(type_config))) throw new Error('Invalid argument typeConfig must be an object');
-    if ((variables && !isPlainObject(variables))) throw new Error('Invalid argument variables must be an object');
+    if (isArray(input)) {
+        const fn = (data: ts.AnyObject) => ts.isPlainObject(data) && !matcher.match(data);
+        return _filterBy(fn, input);
+    }
 
-    const matcher = new DocumentMatcher(query, { type_config, variables });
-    return !matcher.match(obj);
+    if (ts.isPlainObject(input) && !matcher.match(input)) return input;
+    return null;
 }
