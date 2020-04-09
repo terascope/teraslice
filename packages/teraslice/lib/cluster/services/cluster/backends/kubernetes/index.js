@@ -19,7 +19,6 @@ const K8s = require('./k8s');
 
 module.exports = function kubernetesClusterBackend(context, clusterMasterServer) {
     const logger = makeLogger(context, 'kubernetes_cluster_service');
-    // const slicerAllocationAttempts = context.sysconfig.teraslice.slicer_allocation_attempts;
 
     const clusterName = get(context, 'sysconfig.teraslice.name');
     const clusterNameLabel = clusterName.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
@@ -28,7 +27,8 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
     const clusterState = {};
     let clusterStateInterval = null;
 
-    const k8s = new K8s(logger, null, kubernetesNamespace);
+    const k8s = new K8s(logger, null, kubernetesNamespace,
+        context.sysconfig.teraslice.kubernetes_api_poll_delay);
 
     clusterMasterServer.onClientOnline((exId) => {
         logger.info(`execution ${exId} is connected`);
@@ -94,12 +94,15 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
 
         logger.debug(exJob, 'execution allocating slicer');
 
-        // TODO: This should try slicerAllocationAttempts times??
         const jobResult = await k8s.post(exJob, 'job');
         logger.debug(jobResult, 'k8s slicer job submitted');
 
         const controllerUid = jobResult.spec.selector.matchLabels['controller-uid'];
-        const pod = await k8s.waitForSelectedPod(`controller-uid=${controllerUid}`);
+        const pod = await k8s.waitForSelectedPod(
+            `controller-uid=${controllerUid}`,
+            null,
+            context.sysconfig.teraslice.slicer_timeout
+        );
 
         logger.debug(`Slicer is using IP: ${pod.status.podIP}`);
         execution.slicer_hostname = `${pod.status.podIP}`;

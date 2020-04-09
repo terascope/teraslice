@@ -7,7 +7,8 @@ const { Client, KubeConfig } = require('kubernetes-client');
 const Request = require('kubernetes-client/backends/request');
 
 class K8s {
-    constructor(logger, clientConfig, defaultNamespace = 'default') {
+    constructor(logger, clientConfig, defaultNamespace = 'default', apiPollDelay) {
+        this.apiPollDelay = apiPollDelay;
         this.logger = logger;
         this.defaultNamespace = defaultNamespace;
 
@@ -91,7 +92,7 @@ class K8s {
             if (now > end) throw new Error(`Timeout waiting for pod matching: ${selector}`);
             this.logger.debug(`waiting for pod matching: ${selector}`);
 
-            await pDelay(500);
+            await pDelay(this.apiPollDelay);
             now = Date.now();
         }
     }
