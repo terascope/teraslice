@@ -25,7 +25,8 @@ main() {
         ;;
     esac
 
-    yarn docs &&
+    yarn setup &&
+        yarn docs &&
         cd website &&
         yarn install \
             --prod \

@@ -21,7 +21,6 @@ const geoBox: i.FunctionDefinition = {
     version: '1',
     create(_field: string, params: any, { logger }) {
         if (!_field || _field === '*') throw new Error('Field for geoBox cannot be empty or "*"');
-        // eslint-disable-next-line @typescript-eslint/camelcase
         const { top_left, bottom_right } = validate(params);
 
         function toElasticsearchQuery(field: string) {

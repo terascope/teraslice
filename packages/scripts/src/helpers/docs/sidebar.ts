@@ -1,6 +1,7 @@
 import path from 'path';
 import fse from 'fs-extra';
 import { getRootDir, listMdFiles, writeIfChanged } from '../misc';
+import { PackageInfo } from '../interfaces';
 
 function getSubcategories(pkgDocFolder: string): string[] {
     const docsFolder = path.join(getRootDir(), 'docs');
@@ -14,7 +15,7 @@ function getSubcategories(pkgDocFolder: string): string[] {
         });
 }
 
-export async function updateSidebarJSON() {
+export async function updateSidebarJSON(pkgInfos: PackageInfo[]) {
     const docsFilePath = path.join(getRootDir(), 'docs/packages');
     const sidebarFilePath = path.join(getRootDir(), 'website/sidebars.json');
     const sidebarJSON = await fse.readJSON(sidebarFilePath);
@@ -48,6 +49,13 @@ export async function updateSidebarJSON() {
                 pkg.ids = getSubcategories(path.join(docsFilePath, pkg.label));
                 return pkg;
             });
+    }
+
+    const names = pkgInfos.map(({ name }) => name);
+    for (const key of Object.keys(sidebarJSON)) {
+        if (names.includes(key)) {
+            delete sidebarJSON[key];
+        }
     }
 
     await writeIfChanged(sidebarFilePath, sidebarJSON);

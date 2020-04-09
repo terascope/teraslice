@@ -1,7 +1,8 @@
 import { CommandModule } from 'yargs';
-import { buildAll, buildPackages } from '../helpers/docs';
+import { buildPackages } from '../helpers/docs';
 import { coercePkgArg } from '../helpers/args';
 import { PackageInfo } from '../helpers/interfaces';
+import { listPackages } from '../helpers/packages';
 
 const cmd: CommandModule = {
     command: 'docs [packages..]',
@@ -20,7 +21,7 @@ const cmd: CommandModule = {
         if (pkgInfos && pkgInfos.length) {
             return buildPackages(pkgInfos);
         }
-        return buildAll();
+        return buildPackages(listPackages());
     },
 };
 
