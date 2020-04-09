@@ -53,7 +53,7 @@ export type WithoutNil<T> = { [P in keyof T]: T[P] extends Nil ? never : T[P] };
 export interface Many<T> extends Array<T> {}
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface RecursiveArray<T> extends Array<T|RecursiveArray<T>> {}
+export interface RecursiveArray<T> extends Many<T|(RecursiveArray<T>)> {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ListOfRecursiveArraysOrValues<T> extends Many<T|RecursiveArray<T>> {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

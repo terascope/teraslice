@@ -45,8 +45,7 @@
             "asset-bundles/elasticsearch-assets/overview",
             "asset-bundles/standard-assets/overview",
             "asset-bundles/kafka-assets/overview",
-            "asset-bundles/file-assets/overview",
-            "asset-bundles/hdfs-assets/overview"
+            "asset-bundles/file-assets/overview"
         ]
     },
     "packages": {

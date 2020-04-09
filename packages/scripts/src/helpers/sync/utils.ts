@@ -12,7 +12,6 @@ import { DepKey, SyncOptions } from './interfaces';
 import signale from '../signale';
 
 const topLevelFiles: readonly string[] = [
-    'website/sidebars.json',
     'package.json',
     'yarn.lock'
 ];
@@ -60,6 +59,9 @@ ${formatList(diff)}
 
     if (!options.quiet) {
         signale.warn('Make sure to run yarn and commit your changes');
+        if (isCI) {
+            await gitDiff(changed);
+        }
     }
 
     if (options.verify) {

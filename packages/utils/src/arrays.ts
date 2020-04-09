@@ -7,12 +7,12 @@ export function flatten<T>(val: Many<T[]>): T[] {
 }
 
 export function flattenDeep<T>(val: ListOfRecursiveArraysOrValues<T>): T[] {
-    return val.reduce((a: T[], b) => {
+    return val.reduce((a, b): T[] => {
         if (Array.isArray(b)) {
-            return a.concat(flattenDeep(b));
+            return (a as T[]).concat(flattenDeep(b));
         }
-        return a.concat(b);
-    }, []);
+        return (a as T[]).concat(b);
+    }, []) as any;
 }
 
 /** A simplified implemation of lodash castArray */

@@ -54,12 +54,12 @@ export default class GithubAsset {
                 this.user,
                 this.name,
                 outDir,
-                // @ts-ignore TODO: need to fix types in forked repo
-                filterRelease,
+                // TODO: need to fix types in forked repo
+                filterRelease as any,
                 genFilterAsset,
                 leaveZipped,
                 quiet
-            );
+            ) as any;
             [assetPath] = r;
         } catch (err) {
             throw new Error(`Error downloading ${this.assetString}: ${err}`);
