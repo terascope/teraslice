@@ -140,8 +140,8 @@ points === [{ lat: 60, lon: 80 }]
 `isString(input) - Validates that input is a string or a list of strings`
 
 ```javascript
-FieldValidator.isString('this is a string'); # true
-FieldValidator.isString(true); # false
+FieldValidator.isString('this is a string'); // true
+FieldValidator.isString(true); // false
 ```
 
 ### isNumber
@@ -149,9 +149,9 @@ FieldValidator.isString(true); # false
 `isNumber(input) - Validates that input is a number or a list of numbers`
 
 ```javascript
-FieldValidator.isNumber(42.32); # true;
-FieldValidator.isNumber('NOT A Number'); # false
-FieldValidator.isNumber([42.32, 245]); # true;
+FieldValidator.isNumber(42.32); // true;
+FieldValidator.isNumber('NOT A Number'); // false
+FieldValidator.isNumber([42.32, 245]); // true;
 ```
 
 ### isInteger
@@ -159,8 +159,8 @@ FieldValidator.isNumber([42.32, 245]); # true;
 `isInteger(input) - Validates that input is a integer or a list of integers`
 
 ```javascript
-FieldValidator.isInteger(42); # true
-FieldValidator.isInteger(3.14); # false
+FieldValidator.isInteger(42); // true
+FieldValidator.isInteger(3.14); // false
 ```
 
 ### isBoolean
@@ -168,11 +168,11 @@ FieldValidator.isInteger(3.14); # false
 `FieldValidator.isBoolean(input) - Checks to see if input is a Boolean. If given an array, will check if all values are booleans ignoring any null/undefined values`
 
 ```javascript
-FieldValidator.isBoolean(false); # true
-FieldValidator.isBoolean('astring'); # false
-FieldValidator.isBoolean(0); # false
-FieldValidator.isBoolean([true, undefined]); # true
-FieldValidator.isBoolean(['true', undefined]; # false
+FieldValidator.isBoolean(false); // true
+FieldValidator.isBoolean('astring'); // false
+FieldValidator.isBoolean(0); // false
+FieldValidator.isBoolean([true, undefined]); // true
+FieldValidator.isBoolean(['true', undefined]; // false
 ```
 
 ### isBooleanLike
@@ -184,11 +184,11 @@ FieldValidator.isBoolean(['true', undefined]; # false
 `Additional falsy values are 0, '0', 'false', 'no'`
 
 ```javascript
-FieldValidator.isBooleanLike(0); # true
-FieldValidator.isBooleanLike('true'); # true
-FieldValidator.isBooleanLike('no'); # true
-FieldValidator.isBooleanLike('a string') # false
-FieldValidator.isBooleanLike(['true', 0, 'no']; # true
+FieldValidator.isBooleanLike(0); // true
+FieldValidator.isBooleanLike('true'); // true
+FieldValidator.isBooleanLike('no'); // true
+FieldValidator.isBooleanLike('a string') // false
+FieldValidator.isBooleanLike(['true', 0, 'no']; // true
 ```
 
 ### isGeoPoint
@@ -197,10 +197,10 @@ FieldValidator.isBooleanLike(['true', 0, 'no']; # true
 `
 
 ```javascript
- FieldValidator.isGeoPoint('60,80'); # true
- FieldValidator.isGeoPoint([80, 60]); # true
- FieldValidator.isGeoPoint({ lat: 60, lon: 80 }); # true
- FieldValidator.isGeoPoint({ latitude: 60, longitude: 80 }); # true
+ FieldValidator.isGeoPoint('60,80'); // true
+ FieldValidator.isGeoPoint([80, 60]); // true
+ FieldValidator.isGeoPoint({ lat: 60, lon: 80 }); // true
+ FieldValidator.isGeoPoint({ latitude: 60, longitude: 80 }); // true
 ```
 
 ### isGeoJSON
@@ -217,7 +217,7 @@ FieldValidator.isBooleanLike(['true', 0, 'no']; # true
      ]
   };
 
-  FieldValidator.isGeoJSON(polygon); # true
+  FieldValidator.isGeoJSON(polygon); // true
 ```
 
 ### isGeoShapePoint
@@ -238,8 +238,8 @@ FieldValidator.isBooleanLike(['true', 0, 'no']; # true
     coordinates: [12, 12]
   };
 
-  FieldValidator.isGeoShapePoint(polygon); # false
-  FieldValidator.isGeoShapePoint(point); # true
+  FieldValidator.isGeoShapePoint(polygon); // false
+  FieldValidator.isGeoShapePoint(point); // true
 ```
 
 ### isGeoShapePolygon
@@ -260,8 +260,8 @@ FieldValidator.isBooleanLike(['true', 0, 'no']; # true
     coordinates: [12, 12]
   };
 
-  FieldValidator.isGeoShapePolygon(polygon); # true
-  FieldValidator.isGeoShapePolygon(point); # false
+  FieldValidator.isGeoShapePolygon(polygon); // true
+  FieldValidator.isGeoShapePolygon(point); // false
 ```
 
 ### isGeoShapeMultiPolygon
@@ -294,9 +294,9 @@ FieldValidator.isBooleanLike(['true', 0, 'no']; # true
     ]
   };
 
-  FieldValidator.isGeoShapeMultiPolygon(polygon); # false
-  FieldValidator.isGeoShapeMultiPolygon(point); # false
-  FieldValidator.isGeoShapeMultiPolygon(multiPolygon); # true
+  FieldValidator.isGeoShapeMultiPolygon(polygon); // false
+  FieldValidator.isGeoShapeMultiPolygon(point); // false
+  FieldValidator.isGeoShapeMultiPolygon(multiPolygon); // true
 ```
 
 ### inNumberRange
@@ -307,10 +307,10 @@ FieldValidator.isBooleanLike(['true', 0, 'no']; # true
 
 
 ```javascript
-FieldValidator.inNumberRange(42, { min: 0, max: 100}); # true
-FieldValidator.inNumberRange(-42, { min:0 , max: 100 }); # false
-FieldValidator.inNumberRange(42, { min: 0, max: 42 }); # false without the inclusive option
-FieldValidator.inNumberRange(42, { min: 0, max: 42, inclusive: true }); # true with the inclusive option
+FieldValidator.inNumberRange(42, { min: 0, max: 100}); // true
+FieldValidator.inNumberRange(-42, { min:0 , max: 100 }); // false
+FieldValidator.inNumberRange(42, { min: 0, max: 42 }); // false without the inclusive option
+FieldValidator.inNumberRange(42, { min: 0, max: 42, inclusive: true }); // true with the inclusive option
 ```
 
 ### isEmpty
@@ -321,9 +321,9 @@ FieldValidator.inNumberRange(42, { min: 0, max: 42, inclusive: true }); # true w
 `set ignoreWhitespac to true if you want the value to be trimed`
 
 ```javascript
-FieldValidator.isEmpty([]); # true
-FieldValidator.isEmpty({ foo: 'bar' }); # false
-FieldValidator.isEmpty('     ', { ignoreWhitespace: true }); # true
+FieldValidator.isEmpty([]); // true
+FieldValidator.isEmpty({ foo: 'bar' }); // false
+FieldValidator.isEmpty('     ', { ignoreWhitespace: true }); // true
 ```
 
 ### contains
@@ -333,8 +333,8 @@ FieldValidator.isEmpty('     ', { ignoreWhitespace: true }); # true
 ` args: { value: String }`
 
 ```javascript
-FieldValidator.contains('hello', { value: 'ell' }); # true
-FieldValidator.contains('hello', { value: 'bye' }); # bye
+FieldValidator.contains('hello', { value: 'ell' }); // true
+FieldValidator.contains('hello', { value: 'bye' }); // bye
 ```
 
 ### equals
@@ -344,8 +344,8 @@ FieldValidator.contains('hello', { value: 'bye' }); # bye
 ` args: { value: 'String' }`
 
 ```javascript
-FieldValidator.equals('hello', { value: 'hello' }); # true
-FieldValidator.equals('hello', { value: 'ello' }); # false
+FieldValidator.equals('hello', { value: 'hello' }); // true
+FieldValidator.equals('hello', { value: 'ello' }); // false
 ```
 
 ### isLength
@@ -355,9 +355,9 @@ FieldValidator.equals('hello', { value: 'ello' }); # false
 `Optional args: { length: Number, min: Number, max: Number }`
 
 ```javascript
-FieldValidator.isLength('astring', { size: 7 }); # true
-FieldValidator.isLength('astring', { min: 3, max: 10 }); # true
-FieldValidator.isLength('astring', { size: 10 }); # false
+FieldValidator.isLength('astring', { size: 7 }); // true
+FieldValidator.isLength('astring', { min: 3, max: 10 }); // true
+FieldValidator.isLength('astring', { size: 10 }); // false
 ```
 
 ### isAlpha
@@ -369,9 +369,9 @@ FieldValidator.isLength('astring', { size: 10 }); # false
 `Locale options: 'ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'fa-IR', 'he', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA'`
 
 ```javascript
-FieldValidator.isAlpha('validString'); # true
-FieldValidator.isAlpha('ThisiZĄĆĘŚŁ', { locale: 'pl-PL' }); # true
-FieldValidator.isAlpha('1123_not-valid'); # false
+FieldValidator.isAlpha('validString'); // true
+FieldValidator.isAlpha('ThisiZĄĆĘŚŁ', { locale: 'pl-PL' }); // true
+FieldValidator.isAlpha('1123_not-valid'); // false
 ```
 
 ### isAlphanumeric
@@ -383,9 +383,9 @@ FieldValidator.isAlpha('1123_not-valid'); # false
 `Locale options: 'ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'fa-IR', 'he', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA'`
 
 ```javascript
-FieldValidator.isAlphanumeric('123validString'); # true
-FieldValidator.isAlphanumeric('فڤقکگ1234', { locale: 'ku-IQ' }); # true
-FieldValidator.isAlphanumeric('-- not valid'); # false
+FieldValidator.isAlphanumeric('123validString'); // true
+FieldValidator.isAlphanumeric('فڤقکگ1234', { locale: 'ku-IQ' }); // true
+FieldValidator.isAlphanumeric('-- not valid'); // false
 ```
 
 ### isASCII
@@ -393,8 +393,8 @@ FieldValidator.isAlphanumeric('-- not valid'); # false
 `isASCII(input) - Validates that the input is ASCII chars or a list of ASCII chars`
 
 ```javascript
-FieldValidator.isASCII('ascii\s__'); # true;
-FieldValidator.isASCII('˜∆˙©∂ß'); # false
+FieldValidator.isASCII('ascii\s__'); // true;
+FieldValidator.isASCII('˜∆˙©∂ß'); // false
 ```
 
 ### isBase64
@@ -402,8 +402,8 @@ FieldValidator.isASCII('˜∆˙©∂ß'); # false
 `isBase64(input) - Validates that the input is a base64 encoded string or a list of base64 encoded strings`
 
 ```javascript
-FieldValidator.isBase64('ZWFzdXJlLg=='); # true
-FieldValidator.isBase64('not base 64'); # false
+FieldValidator.isBase64('ZWFzdXJlLg=='); // true
+FieldValidator.isBase64('not base 64'); // false
 ```
 
 ### isValidDate
@@ -411,9 +411,9 @@ FieldValidator.isBase64('not base 64'); # false
 `isValidDate(input) - Validates that the input is a valid date or a list of valid dates (epoch/ unix time)`
 
 ```javascript
-FieldValidator.isValidDate('2019-03-17'); # true
-FieldValidator.isValidDate(1552000139); # true
-FieldValidator.isValidDate('1552000139'); # false
+FieldValidator.isValidDate('2019-03-17'); // true
+FieldValidator.isValidDate(1552000139); // true
+FieldValidator.isValidDate('1552000139'); // false
 ```
 
 ### isISO8601
@@ -421,8 +421,8 @@ FieldValidator.isValidDate('1552000139'); # false
 `isISO8601(input) - Checks to see if input is a valid ISO8601 string dates or a list of valid dates`
 
 ```javascript
-FieldValidator.isISO8601('2020-01-01T12:03:03.494Z'); # true
-FieldValidator.isISO8601('Jan 1, 2020'); # false
+FieldValidator.isISO8601('2020-01-01T12:03:03.494Z'); // true
+FieldValidator.isISO8601('Jan 1, 2020'); // false
 ```
 
 ### isRFC3339
@@ -430,8 +430,8 @@ FieldValidator.isISO8601('Jan 1, 2020'); # false
 `isRFC3339(input) -  Validates that input is a valid RFC3339 dates or a list of valid RFC3339 dates`
 
 ```javascript
-FieldValidator.isRFC3339('2020-01-01 12:05:05.001Z'); # true
-FieldValidator.isRFC3339('2020-01-01'); # false
+FieldValidator.isRFC3339('2020-01-01 12:05:05.001Z'); // true
+FieldValidator.isRFC3339('2020-01-01'); // false
 ```
 
 ### isJSON
@@ -439,8 +439,8 @@ FieldValidator.isRFC3339('2020-01-01'); # false
 `isJSON(input) - Validates that input is a valid JSON string or a list of valid JSON`
 
 ```javascript
- FieldValidator.isJSON('{ "bob": "gibson" }'); # true
- FieldValidator.isJSON({ bob: 'gibson' }); # false
+ FieldValidator.isJSON('{ "bob": "gibson" }'); // true
+ FieldValidator.isJSON({ bob: 'gibson' }); // false
 ```
 
 
@@ -449,8 +449,8 @@ FieldValidator.isRFC3339('2020-01-01'); # false
 `isEmail(input) - Return true if value is a valid email, or a list of valid emails`
 
 ```javascript
-FieldValidator.isEmail('email@example.com'); # true
-FieldValidator.isEmail(12345); # false
+FieldValidator.isEmail('email@example.com'); // true
+FieldValidator.isEmail(12345); // false
 ```
 
 ### isFQDN
@@ -460,8 +460,8 @@ FieldValidator.isEmail(12345); # false
 ` args: { require_tld = true, allow_underscores = false, allow_trailing_dot = false }`
 
 ```javascript
-FieldValidator.isFQDN('example.com.uk'); # true
-FieldValidator.isFQDN('notadomain'); # false
+FieldValidator.isFQDN('example.com.uk'); // true
+FieldValidator.isFQDN('notadomain'); // false
 ```
 
 ### isURL
@@ -469,8 +469,8 @@ FieldValidator.isFQDN('notadomain'); # false
 `isURL(input) - Validates that the input is a url or a list of urls`
 
 ```javascript
-FieldValidator.isURL('http://example.com'); # true
-FieldValidator.isURL('BAD-URL'); # false
+FieldValidator.isURL('http://example.com'); // true
+FieldValidator.isURL('BAD-URL'); // false
 ```
 
 ### isIP
@@ -478,9 +478,9 @@ FieldValidator.isURL('BAD-URL'); # false
 `isIP(input) - Validates that the input is an IP address, or a list of IP addresses`
 
 ```javascript
-FieldValidator.isIP('108.22.31.8'); # true
-FieldValidator.isIP([]); # false
-FieldValidator.isIP('2001:DB8::1'); # true
+FieldValidator.isIP('108.22.31.8'); // true
+FieldValidator.isIP([]); // false
+FieldValidator.isIP('2001:DB8::1'); // true
 ```
 
 ### isRoutableIP
@@ -490,11 +490,11 @@ FieldValidator.isIP('2001:DB8::1'); # true
 `Works for both IPv4 and IPv6 addresses`
 
 ```javascript
-FieldValidator.isRoutableIP('8.8.8.8'); # true
-FieldValidator.isRoutableIP('2001:db8::1'); # true
-FieldValidator.isRoutableIP('192.168.0.1'); # false
-FieldValidator.isRoutableIP('10.16.32.210'); # false
-FieldValidator.isRoutableIP('fc00:db8::1'); # false
+FieldValidator.isRoutableIP('8.8.8.8'); // true
+FieldValidator.isRoutableIP('2001:db8::1'); // true
+FieldValidator.isRoutableIP('192.168.0.1'); // false
+FieldValidator.isRoutableIP('10.16.32.210'); // false
+FieldValidator.isRoutableIP('fc00:db8::1'); // false
 ```
 
 ### isNonRoutableIP
@@ -504,11 +504,11 @@ FieldValidator.isRoutableIP('fc00:db8::1'); # false
 `Works for both IPv4 and IPv6 addresses`
 
 ```javascript
-FieldValidator.isNonRoutableIP('192.168.0.1'); # true
-FieldValidator.isNonRoutableIP('10.16.32.210'); # true
-FieldValidator.isNonRoutableIP('fc00:db8::1'); # true
-FieldValidator.isNonRoutableIP('8.8.8.8'); # false
-FieldValidator.isNonRoutableIP('2001:db8::1'); # false
+FieldValidator.isNonRoutableIP('192.168.0.1'); // true
+FieldValidator.isNonRoutableIP('10.16.32.210'); // true
+FieldValidator.isNonRoutableIP('fc00:db8::1'); // true
+FieldValidator.isNonRoutableIP('8.8.8.8'); // false
+FieldValidator.isNonRoutableIP('2001:db8::1'); // false
 ```
 
 ### isCIDR
@@ -518,9 +518,9 @@ FieldValidator.isNonRoutableIP('2001:db8::1'); # false
 `Works for both IPv4 and IPv6 addresses`
 
 ```javascript
-FieldValidator.isCIDR('8.8.0.0/12'); # true
-FieldValidator.isCIDR('2001::1234:5678/128'); # true
-FieldValidator.isCIDR('8.8.8.10'); # false
+FieldValidator.isCIDR('8.8.0.0/12'); // true
+FieldValidator.isCIDR('2001::1234:5678/128'); // true
+FieldValidator.isCIDR('8.8.8.10'); // false
 ```
 
 ### inIPRange
@@ -538,9 +538,9 @@ FieldValidator.isCIDR('8.8.8.10'); # false
 `Works for both IPv4 and IPv6 addresses`
 
 ```javascript
-FieldValidator.inIPRange('8.8.8.8', { cidr: '8.8.8.0/24' }); # true
-FieldValidator.inIPRange('fd00::b000', { min: 'fd00::123', max: 'fd00::ea00' }); # true;
-FieldValidator.inIPRange('8.8.8.8', { cidr: '8.8.8.10/32' }); # false
+FieldValidator.inIPRange('8.8.8.8', { cidr: '8.8.8.0/24' }); // true
+FieldValidator.inIPRange('fd00::b000', { min: 'fd00::123', max: 'fd00::ea00' }); // true;
+FieldValidator.inIPRange('8.8.8.8', { cidr: '8.8.8.10/32' }); // false
 ```
 
 ### isISDN
@@ -548,9 +548,9 @@ FieldValidator.inIPRange('8.8.8.8', { cidr: '8.8.8.10/32' }); # false
 `isISDN(input) - Validates that the input is a valid phone Number, or a list of phone numbers.  Based on googles libphonenumber library.`
 
 ```javascript
-FieldValidator.isISDN('46707123456'); # true
-FieldValidator.isISDN('1-808-915-6800'); # true
-FieldValidator.isISDN('NOT A PHONE Number'); # false
+FieldValidator.isISDN('46707123456'); // true
+FieldValidator.isISDN('1-808-915-6800'); // true
+FieldValidator.isISDN('NOT A PHONE Number'); // false
 ```
 
 ### isMACAddress
@@ -566,20 +566,20 @@ FieldValidator.isISDN('NOT A PHONE Number'); # false
 `Default is 'any'`
 
 ```javascript
-FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f'); # true
-FieldValidator.isMACAddress('001ff35b2b1f'); # true
-FieldValidator.isMACAddress('001f.f35b.2b1f', { delimiter: 'dot' }); # true
-FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', { delimiter: ['dash', 'colon', 'space'] }); # true
-FieldValidator.isMACAddress(12345); # false
-FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', { delimiter: ['colon', 'space'] }); # false, specified colon and space delimiter only
+FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f'); // true
+FieldValidator.isMACAddress('001ff35b2b1f'); // true
+FieldValidator.isMACAddress('001f.f35b.2b1f', { delimiter: 'dot' }); // true
+FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', { delimiter: ['dash', 'colon', 'space'] }); // true
+FieldValidator.isMACAddress(12345); // false
+FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', { delimiter: ['colon', 'space'] }); // false, specified colon and space delimiter only
 ```
 
 ### isUUID
 `isUUID(input) - Validates that input is a UUID or a list of UUID's`
 
 ```javascript
-FieldValidator.isUUID('0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B'); # true
-FieldValidator.isUUID('BAD-UUID'); # false
+FieldValidator.isUUID('0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B'); // true
+FieldValidator.isUUID('BAD-UUID'); // false
 ```
 
 ### isHash
@@ -591,8 +591,8 @@ FieldValidator.isUUID('BAD-UUID'); # false
 `Hash options: md4, md5, sha1, sha256, sha384, sha512, ripemd128, ripemd160, tiger128, tiger160, tiger192, crc32, crc32b`
 
 ```javascript
-FieldValidator.isHash('6201b3d1815444c87e00963fcf008c1e', { algo: 'md5' }); # true
-FieldValidator.isHas('12345', { algo: 'sha1' }); # false
+FieldValidator.isHash('6201b3d1815444c87e00963fcf008c1e', { algo: 'md5' }); // true
+FieldValidator.isHas('12345', { algo: 'sha1' }); // false
 ```
 
 ### isCountryCode
@@ -600,9 +600,9 @@ FieldValidator.isHas('12345', { algo: 'sha1' }); # false
 `isCountryCode(input) - Validates that input is a valid country code or a list of country codes`
 
 ```javascript
-FieldValidator.isCountryCode('IS'); # true
-FieldValidator.isCountryCode('ru'); # true
-FieldValidator.isCountryCode('USA'); # false
+FieldValidator.isCountryCode('IS'); // true
+FieldValidator.isCountryCode('ru'); // true
+FieldValidator.isCountryCode('USA'); // false
 ```
 
 ### isMIMEType
@@ -610,8 +610,8 @@ FieldValidator.isCountryCode('USA'); # false
 `isMIMEType(input) - Validates that input is a valid mimeType or a list of mimeTypes`
 
 ```javascript
-FieldValidator.isMIMEType('application/javascript'); # true
-FieldValidator.isMIMEType(12345); # false
+FieldValidator.isMIMEType('application/javascript'); // true
+FieldValidator.isMIMEType(12345); // false
 ```
 
 ### isISSN
@@ -621,8 +621,8 @@ FieldValidator.isMIMEType(12345); # false
 `args: { require_hyphen = false, case_sensitive = false }`
 
 ```javascript
-FieldValidator.isISSN('03785955'); # true
-FieldValidator.isISSN('0378-5955', { requireHyphen: true }); # true
+FieldValidator.isISSN('03785955'); // true
+FieldValidator.isISSN('0378-5955', { requireHyphen: true }); // true
 ```
 
 ### guard
@@ -631,8 +631,8 @@ FieldValidator.isISSN('0378-5955', { requireHyphen: true }); # true
 
 
 ```javascript
-FieldValidator.guard('03785955'); # true
-FieldValidator.guard(); # WILL THROW
+FieldValidator.guard('03785955'); // true
+FieldValidator.guard(); // WILL THROW
 ```
 
 ### exists
@@ -640,8 +640,8 @@ FieldValidator.guard(); # WILL THROW
 `exists(input) - Will return false if input is null or undefined`
 
 ```javascript
-FieldValidator.exists('03785955'); # true
-FieldValidator.exists(null); # false
+FieldValidator.exists('03785955'); // true
+FieldValidator.exists(null); // false
 ```
 
 ### isArray
@@ -649,9 +649,9 @@ FieldValidator.exists(null); # false
 `isArray(input) - Validates that the input is an array`
 
 ```javascript
-FieldValidator.isArray('03785955'); # false
-FieldValidator.isArray([]); # true
-FieldValidator.isArray(['some', 'stuff']); # true
+FieldValidator.isArray('03785955'); // false
+FieldValidator.isArray([]); // true
+FieldValidator.isArray(['some', 'stuff']); // true
 ```
 
 ### some
@@ -664,8 +664,8 @@ FieldValidator.isArray(['some', 'stuff']); # true
 `options - any additional parameters neccesary for the fn being envoked`
 
 ```javascript
-FieldValidator.some(['hello', 3, { some: 'obj' }], { fn: 'isString' }); # true
-FieldValidator.some(['hello', 3, { some: 'obj' }], { fn: 'isBoolean' }); # false
+FieldValidator.some(['hello', 3, { some: 'obj' }], { fn: 'isString' }); // true
+FieldValidator.some(['hello', 3, { some: 'obj' }], { fn: 'isBoolean' }); // false
 ```
 
 ### every
@@ -677,8 +677,8 @@ FieldValidator.some(['hello', 3, { some: 'obj' }], { fn: 'isBoolean' }); # false
 `fn must be a function name from FieldValidator`
 
 ```javascript
-FieldValidator.every(['hello', 3, { some: 'obj' }], { fn: 'isString' }); # false
-FieldValidator.every(['hello', 'world'], { fn: 'isString' }); # true
+FieldValidator.every(['hello', 3, { some: 'obj' }], { fn: 'isString' }); // false
+FieldValidator.every(['hello', 'world'], { fn: 'isString' }); // true
 ```
 
 
@@ -693,9 +693,9 @@ FieldValidator.every(['hello', 'world'], { fn: 'isString' }); # true
 `default locale is any`
 
 ```javascript
-FieldValidator.isPostalCode('85249'); # true
+FieldValidator.isPostalCode('85249'); // true
 FieldValidator.isPostalCode('885 49', { locale: 'SE' });# true
-FieldValidator.isPostalCode(1234567890); # false
+FieldValidator.isPostalCode(1234567890); // false
 ```
 
 ## Field Transforms
@@ -708,8 +708,8 @@ FieldValidator.isPostalCode(1234567890); # false
 `returns null if input is null/undefined`
 
 ```javascript
-FieldTransform.toBoolean('0'); # false
-FieldTransform.toBoolean(['foo', 'false', null]); # [true, false];
+FieldTransform.toBoolean('0'); // false
+FieldTransform.toBoolean(['foo', 'false', null]); // [true, false];
 ```
 
 ### toString
@@ -719,8 +719,8 @@ FieldTransform.toBoolean(['foo', 'false', null]); # [true, false];
 `returns null if input is null/undefined`
 
 ```javascript
- transform.toString(true); # 'true';
- FieldTransform.toString([true, undefined, false]); # ['true', 'false'];
+ transform.toString(true); // 'true';
+ FieldTransform.toString([true, undefined, false]); // ['true', 'false'];
 ```
 
 ### toNumber
@@ -731,11 +731,11 @@ if given an array it will convert everything in the array excluding null/undefin
 `returns null if input is null/undefined`
 
 ```javascript
-FieldTransform.toNumber('12321'); # 12321;
-FieldTransform.toNumber('000011'); # 11;
-FieldTransform.toNumber('true', { booleanLike: true }); # 1;
-FieldTransform.toNumber(null, { booleanLike: true }); # 0;
-FieldTransform.toNumber(null); # null;
+FieldTransform.toNumber('12321'); // 12321;
+FieldTransform.toNumber('000011'); // 11;
+FieldTransform.toNumber('true', { booleanLike: true }); // 1;
+FieldTransform.toNumber(null, { booleanLike: true }); // 0;
+FieldTransform.toNumber(null); // null;
 ```
 
 ### toUpperCase
@@ -745,8 +745,8 @@ FieldTransform.toNumber(null); # null;
 `returns null if input is null/undefined`
 
 ```javascript
- FieldTransform.toUpperCase('lowercase'); # 'LOWERCASE';
- FieldTransform.toUpperCase(['MixEd', null, 'lower']); # ['MIXED', 'LOWER'];
+ FieldTransform.toUpperCase('lowercase'); // 'LOWERCASE';
+ FieldTransform.toUpperCase(['MixEd', null, 'lower']); // ['MIXED', 'LOWER'];
 ```
 
 ### toLowerCase
@@ -756,8 +756,8 @@ FieldTransform.toNumber(null); # null;
 `returns null if input is null/undefined`
 
 ```javascript
- FieldTransform.toLowerCase('UPPERCASE'); # 'uppercase';
- FieldTransform.toLowerCase(['MixEd', null, 'UPPER']); # ['mixed', 'upper'];
+ FieldTransform.toLowerCase('UPPERCASE'); // 'uppercase';
+ FieldTransform.toLowerCase(['MixEd', null, 'UPPER']); // ['mixed', 'upper'];
 ```
 
 ### toCamelCase
@@ -767,9 +767,9 @@ FieldTransform.toNumber(null); # null;
 `returns null if input is null/undefined`
 
 ```javascript
-FieldTransform.toCamelCase('I need camel case'); # 'iNeedCamelCase';
-FieldTransform.toCamelCase('happyBirthday'); # 'happyBirthday';
-FieldTransform.toCamelCase('what_is_this'); # 'whatIsThis';
+FieldTransform.toCamelCase('I need camel case'); // 'iNeedCamelCase';
+FieldTransform.toCamelCase('happyBirthday'); // 'happyBirthday';
+FieldTransform.toCamelCase('what_is_this'); // 'whatIsThis';
 ```
 
 ### toKebabCase
@@ -779,10 +779,10 @@ FieldTransform.toCamelCase('what_is_this'); # 'whatIsThis';
 `returns null if input is null/undefined`
 
 ```javascript
-FieldTransform.toKebabCase('I need kebab case'); # 'i-need-kebab-case';
-FieldTransform.toKebabCase('happyBirthday'); # 'happy-birthday';
-FieldTransform.toKebabCase('what_is_this'); # 'what-is-this';
-FieldTransform.toKebabCase('this-should-be-kebab'); # 'this-should-be-kebab';
+FieldTransform.toKebabCase('I need kebab case'); // 'i-need-kebab-case';
+FieldTransform.toKebabCase('happyBirthday'); // 'happy-birthday';
+FieldTransform.toKebabCase('what_is_this'); // 'what-is-this';
+FieldTransform.toKebabCase('this-should-be-kebab'); // 'this-should-be-kebab';
 ```
 
 ### toPascalCase
@@ -792,9 +792,9 @@ FieldTransform.toKebabCase('this-should-be-kebab'); # 'this-should-be-kebab';
 `returns null if input is null/undefined`
 
 ```javascript
-FieldTransform.toPascalCase('I need pascal case'); # 'INeedPascalCase';
-FieldTransform.toPascalCase('happyBirthday'); # 'HappyBirthday';
-FieldTransform.toPascalCase('what_is_this'); # 'WhatIsThis';
+FieldTransform.toPascalCase('I need pascal case'); // 'INeedPascalCase';
+FieldTransform.toPascalCase('happyBirthday'); // 'HappyBirthday';
+FieldTransform.toPascalCase('what_is_this'); // 'WhatIsThis';
 ```
 
 ### toSnakeCase
@@ -804,9 +804,9 @@ FieldTransform.toPascalCase('what_is_this'); # 'WhatIsThis';
 `returns null if input is null/undefined`
 
 ```javascript
-FieldTransform.toSnakeCase('I need snake case'); # 'i_need_snake_case';
-FieldTransform.toSnakeCase('happyBirthday'); # 'happy_birthday';
-FieldTransform.toSnakeCase('what_is_this'); # 'what_is_this';
+FieldTransform.toSnakeCase('I need snake case'); // 'i_need_snake_case';
+FieldTransform.toSnakeCase('happyBirthday'); // 'happy_birthday';
+FieldTransform.toSnakeCase('what_is_this'); // 'what_is_this';
 ```
 
 ### toTitleCase
@@ -816,9 +816,9 @@ FieldTransform.toSnakeCase('what_is_this'); # 'what_is_this';
 `returns null if input is null/undefined`
 
 ```javascript
-FieldTransform.toTitleCase('I need some capitols'); # 'I Need Some Capitols';
-FieldTransform.toTitleCase('happyBirthday'); # 'Happy Birthday';
-FieldTransform.toTitleCase('what_is_this'); # 'What Is This';
+FieldTransform.toTitleCase('I need some capitols'); // 'I Need Some Capitols';
+FieldTransform.toTitleCase('happyBirthday'); // 'Happy Birthday';
+FieldTransform.toTitleCase('what_is_this'); // 'What Is This';
 ```
 
 ### trim
@@ -832,8 +832,8 @@ FieldTransform.toTitleCase('what_is_this'); # 'What Is This';
 `returns null if input is null/undefined`
 
 ```javascript
-FieldTransform.trim('right    '); # 'right';
-FieldTransform.trim('fast cars race fast', { char: 'fast' }); # ' cars race ';
+FieldTransform.trim('right    '); // 'right';
+FieldTransform.trim('fast cars race fast', { char: 'fast' }); // ' cars race ';
 ```
 
 ### trimStart
@@ -848,8 +848,8 @@ if given an array it will convert everything in the array excluding null/undefin
 `returns null if input is null/undefined`
 
 ```javascript
-FieldTransform.trimStart('    Hello Bob    '); # 'Hello Bob    ';
-FieldTransform.trimStart('iiii-wordiwords-iii', { char: 'i' }); # '-wordiwords-iii';
+FieldTransform.trimStart('    Hello Bob    '); // 'Hello Bob    ';
+FieldTransform.trimStart('iiii-wordiwords-iii', { char: 'i' }); // '-wordiwords-iii';
 ```
 
 ### trimEnd
@@ -864,8 +864,8 @@ if given an array it will convert everything in the array excluding null/undefin
 `returns null if input is null/undefined`
 
 ```javascript
-FieldTransform.trimEnd('    Hello Bob    '); # '    Hello Bob';
-FieldTransform.trimEnd('iiii-wordiwords-iii', { char: 'i' }); # 'iiii-wordiwords';
+FieldTransform.trimEnd('    Hello Bob    '); // '    Hello Bob';
+FieldTransform.trimEnd('iiii-wordiwords-iii', { char: 'i' }); // 'iiii-wordiwords';
 ```
 
 ### truncate
@@ -879,8 +879,8 @@ FieldTransform.trimEnd('iiii-wordiwords-iii', { char: 'i' }); # 'iiii-wordiwords
 `returns null if input is null/undefined`
 
 ```javascript
-FieldTransform.truncate('thisisalongstring', { size: 4 }); # 'this';
-FieldTransform.truncate(['hello', null, 'world'], { size: 2 }); # ['he', 'wo'];
+FieldTransform.truncate('thisisalongstring', { size: 4 }); // 'this';
+FieldTransform.truncate(['hello', null, 'world'], { size: 2 }); // ['he', 'wo'];
 ```
 
 ### toISDN
@@ -890,8 +890,8 @@ FieldTransform.truncate(['hello', null, 'world'], { size: 2 }); # ['he', 'wo'];
 `returns null if input is null/undefined`
 
 ```javascript
-FieldTransform.toISDN('+33-1-22-33-44-55'); # '33122334455';
-FieldTransform.toISDN('1(800)FloWErs'); # '18003569377';
+FieldTransform.toISDN('+33-1-22-33-44-55'); // '33122334455';
+FieldTransform.toISDN('1(800)FloWErs'); // '18003569377';
 ```
 
 
@@ -919,7 +919,7 @@ if given an array it will convert everything in the array excluding null/undefin
 const source = 'HELLO AND GOODBYE';
 const encoded = 'HELLO%20AND%20GOODBYE';
 
-FieldTransform.encodeURL(source); # encoded;
+FieldTransform.encodeURL(source); // encoded;
 ```
 
 ### encodeHex
@@ -1003,7 +1003,7 @@ if given an array it will convert everything in the array excluding null/undefin
 const source = 'hello world';
 const encoded = encodeHex(source);
 
-FieldTransform.decodeHex(encoded); # source;
+FieldTransform.decodeHex(encoded); // source;
 ```
 
 ### decodeURL
@@ -1017,7 +1017,7 @@ if given an array it will convert everything in the array excluding null/undefin
 const source = 'HELLO AND GOODBYE';
 const encoded = 'HELLO%20AND%20GOODBYE';
 
-FieldTransform.decodeURL(encoded); # source;
+FieldTransform.decodeURL(encoded); // source;
 ```
 
 ### parseJSON
@@ -1043,7 +1043,7 @@ if given an array it will convert everything in the array excluding null/undefin
 ```javascript
  const obj = { hello: 'world' };
  const results = FieldTransform.toJSON(json);
- * results === '{"hello": "world"}'
+ results === '{"hello": "world"}'
 ```
 
 ### dedupe
@@ -1096,16 +1096,16 @@ fieldTransform.toGeoPoint({ latitude: 40, longitude: 60 }) === { lon: 60, lat: 4
 
 ```javascript
  const results1 = FieldTransform.extract('<hello>', { start: '<', end: '>' });
- results1; # 'hello';
+ results1; // 'hello';
 
 const results2 = FieldTransform.extract({ foo: 'bar' }, { jexlExp: '[foo]' });
-results2; # ['bar'];
+results2; // ['bar'];
 
 const results3 = FieldTransform.extract('hello', { regex: 'he.*' });
-results3; # ['hello'];
+results3; // ['hello'];
 
 const results = FieldTransform.extract('hello', { regex: 'he.*', isMultiValue: false });
-results; # 'hello';
+results; // 'hello';
 ```
 
 ### replaceRegex
@@ -1164,9 +1164,9 @@ FieldTransform.replaceLiteral('Hi Bob', { search: 'bob', replace: 'Mel ' }) === 
 `returns null if input is null/undefined`
 
 ```javascript
-FieldTransform.toArray('astring'); # ['a', 's', 't', 'r', 'i', 'n', 'g'];
-FieldTransform.toArray('astring', { delimiter: ',' }); # ['astring'];
-FieldTransform.toArray('a-stri-ng', { delimiter: '-' }); # ['a', 'stri', 'ng'];
+FieldTransform.toArray('astring'); // ['a', 's', 't', 'r', 'i', 'n', 'g'];
+FieldTransform.toArray('astring', { delimiter: ',' }); // ['astring'];
+FieldTransform.toArray('a-stri-ng', { delimiter: '-' }); // ['a', 'stri', 'ng'];
 ```
 
 ### toUnixTime
@@ -1179,12 +1179,12 @@ FieldTransform.toArray('a-stri-ng', { delimiter: '-' }); # ['a', 'stri', 'ng'];
 
 ```javascript
 
-FieldTransform.toUnixTime('2020-01-01'); # 1577836800;
-FieldTransform.toUnixTime('Jan 1, 2020 UTC'); # 1577836800;
-FieldTransform.toUnixTime('2020 Jan, 1 UTC'); # 1577836800;
+FieldTransform.toUnixTime('2020-01-01'); // 1577836800;
+FieldTransform.toUnixTime('Jan 1, 2020 UTC'); // 1577836800;
+FieldTransform.toUnixTime('2020 Jan, 1 UTC'); // 1577836800;
 
-FieldTransform.toUnixTime(1580418907000); # 1580418907;
-FieldTransform.toUnixTime(1580418907000, { ms: true }); # 1580418907000;
+FieldTransform.toUnixTime(1580418907000); // 1580418907;
+FieldTransform.toUnixTime(1580418907000, { ms: true }); // 1580418907000;
 ```
 
 ### toISO8601
@@ -1197,10 +1197,10 @@ FieldTransform.toUnixTime(1580418907000, { ms: true }); # 1580418907000;
 `returns null if input is null/undefined`
 
 ```javascript
-FieldTransform.toISO8601('2020-01-01'); # '2020-01-01T00:00:00.000Z';
+FieldTransform.toISO8601('2020-01-01'); // '2020-01-01T00:00:00.000Z';
 
 const config = { resolution: 'seconds' };
-FieldTransform.toISO8601(1580418907, config); # '2020-01-30T21:15:07.000Z';
+FieldTransform.toISO8601(1580418907, config); // '2020-01-30T21:15:07.000Z';
 ```
 
 ### formatDate
@@ -1298,8 +1298,8 @@ const fields = ['bar'];
 const results1 = RecordValidator.required(obj1, { fields });
 const results2 = RecordValidator.required(obj2, { fields });
 
-results1; # true;
-results2; # false;
+results1; // true;
+results2; // false;
 ```
 
 ### select
@@ -1322,8 +1322,8 @@ const args = { query: '_exists_:bar' };
 const results1 = RecordValidator.select(obj1, args);
 const results2 = RecordValidator.select(obj2, args);
 
-results1; # true;
-results2; # false;
+results1; // true;
+results2; // false;
 ```
 
 ### reject
@@ -1345,8 +1345,8 @@ const args = { query: '_exists_:bar' };
 const results1 = RecordValidator.reject(obj1, args);
 const results2 = RecordValidator.reject(obj2, args);
 
-results1; # false;
-results2; # true;
+results1; // false;
+results2; // true;
 ```
 
 ## Record Transforms
@@ -1401,7 +1401,7 @@ results ===  { hello: 'world' };
 const obj = { hello: 'world', other: 'stuff' };
 const config = { from: 'other', to: 'myCopy' };
 const results = RecordTransform.copyField(cloneDeep(obj), config);
-results; # { hello: 'world', other: 'stuff', myCopy: 'stuff' };
+results; // { hello: 'world', other: 'stuff', myCopy: 'stuff' };
 ```
 
 ## Document Matcher
@@ -1655,8 +1655,8 @@ For this types DO NOT need to be specified and is done by the query itself. A wi
 
 ie "abcde":
 
-ab.*     # match
-abcd     # no match
+ab.*     // match
+abcd     // no match
 
 ```js
 const data6 = { key : 'abbccc' };
