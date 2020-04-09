@@ -1,25 +1,15 @@
 import path from 'path';
 import { listPackages } from '../packages';
 import { updateReadme, ensureOverview } from './overview';
-import { runTSScript, build, setup } from '../scripts';
+import { build } from '../scripts';
 import { updateSidebarJSON } from './sidebar';
 import { PackageInfo } from '../interfaces';
 import { generateTSDocs } from './typedoc';
 import { getRootDir, writePkgHeader } from '../misc';
 
-export async function buildAll() {
-    await setup();
-
-    const pkgInfos = listPackages();
-    for (const pkgInfo of pkgInfos) {
-        await runTSScript('docs', [pkgInfo.folderName]);
-    }
-
-    await updateSidebarJSON(pkgInfos);
-}
-
 export async function buildPackages(pkgInfos: PackageInfo[]) {
     let runOnce = false;
+
     for (const pkgInfo of pkgInfos) {
         writePkgHeader('Building docs', [pkgInfo], runOnce);
 
@@ -33,4 +23,6 @@ export async function buildPackages(pkgInfos: PackageInfo[]) {
         await ensureOverview(pkgInfo);
         runOnce = true;
     }
+
+    await updateSidebarJSON(pkgInfos);
 }

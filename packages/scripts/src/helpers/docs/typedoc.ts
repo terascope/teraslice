@@ -17,12 +17,14 @@ async function writeDocFile(filePath: string, { title, sidebarLabel }: { title: 
     // remove header
     contents = contents
         .split('\n')
-        .slice(isOverview(filePath) ? 6 : 5)
+        .slice(isOverview(filePath) ? 5 : 4)
         .join('\n')
         .trim();
 
     // fix paths
-    contents = contents.replace(/(\]\(.*)(index\.md)/g, '$1overview.md');
+    contents = contents
+        .replace(/(\]\(.*)index\.md/g, '$1overview.md')
+        .replace(/(\]\(.*)index\.md/g, '$1overview.md');
     // build final content
     contents = `---
 title: ${title}
