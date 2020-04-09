@@ -1,9 +1,12 @@
 import path from 'path';
 import fse from 'fs-extra';
 import { Application } from 'typedoc';
+import { JsxEmit, ModuleKind, ModuleResolutionKind, ScriptTarget } from 'typescript';
 import { PackageInfo } from '../interfaces';
 import { listMdFiles, getName, writeIfChanged } from '../misc';
 import signale from '../signale';
+
+const app = new Application();
 
 function isOverview(filePath: string): boolean {
     return path.basename(filePath, '.md') === 'overview';
@@ -14,12 +17,12 @@ async function writeDocFile(filePath: string, { title, sidebarLabel }: { title: 
     // remove header
     contents = contents
         .split('\n')
-        .slice(isOverview(filePath) ? 3 : 2)
+        .slice(isOverview(filePath) ? 6 : 5)
         .join('\n')
         .trim();
 
     // fix paths
-    contents = contents.replace(/README\.md/g, 'overview.md');
+    contents = contents.replace(/(\]\(.*)(index\.md)/g, '$1overview.md');
     // build final content
     contents = `---
 title: ${title}
@@ -47,7 +50,7 @@ function getAPIName(overview: string, outputDir: string, filePath: string) {
 }
 
 async function fixDocs(outputDir: string, { displayName }: PackageInfo) {
-    const overviewFilePath = listMdFiles(outputDir).find((filePath) => path.basename(filePath, '.md') === 'README');
+    const overviewFilePath = listMdFiles(outputDir).find((filePath) => path.basename(filePath, '.md') === 'index');
     if (!overviewFilePath) {
         signale.error(
             'Error: Package documentation was not generated correctly',
@@ -84,10 +87,12 @@ export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string) {
     const cwd = process.cwd();
     try {
         process.chdir(pkgInfo.dir);
-        const app = new Application({
+        app.bootstrap({
             name: pkgInfo.name,
+            target: ScriptTarget.ESNext,
             tsconfig: path.join(pkgInfo.dir, 'tsconfig.json'),
-            platform: 'docusaurus',
+            // @ts-ignore
+            platform: 'docusaurus' as any,
             mode: 'file',
             theme: 'markdown',
             exclude: ['test', 'node_modules'],
@@ -95,13 +100,16 @@ export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string) {
             excludeExternals: true,
             excludeNotExported: true,
             experimentalDecorators: true,
-            jsx: true,
-            moduleResolution: 'node',
-            module: 'commonjs',
+            skipLibCheck: true,
+            downlevelIteration: true,
+            esModuleInterop: true,
+            strict: false,
+            jsx: JsxEmit.React,
+            moduleResolution: ModuleResolutionKind.NodeJs,
+            module: ModuleKind.CommonJS,
             hideGenerator: true,
             readme: 'none',
-            logger: 'none',
-        });
+        })
         const inputFiles = [...app.expandInputFiles(['src'])];
 
         if (fse.existsSync(outputDir)) {

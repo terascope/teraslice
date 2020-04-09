@@ -10,11 +10,12 @@ import { getRootDir, writePkgHeader } from '../misc';
 export async function buildAll() {
     await setup();
 
-    for (const pkgInfo of listPackages()) {
+    const pkgInfos = listPackages();
+    for (const pkgInfo of pkgInfos) {
         await runTSScript('docs', [pkgInfo.folderName]);
     }
 
-    await updateSidebarJSON();
+    await updateSidebarJSON(pkgInfos);
 }
 
 export async function buildPackages(pkgInfos: PackageInfo[]) {
