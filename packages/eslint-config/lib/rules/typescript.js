@@ -58,7 +58,8 @@ module.exports = Object.assign({}, jsRules, {
     '@typescript-eslint/prefer-for-of': ['error'],
     camelcase: 'off',
     '@typescript-eslint/camelcase': ['error', {
-        properties: 'never'
+        properties: 'never',
+        ignoreDestructuring: true,
     }],
     '@typescript-eslint/class-name-casing': ['error', {
         allowUnderscorePrefix: true
