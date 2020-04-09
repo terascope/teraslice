@@ -12,7 +12,6 @@ import { DepKey, SyncOptions } from './interfaces';
 import signale from '../signale';
 
 const topLevelFiles: readonly string[] = [
-    'website/sidebars.json',
     'package.json',
     'yarn.lock'
 ];

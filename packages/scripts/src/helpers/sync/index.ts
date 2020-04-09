@@ -1,5 +1,4 @@
 import { listPackages, updatePkgJSON } from '../packages';
-import { updateSidebarJSON } from '../docs/sidebar';
 import { PackageInfo } from '../interfaces';
 import { SyncOptions } from './interfaces';
 import { getRootInfo } from '../misc';
@@ -17,7 +16,6 @@ export async function syncAll(options: SyncOptions) {
 
     await Promise.all(pkgInfos.map((pkgInfo) => utils.syncPackage(files, pkgInfo)));
 
-    await updateSidebarJSON(pkgInfos);
     await utils.verify(files, options);
 }
 
