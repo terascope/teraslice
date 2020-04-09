@@ -23,8 +23,7 @@ async function writeDocFile(filePath: string, { title, sidebarLabel }: { title: 
 
     // fix paths
     contents = contents
-        .replace(/(\]\(.*)index\.md/g, '$1overview.md')
-        .replace(/(\]\(.*)index\.md/g, '$1overview.md');
+        .replace(/(\]\([\w\.\/]*)index\.md/g, '$1overview.md');
     // build final content
     contents = `---
 title: ${title}
