@@ -8201,10 +8201,10 @@ mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@^0.5.4, mkdirp@~0.5.1:
   dependencies:
     minimist "^1.2.5"
 
-mnemonist@^0.35.0:
-  version "0.35.0"
-  resolved "https://registry.yarnpkg.com/mnemonist/-/mnemonist-0.35.0.tgz#318fb69b79b98309a97ebf7f1d9f5873c3d86605"
-  integrity sha512-dewrFCpMv4jfEIxZLZufkxieuib2Q7bkZviiDyQnsDzNkkk7e1YV93tdY8sgwe+XuFQ5e+CJ+kR8qQ3jbzF9KQ==
+mnemonist@^0.36.0:
+  version "0.36.0"
+  resolved "https://registry.yarnpkg.com/mnemonist/-/mnemonist-0.36.0.tgz#82d8cdab3f868751a9273cecc30e2a851b0dfe32"
+  integrity sha512-V98SFZ4ZpvXQs6Rwr3RgEOtW55gtJVpbnZOQZ8KWwMf9H+jbF4izwbczekXzHlnFgt8PhI9bFQWIYd3lRsG/YQ==
   dependencies:
     obliterator "^1.6.1"
 
