@@ -14,6 +14,22 @@ export default [
         },
     ],
     [
+        'foo: $foo',
+        'variable with * wildcard',
+        {
+            type: ASTType.Wildcard,
+            field_type: xLuceneFieldType.String,
+            field: 'foo',
+            value: 'ba*',
+        },
+        {
+            foo: xLuceneFieldType.String
+        },
+        {
+            foo: 'ba*'
+        }
+    ],
+    [
         'hi:?here',
         'value with a prefix wildcard',
         {

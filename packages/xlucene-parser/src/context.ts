@@ -4,7 +4,8 @@ import {
     getTypeOf,
     parseGeoDistance,
     parseGeoPoint,
-    isRegExp
+    isRegExpLike,
+    isWildCardString
 } from '@terascope/utils';
 import {
     xLuceneFieldType,
@@ -121,6 +122,13 @@ export default function makeContext(args: any) {
         });
     }
 
+    function parseVariableRegex(str: string & RegExp) {
+        if (str.source) return str.source;
+        const results = /\/(.*)\//.exec(str);
+        if (results) return results[1];
+        return str;
+    }
+
     function coerceTermType(node: any, _field?: string) {
         if (!node) return;
         const field = node.field || _field;
@@ -149,6 +157,7 @@ export default function makeContext(args: any) {
 
         if (fieldType === xLuceneFieldType.Boolean) {
             node.field_type = fieldType;
+            node.type = i.ASTType.Term;
             delete node.quoted;
             delete node.restricted;
             if (node.value === 'true') {
@@ -162,12 +171,14 @@ export default function makeContext(args: any) {
 
         if (fieldType === xLuceneFieldType.Integer) {
             if (utils.isRange(node)) {
+                node.type = i.ASTType.Range;
                 node.left.field_type = fieldType;
                 if (node.right) node.right.field_type = fieldType;
             } else {
                 delete node.quoted;
                 delete node.restricted;
                 node.field_type = fieldType;
+                node.type = i.ASTType.Term;
                 node.value = parseInt(node.value, 10);
             }
             return;
@@ -175,6 +186,7 @@ export default function makeContext(args: any) {
 
         if (fieldType === xLuceneFieldType.Float) {
             node.field_type = fieldType;
+            node.type = i.ASTType.Term;
             delete node.quoted;
             delete node.restricted;
             node.value = parseFloat(node.value);
@@ -183,13 +195,15 @@ export default function makeContext(args: any) {
 
         if (fieldType === xLuceneFieldType.String) {
             node.field_type = fieldType;
-
-            if (isRegExp(node.value)) {
+            if (isRegExpLike(node.value)) {
                 node.type = i.ASTType.Regexp;
-                node.value = node.value.source;
+                node.value = parseVariableRegex(node.value);
+            } else if (isWildCardString(node.value)) {
+                node.type = i.ASTType.Wildcard;
             } else {
                 node.quoted = false;
                 node.value = `${node.value}`;
+                node.type = i.ASTType.Term;
             }
         }
     }
