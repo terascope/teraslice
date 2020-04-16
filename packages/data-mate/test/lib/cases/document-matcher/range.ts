@@ -1,3 +1,5 @@
+import { TestCase } from './interfaces';
+
 const ageData = [
     { age: 33 },
     { age: 8 },
@@ -269,4 +271,4 @@ export default [
             false,
         ]
     ],
-];
+] as TestCase[];

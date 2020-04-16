@@ -1,4 +1,5 @@
 import { xLuceneFieldType } from '@terascope/types';
+import { TestCase } from './interfaces';
 
 const ipRange = [
     { ipfield: '192.198.0.0' },
@@ -296,4 +297,4 @@ export default [
         ],
         { ipfield: xLuceneFieldType.IP }
     ],
-];
+] as TestCase[];
