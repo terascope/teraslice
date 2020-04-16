@@ -1,4 +1,5 @@
 import { xLuceneFieldType } from '@terascope/types';
+import { TestCase } from './interfaces';
 
 export default [
     [
@@ -427,4 +428,4 @@ export default [
             false,
         ]
     ],
-];
+] as TestCase[];

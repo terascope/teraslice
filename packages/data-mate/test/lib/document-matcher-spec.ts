@@ -7,10 +7,11 @@ import allTestCases from './cases/document-matcher';
 describe('Document-Matcher', () => {
     for (const [key, testCases] of Object.entries(allTestCases)) {
         describe(`when testing ${key.replace(/_/g, ' ')} queries`, () => {
-            describe.each(testCases)('%s', (msg, query, data, testResults, typeConfig) => {
+            describe.each(testCases)('%s', (msg, query, data, testResults, typeConfig, variables) => {
                 it(`should be able to match on query ${query}`, () => {
                     const documentMatcher = new DocumentMatcher(query, {
-                        type_config: typeConfig
+                        type_config: typeConfig,
+                        variables
                     });
 
                     const results = data.map((obj: any) => documentMatcher.match(obj));
