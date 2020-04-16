@@ -195,7 +195,7 @@ export default function makeContext(args: any) {
 
         if (fieldType === xLuceneFieldType.String) {
             node.field_type = fieldType;
-            if (isRegExpLike(node.value)) {
+            if (isRegExpLike(node.value) || node.type === i.ASTType.Regexp) {
                 node.type = i.ASTType.Regexp;
                 node.value = parseVariableRegex(node.value);
             } else if (isWildCardString(node.value)) {
