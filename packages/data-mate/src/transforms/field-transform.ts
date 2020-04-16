@@ -7,7 +7,7 @@ import { format as dateFormat, parse } from 'date-fns';
 import {
     ExtractFieldConfig,
     ReplaceLiteralConfig,
-    ReplaceRegexConfig
+    ReplaceRegexConfig,
 } from './interfaces';
 import {
     isString,
@@ -16,65 +16,146 @@ import {
     isArray,
     isNumberTuple
 } from '../validations/field-validator';
-import { Repository } from '../interfaces';
+import { Repository, InputType } from '../interfaces';
 
 export const repository: Repository = {
     toString: {
         fn: toString,
         config: {},
-        output_type: 'String' as AvailableType
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
     },
-    toBoolean: { fn: toBoolean, config: {}, output_type: 'Boolean' as AvailableType },
-    toUpperCase: { fn: toUpperCase, config: {}, output_type: 'String' as AvailableType },
-    toLowerCase: { fn: toLowerCase, config: {}, output_type: 'String' as AvailableType },
+    toBoolean: {
+        fn: toBoolean,
+        config: {},
+        output_type: 'Boolean' as AvailableType,
+        primary_input_type: InputType.Any
+    },
+    toUpperCase: {
+        fn: toUpperCase,
+        config: {},
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
+    },
+    toLowerCase: {
+        fn: toLowerCase,
+        config: {},
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
+    },
     trim: {
         fn: trim,
         config: {
             char: { type: 'String' }
         },
-        output_type: 'String' as AvailableType
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
     },
     truncate: {
         fn: truncate,
         config: {
             size: { type: 'Number' }
         },
-        output_type: 'String' as AvailableType
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
     },
-    toISDN: { fn: toISDN, config: {}, output_type: 'String' as AvailableType },
+    toISDN: {
+        fn: toISDN,
+        config: {},
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
+    },
     toNumber: {
         fn: toNumber,
         config: {
             booleanLike: { type: 'Boolean' }
         },
-        output_type: 'Number' as AvailableType
+        output_type: 'Number' as AvailableType,
+        primary_input_type: InputType.String
     },
-    decodeBase64: { fn: decodeBase64, config: {}, output_type: 'String' as AvailableType },
-    encodeBase64: { fn: encodeBase64, config: {}, output_type: 'String' as AvailableType },
-    decodeURL: { fn: decodeURL, config: {}, output_type: 'String' as AvailableType },
-    encodeURL: { fn: encodeURL, config: {}, output_type: 'String' as AvailableType },
-    decodeHex: { fn: decodeHex, config: {}, output_type: 'String' as AvailableType },
-    encodeHex: { fn: encodeHex, config: {}, output_type: 'String' as AvailableType },
-    encodeMD5: { fn: encodeMD5, config: {}, output_type: 'String' as AvailableType },
+    decodeBase64: {
+        fn: decodeBase64,
+        config: {},
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
+    },
+    encodeBase64: {
+        fn: encodeBase64,
+        config: {},
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
+    },
+    decodeURL: {
+        fn: decodeURL,
+        config: {},
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
+    },
+    encodeURL: {
+        fn: encodeURL,
+        config: {},
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
+    },
+    decodeHex: {
+        fn: decodeHex,
+        config: {},
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
+    },
+    encodeHex: {
+        fn: encodeHex,
+        config: {},
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
+    },
+    encodeMD5: {
+        fn: encodeMD5,
+        config: {},
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
+    },
     encodeSHA: {
         fn: encodeSHA,
         config: {
             hash: { type: 'String' },
             digest: { type: 'String' }
         },
-        output_type: 'String' as AvailableType
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
     },
-    encodeSHA1: { fn: encodeSHA1, config: {}, output_type: 'String' as AvailableType },
-    parseJSON: { fn: parseJSON, config: {}, output_type: 'Any' as AvailableType },
+    encodeSHA1: {
+        fn: encodeSHA1,
+        config: {},
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
+    },
+    parseJSON: {
+        fn: parseJSON,
+        config: {},
+        output_type: 'Any' as AvailableType,
+        primary_input_type: InputType.String
+    },
     toJSON: {
         fn: toJSON,
         config: {
             pretty: { type: 'Boolean' }
         },
-        output_type: 'String' as AvailableType
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.Any
     },
-    dedupe: { fn: dedupe, config: {}, output_type: 'Any' as AvailableType },
-    toGeoPoint: { fn: toGeoPoint, config: {}, output_type: 'GeoPoint' as AvailableType },
+    dedupe: {
+        fn: dedupe,
+        config: {},
+        output_type: 'Any' as AvailableType,
+        primary_input_type: InputType.Array
+    },
+    toGeoPoint: {
+        fn: toGeoPoint,
+        config: {},
+        output_type: 'GeoPoint' as AvailableType,
+        primary_input_type: InputType.String
+    },
     extract: {
         fn: extract,
         config: {
@@ -84,7 +165,8 @@ export const repository: Repository = {
             start: { type: 'String' },
             end: { type: 'String' }
         },
-        output_type: 'Any' as AvailableType
+        output_type: 'Any' as AvailableType,
+        primary_input_type: InputType.String
     },
     replaceRegex: {
         fn: replaceRegex,
@@ -94,7 +176,8 @@ export const repository: Repository = {
             global: { type: 'String' },
             ignore_case: { type: 'Boolean' }
         },
-        output_type: 'String' as AvailableType
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
     },
     replaceLiteral: {
         fn: replaceLiteral,
@@ -106,9 +189,15 @@ export const repository: Repository = {
                 type: 'String'
             }
         },
-        output_type: 'String' as AvailableType
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
     },
-    toUnixTime: { fn: toUnixTime, config: {}, output_type: 'Number' as AvailableType },
+    toUnixTime: {
+        fn: toUnixTime,
+        config: {},
+        output_type: 'Number' as AvailableType,
+        primary_input_type: InputType.String
+    },
     toISO8601: {
         fn: toISO8601,
         config: {
@@ -117,7 +206,8 @@ export const repository: Repository = {
                 description: 'may be set to seconds | milliseconds'
             }
         },
-        output_type: 'String' as AvailableType
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
     },
     formatDate: {
         fn: formatDate,
@@ -125,34 +215,63 @@ export const repository: Repository = {
             format: { type: 'String' },
             resolution: { type: 'String', description: 'may be set to seconds | milliseconds' },
         },
-        output_type: 'String' as AvailableType
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
     },
     parseDate: {
         fn: parseDate,
         config: {
             format: { type: 'String' },
         },
-        output_type: 'Date' as AvailableType
+        output_type: 'Date' as AvailableType,
+        primary_input_type: InputType.String
     },
     trimStart: {
         fn: trimStart,
         config: {
             char: { type: 'String' }
         },
-        output_type: 'String' as AvailableType
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
     },
     trimEnd: {
         fn: trimEnd,
         config: {
             char: { type: 'String' }
         },
-        output_type: 'String' as AvailableType
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
     },
-    toCamelCase: { fn: toCamelCase, config: {}, output_type: 'String' as AvailableType },
-    toKebabCase: { fn: toKebabCase, config: {}, output_type: 'String' as AvailableType },
-    toPascalCase: { fn: toPascalCase, config: {}, output_type: 'String' as AvailableType },
-    toSnakeCase: { fn: toSnakeCase, config: {}, output_type: 'String' as AvailableType },
-    toTitleCase: { fn: toTitleCase, config: {}, output_type: 'String' as AvailableType },
+    toCamelCase: {
+        fn: toCamelCase,
+        config: {},
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
+    },
+    toKebabCase: {
+        fn: toKebabCase,
+        config: {},
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
+    },
+    toPascalCase: {
+        fn: toPascalCase,
+        config: {},
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
+    },
+    toSnakeCase: {
+        fn: toSnakeCase,
+        config: {},
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
+    },
+    toTitleCase: {
+        fn: toTitleCase,
+        config: {},
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
+    },
     setField: {
         fn: setField,
         config: {
@@ -160,7 +279,8 @@ export const repository: Repository = {
                 type: 'Any'
             }
         },
-        output_type: 'Any' as AvailableType
+        output_type: 'Any' as AvailableType,
+        primary_input_type: InputType.String
     },
     setDefault: {
         fn: setDefault,
@@ -169,7 +289,8 @@ export const repository: Repository = {
                 type: 'Any'
             }
         },
-        output_type: 'Any' as AvailableType
+        output_type: 'Any' as AvailableType,
+        primary_input_type: InputType.String
     },
     map: {
         fn: map,
@@ -181,7 +302,8 @@ export const repository: Repository = {
                 type: 'Object'
             }
         },
-        output_type: 'Any' as AvailableType
+        output_type: 'Any' as AvailableType,
+        primary_input_type: InputType.Array
     },
 };
 

@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 
 import validator from 'validator';
-import ValidationOpBase from './base';
+import ValidationOpBase from '../../lib/validations/base';
 import { PostProcessConfig, PluginClassType, InputOutputCardinality } from '../../../interfaces';
 
 export class Validator extends ValidationOpBase<any> {
@@ -32,7 +32,7 @@ function setup(method: string) {
 }
 
 export class ValidatorPlugins implements PluginClassType {
-    // @ts-ignore FIXME: try to remove this ignore
+    // @ts-ignore
     init() {
         return {
             contains: setup('contains'),

@@ -3,7 +3,7 @@ import * as ts from '@terascope/utils';
 import { xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import { isArray } from './field-validator';
 import DocumentMatcher from '../document-matcher';
-import { Repository, RecordInput } from '../interfaces';
+import { Repository, RecordInput, InputType } from '../interfaces';
 import { isString } from '../validations/field-validator';
 
 export const repository: Repository = {
@@ -14,7 +14,8 @@ export const repository: Repository = {
                 type: 'String',
                 array: true
             }
-        }
+        },
+        primary_input_type: InputType.Object,
     },
     select: {
         fn: select,
@@ -28,7 +29,8 @@ export const repository: Repository = {
             variables: {
                 type: 'Object'
             }
-        }
+        },
+        primary_input_type: InputType.Object,
     },
     reject: {
         fn: reject,
@@ -44,7 +46,8 @@ export const repository: Repository = {
                 // Doing this for JSON type => which is ANY type
                 type: 'Object'
             }
-        }
+        },
+        primary_input_type: InputType.Object,
     },
 };
 

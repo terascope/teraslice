@@ -1,6 +1,6 @@
 import { AvailableType } from '@terascope/data-types';
 import * as ts from '@terascope/utils';
-import { Repository, RecordInput } from '../interfaces';
+import { Repository, RecordInput, InputType } from '../interfaces';
 import { isString, isArray } from '../validations/field-validator';
 
 export const repository: Repository = {
@@ -14,7 +14,8 @@ export const repository: Repository = {
                 type: 'String'
             }
         },
-        output_type: 'Object' as AvailableType
+        primary_input_type: InputType.Object,
+        output_type: 'Object' as AvailableType,
     },
     setField: {
         fn: setField,
@@ -26,7 +27,8 @@ export const repository: Repository = {
                 type: 'Any'
             }
         },
-        output_type: 'Object' as AvailableType
+        primary_input_type: InputType.Object,
+        output_type: 'Object' as AvailableType,
     },
     dropFields: {
         fn: dropFields,
@@ -36,7 +38,8 @@ export const repository: Repository = {
                 array: true
             }
         },
-        output_type: 'Object' as AvailableType
+        primary_input_type: InputType.Object,
+        output_type: 'Object' as AvailableType,
     },
     copyField: {
         fn: copyField,
@@ -48,6 +51,7 @@ export const repository: Repository = {
                 type: 'String'
             }
         },
+        primary_input_type: InputType.Object,
         output_type: 'Object' as AvailableType
     },
 };

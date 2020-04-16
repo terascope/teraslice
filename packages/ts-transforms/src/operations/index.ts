@@ -32,7 +32,8 @@ import Ip from './lib/validations/ip';
 import MacAddress from './lib/validations/mac-address';
 import Uuid from './lib/validations/uuid';
 import ISDN from './lib/validations/isdn';
-import { Validator, ValidatorPlugins } from './lib/validations/validator';
+import { Validator, ValidatorPlugins } from './plugins/validator';
+import dataMapePlugin from './plugins/data-mate';
 
 import {
     OperationsDict, PluginClassType, BaseOperationClass, PluginList
@@ -80,6 +81,8 @@ class OperationsManager {
         pluginList.push(CorePlugins);
         // @ts-ignore FIXME: try to remove this ignore
         pluginList.push(ValidatorPlugins);
+        pluginList.push(dataMapePlugin);
+
         const operations = pluginList.reduce((plugins, PluginClass) => {
             const plugin = new PluginClass();
             const pluginOps = plugin.init();

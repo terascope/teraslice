@@ -41,7 +41,7 @@ export default class PostProcessPhase extends PhaseBase {
                 resultsList.push(results);
             }
         }
-
+        console.log('resultsList from post process', resultsList)
         return resultsList;
     }
 }

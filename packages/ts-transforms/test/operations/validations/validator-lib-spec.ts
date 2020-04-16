@@ -1,6 +1,6 @@
 import { DataEntity } from '@terascope/utils';
 import crypto from 'crypto';
-import { Validator, ValidatorPlugins } from '../../../src/operations/lib/validations/validator';
+import { Validator, ValidatorPlugins } from '../../../src/operations/plugins/validator';
 import { PostProcessConfig } from '../../../src/interfaces';
 
 describe('validator lib', () => {

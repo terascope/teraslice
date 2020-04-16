@@ -20,25 +20,33 @@ import {
 import * as i from '../interfaces';
 
 export const repository: i.Repository = {
-    isBoolean: { fn: isBoolean, config: {} },
-    isBooleanLike: { fn: isBooleanLike, config: {} },
-    isEmail: { fn: isEmail, config: {} },
-    isGeoJSON: { fn: isGeoJSON, config: {} },
-    isGeoPoint: { fn: isGeoPoint, config: {} },
-    isGeoShapePoint: { fn: isGeoShapePoint, config: {} },
-    isGeoShapePolygon: { fn: isGeoShapePolygon, config: {} },
-    isGeoShapeMultiPolygon: { fn: isGeoShapeMultiPolygon, config: {} },
-    isIP: { fn: isIP, config: {} },
-    isISDN: { fn: isISDN, config: {} },
+    isBoolean: { fn: isBoolean, config: {}, primary_input_type: i.InputType.Boolean },
+    isBooleanLike: { fn: isBooleanLike, config: {}, primary_input_type: i.InputType.Any },
+    isEmail: { fn: isEmail, config: {}, primary_input_type: i.InputType.String },
+    isGeoJSON: { fn: isGeoJSON, config: {}, primary_input_type: i.InputType.Object },
+    isGeoPoint: { fn: isGeoPoint, config: {}, primary_input_type: i.InputType.String },
+    isGeoShapePoint: { fn: isGeoShapePoint, config: {}, primary_input_type: i.InputType.Object },
+    isGeoShapePolygon: {
+        fn: isGeoShapePolygon,
+        config: {},
+        primary_input_type: i.InputType.Object
+    },
+    isGeoShapeMultiPolygon: {
+        fn: isGeoShapeMultiPolygon,
+        config: {},
+        primary_input_type: i.InputType.Object
+    },
+    isIP: { fn: isIP, config: {}, primary_input_type: i.InputType.String },
+    isISDN: { fn: isISDN, config: {}, primary_input_type: i.InputType.String },
     isMACAddress: {
         fn: isMACAddress,
         config: {
             delimiter: { type: 'String', array: true }
         },
-
+        primary_input_type: i.InputType.String
     },
-    isNumber: { fn: isNumber, config: {} },
-    isInteger: { fn: isInteger, config: {} },
+    isNumber: { fn: isNumber, config: {}, primary_input_type: i.InputType.Number },
+    isInteger: { fn: isInteger, config: {}, primary_input_type: i.InputType.Number },
     inNumberRange: {
         fn: inNumberRange,
         config: {
@@ -46,45 +54,45 @@ export const repository: i.Repository = {
             max: { type: 'Number' },
             inclusive: { type: 'Boolean' }
         },
-
+        primary_input_type: i.InputType.Number
     },
-    isString: { fn: isString, config: {} },
-    isURL: { fn: isURL, config: {} },
-    isUUID: { fn: isUUID, config: {} },
+    isString: { fn: isString, config: {}, primary_input_type: i.InputType.String },
+    isURL: { fn: isURL, config: {}, primary_input_type: i.InputType.String },
+    isUUID: { fn: isUUID, config: {}, primary_input_type: i.InputType.String },
     contains: {
         fn: contains,
         config: {
             value: { type: 'String' }
         },
-
+        primary_input_type: i.InputType.Array
     },
     equals: {
         fn: equals,
         config: { value: { type: 'String' } },
-
+        primary_input_type: i.InputType.Any
     },
     isAlpha: {
         fn: isAlpha,
         config: {
             locale: { type: 'String' }
         },
-
+        primary_input_type: i.InputType.String
     },
     isAlphanumeric: {
         fn: isAlphanumeric,
         config: {
             locale: { type: 'String' }
         },
-
+        primary_input_type: i.InputType.String
     },
-    isASCII: { fn: isASCII, config: {} },
-    isBase64: { fn: isBase64, config: {} },
+    isASCII: { fn: isASCII, config: {}, primary_input_type: i.InputType.String },
+    isBase64: { fn: isBase64, config: {}, primary_input_type: i.InputType.String },
     isEmpty: {
         fn: isEmpty,
         config: {
             ignoreWhitespace: { type: 'Boolean' }
         },
-
+        primary_input_type: i.InputType.Any
     },
     isFQDN: {
         fn: isFQDN,
@@ -93,27 +101,27 @@ export const repository: i.Repository = {
             allowUnderscores: { type: 'Boolean' },
             allowTrailingDot: { type: 'Boolean' },
         },
-
+        primary_input_type: i.InputType.String
     },
     isHash: {
         fn: isHash,
         config: {
             algo: { type: 'String' }
         },
-
+        primary_input_type: i.InputType.String
     },
-    isCountryCode: { fn: isCountryCode, config: {} },
-    isISO8601: { fn: isISO8601, config: {} },
+    isCountryCode: { fn: isCountryCode, config: {}, primary_input_type: i.InputType.String },
+    isISO8601: { fn: isISO8601, config: {}, primary_input_type: i.InputType.String },
     isISSN: {
         fn: isISSN,
         config: {
             caseSensitive: { type: 'Boolean' },
             requireHyphen: { type: 'Boolean' }
         },
-
+        primary_input_type: i.InputType.String
     },
-    isRFC3339: { fn: isRFC3339, config: {} },
-    isJSON: { fn: isJSON, config: {} },
+    isRFC3339: { fn: isRFC3339, config: {}, primary_input_type: i.InputType.String },
+    isJSON: { fn: isJSON, config: {}, primary_input_type: i.InputType.String },
     isLength: {
         fn: isLength,
         config: {
@@ -121,18 +129,18 @@ export const repository: i.Repository = {
             min: { type: 'Number' },
             max: { type: 'Number' },
         },
-
+        primary_input_type: i.InputType.String
     },
-    isMIMEType: { fn: isMIMEType, config: {} },
+    isMIMEType: { fn: isMIMEType, config: {}, primary_input_type: i.InputType.String },
     isPostalCode: {
         fn: isPostalCode,
         config: {
             locale: { type: 'String' }
         },
-
+        primary_input_type: i.InputType.String
     },
-    isRoutableIP: { fn: isRoutableIP, config: {} },
-    isNonRoutableIP: { fn: isNonRoutableIP, config: {} },
+    isRoutableIP: { fn: isRoutableIP, config: {}, primary_input_type: i.InputType.String },
+    isNonRoutableIP: { fn: isNonRoutableIP, config: {}, primary_input_type: i.InputType.String },
     inIPRange: {
         fn: inIPRange,
         config: {
@@ -140,25 +148,27 @@ export const repository: i.Repository = {
             max: { type: 'String' },
             cidr: { type: 'String' }
         },
-
+        primary_input_type: i.InputType.String
     },
-    isCIDR: { fn: isCIDR, config: {} },
-    exists: { fn: exists, config: {} },
-    guard: { fn: guard, config: {} },
-    isArray: { fn: isArray, config: {} },
+    isCIDR: { fn: isCIDR, config: {}, primary_input_type: i.InputType.String },
+    exists: { fn: exists, config: {}, primary_input_type: i.InputType.Any },
+    guard: { fn: guard, config: {}, primary_input_type: i.InputType.Any },
+    isArray: { fn: isArray, config: {}, primary_input_type: i.InputType.Array },
     some: {
         fn: some,
         config: {
             fn: { type: 'String' },
             options: { type: 'Object' }
-        }
+        },
+        primary_input_type: i.InputType.Array
     },
     every: {
         fn: every,
         config: {
             fn: { type: 'String' },
             options: { type: 'Object' }
-        }
+        },
+        primary_input_type: i.InputType.Array
     },
 };
 
@@ -1178,7 +1188,7 @@ export function exists(input: any): boolean {
 /**
  * Validates that the input is an array
  * @example
- *  expect(FieldValidator.isArray(undefined)).toBe(false);
+ * expect(FieldValidator.isArray(undefined)).toBe(false);
  * expect(FieldValidator.isArray([1, 2, 3])).toBe(true);
  * expect(FieldValidator.isArray([])).toBe(true);
  *
