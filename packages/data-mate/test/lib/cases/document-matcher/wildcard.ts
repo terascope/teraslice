@@ -1,3 +1,6 @@
+import { xLuceneFieldType } from '@terascope/types';
+import { TestCase } from './interfaces';
+
 const keyData = [
     { key: 'abcde' },
     { key: 'field' },
@@ -127,4 +130,20 @@ export default [
             true,
         ],
     ],
-];
+    [
+        'can do basic * wildcard matches with variables',
+        'key: $key',
+        keyData,
+        [
+            true,
+            false,
+            true,
+            false,
+            false,
+            true,
+            true,
+        ],
+        { key: xLuceneFieldType.String },
+        { key: 'abc*' }
+    ],
+] as TestCase[];

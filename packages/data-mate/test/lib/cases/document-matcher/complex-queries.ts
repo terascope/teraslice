@@ -1,4 +1,5 @@
 import { xLuceneFieldType } from '@terascope/types';
+import { TestCase } from './interfaces';
 
 export default [
     [
@@ -250,4 +251,4 @@ export default [
         [false, false, true, false, false],
         { ip_field: xLuceneFieldType.IP, date: xLuceneFieldType.Date },
     ],
-];
+] as TestCase[];

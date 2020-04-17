@@ -1,4 +1,5 @@
 import { xLuceneFieldType } from '@terascope/types';
+import { TestCase } from './interfaces';
 
 export default [
     [
@@ -130,4 +131,22 @@ export default [
         ],
         { _created: xLuceneFieldType.Date }
     ],
-];
+    [
+        'can do basic regex matches with variables',
+        'key: $key',
+        [
+            { key: 'abcde' },
+            { key: 'field' },
+            { key: 'abcdef' },
+            { key: 'zabcde' },
+        ],
+        [
+            true,
+            false,
+            true,
+            false,
+        ],
+        { key: xLuceneFieldType.String },
+        { key: '/ab.*/' }
+    ],
+] as TestCase[];

@@ -1,3 +1,5 @@
+import { TestCase } from './interfaces';
+
 export default [
     [
         'can do basic boundingbox matches',
@@ -78,4 +80,4 @@ export default [
         ],
         [true, true, false],
     ],
-];
+] as TestCase[];
