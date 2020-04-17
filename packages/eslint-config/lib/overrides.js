@@ -16,7 +16,7 @@ if (hasTypescript) {
         {
             // overrides just for react files
             files: ['*.jsx', '*.tsx'],
-            extends: ['plugin:@typescript-eslint/recommended', 'airbnb'],
+            extends: ['plugin:@typescript-eslint/recommended', 'plugin:react-hooks/recommended', 'airbnb'],
             plugins: ['@typescript-eslint'],
             parser: '@typescript-eslint/parser',
             env: {
