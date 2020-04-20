@@ -12,13 +12,15 @@ export enum InputType {
     Any = 'Any'
 }
 
+export interface RepoConfig {
+    fn: any;
+    config: ArgSchema;
+    output_type?: AvailableType;
+    primary_input_type: InputType;
+}
+
 export interface Repository {
-    [key: string]: {
-        fn: any;
-        config: ArgSchema;
-        output_type?: AvailableType;
-        primary_input_type: InputType;
-    };
+    [key: string]: RepoConfig;
 }
 
 interface Config {

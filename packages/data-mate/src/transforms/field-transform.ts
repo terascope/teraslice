@@ -1050,7 +1050,7 @@ export function extract(
         }
     }
 
-    function extractAndTransferFields() {
+    function extractValue() {
         let extractedResult;
 
         if (regex) {
@@ -1062,10 +1062,11 @@ export function extract(
         } else {
             extractedResult = input;
         }
+
         return extractedResult;
     }
 
-    const results = extractAndTransferFields();
+    const results = extractValue();
     if (results == null) return null;
 
     return results;

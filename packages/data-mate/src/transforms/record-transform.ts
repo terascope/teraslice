@@ -89,7 +89,7 @@ export function renameField(input: RecordInput, args: { from: string; to: string
 }
 
 function _migrate(doc: ts.AnyObject, from: string, to: string) {
-    if (!ts.isPlainObject(doc)) return null;
+    if (!ts.isObjectLike(doc)) return null;
 
     doc[to] = doc[from];
     delete doc[from];
@@ -122,14 +122,14 @@ export function setField(input: RecordInput, args: { field: string; value: any }
     if (isArray(input)) {
         return input
             .map((data: any) => {
-                if (!ts.isPlainObject(data)) return null;
+                if (!ts.isObjectLike(data)) return null;
                 data[field] = value;
                 return data;
             })
             .filter(ts.isNotNil);
     }
 
-    if (!ts.isPlainObject(input)) return null;
+    if (!ts.isObjectLike(input)) return null;
 
     input[field] = value;
     return input;
@@ -167,7 +167,7 @@ export function dropFields(input: RecordInput, args: { fields: string[] }) {
 }
 
 function _removeKeys(obj: ts.AnyObject, fields: string[]) {
-    if (!ts.isPlainObject(obj)) return null;
+    if (!ts.isObjectLike(obj)) return null;
 
     for (const field of fields) {
         delete obj[field];
@@ -209,7 +209,7 @@ export function copyField(input: RecordInput, args: { from: string; to: string }
 }
 
 function _copyField(doc: ts.AnyObject, from: string, to: string) {
-    if (!ts.isPlainObject(doc)) return null;
+    if (!ts.isObjectLike(doc)) return null;
 
     if (doc[from] !== undefined) doc[to] = doc[from];
     return doc;
