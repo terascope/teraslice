@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-
+import { DataEntity, get, isEmpty } from '@terascope/utils';
 import { FieldTransform } from '@terascope/data-mate';
 import { InjectMethod } from '../mixins';
 import TransformsOpBase from '../../lib/transforms/base';
@@ -17,17 +17,38 @@ class Transforms extends TransformsOpBase {
     // this is overwritten with mixin
     method(value: any, _args: any) { return value as any; }
 
-    run(value: any) {
+    run(doc: DataEntity) {
         const args = this.config;
-        return this.method(value, args);
+        let value;
+
+        if (Array.isArray(this.source)) {
+            value = this.source.map((field) => get(doc, field));
+        } else {
+            value = get(doc, this.source);
+        }
+
+        try {
+            const results = this.method(value, args);
+            if (isEmpty(results)) {
+                this.removeSource(doc);
+                if (Object.keys(doc).length === 0) return null;
+            } else {
+                this.set(doc, results);
+            }
+        } catch (err) {
+            this.removeSource(doc);
+            if (Object.keys(doc).length === 0) return null;
+        }
+
+        return doc;
     }
 }
 
 function setup(method: string) {
-    return InjectMethod(Transforms, FieldTransform, method);
+    return InjectMethod(Transforms, FieldTransform[method], FieldTransform.repository[method]);
 }
 
-const exclusion = ['select', 'extract', 'join'];
+const exclusion = ['select', 'extract'];
 
 for (const config of Object.values(FieldTransform.repository)) {
     const fnName = config.fn.name;

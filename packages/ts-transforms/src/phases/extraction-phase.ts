@@ -37,8 +37,7 @@ export default class ExtractionPhase extends PhaseBase {
                 resultsList.push(results.entity);
             }
         }
-        // @ts-ignore
-        console.log('resultsList from extractions', resultsList)
+
         return resultsList;
     }
 }

@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 
 import { DataEntity, get } from '@terascope/utils';
-import { FieldValidator, InputType } from '@terascope/data-mate';
+import { FieldValidator } from '@terascope/data-mate';
 import { InjectMethod } from '../mixins';
 import OperationBase from '../../lib/base';
 import { PostProcessConfig, InputOutputCardinality } from '../../../interfaces';
@@ -10,7 +10,7 @@ const FieldValidatorContainer = {} as any;
 
 class Validator extends OperationBase {
     invert: boolean;
-    _method_config!: InputType;
+    inputIsArray = false;
     static cardinality: InputOutputCardinality = 'one-to-one';
 
     constructor(config: PostProcessConfig) {
@@ -31,15 +31,16 @@ class Validator extends OperationBase {
         }
 
         const args = this.config;
-        console.log('value', value, args)
+
         try {
-            if (Array.isArray(value) && this._method_config) {
+            if (Array.isArray(value) && !this.inputIsArray) {
                 const results = value.filter((item) => {
                     if (this.invert) return !this.method(item, args);
                     return this.method(item, args);
                 });
                 if (results.length === 0) {
                     this.removeSource(doc);
+                    if (Object.keys(doc).length === 0) return null;
                 } else {
                     this.set(doc, results);
                 }
@@ -51,10 +52,12 @@ class Validator extends OperationBase {
                     this.set(doc, value);
                 } else {
                     this.removeSource(doc);
+                    if (Object.keys(doc).length === 0) return null;
                 }
             }
         } catch (err) {
             this.removeSource(doc);
+            if (Object.keys(doc).length === 0) return null;
         }
 
         return doc;
@@ -62,10 +65,9 @@ class Validator extends OperationBase {
 }
 
 function setup(method: string) {
-    return InjectMethod(Validator, FieldValidator, method);
+    return InjectMethod(Validator, FieldValidator[method], FieldValidator.repository[method]);
 }
 
-// const exclusion = ['contains'];
 const exclusion: string[] = [];
 
 for (const config of Object.values(FieldValidator.repository)) {

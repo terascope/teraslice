@@ -13,7 +13,7 @@ export default abstract class ValidationOpBase<T> extends OperationBase {
 
     normalize? (data: any, _doc: DataEntity): any;
 
-    run(doc: DataEntity): DataEntity {
+    run(doc: DataEntity) {
         let value;
         if (Array.isArray(this.source)) {
             value = this.source.map((field) => get(doc, field));
@@ -24,6 +24,8 @@ export default abstract class ValidationOpBase<T> extends OperationBase {
 
         if (value === undefined) {
             this.removeSource(doc);
+            if (Object.keys(doc).length === 0) return null;
+
             return doc;
         }
 
@@ -47,6 +49,7 @@ export default abstract class ValidationOpBase<T> extends OperationBase {
                 });
                 if (results.length === 0) {
                     this.removeSource(doc);
+                    if (Object.keys(doc).length === 0) return null;
                 } else {
                     this.set(doc, results);
                 }
@@ -59,6 +62,7 @@ export default abstract class ValidationOpBase<T> extends OperationBase {
                     this.set(doc, value);
                 } else {
                     this.removeSource(doc);
+                    if (Object.keys(doc).length === 0) return null;
                 }
             }
         } catch (err) {

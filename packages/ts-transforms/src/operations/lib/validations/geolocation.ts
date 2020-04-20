@@ -5,13 +5,11 @@ import { PostProcessConfig } from '../../../interfaces';
 export default class Geolocation extends ValidationOpBase<any> {
     constructor(config: PostProcessConfig) {
         super(config);
-        // console.log("the config", config, this.target)
         // need to change source location to target parent field
         this.source = parentFieldPath(this.source);
         this.target = parentFieldPath(this.target);
 
         this.destination = this.target || this.source;
-        // console.log('source', this.source, this.target)
         // TODO: fix this overwriting, this checks if its a compact config
         // if (config.target && config.source) {
         //     this.hasTarget = false;

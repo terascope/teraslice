@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-
+import { RepoConfig, InputType } from '@terascope/data-mate';
 import { InputOutputCardinality } from '../../interfaces';
 
 export const OneToOneMixin = (Base: any) => class extends Base {
@@ -10,9 +10,10 @@ export const ManyToOneMixin = (Base: any) => class extends Base {
     static cardinality: InputOutputCardinality = 'many-to-one';
 };
 
-export const InjectMethod = (Base: any, entity: any, methodName: string) => class extends Base {
-    static _method_config = entity[methodName];
+export const InjectMethod = (Base: any, fn: any, config: RepoConfig) => class extends Base {
+    _repoConfig = config;
+    inputIsArray = config.primary_input_type === InputType.Array;
     method(...args: any[]) {
-        return entity[methodName](...args);
+        return fn(...args);
     }
 };
