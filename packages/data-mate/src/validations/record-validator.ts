@@ -77,7 +77,11 @@ function _filterBy(fn: any, input: any[], args?: any) {
  * @returns boolean
  */
 
-export function required(input: RecordInput, args: { fields: string[] }) {
+export function required(
+    input: RecordInput,
+    _parentContext: RecordInput,
+    args: { fields: string[] }
+) {
     if (ts.isNil(input)) return null;
     if (!args?.fields || !isArray(args.fields) || !isString(args.fields)) {
         throw new Error('Parameter fields must be provided and be an array of strings');
@@ -126,7 +130,11 @@ interface DMOptions {
  * @returns boolean
  */
 
-export function select(input: RecordInput, args: DMOptions) {
+export function select(
+    input: RecordInput,
+    _parentContext: RecordInput,
+    args: DMOptions
+) {
     const matcher = _validateMatcher(input, args);
     if (!matcher) return null;
 
@@ -175,7 +183,11 @@ function _validateMatcher(input: RecordInput, args: DMOptions) {
  * @returns boolean
  */
 
-export function reject(input: RecordInput, args: DMOptions) {
+export function reject(
+    input: RecordInput,
+    _parentContext: RecordInput,
+    args: DMOptions
+) {
     const matcher = _validateMatcher(input, args);
     if (!matcher) return null;
 

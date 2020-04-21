@@ -305,6 +305,12 @@ export const repository: Repository = {
         output_type: 'Any' as AvailableType,
         primary_input_type: InputType.Array
     },
+    splitString: {
+        fn: splitString,
+        config: {},
+        output_type: 'String' as AvailableType,
+        primary_input_type: InputType.String
+    }
 };
 
 type StringInput = string | string[] | null | undefined;
@@ -313,7 +319,7 @@ type StringInput = string | string[] | null | undefined;
  * This function is used to set a value if input is null or undefined,
  * otherwise the input value is returned
  * @example
- * const results = FieldTransform.setDefault(undefined, { value: 'someValue' });
+ * const results = FieldTransform.setDefault(undefined, {}, { value: 'someValue' });
  * results === 'someValue';
  *
  * @param {*} input
@@ -321,7 +327,7 @@ type StringInput = string | string[] | null | undefined;
  * @returns {*}
  */
 
-export function setDefault(input: any, args: { value: any }) {
+export function setDefault(input: any, _parentContext: any, args: { value: any }) {
     if (ts.isNil(input)) {
         if (ts.isNil(args.value)) throw new Error('Parameter value cannot be set to undefined or null');
         return args.value;
@@ -333,7 +339,7 @@ export function setDefault(input: any, args: { value: any }) {
  * This function is used to map an array of values with any FieldTransform method
  * @example
  *  const array = ['hello', 'world', 'goodbye'];
- *  const results = FieldTransform.map(array, { fn: 'truncate', options: { size: 3 } }
+ *  const results = FieldTransform.map(array, array, { fn: 'truncate', options: { size: 3 } }
  *  results === ['hel', 'wor', 'goo']
  *
  * @param  {any[]} input an array of any value
@@ -342,7 +348,7 @@ export function setDefault(input: any, args: { value: any }) {
  * @returns {any[] | null} returns the mapped values, return null if input is null/undefied
  */
 
-export function map(input: any[], args: { fn: string; options?: any }) {
+export function map(input: any[], parentContext: any[], args: { fn: string; options?: any }) {
     if (ts.isNil(input)) return null;
 
     if (!isArray(input)) throw new Error(`Input must be an array, received ${ts.getTypeOf(input)}`);
@@ -350,7 +356,7 @@ export function map(input: any[], args: { fn: string; options?: any }) {
     const repoConfig = repository[fn];
     if (!repoConfig) throw new Error(`No function ${fn} was found in the field transform respository`);
 
-    return input.map((data) => repoConfig.fn(data, options));
+    return input.map((data) => repoConfig.fn(data, parentContext, options));
 }
 
 // TODO: this is currently a hack for directives, this will evolve, do not use it for other purposes
@@ -364,7 +370,7 @@ export function map(input: any[], args: { fn: string; options?: any }) {
  * @returns
  */
 
-export function setField(_input: any, args: { value: any }) {
+export function setField(_input: any, _parentContext: any, args: { value: any }) {
     const { value } = args;
     return value;
 }
@@ -373,13 +379,13 @@ export function setField(_input: any, args: { value: any }) {
  * Converts values to strings
  * if given an array it will convert everything in the array excluding null/undefined values
  * @example
- *  expect(transform.toString(true)).toEqual('true');
+ * expect(transform.toString(true)).toEqual('true');
  * expect(FieldTransform.toString([true, undefined, false])).toEqual(['true', 'false']);
  * @param {*} input
  * @returns {String | null} returns null if input is null/undefined
  */
 
-export function toString(input: any) {
+export function toString(input: any, _parentContext?: any) {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toString);
 
@@ -397,7 +403,7 @@ export function toString(input: any) {
  * @returns {Boolean | null} returns null if input is null/undefined
  */
 
-export function toBoolean(input: any) {
+export function toBoolean(input: any, _parentContext?: any) {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toBoolean);
 
@@ -415,7 +421,7 @@ export function toBoolean(input: any) {
  * @returns { String | String[] | null } returns null if input is null/undefined
  */
 
-export function toUpperCase(input: StringInput) {
+export function toUpperCase(input: StringInput, _parentContext?: any) {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map((str: string) => str.toUpperCase());
     if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(input)}`);
@@ -434,7 +440,7 @@ export function toUpperCase(input: StringInput) {
  * @returns { String | String[] | null } returns null if input is null/undefined
  */
 
-export function toLowerCase(input: StringInput) {
+export function toLowerCase(input: StringInput, _parentContext?: any) {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map((str: string) => str.toLowerCase());
     if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(input)}`);
@@ -447,14 +453,14 @@ export function toLowerCase(input: StringInput) {
  * if given an array it will convert everything in the array excluding null/undefined values
  * @example
  * expect(FieldTransform.trim('right    ')).toBe('right');
- * expect(FieldTransform.trim('fast cars race fast', { char: 'fast' })).toBe(' cars race ');
+ * expect(FieldTransform.trim('fast cars race fast', {}, { char: 'fast' })).toBe(' cars race ');
  *
  * @param {StringInput} input string | string[]
  * @param {{ char: string }} [args] a single char or word that will be cut out
  * @returns { String | String[] | null } returns null if input is null/undefined
  */
 
-export function trim(input: StringInput, args?: { char: string }) {
+export function trim(input: StringInput, parentContext?: any, args?: { char: string }) {
     if (ts.isNil(input)) return null;
     const char: string = (args?.char && isString(args.char)) ? args.char : ' ';
 
@@ -464,22 +470,23 @@ export function trim(input: StringInput, args?: { char: string }) {
             .map((str: string) => trimEnd(trimStart(str, { char }), { char }));
     }
 
-    return trimEnd(trimStart(input, { char }), { char });
+    return trimEnd(trimStart(input, parentContext, { char }), parentContext, { char });
 }
 
 /**
  * Will trim the beginning of the input
  * if given an array it will convert everything in the array excluding null/undefined values
  * @example
+ * const config = { char: 'i' };
  * expect(FieldTransform.trimStart('    Hello Bob    ')).toBe('Hello Bob    ');
- * expect(FieldTransform.trimStart('iiii-wordiwords-iii', { char: 'i' })).toBe('-wordiwords-iii');
+ * expect(FieldTransform.trimStart('iiii-wordiwords-iii', {}, config)).toBe('-wordiwords-iii');
  *
  * @param {StringInput} input string | string[]
  * @param {{ char: string }} [args]
  * @returns { String | String[] | null } returns null if input is null/undefined
  */
 
-export function trimStart(input: StringInput, args?: { char: string }) {
+export function trimStart(input: StringInput, _parentContext?: any, args?: { char: string }) {
     if (ts.isNil(input)) return null;
     if (args?.char && !isString(args.char)) throw new Error(`Parameter char must be a string, received ${ts.getTypeOf(input)}`);
 
@@ -500,14 +507,14 @@ export function trimStart(input: StringInput, args?: { char: string }) {
  *
  * @example
  * expect(FieldTransform.trimEnd('    Hello Bob    ')).toBe('    Hello Bob');
- * expect(FieldTransform.trimEnd('iiii-wordiwords-iii', { char: 'i' })).toBe('iiii-wordiwords');
+ * expect(FieldTransform.trimEnd('iiii-wordiwords-iii', {}, { char: 'i' })).toBe('iiii-wordiwords');
  *
  * @param {StringInput} input string | string[]
  * @param {{ char: string }} [args]
  * @returns { String | String[] | null } returns null if input is null/undefined
  */
 
-export function trimEnd(input: StringInput, args?: { char: string }) {
+export function trimEnd(input: StringInput, _parentContext?: any, args?: { char: string }) {
     if (ts.isNil(input)) return null;
     if (args?.char && !isString(args.char)) throw new Error(`Parameter char must be a string, received ${ts.getTypeOf(input)}`);
 
@@ -527,15 +534,15 @@ export function trimEnd(input: StringInput, args?: { char: string }) {
  * if given an array it will convert everything in the array excluding null/undefined values
  *
  * @example
- * expect(FieldTransform.truncate('thisisalongstring', { size: 4 })).toBe('this');
- * expect(FieldTransform.truncate(['hello', null, 'world'], { size: 2 })).toEqual(['he', 'wo']);
+ * expect(FieldTransform.truncate('thisisalongstring', {}, { size: 4 })).toBe('this');
+ * expect(FieldTransform.truncate(['hello', null, 'world'], {}, { size: 2 })).toEqual(['he', 'wo']);
  *
  * @param {StringInput} input string | string[]
  * @param {{ size: number }} args
  * @returns { String | String[] | null } returns null if input is null/undefined
  */
 
-export function truncate(input: StringInput, args: { size: number }) {
+export function truncate(input: StringInput, _parentContext: any, args: { size: number }) {
     const { size } = args;
 
     if (ts.isNil(input)) return null;
@@ -578,7 +585,7 @@ function parsePhoneNumber(str: any) {
  * returns null if input is null/undefined
  */
 
-export function toISDN(input: any) {
+export function toISDN(input: any, _parentContext?: any) {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map(parsePhoneNumber);
 
@@ -605,8 +612,8 @@ function convertToNumber(input: any, args?: { booleanLike?: boolean }) {
  * @example
  * expect(FieldTransform.toNumber('12321')).toBe(12321);
  * expect(FieldTransform.toNumber('000011')).toBe(11);
- * expect(FieldTransform.toNumber('true', { booleanLike: true })).toBe(1);
- * expect(FieldTransform.toNumber(null, { booleanLike: true })).toBe(0);
+ * expect(FieldTransform.toNumber('true', {}, { booleanLike: true })).toBe(1);
+ * expect(FieldTransform.toNumber(null, {}, { booleanLike: true })).toBe(0);
  * expect(FieldTransform.toNumber(null)).toBe(null);
  *
  * @param {*} input
@@ -614,7 +621,7 @@ function convertToNumber(input: any, args?: { booleanLike?: boolean }) {
  * @returns { number | null } returns null if input is null/undefined
  */
 
-export function toNumber(input: any, args?: { booleanLike?: boolean }) {
+export function toNumber(input: any, _parentContext?: any, args?: { booleanLike?: boolean }) {
     if (ts.isNil(input) && args?.booleanLike !== true) return null;
 
     if (isArray(input)) {
@@ -641,7 +648,7 @@ export function toNumber(input: any, args?: { booleanLike?: boolean }) {
  * @returns { string | null } returns null if input is null/undefined
  */
 
-export function decodeBase64(input: any) {
+export function decodeBase64(input: any, _parentContext?: any) {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -666,7 +673,7 @@ export function decodeBase64(input: any) {
  * @returns { string | null } returns null if input is null/undefined
  */
 
-export function encodeBase64(input: any) {
+export function encodeBase64(input: any, _parentContext?: any) {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -692,7 +699,7 @@ export function encodeBase64(input: any) {
  * @returns { string | null } returns null if input is null/undefined
  */
 
-export function decodeURL(input: StringInput) {
+export function decodeURL(input: StringInput, _parentContext?: any) {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) return input.filter(ts.isNotNil).map(decodeURIComponent);
@@ -715,7 +722,7 @@ export function decodeURL(input: StringInput) {
  * @returns { string | null } returns null if input is null/undefined
  */
 
-export function encodeURL(input: StringInput) {
+export function encodeURL(input: StringInput, _parentContext?: any) {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) return input.filter(ts.isNotNil).map(encodeURIComponent);
@@ -737,7 +744,7 @@ export function encodeURL(input: StringInput) {
  * @returns { string | null } returns null if input is null/undefined
  */
 
-export function decodeHex(input: any) {
+export function decodeHex(input: any, _parentContext?: any) {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -761,7 +768,7 @@ export function decodeHex(input: any) {
  * @returns { string | null } returns null if input is null/undefined
  */
 
-export function encodeHex(input: any) {
+export function encodeHex(input: any, _parentContext?: any) {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -785,7 +792,7 @@ export function encodeHex(input: any) {
  * @returns { string | null } returns null if input is null/undefined
  */
 
-export function encodeMD5(input: any) {
+export function encodeMD5(input: any, _parentContext?: any) {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -802,7 +809,7 @@ export function encodeMD5(input: any) {
  * if given an array it will convert everything in the array excluding null/undefined values
  * @example
  * const data = 'some string';
- * FieldTransform.encodeSHA(data { hash: 'sha256', digest: 'hex'})
+ * FieldTransform.encodeSHA(data, {}, { hash: 'sha256', digest: 'hex'})
  *
  * @param {*} input
  * @param {*} [{ hash = 'sha256', digest = 'hex' }={}]
@@ -811,7 +818,7 @@ export function encodeMD5(input: any) {
  * @returns { string | null } returns null if input is null/undefined
  */
 
-export function encodeSHA(input: any, { hash = 'sha256', digest = 'hex' } = {}) {
+export function encodeSHA(input: any, _parentContext?: any, { hash = 'sha256', digest = 'hex' } = {}) {
     if (ts.isNil(input)) return null;
 
     if (!['ascii', 'utf8', 'utf16le', 'ucs2', 'base64', 'latin1', 'hex', 'binary'].includes(digest)) throw new Error('Parameter digest is misconfigured');
@@ -838,7 +845,7 @@ export function encodeSHA(input: any, { hash = 'sha256', digest = 'hex' } = {}) 
  * @returns { string | null } returns null if input is null/undefined
  */
 
-export function encodeSHA1(input: any) {
+export function encodeSHA1(input: any, _parentContext?: any) {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -864,7 +871,7 @@ export function encodeSHA1(input: any) {
  * @returns { any | null } returns null if input is null/undefined
  */
 
-export function parseJSON(input: any) {
+export function parseJSON(input: any, _parentContext?: any) {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -890,7 +897,7 @@ export function parseJSON(input: any) {
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
 
-export function toJSON(input: any, { pretty = false } = {}) {
+export function toJSON(input: any, _parentContext?: any, { pretty = false } = {}) {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -917,7 +924,7 @@ export function toJSON(input: any, { pretty = false } = {}) {
  * @returns {any[] | null } returns null if input is null/undefined
  */
 
-export function dedupe(input: any[]) {
+export function dedupe(input: any[], _parentContext?: any[]) {
     if (ts.isNil(input)) return null;
     // TODO: figure out if we need more than reference equality
     if (!isArray(input)) throw new Error(`Input must be an array, recieved ${ts.getTypeOf(input)}`);
@@ -939,7 +946,7 @@ export function dedupe(input: any[]) {
  * returns null if input is null/undefined
  */
 
-export function toGeoPoint(input: any) {
+export function toGeoPoint(input: any, _parentContext?: any) {
     if (ts.isNil(input)) return null;
 
     // a tuple of numbers is a form of geo-point, do not map it
@@ -969,10 +976,10 @@ export function toGeoPoint(input: any) {
  * @returns { string | string[] | null } returns null if input is null/undefined
  *
  * @example
- *  const results1 = FieldTransform.extract('<hello>', { start: '<', end: '>' });
+ *  const results1 = FieldTransform.extract('<hello>', { val: '<hello>'}, { start: '<', end: '>' });
  *  expect(results1).toEqual('hello');
  *
- * const results2 = FieldTransform.extract({ foo: 'bar' }, { jexlExp: '[foo]' });
+ * const results2 = FieldTransform.extract('bar', { foo: 'bar' }, { jexlExp: '[foo]' });
  * expect(results2).toEqual(['bar']);
  *
  * const results3 = FieldTransform.extract('hello', { regex: 'he.*' });
@@ -985,6 +992,7 @@ export function toGeoPoint(input: any) {
 
 export function extract(
     input: any,
+    parentContext: ts.AnyObject,
     {
         regex, isMultiValue = true, jexlExp, start, end
     }: ExtractFieldConfig
@@ -1043,7 +1051,7 @@ export function extract(
 
     function callExpression() {
         try {
-            return jexl.evalSync(jexlExp as string, input);
+            return jexl.evalSync(jexlExp as string, parentContext);
         } catch (err) {
             const errMessage = `Invalid jexl expression: ${jexlExp}, error: ${err.message}`;
             throw new ts.TSError(errMessage);
@@ -1076,17 +1084,17 @@ export function extract(
  * This function replaces chars in a string based off the regex value provided
  * @example
  * const config1 =  { regex: 's|e', replace: 'd' };
- * const results1 = FieldTransform.replaceRegex('somestring', config1)
+ * const results1 = FieldTransform.replaceRegex('somestring', {}, config1)
  * results1 === 'domestring'
  *
  * const config2 = { regex: 's|e', replace: 'd', global: true };
- * const results2 = FieldTransform.replaceRegex('somestring', config)
+ * const results2 = FieldTransform.replaceRegex('somestring', {}, config)
  * results2 === 'domddtring'
  *
  * const config3 = {
  *   regex: 'm|t', replace: 'W', global: true, ignoreCase: true
  * };
- * const results3 = FieldTransform.replaceRegex('soMesTring', config3))
+ * const results3 = FieldTransform.replaceRegex('soMesTring', {}, config3))
  * results3 === 'soWesWring'
  *
  * @param {StringInput} input
@@ -1095,10 +1103,12 @@ export function extract(
  * }
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
-
-export function replaceRegex(input: StringInput, {
-    regex, replace, ignoreCase, global
-}: ReplaceRegexConfig) {
+// TODO: fix this
+export function replaceRegex(input: StringInput,
+    _parentContext: any,
+    {
+        regex, replace, ignoreCase, global
+    }: ReplaceRegexConfig) {
     if (ts.isNil(input)) return null;
     let options = '';
 
@@ -1123,9 +1133,9 @@ export function replaceRegex(input: StringInput, {
  * This function replaces the searched value with the replace value
  *
  * @example
- *
- * FieldTransform.replaceLiteral('Hi bob', { search: 'bob', replace: 'mel' }) === 'Hi mel';
- * FieldTransform.replaceLiteral('Hi Bob', { search: 'bob', replace: 'Mel ' }) ===  'Hi Bob';
+ * const context = { key: 'Hi bob' };
+ * FieldTransform.replaceLiteral('Hi bob', context, { search: 'bob', replace: 'mel' }) === 'Hi mel';
+ * FieldTransform.replaceLiteral('Hi Bob', context, { search: 'bob', replace: 'Mel' }) === 'Hi Bob';
  *
  * @param {StringInput} input
  * @param {ReplaceLiteralConfig} { search, replace }
@@ -1133,7 +1143,11 @@ export function replaceRegex(input: StringInput, {
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
 
-export function replaceLiteral(input: StringInput, { search, replace }: ReplaceLiteralConfig) {
+export function replaceLiteral(
+    input: StringInput,
+    _parentContext: any,
+    { search, replace }: ReplaceLiteralConfig
+) {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -1155,16 +1169,22 @@ export function replaceLiteral(input: StringInput, { search, replace }: ReplaceL
 /**
  * Converts a string to an array of characters split by the delimiter provided
  * @example
- * expect(FieldTransform.toArray('astring')).toEqual(['a', 's', 't', 'r', 'i', 'n', 'g']);
- * expect(FieldTransform.toArray('astring', { delimiter: ',' })).toEqual(['astring']);
- * expect(FieldTransform.toArray('a-stri-ng', { delimiter: '-' })).toEqual(['a', 'stri', 'ng']);
+ * expect(FieldTransform.splitString('astring')).toEqual(['a', 's', 't', 'r', 'i', 'n', 'g']);
+ * expect(FieldTransform.splitString('astring', {}, { delimiter: ',' })).toEqual(['astring']);
+ * expect(FieldTransform.splitString(
+ *      'a-stri-ng', {}, { delimiter: '-' }
+ * )).toEqual(['a', 'stri', 'ng']);
  *
  * @param {*} input
  * @param {{ delimiter: string }} [args] delimter defaults to an empty string
  * @returns {(string[] | null)}
  */
 
-export function toArray(input: any, args?: { delimiter: string }): string[] | null {
+export function splitString(
+    input: any,
+    _parentContext?: any,
+    args?: { delimiter: string }
+): string[] | null {
     if (ts.isNil(input)) return null;
 
     const delimiter = args ? args.delimiter : '';
@@ -1205,14 +1225,14 @@ function _makeUnitTime(input: any, { ms = false } = {}) {
  * expect(FieldTransform.toUnixTime('2020 Jan, 1 UTC')).toBe(1577836800);
  *
  * expect(FieldTransform.toUnixTime(1580418907000)).toBe(1580418907);
- * expect(FieldTransform.toUnixTime(1580418907000, { ms: true })).toBe(1580418907000);
+ * expect(FieldTransform.toUnixTime(1580418907000, {}, { ms: true })).toBe(1580418907000);
  *
  * @param {*} input
  * @param {*} [{ ms = false }={}] set ms to true if you want time in milliseconds
  * @returns { number | number[] | null} returns null if input is null/undefined
  */
 
-export function toUnixTime(input: any, { ms = false } = {}) {
+export function toUnixTime(input: any, _parentContext?: any, { ms = false } = {}) {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -1242,7 +1262,7 @@ function _makeIso(input: any, args?: { resolution?: 'seconds' | 'milliseconds' }
  * expect(FieldTransform.toISO8601('2020-01-01')).toBe('2020-01-01T00:00:00.000Z');
  *
  * const config = { resolution: 'seconds' };
- * expect(FieldTransform.toISO8601(1580418907, config)).toBe('2020-01-30T21:15:07.000Z');
+ * expect(FieldTransform.toISO8601(1580418907, {}, config)).toBe('2020-01-30T21:15:07.000Z');
  *
  * @param {*} input
  * @param {({ resolution?: 'seconds' | 'milliseconds' })} [args]
@@ -1250,7 +1270,7 @@ function _makeIso(input: any, args?: { resolution?: 'seconds' | 'milliseconds' }
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
 
-export function toISO8601(input: any, args?: { resolution?: 'seconds' | 'milliseconds' }) {
+export function toISO8601(input: any, _parentContext?: any, args?: { resolution?: 'seconds' | 'milliseconds' }) {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -1297,15 +1317,15 @@ function _formatDate(input: any, args: FormatDateConfig) {
  * Function that will format a number or date string to a given date format provided
  *
  * @example
- *
- * const results1 = FieldTransform.formatDate('2020-01-14T20:34:01.034Z', { format: 'MMM do yy' })
+ * const config = { format: 'MMM do yy' };
+ * const results1 = FieldTransform.formatDate('2020-01-14T20:34:01.034Z', {}, config)
  * results1 === 'Jan 14th 20';
  *
- * const results2 = FieldTransform.formatDate('March 3, 2019', { format: 'M/d/yyyy' })
+ * const results2 = FieldTransform.formatDate('March 3, 2019', {}, { format: 'M/d/yyyy' })
  * results2 === '3/3/2019';
  *
  * const config =  { format: 'yyyy-MM-dd', resolution: 'seconds' };
- * const results3 = FieldTransform.formatDate(1581013130, config)
+ * const results3 = FieldTransform.formatDate(1581013130, {}, config)
  * results3 === '2020-02-06';
  *
  * @param {*} input
@@ -1314,7 +1334,7 @@ function _formatDate(input: any, args: FormatDateConfig) {
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
 
-export function formatDate(input: any, args: FormatDateConfig) {
+export function formatDate(input: any, _parentContext: any, args: FormatDateConfig) {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -1350,19 +1370,19 @@ function _parseDate(input: any, args: ParseDateConfig) {
  *
  * @example
  *
- * const result = FieldTransform.parseDate('2020-01-10-00:00', { format: 'yyyy-MM-ddxxx' })
+ * const result = FieldTransform.parseDate('2020-01-10-00:00', {}, { format: 'yyyy-MM-ddxxx' })
  * result === new Date('2020-01-10T00:00:00.000Z');
  *
- * const result = FieldTransform.parseDate('Jan 10, 2020-00:00', { format: 'MMM dd, yyyyxxx' })
+ * const result = FieldTransform.parseDate('Jan 10, 2020-00:00', {}, { format: 'MMM dd, yyyyxxx' })
  * result === new Date('2020-01-10T00:00:00.000Z');
  *
- * const result = FieldTransform.parseDate(1581025950223, { format: 'T' })
+ * const result = FieldTransform.parseDate(1581025950223, {}, { format: 'T' })
  * result === new Date('2020-02-06T21:52:30.223Z');
  *
- * const result = FieldTransform.parseDate(1581025950, { format: 't' })
+ * const result = FieldTransform.parseDate(1581025950, {}, { format: 't' })
  * result === new Date('2020-02-06T21:52:30.000Z');
  *
- * const result = FieldTransform.parseDate('1581025950', { format: 't' })
+ * const result = FieldTransform.parseDate('1581025950', {} { format: 't' })
  * result === new Date('2020-02-06T21:52:30.000Z');
  *
  * @param {*} input
@@ -1370,7 +1390,7 @@ function _parseDate(input: any, args: ParseDateConfig) {
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
 
-export function parseDate(input: any, args: ParseDateConfig) {
+export function parseDate(input: any, _parentContext: any, args: ParseDateConfig) {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -1394,7 +1414,7 @@ export function parseDate(input: any, args: ParseDateConfig) {
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
 
-export function toCamelCase(input: string) {
+export function toCamelCase(input: string, _parentContext?: any,) {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toCamelCase);
 
@@ -1414,7 +1434,7 @@ export function toCamelCase(input: string) {
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
 
-export function toKebabCase(input: string) {
+export function toKebabCase(input: string, _parentContext?: any,) {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toKebabCase);
 
@@ -1433,7 +1453,7 @@ export function toKebabCase(input: string) {
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
 
-export function toPascalCase(input: string) {
+export function toPascalCase(input: string, _parentContext?: any,) {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toPascalCase);
 
@@ -1451,7 +1471,7 @@ export function toPascalCase(input: string) {
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
 
-export function toSnakeCase(input: string) {
+export function toSnakeCase(input: string, _parentContext?: any,) {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toSnakeCase);
 
@@ -1469,7 +1489,7 @@ export function toSnakeCase(input: string) {
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
 
-export function toTitleCase(input: string) {
+export function toTitleCase(input: string, _parentContext?: any,) {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toTitleCase);
 

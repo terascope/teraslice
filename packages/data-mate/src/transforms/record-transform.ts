@@ -63,7 +63,7 @@ export const repository: Repository = {
  *
  * const obj = { hello: 'world' };
  * const config = { from: 'hello', to: 'goodbye' };
- * const results = RecordTransform.renameField(cloneDeep(obj), config);
+ * const results = RecordTransform.renameField(cloneDeep(obj), cloneDeep(obj), config);
  * results === { goodbye: 'world' };
  *
  * @param {*} record
@@ -71,7 +71,11 @@ export const repository: Repository = {
  * @returns object
  */
 
-export function renameField(input: RecordInput, args: { from: string; to: string }) {
+export function renameField(
+    input: RecordInput,
+    _parentContext: RecordInput,
+    args: { from: string; to: string }
+) {
     if (ts.isNil(input)) return null;
     _validateArgs(args, ['from', 'to']);
 
@@ -104,7 +108,7 @@ function _migrate(doc: ts.AnyObject, from: string, to: string) {
  *
  * const obj = { hello: 'world' };
  * const config = { field: 'other', value: 'stuff' };
- * const results = RecordTransform.setField(cloneDeep(obj), config);
+ * const results = RecordTransform.setField(cloneDeep(obj), cloneDeep(obj), config);
  * results === { hello: 'world', other: 'stuff' };
  *
  * @param {*} record
@@ -112,7 +116,11 @@ function _migrate(doc: ts.AnyObject, from: string, to: string) {
  * @returns object
  */
 
-export function setField(input: RecordInput, args: { field: string; value: any }) {
+export function setField(
+    input: RecordInput,
+    _parentContext: RecordInput,
+    args: { field: string; value: any }
+) {
     if (ts.isNil(input)) return null;
     _validateArgs(args, ['field', 'value']);
 
@@ -142,7 +150,7 @@ export function setField(input: RecordInput, args: { field: string; value: any }
  *
  * const obj = { hello: 'world', other: 'stuff', last: 'thing' };
  * const config = { fields: ['other', 'last']} ;
- * const results = RecordTransform.dropFields(cloneDeep(obj), config);
+ * const results = RecordTransform.dropFields(cloneDeep(obj), cloneDeep(obj), config);
  * expect(results).toEqual({ hello: 'world' });
  *
  * @param {*} record
@@ -150,7 +158,11 @@ export function setField(input: RecordInput, args: { field: string; value: any }
  * @returns object
  */
 
-export function dropFields(input: RecordInput, args: { fields: string[] }) {
+export function dropFields(
+    input: RecordInput,
+    _parentContext: RecordInput,
+    args: { fields: string[] }
+) {
     if (ts.isNil(input)) return null;
     _validateArgs(args, ['fields']);
 
@@ -184,7 +196,7 @@ function _removeKeys(obj: ts.AnyObject, fields: string[]) {
  * @example
  * const obj = { hello: 'world', other: 'stuff' };
  * const config = { from: 'other', to: 'myCopy' };
- * const results = RecordTransform.copyField(cloneDeep(obj), config);
+ * const results = RecordTransform.copyField(cloneDeep(obj), cloneDeep(obj), config);
  * expect(results).toEqual({ hello: 'world', other: 'stuff', myCopy: 'stuff' });
  *
  * @param {*} record
@@ -192,7 +204,11 @@ function _removeKeys(obj: ts.AnyObject, fields: string[]) {
  * @returns object
  */
 
-export function copyField(input: RecordInput, args: { from: string; to: string }) {
+export function copyField(
+    input: RecordInput,
+    _parentContext: RecordInput,
+    args: { from: string; to: string }
+) {
     if (ts.isNil(input)) return null;
     _validateArgs(args, ['from', 'to']);
 

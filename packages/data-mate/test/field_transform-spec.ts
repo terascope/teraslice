@@ -80,47 +80,47 @@ describe('field fieldTransforms', () => {
 
     describe('setDefault should', () => {
         it('return a value if nothing is provided', () => {
-            expect(fieldTransform.setDefault('foo', { value: true })).toEqual('foo');
-            expect(fieldTransform.setDefault({ hello: 'world' }, { value: true })).toEqual({ hello: 'world' });
-            expect(fieldTransform.setDefault(null, { value: true })).toEqual(true);
-            expect(fieldTransform.setDefault(undefined, { value: true })).toEqual(true);
+            expect(fieldTransform.setDefault('foo', {}, { value: true })).toEqual('foo');
+            expect(fieldTransform.setDefault({ hello: 'world' }, {}, { value: true })).toEqual({ hello: 'world' });
+            expect(fieldTransform.setDefault(null, {}, { value: true })).toEqual(true);
+            expect(fieldTransform.setDefault(undefined, {}, { value: true })).toEqual(true);
         });
     });
 
     describe('map should', () => {
         it('map a field fieldTransform function to an array', () => {
             const array = ['hello', 'world', 'goodbye'];
-            const results1 = array.map(fieldTransform.toUpperCase);
-            const results2 = array.map((data) => fieldTransform.truncate(data, { size: 2 }));
+            const results1 = array.map((data) => fieldTransform.toUpperCase(data));
+            const results2 = array.map((data) => fieldTransform.truncate(data, {}, { size: 2 }));
 
-            expect(fieldTransform.map(array, { fn: 'toUpperCase' })).toEqual(results1);
-            expect(fieldTransform.map(array, { fn: 'truncate', options: { size: 2 } })).toEqual(results2);
+            expect(fieldTransform.map(array, array, { fn: 'toUpperCase' })).toEqual(results1);
+            expect(fieldTransform.map(array, array, { fn: 'truncate', options: { size: 2 } })).toEqual(results2);
         });
     });
 
     describe('extract should', () => {
         it('return whats between start and end', () => {
-            const results = fieldTransform.extract('<hello>', { start: '<', end: '>' });
+            const results = fieldTransform.extract('<hello>', {}, { start: '<', end: '>' });
             expect(results).toEqual('hello');
         });
 
         it('can run a jexl expression', () => {
-            const results = fieldTransform.extract({ foo: 'bar' }, { jexlExp: '[foo]' });
+            const results = fieldTransform.extract('bar', { foo: 'bar' }, { jexlExp: '[foo]' });
             expect(results).toEqual(['bar']);
         });
 
         it('run a regex to extract a value', () => {
-            const results = fieldTransform.extract('hello', { regex: 'he.*' });
+            const results = fieldTransform.extract('hello', {}, { regex: 'he.*' });
             expect(results).toEqual(['hello']);
         });
 
         it('can return a singular value', () => {
-            const results = fieldTransform.extract('hello', { regex: 'he.*', isMultiValue: false });
+            const results = fieldTransform.extract('hello', {}, { regex: 'he.*', isMultiValue: false });
             expect(results).toEqual('hello');
         });
 
         it('should not throw if it cannot extract anything', () => {
-            const results = fieldTransform.extract('boo', { regex: 'he.*', isMultiValue: false });
+            const results = fieldTransform.extract('boo', {}, { regex: 'he.*', isMultiValue: false });
             expect(results).toEqual(null);
         });
     });
@@ -130,14 +130,14 @@ describe('field fieldTransforms', () => {
             expect(fieldTransform.trim('   string    ')).toBe('string');
             expect(fieldTransform.trim('   left')).toBe('left');
             expect(fieldTransform.trim('right    ')).toBe('right');
-            expect(fieldTransform.trim('fast cars race fast', { char: 'fast' })).toBe(' cars race ');
-            expect(fieldTransform.trim('.*.*a regex test.*.*.*.* stuff', { char: '.*' })).toBe('a regex test');
-            expect(fieldTransform.trim('\t\r\rtrim this\r\r', { char: '\r' })).toBe('trim this');
+            expect(fieldTransform.trim('fast cars race fast', {}, { char: 'fast' })).toBe(' cars race ');
+            expect(fieldTransform.trim('.*.*a regex test.*.*.*.* stuff', {}, { char: '.*' })).toBe('a regex test');
+            expect(fieldTransform.trim('\t\r\rtrim this\r\r', {}, { char: '\r' })).toBe('trim this');
             expect(fieldTransform.trim('        ')).toBe('');
         });
 
         it('should return the string if char is not found', () => {
-            expect(fieldTransform.trim('this is a string', { char: 'b' })).toBe('this is a string');
+            expect(fieldTransform.trim('this is a string', {}, { char: 'b' })).toBe('this is a string');
         });
 
         it('trims an array of values, ignores undefined/null', () => {
@@ -147,19 +147,19 @@ describe('field fieldTransforms', () => {
 
     describe('trimStart should', () => {
         it('should return the string trimmed from the start', () => {
-            expect(fieldTransform.trimStart('thisisastring', { char: 's' })).toBe('isastring');
-            expect(fieldTransform.trimStart('thisisastring', { char: 'isa' })).toBe('string');
+            expect(fieldTransform.trimStart('thisisastring', {}, { char: 's' })).toBe('isastring');
+            expect(fieldTransform.trimStart('thisisastring', {}, { char: 'isa' })).toBe('string');
             expect(fieldTransform.trimStart('    Hello Bob    ')).toBe('Hello Bob    ');
-            expect(fieldTransform.trimStart('iiii-wordiwords-iii', { char: 'i' })).toBe('-wordiwords-iii');
-            expect(fieldTransform.trimStart('__--__--__some__--__word', { char: '__--' })).toBe('__some__--__word');
-            expect(fieldTransform.trimStart('fast cars race fast', { char: 'fast' })).toBe(' cars race fast');
+            expect(fieldTransform.trimStart('iiii-wordiwords-iii', {}, { char: 'i' })).toBe('-wordiwords-iii');
+            expect(fieldTransform.trimStart('__--__--__some__--__word', {}, { char: '__--' })).toBe('__some__--__word');
+            expect(fieldTransform.trimStart('fast cars race fast', {}, { char: 'fast' })).toBe(' cars race fast');
             expect(fieldTransform.trimStart('        ')).toBe('');
             expect(fieldTransform.trimStart('start    ')).toBe('start    ');
             expect(fieldTransform.trimStart('     start')).toBe('start');
         });
 
         it('should return the string if char is not found', () => {
-            expect(fieldTransform.trimStart('this is a string', { char: 'b' })).toBe('this is a string');
+            expect(fieldTransform.trimStart('this is a string', {}, { char: 'b' })).toBe('this is a string');
         });
 
         it('trims an array of values at start, ignores undefined/null', () => {
@@ -169,17 +169,17 @@ describe('field fieldTransforms', () => {
 
     describe('trimEnd should', () => {
         it('should return the string trimmed from the end', () => {
-            expect(fieldTransform.trimEnd('this is a string', { char: 's' })).toBe('this is a ');
+            expect(fieldTransform.trimEnd('this is a string', {}, { char: 's' })).toBe('this is a ');
             expect(fieldTransform.trimEnd('    Hello Bob    ')).toBe('    Hello Bob');
-            expect(fieldTransform.trimEnd('*****Hello****Bob*****', { char: '*' })).toBe('*****Hello****Bob');
-            expect(fieldTransform.trimEnd('fast cars race fast', { char: 'fast' })).toBe('fast cars race ');
+            expect(fieldTransform.trimEnd('*****Hello****Bob*****', {}, { char: '*' })).toBe('*****Hello****Bob');
+            expect(fieldTransform.trimEnd('fast cars race fast', {}, { char: 'fast' })).toBe('fast cars race ');
             expect(fieldTransform.trimEnd('        ')).toBe('');
             expect(fieldTransform.trimEnd('    end')).toBe('    end');
             expect(fieldTransform.trimEnd('end    ')).toBe('end');
         });
 
         it('should return the string if char is not found', () => {
-            expect(fieldTransform.trimEnd('this is a string', { char: 'b' })).toBe('this is a string');
+            expect(fieldTransform.trimEnd('this is a string', {}, { char: 'b' })).toBe('this is a string');
         });
 
         it('trims an array of values at end, ignores undefined/null', () => {
@@ -189,28 +189,28 @@ describe('field fieldTransforms', () => {
 
     describe('truncate should', () => {
         it('return string of designated length', () => {
-            expect(fieldTransform.truncate('thisisalongstring', { size: 4 })).toBe('this');
+            expect(fieldTransform.truncate('thisisalongstring', {}, { size: 4 })).toBe('this');
         });
 
         it('throw an error if args does not have a valid size', () => {
             try {
-                expect(fieldTransform.truncate('astring', { size: -120 })).toBe('astring');
+                expect(fieldTransform.truncate('astring', {}, { size: -120 })).toBe('astring');
             } catch (e) {
                 expect(e.message).toBe('Invalid size paramter for truncate');
             }
         });
 
         it('trim the size of an array of values, ignores undefined/null', () => {
-            expect(fieldTransform.truncate(['hello', undefined, 'world'] as any, { size: 2 })).toEqual(['he', 'wo']);
+            expect(fieldTransform.truncate(['hello', undefined, 'world'] as any, {}, { size: 2 })).toEqual(['he', 'wo']);
         });
     });
 
-    describe('toArray', () => {
+    describe('splitString', () => {
         it('should return an array from a string', () => {
-            expect(fieldTransform.toArray('astring')).toEqual(['a', 's', 't', 'r', 'i', 'n', 'g']);
-            expect(fieldTransform.toArray('astring', { delimiter: ',' })).toEqual(['astring']);
-            expect(fieldTransform.toArray('a-stri-ng', { delimiter: '-' })).toEqual(['a', 'stri', 'ng']);
-            expect(fieldTransform.toArray('a string', { delimiter: ' ' })).toEqual(['a', 'string']);
+            expect(fieldTransform.splitString('astring')).toEqual(['a', 's', 't', 'r', 'i', 'n', 'g']);
+            expect(fieldTransform.splitString('astring', {}, { delimiter: ',' })).toEqual(['astring']);
+            expect(fieldTransform.splitString('a-stri-ng', {}, { delimiter: '-' })).toEqual(['a', 'stri', 'ng']);
+            expect(fieldTransform.splitString('a string', {}, { delimiter: ' ' })).toEqual(['a', 'string']);
         });
     });
 
@@ -226,10 +226,10 @@ describe('field fieldTransforms', () => {
         });
 
         it('return a number for boolean like if selected in args', () => {
-            expect(fieldTransform.toNumber(undefined, { booleanLike: true })).toBe(0);
-            expect(fieldTransform.toNumber('true', { booleanLike: true })).toBe(1);
-            expect(fieldTransform.toNumber('no', { booleanLike: true })).toBe(0);
-            expect(fieldTransform.toNumber(null, { booleanLike: true })).toBe(0);
+            expect(fieldTransform.toNumber(undefined, {}, { booleanLike: true })).toBe(0);
+            expect(fieldTransform.toNumber('true', {}, { booleanLike: true })).toBe(1);
+            expect(fieldTransform.toNumber('no', {}, { booleanLike: true })).toBe(0);
+            expect(fieldTransform.toNumber(null, {}, { booleanLike: true })).toBe(0);
         });
 
         it('throw an error if input cannot be coerced to a number', () => {
@@ -254,27 +254,27 @@ describe('field fieldTransforms', () => {
 
     describe('replaceLiteral', () => {
         it('should find and replace values in string', () => {
-            expect(fieldTransform.replaceLiteral('Hi bob', { search: 'bob', replace: 'mel' })).toBe('Hi mel');
-            expect(fieldTransform.replaceLiteral('Hi Bob', { search: 'bob', replace: 'Mel ' })).toBe('Hi Bob');
+            expect(fieldTransform.replaceLiteral('Hi bob', {}, { search: 'bob', replace: 'mel' })).toBe('Hi mel');
+            expect(fieldTransform.replaceLiteral('Hi Bob', {}, { search: 'bob', replace: 'Mel ' })).toBe('Hi Bob');
         });
 
         it('convert an array of values, ignores undefined/null', () => {
-            expect(fieldTransform.replaceLiteral(['Hi bob', undefined] as any, { search: 'bob', replace: 'mel' })).toEqual(['Hi mel']);
+            expect(fieldTransform.replaceLiteral(['Hi bob', undefined] as any, {}, { search: 'bob', replace: 'mel' })).toEqual(['Hi mel']);
         });
     });
 
     describe('replaceRegex', () => {
         it('should return string with replaced values', () => {
-            expect(fieldTransform.replaceRegex('somestring', { regex: 's|e', replace: 'd' })).toBe('domestring');
-            expect(fieldTransform.replaceRegex('somestring', { regex: 's|e', replace: 'd', global: true })).toBe('domddtring');
-            expect(fieldTransform.replaceRegex('soMesTring', {
+            expect(fieldTransform.replaceRegex('somestring', {}, { regex: 's|e', replace: 'd' })).toBe('domestring');
+            expect(fieldTransform.replaceRegex('somestring', {}, { regex: 's|e', replace: 'd', global: true })).toBe('domddtring');
+            expect(fieldTransform.replaceRegex('soMesTring', {}, {
                 regex: 'm|t', replace: 'W', global: true, ignoreCase: true
             })).toBe('soWesWring');
-            expect(fieldTransform.replaceRegex('a***a***a', { regex: '\\*', replace: '', global: true })).toBe('aaa');
+            expect(fieldTransform.replaceRegex('a***a***a', {}, { regex: '\\*', replace: '', global: true })).toBe('aaa');
         });
 
         it('convert an array of values, ignores undefined/null', () => {
-            expect(fieldTransform.replaceRegex(['somestring', undefined] as any, { regex: 's|e', replace: 'd' })).toEqual(['domestring']);
+            expect(fieldTransform.replaceRegex(['somestring', undefined] as any, {}, { regex: 's|e', replace: 'd' })).toEqual(['domestring']);
         });
     });
 
@@ -287,7 +287,7 @@ describe('field fieldTransforms', () => {
             expect(fieldTransform.toUnixTime(testDate)).toBe(Math.floor(milli / 1000));
             expect(fieldTransform.toUnixTime(isoTime)).toBe(Math.floor(milli / 1000));
             expect(fieldTransform.toUnixTime(milli)).toBe(Math.floor(milli / 1000));
-            expect(fieldTransform.toUnixTime(milli, { ms: true })).toBe(milli);
+            expect(fieldTransform.toUnixTime(milli, {}, { ms: true })).toBe(milli);
         });
 
         it('convert date time in milliseconds to unix time s', () => {
@@ -295,7 +295,7 @@ describe('field fieldTransforms', () => {
         });
 
         it('convert date time in milliseconds to unix time ms', () => {
-            expect(fieldTransform.toUnixTime(1580418907000, { ms: true })).toBe(1580418907000);
+            expect(fieldTransform.toUnixTime(1580418907000, {}, { ms: true })).toBe(1580418907000);
         });
 
         it('convert string dates to unix time', () => {
@@ -337,7 +337,7 @@ describe('field fieldTransforms', () => {
         });
 
         it('convert date time in seconds to unix time', () => {
-            expect(fieldTransform.toISO8601(1580418907, { resolution: 'seconds' })).toBe('2020-01-30T21:15:07.000Z');
+            expect(fieldTransform.toISO8601(1580418907, {}, { resolution: 'seconds' })).toBe('2020-01-30T21:15:07.000Z');
         });
 
         it('convert string dates to unix time', () => {
@@ -363,48 +363,48 @@ describe('field fieldTransforms', () => {
         it('should return the formated date from a date object', () => {
             const config = { format: 'MM-dd-yyyy' };
 
-            expect(fieldTransform.formatDate(new Date(2020, 2, 18), config)).toBe('03-18-2020');
-            expect(fieldTransform.formatDate(new Date('Jan 3 2001'), config)).toBe('01-03-2001');
+            expect(fieldTransform.formatDate(new Date(2020, 2, 18), {}, config)).toBe('03-18-2020');
+            expect(fieldTransform.formatDate(new Date('Jan 3 2001'), {}, config)).toBe('01-03-2001');
         });
 
         it('should return the formated date from a valid string date', () => {
-            expect(fieldTransform.formatDate('2020-01-14T20:34:01.034Z', { format: 'MMM do yy' })).toBe('Jan 14th 20');
-            expect(fieldTransform.formatDate('March 3, 2019', { format: 'M/d/yyyy' })).toBe('3/3/2019');
+            expect(fieldTransform.formatDate('2020-01-14T20:34:01.034Z', {}, { format: 'MMM do yy' })).toBe('Jan 14th 20');
+            expect(fieldTransform.formatDate('March 3, 2019', {}, { format: 'M/d/yyyy' })).toBe('3/3/2019');
         });
 
         it('should return formated date from millitime time', () => {
-            expect(fieldTransform.formatDate(1581013130856, { format: 'yyyy-MM-dd' })).toBe('2020-02-06');
-            expect(fieldTransform.formatDate(1581013130, { format: 'yyyy-MM-dd', resolution: 'seconds' })).toBe('2020-02-06');
+            expect(fieldTransform.formatDate(1581013130856, {}, { format: 'yyyy-MM-dd' })).toBe('2020-02-06');
+            expect(fieldTransform.formatDate(1581013130, {}, { format: 'yyyy-MM-dd', resolution: 'seconds' })).toBe('2020-02-06');
         });
 
         it('should throw error if date cannot be formated', () => {
             try {
-                expect(fieldTransform.formatDate('bad date', { format: 'yyyy-MM-dd' })).toBe('2020-02-06');
+                expect(fieldTransform.formatDate('bad date', {}, { format: 'yyyy-MM-dd' })).toBe('2020-02-06');
             } catch (e) { expect(e.message).toBe('Input is not valid date'); }
         });
 
         it('convert an array of values, ignores undefined/null', () => {
-            expect(fieldTransform.formatDate([1581013130856, undefined], { format: 'yyyy-MM-dd' })).toEqual(['2020-02-06']);
+            expect(fieldTransform.formatDate([1581013130856, undefined], {}, { format: 'yyyy-MM-dd' })).toEqual(['2020-02-06']);
         });
     });
 
     describe('parseDate', () => {
         it('should return date object from date string', () => {
-            expect(fieldTransform.parseDate('2020-01-10-00:00', { format: 'yyyy-MM-ddxxx' })).toStrictEqual(new Date('2020-01-10T00:00:00.000Z'));
-            expect(fieldTransform.parseDate('Jan 10, 2020-00:00', { format: 'MMM dd, yyyyxxx' })).toStrictEqual(new Date('2020-01-10T00:00:00.000Z'));
-            expect(fieldTransform.parseDate(1581025950223, { format: 'T' })).toStrictEqual(new Date('2020-02-06T21:52:30.223Z'));
-            expect(fieldTransform.parseDate(1581025950, { format: 't' })).toStrictEqual(new Date('2020-02-06T21:52:30.000Z'));
-            expect(fieldTransform.parseDate('1581025950', { format: 't' })).toStrictEqual(new Date('2020-02-06T21:52:30.000Z'));
+            expect(fieldTransform.parseDate('2020-01-10-00:00', {}, { format: 'yyyy-MM-ddxxx' })).toStrictEqual(new Date('2020-01-10T00:00:00.000Z'));
+            expect(fieldTransform.parseDate('Jan 10, 2020-00:00', {}, { format: 'MMM dd, yyyyxxx' })).toStrictEqual(new Date('2020-01-10T00:00:00.000Z'));
+            expect(fieldTransform.parseDate(1581025950223, {}, { format: 'T' })).toStrictEqual(new Date('2020-02-06T21:52:30.223Z'));
+            expect(fieldTransform.parseDate(1581025950, {}, { format: 't' })).toStrictEqual(new Date('2020-02-06T21:52:30.000Z'));
+            expect(fieldTransform.parseDate('1581025950', {}, { format: 't' })).toStrictEqual(new Date('2020-02-06T21:52:30.000Z'));
         });
 
         it('should throw error if cannot parse', () => {
             try {
-                expect(fieldTransform.parseDate('2020-01-10', { format: 't' })).toStrictEqual(new Date('2020-01-10T00:00:00.000Z'));
+                expect(fieldTransform.parseDate('2020-01-10', {}, { format: 't' })).toStrictEqual(new Date('2020-01-10T00:00:00.000Z'));
             } catch (e) { expect(e.message).toBe('Cannot parse date'); }
         });
 
         it('convert an array of values, ignores undefined/null', () => {
-            expect(fieldTransform.parseDate(['1581025950', undefined], { format: 't' })).toEqual([new Date('2020-02-06T21:52:30.000Z')]);
+            expect(fieldTransform.parseDate(['1581025950', undefined], {}, { format: 't' })).toEqual([new Date('2020-02-06T21:52:30.000Z')]);
         });
     });
 
@@ -590,7 +590,7 @@ describe('field fieldTransforms', () => {
         });
 
         it('can prettyify results', () => {
-            expect(fieldTransform.toJSON(obj, { pretty: true })).toEqual(prettyJson);
+            expect(fieldTransform.toJSON(obj, {}, { pretty: true })).toEqual(prettyJson);
         });
 
         it('should stringify values in an array', () => {

@@ -309,56 +309,59 @@ describe('field validators', () => {
 
     describe('inIPRange', () => {
         it('return true for ip addresses in a given range using cidr notation', () => {
-            expect(FieldValidator.inIPRange('8.8.8.8', { cidr: '8.8.8.0/24' })).toBe(true);
-            expect(FieldValidator.inIPRange('2001:0db8:0123:4567:89ab:cdef:1234:5678', { cidr: '2001:0db8:0123:4567:89ab:cdef:1234:0/112' })).toBe(true);
+            expect(FieldValidator.inIPRange('8.8.8.8', {}, { cidr: '8.8.8.0/24' })).toBe(true);
+            expect(FieldValidator.inIPRange('2001:0db8:0123:4567:89ab:cdef:1234:5678', {}, { cidr: '2001:0db8:0123:4567:89ab:cdef:1234:0/112' })).toBe(true);
         });
 
         it('should return true for valid ips in a range with max and min', () => {
-            expect(FieldValidator.inIPRange('8.8.8.8', { min: '8.8.8.0', max: '8.8.8.64' })).toBe(true);
-            expect(FieldValidator.inIPRange('8.8.8.8', { max: '8.8.8.64' })).toBe(true);
-            expect(FieldValidator.inIPRange('8.8.8.8', { min: '8.8.8.0' })).toBe(true);
-            expect(FieldValidator.inIPRange('8.8.8.0', { min: '8.8.8.0' })).toBe(true);
-            expect(FieldValidator.inIPRange('8.8.8.64', { max: '8.8.8.64' })).toBe(true);
-            expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::123', max: 'fd00::ea00' })).toBe(true);
-            expect(FieldValidator.inIPRange('fd00::b000', { max: 'fd00::ea00' })).toBe(true);
-            expect(FieldValidator.inIPRange('fd00::b000', { max: 'fd00::ea00' })).toBe(true);
-            expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::b000', max: 'fd00::ea00' })).toBe(true);
+            expect(FieldValidator.inIPRange('8.8.8.8', {}, { min: '8.8.8.0', max: '8.8.8.64' })).toBe(true);
+            expect(FieldValidator.inIPRange('8.8.8.8', {}, { max: '8.8.8.64' })).toBe(true);
+            expect(FieldValidator.inIPRange('8.8.8.8', {}, { min: '8.8.8.0' })).toBe(true);
+            expect(FieldValidator.inIPRange('8.8.8.0', {}, { min: '8.8.8.0' })).toBe(true);
+            expect(FieldValidator.inIPRange('8.8.8.64', {}, { max: '8.8.8.64' })).toBe(true);
+            expect(FieldValidator.inIPRange('fd00::b000', {}, { min: 'fd00::123', max: 'fd00::ea00' })).toBe(true);
+            expect(FieldValidator.inIPRange('fd00::b000', {}, { max: 'fd00::ea00' })).toBe(true);
+            expect(FieldValidator.inIPRange('fd00::b000', {}, { max: 'fd00::ea00' })).toBe(true);
+            expect(FieldValidator.inIPRange('fd00::b000', {}, { min: 'fd00::b000', max: 'fd00::ea00' })).toBe(true);
         });
 
         it('should return false for ips out of the ranges, cidr notation defined range', () => {
-            expect(FieldValidator.inIPRange('8.8.8.8', { cidr: '8.8.8.10/32' })).toBe(false);
-            expect(FieldValidator.inIPRange('1.2.3.4', { cidr: '8.8.2.0/24' })).toBe(false);
-            expect(FieldValidator.inIPRange('fd00::b000', { cidr: '8.8.2.0/24' })).toBe(false);
-            expect(FieldValidator.inIPRange('badIpAddress', { cidr: '8.8.2.0/24' })).toBe(false);
-            expect(FieldValidator.inIPRange('8.8.1.12', { cidr: '8.8.2.0/23' })).toBe(false);
-            expect(FieldValidator.inIPRange('8.8.1.12', { cidr: 'badCidr' })).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.8.8', {}, { cidr: '8.8.8.10/32' })).toBe(false);
+            expect(FieldValidator.inIPRange('1.2.3.4', {}, { cidr: '8.8.2.0/24' })).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', {}, { cidr: '8.8.2.0/24' })).toBe(false);
+            expect(FieldValidator.inIPRange('badIpAddress', {}, { cidr: '8.8.2.0/24' })).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.1.12', {}, { cidr: '8.8.2.0/23' })).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.1.12', {}, { cidr: 'badCidr' })).toBe(false);
         });
 
         it('should return false for ips out of range, min and max defined range', () => {
-            expect(FieldValidator.inIPRange('8.8.8.8', { min: '8.8.8.24', max: '8.8.8.32' })).toBe(false);
-            expect(FieldValidator.inIPRange('8.8.8.8', { min: '8.8.8.102', max: '8.8.8.32' })).toBe(false);
-            expect(FieldValidator.inIPRange('badIpAddress', { min: '8.8.8.24', max: '8.8.8.32' })).toBe(false);
-            expect(FieldValidator.inIPRange('8.8.8.8', { min: 'badIpAddress', max: '8.8.8.32' })).toBe(false);
-            expect(FieldValidator.inIPRange('8.8.8.8', { min: '8.8.8.24', max: 'badIpAddress' })).toBe(false);
-            expect(FieldValidator.inIPRange('fd00::b000', { min: '8.8.8.24', max: '8.8.8.32' })).toBe(false);
-            expect(FieldValidator.inIPRange('8.8.8.8', { min: 'fd00::b000', max: '8.8.8.32' })).toBe(false);
-            expect(FieldValidator.inIPRange('8.8.8.8', { min: '8.8.8.0', max: 'fd00::b000' })).toBe(false);
-            expect(FieldValidator.inIPRange('8.8.8.8', { min: 'fd00::a000', max: 'fd00::b000' })).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.8.8', {}, { min: '8.8.8.24', max: '8.8.8.32' })).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.8.8', {}, { min: '8.8.8.102', max: '8.8.8.32' })).toBe(false);
+            expect(FieldValidator.inIPRange('badIpAddress', {}, { min: '8.8.8.24', max: '8.8.8.32' })).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.8.8', {}, { min: 'badIpAddress', max: '8.8.8.32' })).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.8.8', {}, { min: '8.8.8.24', max: 'badIpAddress' })).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', {}, { min: '8.8.8.24', max: '8.8.8.32' })).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.8.8', {}, { min: 'fd00::b000', max: '8.8.8.32' })).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.8.8', {}, { min: '8.8.8.0', max: 'fd00::b000' })).toBe(false);
+            expect(FieldValidator.inIPRange('8.8.8.8', {}, { min: 'fd00::a000', max: 'fd00::b000' })).toBe(false);
 
-            expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::c000', max: 'fd00::f000' })).toBe(false);
-            expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::f000', max: 'fd00::1000' })).toBe(false);
-            expect(FieldValidator.inIPRange('fd00::b000', { min: '8.8.8.24', max: 'fd00::b000' })).toBe(false);
-            expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::a000', max: '8.8.8.24' })).toBe(false);
-            expect(FieldValidator.inIPRange('fd00::b000', { min: '8.8.8.0', max: '8.8.8.24' })).toBe(false);
-            expect(FieldValidator.inIPRange('fd00::b000', { max: 'fd00::1000' })).toBe(false);
-            expect(FieldValidator.inIPRange('fd00::b000', { min: 'fd00::f000' })).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', {}, { min: 'fd00::c000', max: 'fd00::f000' })).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', {}, { min: 'fd00::f000', max: 'fd00::1000' })).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', {}, { min: '8.8.8.24', max: 'fd00::b000' })).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', {}, { min: 'fd00::a000', max: '8.8.8.24' })).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', {}, { min: '8.8.8.0', max: '8.8.8.24' })).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', {}, { max: 'fd00::1000' })).toBe(false);
+            expect(FieldValidator.inIPRange('fd00::b000', {}, { min: 'fd00::f000' })).toBe(false);
         });
 
         it('validates an array of values, ignores undefined/null', () => {
-            expect(FieldValidator.inIPRange(['8.8.8.64', undefined], { min: '8.8.8.0', max: '8.8.8.64' })).toEqual(true);
+            expect(FieldValidator.inIPRange(
+                ['8.8.8.64', undefined],
+                ['8.8.8.64', undefined],
+                { min: '8.8.8.0', max: '8.8.8.64' }
+            )).toEqual(true);
         });
     });
-
     describe('isValidDate', () => {
         it('should return true for strings that can be parsed into a date', () => {
             expect(FieldValidator.isValidDate('2019-03-17T23:08:59.673Z')).toBe(true);
@@ -459,41 +462,46 @@ describe('field validators', () => {
         });
 
         it('should validate based on specified delimiter', () => {
-            expect(FieldValidator.isMACAddress('001ff35b2b1f', { delimiter: 'any' })).toBe(true);
-            expect(FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', { delimiter: 'colon' })).toBe(true);
-            expect(FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', { delimiter: 'dash' })).toBe(true);
-            expect(FieldValidator.isMACAddress('00 1f f3 5b 2b 1f', { delimiter: 'space' })).toBe(true);
-            expect(FieldValidator.isMACAddress('001f.f35b.2b1f', { delimiter: 'dot' })).toBe(true);
-            expect(FieldValidator.isMACAddress('001ff35b2b1f', { delimiter: 'none' })).toBe(true);
-            expect(FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', { delimiter: ['dash', 'colon'] })).toBe(true);
-            expect(FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', { delimiter: 'dash' })).toBe(false);
-            expect(FieldValidator.isMACAddress('00 1f f3 5b 2b 1f', { delimiter: 'colon' })).toBe(false);
-            expect(FieldValidator.isMACAddress('001ff35b2b1f', { delimiter: 'colon' })).toBe(false);
-            expect(FieldValidator.isMACAddress('001ff35b2b1f', { delimiter: ['dash', 'colon'] })).toBe(false);
+            expect(FieldValidator.isMACAddress('001ff35b2b1f', {}, { delimiter: 'any' })).toBe(true);
+            expect(FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', {}, { delimiter: 'colon' })).toBe(true);
+            expect(FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', {}, { delimiter: 'dash' })).toBe(true);
+            expect(FieldValidator.isMACAddress('00 1f f3 5b 2b 1f', {}, { delimiter: 'space' })).toBe(true);
+            expect(FieldValidator.isMACAddress('001f.f35b.2b1f', {}, { delimiter: 'dot' })).toBe(true);
+            expect(FieldValidator.isMACAddress('001ff35b2b1f', {}, { delimiter: 'none' })).toBe(true);
+            expect(FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', {}, { delimiter: ['dash', 'colon'] })).toBe(true);
+            expect(FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', {}, { delimiter: 'dash' })).toBe(false);
+            expect(FieldValidator.isMACAddress('00 1f f3 5b 2b 1f', {}, { delimiter: 'colon' })).toBe(false);
+            expect(FieldValidator.isMACAddress('001ff35b2b1f', {}, { delimiter: 'colon' })).toBe(false);
+            expect(FieldValidator.isMACAddress('001ff35b2b1f', {}, { delimiter: ['dash', 'colon'] })).toBe(false);
         });
 
         it('validates an array of values, ignores undefined/null', () => {
-            expect(FieldValidator.isMACAddress(['00 1f f3 5b 2b 1f', undefined], { delimiter: 'space' })).toBe(true);
+            expect(FieldValidator.isMACAddress(
+                ['00 1f f3 5b 2b 1f', undefined],
+                ['00 1f f3 5b 2b 1f', undefined],
+                { delimiter: 'space' }
+            )).toBe(true);
         });
     });
 
     describe('inNumberRange', () => {
         it('should return true if number in range', () => {
-            expect(FieldValidator.inNumberRange(44, { min: 0, max: 45 })).toBe(true);
-            expect(FieldValidator.inNumberRange(-12, { min: -100, max: 45 })).toBe(true);
-            expect(FieldValidator.inNumberRange(0, { max: 45 })).toBe(true);
-            expect(FieldValidator.inNumberRange(0, { min: -45 })).toBe(true);
+            expect(FieldValidator.inNumberRange(44, {}, { min: 0, max: 45 })).toBe(true);
+            expect(FieldValidator.inNumberRange(-12, {}, { min: -100, max: 45 })).toBe(true);
+            expect(FieldValidator.inNumberRange(0, {}, { max: 45 })).toBe(true);
+            expect(FieldValidator.inNumberRange(0, {}, { min: -45 })).toBe(true);
         });
 
         it('should return false if number out of range', () => {
-            expect(FieldValidator.inNumberRange(44, { min: 0, max: 25 })).toBe(false);
-            expect(FieldValidator.inNumberRange(-12, { min: -10, max: 45 })).toBe(false);
-            expect(FieldValidator.inNumberRange(0, { max: -45 })).toBe(false);
-            expect(FieldValidator.inNumberRange(0, { min: 45 })).toBe(false);
+            expect(FieldValidator.inNumberRange(44, {}, { min: 0, max: 25 })).toBe(false);
+            expect(FieldValidator.inNumberRange(-12, {}, { min: -10, max: 45 })).toBe(false);
+            expect(FieldValidator.inNumberRange(0, {}, { max: -45 })).toBe(false);
+            expect(FieldValidator.inNumberRange(0, {}, { min: 45 })).toBe(false);
         });
 
         it('validates an array of values, ignores undefined/null', () => {
             expect(FieldValidator.inNumberRange(
+                [0, 25, 33, 23, undefined],
                 [0, 25, 33, 23, undefined],
                 { min: 0, max: 45 }
             )).toBe(true);
@@ -617,20 +625,24 @@ describe('field validators', () => {
 
     describe('contains', () => {
         it('should return true if string contains substring', () => {
-            expect(FieldValidator.contains('hello', { value: 'hello' })).toBe(true);
-            expect(FieldValidator.contains('hello', { value: 'll' })).toBe(true);
-            expect(FieldValidator.contains('12345', { value: '45' })).toBe(true);
+            expect(FieldValidator.contains('hello', {}, { value: 'hello' })).toBe(true);
+            expect(FieldValidator.contains('hello', {}, { value: 'll' })).toBe(true);
+            expect(FieldValidator.contains('12345', {}, { value: '45' })).toBe(true);
         });
 
         it('should return false if string does not contain substring', () => {
-            expect(FieldValidator.contains('hello', { value: 'bye' })).toBe(false);
-            expect(FieldValidator.contains(true, { value: 'rue' })).toBe(false);
-            expect(FieldValidator.contains(12345, { value: '12' })).toBe(false);
-            expect(FieldValidator.contains({}, { value: 'hello' })).toBe(false);
+            expect(FieldValidator.contains('hello', {}, { value: 'bye' })).toBe(false);
+            expect(FieldValidator.contains(true, {}, { value: 'rue' })).toBe(false);
+            expect(FieldValidator.contains(12345, {}, { value: '12' })).toBe(false);
+            expect(FieldValidator.contains({}, {}, { value: 'hello' })).toBe(false);
         });
 
         it('validates an array of values, ignores undefined/null', () => {
-            expect(FieldValidator.contains(['12345', undefined], { value: '45' })).toBe(true);
+            expect(FieldValidator.contains(
+                ['12345', undefined],
+                ['12345', undefined],
+                { value: '45' }
+            )).toBe(true);
         });
     });
 
@@ -646,15 +658,31 @@ describe('field validators', () => {
 
     describe('some', () => {
         it('should indicate if some elements of an array pass the validation', () => {
-            expect(FieldValidator.some(['hello', 3, { some: 'obj' }], { fn: 'isString' })).toBe(true);
-            expect(FieldValidator.some(['hello', 3, { some: 'obj' }], { fn: 'isBoolean' })).toBe(false);
+            expect(FieldValidator.some(
+                ['hello', 3, { some: 'obj' }],
+                ['hello', 3, { some: 'obj' }],
+                { fn: 'isString' }
+            )).toBe(true);
+            expect(FieldValidator.some(
+                ['hello', 3, { some: 'obj' }],
+                ['hello', 3, { some: 'obj' }],
+                { fn: 'isBoolean' }
+            )).toBe(false);
         });
     });
 
     describe('every', () => {
         it('should indicate if every elements of an array pass the validation', () => {
-            expect(FieldValidator.every(['hello', 3, { some: 'obj' }], { fn: 'isString' })).toBe(false);
-            expect(FieldValidator.every(['hello', 'world'], { fn: 'isString' })).toBe(true);
+            expect(FieldValidator.every(
+                ['hello', 3, { some: 'obj' }],
+                ['hello', 3, { some: 'obj' }],
+                { fn: 'isString' }
+            )).toBe(false);
+            expect(FieldValidator.every(
+                ['hello', 'world'],
+                ['hello', 'world'],
+                { fn: 'isString' }
+            )).toBe(true);
         });
     });
 
@@ -682,27 +710,31 @@ describe('field validators', () => {
 
     describe('equals', () => {
         it('should return true if string is equal to a value', () => {
-            expect(FieldValidator.equals('hello', { value: 'hello' })).toBe(true);
-            expect(FieldValidator.equals('false', { value: 'false' })).toBe(true);
-            expect(FieldValidator.equals('12345', { value: '12345' })).toBe(true);
+            expect(FieldValidator.equals('hello', {}, { value: 'hello' })).toBe(true);
+            expect(FieldValidator.equals('false', {}, { value: 'false' })).toBe(true);
+            expect(FieldValidator.equals('12345', {}, { value: '12345' })).toBe(true);
         });
 
         it('should return false if string is not equal to value', () => {
-            expect(FieldValidator.equals('hello', { value: 'llo' })).toBe(false);
-            expect(FieldValidator.equals(true, { value: 'true' })).toBe(false);
-            expect(FieldValidator.equals(12345, { value: '12345' })).toBe(false);
-            expect(FieldValidator.equals({}, { value: 'hello' })).toBe(false);
+            expect(FieldValidator.equals('hello', {}, { value: 'llo' })).toBe(false);
+            expect(FieldValidator.equals(true, {}, { value: 'true' })).toBe(false);
+            expect(FieldValidator.equals(12345, {}, { value: '12345' })).toBe(false);
+            expect(FieldValidator.equals({}, {}, { value: 'hello' })).toBe(false);
         });
 
         it('validates an array of values, ignores undefined/null', () => {
-            expect(FieldValidator.equals(['12345', undefined], { value: '12345' })).toBe(true);
+            expect(FieldValidator.equals(
+                ['12345', undefined],
+                ['12345', undefined],
+                { value: '12345' }
+            )).toBe(true);
         });
     });
 
     describe('isAlpha', () => {
         it('should return true if value is alpha characters', () => {
             expect(FieldValidator.isAlpha('ThiSisAsTRing')).toBe(true);
-            expect(FieldValidator.isAlpha('ThisiZĄĆĘŚŁ', { locale: 'pl-Pl' })).toBe(true);
+            expect(FieldValidator.isAlpha('ThisiZĄĆĘŚŁ', {}, { locale: 'pl-Pl' })).toBe(true);
         });
 
         it('should return false if value is not alpha characters', () => {
@@ -710,7 +742,7 @@ describe('field validators', () => {
             expect(FieldValidator.isAlpha('ThisiZĄĆĘŚŁ')).toBe(false);
             expect(FieldValidator.isAlpha(false)).toBe(false);
             expect(FieldValidator.isAlpha({})).toBe(false);
-            expect(FieldValidator.isAlpha('1234ThisiZĄĆĘŚŁ', { locale: 'pl-PL' })).toBe(false);
+            expect(FieldValidator.isAlpha('1234ThisiZĄĆĘŚŁ', {}, { locale: 'pl-PL' })).toBe(false);
             expect(FieldValidator.isAlpha(['thisis a string'])).toBe(false);
             expect(FieldValidator.isAlpha('dude howdy')).toBe(false);
         });
@@ -725,9 +757,9 @@ describe('field validators', () => {
             expect(FieldValidator.isAlphanumeric('alpha1234')).toBe(true);
             expect(FieldValidator.isAlphanumeric('1234')).toBe(true);
             expect(FieldValidator.isAlphanumeric('allalpa')).toBe(true);
-            expect(FieldValidator.isAlphanumeric('فڤقکگ1234', { locale: 'ku-IQ' })).toBe(true);
-            expect(FieldValidator.isAlphanumeric('12343534', { locale: 'ku-IQ' })).toBe(true);
-            expect(FieldValidator.isAlphanumeric('فڤقک', { locale: 'ku-IQ' })).toBe(true);
+            expect(FieldValidator.isAlphanumeric('فڤقکگ1234', {}, { locale: 'ku-IQ' })).toBe(true);
+            expect(FieldValidator.isAlphanumeric('12343534', {}, { locale: 'ku-IQ' })).toBe(true);
+            expect(FieldValidator.isAlphanumeric('فڤقک', {}, { locale: 'ku-IQ' })).toBe(true);
         });
 
         it('should return false if string is not alphaNumeric chars for locale', () => {
@@ -787,7 +819,7 @@ describe('field validators', () => {
             expect(FieldValidator.isEmpty(null)).toBe(true);
             expect(FieldValidator.isEmpty({})).toBe(true);
             expect(FieldValidator.isEmpty([])).toBe(true);
-            expect(FieldValidator.isEmpty('     ', { ignoreWhitespace: true })).toBe(true);
+            expect(FieldValidator.isEmpty('     ', {}, { ignoreWhitespace: true })).toBe(true);
         });
 
         it('should return false for non-empty inputs', () => {
@@ -820,24 +852,28 @@ describe('field validators', () => {
 
     describe('isHash', () => {
         it('should return true for valid hash strings', () => {
-            expect(FieldValidator.isHash('6201b3d1815444c87e00963fcf008c1e', { algo: 'md5' })).toBe(true);
-            expect(FieldValidator.isHash('85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33', { algo: 'sha256' })).toBe(true);
-            expect(FieldValidator.isHash('98fc121ea4c749f2b06e4a768b92ef1c740625a0', { algo: 'sha1' })).toBe(true);
+            expect(FieldValidator.isHash('6201b3d1815444c87e00963fcf008c1e', {}, { algo: 'md5' })).toBe(true);
+            expect(FieldValidator.isHash('85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33', {}, { algo: 'sha256' })).toBe(true);
+            expect(FieldValidator.isHash('98fc121ea4c749f2b06e4a768b92ef1c740625a0', {}, { algo: 'sha1' })).toBe(true);
         });
 
         it('should return false for invalid hash strings', () => {
-            expect(FieldValidator.isHash('6201b3d18157e00963fcf008c1e', { algo: 'md5' })).toBe(false);
-            expect(FieldValidator.isHash('85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c107e33', { algo: 'sha256' })).toBe(false);
-            expect(FieldValidator.isHash('98fc121easdfasdfasdfads749f2b06e4a768b92ef1c740625a0', { algo: 'sha1' })).toBe(false);
-            expect(FieldValidator.isHash(12345, { algo: 'sha1' })).toBe(false);
-            expect(FieldValidator.isHash(true, { algo: 'sha1' })).toBe(false);
-            expect(FieldValidator.isHash([], { algo: 'sha1' })).toBe(false);
-            expect(FieldValidator.isHash('', { algo: 'sha1' })).toBe(false);
-            expect(FieldValidator.isHash('6201b3d1815444c87e00963fcf008c1e', { algo: 'sha1' })).toBe(false);
+            expect(FieldValidator.isHash('6201b3d18157e00963fcf008c1e', {}, { algo: 'md5' })).toBe(false);
+            expect(FieldValidator.isHash('85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c107e33', {}, { algo: 'sha256' })).toBe(false);
+            expect(FieldValidator.isHash('98fc121easdfasdfasdfads749f2b06e4a768b92ef1c740625a0', {}, { algo: 'sha1' })).toBe(false);
+            expect(FieldValidator.isHash(12345, {}, { algo: 'sha1' })).toBe(false);
+            expect(FieldValidator.isHash(true, {}, { algo: 'sha1' })).toBe(false);
+            expect(FieldValidator.isHash([], {}, { algo: 'sha1' })).toBe(false);
+            expect(FieldValidator.isHash('', {}, { algo: 'sha1' })).toBe(false);
+            expect(FieldValidator.isHash('6201b3d1815444c87e00963fcf008c1e', {}, { algo: 'sha1' })).toBe(false);
         });
 
         it('validates an array of values, ignores undefined/null', () => {
-            expect(FieldValidator.isHash(['6201b3d1815444c87e00963fcf008c1e', undefined], { algo: 'md5' })).toBe(true);
+            expect(FieldValidator.isHash(
+                ['6201b3d1815444c87e00963fcf008c1e', undefined],
+                ['6201b3d1815444c87e00963fcf008c1e', undefined],
+                { algo: 'md5' }
+            )).toBe(true);
         });
     });
 
@@ -891,16 +927,16 @@ describe('field validators', () => {
         it('should return true for valid ISSN numbers', () => {
             expect(FieldValidator.isISSN('0378-5955')).toBe(true);
             expect(FieldValidator.isISSN('03785955')).toBe(true);
-            expect(FieldValidator.isISSN('0378-5955', { requireHyphen: true })).toBe(true);
+            expect(FieldValidator.isISSN('0378-5955', {}, { requireHyphen: true })).toBe(true);
             expect(FieldValidator.isISSN('0000-006x')).toBe(true);
-            expect(FieldValidator.isISSN('0000-006X', { requireHyphen: true, caseSensitive: true })).toBe(true);
+            expect(FieldValidator.isISSN('0000-006X', {}, { requireHyphen: true, caseSensitive: true })).toBe(true);
         });
 
         it('should return false for invalid ISSN numbers', () => {
             expect(FieldValidator.isISSN('0375955')).toBe(false);
-            expect(FieldValidator.isISSN('03785955', { requireHyphen: true })).toBe(false);
-            expect(FieldValidator.isISSN('0000-006x', { caseSensitive: true })).toBe(false);
-            expect(FieldValidator.isISSN('0000-006x', { caseSensitive: true })).toBe(false);
+            expect(FieldValidator.isISSN('03785955', {}, { requireHyphen: true })).toBe(false);
+            expect(FieldValidator.isISSN('0000-006x', {}, { caseSensitive: true })).toBe(false);
+            expect(FieldValidator.isISSN('0000-006x', {}, { caseSensitive: true })).toBe(false);
             expect(FieldValidator.isISSN('hellothere')).toBe(false);
             expect(FieldValidator.isISSN(123456)).toBe(false);
             expect(FieldValidator.isISSN(true)).toBe(false);
@@ -962,29 +998,33 @@ describe('field validators', () => {
 
     describe('isLength', () => {
         it('should return true for strings of length or strings within length min/ max', () => {
-            expect(FieldValidator.isLength('astring', { size: 7 })).toBe(true);
-            expect(FieldValidator.isLength('astring', { min: 4 })).toBe(true);
-            expect(FieldValidator.isLength('astring', { max: 10 })).toBe(true);
-            expect(FieldValidator.isLength('astring', { min: 5, max: 10 })).toBe(true);
-            expect(FieldValidator.isLength('astring', { min: 7, max: 10 })).toBe(true);
-            expect(FieldValidator.isLength('astring', { min: 5, max: 7 })).toBe(true);
+            expect(FieldValidator.isLength('astring', {}, { size: 7 })).toBe(true);
+            expect(FieldValidator.isLength('astring', {}, { min: 4 })).toBe(true);
+            expect(FieldValidator.isLength('astring', {}, { max: 10 })).toBe(true);
+            expect(FieldValidator.isLength('astring', {}, { min: 5, max: 10 })).toBe(true);
+            expect(FieldValidator.isLength('astring', {}, { min: 7, max: 10 })).toBe(true);
+            expect(FieldValidator.isLength('astring', {}, { min: 5, max: 7 })).toBe(true);
         });
 
         it('should return false for strings not of length or strings outside length min/ max', () => {
-            expect(FieldValidator.isLength('astring', { size: 5 })).toBe(false);
-            expect(FieldValidator.isLength('astring', { min: 8 })).toBe(false);
-            expect(FieldValidator.isLength('astring', { max: 6 })).toBe(false);
-            expect(FieldValidator.isLength('astring', { min: 1, max: 5 })).toBe(false);
-            expect(FieldValidator.isLength(true, { min: 1, max: 5 })).toBe(false);
-            expect(FieldValidator.isLength(['astring'], { min: 1, max: 5 })).toBe(false);
-            expect(FieldValidator.isLength(undefined, { min: 1, max: 5 })).toBe(false);
-            expect(FieldValidator.isLength(1234, { min: 1, max: 5 })).toBe(false);
-            expect(FieldValidator.isLength({ string: 'astring' }, { min: 1, max: 5 })).toBe(false);
-            expect(FieldValidator.isLength('astring', {})).toBe(false);
+            expect(FieldValidator.isLength('astring', {}, { size: 5 })).toBe(false);
+            expect(FieldValidator.isLength('astring', {}, { min: 8 })).toBe(false);
+            expect(FieldValidator.isLength('astring', {}, { max: 6 })).toBe(false);
+            expect(FieldValidator.isLength('astring', {}, { min: 1, max: 5 })).toBe(false);
+            expect(FieldValidator.isLength(true, {}, { min: 1, max: 5 })).toBe(false);
+            expect(FieldValidator.isLength(['astring'], {}, { min: 1, max: 5 })).toBe(false);
+            expect(FieldValidator.isLength(undefined, {}, { min: 1, max: 5 })).toBe(false);
+            expect(FieldValidator.isLength(1234, {}, { min: 1, max: 5 })).toBe(false);
+            expect(FieldValidator.isLength({ string: 'astring' }, {}, { min: 1, max: 5 })).toBe(false);
+            expect(FieldValidator.isLength('astring', {}, {})).toBe(false);
         });
 
         it('validates an array of values, ignores undefined/null', () => {
-            expect(FieldValidator.isLength(['astring', undefined], { min: 5, max: 10 })).toBe(true);
+            expect(FieldValidator.isLength(
+                ['astring', undefined],
+                ['astring', undefined],
+                { min: 5, max: 10 }
+            )).toBe(true);
         });
     });
 
@@ -1011,25 +1051,29 @@ describe('field validators', () => {
 
     describe('isPostalCode', () => {
         it('should return true for valid postal codes', () => {
-            expect(FieldValidator.isPostalCode('85249', { locale: 'any' })).toBe(true);
-            expect(FieldValidator.isPostalCode('85249', { locale: 'ES' })).toBe(true);
-            expect(FieldValidator.isPostalCode('85249', { locale: 'ES' })).toBe(true);
-            expect(FieldValidator.isPostalCode('852', { locale: 'IS' })).toBe(true);
-            expect(FieldValidator.isPostalCode('885 49', { locale: 'SE' })).toBe(true);
+            expect(FieldValidator.isPostalCode('85249', {}, { locale: 'any' })).toBe(true);
+            expect(FieldValidator.isPostalCode('85249', {}, { locale: 'ES' })).toBe(true);
+            expect(FieldValidator.isPostalCode('85249', {}, { locale: 'ES' })).toBe(true);
+            expect(FieldValidator.isPostalCode('852', {}, { locale: 'IS' })).toBe(true);
+            expect(FieldValidator.isPostalCode('885 49', {}, { locale: 'SE' })).toBe(true);
         });
 
         it('should return false for invalid postal codes', () => {
-            expect(FieldValidator.isPostalCode('', { locale: 'any' })).toBe(false);
-            expect(FieldValidator.isPostalCode(123345, { locale: 'ES' })).toBe(false);
-            expect(FieldValidator.isPostalCode({}, { locale: 'ES' })).toBe(false);
-            expect(FieldValidator.isPostalCode('8522-342', { locale: 'IS' })).toBe(false);
-            expect(FieldValidator.isPostalCode('885%49', { locale: 'SE' })).toBe(false);
-            expect(FieldValidator.isPostalCode(true, { locale: 'any' })).toBe(false);
-            expect(FieldValidator.isPostalCode(null, { locale: 'ES' })).toBe(false);
+            expect(FieldValidator.isPostalCode('', {}, { locale: 'any' })).toBe(false);
+            expect(FieldValidator.isPostalCode(123345, {}, { locale: 'ES' })).toBe(false);
+            expect(FieldValidator.isPostalCode({}, {}, { locale: 'ES' })).toBe(false);
+            expect(FieldValidator.isPostalCode('8522-342', {}, { locale: 'IS' })).toBe(false);
+            expect(FieldValidator.isPostalCode('885%49', {}, { locale: 'SE' })).toBe(false);
+            expect(FieldValidator.isPostalCode(true, {}, { locale: 'any' })).toBe(false);
+            expect(FieldValidator.isPostalCode(null, {}, { locale: 'ES' })).toBe(false);
         });
 
         it('validates an array of values, ignores undefined/null', () => {
-            expect(FieldValidator.isPostalCode(['852', undefined], { locale: 'IS' })).toBe(true);
+            expect(FieldValidator.isPostalCode(
+                ['852', undefined],
+                ['852', undefined],
+                { locale: 'IS' }
+            )).toBe(true);
         });
     });
 });

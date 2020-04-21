@@ -172,11 +172,15 @@ export const repository: i.Repository = {
     },
 };
 
-function _lift(fn: any, input: any[], args?: any) {
+function _lift(fn: any, input: any[], parentContext?: any, args?: any) {
     const sanitized = input.filter(ts.isNotNil);
     if (sanitized.length === 0) return false;
 
-    return sanitized.every((data) => fn(data, args));
+    return sanitized.every((data) => fn(data, parentContext, args));
+}
+
+function handleArgs(fn: any) {
+    return (data: any, _parentContext: any, args: any) => fn(data, args);
 }
 
 /**
@@ -191,9 +195,9 @@ function _lift(fn: any, input: any[], args?: any) {
  * @returns {boolean} boolean
  */
 
-export function isBoolean(input: any): boolean {
+export function isBoolean(input: any, _parentContext?: any): boolean {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(ts.isBoolean, input);
+    if (isArray(input)) return _lift(handleArgs(ts.isBoolean), input, _parentContext);
 
     return ts.isBoolean(input);
 }
@@ -215,7 +219,7 @@ export function isBoolean(input: any): boolean {
  * @returns {boolean} boolean
  */
 
-export function isBooleanLike(input: any): boolean {
+export function isBooleanLike(input: any, _parentContext?: any): boolean {
     if (isArray(input)) return input.every(ts.isBooleanLike);
 
     return ts.isBooleanLike(input);
@@ -232,9 +236,9 @@ export function isBooleanLike(input: any): boolean {
  * @returns {boolean} boolean
  */
 
-export function isEmail(input: any): boolean {
+export function isEmail(input: any, _parentContext?: any): boolean {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(ts.isEmail, input);
+    if (isArray(input)) return _lift(handleArgs(ts.isEmail), input, _parentContext);
 
     return ts.isEmail(input);
 }
@@ -253,11 +257,11 @@ export function isEmail(input: any): boolean {
  * @returns {boolean} boolean
  */
 
-export function isGeoPoint(input: any) {
+export function isGeoPoint(input: any, _parentContext?: any) {
     if (ts.isNil(input)) return false;
 
     if (isArray(input) && !isNumberTuple(input)) {
-        return _lift(ts.parseGeoPoint, input, false);
+        return _lift(handleArgs(ts.parseGeoPoint), input, _parentContext, false);
     }
 
     // TODO: check for tuple vs an array of numbers
@@ -283,9 +287,9 @@ export function isGeoPoint(input: any) {
  * @returns {boolean} boolean
  */
 
-export function isGeoJSON(input: any) {
+export function isGeoJSON(input: any, _parentContext?: any) {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(ts.isGeoJSON, input);
+    if (isArray(input)) return _lift(handleArgs(ts.isGeoJSON), input, _parentContext);
 
     return ts.isGeoJSON(input);
 }
@@ -305,9 +309,9 @@ export function isGeoJSON(input: any) {
  * @returns {boolean} boolean
  */
 
-export function isGeoShapePoint(input: any) {
+export function isGeoShapePoint(input: any, _parentContext?: any) {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(ts.isGeoShapePoint, input);
+    if (isArray(input)) return _lift(handleArgs(ts.isGeoShapePoint), input, _parentContext);
 
     return ts.isGeoShapePoint(input);
 }
@@ -329,9 +333,9 @@ export function isGeoShapePoint(input: any) {
  * @returns {boolean} boolean
  */
 
-export function isGeoShapePolygon(input: any) {
+export function isGeoShapePolygon(input: any, _parentContext?: any) {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(ts.isGeoShapePolygon, input);
+    if (isArray(input)) return _lift(handleArgs(ts.isGeoShapePolygon), input, _parentContext);
 
     return ts.isGeoShapePolygon(input);
 }
@@ -358,9 +362,9 @@ export function isGeoShapePolygon(input: any) {
  * @returns {boolean} boolean
  */
 
-export function isGeoShapeMultiPolygon(input: any) {
+export function isGeoShapeMultiPolygon(input: any, _parentContext?: any) {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(ts.isGeoShapeMultiPolygon, input);
+    if (isArray(input)) return _lift(handleArgs(ts.isGeoShapeMultiPolygon), input, _parentContext);
 
     return ts.isGeoShapeMultiPolygon(input);
 }
@@ -381,14 +385,14 @@ export function isGeoShapeMultiPolygon(input: any) {
  * @returns {boolean} boolean
  */
 
-export function isIP(input: any) {
+export function isIP(input: any, _parentContext?: any) {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(_isIp, input);
+    if (isArray(input)) return _lift(_isIp, input, _parentContext);
 
     return _isIp(input);
 }
 
-function _isIp(input: any) {
+function _isIp(input: any, _parentContext?: any) {
     if (checkIP(input) === 0) return false;
 
     // needed to check for inputs like - '::192.168.1.18'
@@ -408,14 +412,14 @@ function _isIp(input: any) {
  * @returns {boolean} boolean
  */
 
-export function isRoutableIP(input: any): boolean {
+export function isRoutableIP(input: any, _parentContext?: any): boolean {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(_isRoutableIP, input);
+    if (isArray(input)) return _lift(_isRoutableIP, input, _parentContext);
 
     return _isRoutableIP(input);
 }
 
-function _isRoutableIP(input: any): boolean {
+function _isRoutableIP(input: any, _parentContext?: any): boolean {
     if (!isIP(input)) return false;
 
     const range = ipaddr.parse(input).range();
@@ -432,14 +436,14 @@ function _isRoutableIP(input: any): boolean {
  * @returns { boolean } boolean
  */
 
-export function isNonRoutableIP(input: any): boolean {
+export function isNonRoutableIP(input: any, _parentContext?: any): boolean {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(_isNonRoutableIP, input);
+    if (isArray(input)) return _lift(_isNonRoutableIP, input, _parentContext);
 
     return _isNonRoutableIP(input);
 }
 
-function _isNonRoutableIP(input: any): boolean {
+function _isNonRoutableIP(input: any, _parentContext?: any): boolean {
     if (!isIP(input)) return false;
 
     const range = ipaddr.parse(input).range();
@@ -456,14 +460,14 @@ function _isNonRoutableIP(input: any): boolean {
  * @returns {boolean} boolean
  */
 
-export function isCIDR(input: any) {
+export function isCIDR(input: any, _parentContext?: any) {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(_isCidr, input);
+    if (isArray(input)) return _lift(_isCidr, input, _parentContext);
 
     return _isCidr(input);
 }
 
-function _isCidr(input: any): boolean {
+function _isCidr(input: any, _parentContext?: any): boolean {
     return validateCidr(input) > 0;
 }
 
@@ -479,9 +483,11 @@ function _isCidr(input: any): boolean {
  * @returns {boolean} boolean
  */
 
-export function inIPRange(input: any, args: { min?: string; max?: string; cidr?: string }) {
+export function inIPRange(
+    input: any, _parentContext: any, args: { min?: string; max?: string; cidr?: string }
+) {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(_inIPRange, input, args);
+    if (isArray(input)) return _lift(_inIPRange, input, _parentContext, args);
 
     return _inIPRange(input, args);
 }
@@ -527,7 +533,7 @@ function _inIPRange(input: any, args: { min?: string; max?: string; cidr?: strin
  * @returns {boolean} boolean
  */
 
-export function isISDN(input: any): boolean {
+export function isISDN(input: any, _parentContext?: any): boolean {
     if (ts.isNil(input)) return false;
     if (isArray(input)) {
         const fn = (data: any) => {
@@ -535,7 +541,7 @@ export function isISDN(input: any): boolean {
             return phoneNumber.isValid();
         };
 
-        return _lift(fn, input);
+        return _lift(fn, input, _parentContext);
     }
 
     const phoneNumber = new PhoneValidator(`+${input}`);
@@ -547,24 +553,24 @@ export function isISDN(input: any): boolean {
  *
  * @example
  * FieldValidator.isMACAddress('001f.f35b.2b1f') === true
- * FieldValidator.isMACAddress('001ff35b2b1f', { delimiter: 'any' }) === true
- * FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', { delimiter: 'colon' }) === true
- * FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', { delimiter: 'dash' }) === true
- * FieldValidator.isMACAddress('001ff35b2b1f', { delimiter: 'none' }) === true
- * FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', { delimiter: ['dash', 'colon'] }) === true
- * FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', { delimiter: 'dash' }) === false
- * FieldValidator.isMACAddress('00 1f f3 5b 2b 1f', { delimiter: 'colon' }) === false
- * FieldValidator.isMACAddress('001ff35b2b1f', { delimiter: 'colon' }) === false
- * FieldValidator.isMACAddress('001ff35b2b1f', { delimiter: ['dash', 'colon'] }) === false
+ * FieldValidator.isMACAddress('001ff35b2b1f', {}, { delimiter: 'any' }) === true
+ * FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', {}, { delimiter: 'colon' }) === true
+ * FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', {}, { delimiter: 'dash' }) === true
+ * FieldValidator.isMACAddress('001ff35b2b1f', {}, { delimiter: 'none' }) === true
+ * FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', {}, { delimiter: ['dash', 'colon'] }) === true
+ * FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', {}, { delimiter: 'dash' }) === false
+ * FieldValidator.isMACAddress('00 1f f3 5b 2b 1f', {}, { delimiter: 'colon' }) === false
+ * FieldValidator.isMACAddress('001ff35b2b1f', {}, { delimiter: 'colon' }) === false
+ * FieldValidator.isMACAddress('001ff35b2b1f', {}, { delimiter: ['dash', 'colon'] }) === false
  *
  * @param {*} input
  * @param {{delimiter}} [{ delimiter?: string}] may be set to 'colon'|'space'|'dash'|'dot'|'none'
  * @returns {boolean} boolean
  */
 
-export function isMACAddress(input: any, args?: MACAddress): boolean {
+export function isMACAddress(input: any, _parentContext?: any, args?: MACAddress): boolean {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(ts.isMacAddress, input, args);
+    if (isArray(input)) return _lift(handleArgs(ts.isMacAddress), input, _parentContext, args);
 
     return ts.isMacAddress(input, args);
 }
@@ -574,16 +580,19 @@ export function isMACAddress(input: any, args?: MACAddress): boolean {
  * of numbers are between the values
  *
  * @example
- * expect(FieldValidator.inNumberRange(-12, { min: -100, max: 45 })).toBe(true);
- * expect(FieldValidator.inNumberRange(0, { max: 45 })).toBe(true);
+ * expect(FieldValidator.inNumberRange(-12, {}, { min: -100, max: 45 })).toBe(true);
+ * expect(FieldValidator.inNumberRange(0, {}, { max: 45 })).toBe(true);
  *
  * @param {number} input
  * @param {{ min?: number; max?: number; inclusive?: boolean }} args
  * @returns {boolean} boolean
  */
 
-export function inNumberRange(input: any,
-    args: { min?: number; max?: number; inclusive?: boolean }): boolean {
+export function inNumberRange(
+    input: any,
+    _parentContext: any,
+    args: { min?: number; max?: number; inclusive?: boolean }
+): boolean {
     if (ts.isNil(input)) return false;
     if (isArray(input)) {
         const fn = (data: any) => {
@@ -591,7 +600,7 @@ export function inNumberRange(input: any,
             return ts.inNumberRange(data, args);
         };
 
-        return _lift(fn, input, args);
+        return _lift(fn, input, _parentContext, args);
     }
 
     if (!isNumber(input)) return false;
@@ -611,9 +620,9 @@ export function inNumberRange(input: any,
  * @returns {boolean} boolean
  */
 
-export function isNumber(input: any): input is number {
+export function isNumber(input: any, _parentContext?: any): input is number {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(ts.isNumber, input);
+    if (isArray(input)) return _lift(handleArgs(ts.isNumber), input, _parentContext);
 
     return ts.isNumber(input);
 }
@@ -631,9 +640,9 @@ export function isNumber(input: any): input is number {
  * @returns {boolean} boolean
  */
 
-export function isInteger(input: any): boolean {
+export function isInteger(input: any, _parentContext?: any): boolean {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(ts.isInteger, input);
+    if (isArray(input)) return _lift(handleArgs(ts.isInteger), input, _parentContext);
 
     return ts.isInteger(input);
 }
@@ -651,9 +660,9 @@ export function isInteger(input: any): boolean {
  * @returns {boolean} boolean
  */
 
-export function isString(input: any): boolean {
+export function isString(input: any, _parentContext?: any): boolean {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(ts.isString, input);
+    if (isArray(input)) return _lift(handleArgs(ts.isString), input, _parentContext);
 
     return ts.isString(input);
 }
@@ -670,12 +679,12 @@ export function isString(input: any): boolean {
  * @returns {boolean} boolean
  */
 
-export function isURL(input: any): boolean {
+export function isURL(input: any, _parentContext?: any): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && url.isUri(data) !== null;
-        return _lift(fn, input);
+        return _lift(fn, input, _parentContext);
     }
 
     return isString(input) && url.isUri(input) != null;
@@ -691,12 +700,12 @@ export function isURL(input: any): boolean {
  * @returns {boolean} boolean
  */
 
-export function isUUID(input: any): boolean {
+export function isUUID(input: any, _parentContext?: any): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isUUID(data);
-        return _lift(fn, input);
+        return _lift(fn, input, _parentContext);
     }
 
     return isString(input) && validator.isUUID(input);
@@ -707,21 +716,21 @@ export function isUUID(input: any): boolean {
  * or that the array of inputs contains the value in args
  *
  * @example
- * expect(FieldValidator.contains('12345', { value: '12345' })).toBe(true);
- * expect(FieldValidator.contains('hello', { value: 'llo' })).toBe(false);
+ * expect(FieldValidator.contains('12345', {}, { value: '12345' })).toBe(true);
+ * expect(FieldValidator.contains('hello', {}, { value: 'llo' })).toBe(false);
  *
  * @param {*} input
  * @param {{ value: string }} { value }
  * @returns {boolean} boolean
  */
 
-export function contains(input: any, args: { value: string }): boolean {
+export function contains(input: any, _parentContext: any, args: { value: string }): boolean {
     if (ts.isNil(input)) return false;
     if (!args.value) throw new Error('Parameter value must provided');
 
     if (isArray(input)) {
         const fn = (data: any) => ts.includes(data, args.value);
-        return _lift(fn, input);
+        return _lift(fn, input, _parentContext);
     }
 
     return ts.includes(input, args.value);
@@ -731,21 +740,21 @@ export function contains(input: any, args: { value: string }): boolean {
  * Validates that the input matches the value, of that the input array matches the value provided
  *
  * @example
- * expect(FieldValidator.equals('12345', { value: '12345' })).toBe(true);
- * expect(FieldValidator.equals('hello', { value: 'llo' })).toBe(false);
+ * expect(FieldValidator.equals('12345', {}, { value: '12345' })).toBe(true);
+ * expect(FieldValidator.equals('hello', {}, { value: 'llo' })).toBe(false);
  *
  * @param {*} input
  * @param {{ value: string }} { value }
  * @returns {boolean} boolean
  */
 
-export function equals(input: any, args: { value: string }): boolean {
+export function equals(input: any, _parentContext: any, args: { value: string }): boolean {
     if (ts.isNil(input)) return false;
     if (!args.value) throw new Error('A value must provided with the input');
 
     if (isArray(input)) {
         const fn = (data: any) => Object.is(data, args.value);
-        return _lift(fn, input);
+        return _lift(fn, input, _parentContext);
     }
 
     return Object.is(input, args.value);
@@ -756,21 +765,23 @@ export function equals(input: any, args: { value: string }): boolean {
  *
  * @example
  * expect(FieldValidator.isAlpha('ThiSisAsTRing')).toBe(true);
- * expect(FieldValidator.isAlpha('ThisiZĄĆĘŚŁ', { locale: 'pl-Pl' })).toBe(true);
+ * expect(FieldValidator.isAlpha('ThisiZĄĆĘŚŁ', {}, { locale: 'pl-Pl' })).toBe(true);
  *
  * @param {*} input
  * @param {{ locale: validator.AlphaLocale }} [args]
  * @returns {boolean} boolean
  */
 
-export function isAlpha(input: any, args?: { locale: validator.AlphaLocale }): boolean {
+export function isAlpha(
+    input: any, _parentContext?: any, args?: { locale: validator.AlphaLocale }
+): boolean {
     if (ts.isNil(input)) return false;
 
     const locale: validator.AlphaLocale = args && args.locale ? args.locale : 'en-US';
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isAlpha(data, locale);
-        return _lift(fn, input);
+        return _lift(fn, input, _parentContext);
     }
 
     return isString(input) && validator.isAlpha(input, locale);
@@ -782,22 +793,25 @@ export function isAlpha(input: any, args?: { locale: validator.AlphaLocale }): b
  * @example
  * expect(FieldValidator.isAlphanumeric('1234')).toBe(true);
  * expect(FieldValidator.isAlphanumeric('allalpa')).toBe(true);
- * expect(FieldValidator.isAlphanumeric('فڤقکگ1234', { locale: 'ku-IQ' })).toBe(true);
+ * expect(FieldValidator.isAlphanumeric('فڤقکگ1234', {}, { locale: 'ku-IQ' })).toBe(true);
  *
  * @param {*} input
  * @param {{ locale: validator.AlphanumericLocale }} [args]
  * @returns {boolean} boolean
  */
 
-export function isAlphanumeric(input: any,
-    args?: { locale: validator.AlphanumericLocale }): boolean {
+export function isAlphanumeric(
+    input: any,
+    _parentContext?: any,
+    args?: { locale: validator.AlphanumericLocale }
+): boolean {
     if (ts.isNil(input)) return false;
 
     const locale: validator.AlphanumericLocale = args && args.locale ? args.locale : 'en-US';
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isAlphanumeric(data, locale);
-        return _lift(fn, input);
+        return _lift(fn, input, _parentContext);
     }
 
     return isString(input) && validator.isAlphanumeric(input, locale);
@@ -810,12 +824,12 @@ export function isAlphanumeric(input: any,
  * @returns {boolean} boolean
  */
 
-export function isASCII(input: any): boolean {
+export function isASCII(input: any, _parentContext?: any): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isAscii(data);
-        return _lift(fn, input);
+        return _lift(fn, input, _parentContext);
     }
 
     return isString(input) && validator.isAscii(input);
@@ -831,12 +845,12 @@ export function isASCII(input: any): boolean {
  * @returns {boolean} boolean
  */
 
-export function isBase64(input: any): boolean {
+export function isBase64(input: any, _parentContext?: any): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isBase64(data);
-        return _lift(fn, input);
+        return _lift(fn, input, _parentContext);
     }
 
     return isString(input) && validator.isBase64(input);
@@ -850,14 +864,16 @@ export function isBase64(input: any): boolean {
  * expect(FieldValidator.isEmpty(null)).toBe(true);
  * expect(FieldValidator.isEmpty({})).toBe(true);
  * expect(FieldValidator.isEmpty([])).toBe(true);
- * expect(FieldValidator.isEmpty('     ', { ignoreWhitespace: true })).toBe(true);
+ * expect(FieldValidator.isEmpty('     ', {}, { ignoreWhitespace: true })).toBe(true);
  *
  * @param {*} input
  * @param {{ ignoreWhitespace: boolean }} [args] set to true if you want the value to be trimed
  * @returns {boolean} boolean
  */
 
-export function isEmpty(input: any, args?: { ignoreWhitespace: boolean }): boolean {
+export function isEmpty(
+    input: any, _parentContext?: any, args?: { ignoreWhitespace: boolean }
+): boolean {
     let value = input;
 
     if (isString(value) && args && args.ignoreWhitespace) {
@@ -879,7 +895,7 @@ export function isEmpty(input: any, args?: { ignoreWhitespace: boolean }): boole
  * @returns {boolean} boolean
  */
 
-export function isFQDN(input: any, args?: FQDNOptions): boolean {
+export function isFQDN(input: any, _parentContext?: any, args?: FQDNOptions): boolean {
     if (ts.isNil(input)) return false;
 
     const config = {
@@ -890,7 +906,7 @@ export function isFQDN(input: any, args?: FQDNOptions): boolean {
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isFQDN(data, config);
-        return _lift(fn, input);
+        return _lift(fn, input, _parentContext);
     }
 
     return isString(input) && validator.isFQDN(input, config);
@@ -904,25 +920,28 @@ export function isFQDN(input: any, args?: FQDNOptions): boolean {
  * const sha256Config = { algo: 'sha256' }
  * const sha1Config = { algo: 'sha1' }
  *
- * expect(FieldValidator.isHash('6201b3d1815444c87e00963fcf008c1e', md5Config)).toBe(true);
+ * expect(FieldValidator.isHash('6201b3d1815444c87e00963fcf008c1e', {}, md5Config)).toBe(true);
  * expect(FieldValidator.isHash(
  *  '85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33',
+ *  {},
  *  sha256Config
  * )).toBe(true);
- * expect(FieldValidator.isHash('98fc121ea4c749f2b06e4a768b92ef1c740625a0', sha1Config)).toBe(true);
+ * expect(
+ * FieldValidator.isHash('98fc121ea4c749f2b06e4a768b92ef1c740625a0', {}, sha1Config)
+ * ).toBe(true);
  *
  * @param {*} input
  * @param {HashConfig} { algo }
  * @returns {boolean} boolean
  */
 
-export function isHash(input: any, args: HashConfig): boolean {
+export function isHash(input: any, _parentContext: any, args: HashConfig): boolean {
     if (ts.isNil(input)) return false;
     if (args?.algo === undefined) throw new Error('Parameter property algo was not provided');
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isHash(data, args.algo);
-        return _lift(fn, input);
+        return _lift(fn, input, _parentContext);
     }
 
     return isString(input) && validator.isHash(input, args.algo);
@@ -940,12 +959,12 @@ export function isHash(input: any, args: HashConfig): boolean {
  * @returns {boolean} boolean
  */
 
-export function isCountryCode(input: any): boolean {
+export function isCountryCode(input: any, _parentContext?: any): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isISO31661Alpha2(data);
-        return _lift(fn, input);
+        return _lift(fn, input, _parentContext);
     }
 
     return isString(input) && validator.isISO31661Alpha2(input);
@@ -962,12 +981,12 @@ export function isCountryCode(input: any): boolean {
  * @returns {boolean} boolean
  */
 
-export function isISO8601(input: any): boolean {
+export function isISO8601(input: any, _parentContext?: any): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isISO8601(data);
-        return _lift(fn, input);
+        return _lift(fn, input, _parentContext);
     }
 
     return isString(input) && validator.isISO8601(input);
@@ -978,14 +997,14 @@ export function isISO8601(input: any): boolean {
  * @example
  * expect(FieldValidator.isISSN('0378-5955')).toBe(true);
  * expect(FieldValidator.isISSN('03785955')).toBe(true)
- * expect(FieldValidator.isISSN('0378-5955', { requireHyphen: true })).toBe(true);
+ * expect(FieldValidator.isISSN('0378-5955', {}, { requireHyphen: true })).toBe(true);
  *
  * @param {*} input
  * @param {ArgsISSNOptions} [{ requireHyphen?: boolean; caseSensitive?: boolean;}]
  * @returns {boolean} boolean
  */
 
-export function isISSN(input: any, args?: ArgsISSNOptions): boolean {
+export function isISSN(input: any, _parentContext?: any, args?: ArgsISSNOptions): boolean {
     if (ts.isNil(input)) return false;
 
     const config = {
@@ -995,7 +1014,7 @@ export function isISSN(input: any, args?: ArgsISSNOptions): boolean {
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isISSN(data, config);
-        return _lift(fn, input);
+        return _lift(fn, input, _parentContext);
     }
 
     return isString(input) && validator.isISSN(input, config);
@@ -1013,12 +1032,12 @@ export function isISSN(input: any, args?: ArgsISSNOptions): boolean {
  * @returns {boolean} boolean
  */
 
-export function isRFC3339(input: any): boolean {
+export function isRFC3339(input: any, _parentContext?: any): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isRFC3339(data);
-        return _lift(fn, input);
+        return _lift(fn, input, _parentContext);
     }
 
     return isString(input) && validator.isRFC3339(input);
@@ -1037,12 +1056,12 @@ export function isRFC3339(input: any): boolean {
  * @returns {boolean} boolean
  */
 
-export function isJSON(input: any): boolean {
+export function isJSON(input: any, _parentContext?: any): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isJSON(data);
-        return _lift(fn, input);
+        return _lift(fn, input, _parentContext);
     }
 
     return isString(input) && validator.isJSON(input);
@@ -1051,17 +1070,17 @@ export function isJSON(input: any): boolean {
 /**
  * Check to see if input is a string with given length ranges, or a list of valid string lengths
  * @example
- * expect(FieldValidator.isLength('astring', { size: 7 })).toBe(true);
- * expect(FieldValidator.isLength('astring', { min: 5, max: 10 })).toBe(true);
- * expect(FieldValidator.isLength('astring', { size: 5 })).toBe(false);
- * expect(FieldValidator.isLength('astring', { min: 8 })).toBe(false);
+ * expect(FieldValidator.isLength('astring', {}, { size: 7 })).toBe(true);
+ * expect(FieldValidator.isLength('astring', {}, { min: 5, max: 10 })).toBe(true);
+ * expect(FieldValidator.isLength('astring', {}, { size: 5 })).toBe(false);
+ * expect(FieldValidator.isLength('astring', {}, { min: 8 })).toBe(false);
  *
  * @param {*} input
  * @param {LengthConfig} { size, min, max }
  * @returns {boolean} boolean
  */
 
-export function isLength(input: any, { size, min, max }: LengthConfig) {
+export function isLength(input: any, _parentContext: any, { size, min, max }: LengthConfig) {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
@@ -1070,7 +1089,7 @@ export function isLength(input: any, { size, min, max }: LengthConfig) {
             if (min || max) return validator.isLength(data, { min, max });
             return false;
         };
-        return _lift(fn, input);
+        return _lift(fn, input, _parentContext);
     }
 
     if (isString(input)) {
@@ -1092,12 +1111,12 @@ export function isLength(input: any, { size, min, max }: LengthConfig) {
  * @returns {boolean} boolean
  */
 
-export function isMIMEType(input: any): boolean {
+export function isMIMEType(input: any, _parentContext?: any): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isMimeType(data);
-        return _lift(fn, input);
+        return _lift(fn, input, _parentContext);
     }
 
     return isString(input) && validator.isMimeType(input);
@@ -1107,24 +1126,24 @@ export function isMIMEType(input: any): boolean {
  * Validates that input is a valid postal code or a list of postal codes
  *
  * @example
- * expect(FieldValidator.isPostalCode('85249', { locale: 'any' })).toBe(true);
- * expect(FieldValidator.isPostalCode('85249', { locale: 'ES' })).toBe(true);
- * expect(FieldValidator.isPostalCode('85249', { locale: 'ES' })).toBe(true);
- * expect(FieldValidator.isPostalCode('852', { locale: 'IS' })).toBe(true);
- * expect(FieldValidator.isPostalCode('885 49', { locale: 'SE' })).toBe(true);
+ * expect(FieldValidator.isPostalCode('85249', {}, { locale: 'any' })).toBe(true);
+ * expect(FieldValidator.isPostalCode('85249', {}, { locale: 'ES' })).toBe(true);
+ * expect(FieldValidator.isPostalCode('85249', {}, { locale: 'ES' })).toBe(true);
+ * expect(FieldValidator.isPostalCode('852', {}, { locale: 'IS' })).toBe(true);
+ * expect(FieldValidator.isPostalCode('885 49', {}, { locale: 'SE' })).toBe(true);
  *
  * @param {*} input
  * @param {({ locale: 'any' | PostalCodeLocale })} { locale }
  * @returns {boolean} boolean
  */
 
-export function isPostalCode(input: any, args: { locale: 'any' | PostalCodeLocale }): boolean {
+export function isPostalCode(input: any, _parentContext: any, args: { locale: 'any' | PostalCodeLocale }): boolean {
     if (ts.isNil(input)) return false;
     if (!args?.locale) throw new Error('Invalid parameter locale, must provide an object with locale');
 
     if (isArray(input)) {
         const fn = (data: any) => isString(data) && validator.isPostalCode(data, args.locale);
-        return _lift(fn, input);
+        return _lift(fn, input, _parentContext);
     }
 
     return isString(input) && validator.isPostalCode(input, args.locale);
@@ -1146,11 +1165,11 @@ export function isPostalCode(input: any, args: { locale: 'any' | PostalCodeLocal
  * @returns {boolean} boolean
  */
 
-export function isValidDate(input: any): boolean {
+export function isValidDate(input: any, _parentContext?: any): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
-        return _lift(ts.isValidDate, input);
+        return _lift(handleArgs(ts.isValidDate), input, _parentContext);
     }
 
     return !isBoolean(input) && ts.isValidDate(input);
@@ -1166,7 +1185,7 @@ export function isValidDate(input: any): boolean {
  * @returns {boolean} boolean
  */
 
-export function guard(input: any) {
+export function guard(input: any, _parentContext?: any) {
     if (ts.isNil(input)) throw new Error('Expected value not to be empty');
     return true;
 }
@@ -1181,7 +1200,7 @@ export function guard(input: any) {
  * @returns {boolean} boolean
  */
 
-export function exists(input: any): boolean {
+export function exists(input: any, _parentContext?: any): boolean {
     return !ts.isNil(input);
 }
 
@@ -1196,7 +1215,7 @@ export function exists(input: any): boolean {
  * @returns {boolean} boolean
  */
 
-export function isArray(input: any): input is any[] {
+export function isArray(input: any, _parentContext?: any): input is any[] {
     if (Array.isArray(input)) return true;
     return false;
 }
@@ -1205,8 +1224,9 @@ export function isArray(input: any): input is any[] {
  * Validates that the function specified returns true at least once on the list of values
  *
  * @example
- * expect(FieldValidator.some(['hello', 3, { some: 'obj' }], { fn: 'isString' })).toBe(true);
- * expect(FieldValidator.some(['hello', 3, { some: 'obj' }], { fn: 'isBoolean' })).toBe(false);
+ * const mixedArray = ['hello', 3, { some: 'obj' }];
+ * expect(FieldValidator.some(mixedArray, mixedArray, fn: 'isString' })).toBe(true);
+ * expect(FieldValidator.some(mixedArray, mixedArray, { fn: 'isBoolean' })).toBe(false);
  *
  * @param {*} input
  * @param {{ fn: string; options?: any }} { fn, options } fn is the name of method on FieldValidator
@@ -1214,21 +1234,26 @@ export function isArray(input: any): input is any[] {
  * @returns {boolean} boolean
  */
 
-export function some(input: any, { fn, options }: { fn: string; options?: any }): boolean {
+export function some(
+    input: any, _parentContext: any, { fn, options }: { fn: string; options?: any }
+): boolean {
     if (!isArray(input)) return false;
 
     const repoConfig = repository[fn];
     if (!repoConfig) throw new Error(`No function ${fn} was found in the field validator respository`);
 
-    return input.some((data: any) => repoConfig.fn(data, options));
+    return input.some((data: any) => repoConfig.fn(data, data, options));
 }
 
 /**
  * Validates that the function specified returns true for every single value in the list
  *
  * @example
- * expect(FieldValidator.every(['hello', 3, { some: 'obj' }], { fn: 'isString' })).toBe(false);
- * expect(FieldValidator.every(['hello', 'world'], { fn: 'isString' })).toBe(true);
+ * const mixedArray = ['hello', 3, { some: 'obj' }];
+ * const strArray = ['hello', 'world'];
+ *
+ * expect(FieldValidator.every([mixedArray, mixedArray { fn: 'isString' })).toBe(false);
+ * expect(FieldValidator.every(strArray, strArray, { fn: 'isString' })).toBe(true);
  *
  * @param {*} input
  * @param {{ fn: string; options?: any }} { fn, options } fn is the name of method on FieldValidator
@@ -1236,16 +1261,18 @@ export function some(input: any, { fn, options }: { fn: string; options?: any })
  * @returns {boolean} boolean
  */
 
-export function every(input: any, { fn, options }: { fn: string; options?: any }): boolean {
+export function every(
+    input: any, _parentContext: any, { fn, options }: { fn: string; options?: any }
+): boolean {
     if (!isArray(input)) return false;
 
     const repoConfig = repository[fn];
     if (!repoConfig) throw new Error(`No function ${fn} was found in the field validator respository`);
 
-    return input.every((data: any) => repoConfig.fn(data, options));
+    return input.every((data: any) => repoConfig.fn(data, data, options));
 }
 
-export function isNumberTuple(input: any) {
+export function isNumberTuple(input: any, _parentContext?: any) {
     if (Array.isArray(input) && input.length === 2) {
         return input.every(isNumber);
     }
