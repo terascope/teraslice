@@ -1,7 +1,7 @@
 import 'jest-extended';
 import path from 'path';
 import { DataEntity, get, cloneDeep } from '@terascope/utils';
-import { FieldType } from 'xlucene-evaluator';
+import { xLuceneFieldType } from '@terascope/types';
 import TestHarness from './test-harness';
 import { WatcherConfig } from '../src';
 import Plugins from './fixtures/plugins';
@@ -25,7 +25,7 @@ describe('can transform matches', () => {
     it('should transform matching data', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules1.txt')],
-            types: { _created: FieldType.Date },
+            type_config: { _created: xLuceneFieldType.Date },
         };
 
         const data = DataEntity.makeArray([
@@ -50,7 +50,7 @@ describe('can transform matches', () => {
     it('can uses typeConifg', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules1.txt')],
-            types: { location: FieldType.Geo },
+            type_config: { location: xLuceneFieldType.Geo },
         };
 
         const data = DataEntity.makeArray([
@@ -243,6 +243,7 @@ describe('can transform matches', () => {
         const results = await test.run(data);
 
         results.forEach((d, index) => {
+            // console.log('what is d', d)
             expect(DataEntity.isDataEntity(d)).toEqual(true);
             expect(d).toEqual(resultSet[index]);
             expect(d.getMetadata('selectors')).toBeDefined();
@@ -1087,5 +1088,62 @@ describe('can transform matches', () => {
         const results = await test.run(data);
 
         expect(results).toEqual([]);
+    });
+
+    it('should be able to turn a value into an array with jexl', async () => {
+        const config: WatcherConfig = {
+            rules: [getPath('regression-test1.txt')],
+        };
+
+        const data = [
+            new DataEntity({ other: 'stuff' }),
+            new DataEntity({ field: 'value', other: 'stuff' }),
+            new DataEntity({ field: 'value' }),
+        ];
+
+        const test = await opTest.init(config, [Plugins]);
+        const results = await test.run(data);
+
+        expect(results).toEqual([
+            { field: ['value'], other: 'stuff' },
+            { field: ['value'] }
+        ]);
+    });
+
+    it('should be able to turn a value into an array with array post_process', async () => {
+        const config: WatcherConfig = {
+            rules: [getPath('regression-test2.txt')],
+        };
+
+        const data = [
+            new DataEntity({ other: 'stuff' }),
+            new DataEntity({ field: 'value', other: 'stuff' }),
+            new DataEntity({ field: 'value' }),
+        ];
+
+        const test = await opTest.init(config, [Plugins]);
+        const results = await test.run(data);
+
+        expect(results).toEqual([
+            { field: ['value'], other: 'stuff' },
+            { field: ['value'] }
+        ]);
+    });
+
+    it('can run with variables', async () => {
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules28.txt')],
+            variables: {
+                hello: 'world'
+            }
+        };
+
+        const data = [new DataEntity({ hello: 'world', field1: 'hello', field2: 'world' }), new DataEntity({ field: 'null' })];
+
+        const test = await opTest.init(config);
+        const results = await test.run(data);
+
+        expect(results.length).toEqual(1);
+        expect(results[0]).toEqual({ results: ['hello', 'world'] });
     });
 });

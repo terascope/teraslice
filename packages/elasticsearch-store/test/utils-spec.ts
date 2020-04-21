@@ -4,9 +4,36 @@ import {
     isTemplatedIndex,
     isTimeSeriesIndex,
     validateIndexConfig,
+    uniqueFieldQuery,
 } from '../src/utils';
 
 describe('Elasticsearch Store Utils', () => {
+    describe('uniqueFieldQuery', () => {
+        it('should return not return an dots for a valid string', () => {
+            expect(
+                uniqueFieldQuery('fooBar0123')
+            ).toEqual('/fooBar0123/');
+        });
+
+        it('should return . for each dashe', () => {
+            expect(
+                uniqueFieldQuery('test-a-b-c')
+            ).toEqual('/test.a.b.c/');
+        });
+
+        it('should return . for each underscore', () => {
+            expect(
+                uniqueFieldQuery('test_a_b_c')
+            ).toEqual('/test.a.b.c/');
+        });
+
+        it('should return . for each special characters', () => {
+            expect(
+                uniqueFieldQuery('h*ll.?@^[]{})"\'`hih/\\ AND (')
+            ).toEqual('/h.ll............hih...AND../');
+        });
+    });
+
     describe('#isTemplatedIndex', () => {
         it('should return false when given a simple index', () => {
             expect(

@@ -7,7 +7,7 @@
 
 import makeContext from './context';
 import * as i from './interfaces';
- import { XluceneFieldType } from '@terascope/types';
+ import { xLuceneFieldType } from '@terascope/types';
 export interface IFilePosition {
   offset: number;
   line: number;
@@ -417,14 +417,14 @@ function peg$parse(input: string, options?: IParseOptions) {
   const peg$c48 = function(): any {
           return {
               type: i.ASTType.Term,
-              field_type: XluceneFieldType.Integer,
+              field_type: xLuceneFieldType.Integer,
               value: Number.NEGATIVE_INFINITY
           }
       };
   const peg$c49 = function(): any {
           return {
               type: i.ASTType.Term,
-              field_type: XluceneFieldType.Integer,
+              field_type: xLuceneFieldType.Integer,
               value: Number.POSITIVE_INFINITY
           }
       };
@@ -438,14 +438,14 @@ function peg$parse(input: string, options?: IParseOptions) {
   const peg$c51 = function(value: any): any {
           return {
               type: i.ASTType.Term,
-              field_type: XluceneFieldType.Float,
+              field_type: xLuceneFieldType.Float,
               value
           }
       };
   const peg$c52 = function(value: any): any {
           return {
               type: i.ASTType.Term,
-              field_type: XluceneFieldType.Integer,
+              field_type: xLuceneFieldType.Integer,
               value
           }
       };
@@ -454,28 +454,28 @@ function peg$parse(input: string, options?: IParseOptions) {
   const peg$c55 = function(value: any): any {
         return {
           type: i.ASTType.Term,
-          field_type: XluceneFieldType.Boolean,
+          field_type: xLuceneFieldType.Boolean,
           value
         }
     };
   const peg$c56 = function(value: any): any {
           return {
               type: i.ASTType.Regexp,
-              field_type: XluceneFieldType.String,
+              field_type: xLuceneFieldType.String,
               value
           }
       };
   const peg$c57 = function(value: any): any {
          return {
              type: i.ASTType.Wildcard,
-             field_type: XluceneFieldType.String,
+             field_type: xLuceneFieldType.String,
              value
          };
       };
   const peg$c58 = function(value: any): any {
           return {
               type: i.ASTType.Term,
-              field_type: XluceneFieldType.String,
+              field_type: xLuceneFieldType.String,
               quoted: true,
               value
           };
@@ -483,7 +483,7 @@ function peg$parse(input: string, options?: IParseOptions) {
   const peg$c59 = function(value: any): any {
          return {
              type: i.ASTType.Term,
-             field_type: XluceneFieldType.String,
+             field_type: xLuceneFieldType.String,
              quoted: false,
              value
          };
@@ -491,7 +491,7 @@ function peg$parse(input: string, options?: IParseOptions) {
   const peg$c60 = function(value: any): any {
          return {
              type: i.ASTType.Term,
-             field_type: XluceneFieldType.String,
+             field_type: xLuceneFieldType.String,
              restricted: true,
              quoted: false,
              value

@@ -1,19 +1,15 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import {
-    TypeConfig,
-    CachedTranslator,
-    createJoinQuery,
-    JoinQueryResult,
-    QueryAccess,
-    RestrictOptions
-} from 'xlucene-evaluator';
+import { xLuceneTypeConfig } from '@terascope/types';
+import { CachedTranslator, QueryAccess, RestrictOptions } from 'xlucene-translator';
+import { toXluceneQuery, xLuceneQueryResult } from '@terascope/data-mate';
 import IndexManager from './index-manager';
 import * as i from './interfaces';
 import * as utils from './utils';
 
 /**
- * @todo add the ability to enable/disable refresh by default
+ * A single index elasticearch-store with some specific requirements around
+ * the index name, and record data
  */
 export default class IndexStore<T extends Record<string, any>> {
     readonly client: es.Client;
@@ -22,8 +18,9 @@ export default class IndexStore<T extends Record<string, any>> {
     readonly manager: IndexManager;
     readonly name: string;
     refreshByDefault = true;
+    readonly esVersion: number;
     protected _defaultQueryAccess: QueryAccess<T>|undefined;
-    readonly xluceneTypeConfig: TypeConfig;
+    readonly xLuceneTypeConfig: xLuceneTypeConfig;
 
     readonly writeHooks = new Set<WriteHook<T>>();
     readonly readHooks = new Set<ReadHook<T>>();
@@ -49,7 +46,8 @@ export default class IndexStore<T extends Record<string, any>> {
         this.client = client;
         this.config = config;
         this.name = utils.toInstanceName(this.config.name);
-        this.manager = new IndexManager(client);
+        this.manager = new IndexManager(client, config.enable_index_mutations);
+        this.esVersion = this.manager.esVersion;
 
         this.indexQuery = this.manager.formatIndexName(config);
 
@@ -69,7 +67,7 @@ export default class IndexStore<T extends Record<string, any>> {
             wait: this._bulkMaxWait,
         });
 
-        this.xluceneTypeConfig = config.data_type.toXlucene();
+        this.xLuceneTypeConfig = config.data_type.toXlucene();
 
         if (config.data_schema != null) {
             const validator = utils.makeDataValidator(config.data_schema, this._logger);
@@ -95,7 +93,9 @@ export default class IndexStore<T extends Record<string, any>> {
     async bulk(action: 'update', doc?: Partial<T>, id?: string): Promise<void>;
     async bulk(action: i.BulkAction, ...args: any[]) {
         const metadata: BulkRequestMetadata = {};
-        metadata[action] = {
+        metadata[action] = this.esVersion >= 7 ? {
+            _index: this.indexQuery,
+        } : {
             _index: this.indexQuery,
             _type: this.config.name,
         };
@@ -342,8 +342,7 @@ export default class IndexStore<T extends Record<string, any>> {
             const existing = await this.get(id) as any;
             const params: any = {};
             if (ts.DataEntity.isDataEntity(existing)) {
-                const esVersion = utils.getESVersion(this.client);
-                if (esVersion >= 7) {
+                if (this.esVersion >= 7) {
                     params.if_seq_no = existing.getMetadata('_seq_no');
                     params.if_primary_term = existing.getMetadata('_primary_term');
                 } else {
@@ -366,7 +365,9 @@ export default class IndexStore<T extends Record<string, any>> {
 
     getDefaultParams(...params: any[]) {
         return Object.assign(
-            {
+            this.esVersion >= 7 ? {
+                index: this.indexQuery,
+            } : {
                 index: this.indexQuery,
                 type: this.config.name,
             },
@@ -407,7 +408,7 @@ export default class IndexStore<T extends Record<string, any>> {
     ) {
         const { query, variables } = this.createJoinQuery(fields, joinBy, options?.variables);
 
-        const results = await this.search(
+        const { results } = await this.search(
             query,
             {
                 ...options,
@@ -440,12 +441,14 @@ export default class IndexStore<T extends Record<string, any>> {
     ): Promise<T[]> {
         const { query, variables } = this.createJoinQuery(fields, joinBy, options?.variables);
 
-        return this.search(
+        const { results } = await this.search(
             query,
             { variables, size: 10000, ...options },
             queryAccess,
             false
         );
+
+        return results;
     }
 
     async findById(
@@ -490,7 +493,7 @@ export default class IndexStore<T extends Record<string, any>> {
             [this.config.id_field!]: _ids
         } as AnyInput<T>, 'AND', { variables: options?.variables });
 
-        const result = await this.search(
+        const { results: result } = await this.search(
             query,
             {
                 ...options,
@@ -519,7 +522,7 @@ export default class IndexStore<T extends Record<string, any>> {
         options: i.FindOptions<T> = {},
         queryAccess?: QueryAccess<T>,
         critical?: boolean
-    ): Promise<T[]> {
+    ): Promise<i.SearchResult<T>> {
         const params: Partial<es.SearchParams> = {
             size: options.size,
             sort: options.sort,
@@ -551,9 +554,8 @@ export default class IndexStore<T extends Record<string, any>> {
     async searchRequest(
         params: PartialParam<SearchParams<T>>,
         critical?: boolean
-    ): Promise<T[]> {
-        const esVersion = utils.getESVersion(this.client);
-        if (esVersion >= 7) {
+    ): Promise<i.SearchResult<T>> {
+        if (this.esVersion >= 7) {
             const p: any = params;
             if (p._sourceExclude) {
                 p._sourceExcludes = p._sourceExclude.slice();
@@ -565,7 +567,7 @@ export default class IndexStore<T extends Record<string, any>> {
             }
         }
 
-        const results = await ts.pRetry(async () => this.client.search<T>(
+        const response = await ts.pRetry(async () => this.client.search<T>(
             this.getDefaultParams(
                 {
                     sort: this.config.default_sort,
@@ -574,7 +576,7 @@ export default class IndexStore<T extends Record<string, any>> {
             )
         ), utils.getRetryConfig());
 
-        const { failures, failed } = results._shards as any;
+        const { failures, failed } = response._shards as any;
 
         if (failed) {
             const failureTypes = failures.flatMap((shard: any) => shard.reason.type);
@@ -592,13 +594,19 @@ export default class IndexStore<T extends Record<string, any>> {
             }
         }
 
-        return this._toRecords(results.hits.hits, critical);
+        const total = ts.get(response, 'hits.total.value', ts.get(response, 'hits.total', 0));
+        const results = this._toRecords(response.hits.hits, critical);
+        return {
+            _total: total,
+            _fetched: results.length,
+            results,
+        };
     }
 
-    createJoinQuery(fields: AnyInput<T>, joinBy: JoinBy = 'AND', variables = {}): JoinQueryResult {
-        const result = createJoinQuery(fields, {
+    createJoinQuery(fields: AnyInput<T>, joinBy: JoinBy = 'AND', variables = {}): xLuceneQueryResult {
+        const result = toXluceneQuery(fields, {
             joinBy,
-            typeConfig: this.xluceneTypeConfig,
+            typeConfig: this.xLuceneTypeConfig,
             variables
         });
         if (result) return result;
@@ -762,7 +770,7 @@ export default class IndexStore<T extends Record<string, any>> {
             : q;
 
         const translator = this._translator.make(query, {
-            type_config: this.xluceneTypeConfig,
+            type_config: this.xLuceneTypeConfig,
             logger: this._logger,
             variables: options?.variables
         });
@@ -784,7 +792,7 @@ type BulkRequestData<T> = T | { doc: Partial<T> } | null;
 type BulkRequestMetadata = {
     [key in i.BulkAction]?: {
         _index: string;
-        _type: string;
+        _type?: string;
         _id?: string;
     }
 };

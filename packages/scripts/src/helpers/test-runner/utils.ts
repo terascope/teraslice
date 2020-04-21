@@ -1,5 +1,4 @@
 import path from 'path';
-import isCI from 'is-ci';
 import fse from 'fs-extra';
 import {
     debugLogger,
@@ -7,7 +6,8 @@ import {
     TSError,
     isFunction,
     flatten,
-    toBoolean
+    toBoolean,
+    isCI
 } from '@terascope/utils';
 import {
     ArgsMap,
@@ -45,6 +45,10 @@ export function getArgs(options: TestOptions): ArgsMap {
         if (config.JEST_MAX_WORKERS) {
             args.maxWorkers = config.JEST_MAX_WORKERS;
         }
+    }
+
+    if (isCI) {
+        args.verbose = 'false';
     }
 
     if (options.watch) {

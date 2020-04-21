@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const isCI = require('is-ci');
+const { isCI } = require('@terascope/utils');
 
 const packagesPath = path.join(__dirname, 'packages');
 const projects = fs

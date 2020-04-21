@@ -1,6 +1,7 @@
-import _ from 'lodash';
 import fs from 'fs-extra';
-
+import {
+    has, toString, pDelay, set
+} from '@terascope/utils';
 import TerasliceUtil from './teraslice-util';
 import displayModule from '../cmds/lib/display';
 import Reply from '../cmds/lib/reply';
@@ -60,7 +61,7 @@ export default class Jobs {
 
     async recover() {
         const response = await this.teraslice.client.jobs.wrap(this.config.args.id).recover();
-        if (_.has(response, 'job_id')) {
+        if (has(response, 'job_id')) {
             reply.info(`> job_id ${this.config.args.id} recovered`);
         } else {
             // @ts-ignore
@@ -94,12 +95,12 @@ export default class Jobs {
             controllers = await this.teraslice.client.cluster.slicers();
         }
 
-        const statusList = _.split(this.config.args.status, ',');
+        const statusList = this.config.args.status.split(',');
 
         for (const jobStatus of statusList) {
             const exResult = await this.teraslice.client.executions.list(jobStatus);
             const jobsTemp = await this.controllerStatus(exResult, jobStatus, controllers);
-            _.each(jobsTemp, (job) => {
+            jobsTemp.forEach((job) => {
                 this.jobsList.push(job);
             });
         }
@@ -128,7 +129,7 @@ export default class Jobs {
         for (const jobStatus of statusList) {
             const exResult = await this.teraslice.client.executions.list(jobStatus);
             const jobsTemp = await this.controllerStatus(exResult, jobStatus, controllers);
-            _.each(jobsTemp, (job) => {
+            jobsTemp.forEach((job) => {
                 jobs.push(job);
             });
         }
@@ -192,7 +193,7 @@ export default class Jobs {
             if (allAddedWorkersStarted) {
                 await this.status(false, true);
 
-                await reply.info(`> All jobs and workers ${_.toString(await display.setAction(action, 'past'))}`);
+                await reply.info(`> All jobs and workers ${toString(await display.setAction(action, 'past'))}`);
             }
         } else {
             reply.info('bye!');
@@ -252,7 +253,7 @@ export default class Jobs {
             const waitMax = 15;
             while (!this.allJobsStopped) {
                 await this.status(false, false);
-                await _.delay(() => {}, 50);
+                await pDelay(50);
                 if (this.jobsList.length === 0) {
                     this.allJobsStopped = true;
                 }
@@ -262,7 +263,7 @@ export default class Jobs {
                 waitCount += 1;
             }
             if (this.allJobsStopped) {
-                reply.info(`> All jobs ${_.toString(await display.setAction(action, 'past'))}.`);
+                reply.info(`> All jobs ${toString(await display.setAction(action, 'past'))}.`);
             }
         }
     }
@@ -275,13 +276,13 @@ export default class Jobs {
                 if (expectedJob.job_id === job.job_id) {
                     if (addWorkersOnce) {
                         let workers2add = 0;
-                        if (_.has(expectedJob, 'slicer.workers_active')) {
+                        if (has(expectedJob, 'slicer.workers_active')) {
                             workers2add = expectedJob.slicer.workers_active - expectedJob.workers;
                         }
                         if (workers2add > 0) {
                             reply.info(`> Adding ${workers2add} worker(s) to ${job.job_id}`);
                             await this.teraslice.client.jobs.wrap(job.job_id).changeWorkers('add', workers2add);
-                            await _.delay(() => {}, 50);
+                            await pDelay(50);
                         }
                         addWorkersOnce = false;
                     }
@@ -299,7 +300,7 @@ export default class Jobs {
             for (const expectedJob of expectedJobs) {
                 if (expectedJob.job_id === job.job_id) {
                     if (addedWorkers) {
-                        if (_.has(expectedJob, 'slicer.workers_active')) {
+                        if (expectedJob.slicer?.workers_active != null) {
                             expectedWorkers = job.slicer.workers_active;
                         } else {
                             reply.fatal('no expected workers');
@@ -307,7 +308,7 @@ export default class Jobs {
                     } else {
                         expectedWorkers = expectedJob.workers;
                     }
-                    if (_.has(job, 'slicer.workers_active')) {
+                    if (job.slicer?.workers_active != null) {
                         activeWorkers = job.slicer.workers_active;
                     }
                     if (expectedWorkers === activeWorkers) {
@@ -327,7 +328,7 @@ export default class Jobs {
         for (const item of result) {
             // TODO, use args instead of hardcoding
             if (jobStatus === 'running' || jobStatus === 'failing') {
-                _.set(item, 'slicer', _.find(controllerList, { job_id: `${item.job_id}` }));
+                set(item, 'slicer', controllerList.find((slicer: any) => slicer.job_id === `${item.job_id}`));
             } else {
                 item.slicer = 0;
             }

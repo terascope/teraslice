@@ -1,6 +1,5 @@
-import { FieldType } from 'xlucene-evaluator';
+import { xLuceneFieldType, ESFieldType } from '@terascope/types';
 import BaseType from '../base-type';
-import { ElasticSearchTypes } from '../../interfaces';
 
 export default class KeywordCaseInsensitive extends BaseType {
     toESMapping(_version?: number) {
@@ -15,7 +14,7 @@ export default class KeywordCaseInsensitive extends BaseType {
                         },
                     },
                 } : {
-                    type: 'text' as ElasticSearchTypes,
+                    type: 'text' as ESFieldType,
                     analyzer: 'lowercase_keyword_analyzer',
                 },
             },
@@ -33,6 +32,13 @@ export default class KeywordCaseInsensitive extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: FieldType.String };
+        if (this.config.use_fields_hack) {
+            return {
+                [this.field]: xLuceneFieldType.String
+            };
+        }
+        return {
+            [this.field]: xLuceneFieldType.AnalyzedString
+        };
     }
 }

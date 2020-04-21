@@ -1,6 +1,5 @@
-import { FieldType } from 'xlucene-evaluator';
+import { xLuceneFieldType, ESFieldType } from '@terascope/types';
 import BaseType from '../base-type';
-import { ElasticSearchTypes } from '../../interfaces';
 
 export default class GeoJSON extends BaseType {
     toESMapping(_version?: number) {
@@ -9,7 +8,7 @@ export default class GeoJSON extends BaseType {
         return {
             mapping: {
                 [this.field]: {
-                    type: 'geo_shape' as ElasticSearchTypes,
+                    type: 'geo_shape' as ESFieldType,
                     tree: 'quadtree',
                     strategy: 'recursive'
                 }
@@ -23,6 +22,6 @@ export default class GeoJSON extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: FieldType.GeoJSON };
+        return { [this.field]: xLuceneFieldType.GeoJSON };
     }
 }

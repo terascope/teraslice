@@ -1,15 +1,12 @@
 /* eslint-disable max-len */
-import { getValidDate, getUnixTime } from '../dates';
+import { getValidDate, getTime } from '../dates';
+import { getTypeOf } from '../deps';
 import { isSimpleObject } from '../objects';
-import {
-    parseJSON,
-    getTypeOf,
-    ensureBuffer,
-    isBuffer,
-} from '../utils';
+import { ensureBuffer, isBuffer } from '../buffers';
+import { parseJSON } from '../json';
 import * as i from './interfaces';
 import * as utils from './utils';
-import { locked } from '../misc';
+import { locked } from '../decorators';
 
 /**
  * A wrapper for data that can hold additional metadata properties.
@@ -41,7 +38,14 @@ export class DataEntity<
         T extends Record<string, any>|DataEntity<any, any> = Record<string, any>,
         M extends i._DataEntityMetadataType = {}
     >(input: T, metadata?: M): T|DataEntity<T, M> {
-        if (DataEntity.isDataEntity(input)) return input;
+        if (DataEntity.isDataEntity(input)) {
+            if (metadata) {
+                for (const [key, val] of Object.entries(metadata)) {
+                    input.setMetadata(key, val);
+                }
+            }
+            return input;
+        }
         return new DataEntity(input, metadata);
     }
 
@@ -79,10 +83,11 @@ export class DataEntity<
         if (!DataEntity.isDataEntity(input)) {
             throw new Error(`Invalid input to fork, expected DataEntity, got ${getTypeOf(input)}`);
         }
+        const { _createTime, ...metadata } = input.getMetadata();
         if (withData) {
-            return DataEntity.make(input, input.getMetadata()) as T;
+            return DataEntity.make(input, metadata) as T;
         }
-        return DataEntity.make({}, input.getMetadata()) as T;
+        return DataEntity.make({}, metadata) as T;
     }
 
     /**
@@ -272,7 +277,7 @@ export class DataEntity<
      */
     @locked()
     setIngestTime(val?: string|number|Date): void {
-        const unixTime = getUnixTime(val);
+        const unixTime = getTime(val);
         if (unixTime === false) {
             throw new Error(`Invalid date format, got ${getTypeOf(val)}`);
         }
@@ -300,7 +305,7 @@ export class DataEntity<
     */
     @locked()
     setProcessTime(val?: string|number|Date): void {
-        const unixTime = getUnixTime(val);
+        const unixTime = getTime(val);
         if (unixTime === false) {
             throw new Error(`Invalid date format, got ${getTypeOf(val)}`);
         }
@@ -328,7 +333,7 @@ export class DataEntity<
      */
     @locked()
     setEventTime(val?: string|number|Date): void {
-        const unixTime = getUnixTime(val);
+        const unixTime = getTime(val);
         if (unixTime === false) {
             throw new Error(`Invalid date format, got ${getTypeOf(val)}`);
         }

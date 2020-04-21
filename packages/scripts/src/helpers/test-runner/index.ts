@@ -1,11 +1,11 @@
 import ms from 'ms';
 import path from 'path';
-import isCI from 'is-ci';
 import {
     debugLogger,
     chunk,
     TSError,
     getFullErrorStack,
+    isCI
 } from '@terascope/utils';
 import {
     writePkgHeader,
@@ -20,13 +20,12 @@ import { PackageInfo } from '../interfaces';
 import { TestOptions, RunSuiteResult, CleanupFN } from './interfaces';
 import {
     runJest,
-    dockerPush,
     dockerTag,
 } from '../scripts';
 import * as utils from './utils';
 import signale from '../signale';
 import { getE2EDir } from '../packages';
-import { pullDevDockerImage } from '../publish/utils';
+import { buildDevDockerImage } from '../publish/utils';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
@@ -236,22 +235,11 @@ async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
 
     if (isCI) {
         // pull the services first in CI
-        try {
-            await pullServices(suite, options);
-        } catch (err) {
-            errors.push(getFullErrorStack(err));
-        }
+        await pullServices(suite, options);
     }
 
     try {
-        const devImage = await pullDevDockerImage();
-        try {
-            signale.debug(`pushing ${devImage}...`);
-            await dockerPush(devImage);
-            signale.debug(`pushed ${devImage} image`);
-        } catch (err) {
-            signale.warn(err, `failure to push ${devImage}`);
-        }
+        const devImage = await buildDevDockerImage();
         await dockerTag(devImage, e2eImage);
     } catch (err) {
         errors.push(getFullErrorStack(err));

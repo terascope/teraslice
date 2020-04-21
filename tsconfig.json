@@ -7,6 +7,7 @@
         "skipLibCheck": true,
         "experimentalDecorators": true,
         "strict": true,
+        "noFallthroughCasesInSwitch": true,
         "preserveConstEnums": true,
         "esModuleInterop": true,
         "resolveJsonModule": true,
@@ -26,16 +27,19 @@
     // these project references should be ordered by dependants first
     "references": [
         {
+            "path": "packages/types"
+        },
+        {
             "path": "packages/utils"
         },
         {
             "path": "packages/scripts"
         },
         {
-            "path": "packages/queue"
+            "path": "packages/docker-compose-js"
         },
         {
-            "path": "packages/docker-compose-js"
+            "path": "packages/data-types"
         },
         {
             "path": "packages/terafoundation"
@@ -47,10 +51,13 @@
             "path": "packages/teraslice-messaging"
         },
         {
-            "path": "packages/xlucene-evaluator"
+            "path": "packages/xlucene-parser"
         },
         {
-            "path": "packages/data-types"
+            "path": "packages/data-mate"
+        },
+        {
+            "path": "packages/xlucene-translator"
         },
         {
             "path": "packages/ts-transforms"
@@ -72,4 +79,3 @@
         }
     ]
 }
-// TODO: add teraslice-client before the cli

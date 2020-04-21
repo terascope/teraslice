@@ -1,17 +1,15 @@
-import { FieldType } from 'xlucene-evaluator';
+import { xLuceneFieldType, ESFieldType } from '@terascope/types';
 import BaseType from '../base-type';
-import { ElasticSearchTypes } from '../../interfaces';
 
 export default class NgramTokens extends BaseType {
     toESMapping(_version?: number) {
         return {
             mapping: {
                 [this.field]: {
-                    // TODO: this is wrong, I dont think analyzer can be at this level
-                    type: 'keyword' as ElasticSearchTypes,
+                    type: 'keyword' as ESFieldType,
                     fields: {
                         tokens: {
-                            type: 'text' as ElasticSearchTypes,
+                            type: 'text' as ESFieldType,
                             analyzer: 'ngram_analyzer',
                         },
                     },
@@ -38,6 +36,6 @@ export default class NgramTokens extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: FieldType.String };
+        return { [this.field]: xLuceneFieldType.String };
     }
 }

@@ -1,4 +1,4 @@
-import jsStringEscape from 'js-string-escape';
+import { MACAddress } from '@terascope/types';
 
 /** A simplified implemation of lodash isString */
 export function isString(val: any): val is string {
@@ -8,13 +8,44 @@ export function isString(val: any): val is string {
 /** Safely convert any input to a string */
 export function toString(val: any): string {
     if (val == null) return '';
-    if (isString(val)) return val;
-    if (typeof val === 'number' && !Number.isNaN(val)) return `${val}`;
+    const type = typeof val;
+    if (type === 'string') return val;
+    if (type === 'bigint' || type === 'number' || type === 'symbol' || type === 'boolean') {
+        return String(val);
+    }
     if (val.message && val.stack) {
         return val.toString();
     }
 
     return JSON.stringify(val);
+}
+
+export function trimStart(input: string, char = ' '): string {
+    let start = input.indexOf(char);
+    if (start === -1 || start > (input.length / 2)) return input;
+
+    for (start; start < input.length;) {
+        if (input.slice(start, start + char.length) !== char) {
+            break;
+        }
+        start += char.length;
+    }
+
+    return input.slice(start);
+}
+
+export function trimEnd(input: string, char = ' '): string {
+    let end = input.lastIndexOf(char);
+    if (end === -1 || end < (input.length / 2)) return input;
+
+    for (end; end >= 0;) {
+        if (input.slice(end - char.length, end) !== char) {
+            break;
+        }
+        end -= char.length;
+    }
+
+    return input.slice(0, end);
 }
 
 /** safely trim and to lower a input, useful for string comparison */
@@ -25,11 +56,6 @@ export function trimAndToLower(input?: string): string {
 /** safely trim and to lower a input, useful for string comparison */
 export function trimAndToUpper(input?: string): string {
     return trim(input).toUpperCase();
-}
-
-/** Escape characters in string and avoid double escaping */
-export function escapeString(input: string|number): string {
-    return jsStringEscape(`${input}`);
 }
 
 /** Unescape characters in string and avoid double escaping */
@@ -219,6 +245,10 @@ export function toSnakeCase(input: string): string {
     return getWordParts(input).join('_').toLowerCase();
 }
 
+export function toTitleCase(input: string): string {
+    return firstToUpper(getWordParts(input).map((str) => firstToUpper(str)).join(' '));
+}
+
 /**
  * Make a string url/elasticsearch safe.
  * safeString converts the string to lower case,
@@ -268,43 +298,56 @@ export function getFirstChar(input: string): string {
     return trim(input).charAt(0);
 }
 
-export type FormatRegexResult = [string, string|undefined];
+export function isEmail(input: any): boolean {
+    // Email Validation as per RFC2822 standards. Straight from .net helpfiles
+    // eslint-disable-next-line
+    const regex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
+    if (isString(input) && input.toLowerCase().match(regex)) return true;
 
-export function formatRegex(str: string): FormatRegexResult {
-    const isRegex = /^\/(.*)\/([igsmx]{1,})?$/.exec(str);
-    if (isRegex) {
-        return [isRegex[1], isRegex[2]];
-    }
-    return [str, undefined];
+    return false;
 }
 
-export function match(regexp: string, value: string) {
-    const [reg, options] = formatRegex(regexp);
-    const regex = new RegExp(reg, options);
-    const results = regex.exec(value);
-    if (results) return results[0];
-    return results;
-}
+export function isMacAddress(input: any, args?: MACAddress): boolean {
+    if (!isString(input)) return false;
 
-export function matchAll(regexp: string, str: string): string[]|null {
-    const [reg, formatOptions] = formatRegex(regexp);
-    let options = formatOptions || 'g';
+    const delimiters = {
+        colon: /^([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])$/,
+        space: /^([0-9a-fA-F][0-9a-fA-F]\s){5}([0-9a-fA-F][0-9a-fA-F])$/,
+        dash: /^([0-9a-fA-F][0-9a-fA-F]-){5}([0-9a-fA-F][0-9a-fA-F])$/,
+        dot: /^([0-9a-fA-F]{4}\.){2}([0-9a-fA-F]{4})$/,
+        none: /^([0-9a-fA-F]){12}$/
+    };
 
-    if (!options.includes('g')) options = `g${options}`;
+    const delimiter = args && args.delimiter ? args.delimiter : 'any';
 
-    const regex = new RegExp(reg, options);
-    const matches: string[] = [];
-    let matchedData = regex.exec(str);
-
-    while (matchedData != null && matchedData[0]) {
-        if (matchedData && matchedData.length > 1) {
-            matches.push(...matchedData.slice(1));
-        } else {
-            matches.push(matchedData[0]);
-        }
-        matchedData = regex.exec(str);
+    if (delimiter === 'any') {
+        return Object.keys(delimiters).some((d) => delimiters[d].test(input));
     }
 
-    if (matches.length === 0) return null;
-    return matches;
+    if (Array.isArray(delimiter)) {
+        return delimiter.some((d) => delimiters[d].test(input));
+    }
+
+    return delimiters[delimiter].test(input);
+}
+
+/**
+ * Maps an array of strings and and trims the result, or
+ * parses a comma separated list and trims the result
+ */
+export function parseList(input: any): string[] {
+    let strings: string[] = [];
+
+    if (isString(input)) {
+        strings = input.split(',');
+    } else if (Array.isArray(input)) {
+        strings = input.map((val) => {
+            if (!val) return '';
+            return toString(val);
+        });
+    } else {
+        return [];
+    }
+
+    return strings.map((s) => s.trim()).filter((s) => !!s);
 }

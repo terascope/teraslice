@@ -3,7 +3,7 @@
 const {
     TSError, includes, getTypeOf, makeISODate
 } = require('@terascope/utils');
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 const { RecoveryCleanupType } = require('@terascope/job-components');
 const { makeLogger } = require('../workers/helpers/terafoundation');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
@@ -94,16 +94,45 @@ module.exports = async function executionStorage(context) {
         return backend.updatePartial(exId, applyChanges);
     }
 
+    /**
+     * @typedef ExErrorMetadata
+     * @property _has_errors {boolean}
+     * @property _failureReason {string}
+     * @property _slicer_stats {import(
+     *  '../workers/execution-controller/execution-analytics.js'
+     * ).ExecutionStats}
+     */
+
+    /**
+     * Format the execution error stats, primarly used for updating the
+     * status.
+     *
+     * If no error message is passed, it will reset the _has_errors and _failureReason.
+     * If execution stats is provided it will set the _slicer_stats
+     *
+     * @param stats {import(
+     *  '../workers/execution-controller/execution-analytics.js'
+     * ).ExecutionStats=}
+     * @param errMsg {string=}
+     * @return {ExErrorMetadata}
+    */
     function executionMetaData(stats, errMsg) {
-        let hasErrors = false;
-        if (errMsg) hasErrors = true;
-        const metaData = { _has_errors: hasErrors, _slicer_stats: stats };
+        const errMetadata = {
+            _has_errors: false,
+            _failureReason: ''
+        };
+        const statsMetadata = {};
+
         if (errMsg) {
-            metaData._failureReason = errMsg;
-        } else {
-            metaData._failureReason = '';
+            errMetadata._has_errors = true;
+            errMetadata._failureReason = errMsg;
         }
-        return metaData;
+
+        if (stats) {
+            statsMetadata._slicer_stats = Object.assign({}, stats);
+        }
+
+        return Object.assign({}, errMetadata, statsMetadata);
     }
 
     async function getMetadata(exId) {
@@ -112,14 +141,17 @@ module.exports = async function executionStorage(context) {
     }
 
     async function updateMetadata(exId, metadata = {}) {
-        await backend.update(exId, { metadata });
+        await backend.update(exId, {
+            metadata,
+            _updated: makeISODate()
+        });
     }
 
     function _addMetadataFns() {
         if (!context.apis.executionContext) return;
-
-        context.apis.executionContext._getMetadata = getMetadata;
-        context.apis.executionContext._updateMetadata = updateMetadata;
+        context.apis.executionContext.registerMetadataFns(
+            { get: getMetadata, update: updateMetadata }
+        );
     }
 
     async function getStatus(exId) {
@@ -185,7 +217,8 @@ module.exports = async function executionStorage(context) {
             return await updatePartial(exId, (existing) => {
                 _verifyStatus(existing._status, status);
                 return Object.assign(existing, body, {
-                    _status: status
+                    _status: status,
+                    _updated: makeISODate()
                 });
             });
         } catch (err) {

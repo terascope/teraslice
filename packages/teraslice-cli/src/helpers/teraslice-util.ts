@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { has } from '@terascope/utils';
 import TerasliceClient from 'teraslice-client-js';
 
 export default class TerasliceUtil {
@@ -20,7 +20,7 @@ export default class TerasliceUtil {
         let clusteringType = 'native';
         try {
             clusterInfo = await this.info();
-            if (_.has(clusterInfo, 'clustering_type')) {
+            if (has(clusterInfo, 'clustering_type')) {
                 // @ts-ignore
                 clusteringType = clusterInfo.clustering_type;
             } else {

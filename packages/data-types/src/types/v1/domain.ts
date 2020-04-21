@@ -1,21 +1,20 @@
-import { FieldType } from 'xlucene-evaluator';
+import { xLuceneFieldType, ESFieldType } from '@terascope/types';
 import BaseType from '../base-type';
-import { ElasticSearchTypes } from '../../interfaces';
 
 export default class Domain extends BaseType {
     toESMapping(_version?: number) {
         return {
             mapping: {
                 [this.field]: {
-                    type: 'text' as ElasticSearchTypes,
+                    type: 'text' as ESFieldType,
                     analyzer: 'lowercase_keyword_analyzer',
                     fields: {
                         tokens: {
-                            type: 'text' as ElasticSearchTypes,
+                            type: 'text' as ESFieldType,
                             analyzer: 'standard',
                         },
                         right: {
-                            type: 'text' as ElasticSearchTypes,
+                            type: 'text' as ESFieldType,
                             analyzer: 'domain_analyzer',
                             search_analyzer: 'lowercase_keyword_analyzer',
                         },
@@ -48,6 +47,8 @@ export default class Domain extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: FieldType.String };
+        return {
+            [this.field]: xLuceneFieldType.AnalyzedString
+        };
     }
 }

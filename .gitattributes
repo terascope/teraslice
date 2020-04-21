@@ -1,0 +1,18 @@
+*                       text=auto
+
+# Make sure certian files are marked as binaries to avoid merging problems
+*.zip                   binary
+*.tgz                   binary
+*.png                   binary
+*.jpg                   binary
+*.ico                   binary
+
+# Ensures the files in .yarn are considered to be managed by a package manager
+# this also means the files will be ignored in diffs
+/.yarn/**                linguist-vendored
+# Make the docs are don't skew the main language
+/docs/**                 linguist-documentation
+/docs/packages/*/api/**  linguist-generated
+# Don't allow people to merge changes to these changes
+# be cause it may cause problems
+yarn.lock                merge=binary

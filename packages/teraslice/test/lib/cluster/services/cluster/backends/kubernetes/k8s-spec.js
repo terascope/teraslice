@@ -233,18 +233,13 @@ describe('k8s', () => {
                 .get('/apis/batch/v1/namespaces/default/jobs/')
                 .query({ labelSelector: /app\.kubernetes\.io\/component=execution_controller,teraslice\.terascope\.io\/exId=.*/ })
                 .reply(200, { kind: 'JobList', items: [{ metadata: { name: 'e33b5454' } }] })
-                .get('/api/v1/namespaces/default/services/')
-                .query({ labelSelector: /app\.kubernetes\.io\/component=execution_controller,teraslice\.terascope\.io\/exId=.*/ })
-                .reply(200, { kind: 'ServiceList', items: [{ metadata: { name: 'e33b5454' } }] })
                 .delete('/apis/apps/v1/namespaces/default/deployments/e33b5454')
                 .reply(200, {})
                 .delete('/apis/batch/v1/namespaces/default/jobs/e33b5454')
-                .reply(200, {})
-                .delete('/api/v1/namespaces/default/services/e33b5454')
                 .reply(200, {});
 
             const response = await k8s.deleteExecution('e33b5454');
-            expect(response).toEqual([{}, {}, {}]);
+            expect(response).toEqual([{}, {}]);
         });
     });
 });

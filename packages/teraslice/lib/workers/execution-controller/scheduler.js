@@ -1,9 +1,8 @@
 'use strict';
 
 const {
-    noop, pDelay, get, toString, makeISODate, logError, pWhile
+    Queue, noop, pDelay, get, toString, makeISODate, logError, pWhile
 } = require('@terascope/utils');
-const Queue = require('@terascope/queue');
 const makeExecutionRecovery = require('./recovery');
 const { makeLogger } = require('../helpers/terafoundation');
 
@@ -412,12 +411,15 @@ class Scheduler {
             || makeExecutionRecovery(this.context, this.stateStore, this.executionContext);
 
         await this.recover.initialize();
-        this.events.emit('slicers:registered', 1);
+
+        const { slicers: prevSlicers } = await this.exStore.get(this.recoverFromExId);
+        this.events.emit('slicers:registered', prevSlicers);
     }
 
     async _initializeExecution() {
         await this.executionContext.initialize(this.startingPoints);
-        this.events.emit('slicers:registered', this.executionContext.slicer().slicers);
+        const slicers = this.executionContext.slicer().slicers();
+        this.events.emit('slicers:registered', slicers);
     }
 
     async _waitForRecovery() {

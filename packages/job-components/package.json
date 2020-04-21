@@ -1,7 +1,7 @@
 {
     "name": "@terascope/job-components",
     "displayName": "Job Components",
-    "version": "0.27.0",
+    "version": "0.32.3",
     "description": "A teraslice library for validating jobs schemas, registering apis, and defining and running new Job APIs",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/job-components#readme",
     "bugs": {
@@ -13,34 +13,32 @@
     },
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
-    "files": [
-        "dist/src/**/*"
-    ],
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
     "directories": {
         "lib": "dist/src",
         "test": "test"
     },
+    "files": [
+        "dist/src/**/*"
+    ],
     "scripts": {
         "benchmark": "yarn build && node bench/index.js",
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "prepublishOnly": "yarn build",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/queue": "^1.1.7",
-        "@terascope/utils": "^0.22.0",
+        "@terascope/utils": "^0.26.2",
         "convict": "^4.4.1",
         "datemath-parser": "^1.0.6",
-        "uuid": "^3.4.0"
+        "uuid": "^7.0.2"
     },
     "devDependencies": {
         "benchmark": "^2.1.4",
-        "fs-extra": "^8.1.0",
+        "fs-extra": "^9.0.0",
         "jest-fixtures": "^0.6.0"
     },
     "engines": {

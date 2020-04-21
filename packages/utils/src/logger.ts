@@ -1,10 +1,10 @@
 import debugFn from 'debug';
 import { EventEmitter } from 'events';
-import isPlainObject from 'is-plain-object';
+import { isPlainObject } from './deps';
 import { toString, isString, trimAndToLower } from './strings';
 import { Logger } from './logger-interface';
 import { uniq } from './arrays';
-import { isTest } from './misc';
+import { isTest } from './env';
 
 interface DebugParamObj {
     module: string;
@@ -25,11 +25,7 @@ const levels = {
 
 export function debugLogger(testName: string, param?: debugParam, otherName?: string): Logger {
     const logger: Logger = new EventEmitter() as Logger;
-
-    let parts: string[] = [testName];
-    if (testName.indexOf('teraslice') < 0) {
-        parts.unshift('teraslice');
-    }
+    let parts: string[] = testName ? testName.split(':') : [];
 
     if (param) {
         if (isString(param)) {
@@ -47,6 +43,10 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
     }
     parts = parts.map(toString).map(trimAndToLower);
     parts = uniq(parts.filter((str) => !!str));
+
+    if (!parts.includes('teraslice')) {
+        parts.unshift('teraslice');
+    }
 
     const name = parts.join(':');
 

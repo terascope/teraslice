@@ -1,5 +1,4 @@
-import { TSError } from '@terascope/utils';
-import { FieldType } from 'xlucene-evaluator';
+import { xLuceneFieldType } from '@terascope/types';
 import ByteType from '../../../src/types/v1/byte';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
@@ -8,15 +7,6 @@ describe('Byte V1', () => {
     const typeConfig: FieldTypeConfig = { type: 'Byte' };
 
     it('can requires a field and proper configs', () => {
-        try {
-            // @ts-ignore
-            new ByteType();
-            throw new Error('it should have errored with no configs');
-        } catch (err) {
-            expect(err).toBeInstanceOf(TSError);
-            expect(err.message).toInclude('A field must be provided and must be of type string');
-        }
-
         const type = new ByteType(field, typeConfig);
         expect(type).toBeDefined();
         expect(type.toESMapping).toBeDefined();
@@ -47,7 +37,7 @@ describe('Byte V1', () => {
 
     it('can get proper xlucene properties', () => {
         const xlucene = new ByteType(field, typeConfig).toXlucene();
-        const results = { [field]: FieldType.Integer };
+        const results = { [field]: xLuceneFieldType.Integer };
 
         expect(xlucene).toEqual(results);
     });

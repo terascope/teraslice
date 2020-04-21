@@ -1,13 +1,15 @@
 import 'jest-extended'; // require for type definitions
 import {
     DataEntity,
-    parseJSON,
     DataEncoding,
     __IS_DATAENTITY_KEY,
     __ENTITY_METADATA_KEY,
+    DataEntityMetadata,
+} from '../src/entities';
+import {
+    parseJSON,
     cloneDeep,
     fastCloneDeep,
-    DataEntityMetadata,
     firstToLower,
 } from '../src';
 
@@ -153,7 +155,12 @@ describe('DataEntity', () => {
                 (cloneMethod) => {
                     const newMetadata = { _key: 'hello' };
                     const cloned = cloneMethods[cloneMethod](dataEntity);
-                    expect(DataEntity.isDataEntity(cloned)).toBeFalse();
+                    if (cloneMethod === 'cloneDeep') {
+                        expect(DataEntity.isDataEntity(cloned)).toBeTrue();
+                        expect(Object.keys(cloned)).not.toContain(['__IS_DATAENTITY_KEY', '__ENTITY_METADATA_KEY']);
+                    } else {
+                        expect(DataEntity.isDataEntity(cloned)).toBeFalse();
+                    }
 
                     const newDataEntity = useClass
                         ? new DataEntity(cloned, newMetadata)
@@ -166,7 +173,9 @@ describe('DataEntity', () => {
                         test: 'hello'
                     });
                     const ogCreateTime = dataEntity.getMetadata('_createTime');
-                    expect(newDataEntity.getMetadata('_createTime')).not.toEqual(ogCreateTime);
+                    if (cloneMethod !== 'cloneDeep') {
+                        expect(newDataEntity.getMetadata('_createTime')).not.toEqual(ogCreateTime);
+                    }
                     expect(newDataEntity.getMetadata()).not.toMatchObject(dataEntity.getMetadata());
                 }
             );
@@ -643,10 +652,9 @@ describe('DataEntity', () => {
         it('should throw an error if given an unsupported encoding', () => {
             const buf = Buffer.from(JSON.stringify({ hi: 'there' }));
             expect(() => {
-                // @ts-ignore
                 DataEntity.fromBuffer(buf, {
                     _op: 'test',
-                    _encoding: 'crazy',
+                    _encoding: 'crazy' as any,
                 });
             }).toThrowError('Unsupported encoding type, got "crazy"');
         });

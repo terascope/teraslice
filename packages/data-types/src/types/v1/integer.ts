@@ -1,10 +1,9 @@
-import { FieldType } from 'xlucene-evaluator';
+import { xLuceneFieldType, ESFieldType } from '@terascope/types';
 import BaseType from '../base-type';
-import { ElasticSearchTypes } from '../../interfaces';
 
 export default class Integer extends BaseType {
     toESMapping(_version?: number) {
-        return { mapping: { [this.field]: { type: 'integer' as ElasticSearchTypes } } };
+        return { mapping: { [this.field]: { type: 'integer' as ESFieldType } } };
     }
 
     toGraphQL() {
@@ -12,6 +11,6 @@ export default class Integer extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: FieldType.Integer };
+        return { [this.field]: xLuceneFieldType.Integer };
     }
 }

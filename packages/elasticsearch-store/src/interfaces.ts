@@ -1,6 +1,7 @@
 import { Logger, Omit } from '@terascope/utils';
-import { Variables, QueryAccess } from 'xlucene-evaluator';
-import { ESIndexSettings, DataType } from '@terascope/data-types';
+import { xLuceneVariables, ESIndexSettings } from '@terascope/types';
+import { QueryAccess } from 'xlucene-translator';
+import { DataType } from '@terascope/data-types';
 
 /** A versioned Index Configuration */
 export interface IndexConfig<T = any> {
@@ -14,6 +15,12 @@ export interface IndexConfig<T = any> {
      * the index name or anything else that needs to be namespaced.
      */
     namespace?: string;
+
+    /**
+     * Enable index mutations so indexes will be auto created or updated
+     * @default false
+    */
+    enable_index_mutations?: boolean;
 
     /**
      * Data Version, this allows multiple versions of an index to exist with the same Schema
@@ -39,11 +46,6 @@ export interface IndexConfig<T = any> {
      * The data schema format
      */
     data_schema?: DataSchema;
-
-    /**
-     * When false this will disable the ability to create or migrate an index
-     */
-    is_master?: boolean;
 
     /**
      * The maximum amount of time to wait for before send the bulk request
@@ -247,9 +249,24 @@ export type SanitizeFields = {
     [field: string]: 'trimAndToLower' | 'trim' | 'toSafeString';
 };
 
+/**
+ * A list of options that are configured during run time and will always override
+ * the config
+*/
 export interface IndexModelOptions {
+    /**
+     * The namespace that will be prefixed to the name value when generating
+     * the index name or anything else that needs to be namespaced.
+     */
     namespace?: string;
+    /**
+     * The logger to use
+    */
     logger?: Logger;
+    /**
+     * Enable index mutations so indexes will be auto created or updated
+    */
+    enable_index_mutations?: boolean;
 }
 
 export type FindOptions<T> = {
@@ -258,13 +275,13 @@ export type FindOptions<T> = {
     from?: number;
     sort?: string;
     size?: number;
-    variables?: Variables;
+    variables?: xLuceneVariables;
 };
 
 export type FindOneOptions<T> = {
     includes?: (keyof T)[];
     excludes?: (keyof T)[];
-    variables?: Variables;
+    variables?: xLuceneVariables;
 };
 
 export interface MigrateIndexOptions {
@@ -276,3 +293,9 @@ export interface MigrateIndexOptions {
 }
 
 export type MigrateIndexStoreOptions = Omit<MigrateIndexOptions, 'config'>;
+
+export type SearchResult<T> = {
+    _total: number;
+    _fetched: number;
+    results: T[];
+};

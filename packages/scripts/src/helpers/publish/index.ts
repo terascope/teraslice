@@ -6,7 +6,7 @@ import { PublishAction, PublishOptions, PublishType } from './interfaces';
 import {
     shouldNPMPublish,
     formatDailyTag,
-    pullDevDockerImage,
+    buildDevDockerImage,
 } from './utils';
 import {
     yarnPublish,
@@ -44,9 +44,12 @@ async function npmPublish(pkgInfo: PackageInfo, options: PublishOptions) {
 
     const tag = getPublishTag(pkgInfo.version);
 
+    await yarnRun('build', [], pkgInfo.dir, {
+        NODE_ENV: 'production'
+    }, true);
+
     if (options.dryRun) {
         signale.info(`[DRY RUN] - skipping publish for package ${pkgInfo.name}@v${pkgInfo.version} (${tag})`);
-        await yarnRun('prepublishOnly', [], pkgInfo.dir);
     } else {
         const registry: string|undefined = get(pkgInfo, 'publishConfig.registry');
         await yarnPublish(pkgInfo, tag, registry);
@@ -59,7 +62,7 @@ async function publishToDocker(options: PublishOptions) {
 
     const { registries } = rootInfo.terascope.docker;
 
-    const devImage = await pullDevDockerImage();
+    const devImage = await buildDevDockerImage();
 
     for (const registry of registries) {
         let imageToBuild = '';

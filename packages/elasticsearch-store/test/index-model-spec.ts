@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { Client } from 'elasticsearch';
-import { QueryAccess } from 'xlucene-evaluator';
+import { QueryAccess } from 'xlucene-translator';
 import { times, TSError, AnyObject } from '@terascope/utils';
 import {
     IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions, makeRecordDataType
@@ -99,7 +99,7 @@ describe('IndexModel', () => {
         it('should be able to find the record with restrictions', async () => {
             const queryAccess = new QueryAccess({
                 excludes: ['_updated'],
-                type_config: indexModel.xluceneTypeConfig
+                type_config: indexModel.xLuceneTypeConfig
             });
             const result = await indexModel.findById(fetched._key, {}, queryAccess);
 
@@ -134,7 +134,7 @@ describe('IndexModel', () => {
         });
 
         describe('when testing uniqueness', () => {
-            const name = 'SomeBody';
+            const name = 'Some@Body_ _hello*';
             let id: string;
 
             beforeAll(async () => {
@@ -148,12 +148,41 @@ describe('IndexModel', () => {
 
             it('should NOT be able to create a record with the same name and client', async () => {
                 try {
-                    await indexModel.createRecord({
+                    await expect(indexModel.createRecord({
                         client_id: 5,
                         name,
                         type: name,
                         config: {},
-                    });
+                    })).toReject();
+                } catch (err) {
+                    expect(err.message).toEqual('ExampleModel requires name to be unique');
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.statusCode).toEqual(409);
+                }
+            });
+
+            it('should NOT be able to create a record with a similiar name and client', async () => {
+                try {
+                    await expect(indexModel.createRecord({
+                        client_id: 5,
+                        name: 'Some-Body_(_hello?',
+                        type: name,
+                        config: {},
+                    })).toReject();
+                } catch (err) {
+                    expect(err.message).toEqual('ExampleModel requires name to be unique');
+                    expect(err).toBeInstanceOf(TSError);
+                    expect(err.statusCode).toEqual(409);
+                }
+            });
+            it('should NOT be able to create a record with a similar lowercased name and client', async () => {
+                try {
+                    await expect(indexModel.createRecord({
+                        client_id: 5,
+                        name: name.toLowerCase(),
+                        type: name,
+                        config: {},
+                    })).toReject();
                 } catch (err) {
                     expect(err.message).toEqual('ExampleModel requires name to be unique');
                     expect(err).toBeInstanceOf(TSError);
@@ -189,10 +218,8 @@ describe('IndexModel', () => {
         });
 
         it('should not be able to create the record without a name', async () => {
-            expect.hasAssertions();
-
             try {
-                await indexModel.createRecord({} as any);
+                await expect(indexModel.createRecord({} as any)).toReject();
             } catch (err) {
                 expect(err.message).toEqual('ExampleModel requires field name');
                 expect(err).toBeInstanceOf(TSError);
@@ -203,9 +230,8 @@ describe('IndexModel', () => {
         describe('when using the convience method findAndApply', () => {
             describe('when given null', () => {
                 it('should throw an error', async () => {
-                    expect.hasAssertions();
                     try {
-                        await indexModel.findAndApply(undefined);
+                        await expect(indexModel.findAndApply(undefined)).toReject();
                     } catch (err) {
                         expect(err.message).toEqual('Invalid input for ExampleModel');
                         expect(err).toBeInstanceOf(TSError);
@@ -229,9 +255,7 @@ describe('IndexModel', () => {
             });
         });
 
-        it('should not be able to update with a different name', async () => {
-            expect.hasAssertions();
-
+        it('should NOT be able to update with a different name', async () => {
             const name = 'fooooobarrr';
             await indexModel.createRecord({
                 name,
@@ -241,10 +265,10 @@ describe('IndexModel', () => {
             });
 
             try {
-                await indexModel.updateRecord(created._key, {
+                await expect(indexModel.updateRecord(created._key, {
                     type: 'billy',
                     name,
-                });
+                })).toReject();
             } catch (err) {
                 expect(err.message).toEqual('ExampleModel requires name to be unique');
                 expect(err).toBeInstanceOf(TSError);
@@ -253,10 +277,10 @@ describe('IndexModel', () => {
         });
 
         it('should not be able to update without an _key', async () => {
-            expect.hasAssertions();
-
             try {
-                await indexModel.updateRecord(undefined as any, {} as any);
+                await expect(
+                    indexModel.updateRecord(undefined as any, {} as any)
+                ).toReject();
             } catch (err) {
                 expect(err.message).toStartWith('Invalid ID given to updateRecord, expected string');
                 expect(err).toBeInstanceOf(TSError);
@@ -285,10 +309,10 @@ describe('IndexModel', () => {
         });
 
         it('should not be able to find by name an incorrect name', async () => {
-            expect.hasAssertions();
-
             try {
-                await indexModel.fetchRecord('WrongBilly');
+                await expect(
+                    indexModel.fetchRecord('WrongBilly')
+                ).toReject();
             } catch (err) {
                 expect(err.message).toEqual('Unable to find ExampleModel by _key: WrongBilly OR name: WrongBilly');
                 expect(err.statusCode).toEqual(404);
@@ -320,12 +344,11 @@ describe('IndexModel', () => {
         });
 
         it('should be able to soft delete the record', async () => {
-            expect.hasAssertions();
             await expect(indexModel.deleteRecord(fetched._key)).resolves.toBeTrue();
             await expect(indexModel.deleteRecord(fetched._key)).resolves.toBeFalse();
 
             try {
-                await indexModel.findById(fetched._key);
+                await expect(indexModel.findById(fetched._key)).toReject();
             } catch (err) {
                 expect(err.message).toInclude('Unable to find');
                 expect(err.statusCode).toEqual(404);
@@ -381,12 +404,14 @@ describe('IndexModel', () => {
             });
 
             it('should be able to find all of the Bobs', async () => {
-                const result = await indexModel.search('name:Bob*', {
+                const response = await indexModel.search('name:Bob*', {
                     size: 6,
                 });
 
-                expect(result).toBeArrayOfSize(5);
-                for (const record of result) {
+                expect(response._total).toBe(5);
+                expect(response._fetched).toBe(5);
+                expect(response.results).toBeArrayOfSize(5);
+                for (const record of response.results) {
                     expect(record).toHaveProperty('_key');
                     expect(record).toHaveProperty('_created');
                     expect(record).toHaveProperty('_updated');
@@ -395,11 +420,13 @@ describe('IndexModel', () => {
             });
 
             it('should be able to find all of the Joes', async () => {
-                const result = await indexModel.search('name:Joe*', { size: 6 });
+                const response = await indexModel.search('name:Joe*', { size: 6 });
 
-                expect(result).toBeArrayOfSize(5);
+                expect(response._total).toBe(5);
+                expect(response._fetched).toBe(5);
+                expect(response.results).toBeArrayOfSize(5);
 
-                for (const record of result) {
+                for (const record of response.results) {
                     expect(record).toHaveProperty('_key');
                     expect(record).toHaveProperty('_created');
                     expect(record).toHaveProperty('_updated');
@@ -425,25 +452,27 @@ describe('IndexModel', () => {
             });
 
             it('should be able to find 2 of the Joes', async () => {
-                const result = await indexModel.search('name:Joe*', { size: 2 });
+                const response = await indexModel.search('name:Joe*', { size: 2 });
 
-                expect(result).toBeArrayOfSize(2);
+                expect(response._total).toBe(5);
+                expect(response._fetched).toBe(2);
+                expect(response.results).toBeArrayOfSize(2);
 
-                for (const record of result) {
+                for (const record of response.results) {
                     expect(record.name).toStartWith('Joe');
                 }
             });
 
             it('should be able to sort by name', async () => {
-                const result = await indexModel.search('name:(Bob* OR Joe*)', {
+                const { results } = await indexModel.search('name:(Bob* OR Joe*)', {
                     size: 11,
                     sort: 'name:desc',
                     includes: ['name', '_updated'],
                 });
 
-                expect(result).toBeArrayOfSize(10);
+                expect(results).toBeArrayOfSize(10);
 
-                result.reverse().forEach((record, index) => {
+                results.reverse().forEach((record, index) => {
                     if (index < 5) {
                         expect(record).toHaveProperty('name', `Bob ${index}`);
                     } else {
@@ -453,14 +482,16 @@ describe('IndexModel', () => {
             });
 
             it('should be able to limit the fields returned', async () => {
-                const result = await indexModel.search('name:Joe*', {
+                const response = await indexModel.search('name:Joe*', {
                     size: 1,
                     includes: ['name'],
                 });
 
-                expect(result).toBeArrayOfSize(1);
+                expect(response._total).toBe(5);
+                expect(response._fetched).toBe(1);
+                expect(response.results).toBeArrayOfSize(1);
 
-                for (const record of result) {
+                for (const record of response.results) {
                     expect(record).not.toHaveProperty('_key');
                     expect(record).not.toHaveProperty('_created');
                     expect(record).not.toHaveProperty('_updated');
@@ -469,11 +500,13 @@ describe('IndexModel', () => {
             });
 
             it('should be able to find no Ninjas', async () => {
-                const result = await indexModel.search('name:"Ninja"', {
+                const response = await indexModel.search('name:"Ninja"', {
                     size: 2,
                 });
 
-                expect(result).toBeArrayOfSize(0);
+                expect(response._total).toBe(0);
+                expect(response._fetched).toBe(0);
+                expect(response.results).toBeArrayOfSize(0);
             });
         });
 
@@ -481,7 +514,7 @@ describe('IndexModel', () => {
             it('should be able to count all of the Bobs', async () => {
                 const queryAccess = new QueryAccess({
                     includes: ['name'],
-                    type_config: indexModel.xluceneTypeConfig
+                    type_config: indexModel.xLuceneTypeConfig
                 });
 
                 const count = await indexModel.count('name:Bob*', {}, queryAccess);
@@ -491,15 +524,15 @@ describe('IndexModel', () => {
             it('should be able to find all by ids', async () => {
                 const queryAccess = new QueryAccess({
                     includes: ['_key', 'name'],
-                    type_config: indexModel.xluceneTypeConfig
+                    type_config: indexModel.xLuceneTypeConfig
                 });
 
-                const findResult = await indexModel.search('name:Bob*', {
+                const { results } = await indexModel.search('name:Bob*', {
                     size: 3,
                     includes: ['_key'],
                 });
 
-                const ids = findResult.map((doc) => doc._key);
+                const ids = results.map((doc) => doc._key);
 
                 const result = await indexModel.findAll(ids, queryAccess);
 
@@ -516,15 +549,15 @@ describe('IndexModel', () => {
                 const queryAccess = new QueryAccess({
                     constraint: 'name:Bob*',
                     excludes: ['_created'],
-                    type_config: indexModel.xluceneTypeConfig
+                    type_config: indexModel.xLuceneTypeConfig
                 });
 
-                const result = await indexModel.search('name:Bob*', {
+                const { results } = await indexModel.search('name:Bob*', {
                     size: 6
                 }, queryAccess);
 
-                expect(result).toBeArrayOfSize(5);
-                for (const record of result) {
+                expect(results).toBeArrayOfSize(5);
+                for (const record of results) {
                     expect(record).not.toBeNil();
                     expect(record).toHaveProperty('_key');
                     expect(record).not.toHaveProperty('_created');
@@ -537,14 +570,16 @@ describe('IndexModel', () => {
                 const queryAccess = new QueryAccess({
                     constraint: 'name:Bob*',
                     excludes: ['_created'],
-                    type_config: indexModel.xluceneTypeConfig
+                    type_config: indexModel.xLuceneTypeConfig
                 });
 
                 const NOT_NAME = 'Bob 1';
-                const result = await indexModel.search(`NOT name:"${NOT_NAME}"`, { size: 6 }, queryAccess);
+                const { results } = await indexModel.search(
+                    `NOT name:"${NOT_NAME}"`, { size: 6 }, queryAccess
+                );
 
-                expect(result).toBeArrayOfSize(4);
-                for (const record of result) {
+                expect(results).toBeArrayOfSize(4);
+                for (const record of results) {
                     expect(record).not.toBeNil();
                     expect(record.name).not.toEqual(NOT_NAME);
                     expect(record.name).toStartWith('Bob');

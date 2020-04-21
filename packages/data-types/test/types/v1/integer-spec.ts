@@ -1,6 +1,5 @@
-import { TSError } from '@terascope/utils';
-import { FieldType } from 'xlucene-evaluator';
-import Interger from '../../../src/types/v1/integer';
+import { xLuceneFieldType } from '@terascope/types';
+import Integer from '../../../src/types/v1/integer';
 import { FieldTypeConfig } from '../../../src/interfaces';
 
 describe('Integer V1', () => {
@@ -8,16 +7,7 @@ describe('Integer V1', () => {
     const typeConfig: FieldTypeConfig = { type: 'Integer' };
 
     it('can requires a field and proper configs', () => {
-        try {
-            // @ts-ignore
-            new Interger();
-            throw new Error('it should have errored with no configs');
-        } catch (err) {
-            expect(err).toBeInstanceOf(TSError);
-            expect(err.message).toInclude('A field must be provided and must be of type string');
-        }
-
-        const type = new Interger(field, typeConfig);
+        const type = new Integer(field, typeConfig);
         expect(type).toBeDefined();
         expect(type.toESMapping).toBeDefined();
         expect(type.toGraphQL).toBeDefined();
@@ -25,22 +15,22 @@ describe('Integer V1', () => {
     });
 
     it('can get proper ES Mappings', () => {
-        const esMapping = new Interger(field, typeConfig).toESMapping();
+        const esMapping = new Integer(field, typeConfig).toESMapping();
         const results = { mapping: { [field]: { type: 'integer' } } };
 
         expect(esMapping).toEqual(results);
     });
 
     it('can get proper graphql types', () => {
-        const graphQlTypes = new Interger(field, typeConfig).toGraphQL();
+        const graphQlTypes = new Integer(field, typeConfig).toGraphQL();
         const results = { type: `${field}: Int`, customTypes: [] };
 
         expect(graphQlTypes).toEqual(results);
     });
 
     it('can get proper xlucene properties', () => {
-        const xlucene = new Interger(field, typeConfig).toXlucene();
-        const results = { [field]: FieldType.Integer };
+        const xlucene = new Integer(field, typeConfig).toXlucene();
+        const results = { [field]: xLuceneFieldType.Integer };
 
         expect(xlucene).toEqual(results);
     });

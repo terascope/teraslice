@@ -33,7 +33,7 @@ describe('selector phase', () => {
 
     it('can run data to match based on selector and types', async () => {
         const configList = await getConfigList('transformRules1.txt');
-        const myOpConfig = Object.assign({}, transformOpconfig, { types: { location: 'geo' } });
+        const myOpConfig = Object.assign({}, transformOpconfig, { type_config: { location: 'geo' } });
         const selectorPhase = new SelectionPhase(myOpConfig, configList, opManager);
         const data = DataEntity.makeArray([
             { some: 'data', isTall: true },

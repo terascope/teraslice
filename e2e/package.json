@@ -1,7 +1,7 @@
 {
     "name": "e2e",
     "displayName": "E2E Tests",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "private": true,
     "description": "Teraslice integration test suite",
     "keywords": [
@@ -23,7 +23,7 @@
         "clean": "docker-compose down --volumes --remove-orphans --timeout=5",
         "logs": "./scripts/logs.sh",
         "logs-follow": "./scripts/logs.sh -f",
-        "setup": "yarn",
+        "setup": "yarn --silent --prefer-offline",
         "test": "../node_modules/.bin/ts-scripts test --suite e2e --",
         "test:debug": "../node_modules/.bin/ts-scripts test --suite e2e --debug --",
         "test:watch": "../node_modules/.bin/ts-scripts test --suite e2e --watch --"
@@ -34,14 +34,12 @@
     "devDependencies": {
         "bunyan": "^1.8.12",
         "elasticsearch": "^15.4.1",
-        "fs-extra": "^8.1.0",
+        "fs-extra": "^9.0.0",
         "ms": "^2.1.2",
         "nanoid": "^2.1.10",
-        "semver": "^7.1.1",
+        "semver": "^7.2.2",
         "signale": "^1.4.0",
-        "ts-jest": "^25.0.0",
-        "typescript": "^3.7.5",
-        "uuid": "^3.4.0"
+        "uuid": "^7.0.2"
     },
     "terascope": {
         "testSuite": "e2e"

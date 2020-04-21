@@ -42,17 +42,18 @@ export type Optional<T, K extends keyof T> = {
     [P in keyof T]: P extends K ? (NonNullable<T[P]> | undefined) : NonNullable<T[P]>
 };
 
+export type Nil = null|undefined;
 /**
  * Without null or undefined properties
  */
-export type WithoutNil<T> = { [P in keyof T]: T[P] extends (undefined | null) ? never : T[P] };
+export type WithoutNil<T> = { [P in keyof T]: T[P] extends Nil ? never : T[P] };
 
 /** A simple definitions of array */
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Many<T> extends Array<T> {}
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface RecursiveArray<T> extends Array<T|RecursiveArray<T>> {}
+export interface RecursiveArray<T> extends Many<T|(RecursiveArray<T>)> {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ListOfRecursiveArraysOrValues<T> extends Many<T|RecursiveArray<T>> {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -84,3 +85,21 @@ export type Filter<T, U> = T extends U ? T : never;
  * Get the types object (the opposite of keyof)
 */
 export type ValueOf<T> = T[keyof T];
+
+/**
+ * Filters the keys of an object (T), by list of included keys (I) and excluded (E)
+*/
+export type FilteredResult<T, I extends(keyof T), E extends (keyof T)> = {
+    [P in keyof T]: P extends I ? T[P] : (
+        P extends E ? never : T[P]
+    )
+};
+
+/**
+ * From https://www.typescriptlang.org/docs/handbook/advanced-types.html#type-inference-in-conditional-types
+*/
+export type Unpacked<T> =
+T extends (infer U)[] ? U :
+    T extends (...args: any[]) => infer U ? U :
+        T extends Promise<infer U> ? U :
+            T;

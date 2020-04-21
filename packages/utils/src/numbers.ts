@@ -55,3 +55,15 @@ export function parseNumberList(input: any): number[] {
         .map(toNumber)
         .filter(isNumber) as number[];
 }
+
+export function inNumberRange(input: number,
+    args: { min?: number; max?: number; inclusive?: boolean }): boolean {
+    const min = args.min ? args.min : -Infinity;
+    const max = args.max ? args.max : Infinity;
+
+    if (args.inclusive) {
+        return (input >= min && input <= max);
+    }
+
+    return (input > min && input < max);
+}

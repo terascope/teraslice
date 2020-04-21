@@ -1,0 +1,2 @@
+{ "selector": "_exists_:field", "tag": "testme" }
+{ "follow": "testme", "post_process": "extraction", "mutate": true, "source": "field", "target": "field", "exp": "[field]"}

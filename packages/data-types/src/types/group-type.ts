@@ -1,16 +1,14 @@
-import { TypeConfig } from 'xlucene-evaluator';
-import * as i from '../interfaces';
-import BaseType from './base-type';
+import { xLuceneTypeConfig, PropertyESTypeMapping, PropertyESTypes } from '@terascope/types';
+import { firstToUpper } from '@terascope/utils';
+import BaseType, { ToGraphQLOptions } from './base-type';
 
 export type NestedTypes = { [field: string]: BaseType };
 
 export default class GroupType extends BaseType {
     readonly types: NestedTypes;
-    readonly version: number;
 
     constructor(field: string, version: number, types: NestedTypes) {
-        super(field, types[field].config);
-        this.version = version;
+        super(field, types[field].config, version);
         this.types = types;
     }
 
@@ -20,7 +18,7 @@ export default class GroupType extends BaseType {
             analyzer = {},
             tokenizer = {},
         } = this.types[this.field].toESMapping(version);
-        const baseMapping = mapping[this.field] as i.PropertyESTypeMapping;
+        const baseMapping = mapping[this.field] as PropertyESTypeMapping;
         if (!baseMapping.properties) {
             baseMapping.properties = {};
         }
@@ -33,7 +31,7 @@ export default class GroupType extends BaseType {
             const fieldResult = type.toESMapping(version);
 
             const nestedField = this._removeBase(field);
-            const fieldMapping = fieldResult.mapping[field] as i.PropertyESTypes;
+            const fieldMapping = fieldResult.mapping[field] as PropertyESTypes;
             baseMapping.properties[nestedField] = fieldMapping;
 
             Object.assign(tokenizer, fieldResult.tokenizer);
@@ -47,12 +45,15 @@ export default class GroupType extends BaseType {
         };
     }
 
-    toGraphQL(typeName?: string, isInput?: boolean, includePrivate?: boolean) {
-        const customTypeName: string = this._formatGQLTypeName(
-            typeName || 'Object',
-            isInput,
-            true,
-            this.version,
+    toGraphQL(options: ToGraphQLOptions = {}) {
+        const { typeName = 'Object', isInput, includePrivate } = options;
+
+        const customTypeName = this._formatGQLTypeName(
+            options.useSnakeCase
+                ? `_${typeName}_${this.field}_`
+                : `${typeName}${firstToUpper(this.field)}`,
+            options.isInput,
+            options.useSnakeCase ? 'input_' : undefined
         );
 
         const properties: string[] = [];
@@ -67,7 +68,7 @@ export default class GroupType extends BaseType {
                 continue;
             }
 
-            const result = type.toGraphQL(typeName, isInput, includePrivate);
+            const result = type.toGraphQL(options);
 
             properties.push(this._removeBase(result.type));
 
@@ -86,7 +87,7 @@ export default class GroupType extends BaseType {
         return this._formatGql(customTypeName, customTypes);
     }
 
-    toXlucene(): TypeConfig {
+    toXlucene(): xLuceneTypeConfig {
         const configs = Object.values(this.types).map((type) => type.toXlucene());
         return Object.assign({}, ...configs);
     }

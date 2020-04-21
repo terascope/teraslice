@@ -4,10 +4,10 @@ import {
     TSError,
     chunk,
     isFunction,
-    pImmediate
+    pImmediate,
+    pMap
 } from '@terascope/utils';
 import esApi, { Client } from '@terascope/elasticsearch-api';
-import { Promise as bPromise } from 'bluebird';
 import { ESStateStorageConfig, MGetCacheResponse } from '../interfaces';
 import CachedStateStorage from '../cached-state-storage';
 
@@ -131,7 +131,7 @@ export default class ESCachedStateStorage {
 
         if (uncached.length) {
             // es search for keys not in cache
-            await bPromise.map(uncached, (chunked) => this._esMGet(chunked, fn), {
+            await pMap(uncached, (chunked) => this._esMGet(chunked, fn), {
                 concurrency: this.concurrency
             });
         }
@@ -285,7 +285,7 @@ export default class ESCachedStateStorage {
     private async _esBulkUpdate(docArray: DataEntity[]): Promise<void> {
         const chunked = chunk(docArray, this.chunkSize);
 
-        await bPromise.map(chunked, (chunkedData) => {
+        await pMap(chunked, (chunkedData) => {
             const bulkRequest = this._esBulkUpdatePrep(chunkedData);
             return this.es.bulkSend(bulkRequest);
         }, {

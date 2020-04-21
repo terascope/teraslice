@@ -1,6 +1,8 @@
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
-import { QueryAccess, JoinBy, RestrictOptions } from 'xlucene-evaluator';
+import { JoinBy } from '@terascope/data-mate';
+import { QueryAccess, RestrictOptions } from 'xlucene-translator';
+import { v4 as uuid } from 'uuid';
 import IndexStore, { AnyInput } from './index-store';
 import * as utils from './utils';
 import * as i from './interfaces';
@@ -26,6 +28,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
             name: modelConfig.name,
             namespace: options.namespace,
             data_type: modelConfig.data_type,
+            enable_index_mutations: options.enable_index_mutations,
             index_schema: {
                 version: modelConfig.version,
             },
@@ -40,7 +43,9 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
             },
             default_query_access: new QueryAccess({
                 type_config: modelConfig.data_type.toXlucene(),
-                constraint: '_deleted: false'
+                constraint: '_deleted: false',
+            }, {
+                logger: options.logger,
             })
         };
 
@@ -93,7 +98,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
             _updated: ts.makeISODate(),
         } as T;
 
-        const id = await utils.makeId();
+        const id = uuid();
         docInput._key = id;
 
         const doc = this._sanitizeRecord(docInput);
@@ -198,9 +203,14 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
             }
             if (existing && existing[field] === record[field]) continue;
 
-            const count = await this.countRecords({
-                [field]: record[field],
-            } as AnyInput<T>, record.client_id);
+            const fieldKey = this._hasTextAnalyzer(field) ? `${field}.text` : field;
+
+            let query = `${fieldKey}:${utils.uniqueFieldQuery(String(record[field]))}`;
+            if (record.client_id && record.client_id > 0) {
+                query += ` AND client_id: ${record.client_id}`;
+            }
+            query += ' AND _deleted:false';
+            const count = await this.count(query);
 
             if (count > 0) {
                 throw new ts.TSError(`${this.name} requires ${field} to be unique`, {
@@ -208,5 +218,13 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
                 });
             }
         }
+    }
+
+    private _hasTextAnalyzer(field: keyof T): boolean {
+        const fieldConfig = this.config.data_type.fields[field as string];
+        if (!fieldConfig) return false;
+        if (fieldConfig.type !== 'KeywordCaseInsensitive') return false;
+        if (!fieldConfig.use_fields_hack) return false;
+        return true;
     }
 }

@@ -26,6 +26,10 @@ module.exports = {
     'no-path-concat': 'error',
     'no-debugger': 'error',
     'comma-dangle': 'off',
+    camelcase: ['error', {
+        properties: 'never',
+        ignoreDestructuring: true,
+    }],
     'handle-callback-err': ['error', 'error'],
     'import/no-extraneous-dependencies': 'off',
     'class-methods-use-this': 'off',

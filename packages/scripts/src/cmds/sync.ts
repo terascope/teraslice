@@ -1,5 +1,5 @@
-import isCI from 'is-ci';
 import { CommandModule } from 'yargs';
+import { isCI } from '@terascope/utils';
 import { syncAll, syncPackages } from '../helpers/sync';
 import { PackageInfo, GlobalCMDOptions } from '../helpers/interfaces';
 import { coercePkgArg } from '../helpers/args';

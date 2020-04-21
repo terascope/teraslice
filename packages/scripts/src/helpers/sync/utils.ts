@@ -1,7 +1,8 @@
-import isCI from 'is-ci';
 import path from 'path';
 import semver from 'semver';
-import { getFirstChar, uniq, trim } from '@terascope/utils';
+import {
+    getFirstChar, uniq, trim, isCI
+} from '@terascope/utils';
 import { getDocPath, updatePkgJSON, fixDepPkgName } from '../packages';
 import { updateReadme, ensureOverview } from '../docs/overview';
 import { PackageInfo, RootPackageInfo } from '../interfaces';
@@ -11,7 +12,6 @@ import { DepKey, SyncOptions } from './interfaces';
 import signale from '../signale';
 
 const topLevelFiles: readonly string[] = [
-    'website/sidebars.json',
     'package.json',
     'yarn.lock'
 ];
@@ -59,6 +59,9 @@ ${formatList(diff)}
 
     if (!options.quiet) {
         signale.warn('Make sure to run yarn and commit your changes');
+        if (isCI) {
+            await gitDiff(changed);
+        }
     }
 
     if (options.verify) {

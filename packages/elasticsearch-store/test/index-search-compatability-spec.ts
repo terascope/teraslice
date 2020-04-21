@@ -1,6 +1,7 @@
 import 'jest-extended';
 import { Client } from 'elasticsearch';
-import { QueryAccess, GeoShape, GeoShapeType } from 'xlucene-evaluator';
+import { GeoShape, GeoShapeType } from '@terascope/types';
+import { QueryAccess } from 'xlucene-translator';
 import {
     IndexModel, IndexModelRecord, IndexModelConfig, IndexModelOptions, makeRecordDataType
 } from '../src';
@@ -202,7 +203,8 @@ describe('IndexSearchCompatability', () => {
     });
 
     async function search(q: string) {
-        return indexModel.search(q, { sort: 'id:asc' }, queryAccess);
+        const { results } = await indexModel.search(q, { sort: 'id:asc' }, queryAccess);
+        return results;
     }
 
     describe('search compatability', () => {

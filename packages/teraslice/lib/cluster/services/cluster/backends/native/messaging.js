@@ -2,8 +2,7 @@
 
 const _ = require('lodash');
 const shortid = require('shortid');
-const Queue = require('@terascope/queue');
-const { pDelay } = require('@terascope/utils');
+const { pDelay, Queue } = require('@terascope/utils');
 
 // messages send to cluster_master
 const clusterMasterMessages = {

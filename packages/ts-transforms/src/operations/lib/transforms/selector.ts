@@ -1,6 +1,6 @@
-import { DocumentMatcher, TypeConfig } from 'xlucene-evaluator';
+import { DocumentMatcher } from '@terascope/data-mate';
 import { DataEntity } from '@terascope/utils';
-import { InputOutputCardinality, SelectorConfig } from '../../../interfaces';
+import { InputOutputCardinality, SelectorConfig, MatcherConfig } from '../../../interfaces';
 
 export default class Selector {
     private documentMatcher: DocumentMatcher;
@@ -9,15 +9,14 @@ export default class Selector {
 
     static cardinality: InputOutputCardinality = 'one-to-one';
 
-    constructor(config: SelectorConfig, types?: TypeConfig) {
+    constructor(config: SelectorConfig, matcherConfig: MatcherConfig = {}) {
         let luceneQuery = config.selector as string;
         if (typeof luceneQuery !== 'string') throw new Error('selector must be a string');
         this.selector = luceneQuery;
         this.isMatchAll = luceneQuery === '*';
         if (this.isMatchAll) luceneQuery = '';
-        this.documentMatcher = new DocumentMatcher(luceneQuery, {
-            type_config: types
-        });
+
+        this.documentMatcher = new DocumentMatcher(luceneQuery, matcherConfig);
     }
 
     addMetaData(doc: DataEntity, selector: string) {

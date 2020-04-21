@@ -19,7 +19,6 @@ const K8s = require('./k8s');
 
 module.exports = function kubernetesClusterBackend(context, clusterMasterServer) {
     const logger = makeLogger(context, 'kubernetes_cluster_service');
-    // const slicerAllocationAttempts = context.sysconfig.teraslice.slicer_allocation_attempts;
 
     const clusterName = get(context, 'sysconfig.teraslice.name');
     const clusterNameLabel = clusterName.replace(/[^a-zA-Z0-9_\-.]/g, '_').substring(0, 63);
@@ -28,7 +27,8 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
     const clusterState = {};
     let clusterStateInterval = null;
 
-    const k8s = new K8s(logger, null, kubernetesNamespace);
+    const k8s = new K8s(logger, null, kubernetesNamespace,
+        context.sysconfig.teraslice.kubernetes_api_poll_delay);
 
     clusterMasterServer.onClientOnline((exId) => {
         logger.info(`execution ${exId} is connected`);
@@ -43,13 +43,14 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
     }
 
     /**
-     * Creates clusterState by iterating over all k8s pods with the label
-     * `app.kubernetes.io/name=teraslice`
+     * Creates clusterState by iterating over all k8s pods matching both labels
+     *   app.kubernetes.io/name=teraslice
+     *   app.kubernetes.io/instance=${clusterNameLabel}
      * @constructor
      * @return      {Promise} [description]
      */
     function _getClusterState() {
-        return k8s.list('app.kubernetes.io/name=teraslice', 'pods')
+        return k8s.list(`app.kubernetes.io/name=teraslice,app.kubernetes.io/instance=${clusterNameLabel}`, 'pods')
             .then((k8sPods) => k8sState.gen(k8sPods, clusterState, clusterNameLabel))
             .catch((err) => {
                 // TODO: We might need to do more here.  I think it's OK to just
@@ -84,15 +85,8 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      */
     async function allocateSlicer(ex) {
         const execution = cloneDeep(ex);
-        const exSvcResource = new K8sResource(
-            'services', 'execution_controller', context.sysconfig.teraslice, execution
-        );
 
-        const exService = exSvcResource.resource;
-
-        execution.slicer_port = get(exService, 'spec.ports[0].targetPort');
-        execution.slicer_hostname = get(exService, 'metadata.name');
-
+        execution.slicer_port = 45680;
         const exJobResource = new K8sResource(
             'jobs', 'execution_controller', context.sysconfig.teraslice, execution
         );
@@ -100,12 +94,18 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
 
         logger.debug(exJob, 'execution allocating slicer');
 
-        // TODO: This should try slicerAllocationAttempts times??
-        const serviceResult = await k8s.post(exService, 'service');
-        logger.debug(serviceResult, 'k8s slicer service submitted');
-
         const jobResult = await k8s.post(exJob, 'job');
         logger.debug(jobResult, 'k8s slicer job submitted');
+
+        const controllerUid = jobResult.spec.selector.matchLabels['controller-uid'];
+        const pod = await k8s.waitForSelectedPod(
+            `controller-uid=${controllerUid}`,
+            null,
+            context.sysconfig.teraslice.slicer_timeout
+        );
+
+        logger.debug(`Slicer is using IP: ${pod.status.podIP}`);
+        execution.slicer_hostname = `${pod.status.podIP}`;
 
         return execution;
     }

@@ -61,11 +61,10 @@ describe('JobValidator', () => {
         it('throws an error with faulty operation configuration', () => {
             const jobSpec: JobConfig = {
                 name: 'test',
-                // @ts-ignore
                 operations: [
                     {
                         something: 'else',
-                    },
+                    } as any,
                     {
                         _op: 'noop',
                     },

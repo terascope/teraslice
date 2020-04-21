@@ -1,6 +1,5 @@
-import { FieldType } from 'xlucene-evaluator';
-import BaseType from '../base-type';
-import { ElasticSearchTypes } from '../../interfaces';
+import { xLuceneFieldType, ESFieldType } from '@terascope/types';
+import BaseType, { ToGraphQLOptions } from '../base-type';
 
 export default class Boundary extends BaseType {
     toESMapping(_version?: number) {
@@ -8,15 +7,15 @@ export default class Boundary extends BaseType {
             mapping: {
                 [this.field]: {
                     properties: {
-                        lat: { type: 'float' as ElasticSearchTypes },
-                        lon: { type: 'float' as ElasticSearchTypes },
+                        lat: { type: 'float' as ESFieldType },
+                        lon: { type: 'float' as ESFieldType },
                     },
                 },
             },
         };
     }
 
-    toGraphQL(_typeName?: string, isInput?: boolean) {
+    toGraphQL({ isInput }: ToGraphQLOptions = {}) {
         const defType = isInput ? 'input' : 'type';
         const name = this._formatGQLTypeName('GeoBoundary', isInput);
         const customType = `
@@ -29,6 +28,6 @@ export default class Boundary extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: FieldType.Geo };
+        return { [this.field]: xLuceneFieldType.Geo };
     }
 }

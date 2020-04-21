@@ -1,0 +1,2 @@
+{ "selector": "_exists_:field", "tag": "field1-to-array"}
+{ "follow": "field1-to-array", "post_process": "array", "fields": ["field"], "target":"field"}

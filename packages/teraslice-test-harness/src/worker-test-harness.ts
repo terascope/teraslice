@@ -126,7 +126,7 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
                 result || {
                     results: [],
                 }
-            );
+            ) as RunSliceResult;
         }
 
         return result.results || [];

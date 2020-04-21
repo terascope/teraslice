@@ -3,6 +3,8 @@ export type PackageInfo = {
     folderName: string;
     private?: boolean;
     name: string;
+    main: string;
+    srcMain?: string;
     displayName: string;
     version: string;
     description: string;
@@ -48,6 +50,7 @@ export type RootPackageInfo = {
     };
     documentation: string;
     homepage: string;
+    workspaces: string[]|{ packages: string[] };
     terascope: {
         root: boolean;
         type: 'monorepo';

@@ -33,6 +33,7 @@ builds/*
 .eslintcache
 .yarn-cache
 .jest-cache
+!.yarn-offline-cache
 
 # Dependency directory
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
@@ -69,3 +70,4 @@ website/translated_docs
 website/build/
 website/node_modules
 website/i18n/*
+docs/packages/*/api

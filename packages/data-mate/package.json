@@ -1,0 +1,67 @@
+{
+    "name": "@terascope/data-mate",
+    "displayName": "Data-Mate",
+    "version": "0.8.2",
+    "description": "Library of data validations/transformations",
+    "homepage": "https://github.com/terascope/teraslice/tree/master/packages/data-mate#readme",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/terascope/teraslice.git"
+    },
+    "license": "MIT",
+    "author": "Terascope, LLC <info@terascope.io>",
+    "sideEffects": false,
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
+    "directories": {
+        "lib": "dist/src",
+        "test": "test"
+    },
+    "files": [
+        "dist/src/**/*"
+    ],
+    "scripts": {
+        "benchmark": "yarn build && node bench/index.js",
+        "build": "tsc --build",
+        "build:watch": "yarn build --watch",
+        "test": "ts-scripts test . --",
+        "test:debug": "ts-scripts test --debug . --",
+        "test:watch": "ts-scripts test --watch . --"
+    },
+    "resolutions": {
+        "@turf/clean-coords": "^6.0.1"
+    },
+    "dependencies": {
+        "@terascope/data-types": "^0.17.2",
+        "@terascope/types": "^0.3.0",
+        "@terascope/utils": "^0.26.2",
+        "@turf/bbox": "^6.0.1",
+        "@turf/bbox-polygon": "^6.0.1",
+        "@turf/boolean-point-in-polygon": "^6.0.1",
+        "@turf/circle": "^6.0.1",
+        "@turf/clean-coords": "^6.0.1",
+        "@turf/helpers": "^6.1.4",
+        "awesome-phonenumber": "^2.29.0",
+        "date-fns": "^2.11.1",
+        "ip6addr": "^0.2.3",
+        "ipaddr.js": "^1.9.1",
+        "is-cidr": "^3.1.0",
+        "jexl": "^2.2.2",
+        "valid-url": "^1.0.9",
+        "validator": "^13.0.0",
+        "xlucene-parser": "^0.21.3"
+    },
+    "devDependencies": {},
+    "engines": {
+        "node": ">=8.0.0"
+    },
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
+    },
+    "srcMain": "src/index.ts",
+    "terascope": {
+        "enableTypedoc": true,
+        "testSuite": "unit-b"
+    }
+}

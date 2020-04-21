@@ -277,7 +277,7 @@ export const opSchema: convict.Schema<any> = {
             'If none of the actions are specified it will try and use a registered Dead Letter Queue API under that name.',
             'The API must be already be created by a operation before it can used.'
         ].join('\n'),
-        default: 'none',
+        default: 'throw',
         format: 'optional_String',
     },
 };

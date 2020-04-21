@@ -1,7 +1,7 @@
 {
     "name": "@terascope/docker-compose-js",
     "displayName": "Docker Compose Js",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "description": "Node.js driver for controlling docker-compose testing environments.",
     "keywords": [
         "docker",
@@ -15,19 +15,18 @@
     "repository": "git@github.com:terascope/teraslice.git",
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
-    "files": [
-        "dist/src/**/*"
-    ],
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
     "directories": {
         "lib": "dist/src",
         "test": "test"
     },
+    "files": [
+        "dist/src/**/*"
+    ],
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "prepublishOnly": "yarn build",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
@@ -43,6 +42,7 @@
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
+    "srcMain": "src/index.ts",
     "terascope": {
         "testSuite": "disabled",
         "enableTypedoc": true

@@ -1,7 +1,7 @@
 {
     "name": "@terascope/teraslice-state-storage",
     "displayName": "Teraslice State Storage",
-    "version": "0.10.0",
+    "version": "0.14.2",
     "description": "State storage operation api for teraslice",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-state-storage#readme",
     "bugs": {
@@ -10,24 +10,22 @@
     "repository": "git@github.com:terascope/teraslice.git",
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
     "files": [
         "dist/src/**/*"
     ],
-    "main": "dist/src/index.js",
-    "typings": "dist/src/index.d.ts",
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
-        "prepublishOnly": "yarn build",
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/elasticsearch-api": "^2.4.0",
-        "@terascope/utils": "^0.22.0",
-        "bluebird": "^3.7.2",
-        "mnemonist": "^0.32.0"
+        "@terascope/elasticsearch-api": "^2.8.2",
+        "@terascope/utils": "^0.26.2",
+        "mnemonist": "^0.36.0"
     },
     "publishConfig": {
         "access": "public",

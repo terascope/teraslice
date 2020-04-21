@@ -1,7 +1,7 @@
 {
     "name": "generator-teraslice",
     "displayName": "Generator Teraslice",
-    "version": "0.3.2",
+    "version": "0.6.2",
     "description": "Generate teraslice related packages and code",
     "keywords": [
         "teraslice",
@@ -14,19 +14,20 @@
     "repository": "git@github.com:terascope/teraslice.git",
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
+    "main": "generators/index.js",
     "files": [
         "generators"
     ],
-    "main": "generators/index.js",
     "scripts": {
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "chalk": "^3.0.0",
-        "lodash": "^4.17.11",
-        "yeoman-generator": "^4.5.0",
+        "@terascope/utils": "^0.26.2",
+        "chalk": "^4.0.0",
+        "lodash.defaultsdeep": "^4.6.1",
+        "yeoman-generator": "^4.8.2",
         "yosay": "^2.0.1"
     },
     "devDependencies": {},
@@ -38,6 +39,6 @@
         "registry": "https://registry.npmjs.org/"
     },
     "terascope": {
-        "testSuite": "unit-a"
+        "testSuite": "unit-b"
     }
 }

@@ -1,4 +1,3 @@
-import { isEmpty } from './utils';
 import { debugLogger } from './logger';
 import { toHumanTime, trackTimeout } from './dates';
 import {
@@ -7,6 +6,7 @@ import {
     parseError,
     isFatalError
 } from './errors';
+import { chunk as chunkItems } from './arrays';
 
 const logger = debugLogger('utils:promises');
 
@@ -91,7 +91,6 @@ export async function pRetry<T = any>(
             maxDelay: 60000,
             backoff: 2,
             matches: [],
-            logError: logger.warn,
             _currentDelay: 0,
             // @ts-ignore
             _context: undefined as PRetryContext,
@@ -115,7 +114,7 @@ export async function pRetry<T = any>(
     } catch (_err) {
         let matches = true;
 
-        if (!isEmpty(config.matches)) {
+        if (config.matches?.length) {
             const rawErr = parseError(_err);
             matches = config.matches.some((match) => {
                 const reg = new RegExp(match);
@@ -155,10 +154,12 @@ export async function pRetry<T = any>(
 
             await pDelay(config._currentDelay);
 
-            config.logError(err, 'retry error, retrying...', {
-                ...config,
-                _context: null,
-            });
+            if (config.logError) {
+                config.logError(err, 'retry error, retrying...', {
+                    ...config,
+                    _context: null,
+                });
+            }
             return pRetry(fn, config);
         }
 
@@ -359,4 +360,24 @@ export function pDefer() {
         reject: reject!,
         promise
     };
+}
+
+/**
+ * Similar to Bluebird.map, with concurrency control
+*/
+export async function pMap<T, R = T>(
+    items: T[],
+    fn: (value: T, index: number) => Promise<R>|R,
+    options?: { concurrency?: number }
+): Promise<R[]> {
+    const concurrency = options?.concurrency || Infinity;
+    const chunks = chunkItems(items, concurrency);
+    let results: R[] = [];
+    for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
+        const chunkIndex = i * concurrency;
+        const promises = chunk.map((item, itemIndex) => fn(item, chunkIndex + itemIndex));
+        results = results.concat(await Promise.all(promises));
+    }
+    return results;
 }

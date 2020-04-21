@@ -1,45 +1,25 @@
-FROM terascope/node-base:10.16.3
+FROM terascope/node-base:10.19.0-1
 
-# [INSTALL AND BUILD PACKAGES]
-ENV NODE_ENV development
-
-COPY package.json yarn.lock lerna.json .yarnrc /app/source/
-
-# remove the workspaces to the package.json
-RUN docker-pkg-fix "pre"
-
-# install both dev and production dependencies
-RUN yarn \
-    --prod=false \
-    --no-progress \
-    --frozen-lockfile \
-    --ignore-optional
-
-# add back the workspaces to the package.json
-RUN docker-pkg-fix "post"
-
-# Add all of the packages and other required files
-COPY packages /app/source/packages
-
-# install the missing packages
-RUN yarn \
-    --prod=false \
-    --no-cache \
-    --prefer-offline \
-    --frozen-lockfile \
-    --ignore-optional
-
-COPY types /app/source/types
-COPY tsconfig.json /app/source/
-COPY scripts /app/source/scripts
-
-# link and build the missing packages
-RUN yarn quick:setup
-
-# [BUILD THE PRODUCTION IMAGE]
 ENV NODE_ENV production
 
+ENV YARN_SETUP_ARGS "--prod=false --silent --frozen-lockfile"
+
+COPY package.json yarn.lock lerna.json tsconfig.json .yarnrc /app/source/
+COPY packages /app/source/packages
+COPY types /app/source/types
+COPY scripts /app/source/scripts
 COPY service.js /app/source/
+
+RUN yarn setup
+
+# Create a smaller build
+RUN yarn \
+    --prod=true \
+    --silent \
+    --frozen-lockfile \
+    --skip-integrity-check \
+    --ignore-scripts \
+    && yarn cache clean
 
 # verify node-rdkafka is installed right
 RUN node -e "require('node-rdkafka')"

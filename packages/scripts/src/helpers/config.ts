@@ -1,6 +1,5 @@
-import isCI from 'is-ci';
 import { address } from 'ip';
-import { toBoolean, toSafeString } from '@terascope/utils';
+import { toBoolean, toSafeString, isCI } from '@terascope/utils';
 
 const forceColor = process.env.FORCE_COLOR || '1';
 export const FORCE_COLOR = toBoolean(forceColor)
@@ -18,7 +17,7 @@ export const ELASTICSEARCH_NAME = process.env.ELASTICSEARCH_NAME || 'elasticsear
 export const ELASTICSEARCH_HOSTNAME = process.env.ELASTICSEARCH_HOSTNAME || HOST_IP;
 export const ELASTICSEARCH_PORT = process.env.ELASTICSEARCH_PORT || '49200';
 export const ELASTICSEARCH_HOST = `http://${ELASTICSEARCH_HOSTNAME}:${ELASTICSEARCH_PORT}`;
-export const ELASTICSEARCH_VERSION = process.env.ELASTICSEARCH_VERSION || '6.8.2';
+export const ELASTICSEARCH_VERSION = process.env.ELASTICSEARCH_VERSION || '6.8.6';
 export const ELASTICSEARCH_API_VERSION = process.env.ELASTICSEARCH_API_VERSION || '6.5';
 export const ELASTICSEARCH_DOCKER_IMAGE = process.env.ELASTICSEARCH_DOCKER_IMAGE || 'blacktop/elasticsearch';
 

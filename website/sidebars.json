@@ -45,8 +45,7 @@
             "asset-bundles/elasticsearch-assets/overview",
             "asset-bundles/standard-assets/overview",
             "asset-bundles/kafka-assets/overview",
-            "asset-bundles/file-assets/overview",
-            "asset-bundles/hdfs-assets/overview"
+            "asset-bundles/file-assets/overview"
         ]
     },
     "packages": {
@@ -60,6 +59,14 @@
                 "ids": [
                     "packages/data-types/overview",
                     "packages/data-types/api/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "data-mate",
+                "ids": [
+                    "packages/data-mate/overview",
+                    "packages/data-mate/api/overview"
                 ]
             },
             {
@@ -83,14 +90,6 @@
                 "ids": [
                     "packages/job-components/overview",
                     "packages/job-components/api/overview"
-                ]
-            },
-            {
-                "type": "subcategory",
-                "label": "queue",
-                "ids": [
-                    "packages/queue/overview",
-                    "packages/queue/api/overview"
                 ]
             },
             {
@@ -144,29 +143,30 @@
             },
             {
                 "type": "subcategory",
+                "label": "xlucene-parser",
+                "ids": [
+                    "packages/xlucene-parser/overview",
+                    "packages/xlucene-parser/api/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "xlucene-translator",
+                "ids": [
+                    "packages/xlucene-translator/overview",
+                    "packages/xlucene-translator/api/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
                 "label": "utils",
                 "ids": [
                     "packages/utils/overview",
                     "packages/utils/api/overview"
                 ]
-            },
-            {
-                "type": "subcategory",
-                "label": "xlucene-evaluator",
-                "ids": [
-                    "packages/xlucene-evaluator/overview",
-                    "packages/xlucene-evaluator/api/overview"
-                ]
             }
         ],
         "Legacy": [
-            {
-                "type": "subcategory",
-                "label": "error-parser",
-                "ids": [
-                    "packages/error-parser/overview"
-                ]
-            },
             {
                 "type": "subcategory",
                 "label": "teraslice-op-test-harness",

@@ -1,14 +1,13 @@
-import { FieldType } from 'xlucene-evaluator';
-import BaseType from '../base-type';
-import { ElasticSearchTypes } from '../../interfaces';
+import { xLuceneFieldType, ESFieldType } from '@terascope/types';
+import BaseType, { ToGraphQLOptions } from '../base-type';
 
 // TODO: This type is deprecated, not sure how to properly indicate it.
 export default class GeoType extends BaseType {
     toESMapping(_version?: number) {
-        return { mapping: { [this.field]: { type: 'geo_point' as ElasticSearchTypes } } };
+        return { mapping: { [this.field]: { type: 'geo_point' as ESFieldType } } };
     }
 
-    toGraphQL(_typeName?: string, isInput?: boolean) {
+    toGraphQL({ isInput }: ToGraphQLOptions = {}) {
         const defType = isInput ? 'input' : 'type';
         const name = this._formatGQLTypeName('GeoPoint', isInput);
         const customType = `
@@ -21,6 +20,6 @@ export default class GeoType extends BaseType {
     }
 
     toXlucene() {
-        return { [this.field]: FieldType.Geo };
+        return { [this.field]: xLuceneFieldType.Geo };
     }
 }

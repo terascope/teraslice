@@ -251,6 +251,11 @@ const schema = {
             }
         }
     },
+    kubernetes_api_poll_delay: {
+        doc: 'Specify the delay between attempts to poll the kubernetes API',
+        default: '1 second',
+        format: 'duration'
+    },
     kubernetes_image: {
         doc: 'Specify a custom image name for kubernetes, this only applies to kubernetes systems',
         default: 'terascope/teraslice',

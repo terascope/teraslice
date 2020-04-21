@@ -13,4 +13,3 @@ Asset bundles are collection of processors or files that can be loaded and used 
 - [Standard](./asset-bundles/standard-assets/overview.md)
 - [Kafka](./asset-bundles/kafka-assets/overview.md)
 - [File](./asset-bundles/file-assets/overview.md)
-- [HDFS](./asset-bundles/hdfs-assets/overview.md)

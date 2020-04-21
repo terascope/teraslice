@@ -360,7 +360,9 @@ describe('ExecutionController Test Cases', () => {
             const { exId } = testContext.executionContext;
 
             expect(exStatus).toBeObject();
-            expect(exStatus).toHaveProperty('_slicer_stats');
+            expect(exStatus).toHaveProperty('_slicer_stats.processed');
+            expect(exStatus).toHaveProperty('_slicer_stats.queued');
+            expect(exStatus).toHaveProperty('_slicer_stats.slicers');
 
             if (sliceFails || slicerFails) {
                 if (sliceFails) {

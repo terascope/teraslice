@@ -1,6 +1,6 @@
 import 'jest-extended';
+import { Collector } from '../src/collector';
 import {
-    Collector,
     DataEntity,
     times,
     pDelay

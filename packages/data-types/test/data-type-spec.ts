@@ -85,7 +85,7 @@ describe('DataType', () => {
         expect(() => new DataType(typeConfig)).not.toThrow();
     });
 
-    it('should persist config, name and description', () => {
+    it('should persist name, version, fields and description', () => {
         const typeConfig: DataTypeConfig = {
             version: LATEST_VERSION,
             fields: { hello: { type: 'Keyword' } },
@@ -96,5 +96,26 @@ describe('DataType', () => {
         expect(dataType).toHaveProperty('description', 'hello there');
         expect(dataType).toHaveProperty('fields', typeConfig.fields);
         expect(dataType).toHaveProperty('version', typeConfig.version);
+        expect(dataType).toHaveProperty('groupedFields', {
+            hello: ['hello']
+        });
+    });
+
+    it('should have correctly grouped fields list', () => {
+        const typeConfig: DataTypeConfig = {
+            version: LATEST_VERSION,
+            fields: {
+                hello: { type: 'Keyword' },
+                foo: { type: 'Object' },
+                'foo.bar': { type: 'Keyword' },
+                'foo.baz': { type: 'Keyword' },
+            },
+        };
+
+        const dataType = new DataType(typeConfig, 'Test', 'hello there');
+        expect(dataType).toHaveProperty('groupedFields', {
+            hello: ['hello'],
+            foo: ['foo', 'foo.bar', 'foo.baz']
+        });
     });
 });
