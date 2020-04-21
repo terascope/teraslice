@@ -262,8 +262,7 @@ describe('elasticsearch-state-storage', () => {
 
         describe('when presist is true', () => {
             beforeEach(() => setup({
-                persist: true,
-                persist_field: '_key'
+                persist: true
             }));
             afterEach(() => teardown());
 
@@ -284,7 +283,7 @@ describe('elasticsearch-state-storage', () => {
         describe('when presist is true and field is specified', () => {
             beforeEach(() => setup({
                 persist: true,
-                persist_field: 'otherField'
+                metaKey: 'otherField'
             }));
             afterEach(() => teardown());
 
@@ -330,7 +329,7 @@ describe('elasticsearch-state-storage', () => {
         });
     });
 
-    describe('->sync', () => {
+    fdescribe('->sync', () => {
         const docArray = makeTestDocs(6);
 
         const inCacheCurrent = docArray[0];
@@ -359,11 +358,14 @@ describe('elasticsearch-state-storage', () => {
         const updateFnResults: { key: string; current: DataEntity; prev?: DataEntity }[] = [];
         const fn: UpdateCacheFn = (key, current, prev) => {
             updateFnResults.push({ key, current, prev });
+
             if (key === inCacheCurrent.getKey()) {
                 inCacheCurrent.seen = true;
                 return current;
             }
+
             if (key === inCacheUpdated.getKey()) return false;
+
             if (key === inCacheChanged.getKey()) {
                 return newInCacheChanged;
             }
@@ -382,7 +384,7 @@ describe('elasticsearch-state-storage', () => {
             mgetResponse.docs.push(client.createGetResponse(notFoundInES, false));
             client.setMGetResponse(mgetResponse);
 
-            response = await stateStorage.sync(inputDocArray, fn);
+            await stateStorage.sync(inputDocArray, fn);
         });
 
         afterAll(() => teardown());
@@ -399,9 +401,9 @@ describe('elasticsearch-state-storage', () => {
                 // the cache wasn't updated for this
                 prevInCacheUpdated,
                 newInCacheChanged,
-                inESUpdated,
-                notFoundInES,
                 inESCurrent,
+                inESUpdated,
+                notFoundInES
             ]);
         });
 
@@ -466,7 +468,7 @@ describe('elasticsearch-state-storage', () => {
             const key = inESCurrent.getKey();
 
             const results = updateFnResults.filter((result) => result.key === key);
-            expect(results).toBeArrayOfSize(2);
+            expect(results).toBeArrayOfSize(1);
             let call = 0;
             for (const result of results) {
                 call++;

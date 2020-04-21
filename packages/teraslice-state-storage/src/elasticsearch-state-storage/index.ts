@@ -18,7 +18,7 @@ export default class ESCachedStateStorage {
     private sourceFields: string[];
     private chunkSize: number;
     private persist: boolean;
-    private persistField?: string;
+    private metaKey: string;
     private es: Client;
     private logger: Logger;
     public cache: CachedStateStorage<DataEntity>;
@@ -30,9 +30,7 @@ export default class ESCachedStateStorage {
         this.sourceFields = config.source_fields || [];
         this.chunkSize = config.chunk_size;
         this.persist = config.persist;
-        if (config.persist_field && config.persist_field !== '_key') {
-            this.persistField = config.persist_field;
-        }
+        this.metaKey = config.metaKey || '_key';
         this.cache = new CachedStateStorage(config);
         this.logger = logger;
         this.es = esApi(client, logger);
@@ -48,18 +46,21 @@ export default class ESCachedStateStorage {
         return this.cache.count();
     }
 
-    getIdentifier(doc: DataEntity, metaKey = '_key'): string {
-        const key = doc.getMetadata(metaKey);
+    getIdentifier(doc: DataEntity): string {
+        const key = doc.getMetadata(this.metaKey);
+
         if (key === '' || key == null) {
-            throw new TSError(`There is no field "${metaKey}" set in the metadata`, {
+            throw new TSError(`There is no field "${this.metaKey}" set in the metadata`, {
                 context: { doc }
             });
         }
+
         return `${key}`;
     }
 
     async mset(docArray: DataEntity[]) {
         const formattedDocs = docArray.map((doc) => ({ data: doc, key: this.getIdentifier(doc) }));
+
         if (this.persist) {
             const [results] = await Promise.all([
                 this.cache.mset(formattedDocs),
@@ -67,6 +68,7 @@ export default class ESCachedStateStorage {
             ]);
             return results;
         }
+
         return this.cache.mset(formattedDocs);
     }
 
@@ -108,10 +110,14 @@ export default class ESCachedStateStorage {
 
     async mget(docArray: DataEntity[]): Promise<MGetCacheResponse> {
         const savedDocs = {};
-        const setDocs: UpdateCacheFn = (key, current, prev) => {
-            if (prev) savedDocs[key] = prev;
-            return prev || current;
+        const setDocs: UpdateCacheFn = (key, incoming, saved) => {
+            if (saved) savedDocs[key] = saved;
+            return saved || false;
         };
+
+        // get uncached
+        // get docs from es
+        // combine docs to object
 
         await this.sync(docArray, setDocs);
         return savedDocs;
@@ -127,7 +133,9 @@ export default class ESCachedStateStorage {
         }
         if (!docArray.length) return;
 
+        // why does update the cache return duplicates and uncached?
         const { uncached, duplicates } = this._updateCache(docArray, fn);
+
         if (uncached.length) {
             // es search for keys not in cache
             await pMap(uncached, (chunked) => this._esMGet(chunked, fn), {
@@ -144,8 +152,8 @@ export default class ESCachedStateStorage {
 
     private _updateCache(
         docArray: DataEntity[],
-        fn: UpdateCacheFn
-    ): { uncached: UncachedChunks; duplicates: DataEntity[] } {
+        fn: UpdateCacheFn,
+    ): { uncached: UncachedChunks; duplicates: DataEntity[]} {
         const duplicates: DataEntity[] = [];
         const found: { [key: string]: true } = {};
         const uncachedChunks: UncachedChunks = [];
@@ -158,10 +166,12 @@ export default class ESCachedStateStorage {
 
             const key = this.getIdentifier(current);
             const prev = this.getFromCacheByKey(key);
+
             if (found[key]) {
                 duplicates.push(current);
                 continue;
             }
+
             found[key] = true;
 
             if (prev) {
@@ -172,9 +182,11 @@ export default class ESCachedStateStorage {
                     && missesPerChunk[uncachedIndex] >= this.chunkSize) {
                     uncachedIndex++;
                 }
+
                 if (missesPerChunk[uncachedIndex] == null) {
                     missesPerChunk.push(0);
                 }
+
                 if (uncachedChunks[uncachedIndex] == null) {
                     uncachedChunks.push({});
                 }
@@ -189,7 +201,7 @@ export default class ESCachedStateStorage {
 
         return {
             uncached: uncachedChunks,
-            duplicates,
+            duplicates
         };
     }
 
@@ -214,6 +226,7 @@ export default class ESCachedStateStorage {
 
     private async _esMGet(docs: DataEntityObj, fn: UpdateCacheFn): Promise<DataEntity[]> {
         const ids = Object.keys(docs);
+
         const request: ESMGetParams = {
             index: this.index,
             type: this.type,
@@ -221,15 +234,20 @@ export default class ESCachedStateStorage {
                 ids,
             },
         };
+
         if (this.sourceFields.length > 0) {
             request._sourceIncludes = this.sourceFields;
         }
+
+        // mGet is getting the docs but then it also updates the cache
         const response: ESMGetResponse = await this.es.mget(request);
 
         const results: DataEntity[] = [];
+
         for (const result of response.docs) {
             const key = result._id;
             let prev: DataEntity|undefined;
+
             if (result.found) {
                 prev = makeDataEntity(result);
                 results.push(prev);
@@ -246,17 +264,11 @@ export default class ESCachedStateStorage {
         const bulkRequest: ESBulkQuery[] = [];
 
         for (const doc of dataArray) {
-            let key: string;
-            if (this.persistField) {
-                key = this.getIdentifier(doc, this.persistField);
-            } else {
-                key = this.getIdentifier(doc);
-            }
             bulkRequest.push({
                 index: {
                     _index: this.index,
                     _type: this.type,
-                    _id: key,
+                    _id: this.getIdentifier(doc),
                 },
             }, doc);
         }
@@ -271,11 +283,14 @@ export default class ESCachedStateStorage {
         prev?: DataEntity
     ): void {
         const result = fn(key, current, prev);
+
         if (result === false) return;
+
         if (result == null || result === true) {
             this.setCacheByKey(key, current);
             return;
         }
+
         if (result) {
             this.setCacheByKey(key, result);
         }
