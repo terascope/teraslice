@@ -2,13 +2,8 @@ import * as ts from '@terascope/utils';
 import { AvailableType } from '@terascope/data-types';
 import crypto from 'crypto';
 import PhoneValidator from 'awesome-phonenumber';
-import jexl from 'jexl';
 import { format as dateFormat, parse } from 'date-fns';
-import {
-    ExtractFieldConfig,
-    ReplaceLiteralConfig,
-    ReplaceRegexConfig,
-} from './interfaces';
+import { ReplaceLiteralConfig, ReplaceRegexConfig, ExtractFieldConfig } from './interfaces';
 import {
     isString,
     isValidDate,
@@ -156,6 +151,7 @@ export const repository: Repository = {
         output_type: 'GeoPoint' as AvailableType,
         primary_input_type: InputType.String
     },
+    // this will be overriden
     extract: {
         fn: extract,
         config: {
@@ -991,94 +987,10 @@ export function toGeoPoint(input: any, _parentContext?: any) {
  */
 
 export function extract(
-    input: any,
-    parentContext: ts.AnyObject,
-    {
-        regex, isMultiValue = true, jexlExp, start, end
-    }: ExtractFieldConfig
-) {
-    if (ts.isNil(input)) return null;
-
-    function getSubslice() {
-        const indexStart = input.indexOf(start);
-        if (indexStart !== -1) {
-            const sliceStart = indexStart + start.length;
-            let endInd = input.indexOf(end, sliceStart);
-            if (endInd === -1) endInd = input.length;
-            const extractedSlice = input.slice(sliceStart, endInd);
-            if (extractedSlice) return input.slice(sliceStart, endInd);
-        }
-        return null;
-    }
-
-    type Cb = (data: any) => string|string[]|null;
-
-    function extractField(data: any, fn: Cb) {
-        if (typeof data === 'string') {
-            return fn(data);
-        }
-
-        if (isArray(data)) {
-            const results: string[] = [];
-
-            data.forEach((subData: any) => {
-                if (typeof subData === 'string') {
-                    const extractedSlice = fn(subData);
-                    if (extractedSlice) {
-                        if (Array.isArray(extractedSlice)) {
-                            results.push(...extractedSlice);
-                        } else {
-                            results.push(extractedSlice);
-                        }
-                    }
-                }
-            });
-
-            if (results.length > 0) {
-                if (isMultiValue) return results;
-                return results[0];
-            }
-        }
-
-        return null;
-    }
-
-    function matchRegex() {
-        const results = ts.matchAll(regex as string, input);
-        if (isMultiValue) return results;
-        return results ? results[0] : results;
-    }
-
-    function callExpression() {
-        try {
-            return jexl.evalSync(jexlExp as string, parentContext);
-        } catch (err) {
-            const errMessage = `Invalid jexl expression: ${jexlExp}, error: ${err.message}`;
-            throw new ts.TSError(errMessage);
-        }
-    }
-
-    function extractValue() {
-        let extractedResult;
-
-        if (regex) {
-            extractedResult = extractField(input, matchRegex);
-        } else if (start && end) {
-            extractedResult = extractField(input, getSubslice);
-        } else if (jexlExp) {
-            extractedResult = callExpression();
-        } else {
-            extractedResult = input;
-        }
-
-        return extractedResult;
-    }
-
-    const results = extractValue();
-    if (results == null) return null;
-
-    return results;
-}
+    _input: any,
+    _parentContext: ts.AnyObject,
+    _args: ExtractFieldConfig
+) {}
 
 /**
  * This function replaces chars in a string based off the regex value provided

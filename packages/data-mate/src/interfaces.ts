@@ -28,3 +28,11 @@ interface Config {
 }
 
 export type RecordInput = AnyObject | AnyObject[];
+
+export interface ExtractFieldConfig {
+    regex?: string;
+    isMultiValue?: boolean;
+    jexlExp?: string;
+    start?: any;
+    end?: any;
+}
