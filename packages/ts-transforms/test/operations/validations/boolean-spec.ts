@@ -50,15 +50,15 @@ describe('boolean validation', () => {
         const results8 = test.run(data8);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(results1.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results1?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results1).toEqual({});
-        expect(results2.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results2?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results2).toEqual({});
         expect(results3).toEqual({});
         expect(results4).toEqual({});
         expect(results5).toEqual({});
         expect(results6).toEqual(data6);
-        expect(results6.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results6?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results7).toEqual(data6);
         expect(results8).toEqual({ isTall: [true, false] });
     });
@@ -92,15 +92,15 @@ describe('boolean validation', () => {
         const isFalse = { isTall: false };
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(results1.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results1?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results1).toEqual(isTrue);
-        expect(results2.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results2?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results2).toEqual(isTrue);
         expect(results3).toEqual(isFalse);
         expect(results4).toEqual(isFalse);
         expect(results5).toEqual(isTrue);
         expect(results6).toEqual(isTrue);
-        expect(results6.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results6?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results7).toEqual(isFalse);
         expect(results8).toEqual(isFalse);
     });

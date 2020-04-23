@@ -11,7 +11,7 @@ export default class Base64Encode extends TransformOpBase {
         return Buffer.from(data).toString('base64');
     }
 
-    run(record: DataEntity): DataEntity {
+    run(record: DataEntity): DataEntity | null {
         return this.execute(record, this.encode);
     }
 }

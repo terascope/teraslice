@@ -50,7 +50,7 @@ describe('JsonParse operator', () => {
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
         expect(results1).toEqual({ someField: '56.234,95.234' });
-        expect(results2).toEqual({});
+        expect(results2).toEqual(null);
         expect(results3).toEqual({ someField: 'data' });
         expect(results4).toEqual({ someField: { some: 'data' } });
         expect(results5).toEqual({ someField: false });

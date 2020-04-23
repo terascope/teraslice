@@ -59,7 +59,7 @@ describe('geolocation validation', () => {
         const results11 = test.run(data11);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(results1.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results1?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results1).toEqual(data1);
         expect(results2).toEqual(data2);
         expect(results3).toEqual({});
@@ -70,7 +70,7 @@ describe('geolocation validation', () => {
         expect(results7).toEqual(data7);
         expect(DataEntity.isDataEntity(results8)).toEqual(true);
         expect(results8).toEqual(data8);
-        expect(results8.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results8?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results9).toEqual({});
         expect(results10).toEqual(data10);
         expect(results11).toEqual({ location: ['56.23424357895435,95.23423450985438972'] });

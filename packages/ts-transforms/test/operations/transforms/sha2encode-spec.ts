@@ -75,20 +75,17 @@ describe('Sha2Encode operator', () => {
         const results11 = test.run(data11);
         const results12 = test.run(data12);
 
-        expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(results1.getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(results1).toEqual({});
-        expect(results2.getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(results2).toEqual({});
-        expect(results3).toEqual({});
-        expect(results4).toEqual({});
-        expect(results5).toEqual({});
-        expect(results6).toEqual({});
+        expect(results1).toEqual(null);
+        expect(results2).toEqual(null);
+        expect(results3).toEqual(null);
+        expect(results4).toEqual(null);
+        expect(results5).toEqual(null);
+        expect(results6).toEqual(null);
         expect(results7).toEqual({ source: encode('http:// google.com') });
         expect(results8).toEqual({ source: encode('ha3ke5@pawnage.com') });
         expect(results9).toEqual({ source: encode('::') });
         expect(results10).toEqual({ source: encode('193.0.0.23') });
-        expect(results11.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results11?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results11).toEqual({ source: encode('hello world') });
         expect(results12).toEqual({ source: [encode('hello world'), encode('other things')] });
     });
@@ -103,7 +100,7 @@ describe('Sha2Encode operator', () => {
         const data = new DataEntity({ source: { field: 'hello world' } }, metaData);
 
         const results = test.run(data);
-        expect(results.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results).toEqual({ source: { field: encode('hello world') } });
     });
 
@@ -121,7 +118,7 @@ describe('Sha2Encode operator', () => {
         const data = new DataEntity({ source: { field: 'hello world' } }, metaData);
 
         const results = test.run(data);
-        expect(results.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results).toEqual({ source: { field: encode('hello world', 'SHA224') } });
     });
 });

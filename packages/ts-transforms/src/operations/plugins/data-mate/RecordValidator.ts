@@ -19,13 +19,13 @@ class Validator extends OperationBase {
     }
 
     // this is overwritten with mixin
-    method(_value: any, _args: any) { return false; }
+    method(_value: any, _context: any, _args: any) { return false; }
 
     run(doc: DataEntity) {
         const args = this.config;
 
         try {
-            let isValid = this.method(doc, args);
+            let isValid = this.method(doc, doc, args);
 
             if (this.invert) isValid = !isValid;
             if (isValid) return doc;

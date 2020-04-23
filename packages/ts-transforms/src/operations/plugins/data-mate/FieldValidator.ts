@@ -19,7 +19,7 @@ class Validator extends OperationBase {
     }
 
     // this is overwritten with mixin
-    method(_value: any, _args: any) { return false; }
+    method(_value: any, _context: any, _args: any) { return false; }
 
     run(doc: DataEntity) {
         let value;
@@ -35,8 +35,8 @@ class Validator extends OperationBase {
         try {
             if (Array.isArray(value) && !this.inputIsArray) {
                 const results = value.filter((item) => {
-                    if (this.invert) return !this.method(item, args);
-                    return this.method(item, args);
+                    if (this.invert) return !this.method(item, item, args);
+                    return this.method(item, item, args);
                 });
                 if (results.length === 0) {
                     this.removeSource(doc);
@@ -45,7 +45,7 @@ class Validator extends OperationBase {
                     this.set(doc, results);
                 }
             } else {
-                let isValid = this.method(value, args);
+                let isValid = this.method(value, doc, args);
                 if (this.invert) isValid = !isValid;
 
                 if (isValid) {

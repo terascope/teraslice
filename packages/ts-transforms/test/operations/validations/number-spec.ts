@@ -48,9 +48,9 @@ describe('number validation', () => {
         const results7 = test.run(data7);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(results1.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results1?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results1).toEqual({});
-        expect(results2.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results2?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results2).toEqual(data2);
         expect(results3).toEqual({ bytes: 56.234 });
         expect(results4).toEqual({ bytes: [1324] });

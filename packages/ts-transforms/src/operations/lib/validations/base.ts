@@ -43,10 +43,12 @@ export default abstract class ValidationOpBase<T> extends OperationBase {
                     });
                     dataArray = normalizedResults;
                 }
+
                 const results = dataArray.filter((item) => {
                     if (this.invert) return !this.validate(item);
                     return this.validate(item);
                 });
+
                 if (results.length === 0) {
                     this.removeSource(doc);
                     if (Object.keys(doc).length === 0) return null;
@@ -66,7 +68,9 @@ export default abstract class ValidationOpBase<T> extends OperationBase {
                 }
             }
         } catch (err) {
+            console.log('what is the error', err)
             this.removeSource(doc);
+            if (Object.keys(doc).length === 0) return null;
         }
 
         return doc;

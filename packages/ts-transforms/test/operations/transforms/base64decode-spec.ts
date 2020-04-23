@@ -16,10 +16,10 @@ describe('Base64Decode operator', () => {
     it('can properly throw with bad config values', () => {
         const badConfig1 = { target: 1324, __id: 'someId', follow: 'otherId' };
         const badConfig2 = { target: '', __id: 'someId', follow: 'otherId' };
-        const badConfig3 = { target: {}, __id: 'someId', follow: 'otherId' };
+        const badConfig3 = { target: null, __id: 'someId', follow: 'otherId' };
         const badConfig4 = { target: null, __id: 'someId', follow: 'otherId' };
         const badConfig5 = { source: [], __id: 'someId', follow: 'otherId' };
-        const badConfig6 = { source: {}, __id: 'someId', follow: 'otherId' };
+        const badConfig6 = { source: null, __id: 'someId', follow: 'otherId' };
         const badConfig7 = { source: null, __id: 'someId', follow: 'otherId' };
         const badConfig8 = {
             source: '', target: '', __id: 'someId', follow: 'otherId'
@@ -73,20 +73,17 @@ describe('Base64Decode operator', () => {
         const results11 = test.run(data11);
         const results12 = test.run(data12);
 
-        expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(results1.getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(results1).toEqual({});
-        expect(results2.getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(results2).toEqual({});
-        expect(results3).toEqual({});
-        expect(results4).toEqual({});
-        expect(results5).toEqual({});
-        expect(results6).toEqual({});
+        expect(results1).toEqual(null);
+        expect(results2).toEqual(null);
+        expect(results3).toEqual(null);
+        expect(results4).toEqual(null);
+        expect(results5).toEqual(null);
+        expect(results6).toEqual(null);
         expect(results7).toEqual({ source: 'http:// google.com' });
         expect(results8).toEqual({ source: 'ha3ke5@pawnage.com' });
         expect(results9).toEqual({ source: '::' });
         expect(results10).toEqual({ source: '193.0.0.23' });
-        expect(results11.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results11?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results11).toEqual({ source: 'hello world' });
         expect(results12).toEqual({ source: ['hello world', 'other things'] });
     });
@@ -102,7 +99,7 @@ describe('Base64Decode operator', () => {
 
         const results = test.run(data);
 
-        expect(results.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results).toEqual({ source: { field: 'hello world' } });
     });
 });

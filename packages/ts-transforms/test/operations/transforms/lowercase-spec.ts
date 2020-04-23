@@ -50,10 +50,10 @@ describe('Lowercase operator', () => {
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
         expect(results1).toEqual({ someField: '56.234,95.234' });
-        expect(results2).toEqual({});
+        expect(results2).toEqual(null);
         expect(results3).toEqual({ someField: 'data' });
-        expect(results4).toEqual({ });
-        expect(results5).toEqual({});
+        expect(results4).toEqual(null);
+        expect(results5).toEqual(null);
         expect(results6).toEqual({ someField: 'other' });
         expect(results7).toEqual({ sideField: 'data' });
         expect(results8).toEqual({ someField: ['other', 'data'] });

@@ -15,12 +15,12 @@ class Transforms extends TransformsOpBase {
     }
 
     // this is overwritten with mixin
-    method(value: any, _args: any) { return value as any; }
+    method(value: any, _context: any, _args: any) { return value as any; }
 
     run(doc: DataEntity) {
         const args = this.config;
         try {
-            return this.method(doc, args);
+            return this.method(doc, doc, args);
         } catch (err) {
             return null;
         }

@@ -66,15 +66,15 @@ describe('phone number validation', () => {
         const results13 = test.run(data13);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(results1.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results1?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results1).toEqual({});
-        expect(results2.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results2?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results2).toEqual({});
         expect(results3).toEqual({});
         expect(results4).toEqual({});
         expect(results5).toEqual({});
         expect(results6).toEqual({});
-        expect(results6.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results6?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results7).toEqual({});
         expect(results8).toEqual({ field: validPhone1 });
         expect(results9).toEqual({ field: validPhone1 });

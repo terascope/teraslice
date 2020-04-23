@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, cloneDeep } from '@terascope/utils';
 import crypto from 'crypto';
 import { Validator, ValidatorPlugins } from '../../../src/operations/plugins/validator';
 import { PostProcessConfig } from '../../../src/interfaces';
@@ -50,18 +50,22 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'contains');
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
 
         expect(results[0]).toEqual(data[0]);
-        expect(results[1]).toEqual({});
+        expect(results[1]).toEqual(null);
         expect(results[2]).toEqual(data[2]);
-        expect(results[3]).toEqual({});
-        expect(results[4]).toEqual({});
-        expect(results[5]).toEqual({});
-        expect(results[6]).toEqual({});
-        expect(results[7]).toEqual({});
-        expect(results[8]).toEqual({});
-        expect(results[9]).toEqual({});
+        expect(results[3]).toEqual(null);
+        expect(results[4]).toEqual(null);
+        expect(results[5]).toEqual(null);
+        expect(results[6]).toEqual(null);
+        expect(results[7]).toEqual(null);
+        expect(results[8]).toEqual(null);
+        expect(results[9]).toEqual(null);
     });
 
     it('can call the equals method', () => {
@@ -74,18 +78,22 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'equals');
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
 
-        expect(results[0]).toEqual({});
-        expect(results[1]).toEqual({});
+        expect(results[0]).toEqual(null);
+        expect(results[1]).toEqual(null);
         expect(results[2]).toEqual(data[2]);
-        expect(results[3]).toEqual({});
-        expect(results[4]).toEqual({});
-        expect(results[5]).toEqual({});
-        expect(results[6]).toEqual({});
-        expect(results[7]).toEqual({});
-        expect(results[8]).toEqual({});
-        expect(results[9]).toEqual({});
+        expect(results[3]).toEqual(null);
+        expect(results[4]).toEqual(null);
+        expect(results[5]).toEqual(null);
+        expect(results[6]).toEqual(null);
+        expect(results[7]).toEqual(null);
+        expect(results[8]).toEqual(null);
+        expect(results[9]).toEqual(null);
     });
 
     it('can call the after method', () => {
@@ -99,41 +107,52 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'after');
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
 
-        expect(results[0]).toEqual({});
-        expect(results[1]).toEqual({});
-        expect(results[2]).toEqual({});
-        expect(results[3]).toEqual({});
-        expect(results[4]).toEqual({});
-        expect(results[5]).toEqual({});
-        expect(results[6]).toEqual({});
-        expect(results[7]).toEqual({});
-        expect(results[8]).toEqual({});
+        expect(results[0]).toEqual(null);
+        expect(results[1]).toEqual(null);
+        expect(results[2]).toEqual(null);
+        expect(results[3]).toEqual(null);
+        expect(results[4]).toEqual(null);
+        expect(results[5]).toEqual(null);
+        expect(results[6]).toEqual(null);
+        expect(results[7]).toEqual(null);
+        expect(results[8]).toEqual(null);
         expect(results[9]).toEqual(data[9]);
-        expect(results[10]).toEqual({});
+        expect(results[10]).toEqual(null);
     });
 
-    it('can call the alpha method', () => {
+    fit('can call the alpha method', () => {
         const opConfig: PostProcessConfig = {
             follow: 'someId', source: 'field', target: 'field', __id: 'someId'
         };
         const test = getValidator(opConfig, 'alpha');
-
-        const results = data.map((obj) => test.run(obj));
+        console.log('what is test', test)
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            console.log("obj coming in", obj)
+            const result = test.run(obj);
+            console.log('result', result, obj)
+            arr.push(result);
+            return arr;
+        }, []);
+        console.log('results after', results)
 
         expect(results[0]).toEqual(data[0]);
         expect(results[1]).toEqual(data[1]);
         expect(results[2]).toEqual(data[2]);
-        expect(results[3]).toEqual({});
-        expect(results[4]).toEqual({});
-        expect(results[5]).toEqual({});
-        expect(results[6]).toEqual({});
-        expect(results[7]).toEqual({});
-        expect(results[8]).toEqual({});
-        expect(results[9]).toEqual({});
-        expect(results[10]).toEqual({});
-        expect(results[11]).toEqual({});
+        expect(results[3]).toEqual(null);
+        expect(results[4]).toEqual(null);
+        expect(results[5]).toEqual(null);
+        expect(results[6]).toEqual(null);
+        expect(results[7]).toEqual(null);
+        expect(results[8]).toEqual(null);
+        expect(results[9]).toEqual(null);
+        expect(results[10]).toEqual(null);
+        expect(results[11]).toEqual(null);
     });
 
     it('can call the alphanumeric method', () => {
@@ -142,19 +161,23 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'alphanumeric');
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
 
         expect(results[0]).toEqual(data[0]);
         expect(results[1]).toEqual(data[1]);
         expect(results[2]).toEqual(data[2]);
-        expect(results[3]).toEqual({});
-        expect(results[4]).toEqual({});
-        expect(results[5]).toEqual({});
-        expect(results[6]).toEqual({});
-        expect(results[7]).toEqual({});
-        expect(results[8]).toEqual({});
-        expect(results[9]).toEqual({});
-        expect(results[10]).toEqual({});
+        expect(results[3]).toEqual(null);
+        expect(results[4]).toEqual(null);
+        expect(results[5]).toEqual(null);
+        expect(results[6]).toEqual(null);
+        expect(results[7]).toEqual(null);
+        expect(results[8]).toEqual(null);
+        expect(results[9]).toEqual(null);
+        expect(results[10]).toEqual(null);
         expect(results[11]).toEqual(data[11]);
     });
 
@@ -174,7 +197,7 @@ describe('validator lib', () => {
 
         expect(results1).toEqual(data1);
         expect(results2).toEqual(data2);
-        expect(results3).toEqual({});
+        expect(results3).toEqual(null);
     });
 
     it('can call the base64 method', () => {
@@ -189,7 +212,7 @@ describe('validator lib', () => {
         const results1 = test.run(data1);
         const results2 = test.run(data2);
 
-        expect(results1).toEqual({});
+        expect(results1).toEqual(null);
         expect(results2).toEqual(data2);
     });
 
@@ -204,19 +227,23 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'before');
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
 
-        expect(results[0]).toEqual({});
-        expect(results[1]).toEqual({});
-        expect(results[2]).toEqual({});
-        expect(results[3]).toEqual({});
-        expect(results[4]).toEqual({});
-        expect(results[5]).toEqual({});
-        expect(results[6]).toEqual({});
-        expect(results[7]).toEqual({});
-        expect(results[8]).toEqual({});
+        expect(results[0]).toEqual(null);
+        expect(results[1]).toEqual(null);
+        expect(results[2]).toEqual(null);
+        expect(results[3]).toEqual(null);
+        expect(results[4]).toEqual(null);
+        expect(results[5]).toEqual(null);
+        expect(results[6]).toEqual(null);
+        expect(results[7]).toEqual(null);
+        expect(results[8]).toEqual(null);
         expect(results[9]).toEqual(data[9]);
-        expect(results[10]).toEqual({});
+        expect(results[10]).toEqual(null);
     });
 
     it('can call the bytelength method', () => {
@@ -230,19 +257,23 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'bytelength');
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
 
-        expect(results[0]).toEqual({});
-        expect(results[1]).toEqual({});
+        expect(results[0]).toEqual(null);
+        expect(results[1]).toEqual(null);
         expect(results[2]).toEqual(data[2]);
-        expect(results[3]).toEqual({});
-        expect(results[4]).toEqual({});
+        expect(results[3]).toEqual(null);
+        expect(results[4]).toEqual(null);
         expect(results[5]).toEqual(data[5]);
-        expect(results[6]).toEqual({});
-        expect(results[7]).toEqual({});
-        expect(results[8]).toEqual({});
-        expect(results[9]).toEqual({});
-        expect(results[10]).toEqual({});
+        expect(results[6]).toEqual(null);
+        expect(results[7]).toEqual(null);
+        expect(results[8]).toEqual(null);
+        expect(results[9]).toEqual(null);
+        expect(results[10]).toEqual(null);
     });
 
     it('can call the creditcard method', () => {
@@ -252,7 +283,11 @@ describe('validator lib', () => {
         const test = getValidator(opConfig, 'creditcard');
 
         const cardData = new DataEntity({ field: '4945271443377285' });
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
 
         results.forEach((result) => expect(result).toEqual({}));
         expect(test.run(cardData)).toEqual(cardData);
@@ -273,7 +308,11 @@ describe('validator lib', () => {
         const money2 = new DataEntity({ field: '$ 120.12' });
         const money3 = new DataEntity({ field: '$1,220.12' });
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
 
         results.forEach((result) => expect(result).toEqual({}));
         expect(test.run(money1)).toEqual(money1);
@@ -287,19 +326,23 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'decimal');
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
 
-        expect(results[0]).toEqual({});
-        expect(results[1]).toEqual({});
-        expect(results[2]).toEqual({});
-        expect(results[3]).toEqual({});
-        expect(results[4]).toEqual({});
+        expect(results[0]).toEqual(null);
+        expect(results[1]).toEqual(null);
+        expect(results[2]).toEqual(null);
+        expect(results[3]).toEqual(null);
+        expect(results[4]).toEqual(null);
         expect(results[5]).toEqual(data[5]);
-        expect(results[6]).toEqual({});
-        expect(results[7]).toEqual({});
-        expect(results[8]).toEqual({});
-        expect(results[9]).toEqual({});
-        expect(results[10]).toEqual({});
+        expect(results[6]).toEqual(null);
+        expect(results[7]).toEqual(null);
+        expect(results[8]).toEqual(null);
+        expect(results[9]).toEqual(null);
+        expect(results[10]).toEqual(null);
     });
 
     it('can call the divisibleby method', () => {
@@ -308,20 +351,24 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'divisibleby');
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
 
-        expect(results[0]).toEqual({});
-        expect(results[1]).toEqual({});
-        expect(results[2]).toEqual({});
-        expect(results[3]).toEqual({});
+        expect(results[0]).toEqual(null);
+        expect(results[1]).toEqual(null);
+        expect(results[2]).toEqual(null);
+        expect(results[3]).toEqual(null);
         expect(results[4]).toEqual(data[4]);
-        expect(results[5]).toEqual({});
-        expect(results[6]).toEqual({});
-        expect(results[7]).toEqual({});
-        expect(results[8]).toEqual({});
+        expect(results[5]).toEqual(null);
+        expect(results[6]).toEqual(null);
+        expect(results[7]).toEqual(null);
+        expect(results[8]).toEqual(null);
         // FIXME https://github.com/validatorjs/validator.js/issues/1226
-        // expect(results[9]).toEqual({});
-        expect(results[10]).toEqual({});
+        // expect(results[9]).toEqual(null);
+        expect(results[10]).toEqual(null);
     });
 
     it('can call the empty method', () => {
@@ -349,7 +396,7 @@ describe('validator lib', () => {
         expect(results1).toEqual(noStr3);
         expect(results2).toEqual(data2);
         expect(results3).toEqual(noStr3);
-        expect(results4).toEqual({});
+        expect(results4).toEqual(null);
     });
 
     it('can call the fqdn method', () => {
@@ -376,7 +423,7 @@ describe('validator lib', () => {
         expect(results2).toEqual(url2);
         expect(results3).toEqual(url3);
         expect(results4).toEqual(url4);
-        expect(results5).toEqual({});
+        expect(results5).toEqual(null);
     });
 
     it('can call the float method', () => {
@@ -385,19 +432,23 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'float');
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
 
-        expect(results[0]).toEqual({});
-        expect(results[1]).toEqual({});
-        expect(results[2]).toEqual({});
-        expect(results[3]).toEqual({});
-        expect(results[4]).toEqual({});
+        expect(results[0]).toEqual(null);
+        expect(results[1]).toEqual(null);
+        expect(results[2]).toEqual(null);
+        expect(results[3]).toEqual(null);
+        expect(results[4]).toEqual(null);
         expect(results[5]).toEqual(data[5]);
-        expect(results[6]).toEqual({});
-        expect(results[7]).toEqual({});
-        expect(results[8]).toEqual({});
-        expect(results[9]).toEqual({});
-        expect(results[10]).toEqual({});
+        expect(results[6]).toEqual(null);
+        expect(results[7]).toEqual(null);
+        expect(results[8]).toEqual(null);
+        expect(results[9]).toEqual(null);
+        expect(results[10]).toEqual(null);
     });
 
     it('can call the hash method', () => {
@@ -422,10 +473,14 @@ describe('validator lib', () => {
         const results1 = new DataEntity({ field: data1 });
         const results2 = new DataEntity({ field: data256 });
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
 
         results.forEach((result) => expect(result).toEqual({}));
-        expect(test.run(results1)).toEqual({});
+        expect(test.run(results1)).toEqual(null);
         expect(test.run(results2)).toEqual(results2);
     });
 
@@ -437,7 +492,11 @@ describe('validator lib', () => {
 
         const results1 = new DataEntity({ field: makeHexidecimalNumber(1234234) });
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
         results.forEach((result) => expect(result).toEqual({}));
         expect(test.run(results1)).toEqual(results1);
     });
@@ -451,10 +510,14 @@ describe('validator lib', () => {
         const results1 = new DataEntity({ field: '9781234567897' });
         const results2 = new DataEntity({ field: 9781234567897 });
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
         results.forEach((result) => expect(result).toEqual({}));
         expect(test.run(results1)).toEqual(results1);
-        expect(test.run(results2)).toEqual({});
+        expect(test.run(results2)).toEqual(null);
     });
 
     it('can call the issn method', () => {
@@ -465,7 +528,11 @@ describe('validator lib', () => {
 
         const results1 = new DataEntity({ field: '0317-8471' });
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
         results.forEach((result) => expect(result).toEqual({}));
         expect(test.run(results1)).toEqual(results1);
     });
@@ -476,12 +543,16 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'iso8601');
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
         results.forEach((result, ind) => {
             if (ind === 9) {
                 expect(result).toEqual(dataArray[ind]);
             } else {
-                expect(result).toEqual({});
+                expect(result).toEqual(null);
             }
         });
     });
@@ -496,17 +567,21 @@ describe('validator lib', () => {
         const results2 = new DataEntity({ field: new Date().toUTCString() });
         const results3 = new DataEntity({ field: new Date().toTimeString() });
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
         results.forEach((result, ind) => {
             if (ind === 9) {
                 expect(result).toEqual(dataArray[ind]);
             } else {
-                expect(result).toEqual({});
+                expect(result).toEqual(null);
             }
         });
-        expect(test.run(results1)).toEqual({});
-        expect(test.run(results2)).toEqual({});
-        expect(test.run(results3)).toEqual({});
+        expect(test.run(results1)).toEqual(null);
+        expect(test.run(results2)).toEqual(null);
+        expect(test.run(results3)).toEqual(null);
     });
 
     it('can call the iso31661alpha2 method', () => {
@@ -518,7 +593,11 @@ describe('validator lib', () => {
         const results1 = new DataEntity({ field: 'US' });
         const results2 = new DataEntity({ field: 'us' });
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
         results.forEach((result) => expect(result).toEqual({}));
 
         expect(test.run(results1)).toEqual(results1);
@@ -534,7 +613,11 @@ describe('validator lib', () => {
         const results1 = new DataEntity({ field: 'USA' });
         const results2 = new DataEntity({ field: 'usa' });
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
         results.forEach((result) => expect(result).toEqual({}));
 
         expect(test.run(results1)).toEqual(results1);
@@ -551,13 +634,17 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'in');
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
 
         results.forEach((result, ind) => {
             if (ind === 0) {
                 expect(result).toEqual(dataArray[ind]);
             } else {
-                expect(result).toEqual({});
+                expect(result).toEqual(null);
             }
         });
     });
@@ -583,12 +670,16 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'latlong');
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
         results.forEach((result, ind) => {
             if (ind === 3) {
                 expect(result).toEqual(dataArray[ind]);
             } else {
-                expect(result).toEqual({});
+                expect(result).toEqual(null);
             }
         });
     });
@@ -604,12 +695,16 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'length');
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
         results.forEach((result, ind) => {
             if (ind === 2 || ind === 5) {
                 expect(result).toEqual(dataArray[ind]);
             } else {
-                expect(result).toEqual({});
+                expect(result).toEqual(null);
             }
         });
     });
@@ -654,13 +749,17 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'numeric');
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
 
         results.forEach((result, ind) => {
             if (ind === 5) {
                 expect(result).toEqual(dataArray[ind]);
             } else {
-                expect(result).toEqual({});
+                expect(result).toEqual(null);
             }
         });
     });
@@ -684,7 +783,7 @@ describe('validator lib', () => {
         results.forEach((result) => expect(result).toEqual({}));
 
         expect(results1).toEqual(obj);
-        expect(results2).toEqual({});
+        expect(results2).toEqual(null);
     });
 
     it('can call the postalcode method', () => {
@@ -719,13 +818,17 @@ describe('validator lib', () => {
         };
         const test = getValidator(opConfig, 'matches');
 
-        const results = data.map((obj) => test.run(obj));
+        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
+            const result = test.run(obj);
+            arr.push(result);
+            return arr;
+        }, []);
 
         results.forEach((result, ind) => {
             if (ind === 0 || ind === 2) {
                 expect(result).toEqual(dataArray[ind]);
             } else {
-                expect(result).toEqual({});
+                expect(result).toEqual(null);
             }
         });
     });

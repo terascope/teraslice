@@ -15,7 +15,7 @@ class Transforms extends TransformsOpBase {
     }
 
     // this is overwritten with mixin
-    method(value: any, _args: any) { return value as any; }
+    method(value: any, _context: any, _args: any) { return value as any; }
 
     run(doc: DataEntity) {
         const args = this.config;
@@ -28,7 +28,7 @@ class Transforms extends TransformsOpBase {
         }
 
         try {
-            const results = this.method(value, args);
+            const results = this.method(value, doc, args);
             if (isEmpty(results)) {
                 this.removeSource(doc);
                 if (Object.keys(doc).length === 0) return null;

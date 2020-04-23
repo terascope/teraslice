@@ -57,15 +57,15 @@ describe('string validation', () => {
         }
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(results1.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results1?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results1).toEqual(data1);
-        expect(results2.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results2?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results2).toEqual({ field: '123423' });
         expect(results3).toEqual(stringify(data3));
         expect(results4).toEqual(stringify(data4));
         expect(results5).toEqual(stringify(data5));
         expect(results6).toEqual(stringify(data6));
-        expect(results6.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results6?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results7).toEqual({});
         expect(results8).toEqual({ field: ['1324', 'hello'] });
     });
@@ -84,9 +84,9 @@ describe('string validation', () => {
         const results2 = test.run(data2);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(results1.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results1?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results1).toEqual({});
-        expect(results2.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results2?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results2).toEqual(data2);
     });
 

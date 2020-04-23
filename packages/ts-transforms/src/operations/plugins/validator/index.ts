@@ -15,7 +15,10 @@ export class Validator extends ValidationOpBase<any> {
     }
 
     validate(value: any) {
+        console.log('is this calling at all')
         const args = this.value || this.config;
+        console.log('what is this', this.method, value, args, validator[this.method](value, args))
+
         if (!validator[this.method](value, args)) return false;
         return true;
     }
