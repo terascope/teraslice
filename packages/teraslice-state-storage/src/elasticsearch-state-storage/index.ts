@@ -3,8 +3,6 @@ import {
     Logger,
     TSError,
     chunk,
-    isFunction,
-    pImmediate,
     pMap
 } from '@terascope/utils';
 import esApi, { Client } from '@terascope/elasticsearch-api';
@@ -109,100 +107,84 @@ export default class ESCachedStateStorage {
     }
 
     async mget(docArray: DataEntity[]): Promise<MGetCacheResponse> {
-        const savedDocs = {};
-        const setDocs: UpdateCacheFn = (key, incoming, saved) => {
-            if (saved) savedDocs[key] = saved;
-            return saved || false;
-        };
+        const uniqKeys = this._dedupKeys(docArray);
 
-        // get uncached
-        // get docs from es
-        // combine docs to object
+        const uncached = this._getUncachedKeys(uniqKeys);
 
-        await this.sync(docArray, setDocs);
+        const docsInEs = await this._getDocsFromEs(uncached);
+
+        const savedDocs = this._createReturnObject(uniqKeys, docsInEs);
+
+        this._logCacheStats(uniqKeys.length, uncached.length, docsInEs.length);
+
         return savedDocs;
     }
 
-    async sync(docArray: DataEntity[], fn: UpdateCacheFn): Promise<void> {
-        if (!docArray || !Array.isArray(docArray)) {
-            throw new Error('Invalid docs given to sync, expected Array');
+    private _dedupKeys(docArray: DataEntity[]) {
+        const keys: { [propName: string]: any } = {};
+
+        for (const doc of docArray) {
+            const key = this.getIdentifier(doc);
+
+            if (keys[key]) continue;
+            else keys[key] = true;
         }
 
-        if (!fn || !isFunction(fn)) {
-            throw new Error('Invalid function given to sync');
-        }
-        if (!docArray.length) return;
-
-        // why does update the cache return duplicates and uncached?
-        const { uncached, duplicates } = this._updateCache(docArray, fn);
-
-        if (uncached.length) {
-            // es search for keys not in cache
-            await pMap(uncached, (chunked) => this._esMGet(chunked, fn), {
-                concurrency: this.concurrency
-            });
-        }
-
-        if (duplicates.length) {
-            await pImmediate();
-            this.logger.info(`syncing the remaining ${duplicates.length} duplicate records`);
-            return this.sync(duplicates, fn);
-        }
+        return Object.keys(keys);
     }
 
-    private _updateCache(
-        docArray: DataEntity[],
-        fn: UpdateCacheFn,
-    ): { uncached: UncachedChunks; duplicates: DataEntity[]} {
-        const duplicates: DataEntity[] = [];
-        const found: { [key: string]: true } = {};
-        const uncachedChunks: UncachedChunks = [];
-        let hits = 0;
-        const missesPerChunk: number[] = [];
-        let uncachedIndex = 0;
+    private _logCacheStats(incoming: number, uncached: number, inEs: number) {
+        const hits = incoming - uncached;
+        const misses = incoming - (uncached + inEs);
+        this.logger.info(`elasticsearch-state-storage cache stats - incoming uniq keys: ${incoming}, hits: ${hits}, from es ${inEs}, misses: ${misses},`);
+    }
 
-        for (const current of docArray) {
-            if (current == null) continue;
+    private _createReturnObject(keys: string[], docsInEs: DataEntity[]) {
+        const savedDocs = docsInEs.reduce(
+            (docObj: { [propName: string]: any }, doc: DataEntity) => {
+                const key = this.getIdentifier(doc);
+                docObj[key] = doc;
 
-            const key = this.getIdentifier(current);
-            const prev = this.getFromCacheByKey(key);
+                return docObj;
+            }, {}
+        );
 
-            if (found[key]) {
-                duplicates.push(current);
-                continue;
-            }
+        for (const key of keys) {
+            if (savedDocs[key]) continue;
 
-            found[key] = true;
+            const cached = this.getFromCacheByKey(key);
 
-            if (prev) {
-                hits++;
-                this._updateCacheWith(fn, key, current, prev);
-            } else {
-                if (missesPerChunk[uncachedIndex] != null
-                    && missesPerChunk[uncachedIndex] >= this.chunkSize) {
-                    uncachedIndex++;
-                }
-
-                if (missesPerChunk[uncachedIndex] == null) {
-                    missesPerChunk.push(0);
-                }
-
-                if (uncachedChunks[uncachedIndex] == null) {
-                    uncachedChunks.push({});
-                }
-
-                uncachedChunks[uncachedIndex][key] = current;
-                missesPerChunk[uncachedIndex]++;
+            if (cached) {
+                savedDocs[key] = cached;
             }
         }
 
-        const misses = missesPerChunk.reduce((total, current) => total + current, 0);
-        this.logger.info(`elasticsearch-state-storage cache hits: ${hits}, cache misses: ${misses}, duplicates: ${duplicates.length}`);
+        return savedDocs;
+    }
 
-        return {
-            uncached: uncachedChunks,
-            duplicates
-        };
+    private async _getDocsFromEs(keyArray: string[]) {
+        const esDocs = await pMap(
+            chunk(keyArray, this.chunkSize),
+            (chunked) => this._esMGet(chunked), { concurrency: this.concurrency }
+        );
+
+        return esDocs.reduce((concactedDocs: DataEntity[], esDocArray: DataEntity[]) => {
+            for (const doc of esDocArray) {
+                concactedDocs.push(doc);
+            }
+
+            return concactedDocs;
+        }, []);
+    }
+
+    private _getUncachedKeys(keyArray: string[]): string[] {
+        return keyArray.reduce((uncached: string[], key: string) => {
+            if (this.isKeyCached(key) == null) {
+                uncached.push(key);
+            }
+
+            return uncached;
+        }, []);
     }
 
     private async _esGet(key: string): Promise<DataEntity|undefined> {
@@ -224,9 +206,7 @@ export default class ESCachedStateStorage {
         return updated;
     }
 
-    private async _esMGet(docs: DataEntityObj, fn: UpdateCacheFn): Promise<DataEntity[]> {
-        const ids = Object.keys(docs);
-
+    private async _esMGet(ids: string[]): Promise<DataEntity[]> {
         const request: ESMGetParams = {
             index: this.index,
             type: this.type,
@@ -245,18 +225,13 @@ export default class ESCachedStateStorage {
         const results: DataEntity[] = [];
 
         for (const result of response.docs) {
-            const key = result._id;
-            let prev: DataEntity|undefined;
-
             if (result.found) {
-                prev = makeDataEntity(result);
-                results.push(prev);
-            }
-            const current = docs[key];
-            if (current) {
-                this._updateCacheWith(fn, key, current, prev);
+                const saved = makeDataEntity(result);
+                this.set(saved);
+                results.push(saved);
             }
         }
+
         return results;
     }
 
@@ -276,26 +251,6 @@ export default class ESCachedStateStorage {
         return bulkRequest;
     }
 
-    private _updateCacheWith(
-        fn: UpdateCacheFn,
-        key: string,
-        current: DataEntity,
-        prev?: DataEntity
-    ): void {
-        const result = fn(key, current, prev);
-
-        if (result === false) return;
-
-        if (result == null || result === true) {
-            this.setCacheByKey(key, current);
-            return;
-        }
-
-        if (result) {
-            this.setCacheByKey(key, result);
-        }
-    }
-
     private async _esBulkUpdate(docArray: DataEntity[]): Promise<void> {
         const chunked = chunk(docArray, this.chunkSize);
 
@@ -307,12 +262,6 @@ export default class ESCachedStateStorage {
         });
     }
 }
-
-export type UpdateCacheFn = (
-    key: string,
-    current: DataEntity,
-    prev?: DataEntity
-) => DataEntity|boolean;
 
 interface ESMeta {
     _index: string;
@@ -353,9 +302,6 @@ export interface ESGetResponse {
     found: boolean;
     _source?: any;
 }
-
-type DataEntityObj = { [key: string]: DataEntity };
-type UncachedChunks = DataEntityObj[];
 
 function makeDataEntity(result: ESGetResponse): DataEntity {
     const key = result._id;

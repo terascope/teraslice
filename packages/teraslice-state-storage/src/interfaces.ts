@@ -7,7 +7,7 @@ export interface ESStateStorageConfig extends CacheConfig {
     source_fields: string[];
     chunk_size: number;
     persist: boolean;
-    metaKey?: string;
+    metaKey: string;
 }
 
 export interface CacheConfig {
