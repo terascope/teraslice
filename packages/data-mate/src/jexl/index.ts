@@ -4,7 +4,7 @@ import { AvailableType } from '@terascope/data-types';
 import { FieldTransform, RecordTransform } from '../transforms';
 import { FieldValidator, RecordValidator } from '../validations';
 import {
-    Repository, InputType, RepoConfig, ExtractFieldConfig
+    Repository, InputType, RepoConfig, ExtractFieldConfig, RecordInput
 } from '../interfaces';
 
 function setup(operationClass: any) {
@@ -17,6 +17,11 @@ setup(FieldTransform);
 setup(FieldValidator);
 setup(RecordTransform);
 setup(RecordValidator);
+
+jexl.addTransform(extract.name, extract);
+jexl.addTransform(transformRecord.name, transformRecord);
+
+export { jexl };
 
 export const extractConfig: RepoConfig = {
     fn: extract,
@@ -121,4 +126,40 @@ export function extract(
     return results;
 }
 
-export { jexl };
+export const transformRecordConfig: RepoConfig = {
+    fn: transformRecord,
+    config: {
+        query: { type: 'String' },
+        field: { type: 'String' },
+    },
+    output_type: 'Object' as AvailableType,
+    primary_input_type: InputType.Object
+};
+
+export function transformRecord(
+    input: RecordInput,
+    parentContext: RecordInput,
+    args: { query: string; field: string }
+) {
+    if (ts.isNil(input)) return null;
+    if (ts.isNil(args)) throw new Error('Argument parameters must be provided');
+    if (!FieldValidator.isString(args.query) || !FieldValidator.isLength(args.query, parentContext, { min: 1 })) throw new Error('Argument parameter query must must be provided and be a string value');
+    if (!FieldValidator.isString(args.field) || !FieldValidator.isLength(args.field, parentContext, { min: 1 })) throw new Error('Argument parameter field must must be provided and be a string value');
+
+    if (FieldValidator.isArray(input)) {
+        return input
+            .map((data: any) => {
+                if (!ts.isObjectLike(data)) return null;
+                const value = jexl.evalSync(args.query, data);
+                if (ts.isNotNil(value)) data[args.field] = value;
+                return data;
+            })
+            .filter(ts.isNotNil);
+    }
+
+    if (!ts.isObjectLike(input)) return null;
+
+    const value = jexl.evalSync(args.query, input);
+    if (ts.isNotNil(value)) input[args.field] = value;
+    return input;
+}

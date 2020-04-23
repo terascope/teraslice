@@ -985,7 +985,7 @@ export function toGeoPoint(input: any, _parentContext?: any) {
  * expect(results).toEqual('hello');
  *
  */
-
+// this will be overritten by extract in jexl folder
 export function extract(
     _input: any,
     _parentContext: ts.AnyObject,
@@ -1015,7 +1015,7 @@ export function extract(
  * }
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
-// TODO: fix this
+
 export function replaceRegex(input: StringInput,
     _parentContext: any,
     {

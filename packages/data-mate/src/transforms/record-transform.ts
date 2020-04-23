@@ -238,3 +238,24 @@ function _validateArgs(args: ts.AnyObject, fields: string[]) {
         if (args[key] === undefined) throw new Error(`key ${key} was not provided on args, it is required`);
     }
 }
+
+/**
+ * Will run a jexl expression against the record
+ *
+ * @example
+ * const obj = { hello: 'world', other: 'stuff' };
+ * const config = { query: '[hello]', field: 'final' };
+ * const results = RecordTransform.transformRecord(clone, clone, config)
+ * results === { hello: 'world', other: 'stuff', final: ['world'] });
+ *
+ * @param {*} record
+ * @param {{ field: string; query: string }} args
+ * @returns object
+ */
+
+// this will be overritten by transformRecord in jexl folder
+export function transformRecord(
+    _input: RecordInput,
+    _parentContext: RecordInput,
+    _args: any
+): any { }
