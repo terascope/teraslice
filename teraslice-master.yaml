@@ -44,6 +44,9 @@ terafoundation:
             dev_es_s2_gcl:
                 host:
                     - es-s2-gcl.tera1.lan
+            dev_es_s4_moves:
+                host:
+                    - es-s4-moves.gen2.tera1.lan
 
         kafka:
             homeslice:
@@ -67,6 +70,14 @@ terafoundation:
             dev_kafka_data3:
                 brokers:
                     - 10.210.7.222:9092
+            dev_kafka_data5:
+                brokers:
+                    - 10.210.11.202:9092
+                    - 10.210.11.203:9092
+                    - 10.210.12.42:9092
+                    - 10.210.12.43:9092
+                    - 10.210.12.122:9092
+                    - 10.210.12.123:9092
         
         s3:
             tera1:
