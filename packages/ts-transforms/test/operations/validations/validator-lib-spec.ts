@@ -126,80 +126,6 @@ describe('validator lib', () => {
         expect(results[10]).toEqual(null);
     });
 
-    fit('can call the alpha method', () => {
-        const opConfig: PostProcessConfig = {
-            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
-        };
-        const test = getValidator(opConfig, 'alpha');
-        console.log('what is test', test)
-        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
-            console.log("obj coming in", obj)
-            const result = test.run(obj);
-            console.log('result', result, obj)
-            arr.push(result);
-            return arr;
-        }, []);
-        console.log('results after', results)
-
-        expect(results[0]).toEqual(data[0]);
-        expect(results[1]).toEqual(data[1]);
-        expect(results[2]).toEqual(data[2]);
-        expect(results[3]).toEqual(null);
-        expect(results[4]).toEqual(null);
-        expect(results[5]).toEqual(null);
-        expect(results[6]).toEqual(null);
-        expect(results[7]).toEqual(null);
-        expect(results[8]).toEqual(null);
-        expect(results[9]).toEqual(null);
-        expect(results[10]).toEqual(null);
-        expect(results[11]).toEqual(null);
-    });
-
-    it('can call the alphanumeric method', () => {
-        const opConfig: PostProcessConfig = {
-            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
-        };
-        const test = getValidator(opConfig, 'alphanumeric');
-
-        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
-            const result = test.run(obj);
-            arr.push(result);
-            return arr;
-        }, []);
-
-        expect(results[0]).toEqual(data[0]);
-        expect(results[1]).toEqual(data[1]);
-        expect(results[2]).toEqual(data[2]);
-        expect(results[3]).toEqual(null);
-        expect(results[4]).toEqual(null);
-        expect(results[5]).toEqual(null);
-        expect(results[6]).toEqual(null);
-        expect(results[7]).toEqual(null);
-        expect(results[8]).toEqual(null);
-        expect(results[9]).toEqual(null);
-        expect(results[10]).toEqual(null);
-        expect(results[11]).toEqual(data[11]);
-    });
-
-    it('can call the ascii method', () => {
-        const opConfig: PostProcessConfig = {
-            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
-        };
-        const test = new Validator(opConfig, 'ascii');
-
-        const data1 = new DataEntity({ field: 'hello world' });
-        const data2 = new DataEntity({ field: 'lasdjf&*234#$$$@7' });
-        const data3 = new DataEntity({ field: '\x46\x69\x6E\x67\x65\x72\x73\x70\x69\x74' });
-
-        const results1 = test.run(data1);
-        const results2 = test.run(data2);
-        const results3 = test.run(data3);
-
-        expect(results1).toEqual(data1);
-        expect(results2).toEqual(data2);
-        expect(results3).toEqual(null);
-    });
-
     it('can call the base64 method', () => {
         const opConfig: PostProcessConfig = {
             follow: 'someId', source: 'field', target: 'field', __id: 'someId'
@@ -289,7 +215,7 @@ describe('validator lib', () => {
             return arr;
         }, []);
 
-        results.forEach((result) => expect(result).toEqual({}));
+        results.forEach((result) => expect(result).toEqual(null));
         expect(test.run(cardData)).toEqual(cardData);
     });
 
@@ -314,7 +240,7 @@ describe('validator lib', () => {
             return arr;
         }, []);
 
-        results.forEach((result) => expect(result).toEqual({}));
+        results.forEach((result) => expect(result).toEqual(null));
         expect(test.run(money1)).toEqual(money1);
         expect(test.run(money2)).toEqual(money2);
         expect(test.run(money3)).toEqual(money3);
@@ -345,32 +271,6 @@ describe('validator lib', () => {
         expect(results[10]).toEqual(null);
     });
 
-    it('can call the divisibleby method', () => {
-        const opConfig: PostProcessConfig = {
-            follow: 'someId', source: 'field', target: 'field', value: 2, __id: 'someId'
-        };
-        const test = getValidator(opConfig, 'divisibleby');
-
-        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
-            const result = test.run(obj);
-            arr.push(result);
-            return arr;
-        }, []);
-
-        expect(results[0]).toEqual(null);
-        expect(results[1]).toEqual(null);
-        expect(results[2]).toEqual(null);
-        expect(results[3]).toEqual(null);
-        expect(results[4]).toEqual(data[4]);
-        expect(results[5]).toEqual(null);
-        expect(results[6]).toEqual(null);
-        expect(results[7]).toEqual(null);
-        expect(results[8]).toEqual(null);
-        // FIXME https://github.com/validatorjs/validator.js/issues/1226
-        // expect(results[9]).toEqual(null);
-        expect(results[10]).toEqual(null);
-    });
-
     it('can call the empty method', () => {
         const opConfig: PostProcessConfig = {
             follow: 'someId', source: 'field', target: 'field', __id: 'someId'
@@ -392,38 +292,11 @@ describe('validator lib', () => {
         const results3 = test.run(noStr3);
         const results4 = test.run(noStr4);
 
-        resultsArray.forEach((result) => expect(result).toEqual({}));
+        resultsArray.forEach((result) => expect(result).toEqual(null));
         expect(results1).toEqual(noStr3);
         expect(results2).toEqual(data2);
         expect(results3).toEqual(noStr3);
         expect(results4).toEqual(null);
-    });
-
-    it('can call the fqdn method', () => {
-        const opConfig: PostProcessConfig = {
-            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
-        };
-        const test = getValidator(opConfig, 'fqdn');
-
-        const url1 = new DataEntity({ field: 'http://google.com' });
-        const url2 = new DataEntity({ field: 'https://google.com' });
-        const url3 = new DataEntity({ field: 'google.com' });
-        const url4 = new DataEntity({ field: 'http://google.com?hello=world' });
-        const url5 = new DataEntity({ field: 'http://google' });
-
-        const resultsArray = data.map((obj) => test.run(obj));
-        const results1 = test.run(url1);
-        const results2 = test.run(url2);
-        const results3 = test.run(url3);
-        const results4 = test.run(url4);
-        const results5 = test.run(url5);
-
-        resultsArray.forEach((result) => expect(result).toEqual({}));
-        expect(results1).toEqual(url1);
-        expect(results2).toEqual(url2);
-        expect(results3).toEqual(url3);
-        expect(results4).toEqual(url4);
-        expect(results5).toEqual(null);
     });
 
     it('can call the float method', () => {
@@ -479,7 +352,7 @@ describe('validator lib', () => {
             return arr;
         }, []);
 
-        results.forEach((result) => expect(result).toEqual({}));
+        results.forEach((result) => expect(result).toEqual(null));
         expect(test.run(results1)).toEqual(null);
         expect(test.run(results2)).toEqual(results2);
     });
@@ -497,27 +370,8 @@ describe('validator lib', () => {
             arr.push(result);
             return arr;
         }, []);
-        results.forEach((result) => expect(result).toEqual({}));
+        results.forEach((result) => expect(result).toEqual(null));
         expect(test.run(results1)).toEqual(results1);
-    });
-
-    it('can call the isbn method', () => {
-        const opConfig: PostProcessConfig = {
-            follow: 'someId', source: 'field', target: 'field', __id: 'someId'
-        };
-        const test = getValidator(opConfig, 'isbn');
-
-        const results1 = new DataEntity({ field: '9781234567897' });
-        const results2 = new DataEntity({ field: 9781234567897 });
-
-        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
-            const result = test.run(obj);
-            arr.push(result);
-            return arr;
-        }, []);
-        results.forEach((result) => expect(result).toEqual({}));
-        expect(test.run(results1)).toEqual(results1);
-        expect(test.run(results2)).toEqual(null);
     });
 
     it('can call the issn method', () => {
@@ -533,7 +387,7 @@ describe('validator lib', () => {
             arr.push(result);
             return arr;
         }, []);
-        results.forEach((result) => expect(result).toEqual({}));
+        results.forEach((result) => expect(result).toEqual(null));
         expect(test.run(results1)).toEqual(results1);
     });
 
@@ -598,7 +452,7 @@ describe('validator lib', () => {
             arr.push(result);
             return arr;
         }, []);
-        results.forEach((result) => expect(result).toEqual({}));
+        results.forEach((result) => expect(result).toEqual(null));
 
         expect(test.run(results1)).toEqual(results1);
         expect(test.run(results2)).toEqual(results2);
@@ -618,7 +472,7 @@ describe('validator lib', () => {
             arr.push(result);
             return arr;
         }, []);
-        results.forEach((result) => expect(result).toEqual({}));
+        results.forEach((result) => expect(result).toEqual(null));
 
         expect(test.run(results1)).toEqual(results1);
         expect(test.run(results2)).toEqual(results2);
@@ -660,7 +514,7 @@ describe('validator lib', () => {
         const results1 = test.run(data1);
 
         const results = data.map((d) => test.run(d));
-        results.forEach((result) => expect(result).toEqual({}));
+        results.forEach((result) => expect(result).toEqual(null));
         expect(results1).toEqual(obj);
     });
 
@@ -724,7 +578,7 @@ describe('validator lib', () => {
         const results1 = test.run(data1);
 
         const results = data.map((o) => test.run(o));
-        results.forEach((result) => expect(result).toEqual({}));
+        results.forEach((result) => expect(result).toEqual(null));
         expect(results1).toEqual(obj);
     });
 
@@ -739,7 +593,7 @@ describe('validator lib', () => {
         const results1 = test.run(data1);
 
         const results = data.map((o) => test.run(o));
-        results.forEach((result) => expect(result).toEqual({}));
+        results.forEach((result) => expect(result).toEqual(null));
         expect(results1).toEqual(obj);
     });
 
@@ -780,7 +634,7 @@ describe('validator lib', () => {
         const results2 = test.run(data2);
 
         const results = data.map((o) => test.run(o));
-        results.forEach((result) => expect(result).toEqual({}));
+        results.forEach((result) => expect(result).toEqual(null));
 
         expect(results1).toEqual(obj);
         expect(results2).toEqual(null);
@@ -802,7 +656,7 @@ describe('validator lib', () => {
         const results2 = test.run(data2);
 
         const results = data.map((o) => test.run(o));
-        results.forEach((result) => expect(result).toEqual({}));
+        results.forEach((result) => expect(result).toEqual(null));
 
         expect(results1).toEqual(obj);
         expect(results2).toEqual(obj2);

@@ -68,7 +68,6 @@ export default abstract class ValidationOpBase<T> extends OperationBase {
                 }
             }
         } catch (err) {
-            console.log('what is the error', err)
             this.removeSource(doc);
             if (Object.keys(doc).length === 0) return null;
         }

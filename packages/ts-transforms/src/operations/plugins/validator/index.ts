@@ -15,12 +15,8 @@ export class Validator extends ValidationOpBase<any> {
     }
 
     validate(value: any) {
-        console.log('is this calling at all')
         const args = this.value || this.config;
-        console.log('what is this', this.method, value, args, validator[this.method](value, args))
-
-        if (!validator[this.method](value, args)) return false;
-        return true;
+        return validator[this.method](value, args);
     }
 }
 
@@ -41,25 +37,19 @@ export class ValidatorPlugins implements PluginClassType {
             contains: setup('contains'),
             equals: setup('equals'),
             after: setup('isAfter'),
-            alpha: setup('isAlpha'),
-            alphanumeric: setup('isAlphanumeric'),
-            ascii: setup('isAscii'),
             base64: setup('isBase64'),
             before: setup('isBefore'),
             bytelength: setup('isByteLength'),
             creditcard: setup('isCreditCard'),
             currency: setup('isCurrency'),
             decimal: setup('isDecimal'),
-            divisibleby: setup('isDivisibleBy'),
             empty: setup('isEmpty'),
-            fqdn: setup('isFQDN'),
             float: setup('isFloat'),
             hash: setup('isHash'),
             hexcolor: setup('isHexColor'),
             hexadecimal: setup('isHexadecimal'),
             identitycard: setup('isIdentityCard'),
             iprange: setup('isIPRange'), // this only checks if its ipv4
-            isbn: setup('isISBN'),
             issn: setup('isISSN'),
             isin: setup('isISIN'),
             iso8601: setup('isISO8601'),
