@@ -90,10 +90,10 @@ points === [{ lat: 60, lon: 80 }]
     * [toTitleCase](overview.md#toTitleCase)
     * [toJSON](overview.md#toJSON)
     * [toGeoPoint](overview.md#toGeoPoint)
-    * [toArray](overview.md#toArray)
     * [toUnixTime](overview.md#toUnixTime)
     * [toISO8601](overview.md#toISO8601)
     * [toISDN](overview.md#toISDN)
+    * [splitString](overview.md#splitString)
     * [trim](overview.md#trim)
     * [trimStart](overview.md#trimStart)
     * [trimEnd](overview.md#trimEnd)
@@ -1153,9 +1153,9 @@ FieldTransform.replaceLiteral('Hi bob', { search: 'bob', replace: 'mel' }) === '
 FieldTransform.replaceLiteral('Hi Bob', { search: 'bob', replace: 'Mel ' }) ===  'Hi Bob';
 ```
 
-### toArray
+### splitString
 
-`toArray(input, args) - Converts a string to an array of characters split by the delimiter provided`
+`splitString(input, args) - Converts a string to an array of characters split by the delimiter provided`
 
 `args - { delimiter?: String }
 
@@ -1164,9 +1164,9 @@ FieldTransform.replaceLiteral('Hi Bob', { search: 'bob', replace: 'Mel ' }) === 
 `returns null if input is null/undefined`
 
 ```javascript
-FieldTransform.toArray('astring'); // ['a', 's', 't', 'r', 'i', 'n', 'g'];
-FieldTransform.toArray('astring', { delimiter: ',' }); // ['astring'];
-FieldTransform.toArray('a-stri-ng', { delimiter: '-' }); // ['a', 'stri', 'ng'];
+FieldTransform.splitString('astring'); // ['a', 's', 't', 'r', 'i', 'n', 'g'];
+FieldTransform.splitString('astring', { delimiter: ',' }); // ['astring'];
+FieldTransform.splitString('a-stri-ng', { delimiter: '-' }); // ['a', 'stri', 'ng'];
 ```
 
 ### toUnixTime
@@ -1403,6 +1403,23 @@ const config = { from: 'other', to: 'myCopy' };
 const results = RecordTransform.copyField(cloneDeep(obj), config);
 results; // { hello: 'world', other: 'stuff', myCopy: 'stuff' };
 ```
+
+### transformRecord
+
+`transformRecord(input, args) - Will execaute a jexl `
+
+`args - { jexlExp: string; field: string }`
+
+```javascript
+const obj = { num: 1234 };
+const config = { jexlExp: 'num * 2', field: 'calc' };
+
+const results = RecordTransform.transformRecord(
+    obj, obj, config
+))
+results === { num: 1234, calc: 1234 * 2 };
+```
+
 
 ## Document Matcher
 

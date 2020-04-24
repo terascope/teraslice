@@ -164,7 +164,7 @@ describe('record transforms', () => {
     describe('transformRecord', () => {
         it('can run a jexl expression', () => {
             const obj = { hello: 'world', other: 'stuff' };
-            const config = { query: '[hello]', field: 'final' };
+            const config = { jexlExp: '[hello]', field: 'final' };
             const clone = cloneDeep(obj);
             const results = Object.assign({}, clone, { final: ['world'] });
 
@@ -191,7 +191,7 @@ describe('record transforms', () => {
 
         it('can transform an array of values, ignores undefined/null', () => {
             const obj = { num: 1234 };
-            const config = { query: 'num * 2', field: 'calc' };
+            const config = { jexlExp: 'num * 2', field: 'calc' };
 
             const mixedData = [obj, undefined, null];
 

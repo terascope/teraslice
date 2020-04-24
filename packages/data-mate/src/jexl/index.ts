@@ -129,7 +129,7 @@ export function extract(
 export const transformRecordConfig: RepoConfig = {
     fn: transformRecord,
     config: {
-        query: { type: 'String' },
+        jexlExp: { type: 'String' },
         field: { type: 'String' },
     },
     output_type: 'Object' as AvailableType,
@@ -139,18 +139,18 @@ export const transformRecordConfig: RepoConfig = {
 export function transformRecord(
     input: RecordInput,
     parentContext: RecordInput,
-    args: { query: string; field: string }
+    args: { jexlExp: string; field: string }
 ) {
     if (ts.isNil(input)) return null;
     if (ts.isNil(args)) throw new Error('Argument parameters must be provided');
-    if (!FieldValidator.isString(args.query) || !FieldValidator.isLength(args.query, parentContext, { min: 1 })) throw new Error('Argument parameter query must must be provided and be a string value');
+    if (!FieldValidator.isString(args.jexlExp) || !FieldValidator.isLength(args.jexlExp, parentContext, { min: 1 })) throw new Error('Argument parameter jexlExp must must be provided and be a string value');
     if (!FieldValidator.isString(args.field) || !FieldValidator.isLength(args.field, parentContext, { min: 1 })) throw new Error('Argument parameter field must must be provided and be a string value');
 
     if (FieldValidator.isArray(input)) {
         return input
             .map((data: any) => {
                 if (!ts.isObjectLike(data)) return null;
-                const value = jexl.evalSync(args.query, data);
+                const value = jexl.evalSync(args.jexlExp, data);
                 if (ts.isNotNil(value)) data[args.field] = value;
                 return data;
             })
@@ -159,7 +159,7 @@ export function transformRecord(
 
     if (!ts.isObjectLike(input)) return null;
 
-    const value = jexl.evalSync(args.query, input);
+    const value = jexl.evalSync(args.jexlExp, input);
     if (ts.isNotNil(value)) input[args.field] = value;
     return input;
 }
