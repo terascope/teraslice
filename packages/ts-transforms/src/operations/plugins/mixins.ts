@@ -17,3 +17,10 @@ export const InjectMethod = (Base: any, fn: any, config: RepoConfig) => class ex
         return fn(...args);
     }
 };
+
+export const OverrideConfig = (Base: any, fn: any) => class extends Base {
+    constructor(obj: any) {
+        const newConfig = fn(obj);
+        super(newConfig);
+    }
+};

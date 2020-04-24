@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, cloneDeep } from '@terascope/utils';
 import { MacAddress } from '../../../src/operations';
 
 describe('MacAddress validation', () => {
@@ -31,9 +31,14 @@ describe('MacAddress validation', () => {
         const test = new MacAddress(opConfig);
 
         const opConfig2 = {
-            follow: 'someId', source: 'field', target: 'field', preserve_colons: true, __id: 'someId'
+            follow: 'someId',
+            source: 'field',
+            target: 'field',
+            preserve_colons: true,
+            case: 'uppercase',
+            __id: 'someId'
         };
-        const test2 = new MacAddress(opConfig2);
+        const test2 = new MacAddress(opConfig2 as any);
 
         const metaData = { selectors: { 'some:query': true } };
 
@@ -44,32 +49,28 @@ describe('MacAddress validation', () => {
         const data5 = new DataEntity({ field: { some: 'data' } });
         const data6 = new DataEntity({ field: true }, metaData);
         const data7 = new DataEntity({});
-        const data8 = new DataEntity({ field: 'EC:1A:59:22:00:d4' });
+        const data8 = new DataEntity({ field: 'EC:1A:59:22:00:D4' });
         const data9 = new DataEntity({ field: 'ec1a592200d4' });
         const data10 = new DataEntity({ field: ['ec1a592200d4', 1234, 'pter:rugss'] });
 
-        const results1 = test.run(data1);
-        const results2 = test.run(data2);
-        const results3 = test.run(data3);
-        const results4 = test.run(data4);
-        const results5 = test.run(data5);
-        const results6 = test.run(data6);
-        const results7 = test.run(data7);
-        const results8 = test2.run(data8);
-        const results9 = test.run(data9);
-        const results10 = test.run(data10);
+        const results1 = test.run(cloneDeep(data1));
+        const results2 = test.run(cloneDeep(data2));
+        const results3 = test.run(cloneDeep(data3));
+        const results4 = test.run(cloneDeep(data4));
+        const results5 = test.run(cloneDeep(data5));
+        const results6 = test.run(cloneDeep(data6));
+        const results7 = test.run(cloneDeep(data7));
+        const results8 = test2.run(cloneDeep(data8));
+        const results9 = test.run(cloneDeep(data9));
+        const results10 = test.run(cloneDeep(data10));
 
-        expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(results1?.getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(results1).toEqual({});
-        expect(results2?.getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(results2).toEqual({});
-        expect(results3).toEqual({});
-        expect(results4).toEqual({});
-        expect(results5).toEqual({});
-        expect(results6).toEqual({});
-        expect(results6?.getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(results7).toEqual({});
+        expect(results1).toEqual(null);
+        expect(results2).toEqual(null);
+        expect(results3).toEqual(null);
+        expect(results4).toEqual(null);
+        expect(results5).toEqual(null);
+        expect(results6).toEqual(null);
+        expect(results7).toEqual(null);
         expect(results8).toEqual(data8);
         expect(results9).toEqual({ field: 'ec1a592200d4' });
         expect(results10).toEqual({ field: ['ec1a592200d4'] });

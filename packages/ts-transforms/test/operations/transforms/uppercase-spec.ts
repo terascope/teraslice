@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, cloneDeep } from '@terascope/utils';
 import { Uppercase } from '../../../src/operations';
 
 describe('transform operator', () => {
@@ -39,14 +39,14 @@ describe('transform operator', () => {
         const data7 = new DataEntity({ sideField: 'data' });
         const data8 = new DataEntity({ someField: ['otHer', 'data'] });
 
-        const results1 = test.run(data1);
-        const results2 = test.run(data2);
-        const results3 = test.run(data3);
-        const results4 = test.run(data4);
-        const results5 = test.run(data5);
-        const results6 = test.run(data6);
-        const results7 = test.run(data7);
-        const results8 = test.run(data8);
+        const results1 = test.run(cloneDeep(data1));
+        const results2 = test.run(cloneDeep(data2));
+        const results3 = test.run(cloneDeep(data3));
+        const results4 = test.run(cloneDeep(data4));
+        const results5 = test.run(cloneDeep(data5));
+        const results6 = test.run(cloneDeep(data6));
+        const results7 = test.run(cloneDeep(data7));
+        const results8 = test.run(cloneDeep(data8));
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
         expect(results1).toEqual({ someField: '56.234,95.234' });

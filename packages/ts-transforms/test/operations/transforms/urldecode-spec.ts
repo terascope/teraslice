@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, cloneDeep } from '@terascope/utils';
 import { UrlDecode } from '../../../src/operations';
 
 describe('urldecode operator', () => {
@@ -59,18 +59,18 @@ describe('urldecode operator', () => {
             metaData
         );
 
-        const results1 = test.run(data1);
-        const results2 = test.run(data2);
-        const results3 = test.run(data3);
-        const results4 = test.run(data4);
-        const results5 = test.run(data5);
-        const results6 = test.run(data6);
-        const results7 = test.run(data7);
-        const results8 = test.run(data8);
-        const results9 = test.run(data9);
-        const results10 = test.run(data10);
-        const results11 = test.run(data11);
-        const results12 = test.run(data12);
+        const results1 = test.run(cloneDeep(data1));
+        const results2 = test.run(cloneDeep(data2));
+        const results3 = test.run(cloneDeep(data3));
+        const results4 = test.run(cloneDeep(data4));
+        const results5 = test.run(cloneDeep(data5));
+        const results6 = test.run(cloneDeep(data6));
+        const results7 = test.run(cloneDeep(data7));
+        const results8 = test.run(cloneDeep(data8));
+        const results9 = test.run(cloneDeep(data9));
+        const results10 = test.run(cloneDeep(data10));
+        const results11 = test.run(cloneDeep(data11));
+        const results12 = test.run(cloneDeep(data12));
 
         expect(results1).toEqual(null);
         expect(results2).toEqual(null);
@@ -97,7 +97,7 @@ describe('urldecode operator', () => {
         const encodedUrl = 'http:// localhost:9200/logstash-2018.7/_search?q=bytes:%3E500%20AND%20ip:*&pretty&size=10000';
         const data = new DataEntity({ source: { field: encodedUrl } }, metaData);
 
-        const results = test.run(data);
+        const results = test.run(cloneDeep(data));
 
         expect(results?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results).toEqual({ source: { field: url } });

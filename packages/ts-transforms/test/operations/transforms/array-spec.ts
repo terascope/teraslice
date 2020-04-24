@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, cloneDeep } from '@terascope/utils';
 import { MakeArray } from '../../../src/operations';
 
 describe('MakeArray operator', () => {
@@ -38,7 +38,7 @@ describe('MakeArray operator', () => {
         };
         const test = new MakeArray(opConfig);
         const data = new DataEntity({ first: 'John', last: 'Doe' });
-        const results = test.run(data);
+        const results = test.run(cloneDeep(data));
 
         expect(DataEntity.isDataEntity(results)).toEqual(true);
         expect(results).toEqual({ first: 'John', last: 'Doe', full: ['John', 'Doe'] });
@@ -50,7 +50,7 @@ describe('MakeArray operator', () => {
         };
         const test = new MakeArray(opConfig);
         const data = new DataEntity({ first: ['John', 'Jane'], last: 'Doe' });
-        const results = test.run(data);
+        const results = test.run(cloneDeep(data));
 
         expect(DataEntity.isDataEntity(results)).toEqual(true);
         expect(results).toEqual({ first: ['John', 'Jane'], last: 'Doe', full: ['John', 'Jane', 'Doe'] });
@@ -66,7 +66,7 @@ describe('MakeArray operator', () => {
         };
         const test = new MakeArray(opConfig);
         const data = new DataEntity({ first: 'John', last: 'Doe' });
-        const results = test.run(data);
+        const results = test.run(cloneDeep(data));
 
         expect(DataEntity.isDataEntity(results)).toEqual(true);
         expect(results).toEqual({ first: 'John', last: 'Doe', full: ['John', 'Doe'] });
@@ -78,7 +78,7 @@ describe('MakeArray operator', () => {
         };
         const test = new MakeArray(opConfig);
         const data = new DataEntity({ first: 'John', last: 'Doe' });
-        const results = test.run(data);
+        const results = test.run(cloneDeep(data));
 
         expect(DataEntity.isDataEntity(results)).toEqual(true);
         expect(results).toEqual({ first: 'John', last: 'Doe', full: ['John'] });
@@ -95,7 +95,7 @@ describe('MakeArray operator', () => {
         const test = new MakeArray(opConfig);
         const metaData = { selectors: { 'some:data': true } };
         const data = new DataEntity({ person: { first: 'John', last: 'Doe' } }, metaData);
-        const results = test.run(data);
+        const results = test.run(cloneDeep(data));
 
         expect(DataEntity.isDataEntity(results)).toEqual(true);
         expect(results.getMetadata('selectors')).toEqual(metaData.selectors);

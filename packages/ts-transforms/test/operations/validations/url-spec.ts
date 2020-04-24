@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, cloneDeep } from '@terascope/utils';
 import { Url as UrlOp } from '../../../src/operations';
 
 describe('url validation', () => {
@@ -43,32 +43,28 @@ describe('url validation', () => {
         const data10 = new DataEntity({ uri: 'google.com?some=key ' });
         const data11 = new DataEntity({ uri: [1324, 'http://google.com '] });
 
-        const results1 = test.run(data1);
-        const results2 = test.run(data2);
-        const results3 = test.run(data3);
-        const results4 = test.run(data4);
-        const results5 = test.run(data5);
-        const results6 = test.run(data6);
-        const results7 = test.run(data7);
-        const results8 = test.run(data8);
-        const results9 = test.run(data9);
-        const results10 = test.run(data10);
-        const results11 = test.run(data11);
+        const results1 = test.run(cloneDeep(data1));
+        const results2 = test.run(cloneDeep(data2));
+        const results3 = test.run(cloneDeep(data3));
+        const results4 = test.run(cloneDeep(data4));
+        const results5 = test.run(cloneDeep(data5));
+        const results6 = test.run(cloneDeep(data6));
+        const results7 = test.run(cloneDeep(data7));
+        const results8 = test.run(cloneDeep(data8));
+        const results9 = test.run(cloneDeep(data9));
+        const results10 = test.run(cloneDeep(data10));
+        const results11 = test.run(cloneDeep(data11));
 
-        expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(results1?.getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(results1).toEqual({});
-        expect(results2?.getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(results2).toEqual({});
-        expect(results3).toEqual({});
-        expect(results4).toEqual({});
-        expect(results5).toEqual({});
-        expect(results6).toEqual({});
-        expect(results6?.getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(results7).toEqual({});
+        expect(results1).toEqual(null);
+        expect(results2).toEqual(null);
+        expect(results3).toEqual(null);
+        expect(results4).toEqual(null);
+        expect(results5).toEqual(null);
+        expect(results6).toEqual(null);
+        expect(results7).toEqual(null);
         expect(results8).toEqual({ uri: 'http://google.com' });
-        expect(results9).toEqual({});
-        expect(results10).toEqual({});
+        expect(results9).toEqual(null);
+        expect(results10).toEqual(null);
         expect(results11).toEqual({ uri: ['http://google.com'] });
     });
 
@@ -89,11 +85,11 @@ describe('url validation', () => {
         const data4 = new DataEntity({ event: { href: 432423 } });
         const data5 = new DataEntity({ event: { href: 'http://google.com' } });
 
-        const results1 = test.run(data1);
-        const results2 = test.run(data2);
-        const results3 = test.run(data3);
-        const results4 = test.run(data4);
-        const results5 = test.run(data5);
+        const results1 = test.run(cloneDeep(data1));
+        const results2 = test.run(cloneDeep(data2));
+        const results3 = test.run(cloneDeep(data3));
+        const results4 = test.run(cloneDeep(data4));
+        const results5 = test.run(cloneDeep(data5));
 
         expect(results1).toEqual(data1);
         expect(results2).toEqual(data2);

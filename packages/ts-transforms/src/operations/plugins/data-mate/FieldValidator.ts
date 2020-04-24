@@ -2,7 +2,7 @@
 
 import { DataEntity, get } from '@terascope/utils';
 import { FieldValidator } from '@terascope/data-mate';
-import { InjectMethod } from '../mixins';
+import { InjectMethod, OverrideConfig } from '../mixins';
 import OperationBase from '../../lib/base';
 import { PostProcessConfig, InputOutputCardinality } from '../../../interfaces';
 
@@ -68,11 +68,12 @@ function setup(method: string) {
     return InjectMethod(Validator, FieldValidator[method], FieldValidator.repository[method]);
 }
 
-const exclusion: string[] = [];
+// @ts-ignore
+const exclusion: string[] = ['contains', 'equals'];
 
 for (const config of Object.values(FieldValidator.repository)) {
     const fnName = config.fn.name;
-    if (!exclusion.includes(fnName))FieldValidatorContainer[fnName] = setup(fnName);
+    FieldValidatorContainer[fnName] = setup(fnName);
 }
 
 export default FieldValidatorContainer;

@@ -1,4 +1,6 @@
-import { DataEntity, get, isFunction } from '@terascope/utils';
+import {
+    DataEntity, get, isFunction, isNil
+} from '@terascope/utils';
 import OperationBase from '../base';
 
 export default abstract class ValidationOpBase<T> extends OperationBase {
@@ -15,14 +17,16 @@ export default abstract class ValidationOpBase<T> extends OperationBase {
 
     run(doc: DataEntity) {
         let value;
+
         if (Array.isArray(this.source)) {
             value = this.source.map((field) => get(doc, field));
         } else {
             value = get(doc, this.source);
         }
+
         let isValid = false;
 
-        if (value === undefined) {
+        if (isNil(value)) {
             this.removeSource(doc);
             if (Object.keys(doc).length === 0) return null;
 

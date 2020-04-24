@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, cloneDeep } from '@terascope/utils';
 import { BooleanValidation } from '../../../src/operations';
 
 describe('boolean validation', () => {
@@ -40,23 +40,20 @@ describe('boolean validation', () => {
         const data7 = new DataEntity({ isTall: 'true' });
         const data8 = new DataEntity({ isTall: ['true', false, 'hello', { other: 'things ' }] });
 
-        const results1 = test.run(data1);
-        const results2 = test.run(data2);
-        const results3 = test.run(data3);
-        const results4 = test.run(data4);
-        const results5 = test.run(data5);
-        const results6 = test.run(data6);
-        const results7 = test.run(data7);
-        const results8 = test.run(data8);
+        const results1 = test.run(cloneDeep(data1));
+        const results2 = test.run(cloneDeep(data2));
+        const results3 = test.run(cloneDeep(data3));
+        const results4 = test.run(cloneDeep(data4));
+        const results5 = test.run(cloneDeep(data5));
+        const results6 = test.run(cloneDeep(data6));
+        const results7 = test.run(cloneDeep(data7));
+        const results8 = test.run(cloneDeep(data8));
 
-        expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(results1?.getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(results1).toEqual({});
-        expect(results2?.getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(results2).toEqual({});
-        expect(results3).toEqual({});
-        expect(results4).toEqual({});
-        expect(results5).toEqual({});
+        expect(results1).toEqual(null);
+        expect(results2).toEqual(null);
+        expect(results3).toEqual(null);
+        expect(results4).toEqual(null);
+        expect(results5).toEqual(null);
         expect(results6).toEqual(data6);
         expect(results6?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results7).toEqual(data6);
@@ -79,14 +76,14 @@ describe('boolean validation', () => {
         const data7 = new DataEntity({ isTall: 0 }, metaData);
         const data8 = new DataEntity({ isTall: '0' });
 
-        const results1 = test.run(data1);
-        const results2 = test.run(data2);
-        const results3 = test.run(data3);
-        const results4 = test.run(data4);
-        const results5 = test.run(data5);
-        const results6 = test.run(data6);
-        const results7 = test.run(data7);
-        const results8 = test.run(data8);
+        const results1 = test.run(cloneDeep(data1));
+        const results2 = test.run(cloneDeep(data2));
+        const results3 = test.run(cloneDeep(data3));
+        const results4 = test.run(cloneDeep(data4));
+        const results5 = test.run(cloneDeep(data5));
+        const results6 = test.run(cloneDeep(data6));
+        const results7 = test.run(cloneDeep(data7));
+        const results8 = test.run(cloneDeep(data8));
 
         const isTrue = { isTall: true };
         const isFalse = { isTall: false };
@@ -117,11 +114,11 @@ describe('boolean validation', () => {
         const data4 = new DataEntity({ person: { isTall: 'true' } });
         const data5 = new DataEntity({ person: { isTall: 'sadrasfwe32q' } });
 
-        const results1 = test.run(data1);
-        const results2 = test.run(data2);
-        const results3 = test.run(data3);
-        const results4 = test.run(data4);
-        const results5 = test.run(data5);
+        const results1 = test.run(cloneDeep(data1));
+        const results2 = test.run(cloneDeep(data2));
+        const results3 = test.run(cloneDeep(data3));
+        const results4 = test.run(cloneDeep(data4));
+        const results5 = test.run(cloneDeep(data5));
 
         expect(results1).toEqual(data1);
         expect(results2).toEqual(data2);

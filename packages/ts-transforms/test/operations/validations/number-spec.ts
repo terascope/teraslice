@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, cloneDeep } from '@terascope/utils';
 import { NumberValidation } from '../../../src/operations';
 
 describe('number validation', () => {
@@ -39,25 +39,21 @@ describe('number validation', () => {
         const data6 = new DataEntity({ bytes: true });
         const data7 = new DataEntity({});
 
-        const results1 = test.run(data1);
-        const results2 = test.run(data2);
-        const results3 = test.run(data3);
-        const results4 = test.run(data4);
-        const results5 = test.run(data5);
-        const results6 = test.run(data6);
-        const results7 = test.run(data7);
+        const results1 = test.run(cloneDeep(data1));
+        const results2 = test.run(cloneDeep(data2));
+        const results3 = test.run(cloneDeep(data3));
+        const results4 = test.run(cloneDeep(data4));
+        const results5 = test.run(cloneDeep(data5));
+        const results6 = test.run(cloneDeep(data6));
+        const results7 = test.run(cloneDeep(data7));
 
-        expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(results1?.getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(results1).toEqual({});
-        expect(results2?.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results1).toEqual(null);
         expect(results2).toEqual(data2);
         expect(results3).toEqual({ bytes: 56.234 });
         expect(results4).toEqual({ bytes: [1324] });
-        expect(results5).toEqual({});
-        expect(results6).toEqual({});
-        expect(DataEntity.isDataEntity(results7)).toEqual(true);
-        expect(results7).toEqual({});
+        expect(results5).toEqual(null);
+        expect(results6).toEqual(null);
+        expect(results7).toEqual(null);
     });
 
     it('can validate nested fields', async () => {
@@ -72,15 +68,15 @@ describe('number validation', () => {
         const data4 = new DataEntity({ file: { bytes: 432423 } });
         const data5 = new DataEntity({ file: { bytes: 'sadrasfwe32q' } });
 
-        const results1 = test.run(data1);
-        const results2 = test.run(data2);
-        const results3 = test.run(data3);
-        const results4 = test.run(data4);
-        const results5 = test.run(data5);
+        const results1 = test.run(cloneDeep(data1));
+        const results2 = test.run(cloneDeep(data2));
+        const results3 = test.run(cloneDeep(data3));
+        const results4 = test.run(cloneDeep(data4));
+        const results5 = test.run(cloneDeep(data5));
 
         expect(results1).toEqual(data1);
         expect(results2).toEqual(data2);
-        expect(results3).toEqual(data3);
+        expect(results3).toEqual({ file: { bytes: 123423 } });
         expect(results4).toEqual(data4);
         expect(results5).toEqual(data2);
 
@@ -96,8 +92,8 @@ describe('number validation', () => {
         const data1 = new DataEntity({ file: { bytes: 123423 } });
         const data2 = new DataEntity({ file: { bytes: '123423' } });
 
-        const results1 = test.run(data1);
-        const results2 = test.run(data2);
+        const results1 = test.run(cloneDeep(data1));
+        const results2 = test.run(cloneDeep(data2));
 
         const answer = { file: { bytes: 123423 } };
 

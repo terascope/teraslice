@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, cloneDeep } from '@terascope/utils';
 import { Dedup } from '../../../src/operations';
 
 describe('Dedup operator', () => {
@@ -37,7 +37,7 @@ describe('Dedup operator', () => {
         };
         const test = new Dedup(opConfig);
         const data = new DataEntity({ array: ['hello', 'hello', 'world', 'world', 'hi'] });
-        const results = test.run(data);
+        const results = test.run(cloneDeep(data));
 
         expect(DataEntity.isDataEntity(results)).toEqual(true);
         expect(results).toEqual({ array: ['hello', 'world', 'hi'] });
@@ -55,11 +55,11 @@ describe('Dedup operator', () => {
         const data4 = new DataEntity({ array: [] });
         const data5 = new DataEntity({ array: false });
 
-        const results1 = test.run(data1);
-        const results2 = test.run(data2);
-        const results3 = test.run(data3);
-        const results4 = test.run(data4);
-        const results5 = test.run(data5);
+        const results1 = test.run(cloneDeep(data1));
+        const results2 = test.run(cloneDeep(data2));
+        const results3 = test.run(cloneDeep(data3));
+        const results4 = test.run(cloneDeep(data4));
+        const results5 = test.run(cloneDeep(data5));
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
         expect(results1).toEqual({ array: 'hello' });

@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, cloneDeep } from '@terascope/utils';
 import { ISDN } from '../../../src/operations';
 
 describe('phone number validation', () => {
@@ -51,36 +51,32 @@ describe('phone number validation', () => {
         const data12 = new DataEntity({ field: notValidPhone3 });
         const data13 = new DataEntity({ field: [validPhone1, notValidPhone3, 1234, { other: 'things' }] });
 
-        const results1 = test.run(data1);
-        const results2 = test.run(data2);
-        const results3 = test.run(data3);
-        const results4 = test.run(data4);
-        const results5 = test.run(data5);
-        const results6 = test.run(data6);
-        const results7 = test.run(data7);
-        const results8 = test.run(data8);
-        const results9 = test.run(data9);
-        const results10 = test.run(data10);
-        const results11 = test.run(data11);
-        const results12 = test.run(data12);
-        const results13 = test.run(data13);
+        const results1 = test.run(cloneDeep(data1));
+        const results2 = test.run(cloneDeep(data2));
+        const results3 = test.run(cloneDeep(data3));
+        const results4 = test.run(cloneDeep(data4));
+        const results5 = test.run(cloneDeep(data5));
+        const results6 = test.run(cloneDeep(data6));
+        const results7 = test.run(cloneDeep(data7));
+        const results8 = test.run(cloneDeep(data8));
+        const results9 = test.run(cloneDeep(data9));
+        const results10 = test.run(cloneDeep(data10));
+        const results11 = test.run(cloneDeep(data11));
+        const results12 = test.run(cloneDeep(data12));
+        const results13 = test.run(cloneDeep(data13));
 
-        expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(results1?.getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(results1).toEqual({});
-        expect(results2?.getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(results2).toEqual({});
-        expect(results3).toEqual({});
-        expect(results4).toEqual({});
-        expect(results5).toEqual({});
-        expect(results6).toEqual({});
-        expect(results6?.getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(results7).toEqual({});
+        expect(results1).toEqual(null);
+        expect(results2).toEqual(null);
+        expect(results3).toEqual(null);
+        expect(results4).toEqual(null);
+        expect(results5).toEqual(null);
+        expect(results6).toEqual(null);
+        expect(results7).toEqual(null);
         expect(results8).toEqual({ field: validPhone1 });
         expect(results9).toEqual({ field: validPhone1 });
-        expect(results10).toEqual({});
-        expect(results11).toEqual({});
-        expect(results12).toEqual({});
+        expect(results10).toEqual(null);
+        expect(results11).toEqual(null);
+        expect(results12).toEqual(null);
         expect(results13).toEqual({ field: [validPhone1] });
     });
 });
