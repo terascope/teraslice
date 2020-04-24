@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { DataEntity, cloneDeep } from '@terascope/utils';
 import { Geolocation } from '../../../src/operations';
 
@@ -24,7 +25,7 @@ describe('geolocation validation', () => {
         expect(() => new Geolocation(badConfig4)).toThrow();
     });
 
-    fit('can validate geo fields', () => {
+    it('can validate geo fields', () => {
         const opConfig = {
             source: 'location', target: 'location', __id: 'someId', follow: 'otherId'
         };
@@ -58,9 +59,9 @@ describe('geolocation validation', () => {
         const results10 = test.run(cloneDeep(data10));
         const results11 = test.run(cloneDeep(data11));
 
-        // expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        // expect(results1?.getMetadata('selectors')).toEqual(metaData.selectors);
-        // expect(results1).toEqual(data1);
+        expect(DataEntity.isDataEntity(results1)).toEqual(true);
+        expect(results1?.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results1).toEqual(data1);
         expect(results2).toEqual(data2);
         expect(results3).toEqual(null);
         expect(results4).toEqual(null);
@@ -80,12 +81,14 @@ describe('geolocation validation', () => {
         const opConfig = {
             source: 'event.location', target: 'event.location', __id: 'someId', follow: 'otherId'
         };
+        const metaData = { selectors: { 'some:query': true } };
+
         const test = new Geolocation(opConfig);
 
         const data1 = new DataEntity({ event: 'something' });
         const data2 = new DataEntity({ event: {} });
-        const data3 = new DataEntity({ event: { location: '56.234,95.234' } });
-        const data4 = new DataEntity({ event: { location: { lat: '56.234', lon: '95.234' } } });
+        const data3 = new DataEntity({ event: { location: '56.234,95.234' } }, metaData);
+        const data4 = new DataEntity({ event: { location: { lat: '56.234', lon: '95.234' } } }, metaData);
         const data5 = new DataEntity({ event: { location: 'sadrasfwe32q' } });
 
         const results1 = test.run(cloneDeep(data1));
@@ -93,12 +96,12 @@ describe('geolocation validation', () => {
         const results3 = test.run(cloneDeep(data3));
         const results4 = test.run(cloneDeep(data4));
         const results5 = test.run(cloneDeep(data5));
-        console.log('results1', results1, data1)
-        expect(results1).toEqual(null);
-        expect(results2).toEqual(null);
+
+        expect(results1).toEqual(data1);
+        expect(results2).toEqual(data2);
         expect(results3).toEqual(data3);
         expect(results4).toEqual(data4);
-        expect(results5).toEqual(null);
+        expect(results5).toEqual(data2);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
     });
