@@ -7,7 +7,6 @@ import {
     ESGetResponse,
     ESGetParams,
     ESMGetParams,
-    UpdateCacheFn
 } from '../src/elasticsearch-state-storage';
 
 describe('elasticsearch-state-storage', () => {
@@ -25,6 +24,7 @@ describe('elasticsearch-state-storage', () => {
             cache_size: 100000,
             max_big_map_size: 9,
             persist: false,
+            meta_key_field: '_key'
         }, overrides);
 
         client = new TestClient(config);
@@ -283,7 +283,7 @@ describe('elasticsearch-state-storage', () => {
         describe('when presist is true and field is specified', () => {
             beforeEach(() => setup({
                 persist: true,
-                metaKey: 'otherField'
+                meta_key_field: 'otherField'
             }));
             afterEach(() => teardown());
 
@@ -307,18 +307,23 @@ describe('elasticsearch-state-storage', () => {
         afterEach(() => teardown());
 
         it('should return object with all docs in cache and in es request', async () => {
-            const docArray = makeTestDocs();
+            const docArray = makeTestDocs(100);
+
+            // add some duplicates to the incoming docs
+            const dupArray = docArray.concat(docArray.slice(0, 20));
+
             const docObj = docsToObject(docArray);
-            const [inCache, ...inES] = docArray;
-            stateStorage.set(inCache);
+
+            stateStorage.mset(docArray.slice(0, 30));
 
             // create bulk response
-            client.setMGetResponse(client.createMGetResponse(inES));
+            client.setMGetResponse(client.createMGetResponse(docArray.slice(30, 50)));
 
             // state response
-            const stateResponse = await stateStorage.mget(docArray);
+            const stateResponse = await stateStorage.mget(dupArray);
+
             const keys = Object.keys(stateResponse);
-            expect(keys).toBeArrayOfSize(3);
+            expect(keys).toBeArrayOfSize(50);
 
             keys.forEach((id: string) => {
                 expect(stateResponse[id]).toEqual(docObj[id]);
@@ -329,208 +334,7 @@ describe('elasticsearch-state-storage', () => {
         });
     });
 
-    fdescribe('->sync', () => {
-        const docArray = makeTestDocs(6);
-
-        const inCacheCurrent = docArray[0];
-        const prevInCacheUpdated = docArray[1];
-        const inCacheUpdated = copyDataEntity(prevInCacheUpdated);
-        const inCacheChanged = docArray[2];
-        const newInCacheChanged = copyDataEntity(inCacheChanged);
-        const inESCurrent = docArray[3];
-        const prevInESUpdated = docArray[4];
-        const inESUpdated = copyDataEntity(prevInESUpdated);
-        const notFoundInES = docArray[5];
-
-        const inputDocArray: DataEntity[] = [];
-        inputDocArray[0] = inCacheCurrent;
-        inputDocArray[1] = inCacheUpdated;
-        inputDocArray[2] = inCacheChanged;
-        inputDocArray[3] = inESCurrent;
-        inputDocArray[4] = inESUpdated;
-        // add a duplicate inESCurrent
-        inputDocArray[5] = inESCurrent;
-        inputDocArray[6] = notFoundInES;
-
-        const cacheResults: DataEntity[] = [];
-        const setCacheResults = (data: DataEntity) => cacheResults.push(data);
-
-        const updateFnResults: { key: string; current: DataEntity; prev?: DataEntity }[] = [];
-        const fn: UpdateCacheFn = (key, current, prev) => {
-            updateFnResults.push({ key, current, prev });
-
-            if (key === inCacheCurrent.getKey()) {
-                inCacheCurrent.seen = true;
-                return current;
-            }
-
-            if (key === inCacheUpdated.getKey()) return false;
-
-            if (key === inCacheChanged.getKey()) {
-                return newInCacheChanged;
-            }
-            return true;
-        };
-
-        let response: any;
-
-        beforeAll(async () => {
-            await setup();
-            stateStorage.set(inCacheCurrent);
-            stateStorage.set(prevInCacheUpdated);
-            stateStorage.set(inCacheChanged);
-            // create bulk response
-            const mgetResponse = client.createMGetResponse([inESCurrent, prevInESUpdated]);
-            mgetResponse.docs.push(client.createGetResponse(notFoundInES, false));
-            client.setMGetResponse(mgetResponse);
-
-            await stateStorage.sync(inputDocArray, fn);
-        });
-
-        afterAll(() => teardown());
-
-        it('should return undefined', () => {
-            expect(response).toBeUndefined();
-        });
-
-        it('should store all of the correct values in the cache', async () => {
-            await stateStorage.cache.values(setCacheResults);
-
-            expect(cacheResults.reverse()).toStrictEqual([
-                inCacheCurrent,
-                // the cache wasn't updated for this
-                prevInCacheUpdated,
-                newInCacheChanged,
-                inESCurrent,
-                inESUpdated,
-                notFoundInES
-            ]);
-        });
-
-        it(`should have called ${inputDocArray.length} times (one of those is a duplicate)`, () => {
-            expect(updateFnResults).toBeArrayOfSize(inputDocArray.length);
-        });
-
-        it('should handle the current cache record correctly', () => {
-            const key = inCacheCurrent.getKey();
-            const results = updateFnResults.filter((result) => result.key === key);
-            expect(results).toBeArrayOfSize(1);
-            const { current, prev } = results[0];
-
-            expect(current).toBe(inCacheCurrent);
-            expect(prev).toBe(inCacheCurrent);
-            expect(current).toStrictEqual(inCacheCurrent);
-            expect(prev).toStrictEqual(inCacheCurrent);
-
-            const cached = stateStorage.getFromCacheByKey(key);
-            expect(cached).toBe(inCacheCurrent);
-            expect(cached).toHaveProperty('seen', true);
-        });
-
-        it('should handle the updated cache record correctly', () => {
-            expect(inCacheUpdated).not.toBe(prevInCacheUpdated);
-
-            const key = inCacheUpdated.getKey();
-
-            const results = updateFnResults.filter((result) => result.key === key);
-            expect(results).toBeArrayOfSize(1);
-            const { current, prev } = results[0];
-
-            expect(current).toBe(inCacheUpdated);
-            expect(prev).toBe(prevInCacheUpdated);
-            expect(prev).toStrictEqual(prevInCacheUpdated);
-            expect(current).toStrictEqual(inCacheUpdated);
-            expect(current).not.toBe(prev);
-
-            const cached = stateStorage.getFromCacheByKey(key);
-            expect(cached).toBe(prevInCacheUpdated);
-        });
-
-        it('should handle the new cache record correctly', () => {
-            expect(inCacheChanged).not.toBe(newInCacheChanged);
-
-            const key = inCacheChanged.getKey();
-            const results = updateFnResults.filter((result) => result.key === key);
-            expect(results).toBeArrayOfSize(1);
-            const { current, prev } = results[0];
-
-            expect(current).toBe(inCacheChanged);
-            expect(prev).toBe(inCacheChanged);
-            expect(current).toStrictEqual(inCacheChanged);
-            expect(prev).toStrictEqual(inCacheChanged);
-
-            const cached = stateStorage.getFromCacheByKey(key);
-            expect(cached).toBe(newInCacheChanged);
-            expect(cached).not.toBe(inCacheChanged);
-        });
-
-        it('should handle the current es record correctly (which was a duplicate)', () => {
-            const key = inESCurrent.getKey();
-
-            const results = updateFnResults.filter((result) => result.key === key);
-            expect(results).toBeArrayOfSize(1);
-            let call = 0;
-            for (const result of results) {
-                call++;
-                const { current, prev } = result;
-
-                expect(current).toBe(inESCurrent);
-                if (call === 1) {
-                    expect(prev).not.toBe(inESCurrent);
-                } else {
-                    expect(prev).toBe(inESCurrent);
-                }
-                expect(prev).toEqual(inESCurrent);
-                expect(current).toStrictEqual(inESCurrent);
-                expect(prev).toStrictEqual(inESCurrent);
-
-                const cached = stateStorage.getFromCacheByKey(key);
-                if (call === 1) {
-                    expect(cached).not.toBe(prev);
-                } else {
-                    expect(cached).toBe(prev);
-                }
-                expect(cached).toEqual(prev);
-                expect(cached).toBe(inESCurrent);
-            }
-        });
-
-        it('should handle the updated es record correctly', () => {
-            expect(inESUpdated).not.toBe(prevInESUpdated);
-
-            const key = inESUpdated.getKey();
-            const results = updateFnResults.filter((result) => result.key === key);
-            expect(results).toBeArrayOfSize(1);
-            const { current, prev } = results[0];
-
-            expect(current).toBe(inESUpdated);
-            expect(prev).not.toBe(prevInESUpdated);
-            expect(prev).toEqual(prevInESUpdated);
-            expect(current).toStrictEqual(inESUpdated);
-            expect(current).not.toBe(prev);
-
-            const cached = stateStorage.getFromCacheByKey(key);
-            expect(cached).not.toBe(prevInESUpdated);
-            expect(cached).toBe(inESUpdated);
-        });
-
-        it('should handle the NOT found in es record correctly', () => {
-            const key = notFoundInES.getKey();
-
-            const results = updateFnResults.filter((result) => result.key === key);
-            expect(results).toBeArrayOfSize(1);
-            const { current, prev } = results[0];
-
-            expect(prev).toBeUndefined();
-            expect(current).toBe(notFoundInES);
-            expect(current).toStrictEqual(notFoundInES);
-
-            const cached = stateStorage.getFromCacheByKey(key);
-            expect(cached).toBe(notFoundInES);
-        });
-    });
-
-    describe('when testing a large data set', () => {
+    describe('-> mget when testing a large data set', () => {
         jest.setTimeout(15000);
 
         beforeEach(() => setup());
