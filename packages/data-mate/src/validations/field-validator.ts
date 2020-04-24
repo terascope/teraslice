@@ -651,10 +651,10 @@ export function isInteger(input: any, _parentContext?: any): boolean {
  * Validates that input is a string or a list of strings
  *
  * @example
- * expect(FieldValidator.isInteger(17.343)).toBe(false);
- * expect(FieldValidator.isInteger(Infinity)).toBe(false);
- * expect(FieldValidator.isInteger('1')).toBe(true);
- * expect(FieldValidator.isInteger(true)).toBe(false);
+ * expect(FieldValidator.isString(17.343)).toBe(false);
+ * expect(FieldValidator.isString(Infinity)).toBe(false);
+ * expect(FieldValidator.isString('1')).toBe(true);
+ * expect(FieldValidator.isString(true)).toBe(false);
  *
  * @param {*} input
  * @returns {boolean} boolean

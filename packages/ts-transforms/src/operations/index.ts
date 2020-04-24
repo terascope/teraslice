@@ -1,4 +1,7 @@
 /* eslint-disable max-classes-per-file */
+
+import { deprecate } from 'util';
+
 import OperationBase from './lib/base';
 import TransformOpBase from './lib/transforms/base';
 import ValidationOpBase from './lib/validations/base';
@@ -45,31 +48,32 @@ class CorePlugins implements PluginClassType {
             join: Join,
             selector: Selector,
             extraction: Extraction,
-            geolocation: Geolocation,
-            string: StringValidation,
-            boolean: BooleanValidation,
-            number: NumberValidation,
-            url: Url,
-            email: Email,
-            ip: Ip,
-            base64decode: Base64Decode,
-            urldecode: UrlDecode,
-            hexdecode: HexDecode,
-            macaddress: MacAddress,
-            isdn: ISDN,
-            uuid: Uuid,
-            jsonparse: JsonParse,
-            lowercase: Lowercase,
-            uppercase: Uppercase,
+            geolocation: deprecate(Geolocation, 'geolocation is being deprecated, please use isGeoPoint instead', 'geolocation'),
+            string: deprecate(StringValidation, 'string is being deprecated, please use isString instead', 'string'),
+            boolean: deprecate(BooleanValidation, 'boolean is being deprecated, please use isBoolean instead', 'boolean'),
+            number: deprecate(NumberValidation, 'number is being deprecated, please use isNumber instead', 'number'),
+            url: deprecate(Url, 'url is being deprecated, please use isURL instead', 'url'),
+            email: deprecate(Email, 'email is being deprecated, please use isEmail instead', 'email'),
+            ip: deprecate(Ip, 'ip is being deprecated, please use isIP instead', 'ip'),
+            // @ts-ignore
+            base64decode: deprecate(Base64Decode, 'base64decode is being deprecated, please use decodeBase64 instead', 'base64decode'),
+            urldecode: deprecate(UrlDecode, 'urldecode is being deprecated, please use decodeURL instead', 'urldecode'),
+            hexdecode: deprecate(HexDecode, 'hexdecode is being deprecated, please use decodeHex instead', 'hexdecode'),
+            macaddress: deprecate(MacAddress, 'macaddress is being deprecated, please use isMACAddress instead', 'macaddress'),
+            isdn: deprecate(ISDN, 'isdn is being deprecated, please use isISDN instead', 'isdn'),
+            uuid: deprecate(Uuid, 'uuid is being deprecated, please use isUUID instead', 'uuid'),
+            jsonparse: deprecate(JsonParse, 'jsonparseis being deprecated, please use parseJSON instead', 'jsonparse'),
+            lowercase: deprecate(Lowercase, 'lowercaseis being deprecated, please use toLowerCase instead', 'lowercase'),
+            uppercase: deprecate(Uppercase, 'uppercase is being deprecated, please use toUpperCase instead', 'uppercase'),
             array: MakeArray,
-            dedup: Dedup,
-            trim: Trim,
-            base64encode: Base64Encode,
-            urlencode: UrlEncode,
-            hexencode: HexEncode,
-            md5encode: Md5Encode,
-            sha1encode: Sha1Encode,
-            sha2encode: Sha2Encode,
+            dedup: deprecate(Dedup, 'dedup is being deprecated, please use dedupe instead', 'dedup'),
+            trim: deprecate(Trim, 'trim from ts-transforms is being deprecated, please use trim from data-mate instead', 'trim'),
+            base64encode: deprecate(Base64Encode, 'base64encode is being deprecated, please use encodeBase64 instead', 'base64encode'),
+            urlencode: deprecate(UrlEncode, 'urlencode is being deprecated, please use encodeURL instead', 'urlencode'),
+            hexencode: deprecate(HexEncode, 'hexencode is being deprecated, please use encodeHex instead', 'hexencode'),
+            md5encode: deprecate(Md5Encode, 'md5encode is being deprecated, please use encodeMD5 instead', 'md5encode'),
+            sha1encode: deprecate(Sha1Encode, 'sha1encode is being deprecated, please use encodeSHA1 instead', 'sha1encode'),
+            sha2encode: deprecate(Sha2Encode, 'sha2encode is being deprecated, please use encodeSHA instead', 'sha2encode'),
         };
     }
 }

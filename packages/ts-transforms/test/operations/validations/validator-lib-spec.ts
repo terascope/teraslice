@@ -44,58 +44,6 @@ describe('validator lib', () => {
         data = dataArray.map((obj) => new DataEntity(obj));
     });
 
-    it('can call the contains method', () => {
-        const opConfig: PostProcessConfig = {
-            follow: 'someId', source: 'field', target: 'field', value: 'w', __id: 'someId'
-        };
-        const test = getValidator(opConfig, 'contains');
-
-        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
-            const result = test.run(obj);
-            arr.push(result);
-            return arr;
-        }, []);
-
-        expect(results[0]).toEqual(data[0]);
-        expect(results[1]).toEqual(null);
-        expect(results[2]).toEqual(data[2]);
-        expect(results[3]).toEqual(null);
-        expect(results[4]).toEqual(null);
-        expect(results[5]).toEqual(null);
-        expect(results[6]).toEqual(null);
-        expect(results[7]).toEqual(null);
-        expect(results[8]).toEqual(null);
-        expect(results[9]).toEqual(null);
-    });
-
-    it('can call the equals method', () => {
-        const opConfig: PostProcessConfig = {
-            follow: 'someId',
-            source: 'field',
-            target: 'field',
-            value: 'world',
-            __id: 'someId',
-        };
-        const test = getValidator(opConfig, 'equals');
-
-        const results = cloneDeep(data).reduce<any[]>((arr: any[], obj: any) => {
-            const result = test.run(obj);
-            arr.push(result);
-            return arr;
-        }, []);
-
-        expect(results[0]).toEqual(null);
-        expect(results[1]).toEqual(null);
-        expect(results[2]).toEqual(data[2]);
-        expect(results[3]).toEqual(null);
-        expect(results[4]).toEqual(null);
-        expect(results[5]).toEqual(null);
-        expect(results[6]).toEqual(null);
-        expect(results[7]).toEqual(null);
-        expect(results[8]).toEqual(null);
-        expect(results[9]).toEqual(null);
-    });
-
     it('can call the after method', () => {
         const newDate = new Date('December 17, 1995 03:24:00').toISOString();
         const opConfig: PostProcessConfig = {
