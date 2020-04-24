@@ -13,6 +13,10 @@
     },
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
+    "files": [
+        "dist/src/**/*",
+        "bin/*"
+    ],
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
     "bin": {
@@ -23,10 +27,6 @@
         "lib": "dist/src",
         "test": "test"
     },
-    "files": [
-        "dist/src/**/*",
-        "bin/*"
-    ],
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",

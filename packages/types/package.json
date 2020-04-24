@@ -10,12 +10,12 @@
     "repository": "git@github.com:terascope/teraslice.git",
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
-    "sideEffects": false,
-    "main": "dist/src/index.js",
-    "typings": "dist/src/index.d.ts",
     "files": [
         "dist/src/**/*"
     ],
+    "sideEffects": false,
+    "main": "dist/src/index.js",
+    "typings": "dist/src/index.d.ts",
     "scripts": {
         "build": "tsc --build",
         "build:watch": "yarn build --watch",

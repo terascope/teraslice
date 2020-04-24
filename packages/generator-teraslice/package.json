@@ -14,10 +14,10 @@
     "repository": "git@github.com:terascope/teraslice.git",
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
-    "main": "generators/index.js",
     "files": [
         "generators"
     ],
+    "main": "generators/index.js",
     "scripts": {
         "test": "ts-scripts test . --",
         "test:debug": "ts-scripts test --debug . --",
