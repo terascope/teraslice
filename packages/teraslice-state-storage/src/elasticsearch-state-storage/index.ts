@@ -113,11 +113,15 @@ export default class ESCachedStateStorage {
 
         const uncachedKeys = this._getUncachedKeys(uniqKeys);
 
-        await this._updateCacheFromEs(uncachedKeys);
+        await this._updateCacheWithEs(uncachedKeys);
 
-        this._logCacheStats(docArray.length, uniqKeys.length, uncachedKeys.length);
+        const savedDocs = this._getSavedDocs(uniqKeys);
 
-        return this._buildReturnObject(uniqKeys);
+        this._logCacheStats(
+            docArray.length, uniqKeys.length, Object.keys(savedDocs).length, uncachedKeys.length
+        );
+
+        return savedDocs;
     }
 
     private _getUniqKeys(docArray: DataEntity[]): string[] {
@@ -133,14 +137,16 @@ export default class ESCachedStateStorage {
         return Object.keys(keys);
     }
 
-    private _logCacheStats(incoming: number, uniq: number, uncached: number) {
+    private _logCacheStats(incoming: number, uniq: number, cached: number, uncached: number) {
         const hits = incoming - uncached;
-        const misses = incoming - uncached;
+        const foundInEs = cached - hits;
+        const misses = incoming - cached;
+
         this.logger.info(`elasticsearch-state-storage cache stats - 
-            incoming docs: ${incoming}, uniq docs: ${uniq}, cache hits: ${hits}, misses: ${misses}`);
+            incoming: ${incoming}, uniq incoming: ${uniq}, in memory: ${hits}, found in es: ${foundInEs}, misses: ${misses}`);
     }
 
-    private _buildReturnObject(keys: string[]) {
+    private _getSavedDocs(keys: string[]) {
         return keys.reduce((savedDocs: { [propName: string]: any }, key) => {
             if (this.isKeyCached(key)) {
                 savedDocs[key] = this.getFromCacheByKey(key);
@@ -150,7 +156,7 @@ export default class ESCachedStateStorage {
         }, {});
     }
 
-    private async _updateCacheFromEs(keyArray: string[]) {
+    private async _updateCacheWithEs(keyArray: string[]) {
         const esResponse = await this._concurrentEsMget(keyArray);
 
         for (const response of esResponse) {
