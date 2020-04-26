@@ -46,7 +46,7 @@
         "@types/elasticsearch": "^5.0.35",
         "@types/js-yaml": "^3.12.2",
         "@types/mongoose": "^5.7.3",
-        "@types/redis": "^2.8.13",
+        "@types/redis": "^2.8.18",
         "@types/shortid": "^0.0.29"
     },
     "publishConfig": {
