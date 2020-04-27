@@ -1,0 +1,96 @@
+terafoundation:
+    environment: 'development'
+    connectors:
+        # ***********************
+        # Elastic Search Configuration
+        # ***********************
+        elasticsearch:
+            default:
+                host:
+                    - 127.0.0.1:9200
+            homeslice:
+                host:
+                    - 127.0.0.1:9200
+            homeslice_2:
+                host:
+                    - 127.0.0.1:9200
+            dev_es_rc1:
+                host:
+                    - es_rc1.tera1.terascope.io:9271
+            dev_es_gen2:
+                host:
+                    - es_gen2.tera1.terascope.io:9291
+            dev_es_s4_gmove:
+                host: 
+                    - es-s4-gmoves.tera1.lan
+            dev_es_gen1:
+                host:
+                    - es_gen1.tera1.terascope.io:9231
+            dev_es_bgpevents:
+                host:
+                    - es-bgpevents.gen2.tera1.lan
+            dev_networks:
+                host:
+                    - es-networks.gen2.tera1.lan
+            dev_es_test:
+                host:
+                    - es-test.tera1.lan
+            dev_es_gen3:
+                host:
+                    - es-gen3.tera1.lan
+            dev_scratch1:
+                host:
+                    - es-scratch1.tera1.lan
+            dev_es_s2_gcl:
+                host:
+                    - es-s2-gcl.tera1.lan
+            dev_es_s4_moves:
+                host:
+                    - es-s4-moves.gen2.tera1.lan
+
+        kafka:
+            homeslice:
+                brokers:
+                    - 127.0.0.1:9092
+            dev_kafka_gen1:
+                brokers:
+                    - 10.210.3.221:9092
+                    - 10.210.3.222:9092
+                    - 10.210.3.223:9092
+                    - 10.210.3.227:9092
+                    - 10.210.3.228:9092
+                    - 10.210.3.229:9092
+            dev_kafka_data1:
+                brokers:
+                    - 10.210.3.224:9092
+            dev_kafka_data4:
+                brokers:
+                    - 10.210.7.216:9092
+                    - 10.210.7.219:9092
+            dev_kafka_data3:
+                brokers:
+                    - 10.210.7.222:9092
+            dev_kafka_data5:
+                brokers:
+                    - 10.210.11.202:9092
+                    - 10.210.11.203:9092
+                    - 10.210.12.42:9092
+                    - 10.210.12.43:9092
+                    - 10.210.12.122:9092
+                    - 10.210.12.123:9092
+        
+        s3:
+            tera1:
+                endpoint: s3.gen2.tera1.lan
+                accessKeyId: 2CDZB8AFNWBZN80R1EHR
+                secretAccessKey: ZqNeywgGwDUrTYzlNSXB3KR3IvRMUWtG7g7ARfi9
+                sslEnabled: true
+                certLocation: config/certs/terascope/ca-root.pem
+
+
+teraslice:
+    master: true
+    master_hostname: 127.0.0.1
+    name: teracluster
+    worker_disconnect_timeout: 60000
+    workers: 8

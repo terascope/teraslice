@@ -461,8 +461,8 @@ module.exports = function elasticsearchStorage(backendConfig) {
         return elasticsearch.index_refresh(query);
     }
 
-    function putTemplate(template, name) {
-        return elasticsearch.putTemplate(template, name);
+    async function putTemplate(template, name) {
+        return elasticsearch.putTemplate(template, name)
     }
 
     function verifyClient() {
