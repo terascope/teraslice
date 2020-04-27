@@ -8266,10 +8266,10 @@ mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@^0.5.4, mkdirp@~0.5.1:
   dependencies:
     minimist "^1.2.5"
 
-mnemonist@^0.36.0:
-  version "0.36.0"
-  resolved "https://registry.yarnpkg.com/mnemonist/-/mnemonist-0.36.0.tgz#82d8cdab3f868751a9273cecc30e2a851b0dfe32"
-  integrity sha512-V98SFZ4ZpvXQs6Rwr3RgEOtW55gtJVpbnZOQZ8KWwMf9H+jbF4izwbczekXzHlnFgt8PhI9bFQWIYd3lRsG/YQ==
+mnemonist@^0.36.1:
+  version "0.36.1"
+  resolved "https://registry.yarnpkg.com/mnemonist/-/mnemonist-0.36.1.tgz#9d8aa39e7db23ccb3735861d1081fc3faea4f180"
+  integrity sha512-PXrJJ5MRu++lfoZN1z/DjQhlMrrNgmHKb+DVFqGy/lCn9hMTZwXKC6aaKKwtqd6lwwak3HOonqo3D1fhQzfwaQ==
   dependencies:
     obliterator "^1.6.1"
 
