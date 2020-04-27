@@ -151,7 +151,7 @@ export function setField(
  * const obj = { hello: 'world', other: 'stuff', last: 'thing' };
  * const config = { fields: ['other', 'last']} ;
  * const results = RecordTransform.dropFields(cloneDeep(obj), cloneDeep(obj), config);
- * expect(results).toEqual({ hello: 'world' });
+ * results; // { hello: 'world' };
  *
  * @param {*} record
  * @param {{ fields: string[] }} args
@@ -197,7 +197,7 @@ function _removeKeys(obj: ts.AnyObject, fields: string[]) {
  * const obj = { hello: 'world', other: 'stuff' };
  * const config = { from: 'other', to: 'myCopy' };
  * const results = RecordTransform.copyField(cloneDeep(obj), cloneDeep(obj), config);
- * expect(results).toEqual({ hello: 'world', other: 'stuff', myCopy: 'stuff' });
+ * results; // { hello: 'world', other: 'stuff', myCopy: 'stuff' };
  *
  * @param {*} record
  * @param {{ from: string; to: string }} args

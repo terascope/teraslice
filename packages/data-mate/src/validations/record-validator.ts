@@ -66,11 +66,11 @@ function _filterBy(fn: any, input: any[], args?: any) {
  * const obj2 = { foo: 123412 };
  * const fields = ['bar'];
  *
- * const results1 = RecordValidator.required(obj1, { fields });
- * const results2 = RecordValidator.required(obj2, { fields });
+ * const results1 = RecordValidator.required(obj1, obj1, { fields });
+ * const results2 = RecordValidator.required(obj2, obj2, { fields });
  *
- * expect(results1).toEqual(true);
- * expect(results2).toEqual(false);
+ * results1; // true;
+ * results2; // false;
  *
  * @param {AnyObject} obj
  * @param {{ fields: string[] }} { fields }
@@ -118,11 +118,11 @@ interface DMOptions {
  * const obj2 = { foo: 123412 };
  * const args = { query: '_exists_:bar' };
  *
- * const results1 = RecordValidator.select(obj1, args);
- * const results2 = RecordValidator.select(obj2, args);
+ * const results1 = RecordValidator.select(obj1, obj1, args);
+ * const results2 = RecordValidator.select(obj2, obj2, args);
  *
- * expect(results1).toEqual(true);
- * expect(results2).toEqual(false);
+ * results1; // true;
+ * results2; // false;
  *
  * @param {AnyObject} obj
  * @param {{ query: string, type_config: xLuceneTypeConfig, variables: xLuceneVariables }} args
@@ -171,11 +171,11 @@ function _validateMatcher(input: RecordInput, args: DMOptions) {
  * const obj2 = { foo: 123412 };
  * const args = { query: '_exists_:bar' };
  *
- * const results1 = RecordValidator.reject(obj1, args);
- * const results2 = RecordValidator.reject(obj2, args);
+ * const results1 = RecordValidator.reject(obj1, obj1, args);
+ * const results2 = RecordValidator.reject(obj2, obj2, args);
  *
- * expect(results1).toEqual(false);
- * expect(results2).toEqual(true);
+ * results1; // false;
+ * results2; // true;
  *
  * @param {AnyObject} obj
  * @param {DMOptions} args

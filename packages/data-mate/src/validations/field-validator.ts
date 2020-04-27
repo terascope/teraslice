@@ -188,8 +188,11 @@ function handleArgs(fn: any) {
  * If given an array, will check if all values are booleans
  *
  * @example
- * expect(FieldValidator.isBoolean('true')).toEqual(false);
- * expect(FieldValidator.isBoolean(false)).toEqual(true);
+ * FieldValidator.isBoolean(false); // true
+ * FieldValidator.isBoolean('astring'); // false
+ * FieldValidator.isBoolean(0); // false
+ * FieldValidator.isBoolean([true, undefined]); // true
+ * FieldValidator.isBoolean(['true', undefined]; // false
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -207,13 +210,13 @@ export function isBoolean(input: any, _parentContext?: any): boolean {
  * to see if all values in the array are boolean-like, does NOT ignore null/undefined values
  *
  * @example
- * expect(FieldValidator.isBooleanLike()).toEqual(true);
- * expect(FieldValidator.isBooleanLike(null)).toEqual(true);
- * expect(FieldValidator.isBooleanLike(0)).toEqual(true);
- * expect(FieldValidator.isBooleanLike('0')).toEqual(true);
- * expect(FieldValidator.isBooleanLike('false')).toEqual(true);
- * expect(FieldValidator.isBooleanLike('no')).toEqual(true);
- * expect(FieldValidator.isBooleanLike(['no', '0', null])).toEqual(true);
+ * FieldValidator.isBooleanLike(); // true
+ * FieldValidator.isBooleanLike(null); // true
+ * FieldValidator.isBooleanLike(0); // true
+ * FieldValidator.isBooleanLike('0'); // true
+ * FieldValidator.isBooleanLike('false'); // true
+ * FieldValidator.isBooleanLike('no'); // true
+ * FieldValidator.isBooleanLike(['no', '0', null]); // true
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -229,8 +232,11 @@ export function isBooleanLike(input: any, _parentContext?: any): boolean {
  * Return true if value is a valid email, or a list of valid emails
  *
  * @example
- * FieldValidator.isEmail('ha3ke5@pawnage.com') === true
- * FieldValidator.isEmail('user@blah.com/junk.junk?a=<tag value="junk"') === true
+ * FieldValidator.isEmail('ha3ke5@pawnage.com') // true
+ * FieldValidator.isEmail('user@blah.com/junk.junk?a=<tag value="junk"') // true
+ * FieldValidator.isEmail('email@example.com'); // true
+ * FieldValidator.isEmail(12345); // false
+ * FieldValidator.isEmail(['email@example.com', 'ha3ke5@pawnage.com']); // true
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -248,10 +254,12 @@ export function isEmail(input: any, _parentContext?: any): boolean {
  * excluding null/undefined values
  *
  * @example
- * expect(FieldValidator.isGeoPoint('60,80')).toEqual(true);
- * expect(FieldValidator.isGeoPoint([80, 60])).toEqual(true);
- * expect(FieldValidator.isGeoPoint({ lat: 60, lon: 80 })).toEqual(true);
- * expect(FieldValidator.isGeoPoint({ latitude: 60, longitude: 80 })).toEqual(true);
+ * FieldValidator.isGeoPoint('60,80'); // true
+ * FieldValidator.isGeoPoint([80, 60]); // true
+ * FieldValidator.isGeoPoint({ lat: 60, lon: 80 }); // true
+ * FieldValidator.isGeoPoint({ latitude: 60, longitude: 80 }); // true
+ * FieldValidator.isGeoPoint(['60,80', { lat: 60, lon: 80 }]); // true
+ * FieldValidator.isGeoPoint(['60,80', 'hello']); // false
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -273,7 +281,7 @@ export function isGeoPoint(input: any, _parentContext?: any) {
  * Checks to see if input is a valid geo-json geometry, or a list of geo-json geometeries
  *
  * @example
- * expect(FieldValidator.isGeoJSON('hello')).toEqual(false);
+ * FieldValidator.isGeoJSON('hello'); // false
  *
  * const polygon = {
  *   type: "Polygon",
@@ -281,7 +289,8 @@ export function isGeoPoint(input: any, _parentContext?: any) {
  *       [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
  *   ]
  * };
- * expect(FieldValidator.isGeoJSON(polygon)).toEqual(true);
+ * FieldValidator.isGeoJSON(polygon); // true
+ * FieldValidator.isGeoJSON([polygon, { other: 'obj'}]); // false
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -297,13 +306,22 @@ export function isGeoJSON(input: any, _parentContext?: any) {
 /**
  * Checks to see if input is a valid geo-json point, or a list of geo-json points
  * @example
- * expect(FieldValidator.isGeoShapePoint(3)).toEqual(false);
+ * const polygon = {
+ *   type: "Polygon",
+ *   coordinates: [
+ *      [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+ *    ]
+ * };
  *
- * const matchingPoint = {
+ * const point = {
  *   type: 'Point',
  *   coordinates: [12, 12]
  * };
- * expect(FieldValidator.isGeoShapePoint(matchingPoint)).toEqual(true);
+ *
+ * FieldValidator.isGeoShapePoint(polygon); // false
+ * FieldValidator.isGeoShapePoint(point); // true
+ * FieldValidator.isGeoShapePoint([polygon, point]); // false
+ * FieldValidator.isGeoShapePoint([point, point]); // true
  *
  * @param {JoinGeoShape} input
  * @returns {boolean} boolean
@@ -319,7 +337,7 @@ export function isGeoShapePoint(input: any, _parentContext?: any) {
 /**
  * Checks to see if input is a valid geo-json polygon or a list of geo-json polygons
  * @example
- * expect(FieldValidator.isGeoShapePolygon(3)).toEqual(false);
+ * FieldValidator.isGeoShapePolygon(3); // false
  *
  * const polygon = {
  *   type: 'Polygon',
@@ -327,7 +345,16 @@ export function isGeoShapePoint(input: any, _parentContext?: any) {
  *       [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
  *   ]
  * };
- * expect(FieldValidator.isGeoShapePolygon(matchingPoint)).toEqual(true);
+ *
+ * const point = {
+ *  type: 'Point',
+ *   coordinates: [12, 12]
+ * };
+ *
+ * FieldValidator.isGeoShapePolygon(polygon); // true
+ * FieldValidator.isGeoShapePolygon(point); // false
+ * FieldValidator.isGeoShapePolygon([polygon, point]); // false
+ * FieldValidator.isGeoShapePolygon([polygon, polygon]); // true
  *
  * @param {JoinGeoShape} input
  * @returns {boolean} boolean
@@ -343,20 +370,36 @@ export function isGeoShapePolygon(input: any, _parentContext?: any) {
 /**
  * Checks to see if input is a valid geo-json multipolygon or a list of geo-json multipolygons
  * @example
- * expect(FieldValidator.isGeoShapeMultiPolygon(3)).toEqual(false);
+ *
+ * const polygon = {
+ *   type: "Polygon",
+ *   coordinates: [
+ *       [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+ *   ]
+ * };
+ *
+ * const point = {
+ *   type: 'Point',
+ *   coordinates: [12, 12]
+ * };
  *
  * const multiPolygon = {
  *   type: 'MultiPolygon',
  *   coordinates: [
  *       [
  *           [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
- *       ],
+ *      ],
  *       [
  *           [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
  *       ]
  *   ]
  * };
- * expect(FieldValidator.isGeoShapeMultiPolygon(multiPolygon)).toEqual(true);
+ *
+ * FieldValidator.isGeoShapeMultiPolygon(polygon); // false
+ * FieldValidator.isGeoShapeMultiPolygon(point); // false
+ * FieldValidator.isGeoShapeMultiPolygon(multiPolygon); // true
+ * FieldValidator.isGeoShapeMultiPolygon([multiPolygon, multiPolygon]); // true
+ * FieldValidator.isGeoShapeMultiPolygon([multiPolygon, point]); // false
  *
  * @param {JoinGeoShape} input
  * @returns {boolean} boolean
@@ -373,13 +416,15 @@ export function isGeoShapeMultiPolygon(input: any, _parentContext?: any) {
  * Validates that the input is an IP address, or a list of IP addresses
  *
  * @example
- * expect(FieldValidator.isIP('8.8.8.8')).toBe(true);
- * expect(FieldValidator.isIP('192.172.1.18')).toBe(true);
- * expect(FieldValidator.isIP('11.0.1.18')).toBe(true);
- * expect(FieldValidator.isIP('2001:db8:85a3:8d3:1319:8a2e:370:7348')).toBe(true);
- * expect(FieldValidator.isIP('fe80::1ff:fe23:4567:890a%eth2')).toBe(true);
- * expect(FieldValidator.isIP('2001:DB8::1')).toBe(true);
- * expect(FieldValidator.isIP('172.16.0.1')).toBe(true);
+ *
+ * FieldValidator.isIP('8.8.8.8'); // true
+ * FieldValidator.isIP('192.172.1.18'); // true
+ * FieldValidator.isIP('11.0.1.18'); // true
+ * FieldValidator.isIP('2001:db8:85a3:8d3:1319:8a2e:370:7348'); // true
+ * FieldValidator.isIP('fe80::1ff:fe23:4567:890a%eth2'); // true
+ * FieldValidator.isIP('2001:DB8::1'); // true
+ * FieldValidator.isIP('172.16.0.1'); // true
+ * FieldValidator.isIP(['172.16.0.1', '11.0.1.18']); // true
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -405,8 +450,12 @@ function _isIp(input: any, _parentContext?: any) {
  * Validate is input is a routable IP, or a list of routable IP's
  *
  * @example
- * expect(FieldValidator.isRoutableIP('192.168.0.1')).toBe(false);
- * expect(FieldValidator.isRoutableIP('2001:db8::1')).toBe(true);
+ *
+ * FieldValidator.isRoutableIP('8.8.8.8'); // true
+ * FieldValidator.isRoutableIP('2001:db8::1'); // true
+ * FieldValidator.isRoutableIP('172.194.0.1'); // true
+ * FieldValidator.isRoutableIP('192.168.0.1'); // false
+ * FieldValidator.isRoutableIP(['172.194.0.1', '8.8.8.8']); // true
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -428,9 +477,15 @@ function _isRoutableIP(input: any, _parentContext?: any): boolean {
 
 /**
  * Validate is input is a non-routable IP, or a list of non-routable IP's
+ *
  * @example
- * expect(FieldValidator.isRoutableIP('192.168.0.1')).toBe(true);
- * expect(FieldValidator.isRoutableIP('2001:db8::1')).toBe(false);
+ *
+ * FieldValidator.isNonRoutableIP('192.168.0.1'); // true
+ * FieldValidator.isNonRoutableIP('10.16.32.210'); // true
+ * FieldValidator.isNonRoutableIP('fc00:db8::1'); // true
+ * FieldValidator.isNonRoutableIP('8.8.8.8'); // false
+ * FieldValidator.isNonRoutableIP('2001:db8::1'); // false
+ * FieldValidator.isNonRoutableIP(['10.16.32.210', '192.168.0.1']); // true
  *
  * @param {*} input
  * @returns { boolean } boolean
@@ -454,7 +509,11 @@ function _isNonRoutableIP(input: any, _parentContext?: any): boolean {
  * Validates that input is a cidr or a list of cidr values
  *
  * @example
- * expect(FieldValidator.isIPCidr('8.8.0.0/12')).toBe(true);
+ *
+ * FieldValidator.isCIDR('8.8.0.0/12'); // true
+ * FieldValidator.isCIDR('2001::1234:5678/128'); // true
+ * FieldValidator.isCIDR('8.8.8.10'); // false
+ * FieldValidator.isCIDR(['8.8.0.0/12', '2001::1234:5678/128']); // true
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -474,9 +533,12 @@ function _isCidr(input: any, _parentContext?: any): boolean {
 /**
  * Validates if the input is within a given range of IP's
  * @example
- * expect(FieldValidator.inIPRange('8.8.8.8', { min: '8.8.8.0', max: '8.8.8.64' })).toBe(true);
- * expect(FieldValidator.inIPRange('8.8.8.8', { max: '8.8.8.64' })).toBe(true);
- * expect(FieldValidator.inIPRange('8.8.8.8', { min: '8.8.8.0' })).toBe(true);
+ * FieldValidator.inIPRange('8.8.8.8', {}, { cidr: '8.8.8.0/24' }); // true
+ * FieldValidator.inIPRange('fd00::b000', {}, { min: 'fd00::123', max: 'fd00::ea00' }); // true;
+ * FieldValidator.inIPRange('8.8.8.8', {}, { cidr: '8.8.8.10/32' }); // false
+ *
+ * const config = { min: '8.8.8.0', max: '8.8.8.64' };
+ * FieldValidator.inIPRange(['8.8.8.64', '8.8.8.8'], {}, config); // true
  *
  * @param {*} input
  * @param {{ min?: string; max?: string; cidr?: string }} args
@@ -524,10 +586,11 @@ function _inIPRange(input: any, args: { min?: string; max?: string; cidr?: strin
  * Validates that the input is a valid phone number, or a list of phone numbers
  *
  * @example
- * expect(FieldValidator.isISDN('+18089156800')).toBe(true);
- * expect(FieldValidator.isISDN('+7-952-5554-602')).toBe(true);
- * expect(FieldValidator.isISDN('79525554602')).toBe(true);
- * expect(FieldValidator.isISDN(79525554602)).toBe(true);
+ * FieldValidator.isISDN('46707123456'); // true
+ * FieldValidator.isISDN('1-808-915-6800'); // true
+ * FieldValidator.isISDN('NOT A PHONE Number'); // false
+ * FieldValidator.isISDN(79525554602); // true
+ * FieldValidator.isISDN(['46707123456', '1-808-915-6800']); // true
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -552,16 +615,18 @@ export function isISDN(input: any, _parentContext?: any): boolean {
  * Validates that the input is a MacAddress, or a list of MacAddresses
  *
  * @example
- * FieldValidator.isMACAddress('001f.f35b.2b1f') === true
- * FieldValidator.isMACAddress('001ff35b2b1f', {}, { delimiter: 'any' }) === true
- * FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', {}, { delimiter: 'colon' }) === true
- * FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', {}, { delimiter: 'dash' }) === true
- * FieldValidator.isMACAddress('001ff35b2b1f', {}, { delimiter: 'none' }) === true
- * FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', {}, { delimiter: ['dash', 'colon'] }) === true
- * FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f', {}, { delimiter: 'dash' }) === false
- * FieldValidator.isMACAddress('00 1f f3 5b 2b 1f', {}, { delimiter: 'colon' }) === false
- * FieldValidator.isMACAddress('001ff35b2b1f', {}, { delimiter: 'colon' }) === false
- * FieldValidator.isMACAddress('001ff35b2b1f', {}, { delimiter: ['dash', 'colon'] }) === false
+ * FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f'); // true
+ * FieldValidator.isMACAddress('001ff35b2b1f'); // true
+ * FieldValidator.isMACAddress('001f.f35b.2b1f',{}, { delimiter: 'dot' }); // true
+ *
+ * const manyDelimiters = { delimiter: ['dash', 'colon', 'space'] }
+ * FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', {}, manyDelimiters); // true
+ * FieldValidator.isMACAddress(12345); // false
+ *
+ * // specified colon and space delimiter only
+ * const twoDelimeters = { delimiter: ['colon', 'space'] };
+ * FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', {}, twoDelimeters ); // false,
+ * FieldValidator.isMACAddress(['001ff35b2b1f', '00:1f:f3:5b:2b:1f']); // true
  *
  * @param {*} input
  * @param {{delimiter}} [{ delimiter?: string}] may be set to 'colon'|'space'|'dash'|'dot'|'none'
@@ -580,8 +645,12 @@ export function isMACAddress(input: any, _parentContext?: any, args?: MACAddress
  * of numbers are between the values
  *
  * @example
- * expect(FieldValidator.inNumberRange(-12, {}, { min: -100, max: 45 })).toBe(true);
- * expect(FieldValidator.inNumberRange(0, {}, { max: 45 })).toBe(true);
+ * FieldValidator.inNumberRange(42, {}, { min: 0, max: 100}); // true
+ * FieldValidator.inNumberRange([42, 11, 94], {}, { min: 0, max: 100}); // true
+ * FieldValidator.inNumberRange([42, 11367, 94], {}, { min: 0, max: 100}); // false
+ * FieldValidator.inNumberRange(-42, {}, { min:0 , max: 100 }); // false
+ * FieldValidator.inNumberRange(42, {}, { min: 0, max: 42 }); // false without the inclusive option
+ * FieldValidator.inNumberRange(42, {}, { min: 0, max: 42, inclusive: true }) // true with inclusive
  *
  * @param {number} input
  * @param {{ min?: number; max?: number; inclusive?: boolean }} args
@@ -611,10 +680,11 @@ export function inNumberRange(
  * Validates that input is a number or a list of numbers
  *
  * @example
- * expect(FieldValidator.isNumber(17.343)).toBe(true);
- * expect(FieldValidator.isNumber(Infinity)).toBe(true);
- * expect(FieldValidator.isNumber('1')).toBe(false);
- * expect(FieldValidator.isNumber(true)).toBe(false);
+ * FieldValidator.isNumber(42.32); // true
+ * FieldValidator.isNumber('NOT A Number'); // false
+ * FieldValidator.isNumber([42.32, 245]); // true
+ * FieldValidator.isNumber([42.32, { some: 'obj' }]); // false
+ * FieldValidator.isNumber('1'); // false
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -631,10 +701,13 @@ export function isNumber(input: any, _parentContext?: any): input is number {
  * Validates that input is a integer or a list of integers
  *
  * @example
- * expect(FieldValidator.isInteger(17.343)).toBe(true);
- * expect(FieldValidator.isInteger(Infinity)).toBe(false);
- * expect(FieldValidator.isInteger('1')).toBe(false);
- * expect(FieldValidator.isInteger(true)).toBe(false);
+ * FieldValidator.isInteger(42); // true
+ * FieldValidator.isInteger(3.14); // false
+ * FieldValidator.isInteger(Infinity); // false
+ * FieldValidator.isInteger('1'); // false
+ * FieldValidator.isInteger(true); //false
+ * FieldValidator.isInteger([42, 1]); // true
+ * FieldValidator.isInteger([42, 3.14]); // false
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -651,10 +724,11 @@ export function isInteger(input: any, _parentContext?: any): boolean {
  * Validates that input is a string or a list of strings
  *
  * @example
- * expect(FieldValidator.isString(17.343)).toBe(false);
- * expect(FieldValidator.isString(Infinity)).toBe(false);
- * expect(FieldValidator.isString('1')).toBe(true);
- * expect(FieldValidator.isString(true)).toBe(false);
+ * FieldValidator.isString('this is a string'); // true
+ * FieldValidator.isString(true); // false
+ * FieldValidator.isString(['hello', 'world']); // true
+ * FieldValidator.isString(['hello', 3]); // false
+ * FieldValidator.isString(17.343); // false
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -671,9 +745,12 @@ export function isString(input: any, _parentContext?: any): boolean {
  * Validates that the input is a url or a list of urls
  *
  * @example
- * expect(FieldValidator.isURL('https://someurl.cc.ru.ch')).toBe(true);
- * expect(FieldValidator.isURL('ftp://someurl.bom:8080?some=bar&hi=bob')).toBe(true);
- * expect(FieldValidator.isURL('http://xn--fsqu00a.xn--3lr804guic')).toBe(true)
+ * FieldValidator.isURL('https://someurl.cc.ru.ch'); // true
+ * FieldValidator.isURL('ftp://someurl.bom:8080?some=bar&hi=bob'); // true
+ * FieldValidator.isURL('http://xn--fsqu00a.xn--3lr804guic'); // true
+ * FieldValidator.isURL('http://example.com'); // true
+ * FieldValidator.isURL('BAD-URL'); // false
+ * FieldValidator.isURL(['http://example.com', 'http://example.com']); // true
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -694,7 +771,12 @@ export function isURL(input: any, _parentContext?: any): boolean {
  * Validates that input is a UUID or a list of UUID's
  *
  * @example
- * expect(FieldValidator.isUUID('123e4567-e89b-82d3-f456-426655440000')).toBe(true);
+ * FieldValidator.isUUID('0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B'); // true
+ * FieldValidator.isUUID('BAD-UUID'); // false
+ * FieldValidator.isUUID([
+ *   '0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B',
+ *   '123e4567-e89b-82d3-f456-426655440000'
+ * ]); // true
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -716,8 +798,11 @@ export function isUUID(input: any, _parentContext?: any): boolean {
  * or that the array of inputs contains the value in args
  *
  * @example
- * expect(FieldValidator.contains('12345', {}, { value: '12345' })).toBe(true);
- * expect(FieldValidator.contains('hello', {}, { value: 'llo' })).toBe(false);
+ * FieldValidator.contains('hello', {}, { value: 'hello' }); // true
+ * FieldValidator.contains('hello', {}, { value: 'll' }); // true
+ * FieldValidator.contains(['hello', 'cello'], {}, { value: 'll' }); // true
+ * FieldValidator.contains(['hello', 'stuff'], {}, { value: 'll' }); // false
+ * FieldValidator.contains('12345', {}, { value: '45' }); // true
  *
  * @param {*} input
  * @param {{ value: string }} { value }
@@ -740,8 +825,9 @@ export function contains(input: any, _parentContext: any, args: { value: string 
  * Validates that the input matches the value, of that the input array matches the value provided
  *
  * @example
- * expect(FieldValidator.equals('12345', {}, { value: '12345' })).toBe(true);
- * expect(FieldValidator.equals('hello', {}, { value: 'llo' })).toBe(false);
+ * FieldValidator.equals('12345', {}, { value: '12345' }); // true
+ * FieldValidator.equals('hello', {}, { value: 'llo' }); // false
+ * FieldValidator.equals([3, 3], { value: 3 }); // true
  *
  * @param {*} input
  * @param {{ value: string }} { value }
@@ -764,8 +850,10 @@ export function equals(input: any, _parentContext: any, args: { value: string })
  * Validates that the input is alpha or a list of alpha values
  *
  * @example
- * expect(FieldValidator.isAlpha('ThiSisAsTRing')).toBe(true);
- * expect(FieldValidator.isAlpha('ThisiZĄĆĘŚŁ', {}, { locale: 'pl-Pl' })).toBe(true);
+ * FieldValidator.isAlpha('ThiSisAsTRing'); // true
+ * FieldValidator.isAlpha('ThisiZĄĆĘŚŁ', {}, { locale: 'pl-Pl' }); // true
+ * FieldValidator.isAlpha('1123_not-valid'); // false
+ * FieldValidator.isAlpha(['validString', 'more']); // true
  *
  * @param {*} input
  * @param {{ locale: validator.AlphaLocale }} [args]
@@ -791,9 +879,11 @@ export function isAlpha(
  * Validates that the input is alphanumeric or a list of alphanumieric values
  *
  * @example
- * expect(FieldValidator.isAlphanumeric('1234')).toBe(true);
- * expect(FieldValidator.isAlphanumeric('allalpa')).toBe(true);
- * expect(FieldValidator.isAlphanumeric('فڤقکگ1234', {}, { locale: 'ku-IQ' })).toBe(true);
+ *
+ * FieldValidator.isAlphanumeric('123validString'); // true
+ * FieldValidator.isAlphanumeric('فڤقکگ1234', { locale: 'ku-IQ' }); // true
+ * FieldValidator.isAlphanumeric('-- not valid'); // false
+ * FieldValidator.isAlphanumeric(['134', 'hello']); // true
  *
  * @param {*} input
  * @param {{ locale: validator.AlphanumericLocale }} [args]
@@ -820,6 +910,12 @@ export function isAlphanumeric(
 /**
  * Validates that the input is ascii chars or a list of ascii chars
  *
+ * @example
+ *
+ * FieldValidator.isASCII('ascii\s__'); // true;
+ * FieldValidator.isASCII('˜∆˙©∂ß'); // false
+ * FieldValidator.isASCII(['some', 'words']); // true;
+ *
  * @param {*} input
  * @returns {boolean} boolean
  */
@@ -839,7 +935,9 @@ export function isASCII(input: any, _parentContext?: any): boolean {
  * Validates that the input is a base64 encoded string or a list of base64 encoded strings
  *
  * @example
- * expect(FieldValidator.isBase64('ZWFzdXJlLg==')).toBe(true);
+ * FieldValidator.isBase64('ZWFzdXJlLg=='); // true
+ * FieldValidator.isBase64('not base 64'); // false\
+ * FieldValidator.isBase64(['ZWFzdXJlLg==', 'ZWFzdXJlLg==']); // true
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -859,12 +957,13 @@ export function isBase64(input: any, _parentContext?: any): boolean {
 /**
  * Validates that the iput is empty
  * @example
- * expect(FieldValidator.isEmpty('')).toBe(true);
- * expect(FieldValidator.isEmpty(undefined)).toBe(true);
- * expect(FieldValidator.isEmpty(null)).toBe(true);
- * expect(FieldValidator.isEmpty({})).toBe(true);
- * expect(FieldValidator.isEmpty([])).toBe(true);
- * expect(FieldValidator.isEmpty('     ', {}, { ignoreWhitespace: true })).toBe(true);
+ * FieldValidator.isEmpty(''); // true
+ * FieldValidator.isEmpty(undefined); // true
+ * FieldValidator.isEmpty(null); // true
+ * FieldValidator.isEmpty({ foo: 'bar' }); // false
+ * FieldValidator.isEmpty({}); // true
+ * FieldValidator.isEmpty([]); // true
+ * FieldValidator.isEmpty('     ', {}, { ignoreWhitespace: true }); // true
  *
  * @param {*} input
  * @param {{ ignoreWhitespace: boolean }} [args] set to true if you want the value to be trimed
@@ -888,7 +987,9 @@ export function isEmpty(
  *
  * @example
  *
- * expect(FieldValidator.isFQDN('john.com.uk.bob')).toBe(true);
+ * FieldValidator.isFQDN('example.com.uk'); // true
+ * FieldValidator.isFQDN('notadomain'); // false
+ * FieldValidator.isFQDN(['example.com.uk', 'google.com']); // true
  *
  * @param {*} input
  * @param {args} [{ require_tld = true, allow_underscores = false, allow_trailing_dot = false}]
@@ -920,15 +1021,18 @@ export function isFQDN(input: any, _parentContext?: any, args?: FQDNOptions): bo
  * const sha256Config = { algo: 'sha256' }
  * const sha1Config = { algo: 'sha1' }
  *
- * expect(FieldValidator.isHash('6201b3d1815444c87e00963fcf008c1e', {}, md5Config)).toBe(true);
- * expect(FieldValidator.isHash(
- *  '85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33',
+ * FieldValidator.isHash('6201b3d1815444c87e00963fcf008c1e', {}, { algo: 'md5' }); // true
+ * FieldValidator.isHash(
+ * '85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33',
+ * {},
+ * { algo: 'sha256' }
+ * ); // true
+ *
+ * FieldValidator.isHash('98fc121ea4c749f2b06e4a768b92ef1c740625a0', {}, { algo: 'sha1' }); // true
+ * FieldValidator.isHash(['6201b3d1815444c87e00963fcf008c1e', undefined],
  *  {},
- *  sha256Config
- * )).toBe(true);
- * expect(
- * FieldValidator.isHash('98fc121ea4c749f2b06e4a768b92ef1c740625a0', {}, sha1Config)
- * ).toBe(true);
+ *   { algo: 'md5' }
+ * ); // true
  *
  * @param {*} input
  * @param {HashConfig} { algo }
@@ -951,9 +1055,11 @@ export function isHash(input: any, _parentContext: any, args: HashConfig): boole
  * Validates that input is a valid country code or a list of country codes
  *
  * @example
- * expect(FieldValidator.isCountryCode('IS')).toBe(true);
- * expect(FieldValidator.isCountryCode('RU')).toBe(true);
- * expect(FieldValidator.isCountryCode('ru')).toBe(true);
+ *
+ * FieldValidator.isCountryCode('IS'); // true
+ * FieldValidator.isCountryCode('ru'); // true
+ * FieldValidator.isCountryCode('USA'); // false
+ * FieldValidator.isCountryCode(['IS', 'ru']); // true
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -973,9 +1079,9 @@ export function isCountryCode(input: any, _parentContext?: any): boolean {
 /**
  * Checks to see if input is a valid ISO8601 string dates or a list of valid dates
  * @example
- * expect(FieldValidator.isISO8601('2020-01-01T12:03:03.494Z')).toBe(true);
- * expect(FieldValidator.isISO8601('2020-01-01')).toBe(true);
- * expect(FieldValidator.isISO8601('2020-01-01T12:03:03')).toBe(true);
+ * FieldValidator.isISO8601('2020-01-01T12:03:03.494Z'); // true
+ * FieldValidator.isISO8601('2020-01-01'); // true
+ * FieldValidator.isISO8601('2020-01-01T12:03:03'); // true
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -994,10 +1100,13 @@ export function isISO8601(input: any, _parentContext?: any): boolean {
 
 /**
  * Validates that input is a valid ISSN or a list of valid ISSN
+ *
  * @example
- * expect(FieldValidator.isISSN('0378-5955')).toBe(true);
- * expect(FieldValidator.isISSN('03785955')).toBe(true)
- * expect(FieldValidator.isISSN('0378-5955', {}, { requireHyphen: true })).toBe(true);
+ *
+ * FieldValidator.isISSN('0378-5955'); // true
+ * FieldValidator.isISSN('03785955'); // true
+ * FieldValidator.isISSN('0378-5955', {}, { requireHyphen: true }); // true
+ * FieldValidator.isISSN(['0378-5955', '0000-006x']); // true
  *
  * @param {*} input
  * @param {ArgsISSNOptions} [{ requireHyphen?: boolean; caseSensitive?: boolean;}]
@@ -1024,9 +1133,10 @@ export function isISSN(input: any, _parentContext?: any, args?: ArgsISSNOptions)
  * Validates that input is a valid RFC3339 dates or a list of valid RFC3339 dates
  *
  * @example
- * expect(FieldValidator.isRFC3339('2020-01-01T12:05:05.001Z')).toBe(true);
- * expect(FieldValidator.isRFC3339('2020-01-01 12:05:05.001Z')).toBe(true);
- * expect(FieldValidator.isRFC3339('2020-01-01T12:05:05Z')).toBe(true);
+ * FieldValidator.isRFC3339('2020-01-01T12:05:05.001Z'); // true
+ * FieldValidator.isRFC3339('2020-01-01 12:05:05.001Z'); // true
+ * FieldValidator.isRFC3339('2020-01-01T12:05:05Z'); // true
+ * FieldValidator.isRFC3339(['2020-01-01T12:05:05Z', '2020-01-01T12:05:05.001Z']); // true
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -1047,10 +1157,11 @@ export function isRFC3339(input: any, _parentContext?: any): boolean {
  * Validates that input is a valid JSON string or a list of valid JSON
  *
  * @example
- * expect(FieldValidator.isJSON('{ "bob": "gibson" }')).toBe(true);
- * expect(FieldValidator.isJSON('[{ "bob": "gibson" }, { "dizzy": "dean" }]')).toBe(true);
- * expect(FieldValidator.isJSON('[]')).toBe(true);
- * expect(FieldValidator.isJSON('{}')).toBe(true);
+ * FieldValidator.isJSON('{ "bob": "gibson" }'); // true
+ * FieldValidator.isJSON({ bob: 'gibson' }); // false
+ * FieldValidator.isJSON('[]'); // true
+ * FieldValidator.isJSON('{}'); // true
+ * FieldValidator.isJSON(['{ "bob": "gibson" }', '[]']); // true
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -1070,10 +1181,11 @@ export function isJSON(input: any, _parentContext?: any): boolean {
 /**
  * Check to see if input is a string with given length ranges, or a list of valid string lengths
  * @example
- * expect(FieldValidator.isLength('astring', {}, { size: 7 })).toBe(true);
- * expect(FieldValidator.isLength('astring', {}, { min: 5, max: 10 })).toBe(true);
- * expect(FieldValidator.isLength('astring', {}, { size: 5 })).toBe(false);
- * expect(FieldValidator.isLength('astring', {}, { min: 8 })).toBe(false);
+ * FieldValidator.isLength('astring', { size: 7 }); // true
+ * FieldValidator.isLength('astring', { min: 3, max: 10 }); // true
+ * FieldValidator.isLength('astring', { size: 10 }); // false
+ * FieldValidator.isLength('astring', {}, { min: 8 }); // false
+ * FieldValidator.isLength(['astring', 'stuff', 'other'], { min: 3, max: 10 }); // true
  *
  * @param {*} input
  * @param {LengthConfig} { size, min, max }
@@ -1104,8 +1216,11 @@ export function isLength(input: any, _parentContext: any, { size, min, max }: Le
  * Validates that input is a valid mimeType or a list of mimeTypes
  *
  * @example
- * expect(FieldValidator.isMIMEType('application/javascript')).toBe(true);
- * expect(FieldValidator.isMIMEType('application/graphql')).toBe(true);
+ *
+ * FieldValidator.isMIMEType('application/javascript'); // true
+ * FieldValidator.isMIMEType('application/graphql'); // true
+ * FieldValidator.isMIMEType(12345); // false
+ * FieldValidator.isMIMEType(['application/graphql', 'application/javascript']); // true
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -1126,11 +1241,15 @@ export function isMIMEType(input: any, _parentContext?: any): boolean {
  * Validates that input is a valid postal code or a list of postal codes
  *
  * @example
- * expect(FieldValidator.isPostalCode('85249', {}, { locale: 'any' })).toBe(true);
- * expect(FieldValidator.isPostalCode('85249', {}, { locale: 'ES' })).toBe(true);
- * expect(FieldValidator.isPostalCode('85249', {}, { locale: 'ES' })).toBe(true);
- * expect(FieldValidator.isPostalCode('852', {}, { locale: 'IS' })).toBe(true);
- * expect(FieldValidator.isPostalCode('885 49', {}, { locale: 'SE' })).toBe(true);
+ *
+ * FieldValidator.isPostalCode('85249'); // true
+ * FieldValidator.isPostalCode('85249', {}, { locale: 'any' }); // true
+ * FieldValidator.isPostalCode('85249', {}, { locale: 'ES' }); // true
+ * FieldValidator.isPostalCode('85249', {}, { locale: 'ES' }); // true
+ * FieldValidator.isPostalCode('852', {}, { locale: 'IS' }); // true
+ * FieldValidator.isPostalCode('885 49', {}, { locale: 'SE' }); // true
+ * FieldValidator.isPostalCode(1234567890); // false
+ * FieldValidator.isPostalCode(['85249']); // true
  *
  * @param {*} input
  * @param {({ locale: 'any' | PostalCodeLocale })} { locale }
@@ -1153,13 +1272,16 @@ export function isPostalCode(input: any, _parentContext: any, args: { locale: 'a
  * Validates that the input is a valid date or a list of valid dates
  *
  * @example
- * expect(FieldValidator.isValidDate('2019-03-17T23:08:59.673Z')).toBe(true);
- * expect(FieldValidator.isValidDate('2019-03-17')).toBe(true);
- * expect(FieldValidator.isValidDate('2019-03-17T23:08:59')).toBe(true);
- * expect(FieldValidator.isValidDate('03/17/2019')).toBe(true);
- * expect(FieldValidator.isValidDate('03-17-2019')).toBe(true);
- * expect(FieldValidator.isValidDate('Jan 22, 2012')).toBe(true);
- * expect(FieldValidator.isValidDate('23 Jan 2012')).toBe(true);
+ * FieldValidator.isValidDate('2019-03-17T23:08:59.673Z'); // true
+ * FieldValidator.isValidDate('2019-03-17'); // true
+ * FieldValidator.isValidDate('2019-03-17T23:08:59'); // true
+ * FieldValidator.isValidDate('03/17/2019'); // true
+ * FieldValidator.isValidDate('03-17-2019'); // true
+ * FieldValidator.isValidDate('Jan 22, 2012'); // true
+ * FieldValidator.isValidDate('23 Jan 2012'); // true
+ * FieldValidator.isValidDate(1552000139); // true
+ * FieldValidator.isValidDate('1552000139'); // false
+ * FieldValidator.isValidDate(['2019-03-17', 1552000139]); // true;
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -1177,9 +1299,11 @@ export function isValidDate(input: any, _parentContext?: any): boolean {
 
 /**
  * Will throw if input is null or undefined
+ *
  * @example
- * expect(FieldValidator.guard({ hello: 'world' })).toBe(true);
- * expect(() => FieldValidator.guard(null)).toThrow();
+ *
+ * FieldValidator.guard({ hello: 'world' }); // true
+ * FieldValidator.guard(); // WILL THROW
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -1192,9 +1316,11 @@ export function guard(input: any, _parentContext?: any) {
 
 /**
  * Will return false if input is null or undefined
+ *
  * @example
- * expect(FieldValidator.exists({ hello: 'world' })).toBe(true);
- * expect(FieldValidator.exists(null)).toBe(false);
+ *
+ * FieldValidator.exists({ hello: 'world' }); // true
+ * FieldValidator.exists(null); // false
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -1207,9 +1333,9 @@ export function exists(input: any, _parentContext?: any): boolean {
 /**
  * Validates that the input is an array
  * @example
- * expect(FieldValidator.isArray(undefined)).toBe(false);
- * expect(FieldValidator.isArray([1, 2, 3])).toBe(true);
- * expect(FieldValidator.isArray([])).toBe(true);
+ * FieldValidator.isArray(undefined); // false
+ * FieldValidator.isArray([1, 2, 3]); // true
+ * FieldValidator.isArray([]); // true
  *
  * @param {*} input
  * @returns {boolean} boolean
@@ -1224,9 +1350,10 @@ export function isArray(input: any, _parentContext?: any): input is any[] {
  * Validates that the function specified returns true at least once on the list of values
  *
  * @example
+ *
  * const mixedArray = ['hello', 3, { some: 'obj' }];
- * expect(FieldValidator.some(mixedArray, mixedArray, fn: 'isString' })).toBe(true);
- * expect(FieldValidator.some(mixedArray, mixedArray, { fn: 'isBoolean' })).toBe(false);
+ * FieldValidator.some(mixedArray, mixedArray, fn: 'isString' }); // true
+ * FieldValidator.some(mixedArray, mixedArray, { fn: 'isBoolean' }); // false
  *
  * @param {*} input
  * @param {{ fn: string; options?: any }} { fn, options } fn is the name of method on FieldValidator
@@ -1252,8 +1379,8 @@ export function some(
  * const mixedArray = ['hello', 3, { some: 'obj' }];
  * const strArray = ['hello', 'world'];
  *
- * expect(FieldValidator.every([mixedArray, mixedArray { fn: 'isString' })).toBe(false);
- * expect(FieldValidator.every(strArray, strArray, { fn: 'isString' })).toBe(true);
+ * FieldValidator.every([mixedArray, mixedArray { fn: 'isString' }); // false
+ * FieldValidator.every(strArray, strArray, { fn: 'isString' }); // true
  *
  * @param {*} input
  * @param {{ fn: string; options?: any }} { fn, options } fn is the name of method on FieldValidator

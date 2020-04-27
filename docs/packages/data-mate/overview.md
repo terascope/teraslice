@@ -128,44 +128,56 @@ points === [{ lat: 60, lon: 80 }]
     * [dropFields](overview.md#dropFields)
     * [copyField](overview.md#copyField)
 
+## Note
+all functions take as a second parameter a context? value. Some transforms and validations require the originating document from where the value came from to properly perform its actions. If there is no originating document, then you can simply pass in a empty object. All additonal options for a function are passed into the thrid parameter as an object
 
 ## Field Validations
 
 > Field validation functions accept an input and return a Boolean.  If additional arguments are needed then an object containing parameters is passed in.
 
-`functionName(input, { arg1: 'ARG1', arg2: 'ARG2', etc... })`
+functionName(input, context, { arg1: 'ARG1', arg2: 'ARG2', etc... })
 
 ### isString
 
-`isString(input, context) - Validates that input is a string or a list of strings`
+isString(input, context?) - Validates that input is a string or a list of strings
 
 ```javascript
 FieldValidator.isString('this is a string'); // true
 FieldValidator.isString(true); // false
+FieldValidator.isString(['hello', 'world']); // true
+FieldValidator.isString(['hello', 3]); // false
+FieldValidator.isString(17.343); // false
 ```
 
 ### isNumber
 
-`isNumber(input, context) - Validates that input is a number or a list of numbers`
+isNumber(input, context?) - Validates that input is a number or a list of numbers
 
 ```javascript
 FieldValidator.isNumber(42.32); // true;
 FieldValidator.isNumber('NOT A Number'); // false
 FieldValidator.isNumber([42.32, 245]); // true;
+FieldValidator.isNumber([42.32, { some: 'obj' }]); // false;
+FieldValidator.isNumber('1'); // false
 ```
 
 ### isInteger
 
-`isInteger(input, context) - Validates that input is a integer or a list of integers`
+isInteger(input, context?) - Validates that input is a integer or a list of integers
 
 ```javascript
 FieldValidator.isInteger(42); // true
 FieldValidator.isInteger(3.14); // false
+FieldValidator.isInteger(Infinity); // false
+FieldValidator.isInteger('1'); // false
+FieldValidator.isInteger(true); //false
+FieldValidator.isInteger([42, 1]); // true
+FieldValidator.isInteger([42, 3.14]); // false
 ```
 
 ### isBoolean
 
-`FieldValidator.isBoolean(input, context) - Checks to see if input is a Boolean. If given an array, will check if all values are booleans ignoring any null/undefined values`
+FieldValidator.isBoolean(input, context?) - Checks to see if input is a Boolean. If given an array, will check if all values are booleans ignoring any null/undefined values
 
 ```javascript
 FieldValidator.isBoolean(false); // true
@@ -177,75 +189,83 @@ FieldValidator.isBoolean(['true', undefined]; // false
 
 ### isBooleanLike
 
-`isBooleanLike(input, context) - returns true if input is a Boolean, truthy, or falsy. If an given an array, it will check to see if all values in the array are Boolean-like, does NOT ignore null/undefined values `
+isBooleanLike(input, context?) - returns true if input is a Boolean, truthy, or falsy. If an given an array, it will check to see if all values in the array are Boolean-like, does NOT ignore null/undefined values
 
-`Additional truthy values are 1, '1', 'true', 'yes'`
+truthy values are 1, '1', 'true', 'yes'
 
-`Additional falsy values are 0, '0', 'false', 'no'`
+falsy values are 0, '0', 'false', 'no'
 
 ```javascript
-FieldValidator.isBooleanLike(0); // true
-FieldValidator.isBooleanLike('true'); // true
-FieldValidator.isBooleanLike('no'); // true
-FieldValidator.isBooleanLike('a string') // false
-FieldValidator.isBooleanLike(['true', 0, 'no']; // true
+FieldValidator.isBooleanLike()); // true
+FieldValidator.isBooleanLike(null)); // true
+FieldValidator.isBooleanLike(0)); // true
+FieldValidator.isBooleanLike('0')); // true
+FieldValidator.isBooleanLike('false')); // true
+FieldValidator.isBooleanLike('no')); // true
+FieldValidator.isBooleanLike(['no', '0', null])); // true
 ```
 
 ### isGeoPoint
 
-`FieldValidator.isGeoPoint(input, context) - Checks to see if input is a valid geo-point, or a list of valid geo-points excluding null/undefined values
-`
+FieldValidator.isGeoPoint(input, context?) - Checks to see if input is a valid geo-point, or a list of valid geo-points excluding null/undefined values
+
 
 ```javascript
- FieldValidator.isGeoPoint('60,80'); // true
- FieldValidator.isGeoPoint([80, 60]); // true
- FieldValidator.isGeoPoint({ lat: 60, lon: 80 }); // true
- FieldValidator.isGeoPoint({ latitude: 60, longitude: 80 }); // true
+FieldValidator.isGeoPoint('60,80'); // true
+FieldValidator.isGeoPoint([80, 60]); // true
+FieldValidator.isGeoPoint({ lat: 60, lon: 80 }); // true
+FieldValidator.isGeoPoint({ latitude: 60, longitude: 80 }); // true
+FieldValidator.isGeoPoint(['60,80', { lat: 60, lon: 80 }]); // true
+FieldValidator.isGeoPoint(['60,80', 'hello']); // false
+
+
 ```
 
 ### isGeoJSON
 
-`FieldValidator.isGeoJSON(input, context) - Checks to see if input is a valid geo-json geometry, or a list of geo-json geometeries
+FieldValidator.isGeoJSON(input, context?) - Checks to see if input is a valid geo-json geometry, or a list of geo-json geometeries
 
-`
 
 ```javascript
-  const polygon = {
-     type: "Polygon",
-     coordinates: [
-        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
-     ]
-  };
+const polygon = {
+    type: "Polygon",
+    coordinates: [
+      [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+    ]
+};
 
-  FieldValidator.isGeoJSON(polygon); // true
+FieldValidator.isGeoJSON(polygon); // true
+FieldValidator.isGeoJSON([polygon, { other: 'obj'}]); // false
 ```
 
 ### isGeoShapePoint
 
-`FieldValidator.isGeoShapePoint(input, context) - Checks to see if input is a valid geo-json point, or a list of geo-json points
-`
+FieldValidator.isGeoShapePoint(input, context?) - Checks to see if input is a valid geo-json point, or a list of geo-json points
+
 
 ```javascript
-  const polygon = {
-     type: "Polygon",
-     coordinates: [
-        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
-     ]
-  };
+const polygon = {
+    type: "Polygon",
+    coordinates: [
+    [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+    ]
+};
 
-  const point = {
+const point = {
     type: 'Point',
     coordinates: [12, 12]
-  };
+};
 
-  FieldValidator.isGeoShapePoint(polygon); // false
-  FieldValidator.isGeoShapePoint(point); // true
+FieldValidator.isGeoShapePoint(polygon); // false
+FieldValidator.isGeoShapePoint(point); // true
+FieldValidator.isGeoShapePoint([polygon, point]); // false
+FieldValidator.isGeoShapePoint([point, point]); // true
 ```
 
 ### isGeoShapePolygon
 
-`FieldValidator.isGeoShapePolygon(input, context) - Checks to see if input is a valid geo-json polygon, or a list of geo-json polygons
-`
+FieldValidator.isGeoShapePolygon(input, context?) - Checks to see if input is a valid geo-json polygon, or a list of geo-json polygons
+
 
 ```javascript
   const polygon = {
@@ -262,27 +282,29 @@ FieldValidator.isBooleanLike(['true', 0, 'no']; // true
 
   FieldValidator.isGeoShapePolygon(polygon); // true
   FieldValidator.isGeoShapePolygon(point); // false
+  FieldValidator.isGeoShapePolygon([polygon, point]); // false
+  FieldValidator.isGeoShapePolygon([polygon, polygon]); // true
 ```
 
 ### isGeoShapeMultiPolygon
 
-`FieldValidator.isGeoShapeMultiPolygon(input, context) - Checks to see if input is a valid geo-json multipolygon or a list of geo-json multipolygons
-`
+FieldValidator.isGeoShapeMultiPolygon(input, context?) - Checks to see if input is a valid geo-json multipolygon or a list of geo-json multipolygons
+
 
 ```javascript
-  const polygon = {
-     type: "Polygon",
-     coordinates: [
+const polygon = {
+    type: "Polygon",
+    coordinates: [
         [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
-     ]
-  };
+    ]
+};
 
-  const point = {
+const point = {
     type: 'Point',
     coordinates: [12, 12]
-  };
+};
 
-  const multiPolygon = {
+const multiPolygon = {
     type: 'MultiPolygon',
     coordinates: [
         [
@@ -292,216 +314,264 @@ FieldValidator.isBooleanLike(['true', 0, 'no']; // true
             [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
         ]
     ]
-  };
+};
 
-  FieldValidator.isGeoShapeMultiPolygon(polygon); // false
-  FieldValidator.isGeoShapeMultiPolygon(point); // false
-  FieldValidator.isGeoShapeMultiPolygon(multiPolygon); // true
+FieldValidator.isGeoShapeMultiPolygon(polygon); // false
+FieldValidator.isGeoShapeMultiPolygon(point); // false
+FieldValidator.isGeoShapeMultiPolygon(multiPolygon); // true
+FieldValidator.isGeoShapeMultiPolygon([multiPolygon, multiPolygon]); // true
+FieldValidator.isGeoShapeMultiPolygon([multiPolygon, point]); // false
 ```
 
 ### inNumberRange
 
-`inNumberRange(input, context, args) - returns true if input is a Number within the min and max boundaries, or that the array on numbers are between the values`
+inNumberRange(input, context, args) - returns true if input is a Number within the min and max boundaries, or that the array on numbers are between the values
 
-`args: { min: Number, max: Number, inclusive?: Boolean }`
-
+args: { min: Number, max: Number, inclusive?: Boolean }
+note that second parameter is parent object, if there is not any just pass an empty object
 
 ```javascript
-FieldValidator.inNumberRange(42, { min: 0, max: 100}); // true
-FieldValidator.inNumberRange(-42, { min:0 , max: 100 }); // false
-FieldValidator.inNumberRange(42, { min: 0, max: 42 }); // false without the inclusive option
-FieldValidator.inNumberRange(42, { min: 0, max: 42, inclusive: true }); // true with the inclusive option
+FieldValidator.inNumberRange(42, {}, { min: 0, max: 100}); // true
+FieldValidator.inNumberRange([42, 11, 94], {}, { min: 0, max: 100}); // true
+FieldValidator.inNumberRange([42, 11367, 94], {}, { min: 0, max: 100}); // false
+FieldValidator.inNumberRange(-42, {}, { min:0 , max: 100 }); // false
+FieldValidator.inNumberRange(42, {}, { min: 0, max: 42 }); // false without the inclusive option
+FieldValidator.inNumberRange(42, {}, { min: 0, max: 42, inclusive: true }); // true with the inclusive option
 ```
 
 ### isEmpty
-`isEmpty(input, context, args) - returns true for an empty string, array, or object`
+isEmpty(input, context, args) - returns true for an empty string, array, or object
 
-` args: { ignoreWhitespac?: Boolean }`
+args: { ignoreWhitespac?: Boolean }
 
-`set ignoreWhitespac to true if you want the value to be trimed`
+set ignoreWhitespac to true if you want the value to be trimed
 
 ```javascript
-FieldValidator.isEmpty([]); // true
+FieldValidator.isEmpty(''); // true
+FieldValidator.isEmpty(undefined); // true
+FieldValidator.isEmpty(null); // true
 FieldValidator.isEmpty({ foo: 'bar' }); // false
-FieldValidator.isEmpty('     ', { ignoreWhitespace: true }); // true
+FieldValidator.isEmpty({}); // true
+FieldValidator.isEmpty([]); // true
+// note that passing in arguments is the third parameter
+FieldValidator.isEmpty('     ', {}, { ignoreWhitespace: true }); // true
 ```
 
 ### contains
 
-`contains(input, context, args) - returns true if input contains args value, or the list of inputs contains args value`
+contains(input, context, args) - returns true if input contains args value, or the list of inputs contains args value
 
-` args: { value: String }`
+ args: { value: String }
 
 ```javascript
-FieldValidator.contains('hello', { value: 'ell' }); // true
-FieldValidator.contains('hello', { value: 'bye' }); // bye
+FieldValidator.contains('hello', {}, { value: 'hello' }); // true
+FieldValidator.contains('hello', {}, { value: 'll' }); // true
+FieldValidator.contains(['hello', 'cello'], {}, { value: 'll' }); // true
+FieldValidator.contains(['hello', 'stuff'], {}, { value: 'll' }); // false
+FieldValidator.contains('12345', {}, { value: '45' }); // true
 ```
 
 ### equals
 
-`equals(input, context, args) - Validates that the input matches the value, of that the input array matches the value provided`
+equals(input, context, args) - Validates that the input matches the value, of that the input array matches the value provided
 
-` args: { value: 'String' }`
+args: { value: 'String' }
 
 ```javascript
 FieldValidator.equals('hello', { value: 'hello' }); // true
+FieldValidator.equals([3, 3], { value: 3 }); // true
 FieldValidator.equals('hello', { value: 'ello' }); // false
 ```
 
 ### isLength
 
-`isLength(input, context, args) - Check to see if input is a string with given length ranges, or a list of valid string lengths`
+isLength(input, context, args) - Check to see if input is a string with given length ranges, or a list of valid string lengths
 
-`Optional args: { length: Number, min: Number, max: Number }`
+Optional args: { length: Number, min: Number, max: Number }
 
 ```javascript
 FieldValidator.isLength('astring', { size: 7 }); // true
 FieldValidator.isLength('astring', { min: 3, max: 10 }); // true
 FieldValidator.isLength('astring', { size: 10 }); // false
+FieldValidator.isLength('astring', {}, { min: 8 }); // false
+FieldValidator.isLength(['astring', 'stuff', 'other'], { min: 3, max: 10 }); // true
 ```
 
 ### isAlpha
+isAlpha(input, context?, args?) - Validates that the input is alpha or a list of alpha values
 
-`isAlpha(input, context, args) - Validates that the input is alpha or a list of alpha values`
+arg: { locale?: ANY LOCALE OPTION DEFINED BELOW }, default locale is en-US
 
-`arg: { locale?: ANY LOCALE OPTION DEFINED BELOW }, default locale is en-US`
-
-`Locale options: 'ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'fa-IR', 'he', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA'`
+Locale options: 'ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'fa-IR', 'he', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA'`
 
 ```javascript
 FieldValidator.isAlpha('validString'); // true
 FieldValidator.isAlpha('ThisiZĄĆĘŚŁ', { locale: 'pl-PL' }); // true
 FieldValidator.isAlpha('1123_not-valid'); // false
+FieldValidator.isAlpha(['validString', 'more']); // true
 ```
 
 ### isAlphanumeric
 
-`isAlphanumeric(input, context, args) - Validates that the input is alphanumeric or a list of alphanumieric values`
+isAlphanumeric(input, context?, args?) - Validates that the input is alphanumeric or a list of alphanumieric values
 
-`Optional arg: { locale: ANY LOCALE OPTION DEFINED BELOW }, default locale is en-US`
+Optional arg: { locale: ANY LOCALE OPTION DEFINED BELOW }, default locale is en-US
 
-`Locale options: 'ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'fa-IR', 'he', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA'`
+Locale options: 'ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'fa-IR', 'he', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA'`
 
 ```javascript
 FieldValidator.isAlphanumeric('123validString'); // true
 FieldValidator.isAlphanumeric('فڤقکگ1234', { locale: 'ku-IQ' }); // true
 FieldValidator.isAlphanumeric('-- not valid'); // false
+FieldValidator.isAlphanumeric(['134', 'hello']); // true
 ```
 
 ### isASCII
 
-`isASCII(input, context) - Validates that the input is ASCII chars or a list of ASCII chars`
+isASCII(input, context?) - Validates that the input is ASCII chars or a list of ASCII chars
 
 ```javascript
 FieldValidator.isASCII('ascii\s__'); // true;
 FieldValidator.isASCII('˜∆˙©∂ß'); // false
+FieldValidator.isASCII(['some', 'words']); // true;
+
 ```
 
 ### isBase64
 
-`isBase64(input, context) - Validates that the input is a base64 encoded string or a list of base64 encoded strings`
+isBase64(input, context?) - Validates that the input is a base64 encoded string or a list of base64 encoded strings
 
 ```javascript
 FieldValidator.isBase64('ZWFzdXJlLg=='); // true
 FieldValidator.isBase64('not base 64'); // false
+FieldValidator.isBase64(['ZWFzdXJlLg==', 'ZWFzdXJlLg==']); // true
+
 ```
 
 ### isValidDate
 
-`isValidDate(input, context) - Validates that the input is a valid date or a list of valid dates (epoch/ unix time)`
+isValidDate(input, context?) - Validates that the input is a valid date or a list of valid dates (epoch/ unix time)
 
 ```javascript
+FieldValidator.isValidDate('2019-03-17T23:08:59.673Z'); // true
 FieldValidator.isValidDate('2019-03-17'); // true
+FieldValidator.isValidDate('2019-03-17T23:08:59'); // true
+FieldValidator.isValidDate('03/17/2019'); // true
+FieldValidator.isValidDate('03-17-2019'); // true
+FieldValidator.isValidDate('Jan 22, 2012'); // true
+FieldValidator.isValidDate('23 Jan 2012'); // true
 FieldValidator.isValidDate(1552000139); // true
 FieldValidator.isValidDate('1552000139'); // false
+FieldValidator.isValidDate(['2019-03-17', 1552000139]); // true;
 ```
 
 ### isISO8601
 
-`isISO8601(input, context) - Checks to see if input is a valid ISO8601 string dates or a list of valid dates`
+isISO8601(input, context?) - Checks to see if input is a valid ISO8601 string dates or a list of valid dates
 
 ```javascript
-FieldValidator.isISO8601('2020-01-01T12:03:03.494Z'); // true
-FieldValidator.isISO8601('Jan 1, 2020'); // false
+FieldValidator.isISO8601('2020-01-01T12:03:03.494Z'); //true
+FieldValidator.isISO8601('2020-01-01'); // true
+FieldValidator.isISO8601('2020-01-01T12:03:03'); // true
+FieldValidator.isISO8601(['2020-01-01T12:03:03', '2020-01-01']); // true
+
 ```
 
 ### isRFC3339
 
-`isRFC3339(input, context) -  Validates that input is a valid RFC3339 dates or a list of valid RFC3339 dates`
+isRFC3339(input, context?) -  Validates that input is a valid RFC3339 dates or a list of valid RFC3339 dates
 
 ```javascript
+FieldValidator.isRFC3339('2020-01-01T12:05:05.001Z'); // true
 FieldValidator.isRFC3339('2020-01-01 12:05:05.001Z'); // true
-FieldValidator.isRFC3339('2020-01-01'); // false
+FieldValidator.isRFC3339('2020-01-01T12:05:05Z'); // true
+FieldValidator.isRFC3339(['2020-01-01T12:05:05Z', '2020-01-01T12:05:05.001Z']); // true
 ```
 
 ### isJSON
 
-`isJSON(input, context) - Validates that input is a valid JSON string or a list of valid JSON`
+isJSON(input, context?) - Validates that input is a valid JSON string or a list of valid JSON
 
 ```javascript
- FieldValidator.isJSON('{ "bob": "gibson" }'); // true
- FieldValidator.isJSON({ bob: 'gibson' }); // false
+FieldValidator.isJSON('{ "bob": "gibson" }'); // true
+FieldValidator.isJSON({ bob: 'gibson' }); // false
+FieldValidator.isJSON('[]'); // true
+FieldValidator.isJSON('{}'); // true
+FieldValidator.isJSON(['{ "bob": "gibson" }', '[]']); // true
 ```
 
 
 ### isEmail
 
-`isEmail(input, context) - Return true if value is a valid email, or a list of valid emails`
+isEmail(input, context?) - Return true if value is a valid email, or a list of valid emails
 
 ```javascript
+FieldValidator.isEmail('ha3ke5@pawnage.com') // true
+FieldValidator.isEmail('user@blah.com/junk.junk?a=<tag value="junk"') // true
 FieldValidator.isEmail('email@example.com'); // true
 FieldValidator.isEmail(12345); // false
+FieldValidator.isEmail(['email@example.com', 'ha3ke5@pawnage.com']); // true
 ```
 
 ### isFQDN
 
-`isFQDN(input, context, args) - Validate that the input is a valid domain name, or a list of domian names`
+isFQDN(input, context?, args) - Validate that the input is a valid domain name, or a list of domian names
 
-` args: { require_tld = true, allow_underscores = false, allow_trailing_dot = false }`
+args: { require_tld = true, allow_underscores = false, allow_trailing_dot = false }
 
 ```javascript
 FieldValidator.isFQDN('example.com.uk'); // true
 FieldValidator.isFQDN('notadomain'); // false
+FieldValidator.isFQDN(['example.com.uk', 'google.com']); // true
 ```
 
 ### isURL
 
-`isURL(input, context) - Validates that the input is a url or a list of urls`
+isURL(input, context?) - Validates that the input is a url or a list of urls
 
 ```javascript
+FieldValidator.isURL('https://someurl.cc.ru.ch'); // true
+FieldValidator.isURL('ftp://someurl.bom:8080?some=bar&hi=bob'); // true
+FieldValidator.isURL('http://xn--fsqu00a.xn--3lr804guic'); // true
 FieldValidator.isURL('http://example.com'); // true
 FieldValidator.isURL('BAD-URL'); // false
+FieldValidator.isURL(['http://example.com', 'http://example.com']); // true
 ```
 
 ### isIP
 
-`isIP(input, context) - Validates that the input is an IP address, or a list of IP addresses`
+isIP(input, context?) - Validates that the input is an IP address, or a list of IP addresses
 
 ```javascript
-FieldValidator.isIP('108.22.31.8'); // true
-FieldValidator.isIP([]); // false
+FieldValidator.isIP('8.8.8.8'); // true
+FieldValidator.isIP('192.172.1.18'); // true
+FieldValidator.isIP('11.0.1.18'); // true
+FieldValidator.isIP('2001:db8:85a3:8d3:1319:8a2e:370:7348'); // true
+FieldValidator.isIP('fe80::1ff:fe23:4567:890a%eth2'); // true
 FieldValidator.isIP('2001:DB8::1'); // true
+FieldValidator.isIP('172.16.0.1'); // true
+FieldValidator.isIP(['172.16.0.1', '11.0.1.18']); // true
 ```
 
 ### isRoutableIP
 
-`isRoutableIP(input, context) - Validate is input is a routable IP, or a list of routable IP's`
+isRoutableIP(input, context?) - Validate is input is a routable IP, or a list of routable IP's
 
-`Works for both IPv4 and IPv6 addresses`
+Works for both IPv4 and IPv6 addresses
 
 ```javascript
 FieldValidator.isRoutableIP('8.8.8.8'); // true
 FieldValidator.isRoutableIP('2001:db8::1'); // true
+FieldValidator.isRoutableIP('172.194.0.1'); // true
 FieldValidator.isRoutableIP('192.168.0.1'); // false
-FieldValidator.isRoutableIP('10.16.32.210'); // false
-FieldValidator.isRoutableIP('fc00:db8::1'); // false
+FieldValidator.isRoutableIP(['172.194.0.1', '8.8.8.8']); // true
 ```
 
 ### isNonRoutableIP
 
-`isNonRoutableIP(input, context) - Validate is input is a non-routable IP, or a list of non-routable IP's`
+isNonRoutableIP(input, context?) - Validate is input is a non-routable IP, or a list of non-routable IP's
 
-`Works for both IPv4 and IPv6 addresses`
+Works for both IPv4 and IPv6 addresses
 
 ```javascript
 FieldValidator.isNonRoutableIP('192.168.0.1'); // true
@@ -509,125 +579,154 @@ FieldValidator.isNonRoutableIP('10.16.32.210'); // true
 FieldValidator.isNonRoutableIP('fc00:db8::1'); // true
 FieldValidator.isNonRoutableIP('8.8.8.8'); // false
 FieldValidator.isNonRoutableIP('2001:db8::1'); // false
+FieldValidator.isNonRoutableIP(['10.16.32.210', '192.168.0.1']); // true
 ```
 
 ### isCIDR
 
-`isCIDR(input, context) - Validates that input is a CIDR or a list of CIDR values`
+isCIDR(input, context?) - Validates that input is a CIDR or a list of CIDR values
 
-`Works for both IPv4 and IPv6 addresses`
+Works for both IPv4 and IPv6 addresses
 
 ```javascript
 FieldValidator.isCIDR('8.8.0.0/12'); // true
 FieldValidator.isCIDR('2001::1234:5678/128'); // true
 FieldValidator.isCIDR('8.8.8.10'); // false
+FieldValidator.isCIDR(['8.8.0.0/12', '2001::1234:5678/128']); // true
 ```
 
 ### inIPRange
 
-`inIPRange(input, context, args) - Validates if the input IP is within a given range of IP's, or that a list of inputs IP are in range`
+inIPRange(input, context, args) - Validates if the input IP is within a given range of IP's, or that a list of inputs IP are in range
 
-`Optional args: { min?: IP_ADDRESS, max?: IP_ADDRESS, cidr?: IP_ADDRESS/CIDR }
+Optional args: { min?: IP_ADDRESS, max?: IP_ADDRESS, cidr?: IP_ADDRESS/CIDR }
  default values:
  -   MIN_IPV4_IP = '0.0.0.0';
  -   MAX_IPV4_IP = '255.255.255.255';
  -   MIN_IPV6_IP = '::';
  -   MAX_IPV6_IP = 'ffff.ffff.ffff.ffff.ffff.ffff.ffff.ffff';
-`
 
-`Works for both IPv4 and IPv6 addresses`
+
+Works for both IPv4 and IPv6 addresses
 
 ```javascript
-FieldValidator.inIPRange('8.8.8.8', { cidr: '8.8.8.0/24' }); // true
-FieldValidator.inIPRange('fd00::b000', { min: 'fd00::123', max: 'fd00::ea00' }); // true;
-FieldValidator.inIPRange('8.8.8.8', { cidr: '8.8.8.10/32' }); // false
+FieldValidator.inIPRange('8.8.8.8', {}, { cidr: '8.8.8.0/24' }); // true
+FieldValidator.inIPRange('fd00::b000', {}, { min: 'fd00::123', max: 'fd00::ea00' }); // true;
+FieldValidator.inIPRange('8.8.8.8', {}, { cidr: '8.8.8.10/32' }); // false
+
+const config = { min: '8.8.8.0', max: '8.8.8.64' };
+FieldValidator.inIPRange(['8.8.8.64', '8.8.8.8'], {}, config); // true
 ```
 
 ### isISDN
 
-`isISDN(input, context) - Validates that the input is a valid phone Number, or a list of phone numbers.  Based on googles libphonenumber library.`
+isISDN(input, context?) - Validates that the input is a valid phone Number, or a list of phone numbers.  Based on googles libphonenumber library.
 
 ```javascript
 FieldValidator.isISDN('46707123456'); // true
 FieldValidator.isISDN('1-808-915-6800'); // true
 FieldValidator.isISDN('NOT A PHONE Number'); // false
+FieldValidator.isISDN(79525554602); // true
+FieldValidator.isISDN(['46707123456', '1-808-915-6800']); // true
 ```
 
 ### isMACAddress
 
-`isMACAddress(input, context, args) - Validates that the input is a MACAddress, or a list of MACAddressess`
+isMACAddress(input, context?, args?) - Validates that the input is a MACAddress, or a list of MACAddressess
 
-`Optional args { delimiter: ['colon', 'dash', 'space', 'dot', 'none', 'any']`
+Optional args { delimiter: ['colon', 'dash', 'space', 'dot', 'none', 'any']
 
-`delimiter can be a string of one delimiter or an array of multiple delimiters`
+delimiter can be a string of one delimiter or an array of multiple delimiters
 
-`'none' means no delimiter in the mac address and 'any' checks all delimiters for a valid mac address`
+'none' means no delimiter in the mac address and 'any' checks all delimiters for a valid mac address
 
-`Default is 'any'`
+Default is 'any'
 
 ```javascript
 FieldValidator.isMACAddress('00:1f:f3:5b:2b:1f'); // true
 FieldValidator.isMACAddress('001ff35b2b1f'); // true
-FieldValidator.isMACAddress('001f.f35b.2b1f', { delimiter: 'dot' }); // true
-FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', { delimiter: ['dash', 'colon', 'space'] }); // true
+FieldValidator.isMACAddress('001f.f35b.2b1f',{}, { delimiter: 'dot' }); // true
+
+const manyDelimiters = { delimiter: ['dash', 'colon', 'space'] }
+FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', {}, manyDelimiters); // true
 FieldValidator.isMACAddress(12345); // false
-FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', { delimiter: ['colon', 'space'] }); // false, specified colon and space delimiter only
+
+// specified colon and space delimiter only
+const twoDelimeters = { delimiter: ['colon', 'space'] };
+FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', {}, twoDelimeters ); // false,
+FieldValidator.isMACAddress(['001ff35b2b1f', '00:1f:f3:5b:2b:1f']); // true
 ```
 
 ### isUUID
-`isUUID(input, context) - Validates that input is a UUID or a list of UUID's`
+isUUID(input, context?) - Validates that input is a UUID or a list of UUID's
 
 ```javascript
 FieldValidator.isUUID('0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B'); // true
 FieldValidator.isUUID('BAD-UUID'); // false
+FieldValidator.isUUID([
+    '0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B',
+    '123e4567-e89b-82d3-f456-426655440000'
+]); // true
+
 ```
 
 ### isHash
 
-`isHash(input, context, args) - Validates that the input is a hash, or a list of hashes`
+isHash(input, context, args) - Validates that the input is a hash, or a list of hashes
 
-` arg: { algo: 'ANY HASH OPTION DEFINED BELOW'}`
+arg: { algo: 'ANY HASH OPTION DEFINED BELOW'}
 
-`Hash options: md4, md5, sha1, sha256, sha384, sha512, ripemd128, ripemd160, tiger128, tiger160, tiger192, crc32, crc32b`
+Hash options: md4, md5, sha1, sha256, sha384, sha512, ripemd128, ripemd160, tiger128, tiger160, tiger192, crc32, crc32b
 
 ```javascript
-FieldValidator.isHash('6201b3d1815444c87e00963fcf008c1e', { algo: 'md5' }); // true
-FieldValidator.isHas('12345', { algo: 'sha1' }); // false
+FieldValidator.isHash('6201b3d1815444c87e00963fcf008c1e', {}, { algo: 'md5' }); // true
+FieldValidator.isHash('85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33', {}, { algo: 'sha256' }); // true
+FieldValidator.isHash('98fc121ea4c749f2b06e4a768b92ef1c740625a0', {}, { algo: 'sha1' }); // true
+FieldValidator.isHash(['6201b3d1815444c87e00963fcf008c1e', undefined],
+    {},
+    { algo: 'md5' }
+); // true
 ```
 
 ### isCountryCode
 
-`isCountryCode(input, context) - Validates that input is a valid country code or a list of country codes`
+isCountryCode(input, context?) - Validates that input is a valid country code or a list of country codes
 
 ```javascript
 FieldValidator.isCountryCode('IS'); // true
 FieldValidator.isCountryCode('ru'); // true
 FieldValidator.isCountryCode('USA'); // false
+FieldValidator.isCountryCode(['IS', 'ru']); // true
 ```
 
 ### isMIMEType
 
-`isMIMEType(input, context) - Validates that input is a valid mimeType or a list of mimeTypes`
+isMIMEType(input, context?) - Validates that input is a valid mimeType or a list of mimeTypes
 
 ```javascript
 FieldValidator.isMIMEType('application/javascript'); // true
+FieldValidator.isMIMEType('application/graphql'); // true
 FieldValidator.isMIMEType(12345); // false
+FieldValidator.isMIMEType(['application/graphql', 'application/javascript']); // true
+
 ```
 
 ### isISSN
 
-`isISSN(input, context, args) - returns true if input is a valid international standard serial Number or a list of valid ISSN's`
+isISSN(input, context?, args?) - returns true if input is a valid international standard serial Number or a list of valid ISSN's
 
-`args: { require_hyphen = false, case_sensitive = false }`
+args: { require_hyphen = false, case_sensitive = false }
 
 ```javascript
+FieldValidator.isISSN('0378-5955'); // true
 FieldValidator.isISSN('03785955'); // true
-FieldValidator.isISSN('0378-5955', { requireHyphen: true }); // true
+FieldValidator.isISSN('0378-5955', {}, { requireHyphen: true }); // true
+FieldValidator.isISSN(['0378-5955', '0000-006x']); // true
 ```
 
 ### guard
 
-`guard(input, context) - Will throw if input is null or undefined`
+guard(input, context?) - Will throw if input is null or undefined
 
 
 ```javascript
@@ -637,7 +736,7 @@ FieldValidator.guard(); // WILL THROW
 
 ### exists
 
-`exists(input, context) - Will return false if input is null or undefined`
+exists(input, context?) - Will return false if input is null or undefined
 
 ```javascript
 FieldValidator.exists('03785955'); // true
@@ -646,66 +745,73 @@ FieldValidator.exists(null); // false
 
 ### isArray
 
-`isArray(input, context) - Validates that the input is an array`
+isArray(input, context?) - Validates that the input is an array
 
 ```javascript
-FieldValidator.isArray('03785955'); // false
+FieldValidator.isArray(undefined); // false
+FieldValidator.isArray([1, 2, 3]); // true
 FieldValidator.isArray([]); // true
-FieldValidator.isArray(['some', 'stuff']); // true
 ```
 
 ### some
 
-`some(input, context, args) - Validates that the function specified returns true at least once on the list of values`
+some(input, context, args) - Validates that the function specified returns true at least once on the list of values
 
-`args: { fn: String, options: Any }`
+args: { fn: String, options: Any }
 
-`fn - must be a function name from FieldValidator`
-`options - any additional parameters neccesary for the fn being envoked`
+fn - must be a function name from FieldValidator
+options - any additional parameters neccesary for the fn being envoked
 
 ```javascript
-FieldValidator.some(['hello', 3, { some: 'obj' }], { fn: 'isString' }); // true
-FieldValidator.some(['hello', 3, { some: 'obj' }], { fn: 'isBoolean' }); // false
+const mixedArray = ['hello', 3, { some: 'obj' }];
+FieldValidator.some(mixedArray, mixedArray, fn: 'isString' }); // true
+FieldValidator.some(mixedArray, mixedArray, { fn: 'isBoolean' }); // false
 ```
 
 ### every
 
-`every(input, context, args) - Validates that the function specified returns true for every single value in the list`
+every(input, context?, args) - Validates that the function specified returns true for every single value in the list
 
-`args: { fn: String, options: Any }`
+args: { fn: String, options: Any }
 
-`fn must be a function name from FieldValidator`
+fn must be a function name from FieldValidator
 
 ```javascript
-FieldValidator.every(['hello', 3, { some: 'obj' }], { fn: 'isString' }); // false
-FieldValidator.every(['hello', 'world'], { fn: 'isString' }); // true
+const strArray = ['hello', 'world'];
+
+FieldValidator.every([mixedArray, mixedArray { fn: 'isString' }); // false
+FieldValidator.every(strArray, strArray, { fn: 'isString' }); // true
 ```
 
 
 ### isPostalCode
 
-`isPostalCode(input, context, args) - Validates that input is a valid postal code or a list of postal codes`
+isPostalCode(input, context?, args?) - Validates that input is a valid postal code or a list of postal codes
 
-`Optional arg: { locale?: 'ANY OF THE DEFINED LOCATIONS BELOW' }`
+Optional arg: { locale?: 'ANY OF THE DEFINED LOCATIONS BELOW' }
 
-`locations: AD, AT, AU, BE, BG, BR, CA, CH, CZ, DE, DK, DZ, EE, ES, FI, FR, GB, GR, HR, HU, ID, IE, IL, IN, IS, IT, JP, KE, LI, LT, LU, LV, MX, MT, NL, NO, NZ, PL, PR, PT, RO, RU, SA, SE, SI, SK, TN, TW, UA, US, ZA, ZM`
+locations: AD, AT, AU, BE, BG, BR, CA, CH, CZ, DE, DK, DZ, EE, ES, FI, FR, GB, GR, HR, HU, ID, IE, IL, IN, IS, IT, JP, KE, LI, LT, LU, LV, MX, MT, NL, NO, NZ, PL, PR, PT, RO, RU, SA, SE, SI, SK, TN, TW, UA, US, ZA, ZM
 
-`default locale is any`
+default locale is any
 
 ```javascript
 FieldValidator.isPostalCode('85249'); // true
-FieldValidator.isPostalCode('885 49', { locale: 'SE' });# true
+FieldValidator.isPostalCode('85249', {}, { locale: 'any' }); // true
+FieldValidator.isPostalCode('85249', {}, { locale: 'ES' }); // true
+FieldValidator.isPostalCode('85249', {}, { locale: 'ES' }); // true
+FieldValidator.isPostalCode('852', {}, { locale: 'IS' }); // true
+FieldValidator.isPostalCode('885 49', {}, { locale: 'SE' }); // true
 FieldValidator.isPostalCode(1234567890); // false
+FieldValidator.isPostalCode(['85249']); // true
 ```
 
 ## Field Transforms
 
-
 ### toBoolean
 
-`toBoolean(input, context) - Converts values to booleans, if given an array it will convert everything in the array excluding null/undefined values`
+toBoolean(input, context?) - Converts values to booleans, if given an array it will convert everything in the array excluding null/undefined values
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
 FieldTransform.toBoolean('0'); // false
@@ -714,35 +820,39 @@ FieldTransform.toBoolean(['foo', 'false', null]); // [true, false];
 
 ### toString
 
-`toString(input, context) - Converts values to strings, if given an array it will convert everything in the array excluding null/undefined values`
+toString(input, context?) - Converts values to strings, if given an array it will convert everything in the array excluding null/undefined values
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
- transform.toString(true); // 'true';
- FieldTransform.toString([true, undefined, false]); // ['true', 'false'];
+FieldTransform.toString(true); // 'true';
+FieldTransform.toString([true, undefined, false]); // ['true', 'false'];
 ```
 
 ### toNumber
 
-`toNumber(input, context) - Converts a value to a number if possible
-if given an array it will convert everything in the array excluding null/undefined values`
+toNumber(input, context?, args?) - Converts a value to a number if possible
 
-`returns null if input is null/undefined`
+args: { booleanLike: Boolean }
+
+if given an array it will convert everything in the array excluding null/undefined values
+
+returns null if input is null/undefined
 
 ```javascript
 FieldTransform.toNumber('12321'); // 12321;
 FieldTransform.toNumber('000011'); // 11;
-FieldTransform.toNumber('true', { booleanLike: true }); // 1;
-FieldTransform.toNumber(null, { booleanLike: true }); // 0;
+FieldTransform.toNumber('true', {}, { booleanLike: true }); // 1;
+FieldTransform.toNumber(null, {}, { booleanLike: true }); // 0;
 FieldTransform.toNumber(null); // null;
+FieldTransform.toNumber(['000011', '12321']); // [11, 12321];
 ```
 
 ### toUpperCase
 
-`toUpperCase(input, context) - Converts strings to UpperCase, if given an array it will convert everything in the array excluding null/undefined values`
+toUpperCase(input, context?) - Converts strings to UpperCase, if given an array it will convert everything in the array excluding null/undefined values
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
  FieldTransform.toUpperCase('lowercase'); // 'LOWERCASE';
@@ -751,9 +861,9 @@ FieldTransform.toNumber(null); // null;
 
 ### toLowerCase
 
-`toLowerCase(input, context) - Converts strings to lowercase, if given an array it will convert everything in the array excluding null/undefined values`
+toLowerCase(input, context?) - Converts strings to lowercase, if given an array it will convert everything in the array excluding null/undefined values
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
  FieldTransform.toLowerCase('UPPERCASE'); // 'uppercase';
@@ -762,227 +872,259 @@ FieldTransform.toNumber(null); // null;
 
 ### toCamelCase
 
-`toCamelCase(input, context) - Will convert a string, or an array of strings to camel case`
+toCamelCase(input, context?) - Will convert a string, or an array of strings to camel case
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
 FieldTransform.toCamelCase('I need camel case'); // 'iNeedCamelCase';
 FieldTransform.toCamelCase('happyBirthday'); // 'happyBirthday';
 FieldTransform.toCamelCase('what_is_this'); // 'whatIsThis';
+
+const array = ['what_is_this', 'I need camel case'];
+FieldTransform.toCamelCase(array); // ['whatIsThis', 'iNeedCamelCase'];
+
 ```
 
 ### toKebabCase
 
-`toKebabCase(input, context) - Will convert a string, or an array of strings to kebab case`
+toKebabCase(input, context?) - Will convert a string, or an array of strings to kebab case
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
 FieldTransform.toKebabCase('I need kebab case'); // 'i-need-kebab-case';
 FieldTransform.toKebabCase('happyBirthday'); // 'happy-birthday';
 FieldTransform.toKebabCase('what_is_this'); // 'what-is-this';
 FieldTransform.toKebabCase('this-should-be-kebab'); // 'this-should-be-kebab';
+
+const array = ['happyBirthday', 'what_is_this']
+FieldTransform.toKebabCase(array); // ['happy-birthday', 'what-is-this'];
 ```
 
 ### toPascalCase
 
-`toPascalCase(input, context) - Converts a string to pascal case, or an array of strings`
+toPascalCase(input, context?) - Converts a string to pascal case, or an array of strings
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
 FieldTransform.toPascalCase('I need pascal case'); // 'INeedPascalCase';
 FieldTransform.toPascalCase('happyBirthday'); // 'HappyBirthday';
 FieldTransform.toPascalCase('what_is_this'); // 'WhatIsThis';
+
+const array = ['happyBirthday', 'what_is_this']
+FieldTransform.toKebabCase(array); // ['HappyBirthday', 'WhatIsThis'];
 ```
 
 ### toSnakeCase
 
-`toSnakeCase(input, context) - Converts a string, or an array of strings to snake case`
+toSnakeCase(input, context?) - Converts a string, or an array of strings to snake case
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
 FieldTransform.toSnakeCase('I need snake case'); // 'i_need_snake_case';
 FieldTransform.toSnakeCase('happyBirthday'); // 'happy_birthday';
 FieldTransform.toSnakeCase('what_is_this'); // 'what_is_this';
+
+const array = ['happyBirthday', 'what_is_this']
+FieldTransform.toKebabCase(array); // ['happy_birthday', 'what_is_this'];
 ```
 
 ### toTitleCase
 
-`toTitleCase(input, context) - Converts a string, or an array of strings to title case`
+toTitleCase(input, context?) - Converts a string, or an array of strings to title case
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
 FieldTransform.toTitleCase('I need some capitols'); // 'I Need Some Capitols';
 FieldTransform.toTitleCase('happyBirthday'); // 'Happy Birthday';
 FieldTransform.toTitleCase('what_is_this'); // 'What Is This';
+
+const array = ['happyBirthday', 'what_is_this']
+FieldTransform.toKebabCase(array); // ['Happy Birthday', 'What Is This'];
 ```
 
 ### trim
 
-`trim(input, context, args) - Will trim the input, if given an array it will convert everything in the array excluding null/undefined values`
+trim(input, context?, args?) - Will trim the input, if given an array it will convert everything in the array excluding null/undefined values
 
-`args: { char?: String }`
+args: { char?: String }
 
-`char - if provided, are the chars/words to be cut out`
+char - if provided, are the chars/words to be cut out
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
 FieldTransform.trim('right    '); // 'right';
-FieldTransform.trim('fast cars race fast', { char: 'fast' }); // ' cars race ';
+FieldTransform.trim('fast cars race fast', {}, { char: 'fast' }); // ' cars race ';
+FieldTransform.trim('   string    ')).toBe('string');
+FieldTransform.trim('   left')).toBe('left');
+FieldTransform.trim('.*.*a regex test.*.*.*.* stuff', {}, { char: '.*' }); // 'a regex test'
+FieldTransform.trim('\t\r\rtrim this\r\r', {}, { char: '\r' }); // 'trim this'
+FieldTransform.trim('        '); // ''
+FieldTransform.trim(['right    ', '   left']); // ['right', 'left'];
 ```
 
 ### trimStart
 
-`trimStart(input, context, args) - Will trim the beginning of the input
-if given an array it will convert everything in the array excluding null/undefined values`
+trimStart(input, context?, args) - Will trim the beginning of the input
+if given an array it will convert everything in the array excluding null/undefined values
 
-`args: { char?: String }`
+args: { char?: String }
 
-`char - if provided, are the chars/words to be cut out`
+char - if provided, are the chars/words to be cut out
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
 FieldTransform.trimStart('    Hello Bob    '); // 'Hello Bob    ';
-FieldTransform.trimStart('iiii-wordiwords-iii', { char: 'i' }); // '-wordiwords-iii';
+FieldTransform.trimStart('iiii-wordiwords-iii', {},  { char: 'i' }); // '-wordiwords-iii';
+FieldTransform.trimStart(['    Hello Bob    ', 'right    ']); // ['Hello Bob    ', 'right    '];
 ```
 
 ### trimEnd
 
-`trimEnd(input, context, args) - Will trim the end of the input
-if given an array it will convert everything in the array excluding null/undefined values`
+trimEnd(input, context?, args) - Will trim the end of the input
+if given an array it will convert everything in the array excluding null/undefined values
 
-`args: { char?: String }`
+args: { char?: String }
 
-`char - if provided, are the chars/words to be cut out`
+char - if provided, are the chars/words to be cut out
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
 FieldTransform.trimEnd('    Hello Bob    '); // '    Hello Bob';
-FieldTransform.trimEnd('iiii-wordiwords-iii', { char: 'i' }); // 'iiii-wordiwords';
+FieldTransform.trimEnd('iiii-wordiwords-iii', {}, { char: 'i' }); // 'iiii-wordiwords';
+FieldTransform.trimEnd(['    Hello Bob    ', 'right    ']); // ['    Hello Bob', 'right'];
 ```
 
 ### truncate
 
-`truncate(input, context, args) - Will truncate the input to the length of the size given. If given an array it will convert everything in the array excluding null/undefined values`
+truncate(input, context?, args) - Will truncate the input to the length of the size given. If given an array it will convert everything in the array excluding null/undefined values
 
-`args: { size: Number }`
+args: { size: Number }
 
-`size - the size that values should be truncated`
+size - the size that values should be truncated
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
-FieldTransform.truncate('thisisalongstring', { size: 4 }); // 'this';
-FieldTransform.truncate(['hello', null, 'world'], { size: 2 }); // ['he', 'wo'];
+FieldTransform.truncate('thisisalongstring', {}, { size: 4 }); // 'this';
+FieldTransform.truncate(['hello', null, 'world'], {}, { size: 2 }); // ['he', 'wo'];
 ```
 
 ### toISDN
 
-`toISDN(input, context) - Parses a string or number to a fully validated phone number. If given an array it will convert everything in the array excluding null/undefined values`
+toISDN(input, context?) - Parses a string or number to a fully validated phone number. If given an array it will convert everything in the array excluding null/undefined values
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
 FieldTransform.toISDN('+33-1-22-33-44-55'); // '33122334455';
 FieldTransform.toISDN('1(800)FloWErs'); // '18003569377';
+FieldTransform.toISDN(['1(800)FloWErs','+33-1-22-33-44-55' ]); // ['18003569377', '33122334455'];
 ```
 
 
 ### encodeBase64
 
-`encodeBase64(input, context) - converts a value into a base64 encoded value
-if given an array it will convert everything in the array excluding null/undefined values`
+encodeBase64(input, context?) - converts a value into a base64 encoded value
+if given an array it will convert everything in the array excluding null/undefined values
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
 const str = 'hello world';
 
 const encodedValue = FieldTransform.encodeBase64(str);
+const arrayOfEncodedValues = FieldTransform.encodeBase64([str]);
 ```
 
 ### encodeURL
 
-`encodeURL(input, context) - URL encodes a value
-if given an array it will convert everything in the array excluding null/undefined values`
+encodeURL(input, context?) - URL encodes a value
+if given an array it will convert everything in the array excluding null/undefined values
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
 const source = 'HELLO AND GOODBYE';
 const encoded = 'HELLO%20AND%20GOODBYE';
 
 FieldTransform.encodeURL(source); // encoded;
+const arrayOfEncodedValues = FieldTransform.encodeURL([source]);
 ```
 
 ### encodeHex
 
-`encodeHex(input, context) - hex encodes the input
-if given an array it will convert everything in the array excluding null/undefined values`
+encodeHex(input, context?) - hex encodes the input
+if given an array it will convert everything in the array excluding null/undefined values
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
 const source = 'hello world';
 
 FieldTransform.encodeHex(source);
+const arrayOfEncodedValues = FieldTransform.encodeHex([source]);
 ```
 
 ### encodeMD5
 
-`encodeMD5(input, context) - MD5 encodes the input, if given an array it will convert everything in the array excluding null/undefined values`
+encodeMD5(input, context?) - MD5 encodes the input, if given an array it will convert everything in the array excluding null/undefined values
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
 const source = 'hello world';
 
 FieldTransform.encodeMD5(source);
+const arrayOfEncodedValues = FieldTransform.encodeMD5([source]);
 ```
 
 ### encodeSHA
 
-`encodeSHA(input, context, args) - SHA encodes the input to the hash specified
-if given an array it will convert everything in the array excluding null/undefined values`
+encodeSHA(input, context?, args) - SHA encodes the input to the hash specified
+if given an array it will convert everything in the array excluding null/undefined values
 
-`args { hash = 'sha256', digest = 'hex' }`
+args { hash = 'sha256', digest = 'hex' }
 
- `hash - what ever is available on your node server, defaults to sha256`
-`possible digest values (defaults to hex):
+ hash - what ever is available on your node server, defaults to sha256
+possible digest values (defaults to hex):
  - ['ascii', 'utf8', 'utf16le', 'ucs2', 'base64', 'latin1', 'hex', 'binary']
-`
 
-`returns null if input is null/undefined`
+
+returns null if input is null/undefined
 
 ```javascript
 const data = 'some string';
-fieldTransform.encodeSHA(data { hash: 'sha256', digest: 'hex'})
+const config = { hash: 'sha256', digest: 'hex'};
+fieldTransform.encodeSHA(data , {}, config)
+const arrayOfEncodedValues = FieldTransform.encodeSHA([source], {}, config);
 ```
 
 ### encodeSHA1
 
-`encodeSHA1(input, context) - converts the value to a SHA1 encoded value, if given an array it will convert everything in the array excluding null/undefined values`
+encodeSHA1(input, context?) - converts the value to a SHA1 encoded value, if given an array it will convert everything in the array excluding null/undefined values
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
 const source = 'hello world';
 
 FieldTransform.encodeSHA1(source);
+const arrayOfEncodedValues = FieldTransform.encodeSHA([source]);
 ```
 
 ### decodeBase64
 
-`decodeBase64(input, context) - decodes a base64 encoded value, if given an array it will convert everything in the array excluding null/undefined values`
+decodeBase64(input, context?) - decodes a base64 encoded value, if given an array it will convert everything in the array excluding null/undefined values
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
 const str = 'hello world';
@@ -990,67 +1132,75 @@ const encoded = encodeBase64(str);
 
 const results = FieldTransform.decodeBase64(encoded)
 results === str
+
+ FieldTransform.decodeBase64([encoded]) === [str]
 ```
 
 ### decodeHex
 
-`decodeHex(input, context) - decodes the hex encoded input
-if given an array it will convert everything in the array excluding null/undefined values`
+decodeHex(input, context?) - decodes the hex encoded input
+if given an array it will convert everything in the array excluding null/undefined values
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
 const source = 'hello world';
 const encoded = encodeHex(source);
 
 FieldTransform.decodeHex(encoded); // source;
+FieldTransform.decodeHex([encoded]); // [source];
 ```
 
 ### decodeURL
 
-`decodeURL(input, context) - decodes a URL encoded value
-if given an array it will convert everything in the array excluding null/undefined values`
+decodeURL(input, context?) - decodes a URL encoded value
+if given an array it will convert everything in the array excluding null/undefined values
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
 const source = 'HELLO AND GOODBYE';
 const encoded = 'HELLO%20AND%20GOODBYE';
 
 FieldTransform.decodeURL(encoded); // source;
+FieldTransform.decodeURL([encoded]); //[source];
+
 ```
 
 ### parseJSON
 
-`parseJSON(input, context) - Parses the json input, if given an array it will convert everything in the array excluding null/undefined values`
+parseJSON(input, context?) - Parses the json input, if given an array it will convert everything in the array excluding null/undefined values
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
  const obj = { hello: 'world' };
  const json = JSON.stringify(obj);
  const results = FieldTransform.parseJSON(json);
  results === obj
+
+FieldTransform.parseJSON([json]); // [obj]
 ```
 
 ### toJSON
 
-`toJSON(input, context) - Converts input to JSON
-if given an array it will convert everything in the array excluding null/undefined values`
+toJSON(input, context?) - Converts input to JSON
+if given an array it will convert everything in the array excluding null/undefined values
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
- const obj = { hello: 'world' };
- const results = FieldTransform.toJSON(json);
- results === '{"hello": "world"}'
+const obj = { hello: 'world' };
+
+FieldTransform.toJSON(obj); // '{"hello": "world"}'
+FieldTransform.toJSON([obj]); // ['{"hello": "world"}']
 ```
 
 ### dedupe
 
-`dedupe(input, context) - returns an array with only unique values`
+dedupe(input, context?) - returns an array with only unique values
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
 const results = FieldTransform.dedupe([1, 2, 2, 3, 3, 3, undefined, 4])
@@ -1059,123 +1209,145 @@ results === [1, 2, 3, undefined, 4]
 
 ### toGeoPoint
 
-`toGeoPoint(input, context) - Converts the value into a geo-point, if given an array it will convert everything in the array excluding null/undefined values`
+toGeoPoint(input, context?) - Converts the value into a geo-point, if given an array it will convert everything in the array excluding null/undefined values
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
-fieldTransform.toGeoPoint('60, 40') === { lon: 40, lat: 60 };
-fieldTransform.toGeoPoint([40, 60]) === { lon: 40, lat: 60 };
-fieldTransform.toGeoPoint({ lat: 40, lon: 60 }) === { lon: 60, lat: 40 };
-fieldTransform.toGeoPoint({ latitude: 40, longitude: 60 }) === { lon: 60, lat: 40 };
+fieldTransform.toGeoPoint('60, 40') // { lon: 40, lat: 60 };
+fieldTransform.toGeoPoint([40, 60]) // { lon: 40, lat: 60 };
+fieldTransform.toGeoPoint({ lat: 40, lon: 60 }) // { lon: 60, lat: 40 };
+fieldTransform.toGeoPoint({ latitude: 40, longitude: 60 }) // { lon: 60, lat: 40 };
+
+const results = FieldTransform.toGeoPoint(['60, 40', null, [50, 60]]);
+results === [{ lon: 40, lat: 60 },{ lon: 50, lat: 60 }];
 ```
 
 ### extract
 
-`extract(input, context, args) - Can extract values from a string input. You may either specify a regex, a jexl expression, or specify the start and end from which the extraction will take all values inbetween, if given an array it will convert everything in the array excluding null/undefined values`
+extract(input, context, args) - Can extract values from a string input. You may either specify a regex, a jexl expression, or specify the start and end from which the extraction will take all values inbetween, if given an array it will convert everything in the array excluding null/undefined values
 
-`args - {
+args - {
     regex?: String,
     isMultiValue = true,
     jexlExp?: String,
     start?: String,
     end?: String
   }
-`
-
-`If regex is specified, it will run the regex against the value.`
-
-`If isMultiValue is true, then an array containing the return results will be returned.  If it is set to false, then only the first possible extraction will be returned.`
-
-`start/end are used as boundaries for extraction, should not be used with jexlExp or regex`
-
-`jexlExp is a jexl expression  => https://github.com/TomFrost/Jexl`
 
 
-`returns null if input is null/undefined`
+If regex is specified, it will run the regex against the value.
+
+If isMultiValue is true, then an array containing the return results will be returned.  If it is set to false, then only the first possible extraction will be returned.
+
+start/end are used as boundaries for extraction, should not be used with jexlExp or regex
+
+jexlExp is a jexl expression  => https://github.com/TomFrost/Jexl
+
+
+returns null if input is null/undefined
 
 ```javascript
- const results1 = FieldTransform.extract('<hello>', { start: '<', end: '>' });
- results1; // 'hello';
+ const results = FieldTransform.extract('<hello>', { field: '<hello>' }, { start: '<', end: '>' ;
+ results; // 'hello';
 
-const results2 = FieldTransform.extract({ foo: 'bar' }, { jexlExp: '[foo]' });
-results2; // ['bar'];
+const results = FieldTransform.extract({ foo: 'bar' }, { foo: 'bar' } { jexlExp: '[foo]' });
+results; // ['bar'];
 
-const results3 = FieldTransform.extract('hello', { regex: 'he.*' });
-results3; // ['hello'];
+const results = FieldTransform.extract('hello', { field: 'hello'} { regex: 'he.*' });
+results; // ['hello'];
 
-const results = FieldTransform.extract('hello', { regex: 'he.*', isMultiValue: false });
+const results = FieldTransform.extract('hello', { field: 'hello'} { regex: 'he.*', isMultiValue: false });
 results; // 'hello';
+
+const context =  { field: ['<hello>', '<world>'] };
+const results = FieldTransform.extract(['<hello>', '<world>'], context, config);
+results; // ['hello', 'world'];
 ```
 
 ### replaceRegex
 
-`replaceRegex(input, context, args) - This function replaces chars in a string based off the regex value provided`
+replaceRegex(input, context, args) - This function replaces chars in a string based off the regex value provided
 
-
-`args - {
+args - {
     regex: String,
     replace: String,
     ignoreCase = false,
     global = false
   }
-`
-`returns null if input is null/undefined`
+
+returns null if input is null/undefined
 
 ```javascript
-const config1 =  { regex: 's|e', replace: 'd' };
-const results1 = FieldTransform.replaceRegex('somestring', config1)
+const config =  { regex: 's|e', replace: 'd' };
+const results = FieldTransform.replaceRegex('somestring', {}, config)
 results1 === 'domestring'
 
-const config2 = { regex: 's|e', replace: 'd', global: true };
-const results2 = FieldTransform.replaceRegex('somestring', config)
-results2 === 'domddtring'
+const config = { regex: 's|e', replace: 'd', global: true };
+const results = FieldTransform.replaceRegex('somestring', {}, config)
+results === 'domddtring'
 
-const config3 = {
+const results = FieldTransform.replaceRegex(['somestring', 'hello'], {}, config)
+results === ['domddtring', 'hdllo']
+
+const results = FieldTransform.replaceRegex('somestring', {}, config)
+results === 'domddtring'
+
+const config = {
   regex: 'm|t', replace: 'W', global: true, ignoreCase: true
 };
-const results3 = FieldTransform.replaceRegex('soMesTring', config3))
-results3 === 'soWesWring'
+const results = FieldTransform.replaceRegex('soMesTring', {}, config))
+results === 'soWesWring'
 ```
 
 ### replaceLiteral
 
-`replaceLiteral(input, context, args) - This function replaces the searched value with the replace value`
+replaceLiteral(input, context, args) - This function replaces the searched value with the replace value
 
-`args - { search: String, replace: String }
+args - { search: String, replace: String }
 
-`search is the word that is to be changed to the value specified with the paramter replace`
+search is the word that is to be changed to the value specified with the paramter replace
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
-FieldTransform.replaceLiteral('Hi bob', { search: 'bob', replace: 'mel' }) === 'Hi mel';
-FieldTransform.replaceLiteral('Hi Bob', { search: 'bob', replace: 'Mel ' }) ===  'Hi Bob';
+FieldTransform.replaceLiteral('Hi bob', {}, { search: 'bob', replace: 'mel' }) // 'Hi mel';
+FieldTransform.replaceLiteral('Hi Bob', {}, { search: 'bob', replace: 'Mel ' }) //  'Hi Bob';
+
+const data = ['Hi bob', 'hello bob'];
+const config = { search: 'bob', replace: 'mel' };
+FieldTransform.replaceLiteral(data, {}, config) // ['Hi mel', 'hello mel'];
 ```
 
 ### splitString
 
-`splitString(input, context, args) - Converts a string to an array of characters split by the delimiter provided`
+splitString(input, context?, args?) - Converts a string to an array of characters split by the delimiter provided
 
-`args - { delimiter?: String }
+args - { delimiter?: String }
 
-`delimter defaults to an empty string`
+delimter defaults to an empty string
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
 FieldTransform.splitString('astring'); // ['a', 's', 't', 'r', 'i', 'n', 'g'];
-FieldTransform.splitString('astring', { delimiter: ',' }); // ['astring'];
-FieldTransform.splitString('a-stri-ng', { delimiter: '-' }); // ['a', 'stri', 'ng'];
+FieldTransform.splitString('astring', {}, { delimiter: ',' }); // ['astring'];
+
+const config = { delimiter: '-' };
+FieldTransform.splitString('a-stri-ng', {}, config); // ['a', 'stri', 'ng'];
+
+const results = FieldTransform.splitString(['a-stri-ng', 'hello-world'], {}, config);
+results // [['a', 'stri', 'ng'], ['hello', 'world']];
+
 ```
 
 ### toUnixTime
 
-`toUnixTime(input, context, args) - Converts a given date to its time in milliseconds or seconds`
-
-`args - { ms = false }`
-`set ms to true if you want time in milliseconds`
-`returns null if input is null/undefined`
+toUnixTime(input, context?, args) - Converts a given date to its time in milliseconds or seconds
+?
+args - { ms = false }
+set ms to true if you want time in milliseconds
+returns null if input is null/undefined
 
 ```javascript
 
@@ -1184,81 +1356,94 @@ FieldTransform.toUnixTime('Jan 1, 2020 UTC'); // 1577836800;
 FieldTransform.toUnixTime('2020 Jan, 1 UTC'); // 1577836800;
 
 FieldTransform.toUnixTime(1580418907000); // 1580418907;
-FieldTransform.toUnixTime(1580418907000, { ms: true }); // 1580418907000;
+FieldTransform.toUnixTime(1580418907000, {}, { ms: true }); // 1580418907000;
+
+FieldTransform.toUnixTime(['Jan 1, 2020 UTC', '2020 Jan, 1 UTC']); // [1577836800, 1577836800];
 ```
 
 ### toISO8601
 
-`toISO8601(input, context, args) - Converts a date string or number to an ISO date`
+toISO8601(input, context?, args) - Converts a date string or number to an ISO date
 
-`args - { resolution?: String }`
-`resolution value: ['seconds', 'milliseconds'], defaults to seconds`
+args - { resolution?: String }
+resolution value: ['seconds', 'milliseconds'], defaults to seconds
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
 FieldTransform.toISO8601('2020-01-01'); // '2020-01-01T00:00:00.000Z';
 
 const config = { resolution: 'seconds' };
-FieldTransform.toISO8601(1580418907, config); // '2020-01-30T21:15:07.000Z';
+FieldTransform.toISO8601(1580418907, {}, config); // '2020-01-30T21:15:07.000Z';
+
+const data = ['2020-01-01', '2020-01-02'];
+FieldTransform.toISO8601(data); // ['2020-01-01T00:00:00.000Z', '2020-01-02T00:00:00.000Z'];
 ```
 
 ### formatDate
 
-`formatDate(input, context, args) - Function that will format a number or date string to a given date format provided`
+formatDate(input, context, args) - Function that will format a number or date string to a given date format provided
 
-`args - { format: String, resolution?: String }`
-`format is the shape that the date will be ie(M/d/yyyy)`
-`resolution value: ['seconds', 'milliseconds'], defaults to seconds, is only needed when input is a number`
+args - { format: String, resolution?: String }
+format is the shape that the date will be ie(M/d/yyyy)
+resolution value: ['seconds', 'milliseconds'], defaults to seconds, is only needed when input is a number
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
-const results1 = FieldTransform.formatDate('2020-01-14T20:34:01.034Z', { format: 'MMM do yy' })
+const results1 = FieldTransform.formatDate('2020-01-14T20:34:01.034Z', {}, { format: 'MMM do yy' })
 results1 === 'Jan 14th 20';
 
-const results2 = FieldTransform.formatDate('March 3, 2019', { format: 'M/d/yyyy' })
+const results2 = FieldTransform.formatDate('March 3, 2019', {}, { format: 'M/d/yyyy' })
 results2 === '3/3/2019';
 
 const config =  { format: 'yyyy-MM-dd', resolution: 'seconds' };
-const results3 = FieldTransform.formatDate(1581013130, config)
+const results3 = FieldTransform.formatDate(1581013130, {}, config)
 results3 === '2020-02-06';
+
+const results = FieldTransform.formatDate([1581013130856, undefined], {}, { format: 'yyyy-MM-dd' })
+results // ['2020-02-06']);
+
 ```
 
 ### parseDate
 
-`parseDate(input, context, args) - Will use date-fns parse against the input and return a date object`
+parseDate(input, context?, args) - Will use date-fns parse against the input and return a date object
 
-`args - { format: String }`
+args - { format: String }
 
-`format is the shape that the date will be ie(M/d/yyyy)`
+format is the shape that the date will be ie(M/d/yyyy)
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
 ```javascript
-const result = FieldTransform.parseDate('2020-01-10-00:00', { format: 'yyyy-MM-ddxxx' })
+const result = FieldTransform.parseDate('2020-01-10-00:00', {}, { format: 'yyyy-MM-ddxxx' })
 result === new Date('2020-01-10T00:00:00.000Z');
 
-const result = FieldTransform.parseDate('Jan 10, 2020-00:00', { format: 'MMM dd, yyyyxxx' })
+const result = FieldTransform.parseDate('Jan 10, 2020-00:00', {}, { format: 'MMM dd, yyyyxxx' })
 result === new Date('2020-01-10T00:00:00.000Z');
 
-const result = FieldTransform.parseDate(1581025950223, { format: 'T' })
+const result = FieldTransform.parseDate(1581025950223, {}, { format: 'T' })
 result === new Date('2020-02-06T21:52:30.223Z');
 
-const result = FieldTransform.parseDate(1581025950, { format: 't' })
+const result = FieldTransform.parseDate(1581025950, {}, { format: 't' })
 result === new Date('2020-02-06T21:52:30.000Z');
 
-const result = FieldTransform.parseDate('1581025950', { format: 't' })
+const result = FieldTransform.parseDate('1581025950', {}, { format: 't' })
 result === new Date('2020-02-06T21:52:30.000Z');
+
+const result = FieldTransform.parseDate(['1581025950', 1581025950], {}, { format: 't' })
+result === [new Date('2020-02-06T21:52:30.000Z'), new Date('2020-02-06T21:52:30.000Z')];
+
 ```
 
 ### setDefault
 
-`setDefault(input, context, args) - This function is used to set a value if input is null or undefined, otherwise the input value is returned`
+setDefault(input, context?, args) - This function is used to set a value if input is null or undefined, otherwise the input value is returned
 
-`args: { value: Any }`
+args: { value: Any }
 
-`value is what will be given when input is null/undefined`
+value is what will be given when input is null/undefined
 
 ```javascript
 const results = FieldTransform.setDefault(undefined, { value: 'someValue' });
@@ -1267,14 +1452,14 @@ results === 'someValue';
 
 ### map
 
-`map(input, context, args) - This function is used to map an array of values with any FieldTransform method`
+map(input, context?, args) - This function is used to map an array of values with any FieldTransform method
 
-`args: { fn: String, options: Any }`
+args: { fn: String, options: Any }
 
-`returns null if input is null/undefined`
+returns null if input is null/undefined
 
-`fn must be a function name from FieldTransform`
-`options are any additional parameters neccesary for the fn being envoked`
+fn must be a function name from FieldTransform
+options are any additional parameters neccesary for the fn being envoked
 
 ```javascript
  const array = ['hello', 'world', 'goodbye'];
@@ -1286,17 +1471,17 @@ results === 'someValue';
 
 ### required
 
-`required(input, context, args) - This function will return false if input record does not have all specified keys`
+required(input, context, args) - This function will return false if input record does not have all specified keys
 
-`args - { fields: string[] }`
+args - { fields: string[] }
 
 ```javascript
 const obj1 = { foo: 'hello', bar: 'stuff' };
 const obj2 = { foo: 123412 };
 const fields = ['bar'];
 
-const results1 = RecordValidator.required(obj1, { fields });
-const results2 = RecordValidator.required(obj2, { fields });
+const results1 = RecordValidator.required(obj1, obj1, { fields });
+const results2 = RecordValidator.required(obj2, obj2, { fields });
 
 results1; // true;
 results2; // false;
@@ -1304,14 +1489,13 @@ results2; // false;
 
 ### select
 
-`select(input, context, args) - Will return true if an object matches the xLucene expression`
+select(input, context, args) - Will return true if an object matches the xLucene expression
 
-`args - {
+args - {
     query: xLuceneQuery,
     type_config?: xLuceneTypeConfig,
     variables?: xLuceneVariables
   }
-`
 
 
 ```javascript
@@ -1319,8 +1503,8 @@ const obj1 = { foo: 'hello', bar: 'stuff' };
 const obj2 = { foo: 123412 };
 const args = { query: '_exists_:bar' };
 
-const results1 = RecordValidator.select(obj1, args);
-const results2 = RecordValidator.select(obj2, args);
+const results1 = RecordValidator.select(obj1, obj1, args);
+const results2 = RecordValidator.select(obj2, obj2, args);
 
 results1; // true;
 results2; // false;
@@ -1328,9 +1512,9 @@ results2; // false;
 
 ### reject
 
-`reject(input, context, args) - Will return true if an object DOES NOT match the xLucene expression`
+reject(input, context, args) - Will return true if an object DOES NOT match the xLucene expression
 
-`args - {
+args - {
     query: xLuceneQuery,
     type_config?: xLuceneTypeConfig,
     variables?: xLuceneVariables
@@ -1342,8 +1526,8 @@ const obj1 = { foo: 'hello', bar: 'stuff' };
 const obj2 = { foo: 123412 };
 const args = { query: '_exists_:bar' };
 
-const results1 = RecordValidator.reject(obj1, args);
-const results2 = RecordValidator.reject(obj2, args);
+const results1 = RecordValidator.reject(obj1, obj1, args);
+const results2 = RecordValidator.reject(obj2, obj2, args);
 
 results1; // false;
 results2; // true;
@@ -1353,9 +1537,9 @@ results2; // true;
 
 ### renameField
 
-`renameField(input, context, args) - This will migrate a fields value to a new field name`
+renameField(input, context, args) - This will migrate a fields value to a new field name
 
-`args - { from: string; to: string }`
+args - { from: string; to: string }
 
 ```javascript
 const obj = { hello: 'world' };
@@ -1366,49 +1550,49 @@ results === { goodbye: 'world' };
 
 ### setField
 
-`setField(input, context, args) - Sets a field on a record with the given value`
+setField(input, context, args) - Sets a field on a record with the given value
 
-`args - { field: string; value: Any }`
+args - { field: string; value: Any }
 
 ```javascript
 const obj = { hello: 'world' };
 const config = { field: 'other', value: 'stuff' };
-const results = RecordTransform.setField(cloneDeep(obj), config);
+const results = RecordTransform.setField(cloneDeep(obj), obj, config);
 results === { hello: 'world', other: 'stuff' };
 ```
 
 ### dropFields
 
-`dropFields(input, context, args) - removes fields from a record`
+dropFields(input, context, args) - removes fields from a record
 
-`args - { fields: string[] }`
+args - { fields: string[] }
 
 ```javascript
 
 const obj = { hello: 'world', other: 'stuff', last: 'thing' };
 const config = { fields: ['other', 'last']} ;
-const results = RecordTransform.dropFields(cloneDeep(obj), config);
+const results = RecordTransform.dropFields(cloneDeep(obj), obj, config);
 results ===  { hello: 'world' };
 ```
 
 ### copyField
 
-`copyField(input, context, args) - Will copy a field to another field`
+copyField(input, context, args) - Will copy a field to another field
 
-`args - { from: string; to: string }`
+args - { from: string; to: string }
 
 ```javascript
 const obj = { hello: 'world', other: 'stuff' };
 const config = { from: 'other', to: 'myCopy' };
-const results = RecordTransform.copyField(cloneDeep(obj), config);
+const results = RecordTransform.copyField(cloneDeep(obj), obj, config);
 results; // { hello: 'world', other: 'stuff', myCopy: 'stuff' };
 ```
 
 ### transformRecord
 
-`transformRecord(input, context, args) - Will execaute a jexl `
+transformRecord(input, context, args) - Will execaute a jexl `
 
-`args - { jexlExp: string; field: string }`
+args - { jexlExp: string; field: string }
 
 ```javascript
 const obj = { num: 1234 };
