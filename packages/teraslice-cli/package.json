@@ -50,7 +50,7 @@
         "request-promise": "^4.2.5",
         "signale": "^1.4.0",
         "teraslice-client-js": "^0.18.3",
-        "tmp": "^0.1.0",
+        "tmp": "^0.2.0",
         "tty-table": "^4.1.1",
         "yargs": "^15.3.1",
         "yeoman-environment": "^2.9.4",
