@@ -12509,7 +12509,7 @@ yeoman-doctor@^4.0.0:
     twig "^1.10.5"
     user-home "^2.0.0"
 
-yeoman-environment@^2.3.4, yeoman-environment@^2.4.0, yeoman-environment@^2.8.1, yeoman-environment@^2.9.4:
+yeoman-environment@^2.4.0, yeoman-environment@^2.8.1, yeoman-environment@^2.9.4:
   version "2.9.4"
   resolved "https://registry.yarnpkg.com/yeoman-environment/-/yeoman-environment-2.9.4.tgz#e07080ba537d9783431d665cbec3a2bad4b417f7"
   integrity sha512-iWxGhG2G0wnFAWK12J925o5UCMpsyMS77cgyLwFoErS6lvC0N6SpvvYFYcYxFQKmKtxI7X+Hmpvg+Y+7hM4FPw==
@@ -12533,10 +12533,34 @@ yeoman-environment@^2.3.4, yeoman-environment@^2.4.0, yeoman-environment@^2.8.1,
     untildify "^3.0.3"
     yeoman-generator "^4.8.2"
 
-yeoman-generator@^4.7.2, yeoman-generator@^4.8.2:
-  version "4.8.2"
-  resolved "https://registry.yarnpkg.com/yeoman-generator/-/yeoman-generator-4.8.2.tgz#054e6123251bf92f7fd5aa91bfdf6a18632559c9"
-  integrity sha512-4kJAf2u5mee8yO7Ph6e64KLHeC7sCSYPCP7YcCUjussBFzoMEqJ2+Dn2Yj41rBLArSBBmZOQ/e2bMYlh6qQ9ag==
+yeoman-environment@^2.9.5:
+  version "2.9.6"
+  resolved "https://registry.yarnpkg.com/yeoman-environment/-/yeoman-environment-2.9.6.tgz#3defd8a1c66fd44df0c8ee9603ac44ecada0a370"
+  integrity sha512-olp9jFDfF35F6YbE2PvWw8idX+JUW9Wf5bY9OYntFdyl4YGnmxJVO6VokYwK+ZoC3asciyO7tteoxTyYG4AxXA==
+  dependencies:
+    chalk "^2.4.1"
+    debug "^3.1.0"
+    diff "^3.5.0"
+    escape-string-regexp "^1.0.2"
+    execa "^4.0.0"
+    globby "^8.0.1"
+    grouped-queue "^1.1.0"
+    inquirer "^7.1.0"
+    is-scoped "^1.0.0"
+    lodash "^4.17.10"
+    log-symbols "^2.2.0"
+    mem-fs "^1.1.0"
+    mem-fs-editor "^6.0.0"
+    semver "^7.1.3"
+    strip-ansi "^4.0.0"
+    text-table "^0.2.0"
+    untildify "^3.0.3"
+    yeoman-generator "^4.8.2"
+
+yeoman-generator@^4.7.2, yeoman-generator@^4.8.2, yeoman-generator@^4.9.0:
+  version "4.9.0"
+  resolved "https://registry.yarnpkg.com/yeoman-generator/-/yeoman-generator-4.9.0.tgz#823dabd4606148c87ea2cc8144508fe0945e939f"
+  integrity sha512-yAtwM+gpxZr1yJGmA8aQqQiI1KrkS6oBqtISy7CwijiXwQZy1SvBakcmaMmYQSp0NjlXW7zXNfo0PdBInmAFOA==
   dependencies:
     async "^2.6.2"
     chalk "^2.4.2"
@@ -12563,8 +12587,9 @@ yeoman-generator@^4.7.2, yeoman-generator@^4.8.2:
     text-table "^0.2.0"
     through2 "^3.0.1"
   optionalDependencies:
+    grouped-queue "^1.1.0"
     mem-fs-editor "^6.0.0"
-    yeoman-environment "^2.3.4"
+    yeoman-environment "^2.9.5"
 
 yeoman-test@^2.4.1:
   version "2.4.1"
