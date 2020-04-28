@@ -109,19 +109,27 @@ export default class ESCachedStateStorage {
     async mget(docArray: DataEntity[]): Promise<MGetCacheResponse> {
         if (docArray.length === 0) return {};
 
+        const beginingCacheCount = this.cache.count();
+
         const uniqKeys = this._getUniqKeys(docArray);
 
         const uncachedKeys = this._getUncachedKeys(uniqKeys);
 
         await this._updateCacheWithEs(uncachedKeys);
 
-        const savedDocs = this._getSavedDocs(uniqKeys);
+        const found = this._getSavedDocs(uniqKeys);
 
         this._logCacheStats(
-            docArray.length, uniqKeys.length, Object.keys(savedDocs).length, uncachedKeys.length
+            {
+                beginingCacheCount,
+                incoming: docArray.length,
+                uniqIncoming: uniqKeys.length,
+                notInMemory: uncachedKeys.length,
+                found: Object.keys(found).length
+            }
         );
 
-        return savedDocs;
+        return found;
     }
 
     private _getUniqKeys(docArray: DataEntity[]): string[] {
@@ -137,13 +145,18 @@ export default class ESCachedStateStorage {
         return Object.keys(keys);
     }
 
-    private _logCacheStats(incoming: number, uniq: number, cached: number, uncached: number) {
-        const hits = incoming - uncached;
-        const foundInEs = cached - hits;
-        const misses = incoming - cached;
+    private _logCacheStats(cacheResults: CacheResults) {
+        const inMemory = cacheResults.uniqIncoming - cacheResults.notInMemory;
+        const inEs = cacheResults.found - inMemory;
+        const misses = cacheResults.uniqIncoming - cacheResults.found;
 
-        this.logger.info(`elasticsearch-state-storage cache stats - 
-            incoming: ${incoming}, uniq incoming: ${uniq}, in memory: ${hits}, found in es: ${foundInEs}, misses: ${misses}`);
+        this.logger.info(`elasticsearch-state-storage cache results - 
+            ending cache count: ${this.cache.count()}, 
+            beginning cache count: ${cacheResults.beginingCacheCount},
+            uniq incoming: ${cacheResults.uniqIncoming},
+            found in memory: ${inMemory},
+            found es: ${inEs},
+            missed: ${misses}`);
     }
 
     private _getSavedDocs(keys: string[]) {
@@ -253,6 +266,14 @@ interface ESMeta {
     _index: string;
     _type: string;
     _id: string;
+}
+
+interface CacheResults {
+    beginingCacheCount: number;
+    incoming: number;
+    uniqIncoming: number;
+    notInMemory: number;
+    found: number;
 }
 
 export interface ESQuery {
