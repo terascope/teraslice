@@ -1590,7 +1590,7 @@ results; // { hello: 'world', other: 'stuff', myCopy: 'stuff' };
 
 ### transformRecord
 
-transformRecord(input, context, args) - Will execaute a jexl `
+transformRecord(input, context, args) - Will execaute a jexl expression. Can use data-mate functions inside the jexl expression. You do not need to specify the parent context argument as that is automatically the docuemnt used as to call it.
 
 args - { jexlExp: string; field: string }
 
@@ -1602,6 +1602,19 @@ const results = RecordTransform.transformRecord(
     obj, obj, config
 ))
 results === { num: 1234, calc: 1234 * 2 };
+
+
+const obj = { foo: 'bar' };
+const config = {
+    jexlExp: 'foo|extract({ jexlExp: "foo|toUpperCase" })', field: 'final'
+};
+
+const mixedData = [obj, undefined, null];
+
+const results = RecordTransform.transformRecord(
+    mixedData, mixedData, config
+)
+results === [{ foo: 'bar', final: 'BAR' }];
 ```
 
 

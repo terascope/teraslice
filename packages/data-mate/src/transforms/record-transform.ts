@@ -240,13 +240,29 @@ function _validateArgs(args: ts.AnyObject, fields: string[]) {
 }
 
 /**
- * Will run a jexl expression against the record
+ * Will execaute a jexl expression. Can use data-mate functions inside the jexl expression.
+ * You do not need to specify the parent context argument as that is automatically
+ * the docuemnt used as to call it.
  *
  * @example
+ *
  * const obj = { hello: 'world', other: 'stuff' };
  * const config = { query: '[hello]', field: 'final' };
  * const results = RecordTransform.transformRecord(clone, clone, config)
  * results === { hello: 'world', other: 'stuff', final: ['world'] });
+ *
+ * const obj = { foo: 'bar' };
+ * const config = {
+ *   jexlExp: 'foo|extract({ jexlExp: "foo|toUpperCase" })', field: 'final'
+ * };
+ *
+ * const mixedData = [obj, undefined, null];
+ *
+ * const results = RecordTransform.transformRecord(
+ *    mixedData, mixedData, config
+ * )
+ *
+ * results === [{ foo: 'bar', final: 'BAR' }];
  *
  * @param {*} record
  * @param {{ field: string; query: string }} args

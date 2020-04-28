@@ -199,5 +199,16 @@ describe('record transforms', () => {
                 mixedData, mixedData, config
             )).toEqual([{ num: 1234, calc: 1234 * 2 }]);
         });
+
+        it('can call data-mate functions in expression', () => {
+            const obj = { foo: 'bar' };
+            const config = { jexlExp: 'foo|extract({ jexlExp: "foo|toUpperCase" })', field: 'final' };
+
+            const mixedData = [obj, undefined, null];
+
+            expect(RecordTransform.transformRecord(
+                mixedData, mixedData, config
+            )).toEqual([{ foo: 'bar', final: 'BAR' }]);
+        });
     });
 });
