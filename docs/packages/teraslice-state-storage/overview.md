@@ -5,11 +5,10 @@ sidebar_label: Overview
 
 > State storage operation api for teraslice
 
-Teraslice State Storage provides an LRU caching system, based on [mnemonist's](https://www.npmjs.com/package/mnemonist) LRU map, for teraslice processors. The in memory cache can be backed by a perminant storage system like Elasticsearch if a more robust cache is needed.  
+Teraslice State Storage provides an LRU caching system, based on [mnemonist's](https://www.npmjs.com/package/mnemonist) LRU map, for teraslice processors. The in memory cache can be backed by a perminant storage system like Elasticsearch if a more robust cache is needed.
 
 
 ## Usage
-
 `The state storoge api must be added to the job file to be accessible by a processor.`
 
 ### Job Setup
@@ -136,3 +135,8 @@ stateStorage.has('345def'); // false
 ```javascript
 stateStorage.clear();
 ```
+
+## Using State Storage backed by Elasticsearch
+
+The advantage of having the LRU cache backed by a perminant storage system like Elasticsearch is that if the key is not in the cache the processor will search an elasticsearch index for the key and if it is found will add it to the cache.  This works really well on data sets with a relatively low key count, but on data sets with a high key count making too many queres to Elasticsearch will slow down the process.
+
