@@ -1,8 +1,8 @@
 import jexlCore from 'jexl';
 import * as ts from '@terascope/utils';
 import { AvailableType } from '@terascope/data-types';
-import { FieldTransform, RecordTransform } from '../transforms';
-import { FieldValidator, RecordValidator } from '../validations';
+import { FieldTransform } from '../transforms';
+import { FieldValidator } from '../validations';
 import {
     Repository, InputType, RepoConfig, ExtractFieldConfig, RecordInput
 } from '../interfaces';
@@ -56,8 +56,6 @@ function setup(operationClass: any) {
 
 setup(FieldTransform);
 setup(FieldValidator);
-setup(RecordTransform);
-setup(RecordValidator);
 
 jexl.addTransform(extract.name, bridge(extract));
 jexl.addTransform(transformRecord.name, bridge(transformRecord));
