@@ -139,8 +139,9 @@ export function extract(
         try {
             return jexl.evalSync(jexlExp as string, parentContext);
         } catch (err) {
-            const errMessage = `Invalid jexl expression: ${jexlExp}, error: ${err.message}`;
-            throw new ts.TSError(errMessage);
+            throw new ts.TSError(err, {
+                message: `Invalid jexl expression: ${jexlExp}`
+            });
         }
     }
 
