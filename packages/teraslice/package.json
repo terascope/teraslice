@@ -13,11 +13,6 @@
     },
     "license": "Apache-2.0",
     "author": "Terascope, LLC <info@terascope.io>",
-    "files": [
-        "*.js",
-        "lib/**/*",
-        "examples/**/*"
-    ],
     "main": "index.js",
     "bin": "service.js",
     "directories": {
@@ -26,6 +21,11 @@
         "test": "test",
         "main": "index.js"
     },
+    "files": [
+        "*.js",
+        "lib/**/*",
+        "examples/**/*"
+    ],
     "scripts": {
         "start": "node service.js",
         "test": "ts-scripts test . --",

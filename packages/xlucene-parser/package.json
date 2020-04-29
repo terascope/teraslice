@@ -10,9 +10,6 @@
     },
     "license": "MIT",
     "author": "Terascope, LLC <info@terascope.io>",
-    "files": [
-        "dist/src/**/*"
-    ],
     "sideEffects": false,
     "main": "dist/src/index.js",
     "typings": "dist/src/index.d.ts",
@@ -20,6 +17,9 @@
         "lib": "dist/src",
         "test": "test"
     },
+    "files": [
+        "dist/src/**/*"
+    ],
     "scripts": {
         "benchmark": "yarn build && node bench/index.js",
         "prebuild": "./scripts/generate-engine.js",
