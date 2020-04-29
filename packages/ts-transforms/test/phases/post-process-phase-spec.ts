@@ -74,7 +74,6 @@ describe('post_process phase', () => {
 
         const data = [
             new DataEntity({ newField: 'null' }, { selectors: ['some:value'] }),
-            new DataEntity({ newField: null }, { selectors: ['some:value'] }),
             new DataEntity({ newField: 'other' }, { selectors: ['some:value'] }),
         ];
 

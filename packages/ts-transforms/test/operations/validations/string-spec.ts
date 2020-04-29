@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, cloneDeep } from '@terascope/utils';
 import { StringValidation } from '../../../src/operations';
 
 describe('string validation', () => {
@@ -40,33 +40,36 @@ describe('string validation', () => {
         const data7 = new DataEntity({});
         const data8 = new DataEntity({ field: [1324, 'hello'] });
 
-        const results1 = test.run(data1);
-        const results2 = test.run(data2);
-        const results3 = test.run(data3);
-        const results4 = test.run(data4);
-        const results5 = test.run(data5);
-        const results6 = test.run(data6);
-        const results7 = test.run(data7);
-        const results8 = test.run(data8);
+        const results1 = test.run(cloneDeep(data1));
+        const results2 = test.run(cloneDeep(data2));
+        const results3 = test.run(cloneDeep(data3));
+        const results4 = test.run(cloneDeep(data4));
+        const results5 = test.run(cloneDeep(data5));
+        const results6 = test.run(cloneDeep(data6));
+        const results7 = test.run(cloneDeep(data7));
+        const results8 = test.run(cloneDeep(data8));
 
         function stringify(obj: DataEntity): object {
             if (obj.field) {
+                if (Array.isArray(obj.field)) {
+                    return obj.field.map((data: any) => JSON.stringify(data));
+                }
                 obj.field = JSON.stringify(obj.field);
             }
             return obj;
         }
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(results1.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results1?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results1).toEqual(data1);
-        expect(results2.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results2?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results2).toEqual({ field: '123423' });
-        expect(results3).toEqual(stringify(data3));
-        expect(results4).toEqual(stringify(data4));
+        expect(results3).toEqual(data3);
+        expect(results4).toEqual({ field: ['1324'] });
         expect(results5).toEqual(stringify(data5));
         expect(results6).toEqual(stringify(data6));
-        expect(results6.getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(results7).toEqual({});
+        expect(results6?.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results7).toEqual(null);
         expect(results8).toEqual({ field: ['1324', 'hello'] });
     });
 
@@ -80,13 +83,11 @@ describe('string validation', () => {
         const data1 = new DataEntity({ field: '56.234,95.234' }, metaData);
         const data2 = new DataEntity({ field: 'some data here' }, metaData);
 
-        const results1 = test.run(data1);
-        const results2 = test.run(data2);
+        const results1 = test.run(cloneDeep(data1));
+        const results2 = test.run(cloneDeep(data2));
 
-        expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(results1.getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(results1).toEqual({});
-        expect(results2.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results1).toEqual(null);
+        expect(results2?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results2).toEqual(data2);
     });
 
@@ -95,7 +96,6 @@ describe('string validation', () => {
             refs: 'someId',
             source: 'person.name',
             target: 'person.name',
-            length: 14,
             __id: 'someId',
             follow: 'otherId',
         };
@@ -107,16 +107,16 @@ describe('string validation', () => {
         const data4 = new DataEntity({ person: { name: 432423 } });
         const data5 = new DataEntity({ person: { name: 'sadrasfwe32q' } });
 
-        const results1 = test.run(data1);
-        const results2 = test.run(data2);
-        const results3 = test.run(data3);
-        const results4 = test.run(data4);
-        const results5 = test.run(data5);
+        const results1 = test.run(cloneDeep(data1));
+        const results2 = test.run(cloneDeep(data2));
+        const results3 = test.run(cloneDeep(data3));
+        const results4 = test.run(cloneDeep(data4));
+        const results5 = test.run(cloneDeep(data5));
 
         expect(results1).toEqual(data1);
         expect(results2).toEqual(data2);
         expect(results3).toEqual(data3);
-        expect(results4).toEqual(data2);
+        expect(results4).toEqual({ person: { name: '432423' } });
         expect(results5).toEqual(data5);
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);

@@ -15,7 +15,7 @@ export default class Sha2Encode extends TransformOpBase {
             .digest('hex');
     }
 
-    run(record: DataEntity): DataEntity {
+    run(record: DataEntity): DataEntity | null {
         return this.execute(record, this.encode);
     }
 }

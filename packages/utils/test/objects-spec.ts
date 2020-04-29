@@ -4,7 +4,9 @@ import {
     getFirstValue,
     withoutNil,
     filterObject,
+    isObjectEntity
 } from '../src/objects';
+import { DataEntity } from '../src';
 
 describe('Objects', () => {
     describe('withoutNil', () => {
@@ -122,6 +124,34 @@ describe('Objects', () => {
                 c: 3,
                 a: 1,
                 b: 2,
+            });
+        });
+    });
+
+    describe('isObjectEntity', () => {
+        describe('when given an object', () => {
+            it('should return true', () => {
+                const obj = { key1: 1, key2: 2 };
+                expect(isObjectEntity(obj)).toBeTrue();
+            });
+        });
+
+        describe('when given a DataEntity', () => {
+            it('should return true', () => {
+                const data = new DataEntity({});
+                expect(isObjectEntity(data)).toBeTrue();
+            });
+        });
+
+        describe('when given anything else', () => {
+            it('should return false', () => {
+                expect(isObjectEntity(1234)).toBeFalse();
+                expect(isObjectEntity('1234')).toBeFalse();
+                expect(isObjectEntity([])).toBeFalse();
+                expect(isObjectEntity([{ hello: 'world' }])).toBeFalse();
+                expect(isObjectEntity(null)).toBeFalse();
+                expect(isObjectEntity(new Set())).toBeFalse();
+                expect(isObjectEntity(new Map())).toBeFalse();
             });
         });
     });

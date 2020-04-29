@@ -5,6 +5,55 @@ sidebar_label: Operations
 
 > All transform operations available
 
+## All Data-Mate FieldValidator, FieldTransforms, RecordValidator and RecordTransforms functions
+
+We inject all the functionality from data-mate into ts-transforms.  Please refer to the documentation for a comprehensive list
+
+- [FieldValidator](../data-mate/overview.md#Field-Validations)
+- [FieldTransforms](../data-mate/overview.md#Field-Transforms)
+
+- [RecordValidator](../data-mate/overview.md#Record-Validations)
+- [RecordTransforms](../data-mate/overview.md#Record-Transforms)
+
+If any of the functions require additional arguments they are placed on the config itself
+
+```ts
+// simple rule to check if value is a number, no additional args are required
+
+{ selector: '_exists_:some', source: 'some', target: 'next', tag: 'myTag' },
+{ follow: 'myTag', validation: 'isNumber' }
+
+// Data
+{ some: 'data', bytes: 200, myfield: 'hello' },
+{ some: 3, bytes: 200 },
+{ some: 'other', bytes: 1200 },
+{ other: 'xabcd', myfield: 'hello' },
+{ _created: '2018-12-16T15:16:09.076Z', myfield: 'hello' },
+
+// Results
+{ next: 3 }
+
+
+
+// Next example is a RecordTransform operation that will first filter record values if they are a number, if so then it will add the additional field
+{ selector: '_exists_:some', source: 'some', target: 'next', tag: 'myTag' },
+{ follow: 'myTag', validation: 'isNumber', tag: 'isNumberNow' },
+{ follow: 'isNumberNow', post_process: 'setField', field: 'other', value: 'foo' }
+
+// Data
+{ some: 'data', bytes: 200, myfield: 'hello' },
+// only this record will get past isNumber check because array contains numbers
+{ some: [1, 'hello', 3], bytes: 200 },
+{ some: 'other', bytes: 1200 },
+{ other: 'xabcd', myfield: 'hello' },
+{ _created: '2018-12-16T15:16:09.076Z', myfield: 'hello' }
+
+
+// Results
+{ next: [1, 3], other: 'foo' }
+
+```
+
 ## Transforms
 
 transform globals: config parameters that may be put on any transform configurations
@@ -437,76 +486,88 @@ NOTE: if you have an array as an input value, the results will be put together
 ```
 
 ### base64decode
+@deprecated, use decodeBase64
 
 This will attempt to base64 decode the indicated field, and will remove the field on failure
 
 ### urldecode
+@deprecated, use decodeURL
 
 This will attempt to url decode the indicated field, and will remove the field on failure
 
 - no additional parameters
 
 ### hexdecode
+@deprecated, use decodeHex
 
 This will attempt to hex decode the indicated field, and will remove the field on failure
 
 - no additional parameters
 
 ### jsonparse
+@deprecated, use parseJSON
 
 This will attempt to parse JSON for the indicated field, and will remove the field on failure
 
 - no additional parameters
 
 ### lowercase
+@deprecated, use toLowerCase
 
 This will make sure the field is a string and lowercase it, otherwise it will remove the field it
 
 - no additional parameters
 
 ### uppercase
+@deprecated, use toUpperCase
 
 This will make sure the field is a string and uppercase it, otherwise it will remove the field it
 
 - no additional parameters
 
 ### trim
-
+@deprecated, reference trim from data-mate
 This will make sure the field is a string and trim it, otherwise it will remove the field it
 
 - no additional parameters
 
 ### base64encode
+@deprecated, use encodeBase64
 
 This will make sure the field is a string and base64 encode it, otherwise it will remove the field it
 
 - no additional parameters
 
 ### urlencode
+@deprecated, use encodeURL
 
 This will make sure the field is a string and url encode it, otherwise it will remove the field it
 
 - no additional parameters
 
 ### hexencode
+@deprecated, use encodeHex
 
 This will make sure the field is a string and hex encode it, otherwise it will remove the field it
 
 - no additional parameters
 
 ### md5encode
+@deprecated, use encodeMD5
 
 This will make sure the field is a string and md5 encode it, otherwise it will remove the field it
 
 - no additional parameters
 
 ### sha1encode
+@deprecated, use encodeSHA1
 
 This will make sure the field is a string and sha1 encode it, otherwise it will remove the field it
 
 - no additional parameters
 
 ### sha2encode
+@deprecated, use encodeSHA
 
 This will make sure the field is a string and by default sha256 encode it, otherwise it will remove the field it
 
@@ -519,6 +580,7 @@ this provides a list of validation operations. If the field failed a validation 
 - output : `Boolean` = **NOTE** this does not remove the field !! if `output` is set to false then it will invert the validation and become a logical operator of `NOT`. For example, if you use the `numeric` validator, it would remove anyting that **was not** a number. If you specify `output:false` then it would remove anything that was a number.
 
 ### geolocation
+@deprecated, use isGeoPoint
 
 This will check if the field is a valid geolocation. For this validation the data may be a string or an object. If it is an object it must have either the keys `lat` and `lon` or `latitude` and `longitude`. If it is a string it is expected to be written as `latitude,longitude`
 
@@ -539,6 +601,7 @@ This will check if the field is a valid geolocation. For this validation the dat
 ```
 
 ### string
+@deprecated, use isString
 
 Checks to see if this value is a string, if not then it will be removed.
 
@@ -549,6 +612,7 @@ Checks to see if this value is a string, if not then it will be removed.
 - max: `Number`(optional) = if set then it checks that the new string value has a maximal length (inclusive) of this parameter, if not it is removed
 
 ### number
+@deprecated, use isNumber
 
 Checks to see if this value is a number, if not then it will be removed.
 
@@ -557,6 +621,7 @@ Checks to see if this value is a number, if not then it will be removed.
 - no additional parameters
 
 ### boolean
+@deprecated, use isBoolean
 
 Checks to see if this value is a boolean, if not then it will be removed.
 
@@ -565,24 +630,28 @@ Checks to see if this value is a boolean, if not then it will be removed.
 - no additional parameters
 
 ### url
+@deprecated, use isURL
 
 Checks to see if this is a valid url
 
 - no additional parameters
 
 ### email
+@deprecated, use isEmail
 
 Checks to see if this is a valid email
 
 - no additional parameters
 
 ### ip
+@deprecated, use isIP
 
 Checks to see if this is a valid ip
 
 - no additional parameters
 
 ### macaddress
+@deprecated, use isMACAddress
 
 Checks to see if this is a valid mac address.
 
@@ -593,6 +662,7 @@ Checks to see if this is a valid mac address.
 - preserve_colons: `Boolean`(optional) = defaults to false, set to true so that it keeps colons in place
 
 ### uuid
+@deprecated, use isUUID
 
 Checks to see if this is a valid uuid.
 
@@ -602,6 +672,7 @@ Checks to see if this is a valid uuid.
 - case: `String`(optional) = may be set to `lowercase` or `uppercase` which will normalize the characters
 
 ### isdn
+@deprecated, use isISDN
 
 Checks to see if this is a valid phone number, it must include the country code and the full national number. It uses the [awesome-phonenumber](https://www.npmjs.com/package/awesome-phonenumber) package to validate and format
 
@@ -610,6 +681,7 @@ Checks to see if this is a valid phone number, it must include the country code 
 - no additional parameters
 
 ### contains
+@deprecated, use decodeHex
 
 check if the string contains what is specified in the param `value`.
 
@@ -639,30 +711,35 @@ check if the string contains what is specified in the param `value`.
 ```
 
 ### equals
+@deprecated, use decodeHex
 
 check if the string equals what is specified in the param `value`.
 
 - value: `String`(required) = the value which is used to check the string
 
 ### alpha
+@deprecated, use decodeHex
 
 check if the string contains only letters (a-zA-Z)
 
 - value: `String`(optional) = defines which locale to use, defaults to `en-US`. Available locals: ['ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA']
 
 ### alphanumeric
+@deprecated, use decodeHex
 
 check if the string contains only letters and numbers.
 
 - value: `String`(optional) = defines which locale to use, defaults to `en-US`. Available locals: ['ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA']
 
 ### ascii
+@deprecated, use decodeHex
 
 check if the string contains ASCII chars only.
 
 - no additional parameters
 
 ### base64
+@deprecated, use isBase64
 
 check if a string is base64 encoded.
 
@@ -716,18 +793,21 @@ check if the string represents a decimal number, such as 0.1, .3, 1.1, 1.00003, 
 - locale: `String`(optional) = defines which locale to use, defaults to `en-US`. Available locals: ['ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA']
 
 ### divisibleby
+@deprecated, use decodeHex
 
 check if the string is a number that's divisible by whats provided in the param `value`.
 
 - value: `Number`(required) = number used to divide against the values
 
 ### empty
+@deprecated, use isEmpty
 
 check if the string has a length of zero.
 
 - ignore_whitespace: `Boolean`(optional) = defaults to false
 
 ### fqdn
+@deprecated, use decodeHex
 
 check if the string is a fully qualified domain name (e.g. domain.com).
 
@@ -746,6 +826,7 @@ check if the string is a float.
 - locale: `String`(optional) = defines which locale to use, itdetermine the decimal separator. defaults to `en-US`. Available locals: ['ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA']
 
 ### hash
+@deprecated, use isHash
 
 check if the string is a hash of type algorithm.
 
@@ -770,18 +851,14 @@ check if the string is a valid identity card code.
 - value: `String`(optional) = locale is one of ['ES'] OR 'any'. If 'any' is used, function will check if any of the locals match. defaults to 'any'
 
 ### iprange
+@deprecated, use inIPRange
 
 check if the string is an IP Range(version 4 only).
 
 - no additional parameters
 
-### isbn
-
-check if the string is an ISBN (version 10 or 13).
-
-- value: `String`(optional) = which version to use, defaults to '10'
-
 ### issn
+@deprecated, use isISSN
 
 check if the string is an ISSN.
 
@@ -795,12 +872,14 @@ check if the string is an ISIN (stock/security identifier).
 - no additional parameters
 
 ### iso8601
+@deprecated, use isISO8601
 
 check if the string is a valid ISO 8601 date;
 
 - strict: `Boolean`(optional) = for additional checks for valid dates, e.g. invalidates dates like 2009-02-29 set this to `true`, defaults to `false`
 
 ### rfc3339
+@deprecated, use isRFC3339
 
 check if the string is a valid RFC 3339 date.
 
@@ -825,6 +904,7 @@ check if the string is in a array/object of specified in the param `value`.
 - value: `String[] or Object`(required) = list of strings that are allowed
 
 ### int
+@deprecated, use isInteger
 
 check if the string is an integer.
 
@@ -835,12 +915,14 @@ check if the string is an integer.
 - allow_leading_zeroes: `Boolean`(optional) = defaults to true, which when set to false will disallow integer values with leading zeroes
 
 ### latlong
+@deprecated, use isGeoPoint
 
 check if the string is a valid latitude-longitude coordinate in the format lat,long or lat, long.
 
 - no additional parameters
 
 ### length
+@deprecated, use isLength
 
 check if the string's length falls in a range.
 
@@ -848,12 +930,14 @@ check if the string's length falls in a range.
 - max: `Number`(optional) = if set then it checks that the value length is less than (inclusive) of this parameter, if not it is removed
 
 ### md5
+@deprecated, use isHash
 
 check if the string is a MD5 hash.
 
 - no additional parameters
 
 ### mimetype
+@deprecated, use isMIMEType
 
 check if the string matches to a valid MIME type format
 
@@ -872,6 +956,7 @@ check if the string is a valid port number.
 - no additional parameters
 
 ### postalcode
+@deprecated, use isPostalCode
 
 check if the string is a postal code,
 

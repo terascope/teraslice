@@ -3,7 +3,7 @@ import * as ts from '@terascope/utils';
 import { xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import { isArray } from './field-validator';
 import DocumentMatcher from '../document-matcher';
-import { Repository, RecordInput } from '../interfaces';
+import { Repository, RecordInput, InputType } from '../interfaces';
 import { isString } from '../validations/field-validator';
 
 export const repository: Repository = {
@@ -14,7 +14,8 @@ export const repository: Repository = {
                 type: 'String',
                 array: true
             }
-        }
+        },
+        primary_input_type: InputType.Object,
     },
     select: {
         fn: select,
@@ -28,7 +29,8 @@ export const repository: Repository = {
             variables: {
                 type: 'Object'
             }
-        }
+        },
+        primary_input_type: InputType.Object,
     },
     reject: {
         fn: reject,
@@ -44,12 +46,13 @@ export const repository: Repository = {
                 // Doing this for JSON type => which is ANY type
                 type: 'Object'
             }
-        }
+        },
+        primary_input_type: InputType.Object,
     },
 };
 
 function _filterBy(fn: any, input: any[], args?: any) {
-    const sanitized = input.filter((data) => ts.isNotNil(data) && ts.isPlainObject(data));
+    const sanitized = input.filter((data) => ts.isNotNil(data) && ts.isObjectEntity(data));
     if (sanitized.length === 0) return [];
 
     return sanitized.filter((data) => fn(data, args));
@@ -63,18 +66,22 @@ function _filterBy(fn: any, input: any[], args?: any) {
  * const obj2 = { foo: 123412 };
  * const fields = ['bar'];
  *
- * const results1 = RecordValidator.required(obj1, { fields });
- * const results2 = RecordValidator.required(obj2, { fields });
+ * const results1 = RecordValidator.required(obj1, obj1, { fields });
+ * const results2 = RecordValidator.required(obj2, obj2, { fields });
  *
- * expect(results1).toEqual(true);
- * expect(results2).toEqual(false);
+ * results1; // true;
+ * results2; // false;
  *
  * @param {AnyObject} obj
  * @param {{ fields: string[] }} { fields }
  * @returns boolean
  */
 
-export function required(input: RecordInput, args: { fields: string[] }) {
+export function required(
+    input: RecordInput,
+    _parentContext: RecordInput,
+    args: { fields: string[] }
+) {
     if (ts.isNil(input)) return null;
     if (!args?.fields || !isArray(args.fields) || !isString(args.fields)) {
         throw new Error('Parameter fields must be provided and be an array of strings');
@@ -111,11 +118,11 @@ interface DMOptions {
  * const obj2 = { foo: 123412 };
  * const args = { query: '_exists_:bar' };
  *
- * const results1 = RecordValidator.select(obj1, args);
- * const results2 = RecordValidator.select(obj2, args);
+ * const results1 = RecordValidator.select(obj1, obj1, args);
+ * const results2 = RecordValidator.select(obj2, obj2, args);
  *
- * expect(results1).toEqual(true);
- * expect(results2).toEqual(false);
+ * results1; // true;
+ * results2; // false;
  *
  * @param {AnyObject} obj
  * @param {{ query: string, type_config: xLuceneTypeConfig, variables: xLuceneVariables }} args
@@ -123,30 +130,35 @@ interface DMOptions {
  * @returns boolean
  */
 
-export function select(input: RecordInput, args: DMOptions) {
+export function select(
+    input: RecordInput,
+    _parentContext: RecordInput,
+    args: DMOptions
+) {
     const matcher = _validateMatcher(input, args);
     if (!matcher) return null;
 
     if (isArray(input)) {
-        const fn = (data: ts.AnyObject) => ts.isPlainObject(data) && matcher.match(data);
+        const fn = (data: ts.AnyObject) => ts.isObjectEntity(data) && matcher.match(data);
         return _filterBy(fn, input);
     }
 
-    if (ts.isPlainObject(input) && matcher.match(input)) return input;
+    if (ts.isObjectEntity(input) && matcher.match(input)) return input;
+
     return null;
 }
 
 function _validateMatcher(input: RecordInput, args: DMOptions) {
     if (ts.isNil(input)) return null;
-    if (ts.isNil(args) || !ts.isPlainObject(args)) {
+    if (ts.isNil(args) || !ts.isObjectEntity(args)) {
         throw new Error(`Parameter args must be provided and be an object, got ${ts.getTypeOf(args)}`);
     }
 
     const { query = '*', type_config, variables } = args;
 
     if (!isString(query)) throw new Error(`Invalid query, must be a string, got ${ts.getTypeOf(args)}`);
-    if ((type_config && !ts.isPlainObject(type_config))) throw new Error(`Invalid argument typeConfig must be an object got ${ts.getTypeOf(args)}`);
-    if ((variables && !ts.isPlainObject(variables))) throw new Error(`Invalid argument variables must be an object got ${ts.getTypeOf(args)}`);
+    if ((type_config && !ts.isObjectEntity(type_config))) throw new Error(`Invalid argument typeConfig must be an object got ${ts.getTypeOf(args)}`);
+    if ((variables && !ts.isObjectEntity(variables))) throw new Error(`Invalid argument variables must be an object got ${ts.getTypeOf(args)}`);
 
     return new DocumentMatcher(query, { type_config, variables });
 }
@@ -159,11 +171,11 @@ function _validateMatcher(input: RecordInput, args: DMOptions) {
  * const obj2 = { foo: 123412 };
  * const args = { query: '_exists_:bar' };
  *
- * const results1 = RecordValidator.reject(obj1, args);
- * const results2 = RecordValidator.reject(obj2, args);
+ * const results1 = RecordValidator.reject(obj1, obj1, args);
+ * const results2 = RecordValidator.reject(obj2, obj2, args);
  *
- * expect(results1).toEqual(false);
- * expect(results2).toEqual(true);
+ * results1; // false;
+ * results2; // true;
  *
  * @param {AnyObject} obj
  * @param {DMOptions} args
@@ -171,15 +183,19 @@ function _validateMatcher(input: RecordInput, args: DMOptions) {
  * @returns boolean
  */
 
-export function reject(input: RecordInput, args: DMOptions) {
+export function reject(
+    input: RecordInput,
+    _parentContext: RecordInput,
+    args: DMOptions
+) {
     const matcher = _validateMatcher(input, args);
     if (!matcher) return null;
 
     if (isArray(input)) {
-        const fn = (data: ts.AnyObject) => ts.isPlainObject(data) && !matcher.match(data);
+        const fn = (data: ts.AnyObject) => ts.isObjectEntity(data) && !matcher.match(data);
         return _filterBy(fn, input);
     }
 
-    if (ts.isPlainObject(input) && !matcher.match(input)) return input;
+    if (ts.isObjectEntity(input) && !matcher.match(input)) return input;
     return null;
 }

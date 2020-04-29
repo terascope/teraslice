@@ -11,7 +11,7 @@ export default class UrlEncode extends TransformOpBase {
         return encodeURIComponent(data);
     }
 
-    run(record: DataEntity): DataEntity {
+    run(record: DataEntity): DataEntity | null {
         return this.execute(record, this.encode);
     }
 }

@@ -1,6 +1,6 @@
 import { AvailableType } from '@terascope/data-types';
 import * as ts from '@terascope/utils';
-import { Repository, RecordInput } from '../interfaces';
+import { Repository, RecordInput, InputType } from '../interfaces';
 import { isString, isArray } from '../validations/field-validator';
 
 export const repository: Repository = {
@@ -14,7 +14,8 @@ export const repository: Repository = {
                 type: 'String'
             }
         },
-        output_type: 'Object' as AvailableType
+        primary_input_type: InputType.Object,
+        output_type: 'Object' as AvailableType,
     },
     setField: {
         fn: setField,
@@ -26,7 +27,8 @@ export const repository: Repository = {
                 type: 'Any'
             }
         },
-        output_type: 'Object' as AvailableType
+        primary_input_type: InputType.Object,
+        output_type: 'Object' as AvailableType,
     },
     dropFields: {
         fn: dropFields,
@@ -36,7 +38,8 @@ export const repository: Repository = {
                 array: true
             }
         },
-        output_type: 'Object' as AvailableType
+        primary_input_type: InputType.Object,
+        output_type: 'Object' as AvailableType,
     },
     copyField: {
         fn: copyField,
@@ -48,6 +51,7 @@ export const repository: Repository = {
                 type: 'String'
             }
         },
+        primary_input_type: InputType.Object,
         output_type: 'Object' as AvailableType
     },
 };
@@ -59,7 +63,7 @@ export const repository: Repository = {
  *
  * const obj = { hello: 'world' };
  * const config = { from: 'hello', to: 'goodbye' };
- * const results = RecordTransform.renameField(cloneDeep(obj), config);
+ * const results = RecordTransform.renameField(cloneDeep(obj), cloneDeep(obj), config);
  * results === { goodbye: 'world' };
  *
  * @param {*} record
@@ -67,7 +71,11 @@ export const repository: Repository = {
  * @returns object
  */
 
-export function renameField(input: RecordInput, args: { from: string; to: string }) {
+export function renameField(
+    input: RecordInput,
+    _parentContext: RecordInput,
+    args: { from: string; to: string }
+) {
     if (ts.isNil(input)) return null;
     _validateArgs(args, ['from', 'to']);
 
@@ -85,7 +93,7 @@ export function renameField(input: RecordInput, args: { from: string; to: string
 }
 
 function _migrate(doc: ts.AnyObject, from: string, to: string) {
-    if (!ts.isPlainObject(doc)) return null;
+    if (!ts.isObjectEntity(doc)) return null;
 
     doc[to] = doc[from];
     delete doc[from];
@@ -100,7 +108,7 @@ function _migrate(doc: ts.AnyObject, from: string, to: string) {
  *
  * const obj = { hello: 'world' };
  * const config = { field: 'other', value: 'stuff' };
- * const results = RecordTransform.setField(cloneDeep(obj), config);
+ * const results = RecordTransform.setField(cloneDeep(obj), cloneDeep(obj), config);
  * results === { hello: 'world', other: 'stuff' };
  *
  * @param {*} record
@@ -108,7 +116,11 @@ function _migrate(doc: ts.AnyObject, from: string, to: string) {
  * @returns object
  */
 
-export function setField(input: RecordInput, args: { field: string; value: any }) {
+export function setField(
+    input: RecordInput,
+    _parentContext: RecordInput,
+    args: { field: string; value: any }
+) {
     if (ts.isNil(input)) return null;
     _validateArgs(args, ['field', 'value']);
 
@@ -118,14 +130,14 @@ export function setField(input: RecordInput, args: { field: string; value: any }
     if (isArray(input)) {
         return input
             .map((data: any) => {
-                if (!ts.isPlainObject(data)) return null;
+                if (!ts.isObjectEntity(data)) return null;
                 data[field] = value;
                 return data;
             })
             .filter(ts.isNotNil);
     }
 
-    if (!ts.isPlainObject(input)) return null;
+    if (!ts.isObjectEntity(input)) return null;
 
     input[field] = value;
     return input;
@@ -138,15 +150,19 @@ export function setField(input: RecordInput, args: { field: string; value: any }
  *
  * const obj = { hello: 'world', other: 'stuff', last: 'thing' };
  * const config = { fields: ['other', 'last']} ;
- * const results = RecordTransform.dropFields(cloneDeep(obj), config);
- * expect(results).toEqual({ hello: 'world' });
+ * const results = RecordTransform.dropFields(cloneDeep(obj), cloneDeep(obj), config);
+ * results; // { hello: 'world' };
  *
  * @param {*} record
  * @param {{ fields: string[] }} args
  * @returns object
  */
 
-export function dropFields(input: RecordInput, args: { fields: string[] }) {
+export function dropFields(
+    input: RecordInput,
+    _parentContext: RecordInput,
+    args: { fields: string[] }
+) {
     if (ts.isNil(input)) return null;
     _validateArgs(args, ['fields']);
 
@@ -163,7 +179,7 @@ export function dropFields(input: RecordInput, args: { fields: string[] }) {
 }
 
 function _removeKeys(obj: ts.AnyObject, fields: string[]) {
-    if (!ts.isPlainObject(obj)) return null;
+    if (!ts.isObjectEntity(obj)) return null;
 
     for (const field of fields) {
         delete obj[field];
@@ -180,15 +196,19 @@ function _removeKeys(obj: ts.AnyObject, fields: string[]) {
  * @example
  * const obj = { hello: 'world', other: 'stuff' };
  * const config = { from: 'other', to: 'myCopy' };
- * const results = RecordTransform.copyField(cloneDeep(obj), config);
- * expect(results).toEqual({ hello: 'world', other: 'stuff', myCopy: 'stuff' });
+ * const results = RecordTransform.copyField(cloneDeep(obj), cloneDeep(obj), config);
+ * results; // { hello: 'world', other: 'stuff', myCopy: 'stuff' };
  *
  * @param {*} record
  * @param {{ from: string; to: string }} args
  * @returns object
  */
 
-export function copyField(input: RecordInput, args: { from: string; to: string }) {
+export function copyField(
+    input: RecordInput,
+    _parentContext: RecordInput,
+    args: { from: string; to: string }
+) {
     if (ts.isNil(input)) return null;
     _validateArgs(args, ['from', 'to']);
 
@@ -205,7 +225,7 @@ export function copyField(input: RecordInput, args: { from: string; to: string }
 }
 
 function _copyField(doc: ts.AnyObject, from: string, to: string) {
-    if (!ts.isPlainObject(doc)) return null;
+    if (!ts.isObjectEntity(doc)) return null;
 
     if (doc[from] !== undefined) doc[to] = doc[from];
     return doc;
@@ -218,3 +238,40 @@ function _validateArgs(args: ts.AnyObject, fields: string[]) {
         if (args[key] === undefined) throw new Error(`key ${key} was not provided on args, it is required`);
     }
 }
+
+/**
+ * Will execaute a jexl expression. Can use data-mate functions inside the jexl expression.
+ * You do not need to specify the parent context argument as that is automatically
+ * the docuemnt used as to call it.
+ *
+ * @example
+ *
+ * const obj = { hello: 'world', other: 'stuff' };
+ * const config = { query: '[hello]', field: 'final' };
+ * const results = RecordTransform.transformRecord(clone, clone, config)
+ * results === { hello: 'world', other: 'stuff', final: ['world'] });
+ *
+ * const obj = { foo: 'bar' };
+ * const config = {
+ *   jexlExp: 'foo|extract({ jexlExp: "foo|toUpperCase" })', field: 'final'
+ * };
+ *
+ * const mixedData = [obj, undefined, null];
+ *
+ * const results = RecordTransform.transformRecord(
+ *    mixedData, mixedData, config
+ * )
+ *
+ * results === [{ foo: 'bar', final: 'BAR' }];
+ *
+ * @param {*} record
+ * @param {{ field: string; query: string }} args
+ * @returns object
+ */
+
+// this will be overritten by transformRecord in jexl folder
+export function transformRecord(
+    _input: RecordInput,
+    _parentContext: RecordInput,
+    _args: any
+): any { }

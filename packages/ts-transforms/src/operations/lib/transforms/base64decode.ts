@@ -11,7 +11,7 @@ export default class Base64Decode extends TransformOpBase {
         return Buffer.from(data, 'base64').toString('utf8');
     }
 
-    run(record: DataEntity): DataEntity {
+    run(record: DataEntity): DataEntity | null {
         return this.execute(record, this.decode);
     }
 }

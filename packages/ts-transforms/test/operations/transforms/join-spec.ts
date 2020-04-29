@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, cloneDeep } from '@terascope/utils';
 import { Join } from '../../../src/operations';
 
 describe('join operator', () => {
@@ -46,7 +46,7 @@ describe('join operator', () => {
         };
         const test = new Join(opConfig);
         const data = new DataEntity({ first: 'John', last: 'Doe' });
-        const results = test.run(data);
+        const results = test.run(cloneDeep(data));
 
         expect(DataEntity.isDataEntity(results)).toEqual(true);
         expect(results).toEqual({ first: 'John', last: 'Doe', full: 'JohnDoe' });
@@ -62,7 +62,7 @@ describe('join operator', () => {
         };
         const test = new Join(opConfig);
         const data = new DataEntity({ first: 'John', last: 'Doe' });
-        const results = test.run(data);
+        const results = test.run(cloneDeep(data));
 
         expect(DataEntity.isDataEntity(results)).toEqual(true);
         expect(results).toEqual({ first: 'John', last: 'Doe', full: 'JohnDoe' });
@@ -79,7 +79,7 @@ describe('join operator', () => {
         };
         const test = new Join(opConfig);
         const data = new DataEntity({ firstGroup: ['John', 'Sarah'], secondGroup: ['Connor', 'Billy'] });
-        const results = test.run(data);
+        const results = test.run(cloneDeep(data));
 
         expect(DataEntity.isDataEntity(results)).toEqual(true);
         expect(results).toEqual({
@@ -113,8 +113,8 @@ describe('join operator', () => {
         const data = new DataEntity({ first: 'John', last: 'Doe' });
         const data2 = new DataEntity({ first: 'John', last: 'Doe' });
 
-        const results1 = test1.run(data);
-        const results2 = test2.run(data2);
+        const results1 = test1.run(cloneDeep(data));
+        const results2 = test2.run(cloneDeep(data2));
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
         expect(DataEntity.isDataEntity(results2)).toEqual(true);
@@ -134,7 +134,7 @@ describe('join operator', () => {
         const test = new Join(opConfig);
         const metaData = { selectors: { 'some:data': true } };
         const data = new DataEntity({ person: { first: 'John', last: 'Doe' } }, metaData);
-        const results = test.run(data);
+        const results = test.run(cloneDeep(data));
 
         expect(DataEntity.isDataEntity(results)).toEqual(true);
         expect(results.getMetadata('selectors')).toEqual(metaData.selectors);

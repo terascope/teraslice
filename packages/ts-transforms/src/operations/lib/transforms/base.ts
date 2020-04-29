@@ -20,18 +20,22 @@ export default abstract class TransformOpBase extends OperationBase {
                 });
                 if (results.length === 0) {
                     this.removeSource(doc);
+                    if (Object.keys(doc).length === 0) return null;
                 } else {
                     this.set(doc, results);
                 }
             } else if (typeof value !== 'string') {
                 this.removeSource(doc);
+                if (Object.keys(doc).length === 0) return null;
             } else {
                 const mystuff = fn(value);
                 this.set(doc, mystuff);
             }
         } catch (err) {
             this.removeSource(doc);
+            if (Object.keys(doc).length === 0) return null;
         }
+
         return doc;
     }
 
