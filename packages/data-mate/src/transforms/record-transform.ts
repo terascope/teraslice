@@ -93,7 +93,7 @@ export function renameField(
 }
 
 function _migrate(doc: ts.AnyObject, from: string, to: string) {
-    if (!ts.isObjectLike(doc)) return null;
+    if (!ts.isObjectEntity(doc)) return null;
 
     doc[to] = doc[from];
     delete doc[from];
@@ -130,14 +130,14 @@ export function setField(
     if (isArray(input)) {
         return input
             .map((data: any) => {
-                if (!ts.isObjectLike(data)) return null;
+                if (!ts.isObjectEntity(data)) return null;
                 data[field] = value;
                 return data;
             })
             .filter(ts.isNotNil);
     }
 
-    if (!ts.isObjectLike(input)) return null;
+    if (!ts.isObjectEntity(input)) return null;
 
     input[field] = value;
     return input;
@@ -179,7 +179,7 @@ export function dropFields(
 }
 
 function _removeKeys(obj: ts.AnyObject, fields: string[]) {
-    if (!ts.isObjectLike(obj)) return null;
+    if (!ts.isObjectEntity(obj)) return null;
 
     for (const field of fields) {
         delete obj[field];
@@ -225,7 +225,7 @@ export function copyField(
 }
 
 function _copyField(doc: ts.AnyObject, from: string, to: string) {
-    if (!ts.isObjectLike(doc)) return null;
+    if (!ts.isObjectEntity(doc)) return null;
 
     if (doc[from] !== undefined) doc[to] = doc[from];
     return doc;

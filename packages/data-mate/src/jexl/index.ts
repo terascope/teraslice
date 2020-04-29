@@ -188,7 +188,7 @@ export function transformRecord(
     if (FieldValidator.isArray(input)) {
         return input
             .map((data: any) => {
-                if (!ts.isObjectLike(data)) return null;
+                if (!ts.isObjectEntity(data)) return null;
                 const value = jexl.evalSync(args.jexlExp, data);
                 if (ts.isNotNil(value)) data[args.field] = value;
                 return data;
@@ -196,7 +196,7 @@ export function transformRecord(
             .filter(ts.isNotNil);
     }
 
-    if (!ts.isObjectLike(input)) return null;
+    if (!ts.isObjectEntity(input)) return null;
 
     const value = jexl.evalSync(args.jexlExp, input);
     if (ts.isNotNil(value)) input[args.field] = value;

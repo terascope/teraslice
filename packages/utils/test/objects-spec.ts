@@ -4,7 +4,7 @@ import {
     getFirstValue,
     withoutNil,
     filterObject,
-    isObjectLike
+    isObjectEntity
 } from '../src/objects';
 import { DataEntity } from '../src';
 
@@ -128,30 +128,30 @@ describe('Objects', () => {
         });
     });
 
-    describe('isObjectLike', () => {
+    describe('isObjectEntity', () => {
         describe('when given an object', () => {
             it('should return true', () => {
                 const obj = { key1: 1, key2: 2 };
-                expect(isObjectLike(obj)).toBeTrue();
+                expect(isObjectEntity(obj)).toBeTrue();
             });
         });
 
         describe('when given a DataEntity', () => {
             it('should return true', () => {
                 const data = new DataEntity({});
-                expect(isObjectLike(data)).toBeTrue();
+                expect(isObjectEntity(data)).toBeTrue();
             });
         });
 
         describe('when given anything else', () => {
             it('should return false', () => {
-                expect(isObjectLike(1234)).toBeFalse();
-                expect(isObjectLike('1234')).toBeFalse();
-                expect(isObjectLike([])).toBeFalse();
-                expect(isObjectLike([{ hello: 'world' }])).toBeFalse();
-                expect(isObjectLike(null)).toBeFalse();
-                expect(isObjectLike(new Set())).toBeFalse();
-                expect(isObjectLike(new Map())).toBeFalse();
+                expect(isObjectEntity(1234)).toBeFalse();
+                expect(isObjectEntity('1234')).toBeFalse();
+                expect(isObjectEntity([])).toBeFalse();
+                expect(isObjectEntity([{ hello: 'world' }])).toBeFalse();
+                expect(isObjectEntity(null)).toBeFalse();
+                expect(isObjectEntity(new Set())).toBeFalse();
+                expect(isObjectEntity(new Map())).toBeFalse();
             });
         });
     });
