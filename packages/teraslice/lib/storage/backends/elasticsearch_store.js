@@ -462,7 +462,7 @@ module.exports = function elasticsearchStorage(backendConfig) {
     }
 
     async function putTemplate(template, name) {
-        return elasticsearch.putTemplate(template, name)
+        return elasticsearch.putTemplate(template, name);
     }
 
     function verifyClient() {
