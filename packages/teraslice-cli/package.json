@@ -38,7 +38,7 @@
     "dependencies": {
         "@terascope/fetch-github-release": "^0.6.0",
         "@terascope/utils": "^0.26.2",
-        "archiver": "^3.0.0",
+        "archiver": "^4.0.1",
         "chalk": "^4.0.0",
         "cli-table3": "^0.6.0",
         "easy-table": "^1.1.1",
@@ -50,10 +50,10 @@
         "request-promise": "^4.2.5",
         "signale": "^1.4.0",
         "teraslice-client-js": "^0.18.3",
-        "tmp": "^0.1.0",
+        "tmp": "^0.2.0",
         "tty-table": "^4.1.1",
         "yargs": "^15.3.1",
-        "yeoman-environment": "^2.9.1",
+        "yeoman-environment": "^2.9.4",
         "yeoman-generator": "^4.8.2",
         "yo": "^3.1.1"
     },

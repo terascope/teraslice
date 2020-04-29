@@ -28,7 +28,7 @@
         "@terascope/data-types": "^0.17.2",
         "@terascope/types": "^0.3.0",
         "@terascope/utils": "^0.26.2",
-        "ajv": "^6.12.0",
+        "ajv": "^6.12.2",
         "uuid": "^7.0.2",
         "xlucene-translator": "^0.5.3"
     },
