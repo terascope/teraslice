@@ -10746,7 +10746,7 @@ sort-on@^3.0.0:
     arrify "^1.0.0"
     dot-prop "^4.1.1"
 
-sort-package-json@1.40.0:
+sort-package-json@~1.40.0:
   version "1.40.0"
   resolved "https://registry.yarnpkg.com/sort-package-json/-/sort-package-json-1.40.0.tgz#81ad8c2bd7dd21b6a127ab4a26186a160f07a157"
   integrity sha512-3Uc1kjmQ3SYuKziKghZvA23SihOqGxEjK2QPfFPmd7BMo9rWiJdC2FJWvAZbfhLWapuJrdmkUf6Kp0G4Wtuv5w==
