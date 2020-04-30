@@ -1,4 +1,4 @@
-import { DataEntity } from '@terascope/utils';
+import { DataEntity, cloneDeep } from '@terascope/utils';
 import { HexEncode } from '../../../src/operations';
 
 describe('HexEncode operator', () => {
@@ -16,10 +16,10 @@ describe('HexEncode operator', () => {
     it('can properly throw with bad config values', () => {
         const badConfig1 = { target: 1324, __id: 'someId', follow: 'otherId' };
         const badConfig2 = { target: '', __id: 'someId', follow: 'otherId' };
-        const badConfig3 = { target: {}, __id: 'someId', follow: 'otherId' };
+        const badConfig3 = { target: null, __id: 'someId', follow: 'otherId' };
         const badConfig4 = { target: null, __id: 'someId', follow: 'otherId' };
         const badConfig5 = { source: [], __id: 'someId', follow: 'otherId' };
-        const badConfig6 = { source: {}, __id: 'someId', follow: 'otherId' };
+        const badConfig6 = { source: null, __id: 'someId', follow: 'otherId' };
         const badConfig7 = { source: null, __id: 'someId', follow: 'otherId' };
         const badConfig8 = {
             source: '', target: '', __id: 'someId', follow: 'otherId'
@@ -60,33 +60,30 @@ describe('HexEncode operator', () => {
         const data11 = new DataEntity({ source: ('hello world') }, metaData);
         const data12 = new DataEntity({ source: ['hello world', 'other things'] }, metaData);
 
-        const results1 = test.run(data1);
-        const results2 = test.run(data2);
-        const results3 = test.run(data3);
-        const results4 = test.run(data4);
-        const results5 = test.run(data5);
-        const results6 = test.run(data6);
-        const results7 = test.run(data7);
-        const results8 = test.run(data8);
-        const results9 = test.run(data9);
-        const results10 = test.run(data10);
-        const results11 = test.run(data11);
-        const results12 = test.run(data12);
+        const results1 = test.run(cloneDeep(data1));
+        const results2 = test.run(cloneDeep(data2));
+        const results3 = test.run(cloneDeep(data3));
+        const results4 = test.run(cloneDeep(data4));
+        const results5 = test.run(cloneDeep(data5));
+        const results6 = test.run(cloneDeep(data6));
+        const results7 = test.run(cloneDeep(data7));
+        const results8 = test.run(cloneDeep(data8));
+        const results9 = test.run(cloneDeep(data9));
+        const results10 = test.run(cloneDeep(data10));
+        const results11 = test.run(cloneDeep(data11));
+        const results12 = test.run(cloneDeep(data12));
 
-        expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(results1.getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(results1).toEqual({});
-        expect(results2.getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(results2).toEqual({});
-        expect(results3).toEqual({});
-        expect(results4).toEqual({});
-        expect(results5).toEqual({});
-        expect(results6).toEqual({});
+        expect(results1).toEqual(null);
+        expect(results2).toEqual(null);
+        expect(results3).toEqual(null);
+        expect(results4).toEqual(null);
+        expect(results5).toEqual(null);
+        expect(results6).toEqual(null);
         expect(results7).toEqual({ source: encode('http:// google.com') });
         expect(results8).toEqual({ source: encode('ha3ke5@pawnage.com') });
         expect(results9).toEqual({ source: encode('::') });
         expect(results10).toEqual({ source: encode('193.0.0.23') });
-        expect(results11.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results11?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results11).toEqual({ source: encode('hello world') });
         expect(results12).toEqual({ source: [encode('hello world'), encode('other things')] });
     });
@@ -100,9 +97,9 @@ describe('HexEncode operator', () => {
 
         const data = new DataEntity({ source: { field: 'hello world' } }, metaData);
 
-        const results = test.run(data);
+        const results = test.run(cloneDeep(data));
 
-        expect(results.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results).toEqual({ source: { field: encode('hello world') } });
     });
 });

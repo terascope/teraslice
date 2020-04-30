@@ -3,12 +3,24 @@ import { AnyObject } from '@terascope/utils';
 
 export type ArgSchema = Config & { description?: string };
 
+export enum InputType {
+    String = 'String',
+    Array = 'Array',
+    Number = 'Number',
+    Boolean = 'Boolean',
+    Object = 'Object',
+    Any = 'Any'
+}
+
+export interface RepoConfig {
+    fn: any;
+    config: ArgSchema;
+    output_type?: AvailableType;
+    primary_input_type: InputType;
+}
+
 export interface Repository {
-    [key: string]: {
-        fn: any;
-        config: ArgSchema;
-        output_type?: AvailableType;
-    };
+    [key: string]: RepoConfig;
 }
 
 interface Config {
@@ -16,3 +28,11 @@ interface Config {
 }
 
 export type RecordInput = AnyObject | AnyObject[];
+
+export interface ExtractFieldConfig {
+    regex?: string;
+    isMultiValue?: boolean;
+    jexlExp?: string;
+    start?: any;
+    end?: any;
+}

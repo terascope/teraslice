@@ -37,6 +37,7 @@ export default class ExtractionPhase extends PhaseBase {
                 resultsList.push(results.entity);
             }
         }
+
         return resultsList;
     }
 }

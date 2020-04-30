@@ -11,7 +11,7 @@ export default class UrlDecode extends TransformOpBase {
         return decodeURIComponent(data);
     }
 
-    run(record: DataEntity): DataEntity {
+    run(record: DataEntity): DataEntity | null {
         return this.execute(record, this.decode);
     }
 }

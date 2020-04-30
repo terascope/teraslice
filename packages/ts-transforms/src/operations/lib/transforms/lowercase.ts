@@ -25,6 +25,7 @@ export default class Lowercase extends TransformOpBase {
             }
         } else {
             this.removeSource(doc);
+            if (Object.keys(doc).length === 0) return null;
         }
         return doc;
     }

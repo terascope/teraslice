@@ -37,6 +37,7 @@ export default class SelectionPhase extends PhaseBase {
                     results.push(record);
                 }
             }
+
             return results;
         }
 

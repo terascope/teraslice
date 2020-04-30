@@ -5,18 +5,10 @@ import { PostProcessConfig } from '../../../interfaces';
 export default class Geolocation extends ValidationOpBase<any> {
     constructor(config: PostProcessConfig) {
         super(config);
-        // console.log("the config", config, this.target)
         // need to change source location to target parent field
         this.source = parentFieldPath(this.source);
         this.target = parentFieldPath(this.target);
-
         this.destination = this.target || this.source;
-        // console.log('source', this.source, this.target)
-        // TODO: fix this overwriting, this checks if its a compact config
-        // if (config.target && config.source) {
-        //     this.hasTarget = false;
-        //     this.destination = this.source;
-        // }
     }
 
     validate(geoData: any) {
@@ -40,12 +32,21 @@ export default class Geolocation extends ValidationOpBase<any> {
                 isValid = true;
             }
         }
+
         return isValid;
     }
 }
 
 function formatPath(str: string) {
-    return str.lastIndexOf('.') === -1 ? str : str.slice(0, str.lastIndexOf('.'));
+    const parsedPath = str.split('.');
+    const lastPath = parsedPath[parsedPath.length - 1];
+
+    if (isGeoPathName(lastPath)) {
+        parsedPath.pop();
+        return parsedPath.join('.');
+    }
+
+    return str;
 }
 
 function parentFieldPath(field: string|string[]): string|string[] {
@@ -53,4 +54,8 @@ function parentFieldPath(field: string|string[]): string|string[] {
         return field.map(formatPath)[0];
     }
     return formatPath(field);
+}
+
+function isGeoPathName(val: string) {
+    return ['lat', 'lon', 'latitude', 'longitude'].includes(val);
 }

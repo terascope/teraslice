@@ -1,6 +1,7 @@
 import { WithoutNil, FilteredResult } from './interfaces';
 import { isBooleanLike } from './booleans';
 import { get, isPlainObject } from './deps';
+import { DataEntity } from './entities';
 
 /**
  * Similar to is-plain-object but works better when clone deeping a DataEntity
@@ -20,6 +21,10 @@ export function getFirstValue<T>(input: { [key: string]: T }): T | undefined {
 
 export function getFirstKey<T>(input: T): (keyof T) | undefined {
     return Object.keys(input)[0] as keyof T;
+}
+
+export function isObjectEntity(input: any) {
+    return DataEntity.isDataEntity(input) || isSimpleObject(input);
 }
 
 /**

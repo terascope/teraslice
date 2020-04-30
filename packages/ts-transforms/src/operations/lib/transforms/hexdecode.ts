@@ -11,7 +11,7 @@ export default class HexDecode extends TransformOpBase {
         return Buffer.from(data, 'hex').toString('utf8');
     }
 
-    run(record: DataEntity): DataEntity {
+    run(record: DataEntity): DataEntity | null {
         return this.execute(record, this.decode);
     }
 }

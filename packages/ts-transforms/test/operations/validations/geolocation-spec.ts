@@ -1,4 +1,5 @@
-import { DataEntity } from '@terascope/utils';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { DataEntity, cloneDeep } from '@terascope/utils';
 import { Geolocation } from '../../../src/operations';
 
 describe('geolocation validation', () => {
@@ -46,32 +47,32 @@ describe('geolocation validation', () => {
             metaData
         );
 
-        const results1 = test.run(data1);
-        const results2 = test.run(data2);
-        const results3 = test.run(data3);
-        const results4 = test.run(data4);
-        const results5 = test.run(data5);
-        const results6 = test.run(data6);
-        const results7 = test.run(data7);
-        const results8 = test.run(data8);
-        const results9 = test.run(data9);
-        const results10 = test.run(data10);
-        const results11 = test.run(data11);
+        const results1 = test.run(cloneDeep(data1));
+        const results2 = test.run(cloneDeep(data2));
+        const results3 = test.run(cloneDeep(data3));
+        const results4 = test.run(cloneDeep(data4));
+        const results5 = test.run(cloneDeep(data5));
+        const results6 = test.run(cloneDeep(data6));
+        const results7 = test.run(cloneDeep(data7));
+        const results8 = test.run(cloneDeep(data8));
+        const results9 = test.run(cloneDeep(data9));
+        const results10 = test.run(cloneDeep(data10));
+        const results11 = test.run(cloneDeep(data11));
 
         expect(DataEntity.isDataEntity(results1)).toEqual(true);
-        expect(results1.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results1?.getMetadata('selectors')).toEqual(metaData.selectors);
         expect(results1).toEqual(data1);
         expect(results2).toEqual(data2);
-        expect(results3).toEqual({});
-        expect(results4).toEqual({});
-        expect(results5).toEqual({});
-        expect(results6).toEqual({});
+        expect(results3).toEqual(null);
+        expect(results4).toEqual(null);
+        expect(results5).toEqual(null);
+        expect(results6).toEqual(null);
         expect(DataEntity.isDataEntity(results7)).toEqual(true);
         expect(results7).toEqual(data7);
         expect(DataEntity.isDataEntity(results8)).toEqual(true);
         expect(results8).toEqual(data8);
-        expect(results8.getMetadata('selectors')).toEqual(metaData.selectors);
-        expect(results9).toEqual({});
+        expect(results8?.getMetadata('selectors')).toEqual(metaData.selectors);
+        expect(results9).toEqual(null);
         expect(results10).toEqual(data10);
         expect(results11).toEqual({ location: ['56.23424357895435,95.23423450985438972'] });
     });
@@ -80,19 +81,21 @@ describe('geolocation validation', () => {
         const opConfig = {
             source: 'event.location', target: 'event.location', __id: 'someId', follow: 'otherId'
         };
+        const metaData = { selectors: { 'some:query': true } };
+
         const test = new Geolocation(opConfig);
 
         const data1 = new DataEntity({ event: 'something' });
         const data2 = new DataEntity({ event: {} });
-        const data3 = new DataEntity({ event: { location: '56.234,95.234' } });
-        const data4 = new DataEntity({ event: { location: { lat: '56.234', lon: '95.234' } } });
+        const data3 = new DataEntity({ event: { location: '56.234,95.234' } }, metaData);
+        const data4 = new DataEntity({ event: { location: { lat: '56.234', lon: '95.234' } } }, metaData);
         const data5 = new DataEntity({ event: { location: 'sadrasfwe32q' } });
 
-        const results1 = test.run(data1);
-        const results2 = test.run(data2);
-        const results3 = test.run(data3);
-        const results4 = test.run(data4);
-        const results5 = test.run(data5);
+        const results1 = test.run(cloneDeep(data1));
+        const results2 = test.run(cloneDeep(data2));
+        const results3 = test.run(cloneDeep(data3));
+        const results4 = test.run(cloneDeep(data4));
+        const results5 = test.run(cloneDeep(data5));
 
         expect(results1).toEqual(data1);
         expect(results2).toEqual(data2);
