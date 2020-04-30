@@ -7,7 +7,7 @@ sidebar_label: Overview
 
 Teraslice State Storage provides an LRU caching system, based on [mnemonist's](https://www.npmjs.com/package/mnemonist) LRU map, for teraslice processors. The in memory cache can be backed by a persistant storage system like Elasticsearch if a more robust cache is needed.
 
-The advantage of having the LRU cache backed by a persistant storage system like Elasticsearch is that if the key is not in the cache the processor will search an elasticsearch index for the key and if it is found will add it to the cache.  This essentially expands the cashe to the size of the underlying elasticsearch index without requiring the same memory resources in Teraslice.  The potential drawback is that on data sets with a large key set the processor will be continously seaching elasticsearch for each key which would render the caching mechanism pointless.
+The advantage of having the LRU cache backed by a persistant storage system like Elasticsearch is that if the key is not in the cache the processor will search an elasticsearch index for the key and if it is found will add it to the cache.  This essentially expands the cache to the size of the underlying elasticsearch index without requiring the same memory resources in Teraslice.  The potential drawback is that on data sets with a large key set the processor will be continously seaching elasticsearch for each key which would render the caching mechanism pointless.
 
 ## Usage
 Add the state storoge api must be added to the job file under the 'apis' property to be accessible by a processor.
