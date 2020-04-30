@@ -16,12 +16,4 @@ describe('jexl', () => {
         expect(jexl.evalSync('foo|isNumber', { foo: 'bar' })).toEqual(false);
         expect(jexl.evalSync('baz|isNumber', { baz: 234 })).toEqual(true);
     });
-
-    it('can run record validations', () => {
-        expect(jexl.evalSync('field|required({ fields: ["foo"]})', { field: { foo: 'bar' } })).toEqual({ foo: 'bar' });
-    });
-
-    it('can run record transforms', () => {
-        expect(jexl.evalSync('field|dropFields({ fields: ["foo"]})', { field: { foo: 'bar', hello: 'there' } })).toEqual({ hello: 'there' });
-    });
 });

@@ -52,7 +52,7 @@ export const repository: Repository = {
 };
 
 function _filterBy(fn: any, input: any[], args?: any) {
-    const sanitized = input.filter((data) => ts.isNotNil(data) && ts.isObjectLike(data));
+    const sanitized = input.filter((data) => ts.isNotNil(data) && ts.isObjectEntity(data));
     if (sanitized.length === 0) return [];
 
     return sanitized.filter((data) => fn(data, args));
@@ -139,26 +139,26 @@ export function select(
     if (!matcher) return null;
 
     if (isArray(input)) {
-        const fn = (data: ts.AnyObject) => ts.isObjectLike(data) && matcher.match(data);
+        const fn = (data: ts.AnyObject) => ts.isObjectEntity(data) && matcher.match(data);
         return _filterBy(fn, input);
     }
 
-    if (ts.isObjectLike(input) && matcher.match(input)) return input;
+    if (ts.isObjectEntity(input) && matcher.match(input)) return input;
 
     return null;
 }
 
 function _validateMatcher(input: RecordInput, args: DMOptions) {
     if (ts.isNil(input)) return null;
-    if (ts.isNil(args) || !ts.isObjectLike(args)) {
+    if (ts.isNil(args) || !ts.isObjectEntity(args)) {
         throw new Error(`Parameter args must be provided and be an object, got ${ts.getTypeOf(args)}`);
     }
 
     const { query = '*', type_config, variables } = args;
 
     if (!isString(query)) throw new Error(`Invalid query, must be a string, got ${ts.getTypeOf(args)}`);
-    if ((type_config && !ts.isObjectLike(type_config))) throw new Error(`Invalid argument typeConfig must be an object got ${ts.getTypeOf(args)}`);
-    if ((variables && !ts.isObjectLike(variables))) throw new Error(`Invalid argument variables must be an object got ${ts.getTypeOf(args)}`);
+    if ((type_config && !ts.isObjectEntity(type_config))) throw new Error(`Invalid argument typeConfig must be an object got ${ts.getTypeOf(args)}`);
+    if ((variables && !ts.isObjectEntity(variables))) throw new Error(`Invalid argument variables must be an object got ${ts.getTypeOf(args)}`);
 
     return new DocumentMatcher(query, { type_config, variables });
 }
@@ -192,10 +192,10 @@ export function reject(
     if (!matcher) return null;
 
     if (isArray(input)) {
-        const fn = (data: ts.AnyObject) => ts.isObjectLike(data) && !matcher.match(data);
+        const fn = (data: ts.AnyObject) => ts.isObjectEntity(data) && !matcher.match(data);
         return _filterBy(fn, input);
     }
 
-    if (ts.isObjectLike(input) && !matcher.match(input)) return input;
+    if (ts.isObjectEntity(input) && !matcher.match(input)) return input;
     return null;
 }

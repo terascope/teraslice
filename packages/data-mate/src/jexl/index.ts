@@ -1,7 +1,7 @@
 import jexlCore from 'jexl';
 import * as ts from '@terascope/utils';
 import { AvailableType } from '@terascope/data-types';
-import { FieldTransform, RecordTransform } from '../transforms';
+import { FieldTransform } from '../transforms';
 import { FieldValidator, RecordValidator } from '../validations';
 import {
     Repository, InputType, RepoConfig, ExtractFieldConfig, RecordInput
@@ -56,7 +56,6 @@ function setup(operationClass: any) {
 
 setup(FieldTransform);
 setup(FieldValidator);
-setup(RecordTransform);
 setup(RecordValidator);
 
 jexl.addTransform(extract.name, bridge(extract));
@@ -140,8 +139,9 @@ export function extract(
         try {
             return jexl.evalSync(jexlExp as string, parentContext);
         } catch (err) {
-            const errMessage = `Invalid jexl expression: ${jexlExp}, error: ${err.message}`;
-            throw new ts.TSError(errMessage);
+            throw new ts.TSError(err, {
+                message: `Invalid jexl expression: ${jexlExp}`
+            });
         }
     }
 
@@ -190,7 +190,7 @@ export function transformRecord(
     if (FieldValidator.isArray(input)) {
         return input
             .map((data: any) => {
-                if (!ts.isObjectLike(data)) return null;
+                if (!ts.isObjectEntity(data)) return null;
                 const value = jexl.evalSync(args.jexlExp, data);
                 if (ts.isNotNil(value)) data[args.field] = value;
                 return data;
@@ -198,7 +198,7 @@ export function transformRecord(
             .filter(ts.isNotNil);
     }
 
-    if (!ts.isObjectLike(input)) return null;
+    if (!ts.isObjectEntity(input)) return null;
 
     const value = jexl.evalSync(args.jexlExp, input);
     if (ts.isNotNil(value)) input[args.field] = value;

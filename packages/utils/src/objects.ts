@@ -23,7 +23,7 @@ export function getFirstKey<T>(input: T): (keyof T) | undefined {
     return Object.keys(input)[0] as keyof T;
 }
 
-export function isObjectLike(input: any) {
+export function isObjectEntity(input: any) {
     return DataEntity.isDataEntity(input) || isSimpleObject(input);
 }
 
