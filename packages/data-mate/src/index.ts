@@ -11,7 +11,7 @@ RecordTransform.repository.transformRecord = transformRecordConfig;
 RecordTransform.transformRecord = transformRecord;
 
 export * from './transforms/helpers';
-
+export * from './aggregations';
 export * from './validations';
 export * from './interfaces';
 export {
