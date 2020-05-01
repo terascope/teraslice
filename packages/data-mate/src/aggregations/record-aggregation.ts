@@ -3,6 +3,7 @@ import { AvailableType } from '@terascope/data-types';
 import { BatchConfig, ValidatedBatchConfig } from './interfaces';
 import { Repository, InputType } from '../interfaces';
 import { isArray } from '../validations/field-validator';
+import { isNumber } from 'util';
 
 export const repository: Repository = {
     unique: {
@@ -63,16 +64,32 @@ function getNumbers(input: any) {
     return null;
 }
 
+function filterValues(input: any) {
+    if (isArray(input)) {
+        return input.filter(unProcessableValues);
+    }
+
+    return [input].filter(unProcessableValues);
+}
+
+function unProcessableValues(data: any): boolean {
+    return ts.isNumber(data) || ts.isBoolean(data) || !ts.isEmpty(data)
+}
+
 interface AggregationResults {
     data: AggregationData;
     keyRecord: ts.AnyObject;
 }
 
 interface AggregationData {
-    [key: string]: number[];
+    [key: string]: any[];
 }
 
-function batchByKeys(input: any, config: ValidatedBatchConfig) {
+interface FilterFn {
+    (input: any): any | null;
+}
+
+function batchByKeys(input: any, config: ValidatedBatchConfig, filterFn: FilterFn) {
     const data = isArray(input) ? input : [input];
     const { sourceField, targetField } = config;
     const batch = new Map<string, AggregationResults>();
@@ -83,7 +100,8 @@ function batchByKeys(input: any, config: ValidatedBatchConfig) {
 
     for (const record of data) {
         const rawFieldData = ts.get(record, sourceField);
-        const fieldData = getNumbers(rawFieldData);
+        const fieldData = filterFn(rawFieldData);
+
         if (ts.isNil(fieldData)) continue;
 
         const keyRecord = hasKeys ? ts.filterObject(record, excludes) : { [targetField]: true };
@@ -106,32 +124,37 @@ function batchByKeys(input: any, config: ValidatedBatchConfig) {
     return batch;
 }
 
-export function unique(input: any, _parentContext: any, batchConfig: BatchConfig) {
+export function unique(input: any, _parentContext: any, batchConfig: BatchConfig): any[] | null {
     const config = validateConfig(batchConfig);
 
     if (ts.isNil(input)) return null;
-    if (isArray(input)) {
-        const batchData = batchByKeys(input, config);
-        const results: any[] = [];
 
-        for (const aggregationObj of batchData.values()) {
-            const aggResults = ts.mapValues(aggregationObj.data, ts.uniq);
-            const aggregation = Object.assign({}, aggregationObj.keyRecord, aggResults);
-            results.push(aggregation);
-        }
+    const batchData = batchByKeys(input, config, filterValues);
+    const results: any[] = [];
 
-        return results;
+    for (const aggregationObj of batchData.values()) {
+        const aggResults = ts.mapValues(aggregationObj.data, ts.uniq);
+        const aggregation = Object.assign({}, aggregationObj.keyRecord, aggResults);
+        results.push(aggregation);
     }
 
-    return input;
+    return results;
 }
 
 export function count(input: any, _parentContext: any, batchConfig: BatchConfig) {
     const config = validateConfig(batchConfig);
+    if (ts.isNil(input)) return null;
 
-    if (ts.isNil(input)) return 0;
-    if (isArray(input)) return input.length;
-    return 1;
+    const batchData = batchByKeys(input, config, filterValues);
+    const results: any[] = [];
+
+    for (const aggregationObj of batchData.values()) {
+        const aggResults = ts.mapValues(aggregationObj.data, (val) => val.length);
+        const aggregation = Object.assign({}, aggregationObj.keyRecord, aggResults);
+        results.push(aggregation);
+    }
+
+    return results;
 }
 
 export function sum(input: any, _parentContext: any, batchConfig: BatchConfig) {
