@@ -38,7 +38,7 @@ const cmd: CommandModule = {
             y = y.option(choice, {
                 description: `Bump release by ${choice}`,
                 type: 'boolean',
-                default: choice === 'patch',
+                default: false,
                 conficts: ['release', ...otherChoices],
                 demandOption: true,
             });
@@ -79,12 +79,12 @@ const cmd: CommandModule = {
 
 function getRelease(argv: any): ReleaseType {
     const found = releaseChoices.filter((choice) => argv[choice]);
-    const release: ReleaseType|undefined = (argv.release || found[0]);
+    const release = argv.release as ReleaseType|undefined;
 
     if (!found.length) {
         const choices = releaseChoices.map((choice) => `--${choice}`).join(', ');
         throw new Error(`Bump requires at least one of ${choices} to be specified`);
-    } else if (release !== found[0]) {
+    } else if (release && found[0] && release !== found[0]) {
         throw new Error(`Cannot specify --release (DEPRECATED), use --${release} instead`);
     } else if (found.length > 1) {
         const choices = found.map((choice) => `--${choice}`).join(' and ');
