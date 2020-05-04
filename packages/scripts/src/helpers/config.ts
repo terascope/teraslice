@@ -30,7 +30,8 @@ export const KAFKA_DOCKER_IMAGE = process.env.KAFKA_DOCKER_IMAGE || 'blacktop/ka
 
 // make sure the string doesn't contain unwanted characters
 export const DEV_TAG = toSafeString((
-    process.env.TRAVIS_PULL_REQUEST_BRANCH
+    process.env.DEV_TAG
+    || process.env.TRAVIS_PULL_REQUEST_BRANCH
     || process.env.TRAVIS_BRANCH
     || process.env.CI_COMMIT_REF_SLUG
     || 'local'
