@@ -19,9 +19,10 @@ USAGE
 upgrade_interactive() {
     local cwd_arg="$1"
 
-    echoerr "* upgrading packages in $cwd_arg..." &&
-        yarn --cwd "$cwd_arg" &&
-        yarn --cwd "$cwd_arg" upgrade-interactive --latest
+    echoerr '* upgrading root packages...'
+
+    yarn --cwd "$cwd_arg" &&
+    yarn --cwd "$cwd_arg" upgrade-interactive --latest
 }
 
 main() {
@@ -35,8 +36,10 @@ main() {
 
     rm -rf packages/*/node_modules
 
-    upgrade_interactive "."
-    upgrade_interactive "e2e"
+    echoerr '* cleaning yarn cache...'
+    yarn cache clean
+
+    upgrade_interactive '.'
 
     ./scripts/reinstall.sh
 }

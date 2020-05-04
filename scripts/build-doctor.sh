@@ -137,10 +137,10 @@ cleanup_e2e_tests() {
         fi
     done
 
-    for log in e2e/logs/*.log; do
-        if [ -f "$log" ]; then
-            echoerr "* removing $log" &&
-            rm "$log"
+    for logFile in e2e/logs/*; do
+        if [ "$logFile" != ".gitkeep" ] && [ -f "$logFile" ]; then
+            echoerr "* removing $logFile" &&
+            rm "$logFile"
         fi
     done
 
@@ -171,10 +171,14 @@ post_cleanup() {
         echoerr "* running yarn jest --clear-cache" &&
         yarn jest --clear-cache || echo '* it is okay'
 
+    prompt "Do you want to clear your yarn cache?" &&
+        echoerr "* running yarn cache clean" &&
+        yarn cache clean || echo '* it is okay'
+
     prompt "Do you want to reinstall and setup the packages?" &&
         ./scripts/reinstall.sh
 
-     prompt "Do you want to run lint:fix?" &&
+    prompt "Do you want to run lint:fix?" &&
         echoerr "* running yarn lint:fix" &&
         yarn lint:fix
 }

@@ -8,7 +8,8 @@
         "url": "https://github.com/terascope/teraslice/issues"
     },
     "workspaces": [
-        "packages/*"
+        "packages/*",
+        "e2e"
     ],
     "scripts": {
         "benchmark": "lerna run --concurrency=1 --no-prefix --stream benchmark",
