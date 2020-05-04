@@ -58,7 +58,7 @@ export function getArgs(options: TestOptions): ArgsMap {
         args.notify = '';
     }
 
-    if (options.suite === 'e2e') {
+    if (options.suite?.includes('e2e')) {
         args.runInBand = '';
         args.coverage = 'false';
         args.bail = '';
@@ -129,14 +129,14 @@ export function setEnv(options: TestOptions, suite?: string) {
 }
 
 export function filterBySuite(pkgInfos: PackageInfo[], options: TestOptions): PackageInfo[] {
-    if (!options.suite) return pkgInfos.slice();
+    if (!options.suite?.length) return pkgInfos.slice();
 
     return pkgInfos.filter((pkgInfo) => {
         const suite = pkgInfo.terascope.testSuite;
         if (!suite) {
             throw new Error(`Package ${pkgInfo.name} missing required "terascope.testSuite" configuration`);
         }
-        if (suite === options.suite) {
+        if (options.suite!.includes(suite)) {
             logger.info(`* found ${pkgInfo.name} for suite ${suite} to test`);
             return true;
         }

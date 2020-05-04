@@ -86,7 +86,7 @@ export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
 }
 
 async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise<RunSuiteResult> {
-    if (options.suite === 'e2e') {
+    if (options.suite?.includes('e2e')) {
         return runE2ETest(options);
     }
 
