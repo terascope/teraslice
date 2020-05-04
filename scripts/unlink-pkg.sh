@@ -26,10 +26,11 @@ main() {
     esac
 
     yarn --silent unlink "$@"
+    yarn --cwd="e2e" --silent unlink "$@"
 
     for dir in ./packages/*; do
         if [ -d "$dir" ]; then
-            yarn --silent unlink "$@"
+            yarn --cwd="$dir" --silent unlink "$@"
 
             if [ -d "$dir/node_modules" ]; then
                 rm -rf "$dir/node_modules"

@@ -26,10 +26,11 @@ main() {
     esac
 
     yarn --silent link "$@"
+    yarn --cwd "e2e" --silent link "$@"
 
     for dir in ./packages/*; do
         if [ -d "$dir" ]; then
-            yarn --silent link "$@"
+            yarn --cwd "$dir" --silent link "$@"
         fi
     done
 
