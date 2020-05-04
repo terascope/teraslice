@@ -38,6 +38,8 @@ export const DEV_TAG = toSafeString((
 // convert dependabot/npm_and_yarn/dep-x.x.x to dependabot
 ).split('/')[0]);
 
+export const SKIP_E2E_OUTPUT_LOGS = toBoolean(process.env.SKIP_E2E_OUTPUT_LOGS ?? !isCI);
+
 const reportCov = process.env.REPORT_COVERAGE || `${isCI}`;
 export const REPORT_COVERAGE = toBoolean(reportCov);
 

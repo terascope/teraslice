@@ -6,7 +6,6 @@ import {
     TSError,
     isFunction,
     flatten,
-    toBoolean,
     isCI
 } from '@terascope/utils';
 import {
@@ -236,7 +235,7 @@ async function getE2ELogs(dir: string, env: ExecEnv): Promise<string> {
 
 export async function logE2E(dir: string, failed: boolean): Promise<void> {
     if (!failed) return;
-    if (toBoolean(process.env.SKIP_E2E_OUTPUT_LOGS)) return;
+    if (config.SKIP_E2E_OUTPUT_LOGS) return;
 
     const errLogs = await getE2ELogs(dir, {
         LOG_LEVEL: 'INFO',
