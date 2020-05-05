@@ -63,7 +63,7 @@
         "socket.io": "^1.7.4",
         "socket.io-client": "^1.7.4",
         "terafoundation": "^0.21.0",
-        "uuid": "^7.0.2"
+        "uuid": "^8.0.0"
     },
     "devDependencies": {
         "@terascope/teraslice-op-test-harness": "^1.17.0",
