@@ -610,17 +610,6 @@ describe('field FieldTransforms', () => {
         });
     });
 
-    describe('dedupe', () => {
-        it('should dedupe array values', () => {
-            expect(
-                FieldTransform.dedupe([1, 2, 2, 3, 3, 3, undefined, 4])
-            ).toEqual([1, 2, 3, undefined, 4]);
-
-            expect(FieldTransform.dedupe(null as any)).toBe(null);
-            expect(FieldTransform.dedupe(undefined as any)).toBe(null);
-        });
-    });
-
     describe('toGeoPoint', () => {
         it('should parse values', () => {
             expect(FieldTransform.toGeoPoint('60, 40')).toEqual({ lon: 40, lat: 60 });

@@ -50,7 +50,16 @@ describe('RecordAggregator', () => {
 
     describe('unique should', () => {
         it('return unique values when no keys are provided', () => {
-            const config: BatchConfig = { sourceField: 'numbers' };
+            const config: BatchConfig = { source: 'numbers' };
+            const expectedResults = [
+                { numbers: [1, 3, 4, 5, 6, 9, 2] }
+            ];
+
+            expect(RecordAggregator.unique(data, data, config)).toEqual(expectedResults);
+        });
+
+        it('should still behave correctly if keys are not on object', () => {
+            const config: BatchConfig = { source: 'numbers', keys: ['other'] };
             const expectedResults = [
                 { numbers: [1, 3, 4, 5, 6, 9, 2] }
             ];
@@ -59,7 +68,7 @@ describe('RecordAggregator', () => {
         });
 
         it('return unique values with mixed data when no keys are provided', () => {
-            const config: BatchConfig = { sourceField: 'numbers' };
+            const config: BatchConfig = { source: 'numbers' };
             const expectedResults = [
                 { numbers: [1, 3, 'hello', 4, 5, 6, 9, 2, { hello: 'world' }, 'other'] }
             ];
@@ -68,7 +77,7 @@ describe('RecordAggregator', () => {
         });
 
         it('returns the correct value if no array is provided', () => {
-            const config: BatchConfig = { sourceField: 'numbers' };
+            const config: BatchConfig = { source: 'numbers' };
 
             expect(
                 RecordAggregator.unique({ numbers: null }, { numbers: null }, config)
@@ -93,7 +102,7 @@ describe('RecordAggregator', () => {
         });
 
         it('return unique values grouped by keys', () => {
-            const config: BatchConfig = { sourceField: 'numbers', keys: ['field'] };
+            const config: BatchConfig = { source: 'numbers', keys: ['field'] };
             const expectedResults = [
                 {
                     field: 'value1',
@@ -114,9 +123,9 @@ describe('RecordAggregator', () => {
 
         it('return unique values grouped by keys but change source key name', () => {
             const config: BatchConfig = {
-                sourceField: 'numbers',
+                source: 'numbers',
                 keys: ['field'],
-                targetField: 'uniqNumbers'
+                target: 'uniqNumbers'
             };
             const expectedResults = [
                 {
@@ -137,7 +146,7 @@ describe('RecordAggregator', () => {
         });
 
         it('return correct values with mixed data', () => {
-            const config: BatchConfig = { sourceField: 'numbers', keys: ['field'] };
+            const config: BatchConfig = { source: 'numbers', keys: ['field'] };
             const expectedResults = [
                 {
                     field: 'value1',
@@ -159,7 +168,7 @@ describe('RecordAggregator', () => {
 
     describe('count should', () => {
         it('return the number of values when no keys are provided', () => {
-            const config: BatchConfig = { sourceField: 'numbers' };
+            const config: BatchConfig = { source: 'numbers' };
             const expectedResults = [
                 { numbers: 13 }
             ];
@@ -168,7 +177,7 @@ describe('RecordAggregator', () => {
         });
 
         it('return the number of values with mixed data when no keys are provided', () => {
-            const config: BatchConfig = { sourceField: 'numbers' };
+            const config: BatchConfig = { source: 'numbers' };
             const expectedResults = [
                 { numbers: 17 }
             ];
@@ -177,7 +186,7 @@ describe('RecordAggregator', () => {
         });
 
         it('return the number of values grouped by keys', () => {
-            const config: BatchConfig = { sourceField: 'numbers', keys: ['field'] };
+            const config: BatchConfig = { source: 'numbers', keys: ['field'] };
             const expectedResults = [
                 {
                     field: 'value1',
@@ -197,7 +206,7 @@ describe('RecordAggregator', () => {
         });
 
         it('returns the correct value if no array is provided', () => {
-            const config: BatchConfig = { sourceField: 'numbers' };
+            const config: BatchConfig = { source: 'numbers' };
 
             expect(
                 RecordAggregator.count({ numbers: null }, { numbers: null }, config)
@@ -223,9 +232,9 @@ describe('RecordAggregator', () => {
 
         it('return the number of values grouped by keys but change source key name', () => {
             const config: BatchConfig = {
-                sourceField: 'numbers',
+                source: 'numbers',
                 keys: ['field'],
-                targetField: 'counter'
+                target: 'counter'
             };
             const expectedResults = [
                 {
@@ -246,7 +255,7 @@ describe('RecordAggregator', () => {
         });
 
         it('return correct values with mixed data', () => {
-            const config: BatchConfig = { sourceField: 'numbers', keys: ['field'] };
+            const config: BatchConfig = { source: 'numbers', keys: ['field'] };
             const expectedResults = [
                 {
                     field: 'value1',
@@ -268,7 +277,7 @@ describe('RecordAggregator', () => {
 
     describe('sum should', () => {
         it('return the sum of values when no keys are provided', () => {
-            const config: BatchConfig = { sourceField: 'numbers' };
+            const config: BatchConfig = { source: 'numbers' };
             const expectedResults = [
                 { numbers: 60 }
             ];
@@ -277,7 +286,7 @@ describe('RecordAggregator', () => {
         });
 
         it('return the sum of values with mixed data when no keys are provided', () => {
-            const config: BatchConfig = { sourceField: 'numbers' };
+            const config: BatchConfig = { source: 'numbers' };
             const expectedResults = [
                 { numbers: 60 }
             ];
@@ -286,7 +295,7 @@ describe('RecordAggregator', () => {
         });
 
         it('return the sum of values grouped by keys', () => {
-            const config: BatchConfig = { sourceField: 'numbers', keys: ['field'] };
+            const config: BatchConfig = { source: 'numbers', keys: ['field'] };
             const expectedResults = [
                 {
                     field: 'value1',
@@ -306,7 +315,7 @@ describe('RecordAggregator', () => {
         });
 
         it('returns the correct value if no array is provided', () => {
-            const config: BatchConfig = { sourceField: 'numbers' };
+            const config: BatchConfig = { source: 'numbers' };
 
             expect(
                 RecordAggregator.sum({ numbers: null }, { numbers: null }, config)
@@ -332,9 +341,9 @@ describe('RecordAggregator', () => {
 
         it('return the sum of values grouped by keys but change source key name', () => {
             const config: BatchConfig = {
-                sourceField: 'numbers',
+                source: 'numbers',
                 keys: ['field'],
-                targetField: 'sumOfNumbers'
+                target: 'sumOfNumbers'
             };
             const expectedResults = [
                 {
@@ -355,7 +364,7 @@ describe('RecordAggregator', () => {
         });
 
         it('return correct values with mixed data', () => {
-            const config: BatchConfig = { sourceField: 'numbers', keys: ['field'] };
+            const config: BatchConfig = { source: 'numbers', keys: ['field'] };
             const expectedResults = [
                 {
                     field: 'value1',
@@ -377,7 +386,7 @@ describe('RecordAggregator', () => {
 
     describe('avg should', () => {
         it('return the avg of values when no keys are provided', () => {
-            const config: BatchConfig = { sourceField: 'numbers' };
+            const config: BatchConfig = { source: 'numbers' };
             const expectedResults = [
                 { numbers: 60 / 13 }
             ];
@@ -386,7 +395,7 @@ describe('RecordAggregator', () => {
         });
 
         it('return the avg of values with mixed data when no keys are provided', () => {
-            const config: BatchConfig = { sourceField: 'numbers' };
+            const config: BatchConfig = { source: 'numbers' };
             const expectedResults = [
                 { numbers: 60 / 13 }
             ];
@@ -395,7 +404,7 @@ describe('RecordAggregator', () => {
         });
 
         it('return the avg of values grouped by keys', () => {
-            const config: BatchConfig = { sourceField: 'numbers', keys: ['field'] };
+            const config: BatchConfig = { source: 'numbers', keys: ['field'] };
             const expectedResults = [
                 {
                     field: 'value1',
@@ -415,7 +424,7 @@ describe('RecordAggregator', () => {
         });
 
         it('returns the correct value if no array is provided', () => {
-            const config: BatchConfig = { sourceField: 'numbers' };
+            const config: BatchConfig = { source: 'numbers' };
 
             expect(
                 RecordAggregator.avg({ numbers: null }, { numbers: null }, config)
@@ -441,9 +450,9 @@ describe('RecordAggregator', () => {
 
         it('return the avg of values grouped by keys but change source key name', () => {
             const config: BatchConfig = {
-                sourceField: 'numbers',
+                source: 'numbers',
                 keys: ['field'],
-                targetField: 'sumOfNumbers'
+                target: 'sumOfNumbers'
             };
             const expectedResults = [
                 {
@@ -464,7 +473,7 @@ describe('RecordAggregator', () => {
         });
 
         it('return correct values with mixed data', () => {
-            const config: BatchConfig = { sourceField: 'numbers', keys: ['field'] };
+            const config: BatchConfig = { source: 'numbers', keys: ['field'] };
             const expectedResults = [
                 {
                     field: 'value1',
@@ -486,7 +495,7 @@ describe('RecordAggregator', () => {
 
     describe('min should', () => {
         it('return the min of values when no keys are provided', () => {
-            const config: BatchConfig = { sourceField: 'numbers' };
+            const config: BatchConfig = { source: 'numbers' };
             const expectedResults = [
                 { numbers: 1 }
             ];
@@ -495,7 +504,7 @@ describe('RecordAggregator', () => {
         });
 
         it('return the min of values with mixed data when no keys are provided', () => {
-            const config: BatchConfig = { sourceField: 'numbers' };
+            const config: BatchConfig = { source: 'numbers' };
             const expectedResults = [
                 { numbers: 1 }
             ];
@@ -504,7 +513,7 @@ describe('RecordAggregator', () => {
         });
 
         it('return the min of values grouped by keys', () => {
-            const config: BatchConfig = { sourceField: 'numbers', keys: ['field'] };
+            const config: BatchConfig = { source: 'numbers', keys: ['field'] };
             const expectedResults = [
                 {
                     field: 'value1',
@@ -524,7 +533,7 @@ describe('RecordAggregator', () => {
         });
 
         it('returns the correct value if no array is provided', () => {
-            const config: BatchConfig = { sourceField: 'numbers' };
+            const config: BatchConfig = { source: 'numbers' };
 
             expect(
                 RecordAggregator.min({ numbers: null }, { numbers: null }, config)
@@ -550,9 +559,9 @@ describe('RecordAggregator', () => {
 
         it('return the min of values grouped by keys but change source key name', () => {
             const config: BatchConfig = {
-                sourceField: 'numbers',
+                source: 'numbers',
                 keys: ['field'],
-                targetField: 'sumOfNumbers'
+                target: 'sumOfNumbers'
             };
             const expectedResults = [
                 {
@@ -573,7 +582,7 @@ describe('RecordAggregator', () => {
         });
 
         it('return correct values with mixed data', () => {
-            const config: BatchConfig = { sourceField: 'numbers', keys: ['field'] };
+            const config: BatchConfig = { source: 'numbers', keys: ['field'] };
             const expectedResults = [
                 {
                     field: 'value1',
@@ -595,7 +604,7 @@ describe('RecordAggregator', () => {
 
     describe('max should', () => {
         it('return the max of values when no keys are provided', () => {
-            const config: BatchConfig = { sourceField: 'numbers' };
+            const config: BatchConfig = { source: 'numbers' };
             const expectedResults = [
                 { numbers: 9 }
             ];
@@ -604,7 +613,7 @@ describe('RecordAggregator', () => {
         });
 
         it('return the max of values with mixed data when no keys are provided', () => {
-            const config: BatchConfig = { sourceField: 'numbers' };
+            const config: BatchConfig = { source: 'numbers' };
             const expectedResults = [
                 { numbers: 9 }
             ];
@@ -613,7 +622,7 @@ describe('RecordAggregator', () => {
         });
 
         it('return the max of values grouped by keys', () => {
-            const config: BatchConfig = { sourceField: 'numbers', keys: ['field'] };
+            const config: BatchConfig = { source: 'numbers', keys: ['field'] };
             const expectedResults = [
                 {
                     field: 'value1',
@@ -633,7 +642,7 @@ describe('RecordAggregator', () => {
         });
 
         it('returns the correct value if no array is provided', () => {
-            const config: BatchConfig = { sourceField: 'numbers' };
+            const config: BatchConfig = { source: 'numbers' };
 
             expect(
                 RecordAggregator.max({ numbers: null }, { numbers: null }, config)
@@ -659,9 +668,9 @@ describe('RecordAggregator', () => {
 
         it('return the max of values grouped by keys but change source key name', () => {
             const config: BatchConfig = {
-                sourceField: 'numbers',
+                source: 'numbers',
                 keys: ['field'],
-                targetField: 'sumOfNumbers'
+                target: 'sumOfNumbers'
             };
             const expectedResults = [
                 {
@@ -682,7 +691,7 @@ describe('RecordAggregator', () => {
         });
 
         it('return correct values with mixed data', () => {
-            const config: BatchConfig = { sourceField: 'numbers', keys: ['field'] };
+            const config: BatchConfig = { source: 'numbers', keys: ['field'] };
             const expectedResults = [
                 {
                     field: 'value1',

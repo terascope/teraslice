@@ -1,11 +1,11 @@
 export interface BatchConfig {
     keys?: string[];
-    sourceField: string;
-    targetField?: string;
+    source: string;
+    target?: string;
 }
 
 export interface ValidatedBatchConfig {
     keys: string[];
-    sourceField: string;
-    targetField: string;
+    source: string;
+    target: string;
 }

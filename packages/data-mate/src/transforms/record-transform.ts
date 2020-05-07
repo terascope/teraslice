@@ -54,6 +54,12 @@ export const repository: Repository = {
         primary_input_type: InputType.Object,
         output_type: 'Object' as AvailableType
     },
+    dedupe: {
+        fn: dedupe,
+        config: {},
+        output_type: 'Any' as AvailableType,
+        primary_input_type: InputType.Array
+    },
 };
 
 /**
@@ -275,3 +281,49 @@ export function transformRecord(
     _parentContext: RecordInput,
     _args: any
 ): any { }
+
+/**
+ * returns an array with only unique values
+ *
+ * @example
+ *
+ * const results = FieldTransform.dedupe([1, 2, 2, 3, 3, 3, undefined, 4])
+ * results === [1, 2, 3, 4]
+ *
+ *
+ * const results = RecordTransform.dedupe([
+ *   { hello: 'world' },
+ *   { hello: 'world' },
+ *   { other: 'obj' },
+ * ])
+ * results === [{ hello: 'world' }, { other: 'obj' }];
+ * @param {any[]} input
+ * @returns {any[] | null } returns null if input is null/undefined
+ */
+
+export function dedupe<T = any>(input: any[], _parentContext?: any[]): T[] | null {
+    if (ts.isNil(input)) return null;
+    if (!isArray(input)) throw new Error(`Input must be an array, recieved ${ts.getTypeOf(input)}`);
+
+    const deduped = new Map<any, true>();
+    const results: T[] = [];
+
+    for (const value of input) {
+        if (ts.isNotNil(value)) {
+            if (ts.isPlainObject(value) && !ts.isEmpty(value)) {
+                const sorted = ts.sortKeys(value, { deep: true });
+                const json = JSON.stringify(sorted);
+
+                if (!deduped.has(json)) {
+                    results.push(value);
+                    deduped.set(json, true);
+                }
+            } else if (!deduped.has(value)) {
+                results.push(value);
+                deduped.set(value, true);
+            }
+        }
+    }
+
+    return results;
+}

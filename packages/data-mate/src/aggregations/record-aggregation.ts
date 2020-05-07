@@ -1,43 +1,56 @@
 import * as ts from '@terascope/utils';
 import { AvailableType } from '@terascope/data-types';
 import { BatchConfig, ValidatedBatchConfig } from './interfaces';
-import { Repository, InputType } from '../interfaces';
+import { Repository, InputType, ArgSchema } from '../interfaces';
 import { isArray } from '../validations/field-validator';
+
+const batchConfigSchema: ArgSchema = {
+    keys: {
+        type: 'String',
+        array: true
+    },
+    source: {
+        type: 'String',
+    },
+    target: {
+        type: 'String',
+    }
+};
 
 export const repository: Repository = {
     unique: {
         fn: unique,
-        config: {},
+        config: batchConfigSchema,
         output_type: 'Any' as AvailableType,
         primary_input_type: InputType.Array
     },
     count: {
         fn: count,
-        config: {},
+        config: batchConfigSchema,
         output_type: 'Integer' as AvailableType,
         primary_input_type: InputType.Array
     },
     sum: {
         fn: sum,
-        config: {},
+        config: batchConfigSchema,
         output_type: 'Integer' as AvailableType,
         primary_input_type: InputType.Array
     },
     avg: {
         fn: avg,
-        config: {},
+        config: batchConfigSchema,
         output_type: 'Integer' as AvailableType,
         primary_input_type: InputType.Array
     },
     min: {
         fn: min,
-        config: {},
+        config: batchConfigSchema,
         output_type: 'Integer' as AvailableType,
         primary_input_type: InputType.Array
     },
     max: {
         fn: max,
-        config: {},
+        config: batchConfigSchema,
         output_type: 'Integer' as AvailableType,
         primary_input_type: InputType.Array
     }
@@ -45,10 +58,10 @@ export const repository: Repository = {
 
 function validateConfig(config: BatchConfig): ValidatedBatchConfig {
     if (!ts.isPlainObject(config)) throw new Error('Paramter config must be provided and be an object');
-    if (!ts.isString(config.sourceField)) throw new Error(`Parameter sourceField must be provided and be a string, recieved ${ts.getTypeOf(config.sourceField)}`);
-    if (config.targetField && !ts.isString(config.targetField)) throw new Error(`Parameter targetField must be a string, recieved ${ts.getTypeOf(config.targetField)}`);
+    if (!ts.isString(config.source)) throw new Error(`Parameter source must be provided and be a string, recieved ${ts.getTypeOf(config.source)}`);
+    if (config.target && !ts.isString(config.target)) throw new Error(`Parameter target must be a string, recieved ${ts.getTypeOf(config.target)}`);
 
-    if (ts.isNil(config.targetField)) config.targetField = config.sourceField;
+    if (ts.isNil(config.target)) config.target = config.source;
     // TODO: should we enforce keys are strings? maps and sets can have non string keys
     const keys = config.keys || [];
     config.keys = keys;
@@ -104,30 +117,30 @@ function _iterateBatch(batch: Batch, fn: any) {
 
 function batchByKeys(input: any, config: ValidatedBatchConfig, filterFn: FilterFn) {
     const data = isArray(input) ? input : [input];
-    const { sourceField, targetField } = config;
+    const { source, target } = config;
     const batch: Batch = new Map<string, AggregationResults>();
     const keys = config.keys || [];
     const hasKeys = keys.length !== 0;
-    const excludes = { excludes: [sourceField] };
+    const filterConfig = { excludes: [source], includes: keys };
     // we batch based of target key since it will be collapsed
 
     for (const record of data) {
-        const rawFieldData = ts.get(record, sourceField);
+        const rawFieldData = ts.get(record, source);
         const fieldData = filterFn(rawFieldData);
 
         if (ts.isNil(fieldData)) continue;
 
-        const keyRecord = hasKeys ? ts.filterObject(record, excludes) : { [targetField]: true };
+        const keyRecord = hasKeys ? ts.filterObject(record, filterConfig) : { [target]: true };
         const key = Object.keys(keyRecord)
             .map((objKey) => `${objKey}-${ts.toString(keyRecord[objKey])}`)
             .join(':');
 
         if (batch.has(key)) {
             const batchData = batch.get(key) as AggregationResults;
-            batchData.data[targetField].push(...fieldData);
+            batchData.data[target].push(...fieldData);
         } else {
             const aggregationData = {
-                data: { [targetField]: fieldData },
+                data: { [target]: fieldData },
                 keyRecord
             };
             batch.set(key, aggregationData);

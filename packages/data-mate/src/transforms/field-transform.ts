@@ -139,12 +139,6 @@ export const repository: Repository = {
         output_type: 'String' as AvailableType,
         primary_input_type: InputType.Any
     },
-    dedupe: {
-        fn: dedupe,
-        config: {},
-        output_type: 'Any' as AvailableType,
-        primary_input_type: InputType.Array
-    },
     toGeoPoint: {
         fn: toGeoPoint,
         config: {},
@@ -966,25 +960,6 @@ export function toJSON(input: any, _parentContext?: any, { pretty = false } = {}
 
     if (pretty) return JSON.stringify(input, null, 2);
     return JSON.stringify(input);
-}
-
-/**
- * returns an array with only unique values
- *
- * @example
- *
- * const results = FieldTransform.dedupe([1, 2, 2, 3, 3, 3, undefined, 4])
- * results === [1, 2, 3, undefined, 4]
- *
- * @param {any[]} input
- * @returns {any[] | null } returns null if input is null/undefined
- */
-
-export function dedupe(input: any[], _parentContext?: any[]) {
-    if (ts.isNil(input)) return null;
-    // TODO: figure out if we need more than reference equality
-    if (!isArray(input)) throw new Error(`Input must be an array, recieved ${ts.getTypeOf(input)}`);
-    return ts.uniq(input);
 }
 
 /**
