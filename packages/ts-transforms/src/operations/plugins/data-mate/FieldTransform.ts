@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { DataEntity, get, isEmpty } from '@terascope/utils';
-import { FieldTransform } from '@terascope/data-mate';
+import { FieldTransform, RecordTransform } from '@terascope/data-mate';
 import { InjectMethod } from '../mixins';
 import TransformsOpBase from '../../lib/transforms/base';
 import { PostProcessConfig, InputOutputCardinality } from '../../../interfaces';
@@ -44,15 +44,29 @@ class Transforms extends TransformsOpBase {
     }
 }
 
-function setup(method: string) {
-    return InjectMethod(Transforms, FieldTransform[method], FieldTransform.repository[method]);
+function setup(method: string, DateMateTransforms: any) {
+    return InjectMethod(
+        Transforms,
+        DateMateTransforms[method],
+        DateMateTransforms.repository[method]
+    );
 }
 
-const exclusion = ['select', 'extract'];
+const exclusion = ['select', 'extract', 'setField'];
 
 for (const config of Object.values(FieldTransform.repository)) {
     const fnName = config.fn.name;
-    if (!exclusion.includes(fnName)) FieldTransformContainer[fnName] = setup(fnName);
+
+    if (!exclusion.includes(fnName)) {
+        FieldTransformContainer[fnName] = setup(fnName, FieldTransform);
+    }
 }
+
+// Dedupe was migrated to Record Transforms, in a directives perspective
+// it should work the same as a field or reecord level transform. However in regards
+// to ts-transforms dedupe would only be working on a field in this context.
+
+const dedupeConfig = RecordTransform.repository.dedupe;
+FieldTransformContainer[dedupeConfig.fn.name] = setup(dedupeConfig.fn.name, RecordTransform);
 
 export default FieldTransformContainer;

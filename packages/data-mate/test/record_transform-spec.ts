@@ -211,4 +211,28 @@ describe('record transforms', () => {
             )).toEqual([{ foo: 'bar', final: 'BAR' }]);
         });
     });
+
+    describe('dedupe', () => {
+        it('should dedupe array values', () => {
+            expect(
+                RecordTransform.dedupe([1, 2, 2, 3, 3, 3, undefined, 4])
+            ).toEqual([1, 2, 3, 4]);
+
+            expect(RecordTransform.dedupe(null as any)).toBe(null);
+            expect(RecordTransform.dedupe(undefined as any)).toBe(null);
+        });
+
+        it('should dedupe array object values', () => {
+            expect(
+                RecordTransform.dedupe([
+                    { hello: 'world' },
+                    { hello: 'world' },
+                    { other: 'obj' },
+                ])
+            ).toEqual([{ hello: 'world' }, { other: 'obj' }]);
+
+            expect(RecordTransform.dedupe(null as any)).toBe(null);
+            expect(RecordTransform.dedupe(undefined as any)).toBe(null);
+        });
+    });
 });

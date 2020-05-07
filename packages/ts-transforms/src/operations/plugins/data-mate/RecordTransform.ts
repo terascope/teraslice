@@ -31,9 +31,15 @@ function setup(method: string) {
     return InjectMethod(Transforms, RecordTransform[method], RecordTransform.repository[method]);
 }
 
+// in this context we want dedupe to work on a field level
+const exclusion = ['dedupe'];
+
 for (const config of Object.values(RecordTransform.repository)) {
     const fnName = config.fn.name;
-    RecordTransformContainer[fnName] = setup(fnName);
+
+    if (!exclusion.includes(fnName)) {
+        RecordTransformContainer[fnName] = setup(fnName);
+    }
 }
 
 export default RecordTransformContainer;
