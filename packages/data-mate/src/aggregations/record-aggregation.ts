@@ -78,13 +78,13 @@ function _getNumbers(input: any) {
 
 function _filterValues(input: any) {
     if (isArray(input)) {
-        return input.filter(_unProcessableValues);
+        return input.filter(_isValueNotEmpty);
     }
 
-    return [input].filter(_unProcessableValues);
+    return [input].filter(_isValueNotEmpty);
 }
 
-function _unProcessableValues(data: any): boolean {
+function _isValueNotEmpty(data: any): boolean {
     return ts.isNumber(data) || ts.isBoolean(data) || !ts.isEmpty(data);
 }
 
