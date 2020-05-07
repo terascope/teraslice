@@ -6,19 +6,21 @@ import { bumpPackages } from '../helpers/bump';
 import { PackageInfo } from '../helpers/interfaces';
 import { syncAll } from '../helpers/sync';
 
-const releaseChoices = ['major', 'minor', 'patch', 'prerelease', 'premajor', 'preminor', 'prepatch'];
+const releaseChoices: readonly ReleaseType[] = [
+    'patch', 'minor', 'major', 'prerelease', 'prepatch', 'preminor', 'premajor'
+];
 
 const cmd: CommandModule = {
     command: 'bump [packages..]',
     describe: 'Update a package to specific version and its dependencies. This should be run in the root of the workspace.',
     builder(yargs) {
-        return yargs
+        let y = yargs
             .example('$0 bump', 'example // 0.20.0 => 0.20.1')
-            .example('$0 bump', '-r patch example // 0.20.0 => 0.20.1')
-            .example('$0 bump', '-r minor example // 0.5.0 => 0.6.0')
-            .example('$0 bump', '-r prepatch example // 0.20.0 => 0.20.1-rc.0')
-            .example('$0 bump', '-r premajor example // 0.15.0 => 1.0.0-rc.0')
-            .example('$0 bump', '-r prerelease example // 0.20.1-rc.0 => 0.20.1-rc.1')
+            .example('$0 bump', '--patch example // 0.20.0 => 0.20.1')
+            .example('$0 bump', '--minor example // 0.5.0 => 0.6.0')
+            .example('$0 bump', '--prepatch example // 0.20.0 => 0.20.1-rc.0')
+            .example('$0 bump', '--premajor example // 0.15.0 => 1.0.0-rc.0')
+            .example('$0 bump', '--prerelease example // 0.20.1-rc.0 => 0.20.1-rc.1')
             .option('prerelease-id', {
                 default: 'rc',
                 description: 'Specify the prerelease identifier, defaults to RC',
@@ -28,15 +30,27 @@ const cmd: CommandModule = {
                 description: "Bump the child dependencies recursively, (ignores the monorepo's main package)",
                 default: true,
                 type: 'boolean',
-            })
-            .option('release', {
-                alias: 'r',
-                description: 'Specify the release change for the version, see https://www.npmjs.com/package/semver',
-                type: 'string',
-                default: 'patch',
+            });
+
+        releaseChoices.forEach((choice, i, arr) => {
+            const otherChoices = arr.filter((_item, index) => index !== i);
+
+            y = y.option(choice, {
+                description: `Bump release by ${choice}`,
+                type: 'boolean',
+                default: false,
+                conficts: ['release', ...otherChoices],
                 demandOption: true,
-                choices: releaseChoices,
-            })
+            });
+        });
+
+        return y.option('release', {
+            alias: 'r',
+            description: `Specify the release change for the version, see https://www.npmjs.com/package/semver.
+            [DEPRECATED] Use --patch, --minor, --major, etc`,
+            type: 'string',
+            choices: releaseChoices.slice() as string[],
+        })
             .positional('packages', {
                 description: 'Run scripts for one or more package (if specifying more than one make sure they are ordered by dependants)',
                 type: 'string',
@@ -52,14 +66,32 @@ const cmd: CommandModule = {
             .requiresArg('packages');
     },
     async handler(argv) {
+        const release = getRelease(argv);
         await syncAll({ verify: true });
         return bumpPackages({
             packages: argv.packages as PackageInfo[],
             preId: argv['prerelease-id'] as string | undefined,
-            release: argv.release as ReleaseType,
+            release,
             deps: Boolean(argv.deps),
         });
     },
 };
+
+function getRelease(argv: any): ReleaseType {
+    const found = releaseChoices.filter((choice) => argv[choice]);
+    const release = argv.release as ReleaseType|undefined;
+
+    if (!found.length) {
+        const choices = releaseChoices.map((choice) => `--${choice}`).join(', ');
+        throw new Error(`Bump requires at least one of ${choices} to be specified`);
+    } else if (release && found[0] && release !== found[0]) {
+        throw new Error(`Cannot specify --release (DEPRECATED), use --${release} instead`);
+    } else if (found.length > 1) {
+        const choices = found.map((choice) => `--${choice}`).join(' and ');
+        throw new Error(`Cannot specify ${choices}, pick one`);
+    }
+
+    return found[0];
+}
 
 export = cmd;

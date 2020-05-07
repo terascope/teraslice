@@ -6,7 +6,6 @@ import {
     TSError,
     isFunction,
     flatten,
-    toBoolean,
     isCI
 } from '@terascope/utils';
 import {
@@ -58,7 +57,7 @@ export function getArgs(options: TestOptions): ArgsMap {
         args.notify = '';
     }
 
-    if (options.suite === 'e2e') {
+    if (options.suite?.includes('e2e')) {
         args.runInBand = '';
         args.coverage = 'false';
         args.bail = '';
@@ -129,14 +128,14 @@ export function setEnv(options: TestOptions, suite?: string) {
 }
 
 export function filterBySuite(pkgInfos: PackageInfo[], options: TestOptions): PackageInfo[] {
-    if (!options.suite) return pkgInfos.slice();
+    if (!options.suite?.length) return pkgInfos.slice();
 
     return pkgInfos.filter((pkgInfo) => {
         const suite = pkgInfo.terascope.testSuite;
         if (!suite) {
             throw new Error(`Package ${pkgInfo.name} missing required "terascope.testSuite" configuration`);
         }
-        if (suite === options.suite) {
+        if (options.suite!.includes(suite)) {
             logger.info(`* found ${pkgInfo.name} for suite ${suite} to test`);
             return true;
         }
@@ -236,7 +235,7 @@ async function getE2ELogs(dir: string, env: ExecEnv): Promise<string> {
 
 export async function logE2E(dir: string, failed: boolean): Promise<void> {
     if (!failed) return;
-    if (toBoolean(process.env.SKIP_E2E_OUTPUT_LOGS)) return;
+    if (config.SKIP_E2E_OUTPUT_LOGS) return;
 
     const errLogs = await getE2ELogs(dir, {
         LOG_LEVEL: 'INFO',

@@ -12,7 +12,7 @@ type Options = {
     debug: boolean;
     watch: boolean;
     bail: boolean;
-    suite?: string;
+    suite?: string[];
     'force-suite'?: string;
     'keep-open': boolean;
     'trace': boolean;
@@ -75,6 +75,8 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .option('suite', {
                 alias: 's',
                 description: 'Run a test given a particular suite. Defaults to running all',
+                type: 'string',
+                array: true,
                 choices: testSuites,
             })
             .option('use-existing-services', {

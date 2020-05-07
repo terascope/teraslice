@@ -23,10 +23,10 @@
         "clean": "docker-compose down --volumes --remove-orphans --timeout=5",
         "logs": "./scripts/logs.sh",
         "logs-follow": "./scripts/logs.sh -f",
-        "setup": "yarn --silent --prefer-offline",
-        "test": "../node_modules/.bin/ts-scripts test --suite e2e --",
-        "test:debug": "../node_modules/.bin/ts-scripts test --suite e2e --debug --",
-        "test:watch": "../node_modules/.bin/ts-scripts test --suite e2e --watch --"
+        "setup": "yarn --silent",
+        "test": "ts-scripts test --suite e2e --",
+        "test:debug": "ts-scripts test --suite e2e --debug --",
+        "test:watch": "ts-scripts test --suite e2e --watch --"
     },
     "resolutions": {
         "ms": "^2.1.2"
@@ -39,7 +39,7 @@
         "nanoid": "^2.1.10",
         "semver": "^7.2.2",
         "signale": "^1.4.0",
-        "uuid": "^7.0.2"
+        "uuid": "^8.0.0"
     },
     "terascope": {
         "testSuite": "e2e"

@@ -9,7 +9,7 @@ export type TestOptions = {
     keepOpen: boolean;
     reportCoverage: boolean;
     forceSuite?: string;
-    suite?: string;
+    suite?: string[];
     useExistingServices: boolean;
     elasticsearchVersion: string;
     elasticsearchAPIVersion: string;
