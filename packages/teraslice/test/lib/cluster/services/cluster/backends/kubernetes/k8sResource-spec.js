@@ -742,49 +742,4 @@ describe('k8sResource', () => {
               effect: NoSchedule`));
         });
     });
-
-    describe('execution_controller service', () => {
-        it('has valid resource object.', () => {
-            const kr = new K8sResource(
-                'services', 'execution_controller', terasliceConfig, execution
-            );
-
-            expect(kr.resource.kind).toBe('Service');
-            expect(kr.resource.metadata.name).toBe('ts-exc-example-data-generator-job-7ba9afb0-417a');
-            expect(kr.resource.spec.ports[0].port).toBe(45680);
-            expect(kr.resource.spec.ports[0].targetPort).toBe(45680);
-        });
-
-        it('should not throw error on init when resources are set', () => {
-            let kr;
-            execution.cpu = 2;
-            execution.memory = 2147483648;
-
-            function initExService() {
-                kr = new K8sResource(
-                    'services', 'execution_controller', terasliceConfig, execution
-                );
-            }
-            expect(initExService).not.toThrow();
-            expect(kr.resource.kind).toBe('Service');
-            expect(kr.resource.metadata.name).toBe('ts-exc-example-data-generator-job-7ba9afb0-417a');
-        });
-
-        test.each([
-            ['temp#job', 'ts-exc-temp-job-7ba9afb0-417a'],
-            ['temp_job', 'ts-exc-temp-job-7ba9afb0-417a'],
-            ['temp!job', 'ts-exc-temp-job-7ba9afb0-417a']
-        ])(
-            'should sanitize %s to be valid DNS name',
-            (name, expected) => {
-                execution.name = name;
-                const kr = new K8sResource(
-                    'services', 'execution_controller', terasliceConfig, execution
-                );
-
-                expect(kr.resource.kind).toBe('Service');
-                expect(kr.resource.metadata.name).toBe(expected);
-            }
-        );
-    });
 });

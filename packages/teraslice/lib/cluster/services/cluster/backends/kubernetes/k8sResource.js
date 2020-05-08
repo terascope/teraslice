@@ -40,27 +40,23 @@ class K8sResource {
 
         this._setJobLabels();
 
-        // services don't have pod templates that need modification by these
-        // methods
-        if (resourceType !== 'services') {
-            // Apply job `targets` setting as k8s nodeAffinity
-            // We assume that multiple targets require both to match ...
-            // NOTE: If you specify multiple `matchExpressions` associated with
-            // `nodeSelectorTerms`, then the pod can be scheduled onto a node
-            // only if *all* `matchExpressions` can be satisfied.
-            this._setTargets();
-            this._setResources();
-            this._setVolumes();
-            this._setAssetsVolume();
-            this._setImagePullSecret();
+        // Apply job `targets` setting as k8s nodeAffinity
+        // We assume that multiple targets require both to match ...
+        // NOTE: If you specify multiple `matchExpressions` associated with
+        // `nodeSelectorTerms`, then the pod can be scheduled onto a node
+        // only if *all* `matchExpressions` can be satisfied.
+        this._setTargets();
+        this._setResources();
+        this._setVolumes();
+        this._setAssetsVolume();
+        this._setImagePullSecret();
 
-            // Execution controller targets are required nodeAffinities, if
-            // required job targets are also supplied, then *all* of the matches
-            // will have to be satisfied for the job to be scheduled.  This also
-            // adds tolerations for any specified targets
-            if (resourceName === 'execution_controller') {
-                this._setExecutionControllerTargets();
-            }
+        // Execution controller targets are required nodeAffinities, if
+        // required job targets are also supplied, then *all* of the matches
+        // will have to be satisfied for the job to be scheduled.  This also
+        // adds tolerations for any specified targets
+        if (resourceName === 'execution_controller') {
+            this._setExecutionControllerTargets();
         }
     }
 

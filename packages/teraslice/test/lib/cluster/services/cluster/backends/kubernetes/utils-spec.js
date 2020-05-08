@@ -8,39 +8,6 @@ const { safeEncode } = require('../../../../../../../lib/utils/encoding_utils');
 
 describe('K8s Utils', () => {
     describe('->makeTemplate', () => {
-        it('should be able to support the execution_controller service', () => {
-            const exServiceTemplate = makeTemplate('services', 'execution_controller');
-            const config = {
-                name: 'example',
-                jobNameLabel: 'example-job',
-                clusterNameLabel: 'example-cluster',
-                exId: 'some-ex-id',
-                jobId: 'some-job-id',
-                nodeType: 'execution_controller',
-                namespace: 'some-namespace'
-            };
-            const exService = exServiceTemplate(config);
-
-            expect(exService.metadata).toEqual({
-                labels: {
-                    'app.kubernetes.io/name': 'teraslice',
-                    'app.kubernetes.io/component': config.nodeType,
-                    'teraslice.terascope.io/exId': config.exId,
-                    'teraslice.terascope.io/jobId': config.jobId,
-                    'teraslice.terascope.io/jobName': config.jobNameLabel,
-                    'app.kubernetes.io/instance': config.clusterNameLabel
-                },
-                name: config.name,
-                namespace: config.namespace
-            });
-
-            expect(exService.spec.selector).toEqual({
-                'app.kubernetes.io/name': 'teraslice',
-                'app.kubernetes.io/component': config.nodeType,
-                'teraslice.terascope.io/exId': config.exId
-            });
-        });
-
         it('should be able to support the execution_controller job', () => {
             const exJobTemplate = makeTemplate('jobs', 'execution_controller');
             const config = {
