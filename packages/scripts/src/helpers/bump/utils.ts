@@ -99,7 +99,7 @@ export function getBumpCommitMessages(
 
     const names = Object.entries(bumpResult).map(([name, { to }]) => `${name}@${to}`);
 
-    const limit = 4;
+    const limit = 12;
     chunk(names.slice(0, limit), 2).forEach((focusNames) => {
         messages.push(`bump: (${release}) ${focusNames.join(', ')}`);
     });
