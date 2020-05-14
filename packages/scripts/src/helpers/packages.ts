@@ -83,6 +83,7 @@ export function getWorkspaceNames(): string[] {
         listPackages()
             .filter((pkg) => !('workspaces' in pkg))
             .map((pkg) => path.dirname(path.basename(pkg.dir)))
+            .filter((name) => !name || name === '.')
     );
 }
 
@@ -199,6 +200,7 @@ export function updatePkgJSON(
     const pkgJSON = getSortedPkgJSON(pkgInfo);
     delete pkgJSON.folderName;
     delete pkgJSON.dir;
+    delete pkgJSON.relativeDir;
     return misc.writeIfChanged(path.join(pkgInfo.dir, 'package.json'), pkgJSON, {
         log,
     });
@@ -222,7 +224,7 @@ export function getDocPath(pkgInfo: i.PackageInfo, withFileName: boolean, withEx
         return e2eDevDocs;
     }
 
-    const docPath = path.join(`docs/${pkgInfo.relativeDir}`, pkgInfo.folderName);
+    const docPath = path.join('docs', pkgInfo.relativeDir);
     fse.ensureDirSync(docPath);
     if (withFileName) {
         return path.join(
