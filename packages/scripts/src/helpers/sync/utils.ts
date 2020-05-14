@@ -3,7 +3,9 @@ import semver from 'semver';
 import {
     getFirstChar, uniq, trim, isCI
 } from '@terascope/utils';
-import { getDocPath, updatePkgJSON, fixDepPkgName } from '../packages';
+import {
+    getDocPath, updatePkgJSON, fixDepPkgName, listPackages
+} from '../packages';
 import { updateReadme, ensureOverview } from '../docs/overview';
 import { PackageInfo, RootPackageInfo } from '../interfaces';
 import { formatList, getRootDir } from '../misc';
@@ -15,15 +17,15 @@ const topLevelFiles: readonly string[] = [
     'package.json',
     'yarn.lock'
 ];
-
 let prevChanged: string[] = [];
 
 export async function verifyCommitted(options: SyncOptions) {
+    const pkgDirs: string[] = listPackages().map((pkg) => pkg.relativeDir);
+
     const changed = await getChangedFiles(
         ...topLevelFiles,
+        ...pkgDirs,
         'docs',
-        'packages',
-        'e2e'
     );
     prevChanged = [...changed];
 

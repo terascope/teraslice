@@ -1,5 +1,4 @@
 import ms from 'ms';
-import path from 'path';
 import {
     debugLogger,
     chunk,
@@ -174,7 +173,7 @@ async function runTestSuite(
         }
 
         const args = utils.getArgs(options);
-        args.projects = pkgs.map((pkgInfo) => path.join('packages', pkgInfo.folderName));
+        args.projects = pkgs.map((pkgInfo) => pkgInfo.relativeDir);
 
         try {
             await runJest(getRootDir(), args, env, options.jestArgs, options.debug);

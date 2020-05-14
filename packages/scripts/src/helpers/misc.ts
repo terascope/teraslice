@@ -39,6 +39,7 @@ function _getRootInfo(pkgJSONPath: string): RootPackageInfo | undefined {
 
     return sortPackageJson(defaultsDeep(pkg, {
         dir,
+        relativeDir: '.',
         folderName,
         displayName: getName(pkg.name),
         documentation: '',
