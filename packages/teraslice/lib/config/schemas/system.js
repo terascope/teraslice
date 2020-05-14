@@ -275,6 +275,11 @@ const schema = {
         doc: 'Name of Kubernetes secret used to pull docker images from private repository',
         default: '',
         format: 'optional_String'
+    },
+    kubernetes_worker_antiaffinity: {
+        doc: 'Enable Teraslice woker pod AntiAffinity in Kubernetes',
+        default: false,
+        format: Boolean
     }
 };
 

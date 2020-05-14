@@ -32,6 +32,7 @@ export interface TerasliceConfig {
     kubernetes_image_pull_secret?: string|'';
     kubernetes_image?: string|'terascope/teraslice';
     kubernetes_namespace?: string|'default';
+    kubernetes_worker_antiaffinity?: boolean|false;
     master_hostname: string|'localhost';
     master: boolean|false;
     /** This will only be available in the context of k8s */

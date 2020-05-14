@@ -51,6 +51,10 @@ class K8sResource {
         this._setAssetsVolume();
         this._setImagePullSecret();
 
+        if (resourceName === 'worker') {
+            this._setAntiAffinity();
+        }
+
         // Execution controller targets are required nodeAffinities, if
         // required job targets are also supplied, then *all* of the matches
         // will have to be satisfied for the job to be scheduled.  This also
@@ -112,6 +116,49 @@ class K8sResource {
             const templated = barbe(templateData, templateKeys, config);
             return JSON.parse(templated);
         };
+    }
+
+
+    /**
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - teraslice
+                topologyKey: kubernetes.io/hostname
+     */
+    _setAntiAffinity() {
+        if (this.terasliceConfig.kubernetes_worker_antiaffinity) {
+            this.resource.spec.template.spec.affinity = {
+                "podAntiAffinity": {
+                    "preferredDuringSchedulingIgnoredDuringExecution": [
+                       {
+                          "weight": 1,
+                          "podAffinityTerm": {
+                             "labelSelector": {
+                                "matchExpressions": [
+                                   {
+                                      "key": "app.kubernetes.io/name",
+                                      "operator": "In",
+                                      "values": [
+                                         "teraslice"
+                                      ]
+                                   }
+                                ]
+                             },
+                             "topologyKey": "kubernetes.io/hostname"
+                          }
+                       }
+                    ]
+                 }
+            };
+        }
     }
 
     /**

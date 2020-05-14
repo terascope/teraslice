@@ -47,8 +47,9 @@ describe('k8sResource', () => {
             expect(kr.resource.metadata.name).toBe('ts-wkr-example-data-generator-job-7ba9afb0-417a');
 
             // The following properties should be absent in the default case
+            // Note: This tests that both affinity and podAntiAffinity are absent
             expect(kr).not.toHaveProperty('resource.spec.template.spec.affinity');
-            expect(kr.resource.spec.template.spec).not.toHaveProperty('imagePullSecrets');
+            expect(kr).not.toHaveProperty('resource.spec.template.spec.imagePullSecrets');
 
             // Configmaps should be mounted on all workers
             expect(kr.resource.spec.template.spec.volumes[0]).toEqual(yaml.load(`
@@ -73,6 +74,29 @@ describe('k8sResource', () => {
             expect(kr.resource.spec.template.spec.imagePullSecrets[0]).toEqual(
                 yaml.load(`
                   name: teraslice-image-pull-secret`)
+            );
+        });
+
+        it('has podAntiAffinity when terasliceConfig has kubernetes_worker_antiaffinity true.', () => {
+            terasliceConfig.kubernetes_worker_antiaffinity = true;
+            const kr = new K8sResource(
+                'deployments', 'worker', terasliceConfig, execution
+            );
+
+            // console.log(yaml.dump(kr.resource.spec.template.spec.affinity));
+            expect(kr.resource.spec.template.spec.affinity).toEqual(
+                yaml.load(`
+                  podAntiAffinity:
+                    preferredDuringSchedulingIgnoredDuringExecution:
+                      - weight: 1
+                        podAffinityTerm:
+                          labelSelector:
+                            matchExpressions:
+                              - key: app.kubernetes.io/name
+                                operator: In
+                                values:
+                                  - teraslice
+                          topologyKey: kubernetes.io/hostname`)
             );
         });
 
