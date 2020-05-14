@@ -82,8 +82,8 @@ export function getWorkspaceNames(): string[] {
     return uniq(
         listPackages()
             .filter((pkg) => !('workspaces' in pkg))
-            .map((pkg) => path.dirname(path.basename(pkg.dir)))
-            .filter((name) => !name || name === '.')
+            .map((pkg) => path.basename(path.dirname(pkg.dir)))
+            .filter((name) => name && name !== '.')
     );
 }
 
