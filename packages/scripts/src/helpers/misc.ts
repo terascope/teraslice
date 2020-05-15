@@ -2,7 +2,7 @@ import path from 'path';
 import pkgUp from 'pkg-up';
 import fse from 'fs-extra';
 import defaultsDeep from 'lodash.defaultsdeep';
-import { isPlainObject, get } from '@terascope/utils';
+import { isPlainObject, get, toTitleCase } from '@terascope/utils';
 import sortPackageJson from 'sort-package-json';
 import { PackageInfo, RootPackageInfo, Service } from './interfaces';
 import { NPM_DEFAULT_REGISTRY, DEV_TAG } from './config';
@@ -94,12 +94,7 @@ export function getDevDockerImage(): string {
 }
 
 export function getName(input: string): string {
-    return input
-        .split(/\W/g)
-        .map((str) => str.trim())
-        .filter((str) => str.length > 0)
-        .map((str: string) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`)
-        .join(' ');
+    return toTitleCase(input);
 }
 
 export function listMdFiles(dir: string, levels = 10): string[] {

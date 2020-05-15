@@ -91,7 +91,7 @@ export async function buildDevDockerImage(cacheFromPrev?: boolean): Promise<stri
     signale.pending(`building docker image ${devImage}`);
 
     try {
-        await dockerBuild(devImage, cacheFromPrev ? [devImage] : []);
+        await dockerBuild(devImage, cacheFromPrev ? [devImage] : [], undefined);
     } catch (err) {
         throw new TSError(err, {
             message: `Failed to build ${devImage} docker image`,
