@@ -3,6 +3,7 @@ import { PackageInfo } from '../interfaces';
 import { SyncOptions } from './interfaces';
 import { getRootInfo } from '../misc';
 import * as utils from './utils';
+import { generateTSConfig } from './configs';
 
 export async function syncAll(options: SyncOptions) {
     await utils.verifyCommitted(options);
@@ -15,6 +16,7 @@ export async function syncAll(options: SyncOptions) {
     await updatePkgJSON(rootInfo);
 
     await Promise.all(pkgInfos.map((pkgInfo) => utils.syncPackage(files, pkgInfo)));
+    await generateTSConfig(pkgInfos);
 
     await utils.verify(files, options);
 }

@@ -56,6 +56,7 @@ export type RootPackageInfo = {
     terascope: {
         root: boolean;
         type: 'monorepo';
+        target: string;
         tests: {
             suites: {
                 [suite: string]: Service[];
