@@ -219,8 +219,20 @@ export function jobSchema(context: Context): convict.Schema<any> {
             format: 'Number',
         };
 
+        schemas.cpu_execution_controller = {
+            doc: 'number of cpus to reserve per teraslice execution controller in kubernetes',
+            default: undefined,
+            format: 'Number',
+        };
+
         schemas.memory = {
             doc: 'memory, in bytes, to reserve per teraslice worker in kubernetes',
+            default: undefined,
+            format: 'Number',
+        };
+
+        schemas.memory_execution_controller = {
+            doc: 'memory, in bytes, to reserve per teraslice execution controller in kubernetes',
             default: undefined,
             format: 'Number',
         };

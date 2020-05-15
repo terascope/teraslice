@@ -83,7 +83,11 @@ export interface ValidatedJobConfig {
     /** This will only be available in the context of k8s */
     cpu?: number;
     /** This will only be available in the context of k8s */
+    cpu_execution_controller?: number;
+    /** This will only be available in the context of k8s */
     memory?: number;
+    /** This will only be available in the context of k8s */
+    memory_execution_controller?: number;
     /** This will only be available in the context of k8s */
     volumes?: Volume[];
     /** This will only be available in the context of k8s */

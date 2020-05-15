@@ -221,9 +221,19 @@ const schema = {
         default: undefined,
         format: 'Number'
     },
+    cpu_execution_controller: {
+        doc: 'number of cpus to reserve per teraslice execution controller in kubernetes',
+        default: 0.5,
+        format: 'Number'
+    },
     memory: {
         doc: 'memory, in bytes, to reserve per teraslice worker in kubernetes',
         default: undefined,
+        format: 'Number'
+    },
+    memory_execution_controller: {
+        doc: 'memory, in bytes, to reserve per teraslice execution controller in kubernetes',
+        default: 512000000,
         format: 'Number'
     },
     env_vars: {

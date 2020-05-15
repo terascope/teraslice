@@ -217,11 +217,25 @@ class K8sResource {
     }
 
     _setResources() {
-        // The settings on the executions override the cluster configs
-        const cpu = this.execution.cpu || this.terasliceConfig.cpu || -1;
-        const memory = this.execution.memory || this.terasliceConfig.memory || -1;
+        let cpu;
+        let memory;
+
         // use teraslice config as defaults and execution config will override it
         const envVars = Object.assign({}, this.terasliceConfig.env_vars, this.execution.env_vars);
+
+        if (this.nodeType === 'worker') {
+            // The settings on the executions override the cluster configs
+            cpu = this.execution.cpu || this.terasliceConfig.cpu || -1;
+            memory = this.execution.memory || this.terasliceConfig.memory || -1;
+        }
+
+        if (this.nodeType === 'execution_controller') {
+            // The settings on the executions override the cluster configs
+            cpu = this.execution.cpu_execution_controller
+                || this.terasliceConfig.cpu_execution_controller || -1;
+            memory = this.execution.memory_execution_controller
+                || this.terasliceConfig.memory_execution_controller || -1;
+        }
 
         const container = this.resource.spec.template.spec.containers[0];
 
