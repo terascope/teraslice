@@ -27,7 +27,7 @@ module.exports = function _clusterMaster(context) {
         port: clusterConfig.port,
         nodeDisconnectTimeout: clusterConfig.node_disconnect_timeout,
         // setting request timeout to 5 minutes
-        serverTimeout: 300000,
+        serverTimeout: clusterConfig.api_response_timeout,
         // we do this to override express final response handler
         requestListener(req, res) {
             app(req, res, (err) => {

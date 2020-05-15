@@ -7,6 +7,11 @@ const { isPlainObject } = require('@terascope/utils');
 const workerCount = require('os').cpus().length;
 
 const schema = {
+    api_response_timeout: {
+        doc: 'HTTP response timeout for the Teraslice API server',
+        default: '5 minutes',
+        format: 'duration'
+    },
     assets_directory: {
         doc: 'directory to look for assets',
         default: path.join(process.cwd(), './assets'),
