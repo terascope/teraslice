@@ -7,7 +7,7 @@ const barbe = require('barbe');
 const _ = require('lodash');
 
 const { safeEncode } = require('../../../../../utils/encoding_utils');
-const { addEnvToContainerEnv } = require('./utils');
+const { setMaxOldSpaceViaEnv } = require('./utils');
 
 class K8sResource {
     /**
@@ -235,7 +235,7 @@ class K8sResource {
             _.set(container, 'resources.limits.memory', memory);
         }
 
-        addEnvToContainerEnv(container.env, envVars, memory);
+        setMaxOldSpaceViaEnv(container.env, envVars, memory);
     }
 
     _setTargets() {
