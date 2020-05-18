@@ -42,12 +42,14 @@ async function publishToNPM(options: PublishOptions) {
     const bumped = result.filter(isString);
 
     if (!bumped.length) {
-        if (options.dryRun) signale.info('No packages published, turn use --no-dry-run to publish');
+        if (options.dryRun) signale.info('No packages to be published');
         else signale.info('No packages published');
         return;
     }
 
-    signale.info(`Published the follow packages:${formatList(bumped)}`);
+    const l = formatList(bumped);
+    if (options.dryRun) signale.info(`\nUse --no-dry-run to publish the follow packages:${l}`);
+    else signale.info(`\nPublished the follow packages:${l}`);
 }
 
 async function npmPublish(
@@ -64,7 +66,7 @@ async function npmPublish(
 
     if (options.dryRun) {
         signale.info(`[DRY RUN] - skipping publish for package ${pkgInfo.name}@v${pkgInfo.version} (${tag})`);
-        return;
+        return pkgInfo.name;
     }
 
     const registry: string|undefined = get(pkgInfo, 'publishConfig.registry');
