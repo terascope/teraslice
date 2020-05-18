@@ -656,6 +656,50 @@ describe('k8sResource', () => {
                     mountPath: /app/config
                     name: config`));
         });
+
+        it('has memory and cpu limits and requests when set on terasliceConfig', () => {
+            terasliceConfig.cpu_execution_controller = 1;
+            terasliceConfig.memory_execution_controller = 2147483648;
+
+            const kr = new K8sResource(
+                'jobs', 'execution_controller', terasliceConfig, execution
+            );
+
+            expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
+                  requests:
+                    memory: 2147483648
+                    cpu: 1
+                  limits:
+                    memory: 2147483648
+                    cpu: 1`));
+
+            const envArray = kr.resource.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
+                .toEqual('--max-old-space-size=1843');
+        });
+
+        it('execution resources override terasliceConfig resources', () => {
+            execution.cpu_execution_controller = 2;
+            execution.memory_execution_controller = 1073741824;
+            terasliceConfig.cpu_execution_controller = 1;
+            terasliceConfig.memory_execution_controller = 2147483648;
+
+            const kr = new K8sResource(
+                'jobs', 'execution_controller', terasliceConfig, execution
+            );
+
+            expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
+                  requests:
+                    memory: 1073741824
+                    cpu: 2
+                  limits:
+                    memory: 1073741824
+                    cpu: 2`));
+
+            const envArray = kr.resource.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
+                .toEqual('--max-old-space-size=922');
+        });
     });
 
     describe('worker deployment with different combinations of job names', () => {
