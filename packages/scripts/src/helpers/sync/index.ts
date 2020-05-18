@@ -13,7 +13,7 @@ export async function syncAll(options: SyncOptions) {
     const pkgInfos = listPackages();
     const rootInfo = getRootInfo();
     utils.syncVersions(pkgInfos, rootInfo);
-    await updatePkgJSON(rootInfo);
+    await updatePkgJSON(rootInfo, !options.quiet);
 
     await Promise.all(pkgInfos.map((pkgInfo) => utils.syncPackage(files, pkgInfo)));
     await generateTSConfig(pkgInfos);
@@ -28,7 +28,7 @@ export async function syncPackages(pkgInfos: PackageInfo[], options: SyncOptions
 
     const rootInfo = getRootInfo();
     utils.syncVersions(pkgInfos, rootInfo);
-    await updatePkgJSON(rootInfo);
+    await updatePkgJSON(rootInfo, !options.quiet);
 
     await Promise.all(
         pkgInfos.map(async (pkgInfo) => {
