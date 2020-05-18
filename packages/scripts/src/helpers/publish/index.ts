@@ -1,5 +1,7 @@
 import ms from 'ms';
-import { get, concat } from '@terascope/utils';
+import {
+    get, concat, pMap, isString
+} from '@terascope/utils';
 import { PackageInfo } from '../interfaces';
 import { listPackages, getMainPackageInfo, getPublishTag } from '../packages';
 import { PublishAction, PublishOptions, PublishType } from './interfaces';
@@ -15,11 +17,11 @@ import {
     dockerBuild,
     dockerPush
 } from '../scripts';
-import { getRootInfo, getDevDockerImage } from '../misc';
+import { getRootInfo, getDevDockerImage, formatList } from '../misc';
 import signale from '../signale';
 
 export async function publish(action: PublishAction, options: PublishOptions) {
-    signale.info(`publishing to ${action}`, { dryRun: options.dryRun });
+    signale.info(`publishing to ${action}...`, { dryRun: options.dryRun });
 
     if (action === PublishAction.NPM) {
         return publishToNPM(options);
@@ -33,12 +35,24 @@ async function publishToNPM(options: PublishOptions) {
     if (![PublishType.Latest, PublishType.Tag, PublishType.Dev].includes(options.type)) {
         throw new Error(`NPM publish does NOT support publish type "${options.type}"`);
     }
-    for (const pkgInfo of listPackages()) {
-        await npmPublish(pkgInfo, options);
+    const result = await pMap(listPackages(), (pkgInfo) => npmPublish(pkgInfo, options), {
+        concurrency: 3,
+    });
+
+    const bumped = result.filter(isString);
+
+    if (!bumped.length) {
+        if (options.dryRun) signale.info('No packages published, turn use --no-dry-run to publish');
+        else signale.info('No packages published');
+        return;
     }
+
+    signale.info(`Published the follow packages:${formatList(bumped)}`);
 }
 
-async function npmPublish(pkgInfo: PackageInfo, options: PublishOptions) {
+async function npmPublish(
+    pkgInfo: PackageInfo, options: PublishOptions
+): Promise<string|undefined> {
     const shouldPublish = await shouldNPMPublish(pkgInfo, options.type);
     if (!shouldPublish) return;
 
@@ -50,10 +64,13 @@ async function npmPublish(pkgInfo: PackageInfo, options: PublishOptions) {
 
     if (options.dryRun) {
         signale.info(`[DRY RUN] - skipping publish for package ${pkgInfo.name}@v${pkgInfo.version} (${tag})`);
-    } else {
-        const registry: string|undefined = get(pkgInfo, 'publishConfig.registry');
-        await yarnPublish(pkgInfo, tag, registry);
+        return;
     }
+
+    const registry: string|undefined = get(pkgInfo, 'publishConfig.registry');
+    await yarnPublish(pkgInfo, tag, registry);
+
+    return pkgInfo.name;
 }
 
 async function publishToDocker(options: PublishOptions) {
