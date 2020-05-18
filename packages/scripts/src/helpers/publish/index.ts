@@ -48,8 +48,10 @@ async function publishToNPM(options: PublishOptions) {
     }
 
     const l = formatList(bumped);
-    if (options.dryRun) signale.info(`\nUse --no-dry-run to publish the follow packages:${l}`);
-    else signale.info(`\nPublished the follow packages:${l}`);
+    process.stdout.write('\n');
+
+    if (options.dryRun) signale.info(`Use --no-dry-run to publish the follow packages:${l}`);
+    else signale.info(`Published the follow packages:${l}`);
 }
 
 async function npmPublish(
