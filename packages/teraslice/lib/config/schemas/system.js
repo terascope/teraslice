@@ -7,6 +7,11 @@ const { isPlainObject } = require('@terascope/utils');
 const workerCount = require('os').cpus().length;
 
 const schema = {
+    api_response_timeout: {
+        doc: 'HTTP response timeout for the Teraslice API server',
+        default: '5 minutes',
+        format: 'duration'
+    },
     assets_directory: {
         doc: 'directory to look for assets',
         default: path.join(process.cwd(), './assets'),
@@ -216,9 +221,19 @@ const schema = {
         default: undefined,
         format: 'Number'
     },
+    cpu_execution_controller: {
+        doc: 'number of cpus to reserve per teraslice execution controller in kubernetes',
+        default: 0.5,
+        format: 'Number'
+    },
     memory: {
         doc: 'memory, in bytes, to reserve per teraslice worker in kubernetes',
         default: undefined,
+        format: 'Number'
+    },
+    memory_execution_controller: {
+        doc: 'memory, in bytes, to reserve per teraslice execution controller in kubernetes',
+        default: 512000000,
         format: 'Number'
     },
     env_vars: {
@@ -275,6 +290,11 @@ const schema = {
         doc: 'Name of Kubernetes secret used to pull docker images from private repository',
         default: '',
         format: 'optional_String'
+    },
+    kubernetes_worker_antiaffinity: {
+        doc: 'Enable Teraslice woker pod AntiAffinity in Kubernetes',
+        default: false,
+        format: Boolean
     }
 };
 

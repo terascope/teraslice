@@ -47,8 +47,9 @@ describe('k8sResource', () => {
             expect(kr.resource.metadata.name).toBe('ts-wkr-example-data-generator-job-7ba9afb0-417a');
 
             // The following properties should be absent in the default case
+            // Note: This tests that both affinity and podAntiAffinity are absent
             expect(kr).not.toHaveProperty('resource.spec.template.spec.affinity');
-            expect(kr.resource.spec.template.spec).not.toHaveProperty('imagePullSecrets');
+            expect(kr).not.toHaveProperty('resource.spec.template.spec.imagePullSecrets');
 
             // Configmaps should be mounted on all workers
             expect(kr.resource.spec.template.spec.volumes[0]).toEqual(yaml.load(`
@@ -73,6 +74,29 @@ describe('k8sResource', () => {
             expect(kr.resource.spec.template.spec.imagePullSecrets[0]).toEqual(
                 yaml.load(`
                   name: teraslice-image-pull-secret`)
+            );
+        });
+
+        it('has podAntiAffinity when terasliceConfig has kubernetes_worker_antiaffinity true.', () => {
+            terasliceConfig.kubernetes_worker_antiaffinity = true;
+            const kr = new K8sResource(
+                'deployments', 'worker', terasliceConfig, execution
+            );
+
+            // console.log(yaml.dump(kr.resource.spec.template.spec.affinity));
+            expect(kr.resource.spec.template.spec.affinity).toEqual(
+                yaml.load(`
+                  podAntiAffinity:
+                    preferredDuringSchedulingIgnoredDuringExecution:
+                      - weight: 1
+                        podAffinityTerm:
+                          labelSelector:
+                            matchExpressions:
+                              - key: app.kubernetes.io/name
+                                operator: In
+                                values:
+                                  - teraslice
+                          topologyKey: kubernetes.io/hostname`)
             );
         });
 
@@ -632,6 +656,50 @@ describe('k8sResource', () => {
                     mountPath: /app/config
                     name: config`));
         });
+
+        it('has memory and cpu limits and requests when set on terasliceConfig', () => {
+            terasliceConfig.cpu_execution_controller = 1;
+            terasliceConfig.memory_execution_controller = 2147483648;
+
+            const kr = new K8sResource(
+                'jobs', 'execution_controller', terasliceConfig, execution
+            );
+
+            expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
+                  requests:
+                    memory: 2147483648
+                    cpu: 1
+                  limits:
+                    memory: 2147483648
+                    cpu: 1`));
+
+            const envArray = kr.resource.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
+                .toEqual('--max-old-space-size=1843');
+        });
+
+        it('execution resources override terasliceConfig resources', () => {
+            execution.cpu_execution_controller = 2;
+            execution.memory_execution_controller = 1073741824;
+            terasliceConfig.cpu_execution_controller = 1;
+            terasliceConfig.memory_execution_controller = 2147483648;
+
+            const kr = new K8sResource(
+                'jobs', 'execution_controller', terasliceConfig, execution
+            );
+
+            expect(kr.resource.spec.template.spec.containers[0].resources).toEqual(yaml.load(`
+                  requests:
+                    memory: 1073741824
+                    cpu: 2
+                  limits:
+                    memory: 1073741824
+                    cpu: 2`));
+
+            const envArray = kr.resource.spec.template.spec.containers[0].env;
+            expect(_.find(envArray, { name: 'NODE_OPTIONS' }).value)
+                .toEqual('--max-old-space-size=922');
+        });
     });
 
     describe('worker deployment with different combinations of job names', () => {
@@ -741,50 +809,5 @@ describe('k8sResource', () => {
               value: value1
               effect: NoSchedule`));
         });
-    });
-
-    describe('execution_controller service', () => {
-        it('has valid resource object.', () => {
-            const kr = new K8sResource(
-                'services', 'execution_controller', terasliceConfig, execution
-            );
-
-            expect(kr.resource.kind).toBe('Service');
-            expect(kr.resource.metadata.name).toBe('ts-exc-example-data-generator-job-7ba9afb0-417a');
-            expect(kr.resource.spec.ports[0].port).toBe(45680);
-            expect(kr.resource.spec.ports[0].targetPort).toBe(45680);
-        });
-
-        it('should not throw error on init when resources are set', () => {
-            let kr;
-            execution.cpu = 2;
-            execution.memory = 2147483648;
-
-            function initExService() {
-                kr = new K8sResource(
-                    'services', 'execution_controller', terasliceConfig, execution
-                );
-            }
-            expect(initExService).not.toThrow();
-            expect(kr.resource.kind).toBe('Service');
-            expect(kr.resource.metadata.name).toBe('ts-exc-example-data-generator-job-7ba9afb0-417a');
-        });
-
-        test.each([
-            ['temp#job', 'ts-exc-temp-job-7ba9afb0-417a'],
-            ['temp_job', 'ts-exc-temp-job-7ba9afb0-417a'],
-            ['temp!job', 'ts-exc-temp-job-7ba9afb0-417a']
-        ])(
-            'should sanitize %s to be valid DNS name',
-            (name, expected) => {
-                execution.name = name;
-                const kr = new K8sResource(
-                    'services', 'execution_controller', terasliceConfig, execution
-                );
-
-                expect(kr.resource.kind).toBe('Service');
-                expect(kr.resource.metadata.name).toBe(expected);
-            }
-        );
     });
 });

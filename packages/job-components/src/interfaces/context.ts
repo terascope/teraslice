@@ -19,11 +19,14 @@ export type ClusterManagerType = 'native'|'kubernetes';
 export interface TerasliceConfig {
     action_timeout: number|300000;
     analytics_rate: number|60000;
+    api_response_timeout?: number|300000;
     assets_directory?: string;
     assets_volume?: string;
     cluster_manager_type: ClusterManagerType;
     /** This will only be available in the context of k8s */
     cpu?: number;
+    /** This will only be available in the context of k8s */
+    cpu_execution_controller?: number|0.5;
     execution_controller_targets?: ExecutionControllerTargets[];
     hostname: string;
     index_rollover_frequency: IndexRolloverFrequency;
@@ -32,10 +35,13 @@ export interface TerasliceConfig {
     kubernetes_image_pull_secret?: string|'';
     kubernetes_image?: string|'terascope/teraslice';
     kubernetes_namespace?: string|'default';
+    kubernetes_worker_antiaffinity?: boolean|false;
     master_hostname: string|'localhost';
     master: boolean|false;
     /** This will only be available in the context of k8s */
     memory?: number;
+    /** This will only be available in the context of k8s */
+    memory_execution_controller?: number|512000000; // 512 MB
     name: string|'teracluster';
     network_latency_buffer: number|15000;
     node_disconnect_timeout: number|300000;

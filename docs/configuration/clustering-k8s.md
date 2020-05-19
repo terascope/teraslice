@@ -6,10 +6,12 @@ sidebar_label: Kubernetes Clustering
 Teraslice supports the use of Kubernetes as a cluster manager. The following
 versions of Kuberenetes have been used:
 
-* `1.10.*`
-* `1.11.*`
-* `1.12.*`
+* `1.17.*`
+* `1.16.*`
 * `1.13.2`
+* `1.12.*`
+* `1.11.*`
+* `1.10.*`
 
 We are not yet making an effort to ensure compatibility with older Kubernetes
 versions, so the newest version listed above is likely to be the best choice.
@@ -85,17 +87,20 @@ it's just kind of nice to have.
 
 ## Kubernetes Specific Configuration Settings
 
-The table below shows the Teraslice configuration settings added
-to support k8s based Teraslice deployments.
+The table below shows the Teraslice Master configuration settings added to
+support k8s based Teraslice deployments.
 
-|        Configuration         |                                                                        Description                                                                         |  Type  |  Notes   |
-| :--------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------: | :----: | :------: |
-|        assets_volume         |                               Name of kubernetes volume to be shared across all pods, where Teraslice assets will be stored                                | String | optional |
-| execution_controller_targets |                                 array of `{"key": "rack", "value": "alpha"}` targets for execution controllers                                             | String | optional |
-|       kubernetes_image       |                                                     Name of docker image, default: `teraslice:k8sdev`                                                      | String | optional |
-| kubernetes_image_pull_secret |                                                    Secret used to pull docker images from private repo                                                     | String | optional |
-|  kubernetes_config_map_name  | Name of the configmap used by worker and execution_controller containers for config.  If this is not provided, the default will be `<CLUSTER_NAME>-worker` | String | optional |
-|     kubernetes_namespace     |                                       Kubernetes Namespace that Teraslice will run in, default namespace: 'default'                                        | String | optional |
+|        Configuration           |                                                                        Description                                                                         |  Type  |  Notes   |
+| :----------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------: | :----: | :------: |
+|         assets_volume          |                               Name of kubernetes volume to be shared across all pods, where Teraslice assets will be stored                                | String | optional |
+|    cpu_execution_controller    |                                       CPU resources to use for Execution Controller request and limit values                                               | Number | optional |
+|  execution_controller_targets  |                                 array of `{"key": "rack", "value": "alpha"}` targets for execution controllers                                             | String | optional |
+|        kubernetes_image        |                                                     Name of docker image, default: `teraslice:k8sdev`                                                      | String | optional |
+|  kubernetes_image_pull_secret  |                                                    Secret used to pull docker images from private repo                                                     | String | optional |
+|   kubernetes_config_map_name   | Name of the configmap used by worker and execution_controller containers for config.  If this is not provided, the default will be `<CLUSTER_NAME>-worker` | String | optional |
+|      kubernetes_namespace      |                                       Kubernetes Namespace that Teraslice will run in, default namespace: 'default'                                        | String | optional |
+| kubernetes_worker_antiaffinity |                                   If `true`, pod antiaffinity will be enabled for Teraslice workers, `false` by default                                    | Boolean | optional |
+|   memory_execution_controller  |                                       Memory resources to use for Execution Controller request and limit values                                            | Number | optional |
 
 Note that the `assets_volume` should also be mounted to your Teraslice master pod.
 
@@ -126,9 +131,14 @@ labels that Teraslice uses.
 ### Resources
 
 It is possible to set CPU and memory resource constraints for your Teraslice
-workers that translate to Kubernetes resource constraints.  Currently you
-can specify optional integer values on your job as shown below. The `cpu`
-setting is in vcores and the `memory` setting is in bytes.
+Workers that translate to Kubernetes resource constraints.  Resources for
+Execution Controllers are handled separately and described below.  Currently you
+can specify optional integer values on your job or in the Teraslice master
+configuration as shown below. The `cpu` setting is in vcores and the `memory`
+setting is in bytes.  Teraslice `cpu` and `memory` settings on your Teraslice
+Job override any settings in the master configuration.  Both are optional,
+excluding them results in Teraslice Worker pods with no resource requests or
+limits.
 
 ```json
 "cpu": 1,
@@ -141,6 +151,24 @@ will result in the Kubernetes `resources.requests.memory` and
 `resources.limit.memory` being set to the `memory` value provided. See the
 [Kubernetes Resource docs](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
 for further details on how Kubernetes interprets these values.
+
+#### Execution Controller Resources
+
+Teraslice Execution Controllers typically have vastly different resource needs
+from Workers on the same Job so you can now set these separately.  By default,
+the Kubernetes pods for Teraslice Execution controllers automatically get the
+following resource requests and limits:
+
+```json
+"cpu_execution_controller": 0.5,
+"memory_execution_controller": 512000000 // 512 MB
+```
+
+These defaults can be overridden either in your Teraslice Job or in the
+Teraslice Master configuration.  Settings on your Teraslice Job override the
+settings in the Master configuration.  The behaviour of these two settings is
+the same as the Worker settings with the exception of the default being applied
+in the Execution Controller case.
 
 ### Node Affinity and Tolerance Using Teraslice Job Targets
 

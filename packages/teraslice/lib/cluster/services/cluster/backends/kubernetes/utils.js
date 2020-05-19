@@ -20,7 +20,7 @@ function getMaxOldSpace(memory) {
     return Math.round(0.9 * (memory / 1024 / 1024));
 }
 
-function addEnvToContainerEnv(envArr, jobEnv, memory) {
+function setMaxOldSpaceViaEnv(envArr, jobEnv, memory) {
     const envObj = {};
     if (memory && memory > -1) {
         // Set NODE_OPTIONS to override max-old-space-size
@@ -38,4 +38,4 @@ function addEnvToContainerEnv(envArr, jobEnv, memory) {
     });
 }
 
-module.exports = { addEnvToContainerEnv, makeTemplate, getMaxOldSpace };
+module.exports = { setMaxOldSpaceViaEnv, makeTemplate, getMaxOldSpace };

@@ -7,7 +7,7 @@ const barbe = require('barbe');
 const _ = require('lodash');
 
 const { safeEncode } = require('../../../../../utils/encoding_utils');
-const { addEnvToContainerEnv } = require('./utils');
+const { setMaxOldSpaceViaEnv } = require('./utils');
 
 class K8sResource {
     /**
@@ -40,27 +40,27 @@ class K8sResource {
 
         this._setJobLabels();
 
-        // services don't have pod templates that need modification by these
-        // methods
-        if (resourceType !== 'services') {
-            // Apply job `targets` setting as k8s nodeAffinity
-            // We assume that multiple targets require both to match ...
-            // NOTE: If you specify multiple `matchExpressions` associated with
-            // `nodeSelectorTerms`, then the pod can be scheduled onto a node
-            // only if *all* `matchExpressions` can be satisfied.
-            this._setTargets();
-            this._setResources();
-            this._setVolumes();
-            this._setAssetsVolume();
-            this._setImagePullSecret();
+        // Apply job `targets` setting as k8s nodeAffinity
+        // We assume that multiple targets require both to match ...
+        // NOTE: If you specify multiple `matchExpressions` associated with
+        // `nodeSelectorTerms`, then the pod can be scheduled onto a node
+        // only if *all* `matchExpressions` can be satisfied.
+        this._setTargets();
+        this._setResources();
+        this._setVolumes();
+        this._setAssetsVolume();
+        this._setImagePullSecret();
 
-            // Execution controller targets are required nodeAffinities, if
-            // required job targets are also supplied, then *all* of the matches
-            // will have to be satisfied for the job to be scheduled.  This also
-            // adds tolerations for any specified targets
-            if (resourceName === 'execution_controller') {
-                this._setExecutionControllerTargets();
-            }
+        if (resourceName === 'worker') {
+            this._setAntiAffinity();
+        }
+
+        // Execution controller targets are required nodeAffinities, if
+        // required job targets are also supplied, then *all* of the matches
+        // will have to be satisfied for the job to be scheduled.  This also
+        // adds tolerations for any specified targets
+        if (resourceName === 'execution_controller') {
+            this._setExecutionControllerTargets();
         }
     }
 
@@ -116,6 +116,34 @@ class K8sResource {
             const templated = barbe(templateData, templateKeys, config);
             return JSON.parse(templated);
         };
+    }
+
+    _setAntiAffinity() {
+        if (this.terasliceConfig.kubernetes_worker_antiaffinity) {
+            this.resource.spec.template.spec.affinity = {
+                podAntiAffinity: {
+                    preferredDuringSchedulingIgnoredDuringExecution: [
+                        {
+                            weight: 1,
+                            podAffinityTerm: {
+                                labelSelector: {
+                                    matchExpressions: [
+                                        {
+                                            key: 'app.kubernetes.io/name',
+                                            operator: 'In',
+                                            values: [
+                                                'teraslice'
+                                            ]
+                                        }
+                                    ]
+                                },
+                                topologyKey: 'kubernetes.io/hostname'
+                            }
+                        }
+                    ]
+                }
+            };
+        }
     }
 
     /**
@@ -189,11 +217,25 @@ class K8sResource {
     }
 
     _setResources() {
-        // The settings on the executions override the cluster configs
-        const cpu = this.execution.cpu || this.terasliceConfig.cpu || -1;
-        const memory = this.execution.memory || this.terasliceConfig.memory || -1;
+        let cpu;
+        let memory;
+
         // use teraslice config as defaults and execution config will override it
         const envVars = Object.assign({}, this.terasliceConfig.env_vars, this.execution.env_vars);
+
+        if (this.nodeType === 'worker') {
+            // The settings on the executions override the cluster configs
+            cpu = this.execution.cpu || this.terasliceConfig.cpu || -1;
+            memory = this.execution.memory || this.terasliceConfig.memory || -1;
+        }
+
+        if (this.nodeType === 'execution_controller') {
+            // The settings on the executions override the cluster configs
+            cpu = this.execution.cpu_execution_controller
+                || this.terasliceConfig.cpu_execution_controller || -1;
+            memory = this.execution.memory_execution_controller
+                || this.terasliceConfig.memory_execution_controller || -1;
+        }
 
         const container = this.resource.spec.template.spec.containers[0];
 
@@ -207,7 +249,7 @@ class K8sResource {
             _.set(container, 'resources.limits.memory', memory);
         }
 
-        addEnvToContainerEnv(container.env, envVars, memory);
+        setMaxOldSpaceViaEnv(container.env, envVars, memory);
     }
 
     _setTargets() {
