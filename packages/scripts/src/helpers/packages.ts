@@ -78,6 +78,15 @@ export function listPackages(): i.PackageInfo[] {
     return _packages;
 }
 
+export function getWorkspaceNames(): string[] {
+    return uniq(
+        listPackages()
+            .filter((pkg) => !('workspaces' in pkg))
+            .map((pkg) => path.basename(path.dirname(pkg.dir)))
+            .filter((name) => name && name !== '.')
+    );
+}
+
 export function getJestAliases() {
     const aliases: Record<string, string> = {};
     listPackages().forEach((pkg) => {
@@ -168,6 +177,7 @@ export function updatePkgInfo(pkgInfo: i.PackageInfo): void {
     }
 
     pkgInfo.folderName = path.basename(pkgInfo.dir);
+    pkgInfo.relativeDir = path.relative(rootInfo.dir, pkgInfo.dir);
     addPackageConfig(pkgInfo);
 
     if (!pkgInfo.displayName) {
@@ -190,6 +200,7 @@ export function updatePkgJSON(
     const pkgJSON = getSortedPkgJSON(pkgInfo);
     delete pkgJSON.folderName;
     delete pkgJSON.dir;
+    delete pkgJSON.relativeDir;
     return misc.writeIfChanged(path.join(pkgInfo.dir, 'package.json'), pkgJSON, {
         log,
     });
@@ -213,7 +224,7 @@ export function getDocPath(pkgInfo: i.PackageInfo, withFileName: boolean, withEx
         return e2eDevDocs;
     }
 
-    const docPath = path.join('docs/packages', pkgInfo.folderName);
+    const docPath = path.join('docs', pkgInfo.relativeDir);
     fse.ensureDirSync(docPath);
     if (withFileName) {
         return path.join(

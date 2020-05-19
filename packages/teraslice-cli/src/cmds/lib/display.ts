@@ -1,46 +1,48 @@
 /* eslint-disable no-console */
 
-// @ts-ignore
 import ttyTable from 'tty-table';
-// @ts-ignore
 import CliTable from 'cli-table3';
 import easyTable from 'easy-table';
 import prompts from 'prompts';
 import { toTitleCase } from '@terascope/utils';
 
-async function pretty(headerValues: any, rows: any) {
-    const header: any[] = [];
-    headerValues.forEach((item: any) => {
-        const col: any = [];
-        col.value = item;
-        header.push(col);
-    });
-
-    const table = ttyTable(header, rows, {
-        borderStyle: 1,
+function pretty(headerValues: string[], rows: string[]) {
+    const header = headerValues.map((item): ttyTable.Header => ({
+        value: String(item),
+        width: 'auto',
         paddingTop: 0,
         paddingBottom: 0,
-        headerAlign: 'left',
         align: 'left',
-        defaultValue: ''
+        formatter() {
+            return String(item);
+        },
+    }));
+
+    const table = ttyTable(header, rows, {
+        borderStyle: 'solid',
+        defaultValue: '',
     });
 
     console.log(table.render());
 }
 
-async function horizontal(rows: any, opts: any) {
+function horizontal(
+    rows: CliTable.HorizontalTableRow[], opts: CliTable.TableConstructorOptions
+) {
     const table = new CliTable(opts);
 
     rows.forEach((item: any) => {
         table.push(item);
     });
 
-    console.log(await table.toString());
+    console.log(table.toString());
 }
 
-async function vertical(header: any, rows: any, style: any) {
+function vertical(
+    header: string, rows: CliTable.VerticalTableRow[], opts: CliTable.TableConstructorOptions
+) {
     rows.forEach((keys: any) => {
-        const table = new CliTable(style);
+        const table = new CliTable(opts);
 
         console.log(`\n${header} -> ${keys[header]}`);
         Object.entries(keys).forEach(([key, value]) => {
@@ -52,10 +54,10 @@ async function vertical(header: any, rows: any, style: any) {
     });
 }
 
-async function text(headerValues: any, items: any) {
+async function text(headerValues: string[], items: Record<string, string>[]) {
     const rows: any[] = [];
-    items.forEach((item: any) => {
-        const row = {};
+    items.forEach((item) => {
+        const row: Record<string, any> = {};
         headerValues.forEach((headerValue: any) => {
             row[headerValue] = item[headerValue];
         });
@@ -163,9 +165,9 @@ export default function displayModule() {
             };
             if (parse) {
                 rows = await parseResponse(header, items, active, id);
-                await horizontal(rows, opts);
+                horizontal(rows, opts);
             } else {
-                await horizontal(items, opts);
+                horizontal(items, opts);
             }
         } else if (type === 'prettyHorizontal') {
             const opts = {
@@ -174,9 +176,9 @@ export default function displayModule() {
             };
             if (parse) {
                 rows = await parseResponse(header, items, active, id);
-                await horizontal(rows, opts);
+                horizontal(rows, opts);
             } else {
-                await horizontal(items, opts);
+                horizontal(items, opts);
             }
         } else if (type === 'txtVertical') {
             const style = {
@@ -203,9 +205,9 @@ export default function displayModule() {
             };
             if (parse) {
                 rows = await parseResponse(header, items, active, id);
-                await vertical(header, rows, style);
+                vertical(header, rows, style);
             } else {
-                await vertical(header, items, style);
+                vertical(header, items, style);
             }
         } else if (type === 'prettyVertical') {
             const style = {
@@ -213,12 +215,12 @@ export default function displayModule() {
             };
             if (parse) {
                 rows = await parseResponse(header, items, active, id);
-                await vertical(header, rows, style);
+                vertical(header, rows, style);
             } else {
-                await vertical(header, items, style);
+                vertical(header, items, style);
             }
         } else {
-            await pretty(header, items);
+            pretty(header, items);
         }
     }
 

@@ -34,7 +34,7 @@
         "@types/lodash": "^4.14.149",
         "debug": "^4.1.1",
         "ms": "^2.1.2",
-        "typescript": "^3.8.3"
+        "typescript": "~3.8.3"
     },
     "dependencies": {},
     "devDependencies": {
@@ -53,8 +53,8 @@
         "jest-watch-typeahead": "^0.5.0",
         "lerna": "^3.20.1",
         "node-notifier": "^7.0.0",
-        "ts-jest": "^25.4.0",
-        "typescript": "^3.8.3"
+        "ts-jest": "^25.5.1",
+        "typescript": "~3.8.3"
     },
     "engines": {
         "node": ">=10.16.0",
@@ -68,6 +68,7 @@
     "terascope": {
         "root": true,
         "type": "monorepo",
+        "target": "es2018",
         "tests": {
             "suites": {
                 "e2e": [

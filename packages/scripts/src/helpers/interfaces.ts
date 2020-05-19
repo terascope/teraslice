@@ -1,5 +1,6 @@
 export type PackageInfo = {
     dir: string;
+    relativeDir: string;
     folderName: string;
     private?: boolean;
     name: string;
@@ -42,6 +43,7 @@ export type PackageConfig = {
 export type RootPackageInfo = {
     version: string;
     dir: string;
+    relativeDir: string;
     folderName: string;
     name: string;
     displayName: string;
@@ -54,6 +56,7 @@ export type RootPackageInfo = {
     terascope: {
         root: boolean;
         type: 'monorepo';
+        target: string;
         tests: {
             suites: {
                 [suite: string]: Service[];

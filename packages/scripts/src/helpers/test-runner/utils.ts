@@ -187,11 +187,21 @@ export function groupBySuite(
     return groups;
 }
 
+function _getTeardownFile(dir: string): string|undefined {
+    let filePath = path.join(dir, 'test/global.teardown.js');
+    if (fse.existsSync(filePath)) return filePath;
+    filePath = path.join(dir, 'dist/test/global.teardown.js');
+    if (fse.existsSync(filePath)) return filePath;
+    filePath = path.join(dir, 'dist/global.teardown.js');
+    if (fse.existsSync(filePath)) return filePath;
+    return undefined;
+}
+
 type TeardownPkgsArg = { name: string; dir: string; suite?: string }[];
 export async function globalTeardown(options: TestOptions, pkgs: TeardownPkgsArg) {
     for (const { name, dir, suite } of pkgs) {
-        const filePath = path.join(dir, 'test/global.teardown.js');
-        if (fse.existsSync(filePath)) {
+        const filePath = _getTeardownFile(dir);
+        if (filePath) {
             const cwd = process.cwd();
             setEnv(options, suite);
             signale.debug(`Running ${path.relative(process.cwd(), filePath)}`);

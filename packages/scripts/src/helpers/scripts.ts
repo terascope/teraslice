@@ -351,7 +351,8 @@ export async function dockerContainerReady(name: string, upFor: number): Promise
 export async function dockerBuild(
     tag: string,
     cacheFrom: string[] = [],
-    target?: string
+    target?: string,
+    buildArg?: string
 ): Promise<void> {
     const cacheFromArgs: string[] = [];
 
@@ -360,10 +361,11 @@ export async function dockerBuild(
     });
 
     const targetArgs: string[] = target ? ['--target', target] : [];
+    const buildsArgs: string[] = buildArg ? ['--build-arg', buildArg] : [];
 
     await fork({
         cmd: 'docker',
-        args: ['build', ...cacheFromArgs, ...targetArgs, '--tag', tag, '.'],
+        args: ['build', ...cacheFromArgs, ...targetArgs, ...buildsArgs, '--tag', tag, '.'],
     });
 }
 
@@ -395,6 +397,8 @@ export async function pgrep(name: string): Promise<string> {
 }
 
 export async function getCommitHash(): Promise<string> {
+    if (process.env.GIT_COMMIT_HASH) return process.env.GIT_COMMIT_HASH;
+
     return exec({ cmd: 'git', args: ['rev-parse', '--short', 'HEAD'] });
 }
 
@@ -402,16 +406,30 @@ export async function gitDiff(files: string[] = []): Promise<void> {
     try {
         await fork({ cmd: 'git', args: ['diff', ...files] });
     } catch (e) {
-        logger.trace(e);
+        process.exitCode = 0;
+        logger.warn(e);
     }
 }
 
-export async function getChangedFiles(...files: string[]) {
-    const result = await exec({ cmd: 'git', args: ['diff', '--name-only', ...files] });
-    return result
-        .split('\n')
-        .map((str) => str.trim())
-        .filter(Boolean);
+export async function getChangedFiles(...files: string[]): Promise<string[]> {
+    try {
+        const result = await exec({
+            cmd: 'git', args: ['diff', '--name-only', ...files]
+        });
+        return result
+            .split('\n')
+            .map((str) => str.trim())
+            .filter(Boolean);
+    } catch (e) {
+        // if there error includes ENOENT
+        // we can just log the error and continue on
+        if (e.toString().includes('ENOENT')) {
+            process.exitCode = 0;
+            logger.warn(e);
+            return [];
+        }
+        throw e;
+    }
 }
 
 export type ArgsMap = { [key: string]: string | string[] };

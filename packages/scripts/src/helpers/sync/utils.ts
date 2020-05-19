@@ -3,7 +3,9 @@ import semver from 'semver';
 import {
     getFirstChar, uniq, trim, isCI
 } from '@terascope/utils';
-import { getDocPath, updatePkgJSON, fixDepPkgName } from '../packages';
+import {
+    getDocPath, updatePkgJSON, fixDepPkgName, listPackages
+} from '../packages';
 import { updateReadme, ensureOverview } from '../docs/overview';
 import { PackageInfo, RootPackageInfo } from '../interfaces';
 import { formatList, getRootDir } from '../misc';
@@ -12,18 +14,19 @@ import { DepKey, SyncOptions } from './interfaces';
 import signale from '../signale';
 
 const topLevelFiles: readonly string[] = [
+    'tsconfig.json',
     'package.json',
     'yarn.lock'
 ];
-
 let prevChanged: string[] = [];
 
 export async function verifyCommitted(options: SyncOptions) {
+    const pkgDirs: string[] = listPackages().map((pkg) => pkg.relativeDir);
+
     const changed = await getChangedFiles(
         ...topLevelFiles,
+        ...pkgDirs,
         'docs',
-        'packages',
-        'e2e'
     );
     prevChanged = [...changed];
 
@@ -43,6 +46,8 @@ ${formatList(changed)}
 }
 
 export async function verify(files: string[], options: SyncOptions) {
+    if (options.quiet && !options.verify) return;
+
     const changed = await getChangedFiles(...uniq([
         ...topLevelFiles,
         ...files,
@@ -77,11 +82,13 @@ export function getFiles(pkgInfo: PackageInfo): string[] {
     ];
 }
 
-export async function syncPackage(files: string[], pkgInfo: PackageInfo) {
+export async function syncPackage(
+    files: string[], pkgInfo: PackageInfo, options: SyncOptions
+): Promise<void> {
     await Promise.all([
         updateReadme(pkgInfo),
         ensureOverview(pkgInfo),
-        updatePkgJSON(pkgInfo),
+        updatePkgJSON(pkgInfo, !options.quiet),
     ]);
 
     files.push(...getFiles(pkgInfo));

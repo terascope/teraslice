@@ -156,7 +156,8 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
             let body: any;
             try {
                 ({ body } = await got(elasticsearchHost, {
-                    json: true,
+                    // @types/got seems to be incorrect for got@9.x.x
+                    json: true as any,
                     throwHttpErrors: true,
                     retry: 0,
                 }));
