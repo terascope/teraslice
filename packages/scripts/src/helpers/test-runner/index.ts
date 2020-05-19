@@ -1,22 +1,20 @@
-import ms from 'ms';
 import {
     debugLogger,
     chunk,
     TSError,
-    getFullErrorStack,
-    isCI
+    isCI,
+    pMap
 } from '@terascope/utils';
 import {
     writePkgHeader,
     writeHeader,
-    formatList,
     getRootDir,
     getRootInfo,
     getAvailableTestSuites,
 } from '../misc';
 import { ensureServices, pullServices } from './services';
 import { PackageInfo } from '../interfaces';
-import { TestOptions, RunSuiteResult, CleanupFN } from './interfaces';
+import { TestOptions } from './interfaces';
 import {
     runJest,
     dockerTag,
@@ -25,117 +23,65 @@ import * as utils from './utils';
 import signale from '../signale';
 import { getE2EDir } from '../packages';
 import { buildDevDockerImage } from '../publish/utils';
+import { TestTracker } from './tracker';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
 export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
+    const tracker = new TestTracker(options);
+
     logger.info('running tests with options', options);
-    let result: RunSuiteResult = {
-        cleanup: () => {},
-        errors: [],
-    };
 
     try {
-        result = await _runTests(pkgInfos, options);
+        await _runTests(pkgInfos, options, tracker);
     } catch (err) {
-        result.errors = [getFullErrorStack(err)];
-    }
-
-    let errorMsg = '';
-    if (result.errors.length > 1) {
-        errorMsg = `Multiple Test Failures:${formatList(result.errors)}`;
-    } else if (result.errors.length === 1) {
-        ([errorMsg] = result.errors);
-    }
-
-    if (result.errors.length) {
-        signale.error(`\n${errorMsg}`);
-    }
-
-    if (options.keepOpen) {
-        await new Promise((resolve) => {
-            let timeoutId: any;
-            signale.info('keeping the tests open so the services don\'t shutdown, use ctrl-c to exit.');
-
-            function done() {
-                clearTimeout(timeoutId);
-                process.removeListener('SIGINT', done);
-                process.removeListener('SIGTERM', done);
-                resolve();
-            }
-
-            timeoutId = setTimeout(done, ms('4 hour'));
-            process.once('SIGINT', done);
-            process.once('SIGTERM', done);
-        });
-    }
-
-    try {
-        await result.cleanup();
-    } catch (err) {
-        signale.warn(err, 'cleanup error');
-    }
-
-    if (result.errors.length) {
-        const exitCode = (process.exitCode || 0) > 0 ? process.exitCode : 1;
-        process.exit(exitCode);
-    } else {
-        process.exit(0);
+        tracker.addError(err);
+    } finally {
+        tracker.finish();
     }
 }
 
-async function _runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise<RunSuiteResult> {
+async function _runTests(
+    pkgInfos: PackageInfo[], options: TestOptions, tracker: TestTracker
+): Promise<void> {
     if (options.suite?.includes('e2e')) {
-        return runE2ETest(options);
+        await runE2ETest(options, tracker);
+        return;
     }
 
     const filtered = utils.filterBySuite(pkgInfos, options);
     if (!filtered.length) {
         signale.warn('No tests found.');
-        return { cleanup() {}, errors: [] };
+        return;
     }
 
-    const cleanups: (() => void)[] = [];
     const availableSuites = getAvailableTestSuites();
     const grouped = utils.groupBySuite(filtered, availableSuites, options);
 
-    const errors: string[] = [];
     for (const [suite, pkgs] of Object.entries(grouped)) {
         if (!pkgs.length || suite === 'e2e') continue;
 
         try {
-            const result = await runTestSuite(suite, pkgs, options);
-            cleanups.push(result.cleanup);
-            if (result.errors.length) {
-                errors.push(...result.errors);
-                if (options.bail) {
+            await runTestSuite(suite, pkgs, options, tracker);
+            if (tracker.hasErrors()) {
+                if (options.bail || isCI) {
                     break;
                 }
             }
         } catch (err) {
-            errors.push(getFullErrorStack(err));
+            tracker.addError(err);
             break;
         }
     }
-
-    return {
-        async cleanup() {
-            await Promise.all(cleanups);
-        },
-        errors,
-    };
 }
 
 async function runTestSuite(
     suite: string,
     pkgInfos: PackageInfo[],
-    options: TestOptions
-): Promise<RunSuiteResult> {
-    if (suite === 'e2e') {
-        return { cleanup() {}, errors: [] };
-    }
-
-    const errors: string[] = [];
+    options: TestOptions,
+    tracker: TestTracker,
+): Promise<void> {
+    if (suite === 'e2e') return;
 
     // jest or our tests have a memory leak, limiting this seems to help
     const MAX_CHUNK_SIZE = isCI ? 7 : 10;
@@ -147,6 +93,7 @@ async function runTestSuite(
         );
     }
 
+    tracker.expected += pkgInfos.length;
     const chunked = chunk(pkgInfos, CHUNK_SIZE);
 
     // don't log unless this useful information (more than one package)
@@ -154,7 +101,12 @@ async function runTestSuite(
         writeHeader(`Running test suite "${suite}"`, false);
     }
 
-    let cleanup: CleanupFN = await ensureServices(options.forceSuite || suite, options);
+    const cleanupKeys: string[] = [`${suite}:services`];
+
+    tracker.addCleanup(
+        `${suite}:services`,
+        await ensureServices(options.forceSuite || suite, options)
+    );
 
     const timeLabel = `test suite "${suite}"`;
     signale.time(timeLabel);
@@ -175,10 +127,13 @@ async function runTestSuite(
         const args = utils.getArgs(options);
         args.projects = pkgs.map((pkgInfo) => pkgInfo.relativeDir);
 
+        tracker.started += pkgs.length;
         try {
             await runJest(getRootDir(), args, env, options.jestArgs, options.debug);
+            tracker.ended += pkgs.length;
         } catch (err) {
-            errors.push(err.message);
+            tracker.ended += pkgs.length;
+            tracker.addError(err.message);
 
             const teardownPkgs = pkgs.map((pkg) => ({
                 name: pkg.name,
@@ -186,18 +141,15 @@ async function runTestSuite(
                 suite: pkg.terascope.testSuite
             }));
 
-            if (options.keepOpen) {
-                const prevCleanup = cleanup;
-                cleanup = async () => {
-                    await prevCleanup();
-                    options.keepOpen = false;
-                    await utils.globalTeardown(options, teardownPkgs);
-                };
-            } else {
+            const cleanupKey = `${suite}:teardown:${pkgs.map((pkg) => pkg.folderName).join(',')}`;
+            cleanupKeys.push(cleanupKey);
+            tracker.addCleanup(cleanupKey, async () => {
+                options.keepOpen = false;
                 await utils.globalTeardown(options, teardownPkgs);
-            }
+            });
 
-            if (options.bail) {
+            if (options.bail || isCI) {
+                signale.error('Bailing out of tests due to error');
                 break;
             }
         } finally {
@@ -208,18 +160,17 @@ async function runTestSuite(
     }
 
     if (!options.keepOpen) {
-        await cleanup();
-        cleanup = () => {};
+        await pMap(cleanupKeys, (key) => tracker.runCleanupByKey(key));
     }
 
     signale.timeEnd(timeLabel);
-
-    return { errors, cleanup };
 }
 
-async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
-    let cleanup: CleanupFN = () => {};
-    const errors: string[] = [];
+async function runE2ETest(
+    options: TestOptions, tracker: TestTracker
+): Promise<void> {
+    tracker.expected++;
+
     const suite = 'e2e';
     let startedTest = false;
 
@@ -241,22 +192,26 @@ async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
         const devImage = await buildDevDockerImage();
         await dockerTag(devImage, e2eImage);
     } catch (err) {
-        errors.push(getFullErrorStack(err));
+        tracker.addError(err);
     }
 
     try {
-        cleanup = await ensureServices(suite, options);
+        tracker.addCleanup(
+            'e2e:services',
+            await ensureServices(suite, options)
+        );
     } catch (err) {
-        errors.push(getFullErrorStack(err));
+        tracker.addError(err);
     }
 
-    if (!errors.length) {
+    if (!tracker.hasErrors()) {
         const timeLabel = `test suite "${suite}"`;
         signale.time(timeLabel);
         startedTest = true;
 
         const env = printAndGetEnv(suite, options);
 
+        tracker.started++;
         try {
             await runJest(
                 e2eDir,
@@ -265,16 +220,20 @@ async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
                 options.jestArgs,
                 options.debug
             );
+            tracker.ended++;
         } catch (err) {
-            errors.push(err.message);
+            tracker.ended++;
+            tracker.addError(err.message);
         }
 
         signale.timeEnd(timeLabel);
     }
 
-    if (startedTest && !options.keepOpen) {
+    if (!startedTest) return;
+
+    if (!options.keepOpen) {
         try {
-            await utils.logE2E(e2eDir, errors.length > 0);
+            await utils.logE2E(e2eDir, tracker.hasErrors());
         } catch (err) {
             signale.error(
                 new TSError(err, {
@@ -284,28 +243,16 @@ async function runE2ETest(options: TestOptions): Promise<RunSuiteResult> {
         }
     }
 
-    if (startedTest && errors.length) {
-        if (options.keepOpen) {
-            const prevCleanup = cleanup;
-            cleanup = async () => {
-                await prevCleanup();
-                options.keepOpen = false;
-                await utils.globalTeardown(options, [{
-                    name: suite,
-                    dir: e2eDir,
-                    suite,
-                }]);
-            };
-        } else {
+    if (tracker.hasErrors()) {
+        tracker.addCleanup('e2e:teardown', async () => {
+            options.keepOpen = false;
             await utils.globalTeardown(options, [{
                 name: suite,
                 dir: e2eDir,
                 suite,
             }]);
-        }
+        });
     }
-
-    return { errors, cleanup };
 }
 
 function printAndGetEnv(suite: string, options: TestOptions) {
