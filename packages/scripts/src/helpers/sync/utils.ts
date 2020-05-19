@@ -46,6 +46,8 @@ ${formatList(changed)}
 }
 
 export async function verify(files: string[], options: SyncOptions) {
+    if (options.quiet && !options.verify) return;
+
     const changed = await getChangedFiles(...uniq([
         ...topLevelFiles,
         ...files,
@@ -80,11 +82,13 @@ export function getFiles(pkgInfo: PackageInfo): string[] {
     ];
 }
 
-export async function syncPackage(files: string[], pkgInfo: PackageInfo) {
+export async function syncPackage(
+    files: string[], pkgInfo: PackageInfo, options: SyncOptions
+): Promise<void> {
     await Promise.all([
         updateReadme(pkgInfo),
         ensureOverview(pkgInfo),
-        updatePkgJSON(pkgInfo),
+        updatePkgJSON(pkgInfo, !options.quiet),
     ]);
 
     files.push(...getFiles(pkgInfo));
