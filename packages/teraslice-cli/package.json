@@ -61,7 +61,7 @@
         "@types/archiver": "^3.0.0",
         "@types/decompress": "^4.2.3",
         "@types/easy-table": "^0.0.32",
-        "@types/prompts": "^2.0.5",
+        "@types/prompts": "^2.0.8",
         "@types/signale": "^1.4.0",
         "@types/tmp": "^0.2.0",
         "@types/yargs": "^15.0.1",
