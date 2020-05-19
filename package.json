@@ -54,7 +54,7 @@
         "lerna": "^3.20.1",
         "node-notifier": "^7.0.0",
         "ts-jest": "^25.5.1",
-        "typescript": "~3.8.3"
+        "typescript": "~3.9.2"
     },
     "engines": {
         "node": ">=10.16.0",
