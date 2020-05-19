@@ -28,7 +28,7 @@
     },
     "resolutions": {
         "ms": "^2.1.2",
-        "typescript": "^3.8.3"
+        "typescript": "~3.8.3"
     },
     "dependencies": {
         "@lerna/query-graph": "^3.18.5",
