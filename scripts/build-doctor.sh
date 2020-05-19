@@ -58,67 +58,65 @@ package_exists() {
     fi
 }
 
-cleanup_packages() {
-    for package in packages/*; do
-        local pkg_basename
-        pkg_basename="$(basename "$package")"
+cleanup_package() {
+    local package="$1"
 
-        if [ ! -d "$package" ] ||
-            [ "$pkg_basename" == "node_modules" ] ||
-            [ "$pkg_basename" == "coverage" ]; then
+    local pkg_basename
+    pkg_basename="$(basename "$package")"
 
-            local q="$package should not exist, do you want to remove it?"
-            prompt "$q" &&
-                echoerr "* removing $package" &&
-                rm -rf "$package"
-            continue
-        fi
+    if [ ! -d "$package" ] ||
+        [ "$pkg_basename" == "node_modules" ] ||
+        [ "$pkg_basename" == "coverage" ]; then
 
-        if package_exists "$package"; then
-            local q="$package appears to no longer exist, do you want to remove it?"
-            prompt "$q" &&
-                echoerr "* removing $package" &&
-                rm -rf "$package"
-            continue
-        fi
-
-        if [ -d "$package/dist" ]; then
-            echoerr "* removing $package/dist"
-            rm -rf "$package/dist"
-        fi
-
-        if [ -d "$package/coverage" ]; then
-            echoerr "* removing $package/coverage"
-            rm -rf "$package/coverage"
-        fi
-
-        if [ -f "$package/yarn-error.log" ]; then
-            echoerr "* removing $package/yarn-error.log"
-            rm "$package/yarn-error.log"
-        fi
-
-        if [ -d "$package/build" ]; then
-            echoerr "* removing $package/build"
-            rm -rf "$package/build"
-        fi
-
-        if [ -d "$package/node_modules" ]; then
-            echoerr "* removing $package/node_modules"
-            rm -rf "$package/node_modules"
-        fi
-    done
-
-    if [ -d "e2e/dist" ]; then
-        echoerr "* removing e2e/dist"
-        rm -rf "e2e/dist"
+        local q="$package should not exist, do you want to remove it?"
+        prompt "$q" &&
+            echoerr "* removing $package" &&
+            rm -rf "$package"
+        return 0;
     fi
 
-    if [ -d "e2e/node_modules" ]; then
-        echoerr "* removing e2e/node_modules"
-        rm -rf "e2e/node_modules"
+    if package_exists "$package"; then
+        local q="$package appears to no longer exist, do you want to remove it?"
+        prompt "$q" &&
+            echoerr "* removing $package" &&
+            rm -rf "$package"
+        return 0;
+    fi
+
+    if [ -d "$package/dist" ]; then
+        echoerr "* removing $package/dist"
+        rm -rf "$package/dist"
+    fi
+
+    if [ -d "$package/coverage" ]; then
+        echoerr "* removing $package/coverage"
+        rm -rf "$package/coverage"
+    fi
+
+    if [ -f "$package/yarn-error.log" ]; then
+        echoerr "* removing $package/yarn-error.log"
+        rm "$package/yarn-error.log"
+    fi
+
+    if [ -d "$package/build" ]; then
+        echoerr "* removing $package/build"
+        rm -rf "$package/build"
+    fi
+
+        if [ -d "$package/node_modules" ]; then
+        echoerr "* removing $package/node_modules"
+        rm -rf "$package/node_modules"
     fi
 
     return 0
+}
+
+cleanup_workspaces() {
+    for package in packages/*; do
+        cleanup_package "$package"
+    done
+
+    cleanup_package "e2e"
 }
 
 cleanup_e2e_tests() {
@@ -129,11 +127,10 @@ cleanup_e2e_tests() {
             yarn run --cwd="./e2e" clean || echo '* it is okay'
     fi
 
-    for asset in e2e/autoload/*; do
-        if [ -f "$asset" ]; then
-            prompt "Autoload asset $asset exists, do you want to remove it?" &&
-                echoerr "* removing $asset" &&
-                rm "$asset"
+    for log in e2e/*.log; do
+        if [ -f "$log" ]; then
+            echoerr "* removing $log" &&
+            rm "$log"
         fi
     done
 
@@ -196,7 +193,7 @@ main() {
     esac
 
     cleanup_top_level &&
-        cleanup_packages &&
+        cleanup_workspaces &&
         cleanup_e2e_tests &&
         post_cleanup
 }
