@@ -1864,10 +1864,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/graphlib@^2.1.5":
-  version "2.1.5"
-  resolved "https://registry.yarnpkg.com/@types/graphlib/-/graphlib-2.1.5.tgz#ed0435f99c91531aaa93086529804bbe3cd42c3b"
-  integrity sha512-ZNQa42alTPUbBZ6c2einxsHmnz/YX/CqB8a1P5QTmbBqr9Q4x01fqPdXwBmMBQOm67fg9rACpidyIaCtvg8RVQ==
+"@types/graphlib@^2.1.6":
+  version "2.1.6"
+  resolved "https://registry.yarnpkg.com/@types/graphlib/-/graphlib-2.1.6.tgz#5c7b515bfadc08d737f2e84fadbd151117c73207"
+  integrity sha512-os2Xj+pV/iwLkLX17LWuXdPooA4Jf4xg8WSdKPUi0tCSseP95oikcA1irOgVl3K2QYnoXrjJT3qVZeQ1uskB7g==
 
 "@types/inquirer@*":
   version "6.5.0"
