@@ -20,7 +20,7 @@ export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType)
     const isPrelease = getPublishTag(local) === 'prerelease';
     const options: semver.Options = { includePrerelease: true };
 
-    if (semver.gt(local, remote, options)) {
+    if (semver.gt(local, remote, options) || isPrelease) {
         if (type === PublishType.Tag) {
             if (isMain) {
                 signale.info(`* publishing main package ${pkgInfo.name}@${remote}->${local}`);
@@ -31,7 +31,6 @@ export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType)
             return false;
         }
 
-        // TODO: This doesn't seem to be work right
         if (type === PublishType.Dev) {
             if (isMain && !isPrelease) {
                 signale.info('* skipping main package until tag release');
@@ -92,7 +91,7 @@ export async function buildDevDockerImage(cacheFromPrev?: boolean): Promise<stri
     signale.pending(`building docker image ${devImage}`);
 
     try {
-        await dockerBuild(devImage, cacheFromPrev ? [devImage] : []);
+        await dockerBuild(devImage, cacheFromPrev ? [devImage] : [], undefined);
     } catch (err) {
         throw new TSError(err, {
             message: `Failed to build ${devImage} docker image`,

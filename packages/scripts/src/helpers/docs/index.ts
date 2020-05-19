@@ -14,7 +14,7 @@ export async function buildPackages(pkgInfos: PackageInfo[]) {
         writePkgHeader('Building docs', [pkgInfo], runOnce);
 
         if (pkgInfo.terascope.enableTypedoc) {
-            const outputDir = path.join(getRootDir(), 'docs', 'packages', pkgInfo.folderName, 'api');
+            const outputDir = path.join(getRootDir(), 'docs', pkgInfo.relativeDir, 'api');
             await generateTSDocs(pkgInfo, outputDir);
             await build(pkgInfo);
         }

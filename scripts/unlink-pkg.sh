@@ -16,6 +16,18 @@ USAGE
     exit 1
 }
 
+unlink_pkg() {
+    local dir="$1"; shift;
+
+    if [ -d "$dir" ]; then
+        yarn --cwd="$dir" --silent unlink "$@"
+
+        if [ -d "$dir/node_modules" ]; then
+            rm -rf "$dir/node_modules"
+        fi
+    fi
+}
+
 main() {
     local arg="$1"
 
@@ -26,16 +38,10 @@ main() {
     esac
 
     yarn --silent unlink "$@"
-    yarn --cwd="e2e" --silent unlink "$@"
+    unlink_pkg "e2e" "$@"
 
     for dir in ./packages/*; do
-        if [ -d "$dir" ]; then
-            yarn --cwd="$dir" --silent unlink "$@"
-
-            if [ -d "$dir/node_modules" ]; then
-                rm -rf "$dir/node_modules"
-            fi
-        fi
+        unlink_pkg "$dir" "$@"
     done
 
     echoerr '* reinstalling node modules and running yarn setup'
