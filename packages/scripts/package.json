@@ -58,7 +58,7 @@
         "@types/lodash.defaultsdeep": "^4.6.6",
         "@types/micromatch": "^4.0.0",
         "@types/ms": "^0.7.30",
-        "@types/semver": "^7.1.0",
+        "@types/semver": "^7.2.0",
         "@types/signale": "^1.4.0"
     },
     "publishConfig": {
