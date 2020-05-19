@@ -57,10 +57,12 @@
         </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 id="__docusaurus" class="postHeaderTitle">Kubernetes Clustering</h1></header><article><div><span><p>Teraslice supports the use of Kubernetes as a cluster manager. The following
 versions of Kuberenetes have been used:</p>
 <ul>
-<li><code>1.10.*</code></li>
-<li><code>1.11.*</code></li>
-<li><code>1.12.*</code></li>
+<li><code>1.17.*</code></li>
+<li><code>1.16.*</code></li>
 <li><code>1.13.2</code></li>
+<li><code>1.12.*</code></li>
+<li><code>1.11.*</code></li>
+<li><code>1.10.*</code></li>
 </ul>
 <p>We are not yet making an effort to ensure compatibility with older Kubernetes
 versions, so the newest version listed above is likely to be the best choice.</p>
@@ -117,19 +119,22 @@ clustername modified as follows:</p>
 <p>It is not necessary that the master be in cluster state for Teraslice to work,
 it's just kind of nice to have.</p>
 <h2><a class="anchor" aria-hidden="true" id="kubernetes-specific-configuration-settings"></a><a href="#kubernetes-specific-configuration-settings" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Kubernetes Specific Configuration Settings</h2>
-<p>The table below shows the Teraslice configuration settings added
-to support k8s based Teraslice deployments.</p>
+<p>The table below shows the Teraslice Master configuration settings added to
+support k8s based Teraslice deployments.</p>
 <table>
 <thead>
 <tr><th style="text-align:center">Configuration</th><th style="text-align:center">Description</th><th style="text-align:center">Type</th><th style="text-align:center">Notes</th></tr>
 </thead>
 <tbody>
 <tr><td style="text-align:center">assets_volume</td><td style="text-align:center">Name of kubernetes volume to be shared across all pods, where Teraslice assets will be stored</td><td style="text-align:center">String</td><td style="text-align:center">optional</td></tr>
+<tr><td style="text-align:center">cpu_execution_controller</td><td style="text-align:center">CPU resources to use for Execution Controller request and limit values</td><td style="text-align:center">Number</td><td style="text-align:center">optional</td></tr>
 <tr><td style="text-align:center">execution_controller_targets</td><td style="text-align:center">array of <code>{&quot;key&quot;: &quot;rack&quot;, &quot;value&quot;: &quot;alpha&quot;}</code> targets for execution controllers</td><td style="text-align:center">String</td><td style="text-align:center">optional</td></tr>
 <tr><td style="text-align:center">kubernetes_image</td><td style="text-align:center">Name of docker image, default: <code>teraslice:k8sdev</code></td><td style="text-align:center">String</td><td style="text-align:center">optional</td></tr>
 <tr><td style="text-align:center">kubernetes_image_pull_secret</td><td style="text-align:center">Secret used to pull docker images from private repo</td><td style="text-align:center">String</td><td style="text-align:center">optional</td></tr>
 <tr><td style="text-align:center">kubernetes_config_map_name</td><td style="text-align:center">Name of the configmap used by worker and execution_controller containers for config.  If this is not provided, the default will be <code>&lt;CLUSTER_NAME&gt;-worker</code></td><td style="text-align:center">String</td><td style="text-align:center">optional</td></tr>
 <tr><td style="text-align:center">kubernetes_namespace</td><td style="text-align:center">Kubernetes Namespace that Teraslice will run in, default namespace: 'default'</td><td style="text-align:center">String</td><td style="text-align:center">optional</td></tr>
+<tr><td style="text-align:center">kubernetes_worker_antiaffinity</td><td style="text-align:center">If <code>true</code>, pod antiaffinity will be enabled for Teraslice workers, <code>false</code> by default</td><td style="text-align:center">Boolean</td><td style="text-align:center">optional</td></tr>
+<tr><td style="text-align:center">memory_execution_controller</td><td style="text-align:center">Memory resources to use for Execution Controller request and limit values</td><td style="text-align:center">Number</td><td style="text-align:center">optional</td></tr>
 </tbody>
 </table>
 <p>Note that the <code>assets_volume</code> should also be mounted to your Teraslice master pod.</p>
@@ -151,9 +156,14 @@ with <code>job.teraslice.terascope.io/</code>.</p>
 labels that Teraslice uses.</p>
 <h3><a class="anchor" aria-hidden="true" id="resources"></a><a href="#resources" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Resources</h3>
 <p>It is possible to set CPU and memory resource constraints for your Teraslice
-workers that translate to Kubernetes resource constraints.  Currently you
-can specify optional integer values on your job as shown below. The <code>cpu</code>
-setting is in vcores and the <code>memory</code> setting is in bytes.</p>
+Workers that translate to Kubernetes resource constraints.  Resources for
+Execution Controllers are handled separately and described below.  Currently you
+can specify optional integer values on your job or in the Teraslice master
+configuration as shown below. The <code>cpu</code> setting is in vcores and the <code>memory</code>
+setting is in bytes.  Teraslice <code>cpu</code> and <code>memory</code> settings on your Teraslice
+Job override any settings in the master configuration.  Both are optional,
+excluding them results in Teraslice Worker pods with no resource requests or
+limits.</p>
 <pre><code class="hljs css language-json">"cpu": 1,
 "memory": 2147483648
 </code></pre>
@@ -163,6 +173,19 @@ will result in the Kubernetes <code>resources.requests.memory</code> and
 <code>resources.limit.memory</code> being set to the <code>memory</code> value provided. See the
 <a href="https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/">Kubernetes Resource docs</a>
 for further details on how Kubernetes interprets these values.</p>
+<h4><a class="anchor" aria-hidden="true" id="execution-controller-resources"></a><a href="#execution-controller-resources" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Execution Controller Resources</h4>
+<p>Teraslice Execution Controllers typically have vastly different resource needs
+from Workers on the same Job so you can now set these separately.  By default,
+the Kubernetes pods for Teraslice Execution controllers automatically get the
+following resource requests and limits:</p>
+<pre><code class="hljs css language-json">"cpu_execution_controller": 0.5,
+"memory_execution_controller": 512000000 // 512 MB
+</code></pre>
+<p>These defaults can be overridden either in your Teraslice Job or in the
+Teraslice Master configuration.  Settings on your Teraslice Job override the
+settings in the Master configuration.  The behaviour of these two settings is
+the same as the Worker settings with the exception of the default being applied
+in the Execution Controller case.</p>
 <h3><a class="anchor" aria-hidden="true" id="node-affinity-and-tolerance-using-teraslice-job-targets"></a><a href="#node-affinity-and-tolerance-using-teraslice-job-targets" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Node Affinity and Tolerance Using Teraslice Job Targets</h3>
 <p>If you need the workers (and execution controller) of your job to execute on
 specific set of nodes or tolerate node taints, you can use the Teraslice
@@ -439,7 +462,7 @@ make start
 <p>To tear everything down and start over, all you have to do is run:</p>
 <pre><code class="hljs css language-bash">make destroy-all
 </code></pre>
-</span></div></article></div><div class="docLastUpdate"><em>Last updated on 5/14/2020</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/teraslice/docs/configuration/clustering-native"><span class="arrow-prev">← </span><span>Native Clustering</span></a><a class="docs-next button" href="/teraslice/docs/management-apis/overview"><span>Overview</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#setup">Setup</a></li><li><a href="#default-serviceaccount-binding"><code>default</code> ServiceAccount Binding</a></li><li><a href="#master-deployment">Master Deployment</a></li><li><a href="#kubernetes-specific-configuration-settings">Kubernetes Specific Configuration Settings</a></li><li><a href="#teraslice-job-properties">Teraslice Job Properties</a><ul class="toc-headings"><li><a href="#labels">Labels</a></li><li><a href="#resources">Resources</a></li><li><a href="#node-affinity-and-tolerance-using-teraslice-job-targets">Node Affinity and Tolerance Using Teraslice Job Targets</a></li><li><a href="#pod-spec-details">Pod Spec Details</a></li></ul></li><li><a href="#attach-existing-volumes">Attach existing volumes</a></li><li><a href="#kubernetes-labels">Kubernetes Labels</a></li><li><a href="#development">Development</a><ul class="toc-headings"><li><a href="#running-the-master-in-minikube">Running the Master in Minikube</a></li><li><a href="#running-the-master-in-locally">Running the Master in Locally</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/teraslice/" class="nav-home"></a><div><h5>Docs</h5><a href="/teraslice/docs/en/getting-started.html">Getting Started</a><a href="/teraslice/docs/en/packages.html">Packages</a><a href="/teraslice/docs/en/asset-bundles.html">Asset Bundles</a></div><div><h5>More</h5><a href="/teraslice/blog">Blog</a><a href="https://github.com/terascope/teraslice">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/terascope/teraslice/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><section class="copyright">Copyright © 2020 Terascope, LLC</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 5/18/2020</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/teraslice/docs/configuration/clustering-native"><span class="arrow-prev">← </span><span>Native Clustering</span></a><a class="docs-next button" href="/teraslice/docs/management-apis/overview"><span>Overview</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#setup">Setup</a></li><li><a href="#default-serviceaccount-binding"><code>default</code> ServiceAccount Binding</a></li><li><a href="#master-deployment">Master Deployment</a></li><li><a href="#kubernetes-specific-configuration-settings">Kubernetes Specific Configuration Settings</a></li><li><a href="#teraslice-job-properties">Teraslice Job Properties</a><ul class="toc-headings"><li><a href="#labels">Labels</a></li><li><a href="#resources">Resources</a></li><li><a href="#node-affinity-and-tolerance-using-teraslice-job-targets">Node Affinity and Tolerance Using Teraslice Job Targets</a></li><li><a href="#pod-spec-details">Pod Spec Details</a></li></ul></li><li><a href="#attach-existing-volumes">Attach existing volumes</a></li><li><a href="#kubernetes-labels">Kubernetes Labels</a></li><li><a href="#development">Development</a><ul class="toc-headings"><li><a href="#running-the-master-in-minikube">Running the Master in Minikube</a></li><li><a href="#running-the-master-in-locally">Running the Master in Locally</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/teraslice/" class="nav-home"></a><div><h5>Docs</h5><a href="/teraslice/docs/en/getting-started.html">Getting Started</a><a href="/teraslice/docs/en/packages.html">Packages</a><a href="/teraslice/docs/en/asset-bundles.html">Asset Bundles</a></div><div><h5>More</h5><a href="/teraslice/blog">Blog</a><a href="https://github.com/terascope/teraslice">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/terascope/teraslice/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><section class="copyright">Copyright © 2020 Terascope, LLC</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;
