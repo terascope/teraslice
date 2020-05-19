@@ -34,7 +34,8 @@ export default class Client {
                 maxRetryAfter: 15000 // 15 seconds
             },
             timeout: config.timeout,
-            json: true
+            // @types/got seems to be incorrect for got@9.x.x
+            json: true as any
         });
     }
 
