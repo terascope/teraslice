@@ -70,18 +70,13 @@ jobs:
       node_js: '12.16'
       # run only on pull-requests and cron
       if: branch = master AND type IN (pull_request, cron) AND fork = false
-      script:
-        - yarn --silent --cwd e2e test
+      script: yarn --silent --cwd e2e test
 
     - stage: "Releases"
       name: 'Publish pre-release packages'
       # Run on pull-request and when the commit message includes a prerelease bump
       if: branch = master AND type IN (pull_request) AND commit_message =~ /bump:.*\((prerelease|preminor|prepatch|prerelease)\).*/
-      script: true
-      deploy:
-          - provider: script
-            skip_cleanup: true
-            script: yarn ts-scripts publish -t dev npm
+      script: yarn ts-scripts publish -t dev npm
 
     - script:
       name: 'Publish packages, docs and expiremental docker image'
