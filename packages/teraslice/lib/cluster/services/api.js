@@ -463,10 +463,7 @@ module.exports = function apiService(context, { assetsUrl, app }) {
         };
 
         const uri = req.url.replace(/^\//, '');
-
         const method = req.method.toLowerCase();
-
-        req.logger.info(`[${method}]${uri}`);
 
         try {
             await pStreamPipeline(
