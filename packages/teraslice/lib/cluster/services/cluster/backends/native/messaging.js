@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const shortid = require('shortid');
+const { nanoid } = require('nanoid');
 const { pDelay, Queue } = require('@terascope/utils');
 
 // messages send to cluster_master
@@ -335,7 +335,7 @@ module.exports = function messaging(context, logger) {
         }
         return new Promise((resolve, reject) => {
             let timer;
-            const msgID = shortid.generate();
+            const msgID = nanoid(8);
             const actionTimeout = messageSent.timeout || configTimeout;
             const messageTimeout = _.toNumber(actionTimeout) + networkLatencyBuffer;
             messageSent.__msgId = msgID;

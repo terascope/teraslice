@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const fse = require('fs-extra');
-const shortid = require('shortid');
+const nanoid = require('nanoid');
 const decompress = require('decompress');
 
 function existsSync(filename) {
@@ -93,7 +93,7 @@ async function moveContents(rootPath, subDirPath) {
 
 async function saveAsset(logger, assetsPath, id, binaryData, metaCheck) {
     const newPath = path.join(assetsPath, id);
-    const tempFileName = path.join(newPath, `${shortid.generate()}.zip`);
+    const tempFileName = path.join(newPath, `${nanoid()}.zip`);
 
     try {
         if (fse.existsSync(newPath)) {

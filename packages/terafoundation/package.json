@@ -38,7 +38,7 @@
         "node-statsd": "0.1.1",
         "node-webhdfs": "^1.0.2",
         "redis": "^3.0.2",
-        "shortid": "^2.2.14",
+        "nanoid": "^3.1.9",
         "yargs": "^15.3.1"
     },
     "devDependencies": {
@@ -46,8 +46,7 @@
         "@types/elasticsearch": "^5.0.35",
         "@types/js-yaml": "^3.12.2",
         "@types/mongoose": "^5.7.21",
-        "@types/redis": "^2.8.13",
-        "@types/shortid": "^0.0.29"
+        "@types/redis": "^2.8.13"
     },
     "publishConfig": {
         "access": "public",

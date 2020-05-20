@@ -1,5 +1,5 @@
 import * as ts from '@terascope/utils';
-import shortid from 'shortid';
+import { nanoid } from 'nanoid';
 import * as i from './interfaces';
 import { CoreContext } from './core-context';
 import validateConfigs from './validate-configs';
@@ -94,7 +94,7 @@ export class TestContext<
         const cluster: i.Cluster = {
             isMaster: false,
             worker: {
-                id: shortid.generate(),
+                id: nanoid(8),
             }
         } as any;
 
