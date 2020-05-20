@@ -2,7 +2,9 @@
 
 const { Router } = require('express');
 const bodyParser = require('body-parser');
-const request = require('request');
+const stream = require('stream');
+const { promisify } = require('util');
+const got = require('got');
 const { RecoveryCleanupType } = require('@terascope/job-components');
 const {
     parseErrorInfo, parseList, logError, TSError, startsWith
@@ -17,6 +19,8 @@ const {
     getSearchOptions,
 } = require('../../utils/api_utils');
 const terasliceVersion = require('../../../package.json').version;
+
+const pStreamPipeline = promisify(stream.pipeline);
 
 module.exports = function apiService(context, { assetsUrl, app }) {
     const clusterType = context.sysconfig.teraslice.cluster_manager_type;
@@ -450,29 +454,29 @@ module.exports = function apiService(context, { assetsUrl, app }) {
         throw error;
     }
 
-    function _redirect(req, res) {
-        const reqOptions = {
-            method: req.method,
-            url: req.url,
-            baseUrl: assetsUrl,
+    async function _redirect(req, res) {
+        const options = {
+            prefixUrl: assetsUrl,
+            headers: req.headers,
+            searchParams: req.query,
+            throwHttpErrors: false,
         };
 
-        reqOptions.headers = req.headers;
-        reqOptions.qs = req.query;
+        const uri = req.url.replace(/^\//, '');
+        const method = req.method.toLowerCase();
 
-        req.pipe(
-            request(reqOptions)
-                .on('response', (response) => {
-                    res.headers = response.headers;
-                    res.status(response.statusCode);
-                    response.pipe(res);
-                })
-        ).on('error', (err) => {
+        try {
+            await pStreamPipeline(
+                req,
+                got.stream[method](uri, options),
+                res,
+            );
+        } catch (err) {
             const { statusCode, message } = parseErrorInfo(err, {
                 defaultErrorMsg: 'Asset Service error while processing request'
             });
             sendError(res, statusCode, message);
-        });
+        }
     }
 
     async function _controllerStats(exId) {

@@ -1,8 +1,10 @@
 'use strict';
 
 const express = require('express');
-const request = require('request');
-const { pDelay, logError, get } = require('@terascope/utils');
+const got = require('got');
+const {
+    pDelay, logError, get, parseError
+} = require('@terascope/utils');
 const { ClusterMaster } = require('@terascope/teraslice-messaging');
 const { makeLogger } = require('../workers/helpers/terafoundation');
 const makeExecutionService = require('./services/execution');
@@ -42,20 +44,20 @@ module.exports = function _clusterMaster(context) {
         logger,
     });
 
-    function isAssetServiceUp() {
-        return new Promise((resolve) => {
-            request.get(
-                {
-                    baseUrl: assetsUrl,
-                    uri: '/status',
-                    json: true,
-                    timeout: 900,
-                },
-                (err, response) => {
-                    resolve(get(response, 'body.available', false));
-                }
-            );
-        });
+    async function isAssetServiceUp() {
+        try {
+            const response = await got.get('status', {
+                prefixUrl: assetsUrl,
+                responseType: 'json',
+                throwHttpErrors: true,
+                timeout: 900,
+                retry: 0,
+            });
+            return get(response, 'body.available', false);
+        } catch (err) {
+            logger.debug(`asset service not up yet, error: ${parseError(err)}`);
+            return false;
+        }
     }
 
     function waitForAssetsService(timeoutAt) {

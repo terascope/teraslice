@@ -127,7 +127,7 @@ export = {
                     .filter((clusterAsset: any) => clusterAsset.version === asset.version)[0];
 
                 if (has(assetToReplace, 'id')) {
-                    const response = await terasliceClient.assets.delete(assetToReplace.id);
+                    const response = await terasliceClient.assets.remove(assetToReplace.id);
                     if (!cliConfig.args.quiet) {
                         // Support different teraslice api/client versions
                         // @ts-ignore
@@ -158,13 +158,7 @@ export = {
             }
 
             try {
-                const resp = await terasliceClient.assets.post(assetZip);
-                // @ts-ignore FIXME
-                if (resp.error) {
-                    // @ts-ignore
-                    reply.fatal(`Error posting asset: ${resp.error}`);
-                }
-
+                const resp = await terasliceClient.assets.upload(assetZip);
                 if (!cliConfig.args.quiet) {
                     reply.green(`Asset posted to ${cliConfig.args.clusterAlias}: ${resp._id}`);
                 }

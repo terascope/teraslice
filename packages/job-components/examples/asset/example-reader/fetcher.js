@@ -1,6 +1,6 @@
 'use strict';
 
-const request = require('request');
+const got = require('got');
 const { Fetcher } = require('@terascope/job-components');
 
 class ExampleFetcher extends Fetcher {
@@ -22,15 +22,10 @@ class ExampleFetcher extends Fetcher {
     }
 
     async getStatusCode(url) {
-        return new Promise((resolve, reject) => {
-            request.get(url, (err, response) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve(response.statusCode);
-            });
+        const response = await got(url, {
+            throwHttpErrors: false,
         });
+        return response.statusCode;
     }
 }
 

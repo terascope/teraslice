@@ -1,4 +1,4 @@
-import shortid from 'shortid';
+import { nanoid } from 'nanoid';
 import { Logger, set } from '@terascope/utils';
 import { OperationConfigInput, OperationConfig } from '../interfaces';
 import { isDeprecatedCompactConfig, needsDefaultSelector, hasExtractions } from './utils';
@@ -13,7 +13,7 @@ export default class RulesParser {
     parse(): OperationConfig[] {
         const resultsArray: OperationConfig[] = [];
         this.configList.forEach((config) => {
-            set(config, '__id', shortid.generate());
+            set(config, '__id', nanoid());
 
             // if its not set and its not a post process then set the selecter to *
             if (needsDefaultSelector(config)) config.selector = '*';

@@ -1,6 +1,6 @@
 import graphlib from 'graphlib';
 import { Logger, cloneDeep, has } from '@terascope/utils';
-import shortid from 'shortid';
+import { nanoid } from 'nanoid';
 import { OperationsManager } from '../index';
 
 import {
@@ -192,7 +192,7 @@ function createMatchingConfig(
         if (index === 0) {
             resultsObj = Object.assign(original, pipelineConfig);
         } else {
-            resultsObj = Object.assign({}, config, { __id: shortid.generate() }, pipelineConfig);
+            resultsObj = Object.assign({}, config, { __id: nanoid() }, pipelineConfig);
             if (resultsObj.tags) {
                 resultsObj.tags.forEach((tag) => {
                     if (!tagMapping[tag]) {

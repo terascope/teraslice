@@ -7,15 +7,12 @@ export interface ParserOptions {
     variables?: t.xLuceneVariables;
 }
 
-export type AST = EmptyAST & LogicalGroup & Term
-& Conjunction & Negation & FieldGroup
-& Exists & Range & GeoDistance
-& GeoBoundingBox & Regexp & Wildcard & FunctionNode;
-
-export type AnyAST = EmptyAST | LogicalGroup | Term
+export type AST = EmptyAST | LogicalGroup | Term
 | Conjunction | Negation | FieldGroup
 | Exists | Range | GeoDistance
 | GeoBoundingBox | Regexp | Wildcard | FunctionNode;
+
+export type AnyAST = AST;
 
 export type GroupLike = FieldGroup|LogicalGroup;
 export type GroupLikeType = ASTType.LogicalGroup|ASTType.FieldGroup;
@@ -59,6 +56,9 @@ export enum ASTType {
 
 export interface EmptyAST {
     type: ASTType.Empty;
+    // we need this type for typescript to
+    // detect the union correctly
+    __empty?: boolean;
 }
 
 export type Field = string|null;
@@ -91,26 +91,41 @@ export interface BooleanDataType {
 
 export interface LogicalGroup extends GroupLikeAST {
     type: ASTType.LogicalGroup;
+    // we need this type for typescript to
+    // detect the union correctly
+    __logical_group?: boolean;
 }
 
 export interface Conjunction {
     type: ASTType.Conjunction;
     nodes: AST[];
+    // we need this type for typescript to
+    // detect the union correctly
+    __conjuction?: boolean;
 }
 
 export interface Negation {
     type: ASTType.Negation;
     node: AST;
+    // we need this type for typescript to
+    // detect the union correctly
+    __negation?: boolean;
 }
 
 export interface FieldGroup extends GroupLikeAST {
     type: ASTType.FieldGroup;
     field: string;
+    // we need this type for typescript to
+    // detect the union correctly
+    __field_group?: boolean;
 }
 
 export interface Exists {
     type: ASTType.Exists;
     field: string;
+    // we need this type for typescript to
+    // detect the union correctly
+    __exists?: boolean;
 }
 
 export type RangeOperator = 'gte'|'gt'|'lt'|'lte';
@@ -119,6 +134,9 @@ export interface Range extends TermLikeAST {
     field_type: t.xLuceneFieldType;
     left: RangeNode;
     right?: RangeNode;
+    // we need this type for typescript to
+    // detect the union correctly
+    __range?: boolean;
 }
 
 export interface RangeNode extends NumberDataType {
@@ -130,6 +148,9 @@ export interface GeoDistance extends t.GeoPoint, TermLikeAST {
     field_type: t.xLuceneFieldType.Geo;
     distance: number;
     unit: t.GeoDistanceUnit;
+    // we need this type for typescript to
+    // detect the union correctly
+    __geo_distance?: boolean;
 }
 
 export interface GeoBoundingBox extends TermLikeAST {
@@ -137,6 +158,9 @@ export interface GeoBoundingBox extends TermLikeAST {
     field_type: t.xLuceneFieldType.Geo;
     top_left: t.GeoPoint;
     bottom_right: t.GeoPoint;
+    // we need this type for typescript to
+    // detect the union correctly
+    __geo_bounding_box?: boolean;
 }
 
 export interface FunctionNode extends TermLikeAST {
@@ -144,18 +168,30 @@ export interface FunctionNode extends TermLikeAST {
     name: string;
     description?: string;
     instance: FunctionMethods;
+    // we need this type for typescript to
+    // detect the union correctly
+    __function?: boolean;
 }
 
 export interface Regexp extends StringDataType, TermLikeAST {
     type: ASTType.Regexp;
+    // we need this type for typescript to
+    // detect the union correctly
+    __regexp?: boolean;
 }
 
 export interface Wildcard extends StringDataType, TermLikeAST {
     type: ASTType.Wildcard;
+    // we need this type for typescript to
+    // detect the union correctly
+    __wildcard?: boolean;
 }
 
 export interface Term extends AnyDataType, TermLikeAST {
     type: ASTType.Term;
+    // we need this type for typescript to
+    // detect the union correctly
+    __term?: boolean;
 }
 
 export interface FunctionConfig {

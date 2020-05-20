@@ -141,7 +141,7 @@ export default class Job extends Client {
 
         const startTime = Date.now();
         const options = Object.assign({}, {
-            json: true,
+            responseType: 'json',
             timeout: intervalMs < 1000 ? 1000 : intervalMs,
         }, requestOptions);
         let exId: string;
@@ -218,7 +218,7 @@ export default class Job extends Client {
         }
 
         const query = { [action]: workerNum };
-        requestOptions.json = false;
+        requestOptions.responseType = 'text';
         const options = this.makeOptions(query, requestOptions);
 
         const response = await this.post(`/jobs/${this._jobId}/_workers`, null, options);

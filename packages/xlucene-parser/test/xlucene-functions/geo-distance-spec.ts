@@ -4,7 +4,7 @@ import {
 } from '@terascope/types';
 import { debugLogger } from '@terascope/utils';
 import { Parser } from '../../src';
-import { FunctionElasticsearchOptions } from '../../src/interfaces';
+import { FunctionElasticsearchOptions, FunctionNode } from '../../src/interfaces';
 
 describe('geoDistance', () => {
     const typeConfig: xLuceneTypeConfig = { location: xLuceneFieldType.GeoPoint };
@@ -17,13 +17,12 @@ describe('geoDistance', () => {
 
     it('can make a function ast', () => {
         const query = 'location:geoDistance(point:"33.435518,-111.873616" distance:"5000m")';
-        const {
-            ast: {
-                name, type, field, instance
-            }
-        } = new Parser(query, {
-            type_config: typeConfig
+        const { ast } = new Parser(query, {
+            type_config: typeConfig,
         });
+        const {
+            name, type, field, instance
+        } = ast as FunctionNode;
 
         expect(name).toEqual('geoDistance');
         expect(type).toEqual('function');
@@ -38,14 +37,13 @@ describe('geoDistance', () => {
             distance1: '5000m'
         };
         const query = 'location:geoDistance(point:$point1 distance: $distance1)';
-        const {
-            ast: {
-                name, type, field, instance
-            }
-        } = new Parser(query, {
+        const { ast } = new Parser(query, {
             type_config: typeConfig,
-            variables
+            variables,
         });
+        const {
+            name, type, field, instance
+        } = ast as FunctionNode;
 
         expect(name).toEqual('geoDistance');
         expect(type).toEqual('function');
@@ -105,7 +103,9 @@ describe('geoDistance', () => {
 
             const astResults = queries
                 .map((query) => new Parser(query, { type_config: typeConfig, variables }))
-                .map((parser) => parser.ast.instance.toElasticsearchQuery('location', options));
+                .map((parser) => (
+                    parser.ast as FunctionNode
+                ).instance.toElasticsearchQuery('location', options));
 
             astResults.forEach((ast) => {
                 expect(ast.query).toEqual(results);
@@ -118,9 +118,10 @@ describe('geoDistance', () => {
         it('can match results', () => {
             const query = 'location:geoDistance(point:"33.435518,-111.873616", distance:5000m)';
 
-            const { ast: { instance: { match } } } = new Parser(query, {
+            const { ast } = new Parser(query, {
                 type_config: typeConfig
             });
+            const { instance: { match } } = ast as FunctionNode;
 
             const geoPoint1 = '33.435967,-111.867710';
             const geoPoint2 = '22.435967,-150.867710';
@@ -135,10 +136,11 @@ describe('geoDistance', () => {
                 distance1: '5000m'
             };
             const query = 'location:geoDistance(point:$point1 distance: $distance1)';
-            const { ast: { instance: { match } } } = new Parser(query, {
+            const { ast } = new Parser(query, {
                 type_config: typeConfig,
-                variables
+                variables,
             });
+            const { instance: { match } } = ast as FunctionNode;
 
             const geoPoint1 = '33.435967,-111.867710';
             const geoPoint2 = '22.435967,-150.867710';

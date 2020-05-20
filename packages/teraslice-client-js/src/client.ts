@@ -2,102 +2,108 @@ import {
     isString,
     TSError,
     isPlainObject,
-    isTest
+    isTest,
+    trimStart,
+    tryParseJSON,
 } from '@terascope/job-components';
 import { STATUS_CODES } from 'http';
 import { URL } from 'url';
-import got from 'got';
+import got, { Got } from 'got';
 import { ClientConfig, SearchOptions, RequestOptions } from './interfaces';
 
 export default class Client {
     private readonly _apiVersion: string;
-    private readonly _request: got.GotInstance;
+    private readonly _request: Got;
     protected readonly _config: ClientConfig;
 
     constructor(config: ClientConfig = {}) {
         const configUrl = new URL(config.host || config.baseUrl || 'http://localhost:5678');
         configUrl.pathname = '';
         configUrl.hash = '';
-        const baseUrl = configUrl.toString();
+        const prefixUrl = configUrl.toString();
         const { apiVersion = '/v1' } = config;
 
         this._config = config;
         this._apiVersion = apiVersion;
         this._request = got.extend({
-            baseUrl,
+            prefixUrl,
             headers: {
                 'User-Agent': 'Teraslice Client',
                 Accept: 'application/json',
             },
             retry: {
-                retries: isTest ? 0 : 3,
+                limit: isTest ? 0 : 3,
                 maxRetryAfter: 15000 // 15 seconds
             },
             timeout: config.timeout,
-            // @types/got seems to be incorrect for got@9.x.x
-            json: true as any
+            responseType: 'json'
         });
     }
 
-    async get(endpoint: string, options?: SearchOptions) {
-        return this._makeRequest('get', endpoint, options);
+    async get<T = any>(endpoint: string, options?: SearchOptions) {
+        return this._makeRequest<T>('get', endpoint, options);
     }
 
-    async post(endpoint: string, data: any, options?: RequestOptions) {
-        return this._makeRequest('post', endpoint, options, data);
+    async post<T = any>(endpoint: string, data: any, options?: RequestOptions) {
+        return this._makeRequest<T>('post', endpoint, options, data);
     }
 
-    async put(endpoint: string, data: any, options?: RequestOptions) {
-        return this._makeRequest('put', endpoint, options, data);
+    async put<T = any>(endpoint: string, data: any, options?: RequestOptions) {
+        return this._makeRequest<T>('put', endpoint, options, data);
     }
 
-    async delete(endpoint: string, options?: SearchOptions) {
-        return this._makeRequest('delete', endpoint, options);
+    async delete<T = any>(endpoint: string, options?: SearchOptions) {
+        return this._makeRequest<T>('delete', endpoint, options);
     }
 
-    private async _makeRequest(
-        method: string,
+    private async _makeRequest<T = any>(
+        method: 'get'|'post'|'put'|'delete',
         endpoint: string,
-        searchOptions: SearchOptions = {},
+        searchOptions: RequestOptions|SearchOptions = {},
         data?: any
-    ) {
+    ): Promise<T> {
         const errorMsg = validateRequestOptions(endpoint, searchOptions);
         if (errorMsg) return Promise.reject(new TSError(errorMsg));
 
-        let options;
-        if (data) {
+        let options: RequestOptions;
+        if (data != null && method.toLowerCase() !== 'get') {
             options = getRequestOptionsWithData(data, searchOptions);
         } else {
-            options = searchOptions;
+            options = { ...searchOptions };
+        }
+
+        if ((options as any).query) {
+            options.searchParams = (options as any).query;
         }
 
         const newEndpoint = getAPIEndpoint(endpoint, this._apiVersion);
         try {
-            const response = await this._request[method](newEndpoint, options);
-            const { body } = response;
-            return body;
+            return await this._request[method](newEndpoint, {
+                resolveBodyOnly: true,
+                throwHttpErrors: true,
+                ...options,
+            } as any) as any as T;
         } catch (err) {
-            const { statusCode } = err;
-
-            if (statusCode >= 400) {
-                const error = makeErrorFromResponse(err);
-                throw error;
+            if (err instanceof got.HTTPError) {
+                throw makeErrorFromResponse(err.response);
             }
 
-            // TODO: what additional parameters should we return here?
-            throw new TSError(err);
+            throw err;
         }
     }
 
-    protected parse(results: any) {
-        if (typeof results === 'string') return JSON.parse(results);
+    protected parse(results: any): any {
+        if (typeof results === 'string') {
+            return tryParseJSON(results);
+        }
         return results;
     }
 
     // TODO: make better types for this
-    protected makeOptions(query: any, options: RequestOptions | SearchOptions) {
-        const formattedOptions = Object.assign({}, options, { query });
-        return formattedOptions;
+    protected makeOptions(
+        searchParams: Record<string, any>|undefined, options: RequestOptions | SearchOptions
+    ) {
+        return { ...options, searchParams };
     }
 }
 
@@ -105,11 +111,14 @@ function getAPIEndpoint(uri: string, apiVersion: string) {
     // remove start and ending slash
     const endpoint = uri ? uri.trim().replace(/(^\/)|(\/$)/, '') : '';
     if (!apiVersion) return endpoint;
+
     const txtIndex = endpoint.indexOf('txt');
     const isTxt = txtIndex < 2 && txtIndex > -1;
     if (isTxt) return endpoint;
-    if (endpoint.indexOf(apiVersion) > -1) return endpoint;
-    return `${apiVersion}/${endpoint}`;
+
+    const versionPrefix = trimStart(apiVersion, '/');
+    if (endpoint.startsWith(versionPrefix)) return endpoint;
+    return `${versionPrefix}/${endpoint}`;
 }
 
 function getErrorFromResponse(response: any) {
@@ -158,7 +167,7 @@ function makeErrorFromResponse(response: any): OldErrorOutput {
 }
 
 // TODO: do more validations
-function validateRequestOptions(endpoint: string, _options?: SearchOptions) {
+function validateRequestOptions(endpoint: string, _options?: RequestOptions|SearchOptions) {
     if (!endpoint) {
         return 'endpoint must not be empty';
     }
@@ -168,9 +177,11 @@ function validateRequestOptions(endpoint: string, _options?: SearchOptions) {
     return null;
 }
 
-function getRequestOptionsWithData(data: any, options: SearchOptions) {
+function getRequestOptionsWithData(
+    data: any, options: RequestOptions|SearchOptions
+): RequestOptions {
     if (isPlainObject(data) || Array.isArray(data)) {
-        return Object.assign({}, options, { body: data });
+        return { ...options, json: data };
     }
-    return Object.assign({}, options, { body: data, json: false });
+    return { ...options, body: data };
 }

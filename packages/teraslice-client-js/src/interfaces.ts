@@ -8,8 +8,7 @@ import {
     Overwrite,
     RecoveryCleanupType
 } from '@terascope/job-components';
-
-import got from 'got';
+import * as got from 'got';
 
 export interface ClientConfig {
     host?: string;
@@ -39,14 +38,9 @@ export interface JobSearchParams extends APISearchParams {
 
 export type SearchQuery = APISearchParams & Record<string, any>;
 
-export interface RequestOptions extends got.GotOptions<'utf8'> {
-    body?: any;
-    headers?: any;
-    json?: boolean;
-    query?: SearchQuery;
-}
+export type RequestOptions = got.Options;
 
-export type SearchOptions = Omit<RequestOptions, 'query'>;
+export type SearchOptions = Omit<got.Options, 'searchParams'>;
 
 export type PostData = string | NodeJS.ReadableStream | Buffer;
 
@@ -94,7 +88,7 @@ export interface AssetStatusResponse {
     available: boolean;
 }
 
-export interface AssetIDResponse {
+export type AssetIDResponse = {
     _id: string;
 }
 
@@ -110,7 +104,19 @@ export interface NativeProcess {
     job_id?: string;
 }
 
-export interface ClusterStateNodeNative {
+export interface BaseClusterState {
+    node_id: string;
+    hostname: string;
+    pid: number|'N/A';
+    node_version: string;
+    teraslice_version: string;
+    total: number|'N/A';
+    state: string;
+    available: number|'N/A';
+    active: any[];
+}
+
+export interface ClusterStateNodeNative extends BaseClusterState {
     node_id: string;
     hostname: string;
     pid: number;
@@ -122,7 +128,7 @@ export interface ClusterStateNodeNative {
     active: NativeProcess[];
 }
 
-export interface ClusterStateNative{
+export interface ClusterStateNative {
     [key: string]: ClusterStateNodeNative;
 }
 
@@ -141,7 +147,7 @@ export interface KubernetesProcess {
     image: string;
 }
 
-export interface ClusterStateNodeKubernetes {
+export interface ClusterStateNodeKubernetes extends BaseClusterState {
     node_id: string;
     hostname: string;
     pid: 'N/A';
@@ -157,7 +163,7 @@ export interface ClusterStateKubernetes {
     [key: string]: ClusterStateNodeKubernetes;
 }
 
-export type ClusterState = ClusterStateNative & ClusterStateKubernetes;
+export type ClusterState = ClusterStateNative | ClusterStateKubernetes;
 export type ClusterProcess = NativeProcess | KubernetesProcess;
 
 /*

@@ -1,7 +1,7 @@
 import path from 'path';
 import { DataEntity, debugLogger } from '@terascope/utils';
 import {
-    SelectionPhase, Loader, OperationsManager, SelectorConfig
+    SelectionPhase, Loader, OperationsManager, SelectorConfig, WatcherConfig
 } from '../../src';
 
 describe('selector phase', () => {
@@ -33,7 +33,10 @@ describe('selector phase', () => {
 
     it('can run data to match based on selector and types', async () => {
         const configList = await getConfigList('transformRules1.txt');
-        const myOpConfig = Object.assign({}, transformOpconfig, { type_config: { location: 'geo' } });
+        const myOpConfig = {
+            ...transformOpconfig,
+            type_config: { location: 'geo' }
+        } as WatcherConfig;
         const selectorPhase = new SelectionPhase(myOpConfig, configList, opManager);
         const data = DataEntity.makeArray([
             { some: 'data', isTall: true },

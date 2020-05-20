@@ -11,9 +11,9 @@ import * as utils from './utils';
  * A single index elasticearch-store with some specific requirements around
  * the index name, and record data
  */
-export default class IndexStore<T extends Record<string, any>> {
+export default class IndexStore<T extends ts.AnyObject> {
     readonly client: es.Client;
-    readonly config: i.IndexConfig;
+    readonly config: i.IndexConfig<T>;
     readonly indexQuery: string;
     readonly manager: IndexManager;
     readonly name: string;
@@ -259,7 +259,7 @@ export default class IndexStore<T extends Record<string, any>> {
 
     /** @see IndexManager#migrateIndex */
     migrateIndex(options: i.MigrateIndexStoreOptions) {
-        return this.manager.migrateIndex({ ...options, config: this.config });
+        return this.manager.migrateIndex<T>({ ...options, config: this.config });
     }
 
     /**

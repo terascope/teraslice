@@ -36,13 +36,13 @@ describe('Teraslice Assets', () => {
         _created: new Date(date.getTime() + 500000).toISOString()
     };
 
-    describe('->post', () => {
+    describe('->upload', () => {
         describe('when called with nothing', () => {
             it('should reject with asset stream validation error', async () => {
                 expect.hasAssertions();
                 try {
-                    // @ts-ignore
-                    await assets.post();
+                    // @ts-expect-error
+                    await assets.upload();
                 } catch (err) {
                     expect(err.message).toEqual('Asset stream must not be empty');
                 }
@@ -59,7 +59,7 @@ describe('Teraslice Assets', () => {
             });
 
             it('should resolve the json result from Teraslice', async () => {
-                const results = await assets.post(contents);
+                const results = await assets.upload(contents);
                 expect(results).toEqual(idResponse);
             });
         });
@@ -76,7 +76,7 @@ describe('Teraslice Assets', () => {
 
             it('should resolve the json result from Teraslice', async () => {
                 const stream = fs.createReadStream(testFilePath);
-                const results = await assets.post(stream);
+                const results = await assets.upload(stream);
                 expect(results).toEqual(idResponse);
             });
         });
@@ -326,7 +326,7 @@ describe('Teraslice Assets', () => {
         });
     });
 
-    describe('->delete', () => {
+    describe('->remove', () => {
         const idResponse: AssetIDResponse = { _id: 'someId' };
 
         beforeEach(() => {
@@ -338,8 +338,8 @@ describe('Teraslice Assets', () => {
             it('should reject with id validation error', async () => {
                 expect.hasAssertions();
                 try {
-                    // @ts-ignore
-                    await assets.delete();
+                    // @ts-expect-error
+                    await assets.remove();
                 } catch (err) {
                     expect(err.message).toEqual('Asset delete requires a ID');
                 }
@@ -348,7 +348,7 @@ describe('Teraslice Assets', () => {
 
         describe('when called an id', () => {
             it('should resolve the json result from Teraslice', async () => {
-                const results = await assets.delete('some-asset-id');
+                const results = await assets.remove('some-asset-id');
                 expect(results).toEqual(idResponse);
             });
         });
@@ -363,7 +363,7 @@ describe('Teraslice Assets', () => {
             });
 
             it('should resolve the json result from Teraslice', async () => {
-                const results = await assets.delete('other-asset-id', searchOptions);
+                const results = await assets.remove('other-asset-id', searchOptions);
                 expect(results).toEqual(idResponse);
             });
         });

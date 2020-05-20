@@ -24,7 +24,7 @@ export = {
         const terasliceClient = getTerasliceClient(cliConfig);
 
         try {
-            const resp = await terasliceClient.assets.delete(cliConfig.args.assetId);
+            const resp = await terasliceClient.assets.remove(cliConfig.args.assetId);
 
             if (has(resp, 'error')) {
                 // @ts-ignore
@@ -36,7 +36,7 @@ export = {
             if (err.message.includes('Unable to find asset')) {
                 reply.green(`Asset ${cliConfig.args.assetId} not found on ${cliConfig.args.clusterAlias}`);
             } else {
-                reply.fatal(`Error deleting assets on ${cliConfig.args.clusterAlias}: ${err}`);
+                reply.fatal(`Error deleting assets on ${cliConfig.args.clusterAlias}: ${err.message}`);
             }
         }
     }

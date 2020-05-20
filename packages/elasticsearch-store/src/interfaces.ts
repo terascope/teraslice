@@ -1,10 +1,10 @@
-import { Logger, Omit } from '@terascope/utils';
-import { xLuceneVariables, ESIndexSettings } from '@terascope/types';
-import { QueryAccess } from 'xlucene-translator';
-import { DataType } from '@terascope/data-types';
+import type { Logger, Omit, AnyObject } from '@terascope/utils';
+import type { xLuceneVariables, ESIndexSettings } from '@terascope/types';
+import type { QueryAccess } from 'xlucene-translator';
+import type { DataType } from '@terascope/data-types';
 
 /** A versioned Index Configuration */
-export interface IndexConfig<T = any> {
+export interface IndexConfig<T extends AnyObject> {
     /**
      * This is the data type and base name of the index
      */
@@ -72,7 +72,7 @@ export interface IndexConfig<T = any> {
     /**
      * ID field
      */
-    id_field?: keyof T;
+    id_field?: (keyof T)|string;
 
     /**
      * Ingest Time field on the source record
@@ -284,8 +284,8 @@ export type FindOneOptions<T> = {
     variables?: xLuceneVariables;
 };
 
-export interface MigrateIndexOptions {
-    config: IndexConfig;
+export interface MigrateIndexOptions<T extends AnyObject = AnyObject> {
+    config: IndexConfig<T>;
     timeout?: string;
     previousNamespace?: string;
     previousName?: string;

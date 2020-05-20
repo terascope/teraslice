@@ -23,7 +23,7 @@ describe('IndexManager', () => {
 
         describe('->_logger', () => {
             // eslint-disable-next-line
-            const loggerFn = (config: Partial<IndexConfig>) => {
+            const loggerFn = (config: Partial<IndexConfig<any>>) => {
                 // @ts-ignore
                 return indexManager._logger(config);
             };
@@ -50,7 +50,7 @@ describe('IndexManager', () => {
                 it('should return a debug logger', () => {
                     expect(logger.debug).toBeFunction();
                     expect(logger.info).toBeFunction();
-                    expect(logger.log).not.toBeFunction();
+                    expect((logger as any).log).not.toBeFunction();
                     expect(logger.flush).toBeFunction();
                 });
 

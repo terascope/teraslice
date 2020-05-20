@@ -32,7 +32,9 @@ export default class Executions extends Client {
     */
     async submit(jobSpec: JobConfig, shouldNotStart?: boolean): Promise<Ex> {
         if (!jobSpec) throw new TSError('submit requires a jobSpec');
-        const job: JobIDResponse = await this.post('/jobs', jobSpec, { query: { start: !shouldNotStart } });
+        const job: JobIDResponse = await this.post('/jobs', jobSpec, {
+            searchParams: { start: !shouldNotStart }
+        });
         // support older version of teraslice
         if (!job.ex_id) {
             const { ex_id: exId } = await this.get(`/jobs/${job.job_id}/ex`);
@@ -43,21 +45,21 @@ export default class Executions extends Client {
 
     async list(options?: ListOptions): Promise<Execution[]> {
         const query = _parseListOptions(options);
-        return this.get('/ex', { query } as SearchOptions);
+        return this.get('/ex', { searchParams: query } as SearchOptions);
     }
 
     async errors(exId?: string | SearchQuery, opts?: SearchQuery): Promise<StateErrors> {
         const options: SearchQuery = {};
         if (isString(exId)) {
             if (isPlainObject(opts)) {
-                options.query = opts;
+                options.searchParams = opts;
             }
 
             return this.get(`/ex/${exId}/errors`, options as SearchOptions);
         }
 
         if (isPlainObject(exId)) {
-            options.query = exId;
+            options.searchParams = exId;
         }
 
         return this.get('/ex/errors', options as SearchOptions);

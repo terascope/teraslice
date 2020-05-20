@@ -1,4 +1,4 @@
-import shortid from 'shortid';
+import { nanoid } from 'nanoid';
 import validateConfigs from './validate-configs';
 import { CoreContext } from './core-context';
 import { getArgs } from './sysconfig';
@@ -25,7 +25,7 @@ export class ProcessContext<
         const cluster: i.Cluster = {
             isMaster: false,
             worker: {
-                id: shortid.generate(),
+                id: nanoid(8),
             }
         } as any;
 

@@ -17,10 +17,9 @@ const cmd: CMD = {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-        // @ts-ignore
-        yargs.example('$0 tjm workers add 10 jobFile.json')
-            .example('$0 tjm workers remove 10 jobFile.json')
-            .example('$0 tjm workers total 40 jobFile.json');
+        yargs.example('$0 tjm workers add 10 jobFile.json', 'add 10 workers to a job')
+            .example('$0 tjm workers remove 10 jobFile.json', 'remove 10 workers to a job')
+            .example('$0 tjm workers total 40 jobFile.json', 'set the total number of workers for a job to 40');
 
         return yargs;
     },

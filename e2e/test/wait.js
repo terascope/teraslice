@@ -121,9 +121,9 @@ function waitForClusterState(timeoutMs = 120000) {
 
         let nodes = -1;
         try {
-            const result = await cluster.get('/cluster/state', {
+            const result = await cluster.get('cluster/state', {
                 timeout: 500,
-                json: true
+                responseType: 'json',
             });
             nodes = Object.keys(result).length;
         } catch (err) {

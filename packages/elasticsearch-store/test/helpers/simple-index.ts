@@ -16,8 +16,8 @@ SimpleRecord,
 {
     test_number?: number;
     test_boolean?: boolean;
-    _created?: Date | string;
-    _updated?: Date | string;
+    _created?: string;
+    _updated?: string;
 }
 >;
 

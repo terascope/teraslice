@@ -101,7 +101,7 @@ export default class Ex extends Client {
 
     async errors(options?: SearchQuery): Promise<StateErrors> {
         return this.get(`/ex/${this._exId}/errors`, {
-            query: options,
+            searchParams: options,
         } as SearchOptions);
     }
 
@@ -118,7 +118,7 @@ export default class Ex extends Client {
         }
 
         const query = { [action]: workerNum };
-        requestOptions.json = false;
+        requestOptions.responseType = 'text';
         const options = this.makeOptions(query, requestOptions);
 
         const response = await this.post(`/ex/${this._exId}/_workers`, null, options);
@@ -150,7 +150,7 @@ export default class Ex extends Client {
 
         const startTime = Date.now();
         const options = Object.assign({}, {
-            json: true,
+            responseType: 'json',
             timeout: intervalMs < 1000 ? 1000 : intervalMs,
         }, requestOptions);
 
@@ -208,13 +208,12 @@ function validateExId(exId?: string) {
 function filterProcesses<T>(state: ClusterState, exId: string, type: Assignment) {
     const results: T[] = [];
 
-    for (const [, node] of Object.entries(state)) {
+    for (const node of Object.values(state)) {
         node.active.forEach((child: ClusterProcess) => {
             const { assignment, ex_id: procExId } = child;
             if ((assignment && assignment === type) && (procExId && procExId === exId)) {
                 const jobProcess = Object.assign({}, child, { node_id: node.node_id });
-                // @ts-ignore
-                results.push(jobProcess);
+                results.push(jobProcess as any);
             }
         });
     }
