@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const fse = require('fs-extra');
-const nanoid = require('nanoid');
+const { nanoid } = require('nanoid');
 const decompress = require('decompress');
 
 function existsSync(filename) {
