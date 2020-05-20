@@ -11,7 +11,7 @@ describe('IndexManager->migrateIndex()', () => {
     describe('using a mapped index', () => {
         const client = makeClient();
 
-        const previousConfig: IndexConfig = {
+        const previousConfig: IndexConfig<any> = {
             namespace: TEST_INDEX_PREFIX,
             name: 'migrate',
             data_type: simple.dataType,
@@ -27,7 +27,7 @@ describe('IndexManager->migrateIndex()', () => {
             logger,
         };
 
-        const newConfig: IndexConfig = {
+        const newConfig: IndexConfig<any> = {
             namespace: TEST_INDEX_PREFIX,
             name: 'migrate',
             data_type: simple.dataType,

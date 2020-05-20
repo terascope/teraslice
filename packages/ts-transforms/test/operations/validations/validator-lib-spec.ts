@@ -13,7 +13,7 @@ describe('validator lib', () => {
     }
 
     function encode(str: string, type: string) {
-        return Buffer.from(str).toString(type);
+        return Buffer.from(str).toString(type as any);
     }
 
     function makeHexidecimalNumber(num: number): string {

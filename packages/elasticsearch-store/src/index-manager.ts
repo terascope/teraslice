@@ -3,7 +3,7 @@ import * as ts from '@terascope/utils';
 import * as utils from './utils';
 import { IndexConfig, MigrateIndexOptions } from './interfaces';
 
-const _loggers = new WeakMap<IndexConfig, ts.Logger>();
+const _loggers = new WeakMap<IndexConfig<any>, ts.Logger>();
 
 /**
  * Manage Elasticsearch Indicies
@@ -32,7 +32,7 @@ export default class IndexManager {
         });
     }
 
-    formatIndexName(config: IndexConfig, useWildcard = true) {
+    formatIndexName<T = any>(config: IndexConfig<T>, useWildcard = true) {
         utils.validateIndexConfig(config);
 
         const { name, namespace } = config;
@@ -53,7 +53,7 @@ export default class IndexManager {
         return indexName;
     }
 
-    formatTemplateName(config: IndexConfig) {
+    formatTemplateName<T = any>(config: IndexConfig<T>) {
         utils.validateIndexConfig(config);
 
         const { name, namespace } = config;
@@ -68,7 +68,7 @@ export default class IndexManager {
      *
      * @returns a boolean that indicates whether the index was created or not
      */
-    async indexSetup(config: IndexConfig): Promise<boolean> {
+    async indexSetup<T>(config: IndexConfig<T>): Promise<boolean> {
         utils.validateIndexConfig(config);
 
         const indexName = this.formatIndexName(config, false);
@@ -171,7 +171,7 @@ export default class IndexManager {
      * @todo add support for timeseries and templated indexes
      * @todo add support for complicated reindexing behaviors
      */
-    async migrateIndex(options: MigrateIndexOptions): Promise<any> {
+    async migrateIndex<T>(options: MigrateIndexOptions<T>): Promise<any> {
         const {
             timeout, config, previousVersion, previousName, previousNamespace
         } = options;
@@ -361,7 +361,7 @@ export default class IndexManager {
         await ts.pRetry(() => this.client.search(query), utils.getRetryConfig());
     }
 
-    private _logger(config: IndexConfig): ts.Logger {
+    private _logger<T>(config: IndexConfig<T>): ts.Logger {
         if (config.logger) return config.logger;
 
         const logger = _loggers.get(config);

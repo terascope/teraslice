@@ -46,7 +46,7 @@ export async function updateReadme(pkgInfo: PackageInfo): Promise<void> {
 }
 
 export async function generateOverview(pkgInfo: PackageInfo) {
-    const sideBarLabel = isE2E ? pkgInfo.displayName : 'overview';
+    const sideBarLabel = isE2E(pkgInfo) ? pkgInfo.displayName : 'overview';
     return `---
 title: ${pkgInfo.displayName}
 sidebar_label: ${sideBarLabel}

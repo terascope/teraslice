@@ -15,7 +15,7 @@ describe('IndexManager->indexSetup()', () => {
         const client = makeClient();
         const esVersion = getESVersion(client);
 
-        const config: IndexConfig = {
+        const config: IndexConfig<any> = {
             name: `${TEST_INDEX_PREFIX}simple`,
             data_type: simple.dataType,
             index_schema: {
@@ -75,7 +75,7 @@ describe('IndexManager->indexSetup()', () => {
         const client = makeClient();
         const esVersion = getESVersion(client);
 
-        const config: IndexConfig = {
+        const config: IndexConfig<any> = {
             name: `${TEST_INDEX_PREFIX}template`,
             data_type: template.dataType,
             index_schema: {
@@ -197,7 +197,7 @@ describe('IndexManager->indexSetup()', () => {
         const client = makeClient();
         const esVersion = getESVersion(client);
 
-        const config: IndexConfig = {
+        const config: IndexConfig<any> = {
             name: `${TEST_INDEX_PREFIX}timeseries`,
             data_type: template.dataType,
             index_schema: {

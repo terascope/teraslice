@@ -31,7 +31,7 @@ describe('IndexStore', () => {
     });
 
     const index = `${TEST_INDEX_PREFIX}store-v1-s1`;
-    const config: IndexConfig = {
+    const config: IndexConfig<SimpleRecord> = {
         name: `${TEST_INDEX_PREFIX}store`,
         data_type: dataType,
         index_schema: {

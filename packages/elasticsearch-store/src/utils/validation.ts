@@ -59,7 +59,7 @@ export function makeDataValidator(dataSchema: DataSchema, logger: ts.Logger) {
     };
 }
 
-export function validateIndexConfig(config: any): config is IndexConfig {
+export function validateIndexConfig(config: any): config is IndexConfig<any> {
     const errors: string[] = [];
 
     if (config == null) {

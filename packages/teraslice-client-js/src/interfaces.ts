@@ -110,7 +110,19 @@ export interface NativeProcess {
     job_id?: string;
 }
 
-export interface ClusterStateNodeNative {
+export interface BaseClusterState {
+    node_id: string;
+    hostname: string;
+    pid: number|'N/A';
+    node_version: string;
+    teraslice_version: string;
+    total: number|'N/A';
+    state: string;
+    available: number|'N/A';
+    active: any[];
+}
+
+export interface ClusterStateNodeNative extends BaseClusterState {
     node_id: string;
     hostname: string;
     pid: number;
@@ -122,7 +134,7 @@ export interface ClusterStateNodeNative {
     active: NativeProcess[];
 }
 
-export interface ClusterStateNative{
+export interface ClusterStateNative {
     [key: string]: ClusterStateNodeNative;
 }
 
@@ -141,7 +153,7 @@ export interface KubernetesProcess {
     image: string;
 }
 
-export interface ClusterStateNodeKubernetes {
+export interface ClusterStateNodeKubernetes extends BaseClusterState {
     node_id: string;
     hostname: string;
     pid: 'N/A';
@@ -157,7 +169,7 @@ export interface ClusterStateKubernetes {
     [key: string]: ClusterStateNodeKubernetes;
 }
 
-export type ClusterState = ClusterStateNative & ClusterStateKubernetes;
+export type ClusterState = ClusterStateNative | ClusterStateKubernetes;
 export type ClusterProcess = NativeProcess | KubernetesProcess;
 
 /*

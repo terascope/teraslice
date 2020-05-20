@@ -2,7 +2,7 @@ import 'jest-extended';
 import { xLuceneFieldType, xLuceneTypeConfig, GeoShapeType } from '@terascope/types';
 import { debugLogger } from '@terascope/utils';
 import { Parser, } from '../../src';
-import { FunctionElasticsearchOptions } from '../../src/interfaces';
+import { FunctionElasticsearchOptions, FunctionNode } from '../../src/interfaces';
 
 describe('geoBox', () => {
     const typeConfig: xLuceneTypeConfig = { location: xLuceneFieldType.GeoPoint };
@@ -15,13 +15,12 @@ describe('geoBox', () => {
 
     it('can make a function ast', () => {
         const query = 'location:geoBox(bottom_right:"32.813646,-111.058902" top_left:"33.906320,-112.758421")';
-        const {
-            ast: {
-                name, type, field, instance
-            }
-        } = new Parser(query, {
+        const { ast } = new Parser(query, {
             type_config: typeConfig
         });
+        const {
+            name, type, field, instance
+        } = ast as FunctionNode;
 
         expect(name).toEqual('geoBox');
         expect(type).toEqual('function');
@@ -36,14 +35,13 @@ describe('geoBox', () => {
             point2: '33.906320,-112.758421'
         };
         const query = 'location:geoBox(bottom_right: $point1 top_left: $point2)';
-        const {
-            ast: {
-                name, type, field, instance
-            }
-        } = new Parser(query, {
+        const { ast } = new Parser(query, {
             type_config: typeConfig,
-            variables
+            variables,
         });
+        const {
+            name, type, field, instance
+        } = ast as FunctionNode;
 
         expect(name).toEqual('geoBox');
         expect(type).toEqual('function');
@@ -93,7 +91,9 @@ describe('geoBox', () => {
 
             const astResults = queries
                 .map((query) => new Parser(query, { type_config: typeConfig, variables }))
-                .map((parser) => parser.ast.instance.toElasticsearchQuery('location', options));
+                .map((parser) => (
+                    parser.ast as FunctionNode
+                ).instance.toElasticsearchQuery('location', options));
 
             astResults.forEach((ast) => {
                 expect(ast.query).toEqual(results);
@@ -106,9 +106,10 @@ describe('geoBox', () => {
         it('can match results', () => {
             const query = 'location:geoBox(bottom_right:"32.813646,-111.058902" top_left:"33.906320,-112.758421")';
 
-            const { ast: { instance: { match } } } = new Parser(query, {
+            const { ast } = new Parser(query, {
                 type_config: typeConfig
             });
+            const { instance: { match } } = ast as FunctionNode;
 
             const geoPoint1 = '33,-112';
             const geoPoint2 = '20,100';
@@ -123,10 +124,11 @@ describe('geoBox', () => {
                 point2: '33.906320,-112.758421'
             };
             const query = 'location:geoBox(bottom_right: $point1 top_left: $point2)';
-            const { ast: { instance: { match } } } = new Parser(query, {
+            const { ast } = new Parser(query, {
                 type_config: typeConfig,
-                variables
+                variables,
             });
+            const { instance: { match } } = ast as FunctionNode;
 
             const geoPoint1 = '33,-112';
             const geoPoint2 = '20,100';
@@ -144,10 +146,11 @@ describe('geoBox', () => {
                 point2: [-112.758421, 33.906320]
             };
             const query = 'location:geoBox(bottom_right: $point1 top_left: $point2)';
-            const { ast: { instance: { match } } } = new Parser(query, {
+            const { ast } = new Parser(query, {
                 type_config: typeConfig,
-                variables
+                variables,
             });
+            const { instance: { match } } = ast as FunctionNode;
 
             const geoPoint1 = '33,-112';
             const geoPoint2 = '20,100';

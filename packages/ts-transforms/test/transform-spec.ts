@@ -19,7 +19,7 @@ describe('can transform matches', () => {
 
     function encode(str: string, type: string) {
         const buff = Buffer.from(str);
-        return buff.toString(type);
+        return buff.toString(type as any);
     }
 
     it('should transform matching data', async () => {

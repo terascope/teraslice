@@ -208,13 +208,12 @@ function validateExId(exId?: string) {
 function filterProcesses<T>(state: ClusterState, exId: string, type: Assignment) {
     const results: T[] = [];
 
-    for (const [, node] of Object.entries(state)) {
+    for (const node of Object.values(state)) {
         node.active.forEach((child: ClusterProcess) => {
             const { assignment, ex_id: procExId } = child;
             if ((assignment && assignment === type) && (procExId && procExId === exId)) {
                 const jobProcess = Object.assign({}, child, { node_id: node.node_id });
-                // @ts-ignore
-                results.push(jobProcess);
+                results.push(jobProcess as any);
             }
         });
     }
