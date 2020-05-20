@@ -2,7 +2,7 @@
 
 const { Router } = require('express');
 const bodyParser = require('body-parser');
-const request = require('request');
+const got = require('got');
 const { RecoveryCleanupType } = require('@terascope/job-components');
 const {
     parseErrorInfo, parseList, logError, TSError, startsWith
@@ -452,16 +452,16 @@ module.exports = function apiService(context, { assetsUrl, app }) {
 
     function _redirect(req, res) {
         const reqOptions = {
-            method: req.method,
-            url: req.url,
-            baseUrl: assetsUrl,
+            prefixUrl: assetsUrl,
+            headers: req.headers,
+            searchParams: req.query,
+            isStream: true,
         };
 
-        reqOptions.headers = req.headers;
-        reqOptions.qs = req.query;
+        const uri = req.url.replace(/^\//, '');
 
         req.pipe(
-            request(reqOptions)
+            got[req.method](uri, reqOptions)
                 .on('response', (response) => {
                     res.headers = response.headers;
                     res.status(response.statusCode);

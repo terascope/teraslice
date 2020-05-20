@@ -7,7 +7,7 @@ const {
 } = require('@terascope/utils');
 const path = require('path');
 const fse = require('fs-extra');
-const { customAlphabet: nanoid } = require('nanoid');
+const { customAlphabet } = require('nanoid');
 const { TerasliceClient } = require('teraslice-client-js');
 const ElasticsearchClient = require('elasticsearch').Client;
 const { Compose } = require('@terascope/docker-compose-js');
@@ -134,7 +134,7 @@ function newId(prefix, lowerCase = false, length = 15) {
     if (!lowerCase) {
         characters += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     }
-    const id = nanoid(characters, length);
+    const id = customAlphabet(characters, length)();
     if (prefix) {
         return `${prefix}-${id}`;
     }
