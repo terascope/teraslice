@@ -218,7 +218,7 @@ export default class Job extends Client {
         }
 
         const query = { [action]: workerNum };
-        requestOptions.json = false;
+        requestOptions.responseType = 'text';
         const options = this.makeOptions(query, requestOptions);
 
         const response = await this.post(`/jobs/${this._jobId}/_workers`, null, options);

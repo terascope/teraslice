@@ -2,40 +2,40 @@ import {
     isString,
     TSError,
     isPlainObject,
-    isTest
+    isTest,
+    trimStart
 } from '@terascope/job-components';
 import { STATUS_CODES } from 'http';
 import { URL } from 'url';
-import got from 'got';
+import got, { Got } from 'got';
 import { ClientConfig, SearchOptions, RequestOptions } from './interfaces';
 
 export default class Client {
     private readonly _apiVersion: string;
-    private readonly _request: got.GotInstance;
+    private readonly _request: Got;
     protected readonly _config: ClientConfig;
 
     constructor(config: ClientConfig = {}) {
         const configUrl = new URL(config.host || config.baseUrl || 'http://localhost:5678');
         configUrl.pathname = '';
         configUrl.hash = '';
-        const baseUrl = configUrl.toString();
+        const prefixUrl = configUrl.toString();
         const { apiVersion = '/v1' } = config;
 
         this._config = config;
         this._apiVersion = apiVersion;
         this._request = got.extend({
-            baseUrl,
+            prefixUrl,
             headers: {
                 'User-Agent': 'Teraslice Client',
                 Accept: 'application/json',
             },
             retry: {
-                retries: isTest ? 0 : 3,
+                limit: isTest ? 0 : 3,
                 maxRetryAfter: 15000 // 15 seconds
             },
             timeout: config.timeout,
-            // @types/got seems to be incorrect for got@9.x.x
-            json: true as any
+            responseType: 'json'
         });
     }
 
@@ -95,9 +95,10 @@ export default class Client {
     }
 
     // TODO: make better types for this
-    protected makeOptions(query: any, options: RequestOptions | SearchOptions) {
-        const formattedOptions = Object.assign({}, options, { query });
-        return formattedOptions;
+    protected makeOptions(
+        searchParams: Record<string, any>|undefined, options: RequestOptions | SearchOptions
+    ) {
+        return { ...options, searchParams };
     }
 }
 
@@ -109,7 +110,7 @@ function getAPIEndpoint(uri: string, apiVersion: string) {
     const isTxt = txtIndex < 2 && txtIndex > -1;
     if (isTxt) return endpoint;
     if (endpoint.indexOf(apiVersion) > -1) return endpoint;
-    return `${apiVersion}/${endpoint}`;
+    return `${trimStart(apiVersion, '/')}/${endpoint}`;
 }
 
 function getErrorFromResponse(response: any) {

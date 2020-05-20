@@ -8,8 +8,7 @@ import {
     Overwrite,
     RecoveryCleanupType
 } from '@terascope/job-components';
-
-import got from 'got';
+import * as got from 'got';
 
 export interface ClientConfig {
     host?: string;
@@ -39,14 +38,9 @@ export interface JobSearchParams extends APISearchParams {
 
 export type SearchQuery = APISearchParams & Record<string, any>;
 
-export interface RequestOptions extends got.GotOptions<'utf8'> {
-    body?: any;
-    headers?: any;
-    json?: boolean;
-    query?: SearchQuery;
-}
+export type RequestOptions = got.Options;
 
-export type SearchOptions = Omit<RequestOptions, 'query'>;
+export type SearchOptions = Omit<RequestOptions, 'searchParams'>;
 
 export type PostData = string | NodeJS.ReadableStream | Buffer;
 

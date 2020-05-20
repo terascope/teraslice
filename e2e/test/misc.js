@@ -7,7 +7,7 @@ const {
 } = require('@terascope/utils');
 const path = require('path');
 const fse = require('fs-extra');
-const nanoid = require('nanoid/generate');
+const { nanoid } = require('nanoid/customAlphabet');
 const { TerasliceClient } = require('teraslice-client-js');
 const ElasticsearchClient = require('elasticsearch').Client;
 const { Compose } = require('@terascope/docker-compose-js');

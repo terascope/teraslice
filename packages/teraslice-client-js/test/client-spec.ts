@@ -270,7 +270,7 @@ describe('Teraslice Client', () => {
                 it('should resolve with the response from the server', async () => {
                     const results = await client.post('/hello', null, {
                         body: strData,
-                        json: false
+                        responseType: 'text'
                     });
                     expect(results).toEqual(strData);
                 });
@@ -302,7 +302,9 @@ describe('Teraslice Client', () => {
                 });
 
                 it('should resolve with the response from the server', async () => {
-                    const results = await client.post('/hello', Buffer.from('hello'), { json: false });
+                    const results = await client.post('/hello', Buffer.from('hello'), {
+                        responseType: 'text'
+                    });
                     expect(results).toEqual(strData);
                 });
             });

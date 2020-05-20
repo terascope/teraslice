@@ -65,7 +65,7 @@ describe('HTTP API', () => {
             let response;
 
             try {
-                response = await got('/', { baseUrl, json: true });
+                response = await got(baseUrl, { json: true });
             } catch (err) {
                 expect(err.stack).toBeNil();
             }

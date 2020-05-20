@@ -50,6 +50,6 @@ export default class Cluster extends Client {
             const error = new Error(`"${type}" is not a valid type. Must be one of ${JSON.stringify(validTypes)}`);
             return Promise.reject(error);
         }
-        return this.get(`/txt/${type}`, { json: false });
+        return this.get(`/txt/${type}`, { responseType: 'text' });
     }
 }
