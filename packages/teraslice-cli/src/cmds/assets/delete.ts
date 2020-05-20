@@ -36,7 +36,7 @@ export = {
             if (err.message.includes('Unable to find asset')) {
                 reply.green(`Asset ${cliConfig.args.assetId} not found on ${cliConfig.args.clusterAlias}`);
             } else {
-                reply.fatal(`Error deleting assets on ${cliConfig.args.clusterAlias}: ${err}`);
+                reply.fatal(`Error deleting assets on ${cliConfig.args.clusterAlias}: ${err.message}`);
             }
         }
     }

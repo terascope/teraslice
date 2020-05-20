@@ -2,6 +2,8 @@
 
 const { Router } = require('express');
 const bodyParser = require('body-parser');
+const stream = require('stream');
+const { promisify } = require('util');
 const got = require('got');
 const { RecoveryCleanupType } = require('@terascope/job-components');
 const {
@@ -17,6 +19,8 @@ const {
     getSearchOptions,
 } = require('../../utils/api_utils');
 const terasliceVersion = require('../../../package.json').version;
+
+const pStreamPipeline = promisify(stream.pipeline);
 
 module.exports = function apiService(context, { assetsUrl, app }) {
     const clusterType = context.sysconfig.teraslice.cluster_manager_type;
@@ -450,29 +454,32 @@ module.exports = function apiService(context, { assetsUrl, app }) {
         throw error;
     }
 
-    function _redirect(req, res) {
-        const reqOptions = {
+    async function _redirect(req, res) {
+        const options = {
             prefixUrl: assetsUrl,
             headers: req.headers,
             searchParams: req.query,
-            isStream: true,
+            throwHttpErrors: false,
         };
 
         const uri = req.url.replace(/^\//, '');
 
-        req.pipe(
-            got[req.method](uri, reqOptions)
-                .on('response', (response) => {
-                    res.headers = response.headers;
-                    res.status(response.statusCode);
-                    response.pipe(res);
-                })
-        ).on('error', (err) => {
+        const method = req.method.toLowerCase();
+
+        req.logger.info(`[${method}]${uri}`);
+
+        try {
+            await pStreamPipeline(
+                req,
+                got.stream[method](uri, options),
+                res,
+            );
+        } catch (err) {
             const { statusCode, message } = parseErrorInfo(err, {
                 defaultErrorMsg: 'Asset Service error while processing request'
             });
             sendError(res, statusCode, message);
-        });
+        }
     }
 
     async function _controllerStats(exId) {
