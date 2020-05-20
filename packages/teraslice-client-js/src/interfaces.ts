@@ -88,7 +88,7 @@ export interface AssetStatusResponse {
     available: boolean;
 }
 
-export interface AssetIDResponse {
+export type AssetIDResponse = {
     _id: string;
 }
 

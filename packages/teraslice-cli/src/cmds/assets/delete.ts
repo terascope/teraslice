@@ -24,7 +24,7 @@ export = {
         const terasliceClient = getTerasliceClient(cliConfig);
 
         try {
-            const resp = await terasliceClient.assets.delete(cliConfig.args.assetId);
+            const resp = await terasliceClient.assets.remove(cliConfig.args.assetId);
 
             if (has(resp, 'error')) {
                 // @ts-ignore

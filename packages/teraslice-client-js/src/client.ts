@@ -4,7 +4,7 @@ import {
     isPlainObject,
     isTest,
     trimStart,
-    tryParseJSON
+    tryParseJSON,
 } from '@terascope/job-components';
 import { STATUS_CODES } from 'http';
 import { URL } from 'url';
@@ -72,28 +72,30 @@ export default class Client {
             options = { ...searchOptions };
         }
 
+        if ((options as any).query) {
+            options.searchParams = (options as any).query;
+        }
+
         const newEndpoint = getAPIEndpoint(endpoint, this._apiVersion);
         try {
-            const response = await this._request(newEndpoint, {
-                method,
-                throwHttpErrors: false,
+            return await this._request[method](newEndpoint, {
+                resolveBodyOnly: true,
+                throwHttpErrors: true,
                 ...options,
-            } as any);
-            return response.body as any;
+            } as any) as any as T;
         } catch (err) {
-            const { statusCode } = err;
-
-            if (statusCode >= 400) {
-                throw makeErrorFromResponse(err);
+            if (err instanceof got.HTTPError) {
+                throw makeErrorFromResponse(err.response);
             }
 
-            // TODO: what additional parameters should we return here?
-            throw new TSError(err);
+            throw err;
         }
     }
 
     protected parse(results: any): any {
-        if (typeof results === 'string') return tryParseJSON(results);
+        if (typeof results === 'string') {
+            return tryParseJSON(results);
+        }
         return results;
     }
 
@@ -109,11 +111,14 @@ function getAPIEndpoint(uri: string, apiVersion: string) {
     // remove start and ending slash
     const endpoint = uri ? uri.trim().replace(/(^\/)|(\/$)/, '') : '';
     if (!apiVersion) return endpoint;
+
     const txtIndex = endpoint.indexOf('txt');
     const isTxt = txtIndex < 2 && txtIndex > -1;
     if (isTxt) return endpoint;
-    if (endpoint.indexOf(apiVersion) > -1) return endpoint;
-    return `${trimStart(apiVersion, '/')}/${endpoint}`;
+
+    const versionPrefix = trimStart(apiVersion, '/');
+    if (endpoint.startsWith(versionPrefix)) return endpoint;
+    return `${versionPrefix}/${endpoint}`;
 }
 
 function getErrorFromResponse(response: any) {

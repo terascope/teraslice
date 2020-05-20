@@ -20,17 +20,15 @@ export default class Assets extends Client {
         autoBind(this);
     }
 
-    // @ts-ignore
-    async post(data: PostData, options: RequestOptions = {}): Promise<AssetIDResponse> {
+    async upload(data: PostData, options: RequestOptions = {}): Promise<AssetIDResponse> {
         if (isEmpty(data)) throw new TSError('Asset stream must not be empty');
-        const results = await super.post('/assets', data, options);
+        const results = await this.post('/assets', data, options);
         return this.parse(results);
     }
 
-    // @ts-ignore
-    async delete(id: string, searchOptions: SearchOptions = {}): Promise<AssetIDResponse> {
+    async remove(id: string, searchOptions: SearchOptions = {}): Promise<AssetIDResponse> {
         if (isEmpty(id)) throw new TSError('Asset delete requires a ID');
-        const results = await super.delete(`/assets/${id}`, searchOptions);
+        const results = await this.delete(`/assets/${id}`, searchOptions);
         return this.parse(results);
     }
 
@@ -38,7 +36,7 @@ export default class Assets extends Client {
         query: SearchQuery = {},
         searchOptions: SearchOptions = {}
     ): Promise<Asset[]> {
-        const options = Object.assign({}, searchOptions, { query });
+        const options = { ...searchOptions, searchParams: query };
         return this.get('/assets', options);
     }
 

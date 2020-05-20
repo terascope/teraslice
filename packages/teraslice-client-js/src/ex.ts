@@ -101,7 +101,7 @@ export default class Ex extends Client {
 
     async errors(options?: SearchQuery): Promise<StateErrors> {
         return this.get(`/ex/${this._exId}/errors`, {
-            query: options,
+            searchParams: options,
         } as SearchOptions);
     }
 

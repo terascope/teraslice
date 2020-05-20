@@ -44,7 +44,7 @@ module.exports = function _clusterMaster(context) {
 
     async function isAssetServiceUp() {
         try {
-            const response = await got('status', {
+            const response = await got.get('status', {
                 prefixUrl: assetsUrl,
                 responseType: 'json',
                 timeout: 900,
