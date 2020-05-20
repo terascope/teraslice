@@ -314,172 +314,30 @@ predicate. If it is not provided, undefined is used instead.</p>
 <p><strong>Returns:</strong> <em>number</em></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="flat"></a><a href="#flat" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>flat</h3>
-<p>▸ <strong>flat</strong>&lt;<strong>U</strong>&gt;(<code>this</code>: U[][][][][][][][], <code>depth</code>: 7): <em>U[]</em></p>
+<p>▸ <strong>flat</strong>&lt;<strong>A</strong>, <strong>D</strong>&gt;(<code>this</code>: A, <code>depth?</code>: D): <em>FlatArray‹A, D›[]</em></p>
 <p><em>Inherited from <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>.<a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts#flat">flat</a></em></p>
-<p>Defined in node_modules/typescript/lib/lib.es2019.array.d.ts:158</p>
+<p>Defined in node_modules/typescript/lib/lib.es2019.array.d.ts:81</p>
 <p>Returns a new array with all sub-array elements concatenated into it recursively up to the
 specified depth.</p>
 <p><strong>Type parameters:</strong></p>
-<p>▪ <strong>U</strong></p>
+<p>▪ <strong>A</strong></p>
+<p>▪ <strong>D</strong>: <em>number</em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
 <tr><th>Name</th><th>Type</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>this</code></td><td>U[][][][][][][][]</td><td>-</td></tr>
-<tr><td><code>depth</code></td><td>7</td><td>The maximum recursion depth</td></tr>
+<tr><td><code>this</code></td><td>A</td><td>-</td></tr>
+<tr><td><code>depth?</code></td><td>D</td><td>The maximum recursion depth</td></tr>
 </tbody>
 </table>
-<p><strong>Returns:</strong> <em>U[]</em></p>
-<p>▸ <strong>flat</strong>&lt;<strong>U</strong>&gt;(<code>this</code>: U[][][][][][][], <code>depth</code>: 6): <em>U[]</em></p>
-<p><em>Inherited from <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>.<a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts#flat">flat</a></em></p>
-<p>Defined in node_modules/typescript/lib/lib.es2019.array.d.ts:166</p>
-<p>Returns a new array with all sub-array elements concatenated into it recursively up to the
-specified depth.</p>
-<p><strong>Type parameters:</strong></p>
-<p>▪ <strong>U</strong></p>
-<p><strong>Parameters:</strong></p>
-<table>
-<thead>
-<tr><th>Name</th><th>Type</th><th>Description</th></tr>
-</thead>
-<tbody>
-<tr><td><code>this</code></td><td>U[][][][][][][]</td><td>-</td></tr>
-<tr><td><code>depth</code></td><td>6</td><td>The maximum recursion depth</td></tr>
-</tbody>
-</table>
-<p><strong>Returns:</strong> <em>U[]</em></p>
-<p>▸ <strong>flat</strong>&lt;<strong>U</strong>&gt;(<code>this</code>: U[][][][][][], <code>depth</code>: 5): <em>U[]</em></p>
-<p><em>Inherited from <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>.<a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts#flat">flat</a></em></p>
-<p>Defined in node_modules/typescript/lib/lib.es2019.array.d.ts:174</p>
-<p>Returns a new array with all sub-array elements concatenated into it recursively up to the
-specified depth.</p>
-<p><strong>Type parameters:</strong></p>
-<p>▪ <strong>U</strong></p>
-<p><strong>Parameters:</strong></p>
-<table>
-<thead>
-<tr><th>Name</th><th>Type</th><th>Description</th></tr>
-</thead>
-<tbody>
-<tr><td><code>this</code></td><td>U[][][][][][]</td><td>-</td></tr>
-<tr><td><code>depth</code></td><td>5</td><td>The maximum recursion depth</td></tr>
-</tbody>
-</table>
-<p><strong>Returns:</strong> <em>U[]</em></p>
-<p>▸ <strong>flat</strong>&lt;<strong>U</strong>&gt;(<code>this</code>: U[][][][][], <code>depth</code>: 4): <em>U[]</em></p>
-<p><em>Inherited from <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>.<a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts#flat">flat</a></em></p>
-<p>Defined in node_modules/typescript/lib/lib.es2019.array.d.ts:182</p>
-<p>Returns a new array with all sub-array elements concatenated into it recursively up to the
-specified depth.</p>
-<p><strong>Type parameters:</strong></p>
-<p>▪ <strong>U</strong></p>
-<p><strong>Parameters:</strong></p>
-<table>
-<thead>
-<tr><th>Name</th><th>Type</th><th>Description</th></tr>
-</thead>
-<tbody>
-<tr><td><code>this</code></td><td>U[][][][][]</td><td>-</td></tr>
-<tr><td><code>depth</code></td><td>4</td><td>The maximum recursion depth</td></tr>
-</tbody>
-</table>
-<p><strong>Returns:</strong> <em>U[]</em></p>
-<p>▸ <strong>flat</strong>&lt;<strong>U</strong>&gt;(<code>this</code>: U[][][][], <code>depth</code>: 3): <em>U[]</em></p>
-<p><em>Inherited from <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>.<a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts#flat">flat</a></em></p>
-<p>Defined in node_modules/typescript/lib/lib.es2019.array.d.ts:190</p>
-<p>Returns a new array with all sub-array elements concatenated into it recursively up to the
-specified depth.</p>
-<p><strong>Type parameters:</strong></p>
-<p>▪ <strong>U</strong></p>
-<p><strong>Parameters:</strong></p>
-<table>
-<thead>
-<tr><th>Name</th><th>Type</th><th>Description</th></tr>
-</thead>
-<tbody>
-<tr><td><code>this</code></td><td>U[][][][]</td><td>-</td></tr>
-<tr><td><code>depth</code></td><td>3</td><td>The maximum recursion depth</td></tr>
-</tbody>
-</table>
-<p><strong>Returns:</strong> <em>U[]</em></p>
-<p>▸ <strong>flat</strong>&lt;<strong>U</strong>&gt;(<code>this</code>: U[][][], <code>depth</code>: 2): <em>U[]</em></p>
-<p><em>Inherited from <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>.<a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts#flat">flat</a></em></p>
-<p>Defined in node_modules/typescript/lib/lib.es2019.array.d.ts:198</p>
-<p>Returns a new array with all sub-array elements concatenated into it recursively up to the
-specified depth.</p>
-<p><strong>Type parameters:</strong></p>
-<p>▪ <strong>U</strong></p>
-<p><strong>Parameters:</strong></p>
-<table>
-<thead>
-<tr><th>Name</th><th>Type</th><th>Description</th></tr>
-</thead>
-<tbody>
-<tr><td><code>this</code></td><td>U[][][]</td><td>-</td></tr>
-<tr><td><code>depth</code></td><td>2</td><td>The maximum recursion depth</td></tr>
-</tbody>
-</table>
-<p><strong>Returns:</strong> <em>U[]</em></p>
-<p>▸ <strong>flat</strong>&lt;<strong>U</strong>&gt;(<code>this</code>: U[][], <code>depth?</code>: 1): <em>U[]</em></p>
-<p><em>Inherited from <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>.<a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts#flat">flat</a></em></p>
-<p>Defined in node_modules/typescript/lib/lib.es2019.array.d.ts:206</p>
-<p>Returns a new array with all sub-array elements concatenated into it recursively up to the
-specified depth.</p>
-<p><strong>Type parameters:</strong></p>
-<p>▪ <strong>U</strong></p>
-<p><strong>Parameters:</strong></p>
-<table>
-<thead>
-<tr><th>Name</th><th>Type</th><th>Description</th></tr>
-</thead>
-<tbody>
-<tr><td><code>this</code></td><td>U[][]</td><td>-</td></tr>
-<tr><td><code>depth?</code></td><td>1</td><td>The maximum recursion depth</td></tr>
-</tbody>
-</table>
-<p><strong>Returns:</strong> <em>U[]</em></p>
-<p>▸ <strong>flat</strong>&lt;<strong>U</strong>&gt;(<code>this</code>: U[], <code>depth</code>: 0): <em>U[]</em></p>
-<p><em>Inherited from <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>.<a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts#flat">flat</a></em></p>
-<p>Defined in node_modules/typescript/lib/lib.es2019.array.d.ts:214</p>
-<p>Returns a new array with all sub-array elements concatenated into it recursively up to the
-specified depth.</p>
-<p><strong>Type parameters:</strong></p>
-<p>▪ <strong>U</strong></p>
-<p><strong>Parameters:</strong></p>
-<table>
-<thead>
-<tr><th>Name</th><th>Type</th><th>Description</th></tr>
-</thead>
-<tbody>
-<tr><td><code>this</code></td><td>U[]</td><td>-</td></tr>
-<tr><td><code>depth</code></td><td>0</td><td>The maximum recursion depth</td></tr>
-</tbody>
-</table>
-<p><strong>Returns:</strong> <em>U[]</em></p>
-<p>▸ <strong>flat</strong>&lt;<strong>U</strong>&gt;(<code>depth?</code>: number): <em>any[]</em></p>
-<p><em>Inherited from <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>.<a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts#flat">flat</a></em></p>
-<p>Defined in node_modules/typescript/lib/lib.es2019.array.d.ts:222</p>
-<p>Returns a new array with all sub-array elements concatenated into it recursively up to the
-specified depth. If no depth is provided, flat method defaults to the depth of 1.</p>
-<p><strong>Type parameters:</strong></p>
-<p>▪ <strong>U</strong></p>
-<p><strong>Parameters:</strong></p>
-<table>
-<thead>
-<tr><th>Name</th><th>Type</th><th>Description</th></tr>
-</thead>
-<tbody>
-<tr><td><code>depth?</code></td><td>number</td><td>The maximum recursion depth</td></tr>
-</tbody>
-</table>
-<p><strong>Returns:</strong> <em>any[]</em></p>
+<p><strong>Returns:</strong> <em>FlatArray‹A, D›[]</em></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="flatmap"></a><a href="#flatmap" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>flatMap</h3>
 <p>▸ <strong>flatMap</strong>&lt;<strong>U</strong>, <strong>This</strong>&gt;(<code>callback</code>: function, <code>thisArg?</code>: This): <em>U[]</em></p>
 <p><em>Inherited from <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>.<a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts#flatmap">flatMap</a></em></p>
-<p>Defined in node_modules/typescript/lib/lib.es2019.array.d.ts:147</p>
+<p>Defined in node_modules/typescript/lib/lib.es2019.array.d.ts:70</p>
 <p>Calls a defined callback function on each element of an array. Then, flattens the result into
 a new array.
 This is identical to a map followed by flat with depth 1.</p>
