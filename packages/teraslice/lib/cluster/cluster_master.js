@@ -2,7 +2,9 @@
 
 const express = require('express');
 const got = require('got');
-const { pDelay, logError, get } = require('@terascope/utils');
+const {
+    pDelay, logError, get, parseError
+} = require('@terascope/utils');
 const { ClusterMaster } = require('@terascope/teraslice-messaging');
 const { makeLogger } = require('../workers/helpers/terafoundation');
 const makeExecutionService = require('./services/execution');
@@ -47,11 +49,13 @@ module.exports = function _clusterMaster(context) {
             const response = await got.get('status', {
                 prefixUrl: assetsUrl,
                 responseType: 'json',
+                throwHttpErrors: true,
                 timeout: 900,
                 retry: 0,
             });
             return get(response, 'body.available', false);
-        } catch (_err) {
+        } catch (err) {
+            logger.debug(`asset service not up yet, error: ${parseError(err)}`);
             return false;
         }
     }
