@@ -40,7 +40,7 @@ export type SearchQuery = APISearchParams & Record<string, any>;
 
 export type RequestOptions = got.Options;
 
-export type SearchOptions = Omit<RequestOptions, 'searchParams'>;
+export type SearchOptions = Omit<got.Options, 'searchParams'>;
 
 export type PostData = string | NodeJS.ReadableStream | Buffer;
 

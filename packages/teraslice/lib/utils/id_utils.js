@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const { nanoid } = require('nanoid/customAlphabet');
+const { customAlphabet: nanoid } = require('nanoid');
 
 function newId(prefix, lowerCase = false, length = 15) {
     let characters = '-0123456789abcdefghijklmnopqrstuvwxyz';

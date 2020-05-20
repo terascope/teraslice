@@ -3,7 +3,8 @@ import {
     TSError,
     isPlainObject,
     isTest,
-    trimStart
+    trimStart,
+    tryParseJSON
 } from '@terascope/job-components';
 import { STATUS_CODES } from 'http';
 import { URL } from 'url';
@@ -39,49 +40,51 @@ export default class Client {
         });
     }
 
-    async get(endpoint: string, options?: SearchOptions) {
-        return this._makeRequest('get', endpoint, options);
+    async get<T = any>(endpoint: string, options?: SearchOptions) {
+        return this._makeRequest<T>('get', endpoint, options);
     }
 
-    async post(endpoint: string, data: any, options?: RequestOptions) {
-        return this._makeRequest('post', endpoint, options, data);
+    async post<T = any>(endpoint: string, data: any, options?: RequestOptions) {
+        return this._makeRequest<T>('post', endpoint, options, data);
     }
 
-    async put(endpoint: string, data: any, options?: RequestOptions) {
-        return this._makeRequest('put', endpoint, options, data);
+    async put<T = any>(endpoint: string, data: any, options?: RequestOptions) {
+        return this._makeRequest<T>('put', endpoint, options, data);
     }
 
-    async delete(endpoint: string, options?: SearchOptions) {
-        return this._makeRequest('delete', endpoint, options);
+    async delete<T = any>(endpoint: string, options?: SearchOptions) {
+        return this._makeRequest<T>('delete', endpoint, options);
     }
 
-    private async _makeRequest(
-        method: string,
+    private async _makeRequest<T = any>(
+        method: 'get'|'post'|'put'|'delete',
         endpoint: string,
-        searchOptions: SearchOptions = {},
+        searchOptions: RequestOptions|SearchOptions = {},
         data?: any
-    ) {
+    ): Promise<T> {
         const errorMsg = validateRequestOptions(endpoint, searchOptions);
         if (errorMsg) return Promise.reject(new TSError(errorMsg));
 
-        let options;
-        if (data) {
+        let options: RequestOptions;
+        if (data != null && method.toLowerCase() !== 'get') {
             options = getRequestOptionsWithData(data, searchOptions);
         } else {
-            options = searchOptions;
+            options = { ...searchOptions };
         }
 
         const newEndpoint = getAPIEndpoint(endpoint, this._apiVersion);
         try {
-            const response = await this._request[method](newEndpoint, options);
-            const { body } = response;
-            return body;
+            const response = await this._request(newEndpoint, {
+                method,
+                throwHttpErrors: false,
+                ...options,
+            } as any);
+            return response.body as any;
         } catch (err) {
             const { statusCode } = err;
 
             if (statusCode >= 400) {
-                const error = makeErrorFromResponse(err);
-                throw error;
+                throw makeErrorFromResponse(err);
             }
 
             // TODO: what additional parameters should we return here?
@@ -89,8 +92,8 @@ export default class Client {
         }
     }
 
-    protected parse(results: any) {
-        if (typeof results === 'string') return JSON.parse(results);
+    protected parse(results: any): any {
+        if (typeof results === 'string') return tryParseJSON(results);
         return results;
     }
 
@@ -159,7 +162,7 @@ function makeErrorFromResponse(response: any): OldErrorOutput {
 }
 
 // TODO: do more validations
-function validateRequestOptions(endpoint: string, _options?: SearchOptions) {
+function validateRequestOptions(endpoint: string, _options?: RequestOptions|SearchOptions) {
     if (!endpoint) {
         return 'endpoint must not be empty';
     }
@@ -169,9 +172,11 @@ function validateRequestOptions(endpoint: string, _options?: SearchOptions) {
     return null;
 }
 
-function getRequestOptionsWithData(data: any, options: SearchOptions) {
+function getRequestOptionsWithData(
+    data: any, options: RequestOptions|SearchOptions
+): RequestOptions {
     if (isPlainObject(data) || Array.isArray(data)) {
-        return Object.assign({}, options, { body: data });
+        return { ...options, json: data };
     }
-    return Object.assign({}, options, { body: data, json: false });
+    return { ...options, body: data };
 }

@@ -1,5 +1,5 @@
-// @ts-ignore
-import request from 'request-promise';
+import got from 'got';
+import { parseError } from '@terascope/utils';
 import Reply from './reply';
 
 const reply = new Reply();
@@ -13,26 +13,20 @@ async function send(host, key, tags, text) {
         tags,
         text
     };
-    const options = {
-        method: 'POST',
-        uri: url,
-        headers: {
-            Authorization: `Bearer ${key}`
-        },
-        body: payload,
-        json: true
-    };
-    request(options)
-    // @ts-ignore
-        .then((response) => {
-            if (response.message === 'Annotation added') {
-                reply.green(`> Annotation: "${text}" Added`);
-            }
-        })
-        // @ts-ignore
-        .catch((err) => {
-            reply.fatal(`> Annotation failed: ${err}`);
+    try {
+        const response = await got.post<{ message: string }>(url, {
+            headers: {
+                Authorization: `Bearer ${key}`
+            },
+            responseType: 'json',
+            json: payload,
         });
+        if (response.body.message === 'Annotation added') {
+            reply.green(`> Annotation: "${text}" Added`);
+        }
+    } catch (err) {
+        reply.fatal(`> Annotation failed: ${parseError(err)}`);
+    }
 }
 // @ts-ignore
 export default async function annotate(cliConfig) {
