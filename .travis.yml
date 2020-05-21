@@ -2,7 +2,7 @@
 dist: bionic
 os: linux
 language: node_js
-node_js: '10.19'
+node_js: '12.16'
 # use a smaller depth for faster builds
 git:
   depth: 10
@@ -24,7 +24,8 @@ jobs:
 
   include:
     - stage: "Verify"
-      name: 'Verify Build'
+      name: 'Verify Build (node 10)'
+      # use node 10 to make sure we don't lose compatibility
       node_js: '10.19'
       # run on any pull_request
       if: branch = master AND type IN (pull_request)
@@ -40,6 +41,7 @@ jobs:
 
     - stage: "Tests"
       name: 'Unit Test Suite (node 10)'
+      # use node 10 to make sure we don't lose compatibility
       node_js: '10.19'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
@@ -59,14 +61,14 @@ jobs:
       script: yarn --silent test --suite elasticsearch --elasticsearch-version 6.8.6 --elasticsearch-api-version 6.5
 
     - script:
-      name: 'ES Test Suite (elasticsearch 7) (node 10)'
+      name: 'ES Test Suite (elasticsearch 7) (node 12)'
       node_js: '12.16'
       # run only on pull-requests
       if: branch = master AND type IN (pull_request) AND commit_message !~ /^WIP/
       script: yarn --silent test --suite elasticsearch --elasticsearch-version 7.2.1 --elasticsearch-api-version 7.0 --report-coverage false
 
     - script:
-      name: 'End-to-End Test Suite (elasticsearch 6) (node 10)'
+      name: 'End-to-End Test Suite (elasticsearch 6) (node 12)'
       node_js: '12.16'
       # run only on pull-requests and cron
       if: branch = master AND type IN (pull_request, cron) AND fork = false
