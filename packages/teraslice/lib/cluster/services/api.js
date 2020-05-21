@@ -23,7 +23,9 @@ const terasliceVersion = require('../../../package.json').version;
 const pStreamPipeline = promisify(stream.pipeline);
 
 module.exports = function apiService(context, { assetsUrl, app }) {
-    const clusterType = context.sysconfig.teraslice.cluster_manager_type;
+    const clusterConfig = context.sysconfig.teraslice;
+    const clusterType = clusterConfig.cluster_manager_type;
+
     const logger = makeLogger(context, 'api_service');
 
     let available = false;
@@ -460,6 +462,9 @@ module.exports = function apiService(context, { assetsUrl, app }) {
             headers: req.headers,
             searchParams: req.query,
             throwHttpErrors: false,
+            timeout: clusterConfig.api_response_timeout,
+            decompress: false,
+            retry: 0
         };
 
         const uri = req.url.replace(/^\//, '');
@@ -475,7 +480,7 @@ module.exports = function apiService(context, { assetsUrl, app }) {
             const { statusCode, message } = parseErrorInfo(err, {
                 defaultErrorMsg: 'Asset Service error while processing request'
             });
-            sendError(res, statusCode, message);
+            sendError(res, statusCode, message, req.logger);
         }
     }
 
