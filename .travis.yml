@@ -73,10 +73,12 @@ jobs:
       script: yarn --silent --cwd e2e test
 
     - stage: "Releases"
-      name: 'Publish pre-release packages'
+      name: 'Publish prerelease packages and docker image'
       # Run on pull-request and when the commit message includes a prerelease bump
-      if: branch = master AND type IN (pull_request) AND commit_message =~ /bump:.*\((prerelease|preminor|prepatch|prerelease)\).*/
-      script: yarn ts-scripts publish -t dev npm
+      if: branch = master AND type IN (pull_request) AND commit_message =~ /bump:.*\((premajor|preminor|prepatch|prerelease)\).*/
+      script:
+        - yarn ts-scripts publish -t prerelease npm
+        - yarn ts-scripts publish -t prerelease docker
 
     - script:
       name: 'Publish packages, docs and expiremental docker image'
@@ -85,7 +87,7 @@ jobs:
       if: tag IS blank AND branch = master AND type NOT IN (pull_request, cron)
       script:
         # publish to NPM first
-        - yarn ts-scripts publish npm
+        - yarn ts-scripts publish -t latest npm
         # run the tests with coverage coverage
         - yarn test
         # Publish to dev docker image
