@@ -32,7 +32,7 @@ export async function publish(action: PublishAction, options: PublishOptions) {
 }
 
 async function publishToNPM(options: PublishOptions) {
-    if (![PublishType.Latest, PublishType.Tag, PublishType.Dev].includes(options.type)) {
+    if (![PublishType.Latest, PublishType.Tag, PublishType.Prelease].includes(options.type)) {
         throw new Error(`NPM publish does NOT support publish type "${options.type}"`);
     }
     const result = await pMap(listPackages(), (pkgInfo) => npmPublish(pkgInfo, options), {
@@ -85,20 +85,31 @@ async function publishToDocker(options: PublishOptions) {
 
     const devImage = await buildDevDockerImage();
 
+    let err: any|undefined;
     for (const registry of registries) {
         let imageToBuild = '';
 
         if (options.type === PublishType.Latest) {
             imageToBuild = `${registry}:latest`;
-        } else if (options.type === PublishType.Tag) {
+        } else if (options.type === PublishType.Tag || options.type === PublishType.Prelease) {
             const mainPkgInfo = getMainPackageInfo();
             if (!mainPkgInfo) {
                 throw new Error('At least one package must be specified with `terascope.main`');
             }
+
+            if (options.type === PublishType.Prelease) {
+                if (getPublishTag(mainPkgInfo.version) !== 'prerelease') {
+                    throw new Error(
+                        'Refusing to publish non-prerelease docker image'
+                    );
+                }
+            }
+
             const image = `${registry}:v${mainPkgInfo.version}`;
             const exists = await remoteDockerImageExists(image);
             if (exists) {
-                throw new Error(`Docker Image ${image} already exists`);
+                err = new Error(`Docker Image ${image} already exists`);
+                continue;
             }
             imageToBuild = image;
         } else if (options.type === PublishType.Daily) {
@@ -119,6 +130,15 @@ async function publishToDocker(options: PublishOptions) {
         }
 
         signale.success(`built docker image ${imageToBuild}, took ${ms(Date.now() - startTime)}`);
+    }
+
+    if (err) {
+        if (options.type === PublishType.Prelease) {
+            signale.warn(err);
+        } else {
+            throw err;
+        }
+        return;
     }
 
     if (options.dryRun) {
