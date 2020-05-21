@@ -169,6 +169,7 @@ module.exports = function assetsService(context) {
                         logger.info(`assets_service is listening on port ${port}`);
                         resolve();
                     });
+                    app.timeout = context.sysconfig.teraslice.api_response_timeout;
                 });
 
                 await assetsStore.autoload();
