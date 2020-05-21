@@ -30,7 +30,7 @@ async function verifyAssetJSON(id, newPath) {
     }
 
     try {
-        const packageData = fse.readJson(path.join(newPath, 'asset.json'));
+        const packageData = await fse.readJson(path.join(newPath, 'asset.json'));
         return Object.assign({ id }, packageData);
     } catch (_err) {
         const err = new TSError(_err, {
@@ -61,7 +61,7 @@ async function saveAsset(logger, assetsPath, id, binaryData, metaCheck) {
 
         // storage/assets save fn needs to check the return metadata for uniqueness
         if (metaCheck) {
-            return metaCheck(metaData);
+            return await metaCheck(metaData);
         }
         return metaData;
     } catch (err) {
