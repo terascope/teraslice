@@ -6,8 +6,7 @@ const semver = require('semver');
 const downloadRelease = require('@terascope/fetch-github-release');
 const signale = require('./signale');
 
-// When the docker image is switched to use node:10 this value needs to be changed to '10'
-const nodeVersion = '10';
+const nodeVersion = '12';
 const autoloadDir = path.join(__dirname, '..', 'autoload');
 const leaveZipped = true;
 const disableLogging = true;
