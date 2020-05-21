@@ -64,33 +64,29 @@ module.exports = async function assetsStore(context) {
     }
 
     async function save(data) {
-        try {
-            const esData = data.toString('base64');
-            const id = crypto.createHash('sha1').update(esData).digest('hex');
+        const esData = data.toString('base64');
+        const id = crypto.createHash('sha1').update(esData).digest('hex');
 
-            const exists = await _assetExists(id);
-            if (exists) {
-                logger.info(`asset id: ${id} already exists`);
-            } else {
-                const metaData = await saveAsset(logger, assetsPath, id, data, _metaIsUnqiue);
+        const exists = await _assetExists(id);
+        if (exists) {
+            logger.info(`asset id: ${id} already exists`);
+        } else {
+            const metaData = await saveAsset(logger, assetsPath, id, data, _metaIsUnqiue);
 
-                const assetRecord = Object.assign({
-                    blob: esData,
-                    _created: new Date().toISOString()
-                }, metaData);
+            const assetRecord = Object.assign({
+                blob: esData,
+                _created: new Date().toISOString()
+            }, metaData);
 
-                await backend.indexWithId(id, assetRecord);
+            await backend.indexWithId(id, assetRecord);
 
-                logger.info(`assets: ${metaData.name}, id: ${id} has been saved to assets_directory and elasticsearch`);
-            }
-
-            return {
-                assetId: id,
-                created: !exists,
-            };
-        } catch (err) {
-            return err;
+            logger.info(`assets: ${metaData.name}, id: ${id} has been saved to assets_directory and elasticsearch`);
         }
+
+        return {
+            assetId: id,
+            created: !exists,
+        };
     }
 
     async function search(query, from, size, sort, fields) {
