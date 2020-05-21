@@ -77,7 +77,7 @@ jobs:
     - stage: "Releases"
       name: 'Publish prerelease packages and docker image'
       # Run on pull-request and when the commit message includes a prerelease bump
-      if: branch = master AND type IN (pull_request) AND commit_message =~ /bump:.*\((premajor|preminor|prepatch|prerelease)\).*/
+      if: branch = master AND type IN (pull_request) AND commit_message =~ /(bump|release):.*\((premajor|preminor|prepatch|prerelease)\).*/
       script:
         - yarn ts-scripts publish -t prerelease npm
         - yarn ts-scripts publish -t prerelease docker
