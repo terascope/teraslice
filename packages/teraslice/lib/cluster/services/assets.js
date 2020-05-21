@@ -49,7 +49,7 @@ module.exports = function assetsService(context) {
                 })
                 .catch((err) => {
                     const { statusCode, message } = parseErrorInfo(err);
-                    logError(logger, err, 'failure streaming assets');
+                    logError(logger, err, 'failure saving assets via proxy request');
                     sendError(res, statusCode, message);
                 });
         });

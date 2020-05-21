@@ -69,12 +69,22 @@ function handleRequest(req, res, defaultErrorMsg = 'Failure to process request',
                 logError(req.logger, message);
             }
 
-            sendError(res, statusCode, message);
+            sendError(res, statusCode, message, req.logger);
         }
     };
 }
 
-function sendError(res, code, message) {
+function sendError(res, code, message, logger) {
+    if (res.headersSent) {
+        const error = new Error(message);
+        error.statusCode = code;
+        if (logger) {
+            logger.error(error, 'request send error after headers sent');
+        } else {
+            console.error(error, 'request send error after headers sent');
+        }
+        return;
+    }
     res.status(code).json({
         error: code,
         message

@@ -463,6 +463,7 @@ module.exports = function apiService(context, { assetsUrl, app }) {
             searchParams: req.query,
             throwHttpErrors: false,
             timeout: clusterConfig.api_response_timeout,
+            decompress: false,
             retry: 0
         };
 
@@ -479,7 +480,7 @@ module.exports = function apiService(context, { assetsUrl, app }) {
             const { statusCode, message } = parseErrorInfo(err, {
                 defaultErrorMsg: 'Asset Service error while processing request'
             });
-            sendError(res, statusCode, message);
+            sendError(res, statusCode, message, req.logger);
         }
     }
 
