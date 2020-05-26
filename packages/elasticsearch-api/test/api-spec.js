@@ -666,6 +666,7 @@ describe('elasticsearch-api', () => {
                 size: msg.count,
                 body: {
                     query: {
+                        track_total_hits: true,
                         bool: {
                             must: Array.isArray(data) ? data : [data]
                         }
@@ -819,6 +820,7 @@ describe('elasticsearch-api', () => {
                 size: msg.count,
                 body: {
                     query: {
+                        track_total_hits: true,
                         bool: {
                             must: Array.isArray(data) ? data : [data]
                         }
