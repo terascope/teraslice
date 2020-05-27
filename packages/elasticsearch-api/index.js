@@ -60,6 +60,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                 delete query._sourceInclude;
             }
         }
+
         return _searchES(query).then((data) => {
             if (config.full_response) {
                 return data;
@@ -522,7 +523,6 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         const query = {
             index: opConfig.index,
             size: msg.count,
-            track_total_hits: true,
             body: _buildRangeQuery(opConfig, msg),
         };
 
@@ -539,6 +539,8 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             const retry = _retryFn(_performSearch, query, reject);
 
             function _performSearch(queryParam) {
+                _esV7adjustments(queryParam);
+
                 client
                     .search(queryParam)
                     .then((data) => {
@@ -573,6 +575,12 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
 
             waitForClient(() => _performSearch(query), reject);
         });
+    }
+
+    function _esV7adjustments(queryParam) {
+        if (getESVersion() >= 7) {
+            queryParam.trackTotalHits = true;
+        }
     }
 
     /**
