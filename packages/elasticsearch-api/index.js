@@ -529,7 +529,6 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         if (opConfig.fields) {
             query._source = opConfig.fields;
         }
-
         return query;
     }
 
@@ -539,7 +538,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             const retry = _retryFn(_performSearch, query, reject);
 
             function _performSearch(queryParam) {
-                _esV7adjustments(queryParam);
+                _esV7adjustments(query);
 
                 client
                     .search(queryParam)
