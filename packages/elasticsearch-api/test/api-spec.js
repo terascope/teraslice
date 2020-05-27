@@ -1,8 +1,7 @@
 'use strict';
 
 const Promise = require('bluebird');
-const { debugLogger } = require('@terascope/utils');
-const _ = require('lodash');
+const { debugLogger, cloneDeep } = require('@terascope/utils');
 const esApi = require('..');
 
 describe('elasticsearch-api', () => {
@@ -344,7 +343,7 @@ describe('elasticsearch-api', () => {
 
     it('adds track total hits to queries for es v7 indices', async () => {
         const query = { body: 'someQuery' };
-        const es7client = _.cloneDeep(client);
+        const es7client = cloneDeep(client);
 
         es7client.transport._config = { apiVersion: '7.0' };
 
