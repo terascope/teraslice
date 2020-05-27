@@ -664,9 +664,9 @@ describe('elasticsearch-api', () => {
             const query = {
                 index: opConfig.index,
                 size: msg.count,
+                track_total_hits: true,
                 body: {
                     query: {
-                        track_total_hits: true,
                         bool: {
                             must: Array.isArray(data) ? data : [data]
                         }
@@ -818,9 +818,9 @@ describe('elasticsearch-api', () => {
             const query = {
                 index: opConfig.index,
                 size: msg.count,
+                track_total_hits: true,
                 body: {
                     query: {
-                        track_total_hits: true,
                         bool: {
                             must: Array.isArray(data) ? data : [data]
                         }

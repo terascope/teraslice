@@ -472,7 +472,6 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
 
     function _buildRangeQuery(opConfig, msg) {
         const body = {
-            track_total_hits: true,
             query: {
                 bool: {
                     must: [],
@@ -523,6 +522,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         const query = {
             index: opConfig.index,
             size: msg.count,
+            track_total_hits: true,
             body: _buildRangeQuery(opConfig, msg),
         };
 
