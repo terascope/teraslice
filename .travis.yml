@@ -2,7 +2,7 @@
 dist: bionic
 os: linux
 language: node_js
-node_js: '12.16'
+node_js: '12.17'
 # use a smaller depth for faster builds
 git:
   depth: 10
@@ -48,28 +48,28 @@ jobs:
       script: yarn --silent test --suite unit-a
 
     - name: 'Unit Test Suite (node 12)'
-      node_js: '12.16'
+      node_js: '12.17'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite unit-b
 
     - script:
       name: 'ES Test Suite (elasticsearch 6) (node 12)'
-      node_js: '12.16'
+      node_js: '12.17'
       # run only on pull-requests and cron
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite elasticsearch --elasticsearch-version 6.8.6 --elasticsearch-api-version 6.5
 
     - script:
       name: 'ES Test Suite (elasticsearch 7) (node 12)'
-      node_js: '12.16'
+      node_js: '12.17'
       # run only on pull-requests
       if: branch = master AND type IN (pull_request) AND commit_message !~ /^WIP/
       script: yarn --silent test --suite elasticsearch --elasticsearch-version 7.2.1 --elasticsearch-api-version 7.0 --report-coverage false
 
     - script:
       name: 'End-to-End Test Suite (elasticsearch 6) (node 12)'
-      node_js: '12.16'
+      node_js: '12.17'
       # run only on pull-requests and cron
       if: branch = master AND type IN (pull_request, cron) AND fork = false
       script: yarn --silent --cwd e2e test
@@ -84,7 +84,7 @@ jobs:
 
     - script:
       name: 'Publish packages, docs and expiremental docker image'
-      node_js: '12.16'
+      node_js: '12.17'
       # run a push to master
       if: tag IS blank AND branch = master AND type NOT IN (pull_request, cron)
       script:
