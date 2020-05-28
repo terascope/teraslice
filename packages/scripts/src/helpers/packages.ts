@@ -6,7 +6,7 @@ import globby from 'globby';
 import {
     uniq, fastCloneDeep, get, trim
 } from '@terascope/utils';
-// @ts-ignore
+// @ts-expect-error (Missing types)
 import QueryGraph from '@lerna/query-graph';
 import packageJson from 'package-json';
 import sortPackageJson from 'sort-package-json';
@@ -206,7 +206,7 @@ export function updatePkgJSON(
     });
 }
 
-function getSortedPkgJSON<T extends object>(pkgInfo: T): T {
+function getSortedPkgJSON<T extends Record<string, any>>(pkgInfo: T): T {
     return fastCloneDeep(sortPackageJson(pkgInfo));
 }
 

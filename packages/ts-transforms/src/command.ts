@@ -45,7 +45,7 @@ let typesConfig = {};
 const type = command.m ? 'matcher' : 'transform';
 
 interface ESData {
-    _source: object;
+    _source: Record<string, unknown>;
 }
 
 try {
@@ -97,7 +97,7 @@ function getPipedData(): Promise<string> {
     });
 }
 
-function parseData(data: string): object[] | null {
+function parseData(data: string): Record<string, unknown>[] | null {
     // handle json array input
     if (/^\s*\[.*\]$/gm.test(data)) {
         try {
@@ -109,7 +109,7 @@ function parseData(data: string): object[] | null {
     }
 
     // handle ldjson
-    const results: object[] = [];
+    const results: Record<string, unknown>[] = [];
     const lines = data.split('\n');
 
     for (const rawline of lines) {
@@ -124,7 +124,9 @@ function toJSON(obj: AnyObject) {
     return JSON.stringify(obj);
 }
 
-function handleParsedData(data: object[] | object): DataEntity<object>[] {
+function handleParsedData(
+    data: Record<string, unknown>[] | Record<string, unknown>
+): DataEntity<Record<string, unknown>>[] {
     // input from elasticsearch
     const elasticSearchResults = get(data[0], 'hits.hits', null);
     if (elasticSearchResults) {
@@ -232,9 +234,8 @@ async function initCommand() {
         } catch (err) {
             console.error(`could not initiate transforms: ${err.message}`);
             process.exitCode = 1;
+            return;
         }
-        // @ts-ignore
-        if (manager === undefined) return;
 
         if (streamData) {
             await transformIO(manager);

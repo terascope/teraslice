@@ -113,14 +113,14 @@ describe('Teraslice Job', () => {
     describe('->id', () => {
         describe('when constructed without a jobId', () => {
             it('should throw an error', () => {
-                // @ts-ignore
+                // @ts-expect-error
                 expect(() => new Job()).toThrowError('Job requires jobId');
             });
         });
 
         describe('when constructed with a invalid jobId', () => {
             it('should throw an error', () => {
-                // @ts-ignore
+                // @ts-expect-error
                 expect(() => new Job({}, { invalid: true })).toThrowError('Job requires jobId to be a string');
             });
         });
@@ -494,9 +494,9 @@ describe('Teraslice Job', () => {
         for (const [nodeName, node] of Object.entries(clusterState)) {
             node.active.forEach((child) => {
                 if (child.assignment === 'worker' && child.job_id === jobId) {
-                    // @ts-ignore
+                    // @ts-expect-error
                     child.node_id = nodeName;
-                    // @ts-ignore
+                    // @ts-expect-error
                     workerData.push(child);
                 }
             });
@@ -597,7 +597,7 @@ describe('Teraslice Job', () => {
                 expect.hasAssertions();
                 const job = new Job({ baseUrl }, 'some-job-id');
                 try {
-                    // @ts-ignore
+                    // @ts-expect-error
                     await job.changeWorkers();
                 } catch (err) {
                     expect(err.message).toEqual('changeWorkers requires action and count');
@@ -610,7 +610,7 @@ describe('Teraslice Job', () => {
                 expect.hasAssertions();
                 const job = new Job({ baseUrl }, 'some-job-id');
                 try {
-                    // @ts-ignore
+                    // @ts-expect-error
                     await job.changeWorkers('invalid', 2);
                 } catch (err) {
                     expect(err.message).toEqual('changeWorkers requires action to be one of add, remove, or total');

@@ -24,18 +24,18 @@ describe('Base64Encode operator', () => {
         const badConfig8 = {
             source: '', target: '', __id: 'someId', follow: 'otherId'
         };
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Base64Encode(badConfig1)).toThrow();
         expect(() => new Base64Encode(badConfig2)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Base64Encode(badConfig3)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Base64Encode(badConfig4)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Base64Encode(badConfig5)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Base64Encode(badConfig6)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Base64Encode(badConfig7)).toThrow();
         expect(() => new Base64Encode(badConfig8)).toThrow();
     });

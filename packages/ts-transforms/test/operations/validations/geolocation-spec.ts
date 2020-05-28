@@ -15,13 +15,13 @@ describe('geolocation validation', () => {
         const badConfig2 = { source: '' };
         const badConfig3 = { source: {} };
         const badConfig4 = {};
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Geolocation(badConfig1)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Geolocation(badConfig2)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Geolocation(badConfig3)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Geolocation(badConfig4)).toThrow();
     });
 

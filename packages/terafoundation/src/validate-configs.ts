@@ -51,7 +51,11 @@ function extractSchema<S>(
  * @param config the config object passed to the library terafoundation
  * @param sysconfig unvalidated sysconfig
 */
-export default function validateConfigs<S = {}, A = {}, D extends string = string>(
+export default function validateConfigs<
+    S = Record<string, unknown>,
+    A = Record<string, unknown>,
+    D extends string = string
+>(
     cluster: i.Cluster,
     config: i.FoundationConfig<S, A, D>,
     sysconfig: PartialDeep<i.FoundationSysConfig<S>>

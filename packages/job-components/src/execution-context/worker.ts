@@ -148,7 +148,7 @@ export class WorkerExecutionContext
         }
 
         if (index === 0) {
-            // @ts-ignore
+            // @ts-expect-error
             return this._fetcher as T;
         }
 
@@ -157,7 +157,7 @@ export class WorkerExecutionContext
             throw new Error(`Unable to find operation by ${findBy}`);
         }
 
-        // @ts-ignore
+        // @ts-expect-error
         return processor as T;
     }
 

@@ -24,18 +24,18 @@ describe('UrlEncode operator', () => {
         const badConfig8 = {
             source: '', target: '', __id: 'someId', follow: 'otherId'
         };
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new UrlEncode(badConfig1)).toThrow();
         expect(() => new UrlEncode(badConfig2)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new UrlEncode(badConfig3)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new UrlEncode(badConfig4)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new UrlEncode(badConfig5)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new UrlEncode(badConfig6)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new UrlEncode(badConfig7)).toThrow();
         expect(() => new UrlEncode(badConfig8)).toThrow();
     });

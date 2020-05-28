@@ -5,7 +5,7 @@ describe('ex stop', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
             const yargsCmd = yargs.command(
-                // @ts-ignore
+                // @ts-expect-error
                 stop.command,
                 stop.describe,
                 stop.builder,

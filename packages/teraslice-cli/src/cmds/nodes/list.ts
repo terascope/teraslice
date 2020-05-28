@@ -36,11 +36,11 @@ export = {
         } catch (err) {
             reply.fatal(`Error getting cluster state on ${cliConfig.args.clusterAlias}\n${err}`);
         }
-        // @ts-ignore
+        // @ts-expect-error
         if (Object.keys(response).length === 0) {
             reply.fatal(`> No nodes on ${cliConfig.args.clusterAlias}`);
         }
-        // @ts-ignore
+        // @ts-expect-error
         await display.display(header, response, format, active, parse);
     }
 } as CMD;

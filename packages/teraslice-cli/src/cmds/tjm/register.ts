@@ -20,11 +20,11 @@ export = {
         yargs.option('start', yargsOptions.buildOption('start'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-        // @ts-ignore
+        // @ts-expect-error
         yargs.example('$0 tjm register localhost new-job.json');
-        // @ts-ignore
+        // @ts-expect-error
         yargs.example('$0 tjm register localhost new-job.json --start');
-        // @ts-ignore
+        // @ts-expect-error
         yargs.example('$0 tjm reg localhost new-job.json --start');
         return yargs;
     },

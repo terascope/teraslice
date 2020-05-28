@@ -11,14 +11,14 @@ import { chunk as chunkItems } from './arrays';
 const logger = debugLogger('utils:promises');
 
 /** promisified setTimeout */
-export function pDelay<T = undefined>(delay = 1, arg?: T) {
+export function pDelay<T = undefined>(delay = 1, arg?: T): Promise<T> {
     return new Promise<T>((resolve) => {
         setTimeout(resolve, delay, arg);
     });
 }
 
 /** promisified setImmediate */
-export function pImmediate<T = undefined>(arg?: T) {
+export function pImmediate<T = undefined>(arg?: T): Promise<T> {
     return new Promise<T>((resolve) => {
         setImmediate(resolve, arg);
     });
@@ -92,7 +92,7 @@ export async function pRetry<T = any>(
             backoff: 2,
             matches: [],
             _currentDelay: 0,
-            // @ts-ignore
+            // @ts-expect-error
             _context: undefined as PRetryContext,
         },
         options
@@ -279,12 +279,12 @@ interface PromiseFn<T = any> {
 }
 
 /** Async waterfall function */
-export function waterfall(input: any, fns: PromiseFn[], addBreak = false): Promise<any> {
+export function waterfall(input: unknown, fns: PromiseFn[], addBreak = false): Promise<any> {
     let i = 0;
     return fns.reduce(async (last, fn) => {
         if (i++ === 0 && addBreak) await pImmediate();
         return fn(await last);
-    }, input);
+    }, input) as any;
 }
 
 /**
@@ -346,7 +346,11 @@ export async function pRaceWithTimeout(
  * An alternative to Bluebird.defer: http://bluebirdjs.com/docs/api/deferred-migration.html
  * Considered bad practice in most cases, use the Promise constructor
 */
-export function pDefer() {
+export function pDefer(): {
+    resolve: (value?: unknown) => void,
+    reject: (reason?: any) => void,
+    promise: Promise<any>
+} {
     let resolve: (value?: unknown) => void;
     let reject: (reason?: any) => void;
 

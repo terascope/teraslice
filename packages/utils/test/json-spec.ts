@@ -22,7 +22,7 @@ describe('Utils', () => {
 
         it('should throw a TypeError if given a non-buffer', () => {
             expect(() => {
-                // @ts-ignore
+                // @ts-expect-error
                 parseJSON(123);
             }).toThrowError('Failure to serialize non-buffer, got "Number"');
         });

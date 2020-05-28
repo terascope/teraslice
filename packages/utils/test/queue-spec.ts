@@ -98,7 +98,7 @@ describe('Queue', () => {
 
     it('can extract from queue based on a key and id', () => {
         const queue1 = new Queue<any>();
-        // @ts-ignore
+        // @ts-expect-error
         expect(queue1.extract()).toBeNil();
         expect(queue1.size()).toEqual(0);
 

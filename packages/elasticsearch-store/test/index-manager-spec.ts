@@ -12,7 +12,7 @@ describe('IndexManager', () => {
     describe('when constructed with nothing', () => {
         it('should throw an error', () => {
             expect(() => {
-                // @ts-ignore
+                // @ts-expect-error
                 new IndexManager();
             }).toThrowWithMessage(TSError, 'IndexManager requires elasticsearch client');
         });
@@ -24,7 +24,7 @@ describe('IndexManager', () => {
         describe('->_logger', () => {
             // eslint-disable-next-line
             const loggerFn = (config: Partial<IndexConfig<any>>) => {
-                // @ts-ignore
+                // @ts-expect-error
                 return indexManager._logger(config);
             };
 
@@ -184,7 +184,7 @@ describe('IndexManager', () => {
             describe('when passed an invalid config object', () => {
                 it('should throw an error', () => {
                     expect(() => {
-                        // @ts-ignore
+                        // @ts-expect-error
                         indexManager.formatTemplateName();
                     }).toThrowWithMessage(TSError, 'IndexConfig cannot be empty');
                 });

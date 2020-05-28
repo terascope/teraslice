@@ -20,12 +20,13 @@ const inferredFieldTypes = Object.freeze({
     [xLuceneFieldType.String]: true,
 });
 
-export default function makeContext(args: any) {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export default function makeContext(arg: i.ContextArg) {
     let typeConfig: xLuceneTypeConfig;
     let variables: xLuceneVariables;
     let logger: Logger;
     // eslint-disable-next-line
-    ({ typeConfig = {}, variables = {}, logger } = args);
+    ({ typeConfig = {}, variables = {}, logger } = arg);
     if (!typeConfig || !logger) {
         throw new Error('xLucene Parser given invalid context');
     }

@@ -4,7 +4,7 @@ import {
 } from '../../src';
 
 describe('MapProcessor', () => {
-    class ExampleProcessor extends MapProcessor<object> {
+    class ExampleProcessor extends MapProcessor<Record<string, any>> {
         map(data: DataEntity): DataEntity {
             data.howdy = 'there';
             return data;

@@ -164,7 +164,7 @@ class Double {
     }
 
     run(doc) {
-        // @ts-ignore
+        // @ts-expect-error
         doc[this.config.source] = doc[this.config.source] * 2;
         return doc;
     }

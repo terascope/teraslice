@@ -4,7 +4,7 @@ import {
 } from '../../src';
 
 describe('Fetcher', () => {
-    class ExampleFetcher extends Fetcher<object> {
+    class ExampleFetcher extends Fetcher<Record<string, any>> {
         public async fetch(): Promise<DataEntity[]> {
             return [
                 new DataEntity({ hi: true })

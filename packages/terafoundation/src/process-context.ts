@@ -14,8 +14,8 @@ import * as i from './interfaces';
  * @todo add shutdown handler logic with shutdown method
 */
 export class ProcessContext<
-    S = {},
-    A = {},
+    S = Record<string, any>,
+    A = Record<string, any>,
     D extends string = string
 > extends CoreContext<S, A, D> {
     constructor(

@@ -44,7 +44,6 @@ describe('JobValidator', () => {
                 operations: [
                     {
                         _op: 'example-reader',
-                        // @ts-ignore
                         example: 123
                     },
                     {

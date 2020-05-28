@@ -11,8 +11,7 @@ describe('Messenger', () => {
         describe('when constructed without a valid actionTimeout', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    // @ts-ignore
-                    new Messenger.Core({});
+                    new Messenger.Core({} as any);
                 }).toThrowError('Messenger requires a valid actionTimeout');
             });
         });
@@ -20,10 +19,9 @@ describe('Messenger', () => {
         describe('when constructed without a valid networkLatencyBuffer', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    // @ts-ignore
                     new Messenger.Core({
                         actionTimeout: 10,
-                        // @ts-ignore
+                        // @ts-expect-error
                         networkLatencyBuffer: 'abc'
                     });
                 }).toThrowError('Messenger requires a valid networkLatencyBuffer');
@@ -46,7 +44,7 @@ describe('Messenger', () => {
         describe('when constructed without a valid hostUrl', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    // @ts-ignore
+                    // @ts-expect-error
                     new Messenger.Client({
                         actionTimeout: 1,
                         networkLatencyBuffer: 0
@@ -58,7 +56,7 @@ describe('Messenger', () => {
         describe('when constructed without a valid clientId', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    // @ts-ignore
+                    // @ts-expect-error
                     new Messenger.Client({
                         actionTimeout: 1,
                         networkLatencyBuffer: 0,
@@ -73,7 +71,7 @@ describe('Messenger', () => {
                 const clientId = await newMsgId();
 
                 expect(() => {
-                    // @ts-ignore
+                    // @ts-expect-error
                     new Messenger.Client({
                         actionTimeout: 1,
                         networkLatencyBuffer: 0,
@@ -87,7 +85,7 @@ describe('Messenger', () => {
         describe('when constructed without a valid serverName', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    // @ts-ignore
+                    // @ts-expect-error
                     new Messenger.Client({
                         actionTimeout: 1,
                         networkLatencyBuffer: 0,
@@ -102,7 +100,7 @@ describe('Messenger', () => {
         describe('when constructed without a valid connectTimeout', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    // @ts-ignore
+                    // @ts-expect-error
                     new Messenger.Client({
                         actionTimeout: 1,
                         networkLatencyBuffer: 0,
@@ -120,7 +118,7 @@ describe('Messenger', () => {
         describe('when constructed without a valid port', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    // @ts-ignore
+                    // @ts-expect-error
                     new Messenger.Server({
                         actionTimeout: 1,
                         networkLatencyBuffer: 0
@@ -132,7 +130,7 @@ describe('Messenger', () => {
         describe('when constructed without a valid clientDisconnectTimeout', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    // @ts-ignore
+                    // @ts-expect-error
                     new Messenger.Server({
                         actionTimeout: 1,
                         networkLatencyBuffer: 0,
@@ -146,7 +144,7 @@ describe('Messenger', () => {
         describe('when constructed without a valid serverName', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    // @ts-ignore
+                    // @ts-expect-error
                     new Messenger.Server({
                         actionTimeout: 1,
                         networkLatencyBuffer: 0,
@@ -187,14 +185,14 @@ describe('Messenger', () => {
         let clientId: string;
         let client: Messenger.Client;
         let server: Messenger.Server;
-        type clientFn = (clientId: string) => void;
-        let clientAvailableFn: clientFn;
-        const clientUnavailableFn: clientFn = jest.fn();
-        const clientOnlineFn: clientFn = jest.fn();
-        const clientDisconnectFn: clientFn = jest.fn();
-        const clientReconnectFn: clientFn = jest.fn();
-        const clientShutdownFn: clientFn = jest.fn();
-        const clientErrorFn: clientFn = jest.fn();
+        type ClientFn = (clientId: string) => void;
+        let clientAvailableFn: ClientFn;
+        const clientUnavailableFn: ClientFn = jest.fn();
+        const clientOnlineFn: ClientFn = jest.fn();
+        const clientDisconnectFn: ClientFn = jest.fn();
+        const clientReconnectFn: ClientFn = jest.fn();
+        const clientShutdownFn: ClientFn = jest.fn();
+        const clientErrorFn: ClientFn = jest.fn();
 
         beforeAll((done) => {
             clientAvailableFn = jest.fn(() => { done(); });
@@ -376,13 +374,13 @@ describe('Messenger', () => {
             it('should throw a timeout error', async () => {
                 expect.hasAssertions();
 
-                // @ts-ignore
+                // @ts-expect-error
                 server.handleResponse(server.server.to(clientId), 'hello', async () => {
                     await pDelay(1000);
                 });
 
                 try {
-                    // @ts-ignore
+                    // @ts-expect-error
                     await client.send('hello', {}, {
                         response: true,
                         volatile: false,
@@ -400,7 +398,7 @@ describe('Messenger', () => {
             it('should throw a timeout error', async () => {
                 expect.hasAssertions();
                 try {
-                    // @ts-ignore
+                    // @ts-expect-error
                     await server.send('mystery-client', 'hello');
                 } catch (err) {
                     expect(err).not.toBeNil();
@@ -411,17 +409,16 @@ describe('Messenger', () => {
 
         // eslint-disable-next-line jest/no-disabled-tests
         xdescribe('when the client responds with an error', () => {
-            let responseMsg: Message | object | undefined;
+            let responseMsg: Message | Record<string, any> | undefined;
             let responseErr: Error | undefined;
 
             beforeAll(async () => {
-                // @ts-ignore
                 client.socket.once('failure:message', (msg: Message) => {
                     msg.error = 'this should fail';
                     client.socket.emit('message:response', msg);
                 });
                 try {
-                    // @ts-ignore
+                    // @ts-expect-error
                     responseMsg = await server.send(clientId, 'failure:message', { hi: true });
                 } catch (err) {
                     responseErr = err;
@@ -429,7 +426,6 @@ describe('Messenger', () => {
             });
 
             it('server should get an error back', () => {
-                // @ts-ignore
                 expect(responseMsg).toBeNil();
                 expect(responseErr && responseErr.toString()).toEqual('Error: Message Response Failure: this should fail');
             });

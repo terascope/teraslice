@@ -34,11 +34,11 @@ export = {
         } catch (err) {
             reply.fatal(`Error getting jobs list on ${cliConfig.args.clusterAlias}\n${err}`);
         }
-        // @ts-ignore
+        // @ts-expect-error
         if (response.length === 0) {
             reply.fatal(`> No jobs on ${cliConfig.args.clusterAlias}`);
         }
-        // @ts-ignore
+        // @ts-expect-error
         await display.display(header, response, format, active, parse);
     }
 } as CMD;

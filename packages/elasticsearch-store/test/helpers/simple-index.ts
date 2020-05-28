@@ -4,7 +4,7 @@ import { DataType } from '@terascope/data-types';
 export interface SimpleRecord {
     test_id: string;
     test_keyword: string;
-    test_object: object;
+    test_object: Record<string, any>;
     test_number: number;
     test_boolean: boolean;
     _created: string;

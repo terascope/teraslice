@@ -12,7 +12,7 @@ import { times } from '../src';
 
 describe('Error Utils', () => {
     describe('TSError', () => {
-        const testCases = [
+        const testCases: [any, any, Record<string, unknown>][] = [
             ['hello', undefined, { message: 'hello', statusCode: 500, fatalError: false }],
             ['hello', {}, {
                 message: 'hello', statusCode: 500, fatalError: false, code: 'INTERNAL_SERVER_ERROR'
@@ -223,9 +223,8 @@ describe('Error Utils', () => {
             ],
         ];
 
-        // @ts-ignore
-        describe.each(testCases)('new TSError(%j, %o)', (input: any, config: any, expected: any) => {
-            const tsError: TSError = new TSError(input, config);
+        describe.each(testCases)('new TSError(%j, %o)', (input, config, expected) => {
+            const tsError: TSError = new TSError(input, config as any);
 
             for (const [key, val] of Object.entries(expected)) {
                 if (key === 'stack') {
@@ -234,7 +233,7 @@ describe('Error Utils', () => {
                     });
                 } else if (key === 'context') {
                     it(`should have "${key}" match ${JSON.stringify(val)}`, () => {
-                        expect(tsError[key]).toMatchObject(val as {});
+                        expect(tsError[key]).toMatchObject(val as Record<string, unknown>);
                     });
                 } else {
                     it(`should have "${key}" set to ${JSON.stringify(val)}`, () => {
@@ -369,7 +368,7 @@ describe('Error Utils', () => {
     });
 });
 
-function newESError(obj: any, metadata: any = {}) {
+function newESError(obj: unknown, metadata: any = {}) {
     const error = new Error() as ElasticsearchError;
     error.name = 'ESError';
     Object.assign(error, obj);

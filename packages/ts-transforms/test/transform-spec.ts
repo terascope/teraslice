@@ -739,7 +739,6 @@ describe('can transform matches', () => {
             },
             { size: 2 },
         ]);
-        // @ts-ignore
         const test1 = await opTest.init(config, [Plugins]);
         const results1 = await test1.run(data);
 
@@ -817,7 +816,7 @@ describe('can transform matches', () => {
             },
         ]);
 
-        const data1Results = data1.reduce<object[]>((arr, obj) => {
+        const data1Results = data1.reduce<Record<string, any>[]>((arr, obj) => {
             if (obj.input) {
                 const results: any = {};
                 results.output = obj.input;
@@ -827,7 +826,7 @@ describe('can transform matches', () => {
             return arr;
         }, []);
 
-        const data2Results = data2.reduce<object[]>((arr, obj) => {
+        const data2Results = data2.reduce<Record<string, any>[]>((arr, obj) => {
             if (obj.other_input) {
                 const results: any = {};
                 results.other_output = obj.other_input;

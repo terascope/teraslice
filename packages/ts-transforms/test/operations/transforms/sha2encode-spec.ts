@@ -4,7 +4,6 @@ import { Sha2Encode } from '../../../src/operations';
 
 describe('Sha2Encode operator', () => {
     function encode(str: string, algo = 'sha256') {
-        // @ts-ignore
         return crypto.createHash(algo).update(str).digest('hex');
     }
 
@@ -26,18 +25,18 @@ describe('Sha2Encode operator', () => {
         const badConfig8 = {
             source: '', target: '', __id: 'someId', follow: 'otherId'
         };
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Sha2Encode(badConfig1)).toThrow();
         expect(() => new Sha2Encode(badConfig2)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Sha2Encode(badConfig3)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Sha2Encode(badConfig4)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Sha2Encode(badConfig5)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Sha2Encode(badConfig6)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Sha2Encode(badConfig7)).toThrow();
         expect(() => new Sha2Encode(badConfig8)).toThrow();
     });

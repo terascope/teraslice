@@ -7,18 +7,18 @@ type ArgType<T> = T extends (...args: infer A) => any ? A : any;
 /**
  * Creates a function that is only invoked once
 */
-export function once<T extends((...args: any[]) => any)>(fn: T) {
+export function once<T extends((...args: any[]) => any)>(fn: T): (
+    ...args: ArgType<T>
+) => ReturnType<T>|undefined {
     let called = false;
-    function _fn(...args: ArgType<T>): ReturnType<T>|undefined {
+    return function _fn(...args: ArgType<T>): ReturnType<T>|undefined {
         if (called) {
-            // @ts-ignore
-            fn = undefined;
+            fn = undefined as any;
             return undefined;
         }
         called = true;
         return fn(...args);
-    }
-    return _fn;
+    };
 }
 
 export function noop(..._args: any[]): any {}
@@ -54,6 +54,7 @@ export function memoize<T extends MemoizeFn>(fn: T): T {
 }
 
 /** Verify an input is a function */
-export function isFunction(input: any): input is Function {
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function isFunction(input: unknown): input is Function {
     return !!(input && typeof input === 'function');
 }

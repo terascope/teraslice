@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-// @ts-ignore
+// @ts-expect-error
 import yaml from 'node-yaml';
 import { createTempDirSync } from 'jest-fixtures';
 
@@ -15,7 +15,7 @@ describe('Aliases', () => {
     });
 
     afterEach(() => {
-        // @ts-ignore
+        // @ts-expect-error
         aliases = null;
     });
 

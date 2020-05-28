@@ -427,7 +427,6 @@ export class Server extends Core {
     }
 }
 
-// @ts-ignore
 function defaultRequestListener(req: http.IncomingMessage, res: http.ServerResponse) {
     res.writeHead(501);
     res.end('Not Implemented');

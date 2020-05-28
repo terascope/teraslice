@@ -1,7 +1,7 @@
 import * as ts from '@terascope/utils';
 import ipaddr from 'ipaddr.js';
 import { isIP as checkIP, isIPv6 } from 'net';
-// @ts-ignore
+// @ts-expect-error
 import ip6addr from 'ip6addr';
 import validateCidr from 'is-cidr';
 import PhoneValidator from 'awesome-phonenumber';

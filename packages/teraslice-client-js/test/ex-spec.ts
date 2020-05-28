@@ -83,14 +83,14 @@ describe('Teraslice Ex', () => {
     describe('->id', () => {
         describe('when constructed without a exId', () => {
             it('should throw an error', () => {
-                // @ts-ignore
+                // @ts-expect-error
                 expect(() => new Ex()).toThrowError('Ex requires exId');
             });
         });
 
         describe('when constructed with a invalid exId', () => {
             it('should throw an error', () => {
-                // @ts-ignore
+                // @ts-expect-error
                 expect(() => new Ex({}, { invalid: true })).toThrowError('Ex requires exId to be a string');
             });
         });
@@ -370,9 +370,9 @@ describe('Teraslice Ex', () => {
         for (const [nodeName, node] of Object.entries(clusterState)) {
             node.active.forEach((child) => {
                 if (child.assignment === 'worker' && child.ex_id === exId) {
-                    // @ts-ignore
+                    // @ts-expect-error
                     child.node_id = nodeName;
-                    // @ts-ignore
+                    // @ts-expect-error
                     workerData.push(child);
                 }
             });
@@ -473,7 +473,7 @@ describe('Teraslice Ex', () => {
                 expect.hasAssertions();
                 const ex = new Ex({ baseUrl }, 'some-ex-id');
                 try {
-                    // @ts-ignore
+                    // @ts-expect-error
                     await ex.changeWorkers();
                 } catch (err) {
                     expect(err.message).toEqual('changeWorkers requires action and count');
@@ -486,7 +486,7 @@ describe('Teraslice Ex', () => {
                 expect.hasAssertions();
                 const ex = new Ex({ baseUrl }, 'some-ex-id');
                 try {
-                    // @ts-ignore
+                    // @ts-expect-error
                     await ex.changeWorkers('invalid', 2);
                 } catch (err) {
                     expect(err.message).toEqual('changeWorkers requires action to be one of add, remove, or total');

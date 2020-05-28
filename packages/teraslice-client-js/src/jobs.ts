@@ -14,7 +14,6 @@ import {
 export default class Jobs extends Client {
     constructor(config: ClientConfig) {
         super(config);
-        // @ts-ignore
         autoBind(this);
     }
 
@@ -38,7 +37,7 @@ export default class Jobs extends Client {
      * Wraps the job_id with convenience functions for accessing
      * the state on the server.
     */
-    wrap(jobId: string) {
+    wrap(jobId: string): Job {
         return new Job(this._config, jobId);
     }
 }

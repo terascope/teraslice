@@ -21,7 +21,6 @@ describe('OpTestHarness', () => {
         const opHarness = new OpTestHarness(transformer, { clients });
 
         it('should be able to call initialize', () => {
-            // @ts-ignore
             const opConfig: OpConfig = {
                 _op: 'transformer',
                 action: 'set',

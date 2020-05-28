@@ -15,10 +15,10 @@ import { convertResult } from './shim-utils';
 
 export default function processorShim<S = any>(legacy: LegacyProcessor): ProcessorModule {
     return {
-        Processor: class LegacyProcessorShim<T = object> extends ProcessorCore<T> {
+        Processor: class LegacyProcessorShim<T = Record<string, any>> extends ProcessorCore<T> {
             private processorFn: ProcessorFn<DataEntity[]>|undefined;
 
-            async initialize() {
+            async initialize(): Promise<void> {
                 this.processorFn = await legacy.newProcessor(
                     this.context,
                     this.opConfig,
@@ -30,7 +30,6 @@ export default function processorShim<S = any>(legacy: LegacyProcessor): Process
                 if (this.processorFn != null) {
                     const result = await this.processorFn(input, this.logger, sliceRequest);
                     try {
-                        // @ts-ignore
                         return convertResult(result);
                     } catch (err) {
                         throw new Error(`${this.opConfig._op} failed to convert result: ${toString(err)}`);
@@ -41,11 +40,10 @@ export default function processorShim<S = any>(legacy: LegacyProcessor): Process
             }
         },
         Schema: class LegacySchemaShim extends ConvictSchema<S> {
-            // @ts-ignore
-            validate(inputConfig: any) {
+            validate(inputConfig: unknown): any {
                 const opConfig = super.validate(inputConfig);
                 if (legacy.selfValidation) {
-                    // @ts-ignore
+                    // @ts-expect-error
                     legacy.selfValidation(opConfig);
                 }
                 return opConfig;
@@ -57,7 +55,7 @@ export default function processorShim<S = any>(legacy: LegacyProcessor): Process
                 }
             }
 
-            build(context?: Context) {
+            build(context?: Context): any {
                 return legacy.schema(context);
             }
         }

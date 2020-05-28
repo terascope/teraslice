@@ -43,15 +43,12 @@ describe('Convict Formats', () => {
         expect(format.validate).toBeFunction();
         expect(format.coerce).toBeFunction();
         expect(() => {
-            // @ts-ignore
             format.validate!('someString');
         }).not.toThrowError();
         expect(() => {
-            // @ts-ignore
             format.validate!(253);
         }).toThrowError('This field is optional but if specified it must be of type string');
         expect(() => {
-            // @ts-ignore
             format.validate!(undefined);
         }).not.toThrowError();
     });
@@ -210,7 +207,6 @@ describe('Convict Formats', () => {
                 format.validate!('a'.repeat(256));
             }).toThrow(/^value: .* should not exceed 255 characters/);
             expect(() => {
-                // @ts-ignore
                 format.validate!('a'.repeat(255));
             }).not.toThrowError();
         });

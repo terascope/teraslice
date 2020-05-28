@@ -29,7 +29,7 @@ describe('Dependency Utils', () => {
 
     describe('isPlainObject', () => {
         it('should correctly detect the an object type', () => {
-            // @ts-ignore
+            // @ts-expect-error
             expect(isPlainObject()).toBeFalse();
             expect(isPlainObject(null)).toBeFalse();
             expect(isPlainObject(true)).toBeFalse();

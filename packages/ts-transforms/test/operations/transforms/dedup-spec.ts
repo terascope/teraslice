@@ -19,15 +19,15 @@ describe('Dedup operator', () => {
         const badConfig3 = { post_process: 'dedup' };
         const badConfig4 = { post_process: 'dedup', fields: 1234, target: 'someField' };
         const badConfig5 = { post_process: 'dedup', fields: { first: 'first', last: 'last' }, target: 'someField' };
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Dedup(badConfig1)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Dedup(badConfig2)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Dedup(badConfig3)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Dedup(badConfig4)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Dedup(badConfig5)).toThrow();
     });
 

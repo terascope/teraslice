@@ -7,7 +7,7 @@ describe('ClusterMaster', () => {
         describe('when constructed without a clusterMasterUrl', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    // @ts-ignore
+                    // @ts-expect-error
                     new ClusterMaster.Client({});
                 }).toThrowError('ClusterMaster.Client requires a valid clusterMasterUrl');
             });
@@ -16,7 +16,7 @@ describe('ClusterMaster', () => {
         describe('when constructed without a exId', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    // @ts-ignore
+                    // @ts-expect-error
                     new ClusterMaster.Client({
                         clusterMasterUrl: 'example.com',
                     });
@@ -27,7 +27,7 @@ describe('ClusterMaster', () => {
         describe('when constructed without a nodeDisconnectTimeout', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    // @ts-ignore
+                    // @ts-expect-error
                     new ClusterMaster.Client({
                         clusterMasterUrl: 'example.com',
                         exId: 'test',
@@ -63,7 +63,7 @@ describe('ClusterMaster', () => {
         describe('when constructed without a valid nodeDisconnectTimeout', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    // @ts-ignore
+                    // @ts-expect-error
                     new ClusterMaster.Server({
                         actionTimeout: 1,
                         networkLatencyBuffer: 0,

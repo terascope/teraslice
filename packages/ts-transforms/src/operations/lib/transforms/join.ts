@@ -21,8 +21,7 @@ export default class Join extends TransformOpBase {
     }
 
     // source work differently here so we do not use the inherited validate
-    // @ts-ignore
-    protected validateConfig(config: PostProcessConfig) {
+    protected validateConfig(config: PostProcessConfig): void {
         const { target: tField } = config;
         const fields = config.fields || config.sources;
         if (!tField || typeof tField !== 'string' || tField.length === 0) {

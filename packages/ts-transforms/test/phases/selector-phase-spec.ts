@@ -77,9 +77,9 @@ describe('selector phase', () => {
         // this is to check that a match-all has not been added
         // by the other_match_required or refs (ie the second and third config in file)
         expect(selectorPhase.selectionPhase).toBeArrayOfSize(2);
-        // @ts-ignore
+        // @ts-expect-error
         expect(selectorPhase.selectionPhase[0].selector).toEqual('host:fc2.com');
-        // @ts-ignore
+        // @ts-expect-error
         expect(selectorPhase.selectionPhase[1].selector).toEqual('*');
     });
 });

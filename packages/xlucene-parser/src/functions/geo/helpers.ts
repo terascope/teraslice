@@ -1,15 +1,15 @@
 import bbox from '@turf/bbox';
 import bboxPolygon from '@turf/bbox-polygon';
-// @ts-ignore
+// @ts-expect-error
 import equal from '@turf/boolean-equal';
-// @ts-ignore
+// @ts-expect-error
 import createCircle from '@turf/circle';
 import pointInPolygon from '@turf/boolean-point-in-polygon';
-// @ts-ignore
+// @ts-expect-error
 import within from '@turf/boolean-within';
 import contains from '@turf/boolean-contains';
 import disjoint from '@turf/boolean-disjoint';
-// @ts-ignore
+// @ts-expect-error
 import intersect from '@turf/boolean-overlap';
 import {
     lineString,
@@ -17,7 +17,7 @@ import {
     polygon as tPolygon,
     point as tPoint
 } from '@turf/helpers';
-// @ts-ignore
+// @ts-expect-error
 import lineToPolygon from '@turf/line-to-polygon';
 import { getCoords } from '@turf/invariant';
 import {

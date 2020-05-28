@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { has } from '@terascope/utils';
-// @ts-ignore
+// @ts-expect-error
 import yaml from 'node-yaml';
 import displayModule from '../cmds/lib/display';
 

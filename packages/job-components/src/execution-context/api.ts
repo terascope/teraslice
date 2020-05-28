@@ -41,7 +41,7 @@ export class ExecutionContextAPI {
     }
 
     /** For backwards compatibility */
-    get registry() {
+    get registry(): Record<string, any> {
         return {};
     }
 
@@ -49,7 +49,7 @@ export class ExecutionContextAPI {
         return this._apis;
     }
 
-    registerMetadataFns(fns: MetadataFns) {
+    registerMetadataFns(fns: MetadataFns): void {
         if (_metadataFns.has(this._context)) {
             throw new Error('Metadata functions can only be registered once');
         }
@@ -58,7 +58,7 @@ export class ExecutionContextAPI {
     }
 
     /** Add an API constructor to the registry */
-    addToRegistry(name: string, API: APIConstructor) {
+    addToRegistry(name: string, API: APIConstructor): void {
         if (this._apis[name] != null) {
             throw new Error(`Cannot register API "${name}" due to conflict`);
         }
@@ -151,7 +151,7 @@ export class ExecutionContextAPI {
     /**
      * Make a logger with a the job_id and ex_id in the logger context
      */
-    makeLogger(moduleName: string, extra: AnyObject = {}) {
+    makeLogger(moduleName: string, extra: AnyObject = {}): Logger {
         return makeExContextLogger(this._context, this._executionConfig, moduleName, extra);
     }
 
@@ -159,7 +159,7 @@ export class ExecutionContextAPI {
      * Update metadata on the execution context
      * Only update the metadata after the execution has been initialized
     */
-    async setMetadata(key: string, value: any): Promise<void> {
+    async setMetadata(key: string, value: unknown): Promise<void> {
         if (!key || !isString(key)) {
             throw new Error('Unable to set execution metadata, missing key');
         }

@@ -1,20 +1,19 @@
 import { MACAddress } from '@terascope/types';
 
 /** A simplified implemation of lodash isString */
-export function isString(val: any): val is string {
+export function isString(val: unknown): val is string {
     return typeof val === 'string';
 }
 
 /** Safely convert any input to a string */
-export function toString(val: any): string {
+export function toString(val: unknown): string {
     if (val == null) return '';
     const type = typeof val;
-    if (type === 'string') return val;
-    if (type === 'bigint' || type === 'number' || type === 'symbol' || type === 'boolean') {
+    if (type === 'string' || type === 'bigint' || type === 'number' || type === 'symbol' || type === 'boolean') {
         return String(val);
     }
-    if (val.message && val.stack) {
-        return val.toString();
+    if ((val as any).message && (val as any).stack) {
+        return (val as any).toString();
     }
 
     return JSON.stringify(val);
@@ -78,12 +77,12 @@ export function unescapeString(str = ''): string {
 }
 
 /** safely trim an input */
-export function trim(input: any): string {
+export function trim(input: unknown): string {
     return toString(input).trim();
 }
 
 /** A native implemation of lodash startsWith */
-export function startsWith(str: string, val: string) {
+export function startsWith(str: string, val: string): boolean {
     if (!isString(val)) return false;
     return str.startsWith(val);
 }

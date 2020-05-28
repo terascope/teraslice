@@ -5,7 +5,7 @@ describe('ex errors', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
             const yargsCmd = yargs.command(
-                // @ts-ignore
+                // @ts-expect-error
                 errors.command,
                 errors.describe,
                 errors.builder,
@@ -19,7 +19,7 @@ describe('ex errors', () => {
         });
         it('should parse properly with args', () => {
             const yargsCmd = yargs.command(
-                // @ts-ignore
+                // @ts-expect-error
                 errors.command,
                 errors.describe,
                 errors.builder,

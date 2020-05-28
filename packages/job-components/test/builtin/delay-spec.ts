@@ -35,7 +35,7 @@ describe('Delay Processor', () => {
     });
 
     it('should be use a custom delay', async () => {
-        // @ts-ignore
+        // @ts-expect-error
         delay.opConfig.ms = 150;
 
         const startTime = Date.now();

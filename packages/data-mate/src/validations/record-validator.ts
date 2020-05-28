@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import * as ts from '@terascope/utils';
 import { xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import { isArray } from './field-validator';

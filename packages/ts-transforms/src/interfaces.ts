@@ -2,8 +2,6 @@ import { xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import { DataEntity } from '@terascope/utils';
 import { Extraction } from '../src/operations';
 
-export enum NotifyType { matcher = 'matcher', transform = 'transform' }
-
 export type OperationConfigInput = Partial<OperationConfig> & {
     tag?: string;
 };
@@ -125,9 +123,6 @@ export interface WatcherConfig {
 export interface PhaseConfig extends WatcherConfig {
     type: string;
 }
-
-export type injectFn = (config: OperationConfig, list: OperationConfig[]) => void;
-export type filterFn = (config: OperationConfig) => boolean;
 
 export interface BoolValidationResult {
     isValid: boolean;

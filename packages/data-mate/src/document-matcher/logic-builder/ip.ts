@@ -1,5 +1,5 @@
 import isCidr from 'is-cidr';
-// @ts-ignore TODO we should add types
+// @ts-expect-error TODO we should add types
 import ip6addr from 'ip6addr';
 import { isIPv6, isIP } from 'net';
 import {

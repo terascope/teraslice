@@ -7,8 +7,8 @@ import { OperationsManager } from '../operations';
 type Filter = (key: string) => boolean;
 
 export default class OutputPhase extends PhaseBase {
-    private restrictOutput: object;
-    private matchRequirements: object;
+    private restrictOutput: Record<string, any>;
+    private matchRequirements: Record<string, any>;
     private hasRestrictedOutput: boolean;
     private hasRequirements: boolean;
 
@@ -24,7 +24,7 @@ export default class OutputPhase extends PhaseBase {
         this.hasRestrictedOutput = Object.keys(this.restrictOutput).length > 0;
     }
 
-    requiredExtractions(data: DataEntity[]) {
+    requiredExtractions(data: DataEntity[]): DataEntity[] {
         const finalResults: DataEntity[] = [];
         const isKeyMatchRequired = isKeyMatchRequiredFn(this.matchRequirements);
 

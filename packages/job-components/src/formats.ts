@@ -1,5 +1,4 @@
 import { addFormat, Format } from 'convict';
-// @ts-ignore
 import dateMath from 'datemath-parser';
 import {
     startsWith,
