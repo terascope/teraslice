@@ -1,4 +1,3 @@
-// @ts-expect-error
 import porty from 'porty';
 import { random } from '@terascope/utils';
 

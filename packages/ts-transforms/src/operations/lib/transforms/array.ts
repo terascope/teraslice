@@ -12,8 +12,7 @@ export default class MakeArray extends TransformOpBase {
     }
 
     // source work differently here so we do not use the inherited validate
-    // @ts-expect-error
-    protected validateConfig(config: PostProcessConfig) {
+    protected validateConfig(config: PostProcessConfig): void {
         const { target: tField } = config;
         const fields = config.fields || config.sources;
         if (!tField || typeof tField !== 'string' || tField.length === 0) {

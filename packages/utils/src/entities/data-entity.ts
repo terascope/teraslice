@@ -17,7 +17,7 @@ import { locked } from '../decorators';
  */
 export class DataEntity<
     T = Record<string, any>,
-    M = Record<string, unknown>
+    M = Record<string, any>
 > {
     /**
      * A utility for safely converting an object a `DataEntity`.
@@ -26,17 +26,17 @@ export class DataEntity<
      * either use `new DataEntity` or shallow clone the input before
      * passing it to `DataEntity.make`.
      */
-    static make<T extends DataEntity<any, any>, M = Record<string, unknown>>(
+    static make<T extends DataEntity<any, any>, M = Record<string, any>>(
         input: T,
         metadata?: M
     ): T;
-    static make<T = Record<string, any>, M = Record<string, unknown>>(
+    static make<T = Record<string, any>, M = Record<string, any>>(
         input: Record<string, any>,
         metadata?: M
     ): DataEntity<T, M>;
     static make<
         T extends Record<string, any>|DataEntity<any, any> = Record<string, any>,
-        M extends i._DataEntityMetadataType = Record<string, unknown>
+        M extends i._DataEntityMetadataType = Record<string, any>
     >(input: T, metadata?: M): T|DataEntity<T, M> {
         if (DataEntity.isDataEntity(input)) {
             if (metadata) {
@@ -54,7 +54,7 @@ export class DataEntity<
      * or an array of objects, to an array of DataEntities.
      * This will detect if passed an already converted input and return it.
      */
-    static makeArray<T = Record<string, any>, M = Record<string, unknown>>(
+    static makeArray<T = Record<string, any>, M = Record<string, any>>(
         input: DataArrayInput
     ): DataEntity<T, M>[] {
         if (!Array.isArray(input)) {
@@ -99,7 +99,7 @@ export class DataEntity<
      * defaults to "json"
      * @param metadata Optionally add any metadata
      */
-    static fromBuffer<T = Record<string, any>, M = Record<string, unknown>>(
+    static fromBuffer<T = Record<string, any>, M = Record<string, any>>(
         input: Buffer|string,
         opConfig: i.EncodingConfig = {},
         metadata?: M
@@ -121,7 +121,7 @@ export class DataEntity<
     /**
      * Verify that an input is the `DataEntity`
      */
-    static isDataEntity<T = Record<string, any>, M = Record<string, unknown>>(
+    static isDataEntity<T = Record<string, any>, M = Record<string, any>>(
         input: unknown
     ): input is DataEntity<T, M> {
         return utils.isDataEntity(input);
@@ -130,7 +130,7 @@ export class DataEntity<
     /**
      * Verify that an input is an Array of DataEntities,
      */
-    static isDataEntityArray<T = Record<string, any>, M = Record<string, unknown>>(
+    static isDataEntityArray<T = Record<string, any>, M = Record<string, any>>(
         input: unknown
     ): input is DataEntity<T, M>[] {
         if (input == null) return false;

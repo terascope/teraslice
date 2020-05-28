@@ -8,14 +8,14 @@ function sanitize(str: string) {
     return str.replace(/[?$#@_-]/g, ' ');
 }
 
-export function kebabCase(str: string) {
+export function kebabCase(str: string): string {
     return sanitize(str)
         .replace(/([a-z])([A-Z])/g, '$1-$2')
         .replace(/\s+/g, '-')
         .toLowerCase();
 }
 
-export function snakeCase(str: string) {
+export function snakeCase(str: string): string {
     if (!str) return '';
 
     return sanitize(str)
@@ -25,12 +25,12 @@ export function snakeCase(str: string) {
         .toLowerCase();
 }
 
-export function camelCase(str: string) {
+export function camelCase(str: string): string {
     return sanitize(str)
         .replace(/\W+(.)/g, (match, chr) => chr.toUpperCase());
 }
 
-export function getPackage(filePath?: string) {
+export function getPackage(filePath?: string): any {
     let dataPath = filePath || path.join(__dirname, '../..', 'package.json');
     if (!fs.existsSync(dataPath)) {
         dataPath = path.join(__dirname, '../../../', 'package.json');
@@ -40,12 +40,13 @@ export function getPackage(filePath?: string) {
 }
 
 // TODO: figure out types
-export function getTerasliceClient(cliConfig: any): TerasliceClient {
+export function getTerasliceClient(cliConfig: Record<string, any>): TerasliceClient {
     return new TerasliceClient({ host: cliConfig.clusterUrl });
 }
 
-// @ts-expect-error
-export async function getTerasliceClusterType(terasliceClient) {
+export async function getTerasliceClusterType(
+    terasliceClient: TerasliceClient
+): Promise<string> {
     let clusterInfo = {};
     let clusteringType = 'native';
     try {
@@ -64,12 +65,9 @@ export async function getTerasliceClusterType(terasliceClient) {
     return clusteringType;
 }
 
-// @ts-expect-error
-export function handleWrapper(fn) {
-    // @ts-expect-error
-    return (argv) => {
+export function handleWrapper(fn: (argv: any) => any) {
+    return (argv: unknown): void => {
         try {
-            // @ts-expect-error TODO: this does not work
             fn(argv);
         } catch (err) {
             const { statusCode } = parseErrorInfo(err);

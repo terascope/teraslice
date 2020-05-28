@@ -91,10 +91,10 @@ export function mapKeys<T, R = T>(input: T, fn: (value: T[keyof T], key: (keyof 
 }
 
 /** Build a new object without null or undefined values (shallow) */
-export function withoutNil<T extends Record<string, unknown>>(input: T): WithoutNil<T> {
+export function withoutNil<T extends any>(input: T): WithoutNil<T> {
     const result: Partial<WithoutNil<T>> = {};
 
-    for (const _key of Object.keys(input).sort()) {
+    for (const _key of Object.keys(input as Record<string, any>).sort()) {
         const key = _key as keyof T;
         if (input[key] != null) {
             result[key] = input[key] as any;
@@ -145,25 +145,25 @@ export function getField<V>(
     field: string,
     defaultVal?: V
 ): V;
-export function getField<T extends Record<string, unknown>, P extends keyof T>(
+export function getField<T extends any, P extends keyof T>(
     input: T,
     field: P
 ): T[P];
-export function getField<T extends Record<string, unknown>, P extends keyof T>(
+export function getField<T extends any, P extends keyof T>(
     input: T | undefined,
     field: P
 ): T[P];
-export function getField<T extends Record<string, unknown>, P extends keyof T>(
+export function getField<T extends any, P extends keyof T>(
     input: T | undefined,
     field: P,
     defaultVal: never[]
 ): T[P];
-export function getField<T extends Record<string, unknown>, P extends keyof T, V>(
+export function getField<T extends any, P extends keyof T, V>(
     input: T | undefined,
     field: P,
     defaultVal: V
 ): T[P] | V;
-export function getField<T extends Record<string, unknown>, P extends keyof T, V extends T[P]>(
+export function getField<T extends any, P extends keyof T, V extends T[P]>(
     input: T | undefined,
     field: P, defaultVal: V
 ): T[P];
