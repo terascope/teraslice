@@ -93,10 +93,7 @@ export default class Client {
     }
 
     protected parse(results: any): any {
-        if (typeof results === 'string') {
-            return tryParseJSON(results);
-        }
-        return results;
+        return tryParseJSON(results);
     }
 
     // TODO: make better types for this

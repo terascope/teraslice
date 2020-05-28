@@ -2,11 +2,8 @@ import { toString } from './strings';
 import { getTypeOf } from './deps';
 
 export function tryParseJSON<T = any>(input: unknown): T {
-    if (typeof input !== 'string' || !Buffer.isBuffer(input)) {
-        return input as T;
-    }
     try {
-        return JSON.parse(input);
+        return JSON.parse(input as string);
     } catch (err) {
         return input as any;
     }

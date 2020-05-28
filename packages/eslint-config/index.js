@@ -1,9 +1,5 @@
 'use strict';
 
-// requiring the eslint patch will cause the tests to fail
-if (process.env.NODE_ENV !== 'test') {
-    require('./lib/patch-eslint6');
-}
 const { rules, overrides } = require('./lib');
 
 module.exports = {
