@@ -20,15 +20,15 @@ describe('MakeArray operator', () => {
         const badConfig3 = { post_process: 'array', fields: ['first', 'last'] };
         const badConfig4 = { post_process: 'array', fields: 1234, target: 'someField' };
         const badConfig5 = { post_process: 'array', fields: { first: 'first', last: 'last' }, target: 'someField' };
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new MakeArray(badConfig1)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new MakeArray(badConfig2)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new MakeArray(badConfig3)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new MakeArray(badConfig4)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new MakeArray(badConfig5)).toThrow();
     });
 

@@ -143,7 +143,7 @@ describe('Reader Shim', () => {
 
         expect(result).toBeInstanceOf(Buffer);
 
-        // @ts-ignore
+        // @ts-expect-error
         const decoded = result.toString('utf-8');
         expect(decoded).toEqual(JSON.stringify({ say: 'howdy' }));
     });

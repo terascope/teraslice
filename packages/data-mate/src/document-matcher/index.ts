@@ -15,7 +15,7 @@ export default class DocumentMatcher {
         this.filterFn = logicBuilder(parser, options.type_config);
     }
 
-    public match(doc: object): boolean {
+    public match(doc: Record<string, any>): boolean {
         return this.filterFn(doc);
     }
 }

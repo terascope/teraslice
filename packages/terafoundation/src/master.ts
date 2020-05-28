@@ -2,7 +2,11 @@ import { cpus } from 'os';
 import { times, once } from '@terascope/utils';
 import * as i from './interfaces';
 
-export default function masterModule<S = {}, A = {}, D extends string = string>(
+export default function masterModule<
+    S = Record<string, any>,
+    A = Record<string, any>,
+    D extends string = string
+>(
     context: i.FoundationContext<S, A, D>,
     config: i.FoundationConfig<S, A, D>
 ): void {

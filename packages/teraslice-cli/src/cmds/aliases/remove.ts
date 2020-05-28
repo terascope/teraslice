@@ -15,7 +15,7 @@ export = {
         yargs.options('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.options('output', yargsOptions.buildOption('output'));
         yargs.options('list', yargsOptions.buildOption('list'));
-        // @ts-ignore
+        // @ts-expect-error
         yargs.example('$0 aliases remove cluster1');
         return yargs;
     },

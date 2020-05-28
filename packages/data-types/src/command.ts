@@ -82,7 +82,7 @@ yargs
     .wrap(yargs.terminalWidth()).argv;
 
 interface ESData {
-    _source: object;
+    _source: Record<string, any>;
 }
 
 type CommandHandler = (data: DataType, argv: yargs.Arguments<any>) => any;

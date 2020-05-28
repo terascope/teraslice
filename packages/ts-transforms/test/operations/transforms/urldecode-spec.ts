@@ -18,21 +18,21 @@ describe('urldecode operator', () => {
         const badConfig6 = { source: {} };
         const badConfig7 = { source: null };
         const badConfig8 = { source: '', target: '' };
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new UrlDecode(badConfig1)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new UrlDecode(badConfig2)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new UrlDecode(badConfig3)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new UrlDecode(badConfig4)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new UrlDecode(badConfig5)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new UrlDecode(badConfig6)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new UrlDecode(badConfig7)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new UrlDecode(badConfig8)).toThrow();
     });
 

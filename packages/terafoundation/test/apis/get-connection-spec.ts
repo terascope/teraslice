@@ -13,16 +13,16 @@ jest.mock('redis', () => ({
 jest.mock('node-statsd');
 
 import elasticsearch from 'elasticsearch';
-// @ts-ignore
+// @ts-expect-error
 import hdfs from 'node-webhdfs';
 import mongodb from 'mongoose';
 import redis from 'redis';
 // const aws = require('aws-sdk');
-// @ts-ignore
+// @ts-expect-error
 import statsd from 'node-statsd';
 
 const esClient = { es: true };
-// @ts-ignore
+// @ts-expect-error
 elasticsearch.Client.mockImplementation(() => Object.assign({}, esClient));
 
 const hdfsClient = { hdfs: true };
@@ -31,7 +31,7 @@ hdfs.WebHDFSClient.mockImplementation(() => Object.assign({}, hdfsClient));
 mongodb.connect = jest.fn();
 
 const redisClient = { redis: true };
-// @ts-ignore
+// @ts-expect-error
 redis.createClient.mockImplementation(() => Object.assign({}, redisClient));
 
 // const awsClient = { aws: true };

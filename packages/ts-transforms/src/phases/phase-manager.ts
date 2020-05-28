@@ -11,21 +11,18 @@ import PhaseBase from './base';
 export default class PhaseManager {
     private opConfig: PhaseConfig;
     private loader: Loader;
-    // @ts-ignore
-    private logger: Logger;
     public sequence: PhaseBase[];
     readonly isMatcher: boolean;
 
     constructor(opConfig: PhaseConfig, logger: Logger = debugLogger('ts-transforms')) {
         this.opConfig = opConfig;
         this.loader = new Loader(opConfig, logger);
-        this.logger = logger;
         this.sequence = [];
         this.isMatcher = opConfig.type === 'matcher';
     }
 
-    public async init(Plugins?: PluginList) {
-        const opsManager = new OperationsManager(Plugins);
+    async init(plugins?: PluginList): Promise<void> {
+        const opsManager = new OperationsManager(plugins);
         const {
             selectors,
             extractions,
@@ -55,7 +52,7 @@ export default class PhaseManager {
         this.sequence = sequence;
     }
 
-    public run(input: object[]): DataEntity[] {
+    public run(input: Record<string, any>[]): DataEntity[] {
         const data = DataEntity.makeArray(input);
 
         return this.sequence.reduce<DataEntity[]>(

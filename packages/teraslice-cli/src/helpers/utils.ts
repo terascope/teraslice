@@ -44,14 +44,14 @@ export function getTerasliceClient(cliConfig: any): TerasliceClient {
     return new TerasliceClient({ host: cliConfig.clusterUrl });
 }
 
-// @ts-ignore
+// @ts-expect-error
 export async function getTerasliceClusterType(terasliceClient) {
     let clusterInfo = {};
     let clusteringType = 'native';
     try {
         clusterInfo = await terasliceClient.cluster.info();
         if (has(clusterInfo, 'clustering_type')) {
-            // @ts-ignore
+            // @ts-expect-error
             clusteringType = clusterInfo.clustering_type;
         } else {
             clusteringType = 'native';
@@ -64,12 +64,12 @@ export async function getTerasliceClusterType(terasliceClient) {
     return clusteringType;
 }
 
-// @ts-ignore
+// @ts-expect-error
 export function handleWrapper(fn) {
-    // @ts-ignore
+    // @ts-expect-error
     return (argv) => {
         try {
-            // @ts-ignore TODO: this does not work
+            // @ts-expect-error TODO: this does not work
             fn(argv);
         } catch (err) {
             const { statusCode } = parseErrorInfo(err);

@@ -80,7 +80,7 @@ export class Compose {
                 debug('close with code', code);
                 if (code !== 0) {
                     const error = new Error(`Command exited: ${code}\n${stderr}`);
-                    // @ts-ignore
+                    // @ts-expect-error
                     error.stdout = stdout;
                     reject(error);
                 } else {

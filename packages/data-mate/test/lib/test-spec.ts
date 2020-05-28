@@ -90,6 +90,7 @@ describe('Utils', () => {
             const { query, variables } = toXluceneQuery(input);
 
             expect(query).toEqual('hello: $hello_1 AND goodBye: $goodBye_1');
+            // eslint-disable-next-line @typescript-eslint/naming-convention
             expect(variables).toEqual({ hello_1: 'world', goodBye_1: 'Dave' });
         });
 
@@ -99,6 +100,7 @@ describe('Utils', () => {
             const { query, variables } = toXluceneQuery(input, options);
 
             expect(query).toEqual('hello: $hello_1 OR goodBye: $goodBye_1 OR myName: $myName_1');
+            // eslint-disable-next-line @typescript-eslint/naming-convention
             expect(variables).toEqual({ hello_1: 'world', goodBye_1: 'Dave', myName_1: 'isSteve' });
         });
 
@@ -107,6 +109,7 @@ describe('Utils', () => {
             const { query, variables } = toXluceneQuery(input);
 
             expect(query).toEqual('hello: $hello_1 AND goodBye: $goodBye_1');
+            // eslint-disable-next-line @typescript-eslint/naming-convention
             expect(variables).toEqual({ hello_1: 'wor " ld', goodBye_1: '"Dave"' });
         });
 

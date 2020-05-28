@@ -1,5 +1,5 @@
 import {
-    DataEntity, matchAll, get, set, AnyObject, TSError
+    DataEntity, matchAll, get, set, TSError
 } from '@terascope/utils';
 import jexl from 'jexl';
 import { ExtractionConfig, InputOutputCardinality } from '../../../interfaces';
@@ -62,7 +62,7 @@ function matchRegex(config: ExtractionConfig) {
     };
 }
 
-function callExpression(exp: string, origin: DataEntity<AnyObject, {}>) {
+function callExpression(exp: string, origin: DataEntity) {
     try {
         return jexl.evalSync(exp, origin);
     } catch (err) {
@@ -158,7 +158,7 @@ export default class Extraction {
         return null;
     }
 
-    extractionPhaseRun(doc: DataEntity, results: { entity: DataEntity; metadata: any }) {
+    extractionPhaseRun(doc: DataEntity, results: { entity: DataEntity; metadata: any }): void {
         for (const config of this.configs) {
             const data = getData(config, doc);
             extractAndTransferFields(data, results.entity, config, doc);

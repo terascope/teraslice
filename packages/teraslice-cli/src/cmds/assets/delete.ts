@@ -15,7 +15,7 @@ export = {
         yargs.positional('cluster-alias', yargsOptions.buildPositional('cluster-alias'));
         yargs.positional('asset-id', yargsOptions.buildPositional('asset-id'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-        // @ts-ignore
+        // @ts-expect-error
         yargs.example('$0 assets delete ts-test1 ec2d5465609571590fdfe5b371ed7f98a04db5cb');
         return yargs;
     },
@@ -27,7 +27,7 @@ export = {
             const resp = await terasliceClient.assets.remove(cliConfig.args.assetId);
 
             if (has(resp, 'error')) {
-                // @ts-ignore
+                // @ts-expect-error
                 reply.yellow(`WARNING: Error (${resp.error}): ${resp.message}`);
             } else {
                 reply.green(`Asset ${cliConfig.args.assetId} deleted from ${cliConfig.args.clusterAlias}`);

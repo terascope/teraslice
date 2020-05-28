@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs-extra';
 import assert from 'yeoman-assert';
-// @ts-ignore
+// @ts-expect-error
 import helpers from 'yeoman-test';
 
 jest.setTimeout(10000);
@@ -31,13 +31,13 @@ describe('processor generator with no new flag', () => {
 
     it('should create a batch processor exporting ExampleProcessor class', () => {
         assert.fileContent([
-            // @ts-ignore
+            // @ts-expect-error
             [path.join(processPath, 'example', 'processor.js'), 'class Example extends BatchProcessor'],
-            // @ts-ignore
+            // @ts-expect-error
             [path.join(processPath, 'example', 'processor.js'), 'module.exports = Example;'],
-            // @ts-ignore
+            // @ts-expect-error
             [path.join(processPath, 'example', 'processor.js'), 'onBatch(dataArray)'],
-            // @ts-ignore
+            // @ts-expect-error
             [path.join(processPath, 'example', 'processor.js'), 'dataArray.forEach((doc) => {']
         ]);
     });
@@ -45,11 +45,11 @@ describe('processor generator with no new flag', () => {
     it('should create an associated test', () => {
         assert.file(path.join(testPath, 'example-spec.js'));
         assert.fileContent([
-            // @ts-ignore
+            // @ts-expect-error
             [path.join(testPath, 'example-spec.js'), 'const Processor = require(\'../asset/example/processor.js\')'],
-            // @ts-ignore
+            // @ts-expect-error
             [path.join(testPath, 'example-spec.js'), '_op: \'example\''],
-            // @ts-ignore
+            // @ts-expect-error
             [path.join(testPath, 'example-spec.js'), 'add type to all the docs']
         ]);
     });

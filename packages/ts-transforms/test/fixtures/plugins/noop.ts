@@ -5,7 +5,7 @@ export default class NoOp {
     static cardinality: InputOutputCardinality = 'one-to-one';
 
     constructor(operationConfig: OperationConfig) {
-        // @ts-ignore
+        // @ts-expect-error
         this.operationConfig = operationConfig;
     }
 

@@ -138,7 +138,7 @@ describe('Teraslice Assets', () => {
             it('should throw', async () => {
                 expect.hasAssertions();
                 try {
-                    // @ts-ignore
+                    // @ts-expect-error
                     await assets.getAsset();
                 } catch (err) {
                     expect(err.message).toEqual('name is required, and must be of type string');
@@ -150,7 +150,7 @@ describe('Teraslice Assets', () => {
             it('should throw', async () => {
                 expect.hasAssertions();
                 try {
-                    // @ts-ignore
+                    // @ts-expect-error
                     await assets.getAsset(1234);
                 } catch (err) {
                     expect(err.message).toEqual('name is required, and must be of type string');
@@ -191,7 +191,7 @@ describe('Teraslice Assets', () => {
             it('should throw', async () => {
                 expect.hasAssertions();
                 try {
-                    // @ts-ignore
+                    // @ts-expect-error
                     await assets.getAsset('someName', { some: 'thing' });
                 } catch (err) {
                     expect(err.message).toEqual('version if provided must be of type string');
@@ -240,7 +240,7 @@ describe('Teraslice Assets', () => {
             it('should throw', async () => {
                 expect.hasAssertions();
                 try {
-                    // @ts-ignore
+                    // @ts-expect-error
                     await assets.txt(1234);
                 } catch (err) {
                     expect(err.message).toEqual('name must be of type string');
@@ -281,7 +281,7 @@ describe('Teraslice Assets', () => {
             it('should throw', async () => {
                 expect.hasAssertions();
                 try {
-                    // @ts-ignore
+                    // @ts-expect-error
                     await assets.txt('someName', { some: 'thing' });
                 } catch (err) {
                     expect(err.message).toEqual('version must be of type string');

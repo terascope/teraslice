@@ -56,7 +56,7 @@ describe('Teraslice Jobs', () => {
 
         describe('when given a nothing', () => {
             it('should throw an error', () => {
-                // @ts-ignore
+                // @ts-expect-error
                 expect(() => jobs.wrap()).toThrowError('Job requires jobId');
             });
         });
@@ -67,7 +67,7 @@ describe('Teraslice Jobs', () => {
             it('should fail', async () => {
                 expect.hasAssertions();
                 try {
-                    // @ts-ignore
+                    // @ts-expect-error
                     await jobs.submit();
                 } catch (err) {
                     expect(err.message).toEqual('submit requires a jobSpec');
@@ -156,7 +156,7 @@ describe('Teraslice Jobs', () => {
             it('should have a message of No job was posted', async () => {
                 expect.hasAssertions();
                 try {
-                    // @ts-ignore
+                    // @ts-expect-error
                     await jobs.submit(jobSpec);
                 } catch (err) {
                     expect(err.message).toEqual('No job was posted');

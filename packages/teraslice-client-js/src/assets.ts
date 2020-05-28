@@ -16,7 +16,6 @@ import {
 export default class Assets extends Client {
     constructor(config: ClientConfig) {
         super(config);
-        // @ts-ignore
         autoBind(this);
     }
 

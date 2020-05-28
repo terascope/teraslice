@@ -7,6 +7,12 @@ export interface ParserOptions {
     variables?: t.xLuceneVariables;
 }
 
+export interface ContextArg {
+    typeConfig?: t.xLuceneTypeConfig;
+    logger: Logger;
+    variables?: t.xLuceneVariables;
+}
+
 export type AST = EmptyAST | LogicalGroup | Term
 | Conjunction | Negation | FieldGroup
 | Exists | Range | GeoDistance

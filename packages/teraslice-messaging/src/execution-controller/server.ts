@@ -30,7 +30,7 @@ export class Server extends core.Server {
         this._activeWorkers = {};
     }
 
-    async start() {
+    async start(): Promise<void> {
         this.on('connection', (msg) => {
             this.onConnection(msg.scope, msg.payload as SocketIO.Socket);
         });
@@ -52,7 +52,7 @@ export class Server extends core.Server {
         await this.listen();
     }
 
-    async shutdown() {
+    async shutdown(): Promise<void> {
         this.queue.each((worker: i.Worker) => {
             this.queue.remove(worker.workerId, 'workerId');
         });
@@ -100,19 +100,19 @@ export class Server extends core.Server {
         return dispatched;
     }
 
-    onSliceSuccess(fn: (workerId: string, payload: i.SliceCompletePayload) => {}) {
+    onSliceSuccess(fn: (workerId: string, payload: i.SliceCompletePayload) => void): void {
         this.on('slice:success', (msg) => {
             fn(msg.scope, msg.payload);
         });
     }
 
-    onSliceFailure(fn: (workerId: string, payload: i.SliceCompletePayload) => {}) {
+    onSliceFailure(fn: (workerId: string, payload: i.SliceCompletePayload) => void): void {
         this.on('slice:failure', (msg) => {
             fn(msg.scope, msg.payload);
         });
     }
 
-    sendExecutionFinishedToAll(exId: string) {
+    sendExecutionFinishedToAll(exId: string): Promise<(core.Message|null)[]> {
         return this.sendToAll(
             'execution:finished',
             { exId },

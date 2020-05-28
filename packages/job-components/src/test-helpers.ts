@@ -25,7 +25,9 @@ export function newTestSlice(request: i.SliceRequest = {}): i.Slice {
     };
 }
 
-export function newTestJobConfig(defaults: Partial<i.JobConfig> = {}) {
+export function newTestJobConfig(
+    defaults: Partial<i.JobConfig> = {}
+): i.ValidatedJobConfig {
     return Object.assign(
         {
             name: 'test-job',
@@ -42,7 +44,7 @@ export function newTestJobConfig(defaults: Partial<i.JobConfig> = {}) {
             env_vars: {}
         },
         defaults
-    ) as i.ValidatedJobConfig;
+    );
 }
 
 export function newTestExecutionConfig(jobConfig: Partial<i.JobConfig> = {}): i.ExecutionConfig {
@@ -95,7 +97,7 @@ export interface CachedClients {
 export interface TestClientConfig {
     type: string;
     create: i.ClientFactoryFn;
-    config?: object;
+    config?: Record<string, any>;
     endpoint?: string;
 }
 

@@ -100,13 +100,11 @@ describe('field FieldTransforms', () => {
 
     describe('extract should', () => {
         it('return whats between start and end', () => {
-            // @ts-ignore
             const results = FieldTransform.extract('<hello>', {}, { start: '<', end: '>' });
             expect(results).toEqual('hello');
         });
 
         it('can run a jexl expression', () => {
-            // @ts-ignore
             const results = FieldTransform.extract('bar', { foo: 'bar' }, { jexlExp: '[foo]' });
             expect(results).toEqual(['bar']);
         });
@@ -117,19 +115,16 @@ describe('field FieldTransforms', () => {
         });
 
         it('run a regex to extract a value', () => {
-            // @ts-ignore
             const results = FieldTransform.extract('hello', {}, { regex: 'he.*' });
             expect(results).toEqual(['hello']);
         });
 
         it('can return a singular value', () => {
-            // @ts-ignore
             const results = FieldTransform.extract('hello', {}, { regex: 'he.*', isMultiValue: false });
             expect(results).toEqual('hello');
         });
 
         it('should not throw if it cannot extract anything', () => {
-            // @ts-ignore
             const results = FieldTransform.extract('boo', {}, { regex: 'he.*', isMultiValue: false });
             expect(results).toEqual(null);
         });

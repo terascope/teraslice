@@ -14,8 +14,8 @@ const cluster: i.Cluster = (_cluster as any);
  * A Cluster Context (with worker processes), useful for scaling
 */
 export class ClusterContext<
-    S = {},
-    A = {},
+    S = Record<string, any>,
+    A = Record<string, any>,
     D extends string = string
 > extends CoreContext<S, A, D> {
     constructor(config: i.FoundationConfig<S, A, D>) {

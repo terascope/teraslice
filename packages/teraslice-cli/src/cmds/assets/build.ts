@@ -15,10 +15,10 @@ export = {
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('quiet', yargsOptions.buildOption('quiet'));
         // build asset found in in cwd
-        // @ts-ignore
+        // @ts-expect-error
         yargs.example('$0 assets build');
         // build asset found in specified src-dir
-        // @ts-ignore
+        // @ts-expect-error
         yargs.example('$0 assets build --src-dir /path/to/myAsset/');
         return yargs;
     },

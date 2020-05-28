@@ -4,7 +4,7 @@ import {
 } from '../../src';
 
 describe('FilterProcessor', () => {
-    class ExampleProcessor extends FilterProcessor<object> {
+    class ExampleProcessor extends FilterProcessor<Record<string, any>> {
         filter(data: DataEntity): boolean {
             return data.keep;
         }

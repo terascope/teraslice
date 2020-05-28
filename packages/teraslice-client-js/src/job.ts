@@ -59,11 +59,10 @@ export default class Job extends Client {
         }
         this._jobId = jobId;
         this.slicer = _deprecateSlicerName(this.slicer);
-        // @ts-ignore
         autoBind(this);
     }
 
-    id() { return this._jobId; }
+    id(): string { return this._jobId; }
 
     async slicer(requestOptions: RequestOptions = {}): Promise<ControllerState> {
         return this.get(`/jobs/${this._jobId}/slicer`, requestOptions);
@@ -243,7 +242,7 @@ function filterProcesses<T>(state: ClusterState, jobId: string, type: Assignment
             const { assignment, job_id: procJobId } = child;
             if ((assignment && assignment === type) && (procJobId && procJobId === jobId)) {
                 const jobProcess = Object.assign({}, child, { node_id: node.node_id });
-                // @ts-ignore
+                // @ts-expect-error
                 results.push(jobProcess);
             }
         });

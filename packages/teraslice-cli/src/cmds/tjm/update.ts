@@ -17,7 +17,7 @@ const cmd: CMD = {
         yargs.option('start', yargsOptions.buildOption('start'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-        // @ts-ignore
+        // @ts-expect-error
         yargs.example('$0 tjm update jobFile.json');
         return yargs;
     },

@@ -5,7 +5,7 @@ describe('jobs resume', () => {
     describe('-> parse', () => {
         it('should parse properly with an id specifed', () => {
             const yargsCmd = yargs.command(
-                // @ts-ignore
+                // @ts-expect-error
                 resume.command,
                 resume.describe,
                 resume.builder,

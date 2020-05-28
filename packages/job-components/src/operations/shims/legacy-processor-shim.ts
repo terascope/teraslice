@@ -23,7 +23,7 @@ export default function legacyProcessorShim(
     let schema: ConvictSchema<any, any>|undefined;
 
     return {
-        // @ts-ignore
+        // @ts-expect-error
         Processor,
         Schema,
         schema: (context) => {
@@ -31,9 +31,9 @@ export default function legacyProcessorShim(
                 throw new Error('Backwards compatibility only works for "convict" schemas');
             }
 
-            // @ts-ignore
+            // @ts-expect-error
             schema = new Schema(context);
-            // @ts-ignore
+            // @ts-expect-error
             return schema.schema;
         },
         crossValidation: (job, sysconfig) => {
@@ -41,7 +41,7 @@ export default function legacyProcessorShim(
                 throw new Error('Backwards compatibility only works for "convict" schemas');
             }
 
-            // @ts-ignore
+            // @ts-expect-error
             const _schema = schema || new Schema({ sysconfig });
             if (isFunction(_schema.validateJob)) {
                 _schema.validateJob(job);

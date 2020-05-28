@@ -7,7 +7,7 @@ describe('ExecutionController', () => {
         describe('when constructed without a executionControllerUrl', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    // @ts-ignore
+                    // @ts-expect-error
                     new ExecutionController.Client({});
                 }).toThrowError('ExecutionController.Client requires a valid executionControllerUrl');
             });
@@ -16,7 +16,7 @@ describe('ExecutionController', () => {
         describe('when constructed without a workerId', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    // @ts-ignore
+                    // @ts-expect-error
                     new ExecutionController.Client({
                         executionControllerUrl: 'example.com',
                     });
@@ -27,7 +27,7 @@ describe('ExecutionController', () => {
         describe('when constructed without a workerDisconnectTimeout', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    // @ts-ignore
+                    // @ts-expect-error
                     new ExecutionController.Client({
                         executionControllerUrl: 'example.com',
                         workerId: 'test'
@@ -63,7 +63,7 @@ describe('ExecutionController', () => {
         describe('when constructed without a valid workerDisconnectTimeout', () => {
             it('should throw an error', () => {
                 expect(() => {
-                    // @ts-ignore
+                    // @ts-expect-error
                     new ExecutionController.Server({
                         actionTimeout: 1,
                         networkLatencyBuffer: 0,

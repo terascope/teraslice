@@ -18,7 +18,7 @@ describe('record validators', () => {
 
         it('will throw if fields are not provided or is empty', () => {
             const obj = { foo: true, bar: true };
-            // @ts-ignore defaults can act differently is something actualy put there
+            // @ts-expect-error defaults can act differently is something actualy put there
             expect(() => RecordValidator.required(obj)).toThrow();
             expect(() => RecordValidator.required(obj, obj, { } as any)).toThrow();
             expect(() => RecordValidator.required(obj, obj, { fields: [] })).toThrow();

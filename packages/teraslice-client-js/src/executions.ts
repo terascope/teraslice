@@ -23,7 +23,6 @@ type ListOptions = undefined | string | SearchQuery;
 export default class Executions extends Client {
     constructor(config: ClientConfig) {
         super(config);
-        // @ts-ignore
         autoBind(this);
     }
 

@@ -17,7 +17,7 @@ export = {
         yargs.positional('cluster-alias', yargsOptions.buildPositional('cluster-alias'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.option('output', yargsOptions.buildOption('output'));
-        // @ts-ignore
+        // @ts-expect-error
         yargs.example('$0 assets list ts-test1');
         return yargs;
     },

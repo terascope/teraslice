@@ -21,21 +21,20 @@ import { convertResult } from './shim-utils';
 
 export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule {
     return {
-        Slicer: class LegacySlicerShim<T = object> extends ParallelSlicer<T> {
+        Slicer: class LegacySlicerShim<T = Record<string, any>> extends ParallelSlicer<T> {
             private _maxQueueLength = 10000;
             private _dynamicQueueLength = false;
             private slicerFns: SlicerFns | undefined;
 
             /** legacy slicers should recoverable by default */
-            isRecoverable() {
+            isRecoverable(): boolean {
                 return true;
             }
 
-            async initialize(recoveryData: SlicerRecoveryData[]) {
-                // @ts-ignore
-                const executionContext: LegacyExecutionContext = {
+            async initialize(recoveryData: SlicerRecoveryData[]): Promise<void> {
+                const executionContext = {
                     config: this.executionConfig,
-                };
+                } as LegacyExecutionContext;
 
                 if (isFunction(legacy.slicerQueueLength)) {
                     const result = await legacy.slicerQueueLength(executionContext);
@@ -71,10 +70,10 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
                 return this._maxQueueLength;
             }
         },
-        Fetcher: class LegacyFetcherShim<T = object> extends FetcherCore<T> {
+        Fetcher: class LegacyFetcherShim<T = Record<string, any>> extends FetcherCore<T> {
             private fetcherFn: ReaderFn<DataEntity[]> | undefined;
 
-            async initialize() {
+            async initialize(): Promise<void> {
                 this.fetcherFn = await legacy.newReader(
                     this.context,
                     this.opConfig,
@@ -86,7 +85,6 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
                 if (this.fetcherFn) {
                     const result = await this.fetcherFn(sliceRequest, this.logger);
                     try {
-                        // @ts-ignore
                         return convertResult(result);
                     } catch (err) {
                         throw new Error(`${this.opConfig._op} failed to convert result: ${toString(err)}`);
@@ -97,11 +95,10 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
             }
         },
         Schema: class LegacySchemaShim extends ConvictSchema<S> {
-            // @ts-ignore
-            validate(inputConfig: any) {
+            validate(inputConfig: unknown): any {
                 const opConfig = super.validate(inputConfig);
                 if (legacy.selfValidation) {
-                    // @ts-ignore
+                    // @ts-expect-error
                     legacy.selfValidation(opConfig);
                 }
                 return opConfig;
@@ -113,7 +110,7 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
                 }
             }
 
-            build(context?: Context) {
+            build(context?: Context): any {
                 return legacy.schema(context);
             }
         },

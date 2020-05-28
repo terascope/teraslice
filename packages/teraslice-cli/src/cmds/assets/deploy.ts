@@ -130,7 +130,7 @@ export = {
                     const response = await terasliceClient.assets.remove(assetToReplace.id);
                     if (!cliConfig.args.quiet) {
                         // Support different teraslice api/client versions
-                        // @ts-ignore
+                        // @ts-expect-error
                         const assetId = response._id || response.assetId;
                         reply.green(
                             `Asset ${assetId} deleted from ${cliConfig.args.clusterAlias}`

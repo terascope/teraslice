@@ -112,9 +112,9 @@ export class OperationLoader {
         }
 
         return {
-            // @ts-ignore
+            // @ts-expect-error
             Processor,
-            // @ts-ignore
+            // @ts-expect-error
             Schema,
             API,
         };
@@ -157,11 +157,11 @@ export class OperationLoader {
         }
 
         return {
-            // @ts-ignore
+            // @ts-expect-error
             Slicer,
-            // @ts-ignore
+            // @ts-expect-error
             Fetcher,
-            // @ts-ignore
+            // @ts-expect-error
             Schema,
             API,
         };
@@ -204,9 +204,9 @@ export class OperationLoader {
         const type = API != null ? 'api' : 'observer';
 
         return {
-            // @ts-ignore
+            // @ts-expect-error
             API: API || Observer,
-            // @ts-ignore
+            // @ts-expect-error
             Schema,
             type,
         };
@@ -366,12 +366,12 @@ export class OperationLoader {
 
 function availableExtensions(): string[] {
     // populated by teraslice Jest configuration
-    // @ts-ignore
+    // @ts-expect-error
     return global.availableExtensions ? global.availableExtensions : ['.js'];
 }
 
 function ignoreDirectories() {
     // populated by teraslice Jest configuration
-    // @ts-ignore
+    // @ts-expect-error
     return global.ignoreDirectories || [];
 }

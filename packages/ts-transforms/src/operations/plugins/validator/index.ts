@@ -31,7 +31,7 @@ function setup(method: string) {
 }
 
 export class ValidatorPlugins implements PluginClassType {
-    // @ts-ignore
+    // @ts-expect-error
     init() {
         return {
             after: setup('isAfter'),

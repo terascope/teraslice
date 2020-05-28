@@ -18,7 +18,6 @@ import { isGeoShapePoint } from '../validations/field-validator';
 // TODO: move these
 export type JoinBy = 'AND'|'OR';
 
-// eslint-disable-next-line @typescript-eslint/class-name-casing
 export interface xLuceneQueryResult {
     query: string;
     variables: xLuceneVariables;

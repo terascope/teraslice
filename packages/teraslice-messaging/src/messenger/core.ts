@@ -126,7 +126,7 @@ export class Core extends EventEmitter {
         return (timeout || this.actionTimeout) + this.networkLatencyBuffer;
     }
 
-    // @ts-ignore
+    // @ts-expect-error
     emit(eventName: string, msg: i.EventMessage) {
         super.emit(`${eventName}`, msg);
         if (msg.scope) {

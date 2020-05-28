@@ -6,7 +6,7 @@ import { DataEntity } from './entities';
 /**
  * Similar to is-plain-object but works better when clone deeping a DataEntity
 */
-export function isSimpleObject(input: any): input is object {
+export function isSimpleObject(input: unknown): input is Record<string, unknown> {
     if (input == null) return false;
     if (Buffer.isBuffer(input)) return false;
     if (Array.isArray(input)) return false;
@@ -23,7 +23,8 @@ export function getFirstKey<T>(input: T): (keyof T) | undefined {
     return Object.keys(input)[0] as keyof T;
 }
 
-export function isObjectEntity(input: any) {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function isObjectEntity(input: unknown) {
     return DataEntity.isDataEntity(input) || isSimpleObject(input);
 }
 
@@ -35,29 +36,30 @@ export function fastCloneDeep<T>(input: T): T {
 }
 
 /** Perform a shallow clone of an object to another, in the fastest way possible */
-export function fastAssign<T, U>(target: T, source: U) {
+export function fastAssign<T, U>(target: T, source: U): T & U {
     if (!isPlainObject(source)) {
-        return target;
+        return target as T & U;
     }
 
     for (const [key, val] of Object.entries(source)) {
         target[key] = val;
     }
 
-    return target;
+    return target as T & U;
 }
 
 /** Sort keys on an object */
-export function sortKeys<T extends object>(
+export function sortKeys<T extends Record<string, unknown>>(
     input: T,
     options: { deep?: boolean } = {}
 ): T {
     const result: Partial<T> = {};
 
-    for (const key of Object.keys(input).sort()) {
+    for (const _key of Object.keys(input).sort()) {
+        const key = _key as keyof T;
         const val = input[key];
         if (options.deep && isPlainObject(val)) {
-            result[key] = sortKeys(val, options);
+            result[key] = sortKeys(val as Record<string, unknown>, options) as any;
         } else {
             result[key] = val;
         }
@@ -89,12 +91,13 @@ export function mapKeys<T, R = T>(input: T, fn: (value: T[keyof T], key: (keyof 
 }
 
 /** Build a new object without null or undefined values (shallow) */
-export function withoutNil<T extends object>(input: T): WithoutNil<T> {
+export function withoutNil<T extends Record<string, unknown>>(input: T): WithoutNil<T> {
     const result: Partial<WithoutNil<T>> = {};
 
-    for (const key of Object.keys(input).sort()) {
+    for (const _key of Object.keys(input).sort()) {
+        const key = _key as keyof T;
         if (input[key] != null) {
-            result[key] = input[key];
+            result[key] = input[key] as any;
         }
     }
 
@@ -142,25 +145,25 @@ export function getField<V>(
     field: string,
     defaultVal?: V
 ): V;
-export function getField<T extends {}, P extends keyof T>(
+export function getField<T extends Record<string, unknown>, P extends keyof T>(
     input: T,
     field: P
 ): T[P];
-export function getField<T extends {}, P extends keyof T>(
+export function getField<T extends Record<string, unknown>, P extends keyof T>(
     input: T | undefined,
     field: P
 ): T[P];
-export function getField<T extends {}, P extends keyof T>(
+export function getField<T extends Record<string, unknown>, P extends keyof T>(
     input: T | undefined,
     field: P,
     defaultVal: never[]
 ): T[P];
-export function getField<T extends {}, P extends keyof T, V>(
+export function getField<T extends Record<string, unknown>, P extends keyof T, V>(
     input: T | undefined,
     field: P,
     defaultVal: V
 ): T[P] | V;
-export function getField<T extends {}, P extends keyof T, V extends T[P]>(
+export function getField<T extends Record<string, unknown>, P extends keyof T, V extends T[P]>(
     input: T | undefined,
     field: P, defaultVal: V
 ): T[P];

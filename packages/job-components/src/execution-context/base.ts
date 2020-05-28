@@ -109,7 +109,7 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
         for (const operation of this.getOperations()) {
             const index = i++;
             if (set.has(index)) {
-                // @ts-ignore because I can't get the typedefinitions to work right
+                // @ts-expect-error because I can't get the typedefinitions to work right
                 promises.push(operation[method](...args));
             }
         }
@@ -125,7 +125,7 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
         let index = 0;
         for (const operation of this.getOperations()) {
             if (set.has(index)) {
-                // @ts-ignore because I can't get the typedefinitions to work right
+                // @ts-expect-error because I can't get the typedefinitions to work right
                 operation[method](...args);
             }
             index++;

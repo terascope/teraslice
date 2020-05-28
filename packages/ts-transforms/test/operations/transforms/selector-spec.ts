@@ -12,13 +12,13 @@ describe('selector operator', () => {
         const badConfig2 = { selector: [] };
         const badConfig3 = { selector: false };
         const badConfig4 = { selector: 1234 };
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Selector(badConfig1)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Selector(badConfig2)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Selector(badConfig3)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Selector(badConfig4)).toThrow();
     });
 

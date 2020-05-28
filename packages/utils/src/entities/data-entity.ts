@@ -17,7 +17,7 @@ import { locked } from '../decorators';
  */
 export class DataEntity<
     T = Record<string, any>,
-    M = {}
+    M = Record<string, unknown>
 > {
     /**
      * A utility for safely converting an object a `DataEntity`.
@@ -26,17 +26,17 @@ export class DataEntity<
      * either use `new DataEntity` or shallow clone the input before
      * passing it to `DataEntity.make`.
      */
-    static make<T extends DataEntity<any, any>, M = {}>(
+    static make<T extends DataEntity<any, any>, M = Record<string, unknown>>(
         input: T,
         metadata?: M
     ): T;
-    static make<T = Record<string, any>, M = {}>(
+    static make<T = Record<string, any>, M = Record<string, unknown>>(
         input: Record<string, any>,
         metadata?: M
     ): DataEntity<T, M>;
     static make<
         T extends Record<string, any>|DataEntity<any, any> = Record<string, any>,
-        M extends i._DataEntityMetadataType = {}
+        M extends i._DataEntityMetadataType = Record<string, unknown>
     >(input: T, metadata?: M): T|DataEntity<T, M> {
         if (DataEntity.isDataEntity(input)) {
             if (metadata) {
@@ -54,7 +54,7 @@ export class DataEntity<
      * or an array of objects, to an array of DataEntities.
      * This will detect if passed an already converted input and return it.
      */
-    static makeArray<T = Record<string, any>, M = {}>(
+    static makeArray<T = Record<string, any>, M = Record<string, unknown>>(
         input: DataArrayInput
     ): DataEntity<T, M>[] {
         if (!Array.isArray(input)) {
@@ -99,7 +99,7 @@ export class DataEntity<
      * defaults to "json"
      * @param metadata Optionally add any metadata
      */
-    static fromBuffer<T = Record<string, any>, M = {}>(
+    static fromBuffer<T = Record<string, any>, M = Record<string, unknown>>(
         input: Buffer|string,
         opConfig: i.EncodingConfig = {},
         metadata?: M
@@ -121,8 +121,8 @@ export class DataEntity<
     /**
      * Verify that an input is the `DataEntity`
      */
-    static isDataEntity<T = Record<string, any>, M = {}>(
-        input: any
+    static isDataEntity<T = Record<string, any>, M = Record<string, unknown>>(
+        input: unknown
     ): input is DataEntity<T, M> {
         return utils.isDataEntity(input);
     }
@@ -130,8 +130,8 @@ export class DataEntity<
     /**
      * Verify that an input is an Array of DataEntities,
      */
-    static isDataEntityArray<T = Record<string, any>, M = {}>(
-        input: any
+    static isDataEntityArray<T = Record<string, any>, M = Record<string, unknown>>(
+        input: unknown
     ): input is DataEntity<T, M>[] {
         if (input == null) return false;
         if (!Array.isArray(input)) return false;
@@ -148,17 +148,18 @@ export class DataEntity<
      *
      * @deprecated
      */
-    static getMetadata(input: any, field?: any) {
-        if (input == null) return null;
+    static getMetadata<V = any>(input: unknown, field?: string): V|undefined {
+        if (input == null) return undefined;
 
         if (DataEntity.isDataEntity(input)) {
-            return field ? input.getMetadata(field) : input.getMetadata();
+            const val = field ? input.getMetadata(field) : input.getMetadata();
+            return val as V|undefined;
         }
 
-        return field ? input[field as string] : undefined;
+        return field ? (input as any)[field] : undefined;
     }
 
-    static [Symbol.hasInstance](instance: any): boolean {
+    static [Symbol.hasInstance](instance: unknown): boolean {
         // prevent automatically thinking a base DataEntity is
         // an instance of a class that extends from a DataEntity
         if (this.name !== 'DataEntity' && this.name !== 'Object') {

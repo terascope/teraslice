@@ -19,7 +19,7 @@ describe('Legacy Slice Events Shim', () => {
         'slice:finalize': jest.fn(),
     };
 
-    class ExampleOp<T = object> extends EachProcessor<T> {
+    class ExampleOp<T = Record<string, any>> extends EachProcessor<T> {
         forEach(_data: DataEntity) {}
 
         async shutdown() {

@@ -5,7 +5,7 @@ describe('ex status', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
             const yargsCmd = yargs.command(
-                // @ts-ignore
+                // @ts-expect-error
                 status.command,
                 status.describe,
                 status.builder,

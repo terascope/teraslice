@@ -125,9 +125,9 @@ export interface ExecutionConfig extends ValidatedJobConfig {
  */
 export interface LegacyExecutionContext {
     config: ExecutionConfig;
-    slicer: Function;
+    slicer: (...args: any[]) => any;
     queueLength: 10000 | number;
     dynamicQueueLength: boolean;
-    queue: Function[];
-    reader: Function | null;
+    queue: ((...args: any[]) => any)[];
+    reader: ((...args: any[]) => any) | null;
 }

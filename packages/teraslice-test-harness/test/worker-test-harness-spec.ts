@@ -69,11 +69,9 @@ describe('WorkerTestHarness', () => {
             const err = new Error('oh no');
 
             workerHarness.processors[0].handle
-                // @ts-ignore
+                // @ts-expect-error
                 .mockClear()
-                // @ts-ignore
                 .mockRejectedValueOnce(err)
-                // @ts-ignore
                 .mockRejectedValueOnce(err);
 
             const results = await workerHarness.runSlice({});

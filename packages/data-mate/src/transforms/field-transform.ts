@@ -870,7 +870,7 @@ export function encodeSHA(input: any, _parentContext?: any, { hash = 'sha256', d
             .map((data: any) => crypto.createHash(hash).update(data).digest(digest as any));
     }
 
-    // @ts-ignore
+    // @ts-expect-error
     return crypto.createHash(hash).update(input).digest(digest);
 }
 

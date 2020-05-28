@@ -40,15 +40,16 @@ export class TSError extends Error {
      */
     context: TSErrorContext;
 
-    static [Symbol.hasInstance](instance: any): boolean {
-        if (instance == null) return false;
+    static [Symbol.hasInstance](_instance: unknown): boolean {
+        if (_instance == null || typeof _instance !== 'object') return false;
+        const instance = _instance as Record<string, unknown>;
         if (instance.message == null || instance.stack == null) return false;
         if (instance.statusCode == null) return false;
         if (typeof instance.cause !== 'function') return false;
         return true;
     }
 
-    constructor(input: any, config: TSErrorConfig = {}) {
+    constructor(input: unknown, config: TSErrorConfig = {}) {
         const { fatalError = false } = config;
 
         const {
@@ -149,7 +150,7 @@ const DEFAULT_ERR_MSG = STATUS_CODES[DEFAULT_STATUS_CODE] as string;
  * Use following the chain of caused by stack of an error.
  * Don't use this when logging the error, only when sending it
  * */
-export function getFullErrorStack(err: any): string {
+export function getFullErrorStack(err: unknown): string {
     return `${parseError(err, true)}${getCauseStack(err)}`;
 }
 
@@ -161,7 +162,7 @@ function getCauseStack(err: any) {
 }
 
 /** parse error for info */
-export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInfo {
+export function parseErrorInfo(input: unknown, config: TSErrorConfig = {}): ErrorInfo {
     const { defaultErrorMsg, defaultStatusCode = DEFAULT_STATUS_CODE } = config;
 
     const statusCode = getErrorStatusCode(input, config, defaultStatusCode);
@@ -189,15 +190,15 @@ export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInf
     let stack: string | undefined;
     const message = config.message || prefixErrorMsg(input, config.reason, defaultErrorMsg);
 
-    if (input && input.stack) {
-        stack = input.stack;
+    if (input && (input as any).stack) {
+        stack = (input as any).stack;
     }
 
     let code: string;
     if (config.code && s.isString(config.code)) {
         code = toStatusErrorCode(config.code);
-    } else if (input && input.code && s.isString(input.code)) {
-        code = toStatusErrorCode(input.code);
+    } else if (input && (input as any).code && s.isString((input as any).code)) {
+        code = toStatusErrorCode((input as any).code);
     } else {
         const httpMsg = STATUS_CODES[statusCode] as string;
         code = toStatusErrorCode(httpMsg);
@@ -215,7 +216,7 @@ export function parseErrorInfo(input: any, config: TSErrorConfig = {}): ErrorInf
 /**
  * Safely log an error (with the error first Logger syntax)
 */
-export function logError(logger: Logger, err: any, ...messages: any[]) {
+export function logError(logger: Logger, err: unknown, ...messages: any[]): void {
     if (typeof err === 'string') {
         logger.error(new TSError(err), ...messages);
         return;
@@ -253,7 +254,7 @@ function createErrorContext(input: any, config: TSErrorConfig = {}) {
 }
 
 /** parse input to get error message or stack */
-export function parseError(input: any, withStack = false): string {
+export function parseError(input: unknown, withStack = false): string {
     const result = parseErrorInfo(input);
     if (withStack && result.stack) return result.stack;
     return result.message;
@@ -265,7 +266,7 @@ function _cleanErrorMsg(input: string): string {
 
 function _parseESErrorInfo(
     input: ElasticsearchError
-): { message: string; context: object; code: string } | null {
+): { message: string; context: Record<string, any>; code: string } | null {
     const bodyError = input && input.body && input.body.error;
     const name = (input && input.name) || 'ElasticSearchError';
 
@@ -292,8 +293,7 @@ function _parseESErrorInfo(
     }
 
     if (!index && metadata.response) {
-        // @ts-ignore
-        index = metadata.response.index || metadata.response._index;
+        index = (metadata.response as any).index || (metadata.response as any)._index;
     }
 
     const message = `Elasticsearch Error: ${_normalizeESError(metadata.msg)}`;
@@ -344,7 +344,9 @@ function _normalizeESError(message?: string) {
     return message;
 }
 
-export function prefixErrorMsg(input: any, prefix?: string, defaultMsg = 'Unknown Error') {
+export function prefixErrorMsg(
+    input: unknown, prefix?: string, defaultMsg = 'Unknown Error'
+): string {
     if (!prefix) {
         if (isError(input)) {
             return _cleanErrorMsg(input.message || defaultMsg);
@@ -354,31 +356,30 @@ export function prefixErrorMsg(input: any, prefix?: string, defaultMsg = 'Unknow
     return _cleanErrorMsg(`${prefix}, caused by ${s.toString(input || defaultMsg)}`);
 }
 
-export function isFatalError(err: any): boolean {
-    return !!(err && err.fatalError);
+export function isFatalError(err: unknown): boolean {
+    return !!(err && (err as any).fatalError);
 }
 
-export function isRetryableError(err: any): boolean {
-    return !!(err && err.retryable === true && !err.fatalError);
+export function isRetryableError(err: unknown): boolean {
+    return !!(err && (err as any).retryable === true && !(err as any).fatalError);
 }
 
 /** Check if an input has an error compatible api */
-export function isError(err: any): err is Error {
-    return err && err.stack && err.message;
+export function isError(err: unknown): err is Error {
+    return err && (err as any).stack && (err as any).message;
 }
 
 /** Check is a TSError */
-export function isTSError(err: any): err is TSError {
+export function isTSError(err: unknown): err is TSError {
     if (err instanceof TSError) return true;
     if (!isError(err)) return false;
 
-    // @ts-ignore
-    return err.statusCode != null;
+    return (err as any).statusCode != null;
 }
 
 /** Check is a elasticsearch error */
-export function isElasticsearchError(err: any): err is ElasticsearchError {
-    return err && isFunction(err.toJSON);
+export function isElasticsearchError(err: unknown): err is ElasticsearchError {
+    return err && isFunction((err as any).toJSON);
 }
 
 export interface ElasticsearchError extends Error {
@@ -414,7 +415,7 @@ function coerceStatusCode(input: any): number | null {
 }
 
 export function getErrorStatusCode(
-    err: any,
+    err: unknown,
     config: TSErrorConfig = {},
     defaultCode = DEFAULT_STATUS_CODE
 ): number {
@@ -424,7 +425,7 @@ export function getErrorStatusCode(
         for (const obj of [config, err, metadata]) {
             if (!obj || s.isString(obj)) continue;
 
-            const statusCode = coerceStatusCode(obj[key]);
+            const statusCode = coerceStatusCode((obj as any)[key]);
             if (statusCode != null) {
                 return statusCode;
             }
@@ -435,13 +436,13 @@ export function getErrorStatusCode(
 }
 
 export function stripErrorMessage(
-    error: any,
+    error: unknown,
     reason: string = DEFAULT_ERR_MSG,
     requireSafe = false
 ): string {
     const { message, context, statusCode } = parseErrorInfo(error, {
         defaultErrorMsg: reason,
-        context: error && error.context,
+        context: error && (error as any).context,
     });
     const messages = s.parseList(message.split('caused by'));
 

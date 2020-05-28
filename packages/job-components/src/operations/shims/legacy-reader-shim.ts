@@ -9,7 +9,7 @@ import SlicerClass from '../slicer';
 import operationAPIShim, { APIs } from './operation-api-shim';
 import legacySliceEventsShim from './legacy-slice-events-shim';
 import {
-    SchemaConstructor,
+    SchemaConstructor
 } from '../interfaces';
 import {
     SliceRequest,
@@ -17,6 +17,12 @@ import {
     SlicerFns,
     LegacyReader,
     WorkerContext,
+    SlicerRecoveryData,
+    Context,
+    ValidatedJobConfig,
+    SysConfig,
+    ExecutionConfig,
+    LegacyExecutionContext,
 } from '../../interfaces';
 import ConvictSchema from '../convict-schema';
 
@@ -26,41 +32,45 @@ import ConvictSchema from '../convict-schema';
 type SchemaType = SchemaConstructor;
 
 export default function legacyReaderShim(
-    Slicer: any,
-    Fetcher: any,
+    Slicer: unknown,
+    Fetcher: unknown,
     Schema: SchemaType,
     apis?: APIs
 ): LegacyReader {
     let schema: ConvictSchema<any, any>|undefined;
 
     return {
-        // @ts-ignore
+        // @ts-expect-error
         Slicer,
         Fetcher,
         Schema,
-        schema: (context) => {
+        schema(context: Context): any {
             if (Schema.type() !== 'convict') {
                 throw new Error('Backwards compatibility only works for "convict" schemas');
             }
 
-            // @ts-ignore
+            // @ts-expect-error
             schema = new Schema(context);
-            // @ts-ignore
+            // @ts-expect-error
             return schema.schema;
         },
-        crossValidation: (job, sysconfig) => {
+        crossValidation(job: ValidatedJobConfig, sysconfig: SysConfig): void {
             if (Schema.type() !== 'convict') {
                 throw new Error('Backwards compatibility only works for "convict" schemas');
             }
 
-            // @ts-ignore
+            // @ts-expect-error
             const _schema = schema || new Schema({ sysconfig });
             if (isFunction(_schema.validateJob)) {
                 _schema.validateJob(job);
             }
         },
-        async newReader(context, opConfig, executionConfig): Promise<ReaderFn<DataInput[]>> {
-            const fetcher = new Fetcher(context as WorkerContext, opConfig, executionConfig);
+        async newReader(
+            context: Context, opConfig: Record<string, any>, executionConfig: ExecutionConfig
+        ): Promise<ReaderFn<DataInput[]>> {
+            const fetcher = new (Fetcher as any)(
+                context as WorkerContext, opConfig, executionConfig
+            );
             await fetcher.initialize();
 
             legacySliceEventsShim(fetcher);
@@ -73,18 +83,16 @@ export default function legacyReaderShim(
             };
         },
         async newSlicer(
-            context,
-            executionContext,
-            recoveryData: object[],
+            context: Context,
+            executionContext: LegacyExecutionContext,
+            recoveryData: SlicerRecoveryData[],
             logger: Logger
         ): Promise<SlicerFns> {
             const executionConfig = executionContext.config;
             const opConfig = executionConfig.operations[0];
 
-            // @ts-ignore
-            const slicer = new Slicer(context, opConfig, executionConfig);
+            const slicer = new (Slicer as any)(context, opConfig, executionConfig);
 
-            // @ts-ignore
             slicer.logger = logger;
 
             await slicer.initialize(recoveryData);
@@ -95,7 +103,7 @@ export default function legacyReaderShim(
 
             if (slicer instanceof SlicerClass) {
                 return [
-                    () => slicer.slice()
+                    (): any => slicer.slice()
                 ];
             }
 

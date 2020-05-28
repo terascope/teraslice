@@ -55,7 +55,7 @@ class CorePlugins implements PluginClassType {
             url: deprecate(Url, 'url is being deprecated, please use isURL instead', 'url'),
             email: deprecate(Email, 'email is being deprecated, please use isEmail instead', 'email'),
             ip: deprecate(Ip, 'ip is being deprecated, please use isIP instead', 'ip'),
-            // @ts-ignore
+            // @ts-expect-error
             base64decode: deprecate(Base64Decode, 'base64decode is being deprecated, please use decodeBase64 instead', 'base64decode'),
             urldecode: deprecate(UrlDecode, 'urldecode is being deprecated, please use decodeURL instead', 'urldecode'),
             hexdecode: deprecate(HexDecode, 'hexdecode is being deprecated, please use decodeHex instead', 'hexdecode'),
@@ -83,7 +83,7 @@ class OperationsManager {
 
     constructor(pluginList: PluginList = []) {
         pluginList.push(CorePlugins);
-        // @ts-ignore FIXME: try to remove this ignore
+        // @ts-expect-error FIXME: try to remove this ignore
         pluginList.push(ValidatorPlugins);
         pluginList.push(dataMapePlugin);
 

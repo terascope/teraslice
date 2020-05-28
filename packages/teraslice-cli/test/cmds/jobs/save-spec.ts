@@ -5,7 +5,7 @@ describe('jobs save', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
             const yargsCmd = yargs.command(
-                // @ts-ignore
+                // @ts-expect-error
                 save.command,
                 save.describe,
                 save.builder,

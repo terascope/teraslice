@@ -6,7 +6,11 @@ import {
     Worker as NodeJSWorker
 } from 'cluster';
 
-export type FoundationConfig<S = {}, A = {}, D extends string = string> = {
+export type FoundationConfig<
+    S = Record<string, any>,
+    A = Record<string, any>,
+    D extends string = string
+> = {
     name: string;
     config_schema?: any;
     schema_formats?: Format[];
@@ -32,7 +36,7 @@ export interface ConnectionConfig {
 }
 
 export type ClientFactoryFn = (
-    config: object,
+    config: Record<string, any>,
     logger: Logger,
     options: ConnectionConfig
 ) => { client: any };
@@ -93,7 +97,11 @@ export type FoundationSysConfig<S> = {
     };
 } & S;
 
-export type FoundationContext<S = {}, A = {}, D extends string = string> = {
+export type FoundationContext<
+    S = Record<string, any>,
+    A = Record<string, any>,
+    D extends string = string
+> = {
     sysconfig: FoundationSysConfig<S>;
     apis: ContextAPIs & A;
     foundation: LegacyFoundationApis;

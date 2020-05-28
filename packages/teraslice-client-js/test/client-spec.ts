@@ -9,12 +9,10 @@ describe('Teraslice Client', () => {
         });
 
         it('should not throw an error if constructed with nothing', () => {
-            // @ts-ignore
             expect(() => new TerasliceClient()).not.toThrow();
         });
 
         it('should have jobs, cluster, and assets', () => {
-            // @ts-ignore
             const client = new TerasliceClient();
             expect(client.jobs).not.toBeUndefined();
             expect(client.cluster).not.toBeUndefined();
@@ -43,7 +41,7 @@ describe('Teraslice Client', () => {
                 it('should reject with a empty path message', async () => {
                     expect.hasAssertions();
                     try {
-                        // @ts-ignore
+                        // @ts-expect-error
                         await client.get();
                     } catch (err) {
                         expect(err.message).toEqual('endpoint must not be empty');
@@ -55,7 +53,7 @@ describe('Teraslice Client', () => {
                 it('should reject with invalid endpoint error', async () => {
                     expect.hasAssertions();
                     try {
-                        // @ts-ignore
+                        // @ts-expect-error
                         await client.get({ hello: 'hi' });
                     } catch (err) {
                         expect(err.message).toEqual('endpoint must be a string');
@@ -86,7 +84,7 @@ describe('Teraslice Client', () => {
                 it('should resolve with the response from the server', async () => {
                     const results = await client.get('/hello', {
                         headers: { 'Some-Header': 'yes' },
-                        // @ts-ignore
+                        // @ts-expect-error
 
                         query: { hello: true }
                     });
@@ -102,7 +100,7 @@ describe('Teraslice Client', () => {
                 });
 
                 it('should resolve with the response from the server', async () => {
-                    // @ts-ignore
+                    // @ts-expect-error
 
                     const results = await client.get('/hello', { query: { hello: true } });
                     expect(results).toEqual({ example: 'hello' });
@@ -115,7 +113,7 @@ describe('Teraslice Client', () => {
                 it('should reject with a empty path message', async () => {
                     expect.hasAssertions();
                     try {
-                        // @ts-ignore
+                        // @ts-expect-error
                         await client.post();
                     } catch (err) {
                         expect(err.message).toEqual('endpoint must not be empty');
@@ -128,7 +126,7 @@ describe('Teraslice Client', () => {
                 it('should reject with invalid endpoint error', async () => {
                     expect.hasAssertions();
                     try {
-                        // @ts-ignore
+                        // @ts-expect-error
                         await client.post({ hello: 'hi' });
                     } catch (err) {
                         expect(err.message).toEqual('endpoint must be a string');
@@ -315,7 +313,7 @@ describe('Teraslice Client', () => {
                 it('should reject with a empty path message', async () => {
                     expect.hasAssertions();
                     try {
-                        // @ts-ignore
+                        // @ts-expect-error
                         await client.put();
                     } catch (err) {
                         expect(err.message).toEqual('endpoint must not be empty');
@@ -327,7 +325,7 @@ describe('Teraslice Client', () => {
                 it('should reject with invalid endpoint error', async () => {
                     expect.hasAssertions();
                     try {
-                        // @ts-ignore
+                        // @ts-expect-error
                         await client.put({ hello: 'hi' });
                     } catch (err) {
                         expect(err.message).toEqual('endpoint must be a string');
@@ -369,7 +367,7 @@ describe('Teraslice Client', () => {
                 it('should reject with a empty path message', async () => {
                     expect.hasAssertions();
                     try {
-                        // @ts-ignore
+                        // @ts-expect-error
                         await client.delete();
                     } catch (err) {
                         expect(err.message).toEqual('endpoint must not be empty');
@@ -381,7 +379,7 @@ describe('Teraslice Client', () => {
                 it('should reject with invalid endpoint error', async () => {
                     expect.hasAssertions();
                     try {
-                        // @ts-ignore
+                        // @ts-expect-error
                         await client.delete({ hello: 'hi' });
                     } catch (err) {
                         expect(err.message).toEqual('endpoint must be a string');
@@ -413,7 +411,7 @@ describe('Teraslice Client', () => {
                 });
 
                 it('should resolve with the response from the server', async () => {
-                    // @ts-ignore
+                    // @ts-expect-error
 
                     const results = await client.delete('/hello', { query: { hello: true } });
                     expect(results).toEqual(response);

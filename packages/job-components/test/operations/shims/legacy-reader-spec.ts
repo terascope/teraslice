@@ -143,7 +143,7 @@ describe('Legacy Reader Shim', () => {
             });
             expect(shim.crossValidation).toBeFunction();
             expect(() => {
-                // @ts-ignore
+                // @ts-expect-error
                 shim.crossValidation(exConfig, context.sysconfig);
             }).not.toThrow();
         });
@@ -194,7 +194,7 @@ describe('Legacy Reader Shim', () => {
             });
 
             expect(() => {
-                // @ts-ignore
+                // @ts-expect-error
                 shim.crossValidation(exConfig, context.sysconfig);
             }).not.toThrow();
         });
@@ -209,7 +209,7 @@ describe('Legacy Reader Shim', () => {
             }).toThrowError('Backwards compatibility only works for "convict" schemas');
 
             expect(() => {
-                // @ts-ignore
+                // @ts-expect-error
                 shim.crossValidation(exConfig, context.sysconfig);
             }).toThrowError('Backwards compatibility only works for "convict" schemas');
         });

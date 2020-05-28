@@ -15,7 +15,7 @@ export interface CachedClients {
 export interface TestClientConfig {
     type: string;
     create: i.ClientFactoryFn;
-    config?: object;
+    config?: Record<string, any>;
     endpoint?: string;
 }
 
@@ -44,7 +44,7 @@ function getKey(opts: GetKeyOpts) {
 }
 
 function setConnectorConfig<T extends Record<string, any>>(
-    sysconfig: i.FoundationSysConfig<{}>,
+    sysconfig: i.FoundationSysConfig<Record<string, any>>,
     opts: GetKeyOpts,
     config: T,
     override = true
@@ -71,8 +71,8 @@ export interface TestContextOptions<S> {
 }
 
 export class TestContext<
-    S = {},
-    A = {},
+    S = Record<string, any>,
+    A = Record<string, any>,
     D extends string = string,
 > extends CoreContext<S, A & TestContextAPIs, D> {
     constructor(options: TestContextOptions<S> = {}) {

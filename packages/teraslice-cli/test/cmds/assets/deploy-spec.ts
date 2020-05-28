@@ -7,10 +7,10 @@ import { GithubServer } from '../../servers';
 import deploy from '../../../src/cmds/assets/deploy';
 
 describe('assets deploy', () => {
-    let yargsCmd: yargs.Argv<{}>;
+    let yargsCmd: yargs.Argv<Record<string, any>>;
     beforeEach(() => {
         yargsCmd = yargs.command(
-            // @ts-ignore
+            // @ts-expect-error
             deploy.command,
             deploy.describe,
             deploy.builder,

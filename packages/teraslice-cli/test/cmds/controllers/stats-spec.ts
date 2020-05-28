@@ -5,7 +5,7 @@ describe('controller stats', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
             const yargsCmd = yargs.command(
-                // @ts-ignore
+                // @ts-expect-error
                 stats.command,
                 stats.describe,
                 stats.builder,

@@ -172,7 +172,7 @@ describe('validator lib', () => {
             follow: 'someId',
             source: 'field',
             target: 'field',
-            // @ts-ignore FIXME
+            // @ts-expect-error FIXME
             allow_space_after_symbol: true,
             __id: 'someId',
         };

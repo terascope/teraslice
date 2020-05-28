@@ -5,18 +5,18 @@ import {
 } from './jobs';
 import { Context, SysConfig } from './context';
 
-export type crossValidationFn = (job: ValidatedJobConfig, sysconfig: SysConfig) => void;
-export type selfValidationFn = (config: OpConfig) => void;
-export type sliceQueueLengthFn = (executionContext: LegacyExecutionContext) => number | string;
+export type CrossValidationFn = (job: ValidatedJobConfig, sysconfig: SysConfig) => void;
+export type SelfValidationFn = (config: OpConfig) => void;
+export type SliceQueueLengthFn = (executionContext: LegacyExecutionContext) => number | string;
 
 export interface LegacyOperation {
-    crossValidation?: crossValidationFn;
-    selfValidation?: selfValidationFn;
+    crossValidation?: CrossValidationFn;
+    selfValidation?: SelfValidationFn;
     schema(context?: Context): Schema<any>;
 }
 
 export interface LegacyReader extends LegacyOperation {
-    slicerQueueLength?: sliceQueueLengthFn;
+    slicerQueueLength?: SliceQueueLengthFn;
     schema(context?: Context): Schema<any>;
     newReader(
         context: Context,
@@ -26,7 +26,7 @@ export interface LegacyReader extends LegacyOperation {
     newSlicer(
         context: Context,
         executionContext: LegacyExecutionContext,
-        recoveryData: object[],
+        recoveryData: SlicerRecoveryData[],
         logger: Logger
     ): Promise<SlicerFns>;
 }
@@ -110,9 +110,9 @@ export interface SlicerFn {
 
 export type SlicerFns = SlicerFn[];
 
-export type OpAPIFn = Function;
+export type OpAPIFn = (...args: any[]) => any;
 export type OpAPIInstance = {
-    [method: string]: Function | any;
+    [method: string]: OpAPIFn | any;
 };
 export type OpAPI = OpAPIFn | OpAPIInstance;
 

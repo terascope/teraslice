@@ -92,7 +92,7 @@ export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string) {
             name: pkgInfo.name,
             target: ScriptTarget.ESNext,
             tsconfig: path.join(pkgInfo.dir, 'tsconfig.json'),
-            // @ts-ignore
+            // @ts-expect-error
             platform: 'docusaurus' as any,
             mode: 'file',
             theme: 'markdown',

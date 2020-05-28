@@ -14,13 +14,13 @@ describe('phone number validation', () => {
         const badConfig2 = { source: '' };
         const badConfig3 = { source: {} };
         const badConfig4 = {};
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new ISDN(badConfig1)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new ISDN(badConfig2)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new ISDN(badConfig3)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new ISDN(badConfig4)).toThrow();
     });
 

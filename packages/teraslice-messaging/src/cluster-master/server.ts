@@ -44,7 +44,7 @@ export class Server extends core.Server {
         };
     }
 
-    async start() {
+    async start(): Promise<void> {
         this.on('connection', (msg) => {
             this.onConnection(msg.scope, msg.payload as SocketIO.Socket);
         });
@@ -52,23 +52,23 @@ export class Server extends core.Server {
         await this.listen();
     }
 
-    sendExecutionPause(exId: string) {
+    sendExecutionPause(exId: string): Promise<core.Message|null> {
         return this.send(exId, 'execution:pause');
     }
 
-    sendExecutionResume(exId: string) {
+    sendExecutionResume(exId: string): Promise<core.Message|null> {
         return this.send(exId, 'execution:resume');
     }
 
-    sendExecutionAnalyticsRequest(exId: string) {
+    sendExecutionAnalyticsRequest(exId: string): Promise<core.Message|null> {
         return this.send(exId, 'execution:analytics');
     }
 
-    getClusterAnalytics() {
+    getClusterAnalytics(): i.ClusterAnalytics {
         return cloneDeep(this.clusterAnalytics);
     }
 
-    onExecutionFinished(fn: (clientId: string, error?: core.ResponseError) => {}) {
+    onExecutionFinished(fn: (clientId: string, error?: core.ResponseError) => void): void {
         this.on('execution:finished', (msg) => {
             fn(msg.scope, msg.error);
         });

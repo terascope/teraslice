@@ -45,7 +45,7 @@ describe('Example Asset', () => {
         let harness: WorkerTestHarness;
 
         beforeEach(async () => {
-            // @ts-ignore
+            // @ts-expect-error
             simpleClient.fetchRecord.mockImplementation((id: number) => ({
                 id,
                 data: {
@@ -113,7 +113,7 @@ describe('Example Asset', () => {
         let harness: SlicerTestHarness;
 
         beforeEach(async () => {
-            // @ts-ignore
+            // @ts-expect-error
             simpleClient.sliceRequest.mockImplementation((count: number) => ({ count, super: 'man' }));
 
             harness = new SlicerTestHarness(job, {
@@ -211,7 +211,7 @@ describe('Example Asset', () => {
         it('should be finished for the second batch of slices', async () => {
             const batches = await harness.run();
 
-            // @ts-ignore
+            // @ts-expect-error
             simpleClient.isFinished.mockReturnValue(true);
 
             expect(batches).toBeArrayOfSize(10);

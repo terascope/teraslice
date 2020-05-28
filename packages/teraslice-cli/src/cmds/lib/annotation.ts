@@ -3,7 +3,7 @@ import { parseError } from '@terascope/utils';
 import Reply from './reply';
 
 const reply = new Reply();
-// @ts-ignore
+// @ts-expect-error
 async function send(host, key, tags, text) {
     const timestamp = +new Date();
     const url = `http://${host}/api/annotations`;
@@ -28,9 +28,9 @@ async function send(host, key, tags, text) {
         reply.fatal(`> Annotation failed: ${parseError(err)}`);
     }
 }
-// @ts-ignore
+// @ts-expect-error
 export default async function annotate(cliConfig) {
-    // @ts-ignore
+    // @ts-expect-error
     async function add(action, job = '') {
         let message = '';
         if (job === '') {

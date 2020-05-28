@@ -27,9 +27,9 @@ export default class OperationBase {
             source: sField,
             sources: sFields
         } = config;
-        // @ts-ignore
+        // @ts-expect-error
         this.source = sField || sFields;
-        // @ts-ignore
+        // @ts-expect-error
         this.target = targetField;
         hasStringValues(this.source);
         hasStringValues(this.target);

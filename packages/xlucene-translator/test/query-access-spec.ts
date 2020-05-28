@@ -272,7 +272,7 @@ describe('QueryAccess', () => {
 
         describe('when given null', () => {
             it('should be able to default to constraint query', () => {
-                // @ts-ignore
+                // @ts-expect-error
                 const query: string = null;
 
                 const result = new QueryAccess({
@@ -288,7 +288,7 @@ describe('QueryAccess', () => {
 
         describe('when given undefined', () => {
             it('should be able to default to constraint query', () => {
-                // @ts-ignore
+                // @ts-expect-error
                 const query: string = undefined;
 
                 const result = new QueryAccess({

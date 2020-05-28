@@ -14,7 +14,6 @@ describe('Numbers', () => {
             [[Infinity, 0, 'c ', '', null, 10], [Infinity, 0, 10]],
             [[Infinity, 0, 'c ', '', null, 10], [Infinity, 0, 10]],
             [null, []]
-        // @ts-ignore
         ])('should parse %j to be %j', (input, expected) => {
             expect(parseNumberList(input)).toEqual(expected);
         });
@@ -41,7 +40,6 @@ describe('Numbers', () => {
             [{ }, Number.NaN],
             [[], 0],
             [[1], 1],
-        // @ts-ignore
         ])('should convert %j to be %j', (input, expected) => {
             expect(toNumber(input)).toEqual(expected);
         });

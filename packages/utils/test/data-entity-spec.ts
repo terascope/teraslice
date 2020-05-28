@@ -234,10 +234,9 @@ describe('DataEntity', () => {
             it('should do nothing when called with null', () => {
                 expect(() => {
                     if (useClass) {
-                        // @ts-ignore
                         new DataEntity(null);
                     } else {
-                        // @ts-ignore
+                        // @ts-expect-error
                         DataEntity.make(null);
                     }
                 }).not.toThrow();
@@ -246,10 +245,10 @@ describe('DataEntity', () => {
             it('should do nothing with called with undefined', () => {
                 expect(() => {
                     if (useClass) {
-                        // @ts-ignore
+                        // @ts-expect-error
                         new DataEntity();
                     } else {
-                        // @ts-ignore
+                        // @ts-expect-error
                         DataEntity.make();
                     }
                 }).not.toThrow();
@@ -259,10 +258,8 @@ describe('DataEntity', () => {
                 const arr = [{ hello: true }];
                 expect(() => {
                     if (useClass) {
-                        // @ts-ignore
                         new DataEntity(arr);
                     } else {
-                        // @ts-ignore
                         DataEntity.make(arr);
                     }
                 }).toThrowError('Invalid data source, must be an object, got "Array"');
@@ -272,10 +269,8 @@ describe('DataEntity', () => {
                 const buf = Buffer.from(JSON.stringify({ hello: true }));
                 expect(() => {
                     if (useClass) {
-                        // @ts-ignore
                         new DataEntity(buf);
                     } else {
-                        // @ts-ignore
                         DataEntity.make(buf);
                     }
                 }).toThrowError('Invalid data source, must be an object, got "Buffer"');
@@ -476,7 +471,7 @@ describe('DataEntity', () => {
 
             it('should fail if given an invalid encoding', () => {
                 expect(() => {
-                    // @ts-ignore
+                    // @ts-expect-error
                     dataEntity.toBuffer({ _encoding: 'baz' });
                 }).toThrowError('Unsupported encoding type, got "baz"');
             });
@@ -643,7 +638,6 @@ describe('DataEntity', () => {
         });
 
         it('should not be able to get metadata from null', () => {
-            // @ts-ignore
             expect(DataEntity.getMetadata(null, 'hi')).toBeNil();
         });
     });

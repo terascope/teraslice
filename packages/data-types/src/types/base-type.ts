@@ -5,7 +5,6 @@ import {
 } from '../interfaces';
 import { formatGQLComment } from '../graphql-helper';
 
-// eslint-disable-next-line @typescript-eslint/interface-name-prefix
 export interface IBaseType {
     new(field: string, config: FieldTypeConfig): BaseType;
 }

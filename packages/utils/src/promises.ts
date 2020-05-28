@@ -92,7 +92,7 @@ export async function pRetry<T = any>(
             backoff: 2,
             matches: [],
             _currentDelay: 0,
-            // @ts-ignore
+            // @ts-expect-error
             _context: undefined as PRetryContext,
         },
         options
