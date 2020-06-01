@@ -131,7 +131,6 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
     async getAllSlices(options: { fullResponse: true }): Promise<SliceResults>;
     async getAllSlices({ fullResponse = false } = {}): Promise<SliceResults> {
         const results = [];
-        this.executionContext.logger.info('starting test');
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         while (!this.slicer().isFinished) {
@@ -139,9 +138,7 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
             if (fullResponse) {
                 sliceResults = await this.createSlices({ fullResponse });
             } else {
-                this.executionContext.logger.info('making createSlices in test')
                 sliceResults = await this.createSlices();
-                this.executionContext.logger.info('making createSlices in test all done', sliceResults)
             }
             results.push(...sliceResults);
         }

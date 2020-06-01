@@ -191,38 +191,6 @@ describe('SlicerTestHarness', () => {
             const results = await test.getAllSlices();
             console.log('results', results)
             expect(results).toEqual('hello')
-            // const slices1 = await test.createSlices();
-            // const slices2 = await test.createSlices();
-            // const slices3 = await test.createSlices();
-            // const slices4 = await test.createSlices();
-            // const slices5 = await test.createSlices();
-            // const slices6 = await test.createSlices();
-            // const slices7 = await test.createSlices();
-            // const slices8 = await test.createSlices();
-            // const slices9 = await test.createSlices();
-            // const slices10 = await test.createSlices();
-            // const slices11 = await test.createSlices();
-            // const slices12 = await test.createSlices();
-            // const slices13 = await test.createSlices();
-
-            // console.log('slices1', slices1);
-            // console.log('slices2', slices2);
-            // console.log('slices3', slices3);
-            // console.log('slices4', slices4);
-            // console.log('slices5', slices5);
-            // console.log('slices6', slices6);
-            // console.log('slices7', slices7);
-            // console.log('slices8', slices8);
-            // console.log('slices9', slices9);
-            // console.log('slices10', slices10);
-            // console.log('slices11', slices11);
-            // console.log('slices12', slices12);
-            // console.log('slices13', slices13);
-            // expect(slices2).toEqual('hello')
-
-            // expect(slices13).toEqual('hello')
-
-            // expect(slices).toEqual('hello')
         });
     });
 });
