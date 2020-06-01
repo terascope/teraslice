@@ -43,7 +43,7 @@ export default abstract class ParallelSlicer<T = OpConfig> extends SlicerCore<T>
      *
      * See [[SlicerCore#shutdown]]
      */
-    async shutdown() {
+    async shutdown(): Promise<void> {
         this._slicers.length = 0;
         return super.shutdown();
     }
@@ -54,18 +54,24 @@ export default abstract class ParallelSlicer<T = OpConfig> extends SlicerCore<T>
      */
     abstract async newSlicer(id: number): Promise<SlicerFn | undefined>;
 
-    slicers() {
+    slicers(): number {
         return this._slicers.length;
     }
 
     async handle(): Promise<boolean> {
         if (this.isFinished) return true;
 
+        // must filter out done slicers, if they are done
+        // they will return undefined which will always win race
+        // which will prevent other from calling
+
         const promises = this._slicers
-            .filter((slicer) => !slicer.processing)
+            .filter((slicer) => !slicer.processing && !slicer.done)
             .map((slicer) => this.processSlicer(slicer));
 
-        await Promise.race(promises);
+        // calling race on an empty array will be forever pending
+        if (promises.length > 0) await Promise.race(promises);
+
         return this.isFinished;
     }
 

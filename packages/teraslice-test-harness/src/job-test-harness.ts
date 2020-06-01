@@ -21,6 +21,8 @@ import { JobHarnessOptions } from './interfaces';
  *
  * @todo Handle more than one worker?
 */
+
+type CB = (results: BatchedResults) => void;
 export default class JobTestHarness {
     private workerHarness: WorkerTestHarness;
     private slicerHarness: SlicerTestHarness;
@@ -73,11 +75,12 @@ export default class JobTestHarness {
      * @returns batches of results
     */
     async run(): Promise<BatchedResults> {
-        const slices = await this.slicerHarness.createSlices({ fullResponse: true }) as Slice[];
+        const rawSlices = await this.slicerHarness.createSlices({ fullResponse: true }) as Slice[];
 
         const results: BatchedResults = [];
 
-        for (const slice of slices) {
+        for (const slice of rawSlices) {
+            if (slice == null) continue;
             this.slicerHarness.onSliceDispatch(slice);
 
             let analytics: SliceAnalyticsData = {
@@ -94,7 +97,8 @@ export default class JobTestHarness {
                 if (result.analytics) {
                     analytics = result.analytics;
                 }
-                results.push(result.results);
+                // @ts-ignore
+                results.push(result.results as DataList);
                 this.slicerHarness.stats.slices.processed++;
             } catch (err) {
                 this.slicerHarness.stats.slices.failed++;
@@ -110,6 +114,11 @@ export default class JobTestHarness {
         return results;
     }
 
+    async runAllSlices(cb: CB): Promise<void> {
+        // @ts-ignore
+        const bool = this.slicerHarness.slicer().isFinished;
+    }
+
     /**
      * Shutdown both the Worker and Slicer test harness
     */
@@ -121,4 +130,5 @@ export default class JobTestHarness {
     }
 }
 
-export type BatchedResults = DataEntity[][];
+type DataList = DataEntity[];
+export type BatchedResults = (DataList & null)[];

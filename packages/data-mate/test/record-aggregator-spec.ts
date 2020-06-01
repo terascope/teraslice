@@ -273,6 +273,25 @@ describe('RecordAggregator', () => {
 
             expect(RecordAggregator.count(mixedData, mixedData, config)).toEqual(expectedResults);
         });
+
+        it('should not mutate input if source is keyed and target is a different value', () => {
+            const config: BatchConfig = { source: 'count', target: 'myCount', keys: ['field', 'count'] };
+
+            const input = [
+                { count: 3, field: 'value1' },
+                { count: 13, field: 'value2' },
+                { count: 3, field: 'value1' },
+                { count: 2, field: 'value3' }
+            ];
+
+            const expectedResults = [
+                { count: 3, field: 'value1', myCount: 2 },
+                { count: 13, field: 'value2', myCount: 1 },
+                { count: 2, field: 'value3', myCount: 1 }
+            ];
+
+            expect(RecordAggregator.count(input, input, config)).toEqual(expectedResults);
+        });
     });
 
     describe('sum should', () => {

@@ -5,6 +5,7 @@ import {
     Slicer
 } from '@terascope/job-components';
 import { SlicerTestHarness } from '../src';
+import ParallelSlicer from './fixtures/asset/parallel-reader/slicer';
 
 describe('SlicerTestHarness', () => {
     const assetDir = path.join(__dirname, 'fixtures');
@@ -136,6 +137,92 @@ describe('SlicerTestHarness', () => {
 
             const [results] = await slicerHarness.createSlices();
             expect(results).toEqual(expectedResults);
+        });
+    });
+
+    describe('can work with parallel-slicers', () => {
+        let slicerHarness: SlicerTestHarness;
+
+        afterEach(async () => {
+            if (slicerHarness) await slicerHarness.shutdown();
+        });
+
+        async function makeTest(numOfSlicers = 1): Promise<SlicerTestHarness> {
+            const job = newTestJobConfig();
+            job.analytics = true;
+            job.slicers = numOfSlicers;
+            job.operations = [
+                {
+                    _op: 'parallel-reader',
+                },
+                {
+                    _op: 'noop',
+                }
+            ];
+
+            slicerHarness = new SlicerTestHarness(job, {
+                assetDir
+            });
+
+            await slicerHarness.initialize();
+
+            return slicerHarness;
+        }
+
+        it('can run with a single slicer', async () => {
+            const test = await makeTest();
+
+            expect(await test.createSlices()).toEqual([{ count: 2, id: 0 }]);
+            expect(test.slicer<ParallelSlicer>().isFinished).toEqual(false);
+
+            expect(await test.createSlices()).toEqual([{ count: 1, id: 0 }]);
+            expect(test.slicer<ParallelSlicer>().isFinished).toEqual(false);
+
+            expect(await test.createSlices()).toEqual([null]);
+            expect(test.slicer<ParallelSlicer>().isFinished).toEqual(true);
+
+            expect(await test.createSlices()).toEqual([null]);
+            expect(test.slicer<ParallelSlicer>().isFinished).toEqual(true);
+        });
+
+        fit('can run with a multiple slicers', async () => {
+            const test = await makeTest(2);
+
+            const results = await test.getAllSlices();
+            console.log('results', results)
+            expect(results).toEqual('hello')
+            // const slices1 = await test.createSlices();
+            // const slices2 = await test.createSlices();
+            // const slices3 = await test.createSlices();
+            // const slices4 = await test.createSlices();
+            // const slices5 = await test.createSlices();
+            // const slices6 = await test.createSlices();
+            // const slices7 = await test.createSlices();
+            // const slices8 = await test.createSlices();
+            // const slices9 = await test.createSlices();
+            // const slices10 = await test.createSlices();
+            // const slices11 = await test.createSlices();
+            // const slices12 = await test.createSlices();
+            // const slices13 = await test.createSlices();
+
+            // console.log('slices1', slices1);
+            // console.log('slices2', slices2);
+            // console.log('slices3', slices3);
+            // console.log('slices4', slices4);
+            // console.log('slices5', slices5);
+            // console.log('slices6', slices6);
+            // console.log('slices7', slices7);
+            // console.log('slices8', slices8);
+            // console.log('slices9', slices9);
+            // console.log('slices10', slices10);
+            // console.log('slices11', slices11);
+            // console.log('slices12', slices12);
+            // console.log('slices13', slices13);
+            // expect(slices2).toEqual('hello')
+
+            // expect(slices13).toEqual('hello')
+
+            // expect(slices).toEqual('hello')
         });
     });
 });

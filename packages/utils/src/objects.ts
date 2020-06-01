@@ -36,9 +36,9 @@ export function fastCloneDeep<T>(input: T): T {
 }
 
 /** Perform a shallow clone of an object to another, in the fastest way possible */
-export function fastAssign<T, U>(target: T, source: U): T & U {
-    if (!isPlainObject(source)) {
-        return target as T & U;
+export function fastAssign<T, U>(target: T, source: U) {
+    if (!isObjectEntity(source)) {
+        return target;
     }
 
     for (const [key, val] of Object.entries(source)) {

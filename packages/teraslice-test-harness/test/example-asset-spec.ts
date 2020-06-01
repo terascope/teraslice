@@ -113,8 +113,10 @@ describe('Example Asset', () => {
         let harness: SlicerTestHarness;
 
         beforeEach(async () => {
-            // @ts-expect-error
-            simpleClient.sliceRequest.mockImplementation((count: number) => ({ count, super: 'man' }));
+            const mockedSliceRequest = jest.fn()
+                .mockImplementation((count: number) => ({ count, super: 'man' }))
+
+            simpleClient.sliceRequest = mockedSliceRequest;
 
             harness = new SlicerTestHarness(job, {
                 clients: [clientConfig],
@@ -132,14 +134,14 @@ describe('Example Asset', () => {
             expect(clientConfig.create).toHaveBeenCalledTimes(1);
         });
 
-        it('should return a list of records', async () => {
-            const results = await harness.createSlices();
+        fit('should return a list of records', async () => {
+            const results = await harness.createSlices() as any[];
             expect(results).toBeArrayOfSize(10);
 
             for (const result of results) {
                 expect(DataEntity.isDataEntity(result)).toBe(false);
-                expect(result.count).toEqual(10);
-                expect(result.super).toEqual('man');
+                expect(result?.count).toEqual(10);
+                expect(result?.super).toEqual('man');
             }
         });
     });
@@ -196,7 +198,7 @@ describe('Example Asset', () => {
 
             for (const results of batches) {
                 expect(results).toBeArrayOfSize(10);
-
+                // @ts-ignore
                 for (const result of results) {
                     expect(DataEntity.isDataEntity(result)).toBe(true);
                     expect(result.scale).toBe(6);
@@ -218,7 +220,7 @@ describe('Example Asset', () => {
 
             for (const results of batches) {
                 expect(results).toBeArrayOfSize(10);
-
+                // @ts-ignore
                 for (const result of results) {
                     expect(DataEntity.isDataEntity(result)).toBe(true);
                     expect(result.scale).toBe(6);
