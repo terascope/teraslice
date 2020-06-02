@@ -65,12 +65,12 @@ export default abstract class ParallelSlicer<T = OpConfig> extends SlicerCore<T>
         // they will return undefined which will always win race
         // which will prevent other from calling
 
-        const promises = this._slicers
+        const slicers = this._slicers
             .filter((slicer) => !slicer.processing && !slicer.done);
 
         // calling race on an empty array will be forever pending
-        if (promises.length > 0) {
-            await Promise.race(promises.map((slicer) => this.processSlicer(slicer)));
+        if (slicers.length > 0) {
+            await Promise.race(slicers.map((slicer) => this.processSlicer(slicer)));
         } else {
             // promises are a microtask, if no action then we need to delay
             await pDelay(10);

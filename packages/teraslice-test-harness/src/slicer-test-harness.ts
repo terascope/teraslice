@@ -10,8 +10,7 @@ import {
     SlicerRecoveryData,
     times,
     isPlainObject,
-    AnyObject
-} from '@terascope/job-components';
+=} from '@terascope/job-components';
 import BaseTestHarness from './base-test-harness';
 import { JobHarnessOptions } from './interfaces';
 
@@ -21,7 +20,7 @@ import { JobHarnessOptions } from './interfaces';
  * This is useful for testing Slicers.
 */
 
-type SliceResults = (AnyObject|SliceRequest|Slice|null)[];
+type SliceResults = (SliceRequest|Slice|null)[];
 
 export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionContext> {
     readonly stats: ExecutionStats = {
@@ -82,11 +81,10 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
      *
      * @returns an array of Slices including the metadata or the just the Slice Request.
     */
-    async createSlices(): Promise<SliceResults>;
-    async createSlices(): Promise<SliceResults>;
-    async createSlices(options: { fullResponse: false }): Promise<SliceResults>;
-    async createSlices(options: { fullResponse: true }): Promise<SliceResults>;
-    async createSlices({ fullResponse = false } = {}): Promise<SliceResults> {
+    async createSlices(): Promise<(SliceRequest|null)[]>;
+    async createSlices(options: { fullResponse: false }): Promise<(SliceRequest|null)[]>;
+    async createSlices(options: { fullResponse: true }): Promise<(Slice|null)[]>;
+    async createSlices({ fullResponse = false } = {}): Promise<(SliceRequest|Slice|null)[]> {
         const slicers = this.slicer().slicers();
         await this.slicer().handle();
 
@@ -127,12 +125,12 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
     }
 
     async getAllSlices(): Promise<SliceResults>;
-    async getAllSlices(options: { fullResponse: false }): Promise<SliceResults>;
-    async getAllSlices(options: { fullResponse: true }): Promise<SliceResults>;
+    async getAllSlices(options: { fullResponse: false }): Promise<(Slice|null)[]>;
+    async getAllSlices(options: { fullResponse: true }): Promise<(SliceRequest|null)[]>;
     async getAllSlices({ fullResponse = false } = {}): Promise<SliceResults> {
+        if (this.executionContext.config.lifecycle !== 'once') throw new Error('This method can only be used when lifecycle is set to "once"');
         const results = [];
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+        // @ts-expect-error
         while (!this.slicer().isFinished) {
             let sliceResults: SliceResults;
             if (fullResponse) {

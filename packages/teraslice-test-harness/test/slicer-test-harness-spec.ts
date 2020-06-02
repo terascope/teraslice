@@ -4,7 +4,8 @@ import {
     newTestJobConfig,
     Slicer,
     uniq,
-    AnyObject
+    AnyObject,
+    LifeCycle
 } from '@terascope/job-components';
 import { SlicerTestHarness } from '../src';
 import ParallelSlicer from './fixtures/asset/parallel-reader/slicer';
@@ -149,9 +150,10 @@ describe('SlicerTestHarness', () => {
             if (slicerHarness) await slicerHarness.shutdown();
         });
 
-        async function makeTest(numOfSlicers = 1): Promise<SlicerTestHarness> {
+        async function makeTest(numOfSlicers = 1, mode = 'once' as LifeCycle): Promise<SlicerTestHarness> {
             const job = newTestJobConfig();
             job.analytics = true;
+            job.lifecycle = mode;
             job.slicers = numOfSlicers;
             job.operations = [
                 {
@@ -213,6 +215,10 @@ describe('SlicerTestHarness', () => {
                 expect(result.slicer_order).toEqual(index + 1);
                 expect(result.request).toEqual(slicerTwoResults[index]);
             });
+        });
+
+        it('getAllSlices will throw if not in once mode', async () => {
+            expect(makeTest(2, 'persistent')).toReject();
         });
     });
 });

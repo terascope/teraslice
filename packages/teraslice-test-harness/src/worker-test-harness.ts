@@ -28,7 +28,7 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
         super(job, options, 'worker');
     }
 
-    static testProcessor(opConfig: OpConfig, options?: JobHarnessOptions) {
+    static testProcessor(opConfig: OpConfig, options?: JobHarnessOptions): WorkerTestHarness {
         const job = newTestJobConfig({
             max_retries: 0,
             operations: [
@@ -42,7 +42,7 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
         return new WorkerTestHarness(job, options);
     }
 
-    static testFetcher(opConfig: OpConfig, options?: JobHarnessOptions) {
+    static testFetcher(opConfig: OpConfig, options?: JobHarnessOptions): WorkerTestHarness {
         const job = newTestJobConfig({
             max_retries: 0,
             operations: [
@@ -59,11 +59,11 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
         return this.executionContext.fetcher<T>();
     }
 
-    get processors() {
+    get processors(): WorkerExecutionContext['processors'] {
         return this.executionContext.processors;
     }
 
-    get apis() {
+    get apis(): WorkerExecutionContext['apis'] {
         return this.executionContext.apis;
     }
 
@@ -78,7 +78,7 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
     /**
      * Initialize the Operations on the ExecutionContext
      */
-    async initialize() {
+    async initialize(): Promise<void> {
         await super.initialize();
         await this.executionContext.initialize();
     }
@@ -153,7 +153,7 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
         return response;
     }
 
-    async shutdown() {
+    async shutdown(): Promise<void> {
         await super.shutdown();
         await this.executionContext.shutdown();
     }
