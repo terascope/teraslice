@@ -134,7 +134,7 @@ describe('Example Asset', () => {
             expect(clientConfig.create).toHaveBeenCalledTimes(1);
         });
 
-        fit('should return a list of records', async () => {
+        it('should return a list of records', async () => {
             const results = await harness.createSlices() as any[];
             expect(results).toBeArrayOfSize(10);
 
@@ -197,9 +197,10 @@ describe('Example Asset', () => {
             expect(batches).toBeArrayOfSize(10);
 
             for (const results of batches) {
+                expect(results).not.toBeNull();
                 expect(results).toBeArrayOfSize(10);
-                // @ts-ignore
-                for (const result of results) {
+
+                for (const result of results as any) {
                     expect(DataEntity.isDataEntity(result)).toBe(true);
                     expect(result.scale).toBe(6);
                 }
@@ -219,9 +220,10 @@ describe('Example Asset', () => {
             expect(batches).toBeArrayOfSize(10);
 
             for (const results of batches) {
+                expect(results).not.toBeNull();
                 expect(results).toBeArrayOfSize(10);
-                // @ts-ignore
-                for (const result of results) {
+
+                for (const result of results as any) {
                     expect(DataEntity.isDataEntity(result)).toBe(true);
                     expect(result.scale).toBe(6);
                 }
