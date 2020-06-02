@@ -21,7 +21,7 @@ export default abstract class Slicer<T = OpConfig> extends SlicerCore<T> {
      */
     abstract async slice(): Promise<SlicerResult>;
 
-    slicers() {
+    slicers(): number {
         return 1;
     }
 
