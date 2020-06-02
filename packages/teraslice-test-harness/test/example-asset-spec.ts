@@ -124,7 +124,7 @@ describe('Example Asset', () => {
 
         beforeEach(async () => {
             const mockedSliceRequest = jest.fn()
-                .mockImplementation((count: number) => ({ count, super: 'man' }))
+                .mockImplementation((count: number) => ({ count, super: 'man' }));
 
             simpleClient.sliceRequest = mockedSliceRequest;
 

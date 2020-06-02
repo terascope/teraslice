@@ -160,14 +160,11 @@ export function unique(input: any, _parentContext: any, batchConfig: BatchConfig
 }
 
 export function count(input: any, _parentContext: any, batchConfig: BatchConfig) {
-    console.log('count input', input, batchConfig);
     const config = validateConfig(batchConfig);
     if (ts.isNil(input)) return null;
 
     const batchData = batchByKeys(input, config, _filterValues);
-    console.log('what is batchData', batchData, batchData.get('count-3:field-value1'));
     const results = _iterateBatch(batchData, _length);
-    console.log('what is results i here', results);
 
     return results;
 }
