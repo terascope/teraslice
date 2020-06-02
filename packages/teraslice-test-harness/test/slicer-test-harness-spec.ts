@@ -2,7 +2,9 @@ import 'jest-extended';
 import path from 'path';
 import {
     newTestJobConfig,
-    Slicer
+    Slicer,
+    uniq,
+    AnyObject
 } from '@terascope/job-components';
 import { SlicerTestHarness } from '../src';
 import ParallelSlicer from './fixtures/asset/parallel-reader/slicer';
@@ -185,12 +187,32 @@ describe('SlicerTestHarness', () => {
             expect(test.slicer<ParallelSlicer>().isFinished).toEqual(true);
         });
 
-        fit('can run with a multiple slicers', async () => {
+        it('can run with a multiple slicers', async () => {
+            const slicerOneResults = [{ count: 2, id: 0 }, { count: 1, id: 0 }];
+            const slicerTwoResults = [{ count: 2, id: 1 }, { count: 1, id: 1 }];
+
             const test = await makeTest(2);
 
-            const results = await test.getAllSlices();
-            console.log('results', results)
-            expect(results).toEqual('hello')
+            const sliceResults = uniq(await test.getAllSlices({ fullResponse: true }))
+                .filter(Boolean) as AnyObject[];
+
+            const slicerOne = sliceResults.filter((obj) => obj.slicer_id === 0);
+            const slicerTwo = sliceResults.filter((obj) => obj.slicer_id === 1);
+
+            expect(slicerOne).toBeArrayOfSize(2);
+            expect(slicerTwo).toBeArrayOfSize(2);
+
+            slicerOne.forEach((result, index) => {
+                expect(result.slicer_id).toEqual(0);
+                expect(result.slicer_order).toEqual(index + 1);
+                expect(result.request).toEqual(slicerOneResults[index]);
+            });
+
+            slicerTwo.forEach((result, index) => {
+                expect(result.slicer_id).toEqual(1);
+                expect(result.slicer_order).toEqual(index + 1);
+                expect(result.request).toEqual(slicerTwoResults[index]);
+            });
         });
     });
 });

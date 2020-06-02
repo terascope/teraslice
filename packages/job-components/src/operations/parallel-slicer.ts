@@ -84,8 +84,6 @@ export default abstract class ParallelSlicer<T = OpConfig> extends SlicerCore<T>
     }
 
     private async processSlicer(slicer: SlicerObj) {
-        this.logger.info('slicer', slicer);
-
         slicer.processing = true;
         let result: SlicerResult;
 
@@ -114,7 +112,6 @@ export default abstract class ParallelSlicer<T = OpConfig> extends SlicerCore<T>
                 }
             }
         } finally {
-            this.logger.info(`slicer ${slicer.id} has finished processing`);
             slicer.processing = false;
         }
     }
