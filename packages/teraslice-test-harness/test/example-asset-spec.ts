@@ -11,6 +11,7 @@ jest.mock('./fixtures/asset/simple-connector/client');
 
 describe('Example Asset', () => {
     const assetDir = path.join(__dirname, 'fixtures');
+    const apiName = 'simple-api';
     const simpleClient = new SimpleClient();
     const clientConfig: TestClientConfig = {
         type: 'simple-client',
@@ -27,7 +28,7 @@ describe('Example Asset', () => {
         job.analytics = true;
         job.apis = [
             {
-                _name: 'simple-api',
+                _name: apiName,
             },
         ];
         job.operations = [
@@ -95,6 +96,15 @@ describe('Example Asset', () => {
             const api = harness.apis['simple-api'].opAPI as SimpleAPI;
 
             expect(api).toHaveProperty('count', 0);
+        });
+
+        it('can get apis using getOperationAPI', async () => {
+            const api = harness.getOperationAPI<SimpleAPI>(apiName);
+
+            expect(api).toBeDefined();
+            expect(api.count).toBeNumber();
+            expect(api.add).toBeFunction();
+            expect(api.sub).toBeFunction();
         });
     });
 
@@ -228,6 +238,15 @@ describe('Example Asset', () => {
                     expect(result.scale).toBe(6);
                 }
             }
+        });
+
+        it('can get apis using getOperationAPI', async () => {
+            const api = harness.getOperationAPI<SimpleAPI>(apiName);
+
+            expect(api).toBeDefined();
+            expect(api.count).toBeNumber();
+            expect(api.add).toBeFunction();
+            expect(api.sub).toBeFunction();
         });
     });
 });

@@ -8,6 +8,7 @@ import {
     newTestSlice,
     FetcherCore,
     OperationCore,
+    APICore,
     OpConfig,
     newTestJobConfig,
 } from '@terascope/job-components';
@@ -68,6 +69,10 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
 
     getOperation<T extends OperationCore = OperationCore>(findBy: string | number): T {
         return this.executionContext.getOperation<T>(findBy);
+    }
+
+    getOperationAPI<T extends APICore = APICore>(apiName: string): T {
+        return this.executionContext.api.getAPI<T>(apiName);
     }
 
     /**

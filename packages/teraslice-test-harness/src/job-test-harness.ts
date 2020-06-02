@@ -8,9 +8,9 @@ import {
     FetcherCore,
     SlicerCore,
     SlicerRecoveryData,
-    AnyObject,
     pDelay,
-    flatten
+    flatten,
+    APICore
 } from '@terascope/job-components';
 import SlicerTestHarness from './slicer-test-harness';
 import WorkerTestHarness from './worker-test-harness';
@@ -53,6 +53,10 @@ export default class JobTestHarness {
 
     get apis() {
         return this.workerHarness.apis;
+    }
+
+    getOperationAPI<T extends APICore = APICore>(apiName: string): T {
+        return this.workerHarness.getOperationAPI<T>(apiName);
     }
 
     /**
