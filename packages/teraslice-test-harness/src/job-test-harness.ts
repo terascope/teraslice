@@ -110,10 +110,10 @@ export default class JobTestHarness {
                 slice,
                 { fullResponse: true }
             ) as RunSliceResult;
+
             if (result.analytics) {
                 analytics = result.analytics;
             }
-            // @ts-ignore
             results.push(result.results as DataList);
             this.slicerHarness.stats.slices.processed++;
         } catch (err) {
@@ -129,6 +129,11 @@ export default class JobTestHarness {
         return results;
     }
 
+    /**
+     * Gathers all slices from slicer and run them,
+     *
+     * @returns an array of objects containing the slice and the data the reader generated
+    */
     async runToCompletion(): Promise<SliceResults[]> {
         const results: SliceResults[] = [];
         const allSlices = (await this.slicerHarness.getAllSlices({ fullResponse: true }))
