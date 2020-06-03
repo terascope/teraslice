@@ -10,7 +10,7 @@ import {
     SlicerRecoveryData,
     times,
     isPlainObject,
-=} from '@terascope/job-components';
+} from '@terascope/job-components';
 import BaseTestHarness from './base-test-harness';
 import { JobHarnessOptions } from './interfaces';
 
