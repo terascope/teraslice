@@ -5,6 +5,8 @@ import {
     TestClientConfig,
     ProcessorConstructor,
     SlicerConstructor,
+    Slice,
+    DataEntity
 } from '@terascope/job-components';
 
 export type ExecutionContext = WorkerExecutionContext|SlicerExecutionContext;
@@ -20,3 +22,8 @@ export interface OpTestHarnessOptions {
 }
 
 export type AnyOperationConstructor = ProcessorConstructor|SlicerConstructor;
+
+export interface SliceResults {
+    slice: Slice;
+    data: DataEntity[]
+}

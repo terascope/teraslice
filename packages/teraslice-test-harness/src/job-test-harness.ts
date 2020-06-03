@@ -14,7 +14,7 @@ import {
 } from '@terascope/job-components';
 import SlicerTestHarness from './slicer-test-harness';
 import WorkerTestHarness from './worker-test-harness';
-import { JobHarnessOptions } from './interfaces';
+import { JobHarnessOptions, SliceResults } from './interfaces';
 
 /**
  * A test harness for both the Slicer and Fetcher,
@@ -24,11 +24,6 @@ import { JobHarnessOptions } from './interfaces';
  *
  * @todo Handle more than one worker?
 */
-
-interface SliceResults {
-    slice: Slice;
-    data: DataList
-}
 
 export default class JobTestHarness {
     private workerHarness: WorkerTestHarness;
