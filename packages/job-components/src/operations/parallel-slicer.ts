@@ -64,7 +64,6 @@ export default abstract class ParallelSlicer<T = OpConfig> extends SlicerCore<T>
         // must filter out done slicers, if they are done
         // they will return undefined which will always win race
         // which will prevent other from calling
-
         const slicers = this._slicers
             .filter((slicer) => !slicer.processing && !slicer.done);
 

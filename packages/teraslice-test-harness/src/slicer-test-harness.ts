@@ -86,6 +86,7 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
     async createSlices(options: { fullResponse: true }): Promise<(Slice|null)[]>;
     async createSlices({ fullResponse = false } = {}): Promise<(SliceRequest|Slice|null)[]> {
         const slicers = this.slicer().slicers();
+
         await this.slicer().handle();
 
         const slices = this.slicer().getSlices(10000);
@@ -129,9 +130,10 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
     async getAllSlices(options: { fullResponse: true }): Promise<(SliceRequest|null)[]>;
     async getAllSlices({ fullResponse = false } = {}): Promise<SliceResults> {
         if (this.executionContext.config.lifecycle !== 'once') throw new Error('This method can only be used when lifecycle is set to "once"');
-        const results = [];
-        // @ts-expect-error
-        while (!this.slicer().isFinished) {
+        const results: (SliceRequest|Slice|null)[] = [];
+        this.context.logger.info('before while');
+
+        const run = async (): Promise<void> => {
             let sliceResults: SliceResults;
             if (fullResponse) {
                 sliceResults = await this.createSlices({ fullResponse });
@@ -139,7 +141,14 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
                 sliceResults = await this.createSlices();
             }
             results.push(...sliceResults);
-        }
+
+            // @ts-expect-error
+            if (!this.slicer().isFinished) {
+                return run();
+            }
+        };
+
+        await run();
 
         return results;
     }

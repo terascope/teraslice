@@ -42,11 +42,11 @@ export default class JobTestHarness {
         return this.workerHarness.fetcher<T>();
     }
 
-    get processors() {
+    get processors(): WorkerTestHarness['processors'] {
         return this.workerHarness.processors;
     }
 
-    get apis() {
+    get apis(): WorkerTestHarness['apis'] {
         return this.workerHarness.apis;
     }
 
@@ -135,6 +135,7 @@ export default class JobTestHarness {
     */
     async runToCompletion(): Promise<SliceResults[]> {
         const results: SliceResults[] = [];
+
         const allSlices = (await this.slicerHarness.getAllSlices({ fullResponse: true }))
             .filter(Boolean) as Slice[];
 
