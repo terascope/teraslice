@@ -210,4 +210,39 @@ describe('WorkerTestHarness', () => {
             expect(flushedResults!.analytics).toContainKeys(['time', 'memory', 'size']);
         });
     });
+
+    describe('harness preserves metadata of data passed in', () => {
+        const options = { assetDir: path.join(__dirname, 'fixtures') };
+        let harness: WorkerTestHarness;
+
+        beforeAll(async () => {
+            const job = newTestJobConfig({
+                max_retries: 0,
+                analytics: true,
+                operations: [
+                    {
+                        _op: 'test-reader',
+                        passthrough_slice: true,
+                    },
+                    { _op: 'test-processor' },
+                ],
+            });
+
+            harness = new WorkerTestHarness(job, options);
+
+            await harness.initialize();
+        });
+
+        afterAll(async () => {
+            await harness.shutdown();
+        });
+
+        it('should able return the result with analytics', async () => {
+            const data = [{ some: 'data' }, { other: 'data' }]
+                .map((obj) => DataEntity.make(obj, { test: { i: 'am a test' } }));
+
+            const results = await harness.runSlice(data);
+            expect(results).toEqual([{ i: 'am a test' }, { i: 'am a test' }]);
+        });
+    });
 });

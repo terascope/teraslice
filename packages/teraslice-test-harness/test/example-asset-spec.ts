@@ -11,6 +11,7 @@ jest.mock('./fixtures/asset/simple-connector/client');
 
 describe('Example Asset', () => {
     const assetDir = path.join(__dirname, 'fixtures');
+    const apiName = 'simple-api';
     const simpleClient = new SimpleClient();
     const clientConfig: TestClientConfig = {
         type: 'simple-client',
@@ -27,7 +28,7 @@ describe('Example Asset', () => {
         job.analytics = true;
         job.apis = [
             {
-                _name: 'simple-api',
+                _name: apiName,
             },
         ];
         job.operations = [
@@ -96,6 +97,15 @@ describe('Example Asset', () => {
 
             expect(api).toHaveProperty('count', 0);
         });
+
+        it('can get apis using getOperationAPI', async () => {
+            const api = harness.getOperationAPI<SimpleAPI>(apiName);
+
+            expect(api).toBeDefined();
+            expect(api.count).toBeNumber();
+            expect(api.add).toBeFunction();
+            expect(api.sub).toBeFunction();
+        });
     });
 
     describe('using the SlicerTestHarness', () => {
@@ -113,8 +123,10 @@ describe('Example Asset', () => {
         let harness: SlicerTestHarness;
 
         beforeEach(async () => {
-            // @ts-expect-error
-            simpleClient.sliceRequest.mockImplementation((count: number) => ({ count, super: 'man' }));
+            const mockedSliceRequest = jest.fn()
+                .mockImplementation((count: number) => ({ count, super: 'man' }));
+
+            simpleClient.sliceRequest = mockedSliceRequest;
 
             harness = new SlicerTestHarness(job, {
                 clients: [clientConfig],
@@ -133,13 +145,13 @@ describe('Example Asset', () => {
         });
 
         it('should return a list of records', async () => {
-            const results = await harness.createSlices();
+            const results = await harness.createSlices() as any[];
             expect(results).toBeArrayOfSize(10);
 
             for (const result of results) {
                 expect(DataEntity.isDataEntity(result)).toBe(false);
-                expect(result.count).toEqual(10);
-                expect(result.super).toEqual('man');
+                expect(result?.count).toEqual(10);
+                expect(result?.super).toEqual('man');
             }
         });
     });
@@ -195,9 +207,10 @@ describe('Example Asset', () => {
             expect(batches).toBeArrayOfSize(10);
 
             for (const results of batches) {
+                expect(results).not.toBeNull();
                 expect(results).toBeArrayOfSize(10);
 
-                for (const result of results) {
+                for (const result of results as any) {
                     expect(DataEntity.isDataEntity(result)).toBe(true);
                     expect(result.scale).toBe(6);
                 }
@@ -217,13 +230,23 @@ describe('Example Asset', () => {
             expect(batches).toBeArrayOfSize(10);
 
             for (const results of batches) {
+                expect(results).not.toBeNull();
                 expect(results).toBeArrayOfSize(10);
 
-                for (const result of results) {
+                for (const result of results as any) {
                     expect(DataEntity.isDataEntity(result)).toBe(true);
                     expect(result.scale).toBe(6);
                 }
             }
+        });
+
+        it('can get apis using getOperationAPI', async () => {
+            const api = harness.getOperationAPI<SimpleAPI>(apiName);
+
+            expect(api).toBeDefined();
+            expect(api.count).toBeNumber();
+            expect(api.add).toBeFunction();
+            expect(api.sub).toBeFunction();
         });
     });
 });

@@ -121,7 +121,8 @@ function batchByKeys(input: any, config: ValidatedBatchConfig, filterFn: FilterF
     const batch: Batch = new Map<string, AggregationResults>();
     const keys = config.keys || [];
     const hasKeys = keys.length !== 0;
-    const filterConfig = { excludes: [source], includes: keys };
+    const excludes = keys.includes(source) ? [] : [source];
+    const filterConfig = { excludes, includes: keys };
     // we batch based of target key since it will be collapsed
 
     for (const record of data) {
@@ -163,7 +164,9 @@ export function count(input: any, _parentContext: any, batchConfig: BatchConfig)
     if (ts.isNil(input)) return null;
 
     const batchData = batchByKeys(input, config, _filterValues);
-    return _iterateBatch(batchData, _length);
+    const results = _iterateBatch(batchData, _length);
+
+    return results;
 }
 
 function _length(val: any[]) {

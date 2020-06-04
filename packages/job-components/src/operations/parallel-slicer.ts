@@ -1,4 +1,4 @@
-import { times, isFunction } from '@terascope/utils';
+import { times, isFunction, pDelay } from '@terascope/utils';
 import {
     SlicerFn, SlicerResult, OpConfig, SlicerRecoveryData
 } from '../interfaces';
@@ -43,7 +43,7 @@ export default abstract class ParallelSlicer<T = OpConfig> extends SlicerCore<T>
      *
      * See [[SlicerCore#shutdown]]
      */
-    async shutdown() {
+    async shutdown(): Promise<void> {
         this._slicers.length = 0;
         return super.shutdown();
     }
@@ -54,18 +54,27 @@ export default abstract class ParallelSlicer<T = OpConfig> extends SlicerCore<T>
      */
     abstract async newSlicer(id: number): Promise<SlicerFn | undefined>;
 
-    slicers() {
+    slicers(): number {
         return this._slicers.length;
     }
 
     async handle(): Promise<boolean> {
         if (this.isFinished) return true;
 
-        const promises = this._slicers
-            .filter((slicer) => !slicer.processing)
-            .map((slicer) => this.processSlicer(slicer));
+        // must filter out done slicers, if they are done
+        // they will return undefined which will always win race
+        // which will prevent other from calling
+        const slicers = this._slicers
+            .filter((slicer) => !slicer.processing && !slicer.done);
 
-        await Promise.race(promises);
+        // calling race on an empty array will be forever pending
+        if (slicers.length > 0) {
+            await Promise.race(slicers.map((slicer) => this.processSlicer(slicer)));
+        } else {
+            // promises are a microtask, if no action then we need to delay
+            await pDelay(10);
+        }
+
         return this.isFinished;
     }
 
@@ -74,33 +83,35 @@ export default abstract class ParallelSlicer<T = OpConfig> extends SlicerCore<T>
     }
 
     private async processSlicer(slicer: SlicerObj) {
-        if (slicer.done || slicer.processing) return;
-
         slicer.processing = true;
         let result: SlicerResult;
 
         try {
             result = await slicer.fn();
-        } finally {
+        } catch (err) {
             slicer.processing = false;
+            throw err;
         }
 
-        if (result == null && this.canComplete()) {
-            this.logger.info(`slicer ${slicer.id} has completed its range`);
-            slicer.done = true;
-
-            this.events.emit('slicer:done', slicer.id);
-        } else if (result != null) {
-            if (Array.isArray(result)) {
-                this.events.emit('slicer:subslice');
-                result.forEach((item) => {
+        try {
+            if (result == null && this.canComplete()) {
+                this.logger.info(`slicer ${slicer.id} has completed its range`);
+                slicer.done = true;
+                this.events.emit('slicer:done', slicer.id);
+            } else if (result != null) {
+                if (Array.isArray(result)) {
+                    this.events.emit('slicer:subslice');
+                    result.forEach((item) => {
+                        slicer.order += 1;
+                        this.createSlice(item, slicer.order, slicer.id);
+                    });
+                } else {
                     slicer.order += 1;
-                    this.createSlice(item, slicer.order, slicer.id);
-                });
-            } else {
-                slicer.order += 1;
-                this.createSlice(result, slicer.order, slicer.id);
+                    this.createSlice(result, slicer.order, slicer.id);
+                }
             }
+        } finally {
+            slicer.processing = false;
         }
     }
 }
