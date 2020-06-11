@@ -49,7 +49,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         return _searchES(query).then((data) => get(data, 'hits.total.value', get(data, 'hits.total')));
     }
 
-    function parseElasticsearchData(doc) {
+    function convertDocToDataEntity(doc) {
         const now = Date.now();
         const metadata = {
             _key: doc._id,
@@ -86,7 +86,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                 return data;
             }
             if (!data.hits.hits) return [];
-            return data.hits.hits.map(parseElasticsearchData);
+            return data.hits.hits.map(convertDocToDataEntity);
         });
     }
 
@@ -119,7 +119,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                 if (fullResponse) return results;
                 return results.docs
                     .filter((doc) => doc.found)
-                    .map(parseElasticsearchData);
+                    .map(convertDocToDataEntity);
             });
     }
 
@@ -128,7 +128,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             return _clientRequest('get', query);
         }
         return _clientRequest('get', query)
-            .then(parseElasticsearchData);
+            .then(convertDocToDataEntity);
     }
 
     function indexFn(query) {
