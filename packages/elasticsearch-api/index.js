@@ -17,7 +17,8 @@ const {
     toBoolean,
     uniq,
     random,
-    cloneDeep
+    cloneDeep,
+    DataEntity
 } = require('@terascope/utils');
 
 const DOCUMENT_EXISTS = 409;
@@ -48,6 +49,25 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         return _searchES(query).then((data) => get(data, 'hits.total.value', get(data, 'hits.total')));
     }
 
+    function parseElasticsearchData(doc) {
+        const now = Date.now();
+        const metadata = {
+            _key: doc._id,
+            _processTime: now,
+            /** @todo this should come from the data */
+            _ingestTime: now,
+            /** @todo this should come from the data */
+            _eventTime: now,
+            // pass only the record metadata
+            _index: doc._index,
+            _type: doc._type,
+            _version: doc._version,
+            _seq_no: doc._seq_no,
+            _primary_term: doc._primary_term
+        };
+        return DataEntity.make(doc._source, metadata);
+    }
+
     function search(query) {
         const esVersion = getESVersion();
         if (esVersion >= 7) {
@@ -66,7 +86,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                 return data;
             }
             if (!data.hits.hits) return [];
-            return data.hits.hits.map((doc) => doc._source);
+            return data.hits.hits.map(parseElasticsearchData);
         });
     }
 
@@ -93,15 +113,22 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         return _makeRequest(client.indices, endpoint, query, 'indices');
     }
 
-    function mget(query) {
-        return _clientRequest('mget', query);
+    function mget(query, fullResponse = false) {
+        return _clientRequest('mget', query)
+            .then((results) => {
+                if (fullResponse) return results;
+                return results.docs
+                    .filter((doc) => doc.found)
+                    .map(parseElasticsearchData);
+            });
     }
 
     function getFn(query, fullResponse = false) {
         if (fullResponse) {
             return _clientRequest('get', query);
         }
-        return _clientRequest('get', query).then((result) => result._source);
+        return _clientRequest('get', query)
+            .then(parseElasticsearchData);
     }
 
     function indexFn(query) {
