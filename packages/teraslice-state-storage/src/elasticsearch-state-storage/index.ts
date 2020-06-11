@@ -80,21 +80,21 @@ export default class ESCachedStateStorage {
         return this.cache.set(key, doc);
     }
 
-    getFromCache(doc: DataEntity) {
+    getFromCache(doc: DataEntity): DataEntity|undefined {
         const key = this.getIdentifier(doc);
         return this.getFromCacheByKey(key);
     }
 
-    getFromCacheByKey(key: string|number) {
+    getFromCacheByKey(key: string|number): DataEntity|undefined {
         return this.cache.get(key);
     }
 
-    isCached(doc: DataEntity) {
+    isCached(doc: DataEntity): boolean {
         const key = this.getIdentifier(doc);
         return this.isKeyCached(key);
     }
 
-    isKeyCached(key: string|number) {
+    isKeyCached(key: string|number): boolean {
         return this.cache.has(key);
     }
 
@@ -128,7 +128,6 @@ export default class ESCachedStateStorage {
                 found: Object.keys(found).length
             }
         );
-
         return found;
     }
 
@@ -150,8 +149,8 @@ export default class ESCachedStateStorage {
         const inEs = cacheResults.found - inMemory;
         const misses = cacheResults.uniqIncoming - cacheResults.found;
 
-        this.logger.info(`elasticsearch-state-storage cache results - 
-            ending cache count: ${this.cache.count()}, 
+        this.logger.info(`elasticsearch-state-storage cache results -
+            ending cache count: ${this.cache.count()},
             beginning cache count: ${cacheResults.beginingCacheCount},
             uniq incoming: ${cacheResults.uniqIncoming},
             found in memory: ${inMemory},
@@ -173,12 +172,7 @@ export default class ESCachedStateStorage {
         const esResponse = await this._concurrentEsMget(keyArray);
 
         for (const response of esResponse) {
-            response.docs.forEach((result) => {
-                if (result.found) {
-                    const saved = makeDataEntity(result);
-                    this.set(saved);
-                }
-            });
+            response.forEach((result) => this.set(result));
         }
     }
 
@@ -211,14 +205,14 @@ export default class ESCachedStateStorage {
         return updated;
     }
 
-    private _concurrentEsMget(keyArray: string[]): Promise<ESMGetResponse[]> {
+    private _concurrentEsMget(keyArray: string[]): Promise<DataEntity[][]> {
         return pMap(
             chunk(keyArray, this.chunkSize),
             (chunked) => this._esMGet(chunked), { concurrency: this.concurrency }
         );
     }
 
-    private async _esMGet(ids: string[]): Promise<ESMGetResponse> {
+    private async _esMGet(ids: string[]): Promise<DataEntity[]> {
         const request: ESMGetParams = {
             index: this.index,
             type: this.type,

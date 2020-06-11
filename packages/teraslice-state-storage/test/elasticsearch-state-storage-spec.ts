@@ -9,6 +9,7 @@ import {
     ESMGetParams,
 } from '../src/elasticsearch-state-storage';
 
+// TODO: this should search against elasticsearch
 describe('elasticsearch-state-storage', () => {
     const logger = debugLogger('elasticsearch-state-storage');
     let client: TestClient;
