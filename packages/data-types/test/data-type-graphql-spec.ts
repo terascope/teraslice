@@ -73,15 +73,15 @@ describe('DataType (graphql)', () => {
                             foo: String
                         }
 
-                        # nested field test description
-                        type ObjType {
-                            example: DTObjTypeExampleV1
-                        }
-
                         input DTObjTypeExampleInputV1 {
                             a: String
                             bar: String
                             foo: String
+                        }
+
+                        # nested field test description
+                        type ObjType {
+                            example: DTObjTypeExampleV1
                         }
 
                         # Input for ObjType - nested field test description
@@ -175,14 +175,6 @@ describe('DataType (graphql)', () => {
             });
 
             const schema = formatSchema(`
-                type firstType {
-                    date: String
-                    hello: String
-                    ip: String
-                    location: DTGeoPointV1
-                    someNum: Float
-                }
-
                 type DTGeoPointV1 {
                     lat: String!
                     lon: String!
@@ -193,6 +185,14 @@ describe('DataType (graphql)', () => {
                     lon: Float!
                 }
 
+                type firstType {
+                    date: String
+                    hello: String
+                    ip: String
+                    location: DTGeoPointV1
+                    someNum: Float
+                }
+
                 type secondType {
                     bool: Boolean
                     hello: String
@@ -201,7 +201,7 @@ describe('DataType (graphql)', () => {
                 }
             `);
 
-            expect(results).toEqual(schema);
+            expect(results.trim()).toEqual(schema.trim());
         });
 
         it('can build use snake case when needed', () => {
@@ -241,11 +241,21 @@ describe('DataType (graphql)', () => {
             });
 
             const schema = formatSchema(`
-                input DT_second_type_foo_input_V1 {
-                   bar: String
+                type DTGeoPointV1 {
+                    lat: String!
+                    lon: String!
+                }
+
+                input DTGeoPointInputV1 {
+                    lat: String!
+                    lon: String!
                 }
 
                 type DT_second_type_foo_V1 {
+                   bar: String
+                }
+
+                input DT_second_type_foo_input_V1 {
                    bar: String
                 }
 
@@ -254,19 +264,9 @@ describe('DataType (graphql)', () => {
                     lon: Float!
                 }
 
-                type DTGeoPointV1 {
-                    lat: String!
-                    lon: String!
-                }
-
                 input DTGeoBoundaryInputV1 {
                     lat: Float!
                     lon: Float!
-                }
-
-                input DTGeoPointInputV1 {
-                    lat: String!
-                    lon: String!
                 }
 
                 type first_type {
@@ -304,7 +304,7 @@ describe('DataType (graphql)', () => {
                 }
             `);
 
-            expect(results).toEqual(schema);
+            expect(results.trim()).toEqual(schema.trim());
         });
 
         it('should be able to generate the input types', () => {
@@ -465,6 +465,11 @@ describe('DataType (graphql)', () => {
             });
 
             const schema = formatSchema(`
+                    type DTGeoPointV1 {
+                        lat: String!
+                        lon: String!
+                    }
+
                     scalar JSONObject
 
                     type Info {
@@ -482,11 +487,6 @@ describe('DataType (graphql)', () => {
                         # references and virtual fields
                         info(query: String): Info
                         num_parents: Int
-                    }
-
-                    type DTGeoPointV1 {
-                        lat: String!
-                        lon: String!
                     }
 
                     type ParentType {
