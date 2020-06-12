@@ -281,14 +281,34 @@ describe('elasticsearch-state-storage', () => {
         });
 
         describe('when presist is true and field is specified', () => {
+            const otherDocArray = makeTestDocs();
+
             beforeEach(() => setup({
                 persist: true,
                 meta_key_field: 'otherField'
             }));
+
             afterEach(() => teardown());
 
-            it('should allow mset to use a persist field', async () => {
-                const otherDocArray = makeTestDocs();
+            it('should use other field for mget query', async () => {
+                const mgetResponse = otherDocArray.map((doc) => {
+                    const other = doc.getMetadata('otherField');
+                    doc.setMetadata('_key', other);
+
+                    return doc;
+                });
+
+                client.setMGetResponse(client.createMGetResponse(mgetResponse));
+
+                // state response
+                const stateResponse = await stateStorage.mget(otherDocArray);
+
+                expect(stateResponse['other-0']).toEqual({ data: 'data-0' });
+                expect(stateResponse['other-1']).toEqual({ data: 'data-1' });
+                expect(stateResponse['other-2']).toEqual({ data: 'data-2' });
+            });
+
+            it('should use returned docs _key for mset', async () => {
                 await stateStorage.mset(otherDocArray);
 
                 expect(client._bulkRequest).toBeArrayOfSize(6);
