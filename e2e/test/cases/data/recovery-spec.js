@@ -63,7 +63,7 @@ describe('recovery', () => {
                     state: 'completed',
                     slice: {
                         slice_id: uuidv4(),
-                        request: 100,
+                        request: { count: 100 },
                         slicer_id: 0,
                         slicer_order: 0,
                         _created: new Date().toISOString()
@@ -73,7 +73,7 @@ describe('recovery', () => {
                     state: 'completed',
                     slice: {
                         slice_id: uuidv4(),
-                        request: 100,
+                        request: { count: 100 },
                         slicer_id: 0,
                         slicer_order: 1,
                         _created: new Date().toISOString()
@@ -83,7 +83,7 @@ describe('recovery', () => {
                     state: 'start',
                     slice: {
                         slice_id: uuidv4(),
-                        request: 100,
+                        request: { count: 100 },
                         slicer_id: 0,
                         slicer_order: 2,
                         _created: new Date().toISOString()
@@ -93,7 +93,7 @@ describe('recovery', () => {
                     state: 'error',
                     slice: {
                         slice_id: uuidv4(),
-                        request: 100,
+                        request: { count: 100 },
                         slicer_id: 0,
                         slicer_order: 3,
                         _created: new Date().toISOString()
@@ -103,7 +103,7 @@ describe('recovery', () => {
                     state: 'start',
                     slice: {
                         slice_id: uuidv4(),
-                        request: 100,
+                        request: { count: 100 },
                         slicer_id: 0,
                         slicer_order: 4,
                         _created: new Date().toISOString()
@@ -113,7 +113,7 @@ describe('recovery', () => {
                     state: 'pending',
                     slice: {
                         slice_id: uuidv4(),
-                        request: 100,
+                        request: { count: 100 },
                         slicer_id: 0,
                         slicer_order: 5,
                         _created: new Date().toISOString()
@@ -123,7 +123,7 @@ describe('recovery', () => {
                     state: 'error',
                     slice: {
                         slice_id: uuidv4(),
-                        request: 100,
+                        request: { count: 100 },
                         slicer_id: 0,
                         slicer_order: 6,
                         _created: new Date().toISOString()
@@ -133,7 +133,7 @@ describe('recovery', () => {
                     state: 'pending',
                     slice: {
                         slice_id: uuidv4(),
-                        request: 100,
+                        request: { count: 100 },
                         slicer_id: 0,
                         slicer_order: 7,
                         _created: new Date().toISOString()
