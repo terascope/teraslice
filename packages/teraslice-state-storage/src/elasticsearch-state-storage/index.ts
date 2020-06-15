@@ -44,8 +44,8 @@ export default class ESCachedStateStorage {
         return this.cache.count();
     }
 
-    getIdentifier(doc: DataEntity): string {
-        const key = doc.getMetadata(this.metaKey);
+    getIdentifier(doc: DataEntity, metaField = this.metaKey): string {
+        const key = doc.getMetadata(metaField);
 
         if (key === '' || key == null) {
             throw new TSError(`There is no field "${this.metaKey}" set in the metadata`, {
@@ -57,7 +57,7 @@ export default class ESCachedStateStorage {
     }
 
     async mset(docArray: DataEntity[]) {
-        const formattedDocs = docArray.map((doc) => ({ data: doc, key: this.getIdentifier(doc) }));
+        const formattedDocs = docArray.map((doc) => ({ data: doc, key: this.getIdentifier(doc, '_key') }));
 
         if (this.persist) {
             const [results] = await Promise.all([
@@ -72,7 +72,7 @@ export default class ESCachedStateStorage {
 
     set(doc: DataEntity): void {
         // update cache, if persistance is needed use mset
-        const key = this.getIdentifier(doc);
+        const key = this.getIdentifier(doc, '_key');
         return this.setCacheByKey(key, doc);
     }
 
@@ -236,7 +236,7 @@ export default class ESCachedStateStorage {
                 index: {
                     _index: this.index,
                     _type: this.type,
-                    _id: this.getIdentifier(doc),
+                    _id: this.getIdentifier(doc, '_key'),
                 },
             }, doc);
         }
