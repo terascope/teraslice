@@ -44,6 +44,40 @@ describe('elasticsearch-state-storage', () => {
         }
     }
 
+    describe('getIdentifier', () => {
+        afterEach(() => teardown());
+
+        it('should use _key meta field by default', async () => {
+            await setup();
+
+            const testDoc = DataEntity.make({ data: 'data1', _key: 'key_1' }, { _key: 'key_1', _meta_key2: 'meta_key_2' });
+
+            const identifier = stateStorage.getIdentifier(testDoc);
+
+            expect(identifier).toBe('key_1');
+        });
+
+        it('should use meta_key field to get key if set in config', async () => {
+            await setup({ meta_key_field: '_meta_key2' });
+
+            const testDoc = DataEntity.make({ data: 'data1', _key: 'key_1' }, { _key: 'key_1', _meta_key2: 'meta_key_2' });
+
+            const identifier = stateStorage.getIdentifier(testDoc);
+
+            expect(identifier).toBe('meta_key_2');
+        });
+
+        it('should override meta_key_field if option given', async () => {
+            await setup({ meta_key_field: '_meta_key2' });
+
+            const testDoc = DataEntity.make({ data: 'data1', _key: 'key_1' }, { _key: 'key_1', _meta_key2: 'meta_key_2' });
+
+            const identifier = stateStorage.getIdentifier(testDoc, '_key');
+
+            expect(identifier).toBe('key_1');
+        });
+    });
+
     describe('when given invalid data', () => {
         beforeEach(() => setup());
         afterEach(() => teardown());
@@ -266,7 +300,7 @@ describe('elasticsearch-state-storage', () => {
             }));
             afterEach(() => teardown());
 
-            it('should make an es bulk request', async () => {
+            it('should make an es bulk request with correct key value', async () => {
                 const docArray = makeTestDocs();
                 await stateStorage.mset(docArray);
 
@@ -280,17 +314,19 @@ describe('elasticsearch-state-storage', () => {
             });
         });
 
-        describe('when presist is true and field is specified', () => {
-            const otherDocArray = makeTestDocs();
+        describe('when presist is true and meta_key_field is specified', () => {
+            const otherDocArray = makeTestDocs(10);
 
             beforeEach(() => setup({
                 persist: true,
-                meta_key_field: 'otherField'
+                meta_key_field: 'otherField',
+                chunk_size: 100,
             }));
 
             afterEach(() => teardown());
 
-            it('should use other field for mget query', async () => {
+            it('should use meta_key_field for mget query', async () => {
+                // mget response docs _key will be the otherfield
                 const mgetResponse = otherDocArray.map((doc) => {
                     const other = doc.getMetadata('otherField');
                     doc.setMetadata('_key', other);
@@ -298,20 +334,29 @@ describe('elasticsearch-state-storage', () => {
                     return doc;
                 });
 
-                client.setMGetResponse(client.createMGetResponse(mgetResponse));
+                // create es mget response
+                const mget = client.createMGetResponse(mgetResponse.slice(0, 4));
+                const notFound = client.createMGetResponse(mgetResponse.slice(4), false);
 
-                // state response
-                const stateResponse = await stateStorage.mget(otherDocArray);
+                notFound.docs.forEach((item) => mget.docs.push(item));
 
-                expect(stateResponse['other-0']).toEqual({ data: 'data-0' });
-                expect(stateResponse['other-1']).toEqual({ data: 'data-1' });
-                expect(stateResponse['other-2']).toEqual({ data: 'data-2' });
+                client.setMGetResponse(mget);
+
+                await stateStorage.mset(otherDocArray.slice(4, 6));
+
+                const result = await stateStorage.mget(otherDocArray);
+
+                expect(Object.keys(result).length).toBe(6);
+
+                expect(result['other-0']).toEqual({ data: 'data-0' });
+                expect(result['other-1']).toEqual({ data: 'data-1' });
+                expect(result['other-2']).toEqual({ data: 'data-2' });
             });
 
             it('should use returned docs _key for mset', async () => {
                 await stateStorage.mset(otherDocArray);
 
-                expect(client._bulkRequest).toBeArrayOfSize(6);
+                expect(client._bulkRequest).toBeArrayOfSize(20);
                 expect(client._bulkRequest[0].index._id).toBe('other-0');
                 expect(client._bulkRequest[1]).toEqual(otherDocArray[0]);
                 expect(client._bulkRequest[2].index._id).toBe('other-1');
@@ -527,6 +572,7 @@ class TestClient {
                 throw new Error(`${invalidMsg}, expected type on record ${JSON.stringify(doc, null, 2)}`);
             }
         }
+
         return this._mgetResponse;
     }
 
