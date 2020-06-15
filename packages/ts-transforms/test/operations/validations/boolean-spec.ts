@@ -14,13 +14,13 @@ describe('boolean validation', () => {
         const badConfig2 = { source: '' };
         const badConfig3 = { source: {} };
         const badConfig4 = {};
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new BooleanValidation(badConfig1)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new BooleanValidation(badConfig2)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new BooleanValidation(badConfig3)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new BooleanValidation(badConfig4)).toThrow();
     });
 

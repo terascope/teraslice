@@ -16,10 +16,9 @@ function _deprecateSlicerName(fn: () => Promise<ControllerState>) {
 }
 
 export default class Cluster extends Client {
-    constructor(config: any) {
+    constructor(config: Record<string, any>) {
         super(config);
         this.slicers = _deprecateSlicerName(this.slicers);
-        // @ts-ignore
         autoBind(this);
     }
 

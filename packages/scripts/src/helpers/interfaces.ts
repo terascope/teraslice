@@ -1,3 +1,5 @@
+import { EmptyObject } from '@terascope/utils';
+
 export type PackageInfo = {
     dir: string;
     relativeDir: string;
@@ -87,4 +89,4 @@ export const AvailablePackageConfigKeys: readonly (keyof PackageConfig)[] = ['en
 
 export type TSCommands = 'docs';
 
-export type GlobalCMDOptions = {};
+export type GlobalCMDOptions = EmptyObject;

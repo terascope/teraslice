@@ -6,19 +6,18 @@ import {
     parseError,
     isFatalError
 } from './errors';
-import { chunk as chunkItems } from './arrays';
 
 const logger = debugLogger('utils:promises');
 
 /** promisified setTimeout */
-export function pDelay<T = undefined>(delay = 1, arg?: T) {
+export function pDelay<T = undefined>(delay = 1, arg?: T): Promise<T> {
     return new Promise<T>((resolve) => {
         setTimeout(resolve, delay, arg);
     });
 }
 
 /** promisified setImmediate */
-export function pImmediate<T = undefined>(arg?: T) {
+export function pImmediate<T = undefined>(arg?: T): Promise<T> {
     return new Promise<T>((resolve) => {
         setImmediate(resolve, arg);
     });
@@ -92,7 +91,7 @@ export async function pRetry<T = any>(
             backoff: 2,
             matches: [],
             _currentDelay: 0,
-            // @ts-ignore
+            // @ts-expect-error
             _context: undefined as PRetryContext,
         },
         options
@@ -279,12 +278,12 @@ interface PromiseFn<T = any> {
 }
 
 /** Async waterfall function */
-export function waterfall(input: any, fns: PromiseFn[], addBreak = false): Promise<any> {
+export function waterfall(input: unknown, fns: PromiseFn[], addBreak = false): Promise<any> {
     let i = 0;
     return fns.reduce(async (last, fn) => {
         if (i++ === 0 && addBreak) await pImmediate();
         return fn(await last);
-    }, input);
+    }, input) as any;
 }
 
 /**
@@ -346,7 +345,11 @@ export async function pRaceWithTimeout(
  * An alternative to Bluebird.defer: http://bluebirdjs.com/docs/api/deferred-migration.html
  * Considered bad practice in most cases, use the Promise constructor
 */
-export function pDefer() {
+export function pDefer(): {
+    resolve: (value?: unknown) => void,
+    reject: (reason?: any) => void,
+    promise: Promise<any>
+} {
     let resolve: (value?: unknown) => void;
     let reject: (reason?: any) => void;
 
@@ -360,24 +363,4 @@ export function pDefer() {
         reject: reject!,
         promise
     };
-}
-
-/**
- * Similar to Bluebird.map, with concurrency control
-*/
-export async function pMap<T, R = T>(
-    items: T[],
-    fn: (value: T, index: number) => Promise<R>|R,
-    options?: { concurrency?: number }
-): Promise<R[]> {
-    const concurrency = options?.concurrency || Infinity;
-    const chunks = chunkItems(items, concurrency);
-    let results: R[] = [];
-    for (let i = 0; i < chunks.length; i++) {
-        const chunk = chunks[i];
-        const chunkIndex = i * concurrency;
-        const promises = chunk.map((item, itemIndex) => fn(item, chunkIndex + itemIndex));
-        results = results.concat(await Promise.all(promises));
-    }
-    return results;
 }

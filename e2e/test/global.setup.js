@@ -14,7 +14,7 @@ const { resetState } = require('./helpers');
 const misc = require('./misc');
 
 const { GENERATE_ONLY } = process.env;
-const generateOnly = GENERATE_ONLY ? parseInt(GENERATE_ONLY, 100) : null;
+const generateOnly = GENERATE_ONLY ? parseInt(GENERATE_ONLY, 10) : null;
 
 function getElapsed(time) {
     const elapsed = Date.now() - time;

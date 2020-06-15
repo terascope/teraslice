@@ -19,7 +19,7 @@ export default class Selector {
         this.documentMatcher = new DocumentMatcher(luceneQuery, matcherConfig);
     }
 
-    addMetaData(doc: DataEntity, selector: string) {
+    addMetaData(doc: DataEntity, selector: string): void {
         const meta = doc.getMetadata('selectors');
         if (meta) {
             meta.push(selector);

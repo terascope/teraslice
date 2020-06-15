@@ -1,6 +1,6 @@
 import { OperationAPI } from '../../../src';
 
-// @ts-ignore
+// @ts-expect-error
 export default class ExampleAPI extends OperationAPI {
     _initialized = false;
     _shutdown = false;

@@ -5,7 +5,7 @@ describe('jobs stop', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
             const yargsCmd = yargs.command(
-                // @ts-ignore
+                // @ts-expect-error
                 stop.command,
                 stop.describe,
                 stop.builder,
@@ -19,7 +19,7 @@ describe('jobs stop', () => {
 
         it('should parse properly with an id specifed', () => {
             const yargsCmd = yargs.command(
-                // @ts-ignore
+                // @ts-expect-error
                 stop.command,
                 stop.describe,
                 stop.builder,

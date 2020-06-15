@@ -12,7 +12,7 @@ export default class CachedStateStorage<T> extends EventEmitter {
     constructor(config: CacheConfig) {
         super();
         this._cache = new LRUMap(config.cache_size);
-        // @ts-ignore
+        // @ts-expect-error
         this._cache.items = new BigMap(config.max_big_map_size);
     }
 

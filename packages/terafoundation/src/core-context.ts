@@ -6,8 +6,8 @@ import * as i from './interfaces';
  * CoreContext
 */
 export class CoreContext<
-    S = {},
-    A = {},
+    S = Record<string, any>,
+    A = Record<string, any>,
     D extends string = string,
 > implements i.FoundationContext<S, A, D> {
     readonly cluster: i.Cluster;
@@ -46,7 +46,7 @@ export class CoreContext<
     }
 }
 
-export function handleStdStreams() {
+export function handleStdStreams(): void {
     // See https://github.com/trentm/node-bunyan/issues/246
     function handleStdError(err: any) {
         if (err.code === 'EPIPE' || err.code === 'ERR_STREAM_DESTROYED') {

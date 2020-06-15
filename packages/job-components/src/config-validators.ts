@@ -4,7 +4,7 @@ import { opSchema, apiSchema } from './job-schemas';
 
 const validateOptions: convict.ValidateOptions = {
     // IMPORTANT: changing this will break things
-    // @ts-ignore because this is deprecated and will be removed in ^5.0.0
+    // @ts-expect-error because this is deprecated and will be removed in ^5.0.0
     allowed: true,
 };
 
@@ -12,7 +12,9 @@ const validateOptions: convict.ValidateOptions = {
  * Merges the provided inputSchema with commonSchema and then validates the
  * provided opConfig against the resulting schema.
  */
-export function validateOpConfig<T>(inputSchema: convict.Schema<any>, inputConfig: any) {
+export function validateOpConfig<T>(
+    inputSchema: convict.Schema<any>, inputConfig: Record<string, any>
+): OpConfig & T {
     const schema = Object.assign({}, opSchema, inputSchema) as convict.Schema<OpConfig & T>;
     const config = convict(schema);
 
@@ -30,7 +32,9 @@ export function validateOpConfig<T>(inputSchema: convict.Schema<any>, inputConfi
  * Merges the provided inputSchema with commonSchema and then validates the
  * provided apiConfig against the resulting schema.
  */
-export function validateAPIConfig<T>(inputSchema: convict.Schema<any>, inputConfig: any) {
+export function validateAPIConfig<T>(
+    inputSchema: convict.Schema<any>, inputConfig: Record<string, any>
+): APIConfig & T {
     const schema = Object.assign({}, apiSchema, inputSchema) as convict.Schema<APIConfig & T>;
     const config = convict(schema);
 
@@ -48,7 +52,9 @@ export function validateAPIConfig<T>(inputSchema: convict.Schema<any>, inputConf
  * Merges the provided inputSchema with commonSchema and then validates the
  * provided jobConfig against the resulting schema.
  */
-export function validateJobConfig<T>(inputSchema: convict.Schema<any>, inputConfig: any) {
+export function validateJobConfig<T>(
+    inputSchema: convict.Schema<any>, inputConfig: Record<string, any>
+): ValidatedJobConfig & T {
     const config = convict(inputSchema as convict.Schema<ValidatedJobConfig & T>);
 
     try {

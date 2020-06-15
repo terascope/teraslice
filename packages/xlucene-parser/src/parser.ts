@@ -23,7 +23,7 @@ export class Parser {
         this.query = trim(query || '');
 
         this.variables = options.variables ? utils.validateVariables(options.variables) : {};
-        const contextArg = {
+        const contextArg: i.ContextArg = {
             typeConfig: options.type_config,
             variables: this.variables,
             logger: this.logger
@@ -34,8 +34,9 @@ export class Parser {
 
             this.forTypes([i.ASTType.Function], (_node) => {
                 const node = _node as i.FunctionNode;
-                // @ts-ignore we are delaying instantiation
-                if (node.instance) node.instance = node.instance();
+                if (node.instance) {
+                    node.instance = (node as any).instance();
+                }
             });
 
             if (this.logger.level() === 10) {
@@ -53,7 +54,7 @@ export class Parser {
         }
     }
 
-    forTypes<T extends i.ASTType[]>(types: T, cb: (node: i.AnyAST) => void) {
+    forTypes<T extends i.ASTType[]>(types: T, cb: (node: i.AnyAST) => void): void {
         const walkNode = (node: i.AnyAST) => {
             if (types.includes(node.type)) {
                 cb(node);
@@ -81,7 +82,7 @@ export class Parser {
         walkNode(this.ast);
     }
 
-    forTermTypes(cb: (node: i.TermLike) => void) {
+    forTermTypes(cb: (node: i.TermLike) => void): void {
         this.forTypes(utils.termTypes, cb as (node: i.AnyAST) => void);
     }
 }

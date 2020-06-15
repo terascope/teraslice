@@ -113,7 +113,7 @@ describe('Legacy Processor Shim', () => {
             });
 
             expect(() => {
-                // @ts-ignore
+                // @ts-expect-error
                 shim.crossValidation(exConfig, context.sysconfig);
             }).not.toThrow();
         });
@@ -162,7 +162,7 @@ describe('Legacy Processor Shim', () => {
             });
 
             expect(() => {
-                // @ts-ignore
+                // @ts-expect-error
                 shim.crossValidation(exConfig, context.sysconfig);
             }).not.toThrow();
         });
@@ -177,7 +177,7 @@ describe('Legacy Processor Shim', () => {
             }).toThrowError('Backwards compatibility only works for "convict" schemas');
 
             expect(() => {
-                // @ts-ignore
+                // @ts-expect-error
                 shim.crossValidation(exConfig, context.sysconfig);
             }).toThrowError('Backwards compatibility only works for "convict" schemas');
         });

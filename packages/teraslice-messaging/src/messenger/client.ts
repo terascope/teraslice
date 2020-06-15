@@ -321,7 +321,7 @@ export class Client extends Core {
             this.socket.io.once('reconnect', () => {
                 resolve();
             });
-            // @ts-ignore
+            // @ts-expect-error
             this.socket.io.engine.close();
         });
     }

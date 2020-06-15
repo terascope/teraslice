@@ -7,10 +7,10 @@ import defaultData from './data/slicer-data';
 import { Slicer } from '../../operations';
 
 export default class TestSlicer extends Slicer<TestReaderConfig> {
-    requests: object[] = [];
+    requests: Record<string, any>[] = [];
     position = 0;
 
-    async initialize(recoveryData: SlicerRecoveryData[]) {
+    async initialize(recoveryData: SlicerRecoveryData[]): Promise<void> {
         await super.initialize(recoveryData);
         const filePath = this.opConfig.slicer_data_file_path;
 
@@ -26,12 +26,12 @@ export default class TestSlicer extends Slicer<TestReaderConfig> {
         }
     }
 
-    async shutdown() {
+    async shutdown(): Promise<void> {
         this.requests = [];
         await super.shutdown();
     }
 
-    async slice() {
+    async slice(): Promise<any|null> {
         if (this.executionConfig.lifecycle === 'once') {
             const request = this.requests.shift();
             if (request == null) return null;

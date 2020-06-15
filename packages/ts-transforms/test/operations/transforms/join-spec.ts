@@ -24,19 +24,19 @@ describe('join operator', () => {
         const badConfig7 = {
             post_process: 'join', fields: ['first', 'last'], target: 'someField', delimiter: 1324
         };
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Join(badConfig1)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Join(badConfig2)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Join(badConfig3)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Join(badConfig4)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Join(badConfig5)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Join(badConfig6)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Join(badConfig7)).toThrow();
     });
 

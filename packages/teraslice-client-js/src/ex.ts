@@ -38,7 +38,6 @@ export default class Ex extends Client {
         validateExId(exId);
 
         super(config);
-        // @ts-ignore
         autoBind(this);
 
         this._exId = exId;

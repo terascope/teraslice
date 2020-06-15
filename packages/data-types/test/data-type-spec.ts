@@ -13,7 +13,7 @@ describe('DataType', () => {
         expect.hasAssertions();
         try {
             new DataType({
-                // @ts-ignore
+                // @ts-expect-error
                 version: null,
                 fields: {},
             });
@@ -27,7 +27,7 @@ describe('DataType', () => {
         expect.hasAssertions();
         try {
             new DataType({
-                // @ts-ignore
+                // @ts-expect-error
                 version: 999,
                 fields: {},
             });
@@ -42,7 +42,7 @@ describe('DataType', () => {
         try {
             new DataType({
                 version: 1,
-                // @ts-ignore
+                // @ts-expect-error
                 fields: null,
             });
         } catch (err) {
@@ -77,7 +77,7 @@ describe('DataType', () => {
 
     it('should work when given a stringified version', () => {
         const typeConfig: DataTypeConfig = {
-            // @ts-ignore
+            // @ts-expect-error
             version: `${LATEST_VERSION}`,
             fields: { hello: { type: 'Keyword' } },
         };

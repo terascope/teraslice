@@ -58,7 +58,7 @@ export interface TerasliceConfig {
 }
 
 export interface TerafoundationConfig {
-    connectors: object;
+    connectors: Record<string, any>;
 }
 
 export interface SysConfig {
@@ -74,7 +74,7 @@ export interface ConnectionConfig {
 }
 
 export type ClientFactoryFn = (
-    config: object,
+    config: Record<string, any>,
     logger: Logger,
     options: ConnectionConfig
 ) => { client: any };

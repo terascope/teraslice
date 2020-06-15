@@ -1,4 +1,3 @@
-// @ts-ignore
 import porty from 'porty';
 import { random } from '@terascope/utils';
 

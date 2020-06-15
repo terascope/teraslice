@@ -7,19 +7,19 @@ import {
 import { BooleanCB } from '../interfaces';
 
 export function regexp(regexStr: string) {
-    return function regexpTerm(str: string) {
+    return function regexpTerm(str: string): boolean {
         return match(`^${regexStr}$`, str) != null;
     };
 }
 
 export function wildcard(wildcardStr: string) {
-    return function wildcardTerm(str: string) {
+    return function wildcardTerm(str: string): boolean {
         return matchWildcard(wildcardStr, str);
     };
 }
 
 export function findWildcardField(field: string, cb: BooleanCB) {
-    return function WildcardField(data: any): boolean {
+    return function WildcardField(data: Record<string, any>): boolean {
         const resultsArray = recurseDownObject(field || '', data);
         if (resultsArray.length === 0) return false;
         return resultsArray.some(cb);
@@ -27,12 +27,12 @@ export function findWildcardField(field: string, cb: BooleanCB) {
 }
 
 // city.*   city.deeper.*   city.*.*
-function recurseDownObject(field: string, object: object): object[] {
+function recurseDownObject(field: string, object: Record<string, any>): Record<string, any>[] {
     const fieldSequence = field.split('.').map(wildCardToRegex);
     return recurse(fieldSequence, object);
 }
 
-function recurse(arr: RegExp[], obj: object): any[] {
+function recurse(arr: RegExp[], obj: Record<string, any>): any[] {
     if (arr.length === 0) return [];
     const regx = arr.shift()!;
 

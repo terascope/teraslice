@@ -4,6 +4,7 @@ import { OperationLoader } from '../operation-loader';
 import { registerApis } from '../register-apis';
 import { ExecutionConfig, WorkerContext, OperationLifeCycle } from '../interfaces';
 import { EventHandlers, ExecutionContextConfig } from './interfaces';
+import { ExecutionContextAPI } from './api';
 
 /**
  * A base class for an Execution Context
@@ -54,7 +55,7 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
     /**
      * Called to initialize all of the registered operations
      */
-    async initialize(initConfig?: any) {
+    async initialize(initConfig?: unknown): Promise<void> {
         const promises = [];
         for (const op of this.getOperations()) {
             promises.push(op.initialize(initConfig));
@@ -66,7 +67,7 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
     /**
      * Called to cleanup all of the registered operations
      */
-    async shutdown() {
+    async shutdown(): Promise<void> {
         const promises = [];
         for (const op of this.getOperations()) {
             promises.push(op.shutdown());
@@ -80,7 +81,7 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
         });
     }
 
-    get api() {
+    get api(): ExecutionContextAPI {
         return this.context.apis.executionContext;
     }
 
@@ -88,28 +89,28 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
      * Returns a list of any registered Operation that has been
      * initialized.
      */
-    getOperations() {
-        return this._operations.values();
+    getOperations(): T[] {
+        return [...this._operations.values()];
     }
 
     /** Add an operation to the lifecycle queue */
-    protected addOperation(op: T) {
+    protected addOperation(op: T): void {
         this._operations.add(op);
 
         this._resetMethodRegistry();
     }
 
     /** Run an async method on the operation lifecycle */
-    protected _runMethodAsync(method: keyof T, ...args: any[]) {
+    protected _runMethodAsync(method: keyof T, ...args: any[]): Promise<any[]> {
         const set = this._getMethodSet(method);
-        if (set.size === 0) return;
+        if (set.size === 0) return Promise.resolve([]);
 
         let i = 0;
         const promises = [];
         for (const operation of this.getOperations()) {
             const index = i++;
             if (set.has(index)) {
-                // @ts-ignore because I can't get the typedefinitions to work right
+                // @ts-expect-error because I can't get the typedefinitions to work right
                 promises.push(operation[method](...args));
             }
         }
@@ -118,21 +119,21 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
     }
 
     /** Run an method */
-    protected _runMethod(method: keyof T, ...args: any[]) {
+    protected _runMethod(method: keyof T, ...args: any[]): void {
         const set = this._getMethodSet(method);
         if (set.size === 0) return;
 
         let index = 0;
         for (const operation of this.getOperations()) {
             if (set.has(index)) {
-                // @ts-ignore because I can't get the typedefinitions to work right
+                // @ts-expect-error because I can't get the typedefinitions to work right
                 operation[method](...args);
             }
             index++;
         }
     }
 
-    protected _resetMethodRegistry() {
+    protected _resetMethodRegistry(): void {
         for (const set of this._methodRegistry.values()) {
             set.clear();
         }

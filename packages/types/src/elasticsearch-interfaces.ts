@@ -137,7 +137,7 @@ export type ConstantScoreQuery = {
 };
 
 export type MatchAllQuery = {
-    match_all: {};
+    match_all: Record<string, never>;
 };
 
 export type GeoDistanceSort = {

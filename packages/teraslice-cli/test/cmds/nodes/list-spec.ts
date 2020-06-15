@@ -5,7 +5,7 @@ describe('nodes list', () => {
     describe('-> parse', () => {
         it('should parse properly', () => {
             const yargsCmd = yargs.command(
-                // @ts-ignore
+                // @ts-expect-error
                 list.command,
                 list.describe,
                 list.builder,

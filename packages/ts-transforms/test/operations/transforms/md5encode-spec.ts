@@ -4,7 +4,6 @@ import { Md5Encode } from '../../../src/operations';
 
 describe('Md5Encode operator', () => {
     function encode(str: string) {
-        // @ts-ignore
         return crypto.createHash('md5').update(str).digest('hex');
     }
 
@@ -26,18 +25,18 @@ describe('Md5Encode operator', () => {
         const badConfig8 = {
             source: '', target: '', __id: 'someId', follow: 'otherId'
         };
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Md5Encode(badConfig1)).toThrow();
         expect(() => new Md5Encode(badConfig2)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Md5Encode(badConfig3)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Md5Encode(badConfig4)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Md5Encode(badConfig5)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Md5Encode(badConfig6)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Md5Encode(badConfig7)).toThrow();
         expect(() => new Md5Encode(badConfig8)).toThrow();
     });

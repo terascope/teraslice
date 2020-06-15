@@ -121,7 +121,6 @@ describe('Parser', () => {
             try {
                 new Parser(query, {
                     type_config: typeConfig,
-                    // @ts-ignore
                     variables
                 });
                 throw new Error('this should throw');

@@ -15,15 +15,15 @@ export default class Jobs {
      * @param {object} cliConfig config object
      *
      */
-    config: any;
+    config: Record<string, any>;
     teraslice: TerasliceUtil;
-    jobsList: string[]; // list of jobs
+    jobsList: any[]; // list of jobs
     jobsListInitial: string[];
     allJobsStopped: boolean;
     activeStatus: string[];
     jobsListChecked: string[];
 
-    constructor(cliConfig: any) {
+    constructor(cliConfig: Record<string, any>) {
         this.config = cliConfig;
         this.teraslice = new TerasliceUtil(this.config);
         this.jobsList = []; // list of jobs
@@ -33,51 +33,50 @@ export default class Jobs {
         this.jobsListChecked = [];
     }
 
-    get list() {
+    get list(): any[] {
         return this.jobsList;
     }
 
-    async workers() {
+    async workers(): Promise<string> {
         const response = await this.teraslice.client.jobs.wrap(this.config.args.id)
             .changeWorkers(this.config.args.action, this.config.args.number);
 
         return typeof response === 'string' ? response : response.message;
     }
 
-    async pause() {
+    async pause(): Promise<void> {
         await this.stop('pause');
     }
 
-    async resume() {
+    async resume(): Promise<void> {
         await this.start('resume');
     }
 
-    async restart() {
+    async restart(): Promise<void> {
         await this.stop();
         if (this.allJobsStopped) {
             await this.start();
         }
     }
 
-    async recover() {
+    async recover(): Promise<void> {
         const response = await this.teraslice.client.jobs.wrap(this.config.args.id).recover();
         if (has(response, 'job_id')) {
             reply.info(`> job_id ${this.config.args.id} recovered`);
         } else {
-            // @ts-ignore
-            reply.info(response);
+            reply.info(toString(response));
         }
     }
 
-    async run() {
+    async run(): Promise<void> {
         await this.start();
     }
 
-    async save() {
+    async save(): Promise<void> {
         return this.status(true, true);
     }
 
-    awaitStatus() {
+    awaitStatus(): Promise<string> {
         return this.teraslice.client.jobs.wrap(this.config.args.id)
             .waitForStatus(this.config.args.status, 5000, this.config.args.timeout);
     }
@@ -117,9 +116,9 @@ export default class Jobs {
         }
     }
 
-    async statusCheck(statusList: string[]) {
+    async statusCheck(statusList: string[]): Promise<any[]> {
         let controllers = [];
-        const jobs: string[] = [];
+        const jobs: any[] = [];
         try {
             controllers = await this.teraslice.client.cluster.controllers();
         } catch (e) {
@@ -139,13 +138,10 @@ export default class Jobs {
     async start(action = 'start'): Promise<void> {
         // start job with job file
         if (!this.config.args.all) {
-            const id = await this.teraslice.client.jobs.wrap(this.config.args.id).config();
-            if (id !== undefined) {
-                // @ts-ignore
+            const id: any = await this.teraslice.client.jobs.wrap(this.config.args.id).config();
+            if (id != null) {
                 id.slicer = {};
-                // @ts-ignore
                 id.slicer.workers_active = id.workers;
-                // @ts-ignore
                 this.jobsList.push(id);
             }
         } else {
@@ -200,7 +196,7 @@ export default class Jobs {
         }
     }
 
-    async stop(action = 'stop') {
+    async stop(action = 'stop'): Promise<void> {
         let waitCountStop = 0;
         const waitMaxStop = 10;
         let stopTimedOut = false;
@@ -208,13 +204,10 @@ export default class Jobs {
         if (this.config.args.all) {
             await this.save();
         } else {
-            const id = await this.teraslice.client.jobs.wrap(this.config.args.id).config();
-            if (id !== undefined) {
-                // @ts-ignore
+            const id: any = await this.teraslice.client.jobs.wrap(this.config.args.id).config();
+            if (id != null) {
                 id.slicer = {};
-                // @ts-ignore
                 id.slicer.workers_active = id.workers;
-                // @ts-ignore
                 this.jobsList.push(id);
             }
         }
@@ -268,7 +261,9 @@ export default class Jobs {
         }
     }
     // TODO: fixme
-    async addWorkers(expectedJobs: any[], actualJobs: any[]) {
+    async addWorkers(
+        expectedJobs: any[], actualJobs: any[]
+    ): Promise<void> {
         for (const job of actualJobs) {
             for (const expectedJob of expectedJobs) {
                 let addWorkersOnce = true;
@@ -291,7 +286,9 @@ export default class Jobs {
         }
     }
 
-    async checkWorkerCount(expectedJobs: any[], actualJobs: any[], addedWorkers = false) {
+    async checkWorkerCount(
+        expectedJobs: any[], actualJobs: any[], addedWorkers = false
+    ): Promise<boolean> {
         let allWorkersStartedCount = 0;
         let allWorkers = false;
         let expectedWorkers = 0;
@@ -323,8 +320,10 @@ export default class Jobs {
         return allWorkers;
     }
 
-    async controllerStatus(result: any[], jobStatus: string, controllerList: any) {
-        const jobs = [];
+    async controllerStatus(
+        result: any[], jobStatus: string, controllerList: any[]
+    ): Promise<any[]> {
+        const jobs: any[] = [];
         for (const item of result) {
             // TODO, use args instead of hardcoding
             if (jobStatus === 'running' || jobStatus === 'failing') {
@@ -337,13 +336,11 @@ export default class Jobs {
         return jobs;
     }
 
-    async checkJobsStop(statusList: any[]) {
+    async checkJobsStop(statusList: any[]): Promise<void> {
         const activeJobs = await this.statusCheck(statusList);
         for (const job of this.jobsList) {
             for (const cjob of activeJobs) {
-                // @ts-ignore
                 if (job.job_id === cjob.job_id) {
-                    // @ts-ignore
                     reply.info(`job: ${job.job_id} ${statusList}`);
                     this.jobsListChecked.push(job);
                 }
@@ -351,14 +348,12 @@ export default class Jobs {
         }
     }
 
-    async checkJobsStart(statusList: any[]) {
+    async checkJobsStart(statusList: any[]): Promise<void> {
         const activeJobs = await this.statusCheck(statusList);
         for (const job of this.jobsList) {
             let found = false;
             for (const cjob of activeJobs) {
-                // @ts-ignore
                 if (job.job_id === cjob.job_id) {
-                    // @ts-ignore
                     reply.info(`job: ${job.job_id} ${statusList}`);
                     found = true;
                 }
@@ -369,9 +364,8 @@ export default class Jobs {
         }
     }
 
-    async changeStatus(jobs: any[], action: string) {
+    async changeStatus(jobs: any[], action: string): Promise<void> {
         reply.info(`> Waiting for jobs to ${action}`);
-        // @ts-ignore
         const response = jobs.map((job) => {
             if (action === 'stop') {
                 return this.teraslice.client.jobs.wrap(job.job_id).stop()
@@ -436,7 +430,6 @@ export default class Jobs {
 
             return null;
         });
-        // @ts-ignore
-        return Promise.all(response);
+        await Promise.all(response);
     }
 }

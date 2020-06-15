@@ -2,7 +2,7 @@ import { legacyReaderShim } from '../../../src';
 import Fetcher from './fetcher';
 import Slicer from './slicer';
 import Schema from './schema';
-// @ts-ignore
+// @ts-expect-error
 import ExampleAPI from './api';
 
 // This file for backwards compatibility and functionality will be limited

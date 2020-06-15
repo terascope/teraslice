@@ -6,9 +6,9 @@ import { SimpleAPI } from '../simple-api/interfaces';
 export default class TestFetcher extends Fetcher<SimpleReaderConfig> {
     client: SimpleClient;
 
-    // @ts-ignore
+    // @ts-expect-error
     constructor(...args) {
-        // @ts-ignore
+        // @ts-expect-error
         super(...args);
 
         this.client = this.context.apis.op_runner.getClient({}, 'simple-client');

@@ -14,13 +14,13 @@ describe('number validation', () => {
         const badConfig2 = { source: '' };
         const badConfig3 = { source: {} };
         const badConfig4 = {};
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new NumberValidation(badConfig1)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new NumberValidation(badConfig2)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new NumberValidation(badConfig3)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new NumberValidation(badConfig4)).toThrow();
     });
 

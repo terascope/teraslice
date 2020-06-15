@@ -1,7 +1,7 @@
 {
     "name": "@terascope/scripts",
     "displayName": "Scripts",
-    "version": "0.20.0",
+    "version": "0.21.0",
     "description": "A collection of terascope monorepo scripts",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/scripts#readme",
     "bugs": {
@@ -28,16 +28,16 @@
     },
     "resolutions": {
         "ms": "^2.1.2",
-        "typescript": "~3.9.3"
+        "typescript": "~3.9.5"
     },
     "dependencies": {
         "@lerna/query-graph": "^3.18.5",
-        "@terascope/utils": "^0.27.0",
+        "@terascope/utils": "^0.28.0",
         "codecov": "^3.6.5",
         "execa": "^4.0.2",
-        "fs-extra": "^9.0.0",
-        "globby": "^11.0.0",
-        "got": "^11.1.4",
+        "fs-extra": "^9.0.1",
+        "globby": "^11.0.1",
+        "got": "^11.2.0",
         "ip": "^1.1.5",
         "lodash.defaultsdeep": "^4.6.1",
         "micromatch": "^4.0.2",
@@ -48,7 +48,7 @@
         "signale": "^1.4.0",
         "sort-package-json": "~1.41.0",
         "typedoc": "^0.17.6",
-        "typedoc-plugin-markdown": "^2.2.17",
+        "typedoc-plugin-markdown": "^2.3.1",
         "yargs": "^15.3.1"
     },
     "devDependencies": {

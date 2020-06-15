@@ -14,9 +14,9 @@ export = {
         yargs.positional('job-file', yargsOptions.buildPositional('job-file'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-        // @ts-ignore
+        // @ts-expect-error
         yargs.example('$0 tjm start jobFile.json');
-        // @ts-ignore
+        // @ts-expect-error
         yargs.example('$0 tjm run jobFile.json');
         return yargs;
     },

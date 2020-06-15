@@ -12,7 +12,7 @@ interface DebugParamObj {
     [name: string]: any;
 }
 
-type debugParam = DebugParamObj | string;
+type DebugParam = DebugParamObj | string;
 let logLevel = process.env.DEBUG_LOG_LEVEL || 'debug';
 const levels = {
     trace: 10,
@@ -23,7 +23,7 @@ const levels = {
     fatal: 60,
 };
 
-export function debugLogger(testName: string, param?: debugParam, otherName?: string): Logger {
+export function debugLogger(testName: string, param?: DebugParam, otherName?: string): Logger {
     const logger: Logger = new EventEmitter() as Logger;
     let parts: string[] = testName ? testName.split(':') : [];
 
@@ -52,27 +52,23 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
 
     logger.streams = [];
 
-    logger.addStream = (stream) => {
-        // @ts-ignore
-        this.streams.push(stream);
-    };
+    logger.addStream = () => {};
 
-    // @ts-ignore
-    logger.child = (opts: debugParam) => {
+    logger.child = (opts: Record<string, any>, _simple?: boolean): Logger => {
         if (isString(opts)) {
             return debugLogger(name, undefined, opts);
         }
         if (isPlainObject(opts)) {
-            return debugLogger(name, opts, opts.module);
+            return debugLogger(name, opts as DebugParam, opts.module);
         }
-        return debugLogger(name, opts);
+        return debugLogger(name, opts as DebugParam);
     };
 
     logger.flush = async () => true;
     logger.reopenFileStreams = () => {};
     logger.src = false;
 
-    // @ts-ignore
+    // @ts-expect-error
     logger.level = (value: Logger.LogLevel): number|undefined => {
         if (value) {
             for (const [level, code] of Object.entries(levels)) {
@@ -86,7 +82,7 @@ export function debugLogger(testName: string, param?: debugParam, otherName?: st
         // eslint-disable-next-line
         return levels[logLevel] || 20;
     };
-    // @ts-ignore
+    // @ts-expect-error
     logger.levels = () => logger.level();
 
     for (const [level, code] of Object.entries(levels)) {

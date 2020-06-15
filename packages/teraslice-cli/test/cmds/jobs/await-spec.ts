@@ -5,7 +5,7 @@ describe('jobs await', () => {
     describe('-> parse', () => {
         it('should parse properly with a job id', () => {
             const yargsCmd = yargs.command(
-                // @ts-ignore
+                // @ts-expect-error
                 await.command,
                 await.describe,
                 await.builder,
@@ -22,7 +22,7 @@ describe('jobs await', () => {
 
         it('should parse properly with options', () => {
             const yargsCmd = yargs.command(
-                // @ts-ignore
+                // @ts-expect-error
                 await.command,
                 await.describe,
                 await.builder,

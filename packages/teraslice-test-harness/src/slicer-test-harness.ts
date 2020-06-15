@@ -19,6 +19,9 @@ import { JobHarnessOptions } from './interfaces';
  * the Execution Controller, mainly the Slicer.
  * This is useful for testing Slicers.
 */
+
+type SliceResults = (SliceRequest|Slice|null)[];
+
 export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionContext> {
     readonly stats: ExecutionStats = {
         workers: {
@@ -50,7 +53,7 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
      * Initialize the Operations on the ExecutionContext
      * @param recoveryData is an array of starting points to recover from
     */
-    async initialize(recoveryData: SlicerRecoveryData[] = []) {
+    async initialize(recoveryData: SlicerRecoveryData[] = []): Promise<void> {
         await super.initialize();
         // teraslice checks to see if slicer is recoverable
         // should throw test recoveryData if slicer is not recoverable
@@ -65,7 +68,6 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
             this.executionContext.onExecutionStats(this.stats);
         }, 100);
     }
-
     /**
      * Create Slices, always returns an Array of slices or slice requests.
      * To adjust the number of slicers change the job configuration
@@ -79,15 +81,16 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
      *
      * @returns an array of Slices including the metadata or the just the Slice Request.
     */
-    async createSlices(): Promise<SliceRequest[]>;
-    async createSlices(options: { fullResponse: false }): Promise<SliceRequest[]>;
-    async createSlices(options: { fullResponse: true }): Promise<Slice[]>;
-    async createSlices({ fullResponse = false } = {}): Promise<SliceRequest[]|Slice[]> {
+    async createSlices(): Promise<(SliceRequest|null)[]>;
+    async createSlices(options: { fullResponse: false }): Promise<(SliceRequest|null)[]>;
+    async createSlices(options: { fullResponse: true }): Promise<(Slice|null)[]>;
+    async createSlices({ fullResponse = false } = {}): Promise<(SliceRequest|Slice|null)[]> {
         const slicers = this.slicer().slicers();
+
         await this.slicer().handle();
 
         const slices = this.slicer().getSlices(10000);
-        const sliceRequests = [];
+        const sliceRequests: (Slice | SliceRequest|null)[] = [];
         const slicesBySlicers: (Slice[])[] = [];
 
         for (const slice of slices) {
@@ -98,6 +101,8 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
         }
 
         for (const perSlicer of slicesBySlicers) {
+            if (perSlicer == null) continue;
+
             const sorted = perSlicer.sort((a, b) => a.slicer_order - b.slicer_order);
             sorted.forEach((slice) => {
                 this.executionContext.onSliceEnqueued(slice);
@@ -120,24 +125,52 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
         return sliceRequests;
     }
 
-    setWorkers(count: number) {
+    async getAllSlices(): Promise<SliceResults>;
+    async getAllSlices(options: { fullResponse: false }): Promise<(Slice|null)[]>;
+    async getAllSlices(options: { fullResponse: true }): Promise<(SliceRequest|null)[]>;
+    async getAllSlices({ fullResponse = false } = {}): Promise<SliceResults> {
+        if (this.executionContext.config.lifecycle !== 'once') throw new Error('This method can only be used when lifecycle is set to "once"');
+        const results: (SliceRequest|Slice|null)[] = [];
+        this.context.logger.info('before while');
+
+        const run = async (): Promise<void> => {
+            let sliceResults: SliceResults;
+            if (fullResponse) {
+                sliceResults = await this.createSlices({ fullResponse });
+            } else {
+                sliceResults = await this.createSlices();
+            }
+            results.push(...sliceResults);
+
+            // @ts-expect-error
+            if (!this.slicer().isFinished) {
+                return run();
+            }
+        };
+
+        await run();
+
+        return results;
+    }
+
+    setWorkers(count: number): void {
         this.stats.workers.connected = count;
         this.stats.workers.available = count;
         this.executionContext.onExecutionStats(this.stats);
     }
 
-    onSliceDispatch(slice: Slice) {
+    onSliceDispatch(slice: Slice): void {
         this.executionContext.onSliceDispatch(slice);
     }
 
-    onSliceComplete(result: SliceResult) {
+    onSliceComplete(result: SliceResult): void {
         this.executionContext.onSliceComplete(result);
     }
 
     /**
      * Shutdown the Operations on the ExecutionContext
     */
-    async shutdown() {
+    async shutdown(): Promise<void> {
         if (this._emitInterval) {
             clearInterval(this._emitInterval);
         }

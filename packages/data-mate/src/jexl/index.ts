@@ -30,7 +30,7 @@ class Jexl extends jexlCore.Jexl {
 const jexl = new Jexl();
 
 const bridge = (fn: any) => {
-    // @ts-ignore
+    // @ts-expect-error
     const jexlInstance = this.jexl;
     return (value: any, _context: ts.AnyObject | undefined, _config: any) => {
         let config;

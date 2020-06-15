@@ -8,7 +8,10 @@ import {
     isString
 } from '@terascope/utils';
 
-const deprecateType = deprecate((result: any): DataEntity[] => castArray<DataEntity>(result), 'Legacy processors should return an array of Objects or DataEntities');
+const deprecateType = deprecate(
+    (result: any): DataEntity[] => castArray<DataEntity>(result),
+    'Legacy processors should return an array of Objects or DataEntities'
+);
 
 /**
  * Convert legacy processor results into DataEntities if possible.
@@ -21,10 +24,10 @@ export function convertResult(input: DataInput[]|Buffer[]|string[]): DataEntity[
 
     if (DataEntity.isDataEntityArray(input)) return input;
     if (DataEntity.isDataEntity(input)) return [input];
-    const first = getFirst<object|string|Buffer>(input);
+    const first = getFirst<Record<string, any>|string|Buffer>(input);
     if (first == null) return [];
 
-    // @ts-ignore
+    // @ts-expect-error
     if (Array.isArray(first)) return input;
 
     if (Buffer.isBuffer(first) || isString(first)) return deprecateType(input);

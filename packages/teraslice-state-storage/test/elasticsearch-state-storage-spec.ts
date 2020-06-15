@@ -9,6 +9,7 @@ import {
     ESMGetParams,
 } from '../src/elasticsearch-state-storage';
 
+// TODO: this should search against elasticsearch
 describe('elasticsearch-state-storage', () => {
     const logger = debugLogger('elasticsearch-state-storage');
     let client: TestClient;
@@ -35,11 +36,11 @@ describe('elasticsearch-state-storage', () => {
     async function teardown() {
         if (stateStorage) {
             await stateStorage.shutdown();
-            // @ts-ignore
+            // @ts-expect-error
             stateStorage = undefined;
         }
         if (client) {
-            // @ts-ignore
+            // @ts-expect-error
             client = undefined;
         }
     }
@@ -509,7 +510,7 @@ class TestClient {
                 // convert to reg obj to simulate ES response
                 response._source = Object.assign({}, item);
             } else {
-                // @ts-ignore
+                // @ts-expect-error
                 response._type = null;
                 delete response._version;
             }

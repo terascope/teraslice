@@ -46,7 +46,7 @@ export function makeRecordDataType(arg: {
     }, arg.name, arg.description);
 }
 
-export function addDefaultSchema(input: object) {
+export function addDefaultSchema(input: Record<string, any>): Record<string, any> {
     return mergeDefaults(input, schema);
 }
 

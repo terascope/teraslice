@@ -141,7 +141,7 @@ describe('WorkerExecutionContext', () => {
             const ops = executionContext.getOperations();
 
             for (const op of ops) {
-                // @ts-ignore
+                // @ts-expect-error
                 const isDelay = op.opConfig && op.opConfig._op === 'delay';
                 if (op.onOperationComplete == null && !isDelay) {
                     expect(op).toHaveProperty('_initialized', true);

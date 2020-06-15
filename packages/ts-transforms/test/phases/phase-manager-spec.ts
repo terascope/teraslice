@@ -24,7 +24,7 @@ describe('phase manager', () => {
         expect(manager.isMatcher).toEqual(true);
         expect(manager.sequence.length).toEqual(2);
         expect(manager.sequence[0].constructor.name).toEqual('SelectionPhase');
-        // @ts-ignore
+        // @ts-expect-error
         expect(manager.sequence[0].selectionPhase.length).toEqual(2);
     });
 
@@ -37,7 +37,7 @@ describe('phase manager', () => {
         expect(manager.isMatcher).toEqual(true);
         expect(manager.sequence.length).toEqual(2);
         expect(manager.sequence[0].constructor.name).toEqual('SelectionPhase');
-        // @ts-ignore
+        // @ts-expect-error
         expect(manager.sequence[0].selectionPhase.length).toEqual(1);
     });
 
@@ -51,7 +51,7 @@ describe('phase manager', () => {
         expect(manager.sequence.length).toEqual(4);
 
         expect(manager.sequence[0].constructor.name).toEqual('SelectionPhase');
-        // @ts-ignore
+        // @ts-expect-error
         expect(manager.sequence[0].selectionPhase).toBeArrayOfSize(2);
 
         expect(manager.sequence[1].constructor.name).toEqual('ExtractionPhase');
@@ -61,9 +61,9 @@ describe('phase manager', () => {
         expect(Object.keys(manager.sequence[2].phase)).toBeArrayOfSize(1);
 
         expect(manager.sequence[3].constructor.name).toEqual('OutputPhase');
-        // @ts-ignore
+        // @ts-expect-error
         expect(manager.sequence[3].hasRequirements).toEqual(true);
-        // @ts-ignore
+        // @ts-expect-error
         expect(manager.sequence[3].hasRestrictedOutput).toEqual(false);
     });
 

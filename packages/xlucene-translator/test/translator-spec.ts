@@ -19,7 +19,7 @@ describe('Translator', () => {
 
     it('should return a empty filter query when given an invalid query', () => {
         const parser = new Parser('');
-        // @ts-ignore
+        // @ts-expect-error
         parser.ast = { type: 'idk', field: 'a', val: true } as any;
         expect(translateQuery(parser, {
             logger,

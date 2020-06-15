@@ -9,7 +9,7 @@ export default class Double extends TransformOpBase {
     }
 
     run(doc: DataEntity) {
-        // @ts-ignore
+        // @ts-expect-error
         const data = doc[this.source];
         if (data) doc[this.target as string] = data * 2;
         return doc;

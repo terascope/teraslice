@@ -8,7 +8,7 @@ import {
 } from '../../src';
 
 describe('ParallelSlicer', () => {
-    class ExampleParallelSlicer<T = object> extends ParallelSlicer<T> {
+    class ExampleParallelSlicer<T = Record<string, any>> extends ParallelSlicer<T> {
         subslice = false;
         newSlicerCalled = 0;
         public async newSlicer(): Promise<SlicerFn> {
@@ -187,7 +187,7 @@ describe('ParallelSlicer', () => {
         });
     });
 
-    describe('when returning a sub-slices', () => {
+    describe('when returning a multiple slicers', () => {
         let slicer: ExampleParallelSlicer;
         const onSlicerSubslice = jest.fn();
 
@@ -340,6 +340,47 @@ describe('ParallelSlicer', () => {
                     expect(onSlicerSubslice).toHaveBeenCalledTimes(4);
                     expect(slicer.getSlice()).toBeNil();
                 });
+            });
+        });
+    });
+
+    describe('edge cases of calling multiple slicers', () => {
+        let slicer: ExampleParallelSlicer;
+        const onSlicerSubslice = jest.fn();
+
+        beforeAll(async () => {
+            const context = new TestContext('teraslice-operations');
+            const events = context.apis.foundation.getSystemEvents();
+
+            events.on('slicer:subslice', onSlicerSubslice);
+
+            const exConfig = newTestExecutionConfig();
+
+            exConfig.operations.push({
+                _op: 'example-op',
+            });
+
+            exConfig.slicers = 2;
+
+            const opConfig = exConfig.operations[0];
+
+            slicer = new ExampleParallelSlicer(context as WorkerContext, opConfig, exConfig);
+            slicer.subslice = true;
+
+            await slicer.initialize([]);
+        });
+
+        afterAll(() => slicer.shutdown());
+
+        describe('->handle', () => {
+            it('should not emit slicer:subslice yet', () => {
+                expect(onSlicerSubslice).not.toHaveBeenCalled();
+            });
+
+            it('calling handle multiple times does not hang process with race', async () => {
+                await Promise.all([slicer.handle(), slicer.handle()]);
+                const slices = slicer.getSlices(3);
+                expect(slices).toBeArrayOfSize(2);
             });
         });
     });

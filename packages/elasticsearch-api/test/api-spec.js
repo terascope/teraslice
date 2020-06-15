@@ -1,7 +1,7 @@
 'use strict';
 
 const Promise = require('bluebird');
-const { debugLogger, cloneDeep } = require('@terascope/utils');
+const { debugLogger, cloneDeep, DataEntity } = require('@terascope/utils');
 const esApi = require('..');
 
 describe('elasticsearch-api', () => {
@@ -49,6 +49,12 @@ describe('elasticsearch-api', () => {
                 total,
                 hits: recordsReturned
             }
+        };
+    }
+
+    function getMGetData() {
+        return {
+            docs: recordsReturned
         };
     }
 
@@ -214,7 +220,7 @@ describe('elasticsearch-api', () => {
                 }
             }
         },
-        mget: () => Promise.resolve(getData()),
+        mget: () => Promise.resolve(getMGetData()),
         get: () => Promise.resolve(recordsReturned[0]),
         index: () => Promise.resolve(postedData('created')),
         create: (obj) => Promise.resolve(postedData('created', obj.id)),
@@ -365,6 +371,8 @@ describe('elasticsearch-api', () => {
             apiFullResponse.search(query)
         ]);
         expect(results1).toEqual([recordsReturned[0]._source]);
+        expect(results1).toEqual([{ some: 'data' }]);
+        expect(DataEntity.isDataEntity(results1[0])).toEqual(true);
         expect(results2).toEqual(getData());
     });
 
@@ -426,10 +434,24 @@ describe('elasticsearch-api', () => {
     it('can call mget', async () => {
         const query = { body: 'someQuery' };
         const api = esApi(client, logger);
-        recordsReturned = [{ _source: { some: 'data' } }];
+        recordsReturned = [
+            {
+                _index: 'someIndex',
+                _id: 'someId',
+                found: true,
+                _source: { some: 'data' }
+            },
+            {
+                found: false,
+                _source: { some: 'notFounddata' }
+            }
+        ];
 
         const results = await api.mget(query);
-        return expect(results).toEqual(getData());
+        expect(results.length).toEqual(1);
+        expect(results).toEqual([{ some: 'data' }]);
+        expect(DataEntity.isDataEntity(results[0])).toEqual(true);
+        expect(results[0].getMetadata()).toMatchObject({ _index: 'someIndex', _key: 'someId' });
     });
 
     it('can call get', async () => {
@@ -438,7 +460,8 @@ describe('elasticsearch-api', () => {
         recordsReturned = [{ _source: { some: 'data' } }];
 
         const results = await api.get(query);
-        return expect(results).toEqual(recordsReturned[0]._source);
+        expect(results).toEqual({ some: 'data' });
+        expect(DataEntity.isDataEntity(results)).toEqual(true);
     });
 
     it('can call index', async () => {

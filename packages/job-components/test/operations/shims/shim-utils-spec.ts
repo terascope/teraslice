@@ -38,7 +38,7 @@ describe('Shim Utils', () => {
 
         it('should handle a single DataEntity', () => {
             const data = new DataEntity({ hello: true });
-            // @ts-ignore
+            // @ts-expect-error
             const result = convertResult(data);
 
             expect(result).toBeArrayOfSize(1);
@@ -47,7 +47,7 @@ describe('Shim Utils', () => {
 
         it('should handle an array of Objects', () => {
             const data = { hello: true };
-            // @ts-ignore
+            // @ts-expect-error
             const result = convertResult([data, data, null]);
 
             expect(result).toBeArrayOfSize(3);
@@ -57,13 +57,13 @@ describe('Shim Utils', () => {
         });
 
         it('should handle null', () => {
-            // @ts-ignore
+            // @ts-expect-error
             const result = convertResult(null);
             expect(result).toBeArrayOfSize(0);
         });
 
         it('should handle undefined', () => {
-            // @ts-ignore
+            // @ts-expect-error
             const result = convertResult(undefined);
             expect(result).toBeArrayOfSize(0);
         });
@@ -74,7 +74,7 @@ describe('Shim Utils', () => {
         });
 
         it('should handle an array with a null value', () => {
-            // @ts-ignore
+            // @ts-expect-error
             const result = convertResult([null]);
             expect(result).toBeArrayOfSize(0);
         });

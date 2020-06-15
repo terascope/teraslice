@@ -15,13 +15,13 @@ describe('Uuid validation', () => {
         const badConfig2 = { source: '' };
         const badConfig3 = { source: {} };
         const badConfig4 = {};
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Uuid(badConfig1)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Uuid(badConfig2)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Uuid(badConfig3)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Uuid(badConfig4)).toThrow();
     });
 

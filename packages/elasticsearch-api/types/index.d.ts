@@ -39,5 +39,6 @@ declare namespace elasticsearchAPI {
         indexSetup: (clusterName, newIndex, migrantIndexName, mapping, recordType, clientName) => Promise<boolean>;
         verifyClient: () => boolean;
         validateGeoParameters: (opConfig: any) => any;
+        getESVersion: () => number;
     }
 }

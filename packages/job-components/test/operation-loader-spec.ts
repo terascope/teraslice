@@ -228,7 +228,7 @@ describe('OperationLoader', () => {
 
         expect(op.API).not.toBeNil();
         expect(() => {
-            // @ts-ignore
+            // @ts-expect-error
             new op.API(context, { _name: 'test' }, exConfig);
         }).not.toThrow();
     });
@@ -278,7 +278,6 @@ describe('OperationLoader', () => {
 
         expect(op.API).not.toBeNil();
         expect(() => {
-            // @ts-ignore
             new op.API(context as WorkerContext, { _name: 'example-api' }, exConfig);
         }).not.toThrow();
     });
@@ -295,7 +294,6 @@ describe('OperationLoader', () => {
 
         expect(op.API).not.toBeNil();
         expect(() => {
-            // @ts-ignore
             new op.API(context as WorkerContext, { _name: 'example-api' }, exConfig);
         }).not.toThrow();
     });
@@ -311,7 +309,7 @@ describe('OperationLoader', () => {
 
         expect(op.API).not.toBeNil();
         expect(() => {
-            // @ts-ignore
+            // @ts-expect-error
             new op.API(context, { _name: 'example-observer' }, exConfig);
         }).not.toThrow();
     });

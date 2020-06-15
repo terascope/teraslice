@@ -25,7 +25,6 @@ describe('String Utils', () => {
             ['123', '123'],
             [123, '123'],
             [null, ''],
-            // @ts-ignore
         ])('should convert %s to be %s', (input: any, expected: any) => {
             expect(toSafeString(input)).toEqual(expected);
         });

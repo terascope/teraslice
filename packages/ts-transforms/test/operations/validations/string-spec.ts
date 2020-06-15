@@ -14,13 +14,13 @@ describe('string validation', () => {
         const badConfig2 = { source: '' };
         const badConfig3 = { source: {} };
         const badConfig4 = {};
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new StringValidation(badConfig1)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new StringValidation(badConfig2)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new StringValidation(badConfig3)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new StringValidation(badConfig4)).toThrow();
     });
 
@@ -49,7 +49,7 @@ describe('string validation', () => {
         const results7 = test.run(cloneDeep(data7));
         const results8 = test.run(cloneDeep(data8));
 
-        function stringify(obj: DataEntity): object {
+        function stringify(obj: DataEntity): Record<string, any> {
             if (obj.field) {
                 if (Array.isArray(obj.field)) {
                     return obj.field.map((data: any) => JSON.stringify(data));

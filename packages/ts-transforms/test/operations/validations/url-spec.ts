@@ -14,13 +14,13 @@ describe('url validation', () => {
         const badConfig2 = { source: '' };
         const badConfig3 = { source: {} };
         const badConfig4 = {};
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new UrlOp(badConfig1)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new UrlOp(badConfig2)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new UrlOp(badConfig3)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new UrlOp(badConfig4)).toThrow();
     });
 

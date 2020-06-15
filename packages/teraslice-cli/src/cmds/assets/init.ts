@@ -23,9 +23,9 @@ export = {
         yargs.option('processor', yargsOptions.buildOption('processor'));
         yargs.option('base-dir', yargsOptions.buildOption('base-dir'));
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
-        // @ts-ignore
+        // @ts-expect-error
         yargs.example('$0 asset init');
-        // @ts-ignore
+        // @ts-expect-error
         yargs.example('$0 asset init --processor');
         return yargs;
     },

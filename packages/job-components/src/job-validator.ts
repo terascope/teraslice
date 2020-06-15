@@ -30,8 +30,8 @@ export class JobValidator {
         const assetIds = jobConfig.assets || [];
         const apis = {};
 
-        type validateJobFn = (job: ValidatedJobConfig) => void;
-        const validateJobFns: validateJobFn[] = [];
+        type ValidateJobFn = (job: ValidatedJobConfig) => void;
+        const validateJobFns: ValidateJobFn[] = [];
 
         const handleModule = (opConfig: OpConfig, op: OperationModule) => {
             const { Schema, API } = op;
@@ -82,7 +82,7 @@ export class JobValidator {
         return jobConfig;
     }
 
-    hasSchema(obj: any, name: string) {
+    hasSchema(obj: Record<string, any>, name: string): void {
         if (!obj.schema || typeof obj.schema !== 'function') {
             throw new Error(`${name} needs to have a method named "schema"`);
         } else if (typeof obj.schema() !== 'object') {

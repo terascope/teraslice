@@ -2,9 +2,13 @@ import 'jest-extended';
 import path from 'path';
 import {
     newTestJobConfig,
-    Slicer
+    Slicer,
+    uniq,
+    AnyObject,
+    LifeCycle
 } from '@terascope/job-components';
 import { SlicerTestHarness } from '../src';
+import ParallelSlicer from './fixtures/asset/parallel-reader/slicer';
 
 describe('SlicerTestHarness', () => {
     const assetDir = path.join(__dirname, 'fixtures');
@@ -115,11 +119,11 @@ describe('SlicerTestHarness', () => {
         it('should throw if recovery data is malformed', async () => {
             expect.assertions(1);
             const badRecoveryData = { some: 'stuff' };
-            // @ts-ignore this one does not throw
+            // @ts-expect-error this one does not throw
             await slicerHarness.initialize([badRecoveryData]);
 
             try {
-                // @ts-ignore
+                // @ts-expect-error
                 await slicerHarness.initialize(['asdfasdfasdf']);
             } catch (err) {
                 expect(err).toBeDefined();
@@ -136,6 +140,85 @@ describe('SlicerTestHarness', () => {
 
             const [results] = await slicerHarness.createSlices();
             expect(results).toEqual(expectedResults);
+        });
+    });
+
+    describe('can work with parallel-slicers', () => {
+        let slicerHarness: SlicerTestHarness;
+
+        afterEach(async () => {
+            if (slicerHarness) await slicerHarness.shutdown();
+        });
+
+        async function makeTest(numOfSlicers = 1, mode = 'once' as LifeCycle): Promise<SlicerTestHarness> {
+            const job = newTestJobConfig();
+            job.analytics = true;
+            job.lifecycle = mode;
+            job.slicers = numOfSlicers;
+            job.operations = [
+                {
+                    _op: 'parallel-reader',
+                },
+                {
+                    _op: 'noop',
+                }
+            ];
+
+            slicerHarness = new SlicerTestHarness(job, {
+                assetDir
+            });
+
+            await slicerHarness.initialize();
+
+            return slicerHarness;
+        }
+
+        it('can run with a single slicer', async () => {
+            const test = await makeTest();
+
+            expect(await test.createSlices()).toEqual([{ count: 2, id: 0 }]);
+            expect(test.slicer<ParallelSlicer>().isFinished).toEqual(false);
+
+            expect(await test.createSlices()).toEqual([{ count: 1, id: 0 }]);
+            expect(test.slicer<ParallelSlicer>().isFinished).toEqual(false);
+
+            expect(await test.createSlices()).toEqual([null]);
+            expect(test.slicer<ParallelSlicer>().isFinished).toEqual(true);
+
+            expect(await test.createSlices()).toEqual([null]);
+            expect(test.slicer<ParallelSlicer>().isFinished).toEqual(true);
+        });
+
+        it('can run with a multiple slicers', async () => {
+            const slicerOneResults = [{ count: 2, id: 0 }, { count: 1, id: 0 }];
+            const slicerTwoResults = [{ count: 2, id: 1 }, { count: 1, id: 1 }];
+
+            const test = await makeTest(2);
+
+            const sliceResults = uniq(await test.getAllSlices({ fullResponse: true }))
+                .filter(Boolean) as AnyObject[];
+
+            const slicerOne = sliceResults.filter((obj) => obj.slicer_id === 0);
+            const slicerTwo = sliceResults.filter((obj) => obj.slicer_id === 1);
+
+            expect(slicerOne).toBeArrayOfSize(2);
+            expect(slicerTwo).toBeArrayOfSize(2);
+
+            slicerOne.forEach((result, index) => {
+                expect(result.slicer_id).toEqual(0);
+                expect(result.slicer_order).toEqual(index + 1);
+                expect(result.request).toEqual(slicerOneResults[index]);
+            });
+
+            slicerTwo.forEach((result, index) => {
+                expect(result.slicer_id).toEqual(1);
+                expect(result.slicer_order).toEqual(index + 1);
+                expect(result.request).toEqual(slicerTwoResults[index]);
+            });
+        });
+
+        it('getAllSlices will throw if not in once mode', async () => {
+            expect(makeTest(2, 'persistent')).toReject();
         });
     });
 });

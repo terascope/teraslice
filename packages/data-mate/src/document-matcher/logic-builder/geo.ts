@@ -1,5 +1,5 @@
 import pointInPolygon from '@turf/boolean-point-in-polygon';
-// @ts-ignore
+// @ts-expect-error
 import createCircle from '@turf/circle';
 import bbox from '@turf/bbox';
 import bboxPolygon from '@turf/bbox-polygon';

@@ -14,13 +14,13 @@ describe('ip validation', () => {
         const badConfig2 = { source: '' };
         const badConfig3 = { source: {} };
         const badConfig4 = {};
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Ip(badConfig1)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Ip(badConfig2)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Ip(badConfig3)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Ip(badConfig4)).toThrow();
     });
 

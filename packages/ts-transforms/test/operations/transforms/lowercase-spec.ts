@@ -14,13 +14,13 @@ describe('Lowercase operator', () => {
         const badConfig2 = { target: [] };
         const badConfig3 = { source: false, target: 'someField' };
         const badConfig4 = {};
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Lowercase(badConfig1)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Lowercase(badConfig2)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Lowercase(badConfig3)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Lowercase(badConfig4)).toThrow();
     });
 

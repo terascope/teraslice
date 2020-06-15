@@ -14,13 +14,13 @@ describe('transform operator', () => {
         const badConfig2 = { target: [] };
         const badConfig3 = { source: false, target: 'someField' };
         const badConfig4 = {};
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Uppercase(badConfig1)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Uppercase(badConfig2)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Uppercase(badConfig3)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new Uppercase(badConfig4)).toThrow();
     });
 

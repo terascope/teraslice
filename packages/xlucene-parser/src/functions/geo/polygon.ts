@@ -1,5 +1,6 @@
 import * as utils from '@terascope/utils';
 import * as t from '@terascope/types';
+import { AnyQuery } from '@terascope/types';
 import {
     polyHasPoint,
     makeShape,
@@ -68,7 +69,6 @@ function validate(params: i.Term[]): { polygonShape: t.GeoShape; relation: t.Geo
 const geoPolygon: i.FunctionDefinition = {
     name: 'geoPolygon',
     version: '1',
-    // @ts-ignore type issues with esPolyToPointQuery AnyQuery results
     create(_field: string, params: any, { logger, typeConfig }) {
         if (!_field || _field === '*') throw new Error('Field for geoPolygon cannot be empty or "*"');
         const { polygonShape, relation } = validate(params);
@@ -92,7 +92,7 @@ const geoPolygon: i.FunctionDefinition = {
                 || type === t.xLuceneFieldType.Geo
                 || type === undefined;
 
-        function ESPolyQuery(field: string, points: t.CoordinateTuple[]) {
+        function makeESPolyQuery(field: string, points: t.CoordinateTuple[]) {
             return {
                 geo_polygon: {
                     [field]: {
@@ -108,7 +108,7 @@ const geoPolygon: i.FunctionDefinition = {
         ): t.GeoQuery | PolyHolesQuery {
             // it has no holes
             if (coordinates.length === 1) {
-                return ESPolyQuery(field, coordinates[0]);
+                return makeESPolyQuery(field, coordinates[0]);
             }
 
             const query = {
@@ -131,9 +131,9 @@ const geoPolygon: i.FunctionDefinition = {
 
             coordinates.forEach((coords, index) => {
                 if (index === 0) {
-                    filter.bool.filter.push(ESPolyQuery(field, coords));
+                    filter.bool.filter.push(makeESPolyQuery(field, coords));
                 } else {
-                    holes.bool.must_not.push(ESPolyQuery(field, coords));
+                    holes.bool.must_not.push(makeESPolyQuery(field, coords));
                 }
             });
 
@@ -169,8 +169,7 @@ const geoPolygon: i.FunctionDefinition = {
 
         function esPolyToPolyQuery(field: string) {
             const esType = compatMapping[polygonShape.type] || t.ESGeoShapeType.Polygon;
-            // @ts-ignore
-            const query: AnyQuery = {
+            const query = {
                 geo_shape: {
                     [field]: {
                         shape: {
@@ -180,7 +179,7 @@ const geoPolygon: i.FunctionDefinition = {
                         relation
                     }
                 }
-            };
+            } as AnyQuery;
             if (logger.level() === 10) logger.trace('built geo polygon to polygon query', { query });
 
             return { query };

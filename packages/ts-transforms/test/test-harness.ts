@@ -8,7 +8,7 @@ const logger = debugLogger('ts-transform');
 export default class TestHarness {
     private phaseManager!: PhaseManager;
     private type: string;
-    private dict: object;
+    private dict: Record<string, any>;
 
     constructor(type: string) {
         this.type = type;
@@ -18,13 +18,13 @@ export default class TestHarness {
         };
     }
 
-    async init(config: WatcherConfig, plugins?: PluginList) {
+    async init(config: WatcherConfig, plugins?: PluginList): Promise<TestHarness> {
         this.phaseManager = new this.dict[this.type](config, logger);
         await this.phaseManager.init(plugins);
         return this;
     }
 
-    run(data: DataEntity[]) {
+    run(data: DataEntity[]): DataEntity[] {
         return this.phaseManager.run(data);
     }
 }

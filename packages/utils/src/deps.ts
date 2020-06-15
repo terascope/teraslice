@@ -11,6 +11,7 @@ import _clone from 'shallow-clone';
 import kindOf from 'kind-of';
 import jsStringEscape from 'js-string-escape';
 import geoHash from 'latlon-geohash';
+import pMap from 'p-map';
 
 /**
  * Detect if an object created by Object.create(null)
@@ -23,7 +24,7 @@ function isNullObject(input: any): boolean {
  * Detect if value is a plain object, that is,
  * an object created by the Object constructor or one via Object.create(null)
 */
-export function isPlainObject(input: any): boolean {
+export function isPlainObject(input: unknown): boolean {
     if (input == null) return false;
     if (_isPlainObject(input)) return true;
     if (isNullObject(input)) return true;
@@ -33,7 +34,7 @@ export function isPlainObject(input: any): boolean {
 /**
  * Shallow clone an object
 */
-export function clone(input: any): boolean {
+export function clone(input: unknown): boolean {
     if (isNullObject(input)) {
         return Object.assign(Object.create(null), input);
     }
@@ -74,6 +75,7 @@ export function cloneDeep<T = any>(input: T): T {
  * Determine the type of an input
  * @return a human friendly string that describes the input
  */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function getTypeOf(val: any): string {
     if (val === undefined) return 'undefined';
     if (val === null) return 'null';
@@ -111,5 +113,6 @@ export {
     set,
     unset,
     has,
-    geoHash
+    geoHash,
+    pMap,
 };

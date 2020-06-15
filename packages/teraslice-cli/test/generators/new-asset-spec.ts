@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs-extra';
 import assert from 'yeoman-assert';
-// @ts-ignore
+// @ts-expect-error
 import helpers from 'yeoman-test';
 
 jest.setTimeout(10000);

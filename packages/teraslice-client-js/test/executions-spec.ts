@@ -22,7 +22,7 @@ describe('Teraslice Executions', () => {
             it('should fail', async () => {
                 expect.hasAssertions();
                 try {
-                    // @ts-ignore
+                    // @ts-expect-error
                     await executions.submit();
                 } catch (err) {
                     expect(err.message).toEqual('submit requires a jobSpec');

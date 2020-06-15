@@ -14,13 +14,13 @@ describe('MacAddress validation', () => {
         const badConfig2 = { source: '' };
         const badConfig3 = { source: {} };
         const badConfig4 = {};
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new MacAddress(badConfig1)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new MacAddress(badConfig2)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new MacAddress(badConfig3)).toThrow();
-        // @ts-ignore
+        // @ts-expect-error
         expect(() => new MacAddress(badConfig4)).toThrow();
     });
 

@@ -20,8 +20,13 @@ module.exports = Object.assign({}, jsRules, {
     '@typescript-eslint/explicit-member-accessibility': 'off',
     '@typescript-eslint/no-empty-function': 'off',
 
-    // we SHOULD really have this but we've become depedent on it
-    '@typescript-eslint/ban-ts-ignore': 'off',
+    // we SHOULD really make this an error but we've become depedent on it
+    '@typescript-eslint/ban-ts-comment': ['warn', {
+        'ts-expect-error': false,
+        'ts-ignore': true,
+        'ts-nocheck': false,
+        'ts-check': false,
+    }],
 
     // https://github.com/typescript-eslint/typescript-eslint/issues/291
     'no-dupe-class-members': 'off',
@@ -57,13 +62,30 @@ module.exports = Object.assign({}, jsRules, {
     'no-useless-constructor': 'off',
     '@typescript-eslint/prefer-for-of': ['error'],
     camelcase: 'off',
-    '@typescript-eslint/camelcase': ['error', {
-        properties: 'never',
-        ignoreDestructuring: true,
-    }],
-    '@typescript-eslint/class-name-casing': ['error', {
-        allowUnderscorePrefix: true
-    }],
+    '@typescript-eslint/naming-convention': [
+        'error',
+        {
+            selector: 'default',
+            format: ['camelCase', 'snake_case', 'PascalCase', 'UPPER_CASE'],
+            leadingUnderscore: 'allow',
+            trailingUnderscore: 'allow',
+            filter: {
+                // you can expand this regex to add more allowed names
+                regex: '^__',
+                match: false
+            }
+        },
+        {
+            selector: 'typeLike',
+            format: ['PascalCase', 'UPPER_CASE'],
+            leadingUnderscore: 'allow',
+            trailingUnderscore: 'allow',
+            filter: {
+                regex: '^xLucene',
+                match: false
+            }
+        },
+    ],
     'no-use-before-define': 'off',
     '@typescript-eslint/no-use-before-define': ['error', {
         functions: false,

@@ -5,7 +5,7 @@ describe('jobs workers', () => {
     describe('-> parse', () => {
         it('should parse properly with an id and add count', () => {
             const yargsCmd = yargs.command(
-                // @ts-ignore
+                // @ts-expect-error
                 workers.command,
                 workers.describe,
                 workers.builder,
@@ -21,7 +21,7 @@ describe('jobs workers', () => {
         });
         it('should parse properly with an id and remove count', () => {
             const yargsCmd = yargs.command(
-                // @ts-ignore
+                // @ts-expect-error
                 workers.command,
                 workers.describe,
                 workers.builder,

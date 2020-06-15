@@ -5,7 +5,7 @@ import yaml from 'js-yaml';
 import { cloneDeep } from '@terascope/utils';
 import * as i from './interfaces';
 
-export function getDefaultConfigFile() {
+export function getDefaultConfigFile(): string|undefined {
     const cwd = process.cwd();
 
     if (process.env.TERAFOUNDATION_CONFIG) {
@@ -39,7 +39,7 @@ export function getDefaultConfigFile() {
     return undefined;
 }
 
-export function getArgs<S = {}>(
+export function getArgs<S = Record<string, unknown>>(
     defaultConfigFile?: string,
 ): i.ParsedArgs<S> {
     const { argv } = yargs.usage('Usage: $0 [options]')
@@ -62,7 +62,7 @@ export function getArgs<S = {}>(
     return (argv as unknown) as i.ParsedArgs<S>;
 }
 
-export function parseConfigFile(file: string) {
+export function parseConfigFile(file: string): Record<string, any> {
     const configFile = file ? path.resolve(file) : undefined;
     if (!configFile || !fs.existsSync(configFile)) {
         throw new Error(`Could not find a usable config file at the path: ${configFile}`);
