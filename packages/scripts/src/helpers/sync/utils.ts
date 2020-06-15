@@ -20,7 +20,7 @@ const topLevelFiles: readonly string[] = [
 ];
 let prevChanged: string[] = [];
 
-export async function verifyCommitted(options: SyncOptions) {
+export async function verifyCommitted(options: SyncOptions): Promise<void> {
     const pkgDirs: string[] = listPackages().map((pkg) => pkg.relativeDir);
 
     const changed = await getChangedFiles(
@@ -45,7 +45,7 @@ ${formatList(changed)}
     }
 }
 
-export async function verify(files: string[], options: SyncOptions) {
+export async function verify(files: string[], options: SyncOptions): Promise<void> {
     if (options.quiet && !options.verify) return;
 
     const changed = await getChangedFiles(...uniq([
@@ -86,15 +86,15 @@ export async function syncPackage(
     files: string[], pkgInfo: PackageInfo, options: SyncOptions
 ): Promise<void> {
     await Promise.all([
-        updateReadme(pkgInfo),
-        ensureOverview(pkgInfo),
+        updateReadme(pkgInfo, !options.quiet),
+        ensureOverview(pkgInfo, !options.quiet),
         updatePkgJSON(pkgInfo, !options.quiet),
     ]);
 
     files.push(...getFiles(pkgInfo));
 }
 
-export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo) {
+export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo): PackageInfo[] {
     const externalVersions: Record<string, VersionVal> = {};
     const internalVersions: Record<string, VersionVal> = {};
 

@@ -5,7 +5,7 @@ import { getRootInfo } from '../misc';
 import * as utils from './utils';
 import { generateTSConfig } from './configs';
 
-export async function syncAll(options: SyncOptions) {
+export async function syncAll(options: SyncOptions): Promise<void> {
     await utils.verifyCommitted(options);
 
     const files: string[] = [];
@@ -21,7 +21,7 @@ export async function syncAll(options: SyncOptions) {
         concurrency: 10
     });
 
-    await generateTSConfig(pkgInfos);
+    await generateTSConfig(pkgInfos, !options.quiet);
 
     await utils.verify(files, options);
 }

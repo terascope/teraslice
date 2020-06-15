@@ -1,14 +1,16 @@
-import fse from 'fs-extra';
+import fs from 'fs';
 import path from 'path';
-import { getRootInfo } from '../misc';
+import { getRootInfo, writeIfChanged } from '../misc';
 import { PackageInfo } from '../interfaces';
 
-export async function generateTSConfig(pkgInfos: PackageInfo[]) {
+export async function generateTSConfig(
+    pkgInfos: PackageInfo[], log: boolean
+): Promise<void> {
     const rootInfo = getRootInfo();
     const references = pkgInfos
         .filter((pkgInfo) => {
             if (pkgInfo.terascope?.main) return false;
-            return fse.existsSync(path.join(pkgInfo.dir, 'tsconfig.json'));
+            return fs.existsSync(path.join(pkgInfo.dir, 'tsconfig.json'));
         })
         .map((pkgInfo) => ({
             path: pkgInfo.relativeDir.replace(/^\.\//, '')
@@ -44,7 +46,7 @@ export async function generateTSConfig(pkgInfos: PackageInfo[]) {
         references
     };
 
-    await fse.writeJSON(path.join(rootInfo.dir, 'tsconfig.json'), tsconfig, {
-        spaces: 4,
+    await writeIfChanged(path.join(rootInfo.dir, 'tsconfig.json'), tsconfig, {
+        log,
     });
 }

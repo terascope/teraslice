@@ -16,7 +16,7 @@ function getSubcategories(pkgDocFolder: string): string[] {
         });
 }
 
-export async function updateSidebarJSON(pkgInfos: PackageInfo[]) {
+export async function updateSidebarJSON(pkgInfos: PackageInfo[], log?: boolean) {
     const sidebarFilePath = path.join(getRootDir(), 'website/sidebars.json');
     const sidebarJSON = await fse.readJSON(sidebarFilePath);
 
@@ -64,7 +64,7 @@ export async function updateSidebarJSON(pkgInfos: PackageInfo[]) {
         }
     }
 
-    await writeIfChanged(sidebarFilePath, sidebarJSON);
+    await writeIfChanged(sidebarFilePath, sidebarJSON, { log });
 }
 
 type Subcategory = {

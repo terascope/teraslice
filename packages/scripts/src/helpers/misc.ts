@@ -118,7 +118,7 @@ export function listMdFiles(dir: string, levels = 10): string[] {
 export type WriteIfChangedOptions = { mkdir?: boolean; log?: boolean };
 export async function writeIfChanged(
     filePath: string,
-    contents: any,
+    contents: unknown,
     options: WriteIfChangedOptions = {}
 ): Promise<boolean> {
     if (options.mkdir) {
@@ -171,7 +171,7 @@ export async function writeIfChanged(
     throw new Error('Invalid contents given to writeIfChanged');
 }
 
-export function formatList(list: string[]) {
+export function formatList(list: string[]): string {
     return `\n - ${list.join('\n - ')}`;
 }
 

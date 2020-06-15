@@ -121,7 +121,7 @@ export async function yarnRun(
     cwd?: string,
     env?: Record<string, string>,
     log?: boolean
-) {
+): Promise<void> {
     const dir = cwd || getRootDir();
     const pkgJSON = await fse.readJSON(path.join(dir, 'package.json'));
     const hasScript = Boolean(get(pkgJSON, ['scripts', script]));
@@ -450,7 +450,7 @@ export async function yarnPublish(
     pkgInfo: PackageInfo,
     tag = 'latest',
     registry = config.NPM_DEFAULT_REGISTRY
-) {
+): Promise<void> {
     await fork({
         cmd: 'yarn',
         args: [

@@ -39,10 +39,10 @@ Please make sure to update tests as appropriate.
 [${pkgInfo.license}](./LICENSE) licensed.`;
 }
 
-export async function updateReadme(pkgInfo: PackageInfo): Promise<void> {
+export async function updateReadme(pkgInfo: PackageInfo, log?: boolean): Promise<void> {
     const readmePath = path.join(pkgInfo.dir, 'README.md');
     const contents = await generateReadme(pkgInfo);
-    await writeIfChanged(readmePath, contents);
+    await writeIfChanged(readmePath, contents, { log });
 }
 
 export async function generateOverview(pkgInfo: PackageInfo) {
@@ -55,12 +55,13 @@ sidebar_label: ${sideBarLabel}
 > ${pkgInfo.description}`;
 }
 
-export async function ensureOverview(pkgInfo: PackageInfo): Promise<void> {
+export async function ensureOverview(pkgInfo: PackageInfo, log?: boolean): Promise<void> {
     const pkgDocPath = getDocPath(pkgInfo, true, true);
     if (!fse.existsSync(pkgDocPath)) {
         const contents = await generateOverview(pkgInfo);
         await writeIfChanged(pkgDocPath, contents, {
             mkdir: true,
+            log,
         });
     }
 }
