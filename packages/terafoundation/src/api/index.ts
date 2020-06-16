@@ -7,7 +7,7 @@ import * as i from '../interfaces';
 /*
  * This module controls the API endpoints that are exposed under context.apis.
  */
-export default function registerApis(context: i.FoundationContext) {
+export default function registerApis(context: i.FoundationContext): void {
     const foundationConfig = context.sysconfig.terafoundation;
     const events = new EventEmitter();
     context.logger = createRootLogger(context);

@@ -4,7 +4,7 @@ ENV NODE_ENV production
 
 ENV YARN_SETUP_ARGS "--prod=false --silent --frozen-lockfile"
 
-COPY package.json yarn.lock lerna.json tsconfig.json .yarnrc /app/source/
+COPY package.json yarn.lock tsconfig.json .yarnrc /app/source/
 COPY packages /app/source/packages
 COPY types /app/source/types
 COPY scripts /app/source/scripts

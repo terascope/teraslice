@@ -5,7 +5,7 @@ import { getRootInfo } from '../misc';
 import * as utils from './utils';
 import signale from '../signale';
 
-export async function bumpPackages(options: BumpPackageOptions) {
+export async function bumpPackages(options: BumpPackageOptions): Promise<void> {
     const rootInfo = getRootInfo();
     const packages: PackageInfo[] = [...listPackages(), rootInfo as any];
 

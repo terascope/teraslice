@@ -20,7 +20,7 @@ import {
 import { getRootInfo, getDevDockerImage, formatList } from '../misc';
 import signale from '../signale';
 
-export async function publish(action: PublishAction, options: PublishOptions) {
+export async function publish(action: PublishAction, options: PublishOptions): Promise<void> {
     signale.info(`publishing to ${action}...`, { dryRun: options.dryRun });
 
     if (action === PublishAction.NPM) {

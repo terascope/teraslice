@@ -36,6 +36,14 @@ export class CoreContext<
             || process.env.ASSIGNMENT
         ) as D;
 
+        // set the process.title to make it easier to find the process
+        if (config.name && this.assignment) {
+            const separator = this.assignment.includes('-') ? '-' : '_';
+            process.title = `${config.name}${separator}${this.assignment}`;
+        } else if (config.name) {
+            process.title = config.name;
+        }
+
         if (ts.isFunction(config.cluster_name)) {
             this.cluster_name = config.cluster_name(this.sysconfig);
         }

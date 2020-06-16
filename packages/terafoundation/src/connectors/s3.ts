@@ -3,7 +3,9 @@ import https from 'https';
 import { Logger } from '@terascope/utils';
 import { defer, promisifyAll } from 'bluebird';
 
-function create(customConfig: any, logger: Logger) {
+function create(customConfig: Record<string, any>, logger: Logger): {
+    client: any;
+} {
     const S3 = require('aws-sdk/clients/s3');
 
     logger.info(`Using S3 endpoint: ${customConfig.endpoint}`);
@@ -41,7 +43,7 @@ function create(customConfig: any, logger: Logger) {
 
 export default {
     create,
-    config_schema() {
+    config_schema(): Record<string, any> {
         return {
             endpoint: {
                 doc: 'Target S3 endpoint',

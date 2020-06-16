@@ -1,11 +1,13 @@
 import { Logger } from '@terascope/utils';
 
-function create(customConfig: any, logger: Logger) {
+function create(customConfig: Record<string, any>, logger: Logger): {
+    client: any;
+} {
     const mongoose = require('mongoose');
     // TODO: rework configuration to allow incoming config to be a full mongo config
     logger.info(`Using mongo connection string: ${customConfig.servers}`);
 
-    const serverConfig: any = {
+    const serverConfig: Record<string, any> = {
         server: {
             auto_reconnect: true,
             socketOptions: { keepAlive: 1, connectTimeoutMS: 30000 }
@@ -36,7 +38,7 @@ function create(customConfig: any, logger: Logger) {
 
 export default {
     create,
-    config_schema() {
+    config_schema(): Record<string, any> {
         return {
             servers: {
                 doc: '',

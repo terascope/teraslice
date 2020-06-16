@@ -120,7 +120,7 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
     return env;
 }
 
-export function setEnv(options: TestOptions, suite?: string) {
+export function setEnv(options: TestOptions, suite?: string): void {
     const env = getEnv(options, suite);
     for (const [key, value] of Object.entries(env)) {
         process.env[key] = value;
@@ -198,7 +198,7 @@ function _getTeardownFile(dir: string): string|undefined {
 }
 
 type TeardownPkgsArg = { name: string; dir: string; suite?: string }[];
-export async function globalTeardown(options: TestOptions, pkgs: TeardownPkgsArg) {
+export async function globalTeardown(options: TestOptions, pkgs: TeardownPkgsArg): Promise<void> {
     for (const { name, dir, suite } of pkgs) {
         const filePath = _getTeardownFile(dir);
         if (filePath) {
@@ -257,7 +257,7 @@ export async function logE2E(dir: string, failed: boolean): Promise<void> {
 
 const abc = 'abcdefghijklmnopqrstuvwxyz';
 
-export async function reportCoverage(suite: string, chunkIndex: number) {
+export async function reportCoverage(suite: string, chunkIndex: number): Promise<void> {
     const id = abc[chunkIndex] || 'any';
 
     signale.info('* reporting coverage');

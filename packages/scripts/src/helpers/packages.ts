@@ -87,7 +87,7 @@ export function getWorkspaceNames(): string[] {
     );
 }
 
-export function getJestAliases() {
+export function getJestAliases(): Record<string, string> {
     const aliases: Record<string, string> = {};
     listPackages().forEach((pkg) => {
         const key = `^${pkg.name}$`;
@@ -102,7 +102,7 @@ export function getMainPackageInfo(): i.PackageInfo | undefined {
     return listPackages().find(isMainPackage);
 }
 
-export function isMainPackage(pkgInfo: i.PackageInfo) {
+export function isMainPackage(pkgInfo: i.PackageInfo): boolean {
     return get(pkgInfo, 'terascope.main', false);
 }
 
@@ -235,7 +235,7 @@ export function getDocPath(pkgInfo: i.PackageInfo, withFileName: boolean, withEx
     return docPath;
 }
 
-export function fixDepPkgName(name: string) {
+export function fixDepPkgName(name: string): string {
     return trim(name).replace(/^\*\*\//, '').trim();
 }
 

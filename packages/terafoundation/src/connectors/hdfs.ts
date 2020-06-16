@@ -1,6 +1,8 @@
 import { Logger } from '@terascope/utils';
 
-function create(customConfig: any, logger: Logger) {
+function create(customConfig: Record<string, any>, logger: Logger): {
+    client: any;
+} {
     const HdfsClient = require('node-webhdfs').WebHDFSClient;
     logger.info(`Using hdfs hosts: ${customConfig.host}`);
 
@@ -14,7 +16,7 @@ function create(customConfig: any, logger: Logger) {
 
 export default {
     create,
-    config_schema() {
+    config_schema(): Record<string, any> {
         return {
             user: {
                 doc: '',
