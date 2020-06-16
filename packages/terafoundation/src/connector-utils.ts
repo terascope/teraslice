@@ -52,7 +52,7 @@ function guardedRequire(filePath: string, errors: ErrorResult[]) {
     }
 }
 
-export function getConnectorModule(name: string, reason: string) {
+export function getConnectorModule(name: string, reason: string): any {
     let mod;
 
     // collect the errors
@@ -96,7 +96,7 @@ export function getConnectorModule(name: string, reason: string) {
     return null;
 }
 
-export function getConnectorSchema(name: string) {
+export function getConnectorSchema(name: string): Record<string, any> {
     const reason = `Could not retrieve schema code for: ${name}\n`;
 
     const mod = getConnectorModule(name, reason);
@@ -107,7 +107,9 @@ export function getConnectorSchema(name: string) {
     return mod.config_schema();
 }
 
-export function createConnection(name: string, moduleConfig: any, logger: Logger, options: any) {
+export function createConnection(
+    name: string, moduleConfig: Record<string, any>, logger: Logger, options: Record<string, any>
+): any {
     const reason = `Could not find connector implementation for: ${name}\n`;
 
     const mod = getConnectorModule(name, reason);

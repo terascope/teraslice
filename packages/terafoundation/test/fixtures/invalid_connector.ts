@@ -1,5 +1,5 @@
 export default {
-    config_schema() {
+    config_schema(): Record<string, any> {
         return {};
     }
 };

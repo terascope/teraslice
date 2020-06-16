@@ -1,4 +1,5 @@
 import { Logger, pDefer } from '@terascope/utils';
+import type { Client } from 'elasticsearch';
 
 function logWrapper(logger: Logger) {
     return function _logger() {
@@ -27,7 +28,10 @@ function logWrapper(logger: Logger) {
     };
 }
 
-function create(customConfig: any, logger: Logger) {
+function create(customConfig: Record<string, any>, logger: Logger): {
+    client: Client,
+    log: any;
+} {
     const elasticsearch = require('elasticsearch');
 
     logger.info(`using elasticsearch hosts: ${customConfig.host}`);
@@ -44,7 +48,7 @@ function create(customConfig: any, logger: Logger) {
 
 export default {
     create,
-    config_schema() {
+    config_schema(): Record<string, any> {
         return {
             host: {
                 doc: 'A list of hosts to connect to',

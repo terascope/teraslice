@@ -16,7 +16,7 @@ export = {
     logging: {
         doc: 'Logging destinations. Expects an array of logging targets',
         default: ['console'],
-        format(config: any) {
+        format(config: unknown): void {
             const values = { console: true, file: true };
             if (!Array.isArray(config)) {
                 throw new Error('value for logging set in terafoundation must be an array');
@@ -32,7 +32,7 @@ export = {
     log_level: {
         doc: 'Default logging levels',
         default: 'info',
-        format(val: any) {
+        format(val: unknown): void {
             const check = {
                 trace: true, debug: true, info: true, warn: true, error: true, fatal: true
             };
