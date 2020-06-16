@@ -33,7 +33,7 @@
     "dependencies": {
         "@terascope/job-components": "^0.35.0",
         "auto-bind": "^4.0.0",
-        "got": "^11.2.0"
+        "got": "^11.3.0"
     },
     "devDependencies": {
         "nock": "^12.0.3"
