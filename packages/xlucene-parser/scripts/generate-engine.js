@@ -31,9 +31,8 @@ function generate() {
 }
 
 if (require.main === module) {
-    const outputFile = generate(process.argv[2]);
+    const outputFile = generate();
     if (outputFile) {
-        // eslint-disable-next-line no-console
         console.error(`* generated ${path.relative(process.cwd(), outputFile)}`);
     }
 } else {

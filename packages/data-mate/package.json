@@ -21,7 +21,6 @@
         "dist/src/**/*"
     ],
     "scripts": {
-        "benchmark": "yarn build && node bench/index.js",
         "build": "tsc --build",
         "build:watch": "yarn build --watch",
         "test": "ts-scripts test . --",

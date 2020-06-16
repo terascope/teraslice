@@ -12,9 +12,8 @@
         "e2e"
     ],
     "scripts": {
-        "benchmark": "lerna run --concurrency=1 --no-prefix --stream benchmark",
-        "build": "lerna run prebuild && tsc --build",
-        "build:all": "yarn build:cleanup && env FORCE_COLOR=1 lerna run build",
+        "prebuild": "./packages/xlucene-parser/scripts/generate-engine.js",
+        "build": "tsc --build",
         "build:cleanup": "./scripts/build-cleanup.sh",
         "build:doctor": "./scripts/build-doctor.sh",
         "build:fix": "echo 'DEPRECATED, use yarn run build:doctor instead'",
@@ -24,8 +23,9 @@
         "docs": "ts-scripts docs",
         "lint": "eslint --cache --ext .js,.jsx,.ts,.tsx .",
         "lint:fix": "yarn lint --fix && yarn sync",
-        "setup": "yarn $YARN_SETUP_ARGS && lerna link --force-local && lerna run prebuild && tsc --build --force",
+        "setup": "yarn $YARN_SETUP_ARGS && yarn run build --force",
         "start": "node service.js",
+        "start:dev": "yarn build && node service.js",
         "sync": "ts-scripts sync",
         "test": "ts-scripts test"
     },
@@ -50,7 +50,6 @@
         "jest": "^26.0.1",
         "jest-extended": "^0.11.5",
         "jest-watch-typeahead": "^0.6.0",
-        "lerna": "^3.22.0",
         "node-notifier": "^7.0.1",
         "ts-jest": "^26.1.0",
         "typescript": "~3.9.5"
