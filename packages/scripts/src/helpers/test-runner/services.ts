@@ -57,7 +57,7 @@ const services: { [service in Service]: DockerRunOptions } = {
     },
 };
 
-export async function pullServices(suite: string, options: TestOptions) {
+export async function pullServices(suite: string, options: TestOptions): Promise<void> {
     const launchServices = getServicesForSuite(suite);
 
     try {

@@ -27,7 +27,7 @@ import { TestTracker } from './tracker';
 
 const logger = debugLogger('ts-scripts:cmd:test');
 
-export async function runTests(pkgInfos: PackageInfo[], options: TestOptions) {
+export async function runTests(pkgInfos: PackageInfo[], options: TestOptions): Promise<void> {
     const tracker = new TestTracker(options);
 
     logger.info('running tests with options', options);

@@ -79,7 +79,7 @@ function formatShortDate() {
     return `${year}.${padNumber(month)}.${padNumber(day)}`;
 }
 
-export async function formatDailyTag() {
+export async function formatDailyTag(): Promise<string> {
     const hash = await getCommitHash();
     const date = formatShortDate();
     return `daily-${date}-${hash}`;

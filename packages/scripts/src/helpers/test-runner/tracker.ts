@@ -33,17 +33,17 @@ export class TestTracker {
         process.on('SIGTERM', this.onSIGTERM);
     }
 
-    hasErrors() {
+    hasErrors(): boolean {
         return this.errors.size > 0;
     }
 
-    addError(error: string | any) {
+    addError(error: string | any): void {
         this.errors.add(
             isString(error) ? error : getFullErrorStack(error)
         );
     }
 
-    addCleanup(key: string, fn: CleanupFN, ...args: any[]) {
+    addCleanup(key: string, fn: CleanupFN, ...args: any[]): void {
         this.cleanups.set(key, () => fn(...args));
     }
 
@@ -65,7 +65,7 @@ export class TestTracker {
         }
     }
 
-    async finish() {
+    async finish(): Promise<void> {
         if (this.shuttingDown) {
             await this.end(true);
 
