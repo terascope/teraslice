@@ -45,8 +45,13 @@ export default class Assets extends Client {
     }
 
     async getAsset(name: string, version = '', searchOptions: SearchOptions = {}): Promise<Asset[]> {
-        if (!name || !isString(name)) throw new TSError('name is required, and must be of type string');
-        if (version && !isString(version)) throw new TSError('version if provided must be of type string');
+        if (!name || !isString(name)) {
+            throw new TSError('name is required, and must be of type string');
+        }
+        if (version && !isString(version)) {
+            throw new TSError('version if provided must be of type string');
+        }
+
         const pathing = path.join('/assets', name, version);
         return this.get(pathing, searchOptions);
     }

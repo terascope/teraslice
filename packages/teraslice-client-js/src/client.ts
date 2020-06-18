@@ -41,19 +41,19 @@ export default class Client {
         });
     }
 
-    async get<T = any>(endpoint: string, options?: SearchOptions) {
+    async get<T = any>(endpoint: string, options?: SearchOptions): Promise<T> {
         return this._makeRequest<T>('get', endpoint, options);
     }
 
-    async post<T = any>(endpoint: string, data: any, options?: RequestOptions) {
+    async post<T = any>(endpoint: string, data: unknown, options?: RequestOptions): Promise<T> {
         return this._makeRequest<T>('post', endpoint, options, data);
     }
 
-    async put<T = any>(endpoint: string, data: any, options?: RequestOptions) {
+    async put<T = any>(endpoint: string, data: unknown, options?: RequestOptions): Promise<T> {
         return this._makeRequest<T>('put', endpoint, options, data);
     }
 
-    async delete<T = any>(endpoint: string, options?: SearchOptions) {
+    async delete<T = any>(endpoint: string, options?: SearchOptions): Promise<T> {
         return this._makeRequest<T>('delete', endpoint, options);
     }
 
@@ -101,14 +101,14 @@ export default class Client {
         }
     }
 
-    protected parse(results: any): any {
+    protected parse(results: unknown): any {
         return tryParseJSON(results);
     }
 
     // TODO: make better types for this
     protected makeOptions(
         searchParams: Record<string, any>|undefined, options: RequestOptions | SearchOptions
-    ) {
+    ): RequestOptions {
         return { ...options, searchParams };
     }
 }
