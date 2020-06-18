@@ -197,8 +197,8 @@ module.exports = async function assetsStore(context) {
 
     async function _metaIsUnqiue(meta) {
         const query = `name:"${meta.name}" AND version:"${meta.version}"`;
-        const results = await search(query, null, 10000);
-        if (results.hits.hits.length === 0) {
+        const total = await backend.count(query);
+        if (total === 0) {
             return meta;
         }
 
