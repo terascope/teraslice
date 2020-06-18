@@ -196,12 +196,13 @@ module.exports = async function assetsStore(context) {
     }
 
     async function _metaIsUnqiue(meta) {
-        const results = await search(`name:${meta.name} AND version:${meta.version}`, null, 10000);
+        const query = `name:"${meta.name}" AND version:"${meta.version}"`;
+        const results = await search(query, null, 10000);
         if (results.hits.hits.length === 0) {
             return meta;
         }
 
-        const error = new TSError(`asset name:${meta.name} and version:${meta.version} already exists, please increment the version and send again`, {
+        const error = new TSError(`Asset ${query} already exists, please increment the version and send again`, {
             statusCode: 409
         });
         error.code = 409;
