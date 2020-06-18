@@ -1,7 +1,9 @@
 'use strict';
 
 const express = require('express');
-const { TSError, parseErrorInfo, logError } = require('@terascope/utils');
+const {
+    TSError, parseErrorInfo, logError, toBoolean
+} = require('@terascope/utils');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 const makeAssetsStore = require('../../storage/assets');
 const {
@@ -31,7 +33,9 @@ module.exports = function assetsService(context) {
     });
 
     app.post('/assets', (req, res) => {
-        logger.debug('loading an asset');
+        const blocking = toBoolean(req.query.blocking);
+        logger.debug('loading an asset', { blocking });
+
         const results = [];
 
         req.on('data', (buff) => {
@@ -40,7 +44,7 @@ module.exports = function assetsService(context) {
 
         req.on('end', () => {
             const data = Buffer.concat(results);
-            assetsStore.save(data)
+            assetsStore.save(data, blocking)
                 .then(({ assetId, created }) => {
                     const code = created ? 201 : 200;
                     res.status(code).json({

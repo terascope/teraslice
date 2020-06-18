@@ -145,20 +145,34 @@ module.exports = function elasticsearchStorage(backendConfig) {
         return elasticsearch.index(query);
     }
 
+    function _getTimeout(timeout) {
+        if (isInteger(timeout)) {
+            // don't allow a timeout of less than 1 second
+            if (timeout <= 1000) return undefined;
+            return ms(timeout);
+        }
+        if (isString(timeout)) {
+            return timeout;
+        }
+        return undefined;
+    }
+
     /*
      * index saves a record to elasticsearch with a specified ID.
      * If the document is already there it will be replaced.
      */
-    async function indexWithId(recordId, record, indexArg = indexName) {
+    async function indexWithId(recordId, record, indexArg = indexName, timeout) {
         validateIdAndRecord(recordId, record);
 
         logger.trace(`indexWithId call with id: ${recordId}, record`, logRecord ? record : null);
+
         const query = {
             index: indexArg,
             type: recordType,
             id: recordId,
             body: record,
             refresh: forceRefresh,
+            timeout: _getTimeout(timeout)
         };
 
         return elasticsearch.indexWithId(query);

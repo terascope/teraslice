@@ -63,24 +63,53 @@ module.exports = async function assetsStore(context) {
         return readable && exists;
     }
 
-    async function save(data) {
+    async function _saveAndUpload({
+        id, data, esData, blocking
+    }) {
+        const startTime = Date.now();
+        const metaData = await saveAsset(logger, assetsPath, id, data, _metaIsUnqiue);
+
+        const assetRecord = Object.assign({
+            blob: esData,
+            _created: new Date().toISOString()
+        }, metaData);
+
+        if (blocking) {
+            const elapsed = Date.now() - startTime;
+            const remaining = config.api_response_timeout - elapsed;
+            await backend.indexWithId(id, assetRecord, undefined, remaining);
+        } else {
+            await backend.indexWithId(id, assetRecord, undefined, config.api_response_timeout);
+        }
+
+        logger.info(`assets: ${metaData.name}, id: ${id} has been saved to assets_directory and elasticsearch`);
+    }
+
+    /**
+     * Save an asset to disk and upload to elasticsearch
+     *
+     * @param data {Buffer} A buffer of the asset file (zipped)
+     * @param blocking {boolean=true} If false, save the asset in the background
+     * @returns {Promise<{ assetId: string; created: boolean }>}
+    */
+    async function save(data, blocking = true) {
         const esData = data.toString('base64');
         const id = crypto.createHash('sha1').update(esData).digest('hex');
 
         const exists = await _assetExists(id);
         if (exists) {
             logger.info(`asset id: ${id} already exists`);
+        } else if (blocking) {
+            await _saveAndUpload({
+                id, data, esData, blocking
+            });
         } else {
-            const metaData = await saveAsset(logger, assetsPath, id, data, _metaIsUnqiue);
-
-            const assetRecord = Object.assign({
-                blob: esData,
-                _created: new Date().toISOString()
-            }, metaData);
-
-            await backend.indexWithId(id, assetRecord);
-
-            logger.info(`assets: ${metaData.name}, id: ${id} has been saved to assets_directory and elasticsearch`);
+            // kick this of in the background since it is not blocking
+            _saveAndUpload({
+                id, data, esData, blocking
+            }).catch((err) => {
+                logger.error(err, `Failure saving asset: ${id}`);
+            });
         }
 
         return {
