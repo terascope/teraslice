@@ -129,8 +129,8 @@ module.exports = async function assetsStore(context) {
     async function _getAssetId(assetIdentifier) {
         // is full _id
         if (assetIdentifier.length === 40) {
-            // need to return a promise
-            return assetIdentifier;
+            const count = await backend.count(`id:"${assetIdentifier}"`);
+            if (count === 1) return assetIdentifier;
         }
 
         const metaData = assetIdentifier.split(':');
@@ -142,7 +142,9 @@ module.exports = async function assetsStore(context) {
             const assetRecord = await search(`name:"${metaData[0]}"`, null, 1, sort, fields);
             const record = assetRecord.hits.hits[0];
             if (!record) {
-                throw new Error(`asset: ${metaData.join(' ')} was not found`);
+                throw new TSError(`Asset: ${metaData.join(' ')} was not found`, {
+                    statusCode: 404
+                });
             }
             return record._id;
         }
