@@ -32,6 +32,7 @@ export = {
         yargs.option('replace', yargsOptions.buildOption('replace'));
         yargs.option('skip-upload', yargsOptions.buildOption('skip-upload'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
+        yargs.option('blocking', yargsOptions.buildOption('blocking'));
         yargs.conflicts('asset', ['build', 'file']);
         yargs.conflicts('replace', 'skip-upload');
         yargs.example('$0 assets deploy ts-test1', 'Deploys to cluster at aliase ts-test1. This supposes that you are in a dir with an asset/asset.json to deploy');
@@ -158,7 +159,9 @@ export = {
             }
 
             try {
-                const resp = await terasliceClient.assets.upload(assetZip);
+                const resp = await terasliceClient.assets.upload(assetZip, {
+                    blocking: cliConfig.args.blocking
+                });
                 if (!cliConfig.args.quiet) {
                     reply.green(`Asset posted to ${cliConfig.args.clusterAlias}: ${resp._id}`);
                 }

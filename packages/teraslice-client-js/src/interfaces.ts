@@ -304,6 +304,10 @@ export interface StopQuery {
     blocking?: boolean;
 }
 
+export interface AssetUploadQuery {
+    blocking?: boolean;
+}
+
 /*
     Worker changes Response
 */

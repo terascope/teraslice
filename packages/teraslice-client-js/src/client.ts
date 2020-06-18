@@ -5,6 +5,7 @@ import {
     isTest,
     trimStart,
     tryParseJSON,
+    withoutNil,
 } from '@terascope/job-components';
 import { STATUS_CODES } from 'http';
 import { URL } from 'url';
@@ -72,8 +73,16 @@ export default class Client {
             options = { ...searchOptions };
         }
 
+        // migrate to using searchParams
         if ((options as any).query) {
             options.searchParams = (options as any).query;
+            delete (options as any).query;
+        }
+
+        // got doesn't like `undefined` values in the search params
+        // so we need to remove them
+        if (isPlainObject(options.searchParams)) {
+            options.searchParams = withoutNil(options.searchParams as any);
         }
 
         const newEndpoint = getAPIEndpoint(endpoint, this._apiVersion);

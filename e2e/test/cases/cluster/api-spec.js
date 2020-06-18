@@ -17,7 +17,9 @@ describe('cluster api', () => {
         const testStream = fs.createReadStream(assetPath);
         const jobSpec = misc.newJob('generator-asset');
 
-        await teraslice.assets.upload(testStream);
+        await teraslice.assets.upload(testStream, {
+            blocking: true
+        });
         const job = await teraslice.jobs.submit(jobSpec, true);
         const jobConfig = await job.config();
 
