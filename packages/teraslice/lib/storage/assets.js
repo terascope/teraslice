@@ -4,7 +4,7 @@ const path = require('path');
 const fse = require('fs-extra');
 const crypto = require('crypto');
 const {
-    TSError, pDelay, uniq, isString, toString
+    TSError, pDelay, uniq, isString, toString, filterObject
 } = require('@terascope/utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 const { makeLogger } = require('../workers/helpers/terafoundation');
@@ -155,7 +155,12 @@ module.exports = async function assetsStore(context) {
     }
 
     async function _metaIsUnqiue(meta) {
-        const query = Object.entries(meta).map(([key, val]) => `${key}:"${val}"`).join(' AND ');
+        const includes = ['name', 'version', 'node_version', 'platform', 'arch'];
+
+        const query = Object.entries(filterObject(meta, { includes }))
+            .map(([key, val]) => `${key}:"${val}"`)
+            .join(' AND ');
+
         const total = await backend.count(query);
         if (total === 0) {
             return meta;
