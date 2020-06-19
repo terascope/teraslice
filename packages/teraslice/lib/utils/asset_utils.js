@@ -1,6 +1,6 @@
 'use strict';
 
-const { isInteger } = require('@terascope/utils');
+const { isInteger, trimStart, trim } = require('@terascope/utils');
 const semver = require('semver');
 
 function findMatchingAsset(records, name, version) {
@@ -49,14 +49,30 @@ function _isCompatibleAsset(name, range) {
 function toSemverRange(version) {
     if (!version || version === 'latest') return '*';
     if (semver.validRange(version)) {
-        return version;
+        return trimStart(trim(version), 'v');
     }
 
     throw new Error(`Version "${version}" is not a valid semver range`);
+}
+
+function toVersionQuery(_version) {
+    const version = trimStart(trim(_version));
+
+    if (!version || version === 'latest' || version === '*') {
+        return 'version:*';
+    }
+
+    // if there a number and * next to each other that is not valid
+    // so lets just return the query: 12.34*.55
+    if (/\d\*/.test(version)) return `version:${version}`;
+
+    const range = new semver.Range(version);
+    return `version:${range.range.split(' ').join(' AND version:')}`;
 }
 
 module.exports = {
     getMajorVersion,
     findMatchingAsset,
     toSemverRange,
+    toVersionQuery,
 };

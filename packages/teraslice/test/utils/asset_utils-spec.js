@@ -2,7 +2,7 @@
 
 const {
     toSemverRange, findMatchingAsset,
-    getMajorVersion
+    getMajorVersion, toVersionQuery
 } = require('../../lib/utils/asset_utils');
 
 describe('Asset Utils', () => {
@@ -13,6 +13,7 @@ describe('Asset Utils', () => {
             ['^22.0.0', '^22.0.0'],
             ['~22.0.0', '~22.0.0'],
             ['2.0.0', '2.0.0'],
+            ['v2.0.0', '2.0.0'],
             ['*', '*'],
             ['1.*', '1.*'],
             ['2.*', '2.*'],
@@ -23,6 +24,27 @@ describe('Asset Utils', () => {
             ['12.34.5*', '12.34.5*'],
         ])('should convert %p to %p', (input, output) => {
             expect(toSemverRange(input)).toEqual(output);
+        });
+    });
+
+    describe('->toVersionQuery', () => {
+        test.each([
+            ['latest', 'version:*'],
+            [null, 'version:*'],
+            ['^22.0.0', 'version:>=22.0.0 AND version:<23.0.0-0'],
+            ['~22.0.0', 'version:>=22.0.0 AND version:<22.1.0-0'],
+            ['2.0.0', 'version:2.0.0'],
+            ['v1.1.1', 'version:1.1.1'],
+            ['*', 'version:*'],
+            ['1.*', 'version:>=1.0.0 AND version:<2.0.0-0'],
+            ['2.*', 'version:>=2.0.0 AND version:<3.0.0-0'],
+            ['2222.*', 'version:>=2222.0.0 AND version:<2223.0.0-0'],
+            ['12.*.1', 'version:>=12.0.0 AND version:<13.0.0-0'],
+            ['12.34*.55', 'version:12.34*.55'],
+            ['12.34.*', 'version:>=12.34.0 AND version:<12.35.0-0'],
+            ['12.34.5*', 'version:12.34.5*'],
+        ])('should convert %p to %p', (input, output) => {
+            expect(toVersionQuery(input)).toEqual(output);
         });
     });
 

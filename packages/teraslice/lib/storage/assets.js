@@ -9,7 +9,7 @@ const {
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 const { makeLogger } = require('../workers/helpers/terafoundation');
 const { saveAsset } = require('../utils/file_utils');
-const { findMatchingAsset } = require('../utils/asset_utils');
+const { findMatchingAsset, toVersionQuery } = require('../utils/asset_utils');
 
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
@@ -138,8 +138,9 @@ module.exports = async function assetsStore(context) {
         const sort = '_created:desc';
         const fields = ['id', 'name', 'version', 'platform', 'arch', 'node_version'];
 
-        // has wildcard in version
-        const response = await search(`name:"${name}"`, null, 10000, sort, fields);
+        const response = await search(
+            `name:"${name}" AND ${toVersionQuery(version)}`, null, 10000, sort, fields
+        );
         const assets = response.hits.hits.map((doc) => doc._source);
 
         const found = findMatchingAsset(assets, name, version);
