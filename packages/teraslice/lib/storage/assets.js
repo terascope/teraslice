@@ -146,7 +146,7 @@ module.exports = async function assetsStore(context) {
         if (!found) {
             throw new Error(`No asset with the provided name and version could be located, asset: ${assetIdentifier}`);
         }
-        return found;
+        return found.id;
     }
 
     function parseAssetsArray(assetsArray) {
