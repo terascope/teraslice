@@ -9,6 +9,7 @@ const {
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 const { makeLogger } = require('../workers/helpers/terafoundation');
 const { saveAsset } = require('../utils/file_utils');
+const { findMatchingAsset } = require('../utils/asset_utils');
 
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
@@ -133,72 +134,27 @@ module.exports = async function assetsStore(context) {
             if (count === 1) return assetIdentifier;
         }
 
-        const metaData = assetIdentifier.split(':');
+        const [name, version] = assetIdentifier.split(':');
         const sort = '_created:desc';
-        const fields = ['version'];
-
-        // if no version specified get latest
-        if (metaData.length === 1 || metaData[1] === 'latest') {
-            const assetRecord = await search(`name:"${metaData[0]}"`, null, 1, sort, fields);
-            const record = assetRecord.hits.hits[0];
-            if (!record) {
-                throw new TSError(`Asset: ${metaData.join(' ')} was not found`, {
-                    statusCode: 404
-                });
-            }
-            return record._id;
-        }
+        const fields = ['id', 'name', 'version', 'platform', 'arch', 'node_version'];
 
         // has wildcard in version
-        const assetRecords = await search(`name:"${metaData[0]}" AND version:"${metaData[1]}"`, null, 10000, sort, fields);
-        const records = assetRecords.hits.hits.map((doc) => ({
-            id: doc._id,
-            version: doc._source.version
-        }));
-        const versionID = metaData[1];
-        const wildcardPlacement = versionID.indexOf('*') - 1;
-        const versionTransform = versionID.split('.');
-        const versionWithWildcard = versionTransform.indexOf('*');
-        const versionSlice = versionTransform.filter((chars) => chars !== '*').join('.');
-        if (records.length === 0) {
-            throw new Error(`No asset with the provided name and version could be located, asset: ${metaData.join(':')}`);
-        }
+        const response = await search(`name:"${name}"`, null, 10000, sort, fields);
+        const assets = response.hits.hits.map((doc) => doc._source);
 
-        return records.reduce((prev, curr) => _compareVersions(
-            prev, curr, wildcardPlacement, versionSlice, versionWithWildcard
-        )).id;
+        const found = findMatchingAsset(assets, name, version);
+        if (!found) {
+            throw new Error(`No asset with the provided name and version could be located, asset: ${assetIdentifier}`);
+        }
+        return found;
     }
 
     function parseAssetsArray(assetsArray) {
         return Promise.all(uniq(assetsArray).map(_getAssetId));
     }
 
-    function _compareVersions(prev, curr, wildcardPlacement, versionSlice, versionWithWildcard) {
-        const prevBool = prev.version.slice(0, wildcardPlacement) === versionSlice;
-        const currBool = curr.version.slice(0, wildcardPlacement) === versionSlice;
-
-        // if they both match up to wildcard
-        if (prevBool && currBool) {
-            const prevVersion = prev.version.split('.');
-            const currVersion = curr.version.split('.');
-            const prevParsedNumber = Number(prevVersion[versionWithWildcard]);
-            const currParsedNumber = Number(currVersion[versionWithWildcard]);
-
-            if (prevParsedNumber < currParsedNumber) {
-                return curr;
-            }
-            return prev;
-        }
-
-        if (prevBool && !currBool) {
-            return prev;
-        }
-
-        return curr;
-    }
-
     async function _metaIsUnqiue(meta) {
-        const query = `name:"${meta.name}" AND version:"${meta.version}"`;
+        const query = Object.entries(meta).map(([key, val]) => `${key}:"${val}"`).join(' AND ');
         const total = await backend.count(query);
         if (total === 0) {
             return meta;

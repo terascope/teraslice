@@ -23,6 +23,15 @@
                 "description": {
                     "type": "keyword"
                 },
+                "arch": {
+                    "type": "keyword"
+                },
+                "platform": {
+                    "type": "keyword"
+                },
+                "node_version": {
+                    "type": "integer"
+                },
                 "_created": {
                     "type": "date"
                 }
