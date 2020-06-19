@@ -119,7 +119,10 @@ module.exports = function assetsService(context) {
             'version',
             'id',
             '_created',
-            'description'
+            'description',
+            'node_version',
+            'platform',
+            'arch'
         ];
 
         function mapping(item) {
@@ -148,7 +151,7 @@ module.exports = function assetsService(context) {
 
         const requestHandler = handleRequest(req, res, 'Could not get assets');
         requestHandler(async () => {
-            const fields = ['_created', 'name', 'version', 'description'];
+            const fields = ['_created', 'name', 'version', 'description', 'node_version', 'platform', 'arch'];
             const results = await assetsStore.search(query, from, size, sort, fields);
             return results.hits.hits.map((asset) => {
                 const record = asset._source;
