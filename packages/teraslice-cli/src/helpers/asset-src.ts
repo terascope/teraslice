@@ -1,8 +1,9 @@
-import { spawnSync } from 'child_process';
+import execa from 'execa';
 import fs from 'fs-extra';
 import archiver from 'archiver';
 import path from 'path';
 import tmp from 'tmp';
+import { toInteger } from '@terascope/utils';
 import { getPackage } from '../helpers/utils';
 
 interface ZipResults {
@@ -39,11 +40,11 @@ export default class AssetSrc {
     }
 
     /** @returns {string} Path to the output drectory for the finished asset zipfile */
-    get buildDir() {
+    get buildDir(): string {
         return path.join(this.srcDir, 'build');
     }
 
-    get zipFileName() {
+    get zipFileName(): string {
         const nodeVersion = process.version.split('.')[0].substr(1);
         return `${this.name}-v${this.version}-node-${nodeVersion}-${process.platform}-${process.arch}.zip`;
     }
@@ -56,26 +57,17 @@ export default class AssetSrc {
      * @param {string} dir - Path to directory containing package.json
      * @param {Array} yarnArgs - Array of arguments or options to be passed to yarn command
      */
-    private _yarnCmd(dir: string, yarnArgs: string[]) {
-        const yarn = spawnSync('yarn', yarnArgs, { cwd: dir });
-
-        if (yarn.status !== 0) {
-            throw new Error(
-                `yarn command exited with non-zero status: ${yarn.status}\n
-                 yarn stdout:\n${yarn.stdout}\n
-                 yarn stderr:\n${yarn.stderr}`
-            );
-        }
-        return yarn;
+    private async _yarnCmd(dir: string, yarnArgs: string[]) {
+        return execa('yarn', yarnArgs, { cwd: dir });
     }
 
-    async build() {
+    async build(): Promise<string> {
         let zipOutput;
         const outputFileName = path.join(this.buildDir, this.zipFileName);
 
         try {
             // make sure the build dir exists in the srcDir directory
-            fs.ensureDirSync(this.buildDir);
+            await fs.ensureDir(this.buildDir);
         } catch (err) {
             throw new Error(`Failed to create directory ${this.buildDir}: ${err}`);
         }
@@ -83,24 +75,33 @@ export default class AssetSrc {
         const tmpDir = tmp.dirSync();
 
         // copy entire asset dir (srcDir) to tempdir
-        fs.copySync(this.srcDir, tmpDir.name);
+        await fs.copy(this.srcDir, tmpDir.name);
+
+        const assetJSON = await fs.readJSON(path.join(tmpDir.name, 'asset', 'asset.json'));
+        assetJSON.node_version = toInteger(process.version.split('.')[0].substr(1));
+        assetJSON.platform = process.platform;
+        assetJSON.arch = process.arch;
+
+        await fs.writeJSON(path.join(tmpDir.name, 'asset', 'asset.json'), assetJSON, {
+            spaces: 4,
+        });
 
         // remove srcDir/asset/node_modules
-        fs.removeSync(path.join(tmpDir.name, 'asset', 'node_modules'));
+        await fs.remove(path.join(tmpDir.name, 'asset', 'node_modules'));
 
         // run yarn --cwd srcDir/asset --prod --silent --no-progress
-        this._yarnCmd(path.join(tmpDir.name, 'asset'), ['--prod', '--no-progress']);
+        await this._yarnCmd(path.join(tmpDir.name, 'asset'), ['--prod', '--no-progress']);
 
         // run yarn --cwd srcDir --prod --silent --no-progress asset:build
         if (this.packageJson?.scripts && this.packageJson.scripts['asset:build']) {
-            this._yarnCmd(tmpDir.name, ['run', 'asset:build']);
+            await this._yarnCmd(tmpDir.name, ['run', 'asset:build']);
         }
 
         try {
             // create zipfile
             zipOutput = await AssetSrc.zip(path.join(tmpDir.name, 'asset'), outputFileName);
             // remove temp directory
-            fs.removeSync(tmpDir.name);
+            await fs.remove(tmpDir.name);
         } catch (err) {
             throw new Error(`Error creating asset zipfile: ${err}`);
         }
