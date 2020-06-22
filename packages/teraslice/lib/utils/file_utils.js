@@ -82,13 +82,13 @@ async function saveAsset(logger, assetsPath, id, binaryData, metaCheck) {
             await fse.mkdir(newPath);
         }
 
-        logger.trace(`decompressing and saving asset ${id} to ${newPath}`);
+        logger.info(`decompressing and saving asset ${id} to ${newPath}`);
         await decompress(binaryData, newPath);
-        logger.trace(`decompressed ${id} to ${newPath}`);
+        logger.info(`decompressed asset ${id} to ${newPath}`);
 
         const metadata = await verifyAssetJSON(id, newPath);
 
-        logger.trace(`asset ${id} saved to file ${newPath}`, metadata);
+        logger.info(`asset ${id} saved to file ${newPath}`, metadata);
 
         // storage/assets save fn needs to check the return metadata for uniqueness
         if (metaCheck) {
