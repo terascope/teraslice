@@ -1,4 +1,4 @@
-FROM terascope/node-base:12.18.0-1
+FROM terascope/node-base:12.18.1-1
 
 ENV NODE_ENV production
 
