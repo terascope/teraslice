@@ -43,8 +43,23 @@ async function verifyAssetJSON(id, newPath) {
             throw new Error(`Invalid version "${metadata.version}"`);
         }
 
-        if (metadata.node_version != null) {
+        /**
+         * If node_version, platform, or arch is set to a falsey
+         * value we should delete it so it is considered a wildcard.
+         *
+         * This is useful for making an asset bundle that isn't
+         * locked down.
+        */
+        if (metadata.node_version) {
             metadata.node_version = getMajorVersion(metadata.node_version);
+        } else {
+            delete metadata.node_version;
+        }
+        if (!metadata.platform) {
+            delete metadata.platform;
+        }
+        if (!metadata.arch) {
+            delete metadata.arch;
         }
         return metadata;
     } catch (_err) {

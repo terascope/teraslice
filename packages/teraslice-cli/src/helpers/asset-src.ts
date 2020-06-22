@@ -78,9 +78,18 @@ export default class AssetSrc {
         await fs.copy(this.srcDir, tmpDir.name);
 
         const assetJSON = await fs.readJSON(path.join(tmpDir.name, 'asset', 'asset.json'));
-        assetJSON.node_version = toInteger(process.version.split('.')[0].substr(1));
-        assetJSON.platform = process.platform;
-        assetJSON.arch = process.arch;
+
+        if (assetJSON.node_version === undefined) {
+            assetJSON.node_version = toInteger(process.version.split('.')[0].substr(1));
+        }
+
+        if (assetJSON.platform === undefined) {
+            assetJSON.platform = process.platform;
+        }
+
+        if (assetJSON.arch === undefined) {
+            assetJSON.arch = process.arch;
+        }
 
         await fs.writeJSON(path.join(tmpDir.name, 'asset', 'asset.json'), assetJSON, {
             spaces: 4,
