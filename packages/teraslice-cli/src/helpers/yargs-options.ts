@@ -108,6 +108,10 @@ export default class Options {
                 describe: 'Deletes asset prior to upload',
                 type: 'boolean'
             }),
+            blocking: () => ({
+                describe: 'Block the request until it completes',
+                type: 'boolean'
+            }),
             start: () => ({
                 describe: 'Option to start job ',
                 alias: 'run',

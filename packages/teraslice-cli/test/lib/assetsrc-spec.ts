@@ -32,7 +32,7 @@ describe('AssetSrc', () => {
     test('build', async () => {
         const r = await testAsset.build();
         expect(r).toInclude('.zip');
-        fs.removeSync(r);
+        await fs.remove(r);
     });
 
     test('->zip', async () => {
@@ -40,7 +40,7 @@ describe('AssetSrc', () => {
         const outFile = path.join(tmpDir.name, 'out.zip');
         const zipOutput = await AssetSrc.zip(path.join(__dirname, 'fixtures', 'testAsset', 'asset'), outFile);
         expect(zipOutput.success).toEqual(outFile);
-        fs.removeSync(tmpDir.name);
+        await fs.remove(tmpDir.name);
     });
 });
 
@@ -56,9 +56,11 @@ describe('AssetSrc with build', () => {
         testAsset = {};
     });
 
-    test('->_yarnCmd', () => {
-        const yarn = testAsset._yarnCmd(path.join(testAsset.srcDir, 'asset'), ['run', 'asset:build']);
-        expect(yarn.status).toEqual(0);
+    test('->_yarnCmd', async () => {
+        const yarn = await testAsset._yarnCmd(
+            path.join(testAsset.srcDir, 'asset'), ['run', 'asset:build']
+        );
+        expect(yarn.exitCode).toEqual(0);
         expect(yarn.stdout.toString()).toInclude('$ echo');
     });
 });

@@ -7,7 +7,7 @@ import {
     PostData,
     AssetIDResponse,
     SearchOptions,
-    RequestOptions,
+    AssetUploadQuery,
     TxtSearchParams,
     ClientConfig,
     Asset
@@ -19,9 +19,14 @@ export default class Assets extends Client {
         autoBind(this);
     }
 
-    async upload(data: PostData, options: RequestOptions = {}): Promise<AssetIDResponse> {
-        if (isEmpty(data)) throw new TSError('Asset stream must not be empty');
-        const results = await this.post('/assets', data, options);
+    async upload(data: PostData, query: AssetUploadQuery = {}): Promise<AssetIDResponse> {
+        if (isEmpty(data)) {
+            throw new TSError('Asset stream must not be empty');
+        }
+
+        const results = await this.post('/assets', data, {
+            searchParams: query as Record<string, any>
+        });
         return this.parse(results);
     }
 
@@ -40,8 +45,13 @@ export default class Assets extends Client {
     }
 
     async getAsset(name: string, version = '', searchOptions: SearchOptions = {}): Promise<Asset[]> {
-        if (!name || !isString(name)) throw new TSError('name is required, and must be of type string');
-        if (version && !isString(version)) throw new TSError('version if provided must be of type string');
+        if (!name || !isString(name)) {
+            throw new TSError('name is required, and must be of type string');
+        }
+        if (version && !isString(version)) {
+            throw new TSError('version if provided must be of type string');
+        }
+
         const pathing = path.join('/assets', name, version);
         return this.get(pathing, searchOptions);
     }

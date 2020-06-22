@@ -1,7 +1,7 @@
 {
     "name": "teraslice-workspace",
     "displayName": "Teraslice",
-    "version": "0.65.3",
+    "version": "0.66.0",
     "private": true,
     "homepage": "https://github.com/terascope/teraslice",
     "bugs": {
@@ -25,7 +25,7 @@
         "lint:fix": "yarn lint --fix && yarn sync",
         "setup": "yarn $YARN_SETUP_ARGS && yarn run build --force",
         "start": "node service.js",
-        "start:dev": "yarn build && node service.js",
+        "start:dev": "yarn build && env NODE_ENV=development node service.js",
         "sync": "ts-scripts sync",
         "test": "ts-scripts test"
     },

@@ -3,8 +3,10 @@
 const fs = require('fs');
 const path = require('path');
 const fse = require('fs-extra');
+const semver = require('semver');
 const { TSError } = require('@terascope/utils');
 const decompress = require('decompress');
+const { getMajorVersion } = require('./asset_utils');
 
 function existsSync(filename) {
     try {
@@ -31,7 +33,35 @@ async function verifyAssetJSON(id, newPath) {
 
     try {
         const packageData = await fse.readJson(path.join(newPath, 'asset.json'));
-        return Object.assign({ id }, packageData);
+        const metadata = Object.assign({ id }, packageData);
+        if (!metadata.name) {
+            throw new Error('Missing name');
+        }
+
+        metadata.version = semver.clean(metadata.version);
+        if (!semver.valid(metadata.version)) {
+            throw new Error(`Invalid version "${metadata.version}"`);
+        }
+
+        /**
+         * If node_version, platform, or arch is set to a falsey
+         * value we should delete it so it is considered a wildcard.
+         *
+         * This is useful for making an asset bundle that isn't
+         * locked down.
+        */
+        if (metadata.node_version) {
+            metadata.node_version = getMajorVersion(metadata.node_version);
+        } else {
+            delete metadata.node_version;
+        }
+        if (!metadata.platform) {
+            delete metadata.platform;
+        }
+        if (!metadata.arch) {
+            delete metadata.arch;
+        }
+        return metadata;
     } catch (_err) {
         const err = new TSError(_err, {
             message: "Failure parsing asset.json, please ensure that's it formatted correctly",
@@ -52,18 +82,19 @@ async function saveAsset(logger, assetsPath, id, binaryData, metaCheck) {
             await fse.mkdir(newPath);
         }
 
-        logger.trace(`decompressing and saving asset ${id} to ${newPath}`);
+        logger.info(`decompressing and saving asset ${id} to ${newPath}`);
         await decompress(binaryData, newPath);
-        logger.trace(`decompressed ${id} to ${newPath}`);
+        logger.info(`decompressed asset ${id} to ${newPath}`);
 
-        const metaData = await verifyAssetJSON(id, newPath);
-        logger.trace(`asset ${id} saved to file ${newPath}`);
+        const metadata = await verifyAssetJSON(id, newPath);
+
+        logger.info(`asset ${id} saved to file ${newPath}`, metadata);
 
         // storage/assets save fn needs to check the return metadata for uniqueness
         if (metaCheck) {
-            return await metaCheck(metaData);
+            return await metaCheck(metadata);
         }
-        return metaData;
+        return metadata;
     } catch (err) {
         await deleteDir(newPath);
         throw err;
