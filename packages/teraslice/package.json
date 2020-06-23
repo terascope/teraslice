@@ -44,7 +44,7 @@
         "async-mutex": "^0.2.3",
         "barbe": "^3.0.15",
         "body-parser": "^1.19.0",
-        "convict": "^4.4.1",
+        "convict": "^6.0.0",
         "decompress": "^4.2.0",
         "easy-table": "^1.1.1",
         "event-loop-stats": "^1.2.0",
