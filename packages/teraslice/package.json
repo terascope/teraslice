@@ -41,7 +41,7 @@
         "@terascope/job-components": "^0.35.0",
         "@terascope/teraslice-messaging": "^0.12.0",
         "@terascope/utils": "^0.28.0",
-        "async-mutex": "^0.2.1",
+        "async-mutex": "^0.2.3",
         "barbe": "^3.0.15",
         "body-parser": "^1.19.0",
         "convict": "^4.4.1",
