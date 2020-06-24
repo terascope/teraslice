@@ -55,7 +55,7 @@
         "ts-pegjs": "^0.2.6"
     },
     "engines": {
-        "node": ">=8.0.0"
+        "node": ">=10.16.0"
     },
     "publishConfig": {
         "access": "public",

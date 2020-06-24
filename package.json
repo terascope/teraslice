@@ -1,7 +1,7 @@
 {
     "name": "teraslice-workspace",
     "displayName": "Teraslice",
-    "version": "0.66.0",
+    "version": "0.67.0",
     "private": true,
     "homepage": "https://github.com/terascope/teraslice",
     "bugs": {
@@ -16,7 +16,7 @@
         "build": "tsc --build",
         "build:cleanup": "./scripts/build-cleanup.sh",
         "build:doctor": "./scripts/build-doctor.sh",
-        "build:fix": "echo 'DEPRECATED, use yarn run build:doctor instead'",
+        "build:fix": "echo '[DEPRECATED], use yarn run build:doctor instead'",
         "build:pkg": "./scripts/build-pkg.sh",
         "build:watch": "yarn run build --watch",
         "bump": "ts-scripts bump",
