@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const barbe = require('barbe');
+const isTest = require('@terascope/utils');
 
 function makeTemplate(folder, fileName) {
     const filePath = path.join(__dirname, folder, `${fileName}.hbs`);
@@ -38,4 +39,20 @@ function setMaxOldSpaceViaEnv(envArr, jobEnv, memory) {
     });
 }
 
-module.exports = { setMaxOldSpaceViaEnv, makeTemplate, getMaxOldSpace };
+const MAX_RETRIES = isTest ? 2 : 100;
+const RETRY_DELAY = isTest ? 50 : 500;
+
+function getRetryConfig() {
+    return {
+        retries: MAX_RETRIES,
+        delay: RETRY_DELAY,
+        matches: ['es_rejected_execution_exception', 'No Living connections'],
+    };
+}
+
+module.exports = {
+    getMaxOldSpace,
+    getRetryConfig,
+    makeTemplate,
+    setMaxOldSpaceViaEnv
+};

@@ -1,10 +1,11 @@
 'use strict';
 
 const {
-    TSError, get, isEmpty, pDelay
+    TSError, get, isEmpty, pDelay, pRetry
 } = require('@terascope/utils');
 const { Client, KubeConfig } = require('kubernetes-client');
 const Request = require('kubernetes-client/backends/request');
+const { getRetryConfig } = require('./utils');
 
 class K8s {
     constructor(logger, clientConfig, defaultNamespace = 'default', apiPollDelay) {
@@ -50,7 +51,8 @@ class K8s {
     async getNamespaces() {
         let namespaces;
         try {
-            namespaces = await this.client.api.v1.namespaces.get();
+            namespaces = await pRetry(() => this.client
+                .api.v1.namespaces.get(), getRetryConfig());
         } catch (err) {
             const error = new TSError(err, {
                 reason: 'Failure getting in namespaces'
@@ -77,8 +79,9 @@ class K8s {
 
         // eslint-disable-next-line no-constant-condition
         while (true) {
-            const result = await this.client.api.v1.namespaces(namespace)
-                .pods().get({ qs: { labelSelector: selector } });
+            const result = await pRetry(() => this.client
+                .api.v1.namespaces(namespace).pods()
+                .get({ qs: { labelSelector: selector } }), getRetryConfig());
 
             let pod;
             if (typeof result !== 'undefined' && result) {
@@ -111,17 +114,21 @@ class K8s {
 
         try {
             if (objType === 'pods') {
-                response = await this.client.api.v1.namespaces(namespace)
-                    .pods().get({ qs: { labelSelector: selector } });
+                response = await pRetry(() => this.client
+                    .api.v1.namespaces(namespace).pods()
+                    .get({ qs: { labelSelector: selector } }), getRetryConfig());
             } else if (objType === 'deployments') {
-                response = await this.client.apis.apps.v1.namespaces(namespace)
-                    .deployments().get({ qs: { labelSelector: selector } });
+                response = await pRetry(() => this.client
+                    .apis.apps.v1.namespaces(namespace).deployments()
+                    .get({ qs: { labelSelector: selector } }), getRetryConfig());
             } else if (objType === 'services') {
-                response = await this.client.api.v1.namespaces(namespace)
-                    .services().get({ qs: { labelSelector: selector } });
+                response = await pRetry(() => this.client
+                    .api.v1.namespaces(namespace).services()
+                    .get({ qs: { labelSelector: selector } }), getRetryConfig());
             } else if (objType === 'jobs') {
-                response = await this.client.apis.batch.v1.namespaces(namespace)
-                    .jobs().get({ qs: { labelSelector: selector } });
+                response = await pRetry(() => this.client
+                    .apis.batch.v1.namespaces(namespace).jobs()
+                    .get({ qs: { labelSelector: selector } }), getRetryConfig());
             } else {
                 const error = new Error(`Wrong objType provided to get: ${objType}`);
                 this.logger.error(error);
@@ -154,14 +161,17 @@ class K8s {
 
         try {
             if (manifestType === 'service') {
-                response = await this.client.api.v1.namespaces(this.defaultNamespace)
-                    .service.post({ body: manifest });
+                response = await pRetry(() => this.client
+                    .api.v1.namespaces(this.defaultNamespace).service
+                    .post({ body: manifest }), getRetryConfig());
             } else if (manifestType === 'deployment') {
-                response = await this.client.apis.apps.v1.namespaces(this.defaultNamespace)
-                    .deployments.post({ body: manifest });
+                response = await pRetry(() => this.client
+                    .apis.apps.v1.namespaces(this.defaultNamespace).deployments
+                    .post({ body: manifest }), getRetryConfig());
             } else if (manifestType === 'job') {
-                response = await this.client.apis.batch.v1.namespaces(this.defaultNamespace)
-                    .jobs.post({ body: manifest });
+                response = await pRetry(() => this.client
+                    .apis.batch.v1.namespaces(this.defaultNamespace).jobs
+                    .post({ body: manifest }), getRetryConfig());
             } else {
                 const error = new Error(`Invalid manifestType: ${manifestType}`);
                 return Promise.reject(error);
@@ -194,8 +204,9 @@ class K8s {
         let response;
 
         try {
-            response = await this.client.apis.apps.v1.namespaces(this.defaultNamespace)
-                .deployments(name).patch({ body: record });
+            response = await pRetry(() => this.client
+                .apis.apps.v1.namespaces(this.defaultNamespace).deployments(name)
+                .patch({ body: record }), getRetryConfig());
         } catch (e) {
             const err = new Error(`Request k8s.patch with ${name} failed with: ${e}`);
             this.logger.error(err);
@@ -224,22 +235,25 @@ class K8s {
 
         try {
             if (objType === 'services') {
-                response = await this.client.api.v1.namespaces(this.defaultNamespace)
-                    .services(name).delete();
+                response = await pRetry(() => this.client
+                    .api.v1.namespaces(this.defaultNamespace).services(name)
+                    .delete(), getRetryConfig(), getRetryConfig());
             } else if (objType === 'deployments') {
-                response = await this.client.apis.apps.v1.namespaces(this.defaultNamespace)
-                    .deployments(name).delete();
+                response = await pRetry(() => this.client
+                    .apis.apps.v1.namespaces(this.defaultNamespace).deployments(name)
+                    .delete(), getRetryConfig());
             } else if (objType === 'jobs') {
                 // To get a Job to remove the associated pods you have to
                 // include a body like the one below with the delete request
-                response = await this.client.apis.batch.v1.namespaces(this.defaultNamespace)
-                    .jobs(name).delete({
+                response = await pRetry(() => this.client
+                    .apis.batch.v1.namespaces(this.defaultNamespace).jobs(name)
+                    .delete({
                         body: {
                             apiVersion: 'v1',
                             kind: 'DeleteOptions',
                             propagationPolicy: 'Background'
                         }
-                    });
+                    }), getRetryConfig());
             } else {
                 throw new Error(`Invalid objType: ${objType}`);
             }
