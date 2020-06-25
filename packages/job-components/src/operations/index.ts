@@ -9,6 +9,7 @@ import Observer from './observer';
 import OperationAPI from './operation-api';
 import ParallelSlicer from './parallel-slicer';
 import Slicer from './slicer';
+import APIFactory from './api-factory';
 
 export * from './shims';
 export * from './interfaces';
@@ -25,4 +26,5 @@ export {
     OperationAPI,
     ParallelSlicer,
     Slicer,
+    APIFactory
 };
