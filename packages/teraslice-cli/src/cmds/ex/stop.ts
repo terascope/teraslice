@@ -3,10 +3,7 @@ import { CMD } from '../../interfaces';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 import TerasliceUtil from '../../helpers/teraslice-util';
-
-import Reply from '../lib/reply';
-
-const reply = new Reply();
+import reply from '../lib/reply';
 
 const yargsOptions = new YargsOptions();
 

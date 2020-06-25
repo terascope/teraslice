@@ -3,11 +3,10 @@ import {
     has, toString, pDelay, set
 } from '@terascope/utils';
 import TerasliceUtil from './teraslice-util';
-import displayModule from '../cmds/lib/display';
-import Reply from '../cmds/lib/reply';
+import Display from '../cmds/lib/display';
+import reply from '../cmds/lib/reply';
 
-const display = displayModule();
-const reply = new Reply();
+const display = new Display();
 
 export default class Jobs {
     /**
@@ -369,62 +368,50 @@ export default class Jobs {
         const response = jobs.map((job) => {
             if (action === 'stop') {
                 return this.teraslice.client.jobs.wrap(job.job_id).stop()
-                    .then((stopResponse: any) => {
-                        if (stopResponse.status.status === 'stopped' || stopResponse.status === 'stopped') {
-                            return display.setAction(action, 'past')
-                                .then((setActionResult) => {
-                                    reply.info(`> job: ${job.job_id} ${setActionResult}`);
-                                });
+                    .then((stopResponse) => {
+                        if ((stopResponse.status as any)?.status === 'stopped' || stopResponse.status === 'stopped') {
+                            const setActionResult = display.setAction(action, 'past');
+                            reply.info(`> job: ${job.job_id} ${setActionResult}`);
+                            return;
                         }
-                        return display.setAction(action, 'present')
-                            .then((setActionResult) => {
-                                reply.info(`> job: ${job.job_id} error ${setActionResult}`);
-                            });
+                        const setActionResult = display.setAction(action, 'present');
+                        reply.info(`> job: ${job.job_id} error ${setActionResult}`);
                     });
             }
             if (action === 'start') {
                 return this.teraslice.client.jobs.wrap(job.job_id).start()
-                    .then((startResponse: any) => {
+                    .then((startResponse) => {
                         if (startResponse.job_id === job.job_id) {
-                            return display.setAction(action, 'past')
-                                .then((setActionResult) => {
-                                    reply.info(`> job: ${job.job_id} ${setActionResult}`);
-                                });
+                            const setActionResult = display.setAction(action, 'past');
+                            reply.info(`> job: ${job.job_id} ${setActionResult}`);
+                            return;
                         }
-                        return display.setAction(action, 'present')
-                            .then((setActionResult) => {
-                                reply.info(`> job: ${job.job_id} error ${setActionResult}`);
-                            });
+                        const setActionResult = display.setAction(action, 'present');
+                        reply.info(`> job: ${job.job_id} error ${setActionResult}`);
                     });
             }
             if (action === 'resume') {
                 return this.teraslice.client.jobs.wrap(job.job_id).resume()
-                    .then((resumeResponse: any) => {
-                        if (resumeResponse.status.status === 'running' || resumeResponse.status === 'running') {
-                            return display.setAction(action, 'past')
-                                .then((setActionResult) => {
-                                    reply.info(`> job: ${job.job_id} ${setActionResult}`);
-                                });
+                    .then((resumeResponse) => {
+                        if ((resumeResponse.status as any)?.status === 'running' || resumeResponse.status === 'running') {
+                            const setActionResult = display.setAction(action, 'past');
+                            reply.info(`> job: ${job.job_id} ${setActionResult}`);
+                            return;
                         }
-                        return display.setAction(action, 'present')
-                            .then((setActionResult) => {
-                                reply.info(`> job: ${job.job_id} error ${setActionResult}`);
-                            });
+                        const setActionResult = display.setAction(action, 'present');
+                        reply.info(`> job: ${job.job_id} error ${setActionResult}`);
                     });
             }
             if (action === 'pause') {
                 return this.teraslice.client.jobs.wrap(job.job_id).pause()
-                    .then((pauseResponse: any) => {
-                        if (pauseResponse.status.status === 'paused' || pauseResponse.status === 'paused') {
-                            return display.setAction(action, 'past')
-                                .then((setActionResult) => {
-                                    reply.info(`> job: ${job.job_id} ${setActionResult}`);
-                                });
+                    .then((pauseResponse) => {
+                        if ((pauseResponse.status as any)?.status === 'paused' || pauseResponse.status === 'paused') {
+                            const setActionResult = display.setAction(action, 'past');
+                            reply.info(`> job: ${job.job_id} ${setActionResult}`);
+                            return;
                         }
-                        return display.setAction(action, 'present')
-                            .then((setActionResult) => {
-                                reply.info(`> job: ${job.job_id} error ${setActionResult}`);
-                            });
+                        const setActionResult = display.setAction(action, 'present');
+                        reply.info(`> job: ${job.job_id} error ${setActionResult}`);
                     });
             }
 

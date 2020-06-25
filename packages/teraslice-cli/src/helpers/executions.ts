@@ -1,7 +1,5 @@
 import TerasliceUtil from './teraslice-util';
-import Reply from '../cmds/lib/reply';
-
-const reply = new Reply();
+import reply from '../cmds/lib/reply';
 
 export default class Executions {
     /**

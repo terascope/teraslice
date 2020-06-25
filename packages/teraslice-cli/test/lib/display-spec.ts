@@ -1,7 +1,7 @@
 import 'jest-extended';
-import displayModule from '../../src/cmds/lib/display';
+import Display from '../../src/cmds/lib/display';
 
-const display = displayModule();
+const display = new Display();
 
 describe('display', () => {
     test('should parse response into an array', async () => {

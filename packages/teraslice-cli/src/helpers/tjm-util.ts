@@ -1,7 +1,5 @@
 import { TerasliceClient, ExecutionStatus } from 'teraslice-client-js';
-import Reply from '../cmds/lib/reply';
-
-const reply = new Reply();
+import reply from '../cmds/lib/reply';
 
 export default class TjmUtil {
     client: TerasliceClient;

@@ -1,10 +1,9 @@
 import AssetSrc from '../../helpers/asset-src';
 import { CMD } from '../../interfaces';
-import Reply from '../lib/reply';
+import reply from '../lib/reply';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 
-const reply = new Reply();
 const yargsOptions = new YargsOptions();
 
 export = {
@@ -14,12 +13,16 @@ export = {
         yargs.option('config-dir', yargsOptions.buildOption('config-dir'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('quiet', yargsOptions.buildOption('quiet'));
-        // build asset found in in cwd
-        // @ts-expect-error
-        yargs.example('$0 assets build');
-        // build asset found in specified src-dir
-        // @ts-expect-error
-        yargs.example('$0 assets build --src-dir /path/to/myAsset/');
+        yargs.option('dev', yargsOptions.buildOption('dev'));
+
+        yargs.example(
+            '$0 assets build',
+            'build asset found in in cwd'
+        );
+        yargs.example(
+            '$0 assets build --src-dir /path/to/myAsset/',
+            'build asset found in specified src-dir'
+        );
         return yargs;
     },
     async handler(argv) {

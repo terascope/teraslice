@@ -3,10 +3,9 @@ import Jobs from '../../helpers/jobs';
 import YargsOptions from '../../helpers/yargs-options';
 import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
-import Reply from '../lib/reply';
+import reply from '../lib/reply';
 
 const yargsOptions = new YargsOptions();
-const reply = new Reply();
 
 const cmd: CMD = {
     command: 'await <job-file>',

@@ -4,11 +4,10 @@ import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 import TerasliceUtil from '../../helpers/teraslice-util';
 
-import Reply from '../lib/reply';
-import displayModule from '../lib/display';
+import reply from '../lib/reply';
+import Display from '../lib/display';
 
-const reply = new Reply();
-const display = displayModule();
+const display = new Display();
 const yargsOptions = new YargsOptions();
 
 export = {

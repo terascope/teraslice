@@ -1,11 +1,10 @@
 import fs from 'fs-extra';
 import path from 'path';
 import { has, set } from '@terascope/utils';
-import Reply from '../cmds/lib/reply';
+import reply from '../cmds/lib/reply';
 import { getPackage } from '../../src/helpers/utils';
 
 const { version } = getPackage();
-const reply = new Reply();
 
 // TODO: relook into this use
 

@@ -2,9 +2,7 @@ import { unset } from '@terascope/utils';
 import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
-import Reply from '../lib/reply';
-
-const reply = new Reply();
+import reply from '../lib/reply';
 
 const yargsOptions = new YargsOptions();
 

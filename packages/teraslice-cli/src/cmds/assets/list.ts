@@ -1,13 +1,12 @@
 import { CMD } from '../../interfaces';
-import Reply from '../lib/reply';
+import reply from '../lib/reply';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 import { getTerasliceClient } from '../../helpers/utils';
-import displayModule from '../lib/display';
+import Display from '../lib/display';
 
-const display = displayModule();
+const display = new Display();
 
-const reply = new Reply();
 const yargsOptions = new YargsOptions();
 
 export = {

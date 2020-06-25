@@ -2,10 +2,9 @@ import JobSrc from '../../helpers/job-src';
 import Config from '../../helpers/config';
 import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
-import Reply from '../lib/reply';
+import reply from '../lib/reply';
 import Jobs from '../../helpers/jobs';
 
-const reply = new Reply();
 const yargsOptions = new YargsOptions();
 
 const cmd: CMD = {

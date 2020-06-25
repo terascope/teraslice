@@ -1,10 +1,9 @@
 import { CMD } from '../../interfaces';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
-import Reply from '../lib/reply';
+import reply from '../lib/reply';
 import TerasliceUtil from '../../helpers/teraslice-util';
 
-const reply = new Reply();
 const yargsOptions = new YargsOptions();
 
 export = {

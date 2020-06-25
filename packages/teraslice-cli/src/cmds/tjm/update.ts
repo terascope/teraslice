@@ -4,9 +4,8 @@ import JobSrc from '../../helpers/job-src';
 import { CMD } from '../../interfaces';
 import YargsOptions from '../../helpers/yargs-options';
 import { getTerasliceClient } from '../../helpers/utils';
-import Reply from '../lib/reply';
+import reply from '../lib/reply';
 
-const reply = new Reply();
 const yargsOptions = new YargsOptions();
 
 const cmd: CMD = {
