@@ -6,7 +6,7 @@ import FactoryAPITest from '../fixtures/api-factory/api';
 
 type API = APIFactoryRegistry<AnyObject, AnyObject>;
 
-describe('OperationAPI', () => {
+describe('APIFactory', () => {
     const apiName = 'FactoryAPITest';
     let context: TestContext;
 
