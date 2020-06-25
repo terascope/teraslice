@@ -3,8 +3,8 @@ import { CMD } from '../../interfaces';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 import TerasliceUtil from '../../helpers/teraslice-util';
-import reply from '../lib/reply';
-import Display from '../lib/display';
+import reply from '../../helpers/reply';
+import Display from '../../helpers/display';
 
 const display = new Display();
 const yargsOptions = new YargsOptions();

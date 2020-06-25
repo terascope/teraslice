@@ -1,8 +1,6 @@
 import chalk from 'chalk';
 import { toString, get, isError } from '@terascope/utils';
 
-// TODO: figure this out
-
 class Reply {
     quiet = true;
 

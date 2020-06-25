@@ -2,7 +2,7 @@ import fs from 'fs';
 import { has } from '@terascope/utils';
 // @ts-expect-error
 import yaml from 'node-yaml';
-import Display from '../cmds/lib/display';
+import Display from '../helpers/display';
 
 const display = new Display();
 

@@ -6,7 +6,7 @@ let statusResponse: any;
 let waitStatus: any;
 let job: any = {};
 
-const client = {
+const client: any = {
     jobs: {
         wrap: () => {
             const functions = {

@@ -1,9 +1,9 @@
 import { has } from '@terascope/utils';
-import TerasliceClient from 'teraslice-client-js';
+import TerasliceClient, { RootResponse } from 'teraslice-client-js';
 
 export default class TerasliceUtil {
     config: any;
-    constructor(cliConfig: any) {
+    constructor(cliConfig: Record<string, any>) {
         this.config = cliConfig;
     }
 
@@ -11,11 +11,11 @@ export default class TerasliceUtil {
         return new TerasliceClient({ host: this.config.clusterUrl });
     }
 
-    async info() {
+    async info(): Promise<RootResponse> {
         return this.client.cluster.info();
     }
 
-    async type() {
+    async type(): Promise<string> {
         let clusterInfo = {};
         let clusteringType = 'native';
         try {

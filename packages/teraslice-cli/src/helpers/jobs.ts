@@ -3,8 +3,8 @@ import {
     has, toString, pDelay, set
 } from '@terascope/utils';
 import TerasliceUtil from './teraslice-util';
-import Display from '../cmds/lib/display';
-import reply from '../cmds/lib/reply';
+import Display from '../helpers/display';
+import reply from '../helpers/reply';
 
 const display = new Display();
 

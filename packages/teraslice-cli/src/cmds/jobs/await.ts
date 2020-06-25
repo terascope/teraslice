@@ -1,6 +1,6 @@
 import YargsOptions from '../../helpers/yargs-options';
 import Jobs from '../../helpers/jobs';
-import reply from '../lib/reply';
+import reply from '../../helpers/reply';
 import Config from '../../helpers/config';
 import { CMD } from '../../interfaces';
 

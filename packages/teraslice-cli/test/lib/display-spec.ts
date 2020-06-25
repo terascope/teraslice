@@ -1,5 +1,5 @@
 import 'jest-extended';
-import Display from '../../src/cmds/lib/display';
+import Display from '../../src/helpers/display';
 
 const display = new Display();
 

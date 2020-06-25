@@ -1,5 +1,5 @@
 import { CMD } from '../../interfaces';
-import reply from '../lib/reply';
+import reply from '../../helpers/reply';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 

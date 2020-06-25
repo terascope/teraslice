@@ -8,7 +8,7 @@ import AssetSrc from '../../helpers/asset-src';
 import GithubAsset from '../../helpers/github-asset';
 
 import { CMD, GithubAssetConfig } from '../../interfaces';
-import reply from '../lib/reply';
+import reply from '../../helpers/reply';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 import { getTerasliceClient } from '../../helpers/utils';

@@ -2,8 +2,8 @@ import { CMD } from '../../interfaces';
 import Config from '../../helpers/config';
 import TerasliceUtil from '../../helpers/teraslice-util';
 import YargsOptions from '../../helpers/yargs-options';
-import reply from '../lib/reply';
-import Display from '../lib/display';
+import reply from '../../helpers/reply';
+import Display from '../../helpers/display';
 
 const display = new Display();
 const yargsOptions = new YargsOptions();
@@ -43,7 +43,7 @@ export = {
             reply.fatal(`Error getting ex errors list on ${cliConfig.args.clusterAlias}\n${err}`);
         }
 
-        const rows = await display.parseResponse(header, response, active);
+        const rows = await display.parseResponse(header, response ?? [], active);
         if (rows.length > 0) {
             await display.display(header, rows, format, active, parse);
         } else {

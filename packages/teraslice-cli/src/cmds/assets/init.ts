@@ -5,7 +5,7 @@ import { CMD } from '../../interfaces';
 
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
-import reply from '../lib/reply';
+import reply from '../../helpers/reply';
 import newProcessor from '../../generators/new-processor';
 import newAsset from '../../generators/new-asset';
 

@@ -1,9 +1,9 @@
 import { CMD } from '../../interfaces';
-import reply from '../lib/reply';
+import reply from '../../helpers/reply';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 import { getTerasliceClient } from '../../helpers/utils';
-import Display from '../lib/display';
+import Display from '../../helpers/display';
 
 const display = new Display();
 
@@ -31,6 +31,6 @@ export = {
         } catch (err) {
             reply.fatal(`Error listing assets on ${cliConfig.args.clusterAlias}`);
         }
-        display.display(header, response, cliConfig.args.output);
+        display.display(header, response ?? [], cliConfig.args.output);
     }
 } as CMD;
