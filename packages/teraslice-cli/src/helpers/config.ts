@@ -2,6 +2,7 @@ import fs from 'fs';
 import { has } from '@terascope/utils';
 import Aliases from './aliases';
 import { camelCase } from '../helpers/utils';
+import reply from './reply';
 
 /**
  * This is the top level config object, it manages the config directory and
@@ -37,6 +38,9 @@ export default class Config {
                     `Alias, ${this.args.clusterAlias}, not found in config file: ${this.aliasesFile}`
                 );
             }
+        }
+        if (this.args.quiet) {
+            reply.quiet = true;
         }
     }
 

@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import { toString, get, isError } from '@terascope/utils';
 
 class Reply {
-    quiet = true;
+    quiet = false;
 
     private log(msg: string) {
         // eslint-disable-next-line no-console
@@ -31,6 +31,8 @@ class Reply {
     }
 
     info(message: string): void {
+        if (this.quiet) return;
+
         this.log(toString(message));
     }
 
@@ -39,12 +41,14 @@ class Reply {
     }
 
     green(message: string): void {
+        if (this.quiet) return;
         if (!process.env.TJM_TEST_MODE) {
             this.log(chalk.green(message));
         }
     }
 
     yellow(message: unknown): void {
+        if (this.quiet) return;
         if (!process.env.TJM_TEST_MODE) {
             this.log(chalk.yellow(message));
         }
