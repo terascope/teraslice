@@ -38,7 +38,7 @@
         "@terascope/data-mate": "^0.11.1",
         "@terascope/types": "^0.4.0",
         "@terascope/utils": "^0.28.0",
-        "awesome-phonenumber": "^2.33.0",
+        "awesome-phonenumber": "^2.35.0",
         "graphlib": "^2.1.8",
         "jexl": "^2.2.2",
         "nanoid": "^3.1.10",
@@ -55,7 +55,7 @@
         "execa": "^4.0.2"
     },
     "engines": {
-        "node": ">=8.0.0"
+        "node": ">=10.16.0"
     },
     "publishConfig": {
         "access": "public",

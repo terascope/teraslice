@@ -1,7 +1,7 @@
 {
     "name": "teraslice",
     "displayName": "Teraslice",
-    "version": "0.65.3",
+    "version": "0.67.0",
     "description": "Distributed computing platform for processing JSON data",
     "homepage": "https://github.com/terascope/teraslice#readme",
     "bugs": {
@@ -41,7 +41,7 @@
         "@terascope/job-components": "^0.35.0",
         "@terascope/teraslice-messaging": "^0.12.0",
         "@terascope/utils": "^0.28.0",
-        "async-mutex": "^0.2.1",
+        "async-mutex": "^0.2.3",
         "barbe": "^3.0.15",
         "body-parser": "^1.19.0",
         "convict": "^4.4.1",
@@ -59,6 +59,7 @@
         "ms": "^2.1.2",
         "nanoid": "^3.1.10",
         "porty": "^3.1.1",
+        "semver": "^7.2.2",
         "socket.io": "^1.7.4",
         "socket.io-client": "^1.7.4",
         "terafoundation": "^0.22.1",

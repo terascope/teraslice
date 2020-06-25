@@ -46,6 +46,8 @@ An `asset.json` is used to define a bundle of operations, it contains a name and
 }
 ```
 
+An `asset.json` can also contain `node_version`, `platform` and `arch` which will be used to restrict the asset for a given environment, which will allowing upgrades to the `node` without breaking jobs. If the value for those restrictions are not specified or are *falsey*, teraslice will not consider it a restricted. This is useful for making an asset bundle that isn't by locked down by node version or os.
+
 A job configuration that makes use of a custom operator would simply call the
 operator just like any other operator, as shown below:
 

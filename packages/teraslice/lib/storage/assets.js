@@ -4,11 +4,12 @@ const path = require('path');
 const fse = require('fs-extra');
 const crypto = require('crypto');
 const {
-    TSError, pDelay, uniq, isString, toString
+    TSError, pDelay, uniq, isString, toString, filterObject
 } = require('@terascope/utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 const { makeLogger } = require('../workers/helpers/terafoundation');
 const { saveAsset } = require('../utils/file_utils');
+const { findMatchingAsset, toVersionQuery } = require('../utils/asset_utils');
 
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
@@ -63,24 +64,53 @@ module.exports = async function assetsStore(context) {
         return readable && exists;
     }
 
-    async function save(data) {
+    async function _saveAndUpload({
+        id, data, esData, blocking
+    }) {
+        const startTime = Date.now();
+        const metaData = await saveAsset(logger, assetsPath, id, data, _metaIsUnqiue);
+
+        const assetRecord = Object.assign({
+            blob: esData,
+            _created: new Date().toISOString()
+        }, metaData);
+
+        if (blocking) {
+            const elapsed = Date.now() - startTime;
+            const remaining = config.api_response_timeout - elapsed;
+            await backend.indexWithId(id, assetRecord, undefined, remaining);
+        } else {
+            await backend.indexWithId(id, assetRecord, undefined, config.api_response_timeout);
+        }
+
+        logger.info(`assets: ${metaData.name}, id: ${id} has been saved to assets_directory and elasticsearch`);
+    }
+
+    /**
+     * Save an asset to disk and upload to elasticsearch
+     *
+     * @param data {Buffer} A buffer of the asset file (zipped)
+     * @param blocking {boolean=true} If false, save the asset in the background
+     * @returns {Promise<{ assetId: string; created: boolean }>}
+    */
+    async function save(data, blocking = true) {
         const esData = data.toString('base64');
         const id = crypto.createHash('sha1').update(esData).digest('hex');
 
         const exists = await _assetExists(id);
         if (exists) {
             logger.info(`asset id: ${id} already exists`);
+        } else if (blocking) {
+            await _saveAndUpload({
+                id, data, esData, blocking
+            });
         } else {
-            const metaData = await saveAsset(logger, assetsPath, id, data, _metaIsUnqiue);
-
-            const assetRecord = Object.assign({
-                blob: esData,
-                _created: new Date().toISOString()
-            }, metaData);
-
-            await backend.indexWithId(id, assetRecord);
-
-            logger.info(`assets: ${metaData.name}, id: ${id} has been saved to assets_directory and elasticsearch`);
+            // kick this of in the background since it is not blocking
+            _saveAndUpload({
+                id, data, esData, blocking
+            }).catch((err) => {
+                logger.error(err, `Failure saving asset: ${id}`);
+            });
         }
 
         return {
@@ -100,79 +130,43 @@ module.exports = async function assetsStore(context) {
     async function _getAssetId(assetIdentifier) {
         // is full _id
         if (assetIdentifier.length === 40) {
-            // need to return a promise
-            return assetIdentifier;
+            const count = await backend.count(`id:"${assetIdentifier}"`);
+            if (count === 1) return assetIdentifier;
         }
 
-        const metaData = assetIdentifier.split(':');
+        const [name, version] = assetIdentifier.split(':');
         const sort = '_created:desc';
-        const fields = ['version'];
+        const fields = ['id', 'name', 'version', 'platform', 'arch', 'node_version'];
 
-        // if no version specified get latest
-        if (metaData.length === 1 || metaData[1] === 'latest') {
-            const assetRecord = await search(`name:"${metaData[0]}"`, null, 1, sort, fields);
-            const record = assetRecord.hits.hits[0];
-            if (!record) {
-                throw new Error(`asset: ${metaData.join(' ')} was not found`);
-            }
-            return record._id;
+        const response = await search(
+            `name:"${name}" AND ${toVersionQuery(version)}`, null, 10000, sort, fields
+        );
+        const assets = response.hits.hits.map((doc) => doc._source);
+
+        const found = findMatchingAsset(assets, name, version);
+        if (!found) {
+            throw new Error(`No asset with the provided name and version could be located, asset: ${assetIdentifier}`);
         }
-
-        // has wildcard in version
-        const assetRecords = await search(`name:"${metaData[0]}" AND version:"${metaData[1]}"`, null, 10000, sort, fields);
-        const records = assetRecords.hits.hits.map((doc) => ({
-            id: doc._id,
-            version: doc._source.version
-        }));
-        const versionID = metaData[1];
-        const wildcardPlacement = versionID.indexOf('*') - 1;
-        const versionTransform = versionID.split('.');
-        const versionWithWildcard = versionTransform.indexOf('*');
-        const versionSlice = versionTransform.filter((chars) => chars !== '*').join('.');
-        if (records.length === 0) {
-            throw new Error(`No asset with the provided name and version could be located, asset: ${metaData.join(':')}`);
-        }
-
-        return records.reduce((prev, curr) => _compareVersions(
-            prev, curr, wildcardPlacement, versionSlice, versionWithWildcard
-        )).id;
+        return found.id;
     }
 
     function parseAssetsArray(assetsArray) {
         return Promise.all(uniq(assetsArray).map(_getAssetId));
     }
 
-    function _compareVersions(prev, curr, wildcardPlacement, versionSlice, versionWithWildcard) {
-        const prevBool = prev.version.slice(0, wildcardPlacement) === versionSlice;
-        const currBool = curr.version.slice(0, wildcardPlacement) === versionSlice;
-
-        // if they both match up to wildcard
-        if (prevBool && currBool) {
-            const prevVersion = prev.version.split('.');
-            const currVersion = curr.version.split('.');
-            const prevParsedNumber = Number(prevVersion[versionWithWildcard]);
-            const currParsedNumber = Number(currVersion[versionWithWildcard]);
-
-            if (prevParsedNumber < currParsedNumber) {
-                return curr;
-            }
-            return prev;
-        }
-
-        if (prevBool && !currBool) {
-            return prev;
-        }
-
-        return curr;
-    }
-
     async function _metaIsUnqiue(meta) {
-        const results = await search(`name:${meta.name} AND version:${meta.version}`, null, 10000);
-        if (results.hits.hits.length === 0) {
+        const includes = ['name', 'version', 'node_version', 'platform', 'arch'];
+
+        const query = Object.entries(filterObject(meta, { includes }))
+            .map(([key, val]) => `${key}:"${val}"`)
+            .join(' AND ');
+
+        const total = await backend.count(query);
+        if (total === 0) {
             return meta;
         }
 
-        const error = new TSError(`asset name:${meta.name} and version:${meta.version} already exists, please increment the version and send again`, {
+        const error = new TSError(`Asset ${query} already exists, please increment the version and send again`, {
             statusCode: 409
         });
         error.code = 409;

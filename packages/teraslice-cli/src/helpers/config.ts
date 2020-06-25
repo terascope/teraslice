@@ -14,10 +14,10 @@ import { camelCase } from '../helpers/utils';
  */
 export default class Config {
     private configDir: string;
-    args: any;
+    args: Record<string, any>;
     aliases: Aliases;
 
-    constructor(cliArgs: any) {
+    constructor(cliArgs: Record<string, any>) {
         // We do this so that the command line options can be like 'cluster-url'
         // but the js properties are camelCase
         this.args = {};
@@ -52,7 +52,7 @@ export default class Config {
      * Also, any command needing clusterUrl should use this instead of the cli
      * equivalents.
      */
-    get clusterUrl() {
+    get clusterUrl(): string {
         if (this.args.clusterUrl) {
             return this.args.clusterUrl;
         }
@@ -63,23 +63,23 @@ export default class Config {
         }
     }
 
-    get aliasesFile() {
+    get aliasesFile(): string {
         return `${this.configDir}/aliases.yaml`;
     }
 
-    get jobStateDir() {
+    get jobStateDir(): string {
         return `${this.configDir}/job_state_files`;
     }
 
-    get jobStateFile() {
+    get jobStateFile(): string {
         return `${this.jobStateDir}/${this.args.clusterAlias}.json`;
     }
 
-    get assetDir() {
+    get assetDir(): string {
         return `${this.configDir}/assets`;
     }
 
-    get allSubDirs() {
+    get allSubDirs(): string[] {
         return [
             this.jobStateDir,
             this.assetDir

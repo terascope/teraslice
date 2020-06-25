@@ -26,7 +26,7 @@ describe('assets', () => {
         const jobSpec = misc.newJob(jobSpecName);
         const { workers } = jobSpec; // save for comparison
 
-        const result = await teraslice.assets.upload(fileStream);
+        const result = await teraslice.assets.upload(fileStream, { blocking: true });
         // NOTE: In this case, the asset is referenced by the ID
         // assigned by teraslice and not it's name.
         jobSpec.assets = [result._id, 'elasticsearch'];
@@ -42,7 +42,7 @@ describe('assets', () => {
     it('after uploading an asset, it can be deleted', async () => {
         const testStream = fs.createReadStream('test/fixtures/assets/example_asset_1.zip');
 
-        const result = await teraslice.assets.upload(testStream);
+        const result = await teraslice.assets.upload(testStream, { blocking: true });
 
         // save the asset ID that was submitted to terslice
         const assetId = result._id;
@@ -62,7 +62,7 @@ describe('assets', () => {
         const testStream = fs.createReadStream('test/fixtures/assets/example_bad_asset_1.zip');
 
         try {
-            await teraslice.assets.upload(testStream);
+            await teraslice.assets.upload(testStream, { blocking: true });
         } catch (err) {
             expect(err.message).toInclude('asset.json was not found');
             expect(err.code).toEqual(422);
@@ -98,7 +98,9 @@ describe('assets', () => {
         const jobSpec = misc.newJob('generator-asset');
         const { workers } = jobSpec;
 
-        const assetResponse = await teraslice.assets.upload(fileStream);
+        const assetResponse = await teraslice.assets.upload(fileStream, {
+            blocking: true
+        });
         const assetId = assetResponse._id;
 
         const ex = await submitAndStart(jobSpec);

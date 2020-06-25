@@ -119,6 +119,10 @@ $ curl 'localhost:5678/v1/assets'
 
 Submit a zip file containing custom readers/processors for jobs to use.
 
+**Query Options:**
+
+- `blocking: boolean = false` - if true, the request will block until the asset is saved to disk and uploaded to elasticsearch. Use this to find errors uploading an asset since some errors may only show in the logs when blocking is `false`.
+
 **Usage:**
 
 ```sh

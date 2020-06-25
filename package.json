@@ -1,7 +1,7 @@
 {
     "name": "teraslice-workspace",
     "displayName": "Teraslice",
-    "version": "0.65.3",
+    "version": "0.67.0",
     "private": true,
     "homepage": "https://github.com/terascope/teraslice",
     "bugs": {
@@ -16,7 +16,7 @@
         "build": "tsc --build",
         "build:cleanup": "./scripts/build-cleanup.sh",
         "build:doctor": "./scripts/build-doctor.sh",
-        "build:fix": "echo 'DEPRECATED, use yarn run build:doctor instead'",
+        "build:fix": "echo '[DEPRECATED], use yarn run build:doctor instead'",
         "build:pkg": "./scripts/build-pkg.sh",
         "build:watch": "yarn run build --watch",
         "bump": "ts-scripts bump",
@@ -25,7 +25,7 @@
         "lint:fix": "yarn lint --fix && yarn sync",
         "setup": "yarn $YARN_SETUP_ARGS && yarn run build --force",
         "start": "node service.js",
-        "start:dev": "yarn build && node service.js",
+        "start:dev": "yarn build && env NODE_ENV=development node service.js",
         "sync": "ts-scripts sync",
         "test": "ts-scripts test"
     },
@@ -42,16 +42,16 @@
         "@types/convict": "^5.2.1",
         "@types/elasticsearch": "^5.0.35",
         "@types/fs-extra": "^9.0.1",
-        "@types/jest": "^25.1.4",
+        "@types/jest": "^26.0.0",
         "@types/lodash": "^4.14.153",
         "@types/node": "^14.0.9",
         "@types/uuid": "^8.0.0",
         "eslint": "^7.1.0",
-        "jest": "^26.0.1",
+        "jest": "^26.1.0",
         "jest-extended": "^0.11.5",
         "jest-watch-typeahead": "^0.6.0",
         "node-notifier": "^7.0.1",
-        "ts-jest": "^26.1.0",
+        "ts-jest": "^26.1.1",
         "typescript": "~3.9.5"
     },
     "engines": {

@@ -186,6 +186,8 @@ package.json
 yarn.lock # or package-lock.json
 ```
 
+If the `asset/asset.json` contains a *falsey* value for `node_version`, `platform`, or `arch`, the values will not be automatically added and teraslice will not add any restrictions. This is useful for making an asset bundle that isn't by locked down by node version or os.
+
 To create a new processor in an already made asset use the `--processor` option.
 
 ```sh
@@ -290,7 +292,7 @@ teraslice-cli tjm await JOB.JSON
 teraslice-cli tjm await JOB.JSON --status completed
 teraslice-cli tjm await JOB.JSON --status completed --timeout 10000
 teraslice-cli tjm await JOB.JSON --status failing --timeout 10000
-teraslice-cli tjm await JOB.JSON --status running failing initializing 
+teraslice-cli tjm await JOB.JSON --status running failing initializing
 ```
 
 
