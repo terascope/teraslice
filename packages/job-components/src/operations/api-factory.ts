@@ -1,0 +1,39 @@
+import { APIFactoryRegistry } from '../interfaces';
+import OperationAPI from './operation-api';
+
+export default abstract class APIFactory<T, C> extends OperationAPI {
+    protected readonly _registry: Map<string, T> = new Map();
+    protected readonly _configRegistry: Map<string, C> = new Map();
+
+    abstract async create(name: string, config: C): Promise<{ client: T; config: C }>;
+    abstract async remove(name: string): Promise<void>;
+
+    async createAPI(): Promise<APIFactoryRegistry<T, C>> {
+        const registry = this._registry;
+        const configRegistry = this._configRegistry;
+
+        return {
+            get size() {
+                return registry.size;
+            },
+            get: (name: string) => registry.get(name),
+            getConfig: (name: string) => configRegistry.get(name),
+            create: async (name: string, clientConfig: C) => {
+                // TODO it should throw if it already exists
+                const { client, config } = await this.create(name, clientConfig);
+                registry.set(name, client);
+                configRegistry.set(name, config);
+
+                return client;
+            },
+            remove: async (name: string) => {
+                await this.remove(name);
+                registry.delete(name);
+                configRegistry.delete(name);
+            },
+            entries: registry.entries.bind(registry),
+            keys: registry.keys.bind(registry),
+            values: registry.values.bind(registry),
+        };
+    }
+}
