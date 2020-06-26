@@ -125,9 +125,9 @@ describe('Asset Utils', () => {
 
     describe('->getInCompatiblityReason/->findSimilarAssets', () => {
         test.each([
-            ['foo', 'latest', 'node_version mismatch'],
-            ['foo', '2.0.1', 'platform mistach'],
-            ['foo', '~2.0.0', 'node_version mismatch'],
+            ['foo', 'latest', 'node_version or platform mismatch'],
+            ['foo', '2.0.1', 'platform mismatch'],
+            ['foo', '~2.0.0', 'node_version or platform mismatch'],
             ['foo', '3.*', null],
             ['foo', '0.1.*', null],
         ])('should return the correct result for %s:%s', (name, version, result) => {

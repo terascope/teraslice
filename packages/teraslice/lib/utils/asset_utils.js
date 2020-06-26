@@ -40,9 +40,9 @@ function getInCompatiblityReason(assets, prefix) {
         }
     });
 
-    if (!reasons.size) return null;
+    if (!reasons.length) return null;
 
-    return `${prefix ? `${trim(prefix)} ` : ''}${joinList(reasons, ',', 'or')}, mismatch`;
+    return `${prefix ? `${trim(prefix)} ` : ''}${joinList(reasons, ',', 'or')} mismatch`;
 }
 
 function getMajorVersion(version) {

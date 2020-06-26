@@ -148,7 +148,7 @@ module.exports = async function assetsStore(context) {
 
         const found = findMatchingAsset(assets, name, version);
         if (!found) {
-            const reason = getInCompatiblityReason(findSimilarAssets(assets, name, version), ', due to');
+            const reason = getInCompatiblityReason(findSimilarAssets(assets, name, version), ', due to a potential');
             throw new TSError(`No asset found for "${assetIdentifier}"${reason}`, {
                 statusCode: 404
             });
