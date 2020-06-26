@@ -319,7 +319,7 @@ type StringInput = string | string[] | null | undefined;
  * @returns {*}
  */
 
-export function setDefault(input: any, _parentContext: any, args: { value: any }) {
+export function setDefault(input: unknown, _parentContext: unknown, args: { value: any }): any {
     if (ts.isNil(input)) {
         if (ts.isNil(args.value)) throw new Error('Parameter value cannot be set to undefined or null');
         return args.value;
@@ -342,7 +342,9 @@ export function setDefault(input: any, _parentContext: any, args: { value: any }
  * @returns {any[] | null} returns the mapped values, return null if input is null/undefied
  */
 
-export function map(input: any[], parentContext: any[], args: { fn: string; options?: any }) {
+export function map(
+    input: any[], parentContext: any[], args: { fn: string; options?: any }
+): any[]|null {
     if (ts.isNil(input)) return null;
 
     if (!isArray(input)) throw new Error(`Input must be an array, received ${ts.getTypeOf(input)}`);
@@ -364,7 +366,7 @@ export function map(input: any[], parentContext: any[], args: { fn: string; opti
  * @returns
  */
 
-export function setField(_input: any, _parentContext: any, args: { value: any }) {
+export function setField(_input: unknown, _parentContext: unknown, args: { value: any }): any {
     const { value } = args;
     return value;
 }
@@ -382,7 +384,7 @@ export function setField(_input: any, _parentContext: any, args: { value: any })
  * @returns {String | null} returns null if input is null/undefined
  */
 
-export function toString(input: any, _parentContext?: any) {
+export function toString(input: unknown, _parentContext?: unknown): string|string[]|null {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toString);
 
@@ -402,7 +404,7 @@ export function toString(input: any, _parentContext?: any) {
  * @returns {Boolean | null} returns null if input is null/undefined
  */
 
-export function toBoolean(input: any, _parentContext?: any) {
+export function toBoolean(input: unknown, _parentContext?: unknown): boolean|boolean[]|null {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toBoolean);
 
@@ -422,7 +424,7 @@ export function toBoolean(input: any, _parentContext?: any) {
  * @returns { String | String[] | null } returns null if input is null/undefined
  */
 
-export function toUpperCase(input: StringInput, _parentContext?: any) {
+export function toUpperCase(input: StringInput, _parentContext?: unknown): string|string[]|null {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map((str: string) => str.toUpperCase());
     if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(input)}`);
@@ -443,7 +445,7 @@ export function toUpperCase(input: StringInput, _parentContext?: any) {
  * @returns { String | String[] | null } returns null if input is null/undefined
  */
 
-export function toLowerCase(input: StringInput, _parentContext?: any) {
+export function toLowerCase(input: StringInput, _parentContext?: unknown): string|string[]|null {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map((str: string) => str.toLowerCase());
     if (!isString(input)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(input)}`);
@@ -471,17 +473,19 @@ export function toLowerCase(input: StringInput, _parentContext?: any) {
  * @returns { String | String[] | null } returns null if input is null/undefined
  */
 
-export function trim(input: StringInput, parentContext?: any, args?: { char: string }) {
+export function trim(
+    input: StringInput, parentContext?: unknown, args?: { char: string }
+): string|string[]|null {
     if (ts.isNil(input)) return null;
     const char: string = (args?.char && isString(args.char)) ? args.char : ' ';
 
     if (isArray(input)) {
         return input
             .filter(ts.isNotNil)
-            .map((str: string) => trimEnd(trimStart(str, { char }), { char }));
+            .map((str: string) => ts.trim(str, char));
     }
 
-    return trimEnd(trimStart(input, parentContext, { char }), parentContext, { char });
+    return ts.trim(input, char);
 }
 
 /**
@@ -500,7 +504,9 @@ export function trim(input: StringInput, parentContext?: any, args?: { char: str
  * @returns { String | String[] | null } returns null if input is null/undefined
  */
 
-export function trimStart(input: StringInput, _parentContext?: any, args?: { char: string }) {
+export function trimStart(
+    input: StringInput, _parentContext?: unknown, args?: { char: string }
+): string|string[]|null {
     if (ts.isNil(input)) return null;
     if (args?.char && !isString(args.char)) throw new Error(`Parameter char must be a string, received ${ts.getTypeOf(input)}`);
 
@@ -530,7 +536,9 @@ export function trimStart(input: StringInput, _parentContext?: any, args?: { cha
  * @returns { String | String[] | null } returns null if input is null/undefined
  */
 
-export function trimEnd(input: StringInput, _parentContext?: any, args?: { char: string }) {
+export function trimEnd(
+    input: StringInput, _parentContext?: unknown, args?: { char: string }
+): string|string[]|null {
     if (ts.isNil(input)) return null;
     if (args?.char && !isString(args.char)) throw new Error(`Parameter char must be a string, received ${ts.getTypeOf(input)}`);
 
@@ -559,7 +567,9 @@ export function trimEnd(input: StringInput, _parentContext?: any, args?: { char:
  * @returns { String | String[] | null } returns null if input is null/undefined
  */
 
-export function truncate(input: StringInput, _parentContext: any, args: { size: number }) {
+export function truncate(
+    input: StringInput, _parentContext: unknown, args: { size: number }
+): string|string[]|null {
     const { size } = args;
 
     if (ts.isNil(input)) return null;
@@ -604,7 +614,7 @@ function parsePhoneNumber(str: any) {
  * returns null if input is null/undefined
  */
 
-export function toISDN(input: any, _parentContext?: any) {
+export function toISDN(input: unknown, _parentContext?: unknown): string|string[]|null {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map(parsePhoneNumber);
 
@@ -642,7 +652,9 @@ function convertToNumber(input: any, args?: { booleanLike?: boolean }) {
  * @returns { number | null } returns null if input is null/undefined
  */
 
-export function toNumber(input: any, _parentContext?: any, args?: { booleanLike?: boolean }) {
+export function toNumber(
+    input: unknown, _parentContext?: unknown, args?: { booleanLike?: boolean }
+): number|number[]|null {
     if (ts.isNil(input) && args?.booleanLike !== true) return null;
 
     if (isArray(input)) {
@@ -672,7 +684,7 @@ export function toNumber(input: any, _parentContext?: any, args?: { booleanLike?
  * @returns { string | null } returns null if input is null/undefined
  */
 
-export function decodeBase64(input: any, _parentContext?: any) {
+export function decodeBase64(input: unknown, _parentContext?: unknown): string|string[]|null {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -681,7 +693,7 @@ export function decodeBase64(input: any, _parentContext?: any) {
             .map((data: any) => Buffer.from(data, 'base64').toString('utf8'));
     }
 
-    return Buffer.from(input, 'base64').toString('utf8');
+    return Buffer.from(input as string, 'base64').toString('utf8');
 }
 
 /**
@@ -699,7 +711,7 @@ export function decodeBase64(input: any, _parentContext?: any) {
  * @returns { string | null } returns null if input is null/undefined
  */
 
-export function encodeBase64(input: any, _parentContext?: any) {
+export function encodeBase64(input: unknown, _parentContext?: unknown): string|string[]|null {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -708,7 +720,7 @@ export function encodeBase64(input: any, _parentContext?: any) {
             .map((data: any) => Buffer.from(data).toString('base64'));
     }
 
-    return Buffer.from(input).toString('base64');
+    return Buffer.from(input as any).toString('base64');
 }
 
 /**
@@ -727,7 +739,7 @@ export function encodeBase64(input: any, _parentContext?: any) {
  * @returns { string | null } returns null if input is null/undefined
  */
 
-export function decodeURL(input: StringInput, _parentContext?: any) {
+export function decodeURL(input: StringInput, _parentContext?: unknown): string|string[]|null {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) return input.filter(ts.isNotNil).map(decodeURIComponent);
@@ -752,7 +764,7 @@ export function decodeURL(input: StringInput, _parentContext?: any) {
  * @returns { string | null } returns null if input is null/undefined
  */
 
-export function encodeURL(input: StringInput, _parentContext?: any) {
+export function encodeURL(input: StringInput, _parentContext?: unknown): string|string[]|null {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) return input.filter(ts.isNotNil).map(encodeURIComponent);
@@ -777,7 +789,7 @@ export function encodeURL(input: StringInput, _parentContext?: any) {
  * @returns { string | null } returns null if input is null/undefined
  */
 
-export function decodeHex(input: any, _parentContext?: any) {
+export function decodeHex(input: unknown, _parentContext?: unknown): string|string[]|null {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -786,7 +798,7 @@ export function decodeHex(input: any, _parentContext?: any) {
             .map((data: any) => Buffer.from(data, 'hex').toString('utf8'));
     }
 
-    return Buffer.from(input, 'hex').toString('utf8');
+    return Buffer.from(input as string, 'hex').toString('utf8');
 }
 
 /**
@@ -804,7 +816,7 @@ export function decodeHex(input: any, _parentContext?: any) {
  * @returns { string | null } returns null if input is null/undefined
  */
 
-export function encodeHex(input: any, _parentContext?: any) {
+export function encodeHex(input: unknown, _parentContext?: unknown): string|string[]|null {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -813,7 +825,7 @@ export function encodeHex(input: any, _parentContext?: any) {
             .map((data: any) => Buffer.from(data).toString('hex'));
     }
 
-    return Buffer.from(input).toString('hex');
+    return Buffer.from(input as string).toString('hex');
 }
 
 /**
@@ -829,7 +841,7 @@ export function encodeHex(input: any, _parentContext?: any) {
  * @returns { string | null } returns null if input is null/undefined
  */
 
-export function encodeMD5(input: any, _parentContext?: any) {
+export function encodeMD5(input: unknown, _parentContext?: unknown): string|string[]|null {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -838,7 +850,7 @@ export function encodeMD5(input: any, _parentContext?: any) {
             .map((data: any) => crypto.createHash('md5').update(data).digest('hex'));
     }
 
-    return crypto.createHash('md5').update(input).digest('hex');
+    return crypto.createHash('md5').update(input as string).digest('hex');
 }
 
 /**
@@ -859,10 +871,14 @@ export function encodeMD5(input: any, _parentContext?: any) {
  * @returns { string | null } returns null if input is null/undefined
  */
 
-export function encodeSHA(input: any, _parentContext?: any, { hash = 'sha256', digest = 'hex' } = {}) {
+export function encodeSHA(
+    input: unknown, _parentContext?: unknown, { hash = 'sha256', digest = 'hex' } = {}
+): string|string[]|null {
     if (ts.isNil(input)) return null;
 
-    if (!['ascii', 'utf8', 'utf16le', 'ucs2', 'base64', 'latin1', 'hex', 'binary'].includes(digest)) throw new Error('Parameter digest is misconfigured');
+    if (!['ascii', 'utf8', 'utf16le', 'ucs2', 'base64', 'latin1', 'hex', 'binary'].includes(digest)) {
+        throw new Error('Parameter digest is misconfigured');
+    }
 
     if (isArray(input)) {
         return input
@@ -870,8 +886,7 @@ export function encodeSHA(input: any, _parentContext?: any, { hash = 'sha256', d
             .map((data: any) => crypto.createHash(hash).update(data).digest(digest as any));
     }
 
-    // @ts-expect-error
-    return crypto.createHash(hash).update(input).digest(digest);
+    return crypto.createHash(hash).update(input as string).digest(digest as any);
 }
 
 /**
@@ -889,7 +904,7 @@ export function encodeSHA(input: any, _parentContext?: any, { hash = 'sha256', d
  * @returns { string | null } returns null if input is null/undefined
  */
 
-export function encodeSHA1(input: any, _parentContext?: any) {
+export function encodeSHA1(input: unknown, _parentContext?: unknown): string|string[]|null {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -898,7 +913,7 @@ export function encodeSHA1(input: any, _parentContext?: any) {
             .map((data: any) => crypto.createHash('sha1').update(data).digest('hex'));
     }
 
-    return crypto.createHash('sha1').update(input).digest('hex');
+    return crypto.createHash('sha1').update(input as string).digest('hex');
 }
 
 /**
@@ -918,7 +933,7 @@ export function encodeSHA1(input: any, _parentContext?: any) {
  * @returns { any | null } returns null if input is null/undefined
  */
 
-export function parseJSON(input: any, _parentContext?: any) {
+export function parseJSON(input: unknown, _parentContext?: unknown): any|null {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -927,7 +942,7 @@ export function parseJSON(input: any, _parentContext?: any) {
             .map((data: any) => JSON.parse(data));
     }
 
-    return JSON.parse(input);
+    return JSON.parse(input as string);
 }
 
 /**
@@ -946,7 +961,9 @@ export function parseJSON(input: any, _parentContext?: any) {
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
 
-export function toJSON(input: any, _parentContext?: any, { pretty = false } = {}) {
+export function toJSON(
+    input: unknown, _parentContext?: unknown, { pretty = false } = {}
+): string|string[]|null {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -981,7 +998,9 @@ export function toJSON(input: any, _parentContext?: any, { pretty = false } = {}
  * returns null if input is null/undefined
  */
 
-export function toGeoPoint(input: any, _parentContext?: any) {
+export function toGeoPoint(
+    input: unknown, _parentContext?: unknown
+): { lat: number, lon: number }|({ lat: number, lon: number })[]|null {
     if (ts.isNil(input)) return null;
 
     // a tuple of numbers is a form of geo-point, do not map it
@@ -991,7 +1010,7 @@ export function toGeoPoint(input: any, _parentContext?: any) {
             .map((data: any) => ts.parseGeoPoint(data, true));
     }
 
-    return ts.parseGeoPoint(input, true);
+    return ts.parseGeoPoint(input as any, true);
 }
 
 /**
@@ -1033,10 +1052,10 @@ export function toGeoPoint(input: any, _parentContext?: any) {
 
 // this will be overritten by extract in jexl folder
 export function extract(
-    _input: any,
+    _input: unknown,
     _parentContext: ts.AnyObject,
     _args: ExtractFieldConfig
-) {}
+): any|null {}
 
 /**
  * This function replaces chars in a string based off the regex value provided
@@ -1064,11 +1083,13 @@ export function extract(
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
 
-export function replaceRegex(input: StringInput,
-    _parentContext: any,
+export function replaceRegex(
+    input: StringInput,
+    _parentContext: unknown,
     {
         regex, replace, ignoreCase, global
-    }: ReplaceRegexConfig) {
+    }: ReplaceRegexConfig
+): string|string[]|null {
     if (ts.isNil(input)) return null;
     let options = '';
 
@@ -1110,9 +1131,9 @@ export function replaceRegex(input: StringInput,
 
 export function replaceLiteral(
     input: StringInput,
-    _parentContext: any,
+    _parentContext: unknown,
     { search, replace }: ReplaceLiteralConfig
-) {
+): string|string[]|null {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -1148,22 +1169,24 @@ export function replaceLiteral(
  */
 
 export function splitString(
-    input: any,
-    _parentContext?: any,
+    input: unknown,
+    _parentContext?: unknown,
     args?: { delimiter: string }
-): string[] | null {
+): string[]|(string[][])|null {
     if (ts.isNil(input)) return null;
 
     const delimiter = args ? args.delimiter : '';
 
     if (isArray(input)) {
         return input.filter(ts.isNotNil).map((data: any) => {
-            if (!isString(data)) throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(data)}`);
+            if (!ts.isString(data)) {
+                throw new Error(`Input must be a string, or an array of string, received ${ts.getTypeOf(data)}`);
+            }
             return data.split(delimiter);
         });
     }
 
-    if (isString(input)) {
+    if (ts.isString(input)) {
         return input.split(delimiter);
     }
 
@@ -1201,12 +1224,16 @@ function _makeUnitTime(input: any, { ms = false } = {}) {
  * @returns { number | number[] | null} returns null if input is null/undefined
  */
 
-export function toUnixTime(input: any, _parentContext?: any, { ms = false } = {}) {
+export function toUnixTime(
+    input: unknown, _parentContext?: unknown, { ms = false } = {}
+): number|number[]|null {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
         return input.filter(ts.isNotNil).map((data: any) => {
-            if (!isValidDate(data)) throw new Error(`Not a valid date, cannot transform ${data} to unix time`);
+            if (!isValidDate(data)) {
+                throw new Error(`Not a valid date, cannot transform ${data} to unix time`);
+            }
 
             return _makeUnitTime(data, { ms });
         });
@@ -1243,7 +1270,9 @@ function _makeIso(input: any, args?: { resolution?: 'seconds' | 'milliseconds' }
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
 
-export function toISO8601(input: any, _parentContext?: any, args?: { resolution?: 'seconds' | 'milliseconds' }) {
+export function toISO8601(
+    input: unknown, _parentContext?: unknown, args?: { resolution?: 'seconds' | 'milliseconds' }
+): string|string[]|null {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -1312,7 +1341,9 @@ function _formatDate(input: any, args: FormatDateConfig) {
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
 
-export function formatDate(input: any, _parentContext: any, args: FormatDateConfig) {
+export function formatDate(
+    input: unknown, _parentContext: unknown, args: FormatDateConfig
+): string|string[]|null {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -1332,7 +1363,9 @@ function _parseDate(input: any, args: ParseDateConfig) {
     if (ts.isNil(input)) return null;
 
     const { format } = args;
-    if (!isString(format)) throw new Error(`Invalid parameter format, must be a string, recieved ${ts.getTypeOf(input)}`);
+    if (!isString(format)) {
+        throw new Error(`Invalid parameter format, must be a string, recieved ${ts.getTypeOf(input)}`);
+    }
 
     const parsed = parse(input, format, new Date());
 
@@ -1365,10 +1398,12 @@ function _parseDate(input: any, args: ParseDateConfig) {
  *
  * @param {*} input
  * @param { format: string } args
- * @returns { string | string[] | null } returns null if input is null/undefined
+ * @returns { Date | Date[] | null } returns null if input is null/undefined
  */
 
-export function parseDate(input: any, _parentContext: any, args: ParseDateConfig) {
+export function parseDate(
+    input: unknown, _parentContext: unknown, args: ParseDateConfig
+): Date|(Date|null)[]|null {
     if (ts.isNil(input)) return null;
 
     if (isArray(input)) {
@@ -1395,7 +1430,9 @@ export function parseDate(input: any, _parentContext: any, args: ParseDateConfig
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
 
-export function toCamelCase(input: string, _parentContext?: any,) {
+export function toCamelCase(
+    input: string, _parentContext?: unknown
+): string|string[]|null {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toCamelCase);
 
@@ -1418,7 +1455,9 @@ export function toCamelCase(input: string, _parentContext?: any,) {
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
 
-export function toKebabCase(input: string, _parentContext?: any,) {
+export function toKebabCase(
+    input: string, _parentContext?: unknown
+): string|string[]|null {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toKebabCase);
 
@@ -1440,7 +1479,7 @@ export function toKebabCase(input: string, _parentContext?: any,) {
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
 
-export function toPascalCase(input: string, _parentContext?: any,) {
+export function toPascalCase(input: string, _parentContext?: unknown): string|string[]|null {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toPascalCase);
 
@@ -1461,7 +1500,7 @@ export function toPascalCase(input: string, _parentContext?: any,) {
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
 
-export function toSnakeCase(input: string, _parentContext?: any,) {
+export function toSnakeCase(input: string, _parentContext?: unknown): string|string[]|null {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toSnakeCase);
 
@@ -1479,7 +1518,7 @@ export function toSnakeCase(input: string, _parentContext?: any,) {
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
 
-export function toTitleCase(input: string, _parentContext?: any,) {
+export function toTitleCase(input: string, _parentContext?: unknown): string|string[]|null {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return input.filter(ts.isNotNil).map(ts.toTitleCase);
 

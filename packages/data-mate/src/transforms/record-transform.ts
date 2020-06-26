@@ -81,7 +81,7 @@ export function renameField(
     input: RecordInput,
     _parentContext: RecordInput,
     args: { from: string; to: string }
-) {
+): ts.AnyObject|null {
     if (ts.isNil(input)) return null;
     _validateArgs(args, ['from', 'to']);
 
@@ -126,7 +126,7 @@ export function setField(
     input: RecordInput,
     _parentContext: RecordInput,
     args: { field: string; value: any }
-) {
+): ts.AnyObject|null {
     if (ts.isNil(input)) return null;
     _validateArgs(args, ['field', 'value']);
 
@@ -168,7 +168,7 @@ export function dropFields(
     input: RecordInput,
     _parentContext: RecordInput,
     args: { fields: string[] }
-) {
+): ts.AnyObject|null {
     if (ts.isNil(input)) return null;
     _validateArgs(args, ['fields']);
 
@@ -214,7 +214,7 @@ export function copyField(
     input: RecordInput,
     _parentContext: RecordInput,
     args: { from: string; to: string }
-) {
+): ts.AnyObject|null {
     if (ts.isNil(input)) return null;
     _validateArgs(args, ['from', 'to']);
 
@@ -279,7 +279,7 @@ function _validateArgs(args: ts.AnyObject, fields: string[]) {
 export function transformRecord(
     _input: RecordInput,
     _parentContext: RecordInput,
-    _args: any
+    _args: unknown
 ): any { }
 
 /**
@@ -301,7 +301,7 @@ export function transformRecord(
  * @returns {any[] | null } returns null if input is null/undefined
  */
 
-export function dedupe<T = any>(input: any[], _parentContext?: any[]): T[] | null {
+export function dedupe<T = any>(input: any[], _parentContext?: unknown[]): T[] | null {
     if (ts.isNil(input)) return null;
     if (!isArray(input)) throw new Error(`Input must be an array, recieved ${ts.getTypeOf(input)}`);
 
