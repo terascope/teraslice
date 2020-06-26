@@ -19,32 +19,49 @@ export function toString(val: unknown): string {
     return JSON.stringify(val);
 }
 
-export function trimStart(input: string, char = ' '): string {
-    let start = input.indexOf(char);
-    if (start === -1 || start > (input.length / 2)) return input;
+/** safely trim an input */
+export function trim(input: unknown, char = ' '): string {
+    if (char === ' ') return toString(input).trim();
 
-    for (start; start < input.length;) {
-        if (input.slice(start, start + char.length) !== char) {
+    return trimEnd(trimStart(input, char), char);
+}
+
+export function trimStart(input: unknown, char = ' '): string {
+    const str = toString(input);
+    if (char === ' ') {
+        return str.replace(/^\s+/, '');
+    }
+
+    let start = str.indexOf(char);
+    if (start === -1 || start > (str.length / 2)) return str;
+
+    for (start; start < str.length;) {
+        if (str.slice(start, start + char.length) !== char) {
             break;
         }
         start += char.length;
     }
 
-    return input.slice(start);
+    return str.slice(start);
 }
 
-export function trimEnd(input: string, char = ' '): string {
-    let end = input.lastIndexOf(char);
-    if (end === -1 || end < (input.length / 2)) return input;
+export function trimEnd(input: unknown, char = ' '): string {
+    const str = toString(input);
+    if (char === ' ') {
+        return str.replace(/\s+$/, '');
+    }
+
+    let end = str.lastIndexOf(char);
+    if (end === -1 || end < (str.length / 2)) return str;
 
     for (end; end >= 0;) {
-        if (input.slice(end - char.length, end) !== char) {
+        if (str.slice(end - char.length, end) !== char) {
             break;
         }
         end -= char.length;
     }
 
-    return input.slice(0, end);
+    return str.slice(0, end);
 }
 
 /** safely trim and to lower a input, useful for string comparison */
@@ -74,11 +91,6 @@ export function unescapeString(str = ''): string {
     }
 
     return unescaped;
-}
-
-/** safely trim an input */
-export function trim(input: unknown): string {
-    return toString(input).trim();
 }
 
 /** A native implemation of lodash startsWith */
