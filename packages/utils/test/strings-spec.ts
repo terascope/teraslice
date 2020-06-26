@@ -10,7 +10,8 @@ import {
     toPascalCase,
     toSnakeCase,
     toKebabCase,
-    parseList
+    parseList,
+    joinList
 } from '../src/strings';
 
 describe('String Utils', () => {
@@ -136,6 +137,20 @@ describe('String Utils', () => {
             [null, []]
         ])('should parse %j to be %j', (input, expected) => {
             expect(parseList(input)).toEqual(expected);
+        });
+    });
+
+    describe('joinList', () => {
+        test.each([
+            [['foo'], 'foo'],
+            [['foo', 'bar'], 'foo and bar'],
+            [['foo zie', 'bar', 'baz'], 'foo zie, bar and baz'],
+            [['foo1', 'bar1', 'baz1', 'foo2', 'bar2', 'baz2'], 'foo1, bar1, baz1, foo2, bar2 and baz2'],
+            [['foo', null, 'baz', ''], 'foo and baz'],
+            [['foo', 'foo', 'baz', 'baz', 'foo'], 'foo and baz'],
+            [[1, 2, 3, true, false, Symbol('bar')], '1, 2, 3, true, false and Symbol(bar)'],
+        ])('should parse %j to be %j', (input, expected) => {
+            expect(joinList(input)).toEqual(expected);
         });
     });
 });
