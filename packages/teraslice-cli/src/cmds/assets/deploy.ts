@@ -116,13 +116,9 @@ export = {
             const asset = new AssetSrc(assetJsonExists ? '.' : cliConfig.args.srcDir);
 
             try {
-                if (!cliConfig.args.quiet) {
-                    reply.green('Beginning asset build.');
-                }
+                reply.green('Beginning asset build.');
                 assetPath = await asset.build();
-                if (!cliConfig.args.quiet) {
-                    reply.green(`Asset created:\n\t${assetPath}`);
-                }
+                reply.green(`Asset created:\n\t${assetPath}`);
             } catch (err) {
                 reply.fatal(new TSError(err, {
                     reason: 'Failure to build asset'
@@ -145,14 +141,12 @@ export = {
 
                 if (has(assetToReplace, 'id')) {
                     const response = await terasliceClient.assets.remove(assetToReplace.id);
-                    if (!cliConfig.args.quiet) {
-                        // Support different teraslice api/client versions
-                        // @ts-expect-error
-                        const assetId = response._id || response.assetId;
-                        reply.green(
-                            `Asset ${assetId} deleted from ${cliConfig.args.clusterAlias}`
-                        );
-                    }
+                    // Support different teraslice api/client versions
+                    // @ts-expect-error
+                    const assetId = response._id || response.assetId;
+                    reply.green(
+                        `Asset ${assetId} deleted from ${cliConfig.args.clusterAlias}`
+                    );
                 } else {
                     reply.green(`Asset: ${asset.name}, version: ${asset.version}, was not found on ${cliConfig.args.clusterAlias}`);
                 }
@@ -180,12 +174,10 @@ export = {
                 const resp = await terasliceClient.assets.upload(assetZip, {
                     blocking: cliConfig.args.blocking
                 });
-                if (!cliConfig.args.quiet) {
-                    reply.green(`Asset posted to ${cliConfig.args.clusterAlias}: ${resp._id}`);
-                }
+                reply.green(`Asset posted to ${cliConfig.args.clusterAlias}: ${resp._id}`);
             } catch (err) {
                 reply.fatal(`Error posting asset: ${err.message}`);
             }
-        } else if (!cliConfig.args.quiet) reply.green('Upload skipped.');
+        } else reply.green('Upload skipped.');
     }
 } as CMD;

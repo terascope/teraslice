@@ -24,12 +24,13 @@ export default class GithubAsset {
         this.version = p.version;
     }
 
-    get nodeMajorVersion() {
+    get nodeMajorVersion(): string {
         return this.nodeVersion.split('.')[0].substr(1);
     }
 
-    async download(outDir = '/tmp', quiet = false) {
+    async download(outDir = '/tmp', quiet = false): Promise<string> {
         let assetPath;
+
         const leaveZipped = true;
         const assetName = `node-${this.nodeMajorVersion}-${this.platform}-${this.arch}.zip`;
         const version = this.version ? this.version.slice(1) : null;
@@ -82,7 +83,11 @@ export default class GithubAsset {
      *            terascope/file-assets@v2.0.0
      * @return {AssetDescriptor}
      */
-    static parseAssetString(assetString: string) {
+    static parseAssetString(assetString: string): {
+        user: string;
+        name: string;
+        version: string;
+    } {
         let userAndName;
         let version;
 
