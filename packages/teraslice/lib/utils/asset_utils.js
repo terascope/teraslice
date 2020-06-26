@@ -1,15 +1,48 @@
 'use strict';
 
-const { isInteger, trimStart, trim } = require('@terascope/utils');
+const {
+    isInteger, trimStart, trim, getFirst, joinList
+} = require('@terascope/utils');
 const semver = require('semver');
 
 function findMatchingAsset(records, name, version) {
     const range = toSemverRange(version);
     const assets = records
-        .filter(_isCompatibleAsset(name, range))
+        .filter(_isCompatibleAsset(name, range, false))
         .sort((a, b) => semver.rcompare(a.version, b.version));
 
-    return assets.find((asset) => asset.name);
+    return getFirst(assets);
+}
+
+function findSimilarAssets(records, name, version) {
+    const range = toSemverRange(version);
+    const assets = records
+        .filter(_isCompatibleAsset(name, range, true))
+        .sort((a, b) => semver.rcompare(a.version, b.version));
+
+    return assets;
+}
+
+function getInCompatiblityReason(assets, prefix) {
+    if (!assets || !assets.length) return null;
+
+    const reasons = [];
+
+    assets.slice(0, 3).forEach((asset) => {
+        if (!isCompatibleNodeVersion(asset.node_version)) {
+            reasons.push('node_version');
+        }
+        if (asset.platform != null && asset.platform !== process.platform) {
+            reasons.push('platform');
+        }
+        if (asset.arch != null && asset.arch !== process.arch) {
+            reasons.push('arch');
+        }
+    });
+
+    if (!reasons.size) return null;
+
+    return `${prefix ? `${trim(prefix)} ` : ''}${joinList(reasons, ',', 'or')}, mismatch`;
 }
 
 function getMajorVersion(version) {
@@ -27,9 +60,14 @@ function isCompatibleNodeVersion(version) {
     return getMajorVersion(version) === nodeVersion;
 }
 
-function _isCompatibleAsset(name, range) {
+function _isCompatibleAsset(name, range, skipRestrictions = false) {
     return (record) => {
         if (record.name !== name) return false;
+        if (!semver.satisfies(record.version, range)) {
+            return false;
+        }
+        if (skipRestrictions) return true;
+
         if (!isCompatibleNodeVersion(record.node_version)) {
             return false;
         }
@@ -37,9 +75,6 @@ function _isCompatibleAsset(name, range) {
             return false;
         }
         if (record.platform != null && record.platform !== process.platform) {
-            return false;
-        }
-        if (!semver.satisfies(record.version, range)) {
             return false;
         }
         return true;
@@ -71,6 +106,8 @@ function toVersionQuery(_version) {
 }
 
 module.exports = {
+    findSimilarAssets,
+    getInCompatiblityReason,
     getMajorVersion,
     findMatchingAsset,
     toSemverRange,

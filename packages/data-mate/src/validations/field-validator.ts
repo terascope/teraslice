@@ -198,7 +198,7 @@ function handleArgs(fn: any) {
  * @returns {boolean} boolean
  */
 
-export function isBoolean(input: ts.AnyObject|null, _parentContext?: unknown): boolean {
+export function isBoolean(input: unknown, _parentContext?: unknown): boolean {
     if (ts.isNil(input)) return false;
     if (isArray(input)) return _lift(handleArgs(ts.isBoolean), input, _parentContext);
 

@@ -2,7 +2,8 @@
 
 const {
     toSemverRange, findMatchingAsset,
-    getMajorVersion, toVersionQuery
+    getMajorVersion, toVersionQuery,
+    findSimilarAssets, getInCompatiblityReason,
 } = require('../../lib/utils/asset_utils');
 
 describe('Asset Utils', () => {
@@ -48,56 +49,56 @@ describe('Asset Utils', () => {
         });
     });
 
+    const wrongPlatform = {
+        darwin: 'linux',
+        linux: 'darwin',
+    };
+
+    const currentNodeVersion = getMajorVersion(process.version);
+
+    const assets = [{
+        id: 'foo-1',
+        name: 'foo',
+        version: '2.0.1',
+        platform: process.platform,
+        arch: process.arch,
+        node_version: currentNodeVersion,
+    }, {
+        id: 'foo-2',
+        name: 'foo',
+        version: '2.0.0',
+        platform: process.platform,
+        arch: process.arch,
+        node_version: currentNodeVersion,
+    }, {
+        id: 'foo-3',
+        name: 'foo',
+        version: '2.0.1',
+        platform: wrongPlatform[process.platform],
+        arch: process.arch,
+        node_version: currentNodeVersion,
+    }, {
+        id: 'foo-4',
+        name: 'foo',
+        version: '2.0.2',
+        platform: process.platform,
+        arch: process.arch,
+        node_version: currentNodeVersion + 1,
+    }, {
+        id: 'foo-5',
+        name: 'foo',
+        version: '1.0.0',
+        platform: process.platform,
+        arch: process.arch,
+        node_version: currentNodeVersion,
+    }, {
+        id: 'foo-6',
+        name: 'foo',
+        version: '1.0.0',
+        node_version: currentNodeVersion,
+    }];
+
     describe('->findMatchingAsset', () => {
-        const wrongPlatform = {
-            darwin: 'linux',
-            linux: 'darwin',
-        };
-
-        const currentNodeVersion = getMajorVersion(process.version);
-
-        const assets = [{
-            id: 'foo-1',
-            name: 'foo',
-            version: '2.0.1',
-            platform: process.platform,
-            arch: process.arch,
-            node_version: currentNodeVersion,
-        }, {
-            id: 'foo-2',
-            name: 'foo',
-            version: '2.0.0',
-            platform: process.platform,
-            arch: process.arch,
-            node_version: currentNodeVersion,
-        }, {
-            id: 'foo-3',
-            name: 'foo',
-            version: '2.0.1',
-            platform: wrongPlatform[process.platform],
-            arch: process.arch,
-            node_version: currentNodeVersion,
-        }, {
-            id: 'foo-4',
-            name: 'foo',
-            version: '2.0.2',
-            platform: process.platform,
-            arch: process.arch,
-            node_version: currentNodeVersion + 1,
-        }, {
-            id: 'foo-5',
-            name: 'foo',
-            version: '1.0.0',
-            platform: process.platform,
-            arch: process.arch,
-            node_version: currentNodeVersion,
-        }, {
-            id: 'foo-6',
-            name: 'foo',
-            version: '1.0.0',
-            node_version: currentNodeVersion,
-        }];
-
         test.each([
             ['foo', 'latest', {
                 version: '2.0.1'
@@ -119,6 +120,19 @@ describe('Asset Utils', () => {
             } else {
                 expect(findMatchingAsset(assets, name, version)).toMatchObject(result);
             }
+        });
+    });
+
+    describe('->getInCompatiblityReason/->findSimilarAssets', () => {
+        test.each([
+            ['foo', 'latest', 'node_version mismatch'],
+            ['foo', '2.0.1', 'platform mistach'],
+            ['foo', '~2.0.0', 'node_version mismatch'],
+            ['foo', '3.*', null],
+            ['foo', '0.1.*', null],
+        ])('should return the correct result for %s:%s', (name, version, result) => {
+            const reason = getInCompatiblityReason(findSimilarAssets(assets, name, version));
+            expect(reason).toEqual(result);
         });
     });
 });

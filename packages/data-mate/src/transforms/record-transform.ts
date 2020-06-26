@@ -279,8 +279,9 @@ function _validateArgs(args: ts.AnyObject, fields: string[]) {
 export function transformRecord(
     _input: RecordInput,
     _parentContext: RecordInput,
-    _args: unknown
-): any { }
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+    _args: any
+): ts.AnyObject|null { return null; }
 
 /**
  * returns an array with only unique values

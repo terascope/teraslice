@@ -31,7 +31,7 @@ export function getErrorMessage(err: ErrorLike): string {
     return `${prefix ? `${prefix} ` : ''}${message}`;
 }
 
-export function getErrorType(err: any): string {
+export function getErrorType(err: unknown): string {
     return ts.get(err, ['error', 'type'], '');
 }
 
