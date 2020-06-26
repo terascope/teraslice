@@ -43,7 +43,7 @@ export default class Ex extends Client {
         this._exId = exId;
     }
 
-    id() { return this._exId; }
+    id(): string { return this._exId; }
 
     async stop(query?: StopQuery, searchOptions: SearchOptions = {}): Promise<StoppedResponse> {
         const options = this.makeOptions(query, searchOptions);

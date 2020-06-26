@@ -22,7 +22,7 @@ const postAssetResponse: AssetIDResponse = {
  * can lead to requests hitting a local teraslice if misconfigured
 */
 export default class TerasliceServer {
-    init() {
+    init(): nock.Scope {
         const scope = nock('http://localhost:5678')
             .get('/v1/')
             .reply(200, rootResponse)
