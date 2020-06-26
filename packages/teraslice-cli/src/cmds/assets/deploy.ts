@@ -113,7 +113,10 @@ export = {
                 reply.fatal(`Unable to download ${cliConfig.args.asset} asset: ${err.stack}`);
             }
         } else if (cliConfig.args.build || assetJsonExists) {
-            const asset = new AssetSrc(assetJsonExists ? '.' : cliConfig.args.srcDir);
+            const asset = new AssetSrc(
+                assetJsonExists ? '.' : cliConfig.args.srcDir,
+                cliConfig.args.dev
+            );
 
             try {
                 reply.green('Beginning asset build.');
@@ -137,7 +140,7 @@ export = {
 
                 const clusterAssetData = await terasliceClient.assets.getAsset(asset.name);
                 const assetToReplace = clusterAssetData
-                    .filter((clusterAsset: any) => clusterAsset.version === asset.version)[0];
+                    .filter((clusterAsset) => clusterAsset.version === asset.version)[0];
 
                 if (has(assetToReplace, 'id')) {
                     const response = await terasliceClient.assets.remove(assetToReplace.id);

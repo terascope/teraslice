@@ -28,7 +28,7 @@ export = {
     async handler(argv) {
         const cliConfig = new Config(argv);
         try {
-            const asset = new AssetSrc(cliConfig.args.srcDir);
+            const asset = new AssetSrc(cliConfig.args.srcDir, cliConfig.args.dev);
             reply.green('Beginning asset build.');
             const buildResult = await asset.build();
             reply.green(`Asset created:\n\t${buildResult}`);
