@@ -11,6 +11,7 @@ import {
     ExecutionStats,
     WorkerContext,
     SlicerRecoveryData,
+    OpAPI
 } from '../../interfaces';
 import Core from './core';
 import { makeExContextLogger } from '../../utils';
@@ -68,6 +69,20 @@ export default abstract class SlicerCore<T = OpConfig>
     }
 
     /**
+     * Create an API and add it to the operation lifecycle
+     */
+    async createAPI<A extends OpAPI = OpAPI>(name: string, ...params: any[]): Promise<A> {
+        return this.context.apis.executionContext.initAPI<A>(name, ...params);
+    }
+
+    /**
+     * Get a reference to an existing API
+     */
+    getAPI<A extends OpAPI = OpAPI>(name: string): A {
+        return this.context.apis.executionContext.getAPI<A>(name);
+    }
+
+    /**
      * A generic method called by the Teraslice framework to a give a "Slicer"
      * the ability to handle creating slices.
      * @returns a boolean depending on whether the slicer is done
@@ -84,7 +99,7 @@ export default abstract class SlicerCore<T = OpConfig>
      * In the case of recovery the "Slice" already has the required
      * This will be enqueued and dequeued by the "Execution Controller"
      */
-    createSlice(input: Slice | SliceRequest, order: number, id = 0) {
+    createSlice(input: Slice | SliceRequest, order: number, id = 0): void {
         // recovery slices already have correct meta data
         if (input.slice_id) {
             this.queue.enqueue(input as Slice);
@@ -135,7 +150,7 @@ export default abstract class SlicerCore<T = OpConfig>
     /**
      * Used to indicate whether this slicer is recoverable.
      */
-    isRecoverable() {
+    isRecoverable(): boolean {
         return false;
     }
 
@@ -145,11 +160,11 @@ export default abstract class SlicerCore<T = OpConfig>
      * NOTE: if you want to base of the number of
      * workers use {@link #workersConnected}
      */
-    maxQueueLength() {
+    maxQueueLength(): number {
         return 10000;
     }
 
-    onExecutionStats(stats: ExecutionStats) {
+    onExecutionStats(stats: ExecutionStats): void {
         this.stats = stats;
     }
 
@@ -157,7 +172,7 @@ export default abstract class SlicerCore<T = OpConfig>
         return this.executionConfig.lifecycle === 'once';
     }
 
-    protected get workersConnected() {
+    protected get workersConnected(): number {
         return this.stats.workers.connected;
     }
 }

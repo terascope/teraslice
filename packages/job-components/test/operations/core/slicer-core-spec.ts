@@ -1,5 +1,13 @@
+/* eslint-disable max-classes-per-file */
 import 'jest-extended'; // require for type definitions
-import { newTestExecutionConfig, TestContext, WorkerContext } from '../../../src';
+import {
+    newTestExecutionConfig,
+    TestContext,
+    WorkerContext,
+    ExecutionContextAPI,
+    OperationAPI,
+    OpAPIFn
+} from '../../../src';
 import SlicerCore from '../../../src/operations/core/slicer-core';
 
 describe('SlicerCore', () => {
@@ -13,6 +21,12 @@ describe('SlicerCore', () => {
         }
     }
 
+    class HelloAPI extends OperationAPI {
+        async createAPI() {
+            return () => 'hello';
+        }
+    }
+
     let slicer: ExampleSlicerCore;
 
     beforeAll(() => {
@@ -23,6 +37,10 @@ describe('SlicerCore', () => {
         });
         const opConfig = exConfig.operations[0];
         slicer = new ExampleSlicerCore(context as WorkerContext, opConfig, exConfig);
+
+        const exContextApi = new ExecutionContextAPI(context, exConfig);
+        exContextApi.addToRegistry('hello', HelloAPI);
+        context.apis.registerAPI('executionContext', exContextApi);
     });
 
     describe('->initialize', () => {
@@ -77,6 +95,20 @@ describe('SlicerCore', () => {
     describe('->maxQueueLength', () => {
         it('should return 10000', () => {
             expect(slicer.maxQueueLength()).toEqual(10000);
+        });
+    });
+
+    describe('->createAPI', () => {
+        it('should resolve the api', async () => {
+            const api = await slicer.createAPI('hello') as OpAPIFn;
+            return expect(api()).toEqual('hello');
+        });
+    });
+
+    describe('->getAPI', () => {
+        it('should resolve the api', () => {
+            const api = slicer.getAPI('hello') as () => OpAPIFn;
+            return expect(api()).toEqual('hello');
         });
     });
 });
