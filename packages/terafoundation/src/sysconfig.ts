@@ -69,7 +69,7 @@ export function parseConfigFile(file: string): Record<string, any> {
     }
 
     if (['.yaml', '.yml'].includes(path.extname(configFile))) {
-        return yaml.safeLoad(fs.readFileSync(configFile, 'utf8'));
+        return yaml.safeLoad(fs.readFileSync(configFile, 'utf8')) as any;
     }
 
     return cloneDeep(require(configFile));

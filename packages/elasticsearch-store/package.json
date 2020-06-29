@@ -29,7 +29,7 @@
         "@terascope/types": "^0.4.0",
         "@terascope/utils": "^0.28.1",
         "ajv": "^6.12.2",
-        "uuid": "^8.1.0",
+        "uuid": "^8.2.0",
         "xlucene-translator": "^0.7.1"
     },
     "devDependencies": {
