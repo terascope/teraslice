@@ -44,7 +44,7 @@ export function makeArray(input: string | string[] | undefined): string[] {
     if (Array.isArray(input)) {
         const arr = input
             .filter((val) => !isEmpty(val))
-            .map(trim)
+            .map((val) => trim(val))
             .filter(Boolean);
         return uniq(arr);
     }

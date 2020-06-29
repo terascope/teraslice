@@ -5,6 +5,7 @@ import path from 'path';
 import tmp from 'tmp';
 import { toInteger } from '@terascope/utils';
 import { getPackage } from '../helpers/utils';
+import reply from './reply';
 
 interface ZipResults {
     success: string;
@@ -23,8 +24,10 @@ export default class AssetSrc {
     assetPackageJson: any;
     name: string;
     version: string;
+    devMode = false;
 
-    constructor(srcDir: string) {
+    constructor(srcDir: string, devMode = false) {
+        this.devMode = devMode;
         this.srcDir = path.resolve(srcDir);
         this.assetFile = path.join(this.srcDir, 'asset', 'asset.json');
         this.packageJson = getPackage(path.join(this.srcDir, 'package.json'));
@@ -79,16 +82,29 @@ export default class AssetSrc {
 
         const assetJSON = await fs.readJSON(path.join(tmpDir.name, 'asset', 'asset.json'));
 
-        if (assetJSON.node_version === undefined) {
-            assetJSON.node_version = toInteger(process.version.split('.')[0].substr(1));
-        }
+        if (!this.devMode) {
+            const restrictions:string[] = [];
+            if (assetJSON.node_version === undefined) {
+                assetJSON.node_version = toInteger(process.version.split('.')[0].substr(1));
+                restrictions.push('node_version');
+            }
 
-        if (assetJSON.platform === undefined) {
-            assetJSON.platform = process.platform;
-        }
+            if (assetJSON.platform === undefined) {
+                assetJSON.platform = process.platform;
+                restrictions.push('platform');
+            }
 
-        if (assetJSON.arch === undefined) {
-            assetJSON.arch = process.arch;
+            if (assetJSON.arch === undefined) {
+                assetJSON.arch = process.arch;
+                restrictions.push('arch');
+            }
+            if (restrictions.length) {
+                reply.info(
+                    `Automatically added ${restrictions.join(', ')} restrictions for the asset`
+                    + ' Use --dev to temporarily disable this,'
+                    + ` or put false for the values ${restrictions.join(', ')} in the asset.json`
+                );
+            }
         }
 
         await fs.writeJSON(path.join(tmpDir.name, 'asset', 'asset.json'), assetJSON, {

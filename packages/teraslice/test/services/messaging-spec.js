@@ -12,7 +12,6 @@ describe('messaging module', () => {
 
     let firstWorkerMsg = null; // eslint-disable-line
     let secondWorkerMsg = null; // eslint-disable-line
-    let thirdWorkerMsg = null; // eslint-disable-line
 
     let clusterFn = () => {};
 
@@ -48,8 +47,7 @@ describe('messaging module', () => {
                     ex_id: 'somethingElse',
                     assignment: 'worker',
                     connected: true,
-                    send: (msg) => {
-                        thirdWorkerMsg = msg;
+                    send: () => {
                     },
                     on: (key, fn) => {
                         clusterFn = fn;
@@ -61,7 +59,6 @@ describe('messaging module', () => {
     }
 
     let emitMsg = null;
-    let socketMsg = null; // eslint-disable-line
     const connected = {};
 
     const io = {
@@ -71,7 +68,8 @@ describe('messaging module', () => {
         sockets: {
             in: (address) => ({
                 emit: (msg, msgObj) => {
-                    socketMsg = { message: msg, data: msgObj, address };
+                    const socketMsg = { message: msg, data: msgObj, address };
+                    logger.debug(socketMsg);
                 }
             }),
             connected
@@ -120,7 +118,6 @@ describe('messaging module', () => {
     beforeEach(() => {
         firstWorkerMsg = null;
         secondWorkerMsg = null;
-        thirdWorkerMsg = null;
         _.omitBy(connected);
     });
 

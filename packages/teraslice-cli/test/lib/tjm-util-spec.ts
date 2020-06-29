@@ -6,7 +6,7 @@ let statusResponse: any;
 let waitStatus: any;
 let job: any = {};
 
-const client = {
+const client: any = {
     jobs: {
         wrap: () => {
             const functions = {
@@ -115,7 +115,7 @@ describe('tjm-util stop function', () => {
         try {
             await tjmUtil.stop();
         } catch (e) {
-            expect(e.message).toBe('Error: Could not stop testJobName on testCluster');
+            expect(e.message).toBe('Could not stop testJobName on testCluster');
         }
     });
 
@@ -172,7 +172,7 @@ describe('tjm-util stop function', () => {
         try {
             await tjmUtil.stop();
         } catch (e) {
-            expect(e.message).toBe('Error: this is a terrible error');
+            expect(e.message).toBe('this is a terrible error');
         }
     });
 });

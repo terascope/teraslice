@@ -42,19 +42,19 @@ export const repository: Repository = {
     }
 };
 
-export function uniqueField(input: any, _parentContext?: any) {
+export function uniqueField(input: unknown, _parentContext?: unknown): any[]|any|null {
     if (ts.isNil(input)) return null;
     if (isArray(input)) return ts.uniq(input);
     return input;
 }
 
-export function countField(input: any, _parentContext?: any) {
+export function countField(input: unknown, _parentContext?: unknown): any[]|any|null {
     if (ts.isNil(input)) return 0;
     if (isArray(input)) return input.length;
     return 1;
 }
 
-export function sumField(input: any, _parentContext?: any) {
+export function sumField(input: unknown, _parentContext?: unknown): any[]|any|null {
     if (ts.isNil(input)) return null;
     if (isArray(input)) {
         return input
@@ -66,7 +66,7 @@ export function sumField(input: any, _parentContext?: any) {
     return null;
 }
 
-export function avgField(input: any, _parentContext?: any) {
+export function avgField(input: unknown, _parentContext?: unknown): any[]|any|null {
     if (ts.isNil(input)) return null;
     if (isArray(input)) {
         const numbers = input
@@ -82,7 +82,7 @@ export function avgField(input: any, _parentContext?: any) {
     return null;
 }
 
-export function minField(input: any, _parentContext?: any) {
+export function minField(input: unknown, _parentContext?: unknown): any[]|any|null {
     if (ts.isNil(input)) return null;
     if (isArray(input)) {
         const numbers = input.filter(ts.isNumber);
@@ -93,7 +93,7 @@ export function minField(input: any, _parentContext?: any) {
     return null;
 }
 
-export function maxField(input: any, _parentContext?: any) {
+export function maxField(input: unknown, _parentContext?: unknown): any[]|any|null {
     if (ts.isNil(input)) return null;
     if (isArray(input)) {
         const numbers = input.filter(ts.isNumber);

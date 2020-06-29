@@ -1,11 +1,10 @@
 import YargsOptions from '../../helpers/yargs-options';
 import Jobs from '../../helpers/jobs';
-import Reply from '../lib/reply';
+import reply from '../../helpers/reply';
 import Config from '../../helpers/config';
 import { CMD } from '../../interfaces';
 
 const yargsOptions = new YargsOptions();
-const reply = new Reply();
 
 const cmd: CMD = {
     command: 'await <cluster-alias> <id>',

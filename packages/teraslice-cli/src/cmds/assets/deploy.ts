@@ -3,17 +3,16 @@
 
 import path from 'path';
 import fs from 'fs-extra';
-import { has } from '@terascope/utils';
+import { has, TSError } from '@terascope/utils';
 import AssetSrc from '../../helpers/asset-src';
 import GithubAsset from '../../helpers/github-asset';
 
 import { CMD, GithubAssetConfig } from '../../interfaces';
-import Reply from '../lib/reply';
+import reply from '../../helpers/reply';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 import { getTerasliceClient } from '../../helpers/utils';
 
-const reply = new Reply();
 const yargsOptions = new YargsOptions();
 
 export = {
@@ -33,13 +32,31 @@ export = {
         yargs.option('skip-upload', yargsOptions.buildOption('skip-upload'));
         yargs.option('src-dir', yargsOptions.buildOption('src-dir'));
         yargs.option('blocking', yargsOptions.buildOption('blocking'));
+        yargs.option('dev', yargsOptions.buildOption('dev'));
+
         yargs.conflicts('asset', ['build', 'file']);
         yargs.conflicts('replace', 'skip-upload');
-        yargs.example('$0 assets deploy ts-test1', 'Deploys to cluster at aliase ts-test1. This supposes that you are in a dir with an asset/asset.json to deploy');
-        yargs.example('$0 assets deploy ts-test1 --build', 'zips up the current asset and deploys it');
-        yargs.example('$0 assets deploy ts-test1 terascope/file-assets', 'deploys the latest github asset terascope/file-assets to cluster ts-test1');
-        yargs.example('$0 assets deploy ts-test1 terascope/file-assets@v1.2.3', 'deploys the version v1.2.3 github asset terascope/file-assets to cluster ts-test1');
-        yargs.example('$0 assets deploy ts-test1 -f /tmp/my-assets.zip', 'sends the zipfile to be depoyedl ');
+
+        yargs.example(
+            '$0 assets deploy ts-test1',
+            'Deploys to cluster at aliase ts-test1. This supposes that you are in a dir with an asset/asset.json to deploy'
+        );
+        yargs.example(
+            '$0 assets deploy ts-test1 --build',
+            'zips up the current asset and deploys it'
+        );
+        yargs.example(
+            '$0 assets deploy ts-test1 terascope/file-assets',
+            'deploys the latest github asset terascope/file-assets to cluster ts-test1'
+        );
+        yargs.example(
+            '$0 assets deploy ts-test1 terascope/file-assets@v1.2.3',
+            'deploys the version v1.2.3 github asset terascope/file-assets to cluster ts-test1'
+        );
+        yargs.example(
+            '$0 assets deploy ts-test1 -f /tmp/my-assets.zip',
+            'sends the zipfile to be deployed'
+        );
         return yargs;
     },
     async handler(argv) {
@@ -96,21 +113,19 @@ export = {
                 reply.fatal(`Unable to download ${cliConfig.args.asset} asset: ${err.stack}`);
             }
         } else if (cliConfig.args.build || assetJsonExists) {
-            let asset: AssetSrc;
+            const asset = new AssetSrc(
+                assetJsonExists ? '.' : cliConfig.args.srcDir,
+                cliConfig.args.dev
+            );
 
             try {
-                if (assetJsonExists) {
-                    asset = new AssetSrc('.');
-                } else {
-                    asset = new AssetSrc(cliConfig.args.srcDir);
-                }
                 reply.green('Beginning asset build.');
                 assetPath = await asset.build();
-                if (!cliConfig.args.quiet) {
-                    reply.green(`Asset created:\n\t${assetPath}`);
-                }
+                reply.green(`Asset created:\n\t${assetPath}`);
             } catch (err) {
-                reply.fatal(`Error building asset: ${err}`);
+                reply.fatal(new TSError(err, {
+                    reason: 'Failure to build asset'
+                }));
                 return;
             }
 
@@ -125,18 +140,16 @@ export = {
 
                 const clusterAssetData = await terasliceClient.assets.getAsset(asset.name);
                 const assetToReplace = clusterAssetData
-                    .filter((clusterAsset: any) => clusterAsset.version === asset.version)[0];
+                    .filter((clusterAsset) => clusterAsset.version === asset.version)[0];
 
                 if (has(assetToReplace, 'id')) {
                     const response = await terasliceClient.assets.remove(assetToReplace.id);
-                    if (!cliConfig.args.quiet) {
-                        // Support different teraslice api/client versions
-                        // @ts-expect-error
-                        const assetId = response._id || response.assetId;
-                        reply.green(
-                            `Asset ${assetId} deleted from ${cliConfig.args.clusterAlias}`
-                        );
-                    }
+                    // Support different teraslice api/client versions
+                    // @ts-expect-error
+                    const assetId = response._id || response.assetId;
+                    reply.green(
+                        `Asset ${assetId} deleted from ${cliConfig.args.clusterAlias}`
+                    );
                 } else {
                     reply.green(`Asset: ${asset.name}, version: ${asset.version}, was not found on ${cliConfig.args.clusterAlias}`);
                 }
@@ -154,7 +167,9 @@ export = {
             try {
                 assetZip = await fs.readFile(assetPath);
             } catch (err) {
-                reply.fatal(`Error reading file: ${assetPath}, ${err.stack}`);
+                reply.fatal(new TSError(err, {
+                    reason: `Failure to reading ${assetPath}`
+                }));
                 return;
             }
 
@@ -162,12 +177,10 @@ export = {
                 const resp = await terasliceClient.assets.upload(assetZip, {
                     blocking: cliConfig.args.blocking
                 });
-                if (!cliConfig.args.quiet) {
-                    reply.green(`Asset posted to ${cliConfig.args.clusterAlias}: ${resp._id}`);
-                }
+                reply.green(`Asset posted to ${cliConfig.args.clusterAlias}: ${resp._id}`);
             } catch (err) {
                 reply.fatal(`Error posting asset: ${err.message}`);
             }
-        } else if (!cliConfig.args.quiet) reply.green('Upload skipped.');
+        } else reply.green('Upload skipped.');
     }
 } as CMD;

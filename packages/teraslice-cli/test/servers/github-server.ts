@@ -10,7 +10,7 @@ export const preReleaseAsset = fs.readFileSync(path.resolve(__dirname, '../fixtu
 const testReleaseId = 11111111;
 const preReleaseId = 19448406;
 export default class GithubServer {
-    init() {
+    init(): nock.Scope {
         const githubURI = 'https://api.github.com';
 
         const scope = nock(githubURI)

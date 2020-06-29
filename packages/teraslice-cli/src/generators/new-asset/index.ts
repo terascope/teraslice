@@ -8,13 +8,13 @@ export default class extends Generator {
     answers!: any;
     useYarn?: boolean;
 
-    constructor(args: any, opts: any) {
+    constructor(args: string|string[], opts: Record<string, any>) {
         super(args, opts);
         this.argument('new_asset_path', { type: String, required: true });
         this.sourceRoot(getTemplatePath('new-asset'));
     }
 
-    async prompting() {
+    async prompting(): Promise<void> {
         this.answers = await this.prompt([
             {
                 type: 'input',
@@ -36,11 +36,11 @@ export default class extends Generator {
         ]);
     }
 
-    paths() {
+    paths(): void {
         this.destinationRoot(path.join(this.options.new_asset_path, this.answers.name));
     }
 
-    default() {
+    default(): void {
         // copy over root files
         this.fs.copyTpl(this.templatePath('package.json'), this.destinationPath('package.json'),
             {
@@ -77,7 +77,7 @@ export default class extends Generator {
         );
     }
 
-    addExampleProcessor() {
+    addExampleProcessor(): void {
         const assetPath = path.join(this.options.new_asset_path, this.answers.name);
         const processorPath = path.join(__dirname, '../new-processor');
         this.composeWith({
@@ -86,7 +86,7 @@ export default class extends Generator {
         } as any, { arguments: [assetPath] });
     }
 
-    install() {
+    install(): void {
         this.useYarn = false;
 
         // prefer yarn to install packages, check that yarn is on the machine

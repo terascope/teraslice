@@ -6,14 +6,14 @@ import { snakeCase, camelCase } from '../../helpers/utils';
 export default class extends Generator {
     answers!: any;
 
-    constructor(args: any, opts: any) {
+    constructor(args: string|string[], opts: Record<string, any>) {
         super(args, opts);
         this.argument('asset_path', { type: String, required: true });
         this.option('new', {});
         this.sourceRoot(getTemplatePath('new-processor'));
     }
 
-    async prompting() {
+    async prompting(): Promise<void> {
         if (this.options.new === true) {
             this.answers = await this.prompt([
                 {
@@ -42,11 +42,11 @@ export default class extends Generator {
         }
     }
 
-    paths() {
+    paths(): void {
         this.destinationRoot(path.join(this.options.asset_path));
     }
 
-    createProcessor() {
+    createProcessor(): void {
         function capitolizeFirstLetter(value: string) {
             return value.charAt(0).toUpperCase() + value.slice(1);
         }

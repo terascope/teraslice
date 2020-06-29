@@ -4,11 +4,11 @@ import * as ts from '@terascope/utils';
 import { IndexConfig, IndexSchema, DataSchema } from '../interfaces';
 import { throwValidationError, getErrorMessages } from './errors';
 
-export function isValidName(name: string) {
-    return ts.isString(name) && name && !name.includes('-');
+export function isValidName(name: string): boolean {
+    return Boolean(ts.isString(name) && name && !name.includes('-'));
 }
 
-export function validateId(id: any, action: string, throwError = true): id is string {
+export function validateId(id: unknown, action: string, throwError = true): id is string {
     if (ts.isString(id) && id) return true;
     if (!throwError) return false;
 
@@ -17,16 +17,18 @@ export function validateId(id: any, action: string, throwError = true): id is st
     });
 }
 
-export function validateIds(ids: any, action: string): string[] {
-    return ts.uniq(ts.castArray(ids)).filter((id) => validateId(id, action, false));
+export function validateIds(ids: unknown, action: string): string[] {
+    return ts.uniq(ts.castArray(ids)).filter((id) => validateId(id, action, false)) as string[];
 }
 
-export function isValidNamespace(namespace: string) {
+export function isValidNamespace(namespace: string): boolean {
     if (namespace == null) return true;
-    return ts.isString(namespace) && namespace && !namespace.includes('-');
+    return Boolean(ts.isString(namespace) && namespace && !namespace.includes('-'));
 }
 
-export function makeDataValidator(dataSchema: DataSchema, logger: ts.Logger) {
+export function makeDataValidator(
+    dataSchema: DataSchema, logger: ts.Logger
+): (input: any, critical: boolean) => any {
     const {
         all_formatters: allFormatters,
         schema,
@@ -59,7 +61,7 @@ export function makeDataValidator(dataSchema: DataSchema, logger: ts.Logger) {
     };
 }
 
-export function validateIndexConfig(config: any): config is IndexConfig<any> {
+export function validateIndexConfig(config: Record<string, any>): config is IndexConfig<any> {
     const errors: string[] = [];
 
     if (config == null) {
@@ -102,12 +104,13 @@ export function validateIndexConfig(config: any): config is IndexConfig<any> {
     return true;
 }
 
-export function isValidClient(input: any): input is es.Client {
+export function isValidClient(input: unknown): input is es.Client {
     if (input == null) return false;
+    if (typeof input !== 'object') return false;
 
     const reqKeys = ['indices', 'index', 'get', 'search'];
 
-    return reqKeys.every((key) => input[key] != null);
+    return reqKeys.every((key) => (input as any)[key] != null);
 }
 
 export function isTemplatedIndex(config?: IndexSchema): boolean {

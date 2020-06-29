@@ -6,7 +6,7 @@ const esApi = require('..');
 
 describe('elasticsearch-api', () => {
     let recordsReturned = [];
-    let searchQuery; // eslint-disable-line
+    let searchQuery;
     let failed = 0;
     let failures = [];
     let total = 0;
@@ -208,6 +208,7 @@ describe('elasticsearch-api', () => {
         return results;
     }
 
+    const logger = debugLogger('elasticsearch-api-spec');
     const client = {
         // set this so we can verify the index
         transport: {
@@ -229,6 +230,7 @@ describe('elasticsearch-api', () => {
         bulk: (data) => Promise.resolve(createBulkResponse(data)),
         search: (_query) => {
             searchQuery = _query;
+            logger.debug(searchQuery);
             if (searchError) return Promise.reject(searchError);
             return Promise.resolve(getData());
         },
@@ -286,8 +288,6 @@ describe('elasticsearch-api', () => {
             limit: 500
         }
     };
-
-    const logger = debugLogger('elasticsearch-api');
 
     it('can instantiate', () => {
         let api;

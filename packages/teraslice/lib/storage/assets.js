@@ -9,7 +9,10 @@ const {
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 const { makeLogger } = require('../workers/helpers/terafoundation');
 const { saveAsset } = require('../utils/file_utils');
-const { findMatchingAsset, toVersionQuery } = require('../utils/asset_utils');
+const {
+    findMatchingAsset, findSimilarAssets,
+    toVersionQuery, getInCompatiblityReason
+} = require('../utils/asset_utils');
 
 // Module to manager job states in Elasticsearch.
 // All functions in this module return promises that must be resolved to
@@ -145,7 +148,10 @@ module.exports = async function assetsStore(context) {
 
         const found = findMatchingAsset(assets, name, version);
         if (!found) {
-            throw new Error(`No asset with the provided name and version could be located, asset: ${assetIdentifier}`);
+            const reason = getInCompatiblityReason(findSimilarAssets(assets, name, version), ', due to a potential');
+            throw new TSError(`No asset found for "${assetIdentifier}"${reason}`, {
+                statusCode: 404
+            });
         }
         return found.id;
     }

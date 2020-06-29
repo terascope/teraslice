@@ -19,32 +19,49 @@ export function toString(val: unknown): string {
     return JSON.stringify(val);
 }
 
-export function trimStart(input: string, char = ' '): string {
-    let start = input.indexOf(char);
-    if (start === -1 || start > (input.length / 2)) return input;
+/** safely trim an input */
+export function trim(input: unknown, char = ' '): string {
+    if (char === ' ') return toString(input).trim();
 
-    for (start; start < input.length;) {
-        if (input.slice(start, start + char.length) !== char) {
+    return trimEnd(trimStart(input, char), char);
+}
+
+export function trimStart(input: unknown, char = ' '): string {
+    const str = toString(input);
+    if (char === ' ') {
+        return str.replace(/^\s+/, '');
+    }
+
+    let start = str.indexOf(char);
+    if (start === -1 || start > (str.length / 2)) return str;
+
+    for (start; start < str.length;) {
+        if (str.slice(start, start + char.length) !== char) {
             break;
         }
         start += char.length;
     }
 
-    return input.slice(start);
+    return str.slice(start);
 }
 
-export function trimEnd(input: string, char = ' '): string {
-    let end = input.lastIndexOf(char);
-    if (end === -1 || end < (input.length / 2)) return input;
+export function trimEnd(input: unknown, char = ' '): string {
+    const str = toString(input);
+    if (char === ' ') {
+        return str.replace(/\s+$/, '');
+    }
+
+    let end = str.lastIndexOf(char);
+    if (end === -1 || end < (str.length / 2)) return str;
 
     for (end; end >= 0;) {
-        if (input.slice(end - char.length, end) !== char) {
+        if (str.slice(end - char.length, end) !== char) {
             break;
         }
         end -= char.length;
     }
 
-    return input.slice(0, end);
+    return str.slice(0, end);
 }
 
 /** safely trim and to lower a input, useful for string comparison */
@@ -74,11 +91,6 @@ export function unescapeString(str = ''): string {
     }
 
     return unescaped;
-}
-
-/** safely trim an input */
-export function trim(input: unknown): string {
-    return toString(input).trim();
 }
 
 /** A native implemation of lodash startsWith */
@@ -297,7 +309,7 @@ export function getFirstChar(input: string): string {
     return trim(input).charAt(0);
 }
 
-export function isEmail(input: any): boolean {
+export function isEmail(input: unknown): boolean {
     // Email Validation as per RFC2822 standards. Straight from .net helpfiles
     // eslint-disable-next-line
     const regex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
@@ -306,7 +318,7 @@ export function isEmail(input: any): boolean {
     return false;
 }
 
-export function isMacAddress(input: any, args?: MACAddress): boolean {
+export function isMacAddress(input: unknown, args?: MACAddress): boolean {
     if (!isString(input)) return false;
 
     const delimiters = {
@@ -334,7 +346,7 @@ export function isMacAddress(input: any, args?: MACAddress): boolean {
  * Maps an array of strings and and trims the result, or
  * parses a comma separated list and trims the result
  */
-export function parseList(input: any): string[] {
+export function parseList(input: unknown): string[] {
     let strings: string[] = [];
 
     if (isString(input)) {
@@ -349,4 +361,33 @@ export function parseList(input: any): string[] {
     }
 
     return strings.map((s) => s.trim()).filter((s) => !!s);
+}
+
+/**
+ * Create a sentence from a list (all items will be unique, empty values will be skipped)
+*/
+export function joinList(input: (string|number|boolean|symbol|null|undefined)[], sep = ',', join = 'and'): string {
+    if (!Array.isArray(input)) {
+        throw new Error('joinList requires input to be a array');
+    }
+
+    const list = [
+        ...new Set(input
+            .filter((str) => str != null && str !== '')
+            .map((str) => toString(str).trim()))
+    ];
+
+    if (list.length === 0) {
+        throw new Error('joinList requires at least one string');
+    }
+    if (list.length === 1) return `${list[0]}`;
+
+    return list.reduce((acc, curr, index, arr) => {
+        if (!acc) return curr;
+        const isLast = (index + 1) === arr.length;
+        if (isLast) {
+            return `${acc} ${join} ${curr}`;
+        }
+        return `${acc}${sep} ${curr}`;
+    }, '');
 }

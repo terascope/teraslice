@@ -1,14 +1,12 @@
 import { CMD } from '../../interfaces';
 import Config from '../../helpers/config';
-import displayModule from '../lib/display';
+import Display from '../../helpers/display';
 import TerasliceUtil from '../../helpers/teraslice-util';
 import YargsOptions from '../../helpers/yargs-options';
-import Reply from '../lib/reply';
-
-const reply = new Reply();
+import reply from '../../helpers/reply';
 
 const yargsOptions = new YargsOptions();
-const display = displayModule();
+const display = new Display();
 
 export = {
     command: 'list <cluster-alias>',

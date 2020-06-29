@@ -2,9 +2,8 @@ import { CMD } from '../../interfaces';
 import Config from '../../helpers/config';
 import YargsOptions from '../../helpers/yargs-options';
 import Executions from '../../helpers/executions';
-import Reply from '../lib/reply';
+import reply from '../../helpers/reply';
 
-const reply = new Reply();
 const yargsOptions = new YargsOptions();
 
 export = {

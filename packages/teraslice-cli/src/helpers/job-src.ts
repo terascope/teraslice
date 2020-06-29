@@ -1,11 +1,10 @@
 import fs from 'fs-extra';
 import path from 'path';
 import { has, set } from '@terascope/utils';
-import Reply from '../cmds/lib/reply';
+import reply from '../helpers/reply';
 import { getPackage } from '../../src/helpers/utils';
 
 const { version } = getPackage();
-const reply = new Reply();
 
 // TODO: relook into this use
 
@@ -21,7 +20,7 @@ export default class JobFile {
     clusterUrl!: string;
     content: any;
 
-    constructor(argv: any) {
+    constructor(argv: Record<string, any>) {
         try {
             this.jobPath = path.join(argv.srcDir, argv.jobFile);
         } catch (e) {
@@ -30,7 +29,7 @@ export default class JobFile {
         this.version = version;
     }
 
-    init() {
+    init(): void {
         // This is not in the constructor so that command tjm create
         // can use this class without requiring a job file
         this.readFile();
@@ -44,7 +43,7 @@ export default class JobFile {
         this.name = this.content.name;
     }
 
-    validateJob() {
+    validateJob(): void {
         // TODO: use @teraslice/job-components job-validator to validate job file
         // this minimum requirement will work for now
         if (!(
@@ -57,7 +56,7 @@ export default class JobFile {
         }
     }
 
-    readFile() {
+    readFile(): void {
         try {
             this.content = fs.readJsonSync(this.jobPath);
         } catch (e) {
@@ -70,18 +69,18 @@ export default class JobFile {
         }
     }
 
-    addMetaData(id: string, clusterUrl: string) {
+    addMetaData(id: string, clusterUrl: string): void {
         set(this.content, '__metadata.cli.cluster', clusterUrl);
         set(this.content, '__metadata.cli.version', this.version);
         set(this.content, '__metadata.cli.job_id', id);
         set(this.content, '__metadata.cli.updated', new Date().toISOString());
     }
 
-    get hasMetaData() {
+    get hasMetaData(): boolean {
         return has(this.content, '__metadata');
     }
 
-    overwrite() {
+    overwrite(): void {
         fs.writeJsonSync(this.jobPath, this.content, { spaces: 4 });
     }
 }

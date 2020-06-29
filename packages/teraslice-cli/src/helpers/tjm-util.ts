@@ -1,18 +1,16 @@
 import { TerasliceClient, ExecutionStatus } from 'teraslice-client-js';
-import Reply from '../cmds/lib/reply';
-
-const reply = new Reply();
+import reply from '../helpers/reply';
 
 export default class TjmUtil {
     client: TerasliceClient;
     job: any;
 
-    constructor(client: any, job: any) {
+    constructor(client: TerasliceClient, job: Record<string, any>) {
         this.client = client;
         this.job = job;
     }
 
-    async start() {
+    async start(): Promise<void> {
         try {
             const startResult = await this.client.jobs.wrap(this.job.id).start();
 
@@ -31,7 +29,7 @@ export default class TjmUtil {
         }
     }
 
-    async pause() {
+    async pause(): Promise<void> {
         try {
             const response = await this.client.jobs.wrap(this.job.id).pause();
             reply.green(`> job: ${this.job.name}, id: ${this.job.id} has been ${response.status}`);
@@ -40,7 +38,7 @@ export default class TjmUtil {
         }
     }
 
-    async resume() {
+    async resume(): Promise<void> {
         try {
             const response = await this.client.jobs.wrap(this.job.id).resume();
             reply.green(`> job: ${this.job.name}, id: ${this.job.id} has been ${response.status}`);
@@ -49,7 +47,7 @@ export default class TjmUtil {
         }
     }
 
-    async stop() {
+    async stop(): Promise<void> {
         const terminalStatuses = [
             'stopped',
             'completed',

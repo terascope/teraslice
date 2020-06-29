@@ -67,75 +67,81 @@ async function text(headerValues: string[], items: Record<string, string>[]) {
     console.log(easyTable.print(rows));
 }
 
-/**
- * Parses the teraslice client endpoint responses into an array used to generate
- * tables in command line output.
- *
- @param {Array} header - Header values to include in output
- @param {Object} response - Teraslice client response object
- @param {Boolean} active - When set to true parse values in active list
- @param {String} id - id value used to filter results by job_id or ex_id
- @returns {Array} rows - Table content is an array of arrays with
- *                       each row an element in the array.
-*/
-async function parseResponse(header: any, response: any, active = false, id?: string) {
-    const rows: any[] = [];
-    Object.entries(response).forEach(([key, value]: [string, any]) => {
-        let row: any[] = [];
-        if (active) {
-            value.active.forEach((activeValue: any) => {
-                row = [];
-                // filter by id
-                if (id === undefined || activeValue.job_id === id || activeValue.ex_id === id) {
-                    header.forEach((item: any) => {
-                        if (item === 'teraslice_version') {
-                            row.push(value.teraslice_version);
-                        } else if (item === 'node_id') {
-                            row.push(value.node_id);
-                        } else if (item === 'hostname') {
-                            row.push(value.hostname);
-                        } else if (item === 'node_version') {
-                            row.push(value.node_version);
-                        } else {
-                            row.push(activeValue[item]);
-                        }
-                    });
-                    rows.push(row);
-                }
-            });
-        } else {
-            header.forEach((item: any) => {
-                if (item === 'active') {
-                    row.push(response[key][item].length);
-                } else {
-                    row.push(response[key][item]);
-                }
-            });
-            rows.push(row);
-        }
-    });
-    return rows;
-}
+export default class Display {
+    /**
+     * Parses the teraslice client endpoint responses into an array used to generate
+     * tables in command line output.
+     *
+     * @param header - Header values to include in output
+     * @param response - Teraslice client response object
+     * @param active - When set to true parse values in active list
+     * @param id - id value used to filter results by job_id or ex_id
+     * @returns Table content is an array of arrays with
+     *                       each row an element in the array.
+    */
+    parseResponse(
+        header: any[],
+        response: Record<string, any>,
+        active = false,
+        id?: string
+    ): any[] {
+        const rows: any[] = [];
+        Object.entries(response).forEach(([key, value]: [string, any]) => {
+            let row: any[] = [];
+            if (active) {
+                value.active.forEach((activeValue: any) => {
+                    row = [];
+                    // filter by id
+                    if (id === undefined || activeValue.job_id === id || activeValue.ex_id === id) {
+                        header.forEach((item: any) => {
+                            if (item === 'teraslice_version') {
+                                row.push(value.teraslice_version);
+                            } else if (item === 'node_id') {
+                                row.push(value.node_id);
+                            } else if (item === 'hostname') {
+                                row.push(value.hostname);
+                            } else if (item === 'node_version') {
+                                row.push(value.node_version);
+                            } else {
+                                row.push(activeValue[item]);
+                            }
+                        });
+                        rows.push(row);
+                    }
+                });
+            } else {
+                header.forEach((item: any) => {
+                    if (item === 'active') {
+                        row.push(response[key][item].length);
+                    } else {
+                        row.push(response[key][item]);
+                    }
+                });
+                rows.push(row);
+            }
+        });
+        return rows;
+    }
 
-export default function displayModule() {
     /**
      * Display teraslice responses in a table
      *
-     @param {Array} header - Header values to include in output
-     @param {Object} response - Teraslice client response object
-     @param {String} type - Output table type
-     @param {Boolean} active - Set to true use values in active list
-     @param {Boolean} parse - Set to true to parse response
-     @param {String} id - id value used to filter results by job_id or ex_id
+     @param header - Header values to include in output
+     @param items - Teraslice client response object
+     @param type - Output table type
+     @param active - Set to true use values in active list
+     @param parse - Set to true to parse response
+     @param id - id value used to filter results by job_id or ex_id
      */
-    async function display(
+    async display(
+        // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
         header: any,
-        items: any,
-        type: any,
+        items: any[],
+        type: string,
         active = false,
         parse = false,
         id?: string
-    ) {
+    ): Promise<void> {
         let rows;
         if (type === 'txt') {
             await text(header, items);
@@ -164,7 +170,7 @@ export default function displayModule() {
                 }
             };
             if (parse) {
-                rows = await parseResponse(header, items, active, id);
+                rows = this.parseResponse(header, items, active, id);
                 horizontal(rows, opts);
             } else {
                 horizontal(items, opts);
@@ -175,7 +181,7 @@ export default function displayModule() {
                 style: { 'padding-left': 0, 'padding-right': 0, head: ['blue'] }
             };
             if (parse) {
-                rows = await parseResponse(header, items, active, id);
+                rows = this.parseResponse(header, items, active, id);
                 horizontal(rows, opts);
             } else {
                 horizontal(items, opts);
@@ -204,7 +210,7 @@ export default function displayModule() {
                 }
             };
             if (parse) {
-                rows = await parseResponse(header, items, active, id);
+                rows = this.parseResponse(header, items, active, id);
                 vertical(header, rows, style);
             } else {
                 vertical(header, items, style);
@@ -214,7 +220,7 @@ export default function displayModule() {
                 style: { 'padding-left': 0, 'padding-right': 0, head: ['blue'] }
             };
             if (parse) {
-                rows = await parseResponse(header, items, active, id);
+                rows = this.parseResponse(header, items, active, id);
                 vertical(header, rows, style);
             } else {
                 vertical(header, items, style);
@@ -224,7 +230,7 @@ export default function displayModule() {
         }
     }
 
-    async function showPrompt(action: string, message = '') {
+    async showPrompt(action: string, message = ''): Promise<boolean> {
         const response = await prompts({
             type: 'confirm',
             name: 'continue',
@@ -236,7 +242,7 @@ export default function displayModule() {
         return response.continue;
     }
 
-    async function setAction(action: string, tense: string) {
+    setAction(action: string, tense: string): string {
         if (action === 'stop' && tense === 'past') {
             return 'stopped';
         }
@@ -270,11 +276,4 @@ export default function displayModule() {
 
         return action;
     }
-
-    return {
-        display,
-        parseResponse,
-        showPrompt,
-        setAction
-    };
 }

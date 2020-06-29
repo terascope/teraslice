@@ -151,7 +151,9 @@ function batchByKeys(input: any, config: ValidatedBatchConfig, filterFn: FilterF
     return batch;
 }
 
-export function unique(input: any, _parentContext: any, batchConfig: BatchConfig): any[] | null {
+export function unique(
+    input: unknown, _parentContext: unknown, batchConfig: BatchConfig
+): any[] | null {
     const config = validateConfig(batchConfig);
     if (ts.isNil(input)) return null;
 
@@ -159,7 +161,9 @@ export function unique(input: any, _parentContext: any, batchConfig: BatchConfig
     return _iterateBatch(batchData, ts.uniq);
 }
 
-export function count(input: any, _parentContext: any, batchConfig: BatchConfig) {
+export function count(
+    input: unknown, _parentContext: unknown, batchConfig: BatchConfig
+): any[]|null {
     const config = validateConfig(batchConfig);
     if (ts.isNil(input)) return null;
 
@@ -173,7 +177,7 @@ function _length(val: any[]) {
     return val.length;
 }
 
-export function sum(input: any, _parentContext: any, batchConfig: BatchConfig) {
+export function sum(input: unknown, _parentContext: unknown, batchConfig: BatchConfig): any[]|null {
     const config = validateConfig(batchConfig);
     if (ts.isNil(input)) return null;
 
@@ -185,7 +189,9 @@ function _sum(input: number[]) {
     return input.reduce((prev, curr) => prev + curr, 0);
 }
 
-export function avg(input: any, _parentContext: any, batchConfig: BatchConfig) {
+export function avg(
+    input: unknown, _parentContext: unknown, batchConfig: BatchConfig
+): any[]|null {
     const config = validateConfig(batchConfig);
     if (ts.isNil(input)) return null;
 
@@ -198,7 +204,9 @@ function _avg(input: number[]) {
     return _sum(input) / input.length;
 }
 
-export function min(input: any, _parentContext: any, batchConfig: BatchConfig) {
+export function min(
+    input: unknown, _parentContext: unknown, batchConfig: BatchConfig
+): any[]|null {
     const config = validateConfig(batchConfig);
     if (ts.isNil(input)) return null;
 
@@ -206,7 +214,9 @@ export function min(input: any, _parentContext: any, batchConfig: BatchConfig) {
     return _iterateBatch(batchData, (num: number[]) => Math.min.apply(null, num));
 }
 
-export function max(input: any, _parentContext: any, batchConfig: BatchConfig) {
+export function max(
+    input: unknown, _parentContext: unknown, batchConfig: BatchConfig
+): any[]|null {
     const config = validateConfig(batchConfig);
     if (ts.isNil(input)) return null;
 
