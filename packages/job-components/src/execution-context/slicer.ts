@@ -4,10 +4,10 @@ import {
     ExecutionStats,
     Slice,
     SliceResult,
-    SlicerRecoveryData
+    SlicerRecoveryData,
 } from '../interfaces';
 import SlicerCore from '../operations/core/slicer-core';
-import { ExecutionContextConfig } from './interfaces';
+import { ExecutionContextConfig, JobAPIInstances } from './interfaces';
 import BaseExecutionContext from './base';
 
 /**
@@ -31,8 +31,20 @@ export class SlicerExecutionContext
         this._methodRegistry.set('onSliceEnqueued', new Set());
         this._methodRegistry.set('onExecutionStats', new Set());
 
+        // then register the apis specified in config.apis
+        for (const apiConfig of this.config.apis || []) {
+            const name = apiConfig._name;
+            const apiMod = this._loader.loadAPI(name, this.assetIds);
+
+            this.api.addToRegistry(name, apiMod.API);
+        }
+
         const readerConfig = this.config.operations[0];
         const mod = this._loader.loadReader(readerConfig._op, this.assetIds);
+
+        if (mod.API) {
+            this.api.addToRegistry(readerConfig._op, mod.API);
+        }
 
         const op = new mod.Slicer(this.context, cloneDeep(readerConfig), this.config);
         this._slicer = op;
@@ -45,8 +57,22 @@ export class SlicerExecutionContext
      * Called during execution initialization
      * @param recoveryData is the data to recover from
      */
-    async initialize(recoveryData?: SlicerRecoveryData[]) {
+    async initialize(recoveryData?: SlicerRecoveryData[]): Promise<void> {
+        // make sure we autoload the apis before we initialize the processors
+        const promises: Promise<any>[] = [];
+        for (const { _name: name } of this.config.apis || []) {
+            const api = this.apis[name];
+            if (api.type === 'api') {
+                promises.push(this.api.initAPI(name));
+            }
+        }
+        await Promise.all(promises);
+
         return super.initialize(recoveryData);
+    }
+
+    get apis(): JobAPIInstances {
+        return this.api.apis;
     }
 
     /** The instance of a "Slicer" */
@@ -54,19 +80,19 @@ export class SlicerExecutionContext
         return this._slicer as T;
     }
 
-    onExecutionStats(stats: ExecutionStats) {
+    onExecutionStats(stats: ExecutionStats): void {
         this._runMethod('onExecutionStats', stats);
     }
 
-    onSliceEnqueued(slice: Slice) {
+    onSliceEnqueued(slice: Slice): void {
         this._runMethod('onSliceEnqueued', slice);
     }
 
-    onSliceDispatch(slice: Slice) {
+    onSliceDispatch(slice: Slice): void {
         this._runMethod('onSliceDispatch', slice);
     }
 
-    onSliceComplete(result: SliceResult) {
+    onSliceComplete(result: SliceResult): void {
         this._runMethod('onSliceComplete', result);
     }
 }

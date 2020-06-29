@@ -2,6 +2,7 @@ import Core from './core';
 import {
     ExecutionConfig,
     WorkerOperationLifeCycle,
+    SlicerOperationLifeCycle,
     WorkerContext,
     APIConfig
 } from '../../interfaces';
@@ -12,7 +13,7 @@ import { makeExContextLogger } from '../../utils';
  */
 export default abstract class APICore<T = APIConfig>
     extends Core<WorkerContext>
-    implements WorkerOperationLifeCycle {
+    implements WorkerOperationLifeCycle, SlicerOperationLifeCycle {
     // ...
     readonly apiConfig: Readonly<APIConfig & T>;
 
