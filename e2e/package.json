@@ -32,7 +32,7 @@
         "ms": "^2.1.2"
     },
     "devDependencies": {
-        "bunyan": "^1.8.12",
+        "bunyan": "^1.8.14",
         "elasticsearch": "^15.4.1",
         "fs-extra": "^9.0.1",
         "ms": "^2.1.2",
