@@ -1,6 +1,11 @@
 import * as ts from '@terascope/utils';
 import {
-    ExecutionContextConfig, RunSliceResult, WorkerSliceState, WorkerStatus, SliceStatus
+    ExecutionContextConfig,
+    RunSliceResult,
+    WorkerSliceState,
+    WorkerStatus,
+    SliceStatus,
+    JobAPIInstances
 } from './interfaces';
 import {
     WorkerOperationLifeCycle, Slice, sliceAnalyticsMetrics, SliceAnalyticsData
@@ -115,7 +120,7 @@ export class WorkerExecutionContext
         }
     }
 
-    async initialize() {
+    async initialize(): Promise<void> {
         // make sure we autoload the apis before we initialize the processors
         const promises: Promise<any>[] = [];
         for (const { _name: name } of this.config.apis || []) {
@@ -130,7 +135,7 @@ export class WorkerExecutionContext
         this.status = 'idle';
     }
 
-    async shutdown() {
+    async shutdown(): Promise<void> {
         await super.shutdown();
         this.status = 'shutdown';
     }
@@ -166,7 +171,7 @@ export class WorkerExecutionContext
         return this._fetcher as T;
     }
 
-    get apis() {
+    get apis(): JobAPIInstances {
         return this.api.apis;
     }
 
@@ -176,7 +181,7 @@ export class WorkerExecutionContext
         return jobObserver;
     }
 
-    async initializeSlice(slice: Slice) {
+    async initializeSlice(slice: Slice): Promise<void> {
         const currentSliceId = this._sliceId;
         if (this.status !== 'flushing') {
             this.status = 'running';
@@ -271,44 +276,44 @@ export class WorkerExecutionContext
         return ['started', 'starting'].includes(this.sliceState.status);
     }
 
-    async onFlushStart() {
+    async onFlushStart(): Promise<void> {
         this.status = 'flushing';
         this.events.emit('slice:flush:start', this._slice);
         await this._runMethodAsync('onFlushStart');
     }
 
-    async onFlushEnd() {
+    async onFlushEnd(): Promise<void> {
         this.events.emit('slice:flush:end', this._slice);
         await this._runMethodAsync('onFlushEnd');
     }
 
-    async onSliceInitialized() {
+    async onSliceInitialized(): Promise<void> {
         this.events.emit('slice:initialize', this._slice);
         await this._runMethodAsync('onSliceInitialized', this._sliceId);
     }
 
-    async onSliceStarted() {
+    async onSliceStarted(): Promise<void> {
         this._updateSliceState('started');
         await this._runMethodAsync('onSliceStarted', this._sliceId);
     }
 
-    async onSliceFinalizing() {
+    async onSliceFinalizing(): Promise<void> {
         this.events.emit('slice:finalize', this._slice);
         await this._runMethodAsync('onSliceFinalizing', this._sliceId);
     }
 
-    async onSliceFinished() {
+    async onSliceFinished(): Promise<void> {
         this.status = 'idle';
         await this._runMethodAsync('onSliceFinished', this._sliceId);
     }
 
-    async onSliceFailed() {
+    async onSliceFailed(): Promise<void> {
         this._updateSliceState('failed');
         this.events.emit('slice:failure', this._slice);
         await this._runMethodAsync('onSliceFailed', this._sliceId);
     }
 
-    async onSliceRetry() {
+    async onSliceRetry(): Promise<void> {
         this.events.emit('slice:retry', this._slice);
         await this._runMethodAsync('onSliceRetry', this._sliceId);
     }

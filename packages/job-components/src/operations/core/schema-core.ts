@@ -14,7 +14,7 @@ export default abstract class SchemaCore<T> {
     }
 
     abstract build(context?: Context): any;
-    abstract validate(inputConfig: any): OpConfig & T;
+    abstract validate(inputConfig: Record<string, any>): OpConfig & T;
     abstract validateJob?(job: ValidatedJobConfig): void;
 }
 

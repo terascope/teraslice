@@ -93,7 +93,7 @@ export default class OperationCore<T = OpConfig>
      * @param fn a function to transform the data with
      * @returns null
      */
-    rejectRecord(input: any, err: Error): never | null {
+    rejectRecord(input: unknown, err: Error): never | null {
         if (this.deadLetterAction === 'throw' || !this.deadLetterAction) {
             throw err;
         }
