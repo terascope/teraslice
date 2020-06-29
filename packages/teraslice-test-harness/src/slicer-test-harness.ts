@@ -10,6 +10,7 @@ import {
     SlicerRecoveryData,
     times,
     isPlainObject,
+    APICore
 } from '@terascope/job-components';
 import BaseTestHarness from './base-test-harness';
 import { JobHarnessOptions } from './interfaces';
@@ -165,6 +166,14 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
 
     onSliceComplete(result: SliceResult): void {
         this.executionContext.onSliceComplete(result);
+    }
+
+    get apis(): SlicerExecutionContext['apis'] {
+        return this.executionContext.apis;
+    }
+
+    getOperationAPI<T extends APICore = APICore>(apiName: string): T {
+        return this.executionContext.api.getAPI<T>(apiName);
     }
 
     /**
