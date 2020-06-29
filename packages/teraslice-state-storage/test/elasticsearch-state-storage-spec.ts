@@ -401,8 +401,6 @@ describe('elasticsearch-state-storage', () => {
     });
 
     describe('-> mget when testing a large data set', () => {
-        jest.setTimeout(15000);
-
         beforeEach(() => setup());
         afterEach(() => teardown());
 
@@ -442,7 +440,9 @@ describe('elasticsearch-state-storage', () => {
 
             // check an unfound doc
             expect(mgetResult['key-2381']).toBeUndefined();
-        });
+
+        // add a larger timeout
+        }, 25 * 1000);
     });
 });
 
