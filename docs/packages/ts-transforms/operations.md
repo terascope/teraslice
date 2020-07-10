@@ -681,7 +681,6 @@ Checks to see if this is a valid phone number, it must include the country code 
 - no additional parameters
 
 ### contains
-@deprecated, use decodeHex
 
 check if the string contains what is specified in the param `value`.
 
@@ -711,28 +710,27 @@ check if the string contains what is specified in the param `value`.
 ```
 
 ### equals
-@deprecated, use decodeHex
 
 check if the string equals what is specified in the param `value`.
 
 - value: `String`(required) = the value which is used to check the string
 
 ### alpha
-@deprecated, use decodeHex
+@deprecated, use isAlpha
 
 check if the string contains only letters (a-zA-Z)
 
 - value: `String`(optional) = defines which locale to use, defaults to `en-US`. Available locals: ['ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA']
 
 ### alphanumeric
-@deprecated, use decodeHex
+@deprecated, use isAlphanumeric
 
 check if the string contains only letters and numbers.
 
 - value: `String`(optional) = defines which locale to use, defaults to `en-US`. Available locals: ['ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA']
 
 ### ascii
-@deprecated, use decodeHex
+@deprecated, use isASCII
 
 check if the string contains ASCII chars only.
 
@@ -793,7 +791,6 @@ check if the string represents a decimal number, such as 0.1, .3, 1.1, 1.00003, 
 - locale: `String`(optional) = defines which locale to use, defaults to `en-US`. Available locals: ['ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA']
 
 ### divisibleby
-@deprecated, use decodeHex
 
 check if the string is a number that's divisible by whats provided in the param `value`.
 
@@ -807,7 +804,7 @@ check if the string has a length of zero.
 - ignore_whitespace: `Boolean`(optional) = defaults to false
 
 ### fqdn
-@deprecated, use decodeHex
+@deprecated, use isFQDN
 
 check if the string is a fully qualified domain name (e.g. domain.com).
 
