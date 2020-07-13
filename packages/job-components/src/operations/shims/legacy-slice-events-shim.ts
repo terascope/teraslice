@@ -6,7 +6,7 @@ interface SliceOperation extends WorkerOperationLifeCycle {
     shutdown(): Promise<void>;
 }
 
-export default function legacySliceEventsShim(op: SliceOperation) {
+export default function legacySliceEventsShim(op: SliceOperation): void {
     op.events.once('worker:shutdown', async () => {
         await op.shutdown();
     });

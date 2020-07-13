@@ -21,9 +21,9 @@ import { resolveAssetDir } from './utils';
  * @todo Add support for validating the asset.json?
 */
 export default class BaseTestHarness<U extends ExecutionContext> {
-    events: EventEmitter;
-    protected executionContext: U;
-    protected context: TestContext;
+    readonly events: EventEmitter;
+    readonly executionContext: U;
+    readonly context: TestContext;
 
     constructor(job: JobConfig, options: JobHarnessOptions, assignment: Assignment) {
         const testName = [assignment, job.name].filter((s) => s).join(':');
@@ -41,17 +41,17 @@ export default class BaseTestHarness<U extends ExecutionContext> {
     /**
      * Initialize any test cod
     */
-    async initialize() {
+    async initialize(): Promise<void> {
     }
 
-    setClients(clients: TestClientConfig[]) {
+    setClients(clients: TestClientConfig[]): void {
         this.context.apis.setTestClients(clients);
     }
 
     /**
      * Cleanup test code
     */
-    async shutdown() {
+    async shutdown(): Promise<void> {
         this.events.removeAllListeners();
     }
 

@@ -1,7 +1,7 @@
 import { get, Logger } from '@terascope/utils';
 import { Context, ExecutionConfig } from './interfaces';
 
-export function makeContextLogger(context: Context, moduleName: string, extra = {}) {
+export function makeContextLogger(context: Context, moduleName: string, extra = {}): Logger {
     return context.apis.foundation.makeLogger(
         Object.assign(
             {

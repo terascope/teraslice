@@ -40,7 +40,7 @@ export default function processorShim<S = any>(legacy: LegacyProcessor): Process
             }
         },
         Schema: class LegacySchemaShim extends ConvictSchema<S> {
-            validate(inputConfig: unknown): any {
+            validate(inputConfig: Record<string, any>): any {
                 const opConfig = super.validate(inputConfig);
                 if (legacy.selfValidation) {
                     // @ts-expect-error

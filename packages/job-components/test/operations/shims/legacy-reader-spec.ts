@@ -32,7 +32,7 @@ describe('Legacy Reader Shim', () => {
             };
         }
 
-        async shutdown() {
+        async shutdown(): Promise<void> {
             slicerShutdown();
         }
     }

@@ -3,7 +3,7 @@ import { DelayConfig } from './interfaces';
 import { BatchProcessor } from '../../operations';
 
 export default class Delay extends BatchProcessor<DelayConfig> {
-    async onBatch(data: DataEntity[]) {
+    async onBatch(data: DataEntity[]): Promise<DataEntity[]> {
         await pDelay(this.opConfig.ms);
         return data;
     }

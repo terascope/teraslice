@@ -1,28 +1,28 @@
-import { OperationAPI } from '../../../src';
+import { OperationAPI, AnyObject } from '../../../src';
 
 export default class ExampleAPI extends OperationAPI {
     _initialized = false;
     _shutdown = false;
 
-    async initialize() {
+    async initialize(): Promise<void> {
         this._initialized = true;
         return super.initialize();
     }
 
-    async shutdown() {
+    async shutdown(): Promise<void> {
         this._shutdown = true;
         return super.shutdown();
     }
 
-    async createAPI() {
+    async createAPI(): Promise<AnyObject> {
         return {};
     }
 
-    name() {
+    name(): string {
         return 'ExampleAPI';
     }
 
-    async handle(config: any) {
+    async handle(config: unknown): Promise<any> {
         return {
             config,
             say() {

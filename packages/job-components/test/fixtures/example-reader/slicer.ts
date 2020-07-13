@@ -5,17 +5,17 @@ export default class ExampleSlicer extends Slicer {
     _initialized = false;
     _shutdown = false;
 
-    async initialize(recoveryData: SlicerRecoveryData[]) {
+    async initialize(recoveryData: SlicerRecoveryData[]): Promise<void> {
         this._initialized = true;
         return super.initialize(recoveryData);
     }
 
-    async shutdown() {
+    async shutdown(): Promise<void> {
         this._shutdown = true;
         return super.shutdown();
     }
 
-    async slice() {
+    async slice(): Promise<{ id: string; fetchFrom: string }> {
         return {
             id: uuidv4(),
             fetchFrom: 'https://httpstat.us/200',

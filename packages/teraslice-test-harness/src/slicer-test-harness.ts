@@ -10,7 +10,8 @@ import {
     SlicerRecoveryData,
     times,
     isPlainObject,
-    APICore
+    APICore,
+    OpAPI
 } from '@terascope/job-components';
 import BaseTestHarness from './base-test-harness';
 import { JobHarnessOptions } from './interfaces';
@@ -86,12 +87,6 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
     async createSlices(options: { fullResponse: false }): Promise<(SliceRequest|null)[]>;
     async createSlices(options: { fullResponse: true }): Promise<(Slice|null)[]>;
     async createSlices({ fullResponse = false } = {}): Promise<(SliceRequest|Slice|null)[]> {
-        if (this.executionContext.config.lifecycle === 'persistent') {
-            throw new Error(
-                'SlicerTestHarness->createSlices must be ran with once lifecycle'
-            );
-        }
-
         const slicers = this.slicer().slicers();
 
         await this.slicer().handle();
@@ -136,9 +131,10 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
     async getAllSlices(options: { fullResponse: false }): Promise<(Slice|null)[]>;
     async getAllSlices(options: { fullResponse: true }): Promise<(SliceRequest|null)[]>;
     async getAllSlices({ fullResponse = false } = {}): Promise<SliceResults> {
-        if (this.executionContext.config.lifecycle !== 'once') throw new Error('This method can only be used when lifecycle is set to "once"');
+        if (this.executionContext.config.lifecycle !== 'once') {
+            throw new Error('This method can only be used when lifecycle is set to "once"');
+        }
         const results: (SliceRequest|Slice|null)[] = [];
-        this.context.logger.info('before while');
 
         const run = async (): Promise<void> => {
             let sliceResults: SliceResults;
@@ -178,8 +174,23 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
         return this.executionContext.apis;
     }
 
-    getOperationAPI<T extends APICore = APICore>(apiName: string): T {
-        return this.executionContext.api.getAPI<T>(apiName);
+    /**
+     * Get the reference to a created API that a operation will use.
+     * This is different than getOperationAPI which the OperationAPI class instance
+    */
+    getAPI<T extends OpAPI = any>(name: string): T {
+        return this.executionContext.api.getAPI<T>(name);
+    }
+
+    /**
+     * Get the instantiated OperationAPI class instance from the apis. If you are looking
+     * for the APIs that created during run time, use getAPI.
+    */
+    getOperationAPI<T extends APICore = APICore>(name: string): T {
+        if (!this.apis[name]?.instance) {
+            throw new Error(`Operation API "${name}" not found`);
+        }
+        return this.apis[name].instance as T;
     }
 
     /**

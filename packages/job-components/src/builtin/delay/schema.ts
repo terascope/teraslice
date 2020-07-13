@@ -2,7 +2,7 @@ import { DelayConfig } from './interfaces';
 import { ConvictSchema } from '../../operations';
 
 export default class Schema extends ConvictSchema<DelayConfig> {
-    build() {
+    build(): Record<string, any> {
         return {
             ms: {
                 default: 100,

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { parseJSON, fastCloneDeep } from '@terascope/utils';
+import { parseJSON, fastCloneDeep, DataEntity } from '@terascope/utils';
 import { TestReaderConfig } from './interfaces';
 import { Fetcher } from '../../operations';
 import { SliceRequest } from '../../interfaces';
@@ -10,21 +10,21 @@ export default class TestFetcher extends Fetcher<TestReaderConfig> {
     cachedData: Buffer|null = null;
     lastFilePath = '';
 
-    async initialize() {
+    async initialize(): Promise<void> {
         super.initialize();
     }
 
-    async fetch(slice?: SliceRequest[]) {
+    async fetch(slice?: SliceRequest[]): Promise<DataEntity[]> {
         if (this.opConfig.passthrough_slice) {
             if (!Array.isArray(slice)) {
                 throw new Error('Test, when passthrough_slice is set to true it expects an array');
             }
-            return slice;
+            return slice as any[];
         }
 
         const filePath = this.opConfig.fetcher_data_file_path;
         if (!filePath) {
-            return fastCloneDeep(defaultData);
+            return fastCloneDeep(defaultData) as any[];
         }
 
         if (this.lastFilePath !== filePath) {

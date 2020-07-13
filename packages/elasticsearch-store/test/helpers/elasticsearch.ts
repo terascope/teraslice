@@ -13,7 +13,9 @@ export function makeClient(): Client {
     });
 }
 
-export async function cleanupIndex(client: Client, index: string, template?: string) {
+export async function cleanupIndex(
+    client: Client, index: string, template?: string
+): Promise<void> {
     await client.indices
         .delete({
             index,
@@ -31,7 +33,9 @@ export async function cleanupIndex(client: Client, index: string, template?: str
     }
 }
 
-export function cleanupIndexStore(store: IndexStore<any>) {
+export function cleanupIndexStore(
+    store: IndexStore<any>
+): Promise<void> {
     const { client, indexQuery } = store;
 
     return cleanupIndex(client, indexQuery);

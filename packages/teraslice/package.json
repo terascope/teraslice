@@ -38,7 +38,7 @@
     },
     "dependencies": {
         "@terascope/elasticsearch-api": "^2.10.1",
-        "@terascope/job-components": "^0.37.0",
+        "@terascope/job-components": "^0.37.1",
         "@terascope/teraslice-messaging": "^0.12.1",
         "@terascope/utils": "^0.28.1",
         "async-mutex": "^0.2.4",
@@ -66,7 +66,7 @@
         "uuid": "^8.2.0"
     },
     "devDependencies": {
-        "@terascope/teraslice-op-test-harness": "^1.21.0",
+        "@terascope/teraslice-op-test-harness": "^1.21.1",
         "archiver": "^4.0.2",
         "bufferstreams": "^3.0.0",
         "chance": "^1.1.6",
