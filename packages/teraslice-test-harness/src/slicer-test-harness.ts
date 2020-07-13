@@ -86,6 +86,12 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
     async createSlices(options: { fullResponse: false }): Promise<(SliceRequest|null)[]>;
     async createSlices(options: { fullResponse: true }): Promise<(Slice|null)[]>;
     async createSlices({ fullResponse = false } = {}): Promise<(SliceRequest|Slice|null)[]> {
+        if (this.executionContext.config.lifecycle === 'persistent') {
+            throw new Error(
+                'SlicerTestHarness->createSlices must be ran with once lifecycle'
+            );
+        }
+
         const slicers = this.slicer().slicers();
 
         await this.slicer().handle();
