@@ -1,5 +1,7 @@
 import semver, { ReleaseType } from 'semver';
-import { get, chunk } from '@terascope/utils';
+import {
+    get, chunk, isEmpty, joinList
+} from '@terascope/utils';
 import { BumpPackageOptions, BumpPkgInfo, BumpType } from './interfaces';
 import { isMainPackage, findPackageByName, getRemotePackageVersion } from '../packages';
 import { PackageInfo } from '../interfaces';
@@ -9,6 +11,10 @@ export async function getPackagesToBump(
     packages: PackageInfo[],
     options: BumpPackageOptions
 ): Promise<Record<string, BumpPkgInfo>> {
+    if (!options.packages.length) {
+        throw new Error('Missing packages to bump');
+    }
+
     const result: Record<string, BumpPkgInfo> = {};
 
     for (const pkgInfo of options.packages) {
@@ -54,7 +60,10 @@ export async function getPackagesToBump(
     }
 
     async function _bumpPackage(pkgInfo: PackageInfo) {
-        if (pkgInfo.private) return;
+        if (
+            pkgInfo.private
+            && !pkgInfo.terascope?.allowBumpWhenPrivate
+        ) return;
 
         await _resetVersion(pkgInfo);
 
@@ -73,6 +82,10 @@ export async function getPackagesToBump(
     async function _resetVersion(pkgInfo: PackageInfo) {
         if (options.noReset) return;
         if (get(pkgInfo, 'terascope.root', false)) return;
+        if (
+            pkgInfo.private
+            && pkgInfo.terascope?.allowBumpWhenPrivate
+        ) return;
 
         const remote = await getRemotePackageVersion(pkgInfo);
         if (remote !== '0.1.0' && pkgInfo.version !== remote) {
@@ -81,6 +94,11 @@ export async function getPackagesToBump(
         }
     }
 
+    if (isEmpty(result)) {
+        throw new Error(`Unable to bump packages: ${joinList(
+            options.packages.map(({ name }) => name), ',', 'or'
+        )}`);
+    }
     return result;
 }
 
