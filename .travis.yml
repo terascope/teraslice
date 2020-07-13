@@ -26,7 +26,7 @@ jobs:
     - stage: "Verify"
       name: 'Verify Build (node 10)'
       # use node 10 to make sure we don't lose compatibility
-      node_js: '10.19'
+      node_js: '10.21'
       # run on any pull_request
       if: branch = master AND type IN (pull_request)
       # only cache on verify build
@@ -42,7 +42,7 @@ jobs:
     - stage: "Tests"
       name: 'Unit Test Suite (node 10)'
       # use node 10 to make sure we don't lose compatibility
-      node_js: '10.19'
+      node_js: '10.21'
       # run only on pull-requests or cron
       if: branch = master AND type IN (pull_request, cron)
       script: yarn --silent test --suite unit-a
