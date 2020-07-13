@@ -209,7 +209,7 @@ export default class IndexStore<T extends ts.AnyObject> {
     /**
      * Connect and validate the index configuration.
      */
-    async initialize() {
+    async initialize(): Promise<void> {
         await this.manager.indexSetup(this.config);
 
         const ms = Math.round(this._bulkMaxWait / 2);
@@ -297,7 +297,7 @@ export default class IndexStore<T extends ts.AnyObject> {
     /**
      * Shutdown, flush any pending requests and cleanup
      */
-    async shutdown() {
+    async shutdown(): Promise<void> {
         if (this._interval != null) {
             clearInterval(this._interval);
         }

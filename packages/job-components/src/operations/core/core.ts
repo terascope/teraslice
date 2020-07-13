@@ -19,7 +19,7 @@ export default abstract class Core<T extends Context> implements OperationLifeCy
         this.events = context.apis.foundation.getSystemEvents();
     }
 
-    abstract async initialize(initConfig?: any): Promise<void>;
+    abstract async initialize(initConfig?: unknown): Promise<void>;
 
     abstract async shutdown(): Promise<void>;
 }

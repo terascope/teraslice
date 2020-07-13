@@ -7,10 +7,10 @@ export function getMetric(input: number[], i: number): number {
     return 0;
 }
 
-export function isOperationAPI(api: any): api is OperationAPI {
-    return api && isFunction(api.createAPI);
+export function isOperationAPI(api: unknown): api is OperationAPI {
+    return api && typeof api === 'object' && isFunction((api as any).createAPI);
 }
 
-export function getOperationAPIType(api: any): OperationAPIType {
+export function getOperationAPIType(api: unknown): OperationAPIType {
     return isOperationAPI(api) ? 'api' : 'observer';
 }

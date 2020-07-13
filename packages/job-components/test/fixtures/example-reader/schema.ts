@@ -1,14 +1,14 @@
 import { ConvictSchema, ValidatedJobConfig } from '../../../src';
 
 export default class Schema extends ConvictSchema<any, any> {
-    validateJob(job: ValidatedJobConfig) {
+    validateJob(job: ValidatedJobConfig): void {
         const shouldFail = job.operations.find((op) => op.failCrossValidation);
         if (shouldFail) {
             throw new Error('Failing job validation');
         }
     }
 
-    build() {
+    build(): Record<string, any> {
         return {
             example: {
                 default: 'examples are quick and easy',

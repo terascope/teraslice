@@ -21,9 +21,9 @@ export default abstract class ConvictSchema<T extends Record<string, any>, S = a
         this.schema = this.build(context);
     }
 
-    validate(inputConfig: any): APIConfig & T;
-    validate(inputConfig: any): OpConfig & T;
-    validate(inputConfig: any): OpConfig|APIConfig & T {
+    validate(inputConfig: Record<string, any>): APIConfig & T;
+    validate(inputConfig: Record<string, any>): OpConfig & T;
+    validate(inputConfig: Record<string, any>): OpConfig|APIConfig & T {
         if (this.opType === 'api') {
             return validateAPIConfig(this.schema, inputConfig);
         }
@@ -31,11 +31,11 @@ export default abstract class ConvictSchema<T extends Record<string, any>, S = a
         return validateOpConfig(this.schema, inputConfig);
     }
 
-    validateJob(_job: ValidatedJobConfig) {
+    validateJob(_job: ValidatedJobConfig): void {
 
     }
 
-    static type() {
+    static type(): string {
         return 'convict';
     }
 

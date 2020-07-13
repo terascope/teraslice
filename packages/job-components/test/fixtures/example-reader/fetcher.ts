@@ -1,20 +1,20 @@
-import { Fetcher } from '../../../src';
+import { Fetcher, DataEntity } from '../../../src';
 
 export default class ExampleFetcher extends Fetcher {
     _initialized = false;
     _shutdown = false;
 
-    async initialize() {
+    async initialize(): Promise<void> {
         this._initialized = true;
         return super.initialize();
     }
 
-    async shutdown() {
+    async shutdown(): Promise<void> {
         this._shutdown = true;
         return super.shutdown();
     }
 
-    async fetch() {
+    async fetch(): Promise<DataEntity[]> {
         const result = [];
         for (let i = 0; i < 10; i++) {
             result.push({
@@ -22,6 +22,6 @@ export default class ExampleFetcher extends Fetcher {
                 data: [Math.random(), Math.random(), Math.random()],
             });
         }
-        return result;
+        return result as any[];
     }
 }

@@ -145,7 +145,7 @@ export class Server extends Core {
         );
     }
 
-    async shutdown() {
+    async shutdown(): Promise<void> {
         this.isShuttingDown = true;
 
         if (this._cleanupClients != null) {

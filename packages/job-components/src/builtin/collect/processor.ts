@@ -11,13 +11,13 @@ export default class Collect extends BatchProcessor<CollectConfig> {
         this.collector = new Collector(opConfig);
     }
 
-    async onBatch(batch: DataEntity[]) {
+    async onBatch(batch: DataEntity[]): Promise<DataEntity[]> {
         this.collector.add(batch);
 
         return this.collector.getBatch() || [];
     }
 
-    async shutdown() {
+    async shutdown(): Promise<void> {
         await super.shutdown();
         const len = this.collector.flushAll().length;
 

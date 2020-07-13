@@ -2,7 +2,7 @@ import { CollectConfig } from './interfaces';
 import { ConvictSchema } from '../../operations';
 
 export default class Schema extends ConvictSchema<CollectConfig> {
-    build() {
+    build(): Record<string, any> {
         return {
             size: {
                 default: null,

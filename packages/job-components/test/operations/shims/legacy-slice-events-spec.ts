@@ -22,7 +22,7 @@ describe('Legacy Slice Events Shim', () => {
     class ExampleOp<T = Record<string, any>> extends EachProcessor<T> {
         forEach(_data: DataEntity) {}
 
-        async shutdown() {
+        async shutdown(): Promise<void> {
             workerShutdown();
         }
 

@@ -37,7 +37,7 @@ export default class JobObserver extends Observer {
         this._currentIndex = -1;
     }
 
-    async onSliceInitialized(sliceId: string) {
+    async onSliceInitialized(sliceId: string): Promise<void> {
         this._currentSliceId = sliceId;
         this._currentIndex = 0;
 
@@ -48,7 +48,7 @@ export default class JobObserver extends Observer {
         this._initialized = null;
     }
 
-    onOperationStart(sliceId: string, index: number) {
+    onOperationStart(sliceId: string, index: number): void {
         this._currentSliceId = sliceId;
         this._currentIndex = index;
 
@@ -60,7 +60,7 @@ export default class JobObserver extends Observer {
         };
     }
 
-    onOperationComplete(sliceId: string, index: number, processed: number) {
+    onOperationComplete(sliceId: string, index: number, processed: number): void {
         if (!this.collectAnalytics) return;
         if (this._initialized == null || !this.analyticsData) return;
 
@@ -75,7 +75,7 @@ export default class JobObserver extends Observer {
         this._initialized = null;
     }
 
-    getAnalytics() {
+    getAnalytics(): SliceAnalyticsData|undefined {
         if (!this.analyticsData) return;
 
         const { time, memory, size } = this.analyticsData;

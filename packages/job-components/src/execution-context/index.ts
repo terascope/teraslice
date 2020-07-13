@@ -17,14 +17,15 @@ export function isSlicerContext(context: Context): context is WorkerContext {
     return context.assignment === 'execution_controller';
 }
 
-export function isWorkerExecutionContext(context: any): context is WorkerExecutionContext {
+export function isWorkerExecutionContext(context: unknown): context is WorkerExecutionContext {
     return context instanceof WorkerExecutionContext;
 }
 
-export function isSlicerExecutionContext(context: any): context is SlicerExecutionContext {
+export function isSlicerExecutionContext(context: unknown): context is SlicerExecutionContext {
     return context instanceof SlicerExecutionContext;
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function makeExecutionContext(config: ExecutionContextConfig) {
     if (isSlicerContext(config.context)) {
         return new SlicerExecutionContext(config);

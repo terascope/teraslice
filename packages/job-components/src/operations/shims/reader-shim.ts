@@ -95,7 +95,7 @@ export default function readerShim<S = any>(legacy: LegacyReader): ReaderModule 
             }
         },
         Schema: class LegacySchemaShim extends ConvictSchema<S> {
-            validate(inputConfig: unknown): any {
+            validate(inputConfig: Record<string, any>): any {
                 const opConfig = super.validate(inputConfig);
                 if (legacy.selfValidation) {
                     // @ts-expect-error

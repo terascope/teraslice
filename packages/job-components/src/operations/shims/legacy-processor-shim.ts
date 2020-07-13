@@ -16,7 +16,7 @@ import ConvictSchema from '../convict-schema';
 // but it should allow you to write processors using the new way today
 
 export default function legacyProcessorShim(
-    Processor: any,
+    Processor: unknown,
     Schema: SchemaConstructor,
     apis?: APIs
 ): LegacyProcessor {
@@ -48,7 +48,9 @@ export default function legacyProcessorShim(
             }
         },
         async newProcessor(context, opConfig, executionConfig): Promise<ProcessorFn<DataInput[]>> {
-            const processor = new Processor(context as WorkerContext, opConfig, executionConfig);
+            const processor = new (Processor as any)(
+                context as WorkerContext, opConfig, executionConfig
+            );
             await processor.initialize();
 
             legacySliceEventsShim(processor);

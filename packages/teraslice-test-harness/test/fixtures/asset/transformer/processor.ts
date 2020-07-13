@@ -3,7 +3,7 @@ import { SimpleAPI } from '../simple-api/interfaces';
 import { TransformerConfig } from './interfaces';
 
 export default class Transformer extends MapProcessor<TransformerConfig> {
-    map(data: DataEntity) {
+    map(data: DataEntity): DataEntity {
         const api = this.simpleAPI();
         if (api != null) {
             api.sub();
@@ -25,7 +25,7 @@ export default class Transformer extends MapProcessor<TransformerConfig> {
         return data;
     }
 
-    simpleAPI() {
+    simpleAPI(): SimpleAPI|null {
         try {
             return this.getAPI('simple-api') as SimpleAPI;
         } catch (err) {

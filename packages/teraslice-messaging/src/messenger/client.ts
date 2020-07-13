@@ -289,7 +289,7 @@ export class Client extends Core {
         return !this.serverShutdown && this.ready;
     }
 
-    async shutdown() {
+    async shutdown(): Promise<void> {
         if (this.isClientReady()) {
             try {
                 await this.send(

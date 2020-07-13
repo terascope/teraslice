@@ -1,7 +1,9 @@
-import { Fetcher, SliceRequest, AnyObject } from '@terascope/job-components';
+import {
+    Fetcher, SliceRequest, AnyObject, DataEntity
+} from '@terascope/job-components';
 
 export default class TestFetcher extends Fetcher<AnyObject> {
-    async fetch(request: SliceRequest) {
-        return request;
+    async fetch(request: SliceRequest): Promise<DataEntity[]> {
+        return request as DataEntity[];
     }
 }

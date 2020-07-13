@@ -22,7 +22,7 @@ describe('Legacy Processor Shim', () => {
     }
 
     class ExampleBatchProcessor extends BatchProcessor<ExampleOpConfig> {
-        async onBatch(data: DataEntity[]) {
+        async onBatch(data: DataEntity[]): Promise<DataEntity[]> {
             return data.map((d) => {
                 d.name = 'hello';
                 return d;
