@@ -10,7 +10,8 @@ import {
     SlicerRecoveryData,
     times,
     isPlainObject,
-    APICore
+    APICore,
+    OpAPI
 } from '@terascope/job-components';
 import BaseTestHarness from './base-test-harness';
 import { JobHarnessOptions } from './interfaces';
@@ -179,7 +180,16 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
     }
 
     /**
-     * Get the Operation API Class Instance from the apis
+     * Get the reference to a created API that a operation will use.
+     * This is different than getOperationAPI which the OperationAPI class instance
+    */
+    getAPI<T extends OpAPI = any>(name: string): T {
+        return this.executionContext.api.getAPI<T>(name);
+    }
+
+    /**
+     * Get the instantiated OperationAPI class instance from the apis. If you are looking
+     * for the APIs that created during run time, use getAPI.
     */
     getOperationAPI<T extends APICore = APICore>(name: string): T {
         if (!this.apis[name]?.instance) {

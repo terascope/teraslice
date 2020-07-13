@@ -100,9 +100,19 @@ describe('Example Asset', () => {
         });
 
         it('can get apis using getOperationAPI', async () => {
-            const api = harness.getOperationAPI<SimpleAPI>(apiName);
+            const api = harness.getOperationAPI<SimpleAPIClass>(apiName);
 
             expect(api).toBeInstanceOf(SimpleAPIClass);
+        });
+
+        it('can get apis using getAPI', async () => {
+            const api = harness.getAPI<SimpleAPI>(apiName);
+
+            expect(api).toMatchObject({
+                count: expect.any(Number),
+                add: expect.any(Function),
+                sub: expect.any(Function),
+            });
         });
     });
 
@@ -236,12 +246,6 @@ describe('Example Asset', () => {
                     expect(result.scale).toBe(6);
                 }
             }
-        });
-
-        it('can get apis using getOperationAPI', async () => {
-            const api = harness.getOperationAPI<SimpleAPI>(apiName);
-
-            expect(api).toBeInstanceOf(SimpleAPIClass);
         });
     });
 });
