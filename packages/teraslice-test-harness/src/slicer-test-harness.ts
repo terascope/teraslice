@@ -87,12 +87,6 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
     async createSlices(options: { fullResponse: false }): Promise<(SliceRequest|null)[]>;
     async createSlices(options: { fullResponse: true }): Promise<(Slice|null)[]>;
     async createSlices({ fullResponse = false } = {}): Promise<(SliceRequest|Slice|null)[]> {
-        if (this.executionContext.config.lifecycle === 'persistent') {
-            throw new Error(
-                'SlicerTestHarness->createSlices must be ran with once lifecycle'
-            );
-        }
-
         const slicers = this.slicer().slicers();
 
         await this.slicer().handle();
@@ -137,9 +131,10 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
     async getAllSlices(options: { fullResponse: false }): Promise<(Slice|null)[]>;
     async getAllSlices(options: { fullResponse: true }): Promise<(SliceRequest|null)[]>;
     async getAllSlices({ fullResponse = false } = {}): Promise<SliceResults> {
-        if (this.executionContext.config.lifecycle !== 'once') throw new Error('This method can only be used when lifecycle is set to "once"');
+        if (this.executionContext.config.lifecycle !== 'once') {
+            throw new Error('This method can only be used when lifecycle is set to "once"');
+        }
         const results: (SliceRequest|Slice|null)[] = [];
-        this.context.logger.info('before while');
 
         const run = async (): Promise<void> => {
             let sliceResults: SliceResults;

@@ -219,7 +219,7 @@ describe('SlicerTestHarness', () => {
 
         it('getAllSlices will throw if not in once mode', async () => {
             await makeTest(2, 'persistent');
-            await expect(slicerHarness.createSlices()).toReject();
+            await expect(slicerHarness.getAllSlices()).toReject();
         });
     });
 });
