@@ -1,7 +1,7 @@
 {
     "name": "@terascope/data-mate",
     "displayName": "Data-Mate",
-    "version": "0.11.2",
+    "version": "0.11.3",
     "description": "Library of data validations/transformations",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/data-mate#readme",
     "repository": {
@@ -31,7 +31,7 @@
         "@turf/clean-coords": "^6.0.1"
     },
     "dependencies": {
-        "@terascope/data-types": "^0.19.2",
+        "@terascope/data-types": "^0.19.3",
         "@terascope/types": "^0.4.0",
         "@terascope/utils": "^0.28.1",
         "@turf/bbox": "^6.0.1",
