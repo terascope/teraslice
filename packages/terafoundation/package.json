@@ -28,25 +28,25 @@
     },
     "dependencies": {
         "@terascope/utils": "^0.28.1",
-        "aws-sdk": "^2.689.0",
+        "aws-sdk": "^2.713.0",
         "bluebird": "^3.7.2",
         "bunyan": "^1.8.14",
         "convict": "^4.4.1",
         "elasticsearch": "^15.4.1",
         "js-yaml": "^3.14.0",
-        "mongoose": "~5.9.16",
+        "mongoose": "~5.9.23",
         "nanoid": "^3.1.10",
         "node-statsd": "0.1.1",
         "node-webhdfs": "^1.0.2",
         "redis": "^3.0.2",
-        "yargs": "^15.4.0"
+        "yargs": "^15.4.1"
     },
     "devDependencies": {
         "@types/bunyan": "^1.8.6",
         "@types/elasticsearch": "^5.0.35",
         "@types/js-yaml": "^3.12.2",
-        "@types/mongoose": "^5.7.21",
-        "@types/redis": "^2.8.22"
+        "@types/mongoose": "^5.7.31",
+        "@types/redis": "^2.8.25"
     },
     "publishConfig": {
         "access": "public",
