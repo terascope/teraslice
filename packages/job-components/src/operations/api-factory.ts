@@ -5,7 +5,11 @@ export default abstract class APIFactory<T, C> extends OperationAPI {
     protected readonly _registry: Map<string, T> = new Map();
     protected readonly _configRegistry: Map<string, C> = new Map();
 
-    abstract async create(name: string, config: C): Promise<{ client: T; config: C }>;
+    abstract async create(name: string, config: Partial<C>): Promise<{
+        client: T;
+        config: C;
+    }>;
+
     abstract async remove(name: string): Promise<void>;
 
     async createAPI(): Promise<APIFactoryRegistry<T, C>> {
@@ -18,8 +22,11 @@ export default abstract class APIFactory<T, C> extends OperationAPI {
             },
             get: (name: string) => registry.get(name),
             getConfig: (name: string) => configRegistry.get(name),
-            create: async (name: string, clientConfig: C) => {
-                // TODO it should throw if it already exists
+            create: async (name: string, clientConfig: Partial<C>) => {
+                if (registry.has(name)) {
+                    throw new Error(`API for "${name}" already exists`);
+                }
+
                 const { client, config } = await this.create(name, clientConfig);
                 registry.set(name, client);
                 configRegistry.set(name, config);
