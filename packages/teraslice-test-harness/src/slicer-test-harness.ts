@@ -178,8 +178,14 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
         return this.executionContext.apis;
     }
 
-    getOperationAPI<T extends APICore = APICore>(apiName: string): T {
-        return this.executionContext.api.getAPI<T>(apiName);
+    /**
+     * Get the Operation API Class Instance from the apis
+    */
+    getOperationAPI<T extends APICore = APICore>(name: string): T {
+        if (!this.apis[name]?.instance) {
+            throw new Error(`Operation API "${name}" not found`);
+        }
+        return this.apis[name].instance as T;
     }
 
     /**

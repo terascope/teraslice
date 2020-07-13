@@ -71,8 +71,14 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
         return this.executionContext.getOperation<T>(findBy);
     }
 
-    getOperationAPI<T extends APICore = APICore>(apiName: string): T {
-        return this.executionContext.api.getAPI<T>(apiName);
+    /**
+     * Get the Operation API Class Instance from the apis
+    */
+    getOperationAPI<T extends APICore = APICore>(name: string): T {
+        if (!this.apis[name]?.instance) {
+            throw new Error(`Operation API "${name}" not found`);
+        }
+        return this.apis[name].instance as T;
     }
 
     /**
@@ -143,13 +149,13 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
     async flush(): Promise<DataEntity[] | undefined>;
     async flush(options: { fullResponse: false }): Promise<DataEntity[] | undefined>;
     async flush(options: { fullResponse: true }): Promise<RunSliceResult | undefined>;
-    async flush({ fullResponse = false } = {}) {
+    async flush({ fullResponse = false } = {}): Promise<DataEntity[] | RunSliceResult | undefined> {
         const response = await this.executionContext.flush();
         if (response != null) {
             if (fullResponse) return response;
             return response.results;
         }
-        // its undefined here
+        // its undefined or null here
         return response;
     }
 
