@@ -26,7 +26,7 @@ function isNullObject(input: any): input is AnyObject {
  * Detect if value is a plain object, that is,
  * an object created by the Object constructor or one via Object.create(null)
 */
-export function isPlainObject(input: unknown): input is AnyObject {
+export function isPlainObject<T extends AnyObject>(input: unknown): boolean {
     if (input == null) return false;
     if (_isPlainObject(input)) return true;
     if (isNullObject(input)) return true;
