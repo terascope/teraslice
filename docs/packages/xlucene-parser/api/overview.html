@@ -1,0 +1,1161 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>xLucene Parser API Overview · Teraslice</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="## Index"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="xLucene Parser API Overview · Teraslice"/><meta property="og:type" content="website"/><meta property="og:url" content="https://terascope.github.io/teraslice/"/><meta property="og:description" content="## Index"/><meta property="og:image" content="https://terascope.github.io/teraslice/img/docusaurus.png"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://terascope.github.io/teraslice/img/docusaurus.png"/><link rel="shortcut icon" href="/teraslice/img/favicon.png"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css"/><link rel="stylesheet" href="/teraslice/css/copy-code-block.css"/><link rel="stylesheet" href="/teraslice/css/custom.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/teraslice/js/copy-code-block.js"></script><script src="/teraslice/js/scrollSpy.js"></script><link rel="stylesheet" href="/teraslice/css/main.css"/><script src="/teraslice/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/teraslice/"><img class="logo" src="/teraslice/img/logo.png" alt="Teraslice"/><h2 class="headerTitleWithLogo">Teraslice</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/teraslice/docs/overview" target="_self">Docs</a></li><li class=""><a href="/teraslice/docs/asset-bundles" target="_self">Assets</a></li><li class="siteNavGroupActive"><a href="/teraslice/docs/packages" target="_self">Packages</a></li><li class=""><a href="https://github.com/terascope/teraslice" target="_self">GitHub</a></li><li class=""><a href="/teraslice/help" target="_self">Help</a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>xlucene-parser</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Overview<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages">Overview</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Packages<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">data-types</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/data-types/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/data-types/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">data-mate</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/data-mate/overview">Data-Mate</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/data-mate/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">elasticsearch-store</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/elasticsearch-store/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/elasticsearch-store/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">elasticsearch-api</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/elasticsearch-api/overview">Overview</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">job-components</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/job-components/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/job-components/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">terafoundation</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/terafoundation/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/terafoundation/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">teraslice</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice/overview">Overview</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">teraslice-cli</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice-cli/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice-cli/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">teraslice-client-js</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice-client-js/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice-client-js/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">teraslice-test-harness</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice-test-harness/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice-test-harness/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">ts-transforms</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/ts-transforms/plugins">Plugins</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/ts-transforms/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/ts-transforms/operations">Operations</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/ts-transforms/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">xlucene-parser</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/xlucene-parser/overview">xLucene Parser</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/teraslice/docs/packages/xlucene-parser/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">xlucene-translator</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/xlucene-translator/overview">xLucene Translator</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/xlucene-translator/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">utils</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/utils/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/utils/api/overview">API</a></li></ul></div></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Legacy<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">teraslice-op-test-harness</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice-op-test-harness/overview">Overview</a></li></ul></div></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Internal<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">docker-compose-js</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/docker-compose-js/overview">docker-compose-js</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/docker-compose-js/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">generator-teraslice</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/generator-teraslice/overview">Overview</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">teraslice-messaging</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice-messaging/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice-messaging/api/overview">API</a></li></ul></div></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 id="__docusaurus" class="postHeaderTitle">xLucene Parser API Overview</h1></header><article><div><span><h2><a class="anchor" aria-hidden="true" id="index"></a><a href="#index" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Index</h2>
+<h3><a class="anchor" aria-hidden="true" id="enumerations"></a><a href="#enumerations" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Enumerations</h3>
+<ul>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/enums/asttype">ASTType</a></li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="classes"></a><a href="#classes" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Classes</h3>
+<ul>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/classes/cachedparser">CachedParser</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/classes/parser">Parser</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/classes/syntaxerror">SyntaxError</a></li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="interfaces"></a><a href="#interfaces" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Interfaces</h3>
+<ul>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/anydatatype">AnyDataType</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/booleandatatype">BooleanDataType</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/conjunction">Conjunction</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/contextarg">ContextArg</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/emptyast">EmptyAST</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/exists">Exists</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/fieldgroup">FieldGroup</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/functionconfig">FunctionConfig</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/functiondefinition">FunctionDefinition</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/functionmethods">FunctionMethods</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/functionmethodsresults">FunctionMethodsResults</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/functionnode">FunctionNode</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/geoboundingbox">GeoBoundingBox</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/geodistance">GeoDistance</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/grouplikeast">GroupLikeAST</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/holes">Holes</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/ianyexpectation">IAnyExpectation</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassexpectation">IClassExpectation</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iendexpectation">IEndExpectation</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/ifileposition">IFilePosition</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/ifilerange">IFileRange</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iliteralexpectation">ILiteralExpectation</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iotherexpectation">IOtherExpectation</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iparseoptions">IParseOptions</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/logicalgroup">LogicalGroup</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/negation">Negation</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/numberdatatype">NumberDataType</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/parsedrange">ParsedRange</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/parseroptions">ParserOptions</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/polyholesquery">PolyHolesQuery</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/range">Range</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/rangenode">RangeNode</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/regexp">Regexp</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/stringdatatype">StringDataType</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/term">Term</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/termlikeast">TermLikeAST</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/wildcard">Wildcard</a></li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="type-aliases"></a><a href="#type-aliases" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Type aliases</h3>
+<ul>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#ast">AST</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#anyast">AnyAST</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#cached">Cached</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#expectation">Expectation</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#field">Field</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#functionelasticsearchoptions">FunctionElasticsearchOptions</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#grouplike">GroupLike</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#groupliketype">GroupLikeType</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#parsefunction">ParseFunction</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#rangeoperator">RangeOperator</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#relationfn">RelationFn</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#termlike">TermLike</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#termliketype">TermLikeType</a></li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="variables"></a><a href="#variables" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Variables</h3>
+<ul>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#const-_cache">_cache</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#const-_logger">_logger</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#const-grouptypes">groupTypes</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#const-inferredfieldtypes">inferredFieldTypes</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#const-numberdatatypes">numberDataTypes</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#const-parse">parse</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#const-relationoptions">relationOptions</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#const-termtypes">termTypes</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#const-variabletypes">variableTypes</a></li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="functions"></a><a href="#functions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Functions</h3>
+<ul>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#_gettype">_getType</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#buildrangequerystring">buildRangeQueryString</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#coordinatetoxlucene">coordinateToXlucene</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#getanyvalue">getAnyValue</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#getfield">getField</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#getrelationfn">getRelationFn</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#isbooleandatatype">isBooleanDataType</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#isconjunction">isConjunction</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#isemptyast">isEmptyAST</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#isexists">isExists</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#isfieldgroup">isFieldGroup</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#isfunctionexpression">isFunctionExpression</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#isgeoboundingbox">isGeoBoundingBox</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#isgeodistance">isGeoDistance</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#isgreaterthan">isGreaterThan</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#isgrouplike">isGroupLike</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#isinfinitemax">isInfiniteMax</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#isinfinitemin">isInfiniteMin</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#isinfinitevalue">isInfiniteValue</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#islogicalgroup">isLogicalGroup</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#isnegation">isNegation</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#isnumberdatatype">isNumberDataType</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#isrange">isRange</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#isregexp">isRegexp</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#isstringdatatype">isStringDataType</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#isterm">isTerm</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#istermtype">isTermType</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#iswildcard">isWildcard</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#iswildcardfield">isWildcardField</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#makebbox">makeBBox</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#makecircle">makeCircle</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#makecontext">makeContext</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#makecoordinatesfromgeopoint">makeCoordinatesFromGeoPoint</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#makeshape">makeShape</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#parserange">parseRange</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#pegparse">peg$parse</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#pointingeoshape">pointInGeoShape</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#polyhaspoint">polyHasPoint</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#polyhasshape">polyHasShape</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#validate">validate</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#validatelistcoords">validateListCoords</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#validaterestrictedvariable">validateRestrictedVariable</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#validatevariables">validateVariables</a></li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="object-literals"></a><a href="#object-literals" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Object literals</h3>
+<ul>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#const-compatmapping">compatMapping</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#const-geobox">geoBox</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#const-geocontainspoint">geoContainsPoint</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#const-geodistance">geoDistance</a></li>
+<li><a href="/teraslice/docs/packages/xlucene-parser/api/overview#const-geopolygon">geoPolygon</a></li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="type-aliases-1"></a><a href="#type-aliases-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Type aliases</h2>
+<h3><a class="anchor" aria-hidden="true" id="ast"></a><a href="#ast" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>AST</h3>
+<p>Ƭ <strong>AST</strong>: <em><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/emptyast">EmptyAST</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/logicalgroup">LogicalGroup</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/term">Term</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/conjunction">Conjunction</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/negation">Negation</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/fieldgroup">FieldGroup</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/exists">Exists</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/range">Range</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/geodistance">GeoDistance</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/geoboundingbox">GeoBoundingBox</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/regexp">Regexp</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/wildcard">Wildcard</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/functionnode">FunctionNode</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/interfaces.ts#L16">packages/xlucene-parser/src/interfaces.ts:16</a></em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="anyast"></a><a href="#anyast" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>AnyAST</h3>
+<p>Ƭ <strong>AnyAST</strong>: <em><a href="/teraslice/docs/packages/xlucene-parser/api/overview#ast">AST</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/interfaces.ts#L21">packages/xlucene-parser/src/interfaces.ts:21</a></em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="cached"></a><a href="#cached" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Cached</h3>
+<p>Ƭ <strong>Cached</strong>: <em>object</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/cached-parser.ts#L4">packages/xlucene-parser/src/cached-parser.ts:4</a></em></p>
+<h4><a class="anchor" aria-hidden="true" id="type-declaration"></a><a href="#type-declaration" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Type declaration:</h4>
+<ul>
+<li>[ <strong>query</strong>: <em>string</em>]: <a href="/teraslice/docs/packages/xlucene-parser/api/classes/parser">Parser</a></li>
+</ul>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="expectation"></a><a href="#expectation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Expectation</h3>
+<p>Ƭ <strong>Expectation</strong>: <em><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iliteralexpectation">ILiteralExpectation</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassexpectation">IClassExpectation</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/ianyexpectation">IAnyExpectation</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iendexpectation">IEndExpectation</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iotherexpectation">IOtherExpectation</a></em></p>
+<p>Defined in packages/xlucene-parser/src/peg-engine.ts:50</p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="field"></a><a href="#field" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Field</h3>
+<p>Ƭ <strong>Field</strong>: <em>string | null</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/interfaces.ts#L70">packages/xlucene-parser/src/interfaces.ts:70</a></em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="functionelasticsearchoptions"></a><a href="#functionelasticsearchoptions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>FunctionElasticsearchOptions</h3>
+<p>Ƭ <strong>FunctionElasticsearchOptions</strong>: <em>object &amp; Record‹string, any›</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/interfaces.ts#L223">packages/xlucene-parser/src/interfaces.ts:223</a></em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="grouplike"></a><a href="#grouplike" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GroupLike</h3>
+<p>Ƭ <strong>GroupLike</strong>: <em><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/fieldgroup">FieldGroup</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/logicalgroup">LogicalGroup</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/interfaces.ts#L23">packages/xlucene-parser/src/interfaces.ts:23</a></em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="groupliketype"></a><a href="#groupliketype" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GroupLikeType</h3>
+<p>Ƭ <strong>GroupLikeType</strong>: <em><a href="/teraslice/docs/packages/xlucene-parser/api/enums/asttype#logicalgroup">LogicalGroup</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/enums/asttype#fieldgroup">FieldGroup</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/interfaces.ts#L24">packages/xlucene-parser/src/interfaces.ts:24</a></em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="parsefunction"></a><a href="#parsefunction" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>ParseFunction</h3>
+<p>Ƭ <strong>ParseFunction</strong>: <em>function</em></p>
+<p>Defined in packages/xlucene-parser/src/peg-engine.ts:5630</p>
+<h4><a class="anchor" aria-hidden="true" id="type-declaration-1"></a><a href="#type-declaration-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Type declaration:</h4>
+<p>▸ (<code>input</code>: string, <code>options?</code>: <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iparseoptions">IParseOptions</a>): <em>any</em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>input</code></td><td>string</td></tr>
+<tr><td><code>options?</code></td><td><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iparseoptions">IParseOptions</a></td></tr>
+</tbody>
+</table>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="rangeoperator"></a><a href="#rangeoperator" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>RangeOperator</h3>
+<p>Ƭ <strong>RangeOperator</strong>: <em>&quot;gte&quot; | &quot;gt&quot; | &quot;lt&quot; | &quot;lte&quot;</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/interfaces.ts#L137">packages/xlucene-parser/src/interfaces.ts:137</a></em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="relationfn"></a><a href="#relationfn" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>RelationFn</h3>
+<p>Ƭ <strong>RelationFn</strong>: <em>function</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/helpers.ts#L127">packages/xlucene-parser/src/functions/geo/helpers.ts:127</a></em></p>
+<h4><a class="anchor" aria-hidden="true" id="type-declaration-2"></a><a href="#type-declaration-2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Type declaration:</h4>
+<p>▸ (<code>query</code>: Feature‹any›): <em>function</em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>query</code></td><td>Feature‹any›</td></tr>
+</tbody>
+</table>
+<p>▸ (<code>field</code>: Feature‹any›): <em>boolean</em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>field</code></td><td>Feature‹any›</td></tr>
+</tbody>
+</table>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="termlike"></a><a href="#termlike" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>TermLike</h3>
+<p>Ƭ <strong>TermLike</strong>: <em><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/term">Term</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/regexp">Regexp</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/range">Range</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/wildcard">Wildcard</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/geoboundingbox">GeoBoundingBox</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/geodistance">GeoDistance</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/functionnode">FunctionNode</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/interfaces.ts#L31">packages/xlucene-parser/src/interfaces.ts:31</a></em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="termliketype"></a><a href="#termliketype" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>TermLikeType</h3>
+<p>Ƭ <strong>TermLikeType</strong>: <em><a href="/teraslice/docs/packages/xlucene-parser/api/enums/asttype#term">Term</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/enums/asttype#regexp">Regexp</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/enums/asttype#range">Range</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/enums/asttype#wildcard">Wildcard</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/enums/asttype#geoboundingbox">GeoBoundingBox</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/enums/asttype#geodistance">GeoDistance</a> | <a href="/teraslice/docs/packages/xlucene-parser/api/enums/asttype#function">Function</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/interfaces.ts#L32">packages/xlucene-parser/src/interfaces.ts:32</a></em></p>
+<h2><a class="anchor" aria-hidden="true" id="variables-1"></a><a href="#variables-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Variables</h2>
+<h3><a class="anchor" aria-hidden="true" id="const-_cache"></a><a href="#const-_cache" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Const</code> _cache</h3>
+<p>• <strong>_cache</strong>: <em>WeakMap‹<a href="/teraslice/docs/packages/xlucene-parser/api/classes/cachedparser">CachedParser</a>‹›, object›</em> = new WeakMap&lt;CachedParser, Cached&gt;()</p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/cached-parser.ts#L5">packages/xlucene-parser/src/cached-parser.ts:5</a></em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="const-_logger"></a><a href="#const-_logger" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Const</code> _logger</h3>
+<p>• <strong>_logger</strong>: <em>Logger‹›</em> = debugLogger('xlucene-parser')</p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/parser.ts#L12">packages/xlucene-parser/src/parser.ts:12</a></em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="const-grouptypes"></a><a href="#const-grouptypes" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Const</code> groupTypes</h3>
+<p>• <strong>groupTypes</strong>: <em><a href="/teraslice/docs/packages/xlucene-parser/api/enums/asttype">ASTType</a>[]</em> = [i.ASTType.LogicalGroup, i.ASTType.FieldGroup]</p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L114">packages/xlucene-parser/src/utils.ts:114</a></em></p>
+<p>logical group or field group with flow</p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="const-inferredfieldtypes"></a><a href="#const-inferredfieldtypes" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Const</code> inferredFieldTypes</h3>
+<p>• <strong>inferredFieldTypes</strong>: <em>object</em> = Object.freeze({
+[xLuceneFieldType.String]: true,
+})</p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/context.ts#L19">packages/xlucene-parser/src/context.ts:19</a></em></p>
+<h4><a class="anchor" aria-hidden="true" id="type-declaration-3"></a><a href="#type-declaration-3" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Type declaration:</h4>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="const-numberdatatypes"></a><a href="#const-numberdatatypes" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Const</code> numberDataTypes</h3>
+<p>• <strong>numberDataTypes</strong>: <em>xLuceneFieldType[]</em> = [
+xLuceneFieldType.Integer, xLuceneFieldType.Float
+]</p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L76">packages/xlucene-parser/src/utils.ts:76</a></em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="const-parse"></a><a href="#const-parse" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Const</code> parse</h3>
+<p>• <strong>parse</strong>: <em><a href="/teraslice/docs/packages/xlucene-parser/api/overview#parsefunction">ParseFunction</a></em> = peg$parse</p>
+<p>Defined in packages/xlucene-parser/src/peg-engine.ts:5631</p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="const-relationoptions"></a><a href="#const-relationoptions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Const</code> relationOptions</h3>
+<p>• <strong>relationOptions</strong>: <em>Record‹GeoShapeRelation, <a href="/teraslice/docs/packages/xlucene-parser/api/overview#relationfn">RelationFn</a>›</em> = Object.freeze({
+/**
+* within returns true if the first geometry is completely within the second geometry
+<em>/
+<a href="queryPolygon">GeoShapeRelation.Within</a> {
+return (fieldPolygon) =&gt; within(fieldPolygon, queryPolygon);
+},
+/</em>*
+* disjoint returns (TRUE) if the intersection of the two geometries is an empty set.
+<em>/
+<a href="queryPolygon">GeoShapeRelation.Disjoint</a> {
+return (fieldPolygon) =&gt; disjoint(fieldPolygon, queryPolygon);
+},
+/</em>*
+* contains returns True if the second geometry is completely contained by the first geometry.
+<em>/
+<a href="queryPolygon">GeoShapeRelation.Contains</a> {
+return (fieldPolygon) =&gt; contains(fieldPolygon, queryPolygon);
+},
+/</em>*
+* compares two geometries of the same dimension and returns true if they intersection
+*/
+[GeoShapeRelation.Intersects](queryPolygon: Feature<any>) {
+return (fieldPolygon: Feature<any>) =&gt; intersect(fieldPolygon, queryPolygon);
+},
+})</p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/helpers.ts#L128">packages/xlucene-parser/src/functions/geo/helpers.ts:128</a></em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="const-termtypes"></a><a href="#const-termtypes" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Const</code> termTypes</h3>
+<p>• <strong>termTypes</strong>: <em><a href="/teraslice/docs/packages/xlucene-parser/api/enums/asttype">ASTType</a>[]</em> = [
+i.ASTType.Term,
+i.ASTType.Regexp,
+i.ASTType.Range,
+i.ASTType.Wildcard,
+i.ASTType.GeoDistance,
+i.ASTType.GeoBoundingBox,
+i.ASTType.Function
+]</p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L99">packages/xlucene-parser/src/utils.ts:99</a></em></p>
+<p>term level queries with field (string|null)</p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="const-variabletypes"></a><a href="#const-variabletypes" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Const</code> variableTypes</h3>
+<p>• <strong>variableTypes</strong>: <em>object</em> = Object.freeze({
+String: true,
+Number: true,
+Boolean: true,
+RegExp: true,
+})</p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/context.ts#L227">packages/xlucene-parser/src/context.ts:227</a></em></p>
+<h4><a class="anchor" aria-hidden="true" id="type-declaration-4"></a><a href="#type-declaration-4" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Type declaration:</h4>
+<h2><a class="anchor" aria-hidden="true" id="functions-1"></a><a href="#functions-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Functions</h2>
+<h3><a class="anchor" aria-hidden="true" id="_gettype"></a><a href="#_gettype" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>_getType</h3>
+<p>▸ <strong>_getType</strong>(<code>node</code>: unknown): <em><a href="/teraslice/docs/packages/xlucene-parser/api/enums/asttype">ASTType</a> | undefined</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L11">packages/xlucene-parser/src/utils.ts:11</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em><a href="/teraslice/docs/packages/xlucene-parser/api/enums/asttype">ASTType</a> | undefined</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="buildrangequerystring"></a><a href="#buildrangequerystring" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>buildRangeQueryString</h3>
+<p>▸ <strong>buildRangeQueryString</strong>(<code>node</code>: <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/range">Range</a>): <em>string | undefined</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L166">packages/xlucene-parser/src/utils.ts:166</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/range">Range</a></td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>string | undefined</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="coordinatetoxlucene"></a><a href="#coordinatetoxlucene" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>coordinateToXlucene</h3>
+<p>▸ <strong>coordinateToXlucene</strong>(<code>cord</code>: CoordinateTuple): <em>string</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L188">packages/xlucene-parser/src/utils.ts:188</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>cord</code></td><td>CoordinateTuple</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>string</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="getanyvalue"></a><a href="#getanyvalue" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>getAnyValue</h3>
+<p>▸ <strong>getAnyValue</strong>(<code>node</code>: unknown): <em>any</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L88">packages/xlucene-parser/src/utils.ts:88</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>any</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="getfield"></a><a href="#getfield" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>getField</h3>
+<p>▸ <strong>getField</strong>(<code>node</code>: unknown): <em>string | undefined</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L92">packages/xlucene-parser/src/utils.ts:92</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>string | undefined</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="getrelationfn"></a><a href="#getrelationfn" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>getRelationFn</h3>
+<p>▸ <strong>getRelationFn</strong>(<code>relation</code>: GeoShapeRelation, <code>queryPolygon</code>: Feature‹any›): <em>function</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/helpers.ts#L155">packages/xlucene-parser/src/functions/geo/helpers.ts:155</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>relation</code></td><td>GeoShapeRelation</td></tr>
+<tr><td><code>queryPolygon</code></td><td>Feature‹any›</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>function</em></p>
+<p>▸ (<code>field</code>: Feature‹any›): <em>boolean</em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>field</code></td><td>Feature‹any›</td></tr>
+</tbody>
+</table>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="isbooleandatatype"></a><a href="#isbooleandatatype" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isBooleanDataType</h3>
+<p>▸ <strong>isBooleanDataType</strong>(<code>node</code>: unknown): <em>node is BooleanDataType</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L84">packages/xlucene-parser/src/utils.ts:84</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>node is BooleanDataType</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="isconjunction"></a><a href="#isconjunction" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isConjunction</h3>
+<p>▸ <strong>isConjunction</strong>(<code>node</code>: unknown): <em>node is Conjunction</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L20">packages/xlucene-parser/src/utils.ts:20</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>node is Conjunction</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="isemptyast"></a><a href="#isemptyast" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isEmptyAST</h3>
+<p>▸ <strong>isEmptyAST</strong>(<code>node</code>: unknown): <em>node is EmptyAST</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L68">packages/xlucene-parser/src/utils.ts:68</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>node is EmptyAST</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="isexists"></a><a href="#isexists" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isExists</h3>
+<p>▸ <strong>isExists</strong>(<code>node</code>: unknown): <em>node is Exists</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L32">packages/xlucene-parser/src/utils.ts:32</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>node is Exists</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="isfieldgroup"></a><a href="#isfieldgroup" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isFieldGroup</h3>
+<p>▸ <strong>isFieldGroup</strong>(<code>node</code>: unknown): <em>node is FieldGroup</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L28">packages/xlucene-parser/src/utils.ts:28</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>node is FieldGroup</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="isfunctionexpression"></a><a href="#isfunctionexpression" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isFunctionExpression</h3>
+<p>▸ <strong>isFunctionExpression</strong>(<code>node</code>: unknown): <em>node is FunctionNode</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L48">packages/xlucene-parser/src/utils.ts:48</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>node is FunctionNode</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="isgeoboundingbox"></a><a href="#isgeoboundingbox" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isGeoBoundingBox</h3>
+<p>▸ <strong>isGeoBoundingBox</strong>(<code>node</code>: unknown): <em>node is GeoBoundingBox</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L44">packages/xlucene-parser/src/utils.ts:44</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>node is GeoBoundingBox</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="isgeodistance"></a><a href="#isgeodistance" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isGeoDistance</h3>
+<p>▸ <strong>isGeoDistance</strong>(<code>node</code>: unknown): <em>node is GeoDistance</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L40">packages/xlucene-parser/src/utils.ts:40</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>node is GeoDistance</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="isgreaterthan"></a><a href="#isgreaterthan" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isGreaterThan</h3>
+<p>▸ <strong>isGreaterThan</strong>(<code>node</code>: <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/rangenode">RangeNode</a>): <em>boolean</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L161">packages/xlucene-parser/src/utils.ts:161</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/rangenode">RangeNode</a></td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>boolean</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="isgrouplike"></a><a href="#isgrouplike" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isGroupLike</h3>
+<p>▸ <strong>isGroupLike</strong>(<code>node</code>: unknown): <em>node is GroupLikeAST</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L116">packages/xlucene-parser/src/utils.ts:116</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>node is GroupLikeAST</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="isinfinitemax"></a><a href="#isinfinitemax" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isInfiniteMax</h3>
+<p>▸ <strong>isInfiniteMax</strong>(<code>max?</code>: number | string): <em>boolean</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L134">packages/xlucene-parser/src/utils.ts:134</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>max?</code></td><td>number | string</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>boolean</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="isinfinitemin"></a><a href="#isinfinitemin" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isInfiniteMin</h3>
+<p>▸ <strong>isInfiniteMin</strong>(<code>min?</code>: number | string): <em>boolean</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L129">packages/xlucene-parser/src/utils.ts:129</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>min?</code></td><td>number | string</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>boolean</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="isinfinitevalue"></a><a href="#isinfinitevalue" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isInfiniteValue</h3>
+<p>▸ <strong>isInfiniteValue</strong>(<code>input?</code>: number | string): <em>boolean</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L125">packages/xlucene-parser/src/utils.ts:125</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>input?</code></td><td>number | string</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>boolean</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="islogicalgroup"></a><a href="#islogicalgroup" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isLogicalGroup</h3>
+<p>▸ <strong>isLogicalGroup</strong>(<code>node</code>: unknown): <em>node is LogicalGroup</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L16">packages/xlucene-parser/src/utils.ts:16</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>node is LogicalGroup</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="isnegation"></a><a href="#isnegation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isNegation</h3>
+<p>▸ <strong>isNegation</strong>(<code>node</code>: unknown): <em>node is Negation</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L24">packages/xlucene-parser/src/utils.ts:24</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>node is Negation</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="isnumberdatatype"></a><a href="#isnumberdatatype" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isNumberDataType</h3>
+<p>▸ <strong>isNumberDataType</strong>(<code>node</code>: unknown): <em>node is NumberDataType</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L80">packages/xlucene-parser/src/utils.ts:80</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>node is NumberDataType</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="isrange"></a><a href="#isrange" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isRange</h3>
+<p>▸ <strong>isRange</strong>(<code>node</code>: unknown): <em>node is Range</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L36">packages/xlucene-parser/src/utils.ts:36</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>node is Range</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="isregexp"></a><a href="#isregexp" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isRegexp</h3>
+<p>▸ <strong>isRegexp</strong>(<code>node</code>: unknown): <em>node is Regexp</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L52">packages/xlucene-parser/src/utils.ts:52</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>node is Regexp</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="isstringdatatype"></a><a href="#isstringdatatype" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isStringDataType</h3>
+<p>▸ <strong>isStringDataType</strong>(<code>node</code>: unknown): <em>node is StringDataType</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L72">packages/xlucene-parser/src/utils.ts:72</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>node is StringDataType</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="isterm"></a><a href="#isterm" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isTerm</h3>
+<p>▸ <strong>isTerm</strong>(<code>node</code>: unknown): <em>node is Term</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L64">packages/xlucene-parser/src/utils.ts:64</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>node is Term</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="istermtype"></a><a href="#istermtype" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isTermType</h3>
+<p>▸ <strong>isTermType</strong>(<code>node</code>: unknown): <em>node is i.TermLike</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L109">packages/xlucene-parser/src/utils.ts:109</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>node is i.TermLike</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="iswildcard"></a><a href="#iswildcard" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isWildcard</h3>
+<p>▸ <strong>isWildcard</strong>(<code>node</code>: unknown): <em>node is Wildcard</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L56">packages/xlucene-parser/src/utils.ts:56</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>node is Wildcard</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="iswildcardfield"></a><a href="#iswildcardfield" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isWildcardField</h3>
+<p>▸ <strong>isWildcardField</strong>(<code>node</code>: unknown): <em>boolean</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L60">packages/xlucene-parser/src/utils.ts:60</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>boolean</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="makebbox"></a><a href="#makebbox" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>makeBBox</h3>
+<p>▸ <strong>makeBBox</strong>(<code>point1</code>: GeoPoint, <code>point2</code>: GeoPoint): <em>Feature‹Polygon, Properties›</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/helpers.ts#L56">packages/xlucene-parser/src/functions/geo/helpers.ts:56</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>point1</code></td><td>GeoPoint</td></tr>
+<tr><td><code>point2</code></td><td>GeoPoint</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>Feature‹Polygon, Properties›</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="makecircle"></a><a href="#makecircle" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>makeCircle</h3>
+<p>▸ <strong>makeCircle</strong>(<code>point</code>: GeoPoint, <code>distance</code>: number, <code>config?</code>: object): <em>Feature‹Polygon› | undefined</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/helpers.ts#L50">packages/xlucene-parser/src/functions/geo/helpers.ts:50</a></em></p>
+<p><strong>Parameters:</strong></p>
+<p>▪ <strong>point</strong>: <em>GeoPoint</em></p>
+<p>▪ <strong>distance</strong>: <em>number</em></p>
+<p>▪<code>Optional</code>  <strong>config</strong>: <em>object</em></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>units?</code></td><td>GeoDistanceUnit | string</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>Feature‹Polygon› | undefined</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="makecontext"></a><a href="#makecontext" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>makeContext</h3>
+<p>▸ <strong>makeContext</strong>(<code>arg</code>: <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/contextarg">ContextArg</a>): <em>object</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/context.ts#L24">packages/xlucene-parser/src/context.ts:24</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>arg</code></td><td><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/contextarg">ContextArg</a></td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>object</em></p>
+<ul>
+<li><p><strong>coerceTermType</strong>: <em>coerceTermType</em></p></li>
+<li><p><strong>getVariable</strong>: <em>getVariable</em></p></li>
+<li><p><strong>isInferredTermType</strong>: <em>isInferredTermType</em></p></li>
+<li><p><strong>logger</strong>: <em>Logger‹›</em></p></li>
+<li><p><strong>makeFlow</strong>: <em>makeFlow</em></p></li>
+<li><p><strong>parseFunction</strong>: <em>parseFunction</em></p></li>
+<li><p><strong>parseGeoDistance</strong>: <em>parseGeoDistance</em></p></li>
+<li><p><strong>parseGeoPoint</strong>: <em>parseGeoPoint</em></p></li>
+<li><p><strong>parseInferredTermType</strong>: <em>parseInferredTermType</em></p></li>
+<li><p><strong>propagateDefaultField</strong>: <em>propagateDefaultField</em></p></li>
+<li><p><strong>validateRestrictedVariable</strong>: <em><a href="/teraslice/docs/packages/xlucene-parser/api/overview#validaterestrictedvariable">validateRestrictedVariable</a></em></p></li>
+</ul>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="makecoordinatesfromgeopoint"></a><a href="#makecoordinatesfromgeopoint" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>makeCoordinatesFromGeoPoint</h3>
+<p>▸ <strong>makeCoordinatesFromGeoPoint</strong>(<code>point</code>: GeoPoint): <em>CoordinateTuple</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/helpers.ts#L161">packages/xlucene-parser/src/functions/geo/helpers.ts:161</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>point</code></td><td>GeoPoint</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>CoordinateTuple</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="makeshape"></a><a href="#makeshape" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>makeShape</h3>
+<p>▸ <strong>makeShape</strong>(<code>geoShape</code>: JoinGeoShape): <em>Feature‹any› | undefined</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/helpers.ts#L86">packages/xlucene-parser/src/functions/geo/helpers.ts:86</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>geoShape</code></td><td>JoinGeoShape</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>Feature‹any› | undefined</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="parserange"></a><a href="#parserange" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>parseRange</h3>
+<p>▸ <strong>parseRange</strong>(<code>node</code>: <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/range">Range</a>, <code>excludeInfinite</code>: boolean): <em><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/parsedrange">ParsedRange</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L146">packages/xlucene-parser/src/utils.ts:146</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th><th>Default</th></tr>
+</thead>
+<tbody>
+<tr><td><code>node</code></td><td><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/range">Range</a></td><td>-</td></tr>
+<tr><td><code>excludeInfinite</code></td><td>boolean</td><td>false</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/parsedrange">ParsedRange</a></em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="pegparse"></a><a href="#pegparse" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>peg$parse</h3>
+<p>▸ <strong>peg$parse</strong>(<code>input</code>: string, <code>options?</code>: <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iparseoptions">IParseOptions</a>): <em>any</em></p>
+<p>Defined in packages/xlucene-parser/src/peg-engine.ts:163</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>input</code></td><td>string</td></tr>
+<tr><td><code>options?</code></td><td><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iparseoptions">IParseOptions</a></td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>any</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="pointingeoshape"></a><a href="#pointingeoshape" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>pointInGeoShape</h3>
+<p>▸ <strong>pointInGeoShape</strong>(<code>searchPoint</code>: unknown): <em>(Anonymous function)</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/helpers.ts#L66">packages/xlucene-parser/src/functions/geo/helpers.ts:66</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>searchPoint</code></td><td>unknown</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>(Anonymous function)</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="polyhaspoint"></a><a href="#polyhaspoint" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>polyHasPoint</h3>
+<p>▸ <strong>polyHasPoint</strong>‹<strong>G</strong>›(<code>polygon</code>: Feature‹G› | G): <em>(Anonymous function)</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/helpers.ts#L42">packages/xlucene-parser/src/functions/geo/helpers.ts:42</a></em></p>
+<p><strong>Type parameters:</strong></p>
+<p>▪ <strong>G</strong>: <em>Polygon | MultiPolygon</em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>polygon</code></td><td>Feature‹G› | G</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>(Anonymous function)</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="polyhasshape"></a><a href="#polyhasshape" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>polyHasShape</h3>
+<p>▸ <strong>polyHasShape</strong>(<code>queryPolygon</code>: Feature‹any›, <code>relation</code>: GeoShapeRelation): <em>function</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/helpers.ts#L111">packages/xlucene-parser/src/functions/geo/helpers.ts:111</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>queryPolygon</code></td><td>Feature‹any›</td></tr>
+<tr><td><code>relation</code></td><td>GeoShapeRelation</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>function</em></p>
+<p>▸ (<code>fieldData</code>: JoinGeoShape): <em>boolean</em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>fieldData</code></td><td>JoinGeoShape</td></tr>
+</tbody>
+</table>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="validate"></a><a href="#validate" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>validate</h3>
+<p>▸ <strong>validate</strong>(<code>params</code>: <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/term">Term</a>[]): <em>object</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/box.ts#L6">packages/xlucene-parser/src/functions/geo/box.ts:6</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>params</code></td><td><a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/term">Term</a>[]</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>object</em></p>
+<ul>
+<li><p><strong>bottom_right</strong>: <em>GeoPoint</em> = parseGeoPoint(bottomRightParam.value as string)</p></li>
+<li><p><strong>top_left</strong>: <em>GeoPoint</em> = parseGeoPoint(topLeftParam.value as string)</p></li>
+</ul>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="validatelistcoords"></a><a href="#validatelistcoords" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>validateListCoords</h3>
+<p>▸ <strong>validateListCoords</strong>(<code>coords</code>: CoordinateTuple[]): <em>any[]</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/helpers.ts#L102">packages/xlucene-parser/src/functions/geo/helpers.ts:102</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>coords</code></td><td>CoordinateTuple[]</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>any[]</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="validaterestrictedvariable"></a><a href="#validaterestrictedvariable" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>validateRestrictedVariable</h3>
+<p>▸ <strong>validateRestrictedVariable</strong>(<code>variable</code>: any, <code>varName</code>: string): <em>void</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/context.ts#L235">packages/xlucene-parser/src/context.ts:235</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>variable</code></td><td>any</td></tr>
+<tr><td><code>varName</code></td><td>string</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>void</em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="validatevariables"></a><a href="#validatevariables" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>validateVariables</h3>
+<p>▸ <strong>validateVariables</strong>(<code>obj</code>: xLuceneVariables): <em>xLuceneVariables</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/utils.ts#L120">packages/xlucene-parser/src/utils.ts:120</a></em></p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>obj</code></td><td>xLuceneVariables</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>xLuceneVariables</em></p>
+<h2><a class="anchor" aria-hidden="true" id="object-literals-1"></a><a href="#object-literals-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Object literals</h2>
+<h3><a class="anchor" aria-hidden="true" id="const-compatmapping"></a><a href="#const-compatmapping" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Const</code> compatMapping</h3>
+<h3><a class="anchor" aria-hidden="true" id="-compatmapping-object"></a><a href="#-compatmapping-object" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>▪ <strong>compatMapping</strong>: <em>object</em></h3>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/polygon.ts#L12">packages/xlucene-parser/src/functions/geo/polygon.ts:12</a></em></p>
+<h3><a class="anchor" aria-hidden="true" id="tgeoshapetypemultipolygon"></a><a href="#tgeoshapetypemultipolygon" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>[t.GeoShapeType.MultiPolygon]</h3>
+<p>• <strong>[t.GeoShapeType.MultiPolygon]</strong>: <em>ESGeoShapeType</em> = t.ESGeoShapeType.MultiPolygon</p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/polygon.ts#L14">packages/xlucene-parser/src/functions/geo/polygon.ts:14</a></em></p>
+<h3><a class="anchor" aria-hidden="true" id="tgeoshapetypepolygon"></a><a href="#tgeoshapetypepolygon" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>[t.GeoShapeType.Polygon]</h3>
+<p>• <strong>[t.GeoShapeType.Polygon]</strong>: <em>ESGeoShapeType</em> = t.ESGeoShapeType.Polygon</p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/polygon.ts#L13">packages/xlucene-parser/src/functions/geo/polygon.ts:13</a></em></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="const-geobox"></a><a href="#const-geobox" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Const</code> geoBox</h3>
+<h3><a class="anchor" aria-hidden="true" id="-geobox-object"></a><a href="#-geobox-object" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>▪ <strong>geoBox</strong>: <em>object</em></h3>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/box.ts#L19">packages/xlucene-parser/src/functions/geo/box.ts:19</a></em></p>
+<h3><a class="anchor" aria-hidden="true" id="name"></a><a href="#name" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>name</h3>
+<p>• <strong>name</strong>: <em>string</em> = &quot;geoBox&quot;</p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/box.ts#L20">packages/xlucene-parser/src/functions/geo/box.ts:20</a></em></p>
+<h3><a class="anchor" aria-hidden="true" id="version"></a><a href="#version" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>version</h3>
+<p>• <strong>version</strong>: <em>string</em> = &quot;1&quot;</p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/box.ts#L21">packages/xlucene-parser/src/functions/geo/box.ts:21</a></em></p>
+<h3><a class="anchor" aria-hidden="true" id="create"></a><a href="#create" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>create</h3>
+<p>▸ <strong>create</strong>(<code>_field</code>: string, <code>params</code>: any, <code>__namedParameters</code>: object): <em>object</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/box.ts#L22">packages/xlucene-parser/src/functions/geo/box.ts:22</a></em></p>
+<p><strong>Parameters:</strong></p>
+<p>▪ <strong>_field</strong>: <em>string</em></p>
+<p>▪ <strong>params</strong>: <em>any</em></p>
+<p>▪ <strong>__namedParameters</strong>: <em>object</em></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>logger</code></td><td>Logger‹›</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>object</em></p>
+<ul>
+<li><p><strong>match</strong>: <em>(Anonymous function)</em> = matcher()</p></li>
+<li><p><strong>toElasticsearchQuery</strong>: <em>toElasticsearchQuery</em></p></li>
+</ul>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="const-geocontainspoint"></a><a href="#const-geocontainspoint" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Const</code> geoContainsPoint</h3>
+<h3><a class="anchor" aria-hidden="true" id="-geocontainspoint-object"></a><a href="#-geocontainspoint-object" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>▪ <strong>geoContainsPoint</strong>: <em>object</em></h3>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/contains-point.ts#L15">packages/xlucene-parser/src/functions/geo/contains-point.ts:15</a></em></p>
+<h3><a class="anchor" aria-hidden="true" id="name-1"></a><a href="#name-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>name</h3>
+<p>• <strong>name</strong>: <em>string</em> = &quot;geoContainsPoint&quot;</p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/contains-point.ts#L16">packages/xlucene-parser/src/functions/geo/contains-point.ts:16</a></em></p>
+<h3><a class="anchor" aria-hidden="true" id="version-1"></a><a href="#version-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>version</h3>
+<p>• <strong>version</strong>: <em>string</em> = &quot;1&quot;</p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/contains-point.ts#L17">packages/xlucene-parser/src/functions/geo/contains-point.ts:17</a></em></p>
+<h3><a class="anchor" aria-hidden="true" id="create-1"></a><a href="#create-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>create</h3>
+<p>▸ <strong>create</strong>(<code>_field</code>: string, <code>params</code>: any, <code>__namedParameters</code>: object): <em>object</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/contains-point.ts#L18">packages/xlucene-parser/src/functions/geo/contains-point.ts:18</a></em></p>
+<p><strong>Parameters:</strong></p>
+<p>▪ <strong>_field</strong>: <em>string</em></p>
+<p>▪ <strong>params</strong>: <em>any</em></p>
+<p>▪ <strong>__namedParameters</strong>: <em>object</em></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>logger</code></td><td>Logger‹›</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>object</em></p>
+<ul>
+<li><p><strong>match</strong>: <em>(Anonymous function)</em> = matcher()</p></li>
+<li><p><strong>toElasticsearchQuery</strong>: <em>toElasticsearchQuery</em></p></li>
+</ul>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="const-geodistance"></a><a href="#const-geodistance" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Const</code> geoDistance</h3>
+<h3><a class="anchor" aria-hidden="true" id="-geodistance-object"></a><a href="#-geodistance-object" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>▪ <strong>geoDistance</strong>: <em>object</em></h3>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/distance.ts#L22">packages/xlucene-parser/src/functions/geo/distance.ts:22</a></em></p>
+<h3><a class="anchor" aria-hidden="true" id="name-2"></a><a href="#name-2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>name</h3>
+<p>• <strong>name</strong>: <em>string</em> = &quot;geoDistance&quot;</p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/distance.ts#L23">packages/xlucene-parser/src/functions/geo/distance.ts:23</a></em></p>
+<h3><a class="anchor" aria-hidden="true" id="version-2"></a><a href="#version-2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>version</h3>
+<p>• <strong>version</strong>: <em>string</em> = &quot;1&quot;</p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/distance.ts#L24">packages/xlucene-parser/src/functions/geo/distance.ts:24</a></em></p>
+<h3><a class="anchor" aria-hidden="true" id="create-2"></a><a href="#create-2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>create</h3>
+<p>▸ <strong>create</strong>(<code>_field</code>: string, <code>params</code>: any, <code>__namedParameters</code>: object): <em>object</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/distance.ts#L25">packages/xlucene-parser/src/functions/geo/distance.ts:25</a></em></p>
+<p><strong>Parameters:</strong></p>
+<p>▪ <strong>_field</strong>: <em>string</em></p>
+<p>▪ <strong>params</strong>: <em>any</em></p>
+<p>▪ <strong>__namedParameters</strong>: <em>object</em></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>logger</code></td><td>Logger‹›</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>object</em></p>
+<ul>
+<li><p><strong>match</strong>: <em>(Anonymous function)</em> = matcher()</p></li>
+<li><p><strong>toElasticsearchQuery</strong>: <em>toElasticsearchQuery</em></p></li>
+</ul>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="const-geopolygon"></a><a href="#const-geopolygon" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Const</code> geoPolygon</h3>
+<h3><a class="anchor" aria-hidden="true" id="-geopolygon-object"></a><a href="#-geopolygon-object" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>▪ <strong>geoPolygon</strong>: <em>object</em></h3>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/polygon.ts#L69">packages/xlucene-parser/src/functions/geo/polygon.ts:69</a></em></p>
+<h3><a class="anchor" aria-hidden="true" id="name-3"></a><a href="#name-3" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>name</h3>
+<p>• <strong>name</strong>: <em>string</em> = &quot;geoPolygon&quot;</p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/polygon.ts#L70">packages/xlucene-parser/src/functions/geo/polygon.ts:70</a></em></p>
+<h3><a class="anchor" aria-hidden="true" id="version-3"></a><a href="#version-3" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>version</h3>
+<p>• <strong>version</strong>: <em>string</em> = &quot;1&quot;</p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/polygon.ts#L71">packages/xlucene-parser/src/functions/geo/polygon.ts:71</a></em></p>
+<h3><a class="anchor" aria-hidden="true" id="create-3"></a><a href="#create-3" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>create</h3>
+<p>▸ <strong>create</strong>(<code>_field</code>: string, <code>params</code>: any, <code>__namedParameters</code>: object): <em>object</em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/xlucene-parser/src/functions/geo/polygon.ts#L72">packages/xlucene-parser/src/functions/geo/polygon.ts:72</a></em></p>
+<p><strong>Parameters:</strong></p>
+<p>▪ <strong>_field</strong>: <em>string</em></p>
+<p>▪ <strong>params</strong>: <em>any</em></p>
+<p>▪ <strong>__namedParameters</strong>: <em>object</em></p>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>logger</code></td><td>Logger‹›</td></tr>
+<tr><td><code>typeConfig</code></td><td>xLuceneTypeConfig</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <em>object</em></p>
+<ul>
+<li><p><strong>match</strong>: <em>function | (Anonymous function)</em> = targetIsGeoPoint ? polyToGeoPointMatcher() : polyToGeoShapeMatcher()</p></li>
+<li><p><strong>toElasticsearchQuery</strong>: <em>esPolyToPointQuery | esPolyToPolyQuery</em> = targetIsGeoPoint ? esPolyToPointQuery : esPolyToPolyQuery</p></li>
+</ul>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/teraslice/docs/packages/xlucene-parser/overview"><span class="arrow-prev">← </span><span class="function-name-prevnext">xLucene Parser</span></a><a class="docs-next button" href="/teraslice/docs/packages/xlucene-translator/overview"><span class="function-name-prevnext">xLucene Translator</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#index">Index</a><ul class="toc-headings"><li><a href="#enumerations">Enumerations</a></li><li><a href="#classes">Classes</a></li><li><a href="#interfaces">Interfaces</a></li><li><a href="#type-aliases">Type aliases</a></li><li><a href="#variables">Variables</a></li><li><a href="#functions">Functions</a></li><li><a href="#object-literals">Object literals</a></li></ul></li><li><a href="#type-aliases-1">Type aliases</a><ul class="toc-headings"><li><a href="#ast">AST</a></li><li><a href="#anyast">AnyAST</a></li><li><a href="#cached">Cached</a></li><li><a href="#expectation">Expectation</a></li><li><a href="#field">Field</a></li><li><a href="#functionelasticsearchoptions">FunctionElasticsearchOptions</a></li><li><a href="#grouplike">GroupLike</a></li><li><a href="#groupliketype">GroupLikeType</a></li><li><a href="#parsefunction">ParseFunction</a></li><li><a href="#rangeoperator">RangeOperator</a></li><li><a href="#relationfn">RelationFn</a></li><li><a href="#termlike">TermLike</a></li><li><a href="#termliketype">TermLikeType</a></li></ul></li><li><a href="#variables-1">Variables</a><ul class="toc-headings"><li><a href="#const-_cache"><code>Const</code> _cache</a></li><li><a href="#const-_logger"><code>Const</code> _logger</a></li><li><a href="#const-grouptypes"><code>Const</code> groupTypes</a></li><li><a href="#const-inferredfieldtypes"><code>Const</code> inferredFieldTypes</a></li><li><a href="#const-numberdatatypes"><code>Const</code> numberDataTypes</a></li><li><a href="#const-parse"><code>Const</code> parse</a></li><li><a href="#const-relationoptions"><code>Const</code> relationOptions</a></li><li><a href="#const-termtypes"><code>Const</code> termTypes</a></li><li><a href="#const-variabletypes"><code>Const</code> variableTypes</a></li></ul></li><li><a href="#functions-1">Functions</a><ul class="toc-headings"><li><a href="#_gettype">_getType</a></li><li><a href="#buildrangequerystring">buildRangeQueryString</a></li><li><a href="#coordinatetoxlucene">coordinateToXlucene</a></li><li><a href="#getanyvalue">getAnyValue</a></li><li><a href="#getfield">getField</a></li><li><a href="#getrelationfn">getRelationFn</a></li><li><a href="#isbooleandatatype">isBooleanDataType</a></li><li><a href="#isconjunction">isConjunction</a></li><li><a href="#isemptyast">isEmptyAST</a></li><li><a href="#isexists">isExists</a></li><li><a href="#isfieldgroup">isFieldGroup</a></li><li><a href="#isfunctionexpression">isFunctionExpression</a></li><li><a href="#isgeoboundingbox">isGeoBoundingBox</a></li><li><a href="#isgeodistance">isGeoDistance</a></li><li><a href="#isgreaterthan">isGreaterThan</a></li><li><a href="#isgrouplike">isGroupLike</a></li><li><a href="#isinfinitemax">isInfiniteMax</a></li><li><a href="#isinfinitemin">isInfiniteMin</a></li><li><a href="#isinfinitevalue">isInfiniteValue</a></li><li><a href="#islogicalgroup">isLogicalGroup</a></li><li><a href="#isnegation">isNegation</a></li><li><a href="#isnumberdatatype">isNumberDataType</a></li><li><a href="#isrange">isRange</a></li><li><a href="#isregexp">isRegexp</a></li><li><a href="#isstringdatatype">isStringDataType</a></li><li><a href="#isterm">isTerm</a></li><li><a href="#istermtype">isTermType</a></li><li><a href="#iswildcard">isWildcard</a></li><li><a href="#iswildcardfield">isWildcardField</a></li><li><a href="#makebbox">makeBBox</a></li><li><a href="#makecircle">makeCircle</a></li><li><a href="#makecontext">makeContext</a></li><li><a href="#makecoordinatesfromgeopoint">makeCoordinatesFromGeoPoint</a></li><li><a href="#makeshape">makeShape</a></li><li><a href="#parserange">parseRange</a></li><li><a href="#pegparse">peg$parse</a></li><li><a href="#pointingeoshape">pointInGeoShape</a></li><li><a href="#polyhaspoint">polyHasPoint</a></li><li><a href="#polyhasshape">polyHasShape</a></li><li><a href="#validate">validate</a></li><li><a href="#validatelistcoords">validateListCoords</a></li><li><a href="#validaterestrictedvariable">validateRestrictedVariable</a></li><li><a href="#validatevariables">validateVariables</a></li></ul></li><li><a href="#object-literals-1">Object literals</a><ul class="toc-headings"><li><a href="#const-compatmapping"><code>Const</code> compatMapping</a></li><li><a href="#-compatmapping-object">▪ <strong>compatMapping</strong>: <em>object</em></a></li><li><a href="#tgeoshapetypemultipolygon">[t.GeoShapeType.MultiPolygon]</a></li><li><a href="#tgeoshapetypepolygon">[t.GeoShapeType.Polygon]</a></li><li><a href="#const-geobox"><code>Const</code> geoBox</a></li><li><a href="#-geobox-object">▪ <strong>geoBox</strong>: <em>object</em></a></li><li><a href="#name">name</a></li><li><a href="#version">version</a></li><li><a href="#create">create</a></li><li><a href="#const-geocontainspoint"><code>Const</code> geoContainsPoint</a></li><li><a href="#-geocontainspoint-object">▪ <strong>geoContainsPoint</strong>: <em>object</em></a></li><li><a href="#name-1">name</a></li><li><a href="#version-1">version</a></li><li><a href="#create-1">create</a></li><li><a href="#const-geodistance"><code>Const</code> geoDistance</a></li><li><a href="#-geodistance-object">▪ <strong>geoDistance</strong>: <em>object</em></a></li><li><a href="#name-2">name</a></li><li><a href="#version-2">version</a></li><li><a href="#create-2">create</a></li><li><a href="#const-geopolygon"><code>Const</code> geoPolygon</a></li><li><a href="#-geopolygon-object">▪ <strong>geoPolygon</strong>: <em>object</em></a></li><li><a href="#name-3">name</a></li><li><a href="#version-3">version</a></li><li><a href="#create-3">create</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/teraslice/" class="nav-home"></a><div><h5>Docs</h5><a href="/teraslice/docs/en/getting-started.html">Getting Started</a><a href="/teraslice/docs/en/packages.html">Packages</a><a href="/teraslice/docs/en/asset-bundles.html">Asset Bundles</a></div><div><h5>More</h5><a href="/teraslice/blog">Blog</a><a href="https://github.com/terascope/teraslice">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/terascope/teraslice/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><section class="copyright">Copyright © 2020 Terascope, LLC</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+                document.addEventListener('keyup', function(e) {
+                  if (e.target !== document.body) {
+                    return;
+                  }
+                  // keyCode for '/' (slash)
+                  if (e.keyCode === 191) {
+                    const search = document.getElementById('search_input_react');
+                    search && search.focus();
+                  }
+                });
+              </script><script>
+              var search = docsearch({
+                
+                apiKey: 'b074b9b57bfd2e4d8b411aee052825d2',
+                indexName: 'terascope_teraslice',
+                inputSelector: '#search_input_react'
+              });
+            </script></body></html>
