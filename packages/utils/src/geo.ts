@@ -22,7 +22,8 @@ export const geoJSONTypes = Object.keys(GeoShapeType).map((key) => key.toLowerCa
 
 export function isGeoJSON(input: unknown): input is GeoShape|ESGeoShape {
     if (!isPlainObject(input)) return false;
-    if (Array.isArray((input as any).coordinates)) return false;
+    if (!Array.isArray((input as any).coordinates)) return false;
+
     const type = (input as any).type as unknown;
     if (typeof type !== 'string') return false;
     return geoJSONTypes.includes(type.toLowerCase());
