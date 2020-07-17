@@ -9,11 +9,11 @@ export class CachedParser {
         _cache.set(this, {});
     }
 
-    make(query: string, options?: ParserOptions) {
+    make(query: string, options?: ParserOptions): Parser {
         return new Parser(query, options);
     }
 
-    reset() {
+    reset(): void {
         _cache.delete(this);
         _cache.set(this, {});
     }
