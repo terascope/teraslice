@@ -30,10 +30,14 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/job-components": "^0.38.1",
         "@terascope/teraslice-op-test-harness": "^1.22.1"
     },
-    "devDependencies": {},
+    "devDependencies": {
+        "@terascope/job-components": "^0.38.1"
+    },
+    "peerDependencies": {
+        "@terascope/job-components": "^0.38.1"
+    },
     "engines": {
         "node": ">=10.16.0"
     },

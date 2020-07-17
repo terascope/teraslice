@@ -34,7 +34,7 @@
         "@types/lodash": "^4.14.153",
         "debug": "^4.1.1",
         "ms": "^2.1.2",
-        "typescript": "~3.9.6"
+        "typescript": "~3.9.7"
     },
     "dependencies": {},
     "devDependencies": {

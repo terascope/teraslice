@@ -18,10 +18,14 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/job-components": "^0.38.1",
         "bluebird": "^3.7.2"
     },
-    "devDependencies": {},
+    "devDependencies": {
+        "@terascope/job-components": "^0.38.1"
+    },
+    "peerDependencies": {
+        "@terascope/job-components": "^0.38.1"
+    },
     "publishConfig": {
         "access": "public",
         "registry": "https://registry.npmjs.org/"
