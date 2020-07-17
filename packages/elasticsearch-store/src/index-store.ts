@@ -72,7 +72,10 @@ export default class IndexStore<T extends ts.AnyObject> {
         if (config.data_schema != null) {
             const validator = utils.makeDataValidator(config.data_schema, this._logger);
             this.writeHooks.add(validator);
-            this.readHooks.add(validator);
+            const validateOnRead = config.data_schema.validate_on_read ?? true;
+            if (validateOnRead) {
+                this.readHooks.add(validator);
+            }
         }
 
         this._getIngestTime = utils.getTimeByField(this.config.ingest_time_field as string);
