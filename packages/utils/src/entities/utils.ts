@@ -2,7 +2,7 @@ import * as i from './interfaces';
 import { isString } from '../strings';
 import { isNumber } from '../numbers';
 
-export function defineEntityProperties(entity: any): void {
+export function defineEntityProperties(entity: unknown): void {
     Object.defineProperty(entity, i.__IS_DATAENTITY_KEY, {
         value: true,
         configurable: false,
@@ -34,17 +34,17 @@ export function createCoreMetadata<M extends i._DataEntityMetadataType>(
     return { _createTime: Date.now() } as i._DataEntityMetadata<M>;
 }
 
-export function jsonToBuffer(input: any): Buffer {
+export function jsonToBuffer(input: unknown): Buffer {
     return Buffer.from(JSON.stringify(input));
 }
 
-export function isValidKey(key: any): key is string|number {
+export function isValidKey(key: unknown): key is string|number {
     if (key == null) return false;
     if (isString(key) && key !== '') return true;
     if (isNumber(key)) return true;
     return false;
 }
 
-export function isDataEntity(input: any): boolean {
-    return Boolean(input != null && input[i.__IS_DATAENTITY_KEY] === true);
+export function isDataEntity(input: unknown): boolean {
+    return Boolean(input != null && (input as any)[i.__IS_DATAENTITY_KEY] === true);
 }

@@ -7,7 +7,7 @@ import validateCidr from 'is-cidr';
 import PhoneValidator from 'awesome-phonenumber';
 import validator from 'validator';
 import * as url from 'valid-url';
-import { MACAddress } from '@terascope/types';
+import { MACAddress, GeoShapePoint } from '@terascope/types';
 
 import {
     FQDNOptions,
@@ -327,7 +327,15 @@ export function isGeoJSON(input: unknown, _parentContext?: unknown): boolean {
  * @returns {boolean} boolean
  */
 
-export function isGeoShapePoint(input: unknown, _parentContext?: unknown): boolean {
+export function isGeoShapePoint(
+    input: unknown, _parentContext?: unknown
+): input is GeoShapePoint;
+export function isGeoShapePoint(
+    input: unknown[], _parentContext?: unknown
+): input is GeoShapePoint[];
+export function isGeoShapePoint(
+    input: unknown, _parentContext?: unknown
+): input is GeoShapePoint[]|GeoShapePoint {
     if (ts.isNil(input)) return false;
     if (isArray(input)) return _lift(handleArgs(ts.isGeoShapePoint), input, _parentContext);
 

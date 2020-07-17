@@ -13,14 +13,14 @@ export class CachedQueryAccess {
         return new QueryAccess(config, options);
     }
 
-    reset() {
+    reset(): void {
         this.resetInstances();
 
         _cache.delete(this);
         _cache.set(this, {});
     }
 
-    resetInstances() {
+    resetInstances(): void {
         const cached = _cache.get(this)!;
         Object.values(cached)
             .forEach((instance) => instance.clearCache());

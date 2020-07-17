@@ -27,21 +27,21 @@ export class BigMap<K, V> {
         return this._current.set(key, value);
     }
 
-    has(key: K) {
+    has(key: K): boolean {
         if (this._simpleMode) {
             return this._current.has(key);
         }
         return _mapForKey(this._maps, key) !== undefined;
     }
 
-    get(key: K) {
+    get(key: K): V|undefined {
         if (this._simpleMode) {
             return this._current.get(key);
         }
         return _valueForKey(this._maps, key);
     }
 
-    delete(key: K) {
+    delete(key: K): boolean {
         if (this._simpleMode) {
             return this._current.delete(key);
         }
@@ -54,7 +54,7 @@ export class BigMap<K, V> {
         return false;
     }
 
-    clear() {
+    clear(): void {
         if (this._simpleMode) {
             return this._current.clear();
         }
@@ -67,7 +67,7 @@ export class BigMap<K, V> {
         this._simpleMode = true;
     }
 
-    get size() {
+    get size(): number {
         if (this._simpleMode) {
             return this._current.size;
         }
@@ -81,7 +81,7 @@ export class BigMap<K, V> {
         return size;
     }
 
-    forEach(callbackFn: (value: V, key: K, map: BigMap<K, V>) => void, thisArg?: any) {
+    forEach(callbackFn: (value: V, key: K, map: BigMap<K, V>) => void, thisArg?: unknown): void {
         if (thisArg) {
             for (const [key, value] of this.entries()) {
                 callbackFn.call(thisArg, value, key, this);
@@ -93,21 +93,21 @@ export class BigMap<K, V> {
         }
     }
 
-    entries() {
+    entries(): IterableIterator<[K, V]> {
         if (this._simpleMode) {
             return this._current.entries();
         }
         return _iterator<[K, V]>(this._maps, 'entries');
     }
 
-    keys() {
+    keys(): IterableIterator<K> {
         if (this._simpleMode) {
             return this._current.keys();
         }
         return _iterator<K>(this._maps, 'keys');
     }
 
-    values() {
+    values(): IterableIterator<V> {
         if (this._simpleMode) {
             return this._current.values();
         }

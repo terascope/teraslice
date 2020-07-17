@@ -1,9 +1,10 @@
-export function isRegExp(input: any): input is RegExp {
+export function isRegExp(input: unknown): input is RegExp {
+    if (input == null) return false;
     if (input instanceof RegExp) return true;
-    return typeof input.flags === 'string'
-        && typeof input.ignoreCase === 'boolean'
-        && typeof input.multiline === 'boolean'
-        && typeof input.global === 'boolean';
+    return typeof (input as any).flags === 'string'
+        && typeof (input as any).ignoreCase === 'boolean'
+        && typeof (input as any).multiline === 'boolean'
+        && typeof (input as any).global === 'boolean';
 }
 
 export function isRegExpLike(input: unknown, strict = true): boolean {

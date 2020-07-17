@@ -188,10 +188,12 @@ export class VariableState {
         return name;
     }
 
-    createVariable(field: string, value: any) {
+    createVariable(field: string, value: unknown): string {
         if (typeof value === 'string' && startsWith(value, '$')) {
             const vField = value.slice(1);
-            if (this.variables[vField] === undefined) throw new Error(`Must provide variable "${vField}" in the variables config`);
+            if (this.variables[vField] === undefined) {
+                throw new Error(`Must provide variable "${vField}" in the variables config`);
+            }
             return value;
         }
         const key = this._makeKey(field);
@@ -202,7 +204,7 @@ export class VariableState {
     /**
      * Shallow clones and sorts the keys
     */
-    getVariables() {
+    getVariables(): AnyObject {
         const result: AnyObject = {};
         for (const key of Object.keys(this.variables).sort()) {
             result[key] = this.variables[key];

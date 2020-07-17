@@ -111,7 +111,7 @@ export class Queue<T> {
     /**
      * Search the queue for a key that matches a value and return the match
     */
-    extract(key: string, val: any): T|undefined {
+    extract(key: string, val: unknown): T|undefined {
         if (val == null) return;
 
         if (this.head) {
@@ -162,7 +162,7 @@ export class Queue<T> {
     /**
      * Search the queue to see if a key value pair exists
     */
-    exists(key: string, val: any): boolean {
+    exists(key: string, val: unknown): boolean {
         let currentNode = this.head;
         if (val == null) {
             return false;

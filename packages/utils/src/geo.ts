@@ -2,6 +2,7 @@ import {
     GeoDistanceUnit,
     GEO_DISTANCE_UNITS,
     GeoPointInput,
+    GeoShape,
     GeoPoint,
     GeoDistanceObj,
     GeoShapeType,
@@ -9,7 +10,8 @@ import {
     ESGeoShapeType,
     GeoShapePoint,
     GeoShapePolygon,
-    GeoShapeMultiPolygon
+    GeoShapeMultiPolygon,
+    ESGeoShape
 } from '@terascope/types';
 import { isPlainObject, geoHash } from './deps';
 import { trim } from './strings';
@@ -18,10 +20,13 @@ import { TSError } from './errors';
 
 export const geoJSONTypes = Object.keys(GeoShapeType).map((key) => key.toLowerCase());
 
-export function isGeoJSON(input: any) {
-    return isPlainObject(input)
-        && Array.isArray(input.coordinates)
-        && geoJSONTypes.includes(input.type.toLowerCase());
+export function isGeoJSON(input: unknown): input is GeoShape|ESGeoShape {
+    if (!isPlainObject(input)) return false;
+    if (!Array.isArray((input as any).coordinates)) return false;
+
+    const type = (input as any).type as unknown;
+    if (typeof type !== 'string') return false;
+    return geoJSONTypes.includes(type.toLowerCase());
 }
 
 export function isGeoShapePoint(input: JoinGeoShape): input is GeoShapePoint {
@@ -60,12 +65,16 @@ export function parseGeoDistanceUnit(input: string): GeoDistanceUnit {
     return unit;
 }
 
-export function getLonAndLat(input: any, throwInvalid = true): [number, number] | null {
-    let lat = input.lat || input.latitude;
-    let lon = input.lon || input.longitude;
+export function getLonAndLat(input: unknown, throwInvalid = true): [number, number] | null {
+    let lat: number|string|undefined;
+    let lon: number|string|undefined;
 
-    if (isGeoShapePoint(input)) {
-        [lon, lat] = input.coordinates;
+    if (isGeoShapePoint(input as JoinGeoShape)) {
+        [lon, lat] = (input as GeoShapePoint).coordinates;
+    } else if (isPlainObject(input)) {
+        const obj = (input as any);
+        lat = obj.lat || obj.latitude;
+        lon = obj.lon || obj.longitude;
     }
 
     if (throwInvalid && (!lat || !lon)) {
