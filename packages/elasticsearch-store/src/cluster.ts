@@ -11,14 +11,14 @@ export default class Cluster {
     /**
      * Get the Cluster Nodes Info
     */
-    async nodeInfo(_params: es.NodesInfoParams) {
+    async nodeInfo(_params: es.NodesInfoParams): Promise<void> {
 
     }
 
     /**
      * Get the Cluster Nodes Stats
     */
-    async nodeStats(_params: es.NodesStatsParams) {
+    async nodeStats(_params: es.NodesStatsParams): Promise<void> {
 
     }
 }

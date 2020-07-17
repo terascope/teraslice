@@ -20,7 +20,7 @@ export class Compose {
         options: RunOptions = {},
         services?: Services,
         ...extraParams: Arg[]
-    ) {
+    ): Promise<string> {
         return new Promise((resolve, reject) => {
             let stdout = '';
             let stderr = '';
@@ -90,53 +90,68 @@ export class Compose {
         });
     }
 
-    up(options: RunOptions = {}, services?: string[]|string) {
+    up(options: RunOptions = {}, services?: string[]|string): Promise<string> {
         options.d = '';
         return this.runCmd('up', options, services);
     }
-    build(options?: RunOptions) {
+
+    build(options?: RunOptions): Promise<string> {
         return this.runCmd('build', options);
     }
-    down(options?: RunOptions) {
+
+    down(options?: RunOptions): Promise<string> {
         return this.runCmd('down', options);
     }
-    ps(options?: RunOptions) {
+
+    ps(options?: RunOptions): Promise<string> {
         return this.runCmd('ps', options);
     }
-    start(services?: Services, options?: RunOptions) {
+
+    start(services?: Services, options?: RunOptions): Promise<string> {
         return this.runCmd('start', options, services);
     }
-    stop(services?: Services, options?: RunOptions) {
+
+    stop(services?: Services, options?: RunOptions): Promise<string> {
         return this.runCmd('stop', options, services);
     }
-    restart(services?: Services, options?: RunOptions) {
+
+    restart(services?: Services, options?: RunOptions): Promise<string> {
         return this.runCmd('restart', options, services);
     }
-    kill(services?: Services, options?: RunOptions) {
+
+    kill(services?: Services, options?: RunOptions): Promise<string> {
         return this.runCmd('kill', options, services);
     }
-    pull(services?: Services, options?: RunOptions) {
+
+    pull(services?: Services, options?: RunOptions): Promise<string> {
         return this.runCmd('pull', options, services);
     }
-    create(services?: Services, options?: RunOptions) {
+
+    create(services?: Services, options?: RunOptions): Promise<string> {
         return this.runCmd('create', options, services);
     }
-    version(options?: RunOptions) {
+
+    version(options?: RunOptions): Promise<string> {
         return this.runCmd('version', options);
     }
-    pause(services?: Services, options?: RunOptions) {
+
+    pause(services?: Services, options?: RunOptions): Promise<string> {
         return this.runCmd('pause', options, services);
     }
-    unpause(services?: Services, options?: RunOptions) {
+
+    unpause(services?: Services, options?: RunOptions): Promise<string> {
         return this.runCmd('unpause', options, services);
     }
-    scale(services?: Services, options?: RunOptions) {
+
+    scale(services?: Services, options?: RunOptions): Promise<string> {
         return this.runCmd('scale', options, services);
     }
-    rm(services?: Services, options?: RunOptions) {
+
+    rm(services?: Services, options?: RunOptions): Promise<string> {
         return this.runCmd('rm', options, services);
     }
-    port(service: string, privatePort: number|string, options?: RunOptions) {
+
+    port(service: string, privatePort: number|string, options?: RunOptions): Promise<string> {
         return this.runCmd('port', options, service, privatePort);
     }
 }

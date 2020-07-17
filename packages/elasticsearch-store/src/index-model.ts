@@ -79,7 +79,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
         anyId: string,
         options?: i.FindOneOptions<T>,
         queryAccess?: QueryAccess<T>
-    ) {
+    ): Promise<T> {
         utils.validateId(anyId, 'fetchRecord');
         const fields: Partial<T> = {};
 
@@ -192,7 +192,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
         return record;
     }
 
-    protected async _ensureUnique(record: T, existing?: T) {
+    protected async _ensureUnique(record: T, existing?: T): Promise<void> {
         for (const field of this._uniqueFields) {
             if (field === '_key') continue;
             if (field === 'client_id') continue;
