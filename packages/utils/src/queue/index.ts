@@ -47,7 +47,7 @@ export class Queue<T> {
     }
 
     /** Iterate over each value */
-    each(fn: (value: T) => void) {
+    each(fn: (value: T) => void): void {
         let currentNode = this.head;
         if (currentNode) {
             fn(currentNode.value);

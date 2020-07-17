@@ -6,23 +6,23 @@ export function makeISODate(): string {
 }
 
 /** A simplified implemation of moment(new Date(val)).isValid() */
-export function isValidDate(val: any): boolean {
+export function isValidDate(val: unknown): boolean {
     return getValidDate(val) !== false;
 }
 
 /** Check if the data is valid and return if it is */
-export function getValidDate(val: any): Date | false {
+export function getValidDate(val: unknown): Date | false {
     if (val == null) return false;
-    if (isValidDateInstance(val)) return val;
+    if (isValidDateInstance(val)) return val as Date;
     if (typeof val === 'number'
         && (val <= 0 || !Number.isSafeInteger(val))) {
         return false;
     }
-    const d = new Date(val);
+    const d = new Date(val as any);
     return isValidDateInstance(d) && d;
 }
 
-export function isValidDateInstance(val: Date): boolean {
+export function isValidDateInstance(val: unknown): boolean {
     return val instanceof Date && !isNaN(val as any);
 }
 
@@ -44,7 +44,7 @@ export function getUnixTime(val?: string|number|Date): number | false {
  * track a timeout to see if it expires
  * @returns a function that will returns false if the time elapsed
  */
-export function trackTimeout(timeoutMs: number) {
+export function trackTimeout(timeoutMs: number): () => number | false {
     const startTime = Date.now();
 
     return (): false | number => {

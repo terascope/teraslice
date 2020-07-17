@@ -10,6 +10,6 @@ export function ensureBuffer(input: string|Buffer, encoding: BufferEncoding = 'u
     throw new Error(`Invalid input given, expected string or buffer, got ${getTypeOf(input)}`);
 }
 
-export function isBuffer(input: any): input is Buffer {
+export function isBuffer(input: unknown): input is Buffer {
     return input != null && Buffer.isBuffer(input);
 }

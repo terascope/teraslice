@@ -25,14 +25,14 @@ export class Collector<T> {
     /**
      * Get the current Queue Length
     */
-    get length() {
+    get length(): number {
         return this._queue.length;
     }
 
     /**
      * Get the current queue
     */
-    get queue() {
+    get queue(): T[] {
         return this._queue;
     }
 
@@ -72,7 +72,7 @@ export class Collector<T> {
      * **NOTE:** This can potentially return more records than
      * specified than the max size.
     */
-    flushAll() {
+    flushAll(): T[] {
         return this._queue.splice(0, this._queue.length);
     }
 

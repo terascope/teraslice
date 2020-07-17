@@ -56,4 +56,78 @@ describe('APICore', () => {
             expect(api).not.toHaveProperty('onSliceRetry');
         });
     });
+
+    describe('->rejectRecord', () => {
+        const record = Buffer.from('hello');
+        const err = new Error('Bad news bears');
+
+        describe('when the action is log', () => {
+            let ogError: any;
+
+            beforeAll(() => {
+                ogError = api.logger.error;
+                api.deadLetterAction = 'log';
+                api.logger.error = jest.fn();
+            });
+
+            afterAll(() => {
+                api.logger.error = ogError;
+            });
+
+            it('should log the record', () => {
+                const result = api.rejectRecord(record, err);
+                expect(api.logger.error).toHaveBeenCalledWith(err, 'Bad record', record);
+                expect(result).toBeNull();
+            });
+        });
+
+        describe('when the action is throw', () => {
+            beforeAll(() => {
+                api.deadLetterAction = 'throw';
+            });
+
+            it('should throw the original error', () => {
+                expect(() => {
+                    api.rejectRecord(record, err);
+                }).toThrowError('Bad news bears');
+            });
+        });
+    });
+
+    describe('->tryRecord', () => {
+        const record = Buffer.from('hello');
+        const err = new Error('Bad news bears');
+
+        let ogReject: any;
+        beforeEach(() => {
+            ogReject = api.rejectRecord;
+            api.rejectRecord = jest.fn();
+        });
+
+        afterEach(() => {
+            api.rejectRecord = ogReject;
+        });
+
+        describe('when the fn fails', () => {
+            it('should call operation.rejectRecord', () => {
+                const fn = api.tryRecord(() => {
+                    throw err;
+                });
+
+                const result = fn(record);
+                expect(api.rejectRecord).toHaveBeenCalledWith(record, err);
+                expect(result).toBeNull();
+            });
+        });
+
+        describe('when the fn succceds', () => {
+            it('should not call operation.rejectRecord', () => {
+                const fn = api.tryRecord(() => ({ hello: true }));
+
+                const result = fn(record);
+                expect(api.rejectRecord).not.toHaveBeenCalled();
+                expect(result).toEqual({ hello: true });
+            });
+        });
+    });
 });

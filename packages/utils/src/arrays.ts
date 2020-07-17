@@ -159,6 +159,6 @@ export function getFirst<T>(input: T | T[]): T {
     return castArray(input)[0];
 }
 
-export function isArray<T = any>(input: any): input is T[] {
+export function isArray<T = any[]>(input: unknown): input is T {
     return Array.isArray(input);
 }
