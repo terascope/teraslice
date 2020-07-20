@@ -744,12 +744,14 @@ check if a string is base64 encoded.
 - no additional parameters
 
 ### before
+@deprecated, use isBefore
 
 check if the string is a date that's before the specified date in the param `value`.
 
 - value: `String`(required) = date used to check against the values
 
 ### bytelength
+@deprecated, use isByteLength
 
 check if the string's length (in UTF-8 bytes) falls in a range.
 
@@ -757,12 +759,14 @@ check if the string's length (in UTF-8 bytes) falls in a range.
 - max: `Number`(optional) = if set then it checks that the value has a maximal byte length (inclusive) of this parameter, if not it is removed
 
 ### creditcard
+@deprecated, use isCreditCard
 
 check if the string is a credit card.
 
 - no additional parameters
 
 ### currency
+@deprecated, use isCurrency
 
 check if the string is a valid currency amount.
 
@@ -783,6 +787,7 @@ check if the string is a valid currency amount.
 - allow_space_after_digits: `Boolean`(optional) = defaults to false,
 
 ### decimal
+@deprecated, use isDecimal
 
 check if the string represents a decimal number, such as 0.1, .3, 1.1, 1.00003, 4.0, etc
 
@@ -791,6 +796,8 @@ check if the string represents a decimal number, such as 0.1, .3, 1.1, 1.00003, 
 - locale: `String`(optional) = defines which locale to use, defaults to `en-US`. Available locals: ['ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA']
 
 ### divisibleby
+@deprecated, use isDivisibleBy
+
 
 check if the string is a number that's divisible by whats provided in the param `value`.
 
@@ -813,6 +820,7 @@ check if the string is a fully qualified domain name (e.g. domain.com).
 - allow_trailing_dot: `Boolean`(optional) = defaults to false
 
 ### float
+@deprecated, use isFloat
 
 check if the string is a float.
 
@@ -830,18 +838,21 @@ check if the string is a hash of type algorithm.
 - value: `String`(required) = Algorithm is one of ['md4', 'md5', 'sha1', 'sha256', 'sha384', 'sha512', 'ripemd128', 'ripemd160', 'tiger128', 'tiger160', 'tiger192', 'crc32', 'crc32b']
 
 ### hexcolor
+@deprecated, use isHexColor
 
 check if the string is a hexadecimal color.
 
 - no additional parameters
 
 ### hexadecimal
+@deprecated, use isHexadecimal
 
 check if the string is a hexadecimal number.
 
 - no additional parameters
 
 ### identitycard
+@deprecated, use isIdentityCard
 
 check if the string is a valid identity card code.
 
@@ -863,6 +874,7 @@ check if the string is an ISSN.
 - require_hyphen: `Boolean`(optional) = defaults to false
 
 ### isin
+@deprecated, use isISIN
 
 check if the string is an ISIN (stock/security identifier).
 
@@ -883,18 +895,21 @@ check if the string is a valid RFC 3339 date.
 - no additional parameters
 
 ### iso31661alpha2
+@deprecated, use isISO31661Alpha2
 
 check if the string is a valid ISO 3166-1 alpha-2 officially assigned country code.
 
 - no additional parameters
 
 ### iso31661alpha3
+@deprecated, use isISO31661Alpha3
 
 check if the string is a valid ISO 3166-1 alpha-3 officially assigned country code.
 
 - no additional parameters
 
 ### in
+@deprecated, use isIn
 
 check if the string is in a array/object of specified in the param `value`.
 
@@ -941,12 +956,14 @@ check if the string matches to a valid MIME type format
 - no additional parameters
 
 ### numeric
+@deprecated, use isNumeric
 
 check if the string contains only numbers.
 
 - no_symbols: `Boolean`(optional) = defaults to false. If no_symbols is true, the validator will reject numeric strings that feature a symbol (e.g. +, -, or .).
 
 ### port
+@deprecated, use isPort
 
 check if the string is a valid port number.
 

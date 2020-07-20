@@ -60,7 +60,7 @@ export class ValidatorPlugins implements PluginClassType {
             iso31661alpha3: deprecate(setup('isISO31661Alpha3'), 'iso31661alpha3 is being deprecated, please use isISO31661Alpha3 instead', 'iso31661alpha3'),
             in: deprecate(setup('isIn'), 'in is being deprecated, please use isIn instead', 'in'),
             int: deprecate(setup('isInt'), 'int is being deprecated, please use isInteger instead', 'int'),
-            latlong: deprecate(setup('isLatLong'), 'latlong is being deprecated, please use isGeoPoint instead', 'latlong'),
+            latlong: deprecate(setup('isLatLong'), 'latlong is being deprecated, please use isGeoPoint instead', 'latlong'), // - This is different that our internal geolocation validation.
             length: deprecate(setup('isLength'), 'length is being deprecated, please use isLength instead', 'length'),
             matches: setup('matches'),
             md5: deprecate(setup('isMD5'), 'md5 is being deprecated, please use isHash instead', 'md5'),
