@@ -1,30 +1,30 @@
 /** A simplified implemation of lodash isInteger */
-export function isInteger(val: any): val is number {
+export function isInteger(val: unknown): val is number {
     if (typeof val !== 'number') return false;
     return Number.isInteger(val);
 }
 
 /** A native implemation of lodash random */
-export function random(min: number, max: number) {
+export function random(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 /** Check if an input is a number */
-export function isNumber(input: any): input is number {
+export function isNumber(input: unknown): input is number {
     return typeof input === 'number' && !Number.isNaN(input);
 }
 
 /** Convert any input to a number, return Number.NaN if unable to convert input  */
-export function toNumber(input: any): number {
+export function toNumber(input: unknown): number {
     if (typeof input === 'number') return input;
 
     return Number(input);
 }
 
 /** Convert any input to a integer, return false if unable to convert input  */
-export function toInteger(input: any): number | false {
+export function toInteger(input: unknown): number | false {
     if (isInteger(input)) return input;
-    const val = Number.parseInt(input, 10);
+    const val = Number.parseInt(input as string, 10);
     if (isNumber(val)) return val;
     return false;
 }
@@ -32,7 +32,7 @@ export function toInteger(input: any): number | false {
 /**
  * Like parseList, except it returns numbers
  */
-export function parseNumberList(input: any): number[] {
+export function parseNumberList(input: unknown): number[] {
     let items: (number | string)[] = [];
 
     if (typeof input === 'string') {

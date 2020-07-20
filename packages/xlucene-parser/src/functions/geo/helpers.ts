@@ -15,7 +15,11 @@ import {
     lineString,
     multiPolygon,
     polygon as tPolygon,
-    point as tPoint
+    point as tPoint,
+    MultiPolygon,
+    Feature,
+    Properties,
+    Polygon
 } from '@turf/helpers';
 // @ts-expect-error
 import lineToPolygon from '@turf/line-to-polygon';
@@ -31,22 +35,25 @@ import {
     GeoPoint,
     CoordinateTuple,
     GeoPointInput,
-    JoinGeoShape
+    JoinGeoShape,
+    GeoDistanceUnit
 } from '@terascope/types';
 
-export function polyHasPoint(polygon: any) {
-    return (fieldData: GeoPointInput) => {
+export function polyHasPoint<G extends Polygon | MultiPolygon>(polygon: Feature<G>|G) {
+    return (fieldData: GeoPointInput): boolean => {
         const point = parseGeoPoint(fieldData, false);
         if (!point) return false;
         return pointInPolygon(makeCoordinatesFromGeoPoint(point), polygon);
     };
 }
 
-export function makeCircle(point: GeoPoint, distance: number, config: any) {
+export function makeCircle(point: GeoPoint, distance: number, config?: {
+    units?: GeoDistanceUnit|string;
+}): Feature<Polygon>|undefined {
     return createCircle(makeCoordinatesFromGeoPoint(point), distance, config);
 }
 
-export function makeBBox(point1: GeoPoint, point2: GeoPoint) {
+export function makeBBox(point1: GeoPoint, point2: GeoPoint): Feature<Polygon, Properties> {
     const line = lineString([
         makeCoordinatesFromGeoPoint(point1),
         makeCoordinatesFromGeoPoint(point2)
@@ -56,8 +63,8 @@ export function makeBBox(point1: GeoPoint, point2: GeoPoint) {
     return bboxPolygon(box);
 }
 
-export function pointInGeoShape(searchPoint: any) {
-    return (fieldData: JoinGeoShape) => {
+export function pointInGeoShape(searchPoint: unknown) {
+    return (fieldData: JoinGeoShape): boolean => {
         let polygon: any;
         if (isGeoShapePoint(fieldData)) {
             return equal(searchPoint, tPoint(fieldData.coordinates));
@@ -72,12 +79,11 @@ export function pointInGeoShape(searchPoint: any) {
         }
         // Nothing matches so return false
         if (!polygon) return false;
-        return pointInPolygon(searchPoint, polygon);
+        return pointInPolygon(searchPoint as any, polygon);
     };
 }
 
-export function makeShape(geoShape: JoinGeoShape) {
-    let feature: any;
+export function makeShape(geoShape: JoinGeoShape): Feature<any>|undefined {
     if (isGeoShapePoint(geoShape)) {
         return tPoint(geoShape.coordinates);
     }
@@ -90,19 +96,23 @@ export function makeShape(geoShape: JoinGeoShape) {
         return tPolygon(geoShape.coordinates);
     }
 
-    return feature;
+    return undefined;
 }
 
-export function validateListCoords(coords: CoordinateTuple[]) {
-    if (coords.length < 3) throw new Error('Points parameter for a geoPolygon query must have at least three geo-points');
+export function validateListCoords(coords: CoordinateTuple[]): any[] {
+    if (coords.length < 3) {
+        throw new Error('Points parameter for a geoPolygon query must have at least three geo-points');
+    }
     const line = lineString(coords);
     const polygon = lineToPolygon(line);
     return getCoords(polygon);
 }
 
-export function polyHasShape(queryPolygon: any, relation: GeoShapeRelation) {
+export function polyHasShape(
+    queryPolygon: Feature<any>, relation: GeoShapeRelation
+): (fieldData: JoinGeoShape) => boolean {
     const match = getRelationFn(relation, queryPolygon);
-    return (fieldData: JoinGeoShape) => {
+    return (fieldData) => {
         const feature = makeShape(fieldData);
         // Nothing matches so return false
         if (!feature) return false;
@@ -114,34 +124,37 @@ export function polyHasShape(queryPolygon: any, relation: GeoShapeRelation) {
     };
 }
 
-// within returns true if the first geometry is completely within the second geometry
-function withinFn(queryPolygon: any) {
-    return (fieldPolygon: any) => within(fieldPolygon, queryPolygon);
-}
+type RelationFn = (query: Feature<any>) => ((field: Feature<any>) => boolean);
+const relationOptions: Record<GeoShapeRelation, RelationFn> = Object.freeze({
+    /**
+     * within returns true if the first geometry is completely within the second geometry
+    */
+    [GeoShapeRelation.Within](queryPolygon) {
+        return (fieldPolygon) => within(fieldPolygon, queryPolygon);
+    },
+    /**
+     * disjoint returns (TRUE) if the intersection of the two geometries is an empty set.
+     */
+    [GeoShapeRelation.Disjoint](queryPolygon) {
+        return (fieldPolygon) => disjoint(fieldPolygon, queryPolygon);
+    },
+    /**
+     * contains returns True if the second geometry is completely contained by the first geometry.
+    */
+    [GeoShapeRelation.Contains](queryPolygon) {
+        return (fieldPolygon) => contains(fieldPolygon, queryPolygon);
+    },
+    /**
+     * compares two geometries of the same dimension and returns true if they intersection
+    */
+    [GeoShapeRelation.Intersects](queryPolygon: Feature<any>) {
+        return (fieldPolygon: Feature<any>) => intersect(fieldPolygon, queryPolygon);
+    },
+});
 
-// contains returns True if the second geometry is completely contained by the first geometry.
-function containsFn(queryPolygon: any) {
-    return (fieldPolygon: any) => contains(fieldPolygon, queryPolygon);
-}
-
-// Compares two geometries of the same dimension and returns true if they intersection
-function intersectFn(queryPolygon: any) {
-    return (fieldPolygon: any) => intersect(fieldPolygon, queryPolygon);
-}
-
-// disjoint returns (TRUE) if the intersection of the two geometries is an empty set.
-function disjointFn(queryPolygon: any) {
-    return (fieldPolygon: any) => disjoint(fieldPolygon, queryPolygon);
-}
-
-const relationOptions = {
-    [GeoShapeRelation.Within]: withinFn,
-    [GeoShapeRelation.Disjoint]: disjointFn,
-    [GeoShapeRelation.Contains]: containsFn,
-    [GeoShapeRelation.Intersects]: intersectFn,
-};
-
-export function getRelationFn(relation: GeoShapeRelation, queryPolygon: any) {
+export function getRelationFn(
+    relation: GeoShapeRelation, queryPolygon: Feature<any>
+): (field: Feature<any>) => boolean {
     return relationOptions[relation](queryPolygon);
 }
 

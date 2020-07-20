@@ -1,4 +1,6 @@
-import { Fetcher, SliceRequest, times } from '@terascope/job-components';
+import {
+    Fetcher, SliceRequest, times, WorkerContext, ExecutionConfig, DataEntity
+} from '@terascope/job-components';
 import { SimpleReaderConfig } from './interfaces';
 import SimpleClient from '../simple-connector/client';
 import { SimpleAPI } from '../simple-api/interfaces';
@@ -6,19 +8,21 @@ import { SimpleAPI } from '../simple-api/interfaces';
 export default class TestFetcher extends Fetcher<SimpleReaderConfig> {
     client: SimpleClient;
 
-    // @ts-expect-error
-    constructor(...args) {
-        // @ts-expect-error
-        super(...args);
+    constructor(
+        context: WorkerContext,
+        opConfig: SimpleReaderConfig,
+        executionConfig: ExecutionConfig
+    ) {
+        super(context, opConfig, executionConfig);
 
         this.client = this.context.apis.op_runner.getClient({}, 'simple-client');
     }
 
-    async fetch(request: SliceRequest) {
+    async fetch(request: SliceRequest): Promise<DataEntity[]> {
         const api = this.getAPI('simple-api') as SimpleAPI;
         return times(request.count, (id) => {
             api.add(2);
-            return this.client.fetchRecord(id);
+            return DataEntity.make(this.client.fetchRecord(id));
         });
     }
 }

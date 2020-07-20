@@ -36,6 +36,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
                 schema: utils.addDefaultSchema(modelConfig.schema),
                 strict: modelConfig.strict_mode !== false,
                 all_formatters: true,
+                validate_on_read: false,
             },
             index_settings: {
                 'index.number_of_shards': ts.isTest ? 1 : 5,
@@ -79,7 +80,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
         anyId: string,
         options?: i.FindOneOptions<T>,
         queryAccess?: QueryAccess<T>
-    ) {
+    ): Promise<T> {
         utils.validateId(anyId, 'fetchRecord');
         const fields: Partial<T> = {};
 
@@ -192,7 +193,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
         return record;
     }
 
-    protected async _ensureUnique(record: T, existing?: T) {
+    protected async _ensureUnique(record: T, existing?: T): Promise<void> {
         for (const field of this._uniqueFields) {
             if (field === '_key') continue;
             if (field === 'client_id') continue;

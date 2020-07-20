@@ -1,7 +1,7 @@
 {
     "name": "@terascope/teraslice-op-test-harness",
     "displayName": "Teraslice Op Test Harness",
-    "version": "1.21.0",
+    "version": "1.22.1",
     "description": "A testing harness to simplify testing Teraslice processors and operations.",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/teraslice-op-test-harness#readme",
     "bugs": {
@@ -18,10 +18,14 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/job-components": "^0.37.0",
         "bluebird": "^3.7.2"
     },
-    "devDependencies": {},
+    "devDependencies": {
+        "@terascope/job-components": "^0.38.1"
+    },
+    "peerDependencies": {
+        "@terascope/job-components": "^0.38.1"
+    },
     "publishConfig": {
         "access": "public",
         "registry": "https://registry.npmjs.org/"

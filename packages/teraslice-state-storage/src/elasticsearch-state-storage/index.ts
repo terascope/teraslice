@@ -34,9 +34,9 @@ export default class ESCachedStateStorage {
         this.es = esApi(client, logger);
     }
 
-    async initialize() {}
+    async initialize(): Promise<void> {}
 
-    async shutdown() {
+    async shutdown(): Promise<void> {
         this.cache.clear();
     }
 

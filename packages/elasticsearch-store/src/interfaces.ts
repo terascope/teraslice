@@ -142,6 +142,13 @@ export interface DataSchema {
     strict?: boolean;
 
     /**
+     * Validate and format the records when reading
+     *
+     * @default true
+    */
+    validate_on_read?: boolean;
+
+    /**
      * If enabled this will allow the use of some of
      * the slower but more correct JSON Schema's formatters:
      *

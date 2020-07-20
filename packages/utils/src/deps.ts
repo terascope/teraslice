@@ -12,11 +12,13 @@ import kindOf from 'kind-of';
 import jsStringEscape from 'js-string-escape';
 import geoHash from 'latlon-geohash';
 import pMap from 'p-map';
+import { AnyObject } from './interfaces';
+import { DataEntity } from './entities';
 
 /**
  * Detect if an object created by Object.create(null)
 */
-function isNullObject(input: any): boolean {
+function isNullObject(input: any): input is AnyObject {
     return input != null && typeof input === 'object' && input.constructor === undefined;
 }
 
@@ -24,7 +26,7 @@ function isNullObject(input: any): boolean {
  * Detect if value is a plain object, that is,
  * an object created by the Object constructor or one via Object.create(null)
 */
-export function isPlainObject(input: unknown): boolean {
+export function isPlainObject<T extends AnyObject>(input: unknown): boolean {
     if (input == null) return false;
     if (_isPlainObject(input)) return true;
     if (isNullObject(input)) return true;
@@ -34,14 +36,14 @@ export function isPlainObject(input: unknown): boolean {
 /**
  * Shallow clone an object
 */
-export function clone(input: unknown): boolean {
+export function clone(input: unknown): any {
     if (isNullObject(input)) {
         return Object.assign(Object.create(null), input);
     }
     return _clone(input);
 }
 
-function _isDataEntity(input: any): boolean {
+function _isDataEntity(input: any): input is DataEntity {
     return input && typeof input === 'object' && Boolean(input.__isDataEntity);
 }
 

@@ -111,7 +111,9 @@ export function getESVersion(client: Client): number {
     return 6;
 }
 
-export function fixMappingRequest(client: Client, _params: any, isTemplate: boolean) {
+export function fixMappingRequest(
+    client: Client, _params: Record<string, any>, isTemplate: boolean
+): any {
     if (!_params || !_params.body) {
         throw new Error('Invalid mapping request');
     }

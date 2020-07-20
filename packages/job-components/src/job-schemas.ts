@@ -7,7 +7,8 @@ import {
     isPlainObject,
     dataEncodings,
     isString,
-    DataEncoding
+    DataEncoding,
+    isNotNil,
 } from '@terascope/utils';
 import { Context } from './interfaces';
 
@@ -301,5 +302,31 @@ export const apiSchema: convict.Schema<any> = {
         but can be suffixed with a identifier by using the format "example:0",
         anything after the ":" is stripped out when searching for the file or folder.`,
         format: 'required_String',
+    },
+    _encoding: {
+        doc: 'Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`.',
+        default: undefined,
+        format: (val: unknown): void => {
+            if (isNotNil(val)) {
+                if (isString(val)) {
+                    if (!dataEncodings.includes(val as any)) throw new Error(`Invalid parameter _encoding, expected values ${dataEncodings.join(' , ')}, was given ${val}`);
+                } else {
+                    throw new Error(`Invalid parameter _encoding, expect type string, was given ${getTypeOf(val)}`);
+                }
+            }
+        },
+    },
+    _dead_letter_action: {
+        doc: [
+            'This action will specify what to do when failing to parse or transform a record.',
+            'The following builtin actions are supported:',
+            '  - "throw": throw the original error​​',
+            '  - "log": log the error and the data​​',
+            '  - "none": (default) skip the error entirely',
+            'If none of the actions are specified it will try and use a registered Dead Letter Queue API under that name.',
+            'The API must be already be created by a operation before it can used.'
+        ].join('\n'),
+        default: 'throw',
+        format: 'optional_String',
     },
 };

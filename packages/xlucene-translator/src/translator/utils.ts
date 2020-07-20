@@ -398,7 +398,7 @@ export function translateQuery(
     };
 }
 
-export function isMultiMatch(node: p.TermLikeAST) {
+export function isMultiMatch(node: p.TermLikeAST): boolean {
     return !node.field || node.field === '*';
 }
 
@@ -418,14 +418,15 @@ export function flattenQuery(
 }
 
 /** This prevents double nested queries that do the same thing */
-export function canFlattenBoolQuery(query: i.BoolQuery, flattenTo: i.BoolQueryTypes) {
+export function canFlattenBoolQuery(query: i.BoolQuery, flattenTo: i.BoolQueryTypes): boolean {
     const types = Object.keys(query.bool);
     if (types.length !== 1) return false;
     return types[0] === flattenTo;
 }
 
-export function isBoolQuery(query: any): query is i.BoolQuery {
-    return query && query.bool != null;
+export function isBoolQuery(query: unknown): query is i.BoolQuery {
+    if (!query || typeof query !== 'object') return false;
+    return (query as any).bool != null;
 }
 
 export function compactFinalQuery(query?: i.AnyQuery): i.AnyQuery | i.AnyQuery[] {

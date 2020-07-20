@@ -32,7 +32,7 @@ export default class IndexManager {
         });
     }
 
-    formatIndexName<T = any>(config: IndexConfig<T>, useWildcard = true) {
+    formatIndexName<T = any>(config: IndexConfig<T>, useWildcard = true): string {
         utils.validateIndexConfig(config);
 
         const { name, namespace } = config;
@@ -53,7 +53,7 @@ export default class IndexManager {
         return indexName;
     }
 
-    formatTemplateName<T = any>(config: IndexConfig<T>) {
+    formatTemplateName<T = any>(config: IndexConfig<T>): string {
         utils.validateIndexConfig(config);
 
         const { name, namespace } = config;
@@ -242,7 +242,7 @@ export default class IndexManager {
         });
     }
 
-    async getMapping(index: string) {
+    async getMapping(index: string): Promise<any> {
         const params: any = { index };
         if (this.esVersion === 7) {
             params.includeTypeName = false;
@@ -250,7 +250,7 @@ export default class IndexManager {
         return this.client.indices.getMapping(params);
     }
 
-    async putMapping(index: string, type: string, properties: any) {
+    async putMapping(index: string, type: string, properties: Record<string, any>): Promise<any> {
         const params: any = {
             index,
             type,
@@ -270,7 +270,9 @@ export default class IndexManager {
      *
      * **WARNING:** This only updates the mapping if it exists
      */
-    async updateMapping(index: string, type: string, mapping: any, logger: ts.Logger) {
+    async updateMapping(
+        index: string, type: string, mapping: Record<string, any>, logger: ts.Logger
+    ): Promise<void> {
         const result = await this.getMapping(index);
 
         const propertiesPath = this.esVersion >= 7 ? [
@@ -313,7 +315,7 @@ export default class IndexManager {
         }
     }
 
-    async getTemplate(name: string, flatSettings: boolean) {
+    async getTemplate(name: string, flatSettings: boolean): Promise<Record<string, any>> {
         const params: any = { name, flatSettings };
         if (this.esVersion === 7) {
             params.includeTypeName = false;
@@ -324,7 +326,7 @@ export default class IndexManager {
     /**
      * Safely create or update a template
      */
-    async upsertTemplate(template: any, logger?: ts.Logger) {
+    async upsertTemplate(template: Record<string, any>, logger?: ts.Logger): Promise<void> {
         const { template: name, version } = template;
         try {
             const templates = await this.getTemplate(name, true);
@@ -350,7 +352,7 @@ export default class IndexManager {
         await this.client.indices.putTemplate(params);
     }
 
-    protected async waitForIndexAvailability(index: string) {
+    protected async waitForIndexAvailability(index: string): Promise<void> {
         const query = {
             index,
             q: '',

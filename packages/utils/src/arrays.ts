@@ -141,12 +141,13 @@ export function chunk<T>(dataArray: T[]|Set<T>, size: number): T[][] {
 }
 
 /** Safely check if an array, object, map, set has a key */
-export function includes(input: any, key: string): boolean {
+export function includes(input: unknown, key: string): boolean {
     if (!input) return false;
     if (Array.isArray(input) || typeof input === 'string') return input.includes(key);
-    if (typeof input.has === 'function') return input.has(key);
-    if (typeof input === 'object') {
-        return key in input;
+    const obj = input as any;
+    if (typeof obj.has === 'function') return obj.has(key);
+    if (typeof obj === 'object') {
+        return key in obj;
     }
     return false;
 }
@@ -159,6 +160,6 @@ export function getFirst<T>(input: T | T[]): T {
     return castArray(input)[0];
 }
 
-export function isArray<T = any>(input: any): input is T[] {
+export function isArray<T = any[]>(input: unknown): input is T {
     return Array.isArray(input);
 }

@@ -435,7 +435,7 @@ describe('when using native clustering', () => {
             const api = {
                 _name: 'some-api',
                 example: 'example',
-                formatted_value: 'hi',
+                formatted_value: 'hi'
             };
 
             const config = validateAPIConfig(schema, api);
@@ -444,6 +444,8 @@ describe('when using native clustering', () => {
                 example: 'example',
                 formatted_value: 'hi',
                 test: true,
+                _dead_letter_action: 'throw',
+                _encoding: undefined,
             });
         });
 

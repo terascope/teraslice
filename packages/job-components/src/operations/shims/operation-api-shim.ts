@@ -1,7 +1,7 @@
 import { Context } from '../../interfaces';
 import { OperationAPIConstructor } from '../interfaces';
 
-export default function operationAPIShim(context: Context, apis: APIs = {}) {
+export default function operationAPIShim(context: Context, apis: APIs = {}): void {
     Object.keys(apis).forEach((name) => {
         const api = apis[name];
         context.apis.executionContext.addToRegistry(name, api);

@@ -5,17 +5,17 @@ export default class ExampleBatch extends BatchProcessor {
     _shutdown = false;
     _flushing = false;
 
-    async initialize() {
+    async initialize(): Promise<void> {
         this._initialized = true;
         return super.initialize();
     }
 
-    async shutdown() {
+    async shutdown(): Promise<void> {
         this._shutdown = true;
         return super.shutdown();
     }
 
-    async onBatch(input: DataEntity[]) {
+    async onBatch(input: DataEntity[]): Promise<DataEntity[]> {
         if (this.opConfig.test_flush && this._flushing) {
             return times(30, () => DataEntity.make({ flush: true }));
         }
@@ -26,11 +26,11 @@ export default class ExampleBatch extends BatchProcessor {
         }));
     }
 
-    onFlushStart() {
+    onFlushStart(): void {
         this._flushing = true;
     }
 
-    onFlushEnd() {
+    onFlushEnd(): void {
         this._flushing = false;
     }
 }

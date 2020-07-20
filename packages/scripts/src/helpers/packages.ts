@@ -74,7 +74,10 @@ export function listPackages(): i.PackageInfo[] {
         .map(_loadPackage)
         .filter((pkg) => pkg?.name);
 
-    _packages = QueryGraph.toposort(packages);
+    _packages = QueryGraph.toposort(packages, {
+        graphType: 'allDependencies',
+        rejectCycles: true,
+    });
     return _packages;
 }
 

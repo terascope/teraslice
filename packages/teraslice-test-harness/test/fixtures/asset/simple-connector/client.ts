@@ -1,5 +1,5 @@
 export = class SimpleClient {
-    fetchRecord(id: number) {
+    fetchRecord(id: number): { id: number, data: number[] } {
         return {
             id,
             data: [
@@ -10,13 +10,13 @@ export = class SimpleClient {
         };
     }
 
-    sliceRequest(count: number) {
+    sliceRequest(count: number): { count: number } {
         return {
             count
         };
     }
 
-    isFinished() {
+    isFinished(): boolean {
         return false;
     }
 };

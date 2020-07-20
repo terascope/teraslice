@@ -11,9 +11,9 @@ export default abstract class Fetcher<T = OpConfig> extends FetcherCore<T> {
      * A method called by {@link Fetcher#handle}
      * @returns a DataEntity compatible array
     */
-    abstract async fetch(sliceRequest?: any): Promise<DataArrayInput>;
+    abstract async fetch(sliceRequest?: unknown): Promise<DataArrayInput>;
 
-    async handle(sliceRequest?: any): Promise<DataEntity[]> {
+    async handle(sliceRequest?: unknown): Promise<DataEntity[]> {
         return DataEntity.makeArray(await this.fetch(sliceRequest));
     }
 }

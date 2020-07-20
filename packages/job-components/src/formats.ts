@@ -11,7 +11,7 @@ import {
 export const formats: Format[] = [
     {
         name: 'required_String',
-        validate(val: any) {
+        validate(val: unknown) {
             if (!val || !isString(val)) {
                 throw new Error('This field is required and must by of type string');
             }
@@ -22,7 +22,7 @@ export const formats: Format[] = [
     } as Format,
     {
         name: 'optional_String',
-        validate(val: any) {
+        validate(val: unknown) {
             if (!val) { return; }
             if (isString(val)) { return; }
             throw new Error('This field is optional but if specified it must be of type string');
@@ -33,7 +33,7 @@ export const formats: Format[] = [
     } as Format,
     {
         name: 'optional_Date',
-        validate(val: any) {
+        validate(val: unknown) {
             if (!val) { return; }
             if (isString(val) || isInteger(val)) {
                 if (isValidDate(val)) { return; }
@@ -55,7 +55,10 @@ export const formats: Format[] = [
     } as Format,
     {
         name: 'elasticsearch_Name',
-        validate(val: any) {
+        validate(val: unknown) {
+            if (typeof val !== 'string') {
+                throw new Error(`value: ${val} must be a string`);
+            }
             if (val.length > 255) {
                 throw new Error(`value: ${val} should not exceed 255 characters`);
             }
@@ -87,7 +90,7 @@ export const formats: Format[] = [
     } as Format,
     {
         name: 'positive_int',
-        validate(val: any) {
+        validate(val: unknown) {
             const int = toInteger(val);
             if (int === false || int < 1) {
                 throw new Error('must be valid integer greater than zero');
@@ -99,7 +102,7 @@ export const formats: Format[] = [
     } as Format,
 ];
 
-export function addFormats() {
+export function addFormats(): void {
     formats.forEach(addFormat);
 }
 

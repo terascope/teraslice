@@ -2,7 +2,7 @@ import { TestReaderConfig } from './interfaces';
 import { ConvictSchema } from '../../operations';
 
 export default class Schema extends ConvictSchema<TestReaderConfig> {
-    build() {
+    build(): Record<string, any> {
         return {
             fetcher_data_file_path: {
                 default: null,

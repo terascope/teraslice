@@ -25,7 +25,7 @@ export default class OpTestHarness {
      * Set the Terafoundation Clients on both
      * the Slicer and Worker contexts
     */
-    setClients(clients: TestClientConfig[]) {
+    setClients(clients: TestClientConfig[]): void {
         this.harness.setClients(clients);
     }
 
@@ -40,7 +40,7 @@ export default class OpTestHarness {
     /**
      * Initialize the Operations on the ExecutionContext
     */
-    async initialize(options?: OpHarness.InitOptions) {
+    async initialize(options?: OpHarness.InitOptions): Promise<void> {
         const initOptions: OpHarness.InitOptions = options != null ? options : {
             opConfig: {
                 _op: 'test'
@@ -61,7 +61,7 @@ export default class OpTestHarness {
     /**
      * Shutdown the Operations on the ExecutionContext
     */
-    async shutdown() {
+    async shutdown(): Promise<void> {
         if (this.opTester != null) {
             await this.opTester.operation.shutdown();
         }

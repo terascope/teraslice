@@ -1,7 +1,7 @@
 import { ConvictSchema } from '../../../src';
 
 class Schema extends ConvictSchema<any, any> {
-    build() {
+    build(): Record<string, any> {
         return {
             example: {
                 default: 'examples are quick and easy',

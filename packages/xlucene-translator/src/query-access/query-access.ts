@@ -60,7 +60,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         this.variables = variables;
     }
 
-    clearCache() {
+    clearCache(): void {
         this._parser.reset();
         this._translator.reset();
     }
@@ -243,7 +243,10 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      *
      * **NOTE:** this will remove restricted fields and will not throw
      */
-    restrictSourceFields(includes?: (keyof T)[], excludes?: (keyof T)[]) {
+    restrictSourceFields(includes?: (keyof T)[], excludes?: (keyof T)[]): {
+        includes: (keyof T)[]|undefined,
+        excludes: (keyof T)[]|undefined,
+    } {
         const all = Object.keys(this.parsedTypeConfig)
             .map((field) => field.split('.')[0]) as (keyof T)[];
 

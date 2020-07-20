@@ -72,7 +72,10 @@ export default class IndexStore<T extends ts.AnyObject> {
         if (config.data_schema != null) {
             const validator = utils.makeDataValidator(config.data_schema, this._logger);
             this.writeHooks.add(validator);
-            this.readHooks.add(validator);
+            const validateOnRead = config.data_schema.validate_on_read ?? true;
+            if (validateOnRead) {
+                this.readHooks.add(validator);
+            }
         }
 
         this._getIngestTime = utils.getTimeByField(this.config.ingest_time_field as string);
@@ -91,7 +94,7 @@ export default class IndexStore<T extends ts.AnyObject> {
     async bulk(action: 'delete', id?: string): Promise<void>;
     async bulk(action: 'index' | 'create', doc?: Partial<T>, id?: string): Promise<void>;
     async bulk(action: 'update', doc?: Partial<T>, id?: string): Promise<void>;
-    async bulk(action: i.BulkAction, ...args: any[]) {
+    async bulk(action: i.BulkAction, ...args: any[]): Promise<void> {
         const metadata: BulkRequestMetadata = {};
         metadata[action] = this.esVersion >= 7 ? {
             _index: this.indexQuery,
@@ -155,7 +158,9 @@ export default class IndexStore<T extends ts.AnyObject> {
      *
      * @returns the created record
      */
-    async createById(id: string, doc: Partial<T>, params?: PartialParam<es.CreateDocumentParams, 'id' | 'body'>) {
+    async createById(
+        id: string, doc: Partial<T>, params?: PartialParam<es.CreateDocumentParams, 'id' | 'body'>
+    ): Promise<T> {
         utils.validateId(id, 'createById');
         return this.create(doc, Object.assign({}, params, { id }));
     }
@@ -178,7 +183,7 @@ export default class IndexStore<T extends ts.AnyObject> {
         return this._toRecord(result);
     }
 
-    async flush(flushAll = false) {
+    async flush(flushAll = false): Promise<void> {
         const records = flushAll ? this._collector.flushAll() : this._collector.getBatch();
         if (!records || !records.length) return;
 
@@ -209,7 +214,7 @@ export default class IndexStore<T extends ts.AnyObject> {
     /**
      * Connect and validate the index configuration.
      */
-    async initialize() {
+    async initialize(): Promise<void> {
         await this.manager.indexSetup(this.config);
 
         const ms = Math.round(this._bulkMaxWait / 2);
@@ -240,13 +245,17 @@ export default class IndexStore<T extends ts.AnyObject> {
     /**
      * A convenience method for indexing a document with an ID
      */
-    async indexById(id: string, doc: T | Partial<T>, params?: PartialParam<es.IndexDocumentParams<T>, 'index' | 'type' | 'id'>) {
+    async indexById(
+        id: string,
+        doc: T | Partial<T>,
+        params?: PartialParam<es.IndexDocumentParams<T>, 'index' | 'type' | 'id'>
+    ): Promise<T> {
         utils.validateId(id, 'indexById');
         return this.index(doc, Object.assign({}, params, { id }));
     }
 
     /** Get multiple documents at the same time */
-    async mget(body: any, params?: PartialParam<es.MGetParams>): Promise<T[]> {
+    async mget(body: unknown, params?: PartialParam<es.MGetParams>): Promise<T[]> {
         const p = this.getDefaultParams(params, { body });
 
         const docs = await ts.pRetry(async () => {
@@ -258,14 +267,14 @@ export default class IndexStore<T extends ts.AnyObject> {
     }
 
     /** @see IndexManager#migrateIndex */
-    migrateIndex(options: i.MigrateIndexStoreOptions) {
+    migrateIndex(options: i.MigrateIndexStoreOptions): Promise<any> {
         return this.manager.migrateIndex<T>({ ...options, config: this.config });
     }
 
     /**
      * Refreshes the current index
      */
-    async refresh(params?: PartialParam<es.IndicesRefreshParams>) {
+    async refresh(params?: PartialParam<es.IndicesRefreshParams>): Promise<void> {
         const p = Object.assign(
             {
                 index: this.indexQuery,
@@ -279,7 +288,7 @@ export default class IndexStore<T extends ts.AnyObject> {
     /**
      * Deletes a document for a given id
      */
-    async deleteById(id: string, params?: PartialParam<es.DeleteDocumentParams>) {
+    async deleteById(id: string, params?: PartialParam<es.DeleteDocumentParams>): Promise<void> {
         utils.validateId(id, 'deleteById');
         const p = this.getDefaultParams(
             {
@@ -297,7 +306,7 @@ export default class IndexStore<T extends ts.AnyObject> {
     /**
      * Shutdown, flush any pending requests and cleanup
      */
-    async shutdown() {
+    async shutdown(): Promise<void> {
         if (this._interval != null) {
             clearInterval(this._interval);
         }
@@ -363,7 +372,7 @@ export default class IndexStore<T extends ts.AnyObject> {
         }
     }
 
-    getDefaultParams(...params: any[]) {
+    getDefaultParams(...params: any[]): any {
         return Object.assign(
             this.esVersion >= 7 ? {
                 index: this.indexQuery,
@@ -405,7 +414,7 @@ export default class IndexStore<T extends ts.AnyObject> {
         joinBy?: JoinBy,
         options?: i.FindOneOptions<T>,
         queryAccess?: QueryAccess<T>
-    ) {
+    ): Promise<T> {
         const { query, variables } = this.createJoinQuery(fields, joinBy, options?.variables);
 
         const { results } = await this.search(

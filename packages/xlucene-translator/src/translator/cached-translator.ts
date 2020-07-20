@@ -16,7 +16,7 @@ export class CachedTranslator {
         return new Translator(query, options);
     }
 
-    reset() {
+    reset(): void {
         _cache.delete(this);
         _cache.set(this, {});
     }

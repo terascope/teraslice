@@ -40,6 +40,7 @@ export type PackageConfig = {
     main?: boolean;
     enableTypedoc?: boolean;
     testSuite?: string;
+    allowBumpWhenPrivate?: boolean;
 };
 
 export type RootPackageInfo = {
@@ -85,7 +86,9 @@ export type RootPackageInfo = {
     };
 };
 
-export const AvailablePackageConfigKeys: readonly (keyof PackageConfig)[] = ['enableTypedoc', 'testSuite', 'main'];
+export const AvailablePackageConfigKeys: readonly (keyof PackageConfig)[] = [
+    'enableTypedoc', 'testSuite', 'main', 'allowBumpWhenPrivate',
+];
 
 export type TSCommands = 'docs';
 

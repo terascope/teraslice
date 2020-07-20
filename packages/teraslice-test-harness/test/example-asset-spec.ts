@@ -5,6 +5,7 @@ import SimpleClient from './fixtures/asset/simple-connector/client';
 import {
     JobTestHarness, newTestJobConfig, newTestSlice, SlicerTestHarness, WorkerTestHarness
 } from '../src';
+import SimpleAPIClass from './fixtures/asset/simple-api/api';
 import { SimpleAPI } from './fixtures/asset/simple-api/interfaces';
 
 jest.mock('./fixtures/asset/simple-connector/client');
@@ -99,12 +100,19 @@ describe('Example Asset', () => {
         });
 
         it('can get apis using getOperationAPI', async () => {
-            const api = harness.getOperationAPI<SimpleAPI>(apiName);
+            const api = harness.getOperationAPI<SimpleAPIClass>(apiName);
 
-            expect(api).toBeDefined();
-            expect(api.count).toBeNumber();
-            expect(api.add).toBeFunction();
-            expect(api.sub).toBeFunction();
+            expect(api).toBeInstanceOf(SimpleAPIClass);
+        });
+
+        it('can get apis using getAPI', async () => {
+            const api = harness.getAPI<SimpleAPI>(apiName);
+
+            expect(api).toMatchObject({
+                count: expect.any(Number),
+                add: expect.any(Function),
+                sub: expect.any(Function),
+            });
         });
     });
 
@@ -238,15 +246,6 @@ describe('Example Asset', () => {
                     expect(result.scale).toBe(6);
                 }
             }
-        });
-
-        it('can get apis using getOperationAPI', async () => {
-            const api = harness.getOperationAPI<SimpleAPI>(apiName);
-
-            expect(api).toBeDefined();
-            expect(api.count).toBeNumber();
-            expect(api.add).toBeFunction();
-            expect(api.sub).toBeFunction();
         });
     });
 });
