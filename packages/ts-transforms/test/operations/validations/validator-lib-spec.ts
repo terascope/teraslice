@@ -634,4 +634,20 @@ describe('validator lib', () => {
             }
         });
     });
+
+    it('can call the alpha method', () => {
+        const opConfig: PostProcessConfig = {
+            follow: 'someId', source: 'field', target: 'field', value: 'en-US', __id: 'someId'
+        };
+
+        const test = getValidator(opConfig, 'alpha');
+
+        const obj = { value: 'someAlphaValue' };
+
+        const data1 = new DataEntity(obj);
+
+        const results1 = test.run(data1);
+
+        expect(results1).toEqual(obj);
+    });
 });
