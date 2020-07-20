@@ -648,7 +648,6 @@ This will make sure the field is a string and trim it, otherwise it will remove 
 <li>no additional parameters</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="contains"></a><a href="#contains" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>contains</h3>
-<p>@deprecated, use decodeHex</p>
 <p>check if the string contains what is specified in the param <code>value</code>.</p>
 <ul>
 <li>value: <code>String</code>(require) = the value which is used to check the string</li>
@@ -674,25 +673,24 @@ This will make sure the field is a string and trim it, otherwise it will remove 
 
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="equals"></a><a href="#equals" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>equals</h3>
-<p>@deprecated, use decodeHex</p>
 <p>check if the string equals what is specified in the param <code>value</code>.</p>
 <ul>
 <li>value: <code>String</code>(required) = the value which is used to check the string</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="alpha"></a><a href="#alpha" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>alpha</h3>
-<p>@deprecated, use decodeHex</p>
+<p>@deprecated, use isAlpha</p>
 <p>check if the string contains only letters (a-zA-Z)</p>
 <ul>
 <li>value: <code>String</code>(optional) = defines which locale to use, defaults to <code>en-US</code>. Available locals: ['ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA']</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="alphanumeric"></a><a href="#alphanumeric" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>alphanumeric</h3>
-<p>@deprecated, use decodeHex</p>
+<p>@deprecated, use isAlphanumeric</p>
 <p>check if the string contains only letters and numbers.</p>
 <ul>
 <li>value: <code>String</code>(optional) = defines which locale to use, defaults to <code>en-US</code>. Available locals: ['ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA']</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="ascii"></a><a href="#ascii" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>ascii</h3>
-<p>@deprecated, use decodeHex</p>
+<p>@deprecated, use isASCII</p>
 <p>check if the string contains ASCII chars only.</p>
 <ul>
 <li>no additional parameters</li>
@@ -704,22 +702,26 @@ This will make sure the field is a string and trim it, otherwise it will remove 
 <li>no additional parameters</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="before"></a><a href="#before" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>before</h3>
+<p>@deprecated, use isBefore</p>
 <p>check if the string is a date that's before the specified date in the param <code>value</code>.</p>
 <ul>
 <li>value: <code>String</code>(required) = date used to check against the values</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="bytelength"></a><a href="#bytelength" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>bytelength</h3>
+<p>@deprecated, use isByteLength</p>
 <p>check if the string's length (in UTF-8 bytes) falls in a range.</p>
 <ul>
 <li>min: <code>Number</code>(optional) = if set then it checks that the value has a minimal byte (inclusive) of this parameter, if not it is removed, defaults to 0</li>
 <li>max: <code>Number</code>(optional) = if set then it checks that the value has a maximal byte length (inclusive) of this parameter, if not it is removed</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="creditcard"></a><a href="#creditcard" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>creditcard</h3>
+<p>@deprecated, use isCreditCard</p>
 <p>check if the string is a credit card.</p>
 <ul>
 <li>no additional parameters</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="currency"></a><a href="#currency" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>currency</h3>
+<p>@deprecated, use isCurrency</p>
 <p>check if the string is a valid currency amount.</p>
 <ul>
 <li>symbol: <code>Number</code>(optional) = defaults to'$'</li>
@@ -739,6 +741,7 @@ This will make sure the field is a string and trim it, otherwise it will remove 
 <li>allow_space_after_digits: <code>Boolean</code>(optional) = defaults to false,</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="decimal"></a><a href="#decimal" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>decimal</h3>
+<p>@deprecated, use isDecimal</p>
 <p>check if the string represents a decimal number, such as 0.1, .3, 1.1, 1.00003, 4.0, etc</p>
 <ul>
 <li>force_decimal: <code>Boolean</code>(optional) = defaults to false</li>
@@ -746,7 +749,7 @@ This will make sure the field is a string and trim it, otherwise it will remove 
 <li>locale: <code>String</code>(optional) = defines which locale to use, defaults to <code>en-US</code>. Available locals: ['ar', 'ar-AE', 'ar-BH', 'ar-DZ', 'ar-EG', 'ar-IQ', 'ar-JO', 'ar-KW', 'ar-LB', 'ar-LY', 'ar-MA', 'ar-QA', 'ar-QM', 'ar-SA', 'ar-SD', 'ar-SY', 'ar-TN', 'ar-YE', 'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-HK', 'en-IN', 'en-NZ', 'en-US', 'en-ZA', 'en-ZM', 'es-ES', 'fr-FR', 'hu-HU', 'it-IT', 'ku-IQ', 'nb-NO', 'nl-NL', 'nn-NO', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'sl-SI', 'sk-SK', 'sr-RS', 'sr-RS@latin', 'sv-SE', 'tr-TR', 'uk-UA']</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="divisibleby"></a><a href="#divisibleby" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>divisibleby</h3>
-<p>@deprecated, use decodeHex</p>
+<p>@deprecated, use isDivisibleBy</p>
 <p>check if the string is a number that's divisible by whats provided in the param <code>value</code>.</p>
 <ul>
 <li>value: <code>Number</code>(required) = number used to divide against the values</li>
@@ -758,7 +761,7 @@ This will make sure the field is a string and trim it, otherwise it will remove 
 <li>ignore_whitespace: <code>Boolean</code>(optional) = defaults to false</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="fqdn"></a><a href="#fqdn" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>fqdn</h3>
-<p>@deprecated, use decodeHex</p>
+<p>@deprecated, use isFQDN</p>
 <p>check if the string is a fully qualified domain name (e.g. domain.com).</p>
 <ul>
 <li>require_tld: <code>Boolean</code>(optional) = defaults to true</li>
@@ -766,6 +769,7 @@ This will make sure the field is a string and trim it, otherwise it will remove 
 <li>allow_trailing_dot: <code>Boolean</code>(optional) = defaults to false</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="float"></a><a href="#float" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>float</h3>
+<p>@deprecated, use isFloat</p>
 <p>check if the string is a float.</p>
 <ul>
 <li>min: <code>Number</code>(optional) = if set then it checks that the value is greater than what is set (inclusive) of this parameter, if not it is removed</li>
@@ -781,16 +785,19 @@ This will make sure the field is a string and trim it, otherwise it will remove 
 <li>value: <code>String</code>(required) = Algorithm is one of ['md4', 'md5', 'sha1', 'sha256', 'sha384', 'sha512', 'ripemd128', 'ripemd160', 'tiger128', 'tiger160', 'tiger192', 'crc32', 'crc32b']</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="hexcolor"></a><a href="#hexcolor" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>hexcolor</h3>
+<p>@deprecated, use isHexColor</p>
 <p>check if the string is a hexadecimal color.</p>
 <ul>
 <li>no additional parameters</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="hexadecimal"></a><a href="#hexadecimal" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>hexadecimal</h3>
+<p>@deprecated, use isHexadecimal</p>
 <p>check if the string is a hexadecimal number.</p>
 <ul>
 <li>no additional parameters</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="identitycard"></a><a href="#identitycard" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>identitycard</h3>
+<p>@deprecated, use isIdentityCard</p>
 <p>check if the string is a valid identity card code.</p>
 <ul>
 <li>value: <code>String</code>(optional) = locale is one of ['ES'] OR 'any'. If 'any' is used, function will check if any of the locals match. defaults to 'any'</li>
@@ -809,6 +816,7 @@ This will make sure the field is a string and trim it, otherwise it will remove 
 <li>require_hyphen: <code>Boolean</code>(optional) = defaults to false</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="isin"></a><a href="#isin" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isin</h3>
+<p>@deprecated, use isISIN</p>
 <p>check if the string is an ISIN (stock/security identifier).</p>
 <ul>
 <li>no additional parameters</li>
@@ -826,16 +834,19 @@ This will make sure the field is a string and trim it, otherwise it will remove 
 <li>no additional parameters</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="iso31661alpha2"></a><a href="#iso31661alpha2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>iso31661alpha2</h3>
+<p>@deprecated, use isISO31661Alpha2</p>
 <p>check if the string is a valid ISO 3166-1 alpha-2 officially assigned country code.</p>
 <ul>
 <li>no additional parameters</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="iso31661alpha3"></a><a href="#iso31661alpha3" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>iso31661alpha3</h3>
+<p>@deprecated, use isISO31661Alpha3</p>
 <p>check if the string is a valid ISO 3166-1 alpha-3 officially assigned country code.</p>
 <ul>
 <li>no additional parameters</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="in"></a><a href="#in" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>in</h3>
+<p>@deprecated, use isIn</p>
 <p>check if the string is in a array/object of specified in the param <code>value</code>.</p>
 <ul>
 <li>value: <code>String[] or Object</code>(required) = list of strings that are allowed</li>
@@ -876,11 +887,13 @@ This will make sure the field is a string and trim it, otherwise it will remove 
 <li>no additional parameters</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="numeric"></a><a href="#numeric" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>numeric</h3>
+<p>@deprecated, use isNumeric</p>
 <p>check if the string contains only numbers.</p>
 <ul>
 <li>no_symbols: <code>Boolean</code>(optional) = defaults to false. If no_symbols is true, the validator will reject numeric strings that feature a symbol (e.g. +, -, or .).</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="port"></a><a href="#port" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>port</h3>
+<p>@deprecated, use isPort</p>
 <p>check if the string is a valid port number.</p>
 <ul>
 <li>no additional parameters</li>
@@ -896,7 +909,7 @@ This will make sure the field is a string and trim it, otherwise it will remove 
 <ul>
 <li>value: <code>String</code>(required) = a regex to match against (ie. /foo/i))</li>
 </ul>
-</span></div></article></div><div class="docLastUpdate"><em>Last updated on 7/13/2020</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/teraslice/docs/packages/ts-transforms/overview"><span class="arrow-prev">← </span><span>Overview</span></a><a class="docs-next button" href="/teraslice/docs/packages/ts-transforms/api/overview"><span>API</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#all-data-mate-fieldvalidator-fieldtransforms-recordvalidator-and-recordtransforms-functions">All Data-Mate FieldValidator, FieldTransforms, RecordValidator and RecordTransforms functions</a></li><li><a href="#transforms">Transforms</a><ul class="toc-headings"><li><a href="#selector">selector</a></li><li><a href="#extraction">extraction</a></li><li><a href="#join">join</a></li><li><a href="#array">array</a></li><li><a href="#base64decode">base64decode</a></li><li><a href="#urldecode">urldecode</a></li><li><a href="#hexdecode">hexdecode</a></li><li><a href="#jsonparse">jsonparse</a></li><li><a href="#lowercase">lowercase</a></li><li><a href="#uppercase">uppercase</a></li><li><a href="#trim">trim</a></li><li><a href="#base64encode">base64encode</a></li><li><a href="#urlencode">urlencode</a></li><li><a href="#hexencode">hexencode</a></li><li><a href="#md5encode">md5encode</a></li><li><a href="#sha1encode">sha1encode</a></li><li><a href="#sha2encode">sha2encode</a></li></ul></li><li><a href="#validations">Validations</a><ul class="toc-headings"><li><a href="#geolocation">geolocation</a></li><li><a href="#string">string</a></li><li><a href="#number">number</a></li><li><a href="#boolean">boolean</a></li><li><a href="#url">url</a></li><li><a href="#email">email</a></li><li><a href="#ip">ip</a></li><li><a href="#macaddress">macaddress</a></li><li><a href="#uuid">uuid</a></li><li><a href="#isdn">isdn</a></li><li><a href="#contains">contains</a></li><li><a href="#equals">equals</a></li><li><a href="#alpha">alpha</a></li><li><a href="#alphanumeric">alphanumeric</a></li><li><a href="#ascii">ascii</a></li><li><a href="#base64">base64</a></li><li><a href="#before">before</a></li><li><a href="#bytelength">bytelength</a></li><li><a href="#creditcard">creditcard</a></li><li><a href="#currency">currency</a></li><li><a href="#decimal">decimal</a></li><li><a href="#divisibleby">divisibleby</a></li><li><a href="#empty">empty</a></li><li><a href="#fqdn">fqdn</a></li><li><a href="#float">float</a></li><li><a href="#hash">hash</a></li><li><a href="#hexcolor">hexcolor</a></li><li><a href="#hexadecimal">hexadecimal</a></li><li><a href="#identitycard">identitycard</a></li><li><a href="#iprange">iprange</a></li><li><a href="#issn">issn</a></li><li><a href="#isin">isin</a></li><li><a href="#iso8601">iso8601</a></li><li><a href="#rfc3339">rfc3339</a></li><li><a href="#iso31661alpha2">iso31661alpha2</a></li><li><a href="#iso31661alpha3">iso31661alpha3</a></li><li><a href="#in">in</a></li><li><a href="#int">int</a></li><li><a href="#latlong">latlong</a></li><li><a href="#length">length</a></li><li><a href="#md5">md5</a></li><li><a href="#mimetype">mimetype</a></li><li><a href="#numeric">numeric</a></li><li><a href="#port">port</a></li><li><a href="#postalcode">postalcode</a></li><li><a href="#matches">matches</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/teraslice/" class="nav-home"></a><div><h5>Docs</h5><a href="/teraslice/docs/en/getting-started.html">Getting Started</a><a href="/teraslice/docs/en/packages.html">Packages</a><a href="/teraslice/docs/en/asset-bundles.html">Asset Bundles</a></div><div><h5>More</h5><a href="/teraslice/blog">Blog</a><a href="https://github.com/terascope/teraslice">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/terascope/teraslice/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><section class="copyright">Copyright © 2020 Terascope, LLC</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 7/20/2020</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/teraslice/docs/packages/ts-transforms/overview"><span class="arrow-prev">← </span><span>Overview</span></a><a class="docs-next button" href="/teraslice/docs/packages/ts-transforms/api/overview"><span>API</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#all-data-mate-fieldvalidator-fieldtransforms-recordvalidator-and-recordtransforms-functions">All Data-Mate FieldValidator, FieldTransforms, RecordValidator and RecordTransforms functions</a></li><li><a href="#transforms">Transforms</a><ul class="toc-headings"><li><a href="#selector">selector</a></li><li><a href="#extraction">extraction</a></li><li><a href="#join">join</a></li><li><a href="#array">array</a></li><li><a href="#base64decode">base64decode</a></li><li><a href="#urldecode">urldecode</a></li><li><a href="#hexdecode">hexdecode</a></li><li><a href="#jsonparse">jsonparse</a></li><li><a href="#lowercase">lowercase</a></li><li><a href="#uppercase">uppercase</a></li><li><a href="#trim">trim</a></li><li><a href="#base64encode">base64encode</a></li><li><a href="#urlencode">urlencode</a></li><li><a href="#hexencode">hexencode</a></li><li><a href="#md5encode">md5encode</a></li><li><a href="#sha1encode">sha1encode</a></li><li><a href="#sha2encode">sha2encode</a></li></ul></li><li><a href="#validations">Validations</a><ul class="toc-headings"><li><a href="#geolocation">geolocation</a></li><li><a href="#string">string</a></li><li><a href="#number">number</a></li><li><a href="#boolean">boolean</a></li><li><a href="#url">url</a></li><li><a href="#email">email</a></li><li><a href="#ip">ip</a></li><li><a href="#macaddress">macaddress</a></li><li><a href="#uuid">uuid</a></li><li><a href="#isdn">isdn</a></li><li><a href="#contains">contains</a></li><li><a href="#equals">equals</a></li><li><a href="#alpha">alpha</a></li><li><a href="#alphanumeric">alphanumeric</a></li><li><a href="#ascii">ascii</a></li><li><a href="#base64">base64</a></li><li><a href="#before">before</a></li><li><a href="#bytelength">bytelength</a></li><li><a href="#creditcard">creditcard</a></li><li><a href="#currency">currency</a></li><li><a href="#decimal">decimal</a></li><li><a href="#divisibleby">divisibleby</a></li><li><a href="#empty">empty</a></li><li><a href="#fqdn">fqdn</a></li><li><a href="#float">float</a></li><li><a href="#hash">hash</a></li><li><a href="#hexcolor">hexcolor</a></li><li><a href="#hexadecimal">hexadecimal</a></li><li><a href="#identitycard">identitycard</a></li><li><a href="#iprange">iprange</a></li><li><a href="#issn">issn</a></li><li><a href="#isin">isin</a></li><li><a href="#iso8601">iso8601</a></li><li><a href="#rfc3339">rfc3339</a></li><li><a href="#iso31661alpha2">iso31661alpha2</a></li><li><a href="#iso31661alpha3">iso31661alpha3</a></li><li><a href="#in">in</a></li><li><a href="#int">int</a></li><li><a href="#latlong">latlong</a></li><li><a href="#length">length</a></li><li><a href="#md5">md5</a></li><li><a href="#mimetype">mimetype</a></li><li><a href="#numeric">numeric</a></li><li><a href="#port">port</a></li><li><a href="#postalcode">postalcode</a></li><li><a href="#matches">matches</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/teraslice/" class="nav-home"></a><div><h5>Docs</h5><a href="/teraslice/docs/en/getting-started.html">Getting Started</a><a href="/teraslice/docs/en/packages.html">Packages</a><a href="/teraslice/docs/en/asset-bundles.html">Asset Bundles</a></div><div><h5>More</h5><a href="/teraslice/blog">Blog</a><a href="https://github.com/terascope/teraslice">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/terascope/teraslice/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><section class="copyright">Copyright © 2020 Terascope, LLC</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;

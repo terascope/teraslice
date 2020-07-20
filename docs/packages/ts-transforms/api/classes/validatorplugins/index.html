@@ -16,28 +16,33 @@
 <h2><a class="anchor" aria-hidden="true" id="methods-1"></a><a href="#methods-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Methods</h2>
 <h3><a class="anchor" aria-hidden="true" id="init"></a><a href="#init" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>init</h3>
 <p>▸ <strong>init</strong>(): <em>object</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/6057724/packages/ts-transforms/src/operations/plugins/validator/index.ts#L35">operations/plugins/validator/index.ts:35</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/c9ed461/packages/ts-transforms/src/operations/plugins/validator/index.ts#L35">operations/plugins/validator/index.ts:35</a></em></p>
 <p><strong>Returns:</strong> <em>object</em></p>
 <ul>
-<li><p><strong>after</strong>: <em>ValidatorInterface</em> = setup('isAfter')</p></li>
+<li><p><strong>after</strong>: <em>ValidatorInterface</em> = deprecate(setup('isAfter'), 'after is being deprecated., please use isAfter instead', 'after')</p></li>
+<li><p><strong>alpha</strong>: <em>ValidatorInterface</em> = deprecate(setup('isAlpha'), 'alpha is being deprecated, please use isAlpha instead', 'alpha')</p></li>
+<li><p><strong>alphanumeric</strong>: <em>ValidatorInterface</em> = deprecate(setup('isAlphanumeric'), 'alphanumeric is being deprecated, please use is Alphanumeric instead', 'alphanumeric')</p></li>
+<li><p><strong>ascii</strong>: <em>ValidatorInterface</em> = deprecate(setup('isAscii'), 'ascii is being deprecated, please use isAscii instead', 'ascii')</p></li>
 <li><p><strong>base64</strong>: <em>ValidatorInterface</em> = deprecate(setup('isBase64'), 'base64 is being deprecated, please use isBase64 instead', 'base64')</p></li>
-<li><p><strong>before</strong>: <em>ValidatorInterface</em> = setup('isBefore')</p></li>
-<li><p><strong>bytelength</strong>: <em>ValidatorInterface</em> = setup('isByteLength')</p></li>
-<li><p><strong>creditcard</strong>: <em>ValidatorInterface</em> = setup('isCreditCard')</p></li>
-<li><p><strong>currency</strong>: <em>ValidatorInterface</em> = setup('isCurrency')</p></li>
-<li><p><strong>decimal</strong>: <em>ValidatorInterface</em> = setup('isDecimal')</p></li>
+<li><p><strong>before</strong>: <em>ValidatorInterface</em> = deprecate(setup('isBefore'), 'before is being deprecated, please use isBefore instead', 'before')</p></li>
+<li><p><strong>bytelength</strong>: <em>ValidatorInterface</em> = deprecate(setup('isByteLength'), 'bytelength is being deprecated, please use isByteLength instead', 'bytelength')</p></li>
+<li><p><strong>creditcard</strong>: <em>ValidatorInterface</em> = deprecate(setup('isCreditCard'), 'creditcard is being deprecated, please use isCreditCard instead', 'creditcard')</p></li>
+<li><p><strong>currency</strong>: <em>ValidatorInterface</em> = deprecate(setup('isCurrency'), 'currency is being deprecated, please use isCurrency instead', 'currency')</p></li>
+<li><p><strong>decimal</strong>: <em>ValidatorInterface</em> = deprecate(setup('isDecimal'), 'decimal is being deprecated, please use isDecimal instead', 'decimal')</p></li>
+<li><p><strong>divisibleby</strong>: <em>ValidatorInterface</em> = deprecate(setup('isDivisibleBy'), 'divisibleby is being deprecated, please use isDivisibleBy instead', 'divisibleby')</p></li>
 <li><p><strong>empty</strong>: <em>ValidatorInterface</em> = deprecate(setup('isEmpty'), 'empty is being deprecated, please use isEmpty instead', 'empty')</p></li>
-<li><p><strong>float</strong>: <em>ValidatorInterface</em> = setup('isFloat')</p></li>
+<li><p><strong>float</strong>: <em>ValidatorInterface</em> = deprecate(setup('isFloat'), 'float is being deprecated, please use isFloat instead', 'float')</p></li>
+<li><p><strong>fqdn</strong>: <em>ValidatorInterface</em> = deprecate(setup('isFQDN'), 'fqdn is being deprecated, please use isFQDN instead', 'fqdn')</p></li>
 <li><p><strong>hash</strong>: <em>ValidatorInterface</em> = deprecate(setup('isHash'), 'hash is being deprecated, please use isHash instead', 'hash')</p></li>
-<li><p><strong>hexadecimal</strong>: <em>ValidatorInterface</em> = setup('isHexadecimal')</p></li>
-<li><p><strong>hexcolor</strong>: <em>ValidatorInterface</em> = setup('isHexColor')</p></li>
-<li><p><strong>identitycard</strong>: <em>ValidatorInterface</em> = setup('isIdentityCard')</p></li>
-<li><p><strong>in</strong>: <em>ValidatorInterface</em> = setup('isIn')</p></li>
+<li><p><strong>hexadecimal</strong>: <em>ValidatorInterface</em> = deprecate(setup('isHexadecimal'), 'hexadecimal is being deprecated, please use isHexadecimal instead', 'hexadecimal')</p></li>
+<li><p><strong>hexcolor</strong>: <em>ValidatorInterface</em> = deprecate(setup('isHexColor'), 'hexcolor is being deprecated, please use isHexColor instead', 'hexcolor')</p></li>
+<li><p><strong>identitycard</strong>: <em>ValidatorInterface</em> = deprecate(setup('isIdentityCard'), 'identitycard is being deprecated, please use isIdentityCard instead', 'identitycard')</p></li>
+<li><p><strong>in</strong>: <em>ValidatorInterface</em> = deprecate(setup('isIn'), 'in is being deprecated, please use isIn instead', 'in')</p></li>
 <li><p><strong>int</strong>: <em>ValidatorInterface</em> = deprecate(setup('isInt'), 'int is being deprecated, please use isInteger instead', 'int')</p></li>
 <li><p><strong>iprange</strong>: <em>ValidatorInterface</em> = deprecate(setup('isIPRange'), 'iprange is being deprecated, please use inIPRange instead', 'iprange')</p></li>
-<li><p><strong>isin</strong>: <em>ValidatorInterface</em> = setup('isISIN')</p></li>
-<li><p><strong>iso31661alpha2</strong>: <em>ValidatorInterface</em> = setup('isISO31661Alpha2')</p></li>
-<li><p><strong>iso31661alpha3</strong>: <em>ValidatorInterface</em> = setup('isISO31661Alpha3')</p></li>
+<li><p><strong>isin</strong>: <em>ValidatorInterface</em> = deprecate(setup('isISIN'), 'isin is being deprecated, please use isISIN instead', 'isin')</p></li>
+<li><p><strong>iso31661alpha2</strong>: <em>ValidatorInterface</em> = deprecate(setup('isISO31661Alpha2'), 'iso31661alpha2 is being deprecated, please use isISO31661Alpha2 instead', 'iso31661alpha2')</p></li>
+<li><p><strong>iso31661alpha3</strong>: <em>ValidatorInterface</em> = deprecate(setup('isISO31661Alpha3'), 'iso31661alpha3 is being deprecated, please use isISO31661Alpha3 instead', 'iso31661alpha3')</p></li>
 <li><p><strong>iso8601</strong>: <em>ValidatorInterface</em> = deprecate(setup('isISO8601'), 'iso8601 is being deprecated, please use isISO8601 instead', 'iso8601')</p></li>
 <li><p><strong>issn</strong>: <em>ValidatorInterface</em> = deprecate(setup('isISSN'), 'issn is being deprecated, please use isISSN instead', 'issn')</p></li>
 <li><p><strong>latlong</strong>: <em>ValidatorInterface</em> = deprecate(setup('isLatLong'), 'latlong is being deprecated, please use isGeoPoint instead', 'latlong')</p></li>
@@ -45,8 +50,8 @@
 <li><p><strong>matches</strong>: <em>ValidatorInterface</em> = setup('matches')</p></li>
 <li><p><strong>md5</strong>: <em>ValidatorInterface</em> = deprecate(setup('isMD5'), 'md5 is being deprecated, please use isHash instead', 'md5')</p></li>
 <li><p><strong>mimetype</strong>: <em>ValidatorInterface</em> = deprecate(setup('isMimeType'), 'mimetype is being deprecated, please use isMIMEType instead', 'mimetype')</p></li>
-<li><p><strong>numeric</strong>: <em>ValidatorInterface</em> = setup('isNumeric')</p></li>
-<li><p><strong>port</strong>: <em>ValidatorInterface</em> = setup('isPort')</p></li>
+<li><p><strong>numeric</strong>: <em>ValidatorInterface</em> = deprecate(setup('isNumeric'), 'numeric is being deprecated, please use isNumeric instead', 'numeric')</p></li>
+<li><p><strong>port</strong>: <em>ValidatorInterface</em> = deprecate(setup('isPort'), 'port is being deprecated, please use isPort instead', 'port')</p></li>
 <li><p><strong>postalcode</strong>: <em>ValidatorInterface</em> = deprecate(setup('isPostalCode'), 'postalcode is being deprecated, please use isPostalCode instead', 'postalcode')</p></li>
 <li><p><strong>rfc3339</strong>: <em>ValidatorInterface</em> = deprecate(setup('isRFC3339'), 'rfc3339 is being deprecated, please use isRFC3339 instead', 'rfc3339')</p></li>
 </ul>
