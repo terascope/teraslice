@@ -36,7 +36,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/fetch-github-release": "^0.7.0",
+        "@terascope/fetch-github-release": "^0.7.1",
         "@terascope/utils": "^0.29.1",
         "archiver": "^4.0.2",
         "chalk": "^4.1.0",
