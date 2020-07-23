@@ -178,8 +178,8 @@ rebuild: destroy build setup ## destroys then re-runs things
 	make register
 
 register: ## creates asset and registers job
-	earl assets deploy ${TERASLICE_ALIAS} terascope/elasticsearch-assets
-	earl assets deploy ${TERASLICE_ALIAS} --build --replace --src-dir asset/
+	earl assets deploy ${TERASLICE_ALIAS} --blocking terascope/elasticsearch-assets
+	earl assets deploy ${TERASLICE_ALIAS} --blocking --build --replace --src-dir asset/
 	earl tjm register ${TERASLICE_ALIAS} example-job.json
 	earl tjm register ${TERASLICE_ALIAS} example-job-labels.json
 	earl tjm register ${TERASLICE_ALIAS} example-job-resource.json
@@ -195,7 +195,7 @@ deregister: ## resets jobs
 
 start: ## starts example job
 	# yes | tjm asset --replace -c $(TERASLICE_MASTER_URL) || echo '* it is okay'
-	earl assets deploy ${TERASLICE_ALIAS} --build --replace --src-dir asset/
+	earl assets deploy ${TERASLICE_ALIAS} --blocking --build --replace --src-dir asset/
 	earl tjm start example-job.json
 
 stop: ## stops example job
