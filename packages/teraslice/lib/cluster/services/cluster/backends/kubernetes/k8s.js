@@ -64,11 +64,14 @@ class K8s {
      * Rerturns the first pod matching the provided selector after it has
      * entered the `Running` state.
      *
+     * TODO: Make more generic to search for different statuses
+     *
      * NOTE: If your selector will return multiple pods, this method probably
      * won't work for you.
      * @param {String} selector kubernetes selector, like 'controller-uid=XXX'
      * @param {String} ns       namespace to search, this will override the default
      * @param {Number} timeout  time, in ms, to wait for pod to start
+     * @return {Object}         pod
      */
     async waitForSelectedPod(selector, ns, timeout = 10000) {
         const namespace = ns || this.defaultNamespace;
@@ -91,6 +94,41 @@ class K8s {
             }
             if (now > end) throw new Error(`Timeout waiting for pod matching: ${selector}`);
             this.logger.debug(`waiting for pod matching: ${selector}`);
+
+            await pDelay(this.apiPollDelay);
+            now = Date.now();
+        }
+    }
+
+    /**
+     * Waits for the number of pods to equal number.
+     * @param {Number} number   Number of pods to wait for, e.g.: 0, 10
+     * @param {String} selector kubernetes selector, like 'controller-uid=XXX'
+     * @param {String} ns       namespace to search, this will override the default
+     * @param {Number} timeout  time, in ms, to wait for pod to start
+     * @return {Array}          Array of pod objects
+     */
+    async waitForNumPods(number, selector, ns, timeout = 10000) {
+        const namespace = ns || this.defaultNamespace;
+        let now = Date.now();
+        const end = now + timeout;
+
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+            const result = await this.client.api.v1.namespaces(namespace)
+                .pods().get({ qs: { labelSelector: selector } });
+
+            let podList;
+            if (typeof result !== 'undefined' && result) {
+                podList = get(result, 'body.items');
+            }
+
+            if (typeof podList !== 'undefined' && podList) {
+                if (podList.length === number) return podList;
+            }
+            const msg = `Waiting: pods matching ${selector} is ${podList.length}/${number}`;
+            if (now > end) throw new Error(`Timeout ${msg}`);
+            this.logger.debug(msg);
 
             await pDelay(this.apiPollDelay);
             now = Date.now();
@@ -265,14 +303,39 @@ class K8s {
      * @return {Promise}
      */
     async deleteExecution(exId) {
+        const r = [];
         if (!exId) {
             throw new Error('deleteExecution requires an executionId');
         }
 
-        return Promise.all([
-            this._deleteObjByExId(exId, 'worker', 'deployments'),
-            this._deleteObjByExId(exId, 'execution_controller', 'jobs'),
-        ]);
+        try {
+            this.logger.info(`Deleting worker deployment for ex_id: ${exId}`);
+            r.push(await this._deleteObjByExId(exId, 'worker', 'deployments'));
+        } catch (e) {
+            const err = new Error(`Error deleting workers: ${e}`);
+            this.logger.error(err);
+            return Promise.reject(err);
+        }
+
+        const podList = await this.waitForNumPods(
+            0,
+            `app.kubernetes.io/component=worker,teraslice.terascope.io/exId=${exId}`,
+            null,
+            600000 // 10 minutes, I wanted this to be longer than the pod shutdown timeout
+        );
+
+        this.logger.info(`podLists: ${podList}`);
+
+        try {
+            this.logger.info(`Deleting execution controller job for ex_id: ${exId}`);
+            r.push(await this._deleteObjByExId(exId, 'execution_controller', 'jobs'));
+        } catch (e) {
+            const err = new Error(`Error deleting execution controller: ${e}`);
+            this.logger.error(err);
+            return Promise.reject(err);
+        }
+
+        return r;
     }
 
     /**
