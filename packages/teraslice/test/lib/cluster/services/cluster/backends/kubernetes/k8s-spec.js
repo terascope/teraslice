@@ -223,23 +223,4 @@ describe('k8s', () => {
             expect(response.spec.replicas).toEqual(3);
         });
     });
-
-    describe('->deleteExecution', () => {
-        it('can delete an execution', async () => {
-            nock(_url)
-                .get('/apis/apps/v1/namespaces/default/deployments/')
-                .query({ labelSelector: /app\.kubernetes\.io\/component=worker,teraslice\.terascope\.io\/exId=.*/ })
-                .reply(200, { kind: 'DeploymentList', items: [{ metadata: { name: 'e33b5454' } }] })
-                .get('/apis/batch/v1/namespaces/default/jobs/')
-                .query({ labelSelector: /app\.kubernetes\.io\/component=execution_controller,teraslice\.terascope\.io\/exId=.*/ })
-                .reply(200, { kind: 'JobList', items: [{ metadata: { name: 'e33b5454' } }] })
-                .delete('/apis/apps/v1/namespaces/default/deployments/e33b5454')
-                .reply(200, {})
-                .delete('/apis/batch/v1/namespaces/default/jobs/e33b5454')
-                .reply(200, {});
-
-            const response = await k8s.deleteExecution('e33b5454');
-            expect(response).toEqual([{}, {}]);
-        });
-    });
 });

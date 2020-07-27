@@ -15,6 +15,10 @@
             "_op": "example-op"
         },
         {
+            "_op": "delay",
+            "ms": 30000
+        },
+        {
             "_op": "elasticsearch_index_selector",
             "index": "terak8s-example-data",
             "type": "events"

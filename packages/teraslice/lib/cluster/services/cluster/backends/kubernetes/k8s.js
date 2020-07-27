@@ -299,6 +299,12 @@ class K8s {
 
     /**
      * Delete all of the deployments and services related to the specified exId
+     *
+     * The process here waits for the worker pods to completely exit before
+     * terminating the execution controller pod.  The intent is to avoid having
+     * a worker timeout when it tries to tell the execution controller it is
+     * exiting.
+     *
      * @param  {String}  exId ID of the execution
      * @return {Promise}
      */
@@ -317,14 +323,12 @@ class K8s {
             return Promise.reject(err);
         }
 
-        const podList = await this.waitForNumPods(
+        await this.waitForNumPods(
             0,
             `app.kubernetes.io/component=worker,teraslice.terascope.io/exId=${exId}`,
             null,
             600000 // 10 minutes, I wanted this to be longer than the pod shutdown timeout
         );
-
-        this.logger.info(`podLists: ${podList}`);
 
         try {
             this.logger.info(`Deleting execution controller job for ex_id: ${exId}`);
@@ -335,6 +339,7 @@ class K8s {
             return Promise.reject(err);
         }
 
+        this.logger.debug(`Deleted Resources:\n${r.map((x) => JSON.stringify(x, null, 2))}`);
         return r;
     }
 
