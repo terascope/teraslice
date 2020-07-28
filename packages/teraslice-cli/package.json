@@ -1,7 +1,7 @@
 {
     "name": "teraslice-cli",
     "displayName": "Teraslice CLI",
-    "version": "0.28.1",
+    "version": "0.28.2",
     "description": "Command line manager for teraslice jobs, assets, and cluster references.",
     "keywords": [
         "teraslice"
@@ -36,7 +36,7 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/fetch-github-release": "^0.7.0",
+        "@terascope/fetch-github-release": "^0.7.1",
         "@terascope/utils": "^0.29.1",
         "archiver": "^4.0.2",
         "chalk": "^4.1.0",
