@@ -339,7 +339,7 @@ class K8s {
             return Promise.reject(err);
         }
 
-        this.logger.debug(`Deleted Resources:\n${r.map((x) => JSON.stringify(x, null, 2))}`);
+        this.logger.debug(`Deleted Resources:\n\n${r.map((x) => JSON.stringify(x, null, 2))}`);
         return r;
     }
 
