@@ -34,7 +34,7 @@
         "@terascope/utils": "^0.29.1",
         "convict": "^4.4.1",
         "datemath-parser": "^1.0.6",
-        "uuid": "^8.2.0"
+        "uuid": "^8.3.0"
     },
     "devDependencies": {
         "benchmark": "^2.1.4",

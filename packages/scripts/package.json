@@ -33,11 +33,11 @@
     "dependencies": {
         "@lerna/query-graph": "^3.18.5",
         "@terascope/utils": "^0.29.1",
-        "codecov": "^3.7.1",
+        "codecov": "^3.7.2",
         "execa": "^4.0.3",
         "fs-extra": "^9.0.1",
         "globby": "^11.0.1",
-        "got": "^11.5.0",
+        "got": "^11.5.1",
         "ip": "^1.1.5",
         "lodash.defaultsdeep": "^4.6.1",
         "micromatch": "^4.0.2",
