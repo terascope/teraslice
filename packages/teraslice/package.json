@@ -73,7 +73,7 @@
         "elasticsearch": "^15.4.1",
         "got": "^11.5.0",
         "jest-fixtures": "^0.6.0",
-        "nock": "^13.0.2"
+        "nock": "^13.0.3"
     },
     "publishConfig": {
         "access": "public",
