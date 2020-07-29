@@ -9,7 +9,9 @@ export default class extends Generator {
     constructor(args: string|string[], opts: Record<string, any>) {
         super(args, opts);
         this.argument('asset_path', { type: String, required: true });
-        this.option('new', {});
+        this.option('new', {
+            type: Boolean
+        });
         this.sourceRoot(getTemplatePath('new-processor'));
     }
 
