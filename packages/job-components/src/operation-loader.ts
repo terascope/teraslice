@@ -1,7 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import {
-    isString, uniq, parseError, cloneDeep,
+    isString,
+    uniq,
+    parseError,
+    castArray
 } from '@terascope/utils';
 import { LegacyOperation } from './interfaces';
 import {
@@ -57,7 +60,7 @@ export class OperationLoader {
             });
         };
 
-        for (const assetPath of this.options.assetPath || []) {
+        for (const assetPath of this.options.assetPath) {
             findCodeByConvention(assetPath, assetIds);
             if (filePath) break;
         }
@@ -374,18 +377,9 @@ export class OperationLoader {
     }
 
     private validateOptions(options: LoaderOptions): ValidLoaderOptions {
-        const clone = cloneDeep(options);
-
-        if (Array.isArray(clone.assetPath)) {
-            return clone as ValidLoaderOptions;
-        }
-
-        if (isString(clone.assetPath)) {
-            clone.assetPath = [clone.assetPath];
-            return clone as ValidLoaderOptions;
-        }
-        clone.assetPath = [];
-        return clone as ValidLoaderOptions;
+        const assetPath = castArray<string|undefined>(options.assetPath);
+        const validOptions = Object.assign({}, options, { assetPath });
+        return validOptions as ValidLoaderOptions;
     }
 }
 

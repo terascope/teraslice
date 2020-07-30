@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { parseJSON } from '@terascope/utils';
+import { parseJSON, castArray } from '@terascope/utils';
 import {
     ConnectionConfig,
     Context,
@@ -107,12 +107,11 @@ export function registerApis(
         },
     });
 
-    const configAssetsDir = context.sysconfig.teraslice.assets_directory || [];
-    const assetDir = Array.isArray(configAssetsDir) ? configAssetsDir : [configAssetsDir];
+    const assetDir = castArray<string>(context.sysconfig.teraslice.assets_directory);
 
     context.apis.registerAPI('assets', {
         getPath(name: string): Promise<string> {
-            return getAssetPath(assetDir || [], assetIds || job.assets, name);
+            return getAssetPath(assetDir, assetIds || job.assets, name);
         },
     });
 }

@@ -4,7 +4,7 @@ import { JobValidator, TestContext, JobConfig } from '../src';
 
 describe('JobValidator', () => {
     const context = new TestContext('teraslice-operations');
-    context.sysconfig.teraslice.assets_directory = [__dirname];
+    context.sysconfig.teraslice.assets_directory = __dirname;
 
     const terasliceOpPath = path.join(__dirname, '../../teraslice/lib');
     const api = new JobValidator(context, {
@@ -136,6 +136,39 @@ describe('JobValidator', () => {
             expect(() => {
                 api.validateConfig(jobSpec);
             }).toThrowError();
+        });
+
+        it('can instantiate with an array of asset_paths', () => {
+            const testContext = new TestContext('teraslice-operations');
+            testContext.sysconfig.teraslice.assets_directory = [__dirname];
+
+            const testApi = new JobValidator(context, {
+                terasliceOpPath,
+            });
+
+            const jobSpec: JobConfig = Object.freeze({
+                name: 'noop',
+                assets: ['fixtures'],
+                autorecover: true,
+                apis: [
+                    {
+                        _name: 'example-api',
+                        _encoding: undefined,
+                        _dead_letter_action: 'throw'
+                    }
+                ],
+                operations: [
+                    {
+                        _op: 'test-reader',
+                    },
+                    {
+                        _op: 'noop',
+                    },
+                ],
+            });
+
+            const validJob = testApi.validateConfig(jobSpec);
+            expect(validJob).toMatchObject(jobSpec);
         });
     });
 
