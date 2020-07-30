@@ -4,7 +4,7 @@ import { JobValidator, TestContext, JobConfig } from '../src';
 
 describe('JobValidator', () => {
     const context = new TestContext('teraslice-operations');
-    context.sysconfig.teraslice.assets_directory = __dirname;
+    context.sysconfig.teraslice.assets_directory = [__dirname];
 
     const terasliceOpPath = path.join(__dirname, '../../teraslice/lib');
     const api = new JobValidator(context, {

@@ -19,11 +19,11 @@ export function getOpConfig(job: ValidatedJobConfig, name: string): OpConfig | u
 
 /* Get the asset path from a asset name or ID */
 export async function getAssetPath(
-    assetDir: string,
+    assetDirs: string[],
     assets: string[],
     name: string
 ): Promise<string> {
-    if (!assetDir) {
+    if (assetDirs.length === 0) {
         throw new Error('No asset_directroy has been configured, cannot get asset path');
     }
 
@@ -33,18 +33,20 @@ export async function getAssetPath(
         throw new Error('Invalid asset name');
     }
 
-    if (name.length === 40) {
-        const assetPath = path.join(assetDir, name);
-        if (fs.existsSync(assetDir)) return assetPath;
-    }
+    for (const assetDir of assetDirs) {
+        if (name.length === 40) {
+            const assetPath = path.join(assetDir, name);
+            if (fs.existsSync(assetDir)) return assetPath;
+        }
 
-    const [assetName] = name.split(':').map((s) => s.trim());
+        const [assetName] = name.split(':').map((s) => s.trim());
 
-    for (const id of assetIds) {
-        const rawAssetJSON = fs.readFileSync(path.join(assetDir, id, 'asset.json'));
-        const assetJSON: AssetJSON = parseJSON(rawAssetJSON);
-        if (assetJSON.name === assetName) {
-            return path.join(assetDir, id);
+        for (const id of assetIds) {
+            const rawAssetJSON = fs.readFileSync(path.join(assetDir, id, 'asset.json'));
+            const assetJSON: AssetJSON = parseJSON(rawAssetJSON);
+            if (assetJSON.name === assetName) {
+                return path.join(assetDir, id);
+            }
         }
     }
 
@@ -105,10 +107,12 @@ export function registerApis(
         },
     });
 
-    const assetDir = context.sysconfig.teraslice.assets_directory;
+    const configAssetsDir = context.sysconfig.teraslice.assets_directory || [];
+    const assetDir = Array.isArray(configAssetsDir) ? configAssetsDir : [configAssetsDir];
+
     context.apis.registerAPI('assets', {
         getPath(name: string): Promise<string> {
-            return getAssetPath(assetDir || '', assetIds || job.assets, name);
+            return getAssetPath(assetDir || [], assetIds || job.assets, name);
         },
     });
 }

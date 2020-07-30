@@ -98,7 +98,7 @@ describe('when using native clustering', () => {
     describe('when passed a job without a known operation connector', () => {
         it('should raise an exception', () => {
             const context = new TestContext('teraslice-operations');
-            context.sysconfig.teraslice.assets_directory = __dirname;
+            context.sysconfig.teraslice.assets_directory = [__dirname];
             context.sysconfig.terafoundation = {
                 connectors: {
                     elasticsearch: {

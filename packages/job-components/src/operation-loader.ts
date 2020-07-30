@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {
-    isString, uniq, parseError, cloneDeep
+    isString, uniq, parseError, cloneDeep,
 } from '@terascope/utils';
 import { LegacyOperation } from './interfaces';
 import {
@@ -21,15 +21,22 @@ export interface LoaderOptions {
     /** Path to teraslice lib directory */
     terasliceOpPath?: string;
     /** Path to where the assets are stored */
-    assetPath?: string;
+    assetPath?: string[] | string;
+}
+
+interface ValidLoaderOptions {
+    /** Path to teraslice lib directory */
+    terasliceOpPath?: string;
+    /** Path to where the assets are stored */
+    assetPath: string[]
 }
 
 export class OperationLoader {
-    private readonly options: LoaderOptions;
+    private readonly options: ValidLoaderOptions;
     private readonly availableExtensions: string[];
 
     constructor(options: LoaderOptions = {}) {
-        this.options = cloneDeep(options);
+        this.options = this.validateOptions(options);
         this.availableExtensions = availableExtensions();
     }
 
@@ -50,7 +57,10 @@ export class OperationLoader {
             });
         };
 
-        findCodeByConvention(this.options.assetPath, assetIds);
+        for (const assetPath of this.options.assetPath || []) {
+            findCodeByConvention(assetPath, assetIds);
+            if (filePath) break;
+        }
 
         if (!filePath) {
             findCodeByConvention(this.getBuiltinDir(), ['.']);
@@ -361,6 +371,21 @@ export class OperationLoader {
             return path.join(__dirname, 'builtin');
         }
         return path.join(__dirname, '..', '..', 'dist', 'src', 'builtin');
+    }
+
+    private validateOptions(options: LoaderOptions): ValidLoaderOptions {
+        const clone = cloneDeep(options);
+
+        if (Array.isArray(clone.assetPath)) {
+            return clone as ValidLoaderOptions;
+        }
+
+        if (isString(clone.assetPath)) {
+            clone.assetPath = [clone.assetPath];
+            return clone as ValidLoaderOptions;
+        }
+        clone.assetPath = [];
+        return clone as ValidLoaderOptions;
     }
 }
 

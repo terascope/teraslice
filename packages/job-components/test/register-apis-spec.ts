@@ -11,7 +11,7 @@ import {
 
 describe('registerApis', () => {
     const context = new TestContext('teraslice-operations');
-    context.sysconfig.teraslice.assets_directory = __dirname;
+    context.sysconfig.teraslice.assets_directory = [__dirname];
     const jobConfig = newTestJobConfig();
 
     jobConfig.assets = ['fixtures'];

@@ -188,7 +188,7 @@ export class TestContext implements i.Context {
             teraslice: {
                 action_timeout: 10000,
                 analytics_rate: 10000,
-                assets_directory: path.join(process.cwd(), 'assets'),
+                assets_directory: [path.join(process.cwd(), 'assets')],
                 cluster_manager_type: 'native',
                 hostname: 'localhost',
                 index_rollover_frequency: {
