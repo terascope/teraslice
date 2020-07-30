@@ -386,4 +386,19 @@ describe('OperationLoader', () => {
             opLoader.loadAPI('invalid-api-observer', ['fixtures']);
         }).toThrowError(/required only one api\.js or observer\.js/);
     });
+
+    it('should fail if fetching a file with a . or _', () => {
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: path.join(__dirname),
+        });
+
+        expect(() => {
+            opLoader.loadProcessor('.dot-private-op', ['fixtures']);
+        }).toThrowError();
+
+        expect(() => {
+            opLoader.loadProcessor('_underscore-private-op', ['fixtures']);
+        }).toThrowError();
+    });
 });

@@ -37,10 +37,19 @@ interface ValidLoaderOptions {
 export class OperationLoader {
     private readonly options: ValidLoaderOptions;
     private readonly availableExtensions: string[];
+    private readonly invalidPaths: string[];
+    allowedFile: (name: string) => boolean;
 
     constructor(options: LoaderOptions = {}) {
         this.options = this.validateOptions(options);
         this.availableExtensions = availableExtensions();
+        this.invalidPaths = ['node_modules', ...ignoreDirectories()];
+
+        this.allowedFile = (fileName: string) => {
+            const char = fileName.charAt(0);
+            const isPrivate = char === '.' || char === '_';
+            return !isPrivate && !this.invalidPaths.includes(fileName);
+        };
     }
 
     find(name: string, assetIds?: string[]): string | null {
@@ -326,6 +335,8 @@ export class OperationLoader {
         if (!isString(name)) {
             throw new TypeError('Please verify that the "_op" name exists for each operation');
         }
+
+        if (!this.allowedFile(name)) throw new Error(`Invalid name: ${name}, it is private or otherwise restricted`);
     }
 
     private findCode(name: string) {
@@ -338,11 +349,9 @@ export class OperationLoader {
 
         const allowedNames = uniq([name, ...codeNames]);
 
-        const invalid = ['node_modules', ...ignoreDirectories()];
-
         const findCode = (rootDir: string): string | null => {
             const fileNames = fs.readdirSync(rootDir)
-                .filter((fileName: string) => !invalid.includes(fileName));
+                .filter(this.allowedFile);
 
             for (const fileName of fileNames) {
                 if (filePath) break;
@@ -386,7 +395,7 @@ export class OperationLoader {
 function availableExtensions(): string[] {
     // populated by teraslice Jest configuration
     // @ts-expect-error
-    return global.availableExtensions ? global.availableExtensions : ['.js'];
+    return global.availableExtensions ? global.availableExtensions : ['.js', '.mjs', '.cjs'];
 }
 
 function ignoreDirectories() {
