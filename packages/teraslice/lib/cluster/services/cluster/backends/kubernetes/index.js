@@ -27,8 +27,13 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
     const clusterState = {};
     let clusterStateInterval = null;
 
-    const k8s = new K8s(logger, null, kubernetesNamespace,
-        context.sysconfig.teraslice.kubernetes_api_poll_delay);
+    const k8s = new K8s(
+        logger,
+        null,
+        kubernetesNamespace,
+        context.sysconfig.teraslice.kubernetes_api_poll_delay,
+        context.sysconfig.teraslice.shutdown_timeout
+    );
 
     clusterMasterServer.onClientOnline((exId) => {
         logger.info(`execution ${exId} is connected`);
