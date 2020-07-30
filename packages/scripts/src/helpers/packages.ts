@@ -82,11 +82,13 @@ export function listPackages(): i.PackageInfo[] {
 }
 
 export function getWorkspaceNames(): string[] {
+    const rootDir = misc.getRootDir();
+    const rootName = path.basename(rootDir);
     return uniq(
         listPackages()
             .filter((pkg) => !('workspaces' in pkg))
             .map((pkg) => path.basename(path.dirname(pkg.dir)))
-            .filter((name) => name && name !== '.')
+            .filter((name) => name && name !== '.' && name !== rootName)
     );
 }
 

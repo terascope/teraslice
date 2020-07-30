@@ -164,6 +164,36 @@
                     "packages/utils/overview",
                     "packages/utils/api/overview"
                 ]
+            },
+            {
+                "type": "subcategory",
+                "label": "eslint-config",
+                "ids": [
+                    "packages/eslint-config/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "types",
+                "ids": [
+                    "packages/types/overview",
+                    "packages/types/api/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "scripts",
+                "ids": [
+                    "packages/scripts/overview"
+                ]
+            },
+            {
+                "type": "subcategory",
+                "label": "teraslice-state-storage",
+                "ids": [
+                    "packages/teraslice-state-storage/overview",
+                    "packages/teraslice-state-storage/api/overview"
+                ]
             }
         ],
         "Legacy": [
