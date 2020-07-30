@@ -13,7 +13,7 @@ export type ExecutionContext = WorkerExecutionContext|SlicerExecutionContext;
 export type Context = WorkerContext;
 
 export interface JobHarnessOptions {
-    assetDir?: string;
+    assetDir?: string | string[];
     clients?: TestClientConfig[];
 }
 
