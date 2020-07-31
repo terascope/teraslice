@@ -1,16 +1,19 @@
 'use strict';
 
 const {
-    TSError, get, isEmpty, pDelay
+    TSError, get, isEmpty, pDelay, pRetry
 } = require('@terascope/utils');
 const { Client, KubeConfig } = require('kubernetes-client');
 const Request = require('kubernetes-client/backends/request');
+const { getRetryConfig } = require('./utils');
 
 class K8s {
-    constructor(logger, clientConfig, defaultNamespace = 'default', apiPollDelay) {
+    constructor(logger, clientConfig, defaultNamespace = 'default',
+        apiPollDelay, shutdownTimeout) {
         this.apiPollDelay = apiPollDelay;
-        this.logger = logger;
         this.defaultNamespace = defaultNamespace;
+        this.logger = logger;
+        this.shutdownTimeout = shutdownTimeout; // this is in milliseconds
 
         if (clientConfig) {
             this.client = new Client({
@@ -50,7 +53,8 @@ class K8s {
     async getNamespaces() {
         let namespaces;
         try {
-            namespaces = await this.client.api.v1.namespaces.get();
+            namespaces = await pRetry(() => this.client
+                .api.v1.namespaces.get(), getRetryConfig());
         } catch (err) {
             const error = new TSError(err, {
                 reason: 'Failure getting in namespaces'
@@ -64,11 +68,14 @@ class K8s {
      * Rerturns the first pod matching the provided selector after it has
      * entered the `Running` state.
      *
+     * TODO: Make more generic to search for different statuses
+     *
      * NOTE: If your selector will return multiple pods, this method probably
      * won't work for you.
      * @param {String} selector kubernetes selector, like 'controller-uid=XXX'
      * @param {String} ns       namespace to search, this will override the default
      * @param {Number} timeout  time, in ms, to wait for pod to start
+     * @return {Object}         pod
      */
     async waitForSelectedPod(selector, ns, timeout = 10000) {
         const namespace = ns || this.defaultNamespace;
@@ -77,8 +84,9 @@ class K8s {
 
         // eslint-disable-next-line no-constant-condition
         while (true) {
-            const result = await this.client.api.v1.namespaces(namespace)
-                .pods().get({ qs: { labelSelector: selector } });
+            const result = await pRetry(() => this.client
+                .api.v1.namespaces(namespace).pods()
+                .get({ qs: { labelSelector: selector } }), getRetryConfig());
 
             let pod;
             if (typeof result !== 'undefined' && result) {
@@ -91,6 +99,42 @@ class K8s {
             }
             if (now > end) throw new Error(`Timeout waiting for pod matching: ${selector}`);
             this.logger.debug(`waiting for pod matching: ${selector}`);
+
+            await pDelay(this.apiPollDelay);
+            now = Date.now();
+        }
+    }
+
+    /**
+     * Waits for the number of pods to equal number.
+     * @param {Number} number   Number of pods to wait for, e.g.: 0, 10
+     * @param {String} selector kubernetes selector, like 'controller-uid=XXX'
+     * @param {String} ns       namespace to search, this will override the default
+     * @param {Number} timeout  time, in ms, to wait for pod to start
+     * @return {Array}          Array of pod objects
+     */
+    async waitForNumPods(number, selector, ns, timeout = 10000) {
+        const namespace = ns || this.defaultNamespace;
+        let now = Date.now();
+        const end = now + timeout;
+
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+            const result = await pRetry(() => this.client
+                .api.v1.namespaces(namespace).pods()
+                .get({ qs: { labelSelector: selector } }), getRetryConfig());
+
+            let podList;
+            if (typeof result !== 'undefined' && result) {
+                podList = get(result, 'body.items');
+            }
+
+            if (typeof podList !== 'undefined' && podList) {
+                if (podList.length === number) return podList;
+            }
+            const msg = `Waiting: pods matching ${selector} is ${podList.length}/${number}`;
+            if (now > end) throw new Error(`Timeout ${msg}`);
+            this.logger.debug(msg);
 
             await pDelay(this.apiPollDelay);
             now = Date.now();
@@ -111,17 +155,21 @@ class K8s {
 
         try {
             if (objType === 'pods') {
-                response = await this.client.api.v1.namespaces(namespace)
-                    .pods().get({ qs: { labelSelector: selector } });
+                response = await pRetry(() => this.client
+                    .api.v1.namespaces(namespace).pods()
+                    .get({ qs: { labelSelector: selector } }), getRetryConfig());
             } else if (objType === 'deployments') {
-                response = await this.client.apis.apps.v1.namespaces(namespace)
-                    .deployments().get({ qs: { labelSelector: selector } });
+                response = await pRetry(() => this.client
+                    .apis.apps.v1.namespaces(namespace).deployments()
+                    .get({ qs: { labelSelector: selector } }), getRetryConfig());
             } else if (objType === 'services') {
-                response = await this.client.api.v1.namespaces(namespace)
-                    .services().get({ qs: { labelSelector: selector } });
+                response = await pRetry(() => this.client
+                    .api.v1.namespaces(namespace).services()
+                    .get({ qs: { labelSelector: selector } }), getRetryConfig());
             } else if (objType === 'jobs') {
-                response = await this.client.apis.batch.v1.namespaces(namespace)
-                    .jobs().get({ qs: { labelSelector: selector } });
+                response = await pRetry(() => this.client
+                    .apis.batch.v1.namespaces(namespace).jobs()
+                    .get({ qs: { labelSelector: selector } }), getRetryConfig());
             } else {
                 const error = new Error(`Wrong objType provided to get: ${objType}`);
                 this.logger.error(error);
@@ -194,8 +242,9 @@ class K8s {
         let response;
 
         try {
-            response = await this.client.apis.apps.v1.namespaces(this.defaultNamespace)
-                .deployments(name).patch({ body: record });
+            response = await pRetry(() => this.client
+                .apis.apps.v1.namespaces(this.defaultNamespace).deployments(name)
+                .patch({ body: record }), getRetryConfig());
         } catch (e) {
             const err = new Error(`Request k8s.patch with ${name} failed with: ${e}`);
             this.logger.error(err);
@@ -224,22 +273,25 @@ class K8s {
 
         try {
             if (objType === 'services') {
-                response = await this.client.api.v1.namespaces(this.defaultNamespace)
-                    .services(name).delete();
+                response = await pRetry(() => this.client
+                    .api.v1.namespaces(this.defaultNamespace).services(name)
+                    .delete(), getRetryConfig(), getRetryConfig());
             } else if (objType === 'deployments') {
-                response = await this.client.apis.apps.v1.namespaces(this.defaultNamespace)
-                    .deployments(name).delete();
+                response = await pRetry(() => this.client
+                    .apis.apps.v1.namespaces(this.defaultNamespace).deployments(name)
+                    .delete(), getRetryConfig());
             } else if (objType === 'jobs') {
                 // To get a Job to remove the associated pods you have to
                 // include a body like the one below with the delete request
-                response = await this.client.apis.batch.v1.namespaces(this.defaultNamespace)
-                    .jobs(name).delete({
+                response = await pRetry(() => this.client
+                    .apis.batch.v1.namespaces(this.defaultNamespace).jobs(name)
+                    .delete({
                         body: {
                             apiVersion: 'v1',
                             kind: 'DeleteOptions',
                             propagationPolicy: 'Background'
                         }
-                    });
+                    }), getRetryConfig());
             } else {
                 throw new Error(`Invalid objType: ${objType}`);
             }
@@ -261,18 +313,49 @@ class K8s {
 
     /**
      * Delete all of the deployments and services related to the specified exId
+     *
+     * The process here waits for the worker pods to completely exit before
+     * terminating the execution controller pod.  The intent is to avoid having
+     * a worker timeout when it tries to tell the execution controller it is
+     * exiting.
+     *
      * @param  {String}  exId ID of the execution
      * @return {Promise}
      */
     async deleteExecution(exId) {
+        const r = [];
         if (!exId) {
             throw new Error('deleteExecution requires an executionId');
         }
 
-        return Promise.all([
-            this._deleteObjByExId(exId, 'worker', 'deployments'),
-            this._deleteObjByExId(exId, 'execution_controller', 'jobs'),
-        ]);
+        try {
+            this.logger.info(`Deleting worker deployment for ex_id: ${exId}`);
+            r.push(await this._deleteObjByExId(exId, 'worker', 'deployments'));
+
+            await this.waitForNumPods(
+                0,
+                `app.kubernetes.io/component=worker,teraslice.terascope.io/exId=${exId}`,
+                null,
+                this.shutdownTimeout + 15000 // shutdown_timeout + 15s
+            );
+        } catch (e) {
+            // deliberately ignore errors, k8s will clean up workers when
+            // execution controller gets deleted.
+            const err = new Error(`Error encountered deleting pod deployment, continuing execution controller shutdown: ${e}`);
+            this.logger.error(err);
+        }
+
+        try {
+            this.logger.info(`Deleting execution controller job for ex_id: ${exId}`);
+            r.push(await this._deleteObjByExId(exId, 'execution_controller', 'jobs'));
+        } catch (e) {
+            const err = new Error(`Error deleting execution controller: ${e}`);
+            this.logger.error(err);
+            return Promise.reject(err);
+        }
+
+        this.logger.debug(`Deleted Resources:\n\n${r.map((x) => JSON.stringify(x, null, 2))}`);
+        return r;
     }
 
     /**

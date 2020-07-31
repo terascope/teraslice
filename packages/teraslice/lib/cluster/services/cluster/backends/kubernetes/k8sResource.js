@@ -96,6 +96,8 @@ class K8sResource {
             dockerImage,
             execution: safeEncode(this.execution),
             exId: this.execution.ex_id,
+            exName: this.execution.k8sName,
+            exUid: this.execution.k8sUid,
             jobId: this.execution.job_id,
             jobNameLabel,
             name,

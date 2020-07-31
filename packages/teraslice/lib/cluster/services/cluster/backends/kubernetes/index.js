@@ -27,8 +27,13 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
     const clusterState = {};
     let clusterStateInterval = null;
 
-    const k8s = new K8s(logger, null, kubernetesNamespace,
-        context.sysconfig.teraslice.kubernetes_api_poll_delay);
+    const k8s = new K8s(
+        logger,
+        null,
+        kubernetesNamespace,
+        context.sysconfig.teraslice.kubernetes_api_poll_delay,
+        context.sysconfig.teraslice.shutdown_timeout
+    );
 
     clusterMasterServer.onClientOnline((exId) => {
         logger.info(`execution ${exId} is connected`);
@@ -116,7 +121,16 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
      * @param  {Object} execution  Object that contains information of Execution
      * @return {Promise}           [description]
      */
-    function allocateWorkers(execution) {
+    async function allocateWorkers(execution) {
+        // NOTE: I tried to set these on the execution inside allocateSlicer
+        // but these properties were gone by the time this was called, perhaps
+        // because they are not on the schema.  So I do this k8s API call
+        // instead.
+        const selector = `app.kubernetes.io/component=execution_controller,teraslice.terascope.io/jobId=${execution.job_id}`;
+        const jobs = await k8s.list(selector, 'jobs');
+        execution.k8sName = jobs.items[0].metadata.name;
+        execution.k8sUid = jobs.items[0].metadata.uid;
+
         const kr = new K8sResource(
             'deployments', 'worker', context.sysconfig.teraslice, execution
         );
