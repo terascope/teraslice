@@ -328,16 +328,22 @@ class K8s {
             throw new Error('deleteExecution requires an executionId');
         }
 
-        // FIXME: think more about this
-        this.logger.info(`Deleting worker deployment for ex_id: ${exId}`);
-        r.push(await this._deleteObjByExId(exId, 'worker', 'deployments'));
+        try {
+            this.logger.info(`Deleting worker deployment for ex_id: ${exId}`);
+            r.push(await this._deleteObjByExId(exId, 'worker', 'deployments'));
 
-        await this.waitForNumPods(
-            0,
-            `app.kubernetes.io/component=worker,teraslice.terascope.io/exId=${exId}`,
-            null,
-            this.shutdownTimeout + 15000 // shutdown_timeout + 15s
-        );
+            await this.waitForNumPods(
+                0,
+                `app.kubernetes.io/component=worker,teraslice.terascope.io/exId=${exId}`,
+                null,
+                this.shutdownTimeout + 15000 // shutdown_timeout + 15s
+            );
+        } catch (e) {
+            // deliberately ignore errors, k8s will clean up workers when
+            // execution controller gets deleted.
+            const err = new Error(`Error encountered deleting pod deployment, continuing execution controller shutdown: ${e}`);
+            this.logger.error(err);
+        }
 
         try {
             this.logger.info(`Deleting execution controller job for ex_id: ${exId}`);
