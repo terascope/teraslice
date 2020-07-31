@@ -31,7 +31,7 @@ describe('system_schema', () => {
 
     it('assets_directory is optional but requires a string', () => {
         expect(checkValidation({ assets_directory: 234 })).toEqual(
-            'assets_directory: This field is optional but if specified it must be of type string: value was 234'
+            'assets_directory: Invalid parameter assets_directory, it must either be a string or an array of strings: value was 234'
         );
     });
 });

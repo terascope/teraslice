@@ -161,6 +161,41 @@ describe('OperationLoader', () => {
         expect(op.API).toBeNil();
     });
 
+    it('should load the new processor from a list of assetDirs', () => {
+        const exConfig = newTestExecutionConfig();
+        const opConfig = {
+            _op: 'example-op',
+        };
+
+        exConfig.operations.push({
+            _op: 'example-reader',
+        });
+        exConfig.operations.push(opConfig);
+
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: [tmpDir, path.join(__dirname)],
+        });
+
+        expect(() => {
+            opLoader.loadProcessor('fail');
+        }).toThrowError('Unable to find module for operation: fail');
+
+        const op = opLoader.loadProcessor('example-op', ['fixtures']);
+
+        expect(op.Processor).not.toBeNil();
+        expect(() => {
+            new op.Processor(context as WorkerContext, opConfig, exConfig);
+        }).not.toThrow();
+
+        expect(op.Schema).not.toBeNil();
+        expect(() => {
+            new op.Schema(context).build();
+        }).not.toThrow();
+
+        expect(op.API).toBeNil();
+    });
+
     it('should load a shimmed processor', () => {
         const exConfig = newTestExecutionConfig();
         const opConfig = {
@@ -282,6 +317,22 @@ describe('OperationLoader', () => {
         }).not.toThrow();
     });
 
+    it('should load an api from a list of assetDirs', () => {
+        const exConfig = newTestExecutionConfig();
+
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: [tmpDir, path.join(__dirname)],
+        });
+
+        const op = opLoader.loadAPI('example-api', ['fixtures']);
+
+        expect(op.API).not.toBeNil();
+        expect(() => {
+            new op.API(context as WorkerContext, { _name: 'example-api' }, exConfig);
+        }).not.toThrow();
+    });
+
     it('should load an api with a namespace', () => {
         const exConfig = newTestExecutionConfig();
 
@@ -334,5 +385,20 @@ describe('OperationLoader', () => {
         expect(() => {
             opLoader.loadAPI('invalid-api-observer', ['fixtures']);
         }).toThrowError(/required only one api\.js or observer\.js/);
+    });
+
+    it('should fail if fetching a file with a . or _', () => {
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: path.join(__dirname),
+        });
+
+        expect(() => {
+            opLoader.loadProcessor('.dot-private-op', ['fixtures']);
+        }).toThrowError();
+
+        expect(() => {
+            opLoader.loadProcessor('_underscore-private-op', ['fixtures']);
+        }).toThrowError();
     });
 });

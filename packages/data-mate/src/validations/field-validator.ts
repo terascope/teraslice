@@ -770,11 +770,11 @@ export function isURL(input: unknown, _parentContext?: unknown): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
-        const fn = (data: any) => isString(data) && url.isUri(data) !== null;
+        const fn = (data: any) => ts.isString(data) && url.isUri(data) !== null;
         return _lift(fn, input, _parentContext);
     }
 
-    return isString(input) && url.isUri(input) != null;
+    return ts.isString(input) && url.isUri(input) != null;
 }
 
 /**
@@ -796,11 +796,11 @@ export function isUUID(input: unknown, _parentContext?: unknown): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
-        const fn = (data: any) => isString(data) && validator.isUUID(data);
+        const fn = (data: any) => ts.isString(data) && validator.isUUID(data);
         return _lift(fn, input, _parentContext);
     }
 
-    return isString(input) && validator.isUUID(input);
+    return ts.isString(input) && validator.isUUID(input);
 }
 
 /**
@@ -880,11 +880,11 @@ export function isAlpha(
     const locale: validator.AlphaLocale = args && args.locale ? args.locale : 'en-US';
 
     if (isArray(input)) {
-        const fn = (data: any) => isString(data) && validator.isAlpha(data, locale);
+        const fn = (data: any) => ts.isString(data) && validator.isAlpha(data, locale);
         return _lift(fn, input, _parentContext);
     }
 
-    return isString(input) && validator.isAlpha(input, locale);
+    return ts.isString(input) && validator.isAlpha(input, locale);
 }
 
 /**
@@ -912,11 +912,11 @@ export function isAlphanumeric(
     const locale: validator.AlphanumericLocale = args && args.locale ? args.locale : 'en-US';
 
     if (isArray(input)) {
-        const fn = (data: any) => isString(data) && validator.isAlphanumeric(data, locale);
+        const fn = (data: any) => ts.isString(data) && validator.isAlphanumeric(data, locale);
         return _lift(fn, input, _parentContext);
     }
 
-    return isString(input) && validator.isAlphanumeric(input, locale);
+    return ts.isString(input) && validator.isAlphanumeric(input, locale);
 }
 
 /**
@@ -936,11 +936,11 @@ export function isASCII(input: unknown, _parentContext?: unknown): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
-        const fn = (data: any) => isString(data) && validator.isAscii(data);
+        const fn = (data: any) => ts.isString(data) && validator.isAscii(data);
         return _lift(fn, input, _parentContext);
     }
 
-    return isString(input) && validator.isAscii(input);
+    return ts.isString(input) && validator.isAscii(input);
 }
 
 /**
@@ -959,11 +959,11 @@ export function isBase64(input: unknown, _parentContext?: unknown): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
-        const fn = (data: any) => isString(data) && validator.isBase64(data);
+        const fn = (data: any) => ts.isString(data) && validator.isBase64(data);
         return _lift(fn, input, _parentContext);
     }
 
-    return isString(input) && validator.isBase64(input);
+    return ts.isString(input) && validator.isBase64(input);
 }
 
 /**
@@ -987,7 +987,7 @@ export function isEmpty(
 ): boolean {
     let value = input;
 
-    if (isString(value) && args && args.ignoreWhitespace) {
+    if (!isArray(value) && ts.isString(value) && args && args.ignoreWhitespace) {
         value = value.trim();
     }
 
@@ -1018,11 +1018,11 @@ export function isFQDN(input: unknown, _parentContext?: unknown, args?: FQDNOpti
     };
 
     if (isArray(input)) {
-        const fn = (data: any) => isString(data) && validator.isFQDN(data, config);
+        const fn = (data: any) => ts.isString(data) && validator.isFQDN(data, config);
         return _lift(fn, input, _parentContext);
     }
 
-    return isString(input) && validator.isFQDN(input, config);
+    return ts.isString(input) && validator.isFQDN(input, config);
 }
 
 /**
@@ -1056,11 +1056,11 @@ export function isHash(input: unknown, _parentContext: unknown, args: HashConfig
     if (args?.algo === undefined) throw new Error('Parameter property algo was not provided');
 
     if (isArray(input)) {
-        const fn = (data: any) => isString(data) && validator.isHash(data, args.algo);
+        const fn = (data: any) => ts.isString(data) && validator.isHash(data, args.algo);
         return _lift(fn, input, _parentContext);
     }
 
-    return isString(input) && validator.isHash(input, args.algo);
+    return ts.isString(input) && validator.isHash(input, args.algo);
 }
 
 /**
@@ -1081,11 +1081,11 @@ export function isCountryCode(input: unknown, _parentContext?: unknown): boolean
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
-        const fn = (data: any) => isString(data) && validator.isISO31661Alpha2(data);
+        const fn = (data: any) => ts.isString(data) && validator.isISO31661Alpha2(data);
         return _lift(fn, input, _parentContext);
     }
 
-    return isString(input) && validator.isISO31661Alpha2(input);
+    return ts.isString(input) && validator.isISO31661Alpha2(input);
 }
 
 /**
@@ -1103,11 +1103,11 @@ export function isISO8601(input: unknown, _parentContext?: unknown): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
-        const fn = (data: any) => isString(data) && validator.isISO8601(data);
+        const fn = (data: any) => ts.isString(data) && validator.isISO8601(data);
         return _lift(fn, input, _parentContext);
     }
 
-    return isString(input) && validator.isISO8601(input);
+    return ts.isString(input) && validator.isISO8601(input);
 }
 
 /**
@@ -1134,11 +1134,11 @@ export function isISSN(input: unknown, _parentContext?: unknown, args?: ArgsISSN
     };
 
     if (isArray(input)) {
-        const fn = (data: any) => isString(data) && validator.isISSN(data, config);
+        const fn = (data: any) => ts.isString(data) && validator.isISSN(data, config);
         return _lift(fn, input, _parentContext);
     }
 
-    return isString(input) && validator.isISSN(input, config);
+    return ts.isString(input) && validator.isISSN(input, config);
 }
 
 /**
@@ -1158,11 +1158,11 @@ export function isRFC3339(input: unknown, _parentContext?: unknown): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
-        const fn = (data: any) => isString(data) && validator.isRFC3339(data);
+        const fn = (data: any) => ts.isString(data) && validator.isRFC3339(data);
         return _lift(fn, input, _parentContext);
     }
 
-    return isString(input) && validator.isRFC3339(input);
+    return ts.isString(input) && validator.isRFC3339(input);
 }
 
 /**
@@ -1183,11 +1183,11 @@ export function isJSON(input: unknown, _parentContext?: unknown): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
-        const fn = (data: any) => isString(data) && validator.isJSON(data);
+        const fn = (data: any) => ts.isString(data) && validator.isJSON(data);
         return _lift(fn, input, _parentContext);
     }
 
-    return isString(input) && validator.isJSON(input);
+    return ts.isString(input) && validator.isJSON(input);
 }
 
 /**
@@ -1211,7 +1211,7 @@ export function isLength(
 
     if (isArray(input)) {
         const fn = (data: any) => {
-            if (size) return isString(data) && data.length === size;
+            if (size) return ts.isString(data) && data.length === size;
             if (min || max) return validator.isLength(data, { min, max });
             return false;
         };
@@ -1244,11 +1244,11 @@ export function isMIMEType(input: unknown, _parentContext?: unknown): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
-        const fn = (data: any) => isString(data) && validator.isMimeType(data);
+        const fn = (data: any) => ts.isString(data) && validator.isMimeType(data);
         return _lift(fn, input, _parentContext);
     }
 
-    return isString(input) && validator.isMimeType(input);
+    return ts.isString(input) && validator.isMimeType(input);
 }
 
 /**
@@ -1275,11 +1275,11 @@ export function isPostalCode(input: unknown, _parentContext: unknown, args: { lo
     if (!args?.locale) throw new Error('Invalid parameter locale, must provide an object with locale');
 
     if (isArray(input)) {
-        const fn = (data: any) => isString(data) && validator.isPostalCode(data, args.locale);
+        const fn = (data: any) => ts.isString(data) && validator.isPostalCode(data, args.locale);
         return _lift(fn, input, _parentContext);
     }
 
-    return isString(input) && validator.isPostalCode(input, args.locale);
+    return ts.isString(input) && validator.isPostalCode(input, args.locale);
 }
 
 /**

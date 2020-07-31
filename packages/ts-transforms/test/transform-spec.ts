@@ -1145,4 +1145,21 @@ describe('can transform matches', () => {
         expect(results.length).toEqual(1);
         expect(results[0]).toEqual({ results: ['hello', 'world'] });
     });
+
+    it('should ignore empty strings', async () => {
+        const config: WatcherConfig = {
+            rules: [getPath('regression-test3.txt')],
+        };
+
+        const data = [
+            new DataEntity({ field1: false }),
+            new DataEntity({ field1: '' }),
+            new DataEntity({ field1: null }),
+        ];
+
+        const test = await opTest.init(config);
+        const results = await test.run(data);
+
+        expect(results).toBeArrayOfSize(0);
+    });
 });

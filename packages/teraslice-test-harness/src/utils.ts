@@ -1,21 +1,26 @@
 import path from 'path';
 import fs from 'fs';
 
-export function resolveAssetDir(assetDir: string): string {
-    const dirname = path.dirname(assetDir);
-    if (!dirname || dirname === '/' || dirname === process.env.HOME) {
-        throw new Error(`${assetDir} is not a valid path`);
-    }
+export function resolveAssetDir(configAssetDirs: string| string[]): string[] {
+    const assetDirs = Array.isArray(configAssetDirs) ? configAssetDirs : [configAssetDirs];
 
-    if (isAssetDirRoot(assetDir)) {
-        return path.join(assetDir, 'asset');
-    }
+    return assetDirs.map((assetDir) => {
+        const dirname = path.dirname(assetDir);
 
-    if (isBaseAssetDir(assetDir)) {
-        return assetDir;
-    }
+        if (!dirname || dirname === '/' || dirname === process.env.HOME) {
+            throw new Error(`${assetDir} is not a valid path`);
+        }
 
-    throw new Error(`Unable to find asset dir at path ${assetDir}`);
+        if (isAssetDirRoot(assetDir)) {
+            return path.join(assetDir, 'asset');
+        }
+
+        if (isBaseAssetDir(assetDir)) {
+            return assetDir;
+        }
+
+        throw new Error(`Unable to find asset dir at path ${assetDir}`);
+    });
 }
 
 export function isBaseAssetDir(assetDir: string): boolean {

@@ -20,7 +20,7 @@ export interface TerasliceConfig {
     action_timeout: number|300000;
     analytics_rate: number|60000;
     api_response_timeout?: number|300000;
-    assets_directory?: string;
+    assets_directory?: string[] | string;
     assets_volume?: string;
     cluster_manager_type: ClusterManagerType;
     /** This will only be available in the context of k8s */
