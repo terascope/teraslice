@@ -72,6 +72,8 @@ describe('K8s Utils', () => {
                 jobNameLabel: 'example-job',
                 clusterNameLabel: 'example-cluster',
                 exId: 'some-ex-id',
+                exName: 'example-job-abcd',
+                exUid: 'UID1',
                 jobId: 'some-job-id',
                 nodeType: 'worker',
                 namespace: 'some-namespace',
@@ -93,7 +95,17 @@ describe('K8s Utils', () => {
                     'app.kubernetes.io/instance': config.clusterNameLabel
                 },
                 name: config.name,
-                namespace: config.namespace
+                namespace: config.namespace,
+                ownerReferences: [
+                    {
+                        apiVersion: 'batch/v1',
+                        blockOwnerDeletion: false,
+                        controller: false,
+                        kind: 'Job',
+                        name: 'example-job-abcd',
+                        uid: 'UID1',
+                    },
+                ],
             });
 
             expect(workerDeployment.spec.replicas).toEqual(config.replicas);
