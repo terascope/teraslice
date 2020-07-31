@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const barbe = require('barbe');
 
-const isTest = require('@terascope/utils');
+const { isTest } = require('@terascope/utils');
 
 function makeTemplate(folder, fileName) {
     const filePath = path.join(__dirname, folder, `${fileName}.hbs`);
