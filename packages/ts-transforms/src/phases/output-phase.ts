@@ -1,4 +1,6 @@
-import { DataEntity, AnyObject, unset } from '@terascope/utils';
+import {
+    DataEntity, AnyObject, unset, has
+} from '@terascope/utils';
 import { hasKeys } from './utils';
 import { WatcherConfig, OutputValidation } from '../interfaces';
 import PhaseBase from './base';
@@ -59,7 +61,7 @@ export default class OutputPhase extends PhaseBase {
 
 function removeKeys(doc: DataEntity, dict: AnyObject) {
     for (const key in dict) {
-        if (doc[key]) unset(doc, key);
+        if (has(doc, key)) unset(doc, key);
     }
 }
 

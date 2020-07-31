@@ -2,7 +2,7 @@
 
 const ip = require('ip');
 const path = require('path');
-const { isPlainObject } = require('@terascope/utils');
+const { isPlainObject, isString, isArray } = require('@terascope/utils');
 
 const workerCount = require('os').cpus().length;
 
@@ -15,7 +15,16 @@ const schema = {
     assets_directory: {
         doc: 'directory to look for assets',
         default: path.join(process.cwd(), './assets'),
-        format: 'optional_String'
+        format: (val) => {
+            if (val) {
+                if (isArray(val)) {
+                    const containStrings = val.every(isString);
+                    if (!containStrings) throw new Error('Invalid parameter assets_directory, if specified as an array, it must contain an array of strings');
+                    return;
+                }
+                if (!isString(val)) throw new Error('Invalid parameter assets_directory, it must either be a string or an array of strings');
+            }
+        }
     },
     assets_volume: {
         doc: 'name of shared asset volume (k8s)',

@@ -205,17 +205,17 @@ module.exports = StateStorageProcessor;
 
 ### type
 "type":"STRING" - Elasticsearch type, defaults to _doc
-        
+
 ### concurrency
 "concurrency": NUMBER - Number of concurrent elasticsearch mget requests, defaults to 10
-            
+
 ### chunk_size
 "chunk_size": NUMBER - Number of documents in each elasticsearch mget request, defaults to 2,500
-            
+
 ### persist
 "persist": BOOLEAN - Saves the record to elasticsearch upon caching the document, defaults to false
-            
-### metaKey
+
+### meta_key_field
 "metaKey": "STRING" - Field in the metadata to use as the key for cacheing and searching in elasticsearch
 
 ### connection
@@ -274,9 +274,8 @@ this.state.isKeyCached(1); // true
 this.state.isKeyCached('other'); // false
 ```
 
-### count 
+### count
 count - Returns the number of records in the cache
 ```javascript
 this.state.count(); // 2
 ```
-

@@ -1,7 +1,12 @@
 import 'jest-extended';
 import path from 'path';
 import {
-    newTestJobConfig, newTestSlice, DataEntity, Fetcher, BatchProcessor, NoopProcessor
+    newTestJobConfig,
+    newTestSlice,
+    DataEntity,
+    Fetcher,
+    BatchProcessor,
+    NoopProcessor
 } from '@terascope/job-components';
 import { WorkerTestHarness } from '../src';
 
@@ -88,6 +93,52 @@ describe('WorkerTestHarness', () => {
         });
 
         it('should be able to call shutdown', () => expect(workerHarness.shutdown()).resolves.toBeNil());
+    });
+
+    describe('when using assets and multiple assetDirs', () => {
+        const options = {
+            assetDir: [
+                path.join(__dirname, 'fixtures'),
+                path.join(__dirname, 'secondary-asset'),
+            ]
+        };
+        let harness: WorkerTestHarness;
+
+        beforeAll(async () => {
+            const job = newTestJobConfig({
+                max_retries: 0,
+                analytics: true,
+                operations: [
+                    {
+                        _op: 'test-reader',
+                        passthrough_slice: true,
+                    },
+                    { _op: 'test-processor' },
+                    { _op: 'other_processor' },
+                ],
+            });
+
+            harness = new WorkerTestHarness(job, options);
+
+            await harness.initialize();
+        });
+
+        afterAll(async () => {
+            await harness.shutdown();
+        });
+
+        it('should run', async () => {
+            const expectedResults = { more: 'data' };
+            const data = [
+                DataEntity.make({ some: 'data' }, { test: expectedResults })
+            ];
+
+            const results = await harness.runSlice(data);
+
+            expect(results).toBeArrayOfSize(1);
+            expect(results[0]).toMatchObject(expectedResults);
+            expect(results[0].getMetadata('other')).toBeTrue();
+        });
     });
 
     describe('when using static method testProcessor', () => {

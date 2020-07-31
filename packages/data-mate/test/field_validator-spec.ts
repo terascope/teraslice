@@ -826,7 +826,21 @@ describe('field validators', () => {
             expect(FieldValidator.isEmpty('not empty')).toBe(false);
             expect(FieldValidator.isEmpty({ a: 'something' })).toBe(false);
             expect(FieldValidator.isEmpty(['one', 2, 'three'])).toBe(false);
+            expect(FieldValidator.isEmpty(['one', 'two', 'three'])).toBe(false);
             expect(FieldValidator.isEmpty('     ')).toBe(false);
+        });
+
+        it('should ignoreWhitespace', () => {
+            const arrayData = ['one', 'two', 'three'];
+            const stringData = '              ';
+
+            expect(
+                FieldValidator.isEmpty(arrayData, arrayData, { ignoreWhitespace: true })
+            ).toBe(false);
+
+            expect(FieldValidator.isEmpty(
+                stringData, stringData, { ignoreWhitespace: true }
+            )).toBe(true);
         });
     });
 
