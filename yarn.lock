@@ -676,10 +676,10 @@
   dependencies:
     defer-to-connect "^2.0.0"
 
-"@terascope/fetch-github-release@^0.7.1":
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/@terascope/fetch-github-release/-/fetch-github-release-0.7.1.tgz#79cbd208698576dc3d3a50caa7ee18f9daea4d67"
-  integrity sha512-TgMiUQbhxHyNLXk1ka7ORCG2kRtnNXkjeOJBjHkUPIaWxKAr7e/xpX0lkGJr3pfV0Mww6QXxFH3OIUC1KcK99w==
+"@terascope/fetch-github-release@^0.7.2":
+  version "0.7.2"
+  resolved "https://registry.yarnpkg.com/@terascope/fetch-github-release/-/fetch-github-release-0.7.2.tgz#e7861855629e0b429d0616bf38a57467d186069f"
+  integrity sha512-WrVnFirMe+nO86lWZCAmiygb/8JKZinIn90zGvYKGRDIeHm30vOYX2dY5GlJK+0ca1PXM8FmZmQ0eDQpqBq/Bw==
   dependencies:
     commander "^5.1.0"
     core-js "^3.6.5"
