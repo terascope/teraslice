@@ -87,7 +87,7 @@ when they will be absent when used in a 'with' statement.</p>
 </ul>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="concat"></a><a href="#concat" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>concat</h3>
-<p>▸ <strong>concat</strong>(...<code>items</code>: ConcatArray‹string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>›[]): <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</em></p>
+<p>▸ <strong>concat</strong>(...<code>items</code>: ConcatArray‹string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>›[]): <em>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</em></p>
 <p><em>Inherited from <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>.<a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts#concat">concat</a></em></p>
 <p>Defined in node_modules/typescript/lib/lib.es5.d.ts:1237</p>
 <p>Combines two or more arrays.</p>
@@ -100,8 +100,8 @@ when they will be absent when used in a 'with' statement.</p>
 <tr><td><code>...items</code></td><td>ConcatArray‹string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>›[]</td><td>Additional items to add to the end of array1.</td></tr>
 </tbody>
 </table>
-<p><strong>Returns:</strong> <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</em></p>
-<p>▸ <strong>concat</strong>(...<code>items</code>: T | ConcatArray‹T›[]): <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</em></p>
+<p><strong>Returns:</strong> <em>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</em></p>
+<p>▸ <strong>concat</strong>(...<code>items</code>: (T | ConcatArray‹T›)[]): <em>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</em></p>
 <p><em>Inherited from <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>.<a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts#concat">concat</a></em></p>
 <p>Defined in node_modules/typescript/lib/lib.es5.d.ts:1242</p>
 <p>Combines two or more arrays.</p>
@@ -111,10 +111,10 @@ when they will be absent when used in a 'with' statement.</p>
 <tr><th>Name</th><th>Type</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>...items</code></td><td>T | ConcatArray‹T›[]</td><td>Additional items to add to the end of array1.</td></tr>
+<tr><td><code>...items</code></td><td>(T | ConcatArray‹T›)[]</td><td>Additional items to add to the end of array1.</td></tr>
 </tbody>
 </table>
-<p><strong>Returns:</strong> <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</em></p>
+<p><strong>Returns:</strong> <em>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</em></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="copywithin"></a><a href="#copywithin" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>copyWithin</h3>
 <p>▸ <strong>copyWithin</strong>(<code>target</code>: number, <code>start</code>: number, <code>end?</code>: number): <em>this</em></p>
@@ -152,7 +152,7 @@ to the same array starting at position target</p>
 <p>A function that accepts up to three arguments. The every method calls
 the callbackfn function for each element in the array until the callbackfn returns a value
 which is coercible to the Boolean value false, or until the end of the array.</p>
-<p>▸ (<code>value</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>index</code>: number, <code>array</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]): <em>unknown</em></p>
+<p>▸ (<code>value</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>index</code>: number, <code>array</code>: (string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]): <em>unknown</em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -161,7 +161,7 @@ which is coercible to the Boolean value false, or until the end of the array.</p
 <tbody>
 <tr><td><code>value</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></td></tr>
 <tr><td><code>index</code></td><td>number</td></tr>
-<tr><td><code>array</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</td></tr>
+<tr><td><code>array</code></td><td>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</td></tr>
 </tbody>
 </table>
 <p>▪<code>Optional</code>  <strong>thisArg</strong>: <em>any</em></p>
@@ -197,7 +197,7 @@ If thisArg is omitted, undefined is used as the this value.</p>
 <p><strong>Parameters:</strong></p>
 <p>▪ <strong>callbackfn</strong>: <em>function</em></p>
 <p>A function that accepts up to three arguments. The filter method calls the callbackfn function one time for each element in the array.</p>
-<p>▸ (<code>value</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>index</code>: number, <code>array</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]): <em>value is S</em></p>
+<p>▸ (<code>value</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>index</code>: number, <code>array</code>: (string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]): <em>value is S</em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -206,20 +206,20 @@ If thisArg is omitted, undefined is used as the this value.</p>
 <tbody>
 <tr><td><code>value</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></td></tr>
 <tr><td><code>index</code></td><td>number</td></tr>
-<tr><td><code>array</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</td></tr>
+<tr><td><code>array</code></td><td>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</td></tr>
 </tbody>
 </table>
 <p>▪<code>Optional</code>  <strong>thisArg</strong>: <em>any</em></p>
 <p>An object to which the this keyword can refer in the callbackfn function. If thisArg is omitted, undefined is used as the this value.</p>
 <p><strong>Returns:</strong> <em>S[]</em></p>
-<p>▸ <strong>filter</strong>(<code>callbackfn</code>: function, <code>thisArg?</code>: any): <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</em></p>
+<p>▸ <strong>filter</strong>(<code>callbackfn</code>: function, <code>thisArg?</code>: any): <em>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</em></p>
 <p><em>Inherited from <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>.<a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts#filter">filter</a></em></p>
 <p>Defined in node_modules/typescript/lib/lib.es5.d.ts:1343</p>
 <p>Returns the elements of an array that meet the condition specified in a callback function.</p>
 <p><strong>Parameters:</strong></p>
 <p>▪ <strong>callbackfn</strong>: <em>function</em></p>
 <p>A function that accepts up to three arguments. The filter method calls the callbackfn function one time for each element in the array.</p>
-<p>▸ (<code>value</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>index</code>: number, <code>array</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]): <em>unknown</em></p>
+<p>▸ (<code>value</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>index</code>: number, <code>array</code>: (string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]): <em>unknown</em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -228,12 +228,12 @@ If thisArg is omitted, undefined is used as the this value.</p>
 <tbody>
 <tr><td><code>value</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></td></tr>
 <tr><td><code>index</code></td><td>number</td></tr>
-<tr><td><code>array</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</td></tr>
+<tr><td><code>array</code></td><td>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</td></tr>
 </tbody>
 </table>
 <p>▪<code>Optional</code>  <strong>thisArg</strong>: <em>any</em></p>
 <p>An object to which the this keyword can refer in the callbackfn function. If thisArg is omitted, undefined is used as the this value.</p>
-<p><strong>Returns:</strong> <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</em></p>
+<p><strong>Returns:</strong> <em>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</em></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="find"></a><a href="#find" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>find</h3>
 <p>▸ <strong>find</strong>‹<strong>S</strong>›(<code>predicate</code>: function, <code>thisArg?</code>: any): <em>S | undefined</em></p>
@@ -248,7 +248,7 @@ otherwise.</p>
 <p>find calls predicate once for each element of the array, in ascending
 order, until it finds one where predicate returns true. If such an element is found, find
 immediately returns that element value. Otherwise, find returns undefined.</p>
-<p>▸ (<code>this</code>: void, <code>value</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>index</code>: number, <code>obj</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]): <em>value is S</em></p>
+<p>▸ (<code>this</code>: void, <code>value</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>index</code>: number, <code>obj</code>: (string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]): <em>value is S</em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -258,7 +258,7 @@ immediately returns that element value. Otherwise, find returns undefined.</p>
 <tr><td><code>this</code></td><td>void</td></tr>
 <tr><td><code>value</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></td></tr>
 <tr><td><code>index</code></td><td>number</td></tr>
-<tr><td><code>obj</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</td></tr>
+<tr><td><code>obj</code></td><td>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</td></tr>
 </tbody>
 </table>
 <p>▪<code>Optional</code>  <strong>thisArg</strong>: <em>any</em></p>
@@ -270,7 +270,7 @@ predicate. If it is not provided, undefined is used instead.</p>
 <p>Defined in node_modules/typescript/lib/lib.es2015.core.d.ts:32</p>
 <p><strong>Parameters:</strong></p>
 <p>▪ <strong>predicate</strong>: <em>function</em></p>
-<p>▸ (<code>value</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>index</code>: number, <code>obj</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]): <em>unknown</em></p>
+<p>▸ (<code>value</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>index</code>: number, <code>obj</code>: (string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]): <em>unknown</em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -279,7 +279,7 @@ predicate. If it is not provided, undefined is used instead.</p>
 <tbody>
 <tr><td><code>value</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></td></tr>
 <tr><td><code>index</code></td><td>number</td></tr>
-<tr><td><code>obj</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</td></tr>
+<tr><td><code>obj</code></td><td>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</td></tr>
 </tbody>
 </table>
 <p>▪<code>Optional</code>  <strong>thisArg</strong>: <em>any</em></p>
@@ -296,7 +296,7 @@ otherwise.</p>
 <p>find calls predicate once for each element of the array, in ascending
 order, until it finds one where predicate returns true. If such an element is found,
 findIndex immediately returns that element index. Otherwise, findIndex returns -1.</p>
-<p>▸ (<code>value</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>index</code>: number, <code>obj</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]): <em>unknown</em></p>
+<p>▸ (<code>value</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>index</code>: number, <code>obj</code>: (string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]): <em>unknown</em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -305,7 +305,7 @@ findIndex immediately returns that element index. Otherwise, findIndex returns -
 <tbody>
 <tr><td><code>value</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></td></tr>
 <tr><td><code>index</code></td><td>number</td></tr>
-<tr><td><code>obj</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</td></tr>
+<tr><td><code>obj</code></td><td>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</td></tr>
 </tbody>
 </table>
 <p>▪<code>Optional</code>  <strong>thisArg</strong>: <em>any</em></p>
@@ -348,7 +348,7 @@ This is identical to a map followed by flat with depth 1.</p>
 <p>▪ <strong>callback</strong>: <em>function</em></p>
 <p>A function that accepts up to three arguments. The flatMap method calls the
 callback function one time for each element in the array.</p>
-<p>▸ (<code>this</code>: This, <code>value</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>index</code>: number, <code>array</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]): <em>U | ReadonlyArray‹U›</em></p>
+<p>▸ (<code>this</code>: This, <code>value</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>index</code>: number, <code>array</code>: (string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]): <em>U | ReadonlyArray‹U›</em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -358,7 +358,7 @@ callback function one time for each element in the array.</p>
 <tr><td><code>this</code></td><td>This</td></tr>
 <tr><td><code>value</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></td></tr>
 <tr><td><code>index</code></td><td>number</td></tr>
-<tr><td><code>array</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</td></tr>
+<tr><td><code>array</code></td><td>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</td></tr>
 </tbody>
 </table>
 <p>▪<code>Optional</code>  <strong>thisArg</strong>: <em>This</em></p>
@@ -374,7 +374,7 @@ thisArg is omitted, undefined is used as the this value.</p>
 <p><strong>Parameters:</strong></p>
 <p>▪ <strong>callbackfn</strong>: <em>function</em></p>
 <p>A function that accepts up to three arguments. forEach calls the callbackfn function one time for each element in the array.</p>
-<p>▸ (<code>value</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>index</code>: number, <code>array</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]): <em>void</em></p>
+<p>▸ (<code>value</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>index</code>: number, <code>array</code>: (string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]): <em>void</em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -383,7 +383,7 @@ thisArg is omitted, undefined is used as the this value.</p>
 <tbody>
 <tr><td><code>value</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></td></tr>
 <tr><td><code>index</code></td><td>number</td></tr>
-<tr><td><code>array</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</td></tr>
+<tr><td><code>array</code></td><td>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</td></tr>
 </tbody>
 </table>
 <p>▪<code>Optional</code>  <strong>thisArg</strong>: <em>any</em></p>
@@ -474,7 +474,7 @@ thisArg is omitted, undefined is used as the this value.</p>
 <p><strong>Parameters:</strong></p>
 <p>▪ <strong>callbackfn</strong>: <em>function</em></p>
 <p>A function that accepts up to three arguments. The map method calls the callbackfn function one time for each element in the array.</p>
-<p>▸ (<code>value</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>index</code>: number, <code>array</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]): <em>U</em></p>
+<p>▸ (<code>value</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>index</code>: number, <code>array</code>: (string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]): <em>U</em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -483,7 +483,7 @@ thisArg is omitted, undefined is used as the this value.</p>
 <tbody>
 <tr><td><code>value</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></td></tr>
 <tr><td><code>index</code></td><td>number</td></tr>
-<tr><td><code>array</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</td></tr>
+<tr><td><code>array</code></td><td>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</td></tr>
 </tbody>
 </table>
 <p>▪<code>Optional</code>  <strong>thisArg</strong>: <em>any</em></p>
@@ -498,7 +498,7 @@ thisArg is omitted, undefined is used as the this value.</p>
 <p><strong>Returns:</strong> <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a> | undefined</em></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="push"></a><a href="#push" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>push</h3>
-<p>▸ <strong>push</strong>(...<code>items</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]): <em>number</em></p>
+<p>▸ <strong>push</strong>(...<code>items</code>: (string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]): <em>number</em></p>
 <p><em>Inherited from <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>.<a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts#push">push</a></em></p>
 <p>Defined in node_modules/typescript/lib/lib.es5.d.ts:1232</p>
 <p>Appends new elements to an array, and returns the new length of the array.</p>
@@ -508,7 +508,7 @@ thisArg is omitted, undefined is used as the this value.</p>
 <tr><th>Name</th><th>Type</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>...items</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</td><td>New elements of the Array.</td></tr>
+<tr><td><code>...items</code></td><td>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</td><td>New elements of the Array.</td></tr>
 </tbody>
 </table>
 <p><strong>Returns:</strong> <em>number</em></p>
@@ -521,7 +521,7 @@ thisArg is omitted, undefined is used as the this value.</p>
 <p><strong>Parameters:</strong></p>
 <p>▪ <strong>callbackfn</strong>: <em>function</em></p>
 <p>A function that accepts up to four arguments. The reduce method calls the callbackfn function one time for each element in the array.</p>
-<p>▸ (<code>previousValue</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>currentValue</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>currentIndex</code>: number, <code>array</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]): <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></em></p>
+<p>▸ (<code>previousValue</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>currentValue</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>currentIndex</code>: number, <code>array</code>: (string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]): <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -531,7 +531,7 @@ thisArg is omitted, undefined is used as the this value.</p>
 <tr><td><code>previousValue</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></td></tr>
 <tr><td><code>currentValue</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></td></tr>
 <tr><td><code>currentIndex</code></td><td>number</td></tr>
-<tr><td><code>array</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</td></tr>
+<tr><td><code>array</code></td><td>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</td></tr>
 </tbody>
 </table>
 <p><strong>Returns:</strong> <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></em></p>
@@ -540,7 +540,7 @@ thisArg is omitted, undefined is used as the this value.</p>
 <p>Defined in node_modules/typescript/lib/lib.es5.d.ts:1350</p>
 <p><strong>Parameters:</strong></p>
 <p>▪ <strong>callbackfn</strong>: <em>function</em></p>
-<p>▸ (<code>previousValue</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>currentValue</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>currentIndex</code>: number, <code>array</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]): <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></em></p>
+<p>▸ (<code>previousValue</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>currentValue</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>currentIndex</code>: number, <code>array</code>: (string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]): <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -550,7 +550,7 @@ thisArg is omitted, undefined is used as the this value.</p>
 <tr><td><code>previousValue</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></td></tr>
 <tr><td><code>currentValue</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></td></tr>
 <tr><td><code>currentIndex</code></td><td>number</td></tr>
-<tr><td><code>array</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</td></tr>
+<tr><td><code>array</code></td><td>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</td></tr>
 </tbody>
 </table>
 <p>▪ <strong>initialValue</strong>: <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></em></p>
@@ -564,7 +564,7 @@ thisArg is omitted, undefined is used as the this value.</p>
 <p><strong>Parameters:</strong></p>
 <p>▪ <strong>callbackfn</strong>: <em>function</em></p>
 <p>A function that accepts up to four arguments. The reduce method calls the callbackfn function one time for each element in the array.</p>
-<p>▸ (<code>previousValue</code>: U, <code>currentValue</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>currentIndex</code>: number, <code>array</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]): <em>U</em></p>
+<p>▸ (<code>previousValue</code>: U, <code>currentValue</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>currentIndex</code>: number, <code>array</code>: (string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]): <em>U</em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -574,7 +574,7 @@ thisArg is omitted, undefined is used as the this value.</p>
 <tr><td><code>previousValue</code></td><td>U</td></tr>
 <tr><td><code>currentValue</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></td></tr>
 <tr><td><code>currentIndex</code></td><td>number</td></tr>
-<tr><td><code>array</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</td></tr>
+<tr><td><code>array</code></td><td>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</td></tr>
 </tbody>
 </table>
 <p>▪ <strong>initialValue</strong>: <em>U</em></p>
@@ -589,7 +589,7 @@ thisArg is omitted, undefined is used as the this value.</p>
 <p><strong>Parameters:</strong></p>
 <p>▪ <strong>callbackfn</strong>: <em>function</em></p>
 <p>A function that accepts up to four arguments. The reduceRight method calls the callbackfn function one time for each element in the array.</p>
-<p>▸ (<code>previousValue</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>currentValue</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>currentIndex</code>: number, <code>array</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]): <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></em></p>
+<p>▸ (<code>previousValue</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>currentValue</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>currentIndex</code>: number, <code>array</code>: (string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]): <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -599,7 +599,7 @@ thisArg is omitted, undefined is used as the this value.</p>
 <tr><td><code>previousValue</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></td></tr>
 <tr><td><code>currentValue</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></td></tr>
 <tr><td><code>currentIndex</code></td><td>number</td></tr>
-<tr><td><code>array</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</td></tr>
+<tr><td><code>array</code></td><td>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</td></tr>
 </tbody>
 </table>
 <p><strong>Returns:</strong> <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></em></p>
@@ -608,7 +608,7 @@ thisArg is omitted, undefined is used as the this value.</p>
 <p>Defined in node_modules/typescript/lib/lib.es5.d.ts:1363</p>
 <p><strong>Parameters:</strong></p>
 <p>▪ <strong>callbackfn</strong>: <em>function</em></p>
-<p>▸ (<code>previousValue</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>currentValue</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>currentIndex</code>: number, <code>array</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]): <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></em></p>
+<p>▸ (<code>previousValue</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>currentValue</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>currentIndex</code>: number, <code>array</code>: (string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]): <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -618,7 +618,7 @@ thisArg is omitted, undefined is used as the this value.</p>
 <tr><td><code>previousValue</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></td></tr>
 <tr><td><code>currentValue</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></td></tr>
 <tr><td><code>currentIndex</code></td><td>number</td></tr>
-<tr><td><code>array</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</td></tr>
+<tr><td><code>array</code></td><td>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</td></tr>
 </tbody>
 </table>
 <p>▪ <strong>initialValue</strong>: <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></em></p>
@@ -632,7 +632,7 @@ thisArg is omitted, undefined is used as the this value.</p>
 <p><strong>Parameters:</strong></p>
 <p>▪ <strong>callbackfn</strong>: <em>function</em></p>
 <p>A function that accepts up to four arguments. The reduceRight method calls the callbackfn function one time for each element in the array.</p>
-<p>▸ (<code>previousValue</code>: U, <code>currentValue</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>currentIndex</code>: number, <code>array</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]): <em>U</em></p>
+<p>▸ (<code>previousValue</code>: U, <code>currentValue</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>currentIndex</code>: number, <code>array</code>: (string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]): <em>U</em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -642,7 +642,7 @@ thisArg is omitted, undefined is used as the this value.</p>
 <tr><td><code>previousValue</code></td><td>U</td></tr>
 <tr><td><code>currentValue</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></td></tr>
 <tr><td><code>currentIndex</code></td><td>number</td></tr>
-<tr><td><code>array</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</td></tr>
+<tr><td><code>array</code></td><td>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</td></tr>
 </tbody>
 </table>
 <p>▪ <strong>initialValue</strong>: <em>U</em></p>
@@ -650,11 +650,11 @@ thisArg is omitted, undefined is used as the this value.</p>
 <p><strong>Returns:</strong> <em>U</em></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="reverse"></a><a href="#reverse" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>reverse</h3>
-<p>▸ <strong>reverse</strong>(): <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</em></p>
+<p>▸ <strong>reverse</strong>(): <em>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</em></p>
 <p><em>Inherited from <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>.<a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts#reverse">reverse</a></em></p>
 <p>Defined in node_modules/typescript/lib/lib.es5.d.ts:1251</p>
 <p>Reverses the elements in an Array.</p>
-<p><strong>Returns:</strong> <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</em></p>
+<p><strong>Returns:</strong> <em>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</em></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="shift"></a><a href="#shift" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>shift</h3>
 <p>▸ <strong>shift</strong>(): <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a> | undefined</em></p>
@@ -664,7 +664,7 @@ thisArg is omitted, undefined is used as the this value.</p>
 <p><strong>Returns:</strong> <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a> | undefined</em></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="slice"></a><a href="#slice" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>slice</h3>
-<p>▸ <strong>slice</strong>(<code>start?</code>: number, <code>end?</code>: number): <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</em></p>
+<p>▸ <strong>slice</strong>(<code>start?</code>: number, <code>end?</code>: number): <em>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</em></p>
 <p><em>Inherited from <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>.<a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts#slice">slice</a></em></p>
 <p>Defined in node_modules/typescript/lib/lib.es5.d.ts:1261</p>
 <p>Returns a section of an array.</p>
@@ -678,7 +678,7 @@ thisArg is omitted, undefined is used as the this value.</p>
 <tr><td><code>end?</code></td><td>number</td><td>The end of the specified portion of the array. This is exclusive of the element at the index 'end'.</td></tr>
 </tbody>
 </table>
-<p><strong>Returns:</strong> <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</em></p>
+<p><strong>Returns:</strong> <em>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</em></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="some"></a><a href="#some" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>some</h3>
 <p>▸ <strong>some</strong>(<code>callbackfn</code>: function, <code>thisArg?</code>: any): <em>boolean</em></p>
@@ -690,7 +690,7 @@ thisArg is omitted, undefined is used as the this value.</p>
 <p>A function that accepts up to three arguments. The some method calls
 the callbackfn function for each element in the array until the callbackfn returns a value
 which is coercible to the Boolean value true, or until the end of the array.</p>
-<p>▸ (<code>value</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>index</code>: number, <code>array</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]): <em>unknown</em></p>
+<p>▸ (<code>value</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>, <code>index</code>: number, <code>array</code>: (string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]): <em>unknown</em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -699,7 +699,7 @@ which is coercible to the Boolean value true, or until the end of the array.</p>
 <tbody>
 <tr><td><code>value</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a></td></tr>
 <tr><td><code>index</code></td><td>number</td></tr>
-<tr><td><code>array</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</td></tr>
+<tr><td><code>array</code></td><td>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</td></tr>
 </tbody>
 </table>
 <p>▪<code>Optional</code>  <strong>thisArg</strong>: <em>any</em></p>
@@ -733,7 +733,7 @@ value otherwise. If omitted, the elements are sorted in ascending, ASCII charact
 <p><strong>Returns:</strong> <em>this</em></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="splice"></a><a href="#splice" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>splice</h3>
-<p>▸ <strong>splice</strong>(<code>start</code>: number, <code>deleteCount?</code>: number): <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</em></p>
+<p>▸ <strong>splice</strong>(<code>start</code>: number, <code>deleteCount?</code>: number): <em>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</em></p>
 <p><em>Inherited from <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>.<a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts#splice">splice</a></em></p>
 <p>Defined in node_modules/typescript/lib/lib.es5.d.ts:1277</p>
 <p>Removes elements from an array and, if necessary, inserts new elements in their place, returning the deleted elements.</p>
@@ -747,8 +747,8 @@ value otherwise. If omitted, the elements are sorted in ascending, ASCII charact
 <tr><td><code>deleteCount?</code></td><td>number</td><td>The number of elements to remove.</td></tr>
 </tbody>
 </table>
-<p><strong>Returns:</strong> <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</em></p>
-<p>▸ <strong>splice</strong>(<code>start</code>: number, <code>deleteCount</code>: number, ...<code>items</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]): <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</em></p>
+<p><strong>Returns:</strong> <em>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</em></p>
+<p>▸ <strong>splice</strong>(<code>start</code>: number, <code>deleteCount</code>: number, ...<code>items</code>: (string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]): <em>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</em></p>
 <p><em>Inherited from <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>.<a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts#splice">splice</a></em></p>
 <p>Defined in node_modules/typescript/lib/lib.es5.d.ts:1284</p>
 <p>Removes elements from an array and, if necessary, inserts new elements in their place, returning the deleted elements.</p>
@@ -760,10 +760,10 @@ value otherwise. If omitted, the elements are sorted in ascending, ASCII charact
 <tbody>
 <tr><td><code>start</code></td><td>number</td><td>The zero-based location in the array from which to start removing elements.</td></tr>
 <tr><td><code>deleteCount</code></td><td>number</td><td>The number of elements to remove.</td></tr>
-<tr><td><code>...items</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</td><td>Elements to insert into the array in place of the deleted elements.</td></tr>
+<tr><td><code>...items</code></td><td>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</td><td>Elements to insert into the array in place of the deleted elements.</td></tr>
 </tbody>
 </table>
-<p><strong>Returns:</strong> <em>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</em></p>
+<p><strong>Returns:</strong> <em>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</em></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="tolocalestring"></a><a href="#tolocalestring" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>toLocaleString</h3>
 <p>▸ <strong>toLocaleString</strong>(): <em>string</em></p>
@@ -780,7 +780,7 @@ value otherwise. If omitted, the elements are sorted in ascending, ASCII charact
 <p><strong>Returns:</strong> <em>string</em></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="unshift"></a><a href="#unshift" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>unshift</h3>
-<p>▸ <strong>unshift</strong>(...<code>items</code>: string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]): <em>number</em></p>
+<p>▸ <strong>unshift</strong>(...<code>items</code>: (string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]): <em>number</em></p>
 <p><em>Inherited from <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>.<a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts#unshift">unshift</a></em></p>
 <p>Defined in node_modules/typescript/lib/lib.es5.d.ts:1289</p>
 <p>Inserts new elements at the start of an array.</p>
@@ -790,7 +790,7 @@ value otherwise. If omitted, the elements are sorted in ascending, ASCII charact
 <tr><th>Name</th><th>Type</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>...items</code></td><td>string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>[]</td><td>Elements to insert at the start of the Array.</td></tr>
+<tr><td><code>...items</code></td><td>(string | <a href="/teraslice/docs/packages/xlucene-parser/api/interfaces/iclassparts">IClassParts</a>)[]</td><td>Elements to insert at the start of the Array.</td></tr>
 </tbody>
 </table>
 <p><strong>Returns:</strong> <em>number</em></p>
