@@ -42,7 +42,7 @@
         "@terascope/teraslice-messaging": "^0.13.2",
         "@terascope/utils": "^0.29.2",
         "async-mutex": "^0.2.4",
-        "barbe": "^3.0.15",
+        "barbe": "^3.0.16",
         "body-parser": "^1.19.0",
         "convict": "^4.4.1",
         "decompress": "^4.2.0",
