@@ -76,6 +76,9 @@ class K8s {
      * @param {String} ns       namespace to search, this will override the default
      * @param {Number} timeout  time, in ms, to wait for pod to start
      * @return {Object}         pod
+     *
+     * TODO: Should this use the cluster state that gets polled periodically,
+     * rather than making it's own k8s API calls
      */
     async waitForSelectedPod(selector, ns, timeout = 10000) {
         const namespace = ns || this.defaultNamespace;
@@ -112,6 +115,9 @@ class K8s {
      * @param {String} ns       namespace to search, this will override the default
      * @param {Number} timeout  time, in ms, to wait for pod to start
      * @return {Array}          Array of pod objects
+     *
+     * TODO: Should this use the cluster state that gets polled periodically,
+     * rather than making it's own k8s API calls?
      */
     async waitForNumPods(number, selector, ns, timeout = 10000) {
         const namespace = ns || this.defaultNamespace;
@@ -312,6 +318,9 @@ class K8s {
     }
 
     /**
+     * DEPRECATED - This resulted in even longer shutdown times and occasional
+     * shutdown errors.  Delete this in the future.
+     *
      * Delete all of the deployments and services related to the specified exId
      *
      * The process here waits for the worker pods to completely exit before
@@ -322,7 +331,7 @@ class K8s {
      * @param  {String}  exId ID of the execution
      * @return {Promise}
      */
-    async deleteExecution(exId) {
+    async deleteExecutionControlled(exId) {
         const r = [];
         if (!exId) {
             throw new Error('deleteExecution requires an executionId');
@@ -336,7 +345,7 @@ class K8s {
                 0,
                 `app.kubernetes.io/component=worker,teraslice.terascope.io/exId=${exId}`,
                 null,
-                this.shutdownTimeout + 15000 // shutdown_timeout + 15s
+                this.shutdownTimeout + 90000 // shutdown_timeout + 90s
             );
         } catch (e) {
             // deliberately ignore errors, k8s will clean up workers when
@@ -356,6 +365,26 @@ class K8s {
 
         this.logger.debug(`Deleted Resources:\n\n${r.map((x) => JSON.stringify(x, null, 2))}`);
         return r;
+    }
+
+    /**
+     * Delete all of the deployments and services related to the specified exId
+     *
+     * The process deletes both the Worker Deployment and ExecutionController
+     * Job concurrently.
+     *
+     * @param  {String}  exId ID of the execution
+     * @return {Promise}
+     */
+    async deleteExecution(exId) {
+        if (!exId) {
+            throw new Error('deleteExecution requires an executionId');
+        }
+
+        return Promise.all([
+            this._deleteObjByExId(exId, 'worker', 'deployments'),
+            this._deleteObjByExId(exId, 'execution_controller', 'jobs'),
+        ]);
     }
 
     /**
