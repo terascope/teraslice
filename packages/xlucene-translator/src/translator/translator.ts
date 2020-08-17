@@ -1,5 +1,5 @@
 import {
-    debugLogger, isString, Logger, parseGeoDistanceUnit
+    debugLogger, isString, parseGeoDistanceUnit
 } from '@terascope/utils';
 import {
     xLuceneVariables,
@@ -12,11 +12,10 @@ import { Parser } from 'xlucene-parser';
 import * as i from './interfaces';
 import * as utils from './utils';
 
-const _logger = debugLogger('xlucene-translator');
+const logger = debugLogger('xlucene-translator');
 
 export class Translator {
     readonly query: string;
-    logger: Logger;
     readonly typeConfig: xLuceneTypeConfig;
     readonly variables: xLuceneVariables | undefined;
     private readonly _parser: Parser;
@@ -26,13 +25,11 @@ export class Translator {
 
     constructor(input: string | Parser, options: i.TranslatorOptions = {}) {
         this.variables = options.variables;
-        this.logger = options.logger || _logger;
 
         this.typeConfig = options.type_config || {};
         if (isString(input)) {
             this._parser = new Parser(input, {
                 type_config: this.typeConfig,
-                logger: this.logger,
                 variables: this.variables
             });
         } else {
@@ -54,7 +51,7 @@ export class Translator {
 
     toElasticsearchDSL(opts: ElasticsearchDSLOptions = {}): ElasticsearchDSLResult {
         const result = utils.translateQuery(this._parser, {
-            logger: this.logger,
+            logger,
             type_config: this.typeConfig,
             default_geo_field: this._defaultGeoField,
             geo_sort_point: opts.geo_sort_point,
@@ -62,9 +59,9 @@ export class Translator {
             geo_sort_unit: opts.geo_sort_unit || this._defaultGeoSortUnit,
         });
 
-        if (this.logger.level() === 10) {
+        if (logger.level() === 10) {
             const resultStr = JSON.stringify(result, null, 2);
-            this.logger.trace(`translated ${this.query ? this.query : "''"} query to`, resultStr);
+            logger.trace(`translated ${this.query ? this.query : "''"} query to`, resultStr);
         }
 
         return result;

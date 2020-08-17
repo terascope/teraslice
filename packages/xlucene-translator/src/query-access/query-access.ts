@@ -11,8 +11,6 @@ import {
 import { CachedTranslator } from '../translator';
 import * as i from './interfaces';
 
-const _logger = ts.debugLogger('xlucene-query-access');
-
 export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     readonly excludes: (keyof T)[];
     readonly includes: (keyof T)[];
@@ -26,7 +24,6 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     readonly typeConfig: xLuceneTypeConfig;
     readonly parsedTypeConfig: xLuceneTypeConfig;
     readonly variables: xLuceneVariables;
-    logger: ts.Logger;
 
     private readonly _parser: p.CachedParser = new p.CachedParser();
     private readonly _translator: CachedTranslator = new CachedTranslator();
@@ -44,8 +41,6 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
         if (ts.isEmpty(typeConfig)) throw new Error('Configuration for type_config must be provided');
         this.typeConfig = { ...typeConfig };
-
-        this.logger = options.logger || _logger;
 
         this.excludes = excludes?.slice();
         this.includes = includes?.slice();
@@ -82,7 +77,6 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     private _restrict(q: string, options: i.RestrictOptions = {}): p.Parser {
         let parser: p.Parser;
         const parserOptions: p.ParserOptions = {
-            logger: this.logger,
             type_config: this.typeConfig,
             variables: Object.assign({}, this.variables, options.variables)
         };
@@ -204,7 +198,6 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
 
         const translator = this._translator.make(parser, {
             type_config: this.parsedTypeConfig,
-            logger: this.logger,
             default_geo_field: this.defaultGeoField,
             default_geo_sort_order: this.defaultGeoSortOrder,
             default_geo_sort_unit: this.defaultGeoSortUnit,

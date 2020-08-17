@@ -1,6 +1,4 @@
 import {
-    debugLogger,
-    Logger,
     TSError,
     trim
 } from '@terascope/utils';
@@ -9,24 +7,18 @@ import { parse } from './peg-engine';
 import * as i from './interfaces';
 import * as utils from './utils';
 
-const _logger = debugLogger('xlucene-parser');
-
 export class Parser {
     readonly ast: i.AST;
     readonly query: string;
     readonly variables: xLuceneVariables;
-    logger: Logger;
 
     constructor(query: string, options: i.ParserOptions = {}) {
-        this.logger = options.logger || _logger;
-
         this.query = trim(query || '');
 
         this.variables = options.variables ? utils.validateVariables(options.variables) : {};
         const contextArg: i.ContextArg = {
             typeConfig: options.type_config,
             variables: this.variables,
-            logger: this.logger
         };
 
         try {
@@ -39,9 +31,9 @@ export class Parser {
                 }
             });
 
-            if (this.logger.level() === 10) {
+            if (utils.logger.level() === 10) {
                 const astJSON = JSON.stringify(this.ast, null, 4);
-                this.logger.trace(`parsed ${this.query ? this.query : "''"} to `, astJSON);
+                utils.logger.trace(`parsed ${this.query ? this.query : "''"} to `, astJSON);
             }
         } catch (err) {
             if (err && err.message.includes('Expected ,')) {
