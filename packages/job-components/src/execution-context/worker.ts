@@ -119,23 +119,16 @@ export class WorkerExecutionContext
     }
 
     async initialize(): Promise<void> {
-        // make sure we autoload the apis before we initialize the processors
-        const promises: Promise<any>[] = [];
-        for (const { _name: name } of this.config.apis || []) {
-            const api = this.apis[name];
-            if (api.type === 'api') {
-                promises.push(this.api.initAPI(name));
-            }
-        }
-        await Promise.all(promises);
-
         await super.initialize();
         this.status = 'idle';
     }
 
     async shutdown(): Promise<void> {
-        await super.shutdown();
-        this.status = 'shutdown';
+        try {
+            await super.shutdown();
+        } finally {
+            this.status = 'shutdown';
+        }
     }
 
     /**

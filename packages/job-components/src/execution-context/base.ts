@@ -62,6 +62,22 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
      * Called to initialize all of the registered operations
      */
     async initialize(initConfig?: unknown): Promise<void> {
+        // make sure we autoload the apis before we initialize the processors
+        await pMap((this.config.apis || []), async ({ _name: name }) => {
+            const api = this.api.apis[name];
+            if (api.type !== 'api') return;
+
+            const startTime = Date.now();
+
+            this.logger.info(`[START] "${name}" api instance initialize`);
+            try {
+                await this.api.initAPI(name);
+            } finally {
+                const diff = toHumanTime(Date.now() - startTime);
+                this.logger.info(`[FINISH] "${name}" api instance initialize, took ${diff}`);
+            }
+        });
+
         await pMap(this._operations, async (op) => {
             if (!('initialize' in op)) return;
 

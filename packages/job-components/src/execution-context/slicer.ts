@@ -56,16 +56,6 @@ export class SlicerExecutionContext
      * @param recoveryData is the data to recover from
      */
     async initialize(recoveryData?: SlicerRecoveryData[]): Promise<void> {
-        // make sure we autoload the apis before we initialize the processors
-        const promises: Promise<any>[] = [];
-        for (const { _name: name } of this.config.apis || []) {
-            const api = this.apis[name];
-            if (api.type === 'api') {
-                promises.push(this.api.initAPI(name));
-            }
-        }
-        await Promise.all(promises);
-
         return super.initialize(recoveryData);
     }
 
