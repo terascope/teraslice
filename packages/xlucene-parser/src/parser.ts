@@ -49,7 +49,7 @@ export class Parser {
             }
 
             throw new TSError(err, {
-                reason: `Failure to parse xlucene query "${this.query}"`,
+                reason: `Failure to parse xLucene query "${this.query}"`,
             });
         }
     }
