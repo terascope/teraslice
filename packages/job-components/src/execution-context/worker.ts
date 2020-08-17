@@ -25,7 +25,6 @@ export class WorkerExecutionContext
     implements WorkerOperationLifeCycle {
     // ...
     readonly processors: ProcessorCore[];
-    readonly logger: ts.Logger;
 
     /** the active (or last) run slice */
     sliceState: WorkerSliceState | undefined;
@@ -35,8 +34,7 @@ export class WorkerExecutionContext
     private _queue: ((input: any) => Promise<ts.DataEntity[]>)[];
 
     constructor(config: ExecutionContextConfig) {
-        super(config);
-        this.logger = this.api.makeLogger('worker_context');
+        super(config, 'worker_context');
 
         this._methodRegistry.set('onSliceInitialized', new Set());
         this._methodRegistry.set('onSliceStarted', new Set());
@@ -121,23 +119,16 @@ export class WorkerExecutionContext
     }
 
     async initialize(): Promise<void> {
-        // make sure we autoload the apis before we initialize the processors
-        const promises: Promise<any>[] = [];
-        for (const { _name: name } of this.config.apis || []) {
-            const api = this.apis[name];
-            if (api.type === 'api') {
-                promises.push(this.api.initAPI(name));
-            }
-        }
-        await Promise.all(promises);
-
         await super.initialize();
         this.status = 'idle';
     }
 
     async shutdown(): Promise<void> {
-        await super.shutdown();
-        this.status = 'shutdown';
+        try {
+            await super.shutdown();
+        } finally {
+            this.status = 'shutdown';
+        }
     }
 
     /**

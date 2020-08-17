@@ -3,10 +3,13 @@ import {
     isEmpty,
     isPlainObject,
     TSError,
-    isWildCardString
+    isWildCardString,
+    debugLogger
 } from '@terascope/utils';
 import { xLuceneFieldType, xLuceneVariables, CoordinateTuple } from '@terascope/types';
 import * as i from './interfaces';
+
+export const logger = debugLogger('xlucene-parser');
 
 function _getType(node: unknown): i.ASTType|undefined {
     if (!node || typeof node !== 'object') return;

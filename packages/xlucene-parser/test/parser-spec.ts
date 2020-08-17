@@ -36,7 +36,7 @@ describe('Parser', () => {
     describe('when given a invalid query "(ba"', () => {
         it('should throw an error', () => {
             const errMsg = [
-                'Failure to parse xlucene query "(ba",',
+                'Failure to parse xLucene query "(ba",',
                 'caused by SyntaxError: Expected ")", field, term, or whitespace but end of input found.',
             ].join(' ');
 
@@ -48,7 +48,7 @@ describe('Parser', () => {
 
     describe('when given a invalid query "AND foo:bar"', () => {
         it('should throw an error', () => {
-            const errMsg = 'Failure to parse xlucene query "AND foo:bar", caused by SyntaxError: Expected term, or whitespace but ":" found.';
+            const errMsg = 'Failure to parse xLucene query "AND foo:bar", caused by SyntaxError: Expected term, or whitespace but ":" found.';
             expect(() => {
                 new Parser('AND foo:bar');
             }).toThrowWithMessage(TSError, errMsg);
@@ -57,7 +57,7 @@ describe('Parser', () => {
 
     describe('when given a invalid query "OR foo:bar"', () => {
         it('should throw an error', () => {
-            const errMsg = 'Failure to parse xlucene query "OR foo:bar", caused by SyntaxError: Expected term, or whitespace but ":" found.';
+            const errMsg = 'Failure to parse xLucene query "OR foo:bar", caused by SyntaxError: Expected term, or whitespace but ":" found.';
             expect(() => {
                 new Parser('OR foo:bar');
             }).toThrowWithMessage(TSError, errMsg);
@@ -66,7 +66,7 @@ describe('Parser', () => {
 
     describe('when given a invalid function query "location: something(hello: "world")', () => {
         it('should throw an error', () => {
-            const errMsg = 'Failure to parse xlucene query "location: something(hello:"world")", caused by Error: Could not find an xlucene function with name "something"';
+            const errMsg = 'Failure to parse xLucene query "location: something(hello:"world")", caused by Error: Could not find an xLucene function with name "something"';
             expect(() => {
                 new Parser('location: something(hello:"world")');
             }).toThrowWithMessage(TSError, errMsg);
@@ -75,7 +75,7 @@ describe('Parser', () => {
 
     describe('when given a invalid function query "location:geoBox()", it can still parse syntax but break at validation', () => {
         it('should throw an error', () => {
-            const errMsg = 'Failure to parse xlucene query "location:geoBox()", caused by Error: Invalid geoBox query, need to specify a "topLeft" parameter';
+            const errMsg = 'Failure to parse xLucene query "location:geoBox()", caused by Error: Invalid geoBox query, need to specify a "topLeft" parameter';
             expect(() => {
                 new Parser('location:geoBox()');
             }).toThrowWithMessage(TSError, errMsg);

@@ -3,8 +3,10 @@
 const { times } = require('@terascope/utils');
 const turf = require('@turf/random');
 const { multiPolygon } = require('@turf/helpers');
+const { xLuceneFieldType } = require('@terascope/types');
+const { toXluceneQuery } = require('@terascope/data-mate');
 const { Suite } = require('./helpers');
-const { Parser, createJoinQuery, FieldType } = require('../dist/src');
+const { Parser } = require('../dist/src');
 const greenlandGeoData = require('./fixtures/greenland.json');
 
 const featureCollection = turf.randomPolygon(1, { num_vertices: 800 });
@@ -17,19 +19,19 @@ const polyInput = { location: polygon.geometry };
 const multipolyInput = { location: multiPolygon([mPoly1, mPoly2]).geometry };
 const largeMultipolyInput = { location: greenlandGeoData };
 
-const typeConfig = { location: FieldType.GeoJSON };
+const typeConfig = { location: xLuceneFieldType.GeoJSON };
 
-const { query: polyQuery, variables: polyVariables } = createJoinQuery(polyInput, { typeConfig });
+const { query: polyQuery, variables: polyVariables } = toXluceneQuery(polyInput, { typeConfig });
 
 const {
     query: multiPolyQuery,
     variables: multiPolyVariables
-} = createJoinQuery(multipolyInput, { typeConfig });
+} = toXluceneQuery(multipolyInput, { typeConfig });
 
 const {
     query: largeMultiPolyQuery,
     variables: largeMultiPolyVariables
-} = createJoinQuery(largeMultipolyInput, { typeConfig });
+} = toXluceneQuery(largeMultipolyInput, { typeConfig });
 
 const multiPolyConfig = {
     type_config: typeConfig,
@@ -51,7 +53,7 @@ const partTwo = times(200, (n) => `b:${n}`).join(' OR ');
 const partThree = times(300, (n) => `c:${n}`).join(') OR (');
 const largeTermQuery = `(${partOne}) AND ${partTwo} OR (${partThree})`;
 
-const run = async () => Suite('Parser (large)')
+const run = async () => Suite('Parser')
     .add('parsing geoPolygon queries', {
         fn() {
             new Parser(polyQuery, polyConfig);
@@ -78,9 +80,9 @@ const run = async () => Suite('Parser (large)')
         }
     })
     .run({
-        async: true,
-        initCount: 1,
-        maxTime: 5,
+        async: false,
+        initCount: 2,
+        maxTime: 10,
     });
 
 if (require.main === module) {

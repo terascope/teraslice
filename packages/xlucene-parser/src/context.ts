@@ -1,11 +1,10 @@
 import {
-    Logger,
     TSError,
     getTypeOf,
     parseGeoDistance,
     parseGeoPoint,
     isRegExpLike,
-    isWildCardString
+    isWildCardString,
 } from '@terascope/utils';
 import {
     xLuceneFieldType,
@@ -14,7 +13,7 @@ import {
 } from '@terascope/types';
 import * as i from './interfaces';
 import * as utils from './utils';
-import xluceneFunctions from './functions';
+import xLuceneFunctions from './functions';
 
 const inferredFieldTypes = Object.freeze({
     [xLuceneFieldType.String]: true,
@@ -24,10 +23,9 @@ const inferredFieldTypes = Object.freeze({
 export default function makeContext(arg: i.ContextArg) {
     let typeConfig: xLuceneTypeConfig;
     let variables: xLuceneVariables;
-    let logger: Logger;
     // eslint-disable-next-line
-    ({ typeConfig = {}, variables = {}, logger } = arg);
-    if (!typeConfig || !logger) {
+    ({ typeConfig = {}, variables = {} } = arg);
+    if (!typeConfig) {
         throw new Error('xLucene Parser given invalid context');
     }
 
@@ -98,16 +96,18 @@ export default function makeContext(arg: i.ContextArg) {
             return term;
         }
 
-        logger.warn(`Unsupported field inferred field type ${fieldType} for field ${field}`);
+        utils.logger.warn(`Unsupported field inferred field type ${fieldType} for field ${field}`);
         term.value = value;
         return term;
     }
 
     function parseFunction(field: string, name: string, params: i.Term[]) {
-        const fnType = xluceneFunctions[name];
-        if (fnType == null) throw new Error(`Could not find an xlucene function with name "${name}"`);
+        const fnType = xLuceneFunctions[name];
+        if (fnType == null) throw new Error(`Could not find an xLucene function with name "${name}"`);
         // we are delaying instantiation until after parser since this can be called multiple times
-        return () => fnType.create(field, params, { logger, typeConfig });
+        return () => fnType.create(field, params, {
+            logger: utils.logger, typeConfig
+        });
     }
 
     function makeFlow(field: string, values: any[], varName: string) {
@@ -141,7 +141,7 @@ export default function makeContext(arg: i.ContextArg) {
         }
         if (fieldType === node.field_type) return;
 
-        logger.trace(
+        utils.logger.trace(
             `coercing field "${field}":${node.value} type of ${node.field_type} to ${fieldType}`
         );
 
@@ -210,7 +210,7 @@ export default function makeContext(arg: i.ContextArg) {
     }
 
     return {
-        logger,
+        logger: utils.logger,
         parseGeoPoint,
         parseGeoDistance,
         coerceTermType,
