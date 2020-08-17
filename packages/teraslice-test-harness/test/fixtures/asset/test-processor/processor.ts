@@ -1,7 +1,9 @@
-import { DataEntity, AnyObject, BatchProcessor } from '@terascope/job-components';
+import {
+    DataWindow, AnyObject, BatchProcessor, DataEntity
+} from '@terascope/job-components';
 
 export default class TestProcessor extends BatchProcessor<AnyObject> {
-    async onBatch(data: DataEntity[]): Promise<DataEntity<Record<string, any>>[]> {
-        return data.map((obj) => obj.getMetadata('test'));
+    async onBatch(data: DataWindow): Promise<DataWindow> {
+        return data.map((obj: DataEntity<any, any>) => obj.getMetadata('test'));
     }
 }

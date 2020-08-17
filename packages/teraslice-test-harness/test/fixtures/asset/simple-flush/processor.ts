@@ -18,6 +18,6 @@ export default class Flusher extends BatchProcessor<FlusherConfig> {
     async onBatch(data: DataWindow): Promise<DataWindow> {
         if (this._flushing) return this._state;
         this._state = data;
-        return [];
+        return DataWindow.make([]);
     }
 }

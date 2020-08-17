@@ -36,7 +36,7 @@ describe('Shim Utils', () => {
             expect(result[0]).toEqual(data);
         });
 
-        it('should handle perserve a DataWindow', () => {
+        it('should handle preserve a DataWindow', () => {
             const window = DataWindow.make([{ hello: true }]);
             const result = convertResult(window);
 
@@ -49,7 +49,7 @@ describe('Shim Utils', () => {
             ]);
         });
 
-        it('should handle perserve an array of DataWindows', () => {
+        it('should handle preserve an array of DataWindows', () => {
             const window = DataWindow.make([{ hello: true }, { hi: true }]);
             const result = convertResult([window]);
 
@@ -69,7 +69,6 @@ describe('Shim Utils', () => {
 
         it('should handle a single DataEntity', () => {
             const data = new DataEntity({ hello: true });
-            // @ts-expect-error
             const result = convertResult(data);
 
             expect(result).toBeArrayOfSize(1);
@@ -78,7 +77,6 @@ describe('Shim Utils', () => {
 
         it('should handle an array of Objects', () => {
             const data = { hello: true };
-            // @ts-expect-error
             const result = convertResult([data, data, null]);
 
             expect(result).toBeArrayOfSize(3);
@@ -88,13 +86,11 @@ describe('Shim Utils', () => {
         });
 
         it('should handle null', () => {
-            // @ts-expect-error
             const result = convertResult(null);
             expect(result).toBeArrayOfSize(0);
         });
 
         it('should handle undefined', () => {
-            // @ts-expect-error
             const result = convertResult(undefined);
             expect(result).toBeArrayOfSize(0);
         });
@@ -105,7 +101,6 @@ describe('Shim Utils', () => {
         });
 
         it('should handle an array with a null value', () => {
-            // @ts-expect-error
             const result = convertResult([null]);
             expect(result).toBeArrayOfSize(0);
         });

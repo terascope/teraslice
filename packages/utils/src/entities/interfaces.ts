@@ -5,13 +5,10 @@ import { AnyObject } from '../interfaces';
 import { EntityMetadata } from './entity';
 
 export type TYPE_IS_DATAENTITY_KEY = '__isDataEntity';
-export type TYPE_ENTITY_METADATA_KEY = '___EntityMetadata';
 export type TYPE_IS_WINDOW_KEY = '__isDataWindow';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const __IS_DATAENTITY_KEY: TYPE_IS_DATAENTITY_KEY = '__isDataEntity';
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export const __ENTITY_METADATA_KEY: TYPE_ENTITY_METADATA_KEY = '___EntityMetadata';
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const __IS_WINDOW_KEY: TYPE_IS_WINDOW_KEY = '__isDataWindow';
 
@@ -37,7 +34,7 @@ export type DataEntityMetadataValue<M, K> =
  * information.
  *
  * **NOTE** Time values are set in UNIX Epoch time,
- * to reduce memory footput, the DataEntity has convenience
+ * to reduce memory footprint, the DataEntity has convenience
  * apis for getting and setting the time given and handling
  * the conversion between unix milliseconds to Date format.
 */
@@ -78,7 +75,7 @@ export const dataEncodings: readonly DataEncoding[] = Object.values(DataEncoding
  * a DataWindow
  *
  * **NOTE** Time values are set in UNIX Epoch time,
- * to reduce memory footput, the DataWindow has convenience
+ * to reduce memory footprint, the DataWindow has convenience
  * apis for getting and setting the time given and handling
  * the conversion between unix milliseconds to Date format.
 */

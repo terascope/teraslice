@@ -162,7 +162,9 @@ export default class WorkerTestHarness extends BaseTestHarness<WorkerExecutionCo
     async flush(): Promise<DataWindow|DataWindow[] | undefined>;
     async flush(options: { fullResponse: false }): Promise<DataWindow|DataWindow[] | undefined>;
     async flush(options: { fullResponse: true }): Promise<RunSliceResult | undefined>;
-    async flush({ fullResponse = false } = {}): Promise<DataEntity[] | RunSliceResult | undefined> {
+    async flush(
+        { fullResponse = false } = {}
+    ): Promise<DataWindow[] | DataWindow | RunSliceResult | undefined> {
         const response = await this.executionContext.flush();
         if (response != null) {
             if (fullResponse) return response;

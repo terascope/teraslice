@@ -4,7 +4,7 @@
  * A core implementation of Entity in teraslice
  * with metadata capabilities
 */
-export interface Entity<Data = {}, Metadata = {}> {
+export interface Entity<Data = Record<string, any>, Metadata = Record<string, any>> {
     /**
      * Get the metadata for the entity
      *
@@ -61,23 +61,23 @@ export interface Entity<Data = {}, Metadata = {}> {
 */
 export interface EntityConstructor<
     E extends Entity,
-    Data = {},
-    Metadata = {}
+    Data = Record<string, any>,
+    Metadata = Record<string, any>
 > {
     /**
      * Create a specific type of `Entity`
      */
-    make<T = {}, M = {}>(input: T, metadata?: M): E;
+    make<T = Record<string, any>, M = Record<string, any>>(input: T, metadata?: M): E;
 
     /**
      * Verify that an input is a specific type of `Entity`
      */
-    is(input: any): input is E;
+    is(input: unknown): input is E;
 
     /**
      * Verify that an input is a array of a specific type of `Entity`
      */
-    isArray(input: any): input is E[];
+    isArray(input: unknown): input is E[];
 
     new (data: Data|null|undefined, metadata?: Metadata): E;
 }
@@ -90,7 +90,7 @@ export const __ENTITY_METADATA_KEY: TYPE_ENTITY_METADATA_KEY = '___EntityMetadat
  * that can track process and key information
  *
  * **NOTE** Time values are set in UNIX Epoch time,
- * to reduce memory footput, the Entity should convenience
+ * to reduce memory footprint, the Entity should convenience
  * apis for getting and setting the time given and handling
  * the conversion between unix milliseconds to Date format.
 */

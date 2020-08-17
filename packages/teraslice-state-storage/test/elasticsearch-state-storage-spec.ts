@@ -329,7 +329,7 @@ describe('elasticsearch-state-storage', () => {
             it('should use meta_key_field for mget query', async () => {
                 // mget response docs _key will be the otherfield
                 const mgetResponse = otherDocArray.map((doc) => {
-                    const other = doc.getMetadata('otherField');
+                    const other = doc.getMetadata('otherField') as unknown as string;
                     doc.setMetadata('_key', other);
 
                     return doc;

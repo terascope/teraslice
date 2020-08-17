@@ -64,7 +64,7 @@ export class EntityArray<T extends DataEntity> extends Array<T> {
      * @param callbackfn A function that accepts up to three arguments. The every method calls the callbackfn function for each element in array1 until the callbackfn returns false, or until the end of the array.
      * @param thisArg An object to which the this keyword can refer in the callbackfn function. If thisArg is omitted, undefined is used as the this value.
      */
-    every(callbackfn: (value: T, index: number, array: T[]) => unknown, thisArg?: any): boolean {
+    every(callbackfn: (value: T, index: number, array: T[]) => unknown, thisArg?: unknown): boolean {
         return super.every(callbackfn, thisArg);
     }
 
@@ -73,7 +73,7 @@ export class EntityArray<T extends DataEntity> extends Array<T> {
     * @param callbackfn A function that accepts up to three arguments. The some method calls the callbackfn function for each element in array1 until the callbackfn returns true, or until the end of the array.
     * @param thisArg An object to which the this keyword can refer in the callbackfn function. If thisArg is omitted, undefined is used as the this value.
     */
-    some(callbackfn: (value: T, index: number, array: T[]) => unknown, thisArg?: any): boolean {
+    some(callbackfn: (value: T, index: number, array: T[]) => unknown, thisArg?: unknown): boolean {
         return super.some(callbackfn, thisArg);
     }
 
@@ -82,7 +82,7 @@ export class EntityArray<T extends DataEntity> extends Array<T> {
     * @param callbackfn  A function that accepts up to three arguments. forEach calls the callbackfn function one time for each element in the array.
     * @param thisArg  An object to which the this keyword can refer in the callbackfn function. If thisArg is omitted, undefined is used as the this value.
     */
-    forEach(callbackfn: (value: T, index: number, array: T[]) => void, thisArg?: any): void {
+    forEach(callbackfn: (value: T, index: number, array: T[]) => void, thisArg?: unknown): void {
         return super.forEach(callbackfn, thisArg);
     }
 
@@ -100,7 +100,7 @@ export class EntityArray<T extends DataEntity> extends Array<T> {
      * @param initialValue If initialValue is specified, it is used as the initial value to start the accumulation. The first call to the callbackfn function provides this value as an argument instead of an array value.
      */
     reduce<U>(callbackfn: (previousValue: U, currentValue: T, currentIndex: number, array: T[]) => U, initialValue: U): U;
-    reduce(callbackfn: (previousValue: any, currentValue: T, currentIndex: number, array: T[]) => any, initialValue?: any): any {
+    reduce(callbackfn: (previousValue: any, currentValue: T, currentIndex: number, array: T[]) => any, initialValue?: unknown): any {
         return super.reduce(callbackfn, initialValue);
     }
 
@@ -117,7 +117,7 @@ export class EntityArray<T extends DataEntity> extends Array<T> {
      * @param initialValue If initialValue is specified, it is used as the initial value to start the accumulation. The first call to the callbackfn function provides this value as an argument instead of an array value.
      */
     reduceRight<U>(callbackfn: (previousValue: U, currentValue: T, currentIndex: number, array: T[]) => U, initialValue: U): U;
-    reduceRight(callbackfn: (previousValue: any, currentValue: T, currentIndex: number, array: T[]) => any, initialValue?: any): any {
+    reduceRight(callbackfn: (previousValue: any, currentValue: T, currentIndex: number, array: T[]) => any, initialValue?: unknown): any {
         return super.reduceRight(callbackfn, initialValue);
     }
 
@@ -171,10 +171,10 @@ export class EntityArray<T extends DataEntity> extends Array<T> {
      * @param callbackfn A function that accepts up to three arguments. The map method calls the callbackfn function one time for each element in the array.
      * @param thisArg An object to which the this keyword can refer in the callbackfn function. If thisArg is omitted, undefined is used as the this value.
      */
-    // @ts-ignore
+    // @ts-expect-error
     map<U extends DataEntity>(
         callbackfn: (value: T, index: number, array: T[]|any) => U,
-        thisArg?: any
+        thisArg?: unknown
     ): any {
         return super.map(callbackfn, thisArg);
     }
@@ -186,7 +186,7 @@ export class EntityArray<T extends DataEntity> extends Array<T> {
      */
     filter<S extends T>(
         callbackfn: (value: T, index: number, array: T[]|any) => value is S,
-        thisArg?: any
+        thisArg?: unknown
     ): any;
     /**
      * Returns the elements of an array that meet the condition specified in a callback function.
@@ -195,7 +195,7 @@ export class EntityArray<T extends DataEntity> extends Array<T> {
      */
     filter(
         callbackfn: (value: T, index: number, array: T[]|any) => unknown,
-        thisArg?: any
+        thisArg?: unknown
     ): any {
         return super.filter(callbackfn, thisArg);
     }

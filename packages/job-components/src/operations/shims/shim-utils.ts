@@ -18,20 +18,19 @@ const deprecateType = deprecate(
  * But in order to be more backwards compatible legacy modules
  * can return an array of buffers or strings.
 */
-export function convertResult(input: any): DataEntity[] {
+export function convertResult(input: unknown): DataEntity[] {
     if (input == null) return [];
     if (DataEntity.isArray(input)) return input;
     if (DataWindow.is(input)) return input as DataEntity[];
     if (DataEntity.is(input)) return [input];
-    
-    const first = getFirst<Record<string, any>|string|Buffer>(input);
+
+    const first = getFirst<Record<string, any>|string|Buffer>(input as any);
     if (first == null) return [];
 
-    // @ts-expect-error
-    if (Array.isArray(first)) return input;
+    if (Array.isArray(first)) return input as DataEntity[];
 
     if (Buffer.isBuffer(first) || isString(first)) return deprecateType(input);
-    if (isPlainObject(first)) return DataEntity.makeArray(input);
+    if (isPlainObject(first)) return DataEntity.makeArray(input as any);
 
     throw new Error('Invalid return type for processor');
 }

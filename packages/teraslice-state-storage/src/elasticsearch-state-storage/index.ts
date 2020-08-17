@@ -45,7 +45,7 @@ export default class ESCachedStateStorage {
     }
 
     getIdentifier(doc: DataEntity, metaField = this.metaKey): string {
-        const key = doc.getMetadata(metaField);
+        const key = doc.getMetadata(metaField) as unknown;
 
         if (key === '' || key == null) {
             throw new TSError(`There is no field "${this.metaKey}" set in the metadata`, {
@@ -56,7 +56,7 @@ export default class ESCachedStateStorage {
         return `${key}`;
     }
 
-    async mset(docArray: DataEntity[]) {
+    async mset(docArray: DataEntity[]): Promise<void> {
         const formattedDocs = docArray.map((doc) => ({ data: doc, key: this.getIdentifier(doc, '_key') }));
 
         if (this.persist) {

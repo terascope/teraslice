@@ -22,7 +22,7 @@ import * as e from './entity';
 export class DataEntity<
     T = Record<string, any>,
     M = Record<string, any>
-> implements e.Entity<T, M> {
+> implements e.Entity<T, M & e.EntityMetadata> {
     /**
      * A utility for safely converting an object a `DataEntity`.
      * If the input is a DataEntity it will return it and have no side-effect.
@@ -136,7 +136,9 @@ export class DataEntity<
     /**
      * Verify that an input is the `DataEntity`
      */
-    static is(input: any): input is DataEntity<T, M> {
+    static is<T = Record<string, any>, M = Record<string, any>>(
+        input: unknown
+    ): input is DataEntity<T, M> {
         return DataEntity.isDataEntity(input);
     }
 
@@ -155,7 +157,9 @@ export class DataEntity<
     /**
      * Verify that an input is the `DataEntity`
      */
-    static isArray(input: unknown): input is DataEntity<T, M>[] {
+    static isArray<T = Record<string, any>, M = Record<string, any>>(
+        input: unknown
+    ): input is DataEntity<T, M>[] {
         return DataEntity.isDataEntityArray(input);
     }
 
@@ -204,7 +208,7 @@ export class DataEntity<
      * Get the metadata for the DataEntity.
      * If a field is specified, it will get that property of the metadata
     */
-    getMetadata(key?: undefined): i._DataEntityMetadata<M>;
+    getMetadata(key?: unknown): i._DataEntityMetadata<M>;
     getMetadata<K extends i.DataEntityMetadataKey<M>>(key: K): i.DataEntityMetadataValue<M, K>;
 
     @locked()

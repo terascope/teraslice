@@ -104,7 +104,7 @@ function extractAndTransferFields(
 }
 
 function hasExtracted(record: DataEntity) {
-    return record.getMetadata('hasExtractions') === true;
+    return record.getMetadata('hasExtractions') as any === true;
 }
 
 function getData(config: ExtractionConfig, record: DataEntity) {

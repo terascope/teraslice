@@ -90,7 +90,7 @@ export default class JobTestHarness {
     private async processSlice(slice: Slice): Promise<BatchedResults> {
         const results: BatchedResults = [];
 
-        if (slice == null) return [null];
+        if (slice == null) return [null as any];
         this.slicerHarness.onSliceDispatch(slice);
 
         let analytics: SliceAnalyticsData = {
@@ -108,7 +108,7 @@ export default class JobTestHarness {
             if (result.analytics) {
                 analytics = result.analytics;
             }
-            results.push(result.results as DataList);
+            results.push(result.results as DataWindow);
             this.slicerHarness.stats.slices.processed++;
         } catch (err) {
             this.slicerHarness.stats.slices.failed++;
@@ -137,9 +137,9 @@ export default class JobTestHarness {
         for (const slice of allSlices) {
             const sliceData = await this.processSlice(slice);
             await pDelay(1);
-            const dataLists = [...sliceData].filter(Boolean) as DataList[];
-            const data = flatten<DataEntity>(dataLists);
-            results.push({ slice, data });
+            const dataLists = [...sliceData].filter(Boolean) as DataWindow[];
+            const data = flatten(dataLists as any[]);
+            results.push({ slice, data: data as any });
         }
 
         return results;

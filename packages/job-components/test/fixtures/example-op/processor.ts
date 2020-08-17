@@ -22,7 +22,7 @@ export default class ExampleBatch extends BatchProcessor {
 
     async onBatch(input: DataWindow): Promise<DataWindow> {
         if (this.opConfig.test_flush && this._flushing) {
-            return times(30, () => DataEntity.make({ flush: true }));
+            return times(30, () => DataEntity.make({ flush: true })) as DataWindow;
         }
 
         return input.map((data) => DataEntity.make({

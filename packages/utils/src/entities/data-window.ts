@@ -17,7 +17,7 @@ import * as e from './entity';
  */
 export class DataWindow<
     T extends DataEntity = DataEntity,
-    M = {}
+    M = Record<string, any>
 > extends EntityArray<T> implements e.Entity<T, M & e.EntityMetadata> {
     /**
      * A utility for safely creating a `DataWindow`.
@@ -26,10 +26,10 @@ export class DataWindow<
      * If given an object, or array of objects, it will return it instead make them into DataEntitys
      */
     static make<T extends DataWindow>(input: T): T;
-    static make<T extends Record<string, any>, M = {}>(
+    static make<T extends Record<string, any>, M = Record<string, any>>(
         input: T|T[], metadata?: M
     ): DataWindow<DataEntity<T>, M>;
-    static make<T extends DataEntity = DataEntity, M = {}>(
+    static make<T extends DataEntity = DataEntity, M = Record<string, any>>(
         input: T|T[], metadata?: M
     ): DataWindow<T, M> {
         if (DataWindow.is<T, M>(input)) {
@@ -50,15 +50,17 @@ export class DataWindow<
     /**
      * Verify that an input is a `DataWindow`
      */
-    static is<T extends DataEntity = DataEntity, M = {}>(input: any): input is DataWindow<T, M> {
+    static is<T extends DataEntity = DataEntity, M = Record<string, any>>(
+        input: unknown
+    ): input is DataWindow<T, M> {
         return input instanceof DataWindow;
     }
 
     /**
      * Verify that an input is an Array of DataWindows
      */
-    static isArray<T extends DataEntity = DataEntity, M = {}>(
-        input: any
+    static isArray<T extends DataEntity = DataEntity, M = Record<string, any>>(
+        input: unknown
     ): input is DataWindow<T, M>[] {
         if (input == null) return false;
         if (!Array.isArray(input)) return false;
@@ -70,7 +72,7 @@ export class DataWindow<
         return input.every(DataWindow.is);
     }
 
-    static [Symbol.hasInstance](instance: any): boolean {
+    static [Symbol.hasInstance](instance: unknown): boolean {
         return utils.isDataWindow(instance);
     }
 
@@ -125,7 +127,7 @@ export class DataWindow<
     */
     setMetadata<K extends string|number>(
         field: K,
-        value: any
+        value: unknown
     ): void;
     setMetadata<K extends keyof i.DataWindowMetadata, V extends i.DataWindowMetadata[K]>(
         field: K,
@@ -137,7 +139,9 @@ export class DataWindow<
     ): void;
 
     @locked()
-    setMetadata<K extends keyof M|keyof i.DataWindowMetadata>(field: K, value: any): void {
+    setMetadata<K extends keyof M|keyof i.DataWindowMetadata>(
+        field: K, value: unknown
+    ): void {
         if (field == null || field === '') {
             throw new Error('Missing field to set in metadata');
         }
@@ -256,14 +260,14 @@ export class DataWindow<
 
     // override behaviour of an Array...
 
-    push(...items: T[]) {
+    push(...items: T[]): number {
         if (!DataEntity.isArray(items)) {
             throw new Error('Invalid item added to DataWindow, expected DataEntity');
         }
         return super.push(...items as any);
     }
 
-    unshift(...items: T[]) {
+    unshift(...items: T[]): number {
         if (!DataEntity.isArray(items)) {
             throw new Error('Invalid item prepended to DataWindow, expected DataEntity');
         }
@@ -304,7 +308,7 @@ export class DataWindow<
 
     map<U extends DataEntity>(
         callbackfn: (value: T, index: number, array: T[]) => U,
-        thisArg?: any
+        thisArg?: unknown
     ): DataWindow<U, M> {
         return new DataWindow<U, M>(
             super.map(callbackfn, thisArg),
@@ -314,11 +318,11 @@ export class DataWindow<
 
     filter<S extends T>(
         callbackfn: (value: T, index: number, array: T[]) => value is S,
-        thisArg?: any
+        thisArg?: unknown
     ): DataWindow<S, M>;
     filter(
         callbackfn: (value: T, index: number, array: T[]) => unknown,
-        thisArg?: any
+        thisArg?: unknown
     ): DataWindow<T, M> {
         return new DataWindow<T, M>(
             super.filter(callbackfn as any, thisArg),

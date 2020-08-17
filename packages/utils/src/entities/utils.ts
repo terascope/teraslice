@@ -23,7 +23,7 @@ export function defineEntityProperties(entity: unknown, metadata?: Record<string
     });
 }
 
-export function defineWindowProperties(entity: any, metadata?: Record<string, any>): void {
+export function defineWindowProperties(entity: unknown, metadata?: Record<string, any>): void {
     Object.defineProperty(entity, i.__IS_WINDOW_KEY, {
         value: true,
         configurable: false,
@@ -72,13 +72,13 @@ export function isDataEntity(input: unknown): boolean {
     return Boolean(input != null && (input as any)[i.__IS_DATAENTITY_KEY] === true);
 }
 
-export function isDataWindow(input: any): boolean {
+export function isDataWindow(input: unknown): boolean {
     return Boolean(input != null && (input as any)[i.__IS_WINDOW_KEY] === true);
 }
 
 // this only used in the DataWindow to detect if it can convert the input
 // to an Window
-export function canConvertToEntityArray(input: any): boolean {
+export function canConvertToEntityArray(input: unknown): boolean {
     if (input == null) return false;
     if (Array.isArray(input)) return true;
     if (isDataEntity(input)) return true;
