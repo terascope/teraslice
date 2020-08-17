@@ -1,4 +1,4 @@
-import { cloneDeep, Logger } from '@terascope/utils';
+import { cloneDeep } from '@terascope/utils';
 import {
     SlicerOperationLifeCycle,
     ExecutionStats,
@@ -20,11 +20,9 @@ export class SlicerExecutionContext
     implements SlicerOperationLifeCycle {
     // ...
     private readonly _slicer: SlicerCore;
-    readonly logger: Logger;
 
     constructor(config: ExecutionContextConfig) {
-        super(config);
-        this.logger = this.api.makeLogger('slicer_context');
+        super(config, 'slicer_context');
 
         this._methodRegistry.set('onSliceComplete', new Set());
         this._methodRegistry.set('onSliceDispatch', new Set());

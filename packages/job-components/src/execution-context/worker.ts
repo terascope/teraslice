@@ -25,7 +25,6 @@ export class WorkerExecutionContext
     implements WorkerOperationLifeCycle {
     // ...
     readonly processors: ProcessorCore[];
-    readonly logger: ts.Logger;
 
     /** the active (or last) run slice */
     sliceState: WorkerSliceState | undefined;
@@ -35,8 +34,7 @@ export class WorkerExecutionContext
     private _queue: ((input: any) => Promise<ts.DataEntity[]>)[];
 
     constructor(config: ExecutionContextConfig) {
-        super(config);
-        this.logger = this.api.makeLogger('worker_context');
+        super(config, 'worker_context');
 
         this._methodRegistry.set('onSliceInitialized', new Set());
         this._methodRegistry.set('onSliceStarted', new Set());
