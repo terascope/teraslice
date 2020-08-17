@@ -9,7 +9,6 @@ export interface ParserOptions {
 
 export interface ContextArg {
     typeConfig?: t.xLuceneTypeConfig;
-    logger: Logger;
     variables?: t.xLuceneVariables;
 }
 
