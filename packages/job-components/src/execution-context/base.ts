@@ -32,7 +32,6 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
     private readonly _handlers: EventHandlers = {};
 
     constructor(config: ExecutionContextConfig, loggerName: string) {
-        this.logger = this.api.makeLogger(loggerName);
         this.events = config.context.apis.foundation.getSystemEvents();
 
         this._handlers['execution:add-to-lifecycle'] = (op: T) => {
@@ -55,13 +54,17 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
         this.config = executionConfig;
         this.exId = executionConfig.ex_id;
         this.jobId = executionConfig.job_id;
+
+        this.logger = this.api.makeLogger(loggerName);
     }
 
     /**
      * Called to initialize all of the registered operations
      */
     async initialize(initConfig?: unknown): Promise<void> {
-        await pMap(this.getOperations(), async (op) => {
+        await pMap(this._operations, async (op) => {
+            if (!('initialize' in op)) return;
+
             const startTime = Date.now();
             // @ts-expect-error
             const name = op.opConfig?._op ?? op.apiConfig?._name ?? op.constructor.name;
@@ -73,8 +76,6 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
                 const diff = toHumanTime(Date.now() - startTime);
                 this.logger.info(`[FINISH] "${name}" operation initialize, took ${diff}`);
             }
-        }, {
-            stopOnError: false
         });
     }
 
@@ -82,7 +83,9 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
      * Called to cleanup all of the registered operations
      */
     async shutdown(): Promise<void> {
-        await pMap(this.getOperations(), async (op) => {
+        await pMap(this._operations, async (op) => {
+            if (!('shutdown' in op)) return;
+
             const startTime = Date.now();
             // @ts-expect-error
             const name = op.opConfig?._op ?? op.apiConfig?._name ?? op.constructor.name;
@@ -94,8 +97,6 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
                 const diff = toHumanTime(Date.now() - startTime);
                 this.logger.info(`[FINISH] "${name}" operation shutdown, took ${diff}`);
             }
-        }, {
-            stopOnError: false
         }).finally(() => {
             Object.entries(this._handlers)
                 .forEach(([event, listener]) => {
@@ -130,7 +131,7 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
 
         let i = 0;
         const promises = [];
-        for (const operation of this.getOperations()) {
+        for (const operation of this._operations) {
             const index = i++;
             if (set.has(index)) {
                 // @ts-expect-error because I can't get the type definitions to work right
@@ -147,9 +148,9 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
         if (set.size === 0) return;
 
         let index = 0;
-        for (const operation of this.getOperations()) {
+        for (const operation of this._operations) {
             if (set.has(index)) {
-                // @ts-expect-error because I can't get the typedefinitions to work right
+                // @ts-expect-error because I can't get the type definitions to work right
                 operation[method](...args);
             }
             index++;
@@ -162,7 +163,7 @@ export default class BaseExecutionContext<T extends OperationLifeCycle> {
         }
 
         let index = 0;
-        for (const op of this.getOperations()) {
+        for (const op of this._operations) {
             for (const [method, set] of this._methodRegistry.entries()) {
                 if (isFunction(op[method])) {
                     set.add(index);
