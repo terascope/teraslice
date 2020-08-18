@@ -76,6 +76,9 @@ class K8s {
      * @param {String} ns       namespace to search, this will override the default
      * @param {Number} timeout  time, in ms, to wait for pod to start
      * @return {Object}         pod
+     *
+     * TODO: Should this use the cluster state that gets polled periodically,
+     * rather than making it's own k8s API calls
      */
     async waitForSelectedPod(selector, ns, timeout = 10000) {
         const namespace = ns || this.defaultNamespace;
@@ -112,6 +115,9 @@ class K8s {
      * @param {String} ns       namespace to search, this will override the default
      * @param {Number} timeout  time, in ms, to wait for pod to start
      * @return {Array}          Array of pod objects
+     *
+     * TODO: Should this use the cluster state that gets polled periodically,
+     * rather than making it's own k8s API calls?
      */
     async waitForNumPods(number, selector, ns, timeout = 10000) {
         const namespace = ns || this.defaultNamespace;
@@ -312,50 +318,34 @@ class K8s {
     }
 
     /**
-     * Delete all of the deployments and services related to the specified exId
+     * Delete all of Kubernetes resources related to the specified exId
      *
-     * The process here waits for the worker pods to completely exit before
-     * terminating the execution controller pod.  The intent is to avoid having
-     * a worker timeout when it tries to tell the execution controller it is
-     * exiting.
+     * The process deletes the ExecutionController Job first then the Worker
+     * deployment as a transitional measure, for running jobs started by other
+     * versions.
      *
      * @param  {String}  exId ID of the execution
      * @return {Promise}
      */
     async deleteExecution(exId) {
-        const r = [];
         if (!exId) {
             throw new Error('deleteExecution requires an executionId');
         }
 
+        await this._deleteObjByExId(exId, 'execution_controller', 'jobs');
+
+        // In the future we will remove the following block and just rely on k8s
+        // garbage collection to remove the worker deployment when the execution
+        // controller job is deleted.  We leave this here for the transition
+        // period when users may have teraslice jobs that don't yet have those
+        // relationships.
+        // So you may see warnings from the delete below failing.  They may be
+        // ignored.
         try {
-            this.logger.info(`Deleting worker deployment for ex_id: ${exId}`);
-            r.push(await this._deleteObjByExId(exId, 'worker', 'deployments'));
-
-            await this.waitForNumPods(
-                0,
-                `app.kubernetes.io/component=worker,teraslice.terascope.io/exId=${exId}`,
-                null,
-                this.shutdownTimeout + 15000 // shutdown_timeout + 15s
-            );
+            await this._deleteObjByExId(exId, 'worker', 'deployments');
         } catch (e) {
-            // deliberately ignore errors, k8s will clean up workers when
-            // execution controller gets deleted.
-            const err = new Error(`Error encountered deleting pod deployment, continuing execution controller shutdown: ${e}`);
-            this.logger.error(err);
+            this.logger.warn(`Ignoring the following error when deleting exId ${exId}: ${e}`);
         }
-
-        try {
-            this.logger.info(`Deleting execution controller job for ex_id: ${exId}`);
-            r.push(await this._deleteObjByExId(exId, 'execution_controller', 'jobs'));
-        } catch (e) {
-            const err = new Error(`Error deleting execution controller: ${e}`);
-            this.logger.error(err);
-            return Promise.reject(err);
-        }
-
-        this.logger.debug(`Deleted Resources:\n\n${r.map((x) => JSON.stringify(x, null, 2))}`);
-        return r;
     }
 
     /**
