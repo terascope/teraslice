@@ -1480,10 +1480,10 @@
   resolved "https://registry.yarnpkg.com/@types/yeoman-assert/-/yeoman-assert-3.1.1.tgz#d1f683e5f6e6b15d36bfb216221a19bd7e9735c6"
   integrity sha512-ACDlMVhoLIA3VQPFKtJWlr3evUE3DaEbVxi1ukivBRNB1havMW+vo2J0+hNURF19yiqs7iu+yUHLG25bCi2xcw==
 
-"@types/yeoman-environment@*", "@types/yeoman-environment@^2.10.0":
-  version "2.10.0"
-  resolved "https://registry.yarnpkg.com/@types/yeoman-environment/-/yeoman-environment-2.10.0.tgz#b095378c5fa6a8ba8abf0afa9f15b521e82daa5d"
-  integrity sha512-G/3JOuUhcZRFg/l1cHyn+Vht63cHLG0mQ3VYhbBlbkpf8kIxQs4nLFIYaCCiTE3YzedKvYPBPeUWf34rg6sQmQ==
+"@types/yeoman-environment@*", "@types/yeoman-environment@^2.10.1":
+  version "2.10.1"
+  resolved "https://registry.yarnpkg.com/@types/yeoman-environment/-/yeoman-environment-2.10.1.tgz#fc979808dfec9cc712b3553ceeb147747688bcc2"
+  integrity sha512-kQsGzveMwoP/MnipjggDT77ozoq592bDLastlGX8FT/8mwpJ1I6C9y4duk8KxxaO0JNTOGy9rC/ghd7BWG6YmQ==
   dependencies:
     "@types/diff" "*"
     "@types/inquirer" "*"
