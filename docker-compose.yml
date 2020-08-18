@@ -3,16 +3,6 @@ services:
   teraslice-master:
     build:
       context: .
-    command: [
-      "wait-for-it",
-      "elasticsearch:9200",
-      "--timeout=60",
-      "--strict",
-      "--",
-      "node",
-      "--max-old-space-size=2048",
-      "service.js"
-    ]
     scale: 1
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5678/"]
@@ -32,16 +22,6 @@ services:
   teraslice-worker:
     build:
       context: .
-    command: [
-      "wait-for-it",
-      "teraslice-master:5678",
-      "--timeout=60",
-      "--strict",
-      "--",
-      "node",
-      "--max-old-space-size=2048",
-      "service.js"
-    ]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://teraslice-master:5678/"]
       interval: 15s
