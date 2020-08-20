@@ -74,7 +74,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
                     await exStore.verifyStatusUpdate(exId, status);
                     await exStore.setStatus(exId, status);
                 } catch (err) {
-                    logError(logger, err, 'failure setting execution to stopped');
+                    logError(logger, err, `failure setting execution, ${exId}, to ${status}`);
                 } finally {
                     resolve(true);
                 }
@@ -334,9 +334,11 @@ module.exports = function executionService(context, { clusterMasterServer }) {
                     });
                 }
             } catch (err) {
+                const msg = `Failed to provision execution ${execution.ex_id}`;
                 const error = new TSError(err, {
-                    reason: `Failured to provision execution ${execution.ex_id}`
+                    reason: msg
                 });
+                logger.warn(msg);
 
                 try {
                     await exStore.setStatus(
@@ -348,6 +350,17 @@ module.exports = function executionService(context, { clusterMasterServer }) {
                     logger.error(new TSError(err, {
                         reason: 'Failure to set execution status to failed after provision failed'
                     }));
+                }
+
+                if (context.sysconfig.teraslice.cluster_manager_type === 'kubernetes') {
+                    // Since this condition is only hit in cases where the pods
+                    // are never scheduled, all this call to stopExecution
+                    // accomplishes is to delete the k8s resources, which is
+                    // probably just the k8s job for the execution controller.
+                    // Calling delete on the worker deployment that doesn't
+                    // exist is OK.
+                    logger.warn(`Calling stopExecution on execution: ${execution.ex_id} to clean up k8s resources.`);
+                    await clusterService.stopExecution(execution.ex_id);
                 }
             } finally {
                 allocatingExecution = false;
