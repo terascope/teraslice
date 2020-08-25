@@ -33,7 +33,7 @@
         "xlucene-translator": "^0.8.3"
     },
     "devDependencies": {
-        "@types/uuid": "^8.0.1",
+        "@types/uuid": "^8.3.0",
         "elasticsearch": "^15.4.1"
     },
     "publishConfig": {
