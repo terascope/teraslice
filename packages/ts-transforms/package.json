@@ -47,7 +47,7 @@
         "yargs": "^15.4.1"
     },
     "devDependencies": {
-        "@types/graphlib": "^2.1.5",
+        "@types/graphlib": "^2.1.7",
         "@types/jexl": "^2.2.0",
         "@types/valid-url": "^1.0.2",
         "@types/validator": "^13.0.0",
