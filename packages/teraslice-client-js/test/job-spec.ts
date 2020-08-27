@@ -85,6 +85,7 @@ describe('Teraslice Job', () => {
 
     const executionResults: Execution[] = [
         {
+            active: true,
             analytics: false,
             assets: [],
             assetIds: [],

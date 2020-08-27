@@ -25,6 +25,7 @@ describe('Teraslice Jobs', () => {
     const list: JobConfiguration[] = [
         {
             job_id: 'some-random-job-id',
+            active: true,
             analytics: false,
             assets: [],
             assetIds: [],
