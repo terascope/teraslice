@@ -142,6 +142,20 @@ module.exports = function apiService(context, { assetsUrl, app }) {
         requestHandler(async () => jobsService.getLatestExecution(jobId));
     });
 
+    v1routes.post('/jobs/:jobId/_active', (req, res) => {
+        const { jobId } = req.params;
+
+        const requestHandler = handleRequest(req, res, `Could not change active to 'true' for job: ${jobId}`);
+        requestHandler(async () => jobsService.setActiveState(jobId, true));
+    });
+
+    v1routes.post('/jobs/:jobId/_inactive', (req, res) => {
+        const { jobId } = req.params;
+
+        const requestHandler = handleRequest(req, res, `Could not change active to 'false' for job: ${jobId}`);
+        requestHandler(async () => jobsService.setActiveState(jobId, false));
+    });
+
     v1routes.post('/jobs/:jobId/_start', (req, res) => {
         const { jobId } = req.params;
 

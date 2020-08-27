@@ -79,6 +79,7 @@ export type LifeCycle = 'once' | 'persistent';
 export type JobConfig = Partial<ValidatedJobConfig>;
 
 export interface ValidatedJobConfig {
+    active: boolean;
     analytics: boolean;
     assets: string[];
     /** This may not exist until ran in an execution */

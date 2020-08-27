@@ -17,6 +17,12 @@ const workers = cpuCount < 5 ? cpuCount : 5;
 
 export function jobSchema(context: Context): convict.Schema<any> {
     const schemas: convict.Schema<any> = {
+        active: {
+            default: true,
+            doc: 'A convenience property that allows the user to indicate whether the job'
+                + ' is in active use.  This is just a marker, Teraslice does not use it.',
+            format: Boolean
+        },
         analytics: {
             default: true,
             doc: [

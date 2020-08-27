@@ -64,6 +64,22 @@ module.exports = function jobsService(context) {
         return executionService.createExecutionContext(exConfig);
     }
 
+    /**
+     * Sets the `active` property on the job to `true` or `false`.
+     * @param {string} jobId
+     * @param {boolean} activeState
+     */
+    async function setActiveState(jobId, activeState) {
+        const job = await jobStore.get(jobId);
+        if (activeState === true) {
+            job.active = true;
+        } else {
+            job.active = false;
+        }
+        logger.info(`Setting jobId: ${jobId} to active: ${activeState}`);
+        return updateJob(jobId, job);
+    }
+
     async function updateJob(jobId, jobSpec) {
         await _validateJobSpec(jobSpec);
         const originalJob = await jobStore.get(jobId);
@@ -275,6 +291,7 @@ module.exports = function jobsService(context) {
         pauseJob,
         resumeJob,
         recoverJob,
+        setActiveState,
         addWorkers,
         removeWorkers,
         setWorkers,
