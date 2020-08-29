@@ -109,10 +109,17 @@ module.exports = function apiService(context, { assetsUrl, app }) {
     });
 
     v1routes.get('/jobs', (req, res) => {
+        let query;
         const { size, from, sort } = getSearchOptions(req);
 
+        if (req.query.active === 'true') {
+            query = 'job_id:* AND !active:false';
+        } else {
+            query = 'job_id:*';
+        }
+
         const requestHandler = handleRequest(req, res, 'Could not retrieve list of jobs');
-        requestHandler(() => jobStore.search('job_id:*', from, size, sort));
+        requestHandler(() => jobStore.search(query, from, size, sort));
     });
 
     v1routes.get('/jobs/:jobId', (req, res) => {
@@ -353,10 +360,16 @@ module.exports = function apiService(context, { assetsUrl, app }) {
     });
 
     app.get('/txt/jobs', (req, res) => {
+        let query;
         const { size, from, sort } = getSearchOptions(req);
 
-        const defaults = ['job_id', 'name', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
-        const query = 'job_id:*';
+        const defaults = ['job_id', 'name', 'active', 'lifecycle', 'slicers', 'workers', '_created', '_updated'];
+
+        if (req.query.active === 'true') {
+            query = 'job_id:* AND !active:false';
+        } else {
+            query = 'job_id:*';
+        }
 
         const requestHandler = handleRequest(req, res, 'Could not get all jobs');
         requestHandler(async () => {
