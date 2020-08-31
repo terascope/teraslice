@@ -404,8 +404,6 @@ describe('elasticsearch-state-storage', () => {
 
             const docArray = makeTestDocs(20);
 
-            // const docObj = docsToObject(docArray);
-
             const firstSlice = docArray.slice(0, 10);
             const secondSlice = docArray.slice(9);
 

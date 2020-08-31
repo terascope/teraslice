@@ -3,7 +3,7 @@ import {
     Logger,
     TSError,
     chunk,
-    pMap,
+    pMap
 } from '@terascope/utils';
 import esApi, { Client } from '@terascope/elasticsearch-api';
 import { ESStateStorageConfig, MGetCacheResponse } from '../interfaces';
