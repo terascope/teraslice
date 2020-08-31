@@ -113,11 +113,12 @@ export default class ESCachedStateStorage {
 
         const uniqKeys = this._getUniqKeys(docArray);
 
-        const uncachedKeys = this._getUncachedKeys(uniqKeys);
+        // first get docs in cache to avoid premature key eviction
+        const found: { [propName: string]: any } = {};
 
-        await this._updateCacheWithEs(uncachedKeys);
+        const uncachedKeys = this._separateCachedKeysFromUncached(uniqKeys, found);
 
-        const found = this._getSavedDocs(uniqKeys);
+        await this._updateCacheFoundWithEs(uncachedKeys, found);
 
         this._logCacheStats(
             {
@@ -128,6 +129,7 @@ export default class ESCachedStateStorage {
                 found: Object.keys(found).length
             }
         );
+
         return found;
     }
 
@@ -144,6 +146,21 @@ export default class ESCachedStateStorage {
         return Object.keys(keys);
     }
 
+    private _separateCachedKeysFromUncached(
+        uniqKeys: string[],
+        found: { [propName: string]: any }
+    ): string[] {
+        return uniqKeys.filter((key) => {
+            const doc = this.getFromCacheByKey(key);
+
+            if (doc == null) return true;
+
+            found[key] = doc;
+
+            return false;
+        });
+    }
+
     private _logCacheStats(cacheResults: CacheResults) {
         const inMemory = cacheResults.uniqIncoming - cacheResults.notInMemory;
         const inEs = cacheResults.found - inMemory;
@@ -158,32 +175,16 @@ export default class ESCachedStateStorage {
             missed: ${misses}`);
     }
 
-    private _getSavedDocs(keys: string[]) {
-        return keys.reduce((savedDocs: { [propName: string]: any }, key) => {
-            if (this.isKeyCached(key)) {
-                savedDocs[key] = this.getFromCacheByKey(key);
-            }
-
-            return savedDocs;
-        }, {});
-    }
-
-    private async _updateCacheWithEs(keyArray: string[]) {
+    private async _updateCacheFoundWithEs(keyArray: string[], found: { [propName: string]: any }) {
         const esResponse = await this._concurrentEsMget(keyArray);
 
         for (const response of esResponse) {
-            response.forEach((result) => this.set(result));
+            response.forEach((doc) => {
+                const key = this.getIdentifier(doc, '_key');
+                found[key] = doc;
+                this.setCacheByKey(key, doc);
+            });
         }
-    }
-
-    private _getUncachedKeys(keyArray: string[]): string[] {
-        return keyArray.reduce((uncached: string[], key: string) => {
-            if (this.isKeyCached(key) === false) {
-                uncached.push(key);
-            }
-
-            return uncached;
-        }, []);
     }
 
     private async _esGet(key: string): Promise<DataEntity|undefined> {

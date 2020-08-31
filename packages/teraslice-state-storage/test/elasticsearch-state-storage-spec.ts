@@ -398,6 +398,37 @@ describe('elasticsearch-state-storage', () => {
                 expect(metaId).toEqual(id);
             });
         });
+
+        it('should not evict docs in current slice', async () => {
+            setup({ cache_size: 15 });
+
+            const docArray = makeTestDocs(20);
+
+            const firstSlice = docArray.slice(0, 10);
+            const secondSlice = docArray.slice(9);
+
+            client.setMGetResponse(client.createMGetResponse(firstSlice));
+
+            const firstResult = await stateStorage.mget(firstSlice);
+
+            expect(firstResult['key-9']).toBeDefined();
+
+            expect(Object.keys(firstResult)).toBeArrayOfSize(10);
+
+            expect(stateStorage.isKeyCached('key-9')).toBeTrue();
+
+            // create bulk response
+            client.setMGetResponse(client.createMGetResponse(secondSlice));
+
+            // state response
+            const secondResult = await stateStorage.mget(secondSlice);
+
+            const keys = Object.keys(secondResult);
+
+            expect(stateStorage.isKeyCached('key-9')).toBeTrue();
+            expect(secondResult['key-9']).toBeDefined();
+            expect(keys).toBeArrayOfSize(11);
+        });
     });
 
     describe('-> mget when testing a large data set', () => {
