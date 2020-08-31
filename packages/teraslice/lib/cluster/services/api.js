@@ -114,6 +114,8 @@ module.exports = function apiService(context, { assetsUrl, app }) {
 
         if (req.query.active === 'true') {
             query = 'job_id:* AND !active:false';
+        } else if (req.query.active === 'false') {
+            query = 'job_id:* AND active:false';
         } else {
             query = 'job_id:*';
         }
@@ -367,6 +369,8 @@ module.exports = function apiService(context, { assetsUrl, app }) {
 
         if (req.query.active === 'true') {
             query = 'job_id:* AND !active:false';
+        } else if (req.query.active === 'false') {
+            query = 'job_id:* AND active:false';
         } else {
             query = 'job_id:*';
         }
