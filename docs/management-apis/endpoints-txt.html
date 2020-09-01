@@ -56,7 +56,7 @@
             });
         </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 id="__docusaurus" class="postHeaderTitle">TXT APIs</h1></header><article><div><span><p>The <code>txt</code> APIs provide more human readable and script friendly API endpoints for common information requests.</p>
 <h2><a class="anchor" aria-hidden="true" id="get-txtworkers"></a><a href="#get-txtworkers" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GET /txt/workers</h2>
-<p>Returns a textual graph of all workers and controllers.</p>
+<p>Returns a text table of all workers and controllers.</p>
 <p><strong>Query Options:</strong></p>
 <ul>
 <li><code>fields: string</code></li>
@@ -88,7 +88,7 @@ execution_controller  123      456    your.host.name      82298
 worker                123      456    your.host.name      82301
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="get-txtnodes"></a><a href="#get-txtnodes" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GET /txt/nodes</h2>
-<p>Returns a textual graph of all nodes in the cluster.</p>
+<p>Returns a text table of all nodes in the cluster.</p>
 <p><strong>Query Options:</strong></p>
 <ul>
 <li><code>fields: string</code></li>
@@ -125,15 +125,17 @@ node_id         state      hostname     total  active  pid    teraslice_version 
 your.host.name  connected  10.1.45.235  12     2       82028  0.43.0             v8.12.0
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="get-txtjobs"></a><a href="#get-txtjobs" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GET /txt/jobs</h2>
-<p>Returns a textual graph of all job listings.</p>
+<p>Returns a text table of all job listings.</p>
 <p><strong>Query Options:</strong></p>
 <ul>
 <li><code>fields: string</code></li>
+<li><code>active: [true|false]</code></li>
 </ul>
 <p>The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
 ie <code>fields=&quot;job_id,pid&quot;</code> or <code>fields=&quot;job_id pid&quot;</code>.</p>
 <p><strong>All Fields:</strong></p>
 <ul>
+<li><code>active</code></li>
 <li><code>name</code></li>
 <li><code>lifecycle</code></li>
 <li><code>analytics</code></li>
@@ -147,6 +149,7 @@ ie <code>fields=&quot;job_id,pid&quot;</code> or <code>fields=&quot;job_id pid&q
 </ul>
 <p><strong>Default Fields:</strong></p>
 <ul>
+<li><code>active</code></li>
 <li><code>name</code></li>
 <li><code>lifecycle</code></li>
 <li><code>slicers</code></li>
@@ -157,13 +160,13 @@ ie <code>fields=&quot;job_id,pid&quot;</code> or <code>fields=&quot;job_id pid&q
 </ul>
 <p><strong>Usage:</strong></p>
 <pre><code class="hljs css language-sh">$ curl <span class="hljs-string">'localhost:5678/txt/jobs'</span>
-job_id  name            lifecycle   slicers  workers  _created                  _updated
------   --------------  ----------  -------  -------  ------------------------  ------------------------
-1234    Data Generator  persistent  N/A      1        2018-09-21T17:49:05.029Z  2018-11-01T13:15:22.743Z
-5678    Reindex         once        N/A      1        2018-10-24T20:10:19.577Z  2018-11-06T21:58:03.415Z
+job_id  name           active lifecycle   slicers  workers  _created                  _updated
+-----   -------------- ------ ---------  -------  -------  ------------------------  ------------------------
+1234    Data Generator <span class="hljs-literal">true</span>   persistent  N/A      1        2018-09-21T17:49:05.029Z  2018-11-01T13:15:22.743Z
+5678    Reindex        N/A    once        N/A      1        2018-10-24T20:10:19.577Z  2018-11-06T21:58:03.415Z
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="get-txtex"></a><a href="#get-txtex" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GET /txt/ex</h2>
-<p>Returns a textual graph of all job execution contexts.</p>
+<p>Returns a text table of all job execution contexts.</p>
 <p><strong>Query Options:</strong></p>
 <ul>
 <li><code>fields: string</code></li>
@@ -203,7 +206,7 @@ Data Generator  persistent  N/A      1        stopped  123    321     2018-...  
 Reindex         once        N/A      1        running  456    654     2018-...  2018-...
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="get-txtcontrollers"></a><a href="#get-txtcontrollers" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GET /txt/controllers</h2>
-<p>Returns a textual graph of all active execution controllers.</p>
+<p>Returns a text table of all active execution controllers.</p>
 <p><strong>Query Options:</strong></p>
 <ul>
 <li><code>fields: string</code></li>
@@ -247,7 +250,7 @@ name     job_id  workers_available  workers_active  failed  queued  processed
 Example  123     2                  2               0       20      10
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="get-txtassets"></a><a href="#get-txtassets" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GET /txt/assets</h2>
-<p>Returns a textual graph of all assets sorted by the most recent at the top.</p>
+<p>Returns a text table of all assets sorted by the most recent at the top.</p>
 <p><strong>Query Options:</strong></p>
 <ul>
 <li><code>fields: string</code></li>
@@ -279,7 +282,7 @@ zipfile  0.0.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-30T18:19:18.
 otherzip 1.0.1    d94hy8d0b0fe679698d781ef71b332915d020570  2017-05-29T18:19:18.638Z  Some description
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="get-txtassetsassetname"></a><a href="#get-txtassetsassetname" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GET /txt/assets/{assetName}</h2>
-<p>Returns a textual graph of all assets by the given name, sorted by the most recent at the top.</p>
+<p>Returns a text table of all assets by the given name, sorted by the most recent at the top.</p>
 <p><strong>Note:</strong> <code>{assetName}</code> supports the wildcard character, <code>*</code>.</p>
 <p><strong>Query Options:</strong></p>
 <ul>
@@ -312,7 +315,7 @@ zipfile  1.0.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-30T18:19:18.
 zipfile  0.3.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-28T18:19:18.638Z  Some description
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="get-txtassetsassetnameversion"></a><a href="#get-txtassetsassetnameversion" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GET /txt/assets/{assetName}/{version}</h2>
-<p>Returns a textual graph of all assets by a given name and version, sorted by the most recent at the top.</p>
+<p>Returns a text table of all assets by a given name and version, sorted by the most recent at the top.</p>
 <p><strong>Note:</strong> <code>{assetName}</code> and <code>{version}</code> supports the wildcard character, <code>*</code>.</p>
 <p><strong>Query Options:</strong></p>
 <ul>
@@ -343,7 +346,7 @@ name     version  id                                        _created            
 -------  -------  ----------------------------------------  ------------------------  ------------------------------
 zipfile  0.3.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-28T18:19:18.638Z  Some description
 </code></pre>
-</span></div></article></div><div class="docLastUpdate"><em>Last updated on 8/26/2020</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/teraslice/docs/management-apis/endpoints-json"><span class="arrow-prev">← </span><span>JSON APIs</span></a><a class="docs-next button" href="/teraslice/docs/jobs/overview"><span>Overview</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#get-txtworkers">GET /txt/workers</a></li><li><a href="#get-txtnodes">GET /txt/nodes</a></li><li><a href="#get-txtjobs">GET /txt/jobs</a></li><li><a href="#get-txtex">GET /txt/ex</a></li><li><a href="#get-txtcontrollers">GET /txt/controllers</a></li><li><a href="#get-txtassets">GET /txt/assets</a></li><li><a href="#get-txtassetsassetname">GET /txt/assets/{assetName}</a></li><li><a href="#get-txtassetsassetnameversion">GET /txt/assets/{assetName}/{version}</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/teraslice/" class="nav-home"></a><div><h5>Docs</h5><a href="/teraslice/docs/en/getting-started.html">Getting Started</a><a href="/teraslice/docs/en/packages.html">Packages</a><a href="/teraslice/docs/en/asset-bundles.html">Asset Bundles</a></div><div><h5>More</h5><a href="/teraslice/blog">Blog</a><a href="https://github.com/terascope/teraslice">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/terascope/teraslice/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><section class="copyright">Copyright © 2020 Terascope, LLC</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 9/1/2020</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/teraslice/docs/management-apis/endpoints-json"><span class="arrow-prev">← </span><span>JSON APIs</span></a><a class="docs-next button" href="/teraslice/docs/jobs/overview"><span>Overview</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#get-txtworkers">GET /txt/workers</a></li><li><a href="#get-txtnodes">GET /txt/nodes</a></li><li><a href="#get-txtjobs">GET /txt/jobs</a></li><li><a href="#get-txtex">GET /txt/ex</a></li><li><a href="#get-txtcontrollers">GET /txt/controllers</a></li><li><a href="#get-txtassets">GET /txt/assets</a></li><li><a href="#get-txtassetsassetname">GET /txt/assets/{assetName}</a></li><li><a href="#get-txtassetsassetnameversion">GET /txt/assets/{assetName}/{version}</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/teraslice/" class="nav-home"></a><div><h5>Docs</h5><a href="/teraslice/docs/en/getting-started.html">Getting Started</a><a href="/teraslice/docs/en/packages.html">Packages</a><a href="/teraslice/docs/en/asset-bundles.html">Asset Bundles</a></div><div><h5>More</h5><a href="/teraslice/blog">Blog</a><a href="https://github.com/terascope/teraslice">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/terascope/teraslice/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><section class="copyright">Copyright © 2020 Terascope, LLC</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;

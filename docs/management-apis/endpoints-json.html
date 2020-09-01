@@ -197,11 +197,18 @@
 <p>Returns an array of all jobs listed in <code>${clusterName}__jobs</code> index.</p>
 <p><strong>Query Options:</strong></p>
 <ul>
+<li><code>active: string = [true|false]</code></li>
 <li><code>from: number = 0</code></li>
 <li><code>size: number = 100</code></li>
 <li><code>sort: string = &quot;_updated:desc&quot;</code></li>
 </ul>
-<p>Size is the number of documents returned, from is how many documents in and sort is a lucene query.</p>
+<p>Setting <code>active</code> to <code>true</code> will return only the jobs considered active, which
+includes the jobs that have <code>active</code> set to <code>true</code> as well as those that do not
+have an <code>active</code> property.  If your query sets <code>active</code> to <code>false</code> it will only
+return the jobs with the <code>active</code> property set to false.  If the <code>active</code> query
+parameteris not provided, all jobs will be returned.</p>
+<p>The parameter <code>size</code> is the number of documents returned, <code>from</code> is how many
+documents in and <code>sort</code> is a lucene query.</p>
 <p><strong>Usage:</strong></p>
 <pre><code class="hljs css language-sh">$ curl <span class="hljs-string">'localhost:5678/v1/jobs'</span>
 [
@@ -240,6 +247,8 @@
     <span class="hljs-string">"_context"</span>: <span class="hljs-string">"job"</span>
 }
 </code></pre>
+<p><strong>NOTE:</strong> Jobs without the <code>active</code> property are treated the same as jobs with
+the <code>active</code> property set to <code>true</code>.</p>
 <h2><a class="anchor" aria-hidden="true" id="put-v1jobsjobid"></a><a href="#put-v1jobsjobid" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>PUT /v1/jobs/{jobId}</h2>
 <p>Updates a stored job that has the given job id.</p>
 <p><strong>Usage:</strong></p>
@@ -369,6 +378,50 @@
 <p><strong>Usage:</strong></p>
 <pre><code class="hljs css language-sh">$ curl -XPOST <span class="hljs-string">'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_workers?add=5'</span>
 <span class="hljs-string">"5 workers have been add for execution: 863678b3-daf3-4ea9-8cb0-88b846cd7e57"</span>
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="post-v1jobsjobid_active"></a><a href="#post-v1jobsjobid_active" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>POST /v1/jobs/{jobId}/_active</h2>
+<p>Sets the <code>active</code> property on the specified job as <code>true</code>.</p>
+<p><strong>Query Options:</strong></p>
+<p>None</p>
+<p><strong>Usage:</strong></p>
+<pre><code class="hljs css language-sh">$ curl -XPOST <span class="hljs-string">'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_active'</span>
+{
+    <span class="hljs-string">"active"</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-string">"name"</span>: <span class="hljs-string">"Example"</span>,
+    <span class="hljs-string">"lifecycle"</span>: <span class="hljs-string">"persistent"</span>,
+    <span class="hljs-string">"workers"</span>: 1,
+    <span class="hljs-string">"operations"</span>: [
+        {
+            <span class="hljs-string">"_op"</span>: <span class="hljs-string">"noop"</span>
+        }
+    ]
+    <span class="hljs-string">"job_id"</span>: <span class="hljs-string">"5a50580c-4a50-48d9-80f8-ac70a00f3dbd"</span>,
+    <span class="hljs-string">"_created"</span>: <span class="hljs-string">"2018-09-21T17:49:05.029Z"</span>,
+    <span class="hljs-string">"_updated"</span>: <span class="hljs-string">"2018-11-01T13:15:22.743Z"</span>,
+    <span class="hljs-string">"_context"</span>: <span class="hljs-string">"job"</span>
+}
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="post-v1jobsjobid_inactive"></a><a href="#post-v1jobsjobid_inactive" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>POST /v1/jobs/{jobId}/_inactive</h2>
+<p>Sets the <code>active</code> property on the specified job as <code>false</code>.</p>
+<p><strong>Query Options:</strong></p>
+<p>None</p>
+<p><strong>Usage:</strong></p>
+<pre><code class="hljs css language-sh">$ curl -XPOST <span class="hljs-string">'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_inactive'</span>
+{
+    <span class="hljs-string">"active"</span>: <span class="hljs-literal">false</span>,
+    <span class="hljs-string">"name"</span>: <span class="hljs-string">"Example"</span>,
+    <span class="hljs-string">"lifecycle"</span>: <span class="hljs-string">"persistent"</span>,
+    <span class="hljs-string">"workers"</span>: 1,
+    <span class="hljs-string">"operations"</span>: [
+        {
+            <span class="hljs-string">"_op"</span>: <span class="hljs-string">"noop"</span>
+        }
+    ]
+    <span class="hljs-string">"job_id"</span>: <span class="hljs-string">"5a50580c-4a50-48d9-80f8-ac70a00f3dbd"</span>,
+    <span class="hljs-string">"_created"</span>: <span class="hljs-string">"2018-09-21T17:49:05.029Z"</span>,
+    <span class="hljs-string">"_updated"</span>: <span class="hljs-string">"2018-11-01T13:15:22.743Z"</span>,
+    <span class="hljs-string">"_context"</span>: <span class="hljs-string">"job"</span>
+}
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="get-v1jobsjobidcontroller"></a><a href="#get-v1jobsjobidcontroller" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GET /v1/jobs/{jobId}/controller</h2>
 <p>Same concept as cluster/controllers, but only get stats on execution controller associated with the given job_id.</p>
@@ -654,7 +707,7 @@
     }
 ]
 </code></pre>
-</span></div></article></div><div class="docLastUpdate"><em>Last updated on 8/26/2020</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/teraslice/docs/management-apis/overview"><span class="arrow-prev">← </span><span>Overview</span></a><a class="docs-next button" href="/teraslice/docs/management-apis/endpoints-txt"><span>TXT APIs</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#get-v1">GET /v1</a></li><li><a href="#get-v1clusterstate">GET /v1/cluster/state</a></li><li><a href="#get-v1clustercontrollers">GET /v1/cluster/controllers</a></li><li><a href="#get-v1assets">GET /v1/assets</a></li><li><a href="#post-v1assets">POST /v1/assets</a></li><li><a href="#delete-v1assets">DELETE /v1/assets</a></li><li><a href="#post-v1jobs">POST /v1/jobs</a></li><li><a href="#get-v1jobs">GET /v1/jobs</a></li><li><a href="#get-v1jobsjobid">GET /v1/jobs/{jobId}</a></li><li><a href="#put-v1jobsjobid">PUT /v1/jobs/{jobId}</a></li><li><a href="#get-v1jobsjobidex">GET /v1/jobs/{jobId}/ex</a></li><li><a href="#post-v1jobsjobid_start">POST /v1/jobs/{jobId}/_start</a></li><li><a href="#post-v1jobsjobid_stop">POST /v1/jobs/{jobId}/_stop</a></li><li><a href="#post-v1jobsjobid_pause">POST /v1/jobs/{jobId}/_pause</a></li><li><a href="#post-v1jobsjobid_resume">POST /v1/jobs/{jobId}/_resume</a></li><li><a href="#post-v1jobsjobid_recover">POST /v1/jobs/{jobId}/_recover</a></li><li><a href="#post-v1jobsjobid_workers">POST /v1/jobs/{jobId}/_workers</a></li><li><a href="#get-v1jobsjobidcontroller">GET /v1/jobs/{jobId}/controller</a></li><li><a href="#get-v1jobsjobiderrors">GET /v1/jobs/{jobId}/errors</a></li><li><a href="#get-v1ex">GET /v1/ex</a></li><li><a href="#get-v1exexid">GET /v1/ex/{exId}</a></li><li><a href="#get-v1exerrors">GET /v1/ex/errors</a></li><li><a href="#get-v1exjobiderrorsexid">GET /v1/ex/{jobId}/errors/{exId}</a></li><li><a href="#post-v1exexid_stop">POST /v1/ex/{exId}/_stop</a></li><li><a href="#post-v1exexid_pause">POST /v1/ex/{exId}/_pause</a></li><li><a href="#post-v1exexid_resume">POST /v1/ex/{exId}/_resume</a></li><li><a href="#post-v1exexid_recover">POST /v1/ex/{exId}/_recover</a></li><li><a href="#post-v1exexid_workers">POST /v1/ex/{exId}/_workers</a></li><li><a href="#get-v1exexidcontroller">GET /v1/ex/{exId}/controller</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/teraslice/" class="nav-home"></a><div><h5>Docs</h5><a href="/teraslice/docs/en/getting-started.html">Getting Started</a><a href="/teraslice/docs/en/packages.html">Packages</a><a href="/teraslice/docs/en/asset-bundles.html">Asset Bundles</a></div><div><h5>More</h5><a href="/teraslice/blog">Blog</a><a href="https://github.com/terascope/teraslice">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/terascope/teraslice/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><section class="copyright">Copyright © 2020 Terascope, LLC</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 9/1/2020</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/teraslice/docs/management-apis/overview"><span class="arrow-prev">← </span><span>Overview</span></a><a class="docs-next button" href="/teraslice/docs/management-apis/endpoints-txt"><span>TXT APIs</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#get-v1">GET /v1</a></li><li><a href="#get-v1clusterstate">GET /v1/cluster/state</a></li><li><a href="#get-v1clustercontrollers">GET /v1/cluster/controllers</a></li><li><a href="#get-v1assets">GET /v1/assets</a></li><li><a href="#post-v1assets">POST /v1/assets</a></li><li><a href="#delete-v1assets">DELETE /v1/assets</a></li><li><a href="#post-v1jobs">POST /v1/jobs</a></li><li><a href="#get-v1jobs">GET /v1/jobs</a></li><li><a href="#get-v1jobsjobid">GET /v1/jobs/{jobId}</a></li><li><a href="#put-v1jobsjobid">PUT /v1/jobs/{jobId}</a></li><li><a href="#get-v1jobsjobidex">GET /v1/jobs/{jobId}/ex</a></li><li><a href="#post-v1jobsjobid_start">POST /v1/jobs/{jobId}/_start</a></li><li><a href="#post-v1jobsjobid_stop">POST /v1/jobs/{jobId}/_stop</a></li><li><a href="#post-v1jobsjobid_pause">POST /v1/jobs/{jobId}/_pause</a></li><li><a href="#post-v1jobsjobid_resume">POST /v1/jobs/{jobId}/_resume</a></li><li><a href="#post-v1jobsjobid_recover">POST /v1/jobs/{jobId}/_recover</a></li><li><a href="#post-v1jobsjobid_workers">POST /v1/jobs/{jobId}/_workers</a></li><li><a href="#post-v1jobsjobid_active">POST /v1/jobs/{jobId}/_active</a></li><li><a href="#post-v1jobsjobid_inactive">POST /v1/jobs/{jobId}/_inactive</a></li><li><a href="#get-v1jobsjobidcontroller">GET /v1/jobs/{jobId}/controller</a></li><li><a href="#get-v1jobsjobiderrors">GET /v1/jobs/{jobId}/errors</a></li><li><a href="#get-v1ex">GET /v1/ex</a></li><li><a href="#get-v1exexid">GET /v1/ex/{exId}</a></li><li><a href="#get-v1exerrors">GET /v1/ex/errors</a></li><li><a href="#get-v1exjobiderrorsexid">GET /v1/ex/{jobId}/errors/{exId}</a></li><li><a href="#post-v1exexid_stop">POST /v1/ex/{exId}/_stop</a></li><li><a href="#post-v1exexid_pause">POST /v1/ex/{exId}/_pause</a></li><li><a href="#post-v1exexid_resume">POST /v1/ex/{exId}/_resume</a></li><li><a href="#post-v1exexid_recover">POST /v1/ex/{exId}/_recover</a></li><li><a href="#post-v1exexid_workers">POST /v1/ex/{exId}/_workers</a></li><li><a href="#get-v1exexidcontroller">GET /v1/ex/{exId}/controller</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/teraslice/" class="nav-home"></a><div><h5>Docs</h5><a href="/teraslice/docs/en/getting-started.html">Getting Started</a><a href="/teraslice/docs/en/packages.html">Packages</a><a href="/teraslice/docs/en/asset-bundles.html">Asset Bundles</a></div><div><h5>More</h5><a href="/teraslice/blog">Blog</a><a href="https://github.com/terascope/teraslice">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/terascope/teraslice/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><section class="copyright">Copyright © 2020 Terascope, LLC</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;
