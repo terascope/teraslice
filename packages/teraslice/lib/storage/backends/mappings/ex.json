@@ -6,6 +6,9 @@
             },
             "dynamic": false,
             "properties": {
+                "active": {
+                    "type": "boolean"
+                },
                 "job_id": {
                     "type": "keyword"
                 },

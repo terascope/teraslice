@@ -6,7 +6,7 @@ The `txt` APIs provide more human readable and script friendly API endpoints for
 
 ## GET /txt/workers
 
-Returns a textual graph of all workers and controllers.
+Returns a text table of all workers and controllers.
 
 **Query Options:**
 
@@ -44,7 +44,7 @@ worker                123      456    your.host.name      82301
 
 ## GET /txt/nodes
 
-Returns a textual graph of all nodes in the cluster.
+Returns a text table of all nodes in the cluster.
 
 **Query Options:**
 
@@ -87,17 +87,19 @@ your.host.name  connected  10.1.45.235  12     2       82028  0.43.0            
 
 ## GET /txt/jobs
 
-Returns a textual graph of all job listings.
+Returns a text table of all job listings.
 
 **Query Options:**
 
 - `fields: string`
+- `active: [true|false]`
 
 The fields parameter is a string that consists of several words, these words will be used to override the default values and only return the values specified
 ie `fields="job_id,pid"` or `fields="job_id pid"`.
 
 **All Fields:**
 
+- `active`
 - `name`
 - `lifecycle`
 - `analytics`
@@ -111,6 +113,7 @@ ie `fields="job_id,pid"` or `fields="job_id pid"`.
 
 **Default Fields:**
 
+- `active`
 - `name`
 - `lifecycle`
 - `slicers`
@@ -123,15 +126,15 @@ ie `fields="job_id,pid"` or `fields="job_id pid"`.
 
 ```sh
 $ curl 'localhost:5678/txt/jobs'
-job_id  name            lifecycle   slicers  workers  _created                  _updated
------   --------------  ----------  -------  -------  ------------------------  ------------------------
-1234    Data Generator  persistent  N/A      1        2018-09-21T17:49:05.029Z  2018-11-01T13:15:22.743Z
-5678    Reindex         once        N/A      1        2018-10-24T20:10:19.577Z  2018-11-06T21:58:03.415Z
+job_id  name           active lifecycle   slicers  workers  _created                  _updated
+-----   -------------- ------ ---------  -------  -------  ------------------------  ------------------------
+1234    Data Generator true   persistent  N/A      1        2018-09-21T17:49:05.029Z  2018-11-01T13:15:22.743Z
+5678    Reindex        N/A    once        N/A      1        2018-10-24T20:10:19.577Z  2018-11-06T21:58:03.415Z
 ```
 
 ## GET /txt/ex
 
-Returns a textual graph of all job execution contexts.
+Returns a text table of all job execution contexts.
 
 **Query Options:**
 
@@ -177,7 +180,7 @@ Reindex         once        N/A      1        running  456    654     2018-...  
 
 ## GET /txt/controllers
 
-Returns a textual graph of all active execution controllers.
+Returns a text table of all active execution controllers.
 
 **Query Options:**
 
@@ -227,7 +230,7 @@ Example  123     2                  2               0       20      10
 
 ## GET /txt/assets
 
-Returns a textual graph of all assets sorted by the most recent at the top.
+Returns a text table of all assets sorted by the most recent at the top.
 
 **Query Options:**
 
@@ -266,7 +269,7 @@ otherzip 1.0.1    d94hy8d0b0fe679698d781ef71b332915d020570  2017-05-29T18:19:18.
 
 ## GET /txt/assets/{assetName}
 
-Returns a textual graph of all assets by the given name, sorted by the most recent at the top.
+Returns a text table of all assets by the given name, sorted by the most recent at the top.
 
 **Note:** `{assetName}` supports the wildcard character, `*`.
 
@@ -307,7 +310,7 @@ zipfile  0.3.1    e7f338d0b0fe679698d781ef71b332915d020570  2017-05-28T18:19:18.
 
 ## GET /txt/assets/{assetName}/{version}
 
-Returns a textual graph of all assets by a given name and version, sorted by the most recent at the top.
+Returns a text table of all assets by a given name and version, sorted by the most recent at the top.
 
 **Note:** `{assetName}` and `{version}` supports the wildcard character, `*`.
 

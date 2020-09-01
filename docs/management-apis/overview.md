@@ -74,6 +74,20 @@ Resuming a job restarts the execution and the allocation of slices to workers.
 curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_resume"
 ```
 
+### Setting a job `active` or `inactive`
+
+A Teraslice job can be marked `active` or `inactive`.  By default, a job is
+`active` (if the job object does not have the `active` property, it is assumed
+to be `active`).
+
+```sh
+curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_active"
+```
+
+```sh
+curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_inactive"
+```
+
 ### Viewing Slicer statistics for a job
 
 This provides information related to the execution controller and can be useful

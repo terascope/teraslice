@@ -33,6 +33,7 @@ export function newTestJobConfig(
             name: 'test-job',
             apis: [],
             operations: [],
+            active: true,
             analytics: false,
             autorecover: false,
             assets: [],
