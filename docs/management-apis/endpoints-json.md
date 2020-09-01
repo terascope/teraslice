@@ -196,11 +196,19 @@ Returns an array of all jobs listed in `${clusterName}__jobs` index.
 
 **Query Options:**
 
+- `active: string = [true|false]`
 - `from: number = 0`
 - `size: number = 100`
 - `sort: string = "_updated:desc"`
 
-Size is the number of documents returned, from is how many documents in and sort is a lucene query.
+Setting `active` to `true` will return only the jobs considered active, which
+includes the jobs that have `active` set to `true` as well as those that do not
+have an `active` property.  If your query sets `active` to `false` it will only
+return the jobs with the `active` property set to false.  If the `active` query
+parameteris not provided, all jobs will be returned.
+
+The parameter `size` is the number of documents returned, `from` is how many
+documents in and `sort` is a lucene query.
 
 **Usage:**
 
@@ -247,6 +255,9 @@ $ curl 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd'
     "_context": "job"
 }
 ```
+
+**NOTE:** Jobs without the `active` property are treated the same as jobs with
+the `active` property set to `true`.
 
 ## PUT /v1/jobs/{jobId}
 
@@ -419,6 +430,64 @@ If you use total, it will dynamically determine if it needs to add or remove to 
 ```sh
 $ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_workers?add=5'
 "5 workers have been add for execution: 863678b3-daf3-4ea9-8cb0-88b846cd7e57"
+```
+
+## POST /v1/jobs/{jobId}/_active
+
+Sets the `active` property on the specified job as `true`.
+
+**Query Options:**
+
+None
+
+**Usage:**
+
+```sh
+$ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_active'
+{
+    "active": true,
+    "name": "Example",
+    "lifecycle": "persistent",
+    "workers": 1,
+    "operations": [
+        {
+            "_op": "noop"
+        }
+    ]
+    "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
+    "_created": "2018-09-21T17:49:05.029Z",
+    "_updated": "2018-11-01T13:15:22.743Z",
+    "_context": "job"
+}
+```
+
+## POST /v1/jobs/{jobId}/_inactive
+
+Sets the `active` property on the specified job as `false`.
+
+**Query Options:**
+
+None
+
+**Usage:**
+
+```sh
+$ curl -XPOST 'localhost:5678/v1/jobs/5a50580c-4a50-48d9-80f8-ac70a00f3dbd/_inactive'
+{
+    "active": false,
+    "name": "Example",
+    "lifecycle": "persistent",
+    "workers": 1,
+    "operations": [
+        {
+            "_op": "noop"
+        }
+    ]
+    "job_id": "5a50580c-4a50-48d9-80f8-ac70a00f3dbd",
+    "_created": "2018-09-21T17:49:05.029Z",
+    "_updated": "2018-11-01T13:15:22.743Z",
+    "_context": "job"
+}
 ```
 
 ## GET /v1/jobs/{jobId}/controller
