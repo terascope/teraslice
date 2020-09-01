@@ -88,7 +88,6 @@ curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_active"
 curl -XPOST "$YOUR_MASTER_IP:5678/v1/jobs/${job_id}/_inactive"
 ```
 
-
 ### Viewing Slicer statistics for a job
 
 This provides information related to the execution controller and can be useful
