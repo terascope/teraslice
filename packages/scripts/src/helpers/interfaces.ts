@@ -34,6 +34,7 @@ export type PackageInfo = {
 export enum Service {
     Kafka = 'kafka',
     Elasticsearch = 'elasticsearch',
+    Minio = 'minio',
 }
 
 export type PackageConfig = {
@@ -41,6 +42,7 @@ export type PackageConfig = {
     enableTypedoc?: boolean;
     testSuite?: string;
     allowBumpWhenPrivate?: boolean;
+    linkToMain?: boolean;
 };
 
 export type RootPackageInfo = {
@@ -87,7 +89,7 @@ export type RootPackageInfo = {
 };
 
 export const AvailablePackageConfigKeys: readonly (keyof PackageConfig)[] = [
-    'enableTypedoc', 'testSuite', 'main', 'allowBumpWhenPrivate',
+    'enableTypedoc', 'testSuite', 'main', 'allowBumpWhenPrivate', 'linkToMain'
 ];
 
 export type TSCommands = 'docs';

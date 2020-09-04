@@ -4,7 +4,7 @@ import {
     getFirstChar, uniq, trim, isCI
 } from '@terascope/utils';
 import {
-    getDocPath, updatePkgJSON, fixDepPkgName, listPackages
+    getDocPath, updatePkgJSON, fixDepPkgName, listPackages, isMainPackage
 } from '../packages';
 import { updateReadme, ensureOverview } from '../docs/overview';
 import { PackageInfo, RootPackageInfo } from '../interfaces';
@@ -148,8 +148,11 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
         }
     }
 
+    let mainVersion: string|undefined;
+    const linkedToMain: PackageInfo[] = [];
+
     for (const pkgInfo of packages) {
-        if (pkgInfo.private) continue;
+        if (pkgInfo.private && !pkgInfo.terascope?.allowBumpWhenPrivate) continue;
 
         const val = getVersion(pkgInfo.version, true);
         if (!val) {
@@ -158,6 +161,22 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
             );
         }
         internalVersions[pkgInfo.name] = val;
+        if (isMainPackage(pkgInfo)) {
+            mainVersion = pkgInfo.version;
+        }
+        if (pkgInfo.terascope?.linkToMain) {
+            linkedToMain.push(pkgInfo);
+        }
+    }
+
+    if (mainVersion && linkedToMain.length) {
+        for (const pkgInfo of linkedToMain) {
+            if (pkgInfo.version !== mainVersion) {
+                signale.warn(`syncing package ${pkgInfo.name}@${pkgInfo.version} to ${mainVersion}`);
+                pkgInfo.version = mainVersion;
+                internalVersions[pkgInfo.name] = getVersion(mainVersion, true)!;
+            }
+        }
     }
 
     for (const pkgInfo of packages) {
@@ -171,6 +190,10 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
         for (const key of Object.values(DepKey)) {
             forDeps(pkgInfo, key);
         }
+    }
+
+    if (mainVersion && mainVersion !== rootInfo.version) {
+        rootInfo.version = mainVersion;
     }
 
     for (const key of Object.values(DepKey)) {

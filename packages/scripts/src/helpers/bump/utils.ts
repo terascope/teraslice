@@ -25,9 +25,9 @@ export async function getPackagesToBump(
         const bumpInfo = result[pkgInfo.name]!;
 
         for (const depPkg of packages) {
-            const main = isMainPackage(depPkg);
             if (depPkg.dependencies && depPkg.dependencies[pkgInfo.name]) {
-                if (options.deps && !main) {
+                const skipBump = isMainPackage(depPkg) || depPkg.terascope?.linkToMain;
+                if (options.deps && !skipBump) {
                     await _bumpPackage(depPkg);
                 }
                 bumpInfo.deps.push({
@@ -69,6 +69,7 @@ export async function getPackagesToBump(
 
         const from = pkgInfo.version;
         const to = bumpVersion(pkgInfo, options.release, options.preId);
+
         const main = isMainPackage(pkgInfo);
         result[pkgInfo.name] = {
             from,
@@ -99,6 +100,7 @@ export async function getPackagesToBump(
             options.packages.map(({ name }) => name), ',', 'or'
         )}`);
     }
+
     return result;
 }
 
