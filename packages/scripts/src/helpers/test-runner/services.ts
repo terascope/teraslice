@@ -2,6 +2,7 @@ import ms from 'ms';
 import got from 'got';
 import semver from 'semver';
 import * as ts from '@terascope/utils';
+import { getErrorStatusCode } from '@terascope/utils';
 import { getServicesForSuite } from '../misc';
 import {
     dockerRun,
@@ -19,7 +20,7 @@ const logger = ts.debugLogger('ts-scripts:cmd:test');
 
 const disableXPackSecurity = !config.ELASTICSEARCH_DOCKER_IMAGE.includes('blacktop');
 
-const services: { [service in Service]: DockerRunOptions } = {
+const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
     [Service.Elasticsearch]: {
         image: config.ELASTICSEARCH_DOCKER_IMAGE,
         name: `${config.TEST_NAMESPACE}_${config.ELASTICSEARCH_NAME}`,
@@ -55,6 +56,20 @@ const services: { [service in Service]: DockerRunOptions } = {
         },
         network: config.DOCKER_NETWORK_NAME
     },
+    [Service.Minio]: {
+        image: config.MINIO_DOCKER_IMAGE,
+        name: `${config.TEST_NAMESPACE}_${config.MINIO_NAME}`,
+        tmpfs: config.SERVICES_USE_TMPFS
+            ? ['/data']
+            : undefined,
+        ports: [`${config.MINIO_PORT}:${config.MINIO_PORT}`],
+        env: {
+            MINIO_ACCESS_KEY: config.MINIO_ACCESS_KEY,
+            MINIO_SECRET_KEY: config.MINIO_SECRET_KEY,
+        },
+        network: config.DOCKER_NETWORK_NAME,
+        args: ['server', '--address', `0.0.0.0:${config.MINIO_PORT}`, '/data']
+    }
 };
 
 export async function pullServices(suite: string, options: TestOptions): Promise<void> {
@@ -70,6 +85,11 @@ export async function pullServices(suite: string, options: TestOptions): Promise
 
         if (launchServices.includes(Service.Kafka)) {
             const image = `${config.KAFKA_DOCKER_IMAGE}:${options.kafkaVersion}`;
+            images.push(image);
+        }
+
+        if (launchServices.includes(Service.Minio)) {
+            const image = `${config.MINIO_DOCKER_IMAGE}:${options.minioVersion}`;
             images.push(image);
         }
 
@@ -89,27 +109,25 @@ export async function pullServices(suite: string, options: TestOptions): Promise
 export async function ensureServices(suite: string, options: TestOptions): Promise<() => void> {
     const launchServices = getServicesForSuite(suite);
 
-    try {
-        const promises: Promise<(() => void)>[] = [];
+    const promises: Promise<(() => void)>[] = [];
 
-        if (launchServices.includes(Service.Elasticsearch)) {
-            promises.push(ensureElasticsearch(options));
-        }
-
-        if (launchServices.includes(Service.Kafka)) {
-            promises.push(ensureKafka(options));
-        }
-
-        const fns = await Promise.all(promises);
-
-        return () => {
-            fns.forEach((fn) => fn());
-        };
-    } catch (err) {
-        throw new ts.TSError(err, {
-            message: `Failed to start services for test suite "${suite}"`,
-        });
+    if (launchServices.includes(Service.Elasticsearch)) {
+        promises.push(ensureElasticsearch(options));
     }
+
+    if (launchServices.includes(Service.Kafka)) {
+        promises.push(ensureKafka(options));
+    }
+
+    if (launchServices.includes(Service.Minio)) {
+        promises.push(ensureMinio(options));
+    }
+
+    const fns = await Promise.all(promises);
+
+    return () => {
+        fns.forEach((fn) => fn());
+    };
 }
 
 export async function ensureKafka(options: TestOptions): Promise<() => void> {
@@ -117,6 +135,14 @@ export async function ensureKafka(options: TestOptions): Promise<() => void> {
     const startTime = Date.now();
     fn = await startService(options, Service.Kafka);
     await checkKafka(options, startTime);
+    return fn;
+}
+
+export async function ensureMinio(options: TestOptions): Promise<() => void> {
+    let fn = () => {};
+    const startTime = Date.now();
+    fn = await startService(options, Service.Minio);
+    await checkMinio(options, startTime);
     return fn;
 }
 
@@ -140,7 +166,7 @@ async function stopService(service: Service) {
 }
 
 async function checkElasticsearch(options: TestOptions, startTime: number): Promise<void> {
-    const elasticsearchHost = config.ELASTICSEARCH_HOST;
+    const host = config.ELASTICSEARCH_HOST;
 
     const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
     if (dockerGateways.includes(config.ELASTICSEARCH_HOSTNAME)) return;
@@ -148,14 +174,14 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
     await ts.pWhile(
         async () => {
             if (options.trace) {
-                signale.debug(`checking elasticsearch at ${elasticsearchHost}`);
+                signale.debug(`checking elasticsearch at ${host}`);
             } else {
-                logger.debug(`checking elasticsearch at ${elasticsearchHost}`);
+                logger.debug(`checking elasticsearch at ${host}`);
             }
 
             let body: any;
             try {
-                ({ body } = await got(elasticsearchHost, {
+                ({ body } = await got(host, {
                     responseType: 'json',
                     throwHttpErrors: true,
                     retry: 0,
@@ -180,18 +206,66 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
             const satifies = semver.satisfies(actual, `^${expected}`);
             if (satifies) {
                 const took = ms(Date.now() - startTime);
-                signale.success(`elasticsearch@${actual} is running at ${elasticsearchHost}, took ${took}`);
+                signale.success(`elasticsearch@${actual} is running at ${host}, took ${took}`);
                 return true;
             }
 
             throw new ts.TSError(
-                `Elasticsearch at ${elasticsearchHost} does not satify required version of ${expected}, got ${actual}`,
+                `Elasticsearch at ${host} does not satisfy required version of ${expected}, got ${actual}`,
                 {
                     retryable: false,
                 }
             );
         },
         {
+            name: `Elasticsearch service (${host})`,
+            timeoutMs: ms('60s'),
+            enabledJitter: true,
+        }
+    );
+}
+
+async function checkMinio(options: TestOptions, startTime: number): Promise<void> {
+    const host = config.MINIO_HOST;
+
+    const dockerGateways = ['host.docker.internal', 'gateway.docker.internal'];
+    if (dockerGateways.includes(config.MINIO_HOSTNAME)) return;
+
+    await ts.pWhile(
+        async () => {
+            if (options.trace) {
+                signale.debug(`checking MinIO at ${host}`);
+            } else {
+                logger.debug(`checking MinIO at ${host}`);
+            }
+
+            let statusCode: number;
+            try {
+                ({ statusCode } = await got('minio/health/live', {
+                    prefixUrl: host,
+                    responseType: 'json',
+                    throwHttpErrors: false,
+                    retry: 0,
+                }));
+            } catch (err) {
+                statusCode = getErrorStatusCode(err);
+            }
+
+            if (options.trace) {
+                signale.debug('got response from MinIO service', { statusCode });
+            } else {
+                logger.debug('got response from MinIO service', { statusCode });
+            }
+
+            if (statusCode === 200) {
+                const took = ms(Date.now() - startTime);
+                signale.success(`MinIO is running at ${host}, took ${took}`);
+                return true;
+            }
+            return false;
+        },
+        {
+            name: `MinIO service (${host})`,
             timeoutMs: ms('60s'),
             enabledJitter: true,
         }

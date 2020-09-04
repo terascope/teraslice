@@ -229,6 +229,7 @@ export type DockerRunOptions = {
     tmpfs?: string[];
     env?: ExecEnv;
     network?: string;
+    args?: string[];
 };
 
 export async function dockerRun(opt: DockerRunOptions, tag = 'latest', debug?: boolean): Promise<() => void> {
@@ -271,6 +272,9 @@ export async function dockerRun(opt: DockerRunOptions, tag = 'latest', debug?: b
 
     args.push('--name', opt.name);
     args.push(`${opt.image}:${tag}`);
+    if (opt.args) {
+        args.push(...opt.args);
+    }
 
     let error: any;
     let stderr: any;

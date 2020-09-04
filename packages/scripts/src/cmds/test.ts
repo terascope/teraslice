@@ -20,6 +20,7 @@ type Options = {
     'elasticsearch-version': string;
     'elasticsearch-api-version': string;
     'kafka-version': string;
+    'minio-version': string;
     'use-existing-services': boolean;
     packages?: PackageInfo[];
 };
@@ -99,6 +100,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 type: 'string',
                 default: config.KAFKA_VERSION,
             })
+            .option('minio-version', {
+                description: 'The minio version to use',
+                type: 'string',
+                default: config.MINIO_VERSION,
+            })
             .positional('packages', {
                 description: 'Runs the test for one or more package, if none specified it will run all of the tests',
                 coerce(arg) {
@@ -122,6 +128,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         const elasticsearchVersion = hoistJestArg(argv, 'elasticsearch-version', 'string');
         const elasticsearchAPIVersion = hoistJestArg(argv, 'elasticsearch-api-version', 'string');
         const kafkaVersion = hoistJestArg(argv, 'kafka-version', 'string');
+        const minioVersion = hoistJestArg(argv, 'minio-version', 'string');
         const forceSuite = hoistJestArg(argv, 'force-suite', 'string');
 
         if (debug && watch) {
@@ -140,6 +147,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             elasticsearchVersion,
             elasticsearchAPIVersion,
             kafkaVersion,
+            minioVersion,
             all: !argv.packages || !argv.packages.length,
             reportCoverage,
             jestArgs,
@@ -147,10 +155,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
     },
 };
 
+type Arg = keyof Options;
 // this only works with booleans for now
-function hoistJestArg(argv: any, keys: string|(string[]), type: 'string'): string;
-function hoistJestArg(argv: any, keys: string|(string[]), type: 'boolean'): boolean;
-function hoistJestArg(argv: any, keys: string|(string[]), type: 'boolean'|'string'): boolean|string {
+function hoistJestArg(argv: any, keys: Arg|((Arg|string)[]), type: 'string'): string;
+function hoistJestArg(argv: any, keys: Arg|((Arg|string)[]), type: 'boolean'): boolean;
+function hoistJestArg(argv: any, keys: Arg|((Arg|string)[]), type: 'boolean'|'string'): boolean|string {
     let val: any;
 
     castArray(keys).forEach((key) => {

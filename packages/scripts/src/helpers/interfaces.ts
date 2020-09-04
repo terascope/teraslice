@@ -34,6 +34,7 @@ export type PackageInfo = {
 export enum Service {
     Kafka = 'kafka',
     Elasticsearch = 'elasticsearch',
+    Minio = 'minio',
 }
 
 export type PackageConfig = {

@@ -203,7 +203,7 @@ export async function pWhile(fn: PromiseFn, options: PWhileOptions = {}): Promis
             const timeout = checkTimeout();
             if (timeout !== false) {
                 reject(
-                    new TSError(`${name} timeout after ${toHumanTime(timeout)} while waiting`, {
+                    new TSError(`${name} timeout after ${toHumanTime(timeout)}`, {
                         statusCode: 503,
                     })
                 );
