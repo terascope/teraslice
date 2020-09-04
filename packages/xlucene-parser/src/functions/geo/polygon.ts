@@ -52,7 +52,7 @@ function validate(params: i.Term[]): { polygonShape: t.GeoShape; relation: t.Geo
     if (utils.isGeoShapePolygon(geoPointsValue) || utils.isGeoShapeMultiPolygon(geoPointsValue)) {
         polygonShape = geoPointsValue;
     } else {
-        if (!Array.isArray(geoPointsParam.value)) throw new utils.TSError('Invalid points parameter, it must either be a geoshape or be an array of geo-points');
+        if (!Array.isArray(geoPointsParam.value)) throw new utils.TSError('Invalid points parameter, it must either be a geoShape or be an array of geo-points');
 
         const points: t.CoordinateTuple[] = geoPointsParam.value.map((node) => {
             const value = node.value || node;
@@ -143,7 +143,7 @@ const geoPolygon: i.FunctionDefinition = {
         }
 
         function esPolyToPointQuery(field: string) {
-            // TODO: chech if points is a polygon with holes
+            // TODO: check if points is a polygon with holes
             if (utils.isGeoShapePolygon(polygonShape)) {
                 const query = makePolygonQuery(field, polygonShape.coordinates);
                 if (logger.level() === 10) logger.trace('built geo polygon to point query', { query });
