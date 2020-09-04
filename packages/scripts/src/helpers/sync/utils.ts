@@ -164,7 +164,7 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
         if (isMainPackage(pkgInfo)) {
             mainVersion = pkgInfo.version;
         }
-        if (pkgInfo.terascope.linkToMain) {
+        if (pkgInfo.terascope?.linkToMain) {
             linkedToMain.push(pkgInfo);
         }
     }
