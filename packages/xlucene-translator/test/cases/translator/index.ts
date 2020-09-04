@@ -7,9 +7,9 @@ import ipRange from './ip-range';
 export * from './interfaces';
 
 export default {
-    // term_level: termLevel,
-    // geo,
-    // field_group: fieldGroup,
-    // logical_group: logicalGroup,
+    term_level: termLevel,
+    geo,
+    field_group: fieldGroup,
+    logical_group: logicalGroup,
     ip_range: ipRange
 };
