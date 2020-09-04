@@ -23,7 +23,7 @@ export default [
     ],
     [
         'does not throw when types are not present',
-        '(ipfield:{"192.198.0.0" TO "192.198.0.255"] AND date:"2018-10-18T18:15:34.123Z") OR (str:foo* AND location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902"))',
+        '(ipField:{"192.198.0.0" TO "192.198.0.255"] AND date:"2018-10-18T18:15:34.123Z") OR (str:foo* AND location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902"))',
         [
             {},
             {
@@ -113,7 +113,7 @@ export default [
     ],
     [
         'can complex queries part4',
-        'date:[2018-10-10T19:30:00Z TO *] AND field1.subfield:value AND field2:(1 OR 2 OR 5 OR 20 OR 50 OR 60) AND NOT (field3:15 AND field4:sometext) AND NOT field5:value2',
+        'date:[2018-10-10T19:30:00Z TO *] AND field1.subfield:value AND field2:(1 OR 2 OR 5 OR 20 OR 50 OR 60) AND NOT (field3:15 AND field4:someText) AND NOT field5:value2',
         [
             {
                 date: '2018-11-10T19:30:00Z',
@@ -128,7 +128,7 @@ export default [
                 field1: { subfield: 'value' },
                 field2: 2,
                 field3: 25,
-                field4: 'sometext',
+                field4: 'someText',
                 field5: 'other',
             },
             {
@@ -136,7 +136,7 @@ export default [
                 field1: { subfield: 'value' },
                 field2: 60,
                 field3: 25,
-                field4: 'sometext',
+                field4: 'someText',
                 field5: 'value2',
             },
             {
@@ -144,7 +144,7 @@ export default [
                 field1: { subfield: 'value' },
                 field2: 60,
                 field3: 15,
-                field4: 'sometext',
+                field4: 'someText',
                 field5: 'other',
             },
             {
