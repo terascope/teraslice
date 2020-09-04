@@ -706,7 +706,7 @@ describe('IndexStore', () => {
                                 refresh: false,
                             };
                             if (indexStore.esVersion >= 7) {
-                                delete indexParams.type;
+                                delete (indexParams as any).type;
                             }
                             return _client.index(indexParams);
                         }

@@ -1,7 +1,7 @@
 import { Many, ListOfRecursiveArraysOrValues } from './interfaces';
 import { get } from './deps';
 
-/** A native implemation of lodash flatten */
+/** A native implementation of lodash flatten */
 export function flatten<T>(val: Many<T[]>): T[] {
     return val.reduce((a, b) => a.concat(b), []);
 }
@@ -15,7 +15,7 @@ export function flattenDeep<T>(val: ListOfRecursiveArraysOrValues<T>): T[] {
     }, []) as any;
 }
 
-/** A simplified implemation of lodash castArray */
+/** A simplified implementation of lodash castArray */
 export function castArray<T>(input: T|undefined|null|T[]): T[] {
     if (input == null) return [];
     if (Array.isArray(input)) return input;
@@ -33,7 +33,7 @@ export function concat<T>(arr: T|T[], arr1?: T|T[]): T[] {
     );
 }
 
-/** A native implemation of lodash uniq */
+/** A native implementation of lodash uniq */
 export function uniq<T>(arr: T[]|Set<T>): T[] {
     if (arr instanceof Set) return [...arr];
     return [...new Set(arr)];
@@ -75,10 +75,10 @@ export function sortBy<T, V = any>(
     });
 }
 
-function _getValFnOrPath<T, V = any>(value: T, fnOrPath: ((value: T) => V)|string): V {
+function _getValFnOrPath<T, V = any>(input: T, fnOrPath: ((value: T) => V)|string): V {
     const uniqVal = typeof fnOrPath === 'function'
-        ? fnOrPath(value)
-        : get(value, fnOrPath);
+        ? fnOrPath(input)
+        : get(input, fnOrPath);
     return uniqVal;
 }
 
@@ -101,7 +101,7 @@ export function uniqBy<T, V = any>(
     return result;
 }
 
-/** A native implemation of lodash times */
+/** A native implementation of lodash times */
 export function times(n: number): number[];
 export function times<T>(n: number, fn: (index: number) => T): T[];
 export function times<T>(n: number, fn?: (index: number) => T): (T[])|(number[]) {

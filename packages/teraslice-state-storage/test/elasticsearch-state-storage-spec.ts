@@ -543,7 +543,7 @@ class TestClient {
             } else {
                 // @ts-expect-error
                 response._type = null;
-                delete response._version;
+                delete (response as any)._version;
             }
 
             return response;

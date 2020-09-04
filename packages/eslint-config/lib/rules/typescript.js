@@ -20,7 +20,7 @@ module.exports = Object.assign({}, jsRules, {
     '@typescript-eslint/explicit-member-accessibility': 'off',
     '@typescript-eslint/no-empty-function': 'off',
 
-    // we SHOULD really make this an error but we've become depedent on it
+    // we SHOULD really make this an error but we've become dependent on it
     '@typescript-eslint/ban-ts-comment': ['warn', {
         'ts-expect-error': false,
         'ts-ignore': true,
@@ -54,6 +54,11 @@ module.exports = Object.assign({}, jsRules, {
             enforceForArrowConditionals: false
         }
     ],
+    'no-redeclare': 'off',
+    '@typescript-eslint/no-redeclare': ['error'],
+    'no-undef': 'off',
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': ['error'],
     'func-call-spacing': 'off',
     '@typescript-eslint/func-call-spacing': ['error', 'never'],
     indent: 'off',

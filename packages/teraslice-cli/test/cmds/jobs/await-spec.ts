@@ -1,14 +1,14 @@
 import yargs from 'yargs';
-import await from '../../../src/cmds/jobs/await';
+import awaitJob from '../../../src/cmds/jobs/await';
 
 describe('jobs await', () => {
     describe('-> parse', () => {
         it('should parse properly with a job id', () => {
             const yargsCmd = yargs.command(
                 // @ts-expect-error
-                await.command,
-                await.describe,
-                await.builder,
+                awaitJob.command,
+                awaitJob.describe,
+                awaitJob.builder,
                 () => true
             );
 
@@ -23,9 +23,9 @@ describe('jobs await', () => {
         it('should parse properly with options', () => {
             const yargsCmd = yargs.command(
                 // @ts-expect-error
-                await.command,
-                await.describe,
-                await.builder,
+                awaitJob.command,
+                awaitJob.describe,
+                awaitJob.builder,
                 () => true
             );
 
