@@ -82,7 +82,7 @@ export function extract(
     {
         regex, isMultiValue = true, jexlExp, start, end
     }: ExtractFieldConfig
-) {
+): RecordInput|null {
     if (ts.isNil(input)) return null;
 
     function getSubslice() {
@@ -181,7 +181,7 @@ export function transformRecord(
     input: RecordInput,
     parentContext: RecordInput,
     args: { jexlExp: string; field: string }
-) {
+): RecordInput|null {
     if (ts.isNil(input)) return null;
     if (ts.isNil(args)) throw new Error('Argument parameters must be provided');
     if (!FieldValidator.isString(args.jexlExp) || !FieldValidator.isLength(args.jexlExp, parentContext, { min: 1 })) throw new Error('Argument parameter jexlExp must must be provided and be a string value');
