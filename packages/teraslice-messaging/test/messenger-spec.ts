@@ -185,7 +185,7 @@ describe('Messenger', () => {
         let clientId: string;
         let client: Messenger.Client;
         let server: Messenger.Server;
-        type ClientFn = (clientId: string) => void;
+        type ClientFn = (id: string) => void;
         let clientAvailableFn: ClientFn;
         const clientUnavailableFn: ClientFn = jest.fn();
         const clientOnlineFn: ClientFn = jest.fn();

@@ -1,6 +1,6 @@
 import { MACAddress } from '@terascope/types';
 
-/** A simplified implemation of lodash isString */
+/** A simplified implementation of lodash isString */
 export function isString(val: unknown): val is string {
     return typeof val === 'string';
 }
@@ -93,7 +93,7 @@ export function unescapeString(str = ''): string {
     return unescaped;
 }
 
-/** A native implemation of lodash startsWith */
+/** A native implementation of lodash startsWith */
 export function startsWith(str: string, val: string): boolean {
     if (!isString(val)) return false;
     return str.startsWith(val);

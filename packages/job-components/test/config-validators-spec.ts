@@ -37,7 +37,7 @@ describe('when using native clustering', () => {
             };
 
             const jobConfig = validateJobConfig(schema, job);
-            delete jobConfig.workers;
+            delete (jobConfig as any).workers;
             expect(jobConfig).toMatchObject(validJob);
         });
     });
@@ -495,7 +495,7 @@ describe('when using native clustering', () => {
                 };
 
                 const jobConfig = validateJobConfig(schema, job);
-                delete jobConfig.workers;
+                delete (jobConfig as any).workers;
                 expect(jobConfig).toMatchObject(validJob);
             });
         });
@@ -661,7 +661,7 @@ describe('when validating k8s clustering', () => {
             };
 
             const jobConfig = validateJobConfig(schema, job);
-            delete jobConfig.workers;
+            delete (jobConfig as any).workers;
             expect(jobConfig).toMatchObject(validJob);
         });
     });
@@ -707,7 +707,7 @@ describe('when validating k8s clustering', () => {
             };
 
             const jobConfig = validateJobConfig(schema, job);
-            delete jobConfig.workers;
+            delete (jobConfig as any).workers;
             expect(jobConfig).toMatchObject(validJob);
         });
     });
