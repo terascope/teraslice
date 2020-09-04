@@ -14,6 +14,7 @@ export type TestOptions = {
     elasticsearchVersion: string;
     elasticsearchAPIVersion: string;
     kafkaVersion: string;
+    minioVersion: string;
     jestArgs?: string[];
 };
 

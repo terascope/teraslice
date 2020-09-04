@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 /**
  * Omit the properties available to type.
  * Useful for excluding properties from a type
@@ -100,6 +101,7 @@ export type FilteredResult<T, I extends(keyof T), E extends (keyof T)> = {
 */
 export type Unpacked<T> =
 T extends (infer U)[] ? U :
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     T extends (...args: any[]) => infer U ? U :
         T extends Promise<infer U> ? U :
             T;

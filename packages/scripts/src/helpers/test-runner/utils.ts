@@ -71,7 +71,14 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
         HOST_IP: config.HOST_IP,
         NODE_ENV: 'test',
         FORCE_COLOR: config.FORCE_COLOR,
+        TEST_NAMESPACE: config.TEST_NAMESPACE,
     };
+
+    if (config.DOCKER_NETWORK_NAME) {
+        Object.assign(env, {
+            DOCKER_NETWORK_NAME: config.DOCKER_NETWORK_NAME
+        });
+    }
 
     const launchServices: Service[] = suite ? getServicesForSuite(suite) : [];
 
@@ -84,9 +91,12 @@ export function getEnv(options: TestOptions, suite?: string): ExecEnv {
         });
     }
 
-    if (config.DOCKER_NETWORK_NAME) {
+    if (launchServices.includes(Service.Minio)) {
         Object.assign(env, {
-            DOCKER_NETWORK_NAME: config.DOCKER_NETWORK_NAME
+            MINIO_HOST: config.MINIO_HOST,
+            MINIO_VERSION: options.minioVersion,
+            MINIO_ACCESS_KEY: config.MINIO_ACCESS_KEY,
+            MINIO_SECRET_KEY: config.MINIO_SECRET_KEY,
         });
     }
 

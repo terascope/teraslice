@@ -42,7 +42,7 @@ export async function generateTSConfig(
             }
         },
         include: [],
-        // these project references should be ordered by dependants first
+        // these project references should be ordered by dependents first
         references
     };
 

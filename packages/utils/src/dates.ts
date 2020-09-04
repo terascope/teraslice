@@ -5,7 +5,7 @@ export function makeISODate(): string {
     return new Date().toISOString();
 }
 
-/** A simplified implemation of moment(new Date(val)).isValid() */
+/** A simplified implementation of moment(new Date(val)).isValid() */
 export function isValidDate(val: unknown): boolean {
     return getValidDate(val) !== false;
 }

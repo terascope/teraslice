@@ -1,10 +1,10 @@
-/** A simplified implemation of lodash isInteger */
+/** A simplified implementation of lodash isInteger */
 export function isInteger(val: unknown): val is number {
     if (typeof val !== 'number') return false;
     return Number.isInteger(val);
 }
 
-/** A native implemation of lodash random */
+/** A native implementation of lodash random */
 export function random(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }

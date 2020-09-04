@@ -28,6 +28,15 @@ export const KAFKA_BROKER = `${KAFKA_HOSTNAME}:${KAFKA_PORT}`;
 export const KAFKA_VERSION = process.env.KAFKA_VERSION || '2.3';
 export const KAFKA_DOCKER_IMAGE = process.env.KAFKA_DOCKER_IMAGE || 'blacktop/kafka';
 
+export const MINIO_NAME = process.env.MINIO_NAME || 'minio';
+export const MINIO_HOSTNAME = process.env.MINIO_HOSTNAME || HOST_IP;
+export const MINIO_PORT = process.env.MINIO_PORT || '49000';
+export const MINIO_HOST = `http://${MINIO_HOSTNAME}:${MINIO_PORT}`;
+export const MINIO_VERSION = process.env.MINIO_VERSION || 'RELEASE.2020-02-07T23-28-16Z';
+export const MINIO_DOCKER_IMAGE = process.env.MINIO_DOCKER_IMAGE || 'minio/minio';
+export const MINIO_ACCESS_KEY = process.env.MINIO_ACCESS_KEY || 'minioadmin';
+export const MINIO_SECRET_KEY = process.env.MINIO_SECRET_KEY || 'minioadmin';
+
 // make sure the string doesn't contain unwanted characters
 export const DEV_TAG = toSafeString((
     process.env.DEV_TAG

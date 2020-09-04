@@ -202,7 +202,7 @@ export function updatePkgJSON(
         updatePkgInfo(pkgInfo as i.PackageInfo);
     }
 
-    const pkgJSON = getSortedPkgJSON(pkgInfo);
+    const pkgJSON = getSortedPkgJSON(pkgInfo) as Partial<i.PackageInfo>;
     delete pkgJSON.folderName;
     delete pkgJSON.dir;
     delete pkgJSON.relativeDir;

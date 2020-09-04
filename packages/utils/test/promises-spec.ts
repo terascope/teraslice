@@ -186,6 +186,6 @@ describe('Utils', () => {
             return expect(pWhile(fn, defaultOptions)).rejects.toThrow('Uh oh');
         });
 
-        it('should run until it times out', async () => expect(pWhile(async () => false, defaultOptions)).rejects.toThrow(/Request timeout after \d+(ms|sec) while waiting/));
+        it('should run until it times out', async () => expect(pWhile(async () => false, defaultOptions)).rejects.toThrow(/Request timeout after \d+(ms|sec)/));
     });
 });
