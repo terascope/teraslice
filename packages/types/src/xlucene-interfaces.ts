@@ -2,6 +2,7 @@ export enum xLuceneFieldType {
     Geo = 'geo',
     Date = 'date',
     IP = 'ip',
+    IPRange = 'ip_range',
     String = 'string',
     AnalyzedString = '~string',
     Integer = 'integer',
