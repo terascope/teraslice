@@ -80,7 +80,7 @@ describe('DataMate Plugin', () => {
             });
         });
 
-        it('can properly validate missing properties and output:false', async () => {
+        it('can properly validate missing properties with output:false', async () => {
             const rules = parseRules([
                 { source_field: 'name', target_field: 'name', other_match_required: true },
                 { source_field: 'state', target_field: 'place', tag: 'stateName' },
@@ -106,7 +106,7 @@ describe('DataMate Plugin', () => {
             expect(results[0]).toEqual(DataEntity.make({ name: 'mel', place: 'colorado' }));
         });
 
-        it('can properly validate missing properties for array values and output:false', async () => {
+        it('can properly validate missing properties for array values with output:false', async () => {
             const rules = parseRules([
                 { source_field: 'name', target_field: 'name', other_match_required: true },
                 { source_field: 'state', target_field: 'place', tag: 'stateName' },
