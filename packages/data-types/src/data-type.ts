@@ -1,5 +1,8 @@
 import * as ts from '@terascope/utils';
 import {
+    DataTypeConfig,
+    DataTypeFields,
+    DataTypeVersion,
     ESMapping,
     ESTypeMappings,
     xLuceneTypeConfig
@@ -22,8 +25,8 @@ import { getTypes, LATEST_VERSION, getGroupedFields } from './types';
 export class DataType {
     readonly name!: string;
     readonly description?: string;
-    readonly fields: i.TypeConfigFields;
-    readonly version: i.AvailableVersion;
+    readonly fields: DataTypeFields;
+    readonly version: DataTypeVersion;
     /** An object of base fields with their child fields */
     readonly groupedFields: i.GroupedFields;
 
@@ -87,7 +90,7 @@ export class DataType {
         return formatSchema(strSchema, removeScalars);
     }
 
-    constructor(config: Partial<i.DataTypeConfig>, typeName?: string, description?: string) {
+    constructor(config: Partial<DataTypeConfig>, typeName?: string, description?: string) {
         if (typeName) this.name = typeName;
         if (description) this.description = description;
 

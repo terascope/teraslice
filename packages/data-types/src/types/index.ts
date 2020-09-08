@@ -1,14 +1,17 @@
 import * as ts from '@terascope/utils';
+import {
+    DataTypeFieldConfig, DataTypeFields, DataTypeVersion, FieldType
+} from '@terascope/types';
 import { mapping } from './mapping';
 import {
-    FieldTypeConfig, AvailableVersion, TypeConfigFields, GroupedFields
+    GroupedFields
 } from '../interfaces';
 import GroupType, { NestedTypes } from './group-type';
 import BaseType, { IBaseType } from './base-type';
 
-export const LATEST_VERSION: AvailableVersion = 1;
+export const LATEST_VERSION: DataTypeVersion = 1;
 
-export function getGroupedFields(fields: TypeConfigFields): GroupedFields {
+export function getGroupedFields(fields: DataTypeFields): GroupedFields {
     const groupFields: GroupedFields = {};
     for (const field of Object.keys(fields)) {
         const [base] = field.split('.');
@@ -29,7 +32,7 @@ export function getGroupedFields(fields: TypeConfigFields): GroupedFields {
  * @todo support multiple levels deep nesting
 */
 export function getTypes(
-    fields: TypeConfigFields,
+    fields: DataTypeFields,
     groupedFields: GroupedFields,
     version = LATEST_VERSION
 ): BaseType[] {
@@ -63,15 +66,15 @@ export function getTypes(
 
 export type GetGroupTypeArg = {
     base: string;
-    fields: { field: string; config?: FieldTypeConfig }[];
-    version?: AvailableVersion;
+    fields: { field: string; config?: DataTypeFieldConfig }[];
+    version?: DataTypeVersion;
 };
 
 function getGroupType({
     base, fields, version = LATEST_VERSION
 }: GetGroupTypeArg): GroupType {
-    const objConfig: FieldTypeConfig = {
-        type: 'Object',
+    const objConfig: DataTypeFieldConfig = {
+        type: FieldType.Object,
     };
 
     const nestedTypes: NestedTypes = {};
@@ -93,8 +96,8 @@ function getGroupType({
 
 export type GetTypeArg = {
     field: string;
-    config: FieldTypeConfig;
-    version?: AvailableVersion;
+    config: DataTypeFieldConfig;
+    version?: DataTypeVersion;
 };
 
 export function getType({
