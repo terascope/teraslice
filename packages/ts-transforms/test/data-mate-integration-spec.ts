@@ -40,7 +40,7 @@ describe('DataMate Plugin', () => {
             ]);
 
             const test = await opTest.init(config);
-            const results = await test.run(data);
+            const results = test.run(data);
 
             expect(results.length).toEqual(1);
             results.forEach((d) => {
@@ -70,7 +70,7 @@ describe('DataMate Plugin', () => {
             ]);
 
             const test = await opTest.init(config);
-            const results = await test.run(data);
+            const results = test.run(data);
 
             expect(results.length).toEqual(2);
             results.forEach((d) => {
@@ -153,7 +153,7 @@ describe('DataMate Plugin', () => {
             ]);
 
             const test = await opTest.init(config);
-            const results = await test.run(data);
+            const results = test.run(data);
 
             expect(results.length).toEqual(2);
             expect(results).toEqual([{ next: 3 }, { next: [1, 3] }]);
@@ -208,7 +208,7 @@ describe('DataMate Plugin', () => {
             ]);
 
             const test = await opTest.init(config);
-            const results = await test.run(data);
+            const results = test.run(data);
 
             expect(results.length).toEqual(1);
             results.forEach((d) => {
@@ -239,7 +239,7 @@ describe('DataMate Plugin', () => {
             ]);
 
             const test = await opTest.init(config);
-            const results = await test.run(data);
+            const results = test.run(data);
 
             expect(results.length).toEqual(1);
             results.forEach((d) => {
@@ -270,7 +270,7 @@ describe('DataMate Plugin', () => {
             ]);
 
             const test = await opTest.init(config);
-            const results = await test.run(data);
+            const results = test.run(data);
 
             expect(results.length).toEqual(1);
             results.forEach((d) => {
@@ -303,7 +303,7 @@ describe('DataMate Plugin', () => {
             ]);
 
             const test = await opTest.init(config);
-            const results = await test.run(data);
+            const results = test.run(data);
 
             expect(results.length).toEqual(1);
             results.forEach((d) => {
@@ -336,7 +336,7 @@ describe('DataMate Plugin', () => {
             ]);
 
             const test = await opTest.init(config);
-            const results = await test.run(data);
+            const results = test.run(data);
 
             expect(results.length).toEqual(1);
             results.forEach((d) => {
