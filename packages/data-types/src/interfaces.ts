@@ -5,6 +5,7 @@ import {
     DataTypeFields, DataTypeConfig,
     DeprecatedFieldType,
 } from '@terascope/types';
+
 import BaseType from './types/base-type';
 
 /** An object of base fields with their child fields */
@@ -71,6 +72,10 @@ type ActualType = {
 
 export type DataTypeMapping = { [key in AvailableVersion]: ActualType };
 
+/**
+ * @deprecated use `DataTypeFields` from `@terascope/types`
+*/
+export type TypeConfigFields = DataTypeFields;
 
 export { DataTypeConfig };
 
