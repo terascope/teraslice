@@ -1,11 +1,13 @@
-import { DataTypeFieldConfig } from '@terascope/types';
+import { DataTypeFieldConfig, Maybe } from '@terascope/types';
 
 export class Column<T = unknown> {
-    readonly distinct: T[];
-    readonly indices: number[];
+    constructor(
+        readonly name: string,
+        readonly config: DataTypeFieldConfig,
+        readonly values: Maybe<T>[]
+    ) {}
 
-    constructor(readonly name: string, readonly config: DataTypeFieldConfig, _values: T[]) {
-        this.distinct = [];
-        this.indices = [];
+    get length(): number {
+        return this.values.length;
     }
 }
