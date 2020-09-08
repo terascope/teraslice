@@ -47,7 +47,7 @@
 <h3><a class="anchor" aria-hidden="true" id="initialize"></a><a href="#initialize" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>initialize</h3>
 <p>▸ <strong>initialize</strong>(<code>initConfig?</code>: any): <em>Promise‹void›</em></p>
 <p><em>Inherited from <a href="/teraslice/docs/packages/job-components/api/interfaces/sliceoperation">SliceOperation</a>.<a href="/teraslice/docs/packages/job-components/api/interfaces/sliceoperation#initialize">initialize</a></em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/26e219f/packages/job-components/src/interfaces/operation-lifecycle.ts#L11">packages/job-components/src/interfaces/operation-lifecycle.ts:11</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/65e96d0/packages/job-components/src/interfaces/operation-lifecycle.ts#L11">packages/job-components/src/interfaces/operation-lifecycle.ts:11</a></em></p>
 <p>Called during execution initialization,
 when this is called perform any async setup.</p>
 <p><strong>Parameters:</strong></p>
@@ -63,7 +63,7 @@ when this is called perform any async setup.</p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="optional-onflushend"></a><a href="#optional-onflushend" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Optional</code> onFlushEnd</h3>
 <p>▸ <strong>onFlushEnd</strong>(<code>sliceId</code>: string): <em>Promise‹void›</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/26e219f/packages/job-components/src/interfaces/operation-lifecycle.ts#L90">packages/job-components/src/interfaces/operation-lifecycle.ts:90</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/65e96d0/packages/job-components/src/interfaces/operation-lifecycle.ts#L90">packages/job-components/src/interfaces/operation-lifecycle.ts:90</a></em></p>
 <p>Called to notify the processors that the slice is finished being flushed
 (shutdown will likely be called immediately afterwards)</p>
 <p><strong>Parameters:</strong></p>
@@ -79,7 +79,7 @@ when this is called perform any async setup.</p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="optional-onflushstart"></a><a href="#optional-onflushstart" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Optional</code> onFlushStart</h3>
 <p>▸ <strong>onFlushStart</strong>(<code>sliceId</code>: string): <em>Promise‹void›</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/26e219f/packages/job-components/src/interfaces/operation-lifecycle.ts#L84">packages/job-components/src/interfaces/operation-lifecycle.ts:84</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/65e96d0/packages/job-components/src/interfaces/operation-lifecycle.ts#L84">packages/job-components/src/interfaces/operation-lifecycle.ts:84</a></em></p>
 <p>Called to notify the processors that the next slice being
 passed through will be an empty slice used to flush
 any additional in-memory state.</p>
@@ -96,7 +96,7 @@ any additional in-memory state.</p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="optional-onoperationcomplete"></a><a href="#optional-onoperationcomplete" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Optional</code> onOperationComplete</h3>
 <p>▸ <strong>onOperationComplete</strong>(<code>sliceId</code>: string, <code>index</code>: number, <code>processed</code>: number, <code>records</code>: DataEntity[]): <em>void</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/26e219f/packages/job-components/src/interfaces/operation-lifecycle.ts#L72">packages/job-components/src/interfaces/operation-lifecycle.ts:72</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/65e96d0/packages/job-components/src/interfaces/operation-lifecycle.ts#L72">packages/job-components/src/interfaces/operation-lifecycle.ts:72</a></em></p>
 <p>Called immediately after an operation has ended</p>
 <p><strong>Parameters:</strong></p>
 <table>
@@ -114,7 +114,7 @@ any additional in-memory state.</p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="optional-onoperationstart"></a><a href="#optional-onoperationstart" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Optional</code> onOperationStart</h3>
 <p>▸ <strong>onOperationStart</strong>(<code>sliceId</code>: string, <code>index</code>: number): <em>void</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/26e219f/packages/job-components/src/interfaces/operation-lifecycle.ts#L62">packages/job-components/src/interfaces/operation-lifecycle.ts:62</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/65e96d0/packages/job-components/src/interfaces/operation-lifecycle.ts#L62">packages/job-components/src/interfaces/operation-lifecycle.ts:62</a></em></p>
 <p>Called immediately before an operation is started</p>
 <p><strong>Parameters:</strong></p>
 <table>
@@ -130,7 +130,7 @@ any additional in-memory state.</p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="optional-onslicefailed"></a><a href="#optional-onslicefailed" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Optional</code> onSliceFailed</h3>
 <p>▸ <strong>onSliceFailed</strong>(<code>sliceId</code>: string): <em>Promise‹void›</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/26e219f/packages/job-components/src/interfaces/operation-lifecycle.ts#L45">packages/job-components/src/interfaces/operation-lifecycle.ts:45</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/65e96d0/packages/job-components/src/interfaces/operation-lifecycle.ts#L45">packages/job-components/src/interfaces/operation-lifecycle.ts:45</a></em></p>
 <p>Called after the slice has been marked as &quot;Failed&quot;</p>
 <p><strong>Parameters:</strong></p>
 <table>
@@ -145,7 +145,7 @@ any additional in-memory state.</p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="optional-onslicefinalizing"></a><a href="#optional-onslicefinalizing" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Optional</code> onSliceFinalizing</h3>
 <p>▸ <strong>onSliceFinalizing</strong>(<code>sliceId</code>: string): <em>Promise‹void›</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/26e219f/packages/job-components/src/interfaces/operation-lifecycle.ts#L35">packages/job-components/src/interfaces/operation-lifecycle.ts:35</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/65e96d0/packages/job-components/src/interfaces/operation-lifecycle.ts#L35">packages/job-components/src/interfaces/operation-lifecycle.ts:35</a></em></p>
 <p>Called after a slice is done with the last operation in the execution</p>
 <p><strong>Parameters:</strong></p>
 <table>
@@ -160,7 +160,7 @@ any additional in-memory state.</p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="optional-onslicefinished"></a><a href="#optional-onslicefinished" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Optional</code> onSliceFinished</h3>
 <p>▸ <strong>onSliceFinished</strong>(<code>sliceId</code>: string): <em>Promise‹void›</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/26e219f/packages/job-components/src/interfaces/operation-lifecycle.ts#L40">packages/job-components/src/interfaces/operation-lifecycle.ts:40</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/65e96d0/packages/job-components/src/interfaces/operation-lifecycle.ts#L40">packages/job-components/src/interfaces/operation-lifecycle.ts:40</a></em></p>
 <p>Called after the slice has been acknowledged by the &quot;Execution Controller&quot;</p>
 <p><strong>Parameters:</strong></p>
 <table>
@@ -175,7 +175,7 @@ any additional in-memory state.</p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="optional-onsliceinitialized"></a><a href="#optional-onsliceinitialized" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Optional</code> onSliceInitialized</h3>
 <p>▸ <strong>onSliceInitialized</strong>(<code>sliceId</code>: string): <em>Promise‹void›</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/26e219f/packages/job-components/src/interfaces/operation-lifecycle.ts#L25">packages/job-components/src/interfaces/operation-lifecycle.ts:25</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/65e96d0/packages/job-components/src/interfaces/operation-lifecycle.ts#L25">packages/job-components/src/interfaces/operation-lifecycle.ts:25</a></em></p>
 <p>Called after a slice is initializated, but before the slice
 has been handed to any operation.</p>
 <p><strong>Parameters:</strong></p>
@@ -191,7 +191,7 @@ has been handed to any operation.</p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="optional-onsliceretry"></a><a href="#optional-onsliceretry" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Optional</code> onSliceRetry</h3>
 <p>▸ <strong>onSliceRetry</strong>(<code>sliceId</code>: string): <em>Promise‹void›</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/26e219f/packages/job-components/src/interfaces/operation-lifecycle.ts#L53">packages/job-components/src/interfaces/operation-lifecycle.ts:53</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/65e96d0/packages/job-components/src/interfaces/operation-lifecycle.ts#L53">packages/job-components/src/interfaces/operation-lifecycle.ts:53</a></em></p>
 <p>Called after the operation failed to process the slice
 but before the slice is retried.</p>
 <p><strong>NOTE:</strong> A retry can be stopped by throw an error inside this function</p>
@@ -208,7 +208,7 @@ but before the slice is retried.</p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="optional-onslicestarted"></a><a href="#optional-onslicestarted" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Optional</code> onSliceStarted</h3>
 <p>▸ <strong>onSliceStarted</strong>(<code>sliceId</code>: string): <em>Promise‹void›</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/26e219f/packages/job-components/src/interfaces/operation-lifecycle.ts#L30">packages/job-components/src/interfaces/operation-lifecycle.ts:30</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/65e96d0/packages/job-components/src/interfaces/operation-lifecycle.ts#L30">packages/job-components/src/interfaces/operation-lifecycle.ts:30</a></em></p>
 <p>Called after a the slice is sent to the &quot;Fetcher&quot;</p>
 <p><strong>Parameters:</strong></p>
 <table>
@@ -224,7 +224,7 @@ but before the slice is retried.</p>
 <h3><a class="anchor" aria-hidden="true" id="shutdown"></a><a href="#shutdown" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>shutdown</h3>
 <p>▸ <strong>shutdown</strong>(): <em>Promise‹void›</em></p>
 <p><em>Inherited from <a href="/teraslice/docs/packages/job-components/api/interfaces/operationlifecycle">OperationLifeCycle</a>.<a href="/teraslice/docs/packages/job-components/api/interfaces/operationlifecycle#shutdown">shutdown</a></em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/26e219f/packages/job-components/src/interfaces/operation-lifecycle.ts#L17">packages/job-components/src/interfaces/operation-lifecycle.ts:17</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/65e96d0/packages/job-components/src/interfaces/operation-lifecycle.ts#L17">packages/job-components/src/interfaces/operation-lifecycle.ts:17</a></em></p>
 <p>Called during execution shutdown,
 when this is cleanup any open connections or destroy any in-memory state.</p>
 <p><strong>Returns:</strong> <em>Promise‹void›</em></p>
