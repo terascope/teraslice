@@ -10,6 +10,7 @@ FieldTransform.extract = extract;
 RecordTransform.repository.transformRecord = transformRecordConfig;
 RecordTransform.transformRecord = transformRecord;
 
+export * from './data-frame';
 export * from './transforms/helpers';
 export * from './aggregations';
 export * from './validations';
