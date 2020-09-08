@@ -1,8 +1,9 @@
-import { xLuceneFieldType, ESFieldType } from '@terascope/types';
+import { xLuceneFieldType, ESFieldType, xLuceneTypeConfig } from '@terascope/types';
 import BaseType, { ToGraphQLOptions } from '../base-type';
+import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class Boundary extends BaseType {
-    toESMapping(_version?: number) {
+    toESMapping(_version?: number): TypeESMapping {
         return {
             mapping: {
                 [this.field]: {
@@ -15,7 +16,7 @@ export default class Boundary extends BaseType {
         };
     }
 
-    toGraphQL({ isInput }: ToGraphQLOptions = {}) {
+    toGraphQL({ isInput }: ToGraphQLOptions = {}) :GraphQLType {
         const defType = isInput ? 'input' : 'type';
         const name = this._formatGQLTypeName('GeoBoundary', isInput);
         const customType = `
@@ -27,7 +28,7 @@ export default class Boundary extends BaseType {
         return this._formatGql(`[${name}]`, customType);
     }
 
-    toXlucene() {
+    toXlucene(): xLuceneTypeConfig {
         return { [this.field]: xLuceneFieldType.Geo };
     }
 }

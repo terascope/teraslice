@@ -63,7 +63,7 @@ function makeCustomTypes(customType?: string|(string[])): string[] {
     return ts.castArray(customType);
 }
 
-export function formatGQLType(type: string, desc?: string) {
+export function formatGQLType(type: string, desc?: string):string {
     if (!desc) return type;
     return `${formatGQLComment(desc)}\n${type}`;
 }

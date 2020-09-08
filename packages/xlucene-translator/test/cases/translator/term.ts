@@ -46,17 +46,17 @@ export default [
         },
     ],
     [
-        'firstname.text:/[A-Z]+/',
+        'firstName.text:/[A-Z]+/',
         'query.constant_score.filter',
         {
             query_string: {
-                fields: ['firstname.text'],
+                fields: ['firstName.text'],
                 query: '/[A-Z]+/',
             },
         },
         {
             type_config: {
-                firstname: xLuceneFieldType.String
+                firstName: xLuceneFieldType.String
             }
         }
     ],

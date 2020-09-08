@@ -62,10 +62,10 @@ export default [
         [
             { location: { lat: '33.435967', lon: '-111.867710' } },
             { location: { latitude: '33.435967', longitude: '-111.867710' } },
-            // Techincally elasticsearch can take data3 as an array of numbers,
+            // Technically elasticsearch can take data3 as an array of numbers,
             // but we are ignoring that right now
             { location: ['33.435967, -111.867710'] },
-            // this is a geohash below
+            // this is a geoHash below
             { location: '9tbqnqu6tkj8' },
         ],
         [true, true, true, true],

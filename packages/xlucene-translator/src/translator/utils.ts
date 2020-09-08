@@ -138,7 +138,7 @@ export function translateQuery(
             },
         };
 
-        logger.trace('built mutli-match query', { node, multiMatchQuery });
+        logger.trace('built multi-match query', { node, multiMatchQuery });
         return multiMatchQuery;
     }
 

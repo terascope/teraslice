@@ -21,22 +21,22 @@ describe('Document-Matcher', () => {
         });
     }
 
-    it('should not mutate the orignal data', () => {
+    it('should not mutate the original data', () => {
         const data = {
             key: 'abbccc',
-            ipfield: '192.198.0.0/30',
+            ipField: '192.198.0.0/30',
             location: '33.435967,-111.867710',
             _created: '2018-11-18T18:13:20.683Z'
         };
 
         const clone = cloneDeep(data);
         const typeConfig: xLuceneTypeConfig = {
-            ipfield: xLuceneFieldType.IP,
+            ipField: xLuceneFieldType.IP,
             _created: xLuceneFieldType.Date,
             location: xLuceneFieldType.Geo
         };
 
-        const query = 'ipfield:[192.198.0.0 TO 192.198.0.255] AND _created:[2018-10-18T18:13:20.683Z TO *] AND key:/ab{2}c{3}/ AND location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902")';
+        const query = 'ipField:[192.198.0.0 TO 192.198.0.255] AND _created:[2018-10-18T18:13:20.683Z TO *] AND key:/ab{2}c{3}/ AND location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902")';
         const documentMatcher = new DocumentMatcher(query, {
             type_config: typeConfig
         });

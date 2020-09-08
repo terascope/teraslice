@@ -278,7 +278,7 @@ export function isGeoPoint(input: unknown, _parentContext?: unknown): boolean {
 }
 
 /**
- * Checks to see if input is a valid geo-json geometry, or a list of geo-json geometeries
+ * Checks to see if input is a valid geo-json geometry, or a list of geo-json geometries
  *
  * @example
  * FieldValidator.isGeoJSON('hello'); // false
@@ -634,8 +634,8 @@ export function isISDN(input: unknown, _parentContext?: unknown): boolean {
  * FieldValidator.isMACAddress(12345); // false
  *
  * // specified colon and space delimiter only
- * const twoDelimeters = { delimiter: ['colon', 'space'] };
- * FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', {}, twoDelimeters ); // false,
+ * const twoDelimiters = { delimiter: ['colon', 'space'] };
+ * FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', {}, twoDelimiters ); // false,
  * FieldValidator.isMACAddress(['001ff35b2b1f', '00:1f:f3:5b:2b:1f']); // true
  *
  * @param {*} input
@@ -888,7 +888,7 @@ export function isAlpha(
 }
 
 /**
- * Validates that the input is alphanumeric or a list of alphanumieric values
+ * Validates that the input is alphanumeric or a list of alphanumeric values
  *
  * @example
  *
@@ -967,7 +967,7 @@ export function isBase64(input: unknown, _parentContext?: unknown): boolean {
 }
 
 /**
- * Validates that the iput is empty
+ * Validates that the input is empty
  * @example
  * FieldValidator.isEmpty(''); // true
  * FieldValidator.isEmpty(undefined); // true
@@ -978,7 +978,7 @@ export function isBase64(input: unknown, _parentContext?: unknown): boolean {
  * FieldValidator.isEmpty('     ', {}, { ignoreWhitespace: true }); // true
  *
  * @param {*} input
- * @param {{ ignoreWhitespace: boolean }} [args] set to true if you want the value to be trimed
+ * @param {{ ignoreWhitespace: boolean }} [args] set to true if you want the value to be trimmed
  * @returns {boolean} boolean
  */
 
@@ -995,7 +995,7 @@ export function isEmpty(
 }
 
 /**
- * Validate that the input is a valid domain name, or a list of domian names
+ * Validate that the input is a valid domain name, or a list of domain names
  *
  * @example
  *
@@ -1371,7 +1371,7 @@ export function isArray(input: unknown, _parentContext?: unknown): input is any[
  *
  * @param {*} input
  * @param {{ fn: string; options?: any }} { fn, options } fn is the name of method on FieldValidator
- * options is any other arguments nessecary for that function call
+ * options is any other arguments necessary for that function call
  * @returns {boolean} boolean
  */
 
@@ -1381,7 +1381,7 @@ export function some(
     if (!isArray(input)) return false;
 
     const repoConfig = repository[fn];
-    if (!repoConfig) throw new Error(`No function ${fn} was found in the field validator respository`);
+    if (!repoConfig) throw new Error(`No function ${fn} was found in the field validator repository`);
 
     return input.some((data: any) => repoConfig.fn(data, data, options));
 }
@@ -1398,7 +1398,7 @@ export function some(
  *
  * @param {*} input
  * @param {{ fn: string; options?: any }} { fn, options } fn is the name of method on FieldValidator
- * options is any other arguments nessecary for that function call
+ * options is any other arguments necessary for that function call
  * @returns {boolean} boolean
  */
 
@@ -1408,7 +1408,7 @@ export function every(
     if (!isArray(input)) return false;
 
     const repoConfig = repository[fn];
-    if (!repoConfig) throw new Error(`No function ${fn} was found in the field validator respository`);
+    if (!repoConfig) throw new Error(`No function ${fn} was found in the field validator repository`);
 
     return input.every((data: any) => repoConfig.fn(data, data, options));
 }

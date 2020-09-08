@@ -118,7 +118,7 @@ export default [
         ]
     ],
     [
-        'can handle compund "NOT" operators',
+        'can handle compound "NOT" operators',
         'some:data NOT other:stuff',
         [
             { some: 'data' },
@@ -134,7 +134,7 @@ export default [
         ]
     ],
     [
-        'can handle compund "!" operators',
+        'can handle compound "!" operators',
         'some:data ! other:stuff',
         [
             { some: 'data' },
@@ -150,7 +150,7 @@ export default [
         ]
     ],
     [
-        'can handle compund "!" operators',
+        'can handle compound "!" operators',
         'some:data ! other:stuff',
         [
             { some: 'data' },

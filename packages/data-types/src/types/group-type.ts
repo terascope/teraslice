@@ -1,6 +1,11 @@
-import { xLuceneTypeConfig, PropertyESTypeMapping, PropertyESTypes } from '@terascope/types';
+import {
+    xLuceneTypeConfig,
+    PropertyESTypeMapping,
+    PropertyESTypes,
+} from '@terascope/types';
 import { firstToUpper } from '@terascope/utils';
 import BaseType, { ToGraphQLOptions } from './base-type';
+import { GraphQLType, TypeESMapping } from '../interfaces';
 
 export type NestedTypes = { [field: string]: BaseType };
 
@@ -12,7 +17,7 @@ export default class GroupType extends BaseType {
         this.types = types;
     }
 
-    toESMapping(version?: number) {
+    toESMapping(version?: number): TypeESMapping {
         const {
             mapping,
             analyzer = {},
@@ -45,7 +50,7 @@ export default class GroupType extends BaseType {
         };
     }
 
-    toGraphQL(options: ToGraphQLOptions = {}) {
+    toGraphQL(options: ToGraphQLOptions = {}):GraphQLType {
         const { typeName = 'Object', isInput, includePrivate } = options;
 
         const customTypeName = this._formatGQLTypeName(

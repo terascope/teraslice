@@ -1,13 +1,14 @@
-import { xLuceneFieldType, ESFieldType } from '@terascope/types';
+import { xLuceneFieldType, ESFieldType, xLuceneTypeConfig } from '@terascope/types';
 import BaseType, { ToGraphQLOptions } from '../base-type';
+import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 // TODO: This type is deprecated, not sure how to properly indicate it.
 export default class GeoType extends BaseType {
-    toESMapping(_version?: number) {
+    toESMapping(_version?: number): TypeESMapping {
         return { mapping: { [this.field]: { type: 'geo_point' as ESFieldType } } };
     }
 
-    toGraphQL({ isInput }: ToGraphQLOptions = {}) {
+    toGraphQL({ isInput }: ToGraphQLOptions = {}): GraphQLType {
         const defType = isInput ? 'input' : 'type';
         const name = this._formatGQLTypeName('GeoPoint', isInput);
         const customType = `
@@ -19,7 +20,7 @@ export default class GeoType extends BaseType {
         return this._formatGql(name, customType);
     }
 
-    toXlucene() {
+    toXlucene(): xLuceneTypeConfig {
         return { [this.field]: xLuceneFieldType.Geo };
     }
 }

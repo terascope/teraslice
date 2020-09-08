@@ -118,7 +118,7 @@ export type FieldTypeConfig = {
 
     /**
      * A temporary flag to fix KeywordCaseInsensitive to be
-     * a type keyword with case insenstive .text fields
+     * a type keyword with case insensitive .text fields
     */
     use_fields_hack?: boolean;
 };
@@ -163,7 +163,7 @@ export interface ESMappingOptions {
      */
     typeName?: string;
     /**
-     * Any elasitcsearch mapping overrides,
+     * Any elasticsearch mapping overrides,
      * uses a deep assignment so nested fields can be overwritten.
      */
     overrides?: Partial<ESMapping>;

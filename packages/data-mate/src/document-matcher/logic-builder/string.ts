@@ -34,11 +34,11 @@ function recurseDownObject(field: string, object: Record<string, any>): Record<s
 
 function recurse(arr: RegExp[], obj: Record<string, any>): any[] {
     if (arr.length === 0) return [];
-    const regx = arr.shift()!;
+    const regExpr = arr.shift()!;
 
     const results: any[] = [];
     for (const [key, value] of Object.entries(obj)) {
-        if (regx.exec(key)) {
+        if (regExpr.exec(key)) {
             if (arr.length === 0) {
                 results.push(value);
             } else if (isPlainObject(value)) {

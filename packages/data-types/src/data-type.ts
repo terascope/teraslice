@@ -1,7 +1,8 @@
 import * as ts from '@terascope/utils';
 import {
     ESMapping,
-    ESTypeMappings
+    ESTypeMappings,
+    xLuceneTypeConfig
 } from '@terascope/types';
 import defaultsDeep from 'lodash.defaultsdeep';
 import { formatSchema, formatGQLComment } from './graphql-helper';
@@ -29,7 +30,7 @@ export class DataType {
     private readonly _types: BaseType[];
 
     /** Merge multiple data types into one GraphQL schema, useful for removing duplicates */
-    static mergeGraphQLDataTypes(types: DataType[], options: i.MergeGraphQLOptions = {}) {
+    static mergeGraphQLDataTypes(types: DataType[], options: i.MergeGraphQLOptions = {}): string {
         const {
             references: typeReferences = {},
             removeScalars = false,
@@ -152,7 +153,7 @@ export class DataType {
         return defaultsDeep({}, overrides, esMapping);
     }
 
-    toGraphQL(args?: i.GraphQLOptions, removeScalars = false) {
+    toGraphQL(args?: i.GraphQLOptions, removeScalars = false):string {
         const { baseType, inputType, customTypes } = this.toGraphQLTypes(args);
         const schema = utils.joinStrings(
             customTypes, baseType, inputType, args?.customTypes
@@ -234,7 +235,7 @@ export class DataType {
         };
     }
 
-    toXlucene() {
+    toXlucene(): xLuceneTypeConfig {
         return this._types.reduce((accum, type) => ({ ...accum, ...type.toXlucene() }), {});
     }
 }

@@ -60,7 +60,7 @@ function _testFieldRegex(field: string) {
     return /^[^.]*[a-zA-Z0-9-_.]*[^.]*$/.test(field);
 }
 
-export function validateField(field: any): boolean {
+export function validateField(field: null|undefined|string): boolean {
     if (!field) return false;
     if (!_testFieldRegex(field)) return false;
     return !field.includes('..');

@@ -5,6 +5,7 @@ import { isIPv6, isIP } from 'net';
 import {
     Term, Range, isInfiniteMin, isInfiniteMax, parseRange
 } from 'xlucene-parser';
+import { BooleanCB } from '../interfaces';
 
 const MIN_IPV4_IP = '0.0.0.0';
 const MAX_IPV4_IP = '255.255.255.255';
@@ -24,14 +25,14 @@ function getRangeValues(node: Range) {
     };
 }
 
-export function ipTerm(node: Term) {
-    const argeCidr = isCidr(node.value as string);
-    if (argeCidr > 0) {
+export function ipTerm(node: Term): BooleanCB {
+    const argCidr = isCidr(node.value as string);
+    if (argCidr > 0) {
         const range = ip6addr.createCIDR(node.value);
         return pRangeTerm(range);
     }
 
-    return function isIpterm(ip: string) {
+    return function isIPTerm(ip: string) {
         if (isCidr(ip) > 0) {
             const argRange = ip6addr.createCIDR(ip);
             return argRange.contains(node.value);
@@ -40,7 +41,7 @@ export function ipTerm(node: Term) {
     };
 }
 
-function validateIpRange(node: Range) {
+function validateIPRange(node: Range) {
     const values = getRangeValues(node);
     const { incMin, incMax } = values;
     let { minValue, maxValue } = values;
@@ -78,7 +79,7 @@ function checkCidr(ip: string, range: any) {
 }
 
 function pRangeTerm(range: any) {
-    return function checkIp(ip: string) {
+    return function checkIP(ip: string) {
         if (isCidr(ip) > 0) {
             return checkCidr(ip, range);
         }
@@ -87,8 +88,8 @@ function pRangeTerm(range: any) {
     };
 }
 
-export function ipRange(node: Range) {
-    const { minValue, maxValue } = validateIpRange(node);
+export function ipRange(node: Range): BooleanCB {
+    const { minValue, maxValue } = validateIPRange(node);
     const range = ip6addr.createAddrRange(minValue, maxValue);
     return pRangeTerm(range);
 }

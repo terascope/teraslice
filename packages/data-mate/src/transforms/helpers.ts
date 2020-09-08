@@ -100,7 +100,7 @@ function createGeoQuery(
 ) {
     if (isGeoJSON(value)) {
         if (isGeoShapePolygon(value) || isGeoShapeMultiPolygon(value)) {
-            // geoPolygon internally takes care of poly/multipoly.
+            // geoPolygon internally takes care of poly/multipolygon.
             // need to preserve original poly in variables
             const polyVariableName = variableState.createVariable('points', value);
             return makeXlucenePolyQuery(variableState, field, polyVariableName, fieldParam);

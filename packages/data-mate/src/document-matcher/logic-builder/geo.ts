@@ -6,8 +6,9 @@ import bboxPolygon from '@turf/bbox-polygon';
 import { lineString } from '@turf/helpers';
 import { parseGeoPoint } from '@terascope/utils';
 import { GeoDistance, GeoBoundingBox } from 'xlucene-parser';
+import { BooleanCB } from '../interfaces';
 
-// TODO: we can delete this file when we remove old geo grammer syntax
+// TODO: we can delete this file when we remove old geo grammar syntax
 
 const testGeoPolygon = (polygon: any) => (fieldData: string) => {
     const point = parseGeoPoint(fieldData, false);
@@ -15,7 +16,7 @@ const testGeoPolygon = (polygon: any) => (fieldData: string) => {
     return pointInPolygon([point.lon, point.lat], polygon);
 };
 
-export function geoDistance(node: GeoDistance) {
+export function geoDistance(node: GeoDistance): BooleanCB {
     const {
         distance, unit, lat, lon
     } = node;
@@ -36,7 +37,7 @@ export function geoDistance(node: GeoDistance) {
     return testGeoPolygon(polygon);
 }
 
-export function geoBoundingBox(node: GeoBoundingBox) {
+export function geoBoundingBox(node: GeoBoundingBox): BooleanCB {
     const topLeft = [node.top_left.lon, node.top_left.lat];
     const bottomRight = [node.bottom_right.lon, node.bottom_right.lat];
 

@@ -219,7 +219,7 @@ export default [
     ],
     [
         'can handle compound elasticsearch range queries [] OR >=',
-        // swithcing directions of last test to check grammar
+        // switching directions of last test to check grammar
         'age:(>=100 OR [10 TO 20])',
         ageData3,
         [

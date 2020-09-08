@@ -92,7 +92,7 @@ export function renameField(
         return input
             .map((data: any) => _migrate(data, from, to))
             .filter(ts.isNotNil);
-        // we filter aftwards to remove nulls
+        // we filter afterwards to remove nulls
     }
 
     return _migrate(input, from, to);
@@ -246,9 +246,9 @@ function _validateArgs(args: ts.AnyObject, fields: string[]) {
 }
 
 /**
- * Will execaute a jexl expression. Can use data-mate functions inside the jexl expression.
+ * Will execute a jexl expression. Can use data-mate functions inside the jexl expression.
  * You do not need to specify the parent context argument as that is automatically
- * the docuemnt used as to call it.
+ * the document used as to call it.
  *
  * @example
  *
@@ -275,7 +275,7 @@ function _validateArgs(args: ts.AnyObject, fields: string[]) {
  * @returns object
  */
 
-// this will be overritten by transformRecord in jexl folder
+// this will be overwritten by transformRecord in jexl folder
 export function transformRecord(
     _input: RecordInput,
     _parentContext: RecordInput,
@@ -304,7 +304,7 @@ export function transformRecord(
 
 export function dedupe<T = any>(input: any[], _parentContext?: unknown[]): T[] | null {
     if (ts.isNil(input)) return null;
-    if (!isArray(input)) throw new Error(`Input must be an array, recieved ${ts.getTypeOf(input)}`);
+    if (!isArray(input)) throw new Error(`Input must be an array, received ${ts.getTypeOf(input)}`);
 
     const deduped = new Map<any, true>();
     const results: T[] = [];

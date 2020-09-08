@@ -9,7 +9,9 @@ import {
 import { BooleanCB } from '../interfaces';
 import { ipTerm, ipRange } from './ip';
 
-export default function buildLogicFn(parser: p.Parser, typeConfig: xLuceneTypeConfig = {}) {
+export default function buildLogicFn(
+    parser: p.Parser, typeConfig: xLuceneTypeConfig = {}
+): BooleanCB {
     return walkAst(parser.ast, typeConfig);
 }
 
