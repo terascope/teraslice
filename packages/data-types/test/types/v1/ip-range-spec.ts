@@ -29,7 +29,7 @@ describe('IPRange V1', () => {
 
     it('can get proper xlucene properties', () => {
         const xlucene = new IpRangeType(field, typeConfig).toXlucene();
-        const results = { [field]: 'ip' };
+        const results = { [field]: 'ip_range' };
 
         expect(xlucene).toEqual(results);
     });

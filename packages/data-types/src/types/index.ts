@@ -24,7 +24,7 @@ export function getGroupedFields(fields: TypeConfigFields): GroupedFields {
 }
 
 /**
- * Instaniate all of the types for the group
+ * Instantiate all of the types for the group
  *
  * @todo support multiple levels deep nesting
 */

@@ -1,8 +1,9 @@
-import { xLuceneFieldType, ESFieldType } from '@terascope/types';
+import { xLuceneFieldType, ESFieldType, xLuceneTypeConfig } from '@terascope/types';
 import BaseType from '../base-type';
+import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class KeywordCaseInsensitive extends BaseType {
-    toESMapping(_version?: number) {
+    toESMapping(_version?: number): TypeESMapping {
         return {
             mapping: {
                 [this.field]: this.config.use_fields_hack ? {
@@ -27,11 +28,11 @@ export default class KeywordCaseInsensitive extends BaseType {
         };
     }
 
-    toGraphQL() {
+    toGraphQL(): GraphQLType {
         return this._formatGql('String');
     }
 
-    toXlucene() {
+    toXlucene(): xLuceneTypeConfig {
         if (this.config.use_fields_hack) {
             return {
                 [this.field]: xLuceneFieldType.String

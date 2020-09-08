@@ -2,34 +2,34 @@ import { xLuceneFieldType } from '@terascope/types';
 import { TestCase } from './interfaces';
 
 const ipRange = [
-    { ipfield: '192.198.0.0' },
-    { ipfield: '192.198.0.1' },
-    { ipfield: '192.198.0.254' },
-    { ipfield: '192.198.0.255' },
-    { ipfield: '192.198.0.0/30' },
+    { ipField: '192.198.0.0' },
+    { ipField: '192.198.0.1' },
+    { ipField: '192.198.0.254' },
+    { ipField: '192.198.0.255' },
+    { ipField: '192.198.0.0/30' },
 ];
 
 const compoundIpData = [
-    { ipfield: '192.198.0.0/24', some: 'value' },
-    { ipfield: '192.198.0.0/24', some: 'otherValue' },
-    { ipfield: '192.198.0.1', some: 'value' },
-    { ipfield: '192.198.0.1', key: 'value' },
-    { ipfield: '127.0.0.1', key: 'value' },
-    { ipfield: '127.0.0.1', some: 'value' },
-    { ipfield: '1:2:3:4:5:6:7:8', duration: 120300 },
-    { ipfield: '1:2:3:4:5:6:7:8', duration: 220300 },
+    { ipField: '192.198.0.0/24', some: 'value' },
+    { ipField: '192.198.0.0/24', some: 'otherValue' },
+    { ipField: '192.198.0.1', some: 'value' },
+    { ipField: '192.198.0.1', key: 'value' },
+    { ipField: '127.0.0.1', key: 'value' },
+    { ipField: '127.0.0.1', some: 'value' },
+    { ipField: '1:2:3:4:5:6:7:8', duration: 120300 },
+    { ipField: '1:2:3:4:5:6:7:8', duration: 220300 },
 ];
 
 const complexIpData = [
-    { ipfield: '192.198.0.0/24', key: 'value', duration: 9263 },
-    { ipfield: '192.198.0.0/24', key: 'otherValue', duration: 9263 },
-    { ipfield: '192.198.0.1', some: 'value' },
-    { ipfield: '192.198.0.1', key: 'value' },
-    { ipfield: '192.198.0.1', key: 'value', duration: 123999 },
-    { ipfield: '192.198.0.1', key: 'value', duration: 1234 },
-    { ipfield: '192.198.0.0', key: 'value', duration: 1234000 },
-    { ipfield: '127.0.0.1', key: 'value', duration: 1234 },
-    { ipfield: '127.0.0.1', some: 'value', duration: 1234 },
+    { ipField: '192.198.0.0/24', key: 'value', duration: 9263 },
+    { ipField: '192.198.0.0/24', key: 'otherValue', duration: 9263 },
+    { ipField: '192.198.0.1', some: 'value' },
+    { ipField: '192.198.0.1', key: 'value' },
+    { ipField: '192.198.0.1', key: 'value', duration: 123999 },
+    { ipField: '192.198.0.1', key: 'value', duration: 1234 },
+    { ipField: '192.198.0.0', key: 'value', duration: 1234000 },
+    { ipField: '127.0.0.1', key: 'value', duration: 1234 },
+    { ipField: '127.0.0.1', some: 'value', duration: 1234 },
 ];
 
 export default [
@@ -76,13 +76,13 @@ export default [
         ],
     ],
     [
-        'can do ipv4 cidr range matches with type anotations',
-        'ipfield:"192.198.0.0/24"',
+        'can do ipv4 cidr range matches with type annotations',
+        'ipField:"192.198.0.0/24"',
         [
-            { ipfield: '192.198.0.0/24' },
-            { ipfield: '192.198.0.1' },
-            { ipfield: '1:2:3:4:5:6:7:8' },
-            { ipfield: 'fe80::/10' },
+            { ipField: '192.198.0.0/24' },
+            { ipField: '192.198.0.1' },
+            { ipField: '1:2:3:4:5:6:7:8' },
+            { ipField: 'fe80::/10' },
         ],
         [
             true,
@@ -90,16 +90,16 @@ export default [
             false,
             false,
         ],
-        { ipfield: xLuceneFieldType.IP }
+        { ipField: xLuceneFieldType.IP }
     ],
     [
-        'can do ipv6 cidr range matches with type anotations',
-        'ipfield:"fe80::/10"',
+        'can do ipv6 cidr range matches with type annotations',
+        'ipField:"fe80::/10"',
         [
-            { ipfield: '192.198.0.0/24' },
-            { ipfield: '192.198.0.1' },
-            { ipfield: '1:2:3:4:5:6:7:8' },
-            { ipfield: 'fe80::/10' },
+            { ipField: '192.198.0.0/24' },
+            { ipField: '192.198.0.1' },
+            { ipField: '1:2:3:4:5:6:7:8' },
+            { ipField: 'fe80::/10' },
         ],
         [
             false,
@@ -107,16 +107,16 @@ export default [
             false,
             true,
         ],
-        { ipfield: xLuceneFieldType.IP }
+        { ipField: xLuceneFieldType.IP }
     ],
     [
-        'can do ipv6 matches with type anotations',
-        'ipfield:1:2:3:4:5:6:7:8',
+        'can do ipv6 matches with type annotations',
+        'ipField:1:2:3:4:5:6:7:8',
         [
-            { ipfield: '192.198.0.0/24' },
-            { ipfield: '192.198.0.1' },
-            { ipfield: '1:2:3:4:5:6:7:8' },
-            { ipfield: 'fe80::/10' },
+            { ipField: '192.198.0.0/24' },
+            { ipField: '192.198.0.1' },
+            { ipField: '1:2:3:4:5:6:7:8' },
+            { ipField: 'fe80::/10' },
         ],
         [
             false,
@@ -124,17 +124,51 @@ export default [
             true,
             false,
         ],
-        { ipfield: xLuceneFieldType.IP }
+        { ipField: xLuceneFieldType.IP }
     ],
     [
-        'can do ip type anotations with crazy data',
-        'ipfield:"192.198.0.0/24"',
+        'can match ranges with type IP',
+        'ipField:"192.198.0.0/24"',
         [
-            { ipfield: '123u0987324asdf' },
-            { ipfield: null },
-            { ipfield: { some: 'data' } },
-            { ipfield: 12341234 },
-            { ipfield: [{ other: 'things' }] },
+            { ipField: '192.198.0.0/24' },
+            { ipField: '192.198.0.1' },
+            { ipField: '1:2:3:4:5:6:7:8' },
+            { ipField: 'fe80::/10' },
+        ],
+        [
+            true,
+            true,
+            false,
+            false,
+        ],
+        { ipField: xLuceneFieldType.IP }
+    ],
+    [
+        'can match ranges with type IPRange',
+        'ipField:"192.198.0.0/24"',
+        [
+            { ipField: '192.198.0.0/24' },
+            { ipField: '192.198.0.1' },
+            { ipField: '1:2:3:4:5:6:7:8' },
+            { ipField: 'fe80::/10' },
+        ],
+        [
+            true,
+            true,
+            false,
+            false,
+        ],
+        { ipField: xLuceneFieldType.IPRange }
+    ],
+    [
+        'can do ip type annotations with crazy data',
+        'ipField:"192.198.0.0/24"',
+        [
+            { ipField: '123u0987324asdf' },
+            { ipField: null },
+            { ipField: { some: 'data' } },
+            { ipField: 12341234 },
+            { ipField: [{ other: 'things' }] },
             {},
         ],
         [
@@ -145,11 +179,11 @@ export default [
             false,
             false,
         ],
-        { ipfield: xLuceneFieldType.IP }
+        { ipField: xLuceneFieldType.IP }
     ],
     [
         'can support ip range modifiers []',
-        'ipfield:[192.198.0.0 TO 192.198.0.255]',
+        'ipField:[192.198.0.0 TO 192.198.0.255]',
         ipRange,
         [
             true,
@@ -158,11 +192,11 @@ export default [
             true,
             true,
         ],
-        { ipfield: xLuceneFieldType.IP }
+        { ipField: xLuceneFieldType.IP }
     ],
     [
         'can support ip range modifiers {}',
-        'ipfield:{192.198.0.0 TO 192.198.0.255}',
+        'ipField:{192.198.0.0 TO 192.198.0.255}',
         ipRange,
         [
             false,
@@ -171,11 +205,11 @@ export default [
             false,
             true,
         ],
-        { ipfield: xLuceneFieldType.IP }
+        { ipField: xLuceneFieldType.IP }
     ],
     [
         'can support ip range modifiers [}',
-        'ipfield:[192.198.0.0 TO 192.198.0.255}',
+        'ipField:[192.198.0.0 TO 192.198.0.255}',
         ipRange,
         [
             true,
@@ -184,11 +218,11 @@ export default [
             false,
             true,
         ],
-        { ipfield: xLuceneFieldType.IP }
+        { ipField: xLuceneFieldType.IP }
     ],
     [
         'can support ip range modifiers {]',
-        'ipfield:{192.198.0.0 TO 192.198.0.255]',
+        'ipField:{192.198.0.0 TO 192.198.0.255]',
         ipRange,
         [
             false,
@@ -197,11 +231,11 @@ export default [
             true,
             true,
         ],
-        { ipfield: xLuceneFieldType.IP }
+        { ipField: xLuceneFieldType.IP }
     ],
     [
-        'can do compund logic AND with ip matches',
-        'ipfield:"192.198.0.0/24" AND some:value',
+        'can do compound logic AND with ip matches',
+        'ipField:"192.198.0.0/24" AND some:value',
         compoundIpData,
         [
             true,
@@ -213,11 +247,11 @@ export default [
             false,
             false,
         ],
-        { ipfield: xLuceneFieldType.IP }
+        { ipField: xLuceneFieldType.IP }
     ],
     [
-        'can do compund logic OR with ip matches',
-        'ipfield:"192.198.0.0/24" OR some:value',
+        'can do compound logic OR with ip matches',
+        'ipField:"192.198.0.0/24" OR some:value',
         compoundIpData,
         [
             true,
@@ -229,11 +263,11 @@ export default [
             false,
             false,
         ],
-        { ipfield: xLuceneFieldType.IP }
+        { ipField: xLuceneFieldType.IP }
     ],
     [
-        'can do compund logic _exists_ with ip matches',
-        'ipfield:"192.198.0.0/24" AND _exists_:key',
+        'can do compound logic _exists_ with ip matches',
+        'ipField:"192.198.0.0/24" AND _exists_:key',
         compoundIpData,
         [
             false,
@@ -245,11 +279,11 @@ export default [
             false,
             false,
         ],
-        { ipfield: xLuceneFieldType.IP }
+        { ipField: xLuceneFieldType.IP }
     ],
     [
-        'can do compund logic range with ip matches',
-        'ipfield:"1:2:3:4:5:6:7:8" AND duration:>=200000',
+        'can do compound logic range with ip matches',
+        'ipField:"1:2:3:4:5:6:7:8" AND duration:>=200000',
         compoundIpData,
         [
             false,
@@ -261,11 +295,11 @@ export default [
             false,
             true,
         ],
-        { ipfield: xLuceneFieldType.IP }
+        { ipField: xLuceneFieldType.IP }
     ],
     [
         'can do complex ip queries',
-        'key:value AND (duration:<=10000 OR ipfield:{"192.198.0.0" TO "192.198.0.255"])',
+        'key:value AND (duration:<=10000 OR ipField:{"192.198.0.0" TO "192.198.0.255"])',
         complexIpData,
         [
             true,
@@ -278,11 +312,11 @@ export default [
             true,
             false,
         ],
-        { ipfield: xLuceneFieldType.IP }
+        { ipField: xLuceneFieldType.IP }
     ],
     [
         'can do complex ip queries',
-        'key:value AND (duration:(<=10000 AND >=343) OR ipfield:{"192.198.0.0" TO "192.198.0.255"])',
+        'key:value AND (duration:(<=10000 AND >=343) OR ipField:{"192.198.0.0" TO "192.198.0.255"])',
         complexIpData,
         [
             true,
@@ -295,6 +329,6 @@ export default [
             true,
             false,
         ],
-        { ipfield: xLuceneFieldType.IP }
+        { ipField: xLuceneFieldType.IP }
     ],
 ] as TestCase[];

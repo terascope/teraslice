@@ -106,7 +106,7 @@ export interface Conjunction {
     nodes: AST[];
     // we need this type for typescript to
     // detect the union correctly
-    __conjuction?: boolean;
+    __conjunction?: boolean;
 }
 
 export interface Negation {

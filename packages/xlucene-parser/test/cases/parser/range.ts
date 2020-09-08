@@ -255,4 +255,22 @@ export default [
         },
         { date: xLuceneFieldType.Date }
     ],
+    [
+        'ip_range:"1.2.3.0/24"',
+        'ip range', {
+            type: ASTType.Range,
+            field: 'ip_range',
+            left: {
+                field_type: xLuceneFieldType.IP,
+                value: '1.2.3.0',
+                operator: 'gte'
+            },
+            right: {
+                operator: 'lte',
+                field_type: xLuceneFieldType.IP,
+                value: '1.2.3.255'
+            }
+        },
+        { ip_range: xLuceneFieldType.IPRange }
+    ],
 ] as TestCase[];

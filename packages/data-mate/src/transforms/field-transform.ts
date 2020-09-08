@@ -145,7 +145,7 @@ export const repository: Repository = {
         output_type: 'GeoPoint' as AvailableType,
         primary_input_type: InputType.String
     },
-    // this will be overriden
+    // this will be overridden
     extract: {
         fn: extract,
         config: {
@@ -339,7 +339,7 @@ export function setDefault(input: unknown, _parentContext: unknown, args: { valu
  * @param  {any[]} input an array of any value
  * @param  {{fn:string; options?:any}} args fn any FieldTransform function name,
  * options is an object with any additional parameters needed
- * @returns {any[] | null} returns the mapped values, return null if input is null/undefied
+ * @returns {any[] | null} returns the mapped values, return null if input is null/undefined
  */
 
 export function map(
@@ -350,7 +350,7 @@ export function map(
     if (!isArray(input)) throw new Error(`Input must be an array, received ${ts.getTypeOf(input)}`);
     const { fn, options } = args;
     const repoConfig = repository[fn];
-    if (!repoConfig) throw new Error(`No function ${fn} was found in the field transform respository`);
+    if (!repoConfig) throw new Error(`No function ${fn} was found in the field transform repository`);
 
     return input.map((data) => repoConfig.fn(data, parentContext, options));
 }
@@ -358,7 +358,7 @@ export function map(
 // TODO: this is currently a hack for directives, this will evolve, do not use it for other purposes
 
 /**
- * This function is not meant to be used programatically
+ * This function is not meant to be used programmatically
  * please use `RecordTransform.setField` instead
  *
  * @param {*} _input This value will be discarded
@@ -957,7 +957,7 @@ export function parseJSON(input: unknown, _parentContext?: unknown): any|null {
  * FieldTransform.toJSON([obj]); // ['{"hello": "world"}']
  *
  * @param {*} input
- * @param {*} [{ pretty = false }={}] setting pretty to true will format the json ouput
+ * @param {*} [{ pretty = false }={}] setting pretty to true will format the json output
  * @returns { string | string[] | null } returns null if input is null/undefined
  */
 
@@ -1015,7 +1015,7 @@ export function toGeoPoint(
 
 /**
  * Can extract values from a string input. You may either specify a regex, a jexl expression, or
- * specify the start and end from which the extraction will take all values inbetween
+ * specify the start and end from which the extraction will take all values between
  * if given an array it will convert everything in the array excluding null/undefined values
  *
  * @param {*} input
@@ -1280,7 +1280,7 @@ export function toISO8601(
             .filter(ts.isNotNil)
             .map((data: any) => {
                 if (!isValidDate(data)) {
-                    throw new Error(`Input is not valid date, recieved ${data}`);
+                    throw new Error(`Input is not valid date, received ${data}`);
                 }
 
                 return _makeIso(data, args);
@@ -1288,7 +1288,7 @@ export function toISO8601(
     }
 
     if (!isValidDate(input)) {
-        throw new Error(`Input is not valid date, recieved ${input}`);
+        throw new Error(`Input is not valid date, received ${input}`);
     }
 
     return _makeIso(input, args);
@@ -1307,7 +1307,7 @@ function _formatDate(input: any, args: FormatDateConfig) {
     let value = input;
     const { format, resolution } = args;
 
-    if (!isString(format)) throw new Error(`Invalid parameter format, must be a string, recieved ${ts.getTypeOf(input)}`);
+    if (!isString(format)) throw new Error(`Invalid parameter format, must be a string, received ${ts.getTypeOf(input)}`);
 
     if (isString(value)) value = new Date(value);
     if (isNumber(value) && resolution === 'seconds') value *= 1000;
@@ -1364,7 +1364,7 @@ function _parseDate(input: any, args: ParseDateConfig) {
 
     const { format } = args;
     if (!isString(format)) {
-        throw new Error(`Invalid parameter format, must be a string, recieved ${ts.getTypeOf(input)}`);
+        throw new Error(`Invalid parameter format, must be a string, received ${ts.getTypeOf(input)}`);
     }
 
     const parsed = parse(input, format, new Date());

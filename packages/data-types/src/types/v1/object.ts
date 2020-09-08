@@ -1,8 +1,9 @@
-import { xLuceneFieldType, ESTypeMapping } from '@terascope/types';
+import { xLuceneFieldType, ESTypeMapping, xLuceneTypeConfig } from '@terascope/types';
 import BaseType from '../base-type';
+import { GraphQLType, TypeESMapping } from '../../interfaces';
 
 export default class ObjectType extends BaseType {
-    toESMapping(_version?: number) {
+    toESMapping(_version?: number): TypeESMapping {
         const type = this.config.array ? 'nested' : 'object';
         const typeConfig: ESTypeMapping = { type };
         if (this.config.indexed === false) {
@@ -11,11 +12,11 @@ export default class ObjectType extends BaseType {
         return { mapping: { [this.field]: typeConfig } };
     }
 
-    toGraphQL() {
+    toGraphQL(): GraphQLType {
         return this._formatGql('JSONObject', 'scalar JSONObject');
     }
 
-    toXlucene() {
+    toXlucene(): xLuceneTypeConfig {
         return { [this.field]: xLuceneFieldType.Object };
     }
 }

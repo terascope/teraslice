@@ -58,8 +58,8 @@ export const repository: Repository = {
 
 function validateConfig(config: BatchConfig): ValidatedBatchConfig {
     if (!ts.isPlainObject(config)) throw new Error('Paramter config must be provided and be an object');
-    if (!ts.isString(config.source)) throw new Error(`Parameter source must be provided and be a string, recieved ${ts.getTypeOf(config.source)}`);
-    if (config.target && !ts.isString(config.target)) throw new Error(`Parameter target must be a string, recieved ${ts.getTypeOf(config.target)}`);
+    if (!ts.isString(config.source)) throw new Error(`Parameter source must be provided and be a string, received ${ts.getTypeOf(config.source)}`);
+    if (config.target && !ts.isString(config.target)) throw new Error(`Parameter target must be a string, received ${ts.getTypeOf(config.target)}`);
 
     if (ts.isNil(config.target)) config.target = config.source;
     // TODO: should we enforce keys are strings? maps and sets can have non string keys

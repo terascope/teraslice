@@ -11,6 +11,7 @@ import {
     xLuceneVariables,
     xLuceneTypeConfig,
 } from '@terascope/types';
+import { Netmask } from 'netmask';
 import * as i from './interfaces';
 import * as utils from './utils';
 import xLuceneFunctions from './functions';
@@ -136,9 +137,11 @@ export default function makeContext(arg: i.ContextArg) {
         if (!field) return;
 
         let fieldType = getFieldType(field);
+
         if (fieldType === xLuceneFieldType.AnalyzedString) {
             node.analyzed = true;
         }
+
         if (fieldType === node.field_type) return;
 
         utils.logger.trace(
@@ -154,6 +157,25 @@ export default function makeContext(arg: i.ContextArg) {
                 fieldType = parentType;
                 node.analyzed = true;
             }
+        }
+
+        if (fieldType === xLuceneFieldType.IPRange) {
+            node.field_type = fieldType;
+            node.type = i.ASTType.Range;
+            delete node.quoted;
+
+            const { start, end } = getIPRange(node.value);
+
+            node.left = {
+                operator: 'gte',
+                field_type: xLuceneFieldType.IP,
+                value: start,
+            };
+            node.right = {
+                operator: 'lte',
+                field_type: xLuceneFieldType.IP,
+                value: end,
+            };
         }
 
         if (fieldType === xLuceneFieldType.Boolean) {
@@ -236,5 +258,15 @@ function validateRestrictedVariable(variable: any, varName: string) {
     const type = getTypeOf(variable);
     if (!variableTypes[type]) {
         throw new Error(`Unsupported type of ${type} received for variable $${varName}`);
+    }
+}
+
+function getIPRange(val: string): { start: string, end: string} {
+    try {
+        const block = new Netmask(val);
+        const end = block.broadcast ? block.broadcast : block.last;
+        return { start: block.base, end };
+    } catch (err) {
+        throw new TSError(`Invalid value ${val}, could not convert to ip_range`);
     }
 }

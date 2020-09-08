@@ -483,7 +483,7 @@ describe('QueryAccess', () => {
         });
     });
 
-    describe('when resticting prefix wildcards', () => {
+    describe('when restricting prefix wildcards', () => {
         const queryAccess = new QueryAccess({
             prevent_prefix_wildcard: true,
         }, {
@@ -779,9 +779,9 @@ describe('QueryAccess', () => {
             });
         });
 
-        it('should be able to add additonal varaibles', async () => {
+        it('should be able to add additional variables', async () => {
             const variables = {
-                foo3: 'iamvariable'
+                foo3: 'iAmVariable'
             };
             const q = 'foo:$foo3';
             const result = await queryAccess.restrictSearchQuery(q, { variables });
@@ -808,7 +808,7 @@ describe('QueryAccess', () => {
 
         it('should be able to override default variables', async () => {
             const variables = {
-                bar1: 'iamvariable'
+                bar1: 'iAmVariable'
             };
             const q = 'foo:$bar1';
             const result = await queryAccess.restrictSearchQuery(q, { variables });

@@ -8,10 +8,11 @@ import { getValidDate, isInteger, isString } from '@terascope/utils';
 import {
     Term, Range, isInfiniteMax, isInfiniteMin, parseRange
 } from 'xlucene-parser';
+import { BooleanCB } from '../interfaces';
 
 // TODO: handle datemath
 
-export function compareTermDates(node: Term) {
+export function compareTermDates(node: Term):BooleanCB {
     const nodeTermTime = convertDate(node.value, 0, true);
     return function dateTerm(date: string) {
         const result = convertDate(date, 0, false);
@@ -47,7 +48,7 @@ function getRangeValues(node: Range): { start: Date; end: Date } {
     };
 }
 
-export function dateRange(node: Range) {
+export function dateRange(node: Range): BooleanCB {
     const interval = getRangeValues(node);
     // verify it won't fail
     isWithinInterval(new Date(), interval);
