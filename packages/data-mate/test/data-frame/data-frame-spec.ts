@@ -49,13 +49,53 @@ describe('DataFrame', () => {
                 },
                 {
                     name: undefined
-                }
+                },
+                {}
             ]);
             expect(dataFrame.columns).toBeArrayOfSize(1);
+            expect(dataFrame.length).toEqual(4);
+            expect(dataFrame.getColumn('name')!.values).toEqual([
+                'Billy',
+                null,
+                null,
+                null
+            ]);
+        });
+
+        it('should handle multiple columns', () => {
+            const dataFrame = DataFrame.fromJSON({
+                version: LATEST_VERSION,
+                fields: {
+                    name: {
+                        type: FieldType.Keyword,
+                    },
+                    age: {
+                        type: FieldType.Short,
+                    }
+                }
+            }, [
+                {
+                    name: 'Billy',
+                    age: 43
+                },
+                {
+                    name: null,
+                    age: 20
+                },
+                {
+                    name: 'Jill',
+                }
+            ]);
+            expect(dataFrame.columns).toBeArrayOfSize(2);
             expect(dataFrame.length).toEqual(3);
             expect(dataFrame.getColumn('name')!.values).toEqual([
                 'Billy',
                 null,
+                'Jill'
+            ]);
+            expect(dataFrame.getColumn('age')!.values).toEqual([
+                43,
+                20,
                 null
             ]);
         });
