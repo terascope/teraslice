@@ -80,6 +80,59 @@ describe('DataMate Plugin', () => {
             });
         });
 
+        it('can properly validate missing properties and output:false', async () => {
+            const rules = parseRules([
+                { source_field: 'name', target_field: 'name', other_match_required: true },
+                { source_field: 'state', target_field: 'place', tag: 'stateName' },
+                { follow: 'stateName', validation: 'equals', value: 'arizona', output: false }
+            ]);
+
+            const config: WatcherConfig = {
+                notification_rules: rules,
+                type_config: { _created: xLuceneFieldType.Date },
+            };
+
+            const data = DataEntity.makeArray([
+                { name: 'mel', state: 'colorado' },
+                { name: 'kip', state: 'arizona' },
+                { name: 'jr' }
+            ]);
+
+            const test = await opTest.init(config);
+            const results = test.run(data);
+
+            expect(results.length).toBe(1);
+
+            expect(results[0]).toEqual(DataEntity.make({ name: 'mel', place: 'colorado' }));
+        });
+
+        it('can properly validate missing properties for array values and output:false', async () => {
+            const rules = parseRules([
+                { source_field: 'name', target_field: 'name', other_match_required: true },
+                { source_field: 'state', target_field: 'place', tag: 'stateName' },
+                { follow: 'stateName', validation: 'equals', value: 'arizona', output: false }
+            ]);
+
+            const config: WatcherConfig = {
+                notification_rules: rules,
+                type_config: { _created: xLuceneFieldType.Date },
+            };
+
+            const data = DataEntity.makeArray([
+                { name: 'mel', state: 'colorado' },
+                { name: 'kip', state: ['arizona', 'utah', 'idaho'] },
+                { name: 'jr' }
+            ]);
+
+            const test = await opTest.init(config);
+            const results = test.run(data);
+
+            expect(results.length).toBe(2);
+
+            expect(results[0]).toEqual(DataEntity.make({ name: 'mel', place: 'colorado' }));
+            expect(results[1]).toEqual(DataEntity.make({ name: 'kip', place: ['utah', 'idaho'] }));
+        });
+
         it('can run a simple validation with array values', async () => {
             const rules = parseRules([
                 { selector: '_exists_:list', source: 'list', target: 'next', tag: 'myTag' },
@@ -126,7 +179,7 @@ describe('DataMate Plugin', () => {
             ]);
 
             const test = await opTest.init(config);
-            const results = await test.run(data);
+            const results = test.run(data);
 
             expect(results.length).toEqual(1);
             expect(results).toEqual([{ next: [1, 'hello', 3] }]);
