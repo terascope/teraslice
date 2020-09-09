@@ -40,7 +40,7 @@ describe('DataMate Plugin', () => {
             ]);
 
             const test = await opTest.init(config);
-            const results = await test.run(data);
+            const results = test.run(data);
 
             expect(results.length).toEqual(1);
             results.forEach((d) => {
@@ -70,7 +70,7 @@ describe('DataMate Plugin', () => {
             ]);
 
             const test = await opTest.init(config);
-            const results = await test.run(data);
+            const results = test.run(data);
 
             expect(results.length).toEqual(2);
             results.forEach((d) => {
@@ -78,6 +78,59 @@ describe('DataMate Plugin', () => {
                 expect(['data', 'other'].includes(d.next)).toBeTrue();
                 expect(d.getMetadata('selectors')).toBeDefined();
             });
+        });
+
+        it('can properly validate fields with output:false and does not add missing fields to output', async () => {
+            const rules = parseRules([
+                { source_field: 'name', target_field: 'name', other_match_required: true },
+                { source_field: 'state', target_field: 'place', tag: 'stateName' },
+                { follow: 'stateName', validation: 'equals', value: 'arizona', output: false }
+            ]);
+
+            const config: WatcherConfig = {
+                notification_rules: rules,
+                type_config: { _created: xLuceneFieldType.Date },
+            };
+
+            const data = DataEntity.makeArray([
+                { name: 'mel', state: 'colorado' },
+                { name: 'kip', state: 'arizona' },
+                { name: 'jr' }
+            ]);
+
+            const test = await opTest.init(config);
+            const results = test.run(data);
+
+            expect(results.length).toBe(1);
+
+            expect(results[0]).toEqual(DataEntity.make({ name: 'mel', place: 'colorado' }));
+        });
+
+        it('can properly validate array fields with output:false and does not add missing fields to output', async () => {
+            const rules = parseRules([
+                { source_field: 'name', target_field: 'name', other_match_required: true },
+                { source_field: 'state', target_field: 'place', tag: 'stateName' },
+                { follow: 'stateName', validation: 'equals', value: 'arizona', output: false }
+            ]);
+
+            const config: WatcherConfig = {
+                notification_rules: rules,
+                type_config: { _created: xLuceneFieldType.Date },
+            };
+
+            const data = DataEntity.makeArray([
+                { name: 'mel', state: 'colorado' },
+                { name: 'kip', state: ['arizona', 'utah', 'idaho'] },
+                { name: 'jr' }
+            ]);
+
+            const test = await opTest.init(config);
+            const results = test.run(data);
+
+            expect(results.length).toBe(2);
+
+            expect(results[0]).toEqual(DataEntity.make({ name: 'mel', place: 'colorado' }));
+            expect(results[1]).toEqual(DataEntity.make({ name: 'kip', place: ['utah', 'idaho'] }));
         });
 
         it('can run a simple validation with array values', async () => {
@@ -100,7 +153,7 @@ describe('DataMate Plugin', () => {
             ]);
 
             const test = await opTest.init(config);
-            const results = await test.run(data);
+            const results = test.run(data);
 
             expect(results.length).toEqual(2);
             expect(results).toEqual([{ next: 3 }, { next: [1, 3] }]);
@@ -126,7 +179,7 @@ describe('DataMate Plugin', () => {
             ]);
 
             const test = await opTest.init(config);
-            const results = await test.run(data);
+            const results = test.run(data);
 
             expect(results.length).toEqual(1);
             expect(results).toEqual([{ next: [1, 'hello', 3] }]);
@@ -155,7 +208,7 @@ describe('DataMate Plugin', () => {
             ]);
 
             const test = await opTest.init(config);
-            const results = await test.run(data);
+            const results = test.run(data);
 
             expect(results.length).toEqual(1);
             results.forEach((d) => {
@@ -186,7 +239,7 @@ describe('DataMate Plugin', () => {
             ]);
 
             const test = await opTest.init(config);
-            const results = await test.run(data);
+            const results = test.run(data);
 
             expect(results.length).toEqual(1);
             results.forEach((d) => {
@@ -217,7 +270,7 @@ describe('DataMate Plugin', () => {
             ]);
 
             const test = await opTest.init(config);
-            const results = await test.run(data);
+            const results = test.run(data);
 
             expect(results.length).toEqual(1);
             results.forEach((d) => {
@@ -250,7 +303,7 @@ describe('DataMate Plugin', () => {
             ]);
 
             const test = await opTest.init(config);
-            const results = await test.run(data);
+            const results = test.run(data);
 
             expect(results.length).toEqual(1);
             results.forEach((d) => {
@@ -283,7 +336,7 @@ describe('DataMate Plugin', () => {
             ]);
 
             const test = await opTest.init(config);
-            const results = await test.run(data);
+            const results = test.run(data);
 
             expect(results.length).toEqual(1);
             results.forEach((d) => {

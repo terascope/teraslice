@@ -22,45 +22,56 @@ class Validator extends OperationBase {
     method(_value: any, _context: any, _args: any) { return false; }
 
     run(doc: DataEntity) {
-        let value;
-
-        if (Array.isArray(this.source)) {
-            value = this.source.map((field) => get(doc, field));
-        } else {
-            value = get(doc, this.source);
-        }
-
-        const args = this.config;
+        const value = this._getSourceValue(doc);
 
         try {
             if (Array.isArray(value) && !this.inputIsArray) {
-                const results = value.filter((item) => {
-                    if (this.invert) return !this.method(item, item, args);
-                    return this.method(item, item, args);
-                });
-                if (results.length === 0) {
-                    this.removeSource(doc);
-                    if (Object.keys(doc).length === 0) return null;
-                } else {
-                    this.set(doc, results);
-                }
+                this._handleArrayValue(doc, value);
             } else {
-                let isValid = this.method(value, doc, args);
-                if (this.invert) isValid = !isValid;
-
-                if (isValid) {
-                    this.set(doc, value);
-                } else {
-                    this.removeSource(doc);
-                    if (Object.keys(doc).length === 0) return null;
-                }
+                this._handleSingleValue(doc, value);
             }
         } catch (err) {
             this.removeSource(doc);
-            if (Object.keys(doc).length === 0) return null;
         }
 
+        if (Object.keys(doc).length === 0) return null;
         return doc;
+    }
+
+    private _getSourceValue(doc: DataEntity) {
+        if (Array.isArray(this.source)) {
+            return this.source.map((field) => get(doc, field));
+        }
+
+        return get(doc, this.source);
+    }
+
+    private _handleArrayValue(doc: DataEntity, value: any[]) {
+        const results = value.filter((item) => this._isValid(item));
+
+        if (results.length === 0) {
+            this.removeSource(doc);
+            return;
+        }
+
+        this.set(doc, results);
+    }
+
+    private _handleSingleValue(doc: DataEntity, value: any) {
+        if (this._isValid(value)) {
+            this.set(doc, value);
+            return;
+        }
+
+        this.removeSource(doc);
+    }
+
+    private _isValid(value: any): boolean {
+        const validationCheck = this.method(value, value, this.config);
+
+        if (this.invert && value != null) return !validationCheck;
+
+        return validationCheck;
     }
 }
 
