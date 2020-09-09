@@ -1,27 +1,30 @@
 import { DataTypeFieldConfig, Maybe } from '@terascope/types';
+import { newVector, Vector } from './vector';
 
 export class Column<T = unknown> {
-    protected readonly _values: Maybe<T>[]
+    protected readonly _vector: Vector<T>;
 
     constructor(
         readonly name: string,
         readonly config: DataTypeFieldConfig,
         values: Maybe<T>[]
     ) {
-        this._values = values.slice();
+        this._vector = newVector(config, values);
     }
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
-        for (const val of this._values) {
-            yield val;
-        }
+        yield* this._vector;
     }
 
     get length(): number {
-        return this._values.length;
+        return this._vector.length;
     }
 
     toArray(): Maybe<T>[] {
-        return this._values.slice();
+        return this._vector.toArray();
+    }
+
+    get vector(): Vector<T> {
+        return this._vector;
     }
 }
