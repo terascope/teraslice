@@ -9,7 +9,7 @@ export class Column<T = unknown> {
         readonly config: DataTypeFieldConfig,
         values: Maybe<T>[]
     ) {
-        this._vector = newVector(config, values);
+        this._vector = newVector<T>(config, values);
     }
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {

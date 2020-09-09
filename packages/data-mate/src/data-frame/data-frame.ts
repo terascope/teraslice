@@ -24,8 +24,7 @@ export class DataFrame<T extends Record<string, unknown> = Record<string, any>> 
     }
 
     getColumn<P extends keyof T>(name: P): Column<T[P]>|undefined {
-        return this.columns.find(
-            (col): col is Column<T[P]> => col.name === name
-        );
+        const found = this.columns.find((col) => col.name === name);
+        return found as Column<any>|undefined;
     }
 }
