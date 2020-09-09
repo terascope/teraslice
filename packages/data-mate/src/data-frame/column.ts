@@ -20,8 +20,8 @@ export class Column<T = unknown> {
         return this._vector.length;
     }
 
-    toArray(): Maybe<T>[] {
-        return this._vector.toArray();
+    toJSON<V>(): Maybe<V>[] {
+        return this._vector.toJSON<V>();
     }
 
     get vector(): Vector<T> {

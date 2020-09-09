@@ -1,10 +1,8 @@
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
-import {
-    AnyVector, BigIntVector, FloatVector, IntVector, ListVector, StringVector
-} from './types';
+import { ListVector } from './list-vector';
+import { newVectorForType } from './utils';
 import { Vector } from './vector';
 
-export * from './interfaces';
 export * from './types';
 export * from './vector';
 
@@ -16,43 +14,11 @@ export function newVector<T>(config: DataTypeFieldConfig, values: any[]): Vector
     }
 
     if (config.array) {
-        return new ListVector<any>(
+        return new ListVector({
             type,
             values,
-            (childValues) => _newVector<T>(
-                type, childValues as any[]
-            )
-        ) as Vector<T>;
+        }) as Vector<any>;
     }
-    return _newVector<T>(type, values);
-}
 
-function _newVector<T>(type: FieldType, values: any[]): Vector<T> {
-    switch (type) {
-        case FieldType.String:
-        case FieldType.Text:
-        case FieldType.Keyword:
-        case FieldType.KeywordCaseInsensitive:
-        case FieldType.KeywordTokens:
-        case FieldType.KeywordTokensCaseInsensitive:
-        case FieldType.KeywordPathAnalyzer:
-        case FieldType.Domain:
-        case FieldType.Hostname:
-        case FieldType.IP:
-        case FieldType.IPRange:
-            return new StringVector(type, values) as Vector<T>;
-        case FieldType.Float:
-        case FieldType.Number:
-        case FieldType.Double:
-            // Double can't supported entirely until we have BigFloat
-            return new FloatVector(type, values) as Vector<T>;
-        case FieldType.Byte:
-        case FieldType.Short:
-        case FieldType.Integer:
-            return new IntVector(type, values) as Vector<T>;
-        case FieldType.Long:
-            return new BigIntVector(type, values) as Vector<T>;
-        default:
-            return new AnyVector(type, values);
-    }
+    return newVectorForType<T>(type, values);
 }

@@ -24,7 +24,7 @@ describe('Column', () => {
 
         it('should be able to iterate over the values', () => {
             expect([...col]).toEqual(values);
-            expect(col.toArray()).toEqual(values);
+            expect(col.toJSON()).toEqual(values);
         });
 
         it('should be able to get the Vector', () => {

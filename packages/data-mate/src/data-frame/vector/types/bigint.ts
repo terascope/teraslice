@@ -1,14 +1,26 @@
-import { FieldType, Maybe, Nil } from '@terascope/types';
-import { Vector } from '../vector';
+import { Maybe, Nil } from '@terascope/types';
+import { Vector, VectorOptions } from '../vector';
 
 export class BigIntVector extends Vector<bigint> {
-    constructor(type: FieldType, values: Maybe<bigint>[]) {
-        super(type, values, coerce);
+    static serialize(value: unknown): Maybe<bigint> {
+        if (value == null) return value as Nil;
+        if (typeof value === 'bigint') {
+            return value;
+        }
+        return BigInt(value);
     }
-}
 
-function coerce(value: unknown): Maybe<bigint> {
-    if (value == null) return value as Nil;
-    if (typeof value !== 'bigint') return BigInt(value);
-    return value;
+    static deserialize(value: Maybe<BigInt>): any {
+        if (value == null) return value as Nil;
+        // FIXME
+        return value.toString();
+    }
+
+    constructor(options: VectorOptions<bigint>) {
+        super({
+            serialize: BigIntVector.serialize,
+            deserialize: BigIntVector.deserialize,
+            ...options,
+        });
+    }
 }

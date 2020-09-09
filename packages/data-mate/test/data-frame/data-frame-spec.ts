@@ -27,7 +27,7 @@ describe('DataFrame', () => {
             ]);
             expect(dataFrame.columns).toBeArrayOfSize(1);
             expect(dataFrame.length).toEqual(1);
-            expect(dataFrame.getColumn('name')!.toArray()).toEqual([
+            expect(dataFrame.getColumn('name')!.toJSON()).toEqual([
                 'Billy'
             ]);
         });
@@ -54,7 +54,7 @@ describe('DataFrame', () => {
             ]);
             expect(dataFrame.columns).toBeArrayOfSize(1);
             expect(dataFrame.length).toEqual(4);
-            expect(dataFrame.getColumn('name')!.toArray()).toEqual([
+            expect(dataFrame.getColumn('name')!.toJSON()).toEqual([
                 'Billy',
                 null,
                 null,
@@ -88,12 +88,12 @@ describe('DataFrame', () => {
             ]);
             expect(dataFrame.columns).toBeArrayOfSize(2);
             expect(dataFrame.length).toEqual(3);
-            expect(dataFrame.getColumn('name')!.toArray()).toEqual([
+            expect(dataFrame.getColumn('name')!.toJSON()).toEqual([
                 'Billy',
                 null,
                 'Jill'
             ]);
-            expect(dataFrame.getColumn('age')!.toArray()).toEqual([
+            expect(dataFrame.getColumn('age')!.toJSON()).toEqual([
                 43,
                 20,
                 null

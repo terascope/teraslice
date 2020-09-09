@@ -1,5 +1,14 @@
 import { FieldType, Maybe } from '@terascope/types';
-import { CoerceFn } from './interfaces';
+
+export type SerializeFn<T> = (value: Maybe<T>|unknown, thisArg?: Vector<T>) => Maybe<T>;
+export type DeserializeFn<T> = (value: Maybe<T>, thisArg?: Vector<T>) => any;
+
+export interface VectorOptions<T> {
+    type: FieldType,
+    values: Maybe<T>[],
+    serialize?: SerializeFn<T>,
+    deserialize?: DeserializeFn<T>
+}
 
 /**
  * A typed Array class (with a constrained API)
@@ -7,29 +16,27 @@ import { CoerceFn } from './interfaces';
 export abstract class Vector<T = unknown> {
     readonly type: FieldType;
     protected readonly _values: Maybe<T>[];
-    protected readonly coerce?: CoerceFn<T>;
+    readonly serialize?: SerializeFn<T>;
+    readonly deserialize?: DeserializeFn<T>;
 
     static [Symbol.hasInstance](instance: unknown): boolean {
         return isVector(instance);
     }
 
-    constructor(
-        fieldType: FieldType,
-        values: Maybe<T>[] = [],
-        coerce?: CoerceFn<T>
-    ) {
-        this.type = fieldType;
-        this.coerce = coerce;
+    constructor({
+        values = [], type, serialize, deserialize
+    }: VectorOptions<T>) {
+        this.type = type;
+        this.serialize = serialize;
+        this.deserialize = deserialize;
 
-        this._values = coerce
-            ? values.map(coerce)
+        this._values = serialize
+            ? values.map((value) => serialize(value, this))
             : values.slice();
     }
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
-        for (const val of this._values) {
-            yield val;
-        }
+        yield* this._values;
     }
 
     /**
@@ -57,14 +64,22 @@ export abstract class Vector<T = unknown> {
      * Append a value to the end of the array
     */
     append(value: Maybe<T>): number {
-        return this._values.push(this.coerce ? this.coerce(value) : value);
+        return this._values.push(this.serialize ? this.serialize(value, this) : value);
     }
 
     /**
      * Convert the Vector an array of values
     */
-    toArray(): Maybe<T>[] {
-        return [...this];
+    toJSON<V = T>(): Maybe<V>[] {
+        if (!this.deserialize) {
+            return [...this] as any[];
+        }
+
+        const res: Maybe<V>[] = [];
+        for (const value of this) {
+            res.push(this.deserialize(value, this));
+        }
+        return res;
     }
 }
 
@@ -73,7 +88,7 @@ export abstract class Vector<T = unknown> {
  */
 export function isVector<T>(input: unknown): input is Vector<T> {
     if (input && typeof input === 'object') {
-        if ('toArray' in input && 'append' in input) {
+        if ('toJSON' in input && 'append' in input) {
             return true;
         }
     }

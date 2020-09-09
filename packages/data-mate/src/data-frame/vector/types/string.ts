@@ -1,14 +1,17 @@
-import { FieldType, Maybe, Nil } from '@terascope/types';
+import { Maybe, Nil } from '@terascope/types';
 import { toString } from '@terascope/utils';
-import { Vector } from '../vector';
+import { Vector, VectorOptions } from '../vector';
 
 export class StringVector extends Vector<string> {
-    constructor(type: FieldType, values: Maybe<string>[]) {
-        super(type, values, coerce);
+    static serialize(value: unknown): Maybe<string> {
+        if (value == null) return value as Nil;
+        return toString(value);
     }
-}
 
-function coerce(value: unknown): Maybe<string> {
-    if (value == null) return value as Nil;
-    return toString(value);
+    constructor(options: VectorOptions<string>) {
+        super({
+            serialize: StringVector.serialize,
+            ...options,
+        });
+    }
 }
