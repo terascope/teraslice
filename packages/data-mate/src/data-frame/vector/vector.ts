@@ -1,13 +1,13 @@
 import { FieldType, Maybe } from '@terascope/types';
 
-export type SerializeFn<T> = (value: Maybe<T>|unknown, thisArg?: Vector<T>) => Maybe<T>;
-export type DeserializeFn<T> = (value: Maybe<T>, thisArg?: Vector<T>) => any;
+export type ValueFromJSONFn<T> = (value: Maybe<T>|unknown, thisArg?: Vector<T>) => Maybe<T>;
+export type ValueToJSONFn<T> = (value: Maybe<T>, thisArg?: Vector<T>) => any;
 
 export interface VectorOptions<T> {
     type: FieldType,
     values: Maybe<T>[],
-    serialize?: SerializeFn<T>,
-    deserialize?: DeserializeFn<T>
+    valueFromJSON?: ValueFromJSONFn<T>,
+    valueToJSON?: ValueToJSONFn<T>
 }
 
 /**
@@ -16,22 +16,22 @@ export interface VectorOptions<T> {
 export abstract class Vector<T = unknown> {
     readonly type: FieldType;
     protected readonly _values: Maybe<T>[];
-    readonly serialize?: SerializeFn<T>;
-    readonly deserialize?: DeserializeFn<T>;
+    readonly valueFromJSON?: ValueFromJSONFn<T>;
+    readonly valueToJSON?: ValueToJSONFn<T>;
 
     static [Symbol.hasInstance](instance: unknown): boolean {
         return isVector(instance);
     }
 
     constructor({
-        values = [], type, serialize, deserialize
+        values = [], type, valueFromJSON, valueToJSON
     }: VectorOptions<T>) {
         this.type = type;
-        this.serialize = serialize;
-        this.deserialize = deserialize;
+        this.valueFromJSON = valueFromJSON;
+        this.valueToJSON = valueToJSON;
 
-        this._values = serialize
-            ? values.map((value) => serialize(value, this))
+        this._values = valueFromJSON
+            ? values.map((value) => valueFromJSON(value, this))
             : values.slice();
     }
 
@@ -64,20 +64,20 @@ export abstract class Vector<T = unknown> {
      * Append a value to the end of the array
     */
     append(value: Maybe<T>): number {
-        return this._values.push(this.serialize ? this.serialize(value, this) : value);
+        return this._values.push(this.valueFromJSON ? this.valueFromJSON(value, this) : value);
     }
 
     /**
      * Convert the Vector an array of values
     */
     toJSON<V = T>(): Maybe<V>[] {
-        if (!this.deserialize) {
+        if (!this.valueToJSON) {
             return [...this] as any[];
         }
 
         const res: Maybe<V>[] = [];
         for (const value of this) {
-            res.push(this.deserialize(value, this));
+            res.push(this.valueToJSON(value, this));
         }
         return res;
     }
