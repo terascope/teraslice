@@ -27,4 +27,36 @@ export class DataFrame<T extends Record<string, unknown> = Record<string, any>> 
         const found = this.columns.find((col) => col.name === name);
         return found as Column<any>|undefined;
     }
+
+    toJSON(): T[] {
+        const len = this.length;
+        const results: T[] = [];
+
+        for (let i = 0; i < len; i++) {
+            const row: Partial<T> = {};
+            let numValues = 0;
+
+            for (const col of this.columns) {
+                const field = col.name as keyof T;
+                const rawValue = col.vector.get(i);
+                let val: any;
+                if (col.vector.valueToJSON) {
+                    val = col.vector.valueToJSON(rawValue);
+                } else {
+                    val = rawValue;
+                }
+
+                if (val != null) {
+                    numValues++;
+                    row[field] = val;
+                }
+            }
+
+            if (numValues) {
+                results.push(row as T);
+            }
+        }
+
+        return results;
+    }
 }
