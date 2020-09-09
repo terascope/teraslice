@@ -1,4 +1,4 @@
-import { DataTypeConfig, Maybe } from '@terascope/types';
+import { DataTypeConfig, DataTypeFields, Maybe } from '@terascope/types';
 import { mapValues } from '@terascope/utils';
 import { Column } from './column';
 
@@ -11,6 +11,9 @@ export function distributeRowsToColumns(
 
     for (let i = 0; i < len; i++) {
         const record: Record<string, unknown> = records[i] || {};
+
+        if (isEmptyObj(record, config.fields)) continue;
+
         for (const [field] of fieldEntries) {
             values[field].push(record[field] ?? null);
         }
@@ -19,4 +22,15 @@ export function distributeRowsToColumns(
     return fieldEntries.map(([name, fieldConfig]) => new Column(
         name, fieldConfig, values[name].slice()
     ));
+}
+
+function isEmptyObj(obj: Record<string, unknown>, fieldConfig: DataTypeFields): boolean {
+    for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)
+            && key in fieldConfig
+            && obj[key] != null) {
+            return false;
+        }
+    }
+    return true;
 }

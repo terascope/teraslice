@@ -18,6 +18,13 @@ export class DataFrame<T extends Record<string, unknown> = Record<string, any>> 
         readonly columns: Column[],
     ) {}
 
+    * [Symbol.iterator](): IterableIterator<T> {
+        for (let i = 0; i < this.length; i++) {
+            const row = this.getRow(i);
+            if (row) yield row;
+        }
+    }
+
     get length(): number {
         if (this.columns[0] == null) return 0;
         return this.columns[0].length;
@@ -28,35 +35,30 @@ export class DataFrame<T extends Record<string, unknown> = Record<string, any>> 
         return found as Column<any>|undefined;
     }
 
-    toJSON(): T[] {
-        const len = this.length;
-        const results: T[] = [];
+    getRow(index: number): T|undefined {
+        const row: Partial<T> = {};
+        let numValues = 0;
 
-        for (let i = 0; i < len; i++) {
-            const row: Partial<T> = {};
-            let numValues = 0;
-
-            for (const col of this.columns) {
-                const field = col.name as keyof T;
-                const rawValue = col.vector.get(i);
-                let val: any;
-                if (col.vector.valueToJSON) {
-                    val = col.vector.valueToJSON(rawValue);
-                } else {
-                    val = rawValue;
-                }
-
-                if (val != null) {
-                    numValues++;
-                    row[field] = val;
-                }
+        for (const col of this.columns) {
+            const field = col.name as keyof T;
+            const rawValue = col.vector.get(index);
+            let val: any;
+            if (col.vector.valueToJSON) {
+                val = col.vector.valueToJSON(rawValue);
+            } else {
+                val = rawValue;
             }
 
-            if (numValues) {
-                results.push(row as T);
+            if (val != null) {
+                numValues++;
+                row[field] = val;
             }
         }
 
-        return results;
+        return numValues ? row as T : undefined;
+    }
+
+    toJSON(): T[] {
+        return [...this];
     }
 }

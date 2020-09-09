@@ -11,7 +11,7 @@ export interface VectorOptions<T> {
 }
 
 /**
- * A typed Array class (with a constrained API)
+ * A append-only typed Array class (with a constrained API)
 */
 export abstract class Vector<T = unknown> {
     readonly type: FieldType;
