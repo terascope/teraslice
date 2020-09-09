@@ -1,6 +1,6 @@
 import { FieldType, Maybe } from '@terascope/types';
 import { castArray } from '@terascope/utils';
-import { Vector } from './base';
+import { Vector } from '../vector';
 import { CoerceFn } from '../interfaces';
 
 type Value<T> = Maybe<(Maybe<T>[])|Vector<T>>;

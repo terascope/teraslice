@@ -1,10 +1,12 @@
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import {
-    Vector, AnyVector, ListVector, StringVector
+    AnyVector, BigIntVector, FloatVector, IntVector, ListVector, StringVector
 } from './types';
+import { Vector } from './vector';
 
 export * from './interfaces';
 export * from './types';
+export * from './vector';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function newVector<T>(config: DataTypeFieldConfig, values: any[]): Vector<T> {
@@ -27,9 +29,29 @@ export function newVector<T>(config: DataTypeFieldConfig, values: any[]): Vector
 
 function _newVector<T>(type: FieldType, values: any[]): Vector<T> {
     switch (type) {
-        case FieldType.Keyword:
         case FieldType.String:
+        case FieldType.Text:
+        case FieldType.Keyword:
+        case FieldType.KeywordCaseInsensitive:
+        case FieldType.KeywordTokens:
+        case FieldType.KeywordTokensCaseInsensitive:
+        case FieldType.KeywordPathAnalyzer:
+        case FieldType.Domain:
+        case FieldType.Hostname:
+        case FieldType.IP:
+        case FieldType.IPRange:
             return new StringVector(type, values) as Vector<T>;
+        case FieldType.Float:
+        case FieldType.Number:
+        case FieldType.Double:
+            // Double can't supported entirely until we have BigFloat
+            return new FloatVector(type, values) as Vector<T>;
+        case FieldType.Byte:
+        case FieldType.Short:
+        case FieldType.Integer:
+            return new IntVector(type, values) as Vector<T>;
+        case FieldType.Long:
+            return new BigIntVector(type, values) as Vector<T>;
         default:
             return new AnyVector(type, values);
     }

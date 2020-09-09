@@ -1,6 +1,6 @@
 import { FieldType, Maybe, Nil } from '@terascope/types';
 import { toString } from '@terascope/utils';
-import { Vector } from './base';
+import { Vector } from '../vector';
 
 export class StringVector extends Vector<string> {
     constructor(type: FieldType, values: Maybe<string>[]) {

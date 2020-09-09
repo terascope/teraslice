@@ -1,5 +1,5 @@
 import { FieldType, Maybe } from '@terascope/types';
-import { CoerceFn } from '../interfaces';
+import { CoerceFn } from './interfaces';
 
 /**
  * A typed Array class (with a constrained API)
