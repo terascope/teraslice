@@ -30,6 +30,11 @@ describe('Vector', () => {
             [12.344, '2.01', BigInt(200), 1, null, undefined],
             [BigInt(12), BigInt(2), BigInt(200), BigInt(1), null, undefined]
         ],
+        [
+            FieldType.Boolean,
+            ['foo', 'yes', 'no', true, false, 0, 1, 2, null, undefined],
+            [true, true, false, true, false, false, true, true, null, undefined]
+        ],
     ];
 
     describe.each(testCases)('when field type is %s', (type, input, output) => {

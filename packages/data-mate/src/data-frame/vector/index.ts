@@ -20,5 +20,5 @@ export function newVector<T>(config: DataTypeFieldConfig, values: any[]): Vector
         }) as Vector<any>;
     }
 
-    return newVectorForType<T>(type, values);
+    return newVectorForType(type, values) as Vector<T>;
 }
