@@ -5,6 +5,9 @@ import { distributeRowsToColumns } from './utils';
 /**
  * An immutable columnar table with APIs for data pipelines.
  * Rows with only null/undefined values are ignored
+ *
+ * @todo we need to copy the metadata when forking
+ * @todo we need conventionally metadata
 */
 export class DataFrame<
     T extends Record<string, unknown> = Record<string, any>,
@@ -59,8 +62,8 @@ export class DataFrame<
      * Get a column by name
      * @returns a new DataFrame
     */
-    select<K extends keyof T>(fields: K[]): DataFrame<Pick<T, K>>|undefined {
-        const columns = fields.map((field) => this.getColumn(field)!);
+    select<K extends keyof T>(...fields: K[]): DataFrame<Pick<T, K>> {
+        const columns = fields.map((field) => this.getColumn(field)!.clone());
         return new DataFrame<Pick<T, K>>(
             columns as Column[]
         );
@@ -83,9 +86,7 @@ export class DataFrame<
      * Concat values to columns to this existing columns to a new DataFrame
      * This will eventually handle DataFrame, Vector or JSON input
     */
-    concat(
-        columns: Column[]
-    ): DataFrame<T> {
+    concat(columns: Column[]): DataFrame<T> {
         // FIXME this needs to append values not concat columns
         return new DataFrame<T>(
             this.columns.concat(columns)

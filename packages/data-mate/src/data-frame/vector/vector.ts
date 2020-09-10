@@ -1,4 +1,5 @@
 import { FieldType, Maybe } from '@terascope/types';
+import { clone } from '@terascope/utils';
 
 /**
  * The Vector Type, this will change how the data is stored and read
@@ -100,6 +101,23 @@ export abstract class Vector<T = unknown> {
     */
     distinct(): number {
         return new Set(this).size;
+    }
+
+    /**
+     * Create a copy of the data
+    */
+    clone(): Vector<T> {
+        const descriptors = Object.getOwnPropertyDescriptors(this);
+        // eslint-disable-next-line guard-for-in
+        for (const key in descriptors) {
+            if (key === '_values') {
+                descriptors[key].value = clone(descriptors[key].value);
+            }
+        }
+        return Object.create(
+            Object.getPrototypeOf(this),
+            descriptors
+        );
     }
 
     /**

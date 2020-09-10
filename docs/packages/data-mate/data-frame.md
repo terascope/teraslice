@@ -32,13 +32,18 @@ interface DataFrame<T extends Record<string, unknown> = Record<string, any>> {
     /**
      * Get the size of the DataFrame
     */
-    get size(): number;
+    readonly size: number;
+
+    /**
+     * Clone the Vector and the data
+    */
+    clone(): Vector<T>
 
     /**
      * Get a column by name
      * @returns a new DataFrame
     */
-    select<K extends keyof T>(fields: K[]): DataFrame<Pick<T, K>>|undefined;
+    select<K extends keyof T>(...fields: K[]): DataFrame<Pick<T, K>>;
 
     /**
      * Assign new columns to a new DataFrame
@@ -95,7 +100,7 @@ interface ColumnOptions<T> {
  * When adding or removing values it is better to create a new Column.
 */
 interface Column<T = unknown> {
-    protected readonly _vector: Vector<T>;
+    readonly version: DataTypeVersion;
     readonly name: string;
     readonly config: DataTypeFieldConfig;
 
@@ -106,7 +111,12 @@ interface Column<T = unknown> {
     /**
      * Get the size of the values in the Vector
     */
-    get size(): number;
+    readonly size: number;
+
+    /**
+     * Create a copy of the Column
+    */
+    clone(): Column<T>;
 
     /**
      * Get the underling Vector.
@@ -241,8 +251,6 @@ interface Vector<T = unknown> {
     readonly valueFrom?: ValueFromFn<T>;
     readonly valueToJSON?: ValueToJSONFn<T>;
 
-    protected readonly _values: Maybe<T>[];
-
     constructor(
         /**
          * This will be set automatically by specific Vector classes
@@ -256,7 +264,12 @@ interface Vector<T = unknown> {
     /**
      * Returns the number items in the Vector
     */
-    get size(): number;
+    readonly size: number;
+
+    /**
+     * Create a copy of the Vector
+    */
+    clone(): Vector<T>;
 
     /**
      * Gets the number distinct values in the Vector

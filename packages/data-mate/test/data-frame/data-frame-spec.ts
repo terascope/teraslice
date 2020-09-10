@@ -102,4 +102,52 @@ describe('DataFrame', () => {
             }
         ]);
     });
+
+    describe('when manipulating a DataFrame', () => {
+        type Person = { name: string; age: number; friends: string[] }
+        let dataFrame: DataFrame<Person>;
+
+        beforeEach(() => {
+            dataFrame = DataFrame.fromJSON<Person>({
+                version: LATEST_VERSION,
+                fields: {
+                    name: {
+                        type: FieldType.Keyword,
+                    },
+                    age: {
+                        type: FieldType.Short,
+                    },
+                    friends: {
+                        type: FieldType.Keyword,
+                        array: true,
+                    }
+                }
+            }, [
+                {
+                    name: 'Billy',
+                    age: 47,
+                    friends: ['Jill']
+                },
+                {
+                    name: 'Frank',
+                    age: 20,
+                    friends: ['Jill']
+                },
+                {
+                    name: 'Jill',
+                    age: 39,
+                    friends: ['Frank'] // sucks for Billy
+                }
+            ]);
+        });
+
+        describe('->select', () => {
+            it('should return a new column with just those fields', () => {
+                const selected = dataFrame.select('name', 'age');
+                const names = selected.columns.map(({ name }) => name);
+                expect(names).toEqual(['name', 'age']);
+                expect(selected.size).toEqual(dataFrame.size);
+            });
+        });
+    });
 });

@@ -1,4 +1,5 @@
-import { DataTypeFieldConfig, Maybe } from '@terascope/types';
+import { LATEST_VERSION } from '@terascope/data-types';
+import { DataTypeFieldConfig, Maybe, DataTypeVersion } from '@terascope/types';
 import { isVector, newVector, Vector } from './vector';
 
 /**
@@ -6,6 +7,7 @@ import { isVector, newVector, Vector } from './vector';
  */
 export interface ColumnOptions<T> {
     name: string;
+    version?: DataTypeVersion;
     config: DataTypeFieldConfig;
     values: Vector<T>|(Maybe<T>[]);
 }
@@ -18,11 +20,13 @@ export interface ColumnOptions<T> {
 */
 export class Column<T = unknown> {
     protected readonly _vector: Vector<T>;
+    readonly version: DataTypeVersion;
     readonly name: string;
     readonly config: DataTypeFieldConfig;
 
     constructor(options: ColumnOptions<T>) {
         this.name = options.name;
+        this.version = options.version ?? LATEST_VERSION;
         this.config = { ...options.config };
         if (isVector<T>(options.values)) {
             const vType = options.values.fieldType;
@@ -57,6 +61,15 @@ export class Column<T = unknown> {
     */
     get vector(): Vector<T> {
         return this._vector;
+    }
+
+    clone(): Column<T> {
+        return new Column<T>({
+            name: this.name,
+            version: this.version,
+            config: this.config,
+            values: this.vector.clone(),
+        });
     }
 
     /**

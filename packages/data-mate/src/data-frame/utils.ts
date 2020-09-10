@@ -21,6 +21,7 @@ export function distributeRowsToColumns(
 
     return fieldEntries.map(([name, fieldConfig]) => new Column({
         name,
+        version: config.version,
         config: fieldConfig,
         values: values[name].slice()
     }));

@@ -1,7 +1,7 @@
 import 'jest-fixtures';
 import { FieldType } from '@terascope/types';
 import { cloneDeep } from '@terascope/utils';
-import { bigIntToJSON, newVector } from '../../src';
+import { bigIntToJSON, newVector, Vector } from '../../src';
 
 describe('Vector', () => {
     type Case = [type: FieldType, input: any[], output?: any[]];
@@ -38,17 +38,37 @@ describe('Vector', () => {
     ];
 
     describe.each(testCases)('when field type is %s', (type, input, output) => {
+        let vector: Vector<any>;
+        let expected: any[];
+        beforeAll(() => {
+            vector = newVector({ type }, cloneDeep(input));
+            expected = (output ?? input).map((val) => {
+                if (typeof val === 'bigint') {
+                    return bigIntToJSON(val);
+                }
+                if (val === undefined) return null;
+                return val;
+            });
+        });
+
         it('should return the correct output', () => {
-            const vector = newVector({ type }, cloneDeep(input));
-            expect(vector.toJSON()).toEqual(
-                (output ?? input).map((val) => {
-                    if (typeof val === 'bigint') {
-                        return bigIntToJSON(val);
-                    }
-                    if (val === undefined) return null;
-                    return val;
-                })
-            );
+            expect(vector.toJSON()).toEqual(expected);
+        });
+
+        it('should return have the correct size', () => {
+            expect(vector.size).toBe(expected.length);
+        });
+
+        it('should have the correct distinct values', () => {
+            expect(vector.distinct()).toBe(new Set(expected).size);
+        });
+
+        it('should have the correct field type', () => {
+            expect(vector.fieldType).toBe(type);
+        });
+
+        it('should be an instance of a Vector', () => {
+            expect(vector).toBeInstanceOf(Vector);
         });
     });
 });
