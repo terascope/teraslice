@@ -13,9 +13,13 @@ describe('Column', () => {
             'Spiderman',
         ];
         beforeEach(() => {
-            col = new Column<string>('name', {
-                type: FieldType.Keyword,
-            }, values);
+            col = new Column<string>({
+                name: 'name',
+                config: {
+                    type: FieldType.Keyword,
+                },
+                values
+            });
         });
 
         it('should have the correct length', () => {
