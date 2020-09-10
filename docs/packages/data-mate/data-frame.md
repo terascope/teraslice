@@ -284,3 +284,8 @@ interface Vector<T = unknown> {
     toJSON<V = T>(): Maybe<V>[];
 }
 ```
+
+
+## Examples
+
+**TODO**
