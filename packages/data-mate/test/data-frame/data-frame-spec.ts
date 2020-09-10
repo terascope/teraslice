@@ -8,7 +8,7 @@ describe('DataFrame', () => {
         const dataFrame = DataFrame.fromJSON({ version: LATEST_VERSION, fields: {} }, []);
         expect(dataFrame).toBeInstanceOf(DataFrame);
         expect(dataFrame.columns).toBeArrayOfSize(0);
-        expect(dataFrame.length).toEqual(0);
+        expect(dataFrame.size).toEqual(0);
         expect(dataFrame.toJSON()).toEqual([]);
     });
 
@@ -26,7 +26,7 @@ describe('DataFrame', () => {
             }
         ]);
         expect(dataFrame.columns).toBeArrayOfSize(1);
-        expect(dataFrame.length).toEqual(1);
+        expect(dataFrame.size).toEqual(1);
         expect(dataFrame.toJSON()).toEqual([
             {
                 name: 'Billy'
@@ -55,7 +55,7 @@ describe('DataFrame', () => {
             {}
         ]);
         expect(dataFrame.columns).toBeArrayOfSize(1);
-        expect(dataFrame.length).toEqual(1);
+        expect(dataFrame.size).toEqual(1);
         expect(dataFrame.toJSON()).toEqual([
             {
                 name: 'Billy'
@@ -88,7 +88,7 @@ describe('DataFrame', () => {
             }
         ]);
         expect(dataFrame.columns).toBeArrayOfSize(2);
-        expect(dataFrame.length).toEqual(3);
+        expect(dataFrame.size).toEqual(3);
         expect(dataFrame.toJSON()).toEqual([
             {
                 name: 'Billy',
@@ -98,7 +98,7 @@ describe('DataFrame', () => {
                 age: 20
             },
             {
-                name: 'Jill',
+                name: 'Jill'
             }
         ]);
     });

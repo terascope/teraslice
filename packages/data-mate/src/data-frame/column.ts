@@ -45,10 +45,10 @@ export class Column<T = unknown> {
     }
 
     /**
-     * Get the length of the values in the Vector
+     * Get the size of the values in the Vector
     */
-    get length(): number {
-        return this._vector.length;
+    get size(): number {
+        return this._vector.size;
     }
 
     /**
@@ -77,8 +77,7 @@ export class Column<T = unknown> {
      * Get the distinct values in column
     */
     distinct(): number {
-        // FIXME
-        return -1;
+        return this._vector.distinct();
     }
 
     /**
@@ -88,8 +87,7 @@ export class Column<T = unknown> {
      * @returns the current column so it works like fluent API
     */
     map(fn: (value: Maybe<T>, index: number) => Maybe<T>): Column<T> {
-        const len = this.length;
-        for (let i = 0; i < len; i++) {
+        for (let i = 0; i < this.size; i++) {
             this.set(i, fn(this.get(i), i));
         }
         return this;
@@ -104,7 +102,7 @@ export class Column<T = unknown> {
      * @returns the accumulated values
     */
     reduce<R>(fn: (acc: R, value: Maybe<T>, index: number) => R, initial: R): R {
-        const len = this.length;
+        const len = this.size;
         let acc = initial;
         for (let i = 0; i < len; i++) {
             acc = fn(acc, this.get(i), i);
@@ -123,14 +121,16 @@ export class Column<T = unknown> {
     */
     rename<R = T>(
         columnOptions: ColumnOptions<R>,
-        fn: (value: Maybe<T>, index: number) => Maybe<R>
+        fn?: (value: Maybe<T>, index: number) => Maybe<R>
     ): Column<R> {
-        const len = this.length;
         const config = columnOptions?.config ?? this.config;
         const name = columnOptions?.name ?? this.name;
         const values: Maybe<R>[] = [];
-        for (let i = 0; i < len; i++) {
-            values.push(fn(this.get(i), i));
+        for (let i = 0; i < this.size; i++) {
+            const value = this.get(i);
+            values.push(
+                fn ? fn(value, i) : value as Maybe<R>
+            );
         }
         const vector = newVector<R>(config, values);
         return new Column<R>({
@@ -145,9 +145,8 @@ export class Column<T = unknown> {
      * @returns the new column so it works like fluent API
     */
     filter(fn: (value: Maybe<T>, index: number) => boolean): Column<T> {
-        const len = this.length;
         const values: Maybe<T>[] = [];
-        for (let i = 0; i < len; i++) {
+        for (let i = 0; i < this.size; i++) {
             const value = this.get(i);
             if (fn(value, i)) {
                 values.push(value);

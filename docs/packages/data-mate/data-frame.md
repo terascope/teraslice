@@ -9,6 +9,7 @@ title: Data Frame
 ```ts
 /**
  * An immutable columnar table with APIs for data pipelines
+ * Rows with only null/undefined values are ignored
 */
 interface DataFrame<T extends Record<string, unknown> = Record<string, any>> {
     /**
@@ -18,20 +19,20 @@ interface DataFrame<T extends Record<string, unknown> = Record<string, any>> {
         config: DataTypeConfig, records: R[]
     ): DataFrame<R>;
 
-    readonly config: DataTypeConfig;
     readonly columns: Column[];
+    /**
+     * Metadata about the DataFrame
+    */
+    readonly metadata?: Record<string, any>;
 
-    constructor(
-        config: DataTypeConfig,
-        columns: Column[],
-    ): DataFrame<T>
+    constructor(columns: Column[], metadata?: Record<string, any>): DataFrame<T>
 
     * [Symbol.iterator](): IterableIterator<T>;
 
     /**
-     * Get the length of the DataFrame
+     * Get the size of the DataFrame
     */
-    get length(): number;
+    get size(): number;
 
     /**
      * Get a column by name
@@ -51,9 +52,7 @@ interface DataFrame<T extends Record<string, unknown> = Record<string, any>> {
      * Concat values to columns to this existing columns to a new DataFrame
      * This will eventually handle DataFrame, Vector or JSON input
     */
-    concat(
-        columns: Column[]
-    ): DataFrame<T>;
+    concat(columns: Column[]): DataFrame<T>;
 
     /**
      * Get a column by name
@@ -92,7 +91,7 @@ interface ColumnOptions<T> {
 /**
  * A single column of values with the same data type.
  *
- * Changing the values is safe as long the length doesn't change.
+ * Changing the values is safe as long the size doesn't change.
  * When adding or removing values it is better to create a new Column.
 */
 interface Column<T = unknown> {
@@ -105,9 +104,9 @@ interface Column<T = unknown> {
     * [Symbol.iterator](): IterableIterator<Maybe<T>>;
 
     /**
-     * Get the length of the values in the Vector
+     * Get the size of the values in the Vector
     */
-    get length(): number;
+    get size(): number;
 
     /**
      * Get the underling Vector.
@@ -133,7 +132,7 @@ interface Column<T = unknown> {
     /**
      * Map over the values and mutate them (must keep the same data type)
      *
-     * @note this mutates the values but doesn't change the length
+     * @note this mutates the values but doesn't change the size
      * @returns the current column so it works like fluent API
     */
     map(fn: (value: Maybe<T>, index: number) => Maybe<T>): Column<T>;
@@ -150,7 +149,7 @@ interface Column<T = unknown> {
 
     /**
      * Creates a new column, you can optionally transform the values
-     * but shouldn't change the length.
+     * but shouldn't change the size.
      *
      * This can be used to change the name, type of column.
      * Useful for replacing a column in a DataFrame.
@@ -159,16 +158,17 @@ interface Column<T = unknown> {
     */
     rename<R = T>(
         columnOptions: ColumnOptions<R>,
-        fn: (value: Maybe<T>, index: number) => Maybe<R>
+        fn?: (value: Maybe<T>, index: number) => Maybe<R>
     ): Column<R>;
 
     /**
      * Creates a new column, you can optionally transform the values
-     * but shouldn't change the length.
+     * but shouldn't change the size.
      *
      * @returns the new column so it works like fluent API
     */
     filter(fn: (value: Maybe<T>, index: number) => boolean): Column<T>;
+
     /**
      * Convert the Column an array of values (the output is JSON compatible)
      *
@@ -182,7 +182,7 @@ interface Column<T = unknown> {
 
 ```ts
 /**
- * The Vector Type, this will change how the data is stored and read
+ * A typed, fixed-length Array class with a constrained API.
 */
 enum VectorType {
     /**
@@ -256,7 +256,12 @@ interface Vector<T = unknown> {
     /**
      * Returns the number items in the Vector
     */
-    get length(): number;
+    get size(): number;
+
+    /**
+     * Gets the number distinct values in the Vector
+    */
+    distinct(): number;
 
     /**
      * Get value by index
@@ -272,15 +277,6 @@ interface Vector<T = unknown> {
      * Slice get select values from vector
     */
     slice(start: number, end?: number): Maybe<T>[];
-
-    /**
-     * Append a value to the end of the array
-     *
-     * **WARNING:**
-     *     Use with caution, especially when this vector is used
-     *     within the context of a DataFrame
-    */
-    append(value: Maybe<T>): number;
 
     /**
      * Convert the Vector an array of values (the output should be JSON compatible)

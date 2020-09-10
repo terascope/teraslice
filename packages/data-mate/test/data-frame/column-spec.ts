@@ -10,7 +10,7 @@ describe('Column', () => {
             'Robin',
             'Superman',
             null,
-            'Spiderman',
+            'SpiderMan',
         ];
         beforeEach(() => {
             col = new Column<string>({
@@ -22,8 +22,8 @@ describe('Column', () => {
             });
         });
 
-        it('should have the correct length', () => {
-            expect(col.length).toEqual(values.length);
+        it('should have the correct size', () => {
+            expect(col.size).toEqual(values.length);
         });
 
         it('should be able to iterate over the values', () => {

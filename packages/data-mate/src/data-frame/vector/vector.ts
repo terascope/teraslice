@@ -50,7 +50,7 @@ export interface VectorOptions<T> {
 }
 
 /**
- * A append-only typed Array class with a constrained API.
+ * A typed, fixed-length Array class with a constrained API.
  *
  * @note null/undefined values are treated the same
 */
@@ -60,11 +60,8 @@ export abstract class Vector<T = unknown> {
     readonly valueFrom?: ValueFromFn<T>;
     readonly valueToJSON?: ValueToJSONFn<T>;
 
+    protected readonly _size: number;
     protected readonly _values: Maybe<T>[];
-
-    static [Symbol.hasInstance](instance: unknown): boolean {
-        return isVector(instance);
-    }
 
     constructor(
         /**
@@ -80,9 +77,11 @@ export abstract class Vector<T = unknown> {
         this.valueFrom = valueFrom;
         this.valueToJSON = valueToJSON;
 
-        this._values = valueFrom
-            ? values.map((value) => valueFrom(value, this))
-            : values.slice();
+        this._size = values.length;
+        this._values = Array(this.size);
+        for (let i = 0; i < this.size; i++) {
+            this.set(i, values[i]);
+        }
     }
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
@@ -92,8 +91,15 @@ export abstract class Vector<T = unknown> {
     /**
      * Returns the number items in the Vector
     */
-    get length(): number {
-        return this._values.length;
+    get size(): number {
+        return this._size;
+    }
+
+    /**
+     * Gets the number distinct values in the Vector
+    */
+    distinct(): number {
+        return new Set(this).size;
     }
 
     /**
@@ -107,7 +113,9 @@ export abstract class Vector<T = unknown> {
      * Set a value by index
     */
     set(index: number, value: Maybe<T>): void {
-        this._values[index] = this.valueFrom ? this.valueFrom(value, this) : value;
+        this._values[index] = (
+            this.valueFrom ? this.valueFrom(value, this) : value
+        ) ?? null;
     }
 
     /**
@@ -115,17 +123,6 @@ export abstract class Vector<T = unknown> {
     */
     slice(start: number, end?: number): Maybe<T>[] {
         return this._values.slice(start, end);
-    }
-
-    /**
-     * Append a value to the end of the array
-     *
-     * **WARNING:**
-     *     Use with caution, especially when this vector is used
-     *     within the context of a DataFrame
-    */
-    append(value: Maybe<T>): number {
-        return this._values.push(this.valueFrom ? this.valueFrom(value, this) : value);
     }
 
     /**
@@ -148,10 +145,5 @@ export abstract class Vector<T = unknown> {
  * Returns true if the input is a Vector
  */
 export function isVector<T>(input: unknown): input is Vector<T> {
-    if (input && typeof input === 'object') {
-        if ('toJSON' in input && 'append' in input) {
-            return true;
-        }
-    }
-    return false;
+    return input instanceof Vector;
 }

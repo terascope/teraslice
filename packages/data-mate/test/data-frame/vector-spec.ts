@@ -45,6 +45,7 @@ describe('Vector', () => {
                     if (typeof val === 'bigint') {
                         return bigIntToJSON(val);
                     }
+                    if (val === undefined) return null;
                     return val;
                 })
             );

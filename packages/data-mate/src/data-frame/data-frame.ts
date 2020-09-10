@@ -1,12 +1,15 @@
 import { DataTypeConfig } from '@terascope/types';
-import { fastCloneDeep } from '@terascope/utils';
 import { Column } from './column';
 import { distributeRowsToColumns } from './utils';
 
 /**
- * An immutable columnar table with APIs for data pipelines
+ * An immutable columnar table with APIs for data pipelines.
+ * Rows with only null/undefined values are ignored
 */
-export class DataFrame<T extends Record<string, unknown> = Record<string, any>> {
+export class DataFrame<
+    T extends Record<string, unknown> = Record<string, any>,
+    M extends Record<string, unknown> = Record<string, any>
+> {
     /**
      * Create a DataFrame from an array of JSON objects
     */
@@ -14,24 +17,32 @@ export class DataFrame<T extends Record<string, unknown> = Record<string, any>> 
         config: DataTypeConfig, records: R[]
     ): DataFrame<R> {
         return new DataFrame(
-            config,
             distributeRowsToColumns(config, records),
         );
     }
 
-    readonly config: DataTypeConfig;
     readonly columns: Column[];
+    /**
+     * Metadata about the DataFrame
+    */
+    readonly metadata?: Record<string, any>;
 
-    constructor(
-        config: DataTypeConfig,
-        columns: Column[],
-    ) {
-        this.config = fastCloneDeep(config);
+    private readonly _size: number;
+
+    constructor(columns: Column[], metadata?: M) {
+        this.metadata = metadata;
         this.columns = columns.slice();
+        const lengths = this.columns.map((col) => col.size);
+        if (new Set(lengths).size > 1) {
+            throw new Error(
+                'All columns for a data frame must have the same length'
+            );
+        }
+        this._size = lengths[0] ?? 0;
     }
 
     * [Symbol.iterator](): IterableIterator<T> {
-        for (let i = 0; i < this.length; i++) {
+        for (let i = 0; i < this.size; i++) {
             const row = this.getRow(i, false);
             if (row) yield row;
         }
@@ -40,9 +51,8 @@ export class DataFrame<T extends Record<string, unknown> = Record<string, any>> 
     /**
      * Get the length of the DataFrame
     */
-    get length(): number {
-        if (this.columns[0] == null) return 0;
-        return this.columns[0].length;
+    get size(): number {
+        return this._size;
     }
 
     /**
@@ -52,7 +62,7 @@ export class DataFrame<T extends Record<string, unknown> = Record<string, any>> 
     select<K extends keyof T>(fields: K[]): DataFrame<Pick<T, K>>|undefined {
         const columns = fields.map((field) => this.getColumn(field)!);
         return new DataFrame<Pick<T, K>>(
-            this.config, columns as Column[]
+            columns as Column[]
         );
     }
 
@@ -65,7 +75,6 @@ export class DataFrame<T extends Record<string, unknown> = Record<string, any>> 
     ): DataFrame<T & R> {
         // FIXME config, remove duplicate columns, ensure same length
         return new DataFrame<T & R>(
-            this.config,
             this.columns.concat(columns) as Column<any>[],
         );
     }
@@ -79,7 +88,6 @@ export class DataFrame<T extends Record<string, unknown> = Record<string, any>> 
     ): DataFrame<T> {
         // FIXME this needs to append values not concat columns
         return new DataFrame<T>(
-            this.config,
             this.columns.concat(columns)
         );
     }
@@ -100,7 +108,7 @@ export class DataFrame<T extends Record<string, unknown> = Record<string, any>> 
     }
 
     /**
-     * Get a row by index
+     * Get a row by index, if the row has only null values, returns undefined
     */
     getRow(index: number, returnJSON = false): T|undefined {
         const row: Partial<T> = {};
@@ -130,7 +138,7 @@ export class DataFrame<T extends Record<string, unknown> = Record<string, any>> 
     */
     toJSON(): T[] {
         const rows: T[] = [];
-        for (let i = 0; i < this.length; i++) {
+        for (let i = 0; i < this.size; i++) {
             const row = this.getRow(i, true);
             if (row) rows.push(row);
         }
