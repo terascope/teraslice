@@ -196,6 +196,10 @@ enum VectorType {
     Float = 'Float',
     BigInt = 'BigInt',
     Boolean = 'Boolean',
+    /** @todo */
+    Geo = 'Geo',
+    /** @todo */
+    Object = 'Object',
     /**
      * Arbitrary data can be stored with this
     */
