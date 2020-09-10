@@ -14,4 +14,8 @@ export class BooleanVector extends Vector<boolean> {
             ...options,
         });
     }
+
+    clone(options: VectorOptions<boolean>): BooleanVector {
+        return new BooleanVector(options);
+    }
 }

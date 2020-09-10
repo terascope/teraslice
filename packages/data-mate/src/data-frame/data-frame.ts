@@ -4,8 +4,9 @@ import { distributeRowsToColumns } from './utils';
 
 /**
  * An immutable columnar table with APIs for data pipelines.
- * Rows with only null/undefined values are ignored
  *
+ * @todo add name to the data frame
+ * @todo remove the empty record logic
  * @todo we need to copy the metadata when forking
  * @todo we need conventionally metadata
 */

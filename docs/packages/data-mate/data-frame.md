@@ -19,13 +19,18 @@ interface DataFrame<T extends Record<string, unknown> = Record<string, any>> {
         config: DataTypeConfig, records: R[]
     ): DataFrame<R>;
 
+    readonly name: string;
     readonly columns: Column[];
     /**
      * Metadata about the DataFrame
     */
     readonly metadata?: Record<string, any>;
 
-    constructor(columns: Column[], metadata?: Record<string, any>): DataFrame<T>
+    constructor(
+        columns: Column[],
+        name?: string,
+        metadata?: Record<string, any>
+    ): DataFrame<T>
 
     * [Symbol.iterator](): IterableIterator<T>;
 
@@ -35,13 +40,7 @@ interface DataFrame<T extends Record<string, unknown> = Record<string, any>> {
     readonly size: number;
 
     /**
-     * Clone the Vector and the data
-    */
-    clone(): Vector<T>
-
-    /**
-     * Get a column by name
-     * @returns a new DataFrame
+     * Get a columns by name, returns a new DataFrame
     */
     select<K extends keyof T>(...fields: K[]): DataFrame<Pick<T, K>>;
 
@@ -122,7 +121,7 @@ interface Column<T = unknown> {
      * Get the underling Vector.
      * Use with caution since it can cause this Column/DataFrame to be out-of-sync
     */
-    get vector(): Vector<T>;
+    readonly vector: Vector<T>;
 
     /**
      * Get value by index
@@ -192,7 +191,7 @@ interface Column<T = unknown> {
 
 ```ts
 /**
- * A typed, fixed-length Array class with a constrained API.
+ * The Vector Type, this will change how the data is stored and read
 */
 enum VectorType {
     /**
@@ -241,7 +240,7 @@ interface VectorOptions<T> {
 }
 
 /**
- * A append-only typed Array class with a constrained API
+ * An immutable typed Array class with a constrained API.
  *
  * @note null/undefined values are treated the same
 */
@@ -289,7 +288,7 @@ interface Vector<T = unknown> {
     /**
      * Slice get select values from vector
     */
-    slice(start: number, end?: number): Maybe<T>[];
+    slice(start?: number, end?: number): Maybe<T>[];
 
     /**
      * Convert the Vector an array of values (the output should be JSON compatible)

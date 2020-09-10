@@ -1,5 +1,4 @@
 import { FieldType, Maybe } from '@terascope/types';
-import { clone } from '@terascope/utils';
 
 /**
  * The Vector Type, this will change how the data is stored and read
@@ -51,9 +50,11 @@ export interface VectorOptions<T> {
 }
 
 /**
- * A typed, fixed-length Array class with a constrained API.
+ * An immutable typed Array class with a constrained API.
  *
  * @note null/undefined values are treated the same
+ *
+ * @todo make immutable
 */
 export abstract class Vector<T = unknown> {
     readonly type: VectorType;
@@ -81,7 +82,10 @@ export abstract class Vector<T = unknown> {
         this._size = values.length;
         this._values = Array(this.size);
         for (let i = 0; i < this.size; i++) {
-            this.set(i, values[i]);
+            const value = values[i];
+            this._values[i] = (
+                this.valueFrom ? this.valueFrom(value, this) : value
+            ) ?? null;
         }
     }
 
@@ -104,23 +108,6 @@ export abstract class Vector<T = unknown> {
     }
 
     /**
-     * Create a copy of the data
-    */
-    clone(): Vector<T> {
-        const descriptors = Object.getOwnPropertyDescriptors(this);
-        // eslint-disable-next-line guard-for-in
-        for (const key in descriptors) {
-            if (key === '_values') {
-                descriptors[key].value = clone(descriptors[key].value);
-            }
-        }
-        return Object.create(
-            Object.getPrototypeOf(this),
-            descriptors
-        );
-    }
-
-    /**
      * Get value by index
     */
     get(index: number): Maybe<T> {
@@ -128,18 +115,33 @@ export abstract class Vector<T = unknown> {
     }
 
     /**
-     * Set a value by index
+     * Create a copy of the data
     */
-    set(index: number, value: Maybe<T>): void {
-        this._values[index] = (
-            this.valueFrom ? this.valueFrom(value, this) : value
-        ) ?? null;
+    abstract clone(options: VectorOptions<T>): Vector<T>;
+
+    /**
+     * Map over the values and mutate them (must keep the same data type)
+     *
+     * @returns the new vector
+    */
+    map(fn: (value: Maybe<T>, index: number) => Maybe<T>): Vector<T> {
+        const values: Maybe<T>[] = Array(this.size);
+        for (let i = 0; i < this.size; i++) {
+            values[i] = fn(this.get(i), i);
+        }
+
+        return this.clone({
+            valueFrom: this.valueFrom,
+            valueToJSON: this.valueToJSON,
+            fieldType: this.fieldType,
+            values
+        });
     }
 
     /**
      * Slice get select values from vector
     */
-    slice(start: number, end?: number): Maybe<T>[] {
+    slice(start?: number, end?: number): Maybe<T>[] {
         return this._values.slice(start, end);
     }
 

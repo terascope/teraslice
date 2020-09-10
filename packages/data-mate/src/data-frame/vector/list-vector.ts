@@ -26,4 +26,8 @@ export class ListVector<T = unknown> extends Vector<Vector<T>> {
             ...options,
         });
     }
+
+    clone(options: VectorOptions<Vector<T>>): ListVector<T> {
+        return new ListVector(options);
+    }
 }

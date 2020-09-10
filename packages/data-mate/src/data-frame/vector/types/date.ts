@@ -21,4 +21,8 @@ export class DateVector extends Vector<string> {
             ...options,
         });
     }
+
+    clone(options: VectorOptions<string>): DateVector {
+        return new DateVector(options);
+    }
 }

@@ -33,4 +33,8 @@ export class BigIntVector extends Vector<bigint> {
             ...options,
         });
     }
+
+    clone(options: VectorOptions<bigint>): BigIntVector {
+        return new BigIntVector(options);
+    }
 }

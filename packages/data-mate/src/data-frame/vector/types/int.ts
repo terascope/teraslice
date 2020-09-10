@@ -13,4 +13,8 @@ export class IntVector extends Vector<number> {
             ...options,
         });
     }
+
+    clone(options: VectorOptions<number>): IntVector {
+        return new IntVector(options);
+    }
 }

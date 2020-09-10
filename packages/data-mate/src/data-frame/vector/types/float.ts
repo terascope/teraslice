@@ -13,4 +13,8 @@ export class FloatVector extends Vector<number> {
             ...options,
         });
     }
+
+    clone(options: VectorOptions<number>): FloatVector {
+        return new FloatVector(options);
+    }
 }

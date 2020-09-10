@@ -13,4 +13,8 @@ export class StringVector extends Vector<string> {
             ...options,
         });
     }
+
+    clone(options: VectorOptions<string>): StringVector {
+        return new StringVector(options);
+    }
 }

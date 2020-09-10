@@ -68,7 +68,7 @@ export class Column<T = unknown> {
             name: this.name,
             version: this.version,
             config: this.config,
-            values: this.vector.clone(),
+            values: this.vector.slice(),
         });
     }
 
@@ -77,13 +77,6 @@ export class Column<T = unknown> {
     */
     get(index: number): Maybe<T> {
         return this._vector.get(index);
-    }
-
-    /**
-     * Set a value by index
-    */
-    set(index: number, value: Maybe<T>): void {
-        return this._vector.set(index, value);
     }
 
     /**
@@ -96,14 +89,15 @@ export class Column<T = unknown> {
     /**
      * Map over the values and mutate them (must keep the same data type)
      *
-     * @note this mutates the values but doesn't change the length
-     * @returns the current column so it works like fluent API
+     * @returns the new column
     */
     map(fn: (value: Maybe<T>, index: number) => Maybe<T>): Column<T> {
-        for (let i = 0; i < this.size; i++) {
-            this.set(i, fn(this.get(i), i));
-        }
-        return this;
+        return new Column<T>({
+            name: this.name,
+            version: this.version,
+            config: this.config,
+            values: this._vector.map(fn),
+        });
     }
 
     /**
