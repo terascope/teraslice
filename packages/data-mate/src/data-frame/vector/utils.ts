@@ -7,8 +7,8 @@ import {
  * Create primitive vector types, does not deal with array or object type fields
 */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function newVectorForType(type: FieldType, values: any[]) {
-    switch (type) {
+export function newVectorForType(fieldType: FieldType, values: any[]) {
+    switch (fieldType) {
         case FieldType.String:
         case FieldType.Text:
         case FieldType.Keyword:
@@ -20,23 +20,23 @@ export function newVectorForType(type: FieldType, values: any[]) {
         case FieldType.Hostname:
         case FieldType.IP:
         case FieldType.IPRange:
-            return new StringVector({ type, values });
+            return new StringVector({ fieldType, values });
         case FieldType.Date:
-            return new DateVector({ type, values });
+            return new DateVector({ fieldType, values });
         case FieldType.Boolean:
-            return new BooleanVector({ type, values });
+            return new BooleanVector({ fieldType, values });
         case FieldType.Float:
         case FieldType.Number:
         case FieldType.Double:
             // Double can't supported entirely until we have BigFloat
-            return new FloatVector({ type, values });
+            return new FloatVector({ fieldType, values });
         case FieldType.Byte:
         case FieldType.Short:
         case FieldType.Integer:
-            return new IntVector({ type, values });
+            return new IntVector({ fieldType, values });
         case FieldType.Long:
-            return new BigIntVector({ type, values });
+            return new BigIntVector({ fieldType, values });
         default:
-            return new AnyVector({ type, values });
+            return new AnyVector({ fieldType, values });
     }
 }

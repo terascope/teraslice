@@ -1,11 +1,11 @@
 import { Maybe, Nil } from '@terascope/types';
-import { Vector, VectorOptions } from '../vector';
+import { Vector, VectorOptions, VectorType } from '../vector';
 
 /**
  * @todo this should probably be handled better
  */
 export class DateVector extends Vector<string> {
-    static valueFromJSON(value: unknown): Maybe<string> {
+    static valueFrom(value: unknown): Maybe<string> {
         if (value == null) return value as Nil;
         return String(value);
     }
@@ -15,8 +15,8 @@ export class DateVector extends Vector<string> {
     }
 
     constructor(options: VectorOptions<string>) {
-        super({
-            valueFromJSON: DateVector.valueFromJSON,
+        super(VectorType.Date, {
+            valueFrom: DateVector.valueFrom,
             valueToJSON: DateVector.valueToJSON,
             ...options,
         });

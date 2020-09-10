@@ -19,9 +19,11 @@ export function distributeRowsToColumns(
         }
     }
 
-    return fieldEntries.map(([name, fieldConfig]) => new Column(
-        name, fieldConfig, values[name].slice()
-    ));
+    return fieldEntries.map(([name, fieldConfig]) => new Column({
+        name,
+        config: fieldConfig,
+        values: values[name].slice()
+    }));
 }
 
 function isEmptyObj(obj: Record<string, unknown>, fieldConfig: DataTypeFields): boolean {

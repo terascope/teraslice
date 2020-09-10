@@ -66,6 +66,7 @@
                 "label": "data-mate",
                 "ids": [
                     "packages/data-mate/overview",
+                    "packages/data-mate/data-frame",
                     "packages/data-mate/api/overview"
                 ]
             },
