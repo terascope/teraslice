@@ -156,10 +156,9 @@ export abstract class Vector<T = unknown> {
     }
 
     /**
-     * Slice get select values from vector
+     * Create a new Vector with the range of values
     */
     slice(start?: number, end?: number): Vector<T> {
-        // FIXME this doesn't handle coercion
         return this.clone(Object.freeze({
             values: Object.freeze(
                 this.data.values.slice(start, end)

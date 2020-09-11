@@ -163,8 +163,10 @@ describe('DataFrame', () => {
                 });
                 newCol.name = 'upper_name';
                 const resultFrame = dataFrame.assign([newCol]);
+
                 const names = resultFrame.columns.map(({ name }) => name);
                 expect(names).toEqual(['name', 'age', 'friends', 'upper_name']);
+
                 expect(resultFrame.size).toEqual(dataFrame.size);
             });
 
@@ -174,13 +176,16 @@ describe('DataFrame', () => {
                     return str.toUpperCase();
                 });
                 const resultFrame = dataFrame.assign([newCol]);
+
                 const names = resultFrame.columns.map(({ name }) => name);
                 expect(names).toEqual(['name', 'age', 'friends']);
+
                 expect(resultFrame.getColumn('name')!.toJSON()).toEqual([
                     'BILLY',
                     'FRANK',
                     'JILL'
                 ]);
+
                 expect(resultFrame.size).toEqual(dataFrame.size);
             });
         });
@@ -188,13 +193,27 @@ describe('DataFrame', () => {
         describe('->rename', () => {
             it('should be able to rename a column DataFrame', () => {
                 const resultFrame = dataFrame.rename('friends', 'old_friends');
+
                 const names = resultFrame.columns.map(({ name }) => name);
                 expect(names).toEqual(['name', 'age', 'old_friends']);
+
                 for (const row of resultFrame) {
                     expect(row).toHaveProperty('old_friends');
                     expect(row).not.toHaveProperty('friends');
                 }
+
                 expect(resultFrame.size).toEqual(dataFrame.size);
+            });
+        });
+
+        describe('->slice', () => {
+            it('should be able to get the first two rows', () => {
+                const resultFrame = dataFrame.slice(0, 2);
+
+                expect(resultFrame.size).toEqual(2);
+                expect(resultFrame.toJSON()).toEqual(
+                    dataFrame.toJSON().slice(0, 2)
+                );
             });
         });
     });

@@ -110,11 +110,9 @@ export class DataFrame<
      * @returns a new DataFrame
     */
     select<K extends keyof T>(...fields: K[]): DataFrame<Pick<T, K>> {
-        const columns = fields.map((field) => this.getColumn(field));
-        return new DataFrame<Pick<T, K>>({
-            name: this.name,
-            columns: columns as Column<any>[]
-        });
+        return this.clone(fields.map(
+            (field): Column<any> => this.getColumn(field)!
+        ));
     }
 
     /**
@@ -187,6 +185,15 @@ export class DataFrame<
         }
 
         return row as T;
+    }
+
+    /**
+     * Create a new DataFrame with a range of rows
+    */
+    slice(start?: number, end?: number): DataFrame<T> {
+        return this.clone(this.columns.map(
+            (col) => col.clone(col.vector.slice(start, end))
+        ));
     }
 
     /**
