@@ -1,4 +1,4 @@
-import { DataTypeConfig } from '@terascope/types';
+import { DataTypeConfig, Maybe } from '@terascope/types';
 import { Column } from './column';
 import { columnsToDataTypeConfig, distributeRowsToColumns } from './utils';
 
@@ -56,7 +56,7 @@ export class DataFrame<
     */
     readonly metadata: M;
 
-    private readonly _size: number;
+    protected readonly _size: number;
 
     constructor(options: DataFrameOptions<T, M>) {
         this.name = options.name;
@@ -168,19 +168,15 @@ export class DataFrame<
     /**
      * Get a row by index, if the row has only null values, returns undefined
     */
-    getRow(index: number, returnJSON = false): T|undefined {
+    getRow(index: number, json = false): T|undefined {
         if (index > (this.size - 1)) return;
 
         const row: Partial<T> = {};
         for (const col of this.columns) {
             const field = col.name as keyof T;
-            const rawValue = col.vector.get(index);
-            let val: any;
-            if (returnJSON && col.vector.valueToJSON) {
-                val = col.vector.valueToJSON(rawValue);
-            } else {
-                val = rawValue;
-            }
+            const val = col.vector.get(
+                index, json
+            ) as Maybe<T[keyof T]>;
 
             if (val != null) {
                 row[field] = val;

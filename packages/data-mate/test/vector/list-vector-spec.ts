@@ -54,7 +54,6 @@ describe('ListVector', () => {
         test.todo('should be immutable');
     });
 
-    test.todo('->map');
     test.todo('->reduce');
     test.todo('->filter');
 });

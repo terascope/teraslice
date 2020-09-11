@@ -1,4 +1,4 @@
-import { FieldType, Maybe } from '@terascope/types';
+import { FieldType, Maybe, Nil } from '@terascope/types';
 
 /**
  * The Vector Type, this will change how the data is stored and read
@@ -43,6 +43,9 @@ export interface VectorOptions<T> {
     data: Data<T>;
     valueToJSON?: ValueToJSONFn<T>;
 }
+
+export type JSONValue<T> = T extends Vector<infer U> ? U[] : T;
+export type MaybeJSONValue<T> = Maybe<T>|Maybe<JSONValue<T>>;
 
 /**
  * A data type agnostic in-memory representation of the data
@@ -104,8 +107,11 @@ export abstract class Vector<T = unknown> {
     /**
      * Get value by index
     */
-    get(index: number): Maybe<T> {
-        return this.data.values[index];
+    get(index: number, json?: boolean): Maybe<T>|Maybe<JSONValue<T>> {
+        const val = this.data.values[index];
+        if (val == null) return val as Nil;
+        if (!json || !this.valueToJSON) return val;
+        return this.valueToJSON(val);
     }
 
     /**
@@ -114,27 +120,15 @@ export abstract class Vector<T = unknown> {
     abstract clone(data?: Data<T>): Vector<T>;
 
     /**
-     * Map over the values and return new a new Vector
-    */
-    map(fn: (value: Maybe<T>, index: number) => Maybe<T>): Vector<T> {
-        const values: Maybe<T>[] = Array(this.size);
-        for (let i = 0; i < this.size; i++) {
-            values[i] = fn(this.get(i), i);
-        }
-
-        // FIXME this doesn't handle coercion
-        return this.clone(Object.freeze({
-            values: Object.freeze(values)
-        }));
-    }
-
-    /**
      * Filter the values in the Vector, returns new Vector
     */
-    filter(fn: (value: Maybe<T>, index: number) => boolean): Vector<T> {
-        const values: Maybe<T>[] = [];
+    filter(
+        fn: (value: MaybeJSONValue<T>, index: number) => boolean,
+        json?: boolean
+    ): Vector<T> {
+        const values: Maybe<any>[] = [];
         for (let i = 0; i < this.size; i++) {
-            const val = this.get(i);
+            const val = this.get(i, json as any);
             if (fn(val, i)) {
                 values.push(val);
             }
@@ -149,10 +143,14 @@ export abstract class Vector<T = unknown> {
     /**
      * Reduce the values in the Vector, returns the result
     */
-    reduce<R>(fn: (acc: R, value: Maybe<T>, index: number) => R, initial: R): R {
+    reduce<R>(
+        fn: (acc: R, value: MaybeJSONValue<T>, index: number) => R,
+        initial: R,
+        json?: boolean
+    ): R {
         let acc = initial;
         for (let i = 0; i < this.size; i++) {
-            acc = fn(acc, this.get(i), i);
+            acc = fn(acc, this.get(i, json), i);
         }
         return acc;
     }
@@ -163,21 +161,19 @@ export abstract class Vector<T = unknown> {
     slice(start?: number, end?: number): Vector<T> {
         // FIXME this doesn't handle coercion
         return this.clone(Object.freeze({
-            values: Object.freeze(this.data.values.slice(start, end))
+            values: Object.freeze(
+                this.data.values.slice(start, end)
+            )
         }));
     }
 
     /**
      * Convert the Vector an array of values (the output is JSON compatible)
     */
-    toJSON<V = T>(): Maybe<V>[] {
-        if (!this.valueToJSON) {
-            return [...this] as any[];
-        }
-
-        const res: Maybe<V>[] = [];
-        for (const value of this) {
-            res.push(this.valueToJSON(value, this));
+    toJSON(): Maybe<JSONValue<T>>[] {
+        const res: Maybe<JSONValue<T>>[] = Array(this.size);
+        for (let i = 0; i < this.size; i++) {
+            res.push(this.get(i, true) as JSONValue<T>);
         }
         return res;
     }

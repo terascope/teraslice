@@ -1,7 +1,7 @@
 import { LATEST_VERSION } from '@terascope/data-types';
 import { DataTypeFieldConfig, Maybe, DataTypeVersion } from '@terascope/types';
 import { newBuilder } from '../builder';
-import { Vector } from '../vector';
+import { JSONValue, Vector } from '../vector';
 
 /**
  * Column options
@@ -20,10 +20,11 @@ export interface ColumnOptions<T> {
  * When adding or removing values it is better to create a new Column.
 */
 export class Column<T = unknown> {
-    protected readonly _vector: Vector<T>;
+    name: string;
     readonly version: DataTypeVersion;
-    readonly name: string;
     readonly config: DataTypeFieldConfig;
+
+    protected readonly _vector: Vector<T>;
 
     static fromJSON<R>(
         options: Omit<ColumnOptions<R>, 'vector'>,
@@ -70,6 +71,9 @@ export class Column<T = unknown> {
         return this._vector;
     }
 
+    /**
+     * Create a copy of the Column
+    */
     clone(vector?: Vector<T>): Column<T> {
         return new Column<T>({
             name: this.name,
@@ -80,48 +84,22 @@ export class Column<T = unknown> {
     }
 
     /**
-     * Get value by index
-    */
-    get(index: number): Maybe<T> {
-        return this._vector.get(index);
-    }
-
-    /**
-     * Get the distinct values in column
-    */
-    distinct(): number {
-        return this._vector.distinct();
-    }
-
-    /**
      * Map over the values and mutate them (must keep the same data type)
      *
      * @returns the new column
     */
     map(fn: (value: Maybe<T>, index: number) => Maybe<T>): Column<T> {
+        const builder = newBuilder<T>(this.config);
+        for (let i = 0; i < this.size; i++) {
+            const value = this.vector.get(i) as Maybe<T>;
+            builder.append(fn(value, i));
+        }
         return new Column<T>({
             name: this.name,
             version: this.version,
             config: this.config,
-            vector: this._vector.map(fn),
+            vector: builder.toVector()
         });
-    }
-
-    /**
-     * Reduce the column to particular value.
-     *
-     * In the future we will have optimized reducers
-     * depending on the data type reducer.
-     *
-     * @returns the accumulated values
-    */
-    reduce<R>(fn: (acc: R, value: Maybe<T>, index: number) => R, initial: R): R {
-        const len = this.size;
-        let acc = initial;
-        for (let i = 0; i < len; i++) {
-            acc = fn(acc, this.get(i), i);
-        }
-        return acc;
     }
 
     /**
@@ -142,7 +120,7 @@ export class Column<T = unknown> {
         if (fn) {
             const builder = newBuilder<R>(config);
             for (let i = 0; i < this.size; i++) {
-                const value = this.get(i);
+                const value = this.vector.get(i) as Maybe<T>;
                 builder.append(fn(value, i));
             }
             return new Column<R>({
@@ -168,7 +146,7 @@ export class Column<T = unknown> {
     filter(fn: (value: Maybe<T>, index: number) => boolean): Column<T> {
         const builder = newBuilder<T>(this.config);
         for (let i = 0; i < this.size; i++) {
-            const value = this.get(i);
+            const value = this.vector.get(i) as Maybe<T>;
             if (fn(value, i)) {
                 builder.append(value);
             }
@@ -185,7 +163,7 @@ export class Column<T = unknown> {
      *
      * @note probably only useful for debugging
     */
-    toJSON<V>(): Maybe<V>[] {
-        return this._vector.toJSON<V>();
+    toJSON(): Maybe<JSONValue<T>>[] {
+        return this._vector.toJSON();
     }
 }
