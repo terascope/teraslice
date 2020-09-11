@@ -41,9 +41,16 @@ export class DataFrame<
         });
     }
 
+    /**
+     * The name of the DataFrame
+    */
     name?: string;
-    readonly config: Readonly<DataTypeConfig>;
+
+    /**
+     * The list of columns
+    */
     readonly columns: readonly Column[];
+
     /**
      * Metadata about the DataFrame
     */
@@ -55,11 +62,10 @@ export class DataFrame<
         this.name = options.name;
         this.metadata = { ...options.metadata } as M;
         this.columns = Object.freeze(options.columns);
-        this.config = columnsToDataTypeConfig(options.columns);
         const lengths = this.columns.map((col) => col.size);
         if (new Set(lengths).size > 1) {
             throw new Error(
-                'All columns for a data frame must have the same length'
+                'All columns for a DataFrame must have the same length'
             );
         }
         this._size = lengths[0] ?? 0;
@@ -93,11 +99,18 @@ export class DataFrame<
     }
 
     /**
+     * Get the DataType config from the columns
+    */
+    get config(): DataTypeConfig {
+        return columnsToDataTypeConfig(this.columns);
+    }
+
+    /**
      * Get a column by name
      * @returns a new DataFrame
     */
     select<K extends keyof T>(...fields: K[]): DataFrame<Pick<T, K>> {
-        const columns = fields.map((field) => this.getColumn(field)!.clone());
+        const columns = fields.map((field) => this.getColumn(field));
         return new DataFrame<Pick<T, K>>({
             name: this.name,
             columns: columns as Column[]
@@ -118,17 +131,6 @@ export class DataFrame<
     }
 
     /**
-     * Concat values to columns to this existing columns to a new DataFrame
-     * This will eventually handle DataFrame, Vector or JSON input
-    */
-    concat(columns: readonly Column[]): DataFrame<T> {
-        // FIXME this needs to append values not concat columns
-        return this.clone(
-            this.columns.concat(columns)
-        );
-    }
-
-    /**
      * Rename an existing column, returns a new DataFrame
     */
     rename<R extends Record<string, unknown> = T>(
@@ -137,13 +139,13 @@ export class DataFrame<
     ): DataFrame<R> {
         const columns: Column<any>[] = this.columns.map((col, i) => {
             if (col.name === name || i === name) {
-                return (col as Column<any>).transform({
+                return col.transform({
                     name: renameTo,
                     config: col.config,
                     version: col.version
                 });
             }
-            return col.clone();
+            return col;
         });
         return this.clone(columns);
     }
@@ -167,9 +169,9 @@ export class DataFrame<
      * Get a row by index, if the row has only null values, returns undefined
     */
     getRow(index: number, returnJSON = false): T|undefined {
-        const row: Partial<T> = {};
         if (index > (this.size - 1)) return;
 
+        const row: Partial<T> = {};
         for (const col of this.columns) {
             const field = col.name as keyof T;
             const rawValue = col.vector.get(index);

@@ -35,5 +35,7 @@ describe('Column', () => {
         it('should be able to get the Vector', () => {
             expect(col.vector).toBeInstanceOf(Vector);
         });
+
+        test.todo('should be immutable');
     });
 });

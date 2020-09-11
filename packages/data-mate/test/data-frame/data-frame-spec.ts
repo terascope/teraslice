@@ -106,6 +106,8 @@ describe('DataFrame', () => {
         ]);
     });
 
+    test.todo('should be immutable');
+
     describe('when manipulating a DataFrame', () => {
         type Person = { name: string; age: number; friends: string[] }
         let dataFrame: DataFrame<Person>;
@@ -152,5 +154,7 @@ describe('DataFrame', () => {
                 expect(selected.size).toEqual(dataFrame.size);
             });
         });
+
+        test.todo('->assign');
     });
 });

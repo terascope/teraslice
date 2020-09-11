@@ -36,6 +36,7 @@ export function columnsToDataTypeConfig(
     let version: DataTypeVersion|undefined;
     const fields: DataTypeFields = {};
     for (const col of columns) {
+        // FIXME maybe we should pick the latest
         if (version && col.version !== version) {
             throw new Error(
                 `Data Type version mismatch ${col.version} on column ${col.name}, expected ${version}`

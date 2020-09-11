@@ -50,5 +50,7 @@ describe('ListVector', () => {
         it('should be an instance of a Vector', () => {
             expect(vector).toBeInstanceOf(Vector);
         });
+
+        test.todo('should be immutable');
     });
 });
