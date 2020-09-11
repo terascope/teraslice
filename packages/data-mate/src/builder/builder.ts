@@ -16,10 +16,6 @@ export interface BuilderOptions<T> {
 
 /**
  * A Vector builder
- *
- * @note null/undefined values are treated the same
- *
- * @todo make immutable
 */
 export abstract class Builder<T = unknown> {
     readonly type: VectorType;

@@ -1,13 +1,22 @@
-import { DataTypeConfig, Maybe } from '@terascope/types';
-import { Column, ColumnOptions } from './column';
-import { distributeRowsToColumns } from './utils';
+import { DataTypeConfig } from '@terascope/types';
+import { Column } from './column';
+import { columnsToDataTypeConfig, distributeRowsToColumns } from './utils';
 
+/**
+ * DataFrame options
+*/
+export interface DataFrameOptions<
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    T extends Record<string, unknown> = Record<string, any>,
+    M extends Record<string, unknown> = Record<string, any>
+> {
+    columns: Column[]|readonly Column[];
+    name?: string;
+    metadata?: M;
+}
 /**
  * An immutable columnar table with APIs for data pipelines.
  *
- * @todo add name to the data frame
- * @todo remove the empty record logic
- * @todo we need to copy the metadata when forking
  * @todo we need conventionally metadata
 */
 export class DataFrame<
@@ -17,25 +26,36 @@ export class DataFrame<
     /**
      * Create a DataFrame from an array of JSON objects
     */
-    static fromJSON<R extends Record<string, unknown> = Record<string, any>>(
-        config: DataTypeConfig, records: R[]
+    static fromJSON<
+        R extends Record<string, unknown> = Record<string, any>,
+        D extends Record<string, unknown> = Record<string, any>
+    >(
+        config: DataTypeConfig,
+        records: R[] = [],
+        options?: Omit<DataFrameOptions<R, D>, 'columns'>
     ): DataFrame<R> {
-        return new DataFrame(
-            distributeRowsToColumns(config, records),
-        );
+        const columns = distributeRowsToColumns(config, records);
+        return new DataFrame({
+            ...options,
+            columns,
+        });
     }
 
-    readonly columns: Column[];
+    name?: string;
+    readonly config: Readonly<DataTypeConfig>;
+    readonly columns: readonly Column[];
     /**
      * Metadata about the DataFrame
     */
-    readonly metadata?: Record<string, any>;
+    readonly metadata: M;
 
     private readonly _size: number;
 
-    constructor(columns: Column[], metadata?: M) {
-        this.metadata = metadata;
-        this.columns = columns.slice();
+    constructor(options: DataFrameOptions<T, M>) {
+        this.name = options.name;
+        this.metadata = { ...options.metadata } as M;
+        this.columns = Object.freeze(options.columns);
+        this.config = columnsToDataTypeConfig(options.columns);
         const lengths = this.columns.map((col) => col.size);
         if (new Set(lengths).size > 1) {
             throw new Error(
@@ -53,6 +73,19 @@ export class DataFrame<
     }
 
     /**
+     * Create a copy of the DataFrame
+    */
+    clone<R extends Record<string, unknown> = T>(
+        columns = this.columns
+    ): DataFrame<R, M> {
+        return new DataFrame<R, M>({
+            name: this.name,
+            metadata: this.metadata,
+            columns
+        });
+    }
+
+    /**
      * Get the length of the DataFrame
     */
     get size(): number {
@@ -65,9 +98,10 @@ export class DataFrame<
     */
     select<K extends keyof T>(...fields: K[]): DataFrame<Pick<T, K>> {
         const columns = fields.map((field) => this.getColumn(field)!.clone());
-        return new DataFrame<Pick<T, K>>(
-            columns as Column[]
-        );
+        return new DataFrame<Pick<T, K>>({
+            name: this.name,
+            columns: columns as Column[]
+        });
     }
 
     /**
@@ -75,10 +109,10 @@ export class DataFrame<
      * This will eventually handle DataFrame input
     */
     assign<R extends Record<string, unknown> = Record<string, any>>(
-        columns: Column[]
+        columns: readonly Column[]
     ): DataFrame<T & R> {
         // FIXME config, remove duplicate columns, ensure same length
-        return new DataFrame<T & R>(
+        return this.clone<T & R>(
             this.columns.concat(columns) as Column<any>[],
         );
     }
@@ -87,34 +121,31 @@ export class DataFrame<
      * Concat values to columns to this existing columns to a new DataFrame
      * This will eventually handle DataFrame, Vector or JSON input
     */
-    concat(columns: Column[]): DataFrame<T> {
+    concat(columns: readonly Column[]): DataFrame<T> {
         // FIXME this needs to append values not concat columns
-        return new DataFrame<T>(
+        return this.clone(
             this.columns.concat(columns)
         );
     }
 
     /**
-     * Creates a new column, you can optionally transform the values
-     * but shouldn't change the length.
-     *
-     * This can be used to change the name, type of column.
-     * Useful for replacing a column in a DataFrame.
-     *
-     * @returns the new column so it works like fluent API
+     * Rename an existing column, returns a new DataFrame
     */
-    rename<R extends Record<string, unknown> = T, V = any>(
+    rename<R extends Record<string, unknown> = T>(
         name: string|number,
-        columnOptions: ColumnOptions<V>,
-        fn?: (value: Maybe<V>, index: number) => Maybe<V>
+        renameTo: string,
     ): DataFrame<R> {
         const columns: Column<any>[] = this.columns.map((col, i) => {
             if (col.name === name || i === name) {
-                return (col as Column<any>).transform(columnOptions, fn);
+                return (col as Column<any>).transform({
+                    name: renameTo,
+                    config: col.config,
+                    version: col.version
+                });
             }
             return col.clone();
         });
-        return new DataFrame(columns, this.metadata);
+        return this.clone(columns);
     }
 
     /**

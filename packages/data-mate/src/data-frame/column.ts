@@ -27,7 +27,7 @@ export class Column<T = unknown> {
 
     static fromJSON<R>(
         options: Omit<ColumnOptions<R>, 'vector'>,
-        values: Maybe<R>[] = []
+        values: Maybe<R>[]|readonly Maybe<R>[] = []
     ): Column<R> {
         const builder = newBuilder<R>(options.config);
         values.forEach((val) => builder.append(val));
@@ -70,12 +70,12 @@ export class Column<T = unknown> {
         return this._vector;
     }
 
-    clone(): Column<T> {
+    clone(vector?: Vector<T>): Column<T> {
         return new Column<T>({
             name: this.name,
             version: this.version,
             config: this.config,
-            vector: this.vector.clone(),
+            vector: vector ?? this.vector.clone(),
         });
     }
 
@@ -134,22 +134,28 @@ export class Column<T = unknown> {
      * @returns the new column
     */
     transform<R = T>(
-        columnOptions: ColumnOptions<R>,
+        columnOptions: Omit<ColumnOptions<R>, 'vector'>,
         fn?: (value: Maybe<T>, index: number) => Maybe<R>
     ): Column<R> {
         const config = columnOptions?.config ?? this.config;
         const name = columnOptions?.name ?? this.name;
-        const builder = newBuilder<R>(config);
-        for (let i = 0; i < this.size; i++) {
-            const value = this.get(i);
-            builder.append(
-                fn ? fn(value, i) : value as Maybe<R>
-            );
+        if (fn) {
+            const builder = newBuilder<R>(config);
+            for (let i = 0; i < this.size; i++) {
+                const value = this.get(i);
+                builder.append(fn(value, i));
+            }
+            return new Column<R>({
+                name,
+                config,
+                vector: builder.toVector()
+            });
         }
         return new Column<R>({
-            name,
-            config,
-            vector: builder.toVector()
+            name: this.name,
+            version: this.version,
+            config: this.config,
+            vector: this.vector.clone() as Vector<any>
         });
     }
 

@@ -1,4 +1,5 @@
-import { DataTypeConfig } from '@terascope/types';
+import { LATEST_VERSION } from '@terascope/data-types';
+import { DataTypeConfig, DataTypeFields, DataTypeVersion } from '@terascope/types';
 import { mapValues } from '@terascope/utils';
 import { Builder, newBuilder } from '../builder';
 import { Column } from './column';
@@ -27,4 +28,23 @@ export function distributeRowsToColumns(
         config: fieldConfig,
         vector: builders[name].toVector()
     }));
+}
+
+export function columnsToDataTypeConfig(
+    columns: readonly Column<unknown>[]
+): DataTypeConfig {
+    let version: DataTypeVersion|undefined;
+    const fields: DataTypeFields = {};
+    for (const col of columns) {
+        if (version && col.version !== version) {
+            throw new Error(
+                `Data Type version mismatch ${col.version} on column ${col.name}, expected ${version}`
+            );
+        }
+        fields[col.name] = col.config;
+    }
+    return {
+        version: version ?? LATEST_VERSION,
+        fields,
+    };
 }
