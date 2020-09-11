@@ -14,10 +14,8 @@ export function newBuilder<T>(config: DataTypeFieldConfig): Builder<T> {
     }
 
     if (config.array) {
-        return new ListBuilder({
-            fieldType,
-        }) as Builder<any>;
+        return new ListBuilder({ config }) as Builder<any>;
     }
 
-    return newBuilderForType(fieldType) as Builder<T>;
+    return newBuilderForType(config) as Builder<T>;
 }

@@ -1,5 +1,5 @@
-import { DataTypeConfig } from '@terascope/types';
-import { Column } from './column';
+import { DataTypeConfig, Maybe } from '@terascope/types';
+import { Column, ColumnOptions } from './column';
 import { distributeRowsToColumns } from './utils';
 
 /**
@@ -92,6 +92,29 @@ export class DataFrame<
         return new DataFrame<T>(
             this.columns.concat(columns)
         );
+    }
+
+    /**
+     * Creates a new column, you can optionally transform the values
+     * but shouldn't change the length.
+     *
+     * This can be used to change the name, type of column.
+     * Useful for replacing a column in a DataFrame.
+     *
+     * @returns the new column so it works like fluent API
+    */
+    rename<R extends Record<string, unknown> = T, V = any>(
+        name: string|number,
+        columnOptions: ColumnOptions<V>,
+        fn?: (value: Maybe<V>, index: number) => Maybe<V>
+    ): DataFrame<R> {
+        const columns: Column<any>[] = this.columns.map((col, i) => {
+            if (col.name === name || i === name) {
+                return (col as Column<any>).transform(columnOptions, fn);
+            }
+            return col.clone();
+        });
+        return new DataFrame(columns, this.metadata);
     }
 
     /**
