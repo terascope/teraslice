@@ -1,24 +1,23 @@
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
-import { ListVector } from './list-vector';
-import { newVectorForType } from './utils';
-import { Data, Vector } from './vector';
+import { ListBuilder } from './list-builder';
+import { newBuilderForType } from './utils';
+import { Builder } from './builder';
 
 export * from './types';
-export * from './vector';
+export * from './builder';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function newVector<T>(config: DataTypeFieldConfig, data: Data<any>): Vector<T> {
+export function newBuilder<T>(config: DataTypeFieldConfig): Builder<T> {
     const fieldType = config.type as FieldType;
     if (!(fieldType in FieldType)) {
         throw new Error(`Unsupported field type ${fieldType}`);
     }
 
     if (config.array) {
-        return new ListVector({
+        return new ListBuilder({
             fieldType,
-            data,
-        }) as Vector<any>;
+        }) as Builder<any>;
     }
 
-    return newVectorForType(fieldType, data) as Vector<T>;
+    return newBuilderForType(fieldType) as Builder<T>;
 }

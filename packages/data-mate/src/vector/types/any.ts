@@ -5,7 +5,11 @@ export class AnyVector extends Vector<any> {
         super(VectorType.Any, options);
     }
 
-    clone(options: VectorOptions<any>): AnyVector {
-        return new AnyVector(options);
+    clone(data = this.data): AnyVector {
+        return new AnyVector({
+            valueToJSON: this.valueToJSON,
+            fieldType: this.fieldType,
+            data,
+        });
     }
 }

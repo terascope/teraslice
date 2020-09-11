@@ -1,15 +1,14 @@
-import { FieldType } from '@terascope/types';
+import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import {
-    AnyVector, BigIntVector, BooleanVector, DateVector, FloatVector, IntVector, StringVector
+    AnyBuilder, BigIntBuilder, BooleanBuilder, DateBuilder, FloatBuilder, IntBuilder, StringBuilder
 } from './types';
-import { Data } from './vector';
 
 /**
- * Create primitive vector types, does not deal with array or object type fields
+ * Create primitive builder types, does not deal with array or object type fields
 */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function newVectorForType(fieldType: FieldType, data: Data<any>) {
-    switch (fieldType) {
+export function newBuilderForType(config: DataTypeFieldConfig) {
+    switch (config.type) {
         case FieldType.String:
         case FieldType.Text:
         case FieldType.Keyword:
@@ -21,23 +20,23 @@ export function newVectorForType(fieldType: FieldType, data: Data<any>) {
         case FieldType.Hostname:
         case FieldType.IP:
         case FieldType.IPRange:
-            return new StringVector({ fieldType, data });
+            return new StringBuilder({ config });
         case FieldType.Date:
-            return new DateVector({ fieldType, data });
+            return new DateBuilder({ config });
         case FieldType.Boolean:
-            return new BooleanVector({ fieldType, data });
+            return new BooleanBuilder({ config });
         case FieldType.Float:
         case FieldType.Number:
         case FieldType.Double:
             // Double can't supported entirely until we have BigFloat
-            return new FloatVector({ fieldType, data });
+            return new FloatBuilder({ config });
         case FieldType.Byte:
         case FieldType.Short:
         case FieldType.Integer:
-            return new IntVector({ fieldType, data });
+            return new IntBuilder({ config });
         case FieldType.Long:
-            return new BigIntVector({ fieldType, data });
+            return new BigIntBuilder({ config });
         default:
-            return new AnyVector({ fieldType, data });
+            return new AnyBuilder({ config });
     }
 }

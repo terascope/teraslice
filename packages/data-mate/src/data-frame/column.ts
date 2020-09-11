@@ -1,6 +1,7 @@
 import { LATEST_VERSION } from '@terascope/data-types';
 import { DataTypeFieldConfig, Maybe, DataTypeVersion } from '@terascope/types';
-import { isVector, newVector, Vector } from '../vector';
+import { newBuilder } from '../builder';
+import { Vector } from '../vector';
 
 /**
  * Column options
@@ -9,7 +10,7 @@ export interface ColumnOptions<T> {
     name: string;
     version?: DataTypeVersion;
     config: DataTypeFieldConfig;
-    values: Vector<T>|(Maybe<T>[]);
+    vector: Vector<T>;
 }
 
 /**
@@ -28,20 +29,14 @@ export class Column<T = unknown> {
         this.name = options.name;
         this.version = options.version ?? LATEST_VERSION;
         this.config = { ...options.config };
-        if (isVector<T>(options.values)) {
-            const vType = options.values.fieldType;
-            const cType = this.config.type;
-            if (vType !== cType) {
-                throw new Error(
-                    `Invalid Vector type ${vType} given to column of type "${cType}"`
-                );
-            }
-            this._vector = options.values;
-        } else {
-            this._vector = newVector<T>(
-                this.config, options.values
+        const vType = options.vector.fieldType;
+        const cType = this.config.type;
+        if (vType !== cType) {
+            throw new Error(
+                `Invalid Vector type ${vType} given to column of type "${cType}"`
             );
         }
+        this._vector = options.vector;
     }
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
@@ -68,7 +63,7 @@ export class Column<T = unknown> {
             name: this.name,
             version: this.version,
             config: this.config,
-            values: this.vector.slice(),
+            vector: this.vector.clone(),
         });
     }
 
@@ -96,7 +91,7 @@ export class Column<T = unknown> {
             name: this.name,
             version: this.version,
             config: this.config,
-            values: this._vector.map(fn),
+            vector: this._vector.map(fn),
         });
     }
 
@@ -124,24 +119,25 @@ export class Column<T = unknown> {
      * This can be used to change the name, type of column.
      * Useful for replacing a column in a DataFrame.
      *
-     * @returns the new column so it works like fluent API
+     * @returns the new column
     */
-    rename<R = T>(
+    transform<R = T>(
         columnOptions: ColumnOptions<R>,
         fn?: (value: Maybe<T>, index: number) => Maybe<R>
     ): Column<R> {
         const config = columnOptions?.config ?? this.config;
         const name = columnOptions?.name ?? this.name;
-        const values: Maybe<R>[] = [];
+        const builder = newBuilder<R>(config);
         for (let i = 0; i < this.size; i++) {
             const value = this.get(i);
-            values.push(
+            builder.append(
                 fn ? fn(value, i) : value as Maybe<R>
             );
         }
-        const vector = newVector<R>(config, values);
         return new Column<R>({
-            name, config, values: vector
+            name,
+            config,
+            vector: builder.toVector()
         });
     }
 
@@ -152,15 +148,17 @@ export class Column<T = unknown> {
      * @returns the new column so it works like fluent API
     */
     filter(fn: (value: Maybe<T>, index: number) => boolean): Column<T> {
-        const values: Maybe<T>[] = [];
+        const builder = newBuilder<T>(this.config);
         for (let i = 0; i < this.size; i++) {
             const value = this.get(i);
             if (fn(value, i)) {
-                values.push(value);
+                builder.append(value);
             }
         }
         return new Column<T>({
-            name: this.name, config: this.config, values
+            name: this.name,
+            config: this.config,
+            vector: builder.toVector()
         });
     }
 

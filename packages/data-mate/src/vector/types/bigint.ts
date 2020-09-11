@@ -9,18 +9,6 @@ export function bigIntToJSON(int: bigint): string|number {
 }
 
 export class BigIntVector extends Vector<bigint> {
-    static valueFrom(value: unknown): Maybe<bigint> {
-        if (value == null) return value as Nil;
-        if (typeof value === 'bigint') {
-            return value;
-        }
-        const str = String(value);
-        if (str.includes('.')) {
-            return BigInt(parseInt(str, 10));
-        }
-        return BigInt(value);
-    }
-
     static valueToJSON(value: Maybe<bigint>): any {
         if (value == null) return value as Nil;
         return bigIntToJSON(value);
@@ -28,13 +16,16 @@ export class BigIntVector extends Vector<bigint> {
 
     constructor(options: VectorOptions<bigint>) {
         super(VectorType.BigInt, {
-            valueFrom: BigIntVector.valueFrom,
             valueToJSON: BigIntVector.valueToJSON,
             ...options,
         });
     }
 
-    clone(options: VectorOptions<bigint>): BigIntVector {
-        return new BigIntVector(options);
+    clone(data = this.data): BigIntVector {
+        return new BigIntVector({
+            valueToJSON: this.valueToJSON,
+            fieldType: this.fieldType,
+            data,
+        });
     }
 }

@@ -1,12 +1,16 @@
-import { DataTypeConfig, DataTypeFields, Maybe } from '@terascope/types';
+import { DataTypeConfig, DataTypeFields } from '@terascope/types';
 import { mapValues } from '@terascope/utils';
+import { Builder, newBuilder } from '../builder';
 import { Column } from './column';
 
 export function distributeRowsToColumns(
     config: DataTypeConfig, records: Record<string, unknown>[]
 ): Column[] {
     const len = records.length;
-    const values: Record<string, Maybe<unknown>[]> = mapValues(config.fields, () => []);
+    const builders: Record<string, Builder<unknown>> = mapValues(
+        config.fields,
+        (fieldConfig) => newBuilder(fieldConfig)
+    );
     const fieldEntries = Object.entries(config.fields);
 
     for (let i = 0; i < len; i++) {
@@ -15,7 +19,7 @@ export function distributeRowsToColumns(
         if (isEmptyObj(record, config.fields)) continue;
 
         for (const [field] of fieldEntries) {
-            values[field].push(record[field] ?? null);
+            builders[field].append(record[field] ?? null);
         }
     }
 
@@ -23,7 +27,7 @@ export function distributeRowsToColumns(
         name,
         version: config.version,
         config: fieldConfig,
-        values: values[name].slice()
+        vector: builders[name].toVector()
     }));
 }
 

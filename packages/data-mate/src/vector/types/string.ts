@@ -8,13 +8,14 @@ export class StringVector extends Vector<string> {
     }
 
     constructor(options: VectorOptions<string>) {
-        super(VectorType.String, {
-            valueFrom: StringVector.valueFrom,
-            ...options,
-        });
+        super(VectorType.String, options);
     }
 
-    clone(options: VectorOptions<string>): StringVector {
-        return new StringVector(options);
+    clone(data = this.data): StringVector {
+        return new StringVector({
+            valueToJSON: this.valueToJSON,
+            fieldType: this.fieldType,
+            data,
+        });
     }
 }
