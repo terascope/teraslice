@@ -173,7 +173,7 @@ export abstract class Vector<T = unknown> {
     toJSON(): Maybe<JSONValue<T>>[] {
         const res: Maybe<JSONValue<T>>[] = Array(this.size);
         for (let i = 0; i < this.size; i++) {
-            res.push(this.get(i, true) as JSONValue<T>);
+            res[i] = this.get(i, true) as JSONValue<T>;
         }
         return res;
     }

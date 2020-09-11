@@ -147,7 +147,7 @@ describe('DataFrame', () => {
         });
 
         describe('->select', () => {
-            it('should return a new column with just those fields', () => {
+            it('should return a new frame with just those columns', () => {
                 const selected = dataFrame.select('name', 'age');
                 const names = selected.columns.map(({ name }) => name);
                 expect(names).toEqual(['name', 'age']);
@@ -155,7 +155,47 @@ describe('DataFrame', () => {
             });
         });
 
-        test.todo('->assign');
-        test.todo('->rename');
+        describe('->assign', () => {
+            it('should be able to a new frame with the new column', () => {
+                const newCol = dataFrame.getColumn('name')!.map((str) => {
+                    if (str == null) return str;
+                    return str.toUpperCase();
+                });
+                newCol.name = 'upper_name';
+                const resultFrame = dataFrame.assign([newCol]);
+                const names = resultFrame.columns.map(({ name }) => name);
+                expect(names).toEqual(['name', 'age', 'friends', 'upper_name']);
+                expect(resultFrame.size).toEqual(dataFrame.size);
+            });
+
+            it('should be able to a new frame with replaced columns', () => {
+                const newCol = dataFrame.getColumn('name')!.map((str) => {
+                    if (str == null) return str;
+                    return str.toUpperCase();
+                });
+                const resultFrame = dataFrame.assign([newCol]);
+                const names = resultFrame.columns.map(({ name }) => name);
+                expect(names).toEqual(['name', 'age', 'friends']);
+                expect(resultFrame.getColumn('name')!.toJSON()).toEqual([
+                    'BILLY',
+                    'FRANK',
+                    'JILL'
+                ]);
+                expect(resultFrame.size).toEqual(dataFrame.size);
+            });
+        });
+
+        describe('->rename', () => {
+            it('should be able to rename a column DataFrame', () => {
+                const resultFrame = dataFrame.rename('friends', 'old_friends');
+                const names = resultFrame.columns.map(({ name }) => name);
+                expect(names).toEqual(['name', 'age', 'old_friends']);
+                for (const row of resultFrame) {
+                    expect(row).toHaveProperty('old_friends');
+                    expect(row).not.toHaveProperty('friends');
+                }
+                expect(resultFrame.size).toEqual(dataFrame.size);
+            });
+        });
     });
 });

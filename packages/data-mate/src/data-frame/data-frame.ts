@@ -10,7 +10,7 @@ export interface DataFrameOptions<
     T extends Record<string, unknown> = Record<string, any>,
     M extends Record<string, unknown> = Record<string, any>
 > {
-    columns: Column[]|readonly Column[];
+    columns: Column<any>[]|readonly Column<any>[];
     name?: string;
     metadata?: M;
 }
@@ -113,7 +113,7 @@ export class DataFrame<
         const columns = fields.map((field) => this.getColumn(field));
         return new DataFrame<Pick<T, K>>({
             name: this.name,
-            columns: columns as Column[]
+            columns: columns as Column<any>[]
         });
     }
 
@@ -122,32 +122,35 @@ export class DataFrame<
      * This will eventually handle DataFrame input
     */
     assign<R extends Record<string, unknown> = Record<string, any>>(
-        columns: readonly Column[]
+        columns: readonly Column<any>[]
     ): DataFrame<T & R> {
-        // FIXME config, remove duplicate columns, ensure same length
+        const newColumns = columns.filter((col) => {
+            if (this.getColumn(col.name)) return false;
+            return true;
+        });
+
         return this.clone<T & R>(
-            this.columns.concat(columns) as Column<any>[],
+            this.columns.map((col) => {
+                const replaceCol = columns.find((c) => c.name === col.name);
+                if (replaceCol) return replaceCol;
+                return col;
+            }).concat(newColumns) as Column<any>[],
         );
     }
 
     /**
-     * Rename an existing column, returns a new DataFrame
+     * Rename an existing column
     */
-    rename<R extends Record<string, unknown> = T>(
-        name: string|number,
-        renameTo: string,
-    ): DataFrame<R> {
-        const columns: Column<any>[] = this.columns.map((col, i) => {
-            if (col.name === name || i === name) {
-                return col.transform({
-                    name: renameTo,
-                    config: col.config,
-                    version: col.version
-                });
-            }
-            return col;
-        });
-        return this.clone(columns);
+    rename<K extends keyof T, R extends string>(
+        name: K,
+        renameTo: R,
+    ): DataFrame<Omit<T, K> & Record<R, T[K]>> {
+        return this.clone(this.columns.map((col): Column<any> => {
+            if (col.name !== name) return col;
+            const newCol = col.clone();
+            newCol.name = renameTo;
+            return newCol;
+        }));
     }
 
     /**
