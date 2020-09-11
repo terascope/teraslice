@@ -1,10 +1,10 @@
-import { Maybe, Nil } from '@terascope/types';
+import { Maybe } from '@terascope/types';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../builder';
 
 export class IntBuilder extends Builder<number> {
     static valueFrom(value: unknown): Maybe<number> {
-        if (value == null) return value as Nil;
+        if (value == null) return null;
         return parseInt(value as any, 10);
     }
 

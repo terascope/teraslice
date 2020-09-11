@@ -4,7 +4,7 @@ import { Builder, BuilderOptions } from '../builder';
 
 export class FloatBuilder extends Builder<number> {
     static valueFrom(value: unknown): Maybe<number> {
-        if (value == null) return value as Nil;
+        if (value == null) return null;
         return parseFloat(value as any);
     }
 

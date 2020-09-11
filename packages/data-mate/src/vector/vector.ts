@@ -106,7 +106,7 @@ export abstract class Vector<T = unknown> {
      * Get value by index
     */
     get(index: number): Maybe<T> {
-        return this.data[index];
+        return this.data.values[index];
     }
 
     /**

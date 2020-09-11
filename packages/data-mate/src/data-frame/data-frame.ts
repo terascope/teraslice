@@ -137,7 +137,7 @@ export class DataFrame<
     */
     getRow(index: number, returnJSON = false): T|undefined {
         const row: Partial<T> = {};
-        let numValues = 0;
+        if (index > (this.size - 1)) return;
 
         for (const col of this.columns) {
             const field = col.name as keyof T;
@@ -150,12 +150,11 @@ export class DataFrame<
             }
 
             if (val != null) {
-                numValues++;
                 row[field] = val;
             }
         }
 
-        return numValues ? row as T : undefined;
+        return row as T;
     }
 
     /**

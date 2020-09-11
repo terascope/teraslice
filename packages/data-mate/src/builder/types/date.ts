@@ -1,4 +1,4 @@
-import { Maybe, Nil } from '@terascope/types';
+import { Maybe } from '@terascope/types';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../builder';
 
@@ -7,7 +7,7 @@ import { Builder, BuilderOptions } from '../builder';
  */
 export class DateBuilder extends Builder<string> {
     static valueFrom(value: unknown): Maybe<string> {
-        if (value == null) return value as Nil;
+        if (value == null) return null;
         return String(value);
     }
 

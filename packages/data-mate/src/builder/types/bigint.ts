@@ -4,7 +4,7 @@ import { Builder, BuilderOptions } from '../builder';
 
 export class BigIntBuilder extends Builder<bigint> {
     static valueFrom(value: unknown): Maybe<bigint> {
-        if (value == null) return value as Nil;
+        if (value == null) return null;
         if (typeof value === 'bigint') {
             return value;
         }

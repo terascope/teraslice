@@ -1,6 +1,8 @@
 import 'jest-fixtures';
 import { FieldType, Maybe } from '@terascope/types';
-import { Column, Vector } from '../../src';
+import {
+    Column, Vector
+} from '../../src';
 
 describe('Column', () => {
     describe(`when field type is ${FieldType.Keyword}`, () => {
@@ -13,13 +15,12 @@ describe('Column', () => {
             'SpiderMan',
         ];
         beforeEach(() => {
-            col = new Column<string>({
+            col = Column.fromJSON<string>({
                 name: 'name',
                 config: {
                     type: FieldType.Keyword,
                 },
-                values
-            });
+            }, values);
         });
 
         it('should have the correct size', () => {

@@ -4,7 +4,7 @@ import { Builder, BuilderOptions } from '../builder';
 
 export class StringBuilder extends Builder<string> {
     static valueFrom(value: unknown): Maybe<string> {
-        if (value == null) return value as Nil;
+        if (value == null) return null;
         return String(value);
     }
 

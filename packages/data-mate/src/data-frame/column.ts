@@ -25,6 +25,18 @@ export class Column<T = unknown> {
     readonly name: string;
     readonly config: DataTypeFieldConfig;
 
+    static fromJSON<R>(
+        options: Omit<ColumnOptions<R>, 'vector'>,
+        values: Maybe<R>[] = []
+    ): Column<R> {
+        const builder = newBuilder<R>(options.config);
+        values.forEach((val) => builder.append(val));
+        return new Column({
+            ...options,
+            vector: builder.toVector()
+        });
+    }
+
     constructor(options: ColumnOptions<T>) {
         this.name = options.name;
         this.version = options.version ?? LATEST_VERSION;

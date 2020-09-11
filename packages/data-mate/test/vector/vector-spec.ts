@@ -1,7 +1,6 @@
 import 'jest-fixtures';
 import { FieldType } from '@terascope/types';
-import { cloneDeep } from '@terascope/utils';
-import { bigIntToJSON, newVector, Vector } from '../../src';
+import { bigIntToJSON, newBuilder, Vector } from '../../src';
 
 describe('Vector', () => {
     type Case = [type: FieldType, input: any[], output?: any[]];
@@ -41,7 +40,9 @@ describe('Vector', () => {
         let vector: Vector<any>;
         let expected: any[];
         beforeAll(() => {
-            vector = newVector({ type }, cloneDeep(input));
+            const builder = newBuilder({ type, array: false });
+            input.forEach((val) => builder.append(val));
+            vector = builder.toVector();
             expected = (output ?? input).map((val) => {
                 if (typeof val === 'bigint') {
                     return bigIntToJSON(val);

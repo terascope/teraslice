@@ -1,21 +1,26 @@
-import { Maybe, Nil } from '@terascope/types';
+import { Maybe } from '@terascope/types';
 import { castArray } from '@terascope/utils';
 import { newBuilderForType } from './utils';
 import { Builder, BuilderOptions } from './builder';
-import { VectorType } from '../vector';
+import { Vector, VectorType } from '../vector';
 
-export class ListBuilder<T = unknown> extends Builder<Builder<T>> {
-    static valueFrom(value: unknown, thisArg?: Builder<Builder<any>>): Maybe<Builder<any>> {
-        if (value == null) return value as Nil;
-        if (value instanceof Builder) return value;
+export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
+    static valueFrom(values: unknown, thisArg?: Builder<Vector<any>>): Maybe<Vector<any>> {
+        if (values == null) return null;
+        if (values instanceof Vector) return values;
         if (!thisArg) {
             throw new Error('Expected thisArg');
         }
 
-        return newBuilderForType(thisArg.fieldType, castArray(value));
+        const builder = newBuilderForType({
+            ...thisArg.config,
+            array: false,
+        });
+        castArray(values).forEach((value) => builder.append(value));
+        return builder.toVector();
     }
 
-    constructor(options: BuilderOptions<Builder<T>>) {
+    constructor(options: BuilderOptions<Vector<T>>) {
         super(VectorType.List, {
             valueFrom: ListBuilder.valueFrom,
             ...options,

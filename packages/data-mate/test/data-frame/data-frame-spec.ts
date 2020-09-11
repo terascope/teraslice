@@ -55,11 +55,14 @@ describe('DataFrame', () => {
             {}
         ]);
         expect(dataFrame.columns).toBeArrayOfSize(1);
-        expect(dataFrame.size).toEqual(1);
+        expect(dataFrame.size).toEqual(4);
         expect(dataFrame.toJSON()).toEqual([
             {
                 name: 'Billy'
             },
+            {},
+            {},
+            {}
         ]);
     });
 
