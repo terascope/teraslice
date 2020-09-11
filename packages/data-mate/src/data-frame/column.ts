@@ -1,6 +1,6 @@
 import { LATEST_VERSION } from '@terascope/data-types';
 import { DataTypeFieldConfig, Maybe, DataTypeVersion } from '@terascope/types';
-import { isVector, newVector, Vector } from './vector';
+import { isVector, newVector, Vector } from '../vector';
 
 /**
  * Column options

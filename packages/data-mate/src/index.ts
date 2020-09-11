@@ -14,6 +14,7 @@ export * from './data-frame';
 export * from './transforms/helpers';
 export * from './aggregations';
 export * from './validations';
+export * from './vector';
 export * from './interfaces';
 export {
     DocumentMatcher,
