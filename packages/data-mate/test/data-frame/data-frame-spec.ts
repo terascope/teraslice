@@ -156,5 +156,6 @@ describe('DataFrame', () => {
         });
 
         test.todo('->assign');
+        test.todo('->rename');
     });
 });
