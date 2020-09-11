@@ -1,7 +1,6 @@
-/* eslint-disable max-classes-per-file */
-
 import { DataTypeConfig, Maybe } from '@terascope/types';
 import { Column } from './column';
+import { GroupedData } from './grouped-data';
 import { columnsToDataTypeConfig, distributeRowsToColumns } from './utils';
 
 /**
@@ -121,8 +120,8 @@ export class DataFrame<
      * Group DataFrame by columns
      * @returns a new DataFrame
     */
-    groupBy(...fields: (keyof T)[]): GroupedData<T> {
-        return new GroupedData<T>(this, fields);
+    groupBy(fields: (keyof T)[]): GroupedData<T> {
+        return new GroupedData<T>(this.columns, fields);
     }
 
     /**
@@ -216,32 +215,5 @@ export class DataFrame<
             if (row) rows.push(row);
         }
         return rows;
-    }
-}
-
-/**
- * A Grouped Data Frame with aggregation support
-*/
-export class GroupedData<T extends Record<string, any>> {
-    data: Record<string, T[]> = {};
-
-    constructor(
-        readonly dataFrame: DataFrame<T>,
-        readonly keys: (keyof T)[]
-    ) {}
-
-    sum(_field: keyof T): number {
-        return 0;
-    }
-
-    avg(_field: keyof T): number {
-        return 0;
-    }
-
-    /**
-     * Flatten the grouped data into a DataFrame
-    */
-    flatten(): DataFrame<T> {
-        return {} as any; // FIXME
     }
 }
