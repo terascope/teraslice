@@ -1,11 +1,16 @@
-import { Maybe } from '@terascope/types';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../builder';
 
 export class IntBuilder extends Builder<number> {
-    static valueFrom(value: unknown): Maybe<number> {
-        if (value == null) return null;
-        return parseInt(value as any, 10);
+    static valueFrom(value: unknown): number {
+        if (Number.isSafeInteger(value)) {
+            return value as number;
+        }
+        const parsed = parseInt(value as string, 10);
+        if (Number.isNaN(parsed)) {
+            throw new TypeError(`Expected ${parsed} to be a valid integer`);
+        }
+        return parsed;
     }
 
     constructor(options: BuilderOptions<number>) {

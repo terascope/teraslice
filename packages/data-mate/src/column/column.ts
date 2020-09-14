@@ -19,6 +19,8 @@ export interface ColumnOptions<T> {
  *
  * Changing the values is safe as long the length doesn't change.
  * When adding or removing values it is better to create a new Column.
+ *
+ * @todo add cast function
 */
 export class Column<T = unknown> {
     name: string;

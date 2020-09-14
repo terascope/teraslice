@@ -4,6 +4,8 @@ import { bigIntToJSON, newBuilder, Vector } from '../../src';
 
 describe('Vector', () => {
     type Case = [type: FieldType, input: any[], output?: any[]];
+    const nowDate = new Date();
+    const now = nowDate.getTime();
     const testCases: Case[] = [
         [
             FieldType.Any,
@@ -16,13 +18,13 @@ describe('Vector', () => {
         ],
         [
             FieldType.Float,
-            ['foo', 12.344, '2.01', BigInt(200), 1, 2, null, undefined],
-            [Number.NaN, 12.344, 2.01, 200, 1, 2, null, undefined]
+            [12.344, '2.01', BigInt(200), 1, 2, null, undefined],
+            [12.344, 2.01, 200, 1, 2, null, undefined]
         ],
         [
             FieldType.Integer,
-            ['foo', 12.344, '2.01', BigInt(200), 1, 2, null, undefined],
-            [Number.NaN, 12, 2, 200, 1, 2, null, undefined]
+            [12.344, '2.01', BigInt(200), 1, 2, null, undefined],
+            [12, 2, 200, 1, 2, null, undefined]
         ],
         [
             FieldType.Long,
@@ -31,8 +33,13 @@ describe('Vector', () => {
         ],
         [
             FieldType.Boolean,
-            ['foo', 'yes', 'no', true, false, 0, 1, 2, null, undefined],
-            [true, true, false, true, false, false, true, true, null, undefined]
+            ['yes', 'no', true, false, 0, 1, null, undefined],
+            [true, false, true, false, false, true, null, undefined]
+        ],
+        [
+            FieldType.Date,
+            [nowDate, nowDate.toISOString(), nowDate.getTime(), null, undefined],
+            [now, now, now, null, undefined]
         ],
     ];
 

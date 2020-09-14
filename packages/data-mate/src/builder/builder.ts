@@ -4,7 +4,7 @@ import { newVector, Vector, VectorType } from '../vector';
 /**
  * Coerce a value so it can be stored in the builder
 */
-export type ValueFromFn<T> = (value: unknown, thisArg?: Builder<T>) => Maybe<T>;
+export type ValueFromFn<T> = (value: unknown, thisArg?: Builder<T>) => T;
 
 /**
  * A list of Builder Options
@@ -47,9 +47,13 @@ export abstract class Builder<T = unknown> {
      * Set value by index
     */
     set(index: number, value: unknown): Builder<T> {
-        this._values[index] = ((
-            this.valueFrom ? this.valueFrom(value, this) : value
-        ) ?? null) as Maybe<T>;
+        if (value == null) {
+            this._values[index] = null;
+        } else {
+            this._values[index] = (
+                this.valueFrom ? this.valueFrom(value, this) : value
+            ) as T;
+        }
         return this;
     }
 

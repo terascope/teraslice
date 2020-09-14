@@ -1,11 +1,10 @@
-import { Maybe, Nil } from '@terascope/types';
+import { toString } from '@terascope/utils';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../builder';
 
 export class StringBuilder extends Builder<string> {
-    static valueFrom(value: unknown): Maybe<string> {
-        if (value == null) return null;
-        return String(value);
+    static valueFrom(value: unknown): string {
+        return toString(value);
     }
 
     constructor(options: BuilderOptions<string>) {

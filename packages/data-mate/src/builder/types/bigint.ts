@@ -1,10 +1,8 @@
-import { Maybe, Nil } from '@terascope/types';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../builder';
 
 export class BigIntBuilder extends Builder<bigint> {
-    static valueFrom(value: unknown): Maybe<bigint> {
-        if (value == null) return null;
+    static valueFrom(value: unknown): bigint {
         if (typeof value === 'bigint') {
             return value;
         }

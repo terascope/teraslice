@@ -19,7 +19,9 @@ export interface DataFrameOptions<
 /**
  * An immutable columnar table with APIs for data pipelines.
  *
- * @todo we need conventionally metadata
+ * @todo Add conventionally metadata
+ * @todo Add search method
+ * @todo Add orderBy method
 */
 export class DataFrame<
     T extends Record<string, unknown> = Record<string, any>,
