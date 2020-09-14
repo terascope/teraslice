@@ -1,9 +1,7 @@
-import { Maybe, Nil } from '@terascope/types';
 import { Vector, VectorOptions, VectorType } from './vector';
 
 export class ListVector<T = unknown> extends Vector<Vector<T>> {
-    static valueToJSON(value: Maybe<Vector<any>>): any {
-        if (value == null) return value as Nil;
+    static valueToJSON(value: Vector<any>): any {
         return value.toJSON();
     }
 

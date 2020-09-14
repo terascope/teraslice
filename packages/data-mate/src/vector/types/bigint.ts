@@ -1,4 +1,3 @@
-import { Maybe, Nil } from '@terascope/types';
 import { Vector, VectorOptions, VectorType } from '../vector';
 
 const maxInt = BigInt(Number.MAX_SAFE_INTEGER);
@@ -9,8 +8,7 @@ export function bigIntToJSON(int: bigint): string|number {
 }
 
 export class BigIntVector extends Vector<bigint> {
-    static valueToJSON(value: Maybe<bigint>): any {
-        if (value == null) return value as Nil;
+    static valueToJSON(value: bigint): any {
         return bigIntToJSON(value);
     }
 

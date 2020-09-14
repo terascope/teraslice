@@ -15,8 +15,7 @@ export enum VectorType {
     Float = 'Float',
     BigInt = 'BigInt',
     Boolean = 'Boolean',
-    /** @todo */
-    Geo = 'Geo',
+    GeoPoint = 'GeoPoint',
     /** @todo */
     Object = 'Object',
     /**
@@ -33,7 +32,7 @@ export enum VectorType {
 /**
  * Serialize a value to a JSON compatible format (so it can be JSON stringified)
 */
-export type ValueToJSONFn<T> = (value: Maybe<T>, thisArg?: Vector<T>) => any;
+export type ValueToJSONFn<T> = (value: T, thisArg?: Vector<T>) => any;
 
 /**
  * A list of Vector Options

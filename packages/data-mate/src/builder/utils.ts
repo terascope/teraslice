@@ -1,6 +1,7 @@
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import {
-    AnyBuilder, BigIntBuilder, BooleanBuilder, DateBuilder, FloatBuilder, IntBuilder, StringBuilder
+    AnyBuilder, BigIntBuilder, BooleanBuilder, DateBuilder, FloatBuilder,
+    GeoPointBuilder, IntBuilder, StringBuilder
 } from './types';
 
 /**
@@ -36,6 +37,8 @@ export function newBuilderForType(config: DataTypeFieldConfig) {
             return new IntBuilder({ config });
         case FieldType.Long:
             return new BigIntBuilder({ config });
+        case FieldType.GeoPoint:
+            return new GeoPointBuilder({ config });
         default:
             return new AnyBuilder({ config });
     }
