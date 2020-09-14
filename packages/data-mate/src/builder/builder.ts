@@ -76,9 +76,11 @@ export abstract class Builder<T = unknown> {
      * Flush and convert the result to a Vector
     */
     toVector(): Vector<T> {
+        // @ts-expect-error (this is only in a couple of the builder types)
+        const { childConfig } = this;
         return newVector(this.config, Object.freeze({
             values: Object.freeze(this._values)
-        }));
+        }), childConfig);
     }
 }
 

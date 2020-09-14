@@ -176,6 +176,24 @@ describe('DataFrame', () => {
                 }
             },
         ]);
+
+        expect(dataFrame.config).toEqual({
+            version: 1,
+            fields: {
+                config: {
+                    type: FieldType.Object,
+                },
+                info: {
+                    type: FieldType.Object,
+                },
+                'info.message': {
+                    type: FieldType.String,
+                },
+                'info.status': {
+                    type: FieldType.Integer,
+                }
+            }
+        });
     });
 
     test.todo('should be immutable');

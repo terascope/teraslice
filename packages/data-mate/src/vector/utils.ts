@@ -1,4 +1,4 @@
-import { FieldType } from '@terascope/types';
+import { DataTypeFields, FieldType } from '@terascope/types';
 import {
     AnyVector, BigIntVector, BooleanVector, DateVector,
     FloatVector, GeoJSONVector, GeoPointVector, IntVector, ObjectVector, StringVector
@@ -9,7 +9,11 @@ import { Data } from './vector';
  * Create primitive vector types, does not deal with array or object type fields
 */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function _newVectorForType(fieldType: FieldType, data: Data<any>) {
+export function _newVectorForType(
+    fieldType: FieldType,
+    data: Data<any>,
+    childConfig?: DataTypeFields
+) {
     switch (fieldType) {
         case FieldType.String:
         case FieldType.Text:
@@ -44,7 +48,7 @@ export function _newVectorForType(fieldType: FieldType, data: Data<any>) {
         case FieldType.GeoJSON:
             return new GeoJSONVector({ fieldType, data });
         case FieldType.Object:
-            return new ObjectVector({ fieldType, data });
+            return new ObjectVector({ fieldType, data, childConfig });
         default:
             return new AnyVector({ fieldType, data });
     }

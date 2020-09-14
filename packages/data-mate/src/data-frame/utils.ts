@@ -2,6 +2,8 @@ import { getGroupedFields, LATEST_VERSION } from '@terascope/data-types';
 import { DataTypeConfig, DataTypeFields, DataTypeVersion } from '@terascope/types';
 import { Builder, newBuilder } from '../builder';
 import { Column } from '../column';
+import { ObjectVector } from '../vector';
+import { ListVector } from '../vector/list-vector';
 
 export function distributeRowsToColumns(
     config: DataTypeConfig, records: Record<string, unknown>[]
@@ -38,19 +40,22 @@ export function distributeRowsToColumns(
 export function columnsToDataTypeConfig(
     columns: readonly Column<unknown>[]
 ): DataTypeConfig {
-    let version: DataTypeVersion|undefined;
+    const versions = new Set<DataTypeVersion>();
     const fields: DataTypeFields = {};
     for (const col of columns) {
-        // FIXME maybe we should pick the latest
-        if (version && col.version !== version) {
-            throw new Error(
-                `Data Type version mismatch ${col.version} on column ${col.name}, expected ${version}`
-            );
-        }
+        versions.add(col.version);
         fields[col.name] = col.config;
+        // make sure we populate the nested fields
+        if (col.vector instanceof ObjectVector || col.vector instanceof ListVector) {
+            if (col.vector.childConfig) {
+                for (const nestedField of Object.keys(col.vector.childConfig)) {
+                    fields[`${col.name}.${nestedField}`] = col.vector.childConfig[nestedField];
+                }
+            }
+        }
     }
     return {
-        version: version ?? LATEST_VERSION,
+        version: versions.size ? (Math.max(...versions) as DataTypeVersion) : LATEST_VERSION,
         fields,
     };
 }
