@@ -124,6 +124,60 @@ describe('DataFrame', () => {
         ]);
     });
 
+    it('should handle object fields', () => {
+        const dataFrame = DataFrame.fromJSON({
+            version: LATEST_VERSION,
+            fields: {
+                config: {
+                    type: FieldType.Object,
+                },
+                info: {
+                    type: FieldType.Object,
+                },
+                'info.message': {
+                    type: FieldType.String,
+                },
+                'info.status': {
+                    type: FieldType.Integer,
+                }
+            }
+        }, [
+            {
+                config: { foo: 'bar' },
+                info: {
+                    message: 'some msg',
+                    status: 403
+                }
+            },
+            {
+                config: { bar: 'foo' },
+                info: {
+                    message: 'some other msg',
+                    status: 100,
+                    other_value: 'asd'
+                }
+            },
+        ]);
+        expect(dataFrame.columns).toBeArrayOfSize(2);
+        expect(dataFrame.count()).toEqual(2);
+        expect(dataFrame.toJSON()).toEqual([
+            {
+                config: { foo: 'bar' },
+                info: {
+                    message: 'some msg',
+                    status: 403
+                }
+            },
+            {
+                config: { bar: 'foo' },
+                info: {
+                    message: 'some other msg',
+                    status: 100,
+                }
+            },
+        ]);
+    });
+
     test.todo('should be immutable');
 
     describe('when manipulating a DataFrame', () => {

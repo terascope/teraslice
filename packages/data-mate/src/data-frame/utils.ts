@@ -1,7 +1,5 @@
-import { v4 as uuid } from 'uuid';
-import { LATEST_VERSION } from '@terascope/data-types';
+import { getGroupedFields, LATEST_VERSION } from '@terascope/data-types';
 import { DataTypeConfig, DataTypeFields, DataTypeVersion } from '@terascope/types';
-import { mapValues } from '@terascope/utils';
 import { Builder, newBuilder } from '../builder';
 import { Column } from '../column';
 
@@ -9,24 +7,30 @@ export function distributeRowsToColumns(
     config: DataTypeConfig, records: Record<string, unknown>[]
 ): Column[] {
     const len = records.length;
-    const builders: Record<string, Builder<unknown>> = mapValues(
-        config.fields,
-        (fieldConfig) => newBuilder(fieldConfig)
-    );
-    const fieldEntries = Object.entries(config.fields);
+    const builders: Record<string, Builder<unknown>> = {};
+    const groupedFieldEntries = Object.entries(getGroupedFields(config.fields));
+    for (const [field, nested] of groupedFieldEntries) {
+        const childConfig: DataTypeFields = {};
+        nested.forEach((fullField) => {
+            if (fullField === field) return;
+            const nestedField = fullField.replace(`${field}.`, '');
+            childConfig[nestedField] = config.fields[fullField];
+        });
+        builders[field] = newBuilder(config.fields[field], childConfig);
+    }
 
     for (let i = 0; i < len; i++) {
         const record: Record<string, unknown> = records[i] || {};
 
-        for (const [field] of fieldEntries) {
+        for (const [field] of groupedFieldEntries) {
             builders[field].append(record[field] ?? null);
         }
     }
 
-    return fieldEntries.map(([name, fieldConfig]) => new Column({
+    return groupedFieldEntries.map(([name]) => new Column({
         name,
         version: config.version,
-        config: fieldConfig,
+        config: config.fields[name],
         vector: builders[name].toVector()
     }));
 }
@@ -49,13 +53,4 @@ export function columnsToDataTypeConfig(
         version: version ?? LATEST_VERSION,
         fields,
     };
-}
-
-const _columnIds = new WeakMap<Column<any>[], string>();
-export function getColumnsId(columns: Column<any>[]): string {
-    const id = _columnIds.get(columns);
-    if (id) return id;
-    const newId = uuid();
-    _columnIds.set(columns, newId);
-    return newId;
 }

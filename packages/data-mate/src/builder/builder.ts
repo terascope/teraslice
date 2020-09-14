@@ -1,10 +1,13 @@
-import { DataTypeFieldConfig, Maybe } from '@terascope/types';
+import { DataTypeFieldConfig, DataTypeFields, Maybe } from '@terascope/types';
 import { newVector, Vector, VectorType } from '../vector';
 
 /**
  * Coerce a value so it can be stored in the builder
 */
-export type ValueFromFn<T> = (value: unknown, thisArg?: Builder<T>) => T;
+export type ValueFromFn<T> = (
+    value: unknown,
+    thisArg: Builder<T>,
+) => T;
 
 /**
  * A list of Builder Options
@@ -21,6 +24,13 @@ export abstract class Builder<T = unknown> {
     readonly type: VectorType;
     readonly config: DataTypeFieldConfig;
     readonly valueFrom?: ValueFromFn<T>;
+
+    static fromConfig<R = unknown>(
+        _config: DataTypeFieldConfig,
+        _childConfig?: DataTypeFields
+    ): Builder<R> {
+        throw new Error('This will functionality replaced in the index file');
+    }
 
     protected readonly _values: Maybe<T>[] = [];
 

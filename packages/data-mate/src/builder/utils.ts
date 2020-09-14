@@ -1,4 +1,4 @@
-import { DataTypeFieldConfig, FieldType } from '@terascope/types';
+import { DataTypeFieldConfig, DataTypeFields, FieldType } from '@terascope/types';
 import {
     AnyBuilder, BigIntBuilder, BooleanBuilder,
     DateBuilder, FloatBuilder,
@@ -10,7 +10,10 @@ import {
  * Create primitive builder types, does not deal with array or object type fields
 */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function newBuilderForType(config: DataTypeFieldConfig) {
+export function _newBuilderForType(
+    config: DataTypeFieldConfig,
+    childConfig?: DataTypeFields
+) {
     switch (config.type) {
         case FieldType.String:
         case FieldType.Text:
@@ -45,7 +48,7 @@ export function newBuilderForType(config: DataTypeFieldConfig) {
         case FieldType.GeoJSON:
             return new GeoJSONBuilder({ config });
         case FieldType.Object:
-            return new ObjectBuilder({ config });
+            return new ObjectBuilder({ config, childConfig });
         default:
             return new AnyBuilder({ config });
     }

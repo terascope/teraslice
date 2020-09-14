@@ -1,8 +1,5 @@
 import { Vector, VectorOptions, VectorType } from '../vector';
 
-/**
- * @todo we need to figure out nested fields
-*/
 export class ObjectVector<
     T extends Record<string, any> = Record<string, any>
 > extends Vector<T> {

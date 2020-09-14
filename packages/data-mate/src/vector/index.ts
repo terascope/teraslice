@@ -1,6 +1,6 @@
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
 import { ListVector } from './list-vector';
-import { newVectorForType } from './utils';
+import { _newVectorForType } from './utils';
 import { Data, Vector } from './vector';
 
 export * from './types';
@@ -20,5 +20,5 @@ export function newVector<T>(config: DataTypeFieldConfig, data: Data<any>): Vect
         }) as Vector<any>;
     }
 
-    return newVectorForType(fieldType, data) as Vector<T>;
+    return _newVectorForType(fieldType, data) as Vector<T>;
 }

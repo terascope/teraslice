@@ -9,7 +9,7 @@ import { Data } from './vector';
  * Create primitive vector types, does not deal with array or object type fields
 */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function newVectorForType(fieldType: FieldType, data: Data<any>) {
+export function _newVectorForType(fieldType: FieldType, data: Data<any>) {
     switch (fieldType) {
         case FieldType.String:
         case FieldType.Text:
