@@ -1,7 +1,7 @@
 import { FieldType } from '@terascope/types';
 import {
     AnyVector, BigIntVector, BooleanVector, DateVector,
-    FloatVector, GeoJSONVector, GeoPointVector, IntVector, StringVector
+    FloatVector, GeoJSONVector, GeoPointVector, IntVector, ObjectVector, StringVector
 } from './types';
 import { Data } from './vector';
 
@@ -43,6 +43,8 @@ export function newVectorForType(fieldType: FieldType, data: Data<any>) {
             return new GeoPointVector({ fieldType, data });
         case FieldType.GeoJSON:
             return new GeoJSONVector({ fieldType, data });
+        case FieldType.Object:
+            return new ObjectVector({ fieldType, data });
         default:
             return new AnyVector({ fieldType, data });
     }

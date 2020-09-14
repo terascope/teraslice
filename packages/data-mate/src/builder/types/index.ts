@@ -6,4 +6,5 @@ export * from './float';
 export * from './geo-json';
 export * from './geo-point';
 export * from './int';
+export * from './object';
 export * from './string';

@@ -1,5 +1,9 @@
 import 'jest-fixtures';
 import {
+    ESGeoShapeMultiPolygon,
+    ESGeoShapePoint,
+    ESGeoShapePolygon,
+    ESGeoShapeType,
     FieldType, GeoShapeMultiPolygon, GeoShapePoint, GeoShapePolygon, GeoShapeType
 } from '@terascope/types';
 import { bigIntToJSON, newBuilder, Vector } from '../../src';
@@ -88,7 +92,77 @@ describe('Vector', () => {
                 null,
                 undefined
             ],
-        ]
+        ],
+        [
+            FieldType.GeoJSON,
+            [
+                {
+                    type: ESGeoShapeType.MultiPolygon,
+                    coordinates: [
+                        [
+                            [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+                        ],
+                        [
+                            [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
+                        ]
+                    ]
+                } as ESGeoShapeMultiPolygon,
+                {
+                    type: ESGeoShapeType.Polygon,
+                    coordinates: [
+                        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+                    ]
+                } as ESGeoShapePolygon,
+                {
+                    type: ESGeoShapeType.Point,
+                    coordinates: [12, 12]
+                } as ESGeoShapePoint,
+                null,
+                undefined
+            ],
+            [
+                {
+                    type: GeoShapeType.MultiPolygon,
+                    coordinates: [
+                        [
+                            [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+                        ],
+                        [
+                            [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
+                        ]
+                    ]
+                } as GeoShapeMultiPolygon,
+                {
+                    type: GeoShapeType.Polygon,
+                    coordinates: [
+                        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+                    ]
+                } as GeoShapePolygon,
+                {
+                    type: GeoShapeType.Point,
+                    coordinates: [12, 12]
+                } as GeoShapePoint,
+                null,
+                null
+            ],
+        ],
+        [
+            FieldType.Object,
+            [
+                { foo: 'bar', other: { 1: 2 }, arr: [1, 2, 3] },
+                { field1: null, field2: undefined },
+                {},
+                null,
+                undefined
+            ],
+            [
+                { foo: 'bar', other: { 1: 2 }, arr: [1, 2, 3] },
+                { field1: null, field2: undefined },
+                {},
+                null,
+                null
+            ],
+        ],
     ];
 
     describe.each(testCases)('when field type is %s', (type, input, output) => {
@@ -102,7 +176,7 @@ describe('Vector', () => {
                 if (typeof val === 'bigint') {
                     return bigIntToJSON(val);
                 }
-                if (val === undefined) return null;
+                if (val === undefined && !output) return null;
                 return val;
             });
         });
