@@ -60,4 +60,25 @@ describe('DataFrame (GroupedData)', () => {
             ]);
         });
     });
+
+    describe('->avg', () => {
+        it('should handle the grouping correctly', () => {
+            const grouped = dataFrame.groupBy(['gender']);
+            const resultFrame = new DataFrame({
+                columns: grouped.avg('age').collect()
+            });
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'Billy',
+                    age: 33,
+                    gender: 'M'
+                },
+                {
+                    name: 'Jill',
+                    age: 39,
+                    gender: 'F'
+                }
+            ]);
+        });
+    });
 });

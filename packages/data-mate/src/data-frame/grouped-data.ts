@@ -4,71 +4,71 @@ import { Column } from '../column';
 import { AggregationFn } from './interfaces';
 import { Builder } from '../builder';
 
-type FieldAgg = [fn: AggregationFn, when?: string];
 /**
  * Grouped Data with aggregation support
+ * @todo validate when adding agg
 */
 export class GroupedData<T extends Record<string, any>> {
-    protected _aggregations: Record<string, FieldAgg[]> = {};
+    protected _aggregations: Record<string, AggregationFn[]> = {};
 
     constructor(
         readonly columns: readonly Column<any>[],
         readonly keys: (keyof T)[]
     ) {}
 
-    avg(field: keyof T, when?: string): GroupedData<T> {
-        this._addAgg(field, [AggregationFn.AVG, when]);
+    avg(field: keyof T): GroupedData<T> {
+        this._addAgg(field, AggregationFn.AVG);
         return this;
     }
 
-    sum(field: keyof T, when?: string): GroupedData<T> {
-        this._addAgg(field, [AggregationFn.SUM, when]);
+    sum(field: keyof T): GroupedData<T> {
+        this._addAgg(field, AggregationFn.SUM);
         return this;
     }
 
-    min(field: keyof T, when?: string): GroupedData<T> {
-        this._addAgg(field, [AggregationFn.MIN, when]);
+    min(field: keyof T): GroupedData<T> {
+        this._addAgg(field, AggregationFn.MIN);
         return this;
     }
 
-    max(field: keyof T, when?: string): GroupedData<T> {
-        this._addAgg(field, [AggregationFn.MAX, when]);
+    max(field: keyof T): GroupedData<T> {
+        this._addAgg(field, AggregationFn.MAX);
         return this;
     }
 
-    count(field: keyof T, when?: string): GroupedData<T> {
-        this._addAgg(field, [AggregationFn.COUNT, when]);
+    count(field: keyof T): GroupedData<T> {
+        this._addAgg(field, AggregationFn.COUNT);
         return this;
     }
 
-    unique(field: keyof T, when?: string): GroupedData<T> {
-        this._addAgg(field, [AggregationFn.UNIQUE, when]);
+    unique(field: keyof T): GroupedData<T> {
+        this._addAgg(field, AggregationFn.UNIQUE);
         return this;
     }
 
-    hourly(field: keyof T, when?: string): GroupedData<T> {
-        this._addAgg(field, [AggregationFn.HOURLY, when]);
+    hourly(field: keyof T): GroupedData<T> {
+        this._addAgg(field, AggregationFn.HOURLY);
         return this;
     }
 
-    daily(field: keyof T, when?: string): GroupedData<T> {
-        this._addAgg(field, [AggregationFn.DAILY, when]);
+    daily(field: keyof T): GroupedData<T> {
+        this._addAgg(field, AggregationFn.DAILY);
         return this;
     }
 
-    monthly(field: keyof T, when?: string): GroupedData<T> {
-        this._addAgg(field, [AggregationFn.MONTHLY, when]);
+    monthly(field: keyof T): GroupedData<T> {
+        this._addAgg(field, AggregationFn.MONTHLY);
         return this;
     }
 
-    yearly(field: keyof T, when?: string): GroupedData<T> {
-        this._addAgg(field, [AggregationFn.YEARLY, when]);
+    yearly(field: keyof T): GroupedData<T> {
+        this._addAgg(field, AggregationFn.YEARLY);
         return this;
     }
 
-    protected _addAgg(field: keyof T, agg: FieldAgg): void {
-        const aggregations = (this._aggregations[field as string] ?? []) as FieldAgg[];
-        this._aggregations[field as string] = aggregations.concat([agg]);
+    protected _addAgg(field: keyof T, agg: AggregationFn): void {
+        const aggregations = (this._aggregations[field as string] ?? []) as AggregationFn[];
+        this._aggregations[field as string] = aggregations.concat(agg);
     }
 
     /**
@@ -104,25 +104,27 @@ export class GroupedData<T extends Record<string, any>> {
             // FIXME add childConfig
             builders.set(col.name, Builder.fromConfig(col.config));
         }
-        for (const bucket of buckets.values()) {
-            const aggRow = bucket.reduce((acc: Record<string, any>|undefined, row) => {
-                if (!acc) return row;
+        const fieldAggs = Object.entries(this._aggregations).map(([field, aggregations]) => [
+            field, makeAggFn(aggregations[0])
+        ]) as [string, AggWrapper][];
 
-                for (const [field, aggregations] of Object.entries(this._aggregations)) {
-                    for (const [aggFn] of aggregations) {
-                        if (aggFn === AggregationFn.SUM) {
-                            acc[field] += row[field];
-                        }
-                    }
+        for (const bucket of buckets.values()) {
+            for (const row of bucket) {
+                for (const [field, agg] of fieldAggs) {
+                    agg.push(row[field]);
                 }
-                return acc;
-            });
+            }
+            const aggRow = { ...bucket[0] };
+            for (const [field, agg] of fieldAggs) {
+                aggRow[field] = agg.flush();
+            }
             for (const [field, builder] of builders) {
                 builder.append(aggRow[field]);
             }
         }
-        return [...builders].map(([field, builder]) => new Column<any>({
-            name: field,
+
+        return [...builders].map(([name, builder]) => new Column<any>({
+            name,
             config: builder.config,
             vector: builder.toVector()
         }));
@@ -135,4 +137,59 @@ export class GroupedData<T extends Record<string, any>> {
 
 function md5(value: any) {
     return createHash('md5').update(toString(value)).digest('hex');
+}
+
+type AggWrapper = {
+    push(value: unknown): void;
+    flush(): unknown
+}
+
+const aggMap: Partial<Record<AggregationFn, () => AggWrapper>> = {
+    [AggregationFn.AVG]: makeAvgAgg,
+    [AggregationFn.SUM]: makeSumAgg,
+};
+
+function makeAggFn(name: AggregationFn): AggWrapper {
+    const fn = aggMap[name];
+    if (!fn) {
+        throw new Error(`${name} Aggregation isn't supported`);
+    }
+    return fn();
+}
+
+function makeSumAgg(): AggWrapper {
+    let sum = 0;
+    return {
+        push(value: unknown) {
+            if (typeof value === 'number' && !Number.isNaN(value)) {
+                sum += value;
+            }
+            // add bigint support
+        },
+        flush(): number {
+            const result = sum;
+            sum = 0;
+            return result;
+        },
+    };
+}
+
+function makeAvgAgg(): AggWrapper {
+    let sum = 0;
+    let total = 0;
+    return {
+        push(value: unknown) {
+            if (typeof value === 'number' && !Number.isNaN(value)) {
+                sum += value;
+                total += 1;
+            }
+            // add bigint support
+        },
+        flush(): number {
+            const result = sum / total;
+            sum = 0;
+            total = 0;
+            return result;
+        },
+    };
 }
