@@ -1,12 +1,15 @@
+import { createHash } from 'crypto';
+import { toString } from '@terascope/utils';
 import { Column } from '../column';
 import { AggregationFn } from './interfaces';
+import { Builder } from '../builder';
 
 type FieldAgg = [fn: AggregationFn, when?: string];
 /**
  * Grouped Data with aggregation support
 */
 export class GroupedData<T extends Record<string, any>> {
-    protected _aggregations: Partial<Record<keyof T, FieldAgg[]>> = {};
+    protected _aggregations: Record<string, FieldAgg[]> = {};
 
     constructor(
         readonly columns: readonly Column<any>[],
@@ -64,14 +67,72 @@ export class GroupedData<T extends Record<string, any>> {
     }
 
     protected _addAgg(field: keyof T, agg: FieldAgg): void {
-        const aggs = (this._aggregations[field] ?? []) as FieldAgg[];
-        this._aggregations[field] = aggs.concat([agg]);
+        const aggregations = (this._aggregations[field as string] ?? []) as FieldAgg[];
+        this._aggregations[field as string] = aggregations.concat([agg]);
     }
 
     /**
      * Run aggregations and flatten the grouped data into a DataFrame
     */
     collect(): Column[] {
-        return this.columns.slice(); // FIXME
+        const buckets = new Map<string, any[]>();
+        const count = this.columns[0].count();
+        const keyedCols = this.columns.filter((col) => this.keys.includes(col.name));
+        const otherCols = this.columns.filter((col) => !this.keys.includes(col.name));
+        for (let i = 0; i < count; i++) {
+            const row: Record<string, any> = {};
+
+            let key = '';
+            for (const col of keyedCols) {
+                const value = col.vector.get(i);
+                key += md5(value);
+                row[col.name] = value;
+            }
+
+            for (const col of otherCols) {
+                const value = col.vector.get(i);
+                row[col.name] = value;
+            }
+
+            const bucket = buckets.get(key) || [];
+            bucket.push(row);
+            buckets.set(key, bucket);
+        }
+
+        const builders = new Map<string, Builder<any>>();
+        for (const col of this.columns) {
+            // FIXME add childConfig
+            builders.set(col.name, Builder.fromConfig(col.config));
+        }
+        for (const bucket of buckets.values()) {
+            const aggRow = bucket.reduce((acc: Record<string, any>|undefined, row) => {
+                if (!acc) return row;
+
+                for (const [field, aggregations] of Object.entries(this._aggregations)) {
+                    for (const [aggFn] of aggregations) {
+                        if (aggFn === AggregationFn.SUM) {
+                            acc[field] += row[field];
+                        }
+                    }
+                }
+                return acc;
+            });
+            for (const [field, builder] of builders) {
+                builder.append(aggRow[field]);
+            }
+        }
+        return [...builders].map(([field, builder]) => new Column<any>({
+            name: field,
+            config: builder.config,
+            vector: builder.toVector()
+        }));
     }
+
+    clear(): void {
+        this._aggregations = {};
+    }
+}
+
+function md5(value: any) {
+    return createHash('md5').update(toString(value)).digest('hex');
 }
