@@ -1,5 +1,6 @@
+import { createHash } from 'crypto';
 import { DataTypeConfig, Maybe } from '@terascope/types';
-import { Column } from './column';
+import { Column } from '../column';
 import { GroupedData } from './grouped-data';
 import { columnsToDataTypeConfig, distributeRowsToColumns } from './utils';
 
@@ -57,13 +58,18 @@ export class DataFrame<
     */
     readonly metadata: M;
 
+    /** cached id for lazy loading the id */
+    private __id?: string;
+
     protected readonly _size: number;
 
     constructor(options: DataFrameOptions<T, M>) {
         this.name = options.name;
         this.metadata = { ...options.metadata } as M;
-        this.columns = Object.freeze(options.columns);
-        const lengths = this.columns.map((col) => col.size);
+        this.columns = Object.isFrozen(options.columns)
+            ? options.columns
+            : Object.freeze(options.columns);
+        const lengths = this.columns.map((col) => col.count());
         if (new Set(lengths).size > 1) {
             throw new Error(
                 'All columns for a DataFrame must have the same length'
@@ -73,16 +79,27 @@ export class DataFrame<
     }
 
     * [Symbol.iterator](): IterableIterator<T> {
-        for (let i = 0; i < this.size; i++) {
+        for (let i = 0; i < this._size; i++) {
             const row = this.getRow(i, false);
             if (row) yield row;
         }
     }
 
     /**
-     * Create a copy of the DataFrame
+     * A Unique ID for the DataFrame (excludes metadata)
     */
-    clone<R extends Record<string, unknown> = T>(
+    get id(): string {
+        if (this.__id) return this.__id;
+        const long = this.columns.map((col) => `${col.name}(${col.id})`).sort().join(':');
+        const id = createHash('md5').update(long).digest('hex');
+        this.__id = id;
+        return id;
+    }
+
+    /**
+     * Create a fork of the DataFrame
+    */
+    fork<R extends Record<string, unknown> = T>(
         columns = this.columns
     ): DataFrame<R, M> {
         return new DataFrame<R, M>({
@@ -95,7 +112,7 @@ export class DataFrame<
     /**
      * Get the length of the DataFrame
     */
-    get size(): number {
+    count(): number {
         return this._size;
     }
 
@@ -111,7 +128,7 @@ export class DataFrame<
      * @returns a new DataFrame
     */
     select<K extends keyof T>(...fields: K[]): DataFrame<Pick<T, K>> {
-        return this.clone(fields.map(
+        return this.fork(fields.map(
             (field): Column<any> => this.getColumn(field)!
         ));
     }
@@ -136,7 +153,7 @@ export class DataFrame<
             return true;
         });
 
-        return this.clone<T & R>(
+        return this.fork<T & R>(
             this.columns.map((col) => {
                 const replaceCol = columns.find((c) => c.name === col.name);
                 if (replaceCol) return replaceCol;
@@ -152,9 +169,9 @@ export class DataFrame<
         name: K,
         renameTo: R,
     ): DataFrame<Omit<T, K> & Record<R, T[K]>> {
-        return this.clone(this.columns.map((col): Column<any> => {
+        return this.fork(this.columns.map((col): Column<any> => {
             if (col.name !== name) return col;
-            const newCol = col.clone();
+            const newCol = col.fork();
             newCol.name = renameTo;
             return newCol;
         }));
@@ -179,7 +196,7 @@ export class DataFrame<
      * Get a row by index, if the row has only null values, returns undefined
     */
     getRow(index: number, json = false): T|undefined {
-        if (index > (this.size - 1)) return;
+        if (index > (this._size - 1)) return;
 
         const row: Partial<T> = {};
         for (const col of this.columns) {
@@ -200,8 +217,8 @@ export class DataFrame<
      * Create a new DataFrame with a range of rows
     */
     slice(start?: number, end?: number): DataFrame<T> {
-        return this.clone(this.columns.map(
-            (col) => col.clone(col.vector.slice(start, end))
+        return this.fork(this.columns.map(
+            (col) => col.fork(col.vector.slice(start, end))
         ));
     }
 
@@ -210,7 +227,7 @@ export class DataFrame<
     */
     toJSON(): T[] {
         const rows: T[] = [];
-        for (let i = 0; i < this.size; i++) {
+        for (let i = 0; i < this._size; i++) {
             const row = this.getRow(i, true);
             if (row) rows.push(row);
         }

@@ -5,7 +5,7 @@ export class AnyVector extends Vector<any> {
         super(VectorType.Any, options);
     }
 
-    clone(data = this.data): AnyVector {
+    fork(data = this.data): AnyVector {
         return new AnyVector({
             valueToJSON: this.valueToJSON,
             fieldType: this.fieldType,

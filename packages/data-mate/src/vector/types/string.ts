@@ -11,7 +11,7 @@ export class StringVector extends Vector<string> {
         super(VectorType.String, options);
     }
 
-    clone(data = this.data): StringVector {
+    fork(data = this.data): StringVector {
         return new StringVector({
             valueToJSON: this.valueToJSON,
             fieldType: this.fieldType,

@@ -113,9 +113,9 @@ interface Column<T = unknown> {
     readonly size: number;
 
     /**
-     * Create a copy of the Column
+     * Create a fork of the Column
     */
-    clone(): Column<T>;
+    fork(): Column<T>;
 
     /**
      * Get the underling Vector.
@@ -266,9 +266,9 @@ interface Vector<T = unknown> {
     readonly size: number;
 
     /**
-     * Create a copy of the Vector
+     * Create a fork of the Vector
     */
-    clone(): Vector<T>;
+    fork(): Vector<T>;
 
     /**
      * Gets the number distinct values in the Vector

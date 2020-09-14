@@ -21,7 +21,7 @@ export class BigIntVector extends Vector<bigint> {
         });
     }
 
-    clone(data = this.data): BigIntVector {
+    fork(data = this.data): BigIntVector {
         return new BigIntVector({
             valueToJSON: this.valueToJSON,
             fieldType: this.fieldType,

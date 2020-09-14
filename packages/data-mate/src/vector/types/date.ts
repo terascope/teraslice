@@ -16,7 +16,7 @@ export class DateVector extends Vector<string> {
         });
     }
 
-    clone(data = this.data): DateVector {
+    fork(data = this.data): DateVector {
         return new DateVector({
             valueToJSON: this.valueToJSON,
             fieldType: this.fieldType,

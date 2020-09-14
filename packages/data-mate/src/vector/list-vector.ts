@@ -14,7 +14,7 @@ export class ListVector<T = unknown> extends Vector<Vector<T>> {
         });
     }
 
-    clone(data = this.data): ListVector<T> {
+    fork(data = this.data): ListVector<T> {
         return new ListVector({
             valueToJSON: this.valueToJSON,
             fieldType: this.fieldType,

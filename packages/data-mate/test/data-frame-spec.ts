@@ -1,15 +1,16 @@
 import 'jest-fixtures';
 import { LATEST_VERSION } from '@terascope/data-types';
 import { FieldType } from '@terascope/types';
-import { DataFrame } from '../../src';
+import { DataFrame } from '../src';
 
 describe('DataFrame', () => {
     it('should be able to create an empty table', () => {
         const dataFrame = DataFrame.fromJSON({ version: LATEST_VERSION, fields: {} }, []);
         expect(dataFrame).toBeInstanceOf(DataFrame);
         expect(dataFrame.columns).toBeArrayOfSize(0);
-        expect(dataFrame.size).toEqual(0);
+        expect(dataFrame.count()).toEqual(0);
         expect(dataFrame.toJSON()).toEqual([]);
+        expect(dataFrame.id).toBeString();
     });
 
     it('should handle a single column with one value', () => {
@@ -26,12 +27,29 @@ describe('DataFrame', () => {
             }
         ]);
         expect(dataFrame.columns).toBeArrayOfSize(1);
-        expect(dataFrame.size).toEqual(1);
+        expect(dataFrame.count()).toEqual(1);
         expect(dataFrame.toJSON()).toEqual([
             {
                 name: 'Billy'
             }
         ]);
+    });
+
+    it('should have the same id when forked (and the columns aren\'t changed)', () => {
+        const dataFrame = DataFrame.fromJSON({
+            version: LATEST_VERSION,
+            fields: {
+                name: {
+                    type: FieldType.Keyword,
+                }
+            }
+        }, [
+            {
+                name: 'Billy'
+            }
+        ]);
+        const resultFrame = dataFrame.fork();
+        expect(resultFrame.id).toEqual(dataFrame.id);
     });
 
     it('should handle a single column with null/undefined values', () => {
@@ -55,7 +73,7 @@ describe('DataFrame', () => {
             {}
         ]);
         expect(dataFrame.columns).toBeArrayOfSize(1);
-        expect(dataFrame.size).toEqual(4);
+        expect(dataFrame.count()).toEqual(4);
         expect(dataFrame.toJSON()).toEqual([
             {
                 name: 'Billy'
@@ -91,7 +109,7 @@ describe('DataFrame', () => {
             }
         ]);
         expect(dataFrame.columns).toBeArrayOfSize(2);
-        expect(dataFrame.size).toEqual(3);
+        expect(dataFrame.count()).toEqual(3);
         expect(dataFrame.toJSON()).toEqual([
             {
                 name: 'Billy',
@@ -148,10 +166,11 @@ describe('DataFrame', () => {
 
         describe('->select', () => {
             it('should return a new frame with just those columns', () => {
-                const selected = dataFrame.select('name', 'age');
-                const names = selected.columns.map(({ name }) => name);
+                const resultFrame = dataFrame.select('name', 'age');
+                const names = resultFrame.columns.map(({ name }) => name);
                 expect(names).toEqual(['name', 'age']);
-                expect(selected.size).toEqual(dataFrame.size);
+                expect(resultFrame.count()).toEqual(dataFrame.count());
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
             });
         });
 
@@ -167,7 +186,8 @@ describe('DataFrame', () => {
                 const names = resultFrame.columns.map(({ name }) => name);
                 expect(names).toEqual(['name', 'age', 'friends', 'upper_name']);
 
-                expect(resultFrame.size).toEqual(dataFrame.size);
+                expect(resultFrame.count()).toEqual(dataFrame.count());
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
             });
 
             it('should be able to a new frame with replaced columns', () => {
@@ -186,7 +206,8 @@ describe('DataFrame', () => {
                     'JILL'
                 ]);
 
-                expect(resultFrame.size).toEqual(dataFrame.size);
+                expect(resultFrame.count()).toEqual(dataFrame.count());
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
             });
         });
 
@@ -202,7 +223,8 @@ describe('DataFrame', () => {
                     expect(row).not.toHaveProperty('friends');
                 }
 
-                expect(resultFrame.size).toEqual(dataFrame.size);
+                expect(resultFrame.count()).toEqual(dataFrame.count());
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
             });
         });
 
@@ -210,10 +232,11 @@ describe('DataFrame', () => {
             it('should be able to get the first two rows', () => {
                 const resultFrame = dataFrame.slice(0, 2);
 
-                expect(resultFrame.size).toEqual(2);
+                expect(resultFrame.count()).toEqual(2);
                 expect(resultFrame.toJSON()).toEqual(
                     dataFrame.toJSON().slice(0, 2)
                 );
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
             });
         });
     });

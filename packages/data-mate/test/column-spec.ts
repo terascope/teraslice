@@ -2,7 +2,7 @@ import 'jest-fixtures';
 import { FieldType, Maybe } from '@terascope/types';
 import {
     Column, Vector
-} from '../../src';
+} from '../src';
 
 describe('Column', () => {
     describe(`when field type is ${FieldType.Keyword}`, () => {
@@ -24,7 +24,16 @@ describe('Column', () => {
         });
 
         it('should have the correct size', () => {
-            expect(col.size).toEqual(values.length);
+            expect(col.count()).toEqual(values.length);
+        });
+
+        it('should have the same id when forked with the same vector', () => {
+            expect(col.fork().id).toEqual(col.id);
+        });
+
+        it('should NOT have the same id when forked with a different vector', () => {
+            const vector = col.vector.slice(0, 2);
+            expect(col.fork(vector).id).not.toEqual(col.id);
         });
 
         it('should be able to iterate over the values', () => {

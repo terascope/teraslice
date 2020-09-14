@@ -5,7 +5,7 @@ export class FloatVector extends Vector<number> {
         super(VectorType.Float, options);
     }
 
-    clone(data = this.data): FloatVector {
+    fork(data = this.data): FloatVector {
         return new FloatVector({
             valueToJSON: this.valueToJSON,
             fieldType: this.fieldType,

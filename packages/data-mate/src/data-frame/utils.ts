@@ -1,8 +1,9 @@
+import { v4 as uuid } from 'uuid';
 import { LATEST_VERSION } from '@terascope/data-types';
 import { DataTypeConfig, DataTypeFields, DataTypeVersion } from '@terascope/types';
 import { mapValues } from '@terascope/utils';
 import { Builder, newBuilder } from '../builder';
-import { Column } from './column';
+import { Column } from '../column';
 
 export function distributeRowsToColumns(
     config: DataTypeConfig, records: Record<string, unknown>[]
@@ -48,4 +49,13 @@ export function columnsToDataTypeConfig(
         version: version ?? LATEST_VERSION,
         fields,
     };
+}
+
+const _columnIds = new WeakMap<Column<any>[], string>();
+export function getColumnsId(columns: Column<any>[]): string {
+    const id = _columnIds.get(columns);
+    if (id) return id;
+    const newId = uuid();
+    _columnIds.set(columns, newId);
+    return newId;
 }

@@ -2,6 +2,7 @@ import { LATEST_VERSION } from '@terascope/data-types';
 import { DataTypeFieldConfig, Maybe, DataTypeVersion } from '@terascope/types';
 import { newBuilder } from '../builder';
 import { JSONValue, Vector } from '../vector';
+import { getVectorId } from './utils';
 
 /**
  * Column options
@@ -23,7 +24,6 @@ export class Column<T = unknown> {
     name: string;
     readonly version: DataTypeVersion;
     readonly config: DataTypeFieldConfig;
-
     protected readonly _vector: Vector<T>;
 
     static fromJSON<R>(
@@ -57,10 +57,10 @@ export class Column<T = unknown> {
     }
 
     /**
-     * Get the size of the values in the Vector
+     * A Unique ID for the Column (excludes metadata)
     */
-    get size(): number {
-        return this._vector.size;
+    get id(): string {
+        return getVectorId(this._vector);
     }
 
     /**
@@ -72,14 +72,14 @@ export class Column<T = unknown> {
     }
 
     /**
-     * Create a copy of the Column
+     * Create a fork of the Column
     */
-    clone(vector?: Vector<T>): Column<T> {
+    fork(vector?: Vector<T>): Column<T> {
         return new Column<T>({
             name: this.name,
             version: this.version,
             config: this.config,
-            vector: vector ?? this.vector.clone(),
+            vector: vector ?? this.vector,
         });
     }
 
@@ -90,7 +90,7 @@ export class Column<T = unknown> {
     */
     map(fn: (value: Maybe<T>, index: number) => Maybe<T>): Column<T> {
         const builder = newBuilder<T>(this.config);
-        for (let i = 0; i < this.size; i++) {
+        for (let i = 0; i < this._vector.size; i++) {
             const value = this.vector.get(i) as Maybe<T>;
             builder.append(fn(value, i));
         }
@@ -119,7 +119,7 @@ export class Column<T = unknown> {
         const name = columnOptions?.name ?? this.name;
         if (fn) {
             const builder = newBuilder<R>(config);
-            for (let i = 0; i < this.size; i++) {
+            for (let i = 0; i < this._vector.size; i++) {
                 const value = this.vector.get(i) as Maybe<T>;
                 builder.append(fn(value, i));
             }
@@ -133,7 +133,7 @@ export class Column<T = unknown> {
             name: this.name,
             version: this.version,
             config: this.config,
-            vector: this.vector.clone() as Vector<any>
+            vector: this.vector.fork() as Vector<any>
         });
     }
 
@@ -145,7 +145,7 @@ export class Column<T = unknown> {
     */
     filter(fn: (value: Maybe<T>, index: number) => boolean): Column<T> {
         const builder = newBuilder<T>(this.config);
-        for (let i = 0; i < this.size; i++) {
+        for (let i = 0; i < this._vector.size; i++) {
             const value = this.vector.get(i) as Maybe<T>;
             if (fn(value, i)) {
                 builder.append(value);
@@ -156,6 +156,30 @@ export class Column<T = unknown> {
             config: this.config,
             vector: builder.toVector()
         });
+    }
+
+    avg(): number|bigint {
+        return -1; // FIXME
+    }
+
+    sum(): number|bigint {
+        return -1; // FIXME
+    }
+
+    min(): number|bigint {
+        return -1; // FIXME
+    }
+
+    max(): number|bigint {
+        return -1; // FIXME
+    }
+
+    count(): number {
+        return this._vector.size;
+    }
+
+    unique(): number {
+        return this._vector.distinct();
     }
 
     /**

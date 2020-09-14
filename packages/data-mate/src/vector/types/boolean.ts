@@ -5,7 +5,7 @@ export class BooleanVector extends Vector<boolean> {
         super(VectorType.Boolean, options);
     }
 
-    clone(data = this.data): BooleanVector {
+    fork(data = this.data): BooleanVector {
         return new BooleanVector({
             valueToJSON: this.valueToJSON,
             fieldType: this.fieldType,

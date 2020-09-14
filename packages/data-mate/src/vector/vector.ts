@@ -115,9 +115,9 @@ export abstract class Vector<T = unknown> {
     }
 
     /**
-     * Create a copy of the Vector
+     * Create a fork of the Vector
     */
-    abstract clone(data?: Data<T>): Vector<T>;
+    abstract fork(data?: Data<T>): Vector<T>;
 
     /**
      * Filter the values in the Vector, returns new Vector
@@ -135,7 +135,7 @@ export abstract class Vector<T = unknown> {
         }
 
         // FIXME this doesn't handle coercion
-        return this.clone(Object.freeze({
+        return this.fork(Object.freeze({
             values: Object.freeze(values)
         }));
     }
@@ -159,7 +159,7 @@ export abstract class Vector<T = unknown> {
      * Create a new Vector with the range of values
     */
     slice(start?: number, end?: number): Vector<T> {
-        return this.clone(Object.freeze({
+        return this.fork(Object.freeze({
             values: Object.freeze(
                 this.data.values.slice(start, end)
             )

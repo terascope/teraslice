@@ -5,7 +5,7 @@ export class IntVector extends Vector<number> {
         super(VectorType.Int, options);
     }
 
-    clone(data = this.data): IntVector {
+    fork(data = this.data): IntVector {
         return new IntVector({
             valueToJSON: this.valueToJSON,
             fieldType: this.fieldType,
