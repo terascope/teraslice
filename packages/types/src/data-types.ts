@@ -6,6 +6,9 @@ export enum FieldType {
     Domain = 'Domain',
     Double = 'Double',
     Float = 'Float',
+    /**
+     * @deprecated use GeoPoint or GeoJSON instead
+    */
     Geo = 'Geo',
     GeoPoint = 'GeoPoint',
     GeoJSON = 'GeoJSON',

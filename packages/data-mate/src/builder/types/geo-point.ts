@@ -9,7 +9,7 @@ export class GeoPointBuilder extends Builder<GeoPoint> {
     }
 
     constructor(options: BuilderOptions<GeoPoint>) {
-        super(VectorType.BigInt, {
+        super(VectorType.GeoPoint, {
             valueFrom: GeoPointBuilder.valueFrom,
             ...options,
         });

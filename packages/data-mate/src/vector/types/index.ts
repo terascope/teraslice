@@ -3,6 +3,7 @@ export * from './bigint';
 export * from './boolean';
 export * from './date';
 export * from './float';
+export * from './geo-json';
 export * from './geo-point';
 export * from './int';
 export * from './string';

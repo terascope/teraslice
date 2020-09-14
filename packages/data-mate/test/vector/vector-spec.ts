@@ -1,5 +1,7 @@
 import 'jest-fixtures';
-import { FieldType } from '@terascope/types';
+import {
+    FieldType, GeoShapeMultiPolygon, GeoShapePoint, GeoShapePolygon, GeoShapeType
+} from '@terascope/types';
 import { bigIntToJSON, newBuilder, Vector } from '../../src';
 
 describe('Vector', () => {
@@ -52,6 +54,41 @@ describe('Vector', () => {
                 null
             ]
         ],
+        [
+            FieldType.GeoJSON,
+            [
+                {
+                    type: GeoShapeType.MultiPolygon,
+                    coordinates: [
+                        [
+                            [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+                        ],
+                        [
+                            [[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]],
+                        ]
+                    ]
+                } as GeoShapeMultiPolygon,
+                {
+                    type: GeoShapeType.Polygon,
+                    coordinates: [
+                        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+                    ]
+                } as GeoShapePolygon,
+                {
+                    type: GeoShapeType.Polygon,
+                    coordinates: [
+                        [[10, 10], [10, 50], [50, 50], [50, 10], [10, 10]],
+                        [[20, 20], [20, 40], [40, 40], [40, 20], [20, 20]]
+                    ]
+                } as GeoShapePolygon,
+                {
+                    type: GeoShapeType.Point,
+                    coordinates: [12, 12]
+                } as GeoShapePoint,
+                null,
+                undefined
+            ],
+        ]
     ];
 
     describe.each(testCases)('when field type is %s', (type, input, output) => {

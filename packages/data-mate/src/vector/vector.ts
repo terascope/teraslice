@@ -16,6 +16,7 @@ export enum VectorType {
     BigInt = 'BigInt',
     Boolean = 'Boolean',
     GeoPoint = 'GeoPoint',
+    GeoJSON = 'GeoJSON',
     /** @todo */
     Object = 'Object',
     /**
