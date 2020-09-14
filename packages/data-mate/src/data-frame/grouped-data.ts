@@ -147,6 +147,8 @@ type AggWrapper = {
 const aggMap: Partial<Record<AggregationFn, () => AggWrapper>> = {
     [AggregationFn.AVG]: makeAvgAgg,
     [AggregationFn.SUM]: makeSumAgg,
+    [AggregationFn.MIN]: makeMinAgg,
+    [AggregationFn.MAX]: makeMaxAgg,
 };
 
 function makeAggFn(name: AggregationFn): AggWrapper {
@@ -189,6 +191,44 @@ function makeAvgAgg(): AggWrapper {
             const result = sum / total;
             sum = 0;
             total = 0;
+            return result;
+        },
+    };
+}
+
+function makeMinAgg(): AggWrapper {
+    let min: number|undefined;
+    return {
+        push(value: unknown) {
+            if (typeof value === 'number' && !Number.isNaN(value)) {
+                if (min == null || value < min) {
+                    min = value;
+                }
+            }
+            // add bigint support
+        },
+        flush(): number|undefined {
+            const result = min;
+            min = undefined;
+            return result;
+        },
+    };
+}
+
+function makeMaxAgg(): AggWrapper {
+    let max: number|undefined;
+    return {
+        push(value: unknown) {
+            if (typeof value === 'number' && !Number.isNaN(value)) {
+                if (max == null || value > max) {
+                    max = value;
+                }
+            }
+            // add bigint support
+        },
+        flush(): number|undefined {
+            const result = max;
+            max = undefined;
             return result;
         },
     };
