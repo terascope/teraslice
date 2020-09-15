@@ -4,7 +4,8 @@ import { Column } from '../column';
 import { AggregationFn } from './interfaces';
 import { Builder } from '../builder';
 import {
-    aggMap, FieldAgg, getBuilderForField, KeyAggFn, keyAggMap, makeDefaultAggFn, makeDefaultFieldFn, md5
+    aggMap, FieldAgg, getBuilderForField, KeyAggFn,
+    keyAggMap, makeDefaultAggFn, makeDefaultFieldFn, md5
 } from './aggregation-utils';
 
 /**

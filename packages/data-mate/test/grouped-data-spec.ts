@@ -62,10 +62,10 @@ describe('DataFrame (GroupedData)', () => {
                 date: '2019-09-15T17:39:11.195Z', // minus one year
             },
             {
-                name: 'Phil',
+                name: 'Frank',
                 age: 45,
                 gender: 'M',
-                date: '2020-09-15T16:39:11.195Z', // minus one hour
+                date: '2020-07-15T16:39:11.195Z', // minus two months
             },
         ]);
     });
@@ -185,11 +185,60 @@ describe('DataFrame (GroupedData)', () => {
         });
     });
 
+    test.todo('->unique');
+
     describe('->hourly', () => {
         it('should handle the grouping correctly', () => {
-            const grouped = dataFrame.groupBy(['gender']);
+            const grouped = dataFrame.collect();
             const resultFrame = new DataFrame({
-                columns: grouped.hourly('date').collect()
+                columns: grouped.hourly('date').count('name').collect()
+            });
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 1,
+                    age: 64,
+                    gender: 'M',
+                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                },
+                {
+                    name: 1,
+                    age: 25,
+                    gender: 'M',
+                    date: new Date('2020-09-15T16:39:11.195Z').getTime()
+                },
+                {
+                    name: 2,
+                    age: 40,
+                    gender: 'F',
+                    date: new Date('2020-09-15T15:39:11.195Z').getTime()
+                },
+                {
+                    name: 1,
+                    age: 20,
+                    gender: 'M',
+                    date: new Date('2020-09-13T17:39:11.195Z').getTime()
+                },
+                {
+                    name: 1,
+                    age: 84,
+                    gender: 'F',
+                    date: new Date('2019-09-15T17:39:11.195Z').getTime()
+                },
+                {
+                    name: 1,
+                    age: 45,
+                    gender: 'M',
+                    date: new Date('2020-07-15T16:39:11.195Z').getTime()
+                }
+            ]);
+        });
+    });
+
+    describe('->daily', () => {
+        it('should handle the grouping correctly', () => {
+            const grouped = dataFrame.collect();
+            const resultFrame = new DataFrame({
+                columns: grouped.daily('date').count('name').collect()
             });
             expect(resultFrame.toJSON()).toEqual([
                 {
@@ -199,14 +248,76 @@ describe('DataFrame (GroupedData)', () => {
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
-                    name: 3,
-                    age: 40,
+                    name: 1,
+                    age: 20,
+                    gender: 'M',
+                    date: new Date('2020-09-13T17:39:11.195Z').getTime()
+                },
+                {
+                    name: 1,
+                    age: 84,
                     gender: 'F',
-                    date: new Date('2020-09-15T15:39:11.195Z').getTime()
+                    date: new Date('2019-09-15T17:39:11.195Z').getTime()
+                },
+                {
+                    name: 1,
+                    age: 45,
+                    gender: 'M',
+                    date: new Date('2020-07-15T16:39:11.195Z').getTime()
                 }
             ]);
         });
     });
 
-    test.todo('->unique');
+    describe('->monthly', () => {
+        it('should handle the grouping correctly', () => {
+            const grouped = dataFrame.collect();
+            const resultFrame = new DataFrame({
+                columns: grouped.monthly('date').count('name').collect()
+            });
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 5,
+                    age: 64,
+                    gender: 'M',
+                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                },
+                {
+                    name: 1,
+                    age: 84,
+                    gender: 'F',
+                    date: new Date('2019-09-15T17:39:11.195Z').getTime()
+                },
+                {
+                    name: 1,
+                    age: 45,
+                    gender: 'M',
+                    date: new Date('2020-07-15T16:39:11.195Z').getTime()
+                }
+            ]);
+        });
+    });
+
+    describe('->yearly', () => {
+        it('should handle the grouping correctly', () => {
+            const grouped = dataFrame.collect();
+            const resultFrame = new DataFrame({
+                columns: grouped.yearly('date').count('name').collect()
+            });
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 6,
+                    age: 64,
+                    gender: 'M',
+                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                },
+                {
+                    name: 1,
+                    age: 84,
+                    gender: 'F',
+                    date: new Date('2019-09-15T17:39:11.195Z').getTime()
+                }
+            ]);
+        });
+    });
 });

@@ -137,10 +137,17 @@ export class DataFrame<
 
     /**
      * Group DataFrame by columns
-     * @returns a new DataFrame
+     * @returns a GroupedData instance which can be used to run aggregations
     */
     groupBy(fields: (keyof T)[]): GroupedData<T> {
         return new GroupedData<T>(this.columns, fields);
+    }
+
+    /**
+     * @returns a GroupedData instance which can be used to run aggregations
+    */
+    collect(): GroupedData<T> {
+        return new GroupedData<T>(this.columns, []);
     }
 
     /**

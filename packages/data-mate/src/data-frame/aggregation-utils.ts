@@ -1,7 +1,5 @@
 import { createHash } from 'crypto';
-import {
-    format, getHours, getISODay, getISOWeekYear, getMonth
-} from 'date-fns';
+import formatDate from 'date-fns/format';
 import { get, getValidDate, toString } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import { Column } from '../column';
@@ -216,55 +214,26 @@ export type KeyAggFn = (index: number) => {
 };
 export type MakeKeyAggFn = (col: Column<unknown>) => KeyAggFn;
 export const keyAggMap: Partial<Record<AggregationFn, MakeKeyAggFn>> = {
-    [AggregationFn.HOURLY](col) {
-        return (index) => {
-            const value = col.vector.get(index);
-            if (value == null) return { key: undefined, value };
-            const date = getValidDate(value);
-            if (date === false) return { key: undefined, value };
-            return {
-                key: `${getISOWeekYear(date)}:${getMonth(date)}:${getISODay(date)}:${getHours(date)}`,
-                value,
-            };
-        };
-    },
-    [AggregationFn.DAILY](col) {
-        return (index) => {
-            const value = col.vector.get(index);
-            if (value == null) return { key: undefined, value };
-            const date = getValidDate(value);
-            if (date === false) return { key: undefined, value };
-            return {
-                key: `${getISOWeekYear(date)}:${getMonth(date)}:${getISODay(date)}`,
-                value,
-            };
-        };
-    },
-    [AggregationFn.MONTHLY](col) {
-        return (index) => {
-            const value = col.vector.get(index);
-            if (value == null) return { key: undefined, value };
-            const date = getValidDate(value);
-            if (date === false) return { key: undefined, value };
-            return {
-                key: `${getISOWeekYear(date)}:${getMonth(date)}`,
-                value,
-            };
-        };
-    },
-    [AggregationFn.YEARLY](col) {
-        return (index) => {
-            const value = col.vector.get(index);
-            if (value == null) return { key: undefined, value };
-            const date = getValidDate(value);
-            if (date === false) return { key: undefined, value };
-            return {
-                key: `${getISOWeekYear(date)}`,
-                value,
-            };
-        };
-    },
+    [AggregationFn.HOURLY]: makeDateAgg('yyyy:MM:dd:hh'),
+    [AggregationFn.DAILY]: makeDateAgg('yyyy:MM:dd'),
+    [AggregationFn.MONTHLY]: makeDateAgg('yyyy:MM'),
+    [AggregationFn.YEARLY]: makeDateAgg('yyyy'),
 };
+
+export function makeDateAgg(dateFormat: string): MakeKeyAggFn {
+    return (col) => (index) => {
+        const value = col.vector.get(index);
+        if (value == null) return { key: undefined, value };
+
+        const date = getValidDate(value);
+        if (date === false) return { key: undefined, value };
+
+        return {
+            key: formatDate(date, dateFormat),
+            value,
+        };
+    };
+}
 
 export function makeDefaultFieldFn(col: Column<unknown>): KeyAggFn {
     return (index) => {
