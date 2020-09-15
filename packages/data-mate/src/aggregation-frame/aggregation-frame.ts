@@ -1,89 +1,89 @@
 import MultiMap from 'mnemonist/multi-map';
 import { getFirst, getLast } from '@terascope/utils';
 import { Column } from '../column';
-import { AggregationFn } from './interfaces';
+import { Aggregation } from './interfaces';
 import { Builder } from '../builder';
 import {
     aggMap, FieldAgg, getBuilderForField, KeyAggFn,
-    keyAggMap, makeDefaultAggFn, makeDefaultFieldFn, md5
-} from './aggregation-utils';
+    keyAggMap, makeDefaultAggFn, makeDefaultKeyFn, md5
+} from './utils';
 
 /**
- * Grouped Data with aggregation support
+ * A frame dedicated to running a aggregations
  *
- * @todo find a better name
  * @todo validate when adding agg
  * @todo handle mixing key aggregation and value aggregations
 */
-export class GroupedData<T extends Record<string, any>> {
-    protected readonly _aggregations = new MultiMap<string, AggregationFn>();
+export class AggregationFrame<T extends Record<string, any>> {
+    protected readonly _aggregations = new MultiMap<string, Aggregation>();
 
     constructor(
         readonly columns: readonly Column<any>[],
-        readonly keys: (keyof T)[]
+        readonly keyBy: (keyof T)[]
     ) {}
 
-    avg(field: keyof T): GroupedData<T> {
-        this._addAgg(field, AggregationFn.AVG);
+    avg(field: keyof T): AggregationFrame<T> {
+        this._addAgg(field, Aggregation.AVG);
         return this;
     }
 
-    sum(field: keyof T): GroupedData<T> {
-        this._addAgg(field, AggregationFn.SUM);
+    sum(field: keyof T): AggregationFrame<T> {
+        this._addAgg(field, Aggregation.SUM);
         return this;
     }
 
-    min(field: keyof T): GroupedData<T> {
-        this._addAgg(field, AggregationFn.MIN);
+    min(field: keyof T): AggregationFrame<T> {
+        this._addAgg(field, Aggregation.MIN);
         return this;
     }
 
-    max(field: keyof T): GroupedData<T> {
-        this._addAgg(field, AggregationFn.MAX);
+    max(field: keyof T): AggregationFrame<T> {
+        this._addAgg(field, Aggregation.MAX);
         return this;
     }
 
-    count(field: keyof T): GroupedData<T> {
-        this._addAgg(field, AggregationFn.COUNT);
+    count(field: keyof T): AggregationFrame<T> {
+        this._addAgg(field, Aggregation.COUNT);
         return this;
     }
 
-    unique(field: keyof T): GroupedData<T> {
-        this._addAgg(field, AggregationFn.UNIQUE);
+    unique(field: keyof T): AggregationFrame<T> {
+        this._addAgg(field, Aggregation.UNIQUE);
         return this;
     }
 
-    hourly(field: keyof T): GroupedData<T> {
-        this._addAgg(field, AggregationFn.HOURLY);
+    hourly(field: keyof T): AggregationFrame<T> {
+        this._addAgg(field, Aggregation.HOURLY);
         return this;
     }
 
-    daily(field: keyof T): GroupedData<T> {
-        this._addAgg(field, AggregationFn.DAILY);
+    daily(field: keyof T): AggregationFrame<T> {
+        this._addAgg(field, Aggregation.DAILY);
         return this;
     }
 
-    monthly(field: keyof T): GroupedData<T> {
-        this._addAgg(field, AggregationFn.MONTHLY);
+    monthly(field: keyof T): AggregationFrame<T> {
+        this._addAgg(field, Aggregation.MONTHLY);
         return this;
     }
 
-    yearly(field: keyof T): GroupedData<T> {
-        this._addAgg(field, AggregationFn.YEARLY);
+    yearly(field: keyof T): AggregationFrame<T> {
+        this._addAgg(field, Aggregation.YEARLY);
         return this;
     }
 
-    protected _addAgg(field: keyof T, agg: AggregationFn): void {
+    protected _addAgg(field: keyof T, agg: Aggregation): void {
         this._aggregations.set(field as string, agg);
     }
 
     /**
      * Run aggregations and flatten the grouped data into a DataFrame
+     * @returns the new columns
     */
-    collect(): Column[] {
+    run(): Column[] {
         const buckets = new Map<string, any[]>();
         const count = this.columns[0].count();
-        const otherCols = this.columns.filter((col) => !this.keys.includes(col.name));
+        const otherCols = this.columns.filter((col) => !this.keyBy.includes(col.name));
         const { builders, fieldAggs, keyAggs } = this._builders();
 
         for (let i = 0; i < count; i++) {
@@ -141,9 +141,9 @@ export class GroupedData<T extends Record<string, any>> {
             ));
 
             const first = getFirst(aggs);
-            if (this.keys.includes(col.name) || (first && first in keyAggMap)) {
+            if (this.keyBy.includes(col.name) || (first && first in keyAggMap)) {
                 keyAggs.set(col.name, (
-                    first && keyAggMap[first] ? keyAggMap[first]!(col) : makeDefaultFieldFn(col)
+                    first && keyAggMap[first] ? keyAggMap[first]!(col) : makeDefaultKeyFn(col)
                 ));
             }
         }

@@ -9,6 +9,7 @@ FieldTransform.extract = extract;
 RecordTransform.repository.transformRecord = transformRecordConfig;
 RecordTransform.transformRecord = transformRecord;
 
+export * from './aggregation-frame';
 export * from './aggregations';
 export * from './builder';
 export * from './column';

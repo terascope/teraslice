@@ -4,17 +4,17 @@ import { get, getValidDate, toString } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import { Column } from '../column';
 import { Builder } from '../builder';
-import { AggregationFn } from './interfaces';
+import { Aggregation } from './interfaces';
 
-export const aggMap: Partial<Record<AggregationFn, () => FieldAgg>> = {
-    [AggregationFn.AVG]: makeAvgAgg,
-    [AggregationFn.SUM]: makeSumAgg,
-    [AggregationFn.MIN]: makeMinAgg,
-    [AggregationFn.MAX]: makeMaxAgg,
-    [AggregationFn.COUNT]: makeCountAgg,
+export const aggMap: Partial<Record<Aggregation, () => FieldAgg>> = {
+    [Aggregation.AVG]: makeAvgAgg,
+    [Aggregation.SUM]: makeSumAgg,
+    [Aggregation.MIN]: makeMinAgg,
+    [Aggregation.MAX]: makeMaxAgg,
+    [Aggregation.COUNT]: makeCountAgg,
 };
 
-export function getBuilderForField(col: Column<any>, aggs?: AggregationFn[]): Builder<any> {
+export function getBuilderForField(col: Column<any>, aggs?: Aggregation[]): Builder<any> {
     if (!aggs?.length) {
         return Builder.fromConfig(
             col.config, get(col.vector, 'childConfig')
@@ -23,7 +23,7 @@ export function getBuilderForField(col: Column<any>, aggs?: AggregationFn[]): Bu
 
     let type = col.config.type as FieldType;
     for (const agg of aggs) {
-        if (agg === AggregationFn.AVG) {
+        if (agg === Aggregation.AVG) {
             if (type === FieldType.Long) {
                 type = FieldType.Double;
             } else if (isNumberLike(type)) {
@@ -31,7 +31,7 @@ export function getBuilderForField(col: Column<any>, aggs?: AggregationFn[]): Bu
             } else {
                 throw new Error(`Unsupported field type ${type} for aggregation ${agg}`);
             }
-        } else if (agg === AggregationFn.SUM) {
+        } else if (agg === Aggregation.SUM) {
             if (!isNumberLike(type)) {
                 throw new Error(`Unsupported field type ${type} for aggregation ${agg}`);
             }
@@ -44,11 +44,11 @@ export function getBuilderForField(col: Column<any>, aggs?: AggregationFn[]): Bu
             } else {
                 throw new Error(`Unsupported field type ${type} for aggregation ${agg}`);
             }
-        } else if (agg === AggregationFn.MAX || agg === AggregationFn.MIN) {
+        } else if (agg === Aggregation.MAX || agg === Aggregation.MIN) {
             if (!isNumberLike(type)) {
                 throw new Error(`Unsupported field type ${type} for aggregation ${agg}`);
             }
-        } else if (agg === AggregationFn.COUNT) {
+        } else if (agg === Aggregation.COUNT) {
             type = FieldType.Integer;
         }
     }
@@ -193,32 +193,17 @@ function makeCountAgg(): FieldAgg {
     };
 }
 
-// function makeCountUniqueAgg(): FieldAgg {
-//     let count: number|undefined;
-//     return {
-//         push() {
-//             if (!count) count = 1;
-//             else count++;
-//         },
-//         flush(): number|undefined {
-//             const result = count;
-//             count = undefined;
-//             return result;
-//         },
-//     };
-// }
-
 export type KeyAggFn = (index: number) => {
     key: string|undefined;
     value: unknown;
 };
 export type MakeKeyAggFn = (col: Column<unknown>) => KeyAggFn;
-export const keyAggMap: Partial<Record<AggregationFn, MakeKeyAggFn>> = {
-    [AggregationFn.UNIQUE]: makeDefaultFieldFn,
-    [AggregationFn.HOURLY]: makeDateAgg('yyyy:MM:dd:hh'),
-    [AggregationFn.DAILY]: makeDateAgg('yyyy:MM:dd'),
-    [AggregationFn.MONTHLY]: makeDateAgg('yyyy:MM'),
-    [AggregationFn.YEARLY]: makeDateAgg('yyyy'),
+export const keyAggMap: Partial<Record<Aggregation, MakeKeyAggFn>> = {
+    [Aggregation.UNIQUE]: makeDefaultKeyFn,
+    [Aggregation.HOURLY]: makeDateAgg('yyyy:MM:dd:hh'),
+    [Aggregation.DAILY]: makeDateAgg('yyyy:MM:dd'),
+    [Aggregation.MONTHLY]: makeDateAgg('yyyy:MM'),
+    [Aggregation.YEARLY]: makeDateAgg('yyyy'),
 };
 
 export function makeDateAgg(dateFormat: string): MakeKeyAggFn {
@@ -236,8 +221,7 @@ export function makeDateAgg(dateFormat: string): MakeKeyAggFn {
     };
 }
 
-// FIXME the naming here sucks
-export function makeDefaultFieldFn(col: Column<unknown>): KeyAggFn {
+export function makeDefaultKeyFn(col: Column<unknown>): KeyAggFn {
     return (index) => {
         const value = col.vector.get(index);
         if (value == null || value === '') {

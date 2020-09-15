@@ -1,4 +1,4 @@
-export enum AggregationFn {
+export enum Aggregation {
     AVG = 'AVG',
     SUM = 'SUM',
     MIN = 'MIN',

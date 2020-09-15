@@ -1,8 +1,8 @@
 import { DataTypeConfig, Maybe } from '@terascope/types';
 import { Column } from '../column';
-import { GroupedData } from './grouped-data';
 import { columnsToDataTypeConfig, distributeRowsToColumns } from './utils';
-import { md5 } from './aggregation-utils';
+import { AggregationFrame } from '../aggregation-frame';
+import { md5 } from '../aggregation-frame/utils';
 
 /**
  * DataFrame options
@@ -136,18 +136,18 @@ export class DataFrame<
     }
 
     /**
-     * Group DataFrame by columns
-     * @returns a GroupedData instance which can be used to run aggregations
+     * Group DataFrame by columns and return a AggregationFrame instance
+     * which can be used to run aggregations
     */
-    groupBy(fields: (keyof T)[]): GroupedData<T> {
-        return new GroupedData<T>(this.columns, fields);
+    groupBy(fields: (keyof T)[]): AggregationFrame<T> {
+        return new AggregationFrame<T>(this.columns, fields);
     }
 
     /**
-     * @returns a GroupedData instance which can be used to run aggregations
+     * Create a AggregationFrame instance which can be used to run aggregations
     */
-    collect(): GroupedData<T> {
-        return new GroupedData<T>(this.columns, []);
+    aggregate(): AggregationFrame<T> {
+        return new AggregationFrame<T>(this.columns, []);
     }
 
     /**
