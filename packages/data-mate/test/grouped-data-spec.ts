@@ -4,7 +4,7 @@ import { FieldType } from '@terascope/types';
 import { DataFrame } from '../src';
 
 describe('DataFrame (GroupedData)', () => {
-    type Person = { name: string; gender: 'F'|'M', age: number }
+    type Person = { name: string; gender: 'F'|'M', age: number, date: string }
     let dataFrame: DataFrame<Person>;
 
     beforeEach(() => {
@@ -20,23 +20,53 @@ describe('DataFrame (GroupedData)', () => {
                 age: {
                     type: FieldType.Short,
                 },
+                date: {
+                    type: FieldType.Date,
+                },
             }
         }, [
             {
                 name: 'Billy',
-                age: 47,
-                gender: 'M'
+                age: 64,
+                gender: 'M',
+                date: '2020-09-15T17:39:11.195Z', // base
             },
             {
                 name: 'Frank',
-                age: 20,
-                gender: 'M'
+                age: 25,
+                gender: 'M',
+                date: '2020-09-15T16:39:11.195Z', // minus one hour
             },
             {
                 name: 'Jill',
-                age: 39,
-                gender: 'F'
-            }
+                age: 40,
+                gender: 'F',
+                date: '2020-09-15T15:39:11.195Z', // minus two hours
+            },
+            {
+                name: 'Anne',
+                age: 32,
+                gender: 'F',
+                date: '2020-09-15T15:39:11.195Z', // minus two hours
+            },
+            {
+                name: 'Joey',
+                age: 20,
+                gender: 'M',
+                date: '2020-09-13T17:39:11.195Z', // minus two days
+            },
+            {
+                name: 'Nancy',
+                age: 84,
+                gender: 'F',
+                date: '2019-09-15T17:39:11.195Z', // minus one year
+            },
+            {
+                name: 'Phil',
+                age: 45,
+                gender: 'M',
+                date: '2020-09-15T16:39:11.195Z', // minus one hour
+            },
         ]);
     });
 
@@ -49,13 +79,15 @@ describe('DataFrame (GroupedData)', () => {
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Billy',
-                    age: 67,
-                    gender: 'M'
+                    age: 154,
+                    gender: 'M',
+                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
                     name: 'Jill',
-                    age: 39,
-                    gender: 'F'
+                    age: 156,
+                    gender: 'F',
+                    date: new Date('2020-09-15T15:39:11.195Z').getTime()
                 }
             ]);
         });
@@ -70,13 +102,15 @@ describe('DataFrame (GroupedData)', () => {
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Billy',
-                    age: 33.5,
-                    gender: 'M'
+                    age: 38.5,
+                    gender: 'M',
+                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
                     name: 'Jill',
-                    age: 39,
-                    gender: 'F'
+                    age: 52,
+                    gender: 'F',
+                    date: new Date('2020-09-15T15:39:11.195Z').getTime()
                 }
             ]);
         });
@@ -92,12 +126,14 @@ describe('DataFrame (GroupedData)', () => {
                 {
                     name: 'Billy',
                     age: 20,
-                    gender: 'M'
+                    gender: 'M',
+                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
                     name: 'Jill',
-                    age: 39,
-                    gender: 'F'
+                    age: 32,
+                    gender: 'F',
+                    date: new Date('2020-09-15T15:39:11.195Z').getTime()
                 }
             ]);
         });
@@ -112,13 +148,15 @@ describe('DataFrame (GroupedData)', () => {
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Billy',
-                    age: 47,
-                    gender: 'M'
+                    age: 64,
+                    gender: 'M',
+                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
                     name: 'Jill',
-                    age: 39,
-                    gender: 'F'
+                    age: 84,
+                    gender: 'F',
+                    date: new Date('2020-09-15T15:39:11.195Z').getTime()
                 }
             ]);
         });
@@ -132,14 +170,39 @@ describe('DataFrame (GroupedData)', () => {
             });
             expect(resultFrame.toJSON()).toEqual([
                 {
-                    name: 2,
-                    age: 47,
-                    gender: 'M'
+                    name: 4,
+                    age: 64,
+                    gender: 'M',
+                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
-                    name: 1,
-                    age: 39,
-                    gender: 'F'
+                    name: 3,
+                    age: 40,
+                    gender: 'F',
+                    date: new Date('2020-09-15T15:39:11.195Z').getTime()
+                }
+            ]);
+        });
+    });
+
+    describe('->hourly', () => {
+        it('should handle the grouping correctly', () => {
+            const grouped = dataFrame.groupBy(['gender']);
+            const resultFrame = new DataFrame({
+                columns: grouped.hourly('date').collect()
+            });
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 4,
+                    age: 64,
+                    gender: 'M',
+                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                },
+                {
+                    name: 3,
+                    age: 40,
+                    gender: 'F',
+                    date: new Date('2020-09-15T15:39:11.195Z').getTime()
                 }
             ]);
         });

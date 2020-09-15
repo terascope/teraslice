@@ -1,8 +1,8 @@
-import { createHash } from 'crypto';
 import { DataTypeConfig, Maybe } from '@terascope/types';
 import { Column } from '../column';
 import { GroupedData } from './grouped-data';
 import { columnsToDataTypeConfig, distributeRowsToColumns } from './utils';
+import { md5 } from './aggregation-utils';
 
 /**
  * DataFrame options
@@ -93,7 +93,7 @@ export class DataFrame<
     get id(): string {
         if (this.__id) return this.__id;
         const long = this.columns.map((col) => `${col.name}(${col.id})`).sort().join(':');
-        const id = createHash('md5').update(long).digest('hex');
+        const id = md5(long);
         this.__id = id;
         return id;
     }
