@@ -71,7 +71,7 @@ describe('DataFrame (GroupedData)', () => {
     });
 
     describe('->sum', () => {
-        it('should handle the grouping correctly', () => {
+        it('should get the right result when using groupBy(gender)', () => {
             const grouped = dataFrame.groupBy(['gender']);
             const resultFrame = new DataFrame({
                 columns: grouped.sum('age').collect()
@@ -94,7 +94,7 @@ describe('DataFrame (GroupedData)', () => {
     });
 
     describe('->avg', () => {
-        it('should handle the grouping correctly', () => {
+        it('should get the right result when using groupBy(gender)', () => {
             const grouped = dataFrame.groupBy(['gender']);
             const resultFrame = new DataFrame({
                 columns: grouped.avg('age').collect()
@@ -114,10 +114,25 @@ describe('DataFrame (GroupedData)', () => {
                 }
             ]);
         });
+
+        it('should get the right result when using collect()', () => {
+            const grouped = dataFrame.collect();
+            const resultFrame = new DataFrame({
+                columns: grouped.avg('age').collect()
+            });
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'Billy',
+                    age: 44.285714285714285,
+                    gender: 'M',
+                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                }
+            ]);
+        });
     });
 
     describe('->min', () => {
-        it('should handle the grouping correctly', () => {
+        it('should get the right result when using groupBy(gender)', () => {
             const grouped = dataFrame.groupBy(['gender']);
             const resultFrame = new DataFrame({
                 columns: grouped.min('age').collect()
@@ -137,10 +152,25 @@ describe('DataFrame (GroupedData)', () => {
                 }
             ]);
         });
+
+        it('should get the right result when using collect()', () => {
+            const grouped = dataFrame.collect();
+            const resultFrame = new DataFrame({
+                columns: grouped.min('age').collect()
+            });
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'Billy',
+                    age: 20,
+                    gender: 'M',
+                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                }
+            ]);
+        });
     });
 
     describe('->max', () => {
-        it('should handle the grouping correctly', () => {
+        it('should get the right result when using groupBy(gender)', () => {
             const grouped = dataFrame.groupBy(['gender']);
             const resultFrame = new DataFrame({
                 columns: grouped.max('age').collect()
@@ -160,10 +190,25 @@ describe('DataFrame (GroupedData)', () => {
                 }
             ]);
         });
+
+        it('should get the right result when using collect()', () => {
+            const grouped = dataFrame.collect();
+            const resultFrame = new DataFrame({
+                columns: grouped.max('age').collect()
+            });
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'Jill',
+                    age: 84,
+                    gender: 'F',
+                    date: new Date('2020-09-15T15:39:11.195Z').getTime()
+                }
+            ]);
+        });
     });
 
     describe('->count', () => {
-        it('should handle the grouping correctly', () => {
+        it('should get the right result when using groupBy(gender)', () => {
             const grouped = dataFrame.groupBy(['gender']);
             const resultFrame = new DataFrame({
                 columns: grouped.count('name').collect()
@@ -183,12 +228,117 @@ describe('DataFrame (GroupedData)', () => {
                 }
             ]);
         });
+
+        it('should get the right result when using collect()', () => {
+            const grouped = dataFrame.collect();
+            const resultFrame = new DataFrame({
+                columns: grouped.count('name').collect()
+            });
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 7,
+                    age: 64,
+                    gender: 'M',
+                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                }
+            ]);
+        });
     });
 
-    test.todo('->unique');
+    describe('->unique', () => {
+        it('should get the right result when using groupBy(gender)', () => {
+            const grouped = dataFrame.groupBy(['gender']);
+            const resultFrame = new DataFrame({
+                columns: grouped.unique('name').collect()
+            });
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'Billy',
+                    age: 64,
+                    gender: 'M',
+                    date: new Date('2020-09-15T17:39:11.195Z').getTime(),
+                },
+                {
+                    name: 'Frank',
+                    age: 25,
+                    gender: 'M',
+                    date: new Date('2020-09-15T16:39:11.195Z').getTime(),
+                },
+                {
+                    name: 'Jill',
+                    age: 40,
+                    gender: 'F',
+                    date: new Date('2020-09-15T15:39:11.195Z').getTime(),
+                },
+                {
+                    name: 'Anne',
+                    age: 32,
+                    gender: 'F',
+                    date: new Date('2020-09-15T15:39:11.195Z').getTime(),
+                },
+                {
+                    name: 'Joey',
+                    age: 20,
+                    gender: 'M',
+                    date: new Date('2020-09-13T17:39:11.195Z').getTime(),
+                },
+                {
+                    name: 'Nancy',
+                    age: 84,
+                    gender: 'F',
+                    date: new Date('2019-09-15T17:39:11.195Z').getTime(),
+                }
+            ]);
+        });
+
+        it('should get the right result when using it with count(name)', () => {
+            const grouped = dataFrame.groupBy(['gender']);
+            const resultFrame = new DataFrame({
+                columns: grouped.unique('name').count('name').collect()
+            });
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 1,
+                    age: 64,
+                    gender: 'M',
+                    date: new Date('2020-09-15T17:39:11.195Z').getTime(),
+                },
+                {
+                    name: 2,
+                    age: 25,
+                    gender: 'M',
+                    date: new Date('2020-09-15T16:39:11.195Z').getTime(),
+                },
+                {
+                    name: 1,
+                    age: 40,
+                    gender: 'F',
+                    date: new Date('2020-09-15T15:39:11.195Z').getTime(),
+                },
+                {
+                    name: 1,
+                    age: 32,
+                    gender: 'F',
+                    date: new Date('2020-09-15T15:39:11.195Z').getTime(),
+                },
+                {
+                    name: 1,
+                    age: 20,
+                    gender: 'M',
+                    date: new Date('2020-09-13T17:39:11.195Z').getTime(),
+                },
+                {
+                    name: 1,
+                    age: 84,
+                    gender: 'F',
+                    date: new Date('2019-09-15T17:39:11.195Z').getTime(),
+                }
+            ]);
+        });
+    });
 
     describe('->hourly', () => {
-        it('should handle the grouping correctly', () => {
+        it('should get the right result when using collect()', () => {
             const grouped = dataFrame.collect();
             const resultFrame = new DataFrame({
                 columns: grouped.hourly('date').count('name').collect()
@@ -235,7 +385,7 @@ describe('DataFrame (GroupedData)', () => {
     });
 
     describe('->daily', () => {
-        it('should handle the grouping correctly', () => {
+        it('should get the right result when using collect()', () => {
             const grouped = dataFrame.collect();
             const resultFrame = new DataFrame({
                 columns: grouped.daily('date').count('name').collect()
@@ -270,7 +420,7 @@ describe('DataFrame (GroupedData)', () => {
     });
 
     describe('->monthly', () => {
-        it('should handle the grouping correctly', () => {
+        it('should get the right result when using collect()', () => {
             const grouped = dataFrame.collect();
             const resultFrame = new DataFrame({
                 columns: grouped.monthly('date').count('name').collect()
@@ -299,7 +449,7 @@ describe('DataFrame (GroupedData)', () => {
     });
 
     describe('->yearly', () => {
-        it('should handle the grouping correctly', () => {
+        it('should get the right result when using collect()', () => {
             const grouped = dataFrame.collect();
             const resultFrame = new DataFrame({
                 columns: grouped.yearly('date').count('name').collect()

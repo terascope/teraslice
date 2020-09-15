@@ -10,6 +10,8 @@ import {
 
 /**
  * Grouped Data with aggregation support
+ *
+ * @todo find a better name
  * @todo validate when adding agg
  * @todo handle mixing key aggregation and value aggregations
 */

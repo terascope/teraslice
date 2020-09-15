@@ -214,6 +214,7 @@ export type KeyAggFn = (index: number) => {
 };
 export type MakeKeyAggFn = (col: Column<unknown>) => KeyAggFn;
 export const keyAggMap: Partial<Record<AggregationFn, MakeKeyAggFn>> = {
+    [AggregationFn.UNIQUE]: makeDefaultFieldFn,
     [AggregationFn.HOURLY]: makeDateAgg('yyyy:MM:dd:hh'),
     [AggregationFn.DAILY]: makeDateAgg('yyyy:MM:dd'),
     [AggregationFn.MONTHLY]: makeDateAgg('yyyy:MM'),
@@ -235,6 +236,7 @@ export function makeDateAgg(dateFormat: string): MakeKeyAggFn {
     };
 }
 
+// FIXME the naming here sucks
 export function makeDefaultFieldFn(col: Column<unknown>): KeyAggFn {
     return (index) => {
         const value = col.vector.get(index);
