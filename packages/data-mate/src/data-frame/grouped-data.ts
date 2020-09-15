@@ -1,5 +1,7 @@
 import { createHash } from 'crypto';
-import { toString } from '@terascope/utils';
+import MultiMap from 'mnemonist/multi-map';
+import { toString, getLast, get } from '@terascope/utils';
+import { FieldType } from '@terascope/types';
 import { Column } from '../column';
 import { AggregationFn } from './interfaces';
 import { Builder } from '../builder';
@@ -9,7 +11,7 @@ import { Builder } from '../builder';
  * @todo validate when adding agg
 */
 export class GroupedData<T extends Record<string, any>> {
-    protected _aggregations: Record<string, AggregationFn[]> = {};
+    protected readonly _aggregations = new MultiMap<string, AggregationFn>();
 
     constructor(
         readonly columns: readonly Column<any>[],
@@ -67,8 +69,7 @@ export class GroupedData<T extends Record<string, any>> {
     }
 
     protected _addAgg(field: keyof T, agg: AggregationFn): void {
-        const aggregations = (this._aggregations[field as string] ?? []) as AggregationFn[];
-        this._aggregations[field as string] = aggregations.concat(agg);
+        this._aggregations.set(field as string, agg);
     }
 
     /**
@@ -79,6 +80,7 @@ export class GroupedData<T extends Record<string, any>> {
         const count = this.columns[0].count();
         const keyedCols = this.columns.filter((col) => this.keys.includes(col.name));
         const otherCols = this.columns.filter((col) => !this.keys.includes(col.name));
+        const { builders, fieldAggs } = this._builders();
         for (let i = 0; i < count; i++) {
             const row: Record<string, any> = {};
 
@@ -99,27 +101,15 @@ export class GroupedData<T extends Record<string, any>> {
             buckets.set(key, bucket);
         }
 
-        const builders = new Map<string, Builder<any>>();
-        for (const col of this.columns) {
-            // FIXME add childConfig
-            builders.set(col.name, Builder.fromConfig(col.config));
-        }
-        const fieldAggs = Object.entries(this._aggregations).map(([field, aggregations]) => [
-            field, makeAggFn(aggregations[0])
-        ]) as [string, AggWrapper][];
-
         for (const bucket of buckets.values()) {
             for (const row of bucket) {
                 for (const [field, agg] of fieldAggs) {
                     agg.push(row[field]);
                 }
             }
-            const aggRow = { ...bucket[0] };
-            for (const [field, agg] of fieldAggs) {
-                aggRow[field] = agg.flush();
-            }
             for (const [field, builder] of builders) {
-                builder.append(aggRow[field]);
+                const value = fieldAggs.get(field)!.flush();
+                builder.append(value);
             }
         }
 
@@ -130,28 +120,129 @@ export class GroupedData<T extends Record<string, any>> {
         }));
     }
 
-    clear(): void {
-        this._aggregations = {};
+    private _builders() {
+        const builders = new Map<string, Builder<any>>();
+        const fieldAggs = new Map<string, FieldAgg>();
+        for (const col of this.columns) {
+            const aggs = this._aggregations.get(col.name);
+            builders.set(col.name, getBuilderForField(col, aggs));
+            if (!aggs?.length) {
+                fieldAggs.set(col.name, makeNoAggFn());
+            } else {
+                const last = getLast(aggs)!;
+                fieldAggs.set(col.name, makeAggFn(last));
+            }
+        }
+
+        return { builders, fieldAggs };
     }
+
+    clear(): void {
+        this._aggregations.clear();
+    }
+}
+
+function getBuilderForField(col: Column<any>, aggs?: AggregationFn[]): Builder<any> {
+    if (!aggs?.length) {
+        return Builder.fromConfig(
+            col.config, get(col.vector, 'childConfig')
+        );
+    }
+
+    let type = col.config.type as FieldType;
+    for (const agg of aggs) {
+        if (agg === AggregationFn.AVG) {
+            if (type === FieldType.Long) {
+                type = FieldType.Double;
+            } else if (isNumberLike(type)) {
+                type = FieldType.Float;
+            } else {
+                throw new Error(`Unsupported field type ${type} for aggregation ${agg}`);
+            }
+        } else if (agg === AggregationFn.SUM) {
+            if (!isNumberLike(type)) {
+                throw new Error(`Unsupported field type ${type} for aggregation ${agg}`);
+            }
+            if (type === FieldType.Long || type === FieldType.Integer) {
+                type = FieldType.Long;
+            } else if (type === FieldType.Short || type === FieldType.Byte) {
+                type = FieldType.Integer;
+            } else if (isFloatLike(type)) {
+                type = FieldType.Float;
+            } else {
+                throw new Error(`Unsupported field type ${type} for aggregation ${agg}`);
+            }
+        } else if (agg === AggregationFn.MAX || agg === AggregationFn.MIN) {
+            if (!isNumberLike(type)) {
+                throw new Error(`Unsupported field type ${type} for aggregation ${agg}`);
+            }
+        } else if (agg === AggregationFn.COUNT) {
+            type = FieldType.Integer;
+        } else {
+            // FIXME
+            throw new Error(`Unsupported aggregation ${agg}`);
+        }
+    }
+
+    return Builder.fromConfig<any>({
+        type,
+        description: col.config.description // FIXME append agg info
+    });
+}
+
+function isNumberLike(type: FieldType) {
+    if (type === FieldType.Long) return true;
+    return isFloatLike(type) || isIntLike(type);
+}
+
+function isFloatLike(type: FieldType) {
+    if (type === FieldType.Float) return true;
+    if (type === FieldType.Number) return true;
+    if (type === FieldType.Double) return true;
+    return true;
+}
+
+function isIntLike(type: FieldType) {
+    if (type === FieldType.Byte) return true;
+    if (type === FieldType.Short) return true;
+    if (type === FieldType.Integer) return true;
+    return true;
 }
 
 function md5(value: any) {
     return createHash('md5').update(toString(value)).digest('hex');
 }
 
-type AggWrapper = {
+type FieldAgg = {
     push(value: unknown): void;
     flush(): unknown
 }
 
-const aggMap: Partial<Record<AggregationFn, () => AggWrapper>> = {
+function makeNoAggFn(): FieldAgg {
+    let fieldValue: unknown|undefined;
+    return {
+        push(value: unknown) {
+            if (fieldValue === undefined) {
+                fieldValue = value ?? null;
+            }
+        },
+        flush(): unknown {
+            const result = fieldValue;
+            fieldValue = undefined;
+            return result;
+        },
+    };
+}
+
+const aggMap: Partial<Record<AggregationFn, () => FieldAgg>> = {
     [AggregationFn.AVG]: makeAvgAgg,
     [AggregationFn.SUM]: makeSumAgg,
     [AggregationFn.MIN]: makeMinAgg,
     [AggregationFn.MAX]: makeMaxAgg,
+    [AggregationFn.COUNT]: makeCountAgg,
 };
 
-function makeAggFn(name: AggregationFn): AggWrapper {
+function makeAggFn(name: AggregationFn): FieldAgg {
     const fn = aggMap[name];
     if (!fn) {
         throw new Error(`${name} Aggregation isn't supported`);
@@ -159,7 +250,7 @@ function makeAggFn(name: AggregationFn): AggWrapper {
     return fn();
 }
 
-function makeSumAgg(): AggWrapper {
+function makeSumAgg(): FieldAgg {
     let sum = 0;
     return {
         push(value: unknown) {
@@ -176,7 +267,7 @@ function makeSumAgg(): AggWrapper {
     };
 }
 
-function makeAvgAgg(): AggWrapper {
+function makeAvgAgg(): FieldAgg {
     let sum = 0;
     let total = 0;
     return {
@@ -196,7 +287,7 @@ function makeAvgAgg(): AggWrapper {
     };
 }
 
-function makeMinAgg(): AggWrapper {
+function makeMinAgg(): FieldAgg {
     let min: number|undefined;
     return {
         push(value: unknown) {
@@ -215,7 +306,7 @@ function makeMinAgg(): AggWrapper {
     };
 }
 
-function makeMaxAgg(): AggWrapper {
+function makeMaxAgg(): FieldAgg {
     let max: number|undefined;
     return {
         push(value: unknown) {
@@ -229,6 +320,21 @@ function makeMaxAgg(): AggWrapper {
         flush(): number|undefined {
             const result = max;
             max = undefined;
+            return result;
+        },
+    };
+}
+
+function makeCountAgg(): FieldAgg {
+    let count: number|undefined;
+    return {
+        push() {
+            if (!count) count = 1;
+            else count++;
+        },
+        flush(): number|undefined {
+            const result = count;
+            count = undefined;
             return result;
         },
     };
