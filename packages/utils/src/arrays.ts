@@ -156,8 +156,16 @@ export function includes(input: unknown, key: string): boolean {
  * If the input is an array it will return the first item
  * else if it will return the input
  */
-export function getFirst<T>(input: T | T[]): T {
+export function getFirst<T>(input: T | T[]): T|undefined {
     return castArray(input)[0];
+}
+
+/**
+ * If the input is an array it will return the first item
+ * else if it will return the input
+ */
+export function getLast<T>(input: T | T[]): T|undefined {
+    return castArray(input).slice(-1)[0];
 }
 
 export function isArray<T = any[]>(input: unknown): input is T {
