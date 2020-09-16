@@ -1,10 +1,11 @@
 import { FieldType } from '@terascope/types';
 import { Column } from '../column';
-import { KeyAggregation, ValueAggregation } from './interfaces';
-import { Builder } from '../builder';
 import {
-    valueAggMap, FieldAgg, getBuilderForField, KeyAggFn, keyAggMap, md5, isNumberLike
-} from './utils';
+    KeyAggregation, ValueAggregation, valueAggMap,
+    FieldAgg, KeyAggFn, keyAggMap, md5, isNumberLike
+} from '../vector';
+import { Builder } from '../builder';
+import { getBuilderForField } from './utils';
 
 /**
  * A frame dedicated to running a aggregations
@@ -233,10 +234,10 @@ export class AggregationFrame<T extends Record<string, any>> {
 
             if (agg) {
                 if (agg.value) {
-                    fieldAggs.set(col.name, valueAggMap[agg.value](col));
+                    fieldAggs.set(col.name, valueAggMap[agg.value](col.vector));
                 }
                 if (agg.key) {
-                    keyAggs.set(col.name, keyAggMap[agg.key](col));
+                    keyAggs.set(col.name, keyAggMap[agg.key](col.vector));
                     addToOther = false;
                 }
             }

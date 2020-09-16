@@ -1,5 +1,8 @@
+import { createHash } from 'crypto';
 import { DataTypeFieldConfig, DataTypeFields, FieldType } from '@terascope/types';
-import { isNumber, isBigInt, getTypeOf } from '@terascope/utils';
+import {
+    isNumber, isBigInt, getTypeOf, toString
+} from '@terascope/utils';
 import { ListVector } from './list-vector';
 import {
     AnyVector, BigIntVector, BooleanVector, DateVector,
@@ -116,4 +119,50 @@ export function getNumericValues(value: unknown): {
     }
 
     throw new Error(`Unable to get numeric values from input ${getTypeOf(value)}`);
+}
+
+export function isNumberLike(type: FieldType): boolean {
+    if (type === FieldType.Long) return true;
+    return isFloatLike(type) || isIntLike(type);
+}
+
+export function isFloatLike(type: FieldType): boolean {
+    if (type === FieldType.Float) return true;
+    if (type === FieldType.Number) return true;
+    if (type === FieldType.Double) return true;
+    return true;
+}
+
+export function isIntLike(type: FieldType): boolean {
+    if (type === FieldType.Byte) return true;
+    if (type === FieldType.Short) return true;
+    if (type === FieldType.Integer) return true;
+    return true;
+}
+
+export function md5(value: string|Buffer): string {
+    return createHash('md5').update(value).digest('hex');
+}
+export function createKeyForValue(value: unknown): string|undefined {
+    if (value == null) return;
+
+    if (typeof value !== 'object') return String(value);
+    if (value instanceof Vector || Array.isArray(value)) {
+        let key = '';
+        for (const item of value) {
+            if (item != null) key += `${toString(item)}`;
+        }
+        return key;
+    }
+
+    const keys: string[] = Object.keys(value as any).sort();
+
+    let key = '';
+    for (const prop of keys) {
+        const item = (value as any)[prop];
+        if (item != null) {
+            key += `${prop}:${toString(item)}`;
+        }
+    }
+    return key;
 }

@@ -1,7 +1,9 @@
 import { LATEST_VERSION } from '@terascope/data-types';
 import { DataTypeFieldConfig, Maybe, DataTypeVersion } from '@terascope/types';
 import { Builder } from '../builder';
-import { JSONValue, Vector } from '../vector';
+import {
+    JSONValue, runValueAggregation, ValueAggregation, Vector
+} from '../vector';
 import { getVectorId } from './utils';
 
 /**
@@ -31,13 +33,13 @@ export class Column<T = unknown> {
     static fromJSON<R>(
         options: Omit<ColumnOptions<R>, 'vector'>,
         values: Maybe<R>[]|readonly Maybe<R>[] = []
-    ): Column<R> {
+    ): Column<R extends (infer U)[] ? Vector<U> : R> {
         const builder = Builder.make<R>(options.config);
         values.forEach((val) => builder.append(val));
         return new Column({
             ...options,
             vector: builder.toVector()
-        });
+        }) as any;
     }
 
     constructor(options: ColumnOptions<T>) {
@@ -161,27 +163,23 @@ export class Column<T = unknown> {
     }
 
     avg(): number|bigint {
-        return -1; // FIXME
+        return runValueAggregation(this._vector, ValueAggregation.avg);
     }
 
     sum(): number|bigint {
-        return -1; // FIXME
+        return runValueAggregation(this._vector, ValueAggregation.sum);
     }
 
     min(): number|bigint {
-        return -1; // FIXME
+        return runValueAggregation(this._vector, ValueAggregation.min);
     }
 
     max(): number|bigint {
-        return -1; // FIXME
+        return runValueAggregation(this._vector, ValueAggregation.max);
     }
 
     count(): number {
-        return this._vector.size;
-    }
-
-    unique(): number {
-        return this._vector.distinct();
+        return runValueAggregation(this._vector, ValueAggregation.count);
     }
 
     /**

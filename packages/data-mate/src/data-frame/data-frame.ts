@@ -2,7 +2,7 @@ import { DataTypeConfig, Maybe } from '@terascope/types';
 import { Column } from '../column';
 import { columnsToDataTypeConfig, distributeRowsToColumns } from './utils';
 import { AggregationFrame } from '../aggregation-frame';
-import { md5 } from '../aggregation-frame/utils';
+import { md5 } from '../vector/utils';
 
 /**
  * DataFrame options
