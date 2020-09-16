@@ -39,7 +39,7 @@ describe('AggregationFrame', () => {
                 name: 'Billy',
                 age: 64,
                 gender: 'M',
-                scores: [4, 0, 3],
+                scores: [4, 9, 3],
                 date: '2020-09-15T17:39:11.195Z', // base
             },
             {
@@ -60,7 +60,7 @@ describe('AggregationFrame', () => {
                 name: 'Anne',
                 age: 32,
                 gender: 'F',
-                scores: [50, 4, 19],
+                scores: [20, 4, 19],
                 date: '2020-09-15T15:39:11.195Z', // minus two hours
             },
             {
@@ -98,7 +98,7 @@ describe('AggregationFrame', () => {
                     name: 'Billy',
                     age: 154,
                     gender: 'M',
-                    scores: [4, 0, 3],
+                    scores: [4, 9, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
@@ -121,17 +121,10 @@ describe('AggregationFrame', () => {
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Billy',
-                    age: 154,
+                    age: 64,
                     gender: 'M',
-                    scores: [4, 0, 3],
+                    scores: 165,
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
-                },
-                {
-                    name: 'Jill',
-                    age: 156,
-                    gender: 'F',
-                    scores: [2, 2, 2],
-                    date: new Date('2020-09-15T15:39:11.195Z').getTime()
                 }
             ]);
         });
@@ -148,7 +141,7 @@ describe('AggregationFrame', () => {
                     name: 'Billy',
                     age: 38.5,
                     gender: 'M',
-                    scores: [4, 0, 3],
+                    scores: [4, 9, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
@@ -171,7 +164,7 @@ describe('AggregationFrame', () => {
                     name: 'Billy',
                     age: 44.285714285714285,
                     gender: 'M',
-                    scores: [4, 0, 3],
+                    scores: [4, 9, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 }
             ]);
@@ -187,9 +180,9 @@ describe('AggregationFrame', () => {
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Billy',
-                    age: 44.285714285714285,
+                    age: 64,
                     gender: 'M',
-                    scores: [4, 0, 3],
+                    scores: 7.857142857142857,
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 }
             ]);
@@ -204,17 +197,17 @@ describe('AggregationFrame', () => {
             });
             expect(resultFrame.toJSON()).toEqual([
                 {
-                    name: 'Billy',
+                    name: 'Joey',
                     age: 20,
                     gender: 'M',
-                    scores: [4, 0, 3],
-                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                    scores: [50, 4, 19],
+                    date: new Date('2020-09-13T17:39:11.195Z').getTime()
                 },
                 {
-                    name: 'Jill',
+                    name: 'Anne',
                     age: 32,
                     gender: 'F',
-                    scores: [2, 2, 2],
+                    scores: [20, 4, 19],
                     date: new Date('2020-09-15T15:39:11.195Z').getTime()
                 }
             ]);
@@ -227,11 +220,11 @@ describe('AggregationFrame', () => {
             });
             expect(resultFrame.toJSON()).toEqual([
                 {
-                    name: 'Billy',
+                    name: 'Joey',
                     age: 20,
                     gender: 'M',
-                    scores: [4, 0, 3],
-                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                    scores: [50, 4, 19],
+                    date: new Date('2020-09-13T17:39:11.195Z').getTime()
                 }
             ]);
         });
@@ -245,11 +238,11 @@ describe('AggregationFrame', () => {
             });
             expect(resultFrame.toJSON()).toEqual([
                 {
-                    name: 'Billy',
-                    age: 20,
-                    gender: 'M',
-                    scores: [4, 0, 3],
-                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                    name: 'Nancy',
+                    age: 84,
+                    gender: 'F',
+                    scores: 0,
+                    date: new Date('2019-09-15T17:39:11.195Z').getTime(),
                 }
             ]);
         });
@@ -266,15 +259,15 @@ describe('AggregationFrame', () => {
                     name: 'Billy',
                     age: 64,
                     gender: 'M',
-                    scores: [4, 0, 3],
+                    scores: [4, 9, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
-                    name: 'Jill',
+                    name: 'Nancy',
                     age: 84,
                     gender: 'F',
-                    scores: [2, 2, 2],
-                    date: new Date('2020-09-15T15:39:11.195Z').getTime()
+                    scores: [1, 0, 0],
+                    date: new Date('2019-09-15T17:39:11.195Z').getTime(),
                 }
             ]);
         });
@@ -286,11 +279,11 @@ describe('AggregationFrame', () => {
             });
             expect(resultFrame.toJSON()).toEqual([
                 {
-                    name: 'Jill',
+                    name: 'Nancy',
                     age: 84,
                     gender: 'F',
-                    scores: [2, 2, 2],
-                    date: new Date('2020-09-15T15:39:11.195Z').getTime()
+                    scores: [1, 0, 0],
+                    date: new Date('2019-09-15T17:39:11.195Z').getTime(),
                 }
             ]);
         });
@@ -304,11 +297,11 @@ describe('AggregationFrame', () => {
             });
             expect(resultFrame.toJSON()).toEqual([
                 {
-                    name: 'Jill',
-                    age: 84,
-                    gender: 'F',
-                    scores: [2, 2, 2],
-                    date: new Date('2020-09-15T15:39:11.195Z').getTime()
+                    name: 'Joey',
+                    age: 20,
+                    gender: 'M',
+                    scores: 50,
+                    date: new Date('2020-09-13T17:39:11.195Z').getTime()
                 }
             ]);
         });
@@ -325,7 +318,7 @@ describe('AggregationFrame', () => {
                     name: 4,
                     age: 64,
                     gender: 'M',
-                    scores: [4, 0, 3],
+                    scores: [4, 9, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
@@ -348,7 +341,7 @@ describe('AggregationFrame', () => {
                     name: 7,
                     age: 64,
                     gender: 'M',
-                    scores: [4, 0, 3],
+                    scores: [4, 9, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 }
             ]);
@@ -366,7 +359,7 @@ describe('AggregationFrame', () => {
                     name: 'Billy',
                     age: 64,
                     gender: 'M',
-                    scores: [4, 0, 3],
+                    scores: [4, 9, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime(),
                 },
                 {
@@ -387,7 +380,7 @@ describe('AggregationFrame', () => {
                     name: 'Anne',
                     age: 32,
                     gender: 'F',
-                    scores: [50, 4, 19],
+                    scores: [20, 4, 19],
                     date: new Date('2020-09-15T15:39:11.195Z').getTime(),
                 },
                 {
@@ -417,7 +410,7 @@ describe('AggregationFrame', () => {
                     name: 1,
                     age: 64,
                     gender: 'M',
-                    scores: [4, 0, 3],
+                    scores: [4, 9, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime(),
                 },
                 {
@@ -438,7 +431,7 @@ describe('AggregationFrame', () => {
                     name: 1,
                     age: 32,
                     gender: 'F',
-                    scores: [50, 4, 19],
+                    scores: [20, 4, 19],
                     date: new Date('2020-09-15T15:39:11.195Z').getTime(),
                 },
                 {
@@ -470,7 +463,7 @@ describe('AggregationFrame', () => {
                     name: 'Billy',
                     age: 64,
                     gender: 'M',
-                    scores: [4, 0, 3],
+                    scores: [4, 9, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime(),
                 },
                 {
@@ -491,8 +484,15 @@ describe('AggregationFrame', () => {
                     name: 'Anne',
                     age: 32,
                     gender: 'F',
-                    scores: [50, 4, 19],
+                    scores: [20, 4, 19],
                     date: new Date('2020-09-15T15:39:11.195Z').getTime(),
+                },
+                {
+                    name: 'Joey',
+                    age: 20,
+                    gender: 'M',
+                    scores: [50, 4, 19],
+                    date: new Date('2020-09-13T17:39:11.195Z').getTime(),
                 },
                 {
                     name: 'Nancy',
@@ -516,7 +516,7 @@ describe('AggregationFrame', () => {
                     name: 1,
                     age: 64,
                     gender: 'M',
-                    scores: [4, 0, 3],
+                    scores: [4, 9, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
@@ -569,7 +569,7 @@ describe('AggregationFrame', () => {
                     name: 4,
                     age: 64,
                     gender: 'M',
-                    scores: [4, 0, 3],
+                    scores: [4, 9, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
@@ -608,7 +608,7 @@ describe('AggregationFrame', () => {
                     name: 5,
                     age: 64,
                     gender: 'M',
-                    scores: [4, 0, 3],
+                    scores: [4, 9, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
@@ -640,7 +640,7 @@ describe('AggregationFrame', () => {
                     name: 6,
                     age: 64,
                     gender: 'M',
-                    scores: [4, 0, 3],
+                    scores: [4, 9, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {

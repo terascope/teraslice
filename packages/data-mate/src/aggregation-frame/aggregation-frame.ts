@@ -5,7 +5,7 @@ import { Aggregation } from './interfaces';
 import { Builder } from '../builder';
 import {
     aggMap, FieldAgg, getBuilderForField, KeyAggFn,
-    keyAggMap, makeDefaultAggFn, makeDefaultKeyFn, md5
+    keyAggMap, makeDefaultKeyFn, md5
 } from './utils';
 
 /**
@@ -108,14 +108,30 @@ export class AggregationFrame<T extends Record<string, any>> {
         }
 
         for (const bucket of buckets.values()) {
-            for (const row of bucket) {
+            const len = bucket.length;
+            for (let i = 0; i < len; i++) {
                 for (const [field, agg] of fieldAggs) {
-                    agg.push(row[field]);
+                    agg.push(bucket[i][field], i);
                 }
             }
+
+            let useIndex = 0;
+            const remainingFields: string[] = [];
             for (const [field, builder] of builders) {
-                const value = fieldAggs.get(field)!.flush();
-                builder.append(value);
+                const agg = fieldAggs.get(field);
+                if (agg != null) {
+                    const res = agg.flush();
+                    if (res.index != null && res.index > useIndex) {
+                        useIndex = res.index;
+                    }
+                    builder.append(res.value);
+                } else {
+                    remainingFields.push(field);
+                }
+            }
+
+            for (const field of remainingFields) {
+                builders.get(field)!.append(bucket[useIndex][field]);
             }
         }
 
@@ -134,11 +150,11 @@ export class AggregationFrame<T extends Record<string, any>> {
         for (const col of this.columns) {
             const aggs = this._aggregations.get(col.name);
             builders.set(col.name, getBuilderForField(col, aggs));
-            const last = getLast(aggs);
 
-            fieldAggs.set(col.name, (
-                last && aggMap[last] ? aggMap[last]!() : makeDefaultAggFn()
-            ));
+            const last = getLast(aggs);
+            if (last && aggMap[last]) {
+                fieldAggs.set(col.name, aggMap[last]!());
+            }
 
             const first = getFirst(aggs);
             if (this.keyBy.includes(col.name) || (first && first in keyAggMap)) {

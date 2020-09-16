@@ -90,24 +90,8 @@ export function md5(value: unknown): string {
 }
 
 export type FieldAgg = {
-    push(value: unknown): void;
-    flush(): unknown
-}
-
-export function makeDefaultAggFn(): FieldAgg {
-    let fieldValue: unknown|undefined;
-    return {
-        push(value: unknown) {
-            if (fieldValue === undefined) {
-                fieldValue = value ?? null;
-            }
-        },
-        flush(): unknown {
-            const result = fieldValue;
-            fieldValue = undefined;
-            return result;
-        },
-    };
+    push(value: unknown, index: number): void;
+    flush(): { value: unknown, index?: number };
 }
 
 function makeSumAgg(): FieldAgg {
@@ -155,16 +139,10 @@ function makeSumAgg(): FieldAgg {
                 }
             }
         },
-        flush(): bigint|number|undefined {
-            if (agg.value == null) return;
+        flush() {
+            if (agg.value == null) return { value: undefined };
 
-            if (agg.type === 'bigint') {
-                const result = agg.value;
-                agg = { type: 'number' };
-                return result;
-            }
-
-            const result = agg.value;
+            const result = { value: agg.value };
             agg = { type: 'number' };
             return result;
         },
@@ -222,16 +200,16 @@ function makeAvgAgg(): FieldAgg {
                 }
             }
         },
-        flush(): bigint|number|undefined {
-            if (agg.value == null) return;
+        flush() {
+            if (agg.value == null) return { value: undefined };
 
             if (agg.type === 'bigint') {
-                const result = agg.value / BigInt(agg.total);
+                const result = { value: agg.value / BigInt(agg.total) };
                 agg = { type: 'number', total: 0 };
                 return result;
             }
 
-            const result = agg.value / agg.total;
+            const result = { value: agg.value / agg.total };
             agg = { type: 'number', total: 0 };
             return result;
         },
@@ -240,26 +218,30 @@ function makeAvgAgg(): FieldAgg {
 
 function makeMinAgg(): FieldAgg {
     let agg: {
+        index: number;
         value?: number,
         type: 'number'
     }|{
+        index: number;
         value?: bigint,
         type: 'bigint'
-    } = { type: 'number' };
+    } = { type: 'number', index: -1 };
 
     return {
-        push(value: unknown) {
+        push(value, index) {
             const res = getNumericValues(value);
             if (res.type === 'bigint') {
                 if (agg.type === 'number') {
                     agg = {
                         type: 'bigint',
                         value: agg.value != null ? toBigInt(agg.value) : agg.value,
+                        index: agg.index,
                     };
                 }
                 for (const num of res.values) {
                     if (agg.value == null || num < agg.value) {
                         agg.value = num;
+                        agg.index = index;
                     }
                 }
             }
@@ -269,19 +251,21 @@ function makeMinAgg(): FieldAgg {
                         type: 'number',
                         value: agg.value != null ? parseFloat(
                             BigIntVector.valueToJSON(agg.value)
-                        ) : undefined
+                        ) : undefined,
+                        index: agg.index,
                     };
                 }
                 for (const num of res.values) {
                     if (agg.value == null || num < agg.value) {
-                        agg.value = num as number;
+                        agg.value = num;
+                        agg.index = index;
                     }
                 }
             }
         },
-        flush(): bigint|number|undefined {
-            const result = agg.value;
-            agg = { type: 'number' };
+        flush() {
+            const result = { value: agg.value, index: agg.index };
+            agg = { type: 'number', index: -1 };
             return result;
         },
     };
@@ -289,26 +273,30 @@ function makeMinAgg(): FieldAgg {
 
 function makeMaxAgg(): FieldAgg {
     let agg: {
+        index: number,
         value?: number,
         type: 'number'
     }|{
+        index: number,
         value?: bigint,
         type: 'bigint'
-    } = { type: 'number' };
+    } = { type: 'number', index: -1 };
 
     return {
-        push(value: unknown) {
+        push(value, index) {
             const res = getNumericValues(value);
             if (res.type === 'bigint') {
                 if (agg.type === 'number') {
                     agg = {
                         type: 'bigint',
                         value: agg.value != null ? toBigInt(agg.value) : agg.value,
+                        index: agg.index,
                     };
                 }
                 for (const num of res.values) {
                     if (agg.value == null || num > agg.value) {
                         agg.value = num;
+                        agg.index = index;
                     }
                 }
             }
@@ -318,19 +306,21 @@ function makeMaxAgg(): FieldAgg {
                         type: 'number',
                         value: agg.value != null ? parseFloat(
                             BigIntVector.valueToJSON(agg.value)
-                        ) : undefined
+                        ) : undefined,
+                        index: agg.index,
                     };
                 }
                 for (const num of res.values) {
-                    if (num != null && ((agg.value == null || num > agg.value))) {
+                    if (agg.value == null || num > agg.value) {
                         agg.value = num;
+                        agg.index = index;
                     }
                 }
             }
         },
-        flush(): bigint|number|undefined {
-            const result = agg.value;
-            agg = { type: 'number' };
+        flush() {
+            const result = { value: agg.value, index: agg.index };
+            agg = { type: 'number', index: -1 };
             return result;
         },
     };
@@ -343,10 +333,10 @@ function makeCountAgg(): FieldAgg {
             if (!count) count = 1;
             else count++;
         },
-        flush(): number|undefined {
+        flush() {
             const result = count;
             count = undefined;
-            return result;
+            return { value: result };
         },
     };
 }
