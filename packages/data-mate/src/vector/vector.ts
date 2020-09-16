@@ -1,4 +1,6 @@
-import { FieldType, Maybe, Nil } from '@terascope/types';
+import {
+    DataTypeFieldConfig, DataTypeFields, FieldType, Maybe, Nil
+} from '@terascope/types';
 
 /**
  * The Vector Type, this will change how the data is stored and read
@@ -62,6 +64,17 @@ export type Data<T> = Readonly<{
  * @note null/undefined values are treated the same
 */
 export abstract class Vector<T = unknown> {
+    /**
+     * Make an instance of a Vector from a config
+    */
+    static make<R>(
+        config: DataTypeFieldConfig,
+        data: Data<R>,
+        childConfig?: DataTypeFields
+    ): Vector<R> {
+        throw new Error(`This is overridden in the index file, ${config} ${data} ${childConfig}`);
+    }
+
     readonly type: VectorType;
     readonly fieldType: FieldType;
     readonly valueToJSON?: ValueToJSONFn<T>;

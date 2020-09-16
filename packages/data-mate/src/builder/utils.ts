@@ -1,10 +1,28 @@
 import { DataTypeFieldConfig, DataTypeFields, FieldType } from '@terascope/types';
+import { Builder } from './builder';
+import { ListBuilder } from './list-builder';
 import {
     AnyBuilder, BigIntBuilder, BooleanBuilder,
     DateBuilder, FloatBuilder,
     GeoJSONBuilder, GeoPointBuilder, IntBuilder,
     ObjectBuilder, StringBuilder
 } from './types';
+
+export function _newBuilder<T>(
+    config: DataTypeFieldConfig,
+    childConfig?: DataTypeFields
+): Builder<T> {
+    const fieldType = config.type as FieldType;
+    if (!(fieldType in FieldType)) {
+        throw new Error(`Unsupported field type ${fieldType}`);
+    }
+
+    if (config.array) {
+        return new ListBuilder({ config, childConfig }) as Builder<any>;
+    }
+
+    return _newBuilderForType(config, childConfig) as Builder<T>;
+}
 
 /**
  * Create primitive builder types, does not deal with array or object type fields

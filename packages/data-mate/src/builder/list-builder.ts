@@ -10,7 +10,7 @@ export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
             throw new Error('Expected thisArg');
         }
 
-        const builder = Builder.fromConfig({
+        const builder = Builder.make({
             ...thisArg.config,
             array: false,
         }, thisArg.childConfig);

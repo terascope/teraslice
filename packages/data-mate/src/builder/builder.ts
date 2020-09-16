@@ -1,5 +1,5 @@
 import { DataTypeFieldConfig, DataTypeFields, Maybe } from '@terascope/types';
-import { newVector, Vector, VectorType } from '../vector';
+import { Vector, VectorType } from '../vector';
 
 /**
  * Coerce a value so it can be stored in the builder
@@ -25,11 +25,14 @@ export abstract class Builder<T = unknown> {
     readonly config: DataTypeFieldConfig;
     readonly valueFrom?: ValueFromFn<T>;
 
-    static fromConfig<R = unknown>(
-        _config: DataTypeFieldConfig,
-        _childConfig?: DataTypeFields
+    /**
+     * Make a instance of a Builder from a DataTypeField config
+    */
+    static make<R = unknown>(
+        config: DataTypeFieldConfig,
+        childConfig?: DataTypeFields
     ): Builder<R> {
-        throw new Error('This will functionality replaced in the index file');
+        throw new Error(`This will functionality replaced in the index file ${config} ${childConfig}`);
     }
 
     protected readonly _values: Maybe<T>[] = [];
@@ -78,7 +81,7 @@ export abstract class Builder<T = unknown> {
     toVector(): Vector<T> {
         // @ts-expect-error (this is only in a couple of the builder types)
         const { childConfig } = this;
-        return newVector(this.config, Object.freeze({
+        return Vector.make(this.config, Object.freeze({
             values: Object.freeze(this._values)
         }), childConfig);
     }

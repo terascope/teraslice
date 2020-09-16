@@ -1,6 +1,6 @@
 import { LATEST_VERSION } from '@terascope/data-types';
 import { DataTypeFieldConfig, Maybe, DataTypeVersion } from '@terascope/types';
-import { newBuilder } from '../builder';
+import { Builder } from '../builder';
 import { JSONValue, Vector } from '../vector';
 import { getVectorId } from './utils';
 
@@ -32,7 +32,7 @@ export class Column<T = unknown> {
         options: Omit<ColumnOptions<R>, 'vector'>,
         values: Maybe<R>[]|readonly Maybe<R>[] = []
     ): Column<R> {
-        const builder = newBuilder<R>(options.config);
+        const builder = Builder.make<R>(options.config);
         values.forEach((val) => builder.append(val));
         return new Column({
             ...options,
@@ -91,7 +91,7 @@ export class Column<T = unknown> {
      * @returns the new column
     */
     map(fn: (value: Maybe<T>, index: number) => Maybe<T>): Column<T> {
-        const builder = newBuilder<T>(this.config);
+        const builder = Builder.make<T>(this.config);
         for (let i = 0; i < this._vector.size; i++) {
             const value = this.vector.get(i) as Maybe<T>;
             builder.append(fn(value, i));
@@ -120,7 +120,7 @@ export class Column<T = unknown> {
         const config = columnOptions?.config ?? this.config;
         const name = columnOptions?.name ?? this.name;
         if (fn) {
-            const builder = newBuilder<R>(config);
+            const builder = Builder.make<R>(config);
             for (let i = 0; i < this._vector.size; i++) {
                 const value = this.vector.get(i) as Maybe<T>;
                 builder.append(fn(value, i));
@@ -146,7 +146,7 @@ export class Column<T = unknown> {
      * @returns the new column so it works like fluent API
     */
     filter(fn: (value: Maybe<T>, index: number) => boolean): Column<T> {
-        const builder = newBuilder<T>(this.config);
+        const builder = Builder.make<T>(this.config);
         for (let i = 0; i < this._vector.size; i++) {
             const value = this.vector.get(i) as Maybe<T>;
             if (fn(value, i)) {

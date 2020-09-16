@@ -1,9 +1,33 @@
-import { DataTypeFields, FieldType } from '@terascope/types';
+import { DataTypeFieldConfig, DataTypeFields, FieldType } from '@terascope/types';
+import { isNumber, isBigInt, getTypeOf } from '@terascope/utils';
+import { ListVector } from './list-vector';
 import {
     AnyVector, BigIntVector, BooleanVector, DateVector,
-    FloatVector, GeoJSONVector, GeoPointVector, IntVector, ObjectVector, StringVector
+    FloatVector, GeoJSONVector, GeoPointVector, IntVector,
+    ObjectVector, StringVector
 } from './types';
-import { Data } from './vector';
+import { Data, Vector } from './vector';
+
+export function _newVector<T>(
+    config: DataTypeFieldConfig,
+    data: Data<any>,
+    childConfig?: DataTypeFields
+): Vector<T> {
+    const fieldType = config.type as FieldType;
+    if (!(fieldType in FieldType)) {
+        throw new Error(`Unsupported field type ${fieldType}`);
+    }
+
+    if (config.array) {
+        return new ListVector({
+            fieldType,
+            data,
+            childConfig,
+        }) as Vector<any>;
+    }
+
+    return _newVectorForType(fieldType, data, childConfig) as Vector<T>;
+}
 
 /**
  * Create primitive vector types, does not deal with array or object type fields
@@ -52,4 +76,44 @@ export function _newVectorForType(
         default:
             return new AnyVector({ fieldType, data });
     }
+}
+
+/**
+ * Get all of the numeric values from a value or Vector
+*/
+export function getNumericValues(value: unknown): {
+    values: number[],
+    type: 'number'
+}|{
+    values: bigint[],
+    type: 'bigint'
+} {
+    if (value == null) {
+        return { type: 'number', values: [] };
+    }
+
+    if (isNumber(value)) {
+        return { values: [value], type: 'number' };
+    }
+    if (isBigInt(value)) {
+        return { values: [value], type: 'bigint' };
+    }
+
+    if (value instanceof IntVector || value instanceof FloatVector) {
+        const values: number[] = [];
+        for (const val of value) {
+            if (isNumber(val)) values.push(val);
+        }
+        return { values, type: 'number' };
+    }
+
+    if (value instanceof BigIntVector) {
+        const values: bigint[] = [];
+        for (const val of value) {
+            if (isBigInt(val)) values.push(val);
+        }
+        return { values, type: 'bigint' };
+    }
+
+    throw new Error(`Unable to get numeric values from input ${getTypeOf(value)}`);
 }

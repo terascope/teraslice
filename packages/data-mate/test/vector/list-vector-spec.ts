@@ -1,7 +1,7 @@
 import 'jest-fixtures';
 import { FieldType } from '@terascope/types';
 import {
-    bigIntToJSON, Vector, newBuilder
+    bigIntToJSON, Vector, Builder
 } from '../../src';
 
 describe('ListVector', () => {
@@ -19,7 +19,7 @@ describe('ListVector', () => {
         let vector: Vector<any>;
         let expected: any[];
         beforeAll(() => {
-            const builder = newBuilder({ type, array: true });
+            const builder = Builder.make({ type, array: true });
             input.forEach((val) => builder.append(val));
             vector = builder.toVector();
             expected = (output ?? input).map((val) => {

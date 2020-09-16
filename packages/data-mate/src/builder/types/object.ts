@@ -23,7 +23,7 @@ export class ObjectBuilder<
         const result: Partial<R> = {};
         for (const field of fields) {
             const config = thisArg.childConfig[field as string];
-            const builder = Builder.fromConfig<any>(config);
+            const builder = Builder.make<any>(config);
             if (input[field] == null) {
                 result[field] = null as any;
             } else if (builder.valueFrom) {

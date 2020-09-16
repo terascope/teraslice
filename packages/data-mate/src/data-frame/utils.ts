@@ -1,6 +1,6 @@
 import { getGroupedFields, LATEST_VERSION } from '@terascope/data-types';
 import { DataTypeConfig, DataTypeFields, DataTypeVersion } from '@terascope/types';
-import { Builder, newBuilder } from '../builder';
+import { Builder } from '../builder';
 import { Column } from '../column';
 import { ObjectVector } from '../vector';
 import { ListVector } from '../vector/list-vector';
@@ -18,7 +18,7 @@ export function distributeRowsToColumns(
             const nestedField = fullField.replace(`${field}.`, '');
             childConfig[nestedField] = config.fields[fullField];
         });
-        builders[field] = newBuilder(config.fields[field], childConfig);
+        builders[field] = Builder.make(config.fields[field], childConfig);
     }
 
     for (let i = 0; i < len; i++) {

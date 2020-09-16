@@ -6,7 +6,7 @@ import {
     ESGeoShapeType,
     FieldType, GeoShapeMultiPolygon, GeoShapePoint, GeoShapePolygon, GeoShapeType
 } from '@terascope/types';
-import { bigIntToJSON, newBuilder, Vector } from '../../src';
+import { bigIntToJSON, Builder, Vector } from '../../src';
 
 describe('Vector', () => {
     type Case = [type: FieldType, input: any[], output?: any[]];
@@ -169,7 +169,7 @@ describe('Vector', () => {
         let vector: Vector<any>;
         let expected: any[];
         beforeAll(() => {
-            const builder = newBuilder({ type, array: false });
+            const builder = Builder.make({ type, array: false });
             input.forEach((val) => builder.append(val));
             vector = builder.toVector();
             expected = (output ?? input).map((val) => {
