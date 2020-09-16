@@ -1,72 +1,67 @@
 import { createHash } from 'crypto';
 import formatDate from 'date-fns/format';
 import {
-    get, getValidDate, toString, toBigInt
+    get, getValidDate, toBigInt, toString
 } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import { Column } from '../column';
 import { Builder } from '../builder';
-import { Aggregation } from './interfaces';
-import { BigIntVector, getNumericValues } from '../vector';
+import { ValueAggregation, KeyAggregation } from './interfaces';
+import { BigIntVector, getNumericValues, Vector } from '../vector';
 
-export const aggMap: Partial<Record<Aggregation, () => FieldAgg>> = {
-    [Aggregation.AVG]: makeAvgAgg,
-    [Aggregation.SUM]: makeSumAgg,
-    [Aggregation.MIN]: makeMinAgg,
-    [Aggregation.MAX]: makeMaxAgg,
-    [Aggregation.COUNT]: makeCountAgg,
-};
-
-export function getBuilderForField(col: Column<any>, aggs?: Aggregation[]): Builder<any> {
-    if (!aggs?.length) {
+export function getBuilderForField(
+    col: Column<any>,
+    keyAgg?: KeyAggregation,
+    valueAgg?: ValueAggregation
+): Builder<any> {
+    if (!keyAgg && !valueAgg) {
         return Builder.make(
             col.config, get(col.vector, 'childConfig')
         );
     }
 
-    let type = col.config.type as FieldType;
-    let array = false;
-    for (const agg of aggs) {
-        if (agg === Aggregation.AVG) {
-            if (type === FieldType.Long) {
-                type = FieldType.Double;
-            } else if (isNumberLike(type)) {
-                type = FieldType.Float;
-            } else {
-                throw new Error(`Unsupported field type ${type} for aggregation ${agg}`);
-            }
-        } else if (agg === Aggregation.SUM) {
-            if (!isNumberLike(type)) {
-                throw new Error(`Unsupported field type ${type} for aggregation ${agg}`);
-            }
-            if (type === FieldType.Long || type === FieldType.Integer) {
-                type = FieldType.Long;
-            } else if (type === FieldType.Short || type === FieldType.Byte) {
-                type = FieldType.Integer;
-            } else if (isFloatLike(type)) {
-                type = FieldType.Float;
-            } else {
-                throw new Error(`Unsupported field type ${type} for aggregation ${agg}`);
-            }
-        } else if (agg === Aggregation.MAX || agg === Aggregation.MIN) {
-            if (!isNumberLike(type)) {
-                throw new Error(`Unsupported field type ${type} for aggregation ${agg}`);
-            }
-        } else if (agg === Aggregation.COUNT) {
-            type = FieldType.Integer;
-        } else if (agg === Aggregation.UNIQUE) {
-            array = col.config.array ?? false;
+    if (keyAgg && !valueAgg) {
+        return Builder.make<any>(
+            col.config,
+            get(col.vector, 'childConfig')
+        );
+    }
+
+    const currentType = col.config.type as FieldType;
+    let type: FieldType|undefined;
+    if (valueAgg === ValueAggregation.avg) {
+        if (currentType === FieldType.Long) {
+            type = FieldType.Double;
+        } else if (isNumberLike(currentType)) {
+            type = FieldType.Float;
         }
+    } else if (valueAgg === ValueAggregation.sum) {
+        if (type === FieldType.Long || type === FieldType.Integer) {
+            type = FieldType.Long;
+        } else if (type === FieldType.Short || type === FieldType.Byte) {
+            type = FieldType.Integer;
+        } else if (isFloatLike(currentType)) {
+            type = FieldType.Float;
+        }
+    } else if (valueAgg === ValueAggregation.max || valueAgg === ValueAggregation.min) {
+        if (isNumberLike(currentType)) {
+            type = currentType;
+        }
+    } else if (valueAgg === ValueAggregation.count) {
+        type = FieldType.Integer;
+    }
+    if (!type) {
+        throw new Error(`Unsupported field type ${type} for aggregation ${valueAgg}`);
     }
 
     return Builder.make<any>({
         type,
-        array,
+        array: false,
         description: col.config.description // FIXME append agg info
     });
 }
 
-function isNumberLike(type: FieldType) {
+export function isNumberLike(type: FieldType): boolean {
     if (type === FieldType.Long) return true;
     return isFloatLike(type) || isIntLike(type);
 }
@@ -85,14 +80,46 @@ function isIntLike(type: FieldType) {
     return true;
 }
 
-export function md5(value: unknown): string {
-    return createHash('md5').update(toString(value)).digest('hex');
+export function md5(value: string|Buffer): string {
+    return createHash('md5').update(value).digest('hex');
+}
+export function createKeyForValue(value: unknown): string|undefined {
+    if (value == null) return;
+
+    if (typeof value !== 'object') return String(value);
+    if (value instanceof Vector || Array.isArray(value)) {
+        let key = '';
+        for (const item of value) {
+            if (item != null) key += `${toString(item)}`;
+        }
+        return key;
+    }
+
+    const keys: string[] = Object.keys(value as any).sort();
+
+    let key = '';
+    for (const prop of keys) {
+        const item = (value as any)[prop];
+        if (item != null) {
+            key += `${prop}:${toString(item)}`;
+        }
+    }
+    return key;
 }
 
 export type FieldAgg = {
     push(value: unknown, index: number): void;
     flush(): { value: unknown, index?: number };
 }
+export type MakeValueAgg = (col: Column<unknown>) => FieldAgg;
+
+export const valueAggMap: Record<ValueAggregation, MakeValueAgg> = {
+    [ValueAggregation.avg]: makeAvgAgg,
+    [ValueAggregation.sum]: makeSumAgg,
+    [ValueAggregation.min]: makeMinAgg,
+    [ValueAggregation.max]: makeMaxAgg,
+    [ValueAggregation.count]: makeCountAgg,
+};
 
 function makeSumAgg(): FieldAgg {
     let agg: {
@@ -346,15 +373,15 @@ export type KeyAggFn = (index: number) => {
     value: unknown;
 };
 export type MakeKeyAggFn = (col: Column<unknown>) => KeyAggFn;
-export const keyAggMap: Partial<Record<Aggregation, MakeKeyAggFn>> = {
-    [Aggregation.UNIQUE]: makeDefaultKeyFn,
-    [Aggregation.HOURLY]: makeDateAgg('yyyy:MM:dd:hh'),
-    [Aggregation.DAILY]: makeDateAgg('yyyy:MM:dd'),
-    [Aggregation.MONTHLY]: makeDateAgg('yyyy:MM'),
-    [Aggregation.YEARLY]: makeDateAgg('yyyy'),
+export const keyAggMap: Record<KeyAggregation, MakeKeyAggFn> = {
+    [KeyAggregation.unique]: makeUniqueKeyAgg,
+    [KeyAggregation.hourly]: makeDateAgg('yyyy:MM:dd:hh'),
+    [KeyAggregation.daily]: makeDateAgg('yyyy:MM:dd'),
+    [KeyAggregation.monthly]: makeDateAgg('yyyy:MM'),
+    [KeyAggregation.yearly]: makeDateAgg('yyyy'),
 };
 
-export function makeDateAgg(dateFormat: string): MakeKeyAggFn {
+function makeDateAgg(dateFormat: string): MakeKeyAggFn {
     return (col) => (index) => {
         const value = col.vector.get(index);
         if (value == null) return { key: undefined, value };
@@ -369,16 +396,14 @@ export function makeDateAgg(dateFormat: string): MakeKeyAggFn {
     };
 }
 
-export function makeDefaultKeyFn(col: Column<unknown>): KeyAggFn {
+function makeUniqueKeyAgg(col: Column<unknown>): KeyAggFn {
     return (index) => {
         const value = col.vector.get(index);
         if (value == null || value === '') {
             return { key: undefined, value };
         }
         return {
-            key: toString(
-                col.vector.valueToJSON ? col.vector.valueToJSON(value) : value
-            ),
+            key: createKeyForValue(value),
             value
         };
     };

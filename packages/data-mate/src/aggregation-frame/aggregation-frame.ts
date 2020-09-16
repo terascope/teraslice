@@ -1,79 +1,156 @@
-import MultiMap from 'mnemonist/multi-map';
-import { getFirst, getLast } from '@terascope/utils';
+import { FieldType } from '@terascope/types';
 import { Column } from '../column';
-import { Aggregation } from './interfaces';
+import { KeyAggregation, ValueAggregation } from './interfaces';
 import { Builder } from '../builder';
 import {
-    aggMap, FieldAgg, getBuilderForField, KeyAggFn,
-    keyAggMap, makeDefaultKeyFn, md5
+    valueAggMap, FieldAgg, getBuilderForField, KeyAggFn, keyAggMap, md5, isNumberLike
 } from './utils';
 
 /**
  * A frame dedicated to running a aggregations
- *
- * @todo validate when adding agg
- * @todo handle mixing key aggregation and value aggregations
 */
 export class AggregationFrame<T extends Record<string, any>> {
-    protected readonly _aggregations = new MultiMap<string, Aggregation>();
+    columns: readonly Column<any>[];
+    readonly keyBy: readonly (keyof T)[];
+    protected readonly _aggregations = new Map<string, AggObject>();
 
-    constructor(
-        readonly columns: readonly Column<any>[],
-        readonly keyBy: (keyof T)[]
-    ) {}
+    constructor(columns: readonly Column<any>[], keyBy?: readonly (keyof T)[]) {
+        this.columns = Object.freeze(columns.slice());
+        this.keyBy = Object.freeze(keyBy ?? []);
+        for (const key of this.keyBy) {
+            this[KeyAggregation.unique](key);
+        }
+    }
 
-    avg(field: keyof T): AggregationFrame<T> {
-        this._addAgg(field, Aggregation.AVG);
+    [ValueAggregation.avg](field: keyof T, as?: string): AggregationFrame<T> {
+        const { name, type } = this._ensureColumn(field, as);
+        if (!isNumberLike(type)) {
+            throw new Error(`${ValueAggregation.avg} requires a numeric field type`);
+        }
+        const aggObject = this._aggregations.get(name) ?? { };
+        aggObject.value = ValueAggregation.avg;
+        this._aggregations.set(name, aggObject);
         return this;
     }
 
-    sum(field: keyof T): AggregationFrame<T> {
-        this._addAgg(field, Aggregation.SUM);
+    [ValueAggregation.sum](field: keyof T, as?: string): AggregationFrame<T> {
+        const { name, type } = this._ensureColumn(field, as);
+        if (!isNumberLike(type)) {
+            throw new Error(`${ValueAggregation.sum} requires a numeric field type`);
+        }
+        const aggObject = this._aggregations.get(name) ?? { };
+        aggObject.value = ValueAggregation.sum;
+        this._aggregations.set(name, aggObject);
         return this;
     }
 
-    min(field: keyof T): AggregationFrame<T> {
-        this._addAgg(field, Aggregation.MIN);
+    [ValueAggregation.min](field: keyof T, as?: string): AggregationFrame<T> {
+        const { name, type } = this._ensureColumn(field, as);
+        if (!isNumberLike(type)) {
+            throw new Error(`${ValueAggregation.min} requires a numeric field type`);
+        }
+        const aggObject = this._aggregations.get(name) ?? { };
+        aggObject.value = ValueAggregation.min;
+        this._aggregations.set(name, aggObject);
         return this;
     }
 
-    max(field: keyof T): AggregationFrame<T> {
-        this._addAgg(field, Aggregation.MAX);
+    [ValueAggregation.max](field: keyof T, as?: string): AggregationFrame<T> {
+        const { name, type } = this._ensureColumn(field, as);
+        if (!isNumberLike(type)) {
+            throw new Error(`${ValueAggregation.max} requires a numeric field type`);
+        }
+        const aggObject = this._aggregations.get(name) ?? { };
+        aggObject.value = ValueAggregation.max;
+        this._aggregations.set(name, aggObject);
         return this;
     }
 
-    count(field: keyof T): AggregationFrame<T> {
-        this._addAgg(field, Aggregation.COUNT);
+    [ValueAggregation.count](field: keyof T, as?: string): AggregationFrame<T> {
+        const { name } = this._ensureColumn(field, as);
+        const aggObject = this._aggregations.get(name) ?? { };
+        aggObject.value = ValueAggregation.count;
+        this._aggregations.set(name, aggObject);
         return this;
     }
 
-    unique(field: keyof T): AggregationFrame<T> {
-        this._addAgg(field, Aggregation.UNIQUE);
+    [KeyAggregation.unique](field: keyof T, as?: string): AggregationFrame<T> {
+        const { name } = this._ensureColumn(field, as);
+        const aggObject = this._aggregations.get(name) ?? { };
+        aggObject.key = KeyAggregation.unique;
+        this._aggregations.set(name, aggObject);
         return this;
     }
 
-    hourly(field: keyof T): AggregationFrame<T> {
-        this._addAgg(field, Aggregation.HOURLY);
+    [KeyAggregation.hourly](field: keyof T, as?: string): AggregationFrame<T> {
+        const { name, type } = this._ensureColumn(field, as);
+        if (type !== FieldType.Date) {
+            throw new Error(`${KeyAggregation.hourly} requires a ${FieldType.Date} field type`);
+        }
+        const aggObject = this._aggregations.get(name) ?? { };
+        aggObject.key = KeyAggregation.hourly;
+        this._aggregations.set(name, aggObject);
         return this;
     }
 
-    daily(field: keyof T): AggregationFrame<T> {
-        this._addAgg(field, Aggregation.DAILY);
+    [KeyAggregation.daily](field: keyof T, as?: string): AggregationFrame<T> {
+        const { name, type } = this._ensureColumn(field, as);
+        if (type !== FieldType.Date) {
+            throw new Error(`${KeyAggregation.daily} requires a ${FieldType.Date} field type`);
+        }
+        const aggObject = this._aggregations.get(name) ?? { };
+        aggObject.key = KeyAggregation.daily;
+        this._aggregations.set(name, aggObject);
         return this;
     }
 
-    monthly(field: keyof T): AggregationFrame<T> {
-        this._addAgg(field, Aggregation.MONTHLY);
+    [KeyAggregation.monthly](field: keyof T, as?: string): AggregationFrame<T> {
+        const { name, type } = this._ensureColumn(field, as);
+        if (type !== FieldType.Date) {
+            throw new Error(`${KeyAggregation.monthly} requires a ${FieldType.Date} field type`);
+        }
+        const aggObject = this._aggregations.get(name) ?? { };
+        aggObject.key = KeyAggregation.monthly;
+        this._aggregations.set(name, aggObject);
         return this;
     }
 
-    yearly(field: keyof T): AggregationFrame<T> {
-        this._addAgg(field, Aggregation.YEARLY);
+    [KeyAggregation.yearly](field: keyof T, as?: string): AggregationFrame<T> {
+        const { name, type } = this._ensureColumn(field, as);
+        if (type !== FieldType.Date) {
+            throw new Error(`${KeyAggregation.yearly} requires a ${FieldType.Date} field type`);
+        }
+        const aggObject = this._aggregations.get(name) ?? { };
+        aggObject.key = KeyAggregation.yearly;
+        this._aggregations.set(name, aggObject);
         return this;
     }
 
-    protected _addAgg(field: keyof T, agg: Aggregation): void {
-        this._aggregations.set(field as string, agg);
+    private _ensureColumn(field: keyof T, as: string|undefined): { name: string, type: FieldType } {
+        const col = this.columns.find((c) => c.name === field);
+        if (!col) throw new Error(`Unknown column named "${field}"`);
+
+        if (as) {
+            const columns: Column<any>[] = [];
+            for (const c of this.columns) {
+                columns.push(c);
+                if (c === col) {
+                    const newCol = c.fork();
+                    newCol.name = as;
+                    columns.push(newCol);
+                }
+            }
+            this.columns = Object.freeze(columns);
+            return {
+                name: as,
+                type: col.config.type as FieldType
+            };
+        }
+
+        return {
+            name: col.name,
+            type: col.config.type as FieldType
+        };
     }
 
     /**
@@ -83,8 +160,9 @@ export class AggregationFrame<T extends Record<string, any>> {
     async run(): Promise<Column[]> {
         const buckets = new Map<string, any[]>();
         const count = this.columns[0].count();
-        const otherCols = this.columns.filter((col) => !this.keyBy.includes(col.name));
-        const { builders, fieldAggs, keyAggs } = this._builders();
+        const {
+            builders, fieldAggs, keyAggs, otherCols
+        } = this._builders();
 
         for (let i = 0; i < count; i++) {
             const row: Record<string, any> = {};
@@ -96,9 +174,8 @@ export class AggregationFrame<T extends Record<string, any>> {
                 row[field] = res.value;
             }
 
-            for (const col of otherCols) {
-                const value = col.vector.get(i);
-                row[col.name] = value;
+            for (const [field, col] of otherCols) {
+                row[field] = col.vector.get(i);
             }
 
             const groupKey = md5(key);
@@ -146,28 +223,39 @@ export class AggregationFrame<T extends Record<string, any>> {
         const builders = new Map<string, Builder<any>>();
         const fieldAggs = new Map<string, FieldAgg>();
         const keyAggs = new Map<string, KeyAggFn>();
+        const otherCols = new Map<string, Column<any>>();
 
         for (const col of this.columns) {
-            const aggs = this._aggregations.get(col.name);
-            builders.set(col.name, getBuilderForField(col, aggs));
+            const agg = this._aggregations.get(col.name);
+            let addToOther = true;
+            const builder = getBuilderForField(col, agg?.key, agg?.value);
+            builders.set(col.name, builder);
 
-            const last = getLast(aggs);
-            if (last && aggMap[last]) {
-                fieldAggs.set(col.name, aggMap[last]!());
+            if (agg) {
+                if (agg.value) {
+                    fieldAggs.set(col.name, valueAggMap[agg.value](col));
+                }
+                if (agg.key) {
+                    keyAggs.set(col.name, keyAggMap[agg.key](col));
+                    addToOther = false;
+                }
             }
 
-            const first = getFirst(aggs);
-            if (this.keyBy.includes(col.name) || (first && first in keyAggMap)) {
-                keyAggs.set(col.name, (
-                    first && keyAggMap[first] ? keyAggMap[first]!(col) : makeDefaultKeyFn(col)
-                ));
+            if (addToOther) {
+                otherCols.set(col.name, col);
             }
         }
 
-        return { builders, fieldAggs, keyAggs };
+        return {
+            builders, fieldAggs, keyAggs, otherCols
+        };
     }
 
     clear(): void {
         this._aggregations.clear();
     }
 }
+
+type AggObject = {
+    key?: KeyAggregation; value?: ValueAggregation
+};

@@ -1,12 +1,15 @@
-export enum Aggregation {
-    AVG = 'AVG',
-    SUM = 'SUM',
-    MIN = 'MIN',
-    MAX = 'MAX',
-    COUNT = 'COUNT',
-    UNIQUE = 'UNIQUE',
-    HOURLY = 'HOURLY',
-    DAILY = 'DAILY',
-    MONTHLY = 'MONTHLY',
-    YEARLY = 'YEARLY'
+export enum KeyAggregation {
+    unique = 'unique',
+    hourly = 'hourly',
+    daily = 'daily',
+    monthly = 'monthly',
+    yearly = 'yearly'
+}
+
+export enum ValueAggregation {
+    avg = 'avg',
+    sum = 'sum',
+    min = 'min',
+    max = 'max',
+    count = 'count',
 }
