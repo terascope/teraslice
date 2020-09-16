@@ -49,7 +49,7 @@
         "sort-package-json": "~1.44.0",
         "typedoc": "^0.19.0",
         "typedoc-plugin-markdown": "^2.4.2",
-        "yargs": "^15.4.1"
+        "yargs": "^16.0.3"
     },
     "devDependencies": {
         "@types/ip": "^1.1.0",
