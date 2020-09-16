@@ -1,10 +1,13 @@
 import { createHash } from 'crypto';
 import formatDate from 'date-fns/format';
-import { get, getValidDate, toString } from '@terascope/utils';
+import {
+    get, getValidDate, toString, toBigInt
+} from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import { Column } from '../column';
 import { Builder } from '../builder';
 import { Aggregation } from './interfaces';
+import { BigIntVector, getNumericValues } from '../vector';
 
 export const aggMap: Partial<Record<Aggregation, () => FieldAgg>> = {
     [Aggregation.AVG]: makeAvgAgg,
@@ -16,12 +19,13 @@ export const aggMap: Partial<Record<Aggregation, () => FieldAgg>> = {
 
 export function getBuilderForField(col: Column<any>, aggs?: Aggregation[]): Builder<any> {
     if (!aggs?.length) {
-        return Builder.fromConfig(
+        return Builder.make(
             col.config, get(col.vector, 'childConfig')
         );
     }
 
     let type = col.config.type as FieldType;
+    let array = false;
     for (const agg of aggs) {
         if (agg === Aggregation.AVG) {
             if (type === FieldType.Long) {
@@ -50,11 +54,14 @@ export function getBuilderForField(col: Column<any>, aggs?: Aggregation[]): Buil
             }
         } else if (agg === Aggregation.COUNT) {
             type = FieldType.Integer;
+        } else if (agg === Aggregation.UNIQUE) {
+            array = col.config.array ?? false;
         }
     }
 
-    return Builder.fromConfig<any>({
+    return Builder.make<any>({
         type,
+        array,
         description: col.config.description // FIXME append agg info
     });
 }
@@ -104,75 +111,226 @@ export function makeDefaultAggFn(): FieldAgg {
 }
 
 function makeSumAgg(): FieldAgg {
-    let sum = 0;
+    let agg: {
+        value?: number;
+        type: 'number'
+    }|{
+        value?: bigint;
+        type: 'bigint'
+    } = { type: 'number' };
+
     return {
         push(value: unknown) {
-            if (typeof value === 'number' && !Number.isNaN(value)) {
-                sum += value;
+            const res = getNumericValues(value);
+            if (res.type === 'bigint') {
+                if (agg.type === 'number') {
+                    agg = {
+                        type: 'bigint',
+                        value: agg.value != null ? toBigInt(agg.value) : undefined
+                    };
+                }
+                for (const num of res.values) {
+                    if (agg.value != null) {
+                        agg.value += num;
+                    } else {
+                        agg.value = num;
+                    }
+                }
             }
-            // add bigint support
+            if (res.type === 'number') {
+                if (agg.type === 'bigint') {
+                    agg = {
+                        type: 'number',
+                        value: agg.value != null ? parseFloat(
+                            BigIntVector.valueToJSON(agg.value)
+                        ) : undefined
+                    };
+                }
+                for (const num of res.values) {
+                    if (agg.value != null) {
+                        agg.value += num;
+                    } else {
+                        agg.value = num;
+                    }
+                }
+            }
         },
-        flush(): number {
-            const result = sum;
-            sum = 0;
+        flush(): bigint|number|undefined {
+            if (agg.value == null) return;
+
+            if (agg.type === 'bigint') {
+                const result = agg.value;
+                agg = { type: 'number' };
+                return result;
+            }
+
+            const result = agg.value;
+            agg = { type: 'number' };
             return result;
         },
     };
 }
 
 function makeAvgAgg(): FieldAgg {
-    let sum = 0;
-    let total = 0;
+    let agg: {
+        value?: number;
+        total: number;
+        type: 'number'
+    }|{
+        value?: bigint;
+        total: number;
+        type: 'bigint'
+    } = { type: 'number', total: 0 };
+
     return {
         push(value: unknown) {
-            if (typeof value === 'number' && !Number.isNaN(value)) {
-                sum += value;
-                total += 1;
+            const res = getNumericValues(value);
+            if (res.type === 'bigint') {
+                if (agg.type === 'number') {
+                    agg = {
+                        type: 'bigint',
+                        value: agg.value != null ? toBigInt(agg.value) : agg.value,
+                        total: agg.total,
+                    };
+                }
+                for (const num of res.values) {
+                    if (agg.value != null) {
+                        agg.value += num;
+                    } else {
+                        agg.value = num;
+                    }
+                    agg.total++;
+                }
             }
-            // add bigint support
+            if (res.type === 'number') {
+                if (agg.type === 'bigint') {
+                    agg = {
+                        type: 'number',
+                        value: agg.value != null ? parseFloat(
+                            BigIntVector.valueToJSON(agg.value)
+                        ) : undefined,
+                        total: agg.total,
+                    };
+                }
+                for (const num of res.values) {
+                    if (agg.value != null) {
+                        agg.value += num;
+                    } else {
+                        agg.value = num;
+                    }
+                    agg.total++;
+                }
+            }
         },
-        flush(): number {
-            const result = sum / total;
-            sum = 0;
-            total = 0;
+        flush(): bigint|number|undefined {
+            if (agg.value == null) return;
+
+            if (agg.type === 'bigint') {
+                const result = agg.value / BigInt(agg.total);
+                agg = { type: 'number', total: 0 };
+                return result;
+            }
+
+            const result = agg.value / agg.total;
+            agg = { type: 'number', total: 0 };
             return result;
         },
     };
 }
 
 function makeMinAgg(): FieldAgg {
-    let min: number|undefined;
+    let agg: {
+        value?: number,
+        type: 'number'
+    }|{
+        value?: bigint,
+        type: 'bigint'
+    } = { type: 'number' };
+
     return {
         push(value: unknown) {
-            if (typeof value === 'number' && !Number.isNaN(value)) {
-                if (min == null || value < min) {
-                    min = value;
+            const res = getNumericValues(value);
+            if (res.type === 'bigint') {
+                if (agg.type === 'number') {
+                    agg = {
+                        type: 'bigint',
+                        value: agg.value != null ? toBigInt(agg.value) : agg.value,
+                    };
+                }
+                for (const num of res.values) {
+                    if (agg.value == null || num < agg.value) {
+                        agg.value = num;
+                    }
                 }
             }
-            // add bigint support
+            if (res.type === 'number') {
+                if (agg.type === 'bigint') {
+                    agg = {
+                        type: 'number',
+                        value: agg.value != null ? parseFloat(
+                            BigIntVector.valueToJSON(agg.value)
+                        ) : undefined
+                    };
+                }
+                for (const num of res.values) {
+                    if (agg.value == null || num < agg.value) {
+                        agg.value = num as number;
+                    }
+                }
+            }
         },
-        flush(): number|undefined {
-            const result = min;
-            min = undefined;
+        flush(): bigint|number|undefined {
+            const result = agg.value;
+            agg = { type: 'number' };
             return result;
         },
     };
 }
 
 function makeMaxAgg(): FieldAgg {
-    let max: number|undefined;
+    let agg: {
+        value?: number,
+        type: 'number'
+    }|{
+        value?: bigint,
+        type: 'bigint'
+    } = { type: 'number' };
+
     return {
         push(value: unknown) {
-            if (typeof value === 'number' && !Number.isNaN(value)) {
-                if (max == null || value > max) {
-                    max = value;
+            const res = getNumericValues(value);
+            if (res.type === 'bigint') {
+                if (agg.type === 'number') {
+                    agg = {
+                        type: 'bigint',
+                        value: agg.value != null ? toBigInt(agg.value) : agg.value,
+                    };
+                }
+                for (const num of res.values) {
+                    if (agg.value == null || num > agg.value) {
+                        agg.value = num;
+                    }
                 }
             }
-            // add bigint support
+            if (res.type === 'number') {
+                if (agg.type === 'bigint' && agg.value != null) {
+                    agg = {
+                        type: 'number',
+                        value: agg.value != null ? parseFloat(
+                            BigIntVector.valueToJSON(agg.value)
+                        ) : undefined
+                    };
+                }
+                for (const num of res.values) {
+                    if (num != null && ((agg.value == null || num > agg.value))) {
+                        agg.value = num;
+                    }
+                }
+            }
         },
-        flush(): number|undefined {
-            const result = max;
-            max = undefined;
+        flush(): bigint|number|undefined {
+            const result = agg.value;
+            agg = { type: 'number' };
             return result;
         },
     };
@@ -228,7 +386,9 @@ export function makeDefaultKeyFn(col: Column<unknown>): KeyAggFn {
             return { key: undefined, value };
         }
         return {
-            key: toString(value),
+            key: toString(
+                col.vector.valueToJSON ? col.vector.valueToJSON(value) : value
+            ),
             value
         };
     };

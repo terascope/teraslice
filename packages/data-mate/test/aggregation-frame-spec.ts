@@ -4,7 +4,13 @@ import { FieldType } from '@terascope/types';
 import { DataFrame } from '../src';
 
 describe('AggregationFrame', () => {
-    type Person = { name: string; gender: 'F'|'M', age: number, date: string }
+    type Person = {
+        name: string;
+        gender: 'F'|'M';
+        age: number;
+        scores: number[],
+        date: string;
+    };
     let dataFrame: DataFrame<Person>;
 
     beforeEach(() => {
@@ -20,6 +26,10 @@ describe('AggregationFrame', () => {
                 age: {
                     type: FieldType.Short,
                 },
+                scores: {
+                    type: FieldType.Integer,
+                    array: true
+                },
                 date: {
                     type: FieldType.Date,
                 },
@@ -29,48 +39,55 @@ describe('AggregationFrame', () => {
                 name: 'Billy',
                 age: 64,
                 gender: 'M',
+                scores: [4, 0, 3],
                 date: '2020-09-15T17:39:11.195Z', // base
             },
             {
                 name: 'Frank',
                 age: 25,
                 gender: 'M',
+                scores: [2, 4, 19],
                 date: '2020-09-15T16:39:11.195Z', // minus one hour
             },
             {
                 name: 'Jill',
                 age: 40,
                 gender: 'F',
+                scores: [2, 2, 2],
                 date: '2020-09-15T15:39:11.195Z', // minus two hours
             },
             {
                 name: 'Anne',
                 age: 32,
                 gender: 'F',
+                scores: [50, 4, 19],
                 date: '2020-09-15T15:39:11.195Z', // minus two hours
             },
             {
                 name: 'Joey',
                 age: 20,
                 gender: 'M',
+                scores: [50, 4, 19],
                 date: '2020-09-13T17:39:11.195Z', // minus two days
             },
             {
                 name: 'Nancy',
                 age: 84,
                 gender: 'F',
+                scores: [1, 0, 0],
                 date: '2019-09-15T17:39:11.195Z', // minus one year
             },
             {
                 name: 'Frank',
                 age: 45,
                 gender: 'M',
+                scores: [1, 0, 0],
                 date: '2020-07-15T16:39:11.195Z', // minus two months
             },
         ]);
     });
 
-    describe('->sum', () => {
+    describe('->sum(age)', () => {
         it('should get the right result when using groupBy(gender)', () => {
             const grouped = dataFrame.groupBy(['gender']);
             const resultFrame = new DataFrame({
@@ -81,19 +98,46 @@ describe('AggregationFrame', () => {
                     name: 'Billy',
                     age: 154,
                     gender: 'M',
+                    scores: [4, 0, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
                     name: 'Jill',
                     age: 156,
                     gender: 'F',
+                    scores: [2, 2, 2],
                     date: new Date('2020-09-15T15:39:11.195Z').getTime()
                 }
             ]);
         });
     });
 
-    describe('->avg', () => {
+    describe('->sum(scores)', () => {
+        it('should get the right result when using aggregate()', () => {
+            const grouped = dataFrame.aggregate();
+            const resultFrame = new DataFrame({
+                columns: grouped.sum('scores').run()
+            });
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'Billy',
+                    age: 154,
+                    gender: 'M',
+                    scores: [4, 0, 3],
+                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                },
+                {
+                    name: 'Jill',
+                    age: 156,
+                    gender: 'F',
+                    scores: [2, 2, 2],
+                    date: new Date('2020-09-15T15:39:11.195Z').getTime()
+                }
+            ]);
+        });
+    });
+
+    describe('->avg(age)', () => {
         it('should get the right result when using groupBy(gender)', () => {
             const grouped = dataFrame.groupBy(['gender']);
             const resultFrame = new DataFrame({
@@ -104,12 +148,14 @@ describe('AggregationFrame', () => {
                     name: 'Billy',
                     age: 38.5,
                     gender: 'M',
+                    scores: [4, 0, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
                     name: 'Jill',
                     age: 52,
                     gender: 'F',
+                    scores: [2, 2, 2],
                     date: new Date('2020-09-15T15:39:11.195Z').getTime()
                 }
             ]);
@@ -125,13 +171,32 @@ describe('AggregationFrame', () => {
                     name: 'Billy',
                     age: 44.285714285714285,
                     gender: 'M',
+                    scores: [4, 0, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 }
             ]);
         });
     });
 
-    describe('->min', () => {
+    describe('->avg(scores)', () => {
+        it('should get the right result when using aggregate()', () => {
+            const grouped = dataFrame.aggregate();
+            const resultFrame = new DataFrame({
+                columns: grouped.avg('scores').run()
+            });
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'Billy',
+                    age: 44.285714285714285,
+                    gender: 'M',
+                    scores: [4, 0, 3],
+                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                }
+            ]);
+        });
+    });
+
+    describe('->min(age)', () => {
         it('should get the right result when using groupBy(gender)', () => {
             const grouped = dataFrame.groupBy(['gender']);
             const resultFrame = new DataFrame({
@@ -142,12 +207,14 @@ describe('AggregationFrame', () => {
                     name: 'Billy',
                     age: 20,
                     gender: 'M',
+                    scores: [4, 0, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
                     name: 'Jill',
                     age: 32,
                     gender: 'F',
+                    scores: [2, 2, 2],
                     date: new Date('2020-09-15T15:39:11.195Z').getTime()
                 }
             ]);
@@ -163,13 +230,32 @@ describe('AggregationFrame', () => {
                     name: 'Billy',
                     age: 20,
                     gender: 'M',
+                    scores: [4, 0, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 }
             ]);
         });
     });
 
-    describe('->max', () => {
+    describe('->min(scores)', () => {
+        it('should get the right result when using aggregate()', () => {
+            const grouped = dataFrame.aggregate();
+            const resultFrame = new DataFrame({
+                columns: grouped.min('scores').run()
+            });
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'Billy',
+                    age: 20,
+                    gender: 'M',
+                    scores: [4, 0, 3],
+                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                }
+            ]);
+        });
+    });
+
+    describe('->max(age)', () => {
         it('should get the right result when using groupBy(gender)', () => {
             const grouped = dataFrame.groupBy(['gender']);
             const resultFrame = new DataFrame({
@@ -180,12 +266,14 @@ describe('AggregationFrame', () => {
                     name: 'Billy',
                     age: 64,
                     gender: 'M',
+                    scores: [4, 0, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
                     name: 'Jill',
                     age: 84,
                     gender: 'F',
+                    scores: [2, 2, 2],
                     date: new Date('2020-09-15T15:39:11.195Z').getTime()
                 }
             ]);
@@ -201,13 +289,32 @@ describe('AggregationFrame', () => {
                     name: 'Jill',
                     age: 84,
                     gender: 'F',
+                    scores: [2, 2, 2],
                     date: new Date('2020-09-15T15:39:11.195Z').getTime()
                 }
             ]);
         });
     });
 
-    describe('->count', () => {
+    describe('->max(scores)', () => {
+        it('should get the right result when using aggregate()', () => {
+            const grouped = dataFrame.aggregate();
+            const resultFrame = new DataFrame({
+                columns: grouped.max('scores').run()
+            });
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'Jill',
+                    age: 84,
+                    gender: 'F',
+                    scores: [2, 2, 2],
+                    date: new Date('2020-09-15T15:39:11.195Z').getTime()
+                }
+            ]);
+        });
+    });
+
+    describe('->count(name)', () => {
         it('should get the right result when using groupBy(gender)', () => {
             const grouped = dataFrame.groupBy(['gender']);
             const resultFrame = new DataFrame({
@@ -218,12 +325,14 @@ describe('AggregationFrame', () => {
                     name: 4,
                     age: 64,
                     gender: 'M',
+                    scores: [4, 0, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
                     name: 3,
                     age: 40,
                     gender: 'F',
+                    scores: [2, 2, 2],
                     date: new Date('2020-09-15T15:39:11.195Z').getTime()
                 }
             ]);
@@ -239,13 +348,14 @@ describe('AggregationFrame', () => {
                     name: 7,
                     age: 64,
                     gender: 'M',
+                    scores: [4, 0, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 }
             ]);
         });
     });
 
-    describe('->unique', () => {
+    describe('->unique(name)', () => {
         it('should get the right result when using groupBy(gender)', () => {
             const grouped = dataFrame.groupBy(['gender']);
             const resultFrame = new DataFrame({
@@ -256,36 +366,42 @@ describe('AggregationFrame', () => {
                     name: 'Billy',
                     age: 64,
                     gender: 'M',
+                    scores: [4, 0, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime(),
                 },
                 {
                     name: 'Frank',
                     age: 25,
                     gender: 'M',
+                    scores: [2, 4, 19],
                     date: new Date('2020-09-15T16:39:11.195Z').getTime(),
                 },
                 {
                     name: 'Jill',
                     age: 40,
                     gender: 'F',
+                    scores: [2, 2, 2],
                     date: new Date('2020-09-15T15:39:11.195Z').getTime(),
                 },
                 {
                     name: 'Anne',
                     age: 32,
                     gender: 'F',
+                    scores: [50, 4, 19],
                     date: new Date('2020-09-15T15:39:11.195Z').getTime(),
                 },
                 {
                     name: 'Joey',
                     age: 20,
                     gender: 'M',
+                    scores: [50, 4, 19],
                     date: new Date('2020-09-13T17:39:11.195Z').getTime(),
                 },
                 {
                     name: 'Nancy',
                     age: 84,
                     gender: 'F',
+                    scores: [1, 0, 0],
                     date: new Date('2019-09-15T17:39:11.195Z').getTime(),
                 }
             ]);
@@ -301,43 +417,95 @@ describe('AggregationFrame', () => {
                     name: 1,
                     age: 64,
                     gender: 'M',
+                    scores: [4, 0, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime(),
                 },
                 {
                     name: 2,
                     age: 25,
                     gender: 'M',
+                    scores: [2, 4, 19],
                     date: new Date('2020-09-15T16:39:11.195Z').getTime(),
                 },
                 {
                     name: 1,
                     age: 40,
                     gender: 'F',
+                    scores: [2, 2, 2],
                     date: new Date('2020-09-15T15:39:11.195Z').getTime(),
                 },
                 {
                     name: 1,
                     age: 32,
                     gender: 'F',
+                    scores: [50, 4, 19],
                     date: new Date('2020-09-15T15:39:11.195Z').getTime(),
                 },
                 {
                     name: 1,
                     age: 20,
                     gender: 'M',
+                    scores: [50, 4, 19],
                     date: new Date('2020-09-13T17:39:11.195Z').getTime(),
                 },
                 {
                     name: 1,
                     age: 84,
                     gender: 'F',
+                    scores: [1, 0, 0],
                     date: new Date('2019-09-15T17:39:11.195Z').getTime(),
                 }
             ]);
         });
     });
 
-    describe('->hourly', () => {
+    describe('->unique(scores)', () => {
+        it('should get the right result when using aggregate()', () => {
+            const grouped = dataFrame.aggregate();
+            const resultFrame = new DataFrame({
+                columns: grouped.unique('scores').run()
+            });
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'Billy',
+                    age: 64,
+                    gender: 'M',
+                    scores: [4, 0, 3],
+                    date: new Date('2020-09-15T17:39:11.195Z').getTime(),
+                },
+                {
+                    name: 'Frank',
+                    age: 25,
+                    gender: 'M',
+                    scores: [2, 4, 19],
+                    date: new Date('2020-09-15T16:39:11.195Z').getTime(),
+                },
+                {
+                    name: 'Jill',
+                    age: 40,
+                    gender: 'F',
+                    scores: [2, 2, 2],
+                    date: new Date('2020-09-15T15:39:11.195Z').getTime(),
+                },
+                {
+                    name: 'Anne',
+                    age: 32,
+                    gender: 'F',
+                    scores: [50, 4, 19],
+                    date: new Date('2020-09-15T15:39:11.195Z').getTime(),
+                },
+                {
+                    name: 'Nancy',
+                    age: 84,
+                    gender: 'F',
+                    scores: [1, 0, 0],
+                    date: new Date('2019-09-15T17:39:11.195Z').getTime(),
+                }
+            ]);
+        });
+    });
+
+    describe('->hourly(date)', () => {
         it('should get the right result when using aggregate()', () => {
             const grouped = dataFrame.aggregate();
             const resultFrame = new DataFrame({
@@ -348,43 +516,49 @@ describe('AggregationFrame', () => {
                     name: 1,
                     age: 64,
                     gender: 'M',
+                    scores: [4, 0, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
                     name: 1,
                     age: 25,
                     gender: 'M',
+                    scores: [2, 4, 19],
                     date: new Date('2020-09-15T16:39:11.195Z').getTime()
                 },
                 {
                     name: 2,
                     age: 40,
                     gender: 'F',
+                    scores: [2, 2, 2],
                     date: new Date('2020-09-15T15:39:11.195Z').getTime()
                 },
                 {
                     name: 1,
                     age: 20,
                     gender: 'M',
+                    scores: [50, 4, 19],
                     date: new Date('2020-09-13T17:39:11.195Z').getTime()
                 },
                 {
                     name: 1,
                     age: 84,
                     gender: 'F',
+                    scores: [1, 0, 0],
                     date: new Date('2019-09-15T17:39:11.195Z').getTime()
                 },
                 {
                     name: 1,
                     age: 45,
                     gender: 'M',
+                    scores: [1, 0, 0],
                     date: new Date('2020-07-15T16:39:11.195Z').getTime()
                 }
             ]);
         });
     });
 
-    describe('->daily', () => {
+    describe('->daily(date)', () => {
         it('should get the right result when using aggregate()', () => {
             const grouped = dataFrame.aggregate();
             const resultFrame = new DataFrame({
@@ -395,31 +569,35 @@ describe('AggregationFrame', () => {
                     name: 4,
                     age: 64,
                     gender: 'M',
+                    scores: [4, 0, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
                     name: 1,
                     age: 20,
                     gender: 'M',
+                    scores: [50, 4, 19],
                     date: new Date('2020-09-13T17:39:11.195Z').getTime()
                 },
                 {
                     name: 1,
                     age: 84,
                     gender: 'F',
+                    scores: [1, 0, 0],
                     date: new Date('2019-09-15T17:39:11.195Z').getTime()
                 },
                 {
                     name: 1,
                     age: 45,
                     gender: 'M',
+                    scores: [1, 0, 0],
                     date: new Date('2020-07-15T16:39:11.195Z').getTime()
                 }
             ]);
         });
     });
 
-    describe('->monthly', () => {
+    describe('->monthly(date)', () => {
         it('should get the right result when using aggregate()', () => {
             const grouped = dataFrame.aggregate();
             const resultFrame = new DataFrame({
@@ -430,25 +608,28 @@ describe('AggregationFrame', () => {
                     name: 5,
                     age: 64,
                     gender: 'M',
+                    scores: [4, 0, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
                     name: 1,
                     age: 84,
                     gender: 'F',
+                    scores: [1, 0, 0],
                     date: new Date('2019-09-15T17:39:11.195Z').getTime()
                 },
                 {
                     name: 1,
                     age: 45,
                     gender: 'M',
+                    scores: [1, 0, 0],
                     date: new Date('2020-07-15T16:39:11.195Z').getTime()
                 }
             ]);
         });
     });
 
-    describe('->yearly', () => {
+    describe('->yearly(date)', () => {
         it('should get the right result when using aggregate()', () => {
             const grouped = dataFrame.aggregate();
             const resultFrame = new DataFrame({
@@ -459,12 +640,14 @@ describe('AggregationFrame', () => {
                     name: 6,
                     age: 64,
                     gender: 'M',
+                    scores: [4, 0, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
                     name: 1,
                     age: 84,
                     gender: 'F',
+                    scores: [1, 0, 0],
                     date: new Date('2019-09-15T17:39:11.195Z').getTime()
                 }
             ]);
