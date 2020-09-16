@@ -21,6 +21,23 @@ export function toNumber(input: unknown): number {
     return Number(input);
 }
 
+/** Check if value is a bigint */
+export function isBigInt(input: unknown): input is bigint {
+    return typeof input === 'bigint';
+}
+
+/** Convert any input to a bigint */
+export function toBigInt(input: unknown): bigint {
+    if (typeof input === 'bigint') return input;
+
+    const str = String(input);
+    if (str.includes('.')) {
+        return BigInt(parseInt(str, 10));
+    }
+
+    return BigInt(input);
+}
+
 /** Convert any input to a integer, return false if unable to convert input  */
 export function toInteger(input: unknown): number | false {
     if (isInteger(input)) return input;
