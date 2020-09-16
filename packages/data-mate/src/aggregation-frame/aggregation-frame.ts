@@ -80,7 +80,7 @@ export class AggregationFrame<T extends Record<string, any>> {
      * Run aggregations and flatten the grouped data into a DataFrame
      * @returns the new columns
     */
-    run(): Column[] {
+    async run(): Promise<Column[]> {
         const buckets = new Map<string, any[]>();
         const count = this.columns[0].count();
         const otherCols = this.columns.filter((col) => !this.keyBy.includes(col.name));
