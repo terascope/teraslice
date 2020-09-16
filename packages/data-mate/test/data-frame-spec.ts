@@ -311,5 +311,16 @@ describe('DataFrame', () => {
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
             });
         });
+
+        describe('->orderBy', () => {
+            it('should be able to orderBy one field', () => {
+                const resultFrame = dataFrame.orderBy(['name']);
+
+                expect(resultFrame.toJSON()).toEqual([
+                    // FIXME
+                ]);
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+        });
     });
 });

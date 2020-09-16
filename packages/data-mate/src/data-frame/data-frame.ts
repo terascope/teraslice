@@ -151,6 +151,14 @@ export class DataFrame<
     }
 
     /**
+     * Order the rows by fields, format of is `field:asc` or `field:desc`.
+     * Defaults to `asc` if none specified
+    */
+    orderBy(_fields: string[]): DataFrame<T> {
+        return this; // FIXME
+    }
+
+    /**
      * Assign new columns to a new DataFrame
      * This will eventually handle DataFrame input
     */

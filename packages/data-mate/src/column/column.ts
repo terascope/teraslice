@@ -162,6 +162,14 @@ export class Column<T = unknown> {
         });
     }
 
+    /**
+     * Sort the values in a column returns
+     * an array with the updated indices.
+    */
+    getSortedIndices(_direction: 'asc'|'desc'): number[] {
+        return []; // FIXME
+    }
+
     avg(): number|bigint {
         return runValueAggregation(this._vector, ValueAggregation.avg);
     }
