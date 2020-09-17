@@ -23,6 +23,14 @@ export class AggregationFrame<T extends Record<string, any>> {
         }
     }
 
+    /**
+     * Calculate the average value in a column
+     *
+     * @note only works numeric data types
+     *
+     * @param field the name of the column to run the aggregation on
+     * @param as a optional name for the new column with the aggregated values
+    */
     [ValueAggregation.avg](field: keyof T, as?: string): AggregationFrame<T> {
         const { name, type } = this._ensureColumn(field, as);
         if (!isNumberLike(type)) {
@@ -34,6 +42,14 @@ export class AggregationFrame<T extends Record<string, any>> {
         return this;
     }
 
+    /**
+     * Add all of the values in a column together
+     *
+     * @note only works numeric data types
+     *
+     * @param field the name of the column to run the aggregation on
+     * @param as a optional name for the new column with the aggregated values
+    */
     [ValueAggregation.sum](field: keyof T, as?: string): AggregationFrame<T> {
         const { name, type } = this._ensureColumn(field, as);
         if (!isNumberLike(type)) {
@@ -45,6 +61,14 @@ export class AggregationFrame<T extends Record<string, any>> {
         return this;
     }
 
+    /**
+     * Find the minimum value in a column
+     *
+     * @note only works numeric data types
+     *
+     * @param field the name of the column to run the aggregation on
+     * @param as a optional name for the new column with the aggregated values
+    */
     [ValueAggregation.min](field: keyof T, as?: string): AggregationFrame<T> {
         const { name, type } = this._ensureColumn(field, as);
         if (!isNumberLike(type)) {
@@ -56,6 +80,14 @@ export class AggregationFrame<T extends Record<string, any>> {
         return this;
     }
 
+    /**
+     * Find the maximum value in a column
+     *
+     * @note only works numeric data types
+     *
+     * @param field the name of the column to run the aggregation on
+     * @param as a optional name for the new column with the aggregated values
+    */
     [ValueAggregation.max](field: keyof T, as?: string): AggregationFrame<T> {
         const { name, type } = this._ensureColumn(field, as);
         if (!isNumberLike(type)) {
@@ -67,6 +99,12 @@ export class AggregationFrame<T extends Record<string, any>> {
         return this;
     }
 
+    /**
+     * Count all of the values in a column
+     *
+     * @param field the name of the column to run the aggregation on
+     * @param as a optional name for the new column with the aggregated values
+    */
     [ValueAggregation.count](field: keyof T, as?: string): AggregationFrame<T> {
         const { name } = this._ensureColumn(field, as);
         const aggObject = this._aggregations.get(name) ?? { };
@@ -75,16 +113,29 @@ export class AggregationFrame<T extends Record<string, any>> {
         return this;
     }
 
-    [KeyAggregation.unique](field: keyof T, as?: string): AggregationFrame<T> {
-        const { name } = this._ensureColumn(field, as);
+    /**
+     * Create a groups of unique values
+     *
+     * @param field the name of the column to run the aggregation on
+     * @param as a optional name for the new column with the aggregated values
+    */
+    [KeyAggregation.unique](field: keyof T): AggregationFrame<T> {
+        const { name } = this._ensureColumn(field);
         const aggObject = this._aggregations.get(name) ?? { };
         aggObject.key = KeyAggregation.unique;
         this._aggregations.set(name, aggObject);
         return this;
     }
 
-    [KeyAggregation.hourly](field: keyof T, as?: string): AggregationFrame<T> {
-        const { name, type } = this._ensureColumn(field, as);
+    /**
+     * Group the data in hourly buckets
+     *
+     * @note only works Date data types
+     *
+     * @param field the name of the column to run the aggregation on
+    */
+    [KeyAggregation.hourly](field: keyof T): AggregationFrame<T> {
+        const { name, type } = this._ensureColumn(field);
         if (type !== FieldType.Date) {
             throw new Error(`${KeyAggregation.hourly} requires a ${FieldType.Date} field type`);
         }
@@ -94,8 +145,15 @@ export class AggregationFrame<T extends Record<string, any>> {
         return this;
     }
 
-    [KeyAggregation.daily](field: keyof T, as?: string): AggregationFrame<T> {
-        const { name, type } = this._ensureColumn(field, as);
+    /**
+     * Group the data in daily buckets
+     *
+     * @note only works Date data types
+     *
+     * @param field the name of the column to run the aggregation on
+    */
+    [KeyAggregation.daily](field: keyof T): AggregationFrame<T> {
+        const { name, type } = this._ensureColumn(field);
         if (type !== FieldType.Date) {
             throw new Error(`${KeyAggregation.daily} requires a ${FieldType.Date} field type`);
         }
@@ -105,8 +163,15 @@ export class AggregationFrame<T extends Record<string, any>> {
         return this;
     }
 
-    [KeyAggregation.monthly](field: keyof T, as?: string): AggregationFrame<T> {
-        const { name, type } = this._ensureColumn(field, as);
+    /**
+     * Group the data in monthly buckets
+     *
+     * @note only works Date data types
+     *
+     * @param field the name of the column to run the aggregation on
+    */
+    [KeyAggregation.monthly](field: keyof T): AggregationFrame<T> {
+        const { name, type } = this._ensureColumn(field);
         if (type !== FieldType.Date) {
             throw new Error(`${KeyAggregation.monthly} requires a ${FieldType.Date} field type`);
         }
@@ -116,8 +181,15 @@ export class AggregationFrame<T extends Record<string, any>> {
         return this;
     }
 
-    [KeyAggregation.yearly](field: keyof T, as?: string): AggregationFrame<T> {
-        const { name, type } = this._ensureColumn(field, as);
+    /**
+     * Group the data in yearly buckets
+     *
+     * @note only works Date data types
+     *
+     * @param field the name of the column to run the aggregation on
+    */
+    [KeyAggregation.yearly](field: keyof T): AggregationFrame<T> {
+        const { name, type } = this._ensureColumn(field);
         if (type !== FieldType.Date) {
             throw new Error(`${KeyAggregation.yearly} requires a ${FieldType.Date} field type`);
         }
@@ -127,7 +199,7 @@ export class AggregationFrame<T extends Record<string, any>> {
         return this;
     }
 
-    private _ensureColumn(field: keyof T, as: string|undefined): { name: string, type: FieldType } {
+    private _ensureColumn(field: keyof T, as?: string): { name: string, type: FieldType } {
         const col = this.columns.find((c) => c.name === field);
         if (!col) throw new Error(`Unknown column named "${field}"`);
 
