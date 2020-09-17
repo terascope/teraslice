@@ -1,6 +1,9 @@
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../builder';
 
+/**
+ * @todo enforce int sizes for Byte, Short, and Integer lengths
+*/
 export class IntBuilder extends Builder<number> {
     static valueFrom(value: unknown): number {
         if (Number.isSafeInteger(value)) {

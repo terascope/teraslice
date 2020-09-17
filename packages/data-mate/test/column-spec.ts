@@ -108,6 +108,61 @@ describe('Column', () => {
         });
     });
 
+    describe(`when field type is ${FieldType.Float}`, () => {
+        let col: Column<number>;
+        const values: Maybe<number>[] = [
+            7.92334,
+            2.2444233334,
+            6,
+            null,
+            4.3333334,
+        ];
+        beforeEach(() => {
+            col = Column.fromJSON<number>({
+                name: 'score',
+                config: {
+                    type: FieldType.Float,
+                },
+            }, values);
+        });
+
+        it('should be able to get the avg of the values', () => {
+            expect(col.avg()).toBe(5.12527418335);
+        });
+
+        it('should be able to get the sum of the values', () => {
+            expect(col.sum()).toBe(20.5010967334);
+        });
+
+        it('should be able to get the min of the values', () => {
+            expect(col.min()).toBe(2.2444233334);
+        });
+
+        it('should be able to get the max of the values', () => {
+            expect(col.max()).toBe(7.92334);
+        });
+
+        it('should be able to sort the values in asc order', () => {
+            expect(col.sort().toJSON()).toEqual([
+                null,
+                2.2444233334,
+                4.3333334,
+                6,
+                7.92334,
+            ]);
+        });
+
+        it('should be able to sort the values in desc order', () => {
+            expect(col.sort('desc').toJSON()).toEqual([
+                7.92334,
+                6,
+                4.3333334,
+                2.2444233334,
+                null,
+            ]);
+        });
+    });
+
     describe(`when field type is an array of ${FieldType.Short}`, () => {
         let col: Column<Vector<number>>;
         const values: Maybe<Maybe<number>[]>[] = [
