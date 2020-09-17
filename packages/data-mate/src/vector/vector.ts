@@ -132,8 +132,33 @@ export abstract class Vector<T = unknown> {
      * Sort the values in a Vector and return
      * an array with the updated indices.
     */
-    getSortedIndices(_direction: SortOrder = 'asc'): number[] {
-        return []; // FIXME
+    getSortedIndices(direction?: SortOrder): number[] {
+        const indices: number[] = Array(this._size);
+        const original: [number, Maybe<T>][] = Array(this._size);
+
+        for (let i = 0; i < this._size; i++) {
+            original[i] = [i, this.get(i) as Maybe<T>];
+        }
+
+        original
+            .sort(([, a], [, b]) => this.compare(a, b))
+            .forEach(([i], newPosition) => {
+                if (direction === 'desc') {
+                    indices[i] = Math.abs(newPosition - (this._size - 1));
+                } else {
+                    indices[i] = newPosition;
+                }
+            });
+
+        return indices;
+    }
+
+    compare(a: Maybe<T>, b: Maybe<T>): -1|0|1 {
+        const aVal = a as any;
+        const bVal = b as any;
+        if (aVal < bVal) return -1;
+        if (aVal > bVal) return 1;
+        return 0;
     }
 
     /**

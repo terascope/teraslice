@@ -154,7 +154,7 @@ export class DataFrame<
      * Order the rows by fields, format of is `field:asc` or `field:desc`.
      * Defaults to `asc` if none specified
     */
-    orderBy(field: keyof T, direction: SortOrder = 'asc'): DataFrame<T> {
+    orderBy(field: keyof T, direction?: SortOrder): DataFrame<T> {
         const sortColumn = this.getColumn(field);
         if (!sortColumn) throw new Error(`Unknown column ${field}`);
 

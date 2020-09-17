@@ -1,6 +1,7 @@
 import 'jest-fixtures';
 import { FieldType, Maybe } from '@terascope/types';
 import {
+    BigIntVector,
     Column, Vector
 } from '../src';
 
@@ -85,6 +86,26 @@ describe('Column', () => {
         it('should be able to get the max of the values', () => {
             expect(col.max()).toBe(7);
         });
+
+        it('should be able to sort the values in asc order', () => {
+            expect(col.sort().toJSON()).toEqual([
+                null,
+                2,
+                4,
+                6,
+                7,
+            ]);
+        });
+
+        it('should be able to sort the values in desc order', () => {
+            expect(col.sort('desc').toJSON()).toEqual([
+                7,
+                6,
+                4,
+                2,
+                null,
+            ]);
+        });
     });
 
     describe(`when field type is an array of ${FieldType.Short}`, () => {
@@ -121,6 +142,8 @@ describe('Column', () => {
         it('should be able to get the max of the values', () => {
             expect(col.max()).toBe(324);
         });
+
+        test.todo('should NOT be able to sort the values');
     });
 
     describe(`when field type is ${FieldType.Long}`, () => {
@@ -164,6 +187,26 @@ describe('Column', () => {
             expect(
                 (col.max() as bigint).toLocaleString('en-US')
             ).toBe('278,218,429,446,951,548,637,196,401');
+        });
+
+        it('should be able to sort the values in asc order', () => {
+            expect(col.sort().toJSON()).toEqual([
+                null,
+                BigIntVector.valueToJSON(BigInt(12) ** multiplier),
+                BigIntVector.valueToJSON(BigInt(16) ** multiplier),
+                BigIntVector.valueToJSON(BigInt(19) ** multiplier),
+                BigIntVector.valueToJSON(BigInt(21) ** multiplier),
+            ]);
+        });
+
+        it('should be able to sort the values in desc order', () => {
+            expect(col.sort('desc').toJSON()).toEqual([
+                BigIntVector.valueToJSON(BigInt(21) ** multiplier),
+                BigIntVector.valueToJSON(BigInt(19) ** multiplier),
+                BigIntVector.valueToJSON(BigInt(16) ** multiplier),
+                BigIntVector.valueToJSON(BigInt(12) ** multiplier),
+                null,
+            ]);
         });
     });
 });

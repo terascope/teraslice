@@ -1,5 +1,7 @@
 import { LATEST_VERSION } from '@terascope/data-types';
-import { DataTypeFieldConfig, Maybe, DataTypeVersion } from '@terascope/types';
+import {
+    DataTypeFieldConfig, Maybe, DataTypeVersion, SortOrder
+} from '@terascope/types';
 import { Builder } from '../builder';
 import {
     JSONValue, runValueAggregation, ValueAggregation, Vector
@@ -161,6 +163,23 @@ export class Column<T = unknown> {
             config: this.config,
             vector: builder.toVector()
         });
+    }
+
+    /**
+     * Sort the column
+    */
+    sort(direction?: SortOrder): Column<T> {
+        const sortedIndices = this._vector.getSortedIndices(direction);
+        const len = sortedIndices.length;
+        const builder = Builder.make<T>(this.config, len, this.vector.childConfig);
+
+        for (let i = 0; i < len; i++) {
+            const moveTo = sortedIndices[i];
+            const val = this._vector.get(i);
+            builder.set(moveTo, val);
+        }
+
+        return this.fork(builder.toVector());
     }
 
     avg(): number|bigint {

@@ -219,6 +219,11 @@ describe('DataFrame', () => {
                 }
             }, [
                 {
+                    name: 'Jill',
+                    age: 39,
+                    friends: ['Frank'] // sucks for Billy
+                },
+                {
                     name: 'Billy',
                     age: 47,
                     friends: ['Jill']
@@ -228,11 +233,6 @@ describe('DataFrame', () => {
                     age: 20,
                     friends: ['Jill']
                 },
-                {
-                    name: 'Jill',
-                    age: 39,
-                    friends: ['Frank'] // sucks for Billy
-                }
             ]);
         });
 
@@ -273,9 +273,9 @@ describe('DataFrame', () => {
                 expect(names).toEqual(['name', 'age', 'friends']);
 
                 expect(resultFrame.getColumn('name')!.toJSON()).toEqual([
+                    'JILL',
                     'BILLY',
                     'FRANK',
-                    'JILL'
                 ]);
 
                 expect(resultFrame.count()).toEqual(dataFrame.count());
@@ -313,11 +313,94 @@ describe('DataFrame', () => {
         });
 
         describe('->orderBy', () => {
-            it('should be able to orderBy one field', () => {
+            it('should be able to sort name by asc order', () => {
                 const resultFrame = dataFrame.orderBy('name');
 
                 expect(resultFrame.toJSON()).toEqual([
-                    // FIXME
+                    {
+                        name: 'Billy',
+                        age: 47,
+                        friends: ['Jill']
+                    },
+                    {
+                        name: 'Frank',
+                        age: 20,
+                        friends: ['Jill']
+                    },
+                    {
+                        name: 'Jill',
+                        age: 39,
+                        friends: ['Frank']
+                    },
+                ]);
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+
+            it('should be able to sort name by desc order', () => {
+                const resultFrame = dataFrame.orderBy('name', 'desc');
+
+                expect(resultFrame.toJSON()).toEqual([
+                    {
+                        name: 'Jill',
+                        age: 39,
+                        friends: ['Frank']
+                    },
+                    {
+                        name: 'Frank',
+                        age: 20,
+                        friends: ['Jill']
+                    },
+                    {
+                        name: 'Billy',
+                        age: 47,
+                        friends: ['Jill']
+                    },
+                ]);
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+
+            it('should be able to sort age by asc order', () => {
+                const resultFrame = dataFrame.orderBy('age');
+
+                expect(resultFrame.toJSON()).toEqual([
+                    {
+                        name: 'Frank',
+                        age: 20,
+                        friends: ['Jill']
+                    },
+                    {
+                        name: 'Jill',
+                        age: 39,
+                        friends: ['Frank']
+                    },
+                    {
+                        name: 'Billy',
+                        age: 47,
+                        friends: ['Jill']
+                    },
+                ]);
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+
+            it('should be able to sort age by desc order', () => {
+                const resultFrame = dataFrame.orderBy('age', 'desc');
+
+                expect(resultFrame.toJSON()).toEqual([
+                    {
+                        name: 'Billy',
+                        age: 47,
+                        friends: ['Jill']
+                    },
+                    {
+                        name: 'Jill',
+                        age: 39,
+                        friends: ['Frank']
+                    },
+                    {
+                        name: 'Frank',
+                        age: 20,
+                        friends: ['Jill']
+                    },
                 ]);
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
             });
