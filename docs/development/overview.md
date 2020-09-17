@@ -43,23 +43,78 @@ docker run -it --rm -v ./teraslice-master.yaml:/app/config/teraslice.yml terasli
 
 ```js
 {
-    // use eslint formating
     "editor.formatOnSave": true,
     "editor.formatOnType": true,
     "editor.insertSpaces": true,
     "editor.tabSize": 4,
     "eslint.autoFixOnSave": true,
+    "eslint.packageManager": "yarn",
     "eslint.validate": [
         "javascript",
         "javascriptreact",
-        { "language": "typescript", "autoFix": true },
-        { "language": "typescriptreact", "autoFix": true }
+        "typescript",
+        "typescriptreact"
     ],
+    "files.autoGuessEncoding": true,
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/.cache/**": true,
+        "**/.jest-cache/**": true,
+        "**/.yarn-cache/**": true,
+        "**/.yarn/cache/**": true,
+        "**/.yarn-offline-cache/**": true,
+        "**/.babel-cache/**": true,
+        "**/coverage/**": true,
+        ".eslintcache": true,
+        "assets/**": true
+    },
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "files.watcherExclude": {
+        ".eslintcache": true,
+        "**/.cache/**": true,
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/.jest-cache/**": true,
+        "**/.yarn-cache/**": true,
+        "**/.yarn/cache/**": true,
+        "**/.yarn-offline-cache/**": true,
+        "**/.babel-cache/**": true,
+        "**/build/**": true,
+        "**/coverage/**": true,
+        "**/teranaut/static/**": true,
+        "**/tmp/**": true,
+        "assets/**": true
+    },
     "javascript.format.enable": false,
     "javascript.preferences.quoteStyle": "single",
     "json.format.enable": false,
+    "npm.packageManager": "yarn",
+    "search.exclude": {
+        "**/node_modules/**": true,
+        "**/bower_components/**": true,
+        "**/vendor/**": true,
+        "**/coverage/**": true,
+        "**/dist/**": true,
+        "**/build/**": true,
+        "assets/**": true,
+        ".eslintcache": true,
+        "**/.cache/**": true,
+        "**/.yarn-cache": true,
+        "**/.yarn/cache/**": true,
+        "**/.yarn-offline-cache/**": true,
+        "**/.babel-cache/**": true,
+        "**/.jest-cache/**": true,
+        "**/docs/packages/*/api/**/*.md": true,
+        "**/teranaut/static/**": true
+    },
     "typescript.format.enable": false,
     "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": true,
+    "typescript.format.semicolons": "insert",
     "typescript.preferences.quoteStyle": "single",
     "[javascript]": {
         "editor.formatOnSave": false
@@ -72,54 +127,6 @@ docker run -it --rm -v ./teraslice-master.yaml:/app/config/teraslice.yml terasli
     },
     "[typescriptreact]": {
         "editor.formatOnSave": false
-    },
-    "files.autoGuessEncoding": true,
-    "files.exclude": {
-        "**/.DS_Store": true,
-        "**/.git": true,
-        "**/.hg": true,
-        "**/.svn": true,
-        "**/.yarn-cache/**": true,
-        "**/CVS": true,
-        "**/coverage/**": true,
-        ".eslintcache": true,
-        "assets/**": true
-    },
-    "files.insertFinalNewline": true,
-    "files.trimFinalNewlines": true,
-    // use yarn
-    "eslint.packageManager": "yarn",
-    "npm.packageManager": "yarn",
-    // exclude certain files from search and file watching
-    // for better performance
-    "files.watcherExclude": {
-        "**/.git/objects/**": true,
-        "**/.git/subtree-cache/**": true,
-        "**/.jest-cache/**": true,
-        "**/.yarn-cache/**": true,
-        "**/.yarn/cache/**": true,
-        "**/.babel-cache/**": true,
-        "**/build/**": true,
-        "**/coverage/**": true,
-        "**/node_modules/**": true,
-        "**/tmp/**": true,
-        ".eslintcache": true,
-        "assets/**": true
-    },
-    "search.exclude": {
-        "**/.jest-cache/**": true,
-        "**/.yarn-cache/**": true,
-        "**/.yarn/cache/**": true,
-        "**/.babel-cache/**": true,
-        "**/bower_components/**": true,
-        "**/build/**": true,
-        "**/coverage/**": true,
-        "**/dist/**": true,
-        "**/docs/packages/*/api/**/*.md": true,
-        "**/node_modules/**": true,
-        "**/vendor/**": true,
-        ".eslintcache": true,
-        "assets/**": true
     }
 }
 ```
