@@ -11,10 +11,10 @@ import {
     ObjectBuilder, StringBuilder
 } from './types';
 
-export function getBuildersForConfig(
+export function getBuildersForConfig<T extends Record<string, any> = Record<string, unknown>>(
     config: DataTypeConfig, length?: number
-): Map<string, Builder<unknown>> {
-    const builders = new Map<string, Builder<unknown>>();
+): Map<keyof T, Builder<unknown>> {
+    const builders = new Map<keyof T, Builder<unknown>>();
     const groupedFieldEntries = Object.entries(getGroupedFields(config.fields));
 
     for (const [field, nested] of groupedFieldEntries) {

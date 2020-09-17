@@ -5,23 +5,9 @@ import { md5 } from '../vector/utils';
 import { getBuildersForConfig } from '../builder';
 
 /**
- * DataFrame options
-*/
-export interface DataFrameOptions<
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    T extends Record<string, unknown> = Record<string, any>,
-    M extends Record<string, unknown> = Record<string, any>
-> {
-    columns: Column<any>[]|readonly Column<any>[];
-    name?: string;
-    metadata?: M;
-}
-/**
  * An immutable columnar table with APIs for data pipelines.
  *
  * @todo Add conventionally metadata
- * @todo Add search method
- * @todo Add orderBy method
 */
 export class DataFrame<
     T extends Record<string, unknown> = Record<string, any>,
@@ -161,13 +147,56 @@ export class DataFrame<
         const sortedIndices = sortColumn.vector.getSortedIndices(direction);
 
         const len = sortedIndices.length;
-        const builders = getBuildersForConfig(this.config, len);
+        const builders = getBuildersForConfig<T>(this.config, len);
 
         for (let i = 0; i < len; i++) {
             const moveTo = sortedIndices[i];
             for (const col of this.columns) {
                 const val = col.vector.get(i);
                 builders.get(col.name)!.set(moveTo, val);
+            }
+        }
+
+        return this.fork(this.columns.map(
+            (col) => col.fork(builders.get(col.name)!.toVector())
+        ));
+    }
+
+    /**
+     * Filter the DataFrame by fields
+    */
+    filterBy(filters: FilterByFields<T>): DataFrame<T> {
+        const indices: number[] = [];
+
+        for (let i = 0; i < this._size; i++) {
+            const row: Partial<T> = {};
+            let passed = true;
+            for (const field in filters) {
+                if (Object.prototype.hasOwnProperty.call(filters, field)) {
+                    const col = this.getColumn(field)!;
+                    const value = col.vector.get(i) as any;
+                    row[field] = value;
+
+                    if (!filters[field]!(value)) {
+                        passed = false;
+                        break;
+                    }
+                }
+            }
+
+            if (passed) {
+                indices.push(i);
+            }
+        }
+
+        if (indices.length === this._size) return this;
+
+        const builders = getBuildersForConfig(this.config, indices.length);
+
+        for (const index of indices) {
+            for (const col of this.columns) {
+                const val = col.vector.get(index);
+                builders.get(col.name)!.append(val);
             }
         }
 
@@ -269,3 +298,20 @@ export class DataFrame<
         return rows;
     }
 }
+
+/**
+ * DataFrame options
+*/
+export interface DataFrameOptions<
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    T extends Record<string, unknown> = Record<string, any>,
+    M extends Record<string, unknown> = Record<string, any>
+> {
+    columns: Column<any>[]|readonly Column<any>[];
+    name?: string;
+    metadata?: M;
+}
+
+export type FilterByFields<T> = Partial<{
+    [P in keyof T]: (value: Maybe<T[P]>) => boolean
+}>;

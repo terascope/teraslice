@@ -405,5 +405,51 @@ describe('DataFrame', () => {
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
             });
         });
+
+        describe('->filterBy', () => {
+            it('should be able to filter by a single column', () => {
+                const resultFrame = dataFrame.filterBy({
+                    name: (value) => value?.includes('ill') === true,
+                });
+
+                expect(resultFrame.toJSON()).toEqual([
+                    {
+                        name: 'Jill',
+                        age: 39,
+                        friends: ['Frank']
+                    },
+                    {
+                        name: 'Billy',
+                        age: 47,
+                        friends: ['Jill']
+                    },
+                ]);
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+
+            it('should return the correct column if nothing is filtered out', () => {
+                const resultFrame = dataFrame.filterBy({
+                    name: () => true,
+                });
+
+                expect(resultFrame.id).toEqual(dataFrame.id);
+            });
+
+            it('should be able to filter by a multiple columns', () => {
+                const resultFrame = dataFrame.filterBy({
+                    name: (value) => value?.includes('ill') === true,
+                    age: (value) => value != null && value > 40,
+                });
+
+                expect(resultFrame.toJSON()).toEqual([
+                    {
+                        name: 'Billy',
+                        age: 47,
+                        friends: ['Jill']
+                    },
+                ]);
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+        });
     });
 });
