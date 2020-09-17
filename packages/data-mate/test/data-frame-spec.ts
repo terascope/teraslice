@@ -314,7 +314,7 @@ describe('DataFrame', () => {
 
         describe('->orderBy', () => {
             it('should be able to orderBy one field', () => {
-                const resultFrame = dataFrame.orderBy(['name']);
+                const resultFrame = dataFrame.orderBy('name');
 
                 expect(resultFrame.toJSON()).toEqual([
                     // FIXME

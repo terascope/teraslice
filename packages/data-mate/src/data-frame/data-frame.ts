@@ -1,8 +1,8 @@
-import { DataTypeConfig, Maybe } from '@terascope/types';
-import { Column } from '../column';
-import { columnsToDataTypeConfig, distributeRowsToColumns } from './utils';
+import { DataTypeConfig, Maybe, SortOrder } from '@terascope/types';
+import { Column, columnsToDataTypeConfig, distributeRowsToColumns } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import { md5 } from '../vector/utils';
+import { getBuildersForConfig } from '../builder';
 
 /**
  * DataFrame options
@@ -154,8 +154,26 @@ export class DataFrame<
      * Order the rows by fields, format of is `field:asc` or `field:desc`.
      * Defaults to `asc` if none specified
     */
-    orderBy(_fields: string[]): DataFrame<T> {
-        return this; // FIXME
+    orderBy(field: keyof T, direction: SortOrder = 'asc'): DataFrame<T> {
+        const sortColumn = this.getColumn(field);
+        if (!sortColumn) throw new Error(`Unknown column ${field}`);
+
+        const sortedIndices = sortColumn.vector.getSortedIndices(direction);
+
+        const len = sortedIndices.length;
+        const builders = getBuildersForConfig(this.config, len);
+
+        for (let i = 0; i < len; i++) {
+            const moveTo = sortedIndices[i];
+            for (const col of this.columns) {
+                const val = col.vector.get(i);
+                builders.get(col.name)!.set(moveTo, val);
+            }
+        }
+
+        return this.fork(this.columns.map(
+            (col) => col.fork(builders.get(col.name)!.toVector())
+        ));
     }
 
     /**

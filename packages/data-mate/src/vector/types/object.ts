@@ -1,4 +1,3 @@
-import { DataTypeFields } from '@terascope/types';
 import { Vector, VectorOptions, VectorType } from '../vector';
 
 /**
@@ -7,11 +6,8 @@ import { Vector, VectorOptions, VectorType } from '../vector';
 export class ObjectVector<
     T extends Record<string, any> = Record<string, any>
 > extends Vector<T> {
-    childConfig: DataTypeFields;
-
-    constructor(options: VectorOptions<T> & { childConfig?: DataTypeFields }) {
+    constructor(options: VectorOptions<T>) {
         super(VectorType.Object, options);
-        this.childConfig = options.childConfig ?? {};
     }
 
     fork(data = this.data): ObjectVector<T> {

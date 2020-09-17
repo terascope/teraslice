@@ -1,4 +1,3 @@
-import { get } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import { Column } from '../column';
 import { Builder } from '../builder';
@@ -13,14 +12,15 @@ export function getBuilderForField(
 ): Builder<any> {
     if (!keyAgg && !valueAgg) {
         return Builder.make(
-            col.config, get(col.vector, 'childConfig')
+            col.config, undefined, col.vector.childConfig
         );
     }
 
     if (keyAgg && !valueAgg) {
         return Builder.make<any>(
             col.config,
-            get(col.vector, 'childConfig')
+            undefined,
+            col.vector.childConfig
         );
     }
 

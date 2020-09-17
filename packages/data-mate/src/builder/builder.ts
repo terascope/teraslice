@@ -1,5 +1,5 @@
 import { DataTypeFieldConfig, DataTypeFields, Maybe } from '@terascope/types';
-import { Vector, VectorType } from '../vector';
+import { ListVector, Vector, VectorType } from '../vector';
 
 /**
  * Coerce a value so it can be stored in the builder
@@ -14,7 +14,13 @@ export type ValueFromFn<T> = (
  */
 export interface BuilderOptions<T> {
     config: DataTypeFieldConfig;
+    /** Preallocate this many items */
+    length?: number;
     valueFrom?: ValueFromFn<T>;
+    /**
+     * The type config for any nested fields (currently only works for objects)
+    */
+    childConfig?: DataTypeFields;
 }
 
 /**
@@ -30,23 +36,49 @@ export abstract class Builder<T = unknown> {
     */
     static make<R = unknown>(
         config: DataTypeFieldConfig,
+        length?: number,
         childConfig?: DataTypeFields
     ): Builder<R> {
-        throw new Error(`This will functionality replaced in the index file ${config} ${childConfig}`);
+        throw new Error(
+            `This will functionality replaced in the index file
+            ${config} ${length} ${childConfig}`
+        );
     }
 
-    protected readonly _values: Maybe<T>[] = [];
+    /**
+     * Make a new Builder from a Vector
+     *
+     * @note only the type and array can be inferred for the field config
+    */
+    static makeFromVector<R>(
+        vector: Vector<R>,
+        overrideLength: number|false = false,
+    ): Builder<R> {
+        const len = overrideLength === false ? vector.size : overrideLength;
+        return Builder.make({
+            type: vector.fieldType,
+            array: vector instanceof ListVector
+        }, len, vector.childConfig);
+    }
+
+    readonly childConfig?: DataTypeFields;
+    protected readonly _values: Maybe<T>[];
+    protected _currentIndex = 0;
 
     constructor(
         /**
          * This will be set automatically by specific Builder classes
          */
         type: VectorType,
-        { config, valueFrom }: BuilderOptions<T>
+        {
+            config, length, valueFrom, childConfig
+        }: BuilderOptions<T>
     ) {
         this.type = type;
-        this.config = config;
+        this.config = { ...config };
         this.valueFrom = valueFrom;
+        this.childConfig = childConfig ? { ...childConfig } : undefined;
+        this._values = length != null ? Array(length) : [];
     }
 
     /**
@@ -72,18 +104,22 @@ export abstract class Builder<T = unknown> {
 
     /** Append a value to the end */
     append(value: unknown): Builder<T> {
-        return this.set(this._values.length, value);
+        return this.set(this._currentIndex++, value);
     }
 
     /**
      * Flush and convert the result to a Vector
     */
     toVector(): Vector<T> {
-        // @ts-expect-error (this is only in a couple of the builder types)
-        const { childConfig } = this;
-        return Vector.make(this.config, Object.freeze({
-            values: Object.freeze(this._values)
-        }), childConfig);
+        const vector = Vector.make(this.config, Object.freeze({
+            values: Object.freeze(this._values.slice())
+        }), this.childConfig);
+
+        // clear
+        this._values.length = 0;
+        this._currentIndex = 0;
+
+        return vector;
     }
 }
 

@@ -10,11 +10,12 @@ export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
             throw new Error('Expected thisArg');
         }
 
+        const arr = castArray(values);
         const builder = Builder.make({
             ...thisArg.config,
             array: false,
-        }, thisArg.childConfig);
-        castArray(values).forEach((value) => builder.append(value));
+        }, arr.length, thisArg.childConfig);
+        arr.forEach((value) => builder.append(value));
         return builder.toVector();
     }
 

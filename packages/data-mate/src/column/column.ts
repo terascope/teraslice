@@ -34,7 +34,7 @@ export class Column<T = unknown> {
         options: Omit<ColumnOptions<R>, 'vector'>,
         values: Maybe<R>[]|readonly Maybe<R>[] = []
     ): Column<R extends (infer U)[] ? Vector<U> : R> {
-        const builder = Builder.make<R>(options.config);
+        const builder = Builder.make<R>(options.config, values.length);
         values.forEach((val) => builder.append(val));
         return new Column({
             ...options,
@@ -93,7 +93,8 @@ export class Column<T = unknown> {
      * @returns the new column
     */
     map(fn: (value: Maybe<T>, index: number) => Maybe<T>): Column<T> {
-        const builder = Builder.make<T>(this.config);
+        const len = this._vector.size;
+        const builder = Builder.make<T>(this.config, len, this._vector.childConfig);
         for (let i = 0; i < this._vector.size; i++) {
             const value = this.vector.get(i) as Maybe<T>;
             builder.append(fn(value, i));
@@ -160,14 +161,6 @@ export class Column<T = unknown> {
             config: this.config,
             vector: builder.toVector()
         });
-    }
-
-    /**
-     * Sort the values in a column returns
-     * an array with the updated indices.
-    */
-    getSortedIndices(_direction: 'asc'|'desc'): number[] {
-        return []; // FIXME
     }
 
     avg(): number|bigint {

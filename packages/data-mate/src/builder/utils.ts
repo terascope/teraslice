@@ -1,4 +1,7 @@
-import { DataTypeFieldConfig, DataTypeFields, FieldType } from '@terascope/types';
+import { getGroupedFields } from '@terascope/data-types';
+import {
+    DataTypeConfig, DataTypeFieldConfig, DataTypeFields, FieldType
+} from '@terascope/types';
 import { Builder } from './builder';
 import { ListBuilder } from './list-builder';
 import {
@@ -8,8 +11,28 @@ import {
     ObjectBuilder, StringBuilder
 } from './types';
 
+export function getBuildersForConfig(
+    config: DataTypeConfig, length?: number
+): Map<string, Builder<unknown>> {
+    const builders = new Map<string, Builder<unknown>>();
+    const groupedFieldEntries = Object.entries(getGroupedFields(config.fields));
+
+    for (const [field, nested] of groupedFieldEntries) {
+        const childConfig: DataTypeFields = {};
+        nested.forEach((fullField) => {
+            if (fullField === field) return;
+            const nestedField = fullField.replace(`${field}.`, '');
+            childConfig[nestedField] = config.fields[fullField];
+        });
+        builders.set(field, Builder.make(config.fields[field], length, childConfig));
+    }
+
+    return builders;
+}
+
 export function _newBuilder<T>(
     config: DataTypeFieldConfig,
+    length?: number,
     childConfig?: DataTypeFields
 ): Builder<T> {
     const fieldType = config.type as FieldType;
@@ -18,18 +41,18 @@ export function _newBuilder<T>(
     }
 
     if (config.array) {
-        return new ListBuilder({ config, childConfig }) as Builder<any>;
+        return new ListBuilder({ config, length, childConfig }) as Builder<any>;
     }
 
-    return _newBuilderForType(config, childConfig) as Builder<T>;
+    return _newBuilderForType(config, length, childConfig) as Builder<T>;
 }
 
 /**
  * Create primitive builder types, does not deal with array or object type fields
 */
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function _newBuilderForType(
+function _newBuilderForType(
     config: DataTypeFieldConfig,
+    length?: number,
     childConfig?: DataTypeFields
 ) {
     switch (config.type) {
@@ -44,30 +67,30 @@ export function _newBuilderForType(
         case FieldType.Hostname:
         case FieldType.IP:
         case FieldType.IPRange:
-            return new StringBuilder({ config });
+            return new StringBuilder({ config, length });
         case FieldType.Date:
-            return new DateBuilder({ config });
+            return new DateBuilder({ config, length });
         case FieldType.Boolean:
-            return new BooleanBuilder({ config });
+            return new BooleanBuilder({ config, length });
         case FieldType.Float:
         case FieldType.Number:
         case FieldType.Double:
             // Double can't supported entirely until we have BigFloat
-            return new FloatBuilder({ config });
+            return new FloatBuilder({ config, length });
         case FieldType.Byte:
         case FieldType.Short:
         case FieldType.Integer:
-            return new IntBuilder({ config });
+            return new IntBuilder({ config, length });
         case FieldType.Long:
-            return new BigIntBuilder({ config });
+            return new BigIntBuilder({ config, length });
         case FieldType.Geo:
         case FieldType.GeoPoint:
-            return new GeoPointBuilder({ config });
+            return new GeoPointBuilder({ config, length });
         case FieldType.GeoJSON:
-            return new GeoJSONBuilder({ config });
+            return new GeoJSONBuilder({ config, length });
         case FieldType.Object:
-            return new ObjectBuilder({ config, childConfig });
+            return new ObjectBuilder({ config, length, childConfig });
         default:
-            return new AnyBuilder({ config });
+            return new AnyBuilder({ config, length });
     }
 }

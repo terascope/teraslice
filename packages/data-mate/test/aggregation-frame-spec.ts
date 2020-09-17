@@ -562,32 +562,36 @@ describe('AggregationFrame', () => {
         it('should get the right result when using aggregate()', async () => {
             const grouped = dataFrame.aggregate();
             const resultFrame = new DataFrame({
-                columns: await grouped.daily('date').count('name').run()
+                columns: await grouped.daily('date').count('name', 'count').run()
             });
             expect(resultFrame.toJSON()).toEqual([
                 {
-                    name: 4,
+                    name: 'Billy',
+                    count: 4,
                     age: 64,
                     gender: 'M',
                     scores: [4, 9, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
-                    name: 1,
+                    name: 'Joey',
+                    count: 1,
                     age: 20,
                     gender: 'M',
                     scores: [50, 4, 19],
                     date: new Date('2020-09-13T17:39:11.195Z').getTime()
                 },
                 {
-                    name: 1,
+                    name: 'Nancy',
+                    count: 1,
                     age: 84,
                     gender: 'F',
                     scores: [1, 0, 0],
                     date: new Date('2019-09-15T17:39:11.195Z').getTime()
                 },
                 {
-                    name: 1,
+                    name: 'Frank',
+                    count: 1,
                     age: 45,
                     gender: 'M',
                     scores: [1, 0, 0],
@@ -633,18 +637,20 @@ describe('AggregationFrame', () => {
         it('should get the right result when using aggregate()', async () => {
             const grouped = dataFrame.aggregate();
             const resultFrame = new DataFrame({
-                columns: await grouped.yearly('date').count('name').run()
+                columns: await grouped.yearly('date').count('name', 'count').run()
             });
             expect(resultFrame.toJSON()).toEqual([
                 {
-                    name: 6,
+                    name: 'Billy',
+                    count: 6,
                     age: 64,
                     gender: 'M',
                     scores: [4, 9, 3],
                     date: new Date('2020-09-15T17:39:11.195Z').getTime()
                 },
                 {
-                    name: 1,
+                    name: 'Nancy',
+                    count: 1,
                     age: 84,
                     gender: 'F',
                     scores: [1, 0, 0],

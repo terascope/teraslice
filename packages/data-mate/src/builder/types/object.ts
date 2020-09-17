@@ -1,4 +1,3 @@
-import { DataTypeFields } from '@terascope/types';
 import { isPlainObject, toString } from '@terascope/utils';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions, ValueFromFn } from '../builder';
@@ -16,20 +15,21 @@ export class ObjectBuilder<
             throw new TypeError(`Expected ${toString(value)} to be an object`);
         }
 
-        const fields = Object.keys(thisArg.childConfig) as (keyof R)[];
+        const fields = Object.keys(thisArg.childConfig ?? {}) as (keyof R)[];
         if (!fields.length) return { ...(value as R) };
 
         const input = value as Record<keyof R, unknown>;
         const result: Partial<R> = {};
         for (const field of fields) {
-            const config = thisArg.childConfig[field as string];
-            const builder = Builder.make<any>(config);
             if (input[field] == null) {
                 result[field] = null as any;
-            } else if (builder.valueFrom) {
-                result[field] = builder.valueFrom(
+            } else if (thisArg.childConfig && thisArg.childConfig[field as string]) {
+                const config = thisArg.childConfig[field as string];
+                // FIXME this could be improved to use the static method
+                const builder = Builder.make<any>(config);
+                result[field] = builder.valueFrom ? builder.valueFrom(
                     input[field], builder
-                );
+                ) : input[field] as any;
             } else {
                 result[field] = input[field] as any;
             }
@@ -37,13 +37,10 @@ export class ObjectBuilder<
         return result as R;
     }
 
-    childConfig: DataTypeFields;
-
-    constructor(options: BuilderOptions<T> & { childConfig?: DataTypeFields }) {
+    constructor(options: BuilderOptions<T>) {
         super(VectorType.Object, {
             valueFrom: ObjectBuilder.valueFrom as ValueFromFn<T>,
             ...options,
         });
-        this.childConfig = options.childConfig ?? {};
     }
 }

@@ -35,8 +35,7 @@ export function _newVector<T>(
 /**
  * Create primitive vector types, does not deal with array or object type fields
 */
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function _newVectorForType(
+function _newVectorForType(
     fieldType: FieldType,
     data: Data<any>,
     childConfig?: DataTypeFields
