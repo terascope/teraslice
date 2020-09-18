@@ -83,6 +83,10 @@ export default class IndexStore<T extends ts.AnyObject> {
         this._defaultQueryAccess = config.default_query_access;
     }
 
+    get writeIndex(): string {
+        return this.manager.formatIndexName(this.config, false);
+    }
+
     /**
      * Safely add a create, index, or update requests to the bulk queue
      *
@@ -97,9 +101,9 @@ export default class IndexStore<T extends ts.AnyObject> {
     async bulk(action: i.BulkAction, ...args: any[]): Promise<void> {
         const metadata: BulkRequestMetadata = {};
         metadata[action] = this.esVersion >= 7 ? {
-            _index: this.indexQuery,
+            _index: this.writeIndex,
         } : {
-            _index: this.indexQuery,
+            _index: this.writeIndex,
             _type: this.config.name,
         };
 
@@ -173,7 +177,7 @@ export default class IndexStore<T extends ts.AnyObject> {
     async create(doc: Partial<T>, params?: PartialParam<es.CreateDocumentParams, 'body'>): Promise<T> {
         const record = this._runWriteHooks(doc, true);
         const defaults = { refresh: this.refreshByDefault };
-        const p = this.getDefaultParams(defaults, params, { body: record });
+        const p = this.getWriteDefaultParams(defaults, params, { body: record });
 
         const result = await ts.pRetry(
             () => this.client.create(p) as any,
@@ -187,7 +191,7 @@ export default class IndexStore<T extends ts.AnyObject> {
         const records = flushAll ? this._collector.flushAll() : this._collector.getBatch();
         if (!records || !records.length) return;
 
-        this._logger.debug(`Flushing ${records.length} requests to ${this.indexQuery}`);
+        this._logger.debug(`Flushing ${records.length} requests to ${this.writeIndex}`);
 
         const bulkRequest: any[] = [];
 
@@ -233,7 +237,7 @@ export default class IndexStore<T extends ts.AnyObject> {
         const body = this._runWriteHooks(doc, true);
 
         const defaults = { refresh: this.refreshByDefault };
-        const p = this.getDefaultParams(defaults, params, {
+        const p = this.getWriteDefaultParams(defaults, params, {
             body,
         });
 
@@ -277,7 +281,7 @@ export default class IndexStore<T extends ts.AnyObject> {
     async refresh(params?: PartialParam<es.IndicesRefreshParams>): Promise<void> {
         const p = Object.assign(
             {
-                index: this.indexQuery,
+                index: this.writeIndex,
             },
             params
         );
@@ -290,7 +294,7 @@ export default class IndexStore<T extends ts.AnyObject> {
      */
     async deleteById(id: string, params?: PartialParam<es.DeleteDocumentParams>): Promise<void> {
         utils.validateId(id, 'deleteById');
-        const p = this.getDefaultParams(
+        const p = this.getWriteDefaultParams(
             {
                 refresh: this.refreshByDefault,
             },
@@ -332,7 +336,7 @@ export default class IndexStore<T extends ts.AnyObject> {
             _body.doc = doc;
         }
 
-        const p = this.getDefaultParams(defaults, params, {
+        const p = this.getWriteDefaultParams(defaults, params, {
             id,
             body: _body
         });
@@ -378,6 +382,18 @@ export default class IndexStore<T extends ts.AnyObject> {
                 index: this.indexQuery,
             } : {
                 index: this.indexQuery,
+                type: this.config.name,
+            },
+            ...params
+        );
+    }
+
+    getWriteDefaultParams(...params: any[]): any {
+        return Object.assign(
+            this.esVersion >= 7 ? {
+                index: this.writeIndex,
+            } : {
+                index: this.writeIndex,
                 type: this.config.name,
             },
             ...params
@@ -700,7 +716,7 @@ export default class IndexStore<T extends ts.AnyObject> {
         const retry = utils.filterBulkRetries(records, result);
 
         if (retry.length) {
-            this._logger.warn(`Bulk request to ${this.indexQuery} resulted in ${retry.length} errors`);
+            this._logger.warn(`Bulk request to ${this.writeIndex} resulted in ${retry.length} errors`);
 
             this._logger.trace('Retrying bulk requests', retry);
             this._collector.add(retry);

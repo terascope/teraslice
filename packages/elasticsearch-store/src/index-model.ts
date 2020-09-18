@@ -8,7 +8,7 @@ import * as utils from './utils';
 import * as i from './interfaces';
 
 /**
- * An high-level, opionionated, abstract class
+ * An high-level, opinionated, abstract class
  * for an elasticsearch DataType, with a CRUD-like interface
  */
 export default abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStore<T> {

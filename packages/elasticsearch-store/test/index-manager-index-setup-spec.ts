@@ -3,7 +3,7 @@ import { debugLogger, get } from '@terascope/utils';
 import * as simple from './helpers/simple-index';
 import * as template from './helpers/template-index';
 import {
-    IndexManager, timeseriesIndex, IndexConfig, getESVersion
+    IndexManager, timeSeriesIndex, IndexConfig, getESVersion, __timeSeriesTest
 } from '../src';
 import { makeClient, cleanupIndex } from './helpers/elasticsearch';
 import { TEST_INDEX_PREFIX } from './helpers/config';
@@ -216,7 +216,7 @@ describe('IndexManager->indexSetup()', () => {
         };
 
         const index = `${config.name}-v1-*`;
-        const currentIndexName = timeseriesIndex(`${config.name}-v1-s1`, 'daily');
+        const currentIndexName = timeSeriesIndex(`${config.name}-v1-s1`, 'daily');
         const templateName = `${config.name}-v1`;
 
         const indexManager = new IndexManager(client);
@@ -264,6 +264,23 @@ describe('IndexManager->indexSetup()', () => {
         it('should be able to call create again', async () => {
             const created = await indexManager.indexSetup(config);
             expect(created).toBeFalse();
+        });
+
+        it('should be able to call create a new index if a day has passed', async () => {
+            // disable index mutations
+            const noIndexMutations = new IndexManager(client, false);
+            const originalIndex = indexManager.formatIndexName(config, false);
+            const ONE_HOUR = 60 * 60 * 1000;
+            const ONE_DAY = 24 * ONE_HOUR;
+            __timeSeriesTest.date = new Date(Date.now() + ONE_DAY + ONE_HOUR);
+            const newIndex = noIndexMutations.formatIndexName(config, false);
+            const created = await noIndexMutations.indexSetup({
+                ...config,
+                enable_index_mutations: false,
+            });
+            expect(created).toBeTrue();
+            expect(await noIndexMutations.exists(newIndex)).toBeTrue();
+            expect(newIndex).not.toBe(originalIndex);
         });
     });
 });

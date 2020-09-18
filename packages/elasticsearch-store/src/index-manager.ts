@@ -6,7 +6,7 @@ import { IndexConfig, MigrateIndexOptions } from './interfaces';
 const _loggers = new WeakMap<IndexConfig<any>, ts.Logger>();
 
 /**
- * Manage Elasticsearch Indicies
+ * Manage Elasticsearch Indices
  */
 export default class IndexManager {
     readonly client: es.Client;
@@ -43,7 +43,7 @@ export default class IndexManager {
 
         if (utils.isTimeSeriesIndex(config.index_schema) && !useWildcard) {
             const timeSeriesFormat = utils.getRolloverFrequency(config);
-            return utils.timeseriesIndex(indexName, timeSeriesFormat);
+            return utils.timeSeriesIndex(indexName, timeSeriesFormat);
         }
 
         if (utils.isTemplatedIndex(config.index_schema) && useWildcard) {
@@ -86,7 +86,11 @@ export default class IndexManager {
             }
         });
 
-        if (this.enableIndexMutations && utils.isTemplatedIndex(config.index_schema)) {
+        const enableMutations = (
+            this.enableIndexMutations || utils.isTimeSeriesIndex(config.index_schema)
+        );
+
+        if (enableMutations && utils.isTemplatedIndex(config.index_schema)) {
             const templateName = this.formatTemplateName(config);
             const schemaVersion = utils.getSchemaVersion(config);
 
@@ -102,7 +106,7 @@ export default class IndexManager {
         }
 
         if (await this.exists(indexName)) {
-            if (!this.enableIndexMutations) {
+            if (!enableMutations) {
                 logger.trace(`Index for config ${config.name} already exists`);
                 return false;
             }
@@ -112,7 +116,7 @@ export default class IndexManager {
             return false;
         }
 
-        if (!this.enableIndexMutations) {
+        if (!enableMutations) {
             throw new Error(
                 `Refusing to create index for config ${config.name} since mutations are disabled`
             );

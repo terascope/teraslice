@@ -1,5 +1,6 @@
 import { Client } from 'elasticsearch';
 import * as ts from '@terascope/utils';
+import { isTest } from '@terascope/utils';
 import { getErrorType } from './errors';
 import * as i from '../interfaces';
 
@@ -17,17 +18,23 @@ export function verifyIndexShards(shards: i.Shard[]): boolean {
         .every((shard) => shard.stage === 'DONE');
 }
 
-export function timeseriesIndex(index: string, timeSeriesFormat: i.TimeSeriesFormat = 'monthly'): string {
-    const formatter = {
-        daily: 10,
-        monthly: 7,
-        yearly: 4,
-    };
+export const __timeSeriesTest: { date?: Date } = {};
 
+const formatter = {
+    daily: 10,
+    monthly: 7,
+    yearly: 4,
+};
+export function timeSeriesIndex(index: string, timeSeriesFormat: i.TimeSeriesFormat = 'monthly'): string {
     const format = formatter[timeSeriesFormat];
     if (!format) throw new Error(`Unsupported format "${timeSeriesFormat}"`);
+    let dateStr: string;
+    if (isTest && __timeSeriesTest.date) {
+        dateStr = __timeSeriesTest.date.toISOString();
+    } else {
+        dateStr = new Date().toISOString();
+    }
 
-    const dateStr = new Date().toISOString();
     // remove -* or * at the end of the index name
     const indexName = index.replace(/-{0,1}\*$/, '');
     return `${indexName}-${dateStr.slice(0, format).replace(/-/g, '.')}`;
