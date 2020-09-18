@@ -145,8 +145,8 @@ export class Column<T = unknown> {
     }
 
     /**
-     * Creates a new column, you can optionally transform the values
-     * but shouldn't change the length.
+     * Creates a new column, if the function returns false
+     * then the value is set to null
      *
      * @returns the new column so it works like fluent API
     */
@@ -156,6 +156,8 @@ export class Column<T = unknown> {
             const value = this.vector.get(i) as Maybe<T>;
             if (fn(value, i)) {
                 builder.append(value);
+            } else {
+                builder.append(null);
             }
         }
         return new Column<T>({
