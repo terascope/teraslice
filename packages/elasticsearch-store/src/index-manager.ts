@@ -62,9 +62,6 @@ export default class IndexManager {
             namespace, name, utils.getDataVersionStr(config)
         ]);
 
-        if (utils.isTemplatedIndex(config.index_schema)) {
-            return `${indexName}-*`;
-        }
         return indexName;
     }
 
@@ -106,6 +103,7 @@ export default class IndexManager {
             await this.upsertTemplate(
                 {
                     ...body,
+                    index_patterns: [this.formatIndexName(config, true)],
                     version: schemaVersion,
                 },
                 logger

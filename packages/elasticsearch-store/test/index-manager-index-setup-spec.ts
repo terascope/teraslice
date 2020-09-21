@@ -92,7 +92,7 @@ describe('IndexManager->indexSetup()', () => {
         };
 
         const index = `${config.name}-v1-s1`;
-        const templateName = `${config.name}-v1-*`;
+        const templateName = `${config.name}-v1`;
 
         const indexManager = new IndexManager(client);
         let result = false;
@@ -217,7 +217,7 @@ describe('IndexManager->indexSetup()', () => {
 
         const index = `${config.name}-v1-*`;
         const currentIndexName = timeSeriesIndex(`${config.name}-v1-s1`, 'daily');
-        const templateName = `${config.name}-v1-*`;
+        const templateName = `${config.name}-v1`;
 
         const indexManager = new IndexManager(client);
         let result = false;

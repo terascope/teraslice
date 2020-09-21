@@ -131,23 +131,17 @@ export function fixMappingRequest(
     const esVersion = getESVersion(client);
 
     if (esVersion === 5) {
-        if (params.body.index_patterns) {
-            if (isTemplate) {
+        if (params.body.index_patterns != null) {
+            if (isTemplate && params.body.template == null) {
                 params.body.template = ts.getFirst(params.body.index_patterns);
             }
             delete params.body.index_patterns;
         }
-
-        if (Array.isArray(params.body.template)) {
-            if (isTemplate) {
-                params.body.template = ts.getFirst(params.body.template);
-            }
-        }
     }
 
     if (esVersion >= 6) {
-        if (params.body.template) {
-            if (isTemplate) {
+        if (params.body.template != null) {
+            if (isTemplate && params.body.index_patterns == null) {
                 params.body.index_patterns = ts.castArray(params.body.template).slice();
             }
             delete params.body.template;
