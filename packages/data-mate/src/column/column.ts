@@ -4,7 +4,7 @@ import {
 } from '@terascope/types';
 import { Builder } from '../builder';
 import {
-    JSONValue, runValueAggregation, ValueAggregation, Vector
+    JSONValue, runVectorAggregation, ValueAggregation, Vector
 } from '../vector';
 import { getVectorId } from './utils';
 
@@ -23,8 +23,6 @@ export interface ColumnOptions<T> {
  *
  * Changing the values is safe as long the length doesn't change.
  * When adding or removing values it is better to create a new Column.
- *
- * @todo add cast function
 */
 export class Column<T = unknown> {
     name: string;
@@ -119,11 +117,13 @@ export class Column<T = unknown> {
      * @returns the new column
     */
     transform<R = T>(
-        columnOptions: Omit<ColumnOptions<R>, 'vector'>,
+        columnOptions: Partial<Omit<ColumnOptions<R>, 'vector'>>,
         fn?: (value: Maybe<T>, index: number) => Maybe<R>
     ): Column<R> {
         const config = columnOptions?.config ?? this.config;
         const name = columnOptions?.name ?? this.name;
+        const version = columnOptions?.version ?? this.version;
+
         if (fn) {
             const builder = Builder.make<R>(config);
             for (let i = 0; i < this._vector.size; i++) {
@@ -133,13 +133,14 @@ export class Column<T = unknown> {
             return new Column<R>({
                 name,
                 config,
+                version,
                 vector: builder.toVector()
             });
         }
         return new Column<R>({
-            name: this.name,
-            version: this.version,
-            config: this.config,
+            name,
+            version,
+            config,
             vector: this.vector.fork() as Vector<any>
         });
     }
@@ -154,11 +155,7 @@ export class Column<T = unknown> {
         const builder = Builder.make<T>(this.config);
         for (let i = 0; i < this._vector.size; i++) {
             const value = this.vector.get(i) as Maybe<T>;
-            if (fn(value, i)) {
-                builder.append(value);
-            } else {
-                builder.append(null);
-            }
+            builder.append(fn(value, i) ? value : null);
         }
         return new Column<T>({
             name: this.name,
@@ -185,23 +182,23 @@ export class Column<T = unknown> {
     }
 
     avg(): number|bigint {
-        return runValueAggregation(this._vector, ValueAggregation.avg);
+        return runVectorAggregation(this._vector, ValueAggregation.avg);
     }
 
     sum(): number|bigint {
-        return runValueAggregation(this._vector, ValueAggregation.sum);
+        return runVectorAggregation(this._vector, ValueAggregation.sum);
     }
 
     min(): number|bigint {
-        return runValueAggregation(this._vector, ValueAggregation.min);
+        return runVectorAggregation(this._vector, ValueAggregation.min);
     }
 
     max(): number|bigint {
-        return runValueAggregation(this._vector, ValueAggregation.max);
+        return runVectorAggregation(this._vector, ValueAggregation.max);
     }
 
     count(): number {
-        return runValueAggregation(this._vector, ValueAggregation.count);
+        return runVectorAggregation(this._vector, ValueAggregation.count);
     }
 
     /**

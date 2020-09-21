@@ -1,5 +1,6 @@
 import 'jest-fixtures';
 import { FieldType, Maybe } from '@terascope/types';
+import { isNil } from '@terascope/utils';
 import {
     BigIntVector,
     Column, Vector
@@ -46,11 +47,38 @@ describe('Column', () => {
             expect(col.vector).toBeInstanceOf(Vector);
         });
 
+        it('should be able to filter the values ()', () => {
+            const newCol = col.filter(isNil);
+            expect(newCol.id).not.toBe(col.id);
+            expect([...newCol]).toEqual(values.map(() => null));
+        });
+
+        it('should be able to map the values', () => {
+            const toUpper = (value: Maybe<string>) => {
+                if (value == null) return null;
+                return value.toUpperCase();
+            };
+
+            const newCol = col.map(toUpper);
+            expect(newCol.id).not.toBe(col.id);
+            expect([...newCol]).toEqual(values.map(toUpper));
+        });
+
+        it('should be able to transform the column', () => {
+            const toInt = (value: Maybe<string>) => {
+                if (value == null) return null;
+                return 1;
+            };
+            const newCol = col.transform({
+                config: { type: FieldType.Integer },
+            }, toInt);
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config.type).toBe(FieldType.Integer);
+            expect([...newCol]).toEqual(values.map(toInt));
+        });
+
         test.todo('should be immutable');
-        test.todo('->map');
-        test.todo('->reduce');
-        test.todo('->filter');
-        test.todo('->transform');
     });
 
     describe(`when field type is ${FieldType.Short}`, () => {

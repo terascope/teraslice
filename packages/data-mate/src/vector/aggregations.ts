@@ -29,7 +29,7 @@ export const valueAggMap: Record<ValueAggregation, MakeValueAgg> = {
     [ValueAggregation.count]: makeCountAgg,
 };
 
-export function runValueAggregation<V>(vector: Vector<any>, valueAgg: ValueAggregation): V {
+export function runVectorAggregation<V>(vector: Vector<any>, valueAgg: ValueAggregation): V {
     const agg = valueAggMap[valueAgg](vector);
     let i = -1;
     for (const value of vector) {
