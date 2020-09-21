@@ -58,7 +58,7 @@ export interface IndexConfig<T extends AnyObject> {
     bulk_max_size?: number;
 
     /**
-     * Logger to use for debugging and certian internal errors
+     * Logger to use for debugging and certain internal errors
      *
      * @defaults to a debug logger
      */
@@ -150,7 +150,7 @@ export interface DataSchema {
 
     /**
      * If enabled this will allow the use of some of
-     * the slower but more correct JSON Schema's formatters:
+     * the slower but more correct JSON Schema formatters:
      *
      * - "date"
      * - "time"
@@ -196,7 +196,7 @@ export interface IndexModelRecord {
     _key: string;
 
     /**
-     * The mutli-tenant ID representing the client
+     * The multi-tenant ID representing the client
      */
     client_id: number;
 
@@ -226,20 +226,17 @@ export type UpdateRecordInput<T extends IndexModelRecord> =
         client_id?: number;
     };
 
-export interface IndexModelConfig<T extends IndexModelRecord> {
+export type IndexModelConfig<T extends IndexModelRecord> = Omit<
+IndexConfig<T>,
+'namespace'|'id_field'|'index_schema'|'data_schema'|'default_query_access'|'enable_index_mutations'
+> & {
     /** Schema Version */
     version: number;
-
-    /** Name of the Model/Data Type */
-    name: string;
-
-    /** The DataType of the model */
-    data_type: DataType;
 
     /** JSON Schema */
     schema: any;
 
-    /** Unqiue fields across on Index */
+    /** Unique fields across on Index */
     unique_fields?: (keyof T)[];
 
     /** Sanitize / cleanup fields mapping, like trim or trimAndToLower */
@@ -248,9 +245,11 @@ export interface IndexModelConfig<T extends IndexModelRecord> {
     /** Specify whether the data should be strictly validated, defaults to true */
     strict_mode?: boolean;
 
-    /** The default sort field and direction */
-    default_sort?: string;
-}
+    /**
+     * Use a Timeseries Index
+     */
+    timeseries?: boolean;
+};
 
 export type SanitizeFields = {
     [field: string]: 'trimAndToLower' | 'trim' | 'toSafeString';
@@ -274,6 +273,14 @@ export interface IndexModelOptions {
      * Enable index mutations so indexes will be auto created or updated
     */
     enable_index_mutations?: boolean;
+
+    /**
+     * Rollover Frequency for the Timeseries Index.
+     * This is only valid if timeseries is set to true
+     *
+     * @default monthly
+     */
+    rollover_frequency?: TimeSeriesFormat;
 }
 
 export type FindOptions<T> = {

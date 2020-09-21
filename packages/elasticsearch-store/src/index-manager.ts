@@ -6,7 +6,7 @@ import { IndexConfig, MigrateIndexOptions } from './interfaces';
 const _loggers = new WeakMap<IndexConfig<any>, ts.Logger>();
 
 /**
- * Manage Elasticsearch Indicies
+ * Manage Elasticsearch Indices
  */
 export default class IndexManager {
     readonly client: es.Client;
@@ -32,6 +32,11 @@ export default class IndexManager {
         });
     }
 
+    /**
+     * Format the current index name.
+     *
+     * @param useWildcard if true a wildcard is added to the end of the end the index name
+    */
     formatIndexName<T = any>(config: IndexConfig<T>, useWildcard = true): string {
         utils.validateIndexConfig(config);
 
@@ -43,26 +48,34 @@ export default class IndexManager {
 
         if (utils.isTimeSeriesIndex(config.index_schema) && !useWildcard) {
             const timeSeriesFormat = utils.getRolloverFrequency(config);
-            return utils.timeseriesIndex(indexName, timeSeriesFormat);
+            return utils.timeSeriesIndex(indexName, timeSeriesFormat);
         }
 
         if (utils.isTemplatedIndex(config.index_schema) && useWildcard) {
-            return `${indexName}*`;
+            return `${indexName}-*`;
         }
 
         return indexName;
     }
 
+    /**
+     * Format the template name, similar to formatIndexName except it excludes
+     * template wildcards and the time series parts of the index name.
+    */
     formatTemplateName<T = any>(config: IndexConfig<T>): string {
         utils.validateIndexConfig(config);
 
         const { name, namespace } = config;
 
-        return utils.formatIndexName([namespace, name, utils.getDataVersionStr(config)]);
+        const indexName = utils.formatIndexName([
+            namespace, name, utils.getDataVersionStr(config)
+        ]);
+
+        return indexName;
     }
 
     /**
-     * Safely setup a versioned Index, its template and any other required resouces
+     * Safely setup a versioned Index, its template and any other required resources
      *
      * @todo this should handle better index change detection
      *
@@ -86,7 +99,11 @@ export default class IndexManager {
             }
         });
 
-        if (this.enableIndexMutations && utils.isTemplatedIndex(config.index_schema)) {
+        const enableMutations = (
+            this.enableIndexMutations || utils.isTimeSeriesIndex(config.index_schema)
+        );
+
+        if (enableMutations && utils.isTemplatedIndex(config.index_schema)) {
             const templateName = this.formatTemplateName(config);
             const schemaVersion = utils.getSchemaVersion(config);
 
@@ -95,6 +112,7 @@ export default class IndexManager {
             await this.upsertTemplate(
                 {
                     ...body,
+                    index_patterns: [this.formatIndexName(config, true)],
                     version: schemaVersion,
                 },
                 logger
@@ -102,7 +120,7 @@ export default class IndexManager {
         }
 
         if (await this.exists(indexName)) {
-            if (!this.enableIndexMutations) {
+            if (!enableMutations) {
                 logger.trace(`Index for config ${config.name} already exists`);
                 return false;
             }
@@ -112,7 +130,7 @@ export default class IndexManager {
             return false;
         }
 
-        if (!this.enableIndexMutations) {
+        if (!enableMutations) {
             throw new Error(
                 `Refusing to create index for config ${config.name} since mutations are disabled`
             );
@@ -165,11 +183,11 @@ export default class IndexManager {
     /**
      * Perform an Index Migration
      *
-     * **IMPORTANT** This is a potentionally dangerous operation
+     * **IMPORTANT** This is a potentially dangerous operation
      * and should only when the cluster is properly shutdown.
      *
      * @todo add support for timeseries and templated indexes
-     * @todo add support for complicated reindexing behaviors
+     * @todo add support for complicated re-indexing behaviors
      */
     async migrateIndex<T>(options: MigrateIndexOptions<T>): Promise<any> {
         const {
@@ -305,7 +323,7 @@ export default class IndexManager {
 
         if (breakingChange) {
             // FIXME should we crash
-            logger.error(`Index ${index} (${type}) has breaking change in the index, evaulate the differences and migrate if needed`);
+            logger.error(`Index ${index} (${type}) has breaking change in the index, evaluate the differences and migrate if needed`);
             return;
         }
 
@@ -326,7 +344,9 @@ export default class IndexManager {
     /**
      * Safely create or update a template
      */
-    async upsertTemplate(template: Record<string, any>, logger?: ts.Logger): Promise<void> {
+    async upsertTemplate(
+        template: Record<string, any>, logger?: ts.Logger
+    ): Promise<void> {
         const { template: name, version } = template;
         try {
             const templates = await this.getTemplate(name, true);

@@ -9,7 +9,14 @@ export function isValidName(name: string): boolean {
 }
 
 export function validateId(id: unknown, action: string, throwError = true): id is string {
-    if (ts.isString(id) && id) return true;
+    if (!id) {
+        if (!throwError) return false;
+        throw new ts.TSError(`Missing required ID for ${action}`, {
+            statusCode: 400
+        });
+    }
+
+    if (ts.isString(id)) return true;
     if (!throwError) return false;
 
     throw new ts.TSError(`Invalid ID given to ${action}, expected string, got ${ts.getTypeOf(id)}`, {

@@ -1,5 +1,6 @@
 import { Client } from 'elasticsearch';
 import * as ts from '@terascope/utils';
+import { isTest } from '@terascope/utils';
 import { getErrorType } from './errors';
 import * as i from '../interfaces';
 
@@ -17,17 +18,24 @@ export function verifyIndexShards(shards: i.Shard[]): boolean {
         .every((shard) => shard.stage === 'DONE');
 }
 
-export function timeseriesIndex(index: string, timeSeriesFormat: i.TimeSeriesFormat = 'monthly'): string {
-    const formatter = {
-        daily: 10,
-        monthly: 7,
-        yearly: 4,
-    };
+export const __timeSeriesTest: { date?: Date } = {};
 
+const formatter: Record<i.TimeSeriesFormat, number> = {
+    daily: 10,
+    monthly: 7,
+    yearly: 4,
+};
+export function timeSeriesIndex(index: string, timeSeriesFormat: i.TimeSeriesFormat = 'monthly'): string {
     const format = formatter[timeSeriesFormat];
     if (!format) throw new Error(`Unsupported format "${timeSeriesFormat}"`);
 
-    const dateStr = new Date().toISOString();
+    let dateStr: string;
+    if (isTest && __timeSeriesTest.date) {
+        dateStr = __timeSeriesTest.date.toISOString();
+    } else {
+        dateStr = new Date().toISOString();
+    }
+
     // remove -* or * at the end of the index name
     const indexName = index.replace(/-{0,1}\*$/, '');
     return `${indexName}-${dateStr.slice(0, format).replace(/-/g, '.')}`;
@@ -121,9 +129,19 @@ export function fixMappingRequest(
     const defaultParams: any = {};
 
     const esVersion = getESVersion(client);
+
+    if (esVersion === 5) {
+        if (params.body.index_patterns != null) {
+            if (isTemplate && params.body.template == null) {
+                params.body.template = ts.getFirst(params.body.index_patterns);
+            }
+            delete params.body.index_patterns;
+        }
+    }
+
     if (esVersion >= 6) {
-        if (params.body.template) {
-            if (isTemplate) {
+        if (params.body.template != null) {
+            if (isTemplate && params.body.index_patterns == null) {
                 params.body.index_patterns = ts.castArray(params.body.template).slice();
             }
             delete params.body.template;

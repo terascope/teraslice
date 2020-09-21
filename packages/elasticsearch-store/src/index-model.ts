@@ -8,7 +8,7 @@ import * as utils from './utils';
 import * as i from './interfaces';
 
 /**
- * An high-level, opionionated, abstract class
+ * An high-level, opinionated, abstract class
  * for an elasticsearch DataType, with a CRUD-like interface
  */
 export default abstract class IndexModel<T extends i.IndexModelRecord> extends IndexStore<T> {
@@ -23,49 +23,62 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
         options: i.IndexModelOptions,
         modelConfig: i.IndexModelConfig<T>
     ) {
-        const baseConfig: i.IndexConfig<T> = {
-            version: 1,
-            name: modelConfig.name,
-            namespace: options.namespace,
-            data_type: modelConfig.data_type,
-            enable_index_mutations: options.enable_index_mutations,
-            index_schema: {
-                version: modelConfig.version,
+        const {
+            timeseries,
+            version,
+            schema,
+            strict_mode,
+            index_settings,
+            unique_fields: uniqueFields,
+            sanitize_fields: sanitizeFields,
+            ...indexConfigOptions
+        } = modelConfig;
+
+        const indexConfig: i.IndexConfig<T> = {
+            index_schema: timeseries ? {
+                version,
+                template: true,
+                timeseries: true,
+                rollover_frequency: options.rollover_frequency
+            } : {
+                version,
             },
             data_schema: {
-                schema: utils.addDefaultSchema(modelConfig.schema),
-                strict: modelConfig.strict_mode !== false,
+                schema: utils.addDefaultSchema(schema),
+                strict: strict_mode !== false,
                 all_formatters: true,
                 validate_on_read: false,
             },
             index_settings: {
                 'index.number_of_shards': ts.isTest ? 1 : 5,
                 'index.number_of_replicas': ts.isTest ? 0 : 2,
+                ...index_settings
             },
             default_query_access: new QueryAccess({
                 type_config: modelConfig.data_type.toXlucene(),
                 constraint: '_deleted: false',
             }, {
                 logger: options.logger,
-            })
-        };
-
-        const indexConfig: i.IndexConfig<T> = {
-            ...baseConfig,
+            }),
+            enable_index_mutations: options.enable_index_mutations,
+            namespace: options.namespace,
             id_field: '_key',
             ingest_time_field: '_created',
             event_time_field: '_updated',
             logger: options.logger,
             default_sort: '_updated:desc',
+            ...indexConfigOptions,
+            version: 1,
         };
 
         super(client, indexConfig);
-        this.name = utils.toInstanceName(modelConfig.name);
+
+        this.name = utils.toInstanceName(this.config.name);
         const debugLoggerName = `elasticsearch-store:index-model:${this.name}`;
         this.logger = options.logger || ts.debugLogger(debugLoggerName);
 
-        this._uniqueFields = ts.concat('_key', modelConfig.unique_fields);
-        this._sanitizeFields = modelConfig.sanitize_fields || {};
+        this._uniqueFields = ts.concat('_key', uniqueFields);
+        this._sanitizeFields = sanitizeFields || {};
 
         this.readHooks.add((doc) => {
             if (doc._deleted) return false;
@@ -122,6 +135,28 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
             await this._ensureUnique(doc, existing);
             return doc;
         });
+    }
+
+    /**
+     * Create a bulk records and put it them into bulk request queue
+     */
+    async bulkCreateRecords(
+        records: i.CreateRecordInput<T>[]
+    ): Promise<void> {
+        for (const record of records) {
+            const docInput = {
+                ...record,
+                _deleted: false,
+                _created: ts.makeISODate(),
+                _updated: ts.makeISODate(),
+            } as T;
+
+            const id = uuid();
+            docInput._key = id;
+
+            const doc = this._sanitizeRecord(docInput);
+            await this.bulk('index', doc, id);
+        }
     }
 
     /**
