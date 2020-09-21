@@ -90,7 +90,7 @@ export default class IndexStore<T extends ts.AnyObject> {
     /**
      * The index typically used for searching across all of the open indices
     */
-    get searchQuery(): string {
+    get searchIndex(): string {
         return this.manager.formatIndexName(this.config);
     }
 
@@ -160,7 +160,7 @@ export default class IndexStore<T extends ts.AnyObject> {
     async countRequest(params: es.CountParams): Promise<number> {
         return ts.pRetry(async () => {
             const { count } = await this.client.count(this.getDefaultParams<es.CountParams>(
-                this.searchQuery,
+                this.searchIndex,
                 params
             ));
             return count;
@@ -638,7 +638,7 @@ export default class IndexStore<T extends ts.AnyObject> {
 
         const response = await ts.pRetry(async () => this.client.search<T>(
             this.getDefaultParams<es.SearchParams>(
-                this.searchQuery,
+                this.searchIndex,
                 params,
             )
         ), utils.getRetryConfig());

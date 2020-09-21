@@ -59,7 +59,7 @@ describe('IndexStore (timeseries)', () => {
         });
 
         it('should create the versioned index', async () => {
-            expect(indexStore.searchQuery).not.toBe(indexStore.writeIndex);
+            expect(indexStore.searchIndex).not.toBe(indexStore.writeIndex);
             const exists = await client.indices.exists({
                 index: indexStore.writeIndex
             });
