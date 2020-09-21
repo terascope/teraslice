@@ -92,7 +92,7 @@ describe('IndexManager->indexSetup()', () => {
         };
 
         const index = `${config.name}-v1-s1`;
-        const templateName = `${config.name}-v1`;
+        const templateName = `${config.name}-v1-*`;
 
         const indexManager = new IndexManager(client);
         let result = false;
@@ -217,7 +217,7 @@ describe('IndexManager->indexSetup()', () => {
 
         const index = `${config.name}-v1-*`;
         const currentIndexName = timeSeriesIndex(`${config.name}-v1-s1`, 'daily');
-        const templateName = `${config.name}-v1`;
+        const templateName = `${config.name}-v1-*`;
 
         const indexManager = new IndexManager(client);
         let result = false;
@@ -270,14 +270,18 @@ describe('IndexManager->indexSetup()', () => {
             // disable index mutations
             const noIndexMutations = new IndexManager(client, false);
             const originalIndex = indexManager.formatIndexName(config, false);
+
             const ONE_HOUR = 60 * 60 * 1000;
             const ONE_DAY = 24 * ONE_HOUR;
+
             __timeSeriesTest.date = new Date(Date.now() + ONE_DAY + ONE_HOUR);
             const newIndex = noIndexMutations.formatIndexName(config, false);
+
             const created = await noIndexMutations.indexSetup({
                 ...config,
                 enable_index_mutations: false,
             });
+
             expect(created).toBeTrue();
             expect(await noIndexMutations.exists(newIndex)).toBeTrue();
             expect(newIndex).not.toBe(originalIndex);

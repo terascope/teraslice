@@ -20,7 +20,7 @@ export function verifyIndexShards(shards: i.Shard[]): boolean {
 
 export const __timeSeriesTest: { date?: Date } = {};
 
-const formatter = {
+const formatter: Record<i.TimeSeriesFormat, number> = {
     daily: 10,
     monthly: 7,
     yearly: 4,
@@ -28,6 +28,7 @@ const formatter = {
 export function timeSeriesIndex(index: string, timeSeriesFormat: i.TimeSeriesFormat = 'monthly'): string {
     const format = formatter[timeSeriesFormat];
     if (!format) throw new Error(`Unsupported format "${timeSeriesFormat}"`);
+
     let dateStr: string;
     if (isTest && __timeSeriesTest.date) {
         dateStr = __timeSeriesTest.date.toISOString();
@@ -128,6 +129,22 @@ export function fixMappingRequest(
     const defaultParams: any = {};
 
     const esVersion = getESVersion(client);
+
+    if (esVersion === 5) {
+        if (params.body.index_patterns) {
+            if (isTemplate) {
+                params.body.template = ts.getFirst(params.body.index_patterns);
+            }
+            delete params.body.index_patterns;
+        }
+
+        if (Array.isArray(params.body.template)) {
+            if (isTemplate) {
+                params.body.template = ts.getFirst(params.body.template);
+            }
+        }
+    }
+
     if (esVersion >= 6) {
         if (params.body.template) {
             if (isTemplate) {

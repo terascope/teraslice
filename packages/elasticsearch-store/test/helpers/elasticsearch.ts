@@ -36,7 +36,7 @@ export async function cleanupIndex(
 export function cleanupIndexStore(
     store: IndexStore<any>
 ): Promise<void> {
-    const { client, indexQuery } = store;
+    const { client, searchQuery } = store;
 
-    return cleanupIndex(client, indexQuery);
+    return cleanupIndex(client, searchQuery);
 }

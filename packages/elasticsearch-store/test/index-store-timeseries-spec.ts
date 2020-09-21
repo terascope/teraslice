@@ -22,7 +22,7 @@ describe('IndexStore (timeseries)', () => {
         );
 
         const config: IndexConfig<SimpleRecord> = {
-            name: `${TEST_INDEX_PREFIX}timeseries`,
+            name: `${TEST_INDEX_PREFIX}time_store`,
             data_type: dataType,
             index_schema: {
                 version: 1,
@@ -59,7 +59,7 @@ describe('IndexStore (timeseries)', () => {
         });
 
         it('should create the versioned index', async () => {
-            expect(indexStore.indexQuery).not.toBe(indexStore.writeIndex);
+            expect(indexStore.searchQuery).not.toBe(indexStore.writeIndex);
             const exists = await client.indices.exists({
                 index: indexStore.writeIndex
             });

@@ -15,7 +15,7 @@ describe('Elasticsearch Store Utils', () => {
             ).toEqual('/fooBar0123/');
         });
 
-        it('should return . for each dashe', () => {
+        it('should return . for each dash', () => {
             expect(
                 uniqueFieldQuery('test-a-b-c')
             ).toEqual('/test.a.b.c/');
