@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Elasticsearch Store: `IndexManager` · Teraslice</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="---"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Elasticsearch Store: `IndexManager` · Teraslice"/><meta property="og:type" content="website"/><meta property="og:url" content="https://terascope.github.io/teraslice/"/><meta property="og:description" content="---"/><meta property="og:image" content="https://terascope.github.io/teraslice/img/docusaurus.png"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://terascope.github.io/teraslice/img/docusaurus.png"/><link rel="shortcut icon" href="/teraslice/img/favicon.png"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css"/><link rel="stylesheet" href="/teraslice/css/copy-code-block.css"/><link rel="stylesheet" href="/teraslice/css/custom.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/teraslice/js/copy-code-block.js"></script><script src="/teraslice/js/scrollSpy.js"></script><link rel="stylesheet" href="/teraslice/css/main.css"/><script src="/teraslice/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/teraslice/"><img class="logo" src="/teraslice/img/logo.png" alt="Teraslice"/><h2 class="headerTitleWithLogo">Teraslice</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/teraslice/docs/overview" target="_self">Docs</a></li><li class=""><a href="/teraslice/docs/asset-bundles" target="_self">Assets</a></li><li class=""><a href="/teraslice/docs/packages" target="_self">Packages</a></li><li class=""><a href="https://github.com/terascope/teraslice" target="_self">GitHub</a></li><li class=""><a href="/teraslice/help" target="_self">Help</a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 id="__docusaurus" class="postHeaderTitle">Elasticsearch Store: `IndexManager`</h1></header><article><div><span><hr>
 <p><a href="/teraslice/docs/packages/elasticsearch-store/api/overview">elasticsearch-store</a> › <a href="/teraslice/docs/packages/elasticsearch-store/api/classes/indexmanager">IndexManager</a></p>
-<p>Manage Elasticsearch Indicies</p>
+<p>Manage Elasticsearch Indices</p>
 <h2><a class="anchor" aria-hidden="true" id="hierarchy"></a><a href="#hierarchy" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Hierarchy</h2>
 <ul>
 <li><strong>IndexManager</strong></li>
@@ -34,7 +34,7 @@
 <h2><a class="anchor" aria-hidden="true" id="constructors-1"></a><a href="#constructors-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Constructors</h2>
 <h3><a class="anchor" aria-hidden="true" id="constructor"></a><a href="#constructor" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>constructor</h3>
 <p>+ <strong>new IndexManager</strong>(<code>client</code>: Client, <code>enableIndexMutations</code>: boolean): <em><a href="/teraslice/docs/packages/elasticsearch-store/api/classes/indexmanager">IndexManager</a></em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/b5e7cba/packages/elasticsearch-store/src/index-manager.ts#L14">index-manager.ts:14</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/83268e8/packages/elasticsearch-store/src/index-manager.ts#L14">index-manager.ts:14</a></em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -49,19 +49,19 @@
 <h2><a class="anchor" aria-hidden="true" id="properties-1"></a><a href="#properties-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Properties</h2>
 <h3><a class="anchor" aria-hidden="true" id="readonly-client"></a><a href="#readonly-client" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Readonly</code> client</h3>
 <p>• <strong>client</strong>: <em>Client</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/b5e7cba/packages/elasticsearch-store/src/index-manager.ts#L12">index-manager.ts:12</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/83268e8/packages/elasticsearch-store/src/index-manager.ts#L12">index-manager.ts:12</a></em></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="enableindexmutations"></a><a href="#enableindexmutations" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>enableIndexMutations</h3>
 <p>• <strong>enableIndexMutations</strong>: <em>boolean</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/b5e7cba/packages/elasticsearch-store/src/index-manager.ts#L14">index-manager.ts:14</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/83268e8/packages/elasticsearch-store/src/index-manager.ts#L14">index-manager.ts:14</a></em></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="readonly-esversion"></a><a href="#readonly-esversion" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Readonly</code> esVersion</h3>
 <p>• <strong>esVersion</strong>: <em>number</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/b5e7cba/packages/elasticsearch-store/src/index-manager.ts#L13">index-manager.ts:13</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/83268e8/packages/elasticsearch-store/src/index-manager.ts#L13">index-manager.ts:13</a></em></p>
 <h2><a class="anchor" aria-hidden="true" id="methods-1"></a><a href="#methods-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Methods</h2>
 <h3><a class="anchor" aria-hidden="true" id="exists"></a><a href="#exists" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>exists</h3>
 <p>▸ <strong>exists</strong>(<code>index</code>: string): <em>Promise‹boolean›</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/b5e7cba/packages/elasticsearch-store/src/index-manager.ts#L29">index-manager.ts:29</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/83268e8/packages/elasticsearch-store/src/index-manager.ts#L29">index-manager.ts:29</a></em></p>
 <p>Verify the index exists</p>
 <p><strong>Parameters:</strong></p>
 <table>
@@ -76,24 +76,27 @@
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="formatindexname"></a><a href="#formatindexname" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>formatIndexName</h3>
 <p>▸ <strong>formatIndexName</strong>‹<strong>T</strong>›(<code>config</code>: <a href="/teraslice/docs/packages/elasticsearch-store/api/interfaces/indexconfig">IndexConfig</a>‹T›, <code>useWildcard</code>: boolean): <em>string</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/b5e7cba/packages/elasticsearch-store/src/index-manager.ts#L35">index-manager.ts:35</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/83268e8/packages/elasticsearch-store/src/index-manager.ts#L40">index-manager.ts:40</a></em></p>
+<p>Format the current index name.</p>
 <p><strong>Type parameters:</strong></p>
 <p>▪ <strong>T</strong></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
-<tr><th>Name</th><th>Type</th><th>Default</th></tr>
+<tr><th>Name</th><th>Type</th><th>Default</th><th>Description</th></tr>
 </thead>
 <tbody>
-<tr><td><code>config</code></td><td><a href="/teraslice/docs/packages/elasticsearch-store/api/interfaces/indexconfig">IndexConfig</a>‹T›</td><td>-</td></tr>
-<tr><td><code>useWildcard</code></td><td>boolean</td><td>true</td></tr>
+<tr><td><code>config</code></td><td><a href="/teraslice/docs/packages/elasticsearch-store/api/interfaces/indexconfig">IndexConfig</a>‹T›</td><td>-</td><td>-</td></tr>
+<tr><td><code>useWildcard</code></td><td>boolean</td><td>true</td><td>if true a wildcard is added to the end of the end the index name</td></tr>
 </tbody>
 </table>
 <p><strong>Returns:</strong> <em>string</em></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="formattemplatename"></a><a href="#formattemplatename" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>formatTemplateName</h3>
 <p>▸ <strong>formatTemplateName</strong>‹<strong>T</strong>›(<code>config</code>: <a href="/teraslice/docs/packages/elasticsearch-store/api/interfaces/indexconfig">IndexConfig</a>‹T›): <em>string</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/b5e7cba/packages/elasticsearch-store/src/index-manager.ts#L56">index-manager.ts:56</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/83268e8/packages/elasticsearch-store/src/index-manager.ts#L65">index-manager.ts:65</a></em></p>
+<p>Format the template name, similar to formatIndexName except it excludes
+template wildcards and the time series parts of the index name.</p>
 <p><strong>Type parameters:</strong></p>
 <p>▪ <strong>T</strong></p>
 <p><strong>Parameters:</strong></p>
@@ -109,7 +112,7 @@
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="getmapping"></a><a href="#getmapping" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>getMapping</h3>
 <p>▸ <strong>getMapping</strong>(<code>index</code>: string): <em>Promise‹any›</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/b5e7cba/packages/elasticsearch-store/src/index-manager.ts#L245">index-manager.ts:245</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/83268e8/packages/elasticsearch-store/src/index-manager.ts#L263">index-manager.ts:263</a></em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -123,7 +126,7 @@
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="gettemplate"></a><a href="#gettemplate" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>getTemplate</h3>
 <p>▸ <strong>getTemplate</strong>(<code>name</code>: string, <code>flatSettings</code>: boolean): <em>Promise‹Record‹string, any››</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/b5e7cba/packages/elasticsearch-store/src/index-manager.ts#L318">index-manager.ts:318</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/83268e8/packages/elasticsearch-store/src/index-manager.ts#L336">index-manager.ts:336</a></em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -138,8 +141,8 @@
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="indexsetup"></a><a href="#indexsetup" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>indexSetup</h3>
 <p>▸ <strong>indexSetup</strong>‹<strong>T</strong>›(<code>config</code>: <a href="/teraslice/docs/packages/elasticsearch-store/api/interfaces/indexconfig">IndexConfig</a>‹T›): <em>Promise‹boolean›</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/b5e7cba/packages/elasticsearch-store/src/index-manager.ts#L71">index-manager.ts:71</a></em></p>
-<p>Safely setup a versioned Index, its template and any other required resouces</p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/83268e8/packages/elasticsearch-store/src/index-manager.ts#L84">index-manager.ts:84</a></em></p>
+<p>Safely setup a versioned Index, its template and any other required resources</p>
 <p><strong><code>todo</code></strong> this should handle better index change detection</p>
 <p><strong>Type parameters:</strong></p>
 <p>▪ <strong>T</strong></p>
@@ -157,7 +160,7 @@
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="isindexactive"></a><a href="#isindexactive" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>isIndexActive</h3>
 <p>▸ <strong>isIndexActive</strong>(<code>index</code>: string): <em>Promise‹boolean›</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/b5e7cba/packages/elasticsearch-store/src/index-manager.ts#L155">index-manager.ts:155</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/83268e8/packages/elasticsearch-store/src/index-manager.ts#L173">index-manager.ts:173</a></em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -171,12 +174,12 @@
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="migrateindex"></a><a href="#migrateindex" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>migrateIndex</h3>
 <p>▸ <strong>migrateIndex</strong>‹<strong>T</strong>›(<code>options</code>: <a href="/teraslice/docs/packages/elasticsearch-store/api/interfaces/migrateindexoptions">MigrateIndexOptions</a>‹T›): <em>Promise‹any›</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/b5e7cba/packages/elasticsearch-store/src/index-manager.ts#L174">index-manager.ts:174</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/83268e8/packages/elasticsearch-store/src/index-manager.ts#L192">index-manager.ts:192</a></em></p>
 <p>Perform an Index Migration</p>
-<p><strong>IMPORTANT</strong> This is a potentionally dangerous operation
+<p><strong>IMPORTANT</strong> This is a potentially dangerous operation
 and should only when the cluster is properly shutdown.</p>
 <p><strong><code>todo</code></strong> add support for timeseries and templated indexes</p>
-<p><strong><code>todo</code></strong> add support for complicated reindexing behaviors</p>
+<p><strong><code>todo</code></strong> add support for complicated re-indexing behaviors</p>
 <p><strong>Type parameters:</strong></p>
 <p>▪ <strong>T</strong></p>
 <p><strong>Parameters:</strong></p>
@@ -192,7 +195,7 @@ and should only when the cluster is properly shutdown.</p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="putmapping"></a><a href="#putmapping" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>putMapping</h3>
 <p>▸ <strong>putMapping</strong>(<code>index</code>: string, <code>type</code>: string, <code>properties</code>: Record‹string, any›): <em>Promise‹any›</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/b5e7cba/packages/elasticsearch-store/src/index-manager.ts#L253">index-manager.ts:253</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/83268e8/packages/elasticsearch-store/src/index-manager.ts#L271">index-manager.ts:271</a></em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -208,7 +211,7 @@ and should only when the cluster is properly shutdown.</p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="updatemapping"></a><a href="#updatemapping" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>updateMapping</h3>
 <p>▸ <strong>updateMapping</strong>(<code>index</code>: string, <code>type</code>: string, <code>mapping</code>: Record‹string, any›, <code>logger</code>: Logger): <em>Promise‹void›</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/b5e7cba/packages/elasticsearch-store/src/index-manager.ts#L273">index-manager.ts:273</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/83268e8/packages/elasticsearch-store/src/index-manager.ts#L291">index-manager.ts:291</a></em></p>
 <p>Safely update a mapping</p>
 <p><strong>WARNING:</strong> This only updates the mapping if it exists</p>
 <p><strong>Parameters:</strong></p>
@@ -227,7 +230,7 @@ and should only when the cluster is properly shutdown.</p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="upserttemplate"></a><a href="#upserttemplate" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>upsertTemplate</h3>
 <p>▸ <strong>upsertTemplate</strong>(<code>template</code>: Record‹string, any›, <code>logger?</code>: Logger): <em>Promise‹void›</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/b5e7cba/packages/elasticsearch-store/src/index-manager.ts#L329">index-manager.ts:329</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/83268e8/packages/elasticsearch-store/src/index-manager.ts#L347">index-manager.ts:347</a></em></p>
 <p>Safely create or update a template</p>
 <p><strong>Parameters:</strong></p>
 <table>
@@ -243,7 +246,7 @@ and should only when the cluster is properly shutdown.</p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="protected-waitforindexavailability"></a><a href="#protected-waitforindexavailability" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Protected</code> waitForIndexAvailability</h3>
 <p>▸ <strong>waitForIndexAvailability</strong>(<code>index</code>: string): <em>Promise‹void›</em></p>
-<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/b5e7cba/packages/elasticsearch-store/src/index-manager.ts#L355">index-manager.ts:355</a></em></p>
+<p><em>Defined in <a href="https://github.com/terascope/teraslice/blob/83268e8/packages/elasticsearch-store/src/index-manager.ts#L375">index-manager.ts:375</a></em></p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
