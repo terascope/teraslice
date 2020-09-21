@@ -32,6 +32,11 @@ export default class IndexManager {
         });
     }
 
+    /**
+     * Format the current index name.
+     *
+     * @param useWildcard if true a wildcard is added to the end of the end the index name
+    */
     formatIndexName<T = any>(config: IndexConfig<T>, useWildcard = true): string {
         utils.validateIndexConfig(config);
 
@@ -53,6 +58,10 @@ export default class IndexManager {
         return indexName;
     }
 
+    /**
+     * Format the template name, similar to formatIndexName except it excludes
+     * template wildcards and the time series parts of the index name.
+    */
     formatTemplateName<T = any>(config: IndexConfig<T>): string {
         utils.validateIndexConfig(config);
 
