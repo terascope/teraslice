@@ -590,6 +590,40 @@ export default class IndexStore<T extends ts.AnyObject> {
         params: PartialParam<SearchParams<T>>,
         critical?: boolean
     ): Promise<i.SearchResult<T>> {
+        const response = await this._search({
+            sort: this.config.default_sort,
+            ...params,
+        });
+
+        const total = ts.get(response, 'hits.total.value', ts.get(response, 'hits.total', 0));
+        const results = this._toRecords(response.hits.hits, critical);
+        return {
+            _total: total,
+            _fetched: results.length,
+            results,
+        };
+    }
+
+    /** Run an aggregation using an Elasticsearch Query DSL */
+    async aggregate<A = Record<string, any>>(
+        query: Record<string, any>,
+        params?: PartialParam<SearchParams<T>>,
+    ): Promise<A> {
+        const response = await this._search({
+            ...params,
+            size: 0,
+            body: query
+        });
+
+        return response.aggregations;
+    }
+
+    /**
+     * A small abstraction on client.search with retry support
+    */
+    protected async _search(
+        params: PartialParam<SearchParams<T>>,
+    ): Promise<es.SearchResponse<T>> {
         if (this.esVersion >= 7) {
             const p: any = params;
             if (p._sourceExclude) {
@@ -605,10 +639,7 @@ export default class IndexStore<T extends ts.AnyObject> {
         const response = await ts.pRetry(async () => this.client.search<T>(
             this.getDefaultParams<es.SearchParams>(
                 this.searchQuery,
-                {
-                    sort: this.config.default_sort,
-                },
-                params
+                params,
             )
         ), utils.getRetryConfig());
 
@@ -629,14 +660,7 @@ export default class IndexStore<T extends ts.AnyObject> {
                 });
             }
         }
-
-        const total = ts.get(response, 'hits.total.value', ts.get(response, 'hits.total', 0));
-        const results = this._toRecords(response.hits.hits, critical);
-        return {
-            _total: total,
-            _fetched: results.length,
-            results,
-        };
+        return response;
     }
 
     createJoinQuery(fields: AnyInput<T>, joinBy: JoinBy = 'AND', variables = {}): xLuceneQueryResult {
