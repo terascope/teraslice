@@ -138,6 +138,24 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
     }
 
     /**
+     * Create a bulk record and put it into the bulk request queue
+     */
+    async createBulkRecord(record: i.CreateRecordInput<T>): Promise<void> {
+        const docInput = {
+            ...record,
+            _deleted: false,
+            _created: ts.makeISODate(),
+            _updated: ts.makeISODate(),
+        } as T;
+
+        const id = uuid();
+        docInput._key = id;
+
+        const doc = this._sanitizeRecord(docInput);
+        return this.bulk('index', doc, id);
+    }
+
+    /**
      * Soft deletes a record by ID
      */
     async deleteRecord(id: string, clientId?: number): Promise<boolean> {
@@ -180,24 +198,6 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
         } as AnyInput<T>, clientId);
 
         return count === ids.length;
-    }
-
-    /**
-     * Create a bulk record
-     */
-    async createBulkRecord(record: i.CreateRecordInput<T>): Promise<void> {
-        const docInput = {
-            ...record,
-            _deleted: false,
-            _created: ts.makeISODate(),
-            _updated: ts.makeISODate(),
-        } as T;
-
-        const id = uuid();
-        docInput._key = id;
-
-        const doc = this._sanitizeRecord(docInput);
-        return this.bulk('index', doc, id);
     }
 
     protected _sanitizeRecord(record: T): T {
