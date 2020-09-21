@@ -26,7 +26,6 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
         const {
             timeseries,
             version,
-            rollover_frequency,
             schema,
             strict_mode,
             index_settings,
@@ -40,7 +39,7 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
                 version,
                 template: true,
                 timeseries: true,
-                rollover_frequency
+                rollover_frequency: options.rollover_frequency
             } : {
                 version,
             },

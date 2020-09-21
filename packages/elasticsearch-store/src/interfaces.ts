@@ -249,14 +249,6 @@ IndexConfig<T>,
      * Use a Timeseries Index
      */
     timeseries?: boolean;
-
-    /**
-     * Rollover Frequency for the Timeseries Index.
-     * This is only valid if timeseries is set to true
-     *
-     * @default monthly
-     */
-    rollover_frequency?: TimeSeriesFormat;
 };
 
 export type SanitizeFields = {
@@ -281,6 +273,14 @@ export interface IndexModelOptions {
      * Enable index mutations so indexes will be auto created or updated
     */
     enable_index_mutations?: boolean;
+
+    /**
+     * Rollover Frequency for the Timeseries Index.
+     * This is only valid if timeseries is set to true
+     *
+     * @default monthly
+     */
+    rollover_frequency?: TimeSeriesFormat;
 }
 
 export type FindOptions<T> = {
