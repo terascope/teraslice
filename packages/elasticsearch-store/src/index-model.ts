@@ -138,21 +138,25 @@ export default abstract class IndexModel<T extends i.IndexModelRecord> extends I
     }
 
     /**
-     * Create a bulk record and put it into the bulk request queue
+     * Create a bulk records and put it them into bulk request queue
      */
-    async createBulkRecord(record: i.CreateRecordInput<T>): Promise<void> {
-        const docInput = {
-            ...record,
-            _deleted: false,
-            _created: ts.makeISODate(),
-            _updated: ts.makeISODate(),
-        } as T;
+    async bulkCreateRecords(
+        records: i.CreateRecordInput<T>[]
+    ): Promise<void> {
+        for (const record of records) {
+            const docInput = {
+                ...record,
+                _deleted: false,
+                _created: ts.makeISODate(),
+                _updated: ts.makeISODate(),
+            } as T;
 
-        const id = uuid();
-        docInput._key = id;
+            const id = uuid();
+            docInput._key = id;
 
-        const doc = this._sanitizeRecord(docInput);
-        return this.bulk('index', doc, id);
+            const doc = this._sanitizeRecord(docInput);
+            await this.bulk('index', doc, id);
+        }
     }
 
     /**
