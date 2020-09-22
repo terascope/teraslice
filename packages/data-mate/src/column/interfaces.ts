@@ -94,8 +94,8 @@ export type ColumnTransformFn<
 
 export interface ColumnTransformConfig<
     T,
-    A extends Record<string, unknown> = Record<string, unknown>,
     R = T,
+    A extends Record<string, unknown> = Record<string, unknown>,
 > extends BaseTransformConfig {
     type: TransformType.TRANSFORM;
 

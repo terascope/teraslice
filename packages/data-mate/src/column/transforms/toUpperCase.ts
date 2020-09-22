@@ -6,8 +6,9 @@ import { ColumnTransformConfig, TransformMode, TransformType } from '../interfac
  *
  * @example
  *
- *     toUpperCase('lowercase'); // 'LOWERCASE';
- *     toUpperCase(['MixEd', null, 'lower']); // ['MIXED', 'LOWER'];
+ *     toUpperCase('lowercase'); // 'LOWERCASE'
+ *     toUpperCase('MixEd'); // 'MIXED'
+ *     toUpperCase('UPPER'); // 'UPPER'
  */
 export const toUpperCaseConfig: ColumnTransformConfig<string> = {
     type: TransformType.TRANSFORM,

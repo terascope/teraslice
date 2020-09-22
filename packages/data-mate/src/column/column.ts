@@ -88,12 +88,12 @@ export class Column<T = unknown> {
      *
      * @returns the new column
     */
-    transform<R = T, A extends Record<string, unknown> = Record<string, unknown>>(
-        transformConfig: ColumnTransformConfig<T, A, R>,
+    transform<R, A extends Record<string, unknown>>(
+        transformConfig: ColumnTransformConfig<T, R, A>,
         args?: A
     ): Column<R> {
         const options: ColumnOptions = {
-            config: transformConfig.output ?? this.config,
+            config: { ...this.config, ...transformConfig.output },
             name: this.name,
             version: this.version,
         };
@@ -116,12 +116,12 @@ export class Column<T = unknown> {
      *
      * @returns the new column so it works like fluent API
     */
-    validate<A extends Record<string, unknown> = Record<string, unknown>>(
+    validate<A extends Record<string, unknown>>(
         validateConfig: ColumnValidateConfig<T, A>,
         args?: A
     ): Column<T> {
         const options: ColumnOptions = {
-            config: validateConfig.output ?? this.config,
+            config: { ...this.config, ...validateConfig.output },
             name: this.name,
             version: this.version,
         };

@@ -5,7 +5,7 @@ import {
     Column, ColumnTransform, Vector
 } from '../../src';
 
-describe('Column (Number Types)', () => {
+describe('Column (String Types)', () => {
     describe(`when field type is ${FieldType.Keyword}`, () => {
         let col: Column<string>;
         const values: Maybe<string>[] = [
@@ -46,13 +46,13 @@ describe('Column (Number Types)', () => {
             expect(col.vector).toBeInstanceOf(Vector);
         });
 
-        it('should be able to validate the values', () => {
+        it('should be able to validate using isURL', () => {
             const newCol = col.validate(ColumnValidator.isURL);
             expect(newCol.id).not.toBe(col.id);
             expect([...newCol]).toEqual(values.map(() => null));
         });
 
-        it('should be able to transform the column using toUpperCase', () => {
+        it('should be able to transform using toUpperCase', () => {
             const newCol = col.transform(ColumnTransform.toUpperCase);
 
             expect(newCol.id).not.toBe(col.id);

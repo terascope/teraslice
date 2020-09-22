@@ -10,7 +10,7 @@ import { ColumnValidateConfig, TransformMode, TransformType } from '../interface
  *     isBoolean('some-string'); // false
  *     isBoolean(0); // false
  */
-export const isBooleanConfig: ColumnValidateConfig<unknown> = {
+export const isBooleanConfig: ColumnValidateConfig<any> = {
     type: TransformType.VALIDATE,
     create() {
         return {
