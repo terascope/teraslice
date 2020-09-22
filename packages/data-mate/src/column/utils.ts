@@ -26,11 +26,6 @@ export function mapVector<T, R = T>(
     config: Partial<DataTypeFieldConfig>,
     transform: ColumnTransformFn<T, R>,
 ): Vector<R> {
-    if (transform.mode === TransformMode.ALL) {
-        // FIXME validate that it doesn't change the length
-        return transform.fn(vector) as Vector<R>;
-    }
-
     const builder = Builder.make<R>(
         {
             type: vector.fieldType,
@@ -41,7 +36,7 @@ export function mapVector<T, R = T>(
         vector.childConfig
     );
 
-    if (transform.mode === TransformMode.CAST) {
+    if (transform.mode === TransformMode.NONE) {
         for (let i = 0; i < vector.size; i++) {
             const value = vector.get(i) as Maybe<T|Vector<T>>;
             builder.append(value);

@@ -16,6 +16,8 @@ import { getVectorId, mapVector } from './utils';
  *
  * Changing the values is safe as long the length doesn't change.
  * When adding or removing values it is better to create a new Column.
+ *
+ * @todo add pipeline that will do a chain of validators/transformations
 */
 export class Column<T = unknown> {
     name: string;
