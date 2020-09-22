@@ -1,7 +1,7 @@
 import {
     DataTypeFieldConfig, DataTypeFields, DataTypeVersion, Maybe
 } from '@terascope/types';
-import { Vector, VectorType } from '../vector';
+import { Vector, VectorIteratorMode, VectorType } from '../vector';
 
 /**
  * Column options
@@ -10,29 +10,6 @@ export interface ColumnOptions {
     name: string;
     version?: DataTypeVersion;
     config: DataTypeFieldConfig;
-}
-
-/**
- * A mode to describe which value to pass when iterating over a Vector
-*/
-export enum VectorIteratorMode {
-    /**
-     * Just the values from Vector, automatically deals with ListVectors and skips nulls.
-     * This is probably the most common.
-     *
-     * @todo This will be called with only unique values.
-    */
-    EACH_VALUE,
-
-    /**
-     * A values from the Vector
-    */
-    EACH,
-
-    /**
-     * The entire Vector be passed
-    */
-    ALL,
 }
 
 /**
