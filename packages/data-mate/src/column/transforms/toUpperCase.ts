@@ -1,5 +1,5 @@
-import { VectorIteratorMode, VectorType } from '../../vector';
-import { ColumnTransformConfig } from '../interfaces';
+import { VectorType } from '../../vector';
+import { ColumnTransformConfig, TransformMode, TransformType } from '../interfaces';
 
 /**
  * Converts strings to upper case
@@ -10,9 +10,10 @@ import { ColumnTransformConfig } from '../interfaces';
  *     toUpperCase(['MixEd', null, 'lower']); // ['MIXED', 'LOWER'];
  */
 export const toUpperCaseConfig: ColumnTransformConfig<string> = {
+    type: TransformType.TRANSFORM,
     create() {
         return {
-            mode: VectorIteratorMode.EACH_VALUE,
+            mode: TransformMode.EACH_VALUE,
             skipNulls: true,
             fn(input) {
                 return input.toUpperCase();

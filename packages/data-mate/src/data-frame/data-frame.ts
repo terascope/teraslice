@@ -1,7 +1,8 @@
 import { DataTypeConfig, Maybe, SortOrder } from '@terascope/types';
-import { Column, columnsToDataTypeConfig, distributeRowsToColumns } from '../column';
+import { Column } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import { md5 } from '../vector/utils';
+import { columnsToDataTypeConfig, distributeRowsToColumns } from './utils';
 import { getBuildersForConfig } from '../builder';
 
 /**

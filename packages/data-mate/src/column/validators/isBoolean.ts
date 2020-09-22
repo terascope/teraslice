@@ -1,6 +1,5 @@
 import * as ts from '@terascope/utils';
-import { VectorIteratorMode } from '../../vector';
-import { ColumnValidateConfig } from '../interfaces';
+import { ColumnValidateConfig, TransformMode, TransformType } from '../interfaces';
 
 /**
  * Validates that the input is a boolean
@@ -8,13 +7,14 @@ import { ColumnValidateConfig } from '../interfaces';
  * @example
  *
  *     isBoolean(false); // true
- *     isBoolean('astring'); // false
+ *     isBoolean('some-string'); // false
  *     isBoolean(0); // false
  */
 export const isBooleanConfig: ColumnValidateConfig<unknown> = {
+    type: TransformType.VALIDATE,
     create() {
         return {
-            mode: VectorIteratorMode.EACH_VALUE,
+            mode: TransformMode.EACH_VALUE,
             skipNulls: true,
             fn: ts.isBoolean
         };

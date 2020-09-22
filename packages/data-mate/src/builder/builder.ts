@@ -1,27 +1,7 @@
 import { DataTypeFieldConfig, DataTypeFields, Maybe } from '@terascope/types';
-import { ListVector, Vector, VectorType } from '../vector';
-
-/**
- * Coerce a value so it can be stored in the builder
-*/
-export type ValueFromFn<T> = (
-    value: unknown,
-    thisArg: Builder<T>,
-) => T;
-
-/**
- * A list of Builder Options
- */
-export interface BuilderOptions<T> {
-    config: DataTypeFieldConfig;
-    /** Preallocate this many items */
-    length?: number;
-    valueFrom?: ValueFromFn<T>;
-    /**
-     * The type config for any nested fields (currently only works for objects)
-    */
-    childConfig?: DataTypeFields;
-}
+import {
+    Vector, VectorType
+} from '../vector';
 
 /**
  * A Vector builder
@@ -43,22 +23,6 @@ export abstract class Builder<T = unknown> {
             `This will functionality replaced in the index file
             ${config} ${length} ${childConfig}`
         );
-    }
-
-    /**
-     * Make a new Builder from a Vector
-     *
-     * @note only the type and array can be inferred for the field config
-    */
-    static makeFromVector<R>(
-        vector: Vector<R>,
-        overrideLength: number|false = false,
-    ): Builder<R> {
-        const len = overrideLength === false ? vector.size : overrideLength;
-        return Builder.make({
-            type: vector.fieldType,
-            array: vector instanceof ListVector
-        }, len, vector.childConfig);
     }
 
     readonly childConfig?: DataTypeFields;
@@ -128,4 +92,26 @@ export abstract class Builder<T = unknown> {
  */
 export function isBuilder<T>(input: unknown): input is Builder<T> {
     return input instanceof Builder;
+}
+
+/**
+ * Coerce a value so it can be stored in the builder
+*/
+export type ValueFromFn<T> = (
+    value: unknown,
+    thisArg: Builder<T>,
+) => T;
+
+/**
+ * A list of Builder Options
+ */
+export interface BuilderOptions<T> {
+    config: DataTypeFieldConfig;
+    /** Preallocate this many items */
+    length?: number;
+    valueFrom?: ValueFromFn<T>;
+    /**
+     * The type config for any nested fields (currently only works for objects)
+    */
+    childConfig?: DataTypeFields;
 }

@@ -1,7 +1,7 @@
 import {
     DataTypeFieldConfig, DataTypeFields, DataTypeVersion, Maybe
 } from '@terascope/types';
-import { Vector, VectorIteratorMode, VectorType } from '../vector';
+import { Vector, VectorType } from '../vector';
 
 /**
  * Column options
@@ -13,39 +13,41 @@ export interface ColumnOptions {
 }
 
 /**
- * A created transformation function
+ * A mode to describe which value to pass when iterating over a Vector
 */
-export type ColumnTransformFn<
-    T,
-    R = T,
-> = {
-    mode: VectorIteratorMode.EACH,
-    fn: (value: Maybe<T|Vector<T>>) => Maybe<R|Vector<R>>;
-}|{
-    mode: VectorIteratorMode.EACH_VALUE,
-    skipNulls?: false,
-    fn: (value: Maybe<T>) => Maybe<R>;
-}|{
-    mode: VectorIteratorMode.EACH_VALUE,
-    skipNulls: true,
-    fn: (value: T) => Maybe<R>;
-}|{
-    mode: VectorIteratorMode.ALL,
-    fn: (value: Vector<T>) => Vector<R>;
-};
-
-export type ColumnTransformConfig<
-    T,
-    A extends Record<string, unknown> = Record<string, unknown>,
-    R = T,
-> = {
+export enum TransformMode {
     /**
-     * A transform function
+     * Just the values from Vector, automatically deals with ListVectors and skips nulls.
+     * This is probably the most common.
+     *
+     * @todo This will be called with only unique values.
     */
-    create: (args: A) => ColumnTransformFn<T, R>;
+    EACH_VALUE = 'EACH_VALUE',
 
     /**
-     * The description of the Column transformation
+     * A values from the Vector
+    */
+    EACH = 'EACH',
+
+    /**
+     * Just change the Vector type or field config
+    */
+    NONE = 'NONE',
+}
+
+export enum TransformType {
+    TRANSFORM = 'TRANSFORM',
+    VALIDATE = 'VALIDATE',
+}
+
+export interface BaseTransformConfig {
+    /**
+     * The type of transformation
+    */
+    type: TransformType;
+
+    /**
+     * Description of the transformation
     */
     description: string;
 
@@ -55,7 +57,7 @@ export type ColumnTransformConfig<
     argument_schema: DataTypeFields;
 
     /**
-     * The types of Vectors this Transformation can work with.
+     * The types of Vectors this can work with.
      * You don't have to specify VectorType.LIST (this is automatic)
      *
      * If none is specified, it will work with any Vector type
@@ -67,7 +69,41 @@ export type ColumnTransformConfig<
      * If none specified the output data type will stay the same
     */
     output?: DataTypeFieldConfig;
+}
+
+/**
+ * A created transformation function
+*/
+export type ColumnTransformFn<
+    T,
+    R = T,
+> = {
+    mode: TransformMode.EACH,
+    fn: (value: Maybe<T|Vector<T>>) => Maybe<R|Vector<R>>;
+}|{
+    mode: TransformMode.EACH_VALUE,
+    skipNulls?: false,
+    fn: (value: Maybe<T>) => Maybe<R>;
+}|{
+    mode: TransformMode.EACH_VALUE,
+    skipNulls: true,
+    fn: (value: T) => Maybe<R>;
+}|{
+    mode: TransformMode.NONE
 };
+
+export interface ColumnTransformConfig<
+    T,
+    A extends Record<string, unknown> = Record<string, unknown>,
+    R = T,
+> extends BaseTransformConfig {
+    type: TransformType.TRANSFORM;
+
+    /**
+     * A transform function
+    */
+    create: (args: A) => ColumnTransformFn<T, R>;
+}
 
 /**
  * A created validation function
@@ -75,45 +111,28 @@ export type ColumnTransformConfig<
 export type ColumnValidateFn<
     T,
 > = {
-    mode: VectorIteratorMode.EACH,
+    mode: TransformMode.EACH,
     fn: (value: Maybe<T|Vector<T>>) => boolean;
 }|{
-    mode: VectorIteratorMode.EACH_VALUE,
+    mode: TransformMode.EACH_VALUE,
     skipNulls?: false,
     fn: (value: Maybe<T>) => boolean;
 }|{
-    mode: VectorIteratorMode.EACH_VALUE,
+    mode: TransformMode.EACH_VALUE,
     skipNulls: true,
     fn: (value: T) => boolean;
 }|{
-    mode: VectorIteratorMode.ALL,
-    fn: (value: Vector<T>) => Vector<T>;
+    mode: TransformMode.NONE
 };
 
-export type ColumnValidateConfig<
+export interface ColumnValidateConfig<
     T,
     A extends Record<string, unknown> = Record<string, unknown>,
-> = {
+> extends BaseTransformConfig {
+    type: TransformType.VALIDATE;
+
     /**
      * Creates a validator function
     */
     create: (args: A) => ColumnValidateFn<T>;
-
-    /**
-     * The description of the Column transformation
-    */
-    description: string;
-
-    /**
-     * The argument type config, used for validation
-    */
-    argument_schema: DataTypeFields;
-
-    /**
-     * The types of Vectors this validation can work with.
-     * You don't have to specify VectorType.LIST (this is automatic)
-     *
-     * If none is specified, it will work with any Vector type
-    */
-    accepts: VectorType[];
-};
+}
