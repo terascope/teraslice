@@ -1,4 +1,4 @@
-import { isPlainObject, toString } from '@terascope/utils';
+import { getTypeOf, isPlainObject, toString } from '@terascope/utils';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions, ValueFromFn } from '../builder';
 
@@ -12,7 +12,7 @@ export class ObjectBuilder<
             throw new Error('Expected thisArg');
         }
         if (!isPlainObject(value)) {
-            throw new TypeError(`Expected ${toString(value)} to be an object`);
+            throw new TypeError(`Expected ${toString(value)} (${getTypeOf(value)}) to be an object`);
         }
 
         if (thisArg.childConfig == null) {

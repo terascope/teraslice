@@ -50,7 +50,7 @@ describe('Column (Boolean Types)', () => {
         it('should be able to validate the values', () => {
             const newCol = col.validate(ColumnValidator.isBoolean);
             expect(newCol.id).not.toBe(col.id);
-            expect([...newCol]).toEqual(values);
+            expect(newCol.toJSON()).toEqual(values);
         });
     });
 
@@ -100,7 +100,7 @@ describe('Column (Boolean Types)', () => {
         it('should be able to validate using isBoolean', () => {
             const newCol = col.validate(ColumnValidator.isBoolean);
             expect(newCol.id).not.toBe(col.id);
-            expect([...newCol]).toEqual(
+            expect(newCol.toJSON()).toEqual(
                 values.map(() => null)
             );
         });
@@ -108,7 +108,7 @@ describe('Column (Boolean Types)', () => {
         it('should be able to validate using isBooleanLike', () => {
             const newCol = col.validate(ColumnValidator.isBooleanLike);
             expect(newCol.id).not.toBe(col.id);
-            expect([...newCol]).toEqual([
+            expect(newCol.toJSON()).toEqual([
                 'True',
                 'yes',
                 'no',
@@ -128,9 +128,95 @@ describe('Column (Boolean Types)', () => {
                 ...col.config,
                 type: FieldType.Boolean
             });
-            expect([...newCol]).toEqual(values.map((value) => {
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
                 if (value == null) return null;
                 return toBoolean(value);
+            }));
+        });
+    });
+
+    describe(`when field type is ${FieldType.Keyword} and is an array`, () => {
+        let col: Column<Vector<string>>;
+        const values: Maybe<string[]>[] = [
+            ['True'],
+            [],
+            null,
+            ['NO'],
+            ['False'],
+            ['NOT_BOOLEAN', 'True'],
+            ['WHO']
+        ];
+        beforeEach(() => {
+            col = Column.fromJSON<string[]>({
+                name: 'name',
+                config: {
+                    type: FieldType.Keyword,
+                    array: true
+                },
+            }, values);
+        });
+
+        it('should have the correct size', () => {
+            expect(col.count()).toEqual(values.length);
+        });
+
+        it('should have the same id when forked with the same vector', () => {
+            expect(col.fork().id).toEqual(col.id);
+        });
+
+        it('should NOT have the same id when forked with a different vector', () => {
+            const vector = col.vector.slice(0, 2);
+            expect(col.fork(vector).id).not.toEqual(col.id);
+        });
+
+        it('should be able to iterate over the values', () => {
+            expect([...col]).not.toEqual(values);
+            expect(col.toJSON()).toEqual(values);
+        });
+
+        it('should be able to get the Vector', () => {
+            expect(col.vector).toBeInstanceOf(Vector);
+        });
+
+        it('should be able to validate using isBoolean', () => {
+            const newCol = col.validate(ColumnValidator.isBoolean);
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.toJSON()).toEqual(
+                values.map((val) => (
+                    Array.isArray(val) ? val.map(() => null) : null
+                ))
+            );
+        });
+
+        it('should be able to validate using isBooleanLike', () => {
+            const newCol = col.validate(ColumnValidator.isBooleanLike);
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.toJSON()).toEqual([
+                ['True'],
+                [],
+                null,
+                ['NO'],
+                ['False'],
+                [null, 'True'],
+                [null]
+            ]);
+        });
+
+        it('should be able to transform the column using toBoolean', () => {
+            const newCol = col.transform(ColumnTransform.toBoolean);
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual({
+                ...col.config,
+                type: FieldType.Boolean
+            });
+
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
+                if (value == null) return null;
+
+                return value.map((val) => (
+                    val != null ? toBoolean(val) : null
+                ));
             }));
         });
     });

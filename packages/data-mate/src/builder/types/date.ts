@@ -1,4 +1,4 @@
-import { getValidDate } from '@terascope/utils';
+import { getTypeOf, getValidDate } from '@terascope/utils';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../builder';
 
@@ -10,7 +10,7 @@ export class DateBuilder extends Builder<number> {
     static valueFrom(value: unknown): number {
         const date = getValidDate(value);
         if (!date) {
-            throw new Error(`Expected ${value} to be in a valid date format`);
+            throw new Error(`Expected ${value} (${getTypeOf(value)}) to be in a valid date format`);
         }
         return date.getTime();
     }

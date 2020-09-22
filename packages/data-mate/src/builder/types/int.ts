@@ -1,3 +1,4 @@
+import { getTypeOf } from '@terascope/utils';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../builder';
 
@@ -11,7 +12,7 @@ export class IntBuilder extends Builder<number> {
         }
         const parsed = parseInt(value as string, 10);
         if (Number.isNaN(parsed)) {
-            throw new TypeError(`Expected ${parsed} to be a valid integer`);
+            throw new TypeError(`Expected ${parsed} (${getTypeOf(value)}) to be a valid integer`);
         }
         return parsed;
     }

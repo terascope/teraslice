@@ -6,14 +6,29 @@ export function isString(val: unknown): val is string {
 }
 
 /** Safely convert any input to a string */
-export function toString(val: unknown): string {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function toString(val: any): string {
     if (val == null) return '';
     const type = typeof val;
-    if (type === 'string' || type === 'bigint' || type === 'number' || type === 'symbol' || type === 'boolean') {
+    if (type === 'string') return val;
+    if (type === 'bigint' || type === 'number' || type === 'symbol' || type === 'boolean') {
         return String(val);
     }
-    if ((val as any).message && (val as any).stack) {
-        return (val as any).toString();
+
+    if (val.message && val.stack) {
+        return val.toString();
+    }
+
+    if (val instanceof Date) return val.toISOString();
+
+    if (type === 'object' && val[Symbol.toPrimitive]) {
+        return `${val}`;
+    }
+
+    if (Array.isArray(val)) return val.join(', ');
+
+    if (typeof val.toJSON === 'function') {
+        return toString(val.toJSON());
     }
 
     return JSON.stringify(val);

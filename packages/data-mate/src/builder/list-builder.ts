@@ -15,7 +15,9 @@ export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
             ...thisArg.config,
             array: false,
         }, arr.length, thisArg.childConfig);
+
         arr.forEach((value) => builder.append(value));
+
         return builder.toVector();
     }
 

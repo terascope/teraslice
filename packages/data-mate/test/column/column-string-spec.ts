@@ -49,7 +49,7 @@ describe('Column (String Types)', () => {
         it('should be able to validate using isURL', () => {
             const newCol = col.validate(ColumnValidator.isURL);
             expect(newCol.id).not.toBe(col.id);
-            expect([...newCol]).toEqual(values.map(() => null));
+            expect(newCol.toJSON()).toEqual(values.map(() => null));
         });
 
         it('should be able to transform using toUpperCase', () => {
@@ -57,7 +57,7 @@ describe('Column (String Types)', () => {
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual(col.config);
-            expect([...newCol]).toEqual(values.map((value) => {
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
                 if (typeof value === 'string') return value.toUpperCase();
                 return null;
             }));
