@@ -1,5 +1,3 @@
-import * as ts from '@terascope/utils';
-import { isString } from '@terascope/utils';
 import { VectorType } from '../../vector';
 import { ColumnFnMode, ColumnTransformConfig } from '../interfaces';
 
@@ -11,21 +9,17 @@ import { ColumnFnMode, ColumnTransformConfig } from '../interfaces';
  *     toUpperCase('lowercase'); // 'LOWERCASE';
  *     toUpperCase(['MixEd', null, 'lower']); // ['MIXED', 'LOWER'];
  */
-export function toUpperCase(input: string): string {
-    if (!isString(input)) {
-        throw new Error(`Input must be a string, received ${ts.getTypeOf(input)}`);
-    }
-
-    return input.toUpperCase();
-}
-
 export const toUpperCaseConfig: ColumnTransformConfig<string> = {
-    fn() {
+    create() {
         return {
             mode: ColumnFnMode.EACH_VALUE,
-            fn: toUpperCase
+            skipNulls: true,
+            fn(input) {
+                return input.toUpperCase();
+            }
         };
     },
     description: 'Converts strings to upper case',
+    argument_schema: {},
     accepts: [VectorType.String],
 };

@@ -1,5 +1,5 @@
 import { toUpperCaseConfig } from './toUpperCase';
 
-export const columnTransforms = Object.freeze({
+export const ColumnTransform = Object.freeze({
     toUpperCase: toUpperCaseConfig,
 });

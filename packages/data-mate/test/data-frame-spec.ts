@@ -1,7 +1,7 @@
 import 'jest-fixtures';
 import { LATEST_VERSION } from '@terascope/data-types';
 import { FieldType } from '@terascope/types';
-import { columnTransforms, DataFrame } from '../src';
+import { ColumnTransform, DataFrame } from '../src';
 
 describe('DataFrame', () => {
     it('should be able to create an empty table', () => {
@@ -248,7 +248,7 @@ describe('DataFrame', () => {
 
         describe('->assign', () => {
             it('should be able to a new frame with the new column', () => {
-                const newCol = dataFrame.getColumn('name')!.transform(columnTransforms.toUpperCase);
+                const newCol = dataFrame.getColumn('name')!.transform(ColumnTransform.toUpperCase);
                 newCol.name = 'upper_name';
                 const resultFrame = dataFrame.assign([newCol]);
 
@@ -260,7 +260,7 @@ describe('DataFrame', () => {
             });
 
             it('should be able to a new frame with replaced columns', () => {
-                const newCol = dataFrame.getColumn('name')!.transform(columnTransforms.toUpperCase);
+                const newCol = dataFrame.getColumn('name')!.transform(ColumnTransform.toUpperCase);
                 const resultFrame = dataFrame.assign([newCol]);
 
                 const names = resultFrame.columns.map(({ name }) => name);

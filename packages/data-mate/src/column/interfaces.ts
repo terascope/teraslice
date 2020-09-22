@@ -4,20 +4,12 @@ import {
 import { Vector, VectorType } from '../vector';
 
 /**
- * Column transformation fns
-*/
-export type ColumnTransformFn<
-    T,
-    R = T,
-> = {
-    mode: ColumnFnMode.EACH,
-    fn: (value: Maybe<T|Vector<T>>) => Maybe<R|Vector<R>>;
-}|{
-    mode: ColumnFnMode.EACH_VALUE,
-    fn: (value: T) => Maybe<R>;
-}|{
-    mode: ColumnFnMode.ALL,
-    fn: (value: Vector<T>) => Vector<R>;
+ * Column options
+ */
+export interface ColumnOptions {
+    name: string;
+    version?: DataTypeVersion;
+    config: DataTypeFieldConfig;
 }
 
 /**
@@ -43,6 +35,28 @@ export enum ColumnFnMode {
     ALL,
 }
 
+/**
+ * A created transformation function
+*/
+export type ColumnTransformFn<
+    T,
+    R = T,
+> = {
+    mode: ColumnFnMode.EACH,
+    fn: (value: Maybe<T|Vector<T>>) => Maybe<R|Vector<R>>;
+}|{
+    mode: ColumnFnMode.EACH_VALUE,
+    skipNulls?: false,
+    fn: (value: Maybe<T>) => Maybe<R>;
+}|{
+    mode: ColumnFnMode.EACH_VALUE,
+    skipNulls: true,
+    fn: (value: T) => Maybe<R>;
+}|{
+    mode: ColumnFnMode.ALL,
+    fn: (value: Vector<T>) => Vector<R>;
+};
+
 export type ColumnTransformConfig<
     T,
     A extends Record<string, unknown> = Record<string, unknown>,
@@ -51,7 +65,7 @@ export type ColumnTransformConfig<
     /**
      * A transform function
     */
-    fn: (args: A) => ColumnTransformFn<T, R>;
+    create: (args: A) => ColumnTransformFn<T, R>;
 
     /**
      * The description of the Column transformation
@@ -61,11 +75,13 @@ export type ColumnTransformConfig<
     /**
      * The argument type config, used for validation
     */
-    argument_schema?: DataTypeFields;
+    argument_schema: DataTypeFields;
 
     /**
      * The types of Vectors this Transformation can work with.
      * You don't have to specify VectorType.LIST (this is automatic)
+     *
+     * If none is specified, it will work with any Vector type
     */
     accepts: VectorType[];
 
@@ -77,10 +93,50 @@ export type ColumnTransformConfig<
 };
 
 /**
- * Column options
- */
-export interface ColumnOptions {
-    name: string;
-    version?: DataTypeVersion;
-    config: DataTypeFieldConfig;
-}
+ * A created validation function
+*/
+export type ColumnValidateFn<
+    T,
+> = {
+    mode: ColumnFnMode.EACH,
+    fn: (value: Maybe<T|Vector<T>>) => boolean;
+}|{
+    mode: ColumnFnMode.EACH_VALUE,
+    skipNulls?: false,
+    fn: (value: Maybe<T>) => boolean;
+}|{
+    mode: ColumnFnMode.EACH_VALUE,
+    skipNulls: true,
+    fn: (value: T) => boolean;
+}|{
+    mode: ColumnFnMode.ALL,
+    fn: (value: Vector<T>) => Vector<T>;
+};
+
+export type ColumnValidateConfig<
+    T,
+    A extends Record<string, unknown> = Record<string, unknown>,
+> = {
+    /**
+     * Creates a validator function
+    */
+    create: (args: A) => ColumnValidateFn<T>;
+
+    /**
+     * The description of the Column transformation
+    */
+    description: string;
+
+    /**
+     * The argument type config, used for validation
+    */
+    argument_schema: DataTypeFields;
+
+    /**
+     * The types of Vectors this validation can work with.
+     * You don't have to specify VectorType.LIST (this is automatic)
+     *
+     * If none is specified, it will work with any Vector type
+    */
+    accepts: VectorType[];
+};

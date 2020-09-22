@@ -1,10 +1,10 @@
 import 'jest-fixtures';
 import { FieldType, Maybe } from '@terascope/types';
-import { isNil } from '@terascope/utils';
 import {
     BigIntVector,
-    Column, columnTransforms, Vector
+    Column, ColumnTransform, Vector
 } from '../src';
+import { ColumnValidator } from '../src/column/validators';
 
 describe('Column', () => {
     describe(`when field type is ${FieldType.Keyword}`, () => {
@@ -48,13 +48,13 @@ describe('Column', () => {
         });
 
         it('should be able to validate the values', () => {
-            const newCol = col.validate(isNil);
+            const newCol = col.validate(ColumnValidator.isURL);
             expect(newCol.id).not.toBe(col.id);
             expect([...newCol]).toEqual(values.map(() => null));
         });
 
         it('should be able to transform the column using toUpperCase', () => {
-            const newCol = col.transform(columnTransforms.toUpperCase);
+            const newCol = col.transform(ColumnTransform.toUpperCase);
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual(col.config);

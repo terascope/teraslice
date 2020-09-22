@@ -8,7 +8,9 @@ import {
     isVector,
     JSONValue, runVectorAggregation, ValueAggregation, Vector
 } from '../vector';
-import { ColumnFnMode, ColumnOptions, ColumnTransformConfig } from './interfaces';
+import {
+    ColumnFnMode, ColumnOptions, ColumnTransformConfig, ColumnValidateConfig
+} from './interfaces';
 import { getVectorId } from './utils';
 
 /**
@@ -78,7 +80,11 @@ export class Column<T = unknown> {
     }
 
     /**
-     * Transform the values with in a column
+     * Transform the values with in a column.
+     *
+     * @note this will keep the same length
+     *
+     * @todo validate args and accept vector types
      *
      * @returns the new column
     */
@@ -91,10 +97,10 @@ export class Column<T = unknown> {
             name: this.name,
             version: this.version,
         };
-        const transform = transformConfig.fn(args ?? ({} as any));
+        const transform = transformConfig.create(args ?? ({} as any));
 
         if (transform.mode === ColumnFnMode.EACH) {
-            const builder = Builder.make<R>(options.config);
+            const builder = Builder.make<R>(options.config, this._vector.size);
             for (let i = 0; i < this._vector.size; i++) {
                 const value = this.vector.get(i) as Maybe<T|Vector<T>>;
                 builder.append(transform.fn(value));
@@ -104,29 +110,34 @@ export class Column<T = unknown> {
 
         // FIXME refactor this
         if (transform.mode === ColumnFnMode.EACH_VALUE) {
-            const builder = Builder.make<R>(options.config);
+            const builder = Builder.make<R>(options.config, this._vector.size);
             for (let i = 0; i < this._vector.size; i++) {
                 const value = this.vector.get(i) as Maybe<T|Vector<T>>;
-                if (value == null) {
+                if (transform.skipNulls && value == null) {
                     builder.append(null);
                 } else if (isVector<T>(value)) {
                     const values: Maybe<R>[] = [];
                     for (const val of value) {
-                        values.push(
-                            val != null
-                                ? transform.fn(val)
-                                : null
-                        );
+                        if (transform.skipNulls && val == null) {
+                            values.push(null);
+                        } else {
+                            values.push(
+                                transform.fn(val as any)
+                            );
+                        }
                     }
                     builder.append(values);
                 } else {
-                    builder.append(transform.fn(value));
+                    builder.append(
+                        transform.fn(value as any)
+                    );
                 }
             }
             return new Column<R>(builder.toVector(), options);
         }
 
         if (transform.mode === ColumnFnMode.ALL) {
+            // FIXME validate that it doesn't change the length
             return new Column<R>(transform.fn(this.vector), options);
         }
 
@@ -135,22 +146,72 @@ export class Column<T = unknown> {
 
     /**
      * Creates a new column, if the function returns false
-     * then the value is set to null
+     * then the value is set to null.
+     *
+     * @note this will keep the same length
+     *
+     * @todo validate args and accept vector types
      *
      * @returns the new column so it works like fluent API
     */
-    validate(fn: (value: Maybe<T>, index: number) => boolean): Column<T> {
-        const builder = Builder.make<T>(this.config);
-        for (let i = 0; i < this._vector.size; i++) {
-            const value = this.vector.get(i) as Maybe<T>;
-            builder.append(fn(value, i) ? value : null);
+    validate<A extends Record<string, unknown> = Record<string, unknown>>(
+        validateConfig: ColumnValidateConfig<T, A>,
+        args?: A
+    ): Column<T> {
+        const options: ColumnOptions = {
+            config: this.config,
+            name: this.name,
+            version: this.version,
+        };
+        const validator = validateConfig.create(args ?? ({} as any));
+
+        if (validator.mode === ColumnFnMode.EACH) {
+            const builder = Builder.make<T>(options.config, this._vector.size);
+            for (let i = 0; i < this._vector.size; i++) {
+                const value = this.vector.get(i) as Maybe<T|Vector<T>>;
+                if (validator.fn(value)) {
+                    builder.append(value);
+                } else {
+                    builder.append(null);
+                }
+            }
+            return new Column<T>(builder.toVector(), options);
         }
 
-        return new Column<T>(builder.toVector(), {
-            name: this.name,
-            config: this.config,
-            version: this.version,
-        });
+        // FIXME refactor this
+        if (validator.mode === ColumnFnMode.EACH_VALUE) {
+            const builder = Builder.make<T>(options.config, this._vector.size);
+            for (let i = 0; i < this._vector.size; i++) {
+                const value = this.vector.get(i) as Maybe<T|Vector<T>>;
+                if (validator.skipNulls && value == null) {
+                    builder.append(null);
+                } else if (isVector<T>(value)) {
+                    const values: Maybe<T>[] = [];
+                    for (const val of value) {
+                        if (validator.skipNulls && val == null) {
+                            values.push(null);
+                        } else if (validator.fn(val as any)) {
+                            values.push(val);
+                        } else {
+                            values.push(null);
+                        }
+                    }
+                    builder.append(values);
+                } else if (validator.fn(value as any)) {
+                    builder.append(value);
+                } else {
+                    builder.append(null);
+                }
+            }
+            return new Column<T>(builder.toVector(), options);
+        }
+
+        if (validator.mode === ColumnFnMode.ALL) {
+            // FIXME validate that it doesn't change the length
+            return new Column<T>(validator.fn(this.vector), options);
+        }
+
+        throw new Error(`Invalid validator given ${toString(validator)}`);
     }
 
     /**
