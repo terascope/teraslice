@@ -5,11 +5,11 @@ import {
 } from '@terascope/types';
 import { Builder } from '../builder';
 import {
-    isVector,
+    isVector, VectorIteratorMode,
     JSONValue, runVectorAggregation, ValueAggregation, Vector
 } from '../vector';
 import {
-    ColumnFnMode, ColumnOptions, ColumnTransformConfig, ColumnValidateConfig
+    ColumnOptions, ColumnTransformConfig, ColumnValidateConfig
 } from './interfaces';
 import { getVectorId } from './utils';
 
@@ -99,7 +99,7 @@ export class Column<T = unknown> {
         };
         const transform = transformConfig.create(args ?? ({} as any));
 
-        if (transform.mode === ColumnFnMode.EACH) {
+        if (transform.mode === VectorIteratorMode.EACH) {
             const builder = Builder.make<R>(options.config, this._vector.size);
             for (let i = 0; i < this._vector.size; i++) {
                 const value = this.vector.get(i) as Maybe<T|Vector<T>>;
@@ -109,7 +109,7 @@ export class Column<T = unknown> {
         }
 
         // FIXME refactor this
-        if (transform.mode === ColumnFnMode.EACH_VALUE) {
+        if (transform.mode === VectorIteratorMode.EACH_VALUE) {
             const builder = Builder.make<R>(options.config, this._vector.size);
             for (let i = 0; i < this._vector.size; i++) {
                 const value = this.vector.get(i) as Maybe<T|Vector<T>>;
@@ -136,7 +136,7 @@ export class Column<T = unknown> {
             return new Column<R>(builder.toVector(), options);
         }
 
-        if (transform.mode === ColumnFnMode.ALL) {
+        if (transform.mode === VectorIteratorMode.ALL) {
             // FIXME validate that it doesn't change the length
             return new Column<R>(transform.fn(this.vector), options);
         }
@@ -165,7 +165,7 @@ export class Column<T = unknown> {
         };
         const validator = validateConfig.create(args ?? ({} as any));
 
-        if (validator.mode === ColumnFnMode.EACH) {
+        if (validator.mode === VectorIteratorMode.EACH) {
             const builder = Builder.make<T>(options.config, this._vector.size);
             for (let i = 0; i < this._vector.size; i++) {
                 const value = this.vector.get(i) as Maybe<T|Vector<T>>;
@@ -179,7 +179,7 @@ export class Column<T = unknown> {
         }
 
         // FIXME refactor this
-        if (validator.mode === ColumnFnMode.EACH_VALUE) {
+        if (validator.mode === VectorIteratorMode.EACH_VALUE) {
             const builder = Builder.make<T>(options.config, this._vector.size);
             for (let i = 0; i < this._vector.size; i++) {
                 const value = this.vector.get(i) as Maybe<T|Vector<T>>;
@@ -206,7 +206,7 @@ export class Column<T = unknown> {
             return new Column<T>(builder.toVector(), options);
         }
 
-        if (validator.mode === ColumnFnMode.ALL) {
+        if (validator.mode === VectorIteratorMode.ALL) {
             // FIXME validate that it doesn't change the length
             return new Column<T>(validator.fn(this.vector), options);
         }

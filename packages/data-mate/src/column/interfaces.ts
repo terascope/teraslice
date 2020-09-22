@@ -13,9 +13,9 @@ export interface ColumnOptions {
 }
 
 /**
- * A mode to describe which value to pass when iterating over a Column/Vector
+ * A mode to describe which value to pass when iterating over a Vector
 */
-export enum ColumnFnMode {
+export enum VectorIteratorMode {
     /**
      * Just the values from Vector, automatically deals with ListVectors and skips nulls.
      * This is probably the most common.
@@ -42,18 +42,18 @@ export type ColumnTransformFn<
     T,
     R = T,
 > = {
-    mode: ColumnFnMode.EACH,
+    mode: VectorIteratorMode.EACH,
     fn: (value: Maybe<T|Vector<T>>) => Maybe<R|Vector<R>>;
 }|{
-    mode: ColumnFnMode.EACH_VALUE,
+    mode: VectorIteratorMode.EACH_VALUE,
     skipNulls?: false,
     fn: (value: Maybe<T>) => Maybe<R>;
 }|{
-    mode: ColumnFnMode.EACH_VALUE,
+    mode: VectorIteratorMode.EACH_VALUE,
     skipNulls: true,
     fn: (value: T) => Maybe<R>;
 }|{
-    mode: ColumnFnMode.ALL,
+    mode: VectorIteratorMode.ALL,
     fn: (value: Vector<T>) => Vector<R>;
 };
 
@@ -98,18 +98,18 @@ export type ColumnTransformConfig<
 export type ColumnValidateFn<
     T,
 > = {
-    mode: ColumnFnMode.EACH,
+    mode: VectorIteratorMode.EACH,
     fn: (value: Maybe<T|Vector<T>>) => boolean;
 }|{
-    mode: ColumnFnMode.EACH_VALUE,
+    mode: VectorIteratorMode.EACH_VALUE,
     skipNulls?: false,
     fn: (value: Maybe<T>) => boolean;
 }|{
-    mode: ColumnFnMode.EACH_VALUE,
+    mode: VectorIteratorMode.EACH_VALUE,
     skipNulls: true,
     fn: (value: T) => boolean;
 }|{
-    mode: ColumnFnMode.ALL,
+    mode: VectorIteratorMode.ALL,
     fn: (value: Vector<T>) => Vector<T>;
 };
 

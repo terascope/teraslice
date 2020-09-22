@@ -1,5 +1,6 @@
 import { Maybe } from '@terascope/types';
-import { Vector, VectorOptions, VectorType } from '../vector';
+import { Vector, VectorOptions } from '../vector';
+import { VectorType } from '../interfaces';
 
 /**
  * @todo this should probably be handled better

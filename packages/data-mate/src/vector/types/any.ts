@@ -1,4 +1,5 @@
-import { Vector, VectorOptions, VectorType } from '../vector';
+import { Vector, VectorOptions } from '../vector';
+import { VectorType } from '../interfaces';
 
 export class AnyVector extends Vector<any> {
     constructor(options: VectorOptions<any>) {

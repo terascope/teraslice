@@ -1,6 +1,7 @@
 import { _newVector } from './utils';
 import { Vector } from './vector';
 
+export * from './interfaces';
 export * from './aggregations';
 export * from './list-vector';
 export * from './types';

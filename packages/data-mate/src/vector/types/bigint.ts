@@ -1,4 +1,5 @@
-import { Vector, VectorOptions, VectorType } from '../vector';
+import { Vector, VectorOptions } from '../vector';
+import { VectorType } from '../interfaces';
 
 const maxInt = BigInt(Number.MAX_SAFE_INTEGER);
 export function bigIntToJSON(int: bigint): string|number {

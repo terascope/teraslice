@@ -1,5 +1,6 @@
 import { GeoPoint } from '@terascope/types';
-import { Vector, VectorOptions, VectorType } from '../vector';
+import { Vector, VectorOptions } from '../vector';
+import { VectorType } from '../interfaces';
 
 export class GeoPointVector extends Vector<GeoPoint> {
     constructor(options: VectorOptions<GeoPoint>) {

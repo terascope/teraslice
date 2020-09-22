@@ -9,7 +9,8 @@ import {
     FloatVector, GeoJSONVector, GeoPointVector, IntVector,
     ObjectVector, StringVector
 } from './types';
-import { Data, Vector } from './vector';
+import { Data } from './interfaces';
+import { Vector } from './vector';
 
 export function _newVector<T>(
     config: DataTypeFieldConfig,

@@ -1,6 +1,6 @@
 import { isUri } from 'valid-url';
-import { VectorType } from '../../vector';
-import { ColumnFnMode, ColumnValidateConfig } from '../interfaces';
+import { VectorIteratorMode, VectorType } from '../../vector';
+import { ColumnValidateConfig } from '../interfaces';
 
 /**
  * Validates that the input is a url
@@ -12,11 +12,10 @@ import { ColumnFnMode, ColumnValidateConfig } from '../interfaces';
  *     isURL('http://example.com'); // true
  *     isURL('BAD-URL'); // false
  */
-
 export const isURLConfig: ColumnValidateConfig<string> = {
     create() {
         return {
-            mode: ColumnFnMode.EACH_VALUE,
+            mode: VectorIteratorMode.EACH_VALUE,
             skipNulls: true,
             fn(value) {
                 return isUri(value) != null;
