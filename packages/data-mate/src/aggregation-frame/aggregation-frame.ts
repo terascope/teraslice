@@ -9,6 +9,8 @@ import { getBuilderForField } from './utils';
 
 /**
  * A frame dedicated to running a aggregations
+ *
+ * @todo verify the use of unique
 */
 export class AggregationFrame<T extends Record<string, any>> {
     columns: readonly Column<any>[];
@@ -285,10 +287,10 @@ export class AggregationFrame<T extends Record<string, any>> {
             }
         }
 
-        return [...builders].map(([name, builder]) => new Column<any>({
+        return [...builders].map(([name, builder]) => new Column<any>(builder.toVector(), {
             name,
             config: builder.config,
-            vector: builder.toVector()
+            version: this.columns.find((col) => col.name === name)!.version
         }));
     }
 

@@ -3,7 +3,7 @@ import { FieldType, Maybe } from '@terascope/types';
 import { isNil } from '@terascope/utils';
 import {
     BigIntVector,
-    Column, Vector
+    Column, columnTransforms, Vector
 } from '../src';
 
 describe('Column', () => {
@@ -47,35 +47,21 @@ describe('Column', () => {
             expect(col.vector).toBeInstanceOf(Vector);
         });
 
-        it('should be able to filter the values ()', () => {
-            const newCol = col.filter(isNil);
+        it('should be able to validate the values', () => {
+            const newCol = col.validate(isNil);
             expect(newCol.id).not.toBe(col.id);
             expect([...newCol]).toEqual(values.map(() => null));
         });
 
-        it('should be able to map the values', () => {
-            const toUpper = (value: Maybe<string>) => {
-                if (value == null) return null;
-                return value.toUpperCase();
-            };
-
-            const newCol = col.map(toUpper);
-            expect(newCol.id).not.toBe(col.id);
-            expect([...newCol]).toEqual(values.map(toUpper));
-        });
-
-        it('should be able to transform the column', () => {
-            const toInt = (value: Maybe<string>) => {
-                if (value == null) return null;
-                return 1;
-            };
-            const newCol = col.transform({
-                config: { type: FieldType.Integer },
-            }, toInt);
+        it('should be able to transform the column using toUpperCase', () => {
+            const newCol = col.transform(columnTransforms.toUpperCase);
 
             expect(newCol.id).not.toBe(col.id);
-            expect(newCol.config.type).toBe(FieldType.Integer);
-            expect([...newCol]).toEqual(values.map(toInt));
+            expect(newCol.config).toEqual(col.config);
+            expect([...newCol]).toEqual(values.map((value) => {
+                if (typeof value === 'string') return value.toUpperCase();
+                return null;
+            }));
         });
 
         test.todo('should be immutable');

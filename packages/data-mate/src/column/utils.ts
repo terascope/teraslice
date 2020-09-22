@@ -28,11 +28,10 @@ export function distributeRowsToColumns(
         }
     }
 
-    return [...builders].map(([name, builder]) => new Column({
+    return [...builders].map(([name, builder]) => new Column(builder.toVector(), {
         name,
         version: config.version,
         config: config.fields[name],
-        vector: builder.toVector()
     }));
 }
 

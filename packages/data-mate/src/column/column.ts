@@ -1,22 +1,15 @@
 import { LATEST_VERSION } from '@terascope/data-types';
+import { toString } from '@terascope/utils';
 import {
     DataTypeFieldConfig, Maybe, DataTypeVersion, SortOrder
 } from '@terascope/types';
 import { Builder } from '../builder';
 import {
+    isVector,
     JSONValue, runVectorAggregation, ValueAggregation, Vector
 } from '../vector';
+import { ColumnFnMode, ColumnOptions, ColumnTransformConfig } from './interfaces';
 import { getVectorId } from './utils';
-
-/**
- * Column options
- */
-export interface ColumnOptions<T> {
-    name: string;
-    version?: DataTypeVersion;
-    config: DataTypeFieldConfig;
-    vector: Vector<T>;
-}
 
 /**
  * A single column of values with the same data type.
@@ -31,29 +24,27 @@ export class Column<T = unknown> {
     protected readonly _vector: Vector<T>;
 
     static fromJSON<R>(
-        options: Omit<ColumnOptions<R>, 'vector'>,
+        options: ColumnOptions,
         values: Maybe<R>[]|readonly Maybe<R>[] = []
     ): Column<R extends (infer U)[] ? Vector<U> : R> {
         const builder = Builder.make<R>(options.config, values.length);
         values.forEach((val) => builder.append(val));
-        return new Column({
-            ...options,
-            vector: builder.toVector()
-        }) as any;
+        return new Column<any>(builder.toVector(), options);
     }
 
-    constructor(options: ColumnOptions<T>) {
+    constructor(vector: Vector<T>, options: ColumnOptions|Readonly<ColumnOptions>) {
         this.name = options.name;
         this.version = options.version ?? LATEST_VERSION;
         this.config = { ...options.config };
-        const vType = options.vector.fieldType;
+        this._vector = vector;
+
+        const vType = vector.fieldType;
         const cType = this.config.type;
         if (vType !== cType) {
             throw new Error(
                 `Invalid Vector type ${vType} given to column of type "${cType}"`
             );
         }
-        this._vector = options.vector;
     }
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
@@ -79,70 +70,67 @@ export class Column<T = unknown> {
      * Create a fork of the Column
     */
     fork(vector?: Vector<T>): Column<T> {
-        return new Column<T>({
+        return new Column<T>(vector ?? this.vector, {
             name: this.name,
             version: this.version,
             config: this.config,
-            vector: vector ?? this.vector,
         });
     }
 
     /**
-     * Map over the values and mutate them (must keep the same data type)
+     * Transform the values with in a column
      *
      * @returns the new column
     */
-    map(fn: (value: Maybe<T>, index: number) => Maybe<T>): Column<T> {
-        const len = this._vector.size;
-        const builder = Builder.make<T>(this.config, len, this._vector.childConfig);
-        for (let i = 0; i < this._vector.size; i++) {
-            const value = this.vector.get(i) as Maybe<T>;
-            builder.append(fn(value, i));
-        }
-        return new Column<T>({
-            name: this.name,
-            version: this.version,
-            config: this.config,
-            vector: builder.toVector()
-        });
-    }
-
-    /**
-     * Creates a new column, you can optionally transform the values
-     * but shouldn't change the length.
-     *
-     * This can be used to change the name, type of column.
-     * Useful for replacing a column in a DataFrame.
-     *
-     * @returns the new column
-    */
-    transform<R = T>(
-        columnOptions: Partial<Omit<ColumnOptions<R>, 'vector'>>,
-        fn?: (value: Maybe<T>, index: number) => Maybe<R>
+    transform<R = T, A extends Record<string, unknown> = Record<string, unknown>>(
+        transformConfig: ColumnTransformConfig<T, A, R>,
+        args?: A
     ): Column<R> {
-        const config = columnOptions?.config ?? this.config;
-        const name = columnOptions?.name ?? this.name;
-        const version = columnOptions?.version ?? this.version;
+        const options: ColumnOptions = {
+            config: transformConfig.output ?? this.config,
+            name: this.name,
+            version: this.version,
+        };
+        const transform = transformConfig.fn(args ?? ({} as any));
 
-        if (fn) {
-            const builder = Builder.make<R>(config);
+        if (transform.mode === ColumnFnMode.EACH) {
+            const builder = Builder.make<R>(options.config);
             for (let i = 0; i < this._vector.size; i++) {
-                const value = this.vector.get(i) as Maybe<T>;
-                builder.append(fn(value, i));
+                const value = this.vector.get(i) as Maybe<T|Vector<T>>;
+                builder.append(transform.fn(value));
             }
-            return new Column<R>({
-                name,
-                config,
-                version,
-                vector: builder.toVector()
-            });
+            return new Column<R>(builder.toVector(), options);
         }
-        return new Column<R>({
-            name,
-            version,
-            config,
-            vector: this.vector.fork() as Vector<any>
-        });
+
+        // FIXME refactor this
+        if (transform.mode === ColumnFnMode.EACH_VALUE) {
+            const builder = Builder.make<R>(options.config);
+            for (let i = 0; i < this._vector.size; i++) {
+                const value = this.vector.get(i) as Maybe<T|Vector<T>>;
+                if (value == null) {
+                    builder.append(null);
+                } else if (isVector<T>(value)) {
+                    const values: Maybe<R>[] = [];
+                    for (const val of value) {
+                        values.push(
+                            val != null
+                                ? transform.fn(val)
+                                : null
+                        );
+                    }
+                    builder.append(values);
+                } else {
+                    builder.append(transform.fn(value));
+                }
+            }
+            return new Column<R>(builder.toVector(), options);
+        }
+
+        if (transform.mode === ColumnFnMode.ALL) {
+            return new Column<R>(transform.fn(this.vector), options);
+        }
+
+        throw new Error(`Invalid transformation given ${toString(transform)}`);
     }
 
     /**
@@ -151,16 +139,17 @@ export class Column<T = unknown> {
      *
      * @returns the new column so it works like fluent API
     */
-    filter(fn: (value: Maybe<T>, index: number) => boolean): Column<T> {
+    validate(fn: (value: Maybe<T>, index: number) => boolean): Column<T> {
         const builder = Builder.make<T>(this.config);
         for (let i = 0; i < this._vector.size; i++) {
             const value = this.vector.get(i) as Maybe<T>;
             builder.append(fn(value, i) ? value : null);
         }
-        return new Column<T>({
+
+        return new Column<T>(builder.toVector(), {
             name: this.name,
             config: this.config,
-            vector: builder.toVector()
+            version: this.version,
         });
     }
 
