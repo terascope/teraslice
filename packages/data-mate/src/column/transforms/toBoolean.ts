@@ -28,7 +28,7 @@ export const toBooleanConfig: ColumnTransformConfig<any, boolean> = {
     },
     description: 'Converts strings to upper case',
     argument_schema: {},
-    accepts: [VectorType.String, VectorType.Int, VectorType.Float],
+    accepts: [VectorType.String, VectorType.Int, VectorType.Float, VectorType.Any],
     output: {
         type: FieldType.Boolean
     }
