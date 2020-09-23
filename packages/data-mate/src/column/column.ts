@@ -98,7 +98,9 @@ export class Column<T = unknown> {
             version: this.version,
         };
 
-        const transform = transformConfig.create(args ?? ({} as any));
+        const transform = transformConfig.create(
+            this.vector, { ...args } as A
+        );
 
         return new Column<R>(
             mapVector<T, R>(this.vector, options.config, transform),
@@ -126,7 +128,9 @@ export class Column<T = unknown> {
             version: this.version,
         };
 
-        const validator = validateConfig.create(args ?? ({} as any));
+        const validator = validateConfig.create(
+            this.vector, { ...args } as A
+        );
         const transform = validator.mode !== TransformMode.NONE ? ({
             ...validator,
             fn(value: any): any {

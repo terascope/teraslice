@@ -1,3 +1,4 @@
+import { toUpperCase } from '@terascope/utils';
 import { VectorType } from '../../vector';
 import { ColumnTransformConfig, TransformMode, TransformType } from '../interfaces';
 
@@ -8,17 +9,14 @@ import { ColumnTransformConfig, TransformMode, TransformType } from '../interfac
  *
  *     toUpperCase('lowercase'); // 'LOWERCASE'
  *     toUpperCase('MixEd'); // 'MIXED'
- *     toUpperCase('UPPER'); // 'UPPER'
+ *     toUpperCase('UPPERCASE'); // 'UPPERCASE'
  */
 export const toUpperCaseConfig: ColumnTransformConfig<string> = {
     type: TransformType.TRANSFORM,
     create() {
         return {
             mode: TransformMode.EACH_VALUE,
-            skipNulls: true,
-            fn(input) {
-                return input.toUpperCase();
-            }
+            fn: toUpperCase
         };
     },
     description: 'Converts strings to upper case',

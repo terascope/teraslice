@@ -55,12 +55,12 @@ export function mapVector<T, R = T>(
     if (transform.mode === TransformMode.EACH_VALUE) {
         for (let i = 0; i < vector.size; i++) {
             const value = vector.get(i) as Maybe<T|Vector<T>>;
-            if (transform.skipNulls && value == null) {
+            if (transform.skipNulls !== false && value == null) {
                 builder.append(null);
             } else if (isVector<T>(value)) {
                 const values: Maybe<R>[] = [];
                 for (const val of value) {
-                    if (transform.skipNulls && val == null) {
+                    if (transform.skipNulls !== false && val == null) {
                         values.push(null);
                     } else {
                         values.push(

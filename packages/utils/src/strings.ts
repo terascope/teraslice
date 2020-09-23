@@ -5,30 +5,59 @@ export function isString(val: unknown): val is string {
     return typeof val === 'string';
 }
 
-/** Safely convert any input to a string */
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function toString(val: any): string {
+/**
+ * Safely convert any input to a string
+ *
+ * @example
+ *
+ *     toString(1); // '1'
+ *     toString(0.01); // '0.01'
+ *     toString(true); // 'true'
+ *     toString(BigInt(2) ** BigInt(64)); // '18,446,744,073,709,551,616'
+ *     toString(new Date('2020-09-23T14:54:21.020Z')) // '2020-09-23T14:54:21.020Z'
+*/
+export function toString(val: unknown): string {
     if (val == null) return '';
-    const type = typeof val;
-    if (type === 'string') return val;
-    if (type === 'bigint' || type === 'number' || type === 'symbol' || type === 'boolean') {
+    if (typeof val === 'string') return val;
+
+    if (typeof val === 'number' || typeof val === 'symbol' || typeof val === 'boolean') {
         return String(val);
     }
 
-    if (val.message && val.stack) {
+    if (typeof val === 'bigint') {
+        return (val as BigInt).toLocaleString();
+    }
+
+    if (typeof val === 'function') {
         return val.toString();
     }
 
-    if (val instanceof Date) return val.toISOString();
-
-    if (type === 'object' && val[Symbol.toPrimitive]) {
-        return `${val}`;
+    if (Array.isArray(val)) {
+        return val.map(toString).join(',');
     }
 
-    if (Array.isArray(val)) return val.join(', ');
+    if (val instanceof Date) {
+        return val.toISOString();
+    }
 
-    if (typeof val.toJSON === 'function') {
-        return toString(val.toJSON());
+    if (typeof val === 'object' && val != null) {
+        if (val[Symbol.iterator]) {
+            return [...val as any].map(toString).join(',');
+        }
+
+        if (val[Symbol.toPrimitive]) {
+            return `${val}`;
+        }
+
+        if (typeof val.toString === 'function') {
+            return val.toString();
+        }
+
+        if (typeof (val as any).toJSON === 'function') {
+            return toString((val as any).toJSON());
+        }
+
+        return `${val}`;
     }
 
     return JSON.stringify(val);
@@ -87,6 +116,34 @@ export function trimAndToLower(input?: string): string {
 /** safely trim and to lower a input, useful for string comparison */
 export function trimAndToUpper(input?: string): string {
     return trim(input).toUpperCase();
+}
+
+/**
+ * Converts a value to upper case
+ *
+ * @example
+ *
+ *     toUpperCase('lowercase'); // 'LOWERCASE'
+ *     toUpperCase('MixEd'); // 'MIXED'
+ *     toUpperCase('UPPERCASE'); // 'UPPERCASE'
+*/
+export function toUpperCase(input: unknown): string {
+    if (typeof input !== 'string') return '';
+    return input.toUpperCase();
+}
+
+/**
+ * Converts a value to lower case
+ *
+  * @example
+ *
+ *     toLowerCase('lowercase'); // 'lowercase'
+ *     toLowerCase('MixEd'); // 'mixed'
+ *     toLowerCase('UPPERCASE'); // 'uppercase'
+*/
+export function toLowerCase(input: unknown): string {
+    if (typeof input !== 'string') return '';
+    return input.toLowerCase();
 }
 
 /** Unescape characters in string and avoid double escaping */

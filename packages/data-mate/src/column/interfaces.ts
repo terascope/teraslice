@@ -78,18 +78,18 @@ export type ColumnTransformFn<
     T,
     R = T,
 > = {
-    mode: TransformMode.EACH,
+    mode: TransformMode.EACH;
     fn: (value: Maybe<T|Vector<T>>) => Maybe<R|Vector<R>>;
 }|{
     mode: TransformMode.EACH_VALUE,
-    skipNulls?: false,
+    skipNulls: false;
     fn: (value: Maybe<T>) => Maybe<R>;
 }|{
     mode: TransformMode.EACH_VALUE,
-    skipNulls: true,
+    skipNulls?: true;
     fn: (value: T) => Maybe<R>;
 }|{
-    mode: TransformMode.NONE
+    mode: TransformMode.NONE,
 };
 
 export interface ColumnTransformConfig<
@@ -102,7 +102,7 @@ export interface ColumnTransformConfig<
     /**
      * A transform function
     */
-    create: (args: A) => ColumnTransformFn<T, R>;
+    create: (vector: Vector<T>, args: A) => ColumnTransformFn<T, R>;
 }
 
 /**
@@ -111,18 +111,18 @@ export interface ColumnTransformConfig<
 export type ColumnValidateFn<
     T,
 > = {
-    mode: TransformMode.EACH,
+    mode: TransformMode.EACH;
     fn: (value: Maybe<T|Vector<T>>) => boolean;
 }|{
-    mode: TransformMode.EACH_VALUE,
-    skipNulls?: false,
+    mode: TransformMode.EACH_VALUE;
+    skipNulls: false;
     fn: (value: Maybe<T>) => boolean;
 }|{
-    mode: TransformMode.EACH_VALUE,
-    skipNulls: true,
+    mode: TransformMode.EACH_VALUE;
+    skipNulls?: true,
     fn: (value: T) => boolean;
 }|{
-    mode: TransformMode.NONE
+    mode: TransformMode.NONE;
 };
 
 export interface ColumnValidateConfig<
@@ -134,5 +134,5 @@ export interface ColumnValidateConfig<
     /**
      * Creates a validator function
     */
-    create: (args: A) => ColumnValidateFn<T>;
+    create: (vector: Vector<T>, args: A) => ColumnValidateFn<T>;
 }

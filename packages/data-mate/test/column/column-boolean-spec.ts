@@ -52,6 +52,21 @@ describe('Column (Boolean Types)', () => {
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.toJSON()).toEqual(values);
         });
+
+        it('should be able to transform the column using toString', () => {
+            const newCol = col.transform(ColumnTransform.toString);
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual({
+                ...col.config,
+                type: FieldType.String
+            });
+
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
+                if (value == null) return null;
+                return `${value}`;
+            }));
+        });
     });
 
     describe(`when field type is ${FieldType.Keyword}`, () => {

@@ -63,6 +63,17 @@ describe('Column (String Types)', () => {
             }));
         });
 
+        it('should be able to transform using toLowerCase', () => {
+            const newCol = col.transform(ColumnTransform.toLowerCase);
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
+                if (typeof value === 'string') return value.toLowerCase();
+                return null;
+            }));
+        });
+
         test.todo('should be immutable');
     });
 });

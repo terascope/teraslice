@@ -18,6 +18,7 @@ export function flattenDeep<T>(val: ListOfRecursiveArraysOrValues<T>): T[] {
 /** A simplified implementation of lodash castArray */
 export function castArray<T>(input: T|undefined|null|T[]): T[] {
     if (input == null) return [];
+    if (input instanceof Set) return [...input];
     if (Array.isArray(input)) return input;
     return [input];
 }

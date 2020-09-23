@@ -18,7 +18,6 @@ export const isBooleanLikeConfig: ColumnValidateConfig<any> = {
     create() {
         return {
             mode: TransformMode.EACH_VALUE,
-            skipNulls: true,
             fn: ts.isBooleanLike
         };
     },

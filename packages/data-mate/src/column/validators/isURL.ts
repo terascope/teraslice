@@ -17,8 +17,7 @@ export const isURLConfig: ColumnValidateConfig<string> = {
     create() {
         return {
             mode: TransformMode.EACH_VALUE,
-            skipNulls: true,
-            fn(value) {
+            fn(value: string) {
                 return isUri(value) != null;
             }
         };

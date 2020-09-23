@@ -1,16 +1,17 @@
-import { Maybe } from '@terascope/types';
 import { Vector, VectorOptions } from '../vector';
 import { VectorType } from '../interfaces';
 
-/**
- * @todo this should probably be handled better
- */
-export class DateVector extends Vector<string> {
-    static valueToJSON(value: Maybe<string>): any {
+export type DateValue = number;
+
+export class DateVector extends Vector<DateValue> {
+    /**
+     * @todo this should probably be handled better
+     */
+    static valueToJSON(value: DateValue): number {
         return value;
     }
 
-    constructor(options: VectorOptions<string>) {
+    constructor(options: VectorOptions<DateValue>) {
         super(VectorType.Date, {
             valueToJSON: DateVector.valueToJSON,
             ...options,

@@ -5,12 +5,17 @@ import { Vector, VectorType } from '../vector';
 
 export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
     static valueFrom(values: unknown, thisArg?: ListBuilder<any>): Vector<any> {
-        if (values instanceof Vector) return values;
         if (!thisArg) {
             throw new Error('Expected thisArg');
         }
+        let arr: unknown[];
+        if (values instanceof Vector) {
+            if (values.type === thisArg.type) return values;
+            arr = [...values];
+        } else {
+            arr = castArray(values);
+        }
 
-        const arr = castArray(values);
         const builder = Builder.make({
             ...thisArg.config,
             array: false,

@@ -23,7 +23,6 @@ export const toBooleanConfig: ColumnTransformConfig<any, boolean> = {
     create() {
         return {
             mode: TransformMode.EACH_VALUE,
-            skipNulls: true,
             fn: toBoolean
         };
     },

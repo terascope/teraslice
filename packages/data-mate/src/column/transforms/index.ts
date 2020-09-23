@@ -1,7 +1,11 @@
 import { toBooleanConfig } from './toBoolean';
+import { toLowerCaseConfig } from './toLowerCase';
+import { toStringConfig } from './toString';
 import { toUpperCaseConfig } from './toUpperCase';
 
 export const ColumnTransform = Object.freeze({
-    toUpperCase: toUpperCaseConfig,
     toBoolean: toBooleanConfig,
+    toLowerCase: toLowerCaseConfig,
+    toString: toStringConfig,
+    toUpperCase: toUpperCaseConfig,
 });

@@ -1,7 +1,7 @@
 import 'jest-fixtures';
 import { FieldType, Maybe } from '@terascope/types';
 import {
-    BigIntVector, Column, Vector
+    BigIntVector, Column, ColumnTransform, Vector
 } from '../../src';
 
 describe('Column (Number Types)', () => {
@@ -59,6 +59,21 @@ describe('Column (Number Types)', () => {
                 null,
             ]);
         });
+
+        it('should be able to transform the column using toString', () => {
+            const newCol = col.transform(ColumnTransform.toString);
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual({
+                ...col.config,
+                type: FieldType.String
+            });
+
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
+                if (value == null) return null;
+                return `${value}`;
+            }));
+        });
     });
 
     describe(`when field type is ${FieldType.Float}`, () => {
@@ -114,6 +129,21 @@ describe('Column (Number Types)', () => {
                 null,
             ]);
         });
+
+        it('should be able to transform the column using toString', () => {
+            const newCol = col.transform(ColumnTransform.toString);
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual({
+                ...col.config,
+                type: FieldType.String
+            });
+
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
+                if (value == null) return null;
+                return `${value}`;
+            }));
+        });
     });
 
     describe(`when field type is an array of ${FieldType.Short}`, () => {
@@ -149,6 +179,24 @@ describe('Column (Number Types)', () => {
 
         it('should be able to get the max of the values', () => {
             expect(col.max()).toBe(324);
+        });
+
+        it('should be able to transform the column using toString', () => {
+            const newCol = col.transform(ColumnTransform.toString);
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual({
+                ...col.config,
+                type: FieldType.String
+            });
+
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
+                if (value == null) return null;
+
+                return value.map((val) => (
+                    val != null ? `${val}` : null
+                ));
+            }));
         });
 
         test.todo('should NOT be able to sort the values');
@@ -215,6 +263,21 @@ describe('Column (Number Types)', () => {
                 BigIntVector.valueToJSON(BigInt(12) ** multiplier),
                 null,
             ]);
+        });
+
+        it('should be able to transform the column using toString', () => {
+            const newCol = col.transform(ColumnTransform.toString);
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual({
+                ...col.config,
+                type: FieldType.String
+            });
+
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
+                if (value == null) return null;
+                return value.toLocaleString();
+            }));
         });
     });
 });
