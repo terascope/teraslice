@@ -1,6 +1,7 @@
 import 'jest-fixtures';
 import { FieldType, Maybe } from '@terascope/types';
 import formatDate from 'date-fns/format';
+import { getValidDate } from '@terascope/utils';
 import {
     Column, ColumnTransform, DateValue, Vector
 } from '../../src';
@@ -78,7 +79,9 @@ describe('Column (Date Types)', () => {
             });
             expect(newCol.toJSON()).toEqual(values.map((value) => {
                 if (value == null) return null;
-                return formatDate(value, 'Pp');
+                const date = getValidDate(value);
+                if (date === false) return false;
+                return formatDate(date, 'Pp');
             }));
         });
     });

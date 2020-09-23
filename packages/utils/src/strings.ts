@@ -45,21 +45,21 @@ export function toString(val: unknown): string {
             return [...val as any].map(toString).join(',');
         }
 
-        if (val[Symbol.toPrimitive]) {
-            return `${val}`;
+        // is error
+        if ('message' in val && 'stack' in val) {
+            return val.toString();
         }
 
-        if (typeof val.toString === 'function') {
-            return val.toString();
+        if (val[Symbol.toPrimitive]) {
+            return `${val}`;
         }
 
         if (typeof (val as any).toJSON === 'function') {
             return toString((val as any).toJSON());
         }
-
-        return `${val}`;
     }
 
+    // fall back to this
     return JSON.stringify(val);
 }
 
