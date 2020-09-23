@@ -7,11 +7,12 @@ import { ColumnTransformConfig, TransformMode, TransformType } from '../interfac
  *
  * @example
  *
- *     toString(1); // '1'
- *     toString(0.01); // '0.01'
- *     toString(true); // 'true'
- *     toString(BigInt(2) ** BigInt(64)); // '18,446,744,073,709,551,616'
- *     toString(new Date('2020-09-23T14:54:21.020Z')) // '2020-09-23T14:54:21.020Z'
+ *     toString()
+ *       // 1 => '1'
+ *       // 0.01 => '0.01'
+ *       // true => 'true'
+ *       // BigInt(2) ** BigInt(64) => '18,446,744,073,709,551,616'
+ *       // new Date('2020-09-23T14:54:21.020Z') => '2020-09-23T14:54:21.020Z'
  */
 export const toStringConfig: ColumnTransformConfig<any, string> = {
     type: TransformType.TRANSFORM,

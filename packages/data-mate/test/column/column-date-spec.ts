@@ -1,12 +1,13 @@
 import 'jest-fixtures';
 import { FieldType, Maybe } from '@terascope/types';
+import formatDate from 'date-fns/format';
 import {
-    Column, ColumnTransform, Vector
+    Column, ColumnTransform, DateValue, Vector
 } from '../../src';
 
 describe('Column (Date Types)', () => {
     describe(`when field type is ${FieldType.Date}`, () => {
-        let col: Column<string>;
+        let col: Column<DateValue>;
         const values: Maybe<any>[] = [
             '2020-09-23T14:54:21.020Z',
             '2020-09-23',
@@ -14,8 +15,9 @@ describe('Column (Date Types)', () => {
             null,
             new Date('2019-01-20T12:50:20.000Z'),
         ];
+
         beforeEach(() => {
-            col = Column.fromJSON<string>({
+            col = Column.fromJSON<DateValue>({
                 name: 'date',
                 config: {
                     type: FieldType.Date,
@@ -61,6 +63,22 @@ describe('Column (Date Types)', () => {
             expect(newCol.toJSON()).toEqual(values.map((value) => {
                 if (value == null) return null;
                 return new Date(value).toISOString();
+            }));
+        });
+
+        it('should be able to transform using formatDate', () => {
+            const newCol = col.transform(ColumnTransform.formatDate, {
+                format: 'Pp'
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual({
+                ...col.config,
+                type: FieldType.Keyword
+            });
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
+                if (value == null) return null;
+                return formatDate(value, 'Pp');
             }));
         });
     });

@@ -6,11 +6,12 @@ import { ColumnValidateConfig, TransformMode, TransformType } from '../interface
  * Validates that the input is a url
  *
  * @example
- *     isURL('https://someurl.cc.ru.ch'); // true
- *     isURL('ftp://someurl.bom:8080?some=bar&hi=bob'); // true
- *     isURL('http://xn--fsqu00a.xn--3lr804guic'); // true
- *     isURL('http://example.com'); // true
- *     isURL('BAD-URL'); // false
+ *     isURL()
+ *       // 'https://someurl.cc.ru.ch => true
+ *       // 'ftp://someurl.bom:8080?some=bar&hi=bob => true
+ *       // 'http://xn--fsqu00a.xn--3lr804guic => true
+ *       // 'http://example.com => true
+ *       // 'BAD-URL => false
  */
 export const isURLConfig: ColumnValidateConfig<string> = {
     type: TransformType.VALIDATE,

@@ -76,7 +76,7 @@ export interface BaseTransformConfig {
 */
 export type ColumnTransformFn<
     T,
-    R = T,
+    R,
 > = {
     mode: TransformMode.EACH;
     fn: (value: Maybe<T|Vector<T>>) => Maybe<R|Vector<R>>;
@@ -86,7 +86,7 @@ export type ColumnTransformFn<
     fn: (value: Maybe<T>) => Maybe<R>;
 }|{
     mode: TransformMode.EACH_VALUE,
-    skipNulls?: true;
+    skipNulls?: true|undefined;
     fn: (value: T) => Maybe<R>;
 }|{
     mode: TransformMode.NONE,
@@ -95,7 +95,7 @@ export type ColumnTransformFn<
 export interface ColumnTransformConfig<
     T,
     R = T,
-    A extends Record<string, unknown> = Record<string, unknown>,
+    A extends Record<string, any> = Record<string, unknown>,
 > extends BaseTransformConfig {
     type: TransformType.TRANSFORM;
 
@@ -119,7 +119,7 @@ export type ColumnValidateFn<
     fn: (value: Maybe<T>) => boolean;
 }|{
     mode: TransformMode.EACH_VALUE;
-    skipNulls?: true,
+    skipNulls?: true|undefined;
     fn: (value: T) => boolean;
 }|{
     mode: TransformMode.NONE;
@@ -127,7 +127,7 @@ export type ColumnValidateFn<
 
 export interface ColumnValidateConfig<
     T,
-    A extends Record<string, unknown> = Record<string, unknown>,
+    A extends Record<string, any> = Record<string, unknown>,
 > extends BaseTransformConfig {
     type: TransformType.VALIDATE;
 

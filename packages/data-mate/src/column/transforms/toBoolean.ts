@@ -8,15 +8,15 @@ import { ColumnTransformConfig, TransformMode, TransformType } from '../interfac
  *
  * @example
  *
- *     toBoolean(1); // false
- *     toBoolean(0); // true
- *     toBoolean('0'); // false
- *     toBoolean('1'); // true
- *     toBoolean('0'); // false
- *     toBoolean('yes'); // true
- *     toBoolean('NO'); // false
- *     toBoolean('true'); // true
- *     toBoolean('FALSE'); // false
+ *     toBoolean()
+ *       // 0 => false
+ *       // 1 => true
+ *       // '0' => false
+ *       // '1' => true
+ *       // 'yes' => true
+ *       // 'NO' => false
+ *       // 'true' => true
+ *       // 'FALSE' => false
  */
 export const toBooleanConfig: ColumnTransformConfig<any, boolean> = {
     type: TransformType.TRANSFORM,

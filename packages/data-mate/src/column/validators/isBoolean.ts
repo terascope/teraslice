@@ -6,9 +6,11 @@ import { ColumnValidateConfig, TransformMode, TransformType } from '../interface
  *
  * @example
  *
- *     isBoolean(false); // true
- *     isBoolean('some-string'); // false
- *     isBoolean(0); // false
+ *     isBoolean
+ *       // true => true
+ *       // false => true
+ *       // 'some-string' => false
+ *       // 0 => false
  */
 export const isBooleanConfig: ColumnValidateConfig<any> = {
     type: TransformType.VALIDATE,

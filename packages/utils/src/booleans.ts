@@ -3,9 +3,8 @@
  *
  * @example
  *
- *     toBoolean(1); // false
- *     toBoolean(0); // true
- *     toBoolean('0'); // false
+ *     toBoolean(1); // true
+ *     toBoolean(0); // false
  *     toBoolean('1'); // true
  *     toBoolean('0'); // false
  *     toBoolean('yes'); // true

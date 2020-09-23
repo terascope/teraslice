@@ -6,12 +6,16 @@ import { ColumnValidateConfig, TransformMode, TransformType } from '../interface
  *
  * @example
  *
- *     isBooleanLike(); // false
- *     isBooleanLike(null); // true
- *     isBooleanLike(0); // true
- *     isBooleanLike('0'); // true
- *     isBooleanLike('false'); // true
- *     isBooleanLike('no'); // true
+ *     isBooleanLike()
+ *       // 0 => true
+ *       // 1 => true
+ *       // '0' => true
+ *       // '1' => true
+ *       // 'yes' => true
+ *       // true => true
+ *       // 'False' => true
+ *       // 'SOME_VALUE' => false
+ *       // -1 => false
  */
 export const isBooleanLikeConfig: ColumnValidateConfig<any> = {
     type: TransformType.VALIDATE,
