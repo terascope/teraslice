@@ -38,19 +38,41 @@ export function toBigInt(input: unknown): bigint {
     return BigInt(input);
 }
 
+/**
+ * A stricter check for verifying a number string
+ * @todo this needs to be smarter
+*/
+export function isNumberLikeString(input: string): boolean {
+    // https://regexr.com/5cljt
+    return /^[+-]{0,1}[\d,]+(\.[\d]+){0,1}$/.test(input);
+}
+
 /** Convert any input to a integer, return false if unable to convert input  */
 export function toInteger(input: unknown): number | false {
     if (isInteger(input)) return input;
 
     const str = `${input}`;
-
-    // https://regexr.com/5cljt
-    if (!/^[+-]{0,1}[\d,]+(\.[\d]+){0,1}$/.test(str)) {
+    if (!isNumberLikeString(str)) {
         return false;
     }
 
     const val = Number.parseInt(str, 10);
     if (isInteger(val)) return val;
+
+    return false;
+}
+
+/** Convert any input to a float, return false if unable to convert input  */
+export function toFloat(input: unknown): number | false {
+    if (isNumber(input)) return input;
+
+    const str = `${input}`;
+    if (!isNumberLikeString(str)) {
+        return false;
+    }
+
+    const val = Number.parseFloat(str);
+    if (isNumber(val)) return val;
 
     return false;
 }

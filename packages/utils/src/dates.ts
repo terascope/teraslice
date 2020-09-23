@@ -1,5 +1,3 @@
-import { toInteger } from './numbers';
-
 /**
  * A helper function for making an ISODate string
  */
@@ -32,14 +30,6 @@ export function getValidDate(val: Date|number|string|null|undefined): Date | fal
     if (typeof val === 'number'
         && (val <= 0 || !Number.isSafeInteger(val))) {
         return false;
-    }
-
-    if (typeof val === 'string') {
-        const int = toInteger(val);
-        if (int !== false && int >= 0) {
-            const d = new Date(int);
-            if (isValidDateInstance(d)) return d;
-        }
     }
 
     const d = new Date(val);
