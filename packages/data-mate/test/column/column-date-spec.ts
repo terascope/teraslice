@@ -277,18 +277,10 @@ describe('Column (Date Types)', () => {
             expect(col.vector).toBeInstanceOf(Vector);
         });
 
-        it('should be able to transform using toDate', () => {
-            const newCol = col.transform(ColumnTransform.toDate);
-
-            expect(newCol.id).not.toBe(col.id);
-            expect(newCol.config).toEqual({
-                ...col.config,
-                type: FieldType.Date
-            });
-            expect(newCol.toJSON()).toEqual(values.map((val) => {
-                if (val == null) return null;
-                return parseFloat(val);
-            }));
+        it('should fail when transforming using toDate', () => {
+            expect(() => {
+                col.transform(ColumnTransform.toDate);
+            }).toThrowError('Expected value 1600844405020 to be a valid ISO 8601 date');
         });
 
         it('should fail to transform toDate using an invalid format', () => {
@@ -297,18 +289,6 @@ describe('Column (Date Types)', () => {
                     format: 'M/d/yyyy'
                 });
             }).toThrowError('Expected value 1600844405020 to be a date string with format M/d/yyyy');
-        });
-
-        it('should return invalid dates when transform toDate(resolution: "seconds")', () => {
-            const newCol = col.transform(ColumnTransform.toDate, {
-                resolution: 'seconds'
-            });
-
-            expect(newCol.toJSON()).not.toEqual([
-                1600844405020,
-                null,
-                1579503620931,
-            ]);
         });
     });
 

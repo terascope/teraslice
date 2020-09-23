@@ -1,4 +1,4 @@
-import { getTypeOf } from '@terascope/utils';
+import { getTypeOf, toInteger } from '@terascope/utils';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../builder';
 
@@ -7,11 +7,8 @@ import { Builder, BuilderOptions } from '../builder';
 */
 export class IntBuilder extends Builder<number> {
     static valueFrom(value: unknown): number {
-        if (Number.isSafeInteger(value)) {
-            return value as number;
-        }
-        const parsed = parseInt(value as string, 10);
-        if (Number.isNaN(parsed)) {
+        const parsed = toInteger(value);
+        if (parsed === false) {
             throw new TypeError(`Expected ${parsed} (${getTypeOf(value)}) to be a valid integer`);
         }
         return parsed;

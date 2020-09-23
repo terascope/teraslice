@@ -1,6 +1,7 @@
 import { FieldType } from '@terascope/types';
-import { getValidDate, isValidDateInstance } from '@terascope/utils';
+import { getValidDate, isValidDateInstance, toInteger } from '@terascope/utils';
 import parseDate from 'date-fns/parse';
+import parseISODate from 'date-fns/parseISO';
 import { VectorType } from '../../vector';
 import {
     ColumnTransformConfig, TransformMode, TransformType
@@ -74,11 +75,24 @@ export const toDateConfig: ColumnTransformConfig<any, number, ToDateArgs> = {
             return {
                 mode: TransformMode.EACH_VALUE,
                 fn(value: number|string): number {
-                    const int = parseInt(`${value}`, 10);
-                    if (!Number.isSafeInteger(int)) {
-                        throw new Error(`Expected value ${value} to be a valid unix time`);
+                    const int = toInteger(value);
+                    if (int === false || int < 0) {
+                        throw new Error(`Expected value ${value} to be a valid time`);
                     }
                     return Math.round(int * 1000);
+                }
+            };
+        }
+
+        if (vector.type === VectorType.String) {
+            return {
+                mode: TransformMode.EACH_VALUE,
+                fn(value: string): number {
+                    const date = parseISODate(value);
+                    if (!isValidDateInstance(date)) {
+                        throw new Error(`Expected value ${value} to be a valid ISO 8601 date`);
+                    }
+                    return date.getTime();
                 }
             };
         }
