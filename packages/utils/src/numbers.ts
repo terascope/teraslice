@@ -43,8 +43,11 @@ export function toInteger(input: unknown): number | false {
     if (isInteger(input)) return input;
 
     const str = `${input}`;
+
     // https://regexr.com/5cljt
-    if (!/^[+-]{0,1}[\d,]+(\.[\d]+)*$/.test(str)) return false;
+    if (!/^[+-]{0,1}[\d,]+(\.[\d]+){0,1}$/.test(str)) {
+        return false;
+    }
 
     const val = Number.parseInt(str, 10);
     if (isInteger(val)) return val;
