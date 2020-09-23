@@ -224,7 +224,7 @@ function makeDateAgg(dateFormat: string): MakeKeyAggFn {
         const value = vector.get(index);
         if (value == null) return { key: undefined, value };
 
-        const date = getValidDate(value);
+        const date = getValidDate(value as any);
         if (date === false) return { key: undefined, value };
 
         return {

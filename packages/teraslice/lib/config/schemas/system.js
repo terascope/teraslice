@@ -2,7 +2,9 @@
 
 const ip = require('ip');
 const path = require('path');
-const { isPlainObject, isString, isArray } = require('@terascope/utils');
+const {
+    isPlainObject, isString, isArray, isInteger
+} = require('@terascope/utils');
 
 const workerCount = require('os').cpus().length;
 
@@ -44,13 +46,7 @@ const schema = {
     workers: {
         doc: 'Number of workers per server',
         default: workerCount,
-        format(val) {
-            if (isNaN(val)) {
-                throw new Error('workers parameter for teraslice must be a number');
-            } else if (val < 0) {
-                throw new Error('workers for teraslice must be >= zero');
-            }
-        }
+        format: 'nat'
     },
     master: {
         doc: 'boolean for determining if cluster_master should live on this node',
@@ -200,7 +196,7 @@ const schema = {
                 throw new Error('slicer_port_range is formatted incorrectly');
             }
             arr.forEach((value) => {
-                if (isNaN(value)) {
+                if (isInteger(value) !== false) {
                     throw new Error(
                         'values specified in slicer_port_range must be a number specified as a string'
                     );

@@ -1369,7 +1369,7 @@ function _parseDate(input: any, args: ParseDateConfig) {
 
     const parsed = parse(input, format, new Date());
 
-    if (String(parsed) === 'Invalid Date') {
+    if (!ts.isValidDateInstance(parsed)) {
         throw new Error('Cannot parse date');
     }
 

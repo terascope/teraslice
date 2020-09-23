@@ -32,7 +32,7 @@ export function toBigInt(input: unknown): bigint {
 
     const str = String(input);
     if (str.includes('.')) {
-        return BigInt(parseInt(str, 10));
+        return BigInt(Number.parseInt(str, 10));
     }
 
     return BigInt(input);
@@ -41,8 +41,14 @@ export function toBigInt(input: unknown): bigint {
 /** Convert any input to a integer, return false if unable to convert input  */
 export function toInteger(input: unknown): number | false {
     if (isInteger(input)) return input;
-    const val = Number.parseInt(input as string, 10);
-    if (isNumber(val)) return val;
+
+    const str = `${input}`;
+    // https://regexr.com/5cljt
+    if (!/^[+-]{0,1}[\d,]+(\.[\d]+)*$/.test(str)) return false;
+
+    const val = Number.parseInt(str, 10);
+    if (isInteger(val)) return val;
+
     return false;
 }
 

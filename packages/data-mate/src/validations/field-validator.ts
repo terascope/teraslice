@@ -1308,7 +1308,7 @@ export function isValidDate(input: unknown, _parentContext?: unknown): boolean {
         return _lift(handleArgs(ts.isValidDate), input, _parentContext);
     }
 
-    return !isBoolean(input as any) && ts.isValidDate(input);
+    return !ts.isBoolean(input as any) && ts.isValidDate(input);
 }
 
 /**

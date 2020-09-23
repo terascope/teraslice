@@ -8,8 +8,8 @@ import { Builder, BuilderOptions } from '../builder';
  */
 export class DateBuilder extends Builder<DateValue> {
     static valueFrom(value: unknown): DateValue {
-        const date = getValidDate(value);
-        if (!date) {
+        const date = getValidDate(value as any);
+        if (date === false) {
             throw new Error(`Expected ${value} (${getTypeOf(value)}) to be in a valid date format`);
         }
         return date.getTime();

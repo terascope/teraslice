@@ -440,7 +440,7 @@ module.exports = function apiService(context, { assetsUrl, app }) {
             }
         });
 
-        if (!msg || isNaN(workerNum) || workerNum <= 0) {
+        if (!msg || Number.isNaN(workerNum) || workerNum <= 0) {
             throw new TSError('Must provide a valid worker parameter(add/remove/total) that is a number and greater than zero', {
                 statusCode: 400
             });
