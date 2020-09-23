@@ -119,28 +119,6 @@ describe('Column (Date Types)', () => {
             }, values);
         });
 
-        it('should have the correct size', () => {
-            expect(col.count()).toEqual(values.length);
-        });
-
-        it('should have the same id when forked with the same vector', () => {
-            expect(col.fork().id).toEqual(col.id);
-        });
-
-        it('should NOT have the same id when forked with a different vector', () => {
-            const vector = col.vector.slice(0, 2);
-            expect(col.fork(vector).id).not.toEqual(col.id);
-        });
-
-        it('should be able to iterate over the values', () => {
-            expect([...col]).toEqual(values);
-            expect(col.toJSON()).toEqual(values);
-        });
-
-        it('should be able to get the Vector', () => {
-            expect(col.vector).toBeInstanceOf(Vector);
-        });
-
         it('should be able to transform using toDate', () => {
             const newCol = col.transform(ColumnTransform.toDate, {
                 format: 'yyyy-MM-dd'
@@ -152,9 +130,95 @@ describe('Column (Date Types)', () => {
                 type: FieldType.Date
             });
             expect(newCol.toJSON()).toEqual([
-                1600844400000,
+                1600819200000,
                 null,
-                1579503600000,
+                1579478400000,
+            ]);
+        });
+
+        it('should fail to transform toDate using an invalid format', () => {
+            expect(() => {
+                col.transform(ColumnTransform.toDate, {
+                    format: 'M/d/yyyy'
+                });
+            }).toThrowError(/Expected value .* to be a date string with format/);
+        });
+    });
+
+    describe(`when field type is ${FieldType.Keyword} (with time)`, () => {
+        let col: Column<string>;
+        const values: Maybe<string>[] = [
+            '2018-02-02 00:23:01',
+            null,
+            '2016-12-12 19:23:02',
+        ];
+
+        beforeEach(() => {
+            col = Column.fromJSON<string>({
+                name: 'date_str',
+                config: {
+                    type: FieldType.Keyword,
+                },
+            }, values);
+        });
+
+        it('should be able to transform using toDate', () => {
+            const newCol = col.transform(ColumnTransform.toDate, {
+                format: 'yyyy-MM-dd HH:mm:ss'
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual({
+                ...col.config,
+                type: FieldType.Date
+            });
+            expect(newCol.toJSON()).toEqual([
+                1517530981000,
+                null,
+                1481570582000,
+            ]);
+        });
+
+        it('should fail to transform toDate using an invalid format', () => {
+            expect(() => {
+                col.transform(ColumnTransform.toDate, {
+                    format: 'M/d/yyyy'
+                });
+            }).toThrowError(/Expected value .* to be a date string with format/);
+        });
+    });
+
+    describe(`when field type is ${FieldType.Keyword} (with time and timezone)`, () => {
+        let col: Column<string>;
+        const values: Maybe<string>[] = [
+            '2018-02-02 00:23:0 -08:00',
+            null,
+            '2016-12-12 19:23:02 +02:00',
+        ];
+
+        beforeEach(() => {
+            col = Column.fromJSON<string>({
+                name: 'date_str',
+                config: {
+                    type: FieldType.Keyword,
+                },
+            }, values);
+        });
+
+        it('should be able to transform using toDate', () => {
+            const newCol = col.transform(ColumnTransform.toDate, {
+                format: 'yyyy-MM-dd HH:mm:ss xxx'
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual({
+                ...col.config,
+                type: FieldType.Date
+            });
+            expect(newCol.toJSON()).toEqual([
+                1517530981000,
+                null,
+                1481570582000,
             ]);
         });
 
@@ -184,28 +248,6 @@ describe('Column (Date Types)', () => {
             }, values);
         });
 
-        it('should have the correct size', () => {
-            expect(col.count()).toEqual(values.length);
-        });
-
-        it('should have the same id when forked with the same vector', () => {
-            expect(col.fork().id).toEqual(col.id);
-        });
-
-        it('should NOT have the same id when forked with a different vector', () => {
-            const vector = col.vector.slice(0, 2);
-            expect(col.fork(vector).id).not.toEqual(col.id);
-        });
-
-        it('should be able to iterate over the values', () => {
-            expect([...col]).toEqual(values);
-            expect(col.toJSON()).toEqual(values);
-        });
-
-        it('should be able to get the Vector', () => {
-            expect(col.vector).toBeInstanceOf(Vector);
-        });
-
         it('should be able to transform using toDate', () => {
             const newCol = col.transform(ColumnTransform.toDate);
 
@@ -230,10 +272,10 @@ describe('Column (Date Types)', () => {
                 resolution: 'seconds'
             });
 
-            expect(newCol.toJSON()).not.toEqual([
-                1600844405020,
+            expect(newCol.toJSON()).toEqual([
+                1600844405020 * 1000,
                 null,
-                1579503620931,
+                1579503620931 * 1000,
             ]);
         });
     });
@@ -255,32 +297,10 @@ describe('Column (Date Types)', () => {
             }, values);
         });
 
-        it('should have the correct size', () => {
-            expect(col.count()).toEqual(values.length);
-        });
-
-        it('should have the same id when forked with the same vector', () => {
-            expect(col.fork().id).toEqual(col.id);
-        });
-
-        it('should NOT have the same id when forked with a different vector', () => {
-            const vector = col.vector.slice(0, 2);
-            expect(col.fork(vector).id).not.toEqual(col.id);
-        });
-
-        it('should be able to iterate over the values', () => {
-            expect([...col]).toEqual(values);
-            expect(col.toJSON()).toEqual(values);
-        });
-
-        it('should be able to get the Vector', () => {
-            expect(col.vector).toBeInstanceOf(Vector);
-        });
-
         it('should fail when transforming using toDate', () => {
             expect(() => {
                 col.transform(ColumnTransform.toDate);
-            }).toThrowError('Expected value 1600844405020 to be a valid ISO 8601 date');
+            }).toThrowError('Expected value 1600844405020 to be a valid date');
         });
 
         it('should fail to transform toDate using an invalid format', () => {
@@ -307,28 +327,6 @@ describe('Column (Date Types)', () => {
                     type: FieldType.Number,
                 },
             }, values);
-        });
-
-        it('should have the correct size', () => {
-            expect(col.count()).toEqual(values.length);
-        });
-
-        it('should have the same id when forked with the same vector', () => {
-            expect(col.fork().id).toEqual(col.id);
-        });
-
-        it('should NOT have the same id when forked with a different vector', () => {
-            const vector = col.vector.slice(0, 2);
-            expect(col.fork(vector).id).not.toEqual(col.id);
-        });
-
-        it('should be able to iterate over the values', () => {
-            expect([...col]).toEqual(values);
-            expect(col.toJSON()).toEqual(values);
-        });
-
-        it('should be able to get the Vector', () => {
-            expect(col.vector).toBeInstanceOf(Vector);
         });
 
         it('should be able to transform using toDate', () => {

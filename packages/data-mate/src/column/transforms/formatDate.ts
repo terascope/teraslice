@@ -18,6 +18,8 @@ export interface FormatDateArgs {
 /**
  * Converts a date value to a formatted date string
  *
+ * @todo we need to handle timezones
+ *
  * @example
  *
  *     formatDate()

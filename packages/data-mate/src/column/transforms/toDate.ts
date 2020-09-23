@@ -1,7 +1,7 @@
 import { FieldType } from '@terascope/types';
-import { getValidDate, isValidDateInstance, toInteger } from '@terascope/utils';
+import { isValidDateInstance, toInteger } from '@terascope/utils';
 import parseDate from 'date-fns/parse';
-import parseISODate from 'date-fns/parseISO';
+import parseJSONDate from 'date-fns/parseJSON';
 import { VectorType } from '../../vector';
 import {
     ColumnTransformConfig, TransformMode, TransformType
@@ -25,8 +25,12 @@ export interface ToDateArgs {
     resolution?: 'seconds'|'milliseconds';
 }
 
+const systemTimezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
+
 /**
  * Converts date formatted values to a Date
+ *
+ * @todo we need to handle timezones
  *
  * @example
  *
@@ -58,15 +62,15 @@ export const toDateConfig: ColumnTransformConfig<any, number, ToDateArgs> = {
                 );
             }
 
-            const referenceDate = new Date();
             return {
                 mode: TransformMode.EACH_VALUE,
                 fn(value: string): number {
-                    const date = parseDate(value, format, referenceDate);
+                    const date = parseDate(value, format, Date.now());
                     if (!isValidDateInstance(date)) {
                         throw new Error(`Expected value ${value} to be a date string with format ${format}`);
                     }
-                    return date.getTime();
+
+                    return date.getTime() - systemTimezoneOffset;
                 }
             };
         }
@@ -79,20 +83,12 @@ export const toDateConfig: ColumnTransformConfig<any, number, ToDateArgs> = {
                     if (int === false || int < 0) {
                         throw new Error(`Expected value ${value} to be a valid time`);
                     }
-                    return Math.round(int * 1000);
-                }
-            };
-        }
 
-        if (vector.type === VectorType.String) {
-            return {
-                mode: TransformMode.EACH_VALUE,
-                fn(value: string): number {
-                    const date = parseISODate(value);
-                    if (!isValidDateInstance(date)) {
-                        throw new Error(`Expected value ${value} to be a valid ISO 8601 date`);
+                    const ms = Math.floor(int * 1000);
+                    if (ms < 0 || !Number.isSafeInteger(ms)) {
+                        throw new Error(`Expected value ${value} to be a valid time`);
                     }
-                    return date.getTime();
+                    return ms;
                 }
             };
         }
@@ -100,8 +96,8 @@ export const toDateConfig: ColumnTransformConfig<any, number, ToDateArgs> = {
         return {
             mode: TransformMode.EACH_VALUE,
             fn(value: string|number): number {
-                const date = getValidDate(value);
-                if (date === false) {
+                const date = parseJSONDate(value);
+                if (!isValidDateInstance(date)) {
                     throw new Error(`Expected value ${value} to be a valid date`);
                 }
                 return date.getTime();
