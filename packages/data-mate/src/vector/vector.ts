@@ -1,3 +1,4 @@
+import { toString } from '@terascope/utils';
 import {
     DataTypeFieldConfig, DataTypeFields,
     Maybe, Nil, SortOrder,
@@ -66,7 +67,7 @@ export abstract class Vector<T = unknown> {
      * Gets the number distinct values in the Vector
     */
     distinct(): number {
-        return new Set(this).size;
+        return new Set(this.data.values.map(toString)).size;
     }
 
     /**

@@ -1,17 +1,39 @@
+/* eslint-disable max-classes-per-file */
 import { Vector, VectorOptions } from '../vector';
 import { VectorType } from '../interfaces';
 
 /**
- * The date stored in epoch milliseconds
+ * The internal date storage format
 */
-export type DateValue = number;
+export class DateValue {
+    /**
+     * The original formatted date
+    */
+    readonly formatted: string|number|undefined;
+
+    /**
+     * Date stored in epoch milliseconds
+    */
+    readonly value: number;
+
+    constructor(epochMillis: number, formatted?: string|number) {
+        this.value = epochMillis;
+        if (epochMillis === formatted || !formatted) {
+            this.formatted = undefined;
+        } else {
+            this.formatted = formatted;
+        }
+    }
+
+    [Symbol.toPrimitive](hint: 'string'|'number'|'default'): any {
+        if (hint === 'number') return this.value;
+        return `${this.formatted ?? this.value}`;
+    }
+}
 
 export class DateVector extends Vector<DateValue> {
-    /**
-     * @todo this should probably be handled better
-     */
-    static valueToJSON(value: DateValue): number {
-        return value;
+    static valueToJSON({ value, formatted }: DateValue): string|number {
+        return formatted ?? value;
     }
 
     constructor(options: VectorOptions<DateValue>) {

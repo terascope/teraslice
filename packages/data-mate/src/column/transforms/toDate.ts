@@ -1,8 +1,8 @@
-import { FieldType } from '@terascope/types';
+import { DateFormat, FieldType } from '@terascope/types';
 import { isValidDateInstance, toInteger } from '@terascope/utils';
 import parseDate from 'date-fns/parse';
 import parseJSONDate from 'date-fns/parseJSON';
-import { VectorType } from '../../vector';
+import { DateValue, VectorType } from '../../vector';
 import {
     ColumnTransformConfig, TransformMode, TransformType
 } from '../interfaces';
@@ -12,17 +12,9 @@ export interface ToDateArgs {
      * When the value is a string, this indicates the date string format.
      * See https://date-fns.org/v2.16.1/docs/parse for more info
      *
-     * @default 'ISO 8061' formatted string
+     * Default: iso_8601 for strings and epoch_millis for number
     */
-    format?: string;
-
-    /**
-     * When the value is a number, this will indicate whether the value
-     * is in milliseconds or seconds
-     *
-     * @default 'milliseconds'
-    */
-    resolution?: 'seconds'|'milliseconds';
+    format?: string|DateFormat;
 }
 
 const systemTimezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
@@ -30,7 +22,7 @@ const systemTimezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
 /**
  * Converts date formatted values to a Date
  *
- * @todo we need to handle timezones
+ * @todo we need to handle timezones?
  *
  * @example
  *
@@ -44,18 +36,18 @@ const systemTimezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
  *     toDate({ format: 'M/d/yyyy' })
  *       // '1/14/2020' => 1579034041034
  *
- *     toDate({ resolution: 'seconds' })
+ *     toDate({ format: 'seconds' })
  *       // 1579034041 => 1579034041034
  *
- *     toDate({ resolution: 'milliseconds' })
+ *     toDate({ format: 'milliseconds' })
  *       // 1579034041034 => 1579034041034
  *
  */
-export const toDateConfig: ColumnTransformConfig<any, number, ToDateArgs> = {
+export const toDateConfig: ColumnTransformConfig<any, DateValue, ToDateArgs> = {
     type: TransformType.TRANSFORM,
     create(vector, args) {
-        const { format, resolution } = args;
-        if (format) {
+        const { format } = args;
+        if (format && !(format in DateFormat)) {
             if (vector.type !== VectorType.String && vector.type !== VectorType.Any) {
                 throw new Error(
                     'Expected string values when using toDate({ format })'
@@ -64,43 +56,53 @@ export const toDateConfig: ColumnTransformConfig<any, number, ToDateArgs> = {
 
             return {
                 mode: TransformMode.EACH_VALUE,
-                fn(value: string): number {
+                output: { format },
+                fn(value: string): DateValue {
                     const date = parseDate(value, format, Date.now());
                     if (!isValidDateInstance(date)) {
                         throw new Error(`Expected value ${value} to be a date string with format ${format}`);
                     }
 
-                    return date.getTime() - systemTimezoneOffset;
+                    const epochMillis = date.getTime() - systemTimezoneOffset;
+                    return new DateValue(epochMillis, value);
                 }
             };
         }
 
-        if (resolution === 'seconds') {
+        if (format === DateFormat.epoch) {
             return {
                 mode: TransformMode.EACH_VALUE,
-                fn(value: number|string): number {
-                    const int = toInteger(value);
-                    if (int === false || int < 0) {
+                output: { format },
+                fn(value: number|string): DateValue {
+                    const epoch = toInteger(value);
+                    if (epoch === false || epoch < 0) {
                         throw new Error(`Expected value ${value} to be a valid time`);
                     }
 
-                    const ms = Math.floor(int * 1000);
-                    if (ms < 0 || !Number.isSafeInteger(ms)) {
+                    const epochMillis = Math.floor(epoch * 1000);
+                    if (epochMillis < 0 || !Number.isSafeInteger(epochMillis)) {
                         throw new Error(`Expected value ${value} to be a valid time`);
                     }
-                    return ms;
+
+                    return new DateValue(epochMillis, epoch);
                 }
             };
         }
+
+        const defaultFormat = vector.type === VectorType.String
+            ? DateFormat.iso_8601
+            : DateFormat.epoch_millis;
 
         return {
             mode: TransformMode.EACH_VALUE,
-            fn(value: string|number): number {
+            output: { format: defaultFormat },
+            fn(value: string|number): DateValue {
                 const date = parseJSONDate(value);
                 if (!isValidDateInstance(date)) {
                     throw new Error(`Expected value ${value} to be a valid date`);
                 }
-                return date.getTime();
+
+                return new DateValue(date.getTime(), value);
             }
         };
     },
@@ -110,15 +112,10 @@ export const toDateConfig: ColumnTransformConfig<any, number, ToDateArgs> = {
             type: FieldType.String,
             description: `When the value is a string, this indicates the date string format.
 See https://date-fns.org/v2.16.1/docs/parse for more info.
-Default: ISO 8601 formatted string`
-        },
-        resolution: {
-            type: FieldType.String,
-            description: `When the value is a number, this will indicate whether the value is in milliseconds or seconds.
-Default: 'milliseconds'`
+Default: iso_8601 for strings and epoch_millis for number`
         }
     },
-    accepts: [VectorType.String, VectorType.Int, VectorType.Float, VectorType.Any],
+    accepts: [VectorType.String, VectorType.Int, VectorType.Float],
     output: {
         type: FieldType.Date
     }

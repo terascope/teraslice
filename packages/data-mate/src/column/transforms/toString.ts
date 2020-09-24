@@ -21,7 +21,7 @@ export const toStringConfig: ColumnTransformConfig<any, string> = {
             return {
                 mode: TransformMode.EACH_VALUE,
                 fn(value: string) {
-                    return new Date(value).toISOString();
+                    return `${value}`;
                 }
             };
         }

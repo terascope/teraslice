@@ -75,7 +75,7 @@ export abstract class Builder<T = unknown> {
      * Flush and convert the result to a Vector
     */
     toVector(): Vector<T> {
-        const vector = Vector.make(this.config, Object.freeze({
+        const vector = Vector.make({ ...this.config }, Object.freeze({
             values: Object.freeze(this._values.slice())
         }), this.childConfig);
 

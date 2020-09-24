@@ -58,9 +58,11 @@ export class DataFrame<
     constructor(options: DataFrameOptions<T, M>) {
         this.name = options.name;
         this.metadata = { ...options.metadata } as M;
+
         this.columns = Object.isFrozen(options.columns)
             ? options.columns
             : Object.freeze(options.columns);
+
         const lengths = this.columns.map((col) => col.count());
         if (new Set(lengths).size > 1) {
             throw new Error(

@@ -1,12 +1,12 @@
 import formatDate from 'date-fns/format';
 import {
-    getTypeOf,
-    getValidDate, isBigInt, toBigInt
+    getTypeOf, isBigInt, toBigInt
 } from '@terascope/utils';
 import { Maybe } from '@terascope/types';
 import { Vector } from './vector';
 import { createKeyForValue, getNumericValues } from './utils';
 import { VectorType } from './interfaces';
+import { DateValue } from './types';
 
 export enum ValueAggregation {
     avg = 'avg',
@@ -221,14 +221,11 @@ export const keyAggMap: Record<KeyAggregation, MakeKeyAggFn> = {
 
 function makeDateAgg(dateFormat: string): MakeKeyAggFn {
     return (vector) => (index) => {
-        const value = vector.get(index);
+        const value = vector.get(index) as DateValue;
         if (value == null) return { key: undefined, value };
 
-        const date = getValidDate(value as any);
-        if (date === false) return { key: undefined, value };
-
         return {
-            key: formatDate(date, dateFormat),
+            key: formatDate(value.value, dateFormat),
             value,
         };
     };

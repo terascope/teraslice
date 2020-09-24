@@ -9,7 +9,7 @@ import {
 import {
     ColumnOptions, ColumnTransformConfig, ColumnValidateConfig, TransformMode
 } from './interfaces';
-import { getVectorId, isSameFieldConfig, mapVector } from './utils';
+import { getVectorId, mapVector } from './utils';
 
 /**
  * A single column of values with the same data type.
@@ -22,11 +22,10 @@ import { getVectorId, isSameFieldConfig, mapVector } from './utils';
 export class Column<T = unknown> {
     name: string;
     readonly version: DataTypeVersion;
-    readonly config: Readonly<DataTypeFieldConfig>;
     protected readonly _vector: Vector<T>;
 
     static fromJSON<R>(
-        options: ColumnOptions,
+        options: ColumnOptions & { config: Readonly<DataTypeFieldConfig> },
         values: Maybe<R>[]|readonly Maybe<R>[] = []
     ): Column<R extends (infer U)[] ? Vector<U> : R> {
         const builder = Builder.make<R>(options.config, values.length);
@@ -37,16 +36,7 @@ export class Column<T = unknown> {
     constructor(vector: Vector<T>, options: ColumnOptions|Readonly<ColumnOptions>) {
         this.name = options.name;
         this.version = options.version ?? LATEST_VERSION;
-        this.config = options.config;
         this._vector = vector;
-
-        const vType = vector.config.type;
-        const cType = this.config.type;
-        if (!isSameFieldConfig(this.config, vector.config)) {
-            throw new Error(
-                `Vector config (${vType}) must match column config ("${cType}")`
-            );
-        }
     }
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
@@ -69,13 +59,20 @@ export class Column<T = unknown> {
     }
 
     /**
+     * Get the underling Vector.
+     * Use with caution since it can cause this Column/DataFrame to be out-of-sync
+    */
+    get config(): Readonly<DataTypeFieldConfig> {
+        return this._vector.config;
+    }
+
+    /**
      * Create a fork of the Column
     */
     fork(vector?: Vector<T>): Column<T> {
         return new Column<T>(vector ?? this.vector, {
             name: this.name,
             version: this.version,
-            config: this.config,
         });
     }
 
@@ -88,12 +85,11 @@ export class Column<T = unknown> {
      *
      * @returns the new column
     */
-    transform<R, A extends Record<string, unknown>>(
+    transform<R, A extends Record<string, any>>(
         transformConfig: ColumnTransformConfig<T, R, A>,
         args?: A
     ): Column<R> {
         const options: ColumnOptions = {
-            config: { ...this.config, ...transformConfig.output },
             name: this.name,
             version: this.version,
         };
@@ -103,7 +99,11 @@ export class Column<T = unknown> {
         );
 
         return new Column<R>(
-            mapVector<T, R>(this.vector, options.config, transform),
+            mapVector<T, R>(
+                this.vector,
+                transform,
+                transformConfig.output,
+            ),
             options
         );
     }
@@ -118,12 +118,11 @@ export class Column<T = unknown> {
      *
      * @returns the new column so it works like fluent API
     */
-    validate<A extends Record<string, unknown>>(
+    validate<A extends Record<string, any>>(
         validateConfig: ColumnValidateConfig<T, A>,
         args?: A
     ): Column<T> {
         const options: ColumnOptions = {
-            config: { ...this.config, ...validateConfig.output },
             name: this.name,
             version: this.version,
         };
@@ -142,7 +141,7 @@ export class Column<T = unknown> {
         }) : validator;
 
         return new Column<T>(
-            mapVector<T, T>(this.vector, options.config, transform),
+            mapVector<T, T>(this.vector, transform),
             options
         );
     }

@@ -99,14 +99,14 @@ describe('AggregationFrame', () => {
                     age: 154,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                    date: '2020-09-15T17:39:11.195Z'
                 },
                 {
                     name: 'Jill',
                     age: 156,
                     gender: 'F',
                     scores: [2, 2, 2],
-                    date: new Date('2020-09-15T15:39:11.195Z').getTime()
+                    date: '2020-09-15T15:39:11.195Z'
                 }
             ]);
         });
@@ -124,7 +124,7 @@ describe('AggregationFrame', () => {
                     age: 64,
                     gender: 'M',
                     scores: 165,
-                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                    date: '2020-09-15T17:39:11.195Z'
                 }
             ]);
         });
@@ -142,14 +142,14 @@ describe('AggregationFrame', () => {
                     age: 38.5,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                    date: '2020-09-15T17:39:11.195Z'
                 },
                 {
                     name: 'Jill',
                     age: 52,
                     gender: 'F',
                     scores: [2, 2, 2],
-                    date: new Date('2020-09-15T15:39:11.195Z').getTime()
+                    date: '2020-09-15T15:39:11.195Z'
                 }
             ]);
         });
@@ -165,7 +165,7 @@ describe('AggregationFrame', () => {
                     age: 44.285714285714285,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                    date: '2020-09-15T17:39:11.195Z'
                 }
             ]);
         });
@@ -183,7 +183,7 @@ describe('AggregationFrame', () => {
                     age: 64,
                     gender: 'M',
                     scores: 7.857142857142857,
-                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                    date: '2020-09-15T17:39:11.195Z'
                 }
             ]);
         });
@@ -201,14 +201,14 @@ describe('AggregationFrame', () => {
                     age: 20,
                     gender: 'M',
                     scores: [50, 4, 19],
-                    date: new Date('2020-09-13T17:39:11.195Z').getTime()
+                    date: '2020-09-13T17:39:11.195Z'
                 },
                 {
                     name: 'Anne',
                     age: 32,
                     gender: 'F',
                     scores: [20, 4, 19],
-                    date: new Date('2020-09-15T15:39:11.195Z').getTime()
+                    date: '2020-09-15T15:39:11.195Z'
                 }
             ]);
         });
@@ -224,7 +224,7 @@ describe('AggregationFrame', () => {
                     age: 20,
                     gender: 'M',
                     scores: [50, 4, 19],
-                    date: new Date('2020-09-13T17:39:11.195Z').getTime()
+                    date: '2020-09-13T17:39:11.195Z'
                 }
             ]);
         });
@@ -242,7 +242,7 @@ describe('AggregationFrame', () => {
                     age: 84,
                     gender: 'F',
                     scores: 0,
-                    date: new Date('2019-09-15T17:39:11.195Z').getTime(),
+                    date: '2019-09-15T17:39:11.195Z',
                 }
             ]);
         });
@@ -260,14 +260,14 @@ describe('AggregationFrame', () => {
                     age: 64,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                    date: '2020-09-15T17:39:11.195Z'
                 },
                 {
                     name: 'Nancy',
                     age: 84,
                     gender: 'F',
                     scores: [1, 0, 0],
-                    date: new Date('2019-09-15T17:39:11.195Z').getTime(),
+                    date: '2019-09-15T17:39:11.195Z',
                 }
             ]);
         });
@@ -283,7 +283,7 @@ describe('AggregationFrame', () => {
                     age: 84,
                     gender: 'F',
                     scores: [1, 0, 0],
-                    date: new Date('2019-09-15T17:39:11.195Z').getTime(),
+                    date: '2019-09-15T17:39:11.195Z',
                 }
             ]);
         });
@@ -301,7 +301,7 @@ describe('AggregationFrame', () => {
                     age: 20,
                     gender: 'M',
                     scores: 50,
-                    date: new Date('2020-09-13T17:39:11.195Z').getTime()
+                    date: '2020-09-13T17:39:11.195Z'
                 }
             ]);
         });
@@ -319,14 +319,14 @@ describe('AggregationFrame', () => {
                     age: 64,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                    date: '2020-09-15T17:39:11.195Z'
                 },
                 {
                     name: 3,
                     age: 40,
                     gender: 'F',
                     scores: [2, 2, 2],
-                    date: new Date('2020-09-15T15:39:11.195Z').getTime()
+                    date: '2020-09-15T15:39:11.195Z'
                 }
             ]);
         });
@@ -342,7 +342,7 @@ describe('AggregationFrame', () => {
                     age: 64,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                    date: '2020-09-15T17:39:11.195Z'
                 }
             ]);
         });
@@ -360,42 +360,42 @@ describe('AggregationFrame', () => {
                     age: 64,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: new Date('2020-09-15T17:39:11.195Z').getTime(),
+                    date: '2020-09-15T17:39:11.195Z',
                 },
                 {
                     name: 'Frank',
                     age: 25,
                     gender: 'M',
                     scores: [2, 4, 19],
-                    date: new Date('2020-09-15T16:39:11.195Z').getTime(),
+                    date: '2020-09-15T16:39:11.195Z',
                 },
                 {
                     name: 'Jill',
                     age: 40,
                     gender: 'F',
                     scores: [2, 2, 2],
-                    date: new Date('2020-09-15T15:39:11.195Z').getTime(),
+                    date: '2020-09-15T15:39:11.195Z',
                 },
                 {
                     name: 'Anne',
                     age: 32,
                     gender: 'F',
                     scores: [20, 4, 19],
-                    date: new Date('2020-09-15T15:39:11.195Z').getTime(),
+                    date: '2020-09-15T15:39:11.195Z',
                 },
                 {
                     name: 'Joey',
                     age: 20,
                     gender: 'M',
                     scores: [50, 4, 19],
-                    date: new Date('2020-09-13T17:39:11.195Z').getTime(),
+                    date: '2020-09-13T17:39:11.195Z',
                 },
                 {
                     name: 'Nancy',
                     age: 84,
                     gender: 'F',
                     scores: [1, 0, 0],
-                    date: new Date('2019-09-15T17:39:11.195Z').getTime(),
+                    date: '2019-09-15T17:39:11.195Z',
                 }
             ]);
         });
@@ -411,42 +411,42 @@ describe('AggregationFrame', () => {
                     age: 64,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: new Date('2020-09-15T17:39:11.195Z').getTime(),
+                    date: '2020-09-15T17:39:11.195Z',
                 },
                 {
                     name: 2,
                     age: 25,
                     gender: 'M',
                     scores: [2, 4, 19],
-                    date: new Date('2020-09-15T16:39:11.195Z').getTime(),
+                    date: '2020-09-15T16:39:11.195Z',
                 },
                 {
                     name: 1,
                     age: 40,
                     gender: 'F',
                     scores: [2, 2, 2],
-                    date: new Date('2020-09-15T15:39:11.195Z').getTime(),
+                    date: '2020-09-15T15:39:11.195Z',
                 },
                 {
                     name: 1,
                     age: 32,
                     gender: 'F',
                     scores: [20, 4, 19],
-                    date: new Date('2020-09-15T15:39:11.195Z').getTime(),
+                    date: '2020-09-15T15:39:11.195Z',
                 },
                 {
                     name: 1,
                     age: 20,
                     gender: 'M',
                     scores: [50, 4, 19],
-                    date: new Date('2020-09-13T17:39:11.195Z').getTime(),
+                    date: '2020-09-13T17:39:11.195Z',
                 },
                 {
                     name: 1,
                     age: 84,
                     gender: 'F',
                     scores: [1, 0, 0],
-                    date: new Date('2019-09-15T17:39:11.195Z').getTime(),
+                    date: '2019-09-15T17:39:11.195Z',
                 }
             ]);
         });
@@ -464,42 +464,42 @@ describe('AggregationFrame', () => {
                     age: 64,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: new Date('2020-09-15T17:39:11.195Z').getTime(),
+                    date: '2020-09-15T17:39:11.195Z',
                 },
                 {
                     name: 'Frank',
                     age: 25,
                     gender: 'M',
                     scores: [2, 4, 19],
-                    date: new Date('2020-09-15T16:39:11.195Z').getTime(),
+                    date: '2020-09-15T16:39:11.195Z',
                 },
                 {
                     name: 'Jill',
                     age: 40,
                     gender: 'F',
                     scores: [2, 2, 2],
-                    date: new Date('2020-09-15T15:39:11.195Z').getTime(),
+                    date: '2020-09-15T15:39:11.195Z',
                 },
                 {
                     name: 'Anne',
                     age: 32,
                     gender: 'F',
                     scores: [20, 4, 19],
-                    date: new Date('2020-09-15T15:39:11.195Z').getTime(),
+                    date: '2020-09-15T15:39:11.195Z',
                 },
                 {
                     name: 'Joey',
                     age: 20,
                     gender: 'M',
                     scores: [50, 4, 19],
-                    date: new Date('2020-09-13T17:39:11.195Z').getTime(),
+                    date: '2020-09-13T17:39:11.195Z',
                 },
                 {
                     name: 'Nancy',
                     age: 84,
                     gender: 'F',
                     scores: [1, 0, 0],
-                    date: new Date('2019-09-15T17:39:11.195Z').getTime(),
+                    date: '2019-09-15T17:39:11.195Z',
                 }
             ]);
         });
@@ -517,42 +517,42 @@ describe('AggregationFrame', () => {
                     age: 64,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                    date: '2020-09-15T17:39:11.195Z'
                 },
                 {
                     name: 1,
                     age: 25,
                     gender: 'M',
                     scores: [2, 4, 19],
-                    date: new Date('2020-09-15T16:39:11.195Z').getTime()
+                    date: '2020-09-15T16:39:11.195Z'
                 },
                 {
                     name: 2,
                     age: 40,
                     gender: 'F',
                     scores: [2, 2, 2],
-                    date: new Date('2020-09-15T15:39:11.195Z').getTime()
+                    date: '2020-09-15T15:39:11.195Z'
                 },
                 {
                     name: 1,
                     age: 20,
                     gender: 'M',
                     scores: [50, 4, 19],
-                    date: new Date('2020-09-13T17:39:11.195Z').getTime()
+                    date: '2020-09-13T17:39:11.195Z'
                 },
                 {
                     name: 1,
                     age: 84,
                     gender: 'F',
                     scores: [1, 0, 0],
-                    date: new Date('2019-09-15T17:39:11.195Z').getTime()
+                    date: '2019-09-15T17:39:11.195Z'
                 },
                 {
                     name: 1,
                     age: 45,
                     gender: 'M',
                     scores: [1, 0, 0],
-                    date: new Date('2020-07-15T16:39:11.195Z').getTime()
+                    date: '2020-07-15T16:39:11.195Z'
                 }
             ]);
         });
@@ -571,7 +571,7 @@ describe('AggregationFrame', () => {
                     age: 64,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                    date: '2020-09-15T17:39:11.195Z'
                 },
                 {
                     name: 'Joey',
@@ -579,7 +579,7 @@ describe('AggregationFrame', () => {
                     age: 20,
                     gender: 'M',
                     scores: [50, 4, 19],
-                    date: new Date('2020-09-13T17:39:11.195Z').getTime()
+                    date: '2020-09-13T17:39:11.195Z'
                 },
                 {
                     name: 'Nancy',
@@ -587,7 +587,7 @@ describe('AggregationFrame', () => {
                     age: 84,
                     gender: 'F',
                     scores: [1, 0, 0],
-                    date: new Date('2019-09-15T17:39:11.195Z').getTime()
+                    date: '2019-09-15T17:39:11.195Z'
                 },
                 {
                     name: 'Frank',
@@ -595,7 +595,7 @@ describe('AggregationFrame', () => {
                     age: 45,
                     gender: 'M',
                     scores: [1, 0, 0],
-                    date: new Date('2020-07-15T16:39:11.195Z').getTime()
+                    date: '2020-07-15T16:39:11.195Z'
                 }
             ]);
         });
@@ -613,21 +613,21 @@ describe('AggregationFrame', () => {
                     age: 64,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                    date: '2020-09-15T17:39:11.195Z'
                 },
                 {
                     name: 1,
                     age: 84,
                     gender: 'F',
                     scores: [1, 0, 0],
-                    date: new Date('2019-09-15T17:39:11.195Z').getTime()
+                    date: '2019-09-15T17:39:11.195Z'
                 },
                 {
                     name: 1,
                     age: 45,
                     gender: 'M',
                     scores: [1, 0, 0],
-                    date: new Date('2020-07-15T16:39:11.195Z').getTime()
+                    date: '2020-07-15T16:39:11.195Z'
                 }
             ]);
         });
@@ -646,7 +646,7 @@ describe('AggregationFrame', () => {
                     age: 64,
                     gender: 'M',
                     scores: [4, 9, 3],
-                    date: new Date('2020-09-15T17:39:11.195Z').getTime()
+                    date: '2020-09-15T17:39:11.195Z'
                 },
                 {
                     name: 'Nancy',
@@ -654,7 +654,7 @@ describe('AggregationFrame', () => {
                     age: 84,
                     gender: 'F',
                     scores: [1, 0, 0],
-                    date: new Date('2019-09-15T17:39:11.195Z').getTime()
+                    date: '2019-09-15T17:39:11.195Z'
                 }
             ]);
         });

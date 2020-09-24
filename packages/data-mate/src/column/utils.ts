@@ -23,11 +23,11 @@ export function getVectorId(vector: Vector<any>): string {
 */
 export function mapVector<T, R = T>(
     vector: Vector<T>,
-    config: Partial<DataTypeFieldConfig>,
     transform: ColumnTransformFn<T, R>,
+    config?: Partial<DataTypeFieldConfig>,
 ): Vector<R> {
     const builder = Builder.make<R>(
-        { ...vector.config, ...config },
+        { ...vector.config, ...config, ...transform.output },
         vector.size,
         vector.childConfig
     );

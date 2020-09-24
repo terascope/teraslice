@@ -86,7 +86,13 @@ export const dataTypeVersions: ReadonlyArray<DataTypeVersion> = Object.freeze([1
  * A list of valid valid formats for FieldType.Date.
  * date-fns string format can be used, see https://date-fns.org/v2.16.1/docs/format
 */
-export type DataTypeDateFormat = string|'iso_8601'|'epoch'|'epoch_millis';
+export enum DateFormat {
+    iso_8601 = 'iso_8601',
+    epoch_millis = 'epoch_millis',
+    epoch = 'epoch',
+    seconds = 'epoch',
+    milliseconds = 'epoch_millis',
+}
 
 /**
  *  The configuration for an individual field

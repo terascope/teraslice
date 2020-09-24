@@ -9,7 +9,6 @@ import { Vector, VectorType } from '../vector';
 export interface ColumnOptions {
     name: string;
     version?: DataTypeVersion;
-    config: DataTypeFieldConfig;
 }
 
 /**
@@ -57,18 +56,17 @@ export interface BaseTransformConfig {
     argument_schema: DataTypeFields;
 
     /**
+     * A list of required args
+    */
+    required_args?: string[];
+
+    /**
      * The types of Vectors this can work with.
      * You don't have to specify VectorType.LIST (this is automatic)
      *
      * If none is specified, it will work with any Vector type
     */
     accepts: VectorType[];
-
-    /**
-     * The output column options, this will change the values
-     * If none specified the output data type will stay the same
-    */
-    output?: DataTypeFieldConfig;
 }
 
 /**
@@ -79,17 +77,21 @@ export type ColumnTransformFn<
     R,
 > = {
     mode: TransformMode.EACH;
+    output?: Partial<DataTypeFieldConfig>;
     fn: (value: Maybe<T|Vector<T>>) => Maybe<R|Vector<R>>;
 }|{
-    mode: TransformMode.EACH_VALUE,
+    mode: TransformMode.EACH_VALUE;
+    output?: Partial<DataTypeFieldConfig>;
     skipNulls: false;
     fn: (value: Maybe<T>) => Maybe<R>;
 }|{
-    mode: TransformMode.EACH_VALUE,
+    mode: TransformMode.EACH_VALUE;
+    output?: Partial<DataTypeFieldConfig>;
     skipNulls?: true|undefined;
     fn: (value: T) => Maybe<R>;
 }|{
-    mode: TransformMode.NONE,
+    mode: TransformMode.NONE;
+    output?: Partial<DataTypeFieldConfig>;
 };
 
 export interface ColumnTransformConfig<
@@ -103,6 +105,12 @@ export interface ColumnTransformConfig<
      * A transform function
     */
     create: (vector: Vector<T>, args: A) => ColumnTransformFn<T, R>;
+
+    /**
+     * The output column options, this will change the values
+     * If none specified the output data type will stay the same
+    */
+    output?: DataTypeFieldConfig;
 }
 
 /**

@@ -1,5 +1,7 @@
 import 'jest-fixtures';
+import { toString } from '@terascope/utils';
 import {
+    DateFormat,
     ESGeoShapeMultiPolygon,
     ESGeoShapePoint,
     ESGeoShapePolygon,
@@ -44,8 +46,14 @@ describe('Vector', () => {
         ],
         [
             FieldType.Date,
-            [nowDate, nowDate.toISOString(), nowDate.getTime(), null, undefined],
-            [now, now, now, null, null]
+            [nowDate, nowDate.toISOString(), now, null, undefined],
+            [
+                nowDate.toISOString(),
+                nowDate.toISOString(),
+                nowDate.toISOString(),
+                null,
+                null
+            ]
         ],
         [
             FieldType.GeoPoint,
@@ -190,14 +198,22 @@ describe('Vector', () => {
         });
 
         it('should have the correct distinct values', () => {
-            expect(vector.distinct()).toBe(new Set(expected).size);
+            expect(vector.distinct()).toBe(new Set(expected.map(toString)).size);
         });
 
         it('should have the correct field config', () => {
-            expect(vector.config).toEqual({
-                type,
-                array: false
-            });
+            if (type === FieldType.Date) {
+                expect(vector.config).toEqual({
+                    type,
+                    format: DateFormat.iso_8601,
+                    array: false
+                });
+            } else {
+                expect(vector.config).toEqual({
+                    type,
+                    array: false
+                });
+            }
         });
 
         it('should be an instance of a Vector', () => {

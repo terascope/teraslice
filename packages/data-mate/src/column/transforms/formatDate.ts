@@ -1,5 +1,4 @@
-import { FieldType } from '@terascope/types';
-import { getValidDate } from '@terascope/utils';
+import { DateFormat, FieldType } from '@terascope/types';
 import formatDate from 'date-fns/format';
 import { DateValue, VectorType } from '../../vector';
 import {
@@ -9,21 +8,16 @@ import {
 export interface FormatDateArgs {
     /**
      * The date format, see https://date-fns.org/v2.16.1/docs/format for more info
-     *
-     * @default 'ISO 8061' formatted string
     */
-    format?: string;
+    format: string|DateFormat;
 }
 
 /**
  * Converts a date value to a formatted date string
  *
- * @todo we need to handle timezones
+ * @todo we need to handle timezones?
  *
  * @example
- *
- *     formatDate()
- *       // 1579034041034 => '2020-01-14T20:34:01.034Z'
  *
  *     formatDate({ format: 'MMM do yy' })
  *       // 1579034041034 => 'Jan 14th 20'
@@ -34,26 +28,17 @@ export interface FormatDateArgs {
  *     formatDate({ format: 'yyyy-MM-dd' })
  *       // 1579034041034 => '2020-01-14'
  */
-export const formatDateConfig: ColumnTransformConfig<DateValue, string, FormatDateArgs> = {
+export const formatDateConfig: ColumnTransformConfig<DateValue, DateValue, FormatDateArgs> = {
     type: TransformType.TRANSFORM,
     create(_vector, args) {
         const { format } = args;
-        if (format) {
-            return {
-                mode: TransformMode.EACH_VALUE,
-                fn(value: DateValue) {
-                    return formatDate(value, format);
-                }
-            };
-        }
+
         return {
             mode: TransformMode.EACH_VALUE,
-            fn(value: DateValue) {
-                const date = getValidDate(value);
-                if (date === false) {
-                    throw new Error(`Expected value ${value} to be a valid date`);
-                }
-                return date.toISOString();
+            output: { format },
+            fn(value: DateValue): DateValue {
+                const formatted = formatDate(value.value, format);
+                return new DateValue(value.value, formatted);
             }
         };
     },
@@ -61,12 +46,9 @@ export const formatDateConfig: ColumnTransformConfig<DateValue, string, FormatDa
     argument_schema: {
         format: {
             type: FieldType.String,
-            description: `The date format, see https://date-fns.org/v2.16.1/docs/format for more info.
- Default: ISO 8061 format`
+            description: 'The date format, see https://date-fns.org/v2.16.1/docs/format for more info.'
         }
     },
-    accepts: [VectorType.Date],
-    output: {
-        type: FieldType.Keyword
-    }
+    required_args: ['format'],
+    accepts: [VectorType.Date]
 };

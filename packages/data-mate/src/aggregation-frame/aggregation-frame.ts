@@ -289,7 +289,6 @@ export class AggregationFrame<T extends Record<string, any>> {
 
         return [...builders].map(([name, builder]) => new Column<any>(builder.toVector(), {
             name,
-            config: builder.config,
             version: this.columns.find((col) => col.name === name)!.version
         }));
     }
