@@ -9,7 +9,7 @@ import {
 import {
     ColumnOptions, ColumnTransformConfig, ColumnValidateConfig, TransformMode
 } from './interfaces';
-import { getVectorId, mapVector } from './utils';
+import { getVectorId, isSameFieldConfig, mapVector } from './utils';
 
 /**
  * A single column of values with the same data type.
@@ -22,7 +22,7 @@ import { getVectorId, mapVector } from './utils';
 export class Column<T = unknown> {
     name: string;
     readonly version: DataTypeVersion;
-    readonly config: DataTypeFieldConfig;
+    readonly config: Readonly<DataTypeFieldConfig>;
     protected readonly _vector: Vector<T>;
 
     static fromJSON<R>(
@@ -37,14 +37,14 @@ export class Column<T = unknown> {
     constructor(vector: Vector<T>, options: ColumnOptions|Readonly<ColumnOptions>) {
         this.name = options.name;
         this.version = options.version ?? LATEST_VERSION;
-        this.config = { ...options.config };
+        this.config = options.config;
         this._vector = vector;
 
-        const vType = vector.fieldType;
+        const vType = vector.config.type;
         const cType = this.config.type;
-        if (vType !== cType) {
+        if (!isSameFieldConfig(this.config, vector.config)) {
             throw new Error(
-                `Invalid Vector type ${vType} given to column of type "${cType}"`
+                `Vector config (${vType}) must match column config ("${cType}")`
             );
         }
     }

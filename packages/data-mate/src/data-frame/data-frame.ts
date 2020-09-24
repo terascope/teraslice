@@ -1,4 +1,7 @@
-import { DataTypeConfig, Maybe, SortOrder } from '@terascope/types';
+import {
+    DataTypeConfig, ReadonlyDataTypeConfig,
+    Maybe, SortOrder
+} from '@terascope/types';
 import { Column } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import { md5 } from '../vector/utils';
@@ -21,7 +24,7 @@ export class DataFrame<
         R extends Record<string, unknown> = Record<string, any>,
         D extends Record<string, unknown> = Record<string, any>
     >(
-        config: DataTypeConfig,
+        config: DataTypeConfig|ReadonlyDataTypeConfig,
         records: R[] = [],
         options?: Omit<DataFrameOptions<R, D>, 'columns'>
     ): DataFrame<R> {

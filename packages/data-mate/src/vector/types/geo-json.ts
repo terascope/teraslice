@@ -10,7 +10,7 @@ export class GeoJSONVector extends Vector<GeoPoint> {
     fork(data = this.data): GeoJSONVector {
         return new GeoJSONVector({
             valueToJSON: this.valueToJSON,
-            fieldType: this.fieldType,
+            config: this.config,
             data,
         });
     }

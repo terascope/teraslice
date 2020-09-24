@@ -9,7 +9,7 @@ export class IntVector extends Vector<number> {
     fork(data = this.data): IntVector {
         return new IntVector({
             valueToJSON: this.valueToJSON,
-            fieldType: this.fieldType,
+            config: this.config,
             data,
         });
     }

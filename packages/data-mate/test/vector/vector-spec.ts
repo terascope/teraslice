@@ -193,8 +193,11 @@ describe('Vector', () => {
             expect(vector.distinct()).toBe(new Set(expected).size);
         });
 
-        it('should have the correct field type', () => {
-            expect(vector.fieldType).toBe(type);
+        it('should have the correct field config', () => {
+            expect(vector.config).toEqual({
+                type,
+                array: false
+            });
         });
 
         it('should be an instance of a Vector', () => {

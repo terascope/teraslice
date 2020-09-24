@@ -1,5 +1,7 @@
 import { createHash } from 'crypto';
-import { DataTypeFieldConfig, DataTypeFields, FieldType } from '@terascope/types';
+import {
+    DataTypeFieldConfig, ReadonlyDataTypeFields, FieldType
+} from '@terascope/types';
 import {
     isNumber, isBigInt, getTypeOf, toString
 } from '@terascope/utils';
@@ -13,9 +15,9 @@ import { Data } from './interfaces';
 import { Vector } from './vector';
 
 export function _newVector<T>(
-    config: DataTypeFieldConfig,
+    config: Readonly<DataTypeFieldConfig>,
     data: Data<any>,
-    childConfig?: DataTypeFields
+    childConfig?: ReadonlyDataTypeFields
 ): Vector<T> {
     const fieldType = config.type as FieldType;
     if (!(fieldType in FieldType)) {
@@ -24,24 +26,24 @@ export function _newVector<T>(
 
     if (config.array) {
         return new ListVector({
-            fieldType,
+            config,
             data,
             childConfig,
         }) as Vector<any>;
     }
 
-    return _newVectorForType(fieldType, data, childConfig) as Vector<T>;
+    return _newVectorForType(config, data, childConfig) as Vector<T>;
 }
 
 /**
  * Create primitive vector types, does not deal with array or object type fields
 */
 function _newVectorForType(
-    fieldType: FieldType,
+    config: Readonly<DataTypeFieldConfig>,
     data: Data<any>,
-    childConfig?: DataTypeFields
+    childConfig?: ReadonlyDataTypeFields
 ) {
-    switch (fieldType) {
+    switch (config.type as FieldType) {
         case FieldType.String:
         case FieldType.Text:
         case FieldType.Keyword:
@@ -53,31 +55,31 @@ function _newVectorForType(
         case FieldType.Hostname:
         case FieldType.IP:
         case FieldType.IPRange:
-            return new StringVector({ fieldType, data });
+            return new StringVector({ config, data });
         case FieldType.Date:
-            return new DateVector({ fieldType, data });
+            return new DateVector({ config, data });
         case FieldType.Boolean:
-            return new BooleanVector({ fieldType, data });
+            return new BooleanVector({ config, data });
         case FieldType.Float:
         case FieldType.Number:
         case FieldType.Double:
             // Double can't supported entirely until we have BigFloat
-            return new FloatVector({ fieldType, data });
+            return new FloatVector({ config, data });
         case FieldType.Byte:
         case FieldType.Short:
         case FieldType.Integer:
-            return new IntVector({ fieldType, data });
+            return new IntVector({ config, data });
         case FieldType.Long:
-            return new BigIntVector({ fieldType, data });
+            return new BigIntVector({ config, data });
         case FieldType.Geo:
         case FieldType.GeoPoint:
-            return new GeoPointVector({ fieldType, data });
+            return new GeoPointVector({ config, data });
         case FieldType.GeoJSON:
-            return new GeoJSONVector({ fieldType, data });
+            return new GeoJSONVector({ config, data });
         case FieldType.Object:
-            return new ObjectVector({ fieldType, data, childConfig });
+            return new ObjectVector({ config, data, childConfig });
         default:
-            return new AnyVector({ fieldType, data });
+            return new AnyVector({ config, data });
     }
 }
 

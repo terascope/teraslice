@@ -9,7 +9,7 @@ export class AnyVector extends Vector<any> {
     fork(data = this.data): AnyVector {
         return new AnyVector({
             valueToJSON: this.valueToJSON,
-            fieldType: this.fieldType,
+            config: this.config,
             data,
         });
     }

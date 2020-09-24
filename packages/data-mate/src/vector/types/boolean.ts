@@ -9,7 +9,7 @@ export class BooleanVector extends Vector<boolean> {
     fork(data = this.data): BooleanVector {
         return new BooleanVector({
             valueToJSON: this.valueToJSON,
-            fieldType: this.fieldType,
+            config: this.config,
             data,
         });
     }

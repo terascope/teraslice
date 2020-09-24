@@ -23,7 +23,7 @@ export class BigIntVector extends Vector<bigint> {
     fork(data = this.data): BigIntVector {
         return new BigIntVector({
             valueToJSON: this.valueToJSON,
-            fieldType: this.fieldType,
+            config: this.config,
             data,
         });
     }

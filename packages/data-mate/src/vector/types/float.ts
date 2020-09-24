@@ -9,7 +9,7 @@ export class FloatVector extends Vector<number> {
     fork(data = this.data): FloatVector {
         return new FloatVector({
             valueToJSON: this.valueToJSON,
-            fieldType: this.fieldType,
+            config: this.config,
             data,
         });
     }

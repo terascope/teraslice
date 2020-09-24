@@ -14,7 +14,7 @@ export class ObjectVector<
     fork(data = this.data): ObjectVector<T> {
         return new ObjectVector({
             valueToJSON: this.valueToJSON,
-            fieldType: this.fieldType,
+            config: this.config,
             data,
             childConfig: this.childConfig,
         });

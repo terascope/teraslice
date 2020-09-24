@@ -1,5 +1,7 @@
 import {
-    DataTypeFieldConfig, DataTypeFields, FieldType, Maybe, Nil, SortOrder
+    DataTypeFieldConfig, DataTypeFields,
+    Maybe, Nil, SortOrder,
+    ReadonlyDataTypeFields
 } from '@terascope/types';
 import { Data, VectorType } from './interfaces';
 
@@ -13,7 +15,7 @@ export abstract class Vector<T = unknown> {
      * Make an instance of a Vector from a config
     */
     static make<R>(
-        config: DataTypeFieldConfig,
+        config: Readonly<DataTypeFieldConfig>,
         data: Data<R>,
         childConfig?: DataTypeFields
     ): Vector<R> {
@@ -21,9 +23,9 @@ export abstract class Vector<T = unknown> {
     }
 
     readonly type: VectorType;
-    readonly fieldType: FieldType;
+    readonly config: Readonly<DataTypeFieldConfig>;
     readonly valueToJSON?: ValueToJSONFn<T>;
-    readonly childConfig?: DataTypeFields;
+    readonly childConfig?: ReadonlyDataTypeFields;
     /**
      * Do not modify this
     */
@@ -37,15 +39,15 @@ export abstract class Vector<T = unknown> {
          */
         type: VectorType,
         {
-            data, fieldType, childConfig, valueToJSON
+            data, config, childConfig, valueToJSON,
         }: VectorOptions<T>
     ) {
         this.type = type;
-        this.fieldType = fieldType;
+        this.config = config;
         this.valueToJSON = valueToJSON;
 
         this.data = data;
-        this.childConfig = childConfig ? { ...childConfig } : undefined;
+        this.childConfig = childConfig;
         this._size = this.data.values.length;
     }
 
@@ -190,10 +192,10 @@ export type ValueToJSONFn<T> = (value: T, thisArg?: Vector<T>) => any;
  * A list of Vector Options
  */
 export interface VectorOptions<T> {
-    fieldType: FieldType;
     data: Data<T>;
+    config: Readonly<DataTypeFieldConfig>;
     valueToJSON?: ValueToJSONFn<T>;
-    childConfig?: DataTypeFields;
+    childConfig?: ReadonlyDataTypeFields;
 }
 
 export type JSONValue<T> = T extends Vector<infer U> ? U[] : T;

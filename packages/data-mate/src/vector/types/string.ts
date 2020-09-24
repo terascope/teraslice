@@ -9,7 +9,7 @@ export class StringVector extends Vector<string> {
     fork(data = this.data): StringVector {
         return new StringVector({
             valueToJSON: this.valueToJSON,
-            fieldType: this.fieldType,
+            config: this.config,
             data,
         });
     }

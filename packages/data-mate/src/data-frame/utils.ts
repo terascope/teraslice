@@ -1,11 +1,14 @@
 import { LATEST_VERSION } from '@terascope/data-types';
-import { DataTypeConfig, DataTypeFields, DataTypeVersion } from '@terascope/types';
+import {
+    DataTypeConfig, ReadonlyDataTypeConfig,
+    DataTypeFields, DataTypeVersion
+} from '@terascope/types';
 import { getBuildersForConfig } from '../builder';
 import { Column } from '../column';
 import { ListVector, ObjectVector } from '../vector';
 
 export function distributeRowsToColumns(
-    config: DataTypeConfig, records: Record<string, unknown>[]
+    config: DataTypeConfig|ReadonlyDataTypeConfig, records: Record<string, unknown>[]
 ): Column[] {
     const len = records.length;
     const builders = getBuildersForConfig(config, len);
