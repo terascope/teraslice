@@ -1,3 +1,5 @@
+import { Overwrite } from './utility';
+
 export enum FieldType {
     Boolean = 'Boolean',
     Boundary = 'Boundary',
@@ -63,26 +65,48 @@ export type DeprecatedFieldType =
     | 'Number'
     | 'Any';
 
+/**
+ * A list of all of the Field Types
+*/
 export const availableFieldTypes: ReadonlyArray<FieldType> = Object.freeze(
     Object.values(FieldType)
 );
 
+/**
+ * The major DataType config version
+*/
 export type DataTypeVersion = 1;
-export const dataTypeVersions: ReadonlyArray<DataTypeVersion> = [1];
 
+/**
+ * A list of DataType config versions
+*/
+export const dataTypeVersions: ReadonlyArray<DataTypeVersion> = Object.freeze([1]);
+
+/**
+ * A list of valid valid formats for FieldType.Date.
+ * date-fns string format can be used, see https://date-fns.org/v2.16.1/docs/format
+*/
+export type DataTypeDateFormat = string|'iso_8601'|'epoch'|'epoch_millis';
+
+/**
+ *  The configuration for an individual field
+*/
 export interface DataTypeFieldConfig {
     /**
      * The type of field
     */
     type: FieldType|DeprecatedFieldType;
+
     /**
      * Indicates whether the field is an array
     */
     array?: boolean;
+
     /**
      * A description for the fields
     */
     description?: string;
+
     /**
      * Specifies whether the field is index in elasticsearch
      *
@@ -92,15 +116,54 @@ export interface DataTypeFieldConfig {
     indexed?: boolean;
 
     /**
+     * Specify the locale for the field (not compatible with all fields)
+     * Must be represented in a Language Tags (BCP 47)
+    */
+    locale?: string;
+
+    /**
+    * Specify the format for a specific fields.
+    * Currently this is only support with FieldType.Date
+    */
+    format?: string;
+
+    /**
      * A temporary flag to fix KeywordCaseInsensitive to be
      * a type keyword with case insensitive .text fields
     */
     use_fields_hack?: boolean;
 }
 
+/**
+ * The DataType fields configuration
+*/
 export type DataTypeFields = Record<string, DataTypeFieldConfig>;
+/**
+ * A readonly version of DataType fields configuration
+*/
+export type ReadonlyDataTypeFields = Record<string, Readonly<DataTypeFieldConfig>>;
 
+/**
+ * The DataType fields config with version
+*/
 export interface DataTypeConfig {
+    /**
+     *  The fields configuration
+    */
     fields: DataTypeFields;
-    version: DataTypeVersion;
+
+    /**
+     * The major version of DataType config, defaults to the latest version.
+    */
+    version?: DataTypeVersion;
 }
+
+/**
+ * A readonly version of the DataTypeConfig
+*/
+export type ReadonlyDataTypeConfig = Readonly<Overwrite<DataTypeConfig, {
+    /**
+     *  The fields configuration
+    */
+    fields: ReadonlyDataTypeFields
+}>>;

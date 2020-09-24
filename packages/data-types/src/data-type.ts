@@ -1,10 +1,10 @@
 import * as ts from '@terascope/utils';
 import {
     DataTypeConfig,
-    DataTypeFields,
     DataTypeVersion,
     ESMapping,
     ESTypeMappings,
+    ReadonlyDataTypeFields,
     xLuceneTypeConfig
 } from '@terascope/types';
 import defaultsDeep from 'lodash.defaultsdeep';
@@ -25,7 +25,7 @@ import { getTypes, LATEST_VERSION, getGroupedFields } from './types';
 export class DataType {
     readonly name!: string;
     readonly description?: string;
-    readonly fields: DataTypeFields;
+    readonly fields: ReadonlyDataTypeFields;
     readonly version: DataTypeVersion;
     /** An object of base fields with their child fields */
     readonly groupedFields: i.GroupedFields;
@@ -100,7 +100,7 @@ export class DataType {
             ...config,
         });
         this.fields = fields;
-        this.version = version;
+        this.version = version!;
 
         this.groupedFields = getGroupedFields(fields);
         this._types = getTypes(fields, this.groupedFields, version);
