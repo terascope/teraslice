@@ -7,5 +7,6 @@ export * from './GeoJSONVector';
 export * from './GeoPointVector';
 export * from './IntVector';
 export * from './IPVector';
+export * from './IPRangeVector';
 export * from './ObjectVector';
 export * from './StringVector';
