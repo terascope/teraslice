@@ -1066,14 +1066,13 @@ describe('field validators', () => {
     describe('isPostalCode', () => {
         it('should return true for valid postal codes', () => {
             expect(FieldValidator.isPostalCode('85249', {}, { locale: 'any' })).toBe(true);
-            expect(FieldValidator.isPostalCode('85249', {}, { locale: 'ES' })).toBe(true);
-            expect(FieldValidator.isPostalCode('85249', {}, { locale: 'ES' })).toBe(true);
             expect(FieldValidator.isPostalCode('852', {}, { locale: 'IS' })).toBe(true);
             expect(FieldValidator.isPostalCode('885 49', {}, { locale: 'SE' })).toBe(true);
         });
 
         it('should return false for invalid postal codes', () => {
             expect(FieldValidator.isPostalCode('', {}, { locale: 'any' })).toBe(false);
+            expect(FieldValidator.isPostalCode('85249', {}, { locale: 'ES' })).toBe(false);
             expect(FieldValidator.isPostalCode(123345, {}, { locale: 'ES' })).toBe(false);
             expect(FieldValidator.isPostalCode({}, {}, { locale: 'ES' })).toBe(false);
             expect(FieldValidator.isPostalCode('8522-342', {}, { locale: 'IS' })).toBe(false);

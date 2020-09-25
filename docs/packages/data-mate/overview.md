@@ -797,8 +797,7 @@ default locale is any
 ```javascript
 FieldValidator.isPostalCode('85249'); // true
 FieldValidator.isPostalCode('85249', {}, { locale: 'any' }); // true
-FieldValidator.isPostalCode('85249', {}, { locale: 'ES' }); // true
-FieldValidator.isPostalCode('85249', {}, { locale: 'ES' }); // true
+FieldValidator.isPostalCode('85249', {}, { locale: 'ES' }); // false
 FieldValidator.isPostalCode('852', {}, { locale: 'IS' }); // true
 FieldValidator.isPostalCode('885 49', {}, { locale: 'SE' }); // true
 FieldValidator.isPostalCode(1234567890); // false
