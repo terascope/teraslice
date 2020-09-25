@@ -1,7 +1,8 @@
 import 'jest-fixtures';
 import { FieldType, Maybe } from '@terascope/types';
+import { bigIntToJSON } from '@terascope/utils';
 import {
-    BigIntVector, Column, ColumnTransform, Vector
+    Column, ColumnTransform, Vector
 } from '../../src';
 
 describe('Column (Number Types)', () => {
@@ -74,6 +75,58 @@ describe('Column (Number Types)', () => {
                 return `${value}`;
             }));
         });
+
+        it('should be able to transform the column using increment', () => {
+            const newCol = col.transform(ColumnTransform.increment);
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
+                if (value == null) return null;
+                return value + 1;
+            }));
+        });
+
+        it('should be able to transform the column using increment(by: 1.5)', () => {
+            const newCol = col.transform(ColumnTransform.increment, {
+                by: 1.5
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
+                if (value == null) return null;
+                return parseInt(`${value + 1.5}`, 10);
+            }));
+        });
+
+        it('should be able to transform the column using decrement', () => {
+            const newCol = col.transform(ColumnTransform.decrement);
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
+                if (value == null) return null;
+                return value - 1;
+            }));
+        });
+
+        it('should be able to transform the column using decrement(by: 1.5)', () => {
+            const newCol = col.transform(ColumnTransform.decrement, {
+                by: 1.5
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
+                if (value == null) return null;
+                return parseInt(`${value - 1.5}`, 10);
+            }));
+        });
     });
 
     describe(`when field type is ${FieldType.Float}`, () => {
@@ -142,6 +195,34 @@ describe('Column (Number Types)', () => {
             expect(newCol.toJSON()).toEqual(values.map((value) => {
                 if (value == null) return null;
                 return `${value}`;
+            }));
+        });
+
+        it('should be able to transform the column using increment(by: 1.5)', () => {
+            const newCol = col.transform(ColumnTransform.increment, {
+                by: 1.5
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
+                if (value == null) return null;
+                return value + 1.5;
+            }));
+        });
+
+        it('should be able to transform the column using decrement(by: 1.5)', () => {
+            const newCol = col.transform(ColumnTransform.decrement, {
+                by: 1.5
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
+                if (value == null) return null;
+                return value - 1.5;
             }));
         });
     });
@@ -248,19 +329,19 @@ describe('Column (Number Types)', () => {
         it('should be able to sort the values in asc order', () => {
             expect(col.sort().toJSON()).toEqual([
                 null,
-                BigIntVector.valueToJSON(BigInt(12) ** multiplier),
-                BigIntVector.valueToJSON(BigInt(16) ** multiplier),
-                BigIntVector.valueToJSON(BigInt(19) ** multiplier),
-                BigIntVector.valueToJSON(BigInt(21) ** multiplier),
+                bigIntToJSON(BigInt(12) ** multiplier),
+                bigIntToJSON(BigInt(16) ** multiplier),
+                bigIntToJSON(BigInt(19) ** multiplier),
+                bigIntToJSON(BigInt(21) ** multiplier),
             ]);
         });
 
         it('should be able to sort the values in desc order', () => {
             expect(col.sort('desc').toJSON()).toEqual([
-                BigIntVector.valueToJSON(BigInt(21) ** multiplier),
-                BigIntVector.valueToJSON(BigInt(19) ** multiplier),
-                BigIntVector.valueToJSON(BigInt(16) ** multiplier),
-                BigIntVector.valueToJSON(BigInt(12) ** multiplier),
+                bigIntToJSON(BigInt(21) ** multiplier),
+                bigIntToJSON(BigInt(19) ** multiplier),
+                bigIntToJSON(BigInt(16) ** multiplier),
+                bigIntToJSON(BigInt(12) ** multiplier),
                 null,
             ]);
         });
@@ -277,6 +358,34 @@ describe('Column (Number Types)', () => {
             expect(newCol.toJSON()).toEqual(values.map((value) => {
                 if (value == null) return null;
                 return value.toLocaleString();
+            }));
+        });
+
+        it('should be able to transform the column using increment(by: 100)', () => {
+            const newCol = col.transform(ColumnTransform.increment, {
+                by: 100
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
+                if (value == null) return null;
+                return bigIntToJSON(value + BigInt(100));
+            }));
+        });
+
+        it('should be able to transform the column using decrement(by: 100)', () => {
+            const newCol = col.transform(ColumnTransform.decrement, {
+                by: 100
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
+                if (value == null) return null;
+                return bigIntToJSON(value - BigInt(100));
             }));
         });
     });
