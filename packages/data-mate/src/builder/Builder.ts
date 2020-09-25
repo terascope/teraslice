@@ -42,9 +42,12 @@ export abstract class Builder<T = unknown> {
             length,
             vector.childConfig
         );
-        const existing = vector.data.values.slice(0, length);
-        builder.values.push(...existing);
-        builder.currentIndex = existing.length;
+
+        const min = Math.min(vector.size, length);
+        for (let i = 0; i < min; i++) {
+            builder.values[i] = vector.get(i) as Maybe<R>;
+        }
+        builder.currentIndex = vector.size;
         return builder;
     }
 
@@ -99,13 +102,12 @@ export abstract class Builder<T = unknown> {
     */
     toVector(): Vector<T> {
         const vector = Vector.make({ ...this.config }, Object.freeze({
-            values: Object.freeze(this.values.slice())
+            values: Object.freeze(this.values)
         }), this.childConfig);
 
-        // clear
-        this.values.length = 0;
+        // @ts-expect-error
+        this.values = [];
         this.currentIndex = 0;
-
         return vector;
     }
 }

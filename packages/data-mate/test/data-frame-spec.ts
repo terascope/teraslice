@@ -299,8 +299,101 @@ describe('DataFrame', () => {
                 const resultFrame = dataFrame.slice(0, 2);
 
                 expect(resultFrame.count()).toEqual(2);
+                expect(resultFrame.toJSON()).toEqual([
+                    {
+                        name: 'Jill',
+                        age: 39,
+                        friends: ['Frank']
+                    },
+                    {
+                        name: 'Billy',
+                        age: 47,
+                        friends: ['Jill']
+                    }
+                ]);
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+
+            it('should be able to get the last row', () => {
+                const resultFrame = dataFrame.slice(2, 3);
+
+                expect(resultFrame.count()).toEqual(1);
+                expect(resultFrame.toJSON()).toEqual([
+                    {
+                        name: 'Frank',
+                        age: 20,
+                        friends: ['Jill']
+                    }
+                ]);
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+        });
+
+        describe('->concat', () => {
+            it('should return the same data frame if the given an empty array', () => {
+                const resultFrame = dataFrame.concat([]);
+
+                expect(resultFrame.id).toEqual(dataFrame.id);
+            });
+
+            it('should be able to append the existing columns', () => {
+                const resultFrame = dataFrame.concat(dataFrame.columns);
+
+                expect(resultFrame.count()).toEqual(dataFrame.count() * 2);
                 expect(resultFrame.toJSON()).toEqual(
-                    dataFrame.toJSON().slice(0, 2)
+                    dataFrame.toJSON().concat(dataFrame.toJSON())
+                );
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+
+            it('should be able to append columns with different lengths', () => {
+                const resultFrame = dataFrame.concat(dataFrame.columns.map((col, i) => (
+                    col.fork(col.vector.slice(0, i + 1))
+                )));
+
+                expect(resultFrame.count()).toEqual(6);
+                expect(resultFrame.toJSON()).toEqual([
+                    ...dataFrame.toJSON(),
+                    {
+                        name: 'Jill',
+                        age: 39,
+                        friends: ['Frank']
+                    },
+                    {
+                        age: 47,
+                        friends: ['Jill']
+                    },
+                    {
+                        friends: ['Jill']
+                    },
+                ]);
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+
+            it('should be able to append new rows', () => {
+                const resultFrame = dataFrame.concat([
+                    {
+                        name: 'Anna',
+                        age: 20,
+                    },
+                    {
+                        name: 'Harry',
+                        friends: []
+                    }
+                ]);
+
+                expect(resultFrame.count()).toEqual(5);
+                expect(resultFrame.toJSON()).toEqual(
+                    dataFrame.toJSON().concat([
+                        {
+                            name: 'Anna',
+                            age: 20,
+                        },
+                        {
+                            name: 'Harry',
+                            friends: []
+                        }
+                    ] as any[])
                 );
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
             });

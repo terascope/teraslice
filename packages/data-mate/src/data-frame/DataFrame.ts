@@ -235,18 +235,25 @@ export class DataFrame<
     /**
      * Concat rows to the end of the existing Columns
     */
-    concat(arg: Partial<T>[]|Column<T>[]): DataFrame<T> {
-        if (arg.length === 0) return this;
+    concat(arg: (
+        Partial<T>[]|Column<T>[]
+    )|(
+        readonly Partial<T>[]|readonly Column<T>[]
+    )): DataFrame<T> {
+        if (!arg || !arg.length) return this;
 
         let len: number;
         if (arg[0] instanceof Column) {
-            len = arg[0].vector.size;
+            len = Math.max(
+                ...(arg as Column[]).map((col) => col.vector.size)
+            );
         } else {
-            len = (arg[0] as any).length;
+            len = (arg as T[]).length;
         }
-        const total = len + this._size;
-        if (len === 0) return this;
 
+        if (!len) return this;
+
+        const total = len + this._size;
         const builders = new Map<string, Builder>();
 
         for (const col of this.columns) {
@@ -258,9 +265,19 @@ export class DataFrame<
         }
 
         if (arg[0] instanceof Column) {
-            for (const col of (arg as Column[])) {
-                // FIXME
-                col.toJSON();
+            const columns = (arg as Column[]);
+
+            for (const [field, builder] of builders) {
+                const col = columns.find(((c) => c.name === field));
+                if (col) {
+                    for (const val of col) {
+                        builder.append(val);
+                    }
+                } else {
+                    for (let i = 0; i < len; i++) {
+                        builder.append(null);
+                    }
+                }
             }
         } else {
             for (const record of (arg as T[])) {
