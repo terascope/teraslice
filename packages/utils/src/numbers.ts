@@ -47,9 +47,26 @@ export function isNumberLikeString(input: string): boolean {
     return /^[+-]{0,1}[\d,]+(\.[\d]+){0,1}$/.test(input);
 }
 
+const _maxBigInt = BigInt(Number.MAX_SAFE_INTEGER);
+/**
+ * Convert a BigInt to either a number of a string
+*/
+export function bigIntToJSON(int: bigint): string|number {
+    const str = int.toLocaleString('en-US').replace(/,/g, '');
+    if (int < _maxBigInt) return parseInt(str, 10);
+    return str;
+}
+
 /** Convert any input to a integer, return false if unable to convert input  */
 export function toInteger(input: unknown): number | false {
     if (isInteger(input)) return input;
+
+    if (typeof input === 'bigint') {
+        const val = bigIntToJSON(input);
+        if (typeof val === 'string') {
+            throw new TypeError(`BigInt ${val} is too big to convert to an integer`);
+        }
+    }
 
     const str = `${input}`;
     if (!isNumberLikeString(str)) {
@@ -65,6 +82,9 @@ export function toInteger(input: unknown): number | false {
 /** Convert any input to a float, return false if unable to convert input  */
 export function toFloat(input: unknown): number | false {
     if (isNumber(input)) return input;
+    if (typeof input === 'bigint') {
+        throw new TypeError('Unable to bigint to float');
+    }
 
     const str = `${input}`;
     if (!isNumberLikeString(str)) {

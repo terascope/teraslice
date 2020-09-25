@@ -1,5 +1,5 @@
 import 'jest-fixtures';
-import { toString } from '@terascope/utils';
+import { toString, bigIntToJSON } from '@terascope/utils';
 import {
     DateFormat,
     ESGeoShapeMultiPolygon,
@@ -8,7 +8,7 @@ import {
     ESGeoShapeType,
     FieldType, GeoShapeMultiPolygon, GeoShapePoint, GeoShapePolygon, GeoShapeType
 } from '@terascope/types';
-import { bigIntToJSON, Builder, Vector } from '../../src';
+import { Builder, Vector } from '../../src';
 
 describe('Vector', () => {
     type Case = [type: FieldType, input: any[], output?: any[]];

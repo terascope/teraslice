@@ -1,8 +1,8 @@
 import 'jest-fixtures';
-import { toString } from '@terascope/utils';
+import { bigIntToJSON, toString } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
-    bigIntToJSON, Vector, Builder
+    Vector, Builder
 } from '../../src';
 
 describe('ListVector', () => {
