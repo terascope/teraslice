@@ -3,10 +3,9 @@ import {
     getTypeOf, isBigInt, toBigInt
 } from '@terascope/utils';
 import { Maybe } from '@terascope/types';
-import { Vector } from './vector';
-import { createKeyForValue, getNumericValues } from './utils';
-import { VectorType } from './interfaces';
-import { DateValue } from './types';
+import {
+    DateValue, Vector, VectorType, createKeyForValue, getNumericValues
+} from '../vector';
 
 export enum ValueAggregation {
     avg = 'avg',

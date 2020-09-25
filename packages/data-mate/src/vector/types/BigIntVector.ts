@@ -1,4 +1,4 @@
-import { Vector, VectorOptions } from '../vector';
+import { Vector, VectorOptions } from '../Vector';
 import { VectorType } from '../interfaces';
 
 const maxInt = BigInt(Number.MAX_SAFE_INTEGER);

@@ -1,6 +1,6 @@
 import { getTypeOf, isPlainObject, toString } from '@terascope/utils';
 import { VectorType } from '../../vector';
-import { Builder, BuilderOptions, ValueFromFn } from '../builder';
+import { Builder, BuilderOptions, ValueFromFn } from '../Builder';
 
 export class ObjectBuilder<
     T extends Record<string, any> = Record<string, any>

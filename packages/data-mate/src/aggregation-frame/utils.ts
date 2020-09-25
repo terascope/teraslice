@@ -1,8 +1,8 @@
 import { FieldType } from '@terascope/types';
-import { Column } from '../column';
 import { Builder } from '../builder';
+import { Column, ValueAggregation, KeyAggregation } from '../column';
 import {
-    ValueAggregation, KeyAggregation, isNumberLike, isFloatLike
+    isNumberLike, isFloatLike
 } from '../vector';
 
 export function getBuilderForField(

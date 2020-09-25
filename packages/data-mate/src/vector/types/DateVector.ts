@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import { Vector, VectorOptions } from '../vector';
+import { Vector, VectorOptions } from '../Vector';
 import { VectorType } from '../interfaces';
 
 /**

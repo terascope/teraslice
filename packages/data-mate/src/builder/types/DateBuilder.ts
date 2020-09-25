@@ -2,7 +2,7 @@ import { getValidDate, isValidDateInstance, toInteger } from '@terascope/utils';
 import parseDate from 'date-fns/parse';
 import { DateFormat } from '@terascope/types';
 import { DateValue, VectorType } from '../../vector';
-import { Builder, BuilderOptions } from '../builder';
+import { Builder, BuilderOptions } from '../Builder';
 
 const systemTimezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
 

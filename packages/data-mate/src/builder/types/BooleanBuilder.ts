@@ -1,6 +1,6 @@
 import { getTypeOf, isBooleanLike, toBoolean } from '@terascope/utils';
 import { VectorType } from '../../vector';
-import { Builder, BuilderOptions } from '../builder';
+import { Builder, BuilderOptions } from '../Builder';
 
 export class BooleanBuilder extends Builder<boolean> {
     static valueFrom(value: unknown): boolean {

@@ -2,8 +2,8 @@ import { getGroupedFields } from '@terascope/data-types';
 import {
     DataTypeConfig, DataTypeFieldConfig, DataTypeFields, FieldType
 } from '@terascope/types';
-import { Builder } from './builder';
-import { ListBuilder } from './list-builder';
+import { Builder } from './Builder';
+import { ListBuilder } from './ListBuilder';
 import {
     AnyBuilder, BigIntBuilder, BooleanBuilder,
     DateBuilder, FloatBuilder,

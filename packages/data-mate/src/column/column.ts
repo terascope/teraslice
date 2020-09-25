@@ -4,11 +4,12 @@ import {
 } from '@terascope/types';
 import { Builder } from '../builder';
 import {
-    JSONValue, runVectorAggregation, ValueAggregation, Vector
+    JSONValue, Vector
 } from '../vector';
 import {
     ColumnOptions, ColumnTransformConfig, ColumnValidateConfig, TransformMode
 } from './interfaces';
+import { runVectorAggregation, ValueAggregation } from './aggregations';
 import { getVectorId, mapVector } from './utils';
 
 /**

@@ -1,6 +1,6 @@
 import { getTypeOf, toString } from '@terascope/utils';
 import { VectorType } from '../../vector';
-import { Builder, BuilderOptions } from '../builder';
+import { Builder, BuilderOptions } from '../Builder';
 
 function isToStringable(value: unknown): boolean {
     const type = typeof value;

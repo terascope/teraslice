@@ -1,7 +1,7 @@
 import { ESGeoShapeType, GeoShape, GeoShapeType } from '@terascope/types';
 import { getTypeOf, isGeoJSON, toString } from '@terascope/utils';
 import { VectorType } from '../../vector';
-import { Builder, BuilderOptions } from '../builder';
+import { Builder, BuilderOptions } from '../Builder';
 
 const esTypeMap = {
     [ESGeoShapeType.Point]: GeoShapeType.Point,

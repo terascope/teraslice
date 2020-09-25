@@ -1,9 +1,10 @@
 import { FieldType } from '@terascope/types';
-import { Column } from '../column';
 import {
+    Column,
     KeyAggregation, ValueAggregation, valueAggMap,
-    FieldAgg, KeyAggFn, keyAggMap, md5, isNumberLike
-} from '../vector';
+    FieldAgg, KeyAggFn, keyAggMap
+} from '../column';
+import { md5, isNumberLike } from '../vector';
 import { Builder } from '../builder';
 import { getBuilderForField } from './utils';
 

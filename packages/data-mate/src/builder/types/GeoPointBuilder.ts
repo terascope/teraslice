@@ -1,7 +1,7 @@
 import { GeoPoint } from '@terascope/types';
 import { parseGeoPoint } from '@terascope/utils';
 import { VectorType } from '../../vector';
-import { Builder, BuilderOptions } from '../builder';
+import { Builder, BuilderOptions } from '../Builder';
 
 export class GeoPointBuilder extends Builder<GeoPoint> {
     static valueFrom(value: unknown): GeoPoint {

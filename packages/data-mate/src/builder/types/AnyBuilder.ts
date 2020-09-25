@@ -1,5 +1,5 @@
 import { VectorType } from '../../vector';
-import { Builder, BuilderOptions } from '../builder';
+import { Builder, BuilderOptions } from '../Builder';
 
 export class AnyBuilder extends Builder<any> {
     constructor(options: BuilderOptions<any>) {

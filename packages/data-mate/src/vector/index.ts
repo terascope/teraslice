@@ -1,11 +1,10 @@
 import { _newVector } from './utils';
-import { Vector } from './vector';
+import { Vector } from './Vector';
 
 export * from './interfaces';
-export * from './aggregations';
-export * from './list-vector';
+export * from './ListVector';
 export * from './types';
 export * from './utils';
-export * from './vector';
+export * from './Vector';
 
 Vector.make = _newVector;

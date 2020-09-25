@@ -1,6 +1,6 @@
 import { getTypeOf, toInteger } from '@terascope/utils';
 import { VectorType } from '../../vector';
-import { Builder, BuilderOptions } from '../builder';
+import { Builder, BuilderOptions } from '../Builder';
 
 /**
  * @todo enforce int sizes for Byte, Short, and Integer lengths

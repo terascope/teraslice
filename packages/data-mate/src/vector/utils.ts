@@ -5,14 +5,14 @@ import {
 import {
     isNumber, isBigInt, getTypeOf, toString
 } from '@terascope/utils';
-import { ListVector } from './list-vector';
+import { ListVector } from './ListVector';
 import {
     AnyVector, BigIntVector, BooleanVector, DateVector,
     FloatVector, GeoJSONVector, GeoPointVector, IntVector,
     ObjectVector, StringVector
 } from './types';
 import { Data } from './interfaces';
-import { Vector } from './vector';
+import { Vector } from './Vector';
 
 export function _newVector<T>(
     config: Readonly<DataTypeFieldConfig>,

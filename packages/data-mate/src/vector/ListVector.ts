@@ -1,4 +1,4 @@
-import { Vector, VectorOptions } from './vector';
+import { Vector, VectorOptions } from './Vector';
 import { VectorType } from './interfaces';
 
 export class ListVector<T = unknown> extends Vector<Vector<T>> {

@@ -1,4 +1,4 @@
-import { Vector, VectorOptions } from '../vector';
+import { Vector, VectorOptions } from '../Vector';
 import { VectorType } from '../interfaces';
 
 export class FloatVector extends Vector<number> {

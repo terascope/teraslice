@@ -1,3 +1,4 @@
+export * from './aggregations';
 export * from './column';
 export * from './interfaces';
 export * from './utils';

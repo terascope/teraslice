@@ -1,6 +1,6 @@
 import { toBigInt } from '@terascope/utils';
 import { VectorType } from '../../vector';
-import { Builder, BuilderOptions } from '../builder';
+import { Builder, BuilderOptions } from '../Builder';
 
 export class BigIntBuilder extends Builder<bigint> {
     static valueFrom(value: unknown): bigint {
