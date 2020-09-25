@@ -25,9 +25,32 @@ export abstract class Builder<T = unknown> {
         );
     }
 
+    /**
+     * Convert a Vector to a Builder with current values
+     * populated depending on the length populated
+    */
+    static makeFromVector<R>(
+        vector: Vector<R>,
+        length: number
+    ): Builder<R> {
+        if (length == null) {
+            throw new Error('Builder.makeFromVector requires a length');
+        }
+
+        const builder = Builder.make<R>(
+            vector.config,
+            length,
+            vector.childConfig
+        );
+        const existing = vector.data.values.slice(0, length);
+        builder.values.push(...existing);
+        builder.currentIndex = existing.length;
+        return builder;
+    }
+
     readonly childConfig?: DataTypeFields;
-    protected readonly _values: Maybe<T>[];
-    protected _currentIndex = 0;
+    readonly values: Maybe<T>[];
+    currentIndex = 0;
 
     constructor(
         /**
@@ -42,14 +65,14 @@ export abstract class Builder<T = unknown> {
         this.config = { ...config };
         this.valueFrom = valueFrom;
         this.childConfig = childConfig ? { ...childConfig } : undefined;
-        this._values = length != null ? Array(length) : [];
+        this.values = length != null ? Array(length) : [];
     }
 
     /**
      * Returns the number items in the Builder
     */
     get size(): number {
-        return this._values.length;
+        return this.values.length;
     }
 
     /**
@@ -57,9 +80,9 @@ export abstract class Builder<T = unknown> {
     */
     set(index: number, value: unknown): Builder<T> {
         if (value == null) {
-            this._values[index] = null;
+            this.values[index] = null;
         } else {
-            this._values[index] = (
+            this.values[index] = (
                 this.valueFrom ? this.valueFrom(value, this) : value
             ) as T;
         }
@@ -68,7 +91,7 @@ export abstract class Builder<T = unknown> {
 
     /** Append a value to the end */
     append(value: unknown): Builder<T> {
-        return this.set(this._currentIndex++, value);
+        return this.set(this.currentIndex++, value);
     }
 
     /**
@@ -76,12 +99,12 @@ export abstract class Builder<T = unknown> {
     */
     toVector(): Vector<T> {
         const vector = Vector.make({ ...this.config }, Object.freeze({
-            values: Object.freeze(this._values.slice())
+            values: Object.freeze(this.values.slice())
         }), this.childConfig);
 
         // clear
-        this._values.length = 0;
-        this._currentIndex = 0;
+        this.values.length = 0;
+        this.currentIndex = 0;
 
         return vector;
     }

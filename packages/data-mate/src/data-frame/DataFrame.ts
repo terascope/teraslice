@@ -6,7 +6,7 @@ import { Column } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import { md5 } from '../vector/utils';
 import { columnsToDataTypeConfig, distributeRowsToColumns } from './utils';
-import { getBuildersForConfig } from '../builder';
+import { Builder, getBuildersForConfig } from '../builder';
 
 /**
  * An immutable columnar table with APIs for data pipelines.
@@ -230,6 +230,50 @@ export class DataFrame<
                 return col;
             }).concat(newColumns) as Column<any>[],
         );
+    }
+
+    /**
+     * Concat rows to the end of the existing Columns
+    */
+    concat(arg: Partial<T>[]|Column<T>[]): DataFrame<T> {
+        if (arg.length === 0) return this;
+
+        let len: number;
+        if (arg[0] instanceof Column) {
+            len = arg[0].vector.size;
+        } else {
+            len = (arg[0] as any).length;
+        }
+        const total = len + this._size;
+        if (len === 0) return this;
+
+        const builders = new Map<string, Builder>();
+
+        for (const col of this.columns) {
+            builders.set(
+                col.name, Builder.makeFromVector(
+                    col.vector, total
+                )
+            );
+        }
+
+        if (arg[0] instanceof Column) {
+            for (const col of (arg as Column[])) {
+                // FIXME
+                col.toJSON();
+            }
+        } else {
+            for (const record of (arg as T[])) {
+                for (const col of this.columns) {
+                    const builder = builders.get(col.name)!;
+                    builder.append(record[col.name]);
+                }
+            }
+        }
+
+        return this.fork(this.columns.map(
+            (col) => col.fork(builders.get(col.name)!.toVector())
+        ));
     }
 
     /**
