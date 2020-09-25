@@ -125,7 +125,7 @@ describe('IndexManager', () => {
                         },
                     });
 
-                    expect(indexName).toEqual('hello-v1-s1*');
+                    expect(indexName).toEqual('hello-v1-s1-*');
                 });
             });
 

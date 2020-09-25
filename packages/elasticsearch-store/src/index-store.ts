@@ -8,13 +8,12 @@ import * as i from './interfaces';
 import * as utils from './utils';
 
 /**
- * A single index elasticearch-store with some specific requirements around
+ * A single index elasticsearch-store with some specific requirements around
  * the index name, and record data
  */
 export default class IndexStore<T extends ts.AnyObject> {
     readonly client: es.Client;
     readonly config: i.IndexConfig<T>;
-    readonly indexQuery: string;
     readonly manager: IndexManager;
     readonly name: string;
     refreshByDefault = true;
@@ -49,8 +48,6 @@ export default class IndexStore<T extends ts.AnyObject> {
         this.manager = new IndexManager(client, config.enable_index_mutations);
         this.esVersion = this.manager.esVersion;
 
-        this.indexQuery = this.manager.formatIndexName(config);
-
         if (this.config.bulk_max_size != null) {
             this._bulkMaxSize = this.config.bulk_max_size;
         }
@@ -84,6 +81,20 @@ export default class IndexStore<T extends ts.AnyObject> {
     }
 
     /**
+     * The most current indexed used to write to
+    */
+    get writeIndex(): string {
+        return this.manager.formatIndexName(this.config, false);
+    }
+
+    /**
+     * The index typically used for searching across all of the open indices
+    */
+    get searchIndex(): string {
+        return this.manager.formatIndexName(this.config);
+    }
+
+    /**
      * Safely add a create, index, or update requests to the bulk queue
      *
      * This method will batch messages using the configured
@@ -97,9 +108,9 @@ export default class IndexStore<T extends ts.AnyObject> {
     async bulk(action: i.BulkAction, ...args: any[]): Promise<void> {
         const metadata: BulkRequestMetadata = {};
         metadata[action] = this.esVersion >= 7 ? {
-            _index: this.indexQuery,
+            _index: this.writeIndex,
         } : {
-            _index: this.indexQuery,
+            _index: this.writeIndex,
             _type: this.config.name,
         };
 
@@ -148,7 +159,10 @@ export default class IndexStore<T extends ts.AnyObject> {
     /** Count records by a given Elasticsearch Query DSL */
     async countRequest(params: es.CountParams): Promise<number> {
         return ts.pRetry(async () => {
-            const { count } = await this.client.count(this.getDefaultParams(params));
+            const { count } = await this.client.count(this.getDefaultParams<es.CountParams>(
+                this.searchIndex,
+                params
+            ));
             return count;
         }, utils.getRetryConfig());
     }
@@ -173,21 +187,25 @@ export default class IndexStore<T extends ts.AnyObject> {
     async create(doc: Partial<T>, params?: PartialParam<es.CreateDocumentParams, 'body'>): Promise<T> {
         const record = this._runWriteHooks(doc, true);
         const defaults = { refresh: this.refreshByDefault };
-        const p = this.getDefaultParams(defaults, params, { body: record });
+        const p = this.getDefaultParams<es.CreateDocumentParams>(
+            this.writeIndex, defaults, params, { body: record }
+        );
 
         const result = await ts.pRetry(
-            () => this.client.create(p) as any,
+            () => this.client.create(p),
             utils.getRetryConfig()
         );
-        result._source = record;
-        return this._toRecord(result);
+        return this._toRecord({
+            ...result,
+            _source: record
+        });
     }
 
     async flush(flushAll = false): Promise<void> {
         const records = flushAll ? this._collector.flushAll() : this._collector.getBatch();
         if (!records || !records.length) return;
 
-        this._logger.debug(`Flushing ${records.length} requests to ${this.indexQuery}`);
+        this._logger.debug(`Flushing ${records.length} requests to ${this.writeIndex}`);
 
         const bulkRequest: any[] = [];
 
@@ -202,10 +220,10 @@ export default class IndexStore<T extends ts.AnyObject> {
     /** Get a single document */
     async get(id: string, params?: PartialParam<es.GetParams>): Promise<T> {
         utils.validateId(id, 'get');
-        const p = this.getDefaultParams(params, { id });
+        const p = this.getDefaultParams(this.writeIndex, params, { id });
 
         const result = await ts.pRetry(
-            () => this.client.get(p) as Promise<RecordResponse<T>>,
+            () => this.client.get(p as es.GetParams) as Promise<RecordResponse<T>>,
             utils.getRetryConfig()
         );
         return this._toRecord(result);
@@ -233,9 +251,12 @@ export default class IndexStore<T extends ts.AnyObject> {
         const body = this._runWriteHooks(doc, true);
 
         const defaults = { refresh: this.refreshByDefault };
-        const p = this.getDefaultParams(defaults, params, {
-            body,
-        });
+        const p = this.getDefaultParams<es.IndexDocumentParams<T>>(
+            this.writeIndex,
+            defaults,
+            params,
+            { body }
+        );
 
         const result = await ts.pRetry(() => this.client.index(p), utils.getRetryConfig());
         result._source = doc;
@@ -256,7 +277,7 @@ export default class IndexStore<T extends ts.AnyObject> {
 
     /** Get multiple documents at the same time */
     async mget(body: unknown, params?: PartialParam<es.MGetParams>): Promise<T[]> {
-        const p = this.getDefaultParams(params, { body });
+        const p = this.getDefaultParams(this.writeIndex, params, { body });
 
         const docs = await ts.pRetry(async () => {
             const result = await this.client.mget<T>(p);
@@ -277,7 +298,7 @@ export default class IndexStore<T extends ts.AnyObject> {
     async refresh(params?: PartialParam<es.IndicesRefreshParams>): Promise<void> {
         const p = Object.assign(
             {
-                index: this.indexQuery,
+                index: this.writeIndex,
             },
             params
         );
@@ -290,7 +311,8 @@ export default class IndexStore<T extends ts.AnyObject> {
      */
     async deleteById(id: string, params?: PartialParam<es.DeleteDocumentParams>): Promise<void> {
         utils.validateId(id, 'deleteById');
-        const p = this.getDefaultParams(
+        const p = this.getDefaultParams<es.DeleteDocumentParams>(
+            this.writeIndex,
             {
                 refresh: this.refreshByDefault,
             },
@@ -332,10 +354,11 @@ export default class IndexStore<T extends ts.AnyObject> {
             _body.doc = doc;
         }
 
-        const p = this.getDefaultParams(defaults, params, {
-            id,
-            body: _body
-        });
+        const p = this.getDefaultParams<es.UpdateDocumentParams>(
+            this.writeIndex,
+            defaults,
+            params, { id, body: _body }
+        );
 
         await ts.pRetry(() => this.client.update(p), utils.getRetryConfig());
     }
@@ -344,7 +367,7 @@ export default class IndexStore<T extends ts.AnyObject> {
     async updatePartial(
         id: string,
         applyChanges: ApplyPartialUpdates<T>,
-        retriesOnConlfict = 3
+        retriesOnConflict = 3
     ): Promise<T> {
         utils.validateId('updatePartial', id);
         try {
@@ -366,22 +389,25 @@ export default class IndexStore<T extends ts.AnyObject> {
         } catch (error) {
             // if there is a version conflict
             if (error.statusCode === 409 && error.message.includes('version conflict')) {
-                return this.updatePartial(id, applyChanges, retriesOnConlfict - 1);
+                return this.updatePartial(id, applyChanges, retriesOnConflict - 1);
             }
             throw error;
         }
     }
 
-    getDefaultParams(...params: any[]): any {
+    getDefaultParams<P extends Record<string, any> = { index: string; [prop: string]: any }>(
+        index: string,
+        ...params: ((Partial<P> & Record<string, any>)|undefined)[]
+    ): P {
         return Object.assign(
             this.esVersion >= 7 ? {
-                index: this.indexQuery,
+                index,
             } : {
-                index: this.indexQuery,
+                index,
                 type: this.config.name,
             },
             ...params
-        );
+        ) as P;
     }
 
     async countBy(
@@ -559,11 +585,45 @@ export default class IndexStore<T extends ts.AnyObject> {
         return this.searchRequest(searchParams, critical);
     }
 
-    /** Search using the underyling Elasticsearch Query DSL */
+    /** Search using the underlying Elasticsearch Query DSL */
     async searchRequest(
         params: PartialParam<SearchParams<T>>,
         critical?: boolean
     ): Promise<i.SearchResult<T>> {
+        const response = await this._search({
+            sort: this.config.default_sort,
+            ...params,
+        });
+
+        const total = ts.get(response, 'hits.total.value', ts.get(response, 'hits.total', 0));
+        const results = this._toRecords(response.hits.hits, critical);
+        return {
+            _total: total,
+            _fetched: results.length,
+            results,
+        };
+    }
+
+    /** Run an aggregation using an Elasticsearch Query DSL */
+    async aggregate<A = Record<string, any>>(
+        query: Record<string, any>,
+        params?: PartialParam<SearchParams<T>>,
+    ): Promise<A> {
+        const response = await this._search({
+            ...params,
+            size: 0,
+            body: query
+        });
+
+        return response.aggregations;
+    }
+
+    /**
+     * A small abstraction on client.search with retry support
+    */
+    protected async _search(
+        params: PartialParam<SearchParams<T>>,
+    ): Promise<es.SearchResponse<T>> {
         if (this.esVersion >= 7) {
             const p: any = params;
             if (p._sourceExclude) {
@@ -577,11 +637,9 @@ export default class IndexStore<T extends ts.AnyObject> {
         }
 
         const response = await ts.pRetry(async () => this.client.search<T>(
-            this.getDefaultParams(
-                {
-                    sort: this.config.default_sort,
-                },
-                params
+            this.getDefaultParams<es.SearchParams>(
+                this.searchIndex,
+                params,
             )
         ), utils.getRetryConfig());
 
@@ -602,14 +660,7 @@ export default class IndexStore<T extends ts.AnyObject> {
                 });
             }
         }
-
-        const total = ts.get(response, 'hits.total.value', ts.get(response, 'hits.total', 0));
-        const results = this._toRecords(response.hits.hits, critical);
-        return {
-            _total: total,
-            _fetched: results.length,
-            results,
-        };
+        return response;
     }
 
     createJoinQuery(fields: AnyInput<T>, joinBy: JoinBy = 'AND', variables = {}): xLuceneQueryResult {
@@ -700,7 +751,7 @@ export default class IndexStore<T extends ts.AnyObject> {
         const retry = utils.filterBulkRetries(records, result);
 
         if (retry.length) {
-            this._logger.warn(`Bulk request to ${this.indexQuery} resulted in ${retry.length} errors`);
+            this._logger.warn(`Bulk request to ${this.writeIndex} resulted in ${retry.length} errors`);
 
             this._logger.trace('Retrying bulk requests', retry);
             this._collector.add(retry);
