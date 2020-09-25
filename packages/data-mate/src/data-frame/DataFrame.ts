@@ -269,12 +269,10 @@ export class DataFrame<
 
             for (const [field, builder] of builders) {
                 const col = columns.find(((c) => c.name === field));
-                if (col) {
-                    for (const val of col) {
-                        builder.append(val);
-                    }
-                } else {
-                    for (let i = 0; i < len; i++) {
+                for (let i = 0; i < len; i++) {
+                    if (col) {
+                        builder.append(col.vector.get(i));
+                    } else {
                         builder.append(null);
                     }
                 }
