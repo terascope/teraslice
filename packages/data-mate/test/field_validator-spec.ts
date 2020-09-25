@@ -210,7 +210,7 @@ describe('field validators', () => {
         });
     });
 
-    describe('isIp should', () => {
+    describe('isIP should', () => {
         it('return true for valid ips', () => {
             expect(FieldValidator.isIP('8.8.8.8')).toBe(true);
             expect(FieldValidator.isIP('192.172.1.18')).toBe(true);

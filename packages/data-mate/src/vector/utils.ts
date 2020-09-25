@@ -9,7 +9,7 @@ import { ListVector } from './ListVector';
 import {
     AnyVector, BigIntVector, BooleanVector, DateVector,
     FloatVector, GeoJSONVector, GeoPointVector, IntVector,
-    ObjectVector, StringVector
+    ObjectVector, StringVector, IPVector,
 } from './types';
 import { Data } from './interfaces';
 import { Vector } from './Vector';
@@ -53,9 +53,10 @@ function _newVectorForType(
         case FieldType.KeywordPathAnalyzer:
         case FieldType.Domain:
         case FieldType.Hostname:
+            return new StringVector({ config, data });
         case FieldType.IP:
         case FieldType.IPRange:
-            return new StringVector({ config, data });
+            return new IPVector({ config, data });
         case FieldType.Date:
             return new DateVector({ config, data });
         case FieldType.Boolean:

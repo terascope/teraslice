@@ -8,6 +8,7 @@ import {
     AnyBuilder, BigIntBuilder, BooleanBuilder,
     DateBuilder, FloatBuilder,
     GeoJSONBuilder, GeoPointBuilder, IntBuilder,
+    IPBuilder,
     ObjectBuilder, StringBuilder
 } from './types';
 
@@ -65,9 +66,10 @@ function _newBuilderForType(
         case FieldType.KeywordPathAnalyzer:
         case FieldType.Domain:
         case FieldType.Hostname:
+            return new StringBuilder({ config, length });
         case FieldType.IP:
         case FieldType.IPRange:
-            return new StringBuilder({ config, length });
+            return new IPBuilder({ config, length });
         case FieldType.Date:
             return new DateBuilder({ config, length });
         case FieldType.Boolean:

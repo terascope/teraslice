@@ -3,7 +3,7 @@ import { Maybe } from '@terascope/types';
 /**
  * The Vector Type, this will change how the data is stored and read
  *
- * @todo add IP and IP_RANGE support
+ * @todo add IP support
 */
 export enum VectorType {
     /**
@@ -20,7 +20,6 @@ export enum VectorType {
     GeoPoint = 'GeoPoint',
     GeoJSON = 'GeoJSON',
     IP = 'IP',
-    IP_RANGE = 'IP_RANGE',
     Object = 'Object',
     /**
      * Arbitrary data can be stored with this. Not recommended for use.

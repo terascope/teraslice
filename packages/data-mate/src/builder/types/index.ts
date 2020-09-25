@@ -6,5 +6,6 @@ export * from './FloatBuilder';
 export * from './GeoJSONBuilder';
 export * from './GeoPointBuilder';
 export * from './IntBuilder';
+export * from './IPBuilder';
 export * from './ObjectBuilder';
 export * from './StringBuilder';
