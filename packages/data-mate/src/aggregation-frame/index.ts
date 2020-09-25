@@ -1,1 +1,1 @@
-export * from './aggregation-frame';
+export * from './AggregationFrame';

@@ -1,5 +1,5 @@
 export * from './aggregations';
-export * from './column';
+export * from './Column';
 export * from './interfaces';
 export * from './utils';
 export * from './transforms';
