@@ -158,7 +158,7 @@ export class DataFrame {
 */
 export interface DataFrameOptions {
     name?: string;
-    metadata?: Record<string, any>;
+    metadata?: AnyObject;
 }
 ```
 
@@ -206,22 +206,22 @@ export class Column {
      * A Unique ID for the Column.
      * The ID should only change if the data vector changes.
     */
-    get id(): string;
+    id: string;
 
     /**
      * Get the size of the column
     */
-    get size(): number;
+    size: number;
 
     /**
      * Get the underling Vector.
     */
-    get vector(): Vector;
+    vector: Vector;
 
     /**
      * Get the Data Type field configuration.
     */
-    get config(): Readonly;
+    config: DataTypeFieldConfig;
 
     /**
      * Create a fork of the Column
@@ -233,7 +233,7 @@ export class Column {
      *
      * @note this will always keep the same length
     */
-    transform(config: ColumnTransformConfig, args?: Record<string, any>): Column;
+    transform(config: ColumnTransformConfig, args?: AnyObject): Column;
 
     /**
      * Creates a new column, if the function returns false
@@ -241,7 +241,7 @@ export class Column {
      *
      * @note this will always keep the same length
     */
-    validate(validateConfig: ColumnValidateConfig, args?: Record<string, any>): Column;
+    validate(validateConfig: ColumnValidateConfig, args?: AnyObject): Column;
 
     /**
      * Sort the column
@@ -280,6 +280,37 @@ export class Column {
 ### Vector
 
 ```ts
+/**
+ * The Vector Type, this will change how the data is stored and read
+*/
+export enum VectorType {
+    /**
+     * Currently this operates like String
+     * but I imagine will be expanding it.
+     * But will need to add format options
+    */
+    Date = 'Date',
+    String = 'String',
+    Int = 'Int',
+    Float = 'Float',
+    BigInt = 'BigInt',
+    Boolean = 'Boolean',
+    GeoPoint = 'GeoPoint',
+    GeoJSON = 'GeoJSON',
+    IP = 'IP',
+    IPRange = 'IPRange',
+    Object = 'Object',
+    /**
+     * Arbitrary data can be stored with this. Not recommended for use.
+    */
+    Any = 'Any',
+    /**
+     * The list type is used for fields marked as Arrays
+     * where each item in the Vector is a child element
+    */
+    List = 'List',
+}
+
 /**
  * An immutable typed Array class with a constrained API.
 */
@@ -333,7 +364,7 @@ export abstract class Vector {
     /**
      * Returns the number items in the Vector
     */
-    get size(): number;
+    size: number;
 
     /**
      * Gets the number distinct values in the Vector
@@ -371,6 +402,211 @@ export abstract class Vector {
      * Convert the Vector an array of values (the output is JSON compatible)
     */
     toJSON(): any[];
+}
+```
+
+
+### Builder
+
+```ts
+/**
+ * Since Vectors are immutable, a Builder can be to construct a
+ * Vector. When values are inserted they are coerced and validated.
+*/
+export abstract class Builder {
+    /**
+     * Make a instance of a Builder from a DataTypeField config
+    */
+    static make(
+        config: DataTypeFieldConfig,
+        length?: number,
+        childConfig?: DataTypeFields
+    ): Builder;
+
+    /**
+     * Convert a Vector to a Builder with current values
+     * populated depending on the length populated
+    */
+    static makeFromVector(vector: Vector, length: number): Builder;
+
+     /**
+     * The type of Vector, this should only be set the specific Vector type classes.
+    */
+    readonly type: VectorType;
+
+    /**
+     * The field type configuration
+    */
+    readonly config: DataTypeFieldConfig;
+
+    /**
+     * A function for converting a value to an JSON spec compatible format.
+     * This is specific on the vector type classes via a static method usually.
+    */
+    readonly valueFrom?: ValueFromFn;
+
+    /**
+     * When Vector is an object type, this will be the data type fields
+     * for the object
+    */
+    readonly childConfig?: DataTypeFields;
+
+    /**
+     * The values used to create the Vector.
+     * Do NOT mutate this.
+    */
+    readonly values: any[];
+
+    /**
+     * The current insertion index (used for append)
+    */
+    currentIndex = 0;
+
+    constructor(options: BuilderOptions): Builder;
+
+    /**
+     * Returns the number items in the Builder
+    */
+    size: number;
+
+    /**
+     * Set value by index
+    */
+    set(index: number, value: unknown): Builder;
+
+    /**
+     * Append a value to the end
+    */
+    append(value: unknown): Builder;
+
+    /**
+     * Flush and convert the result to a Vector
+    */
+    toVector(): Vector;
+}
+```
+
+### AggregationFrame
+
+```ts
+/**
+ * A frame dedicated to running a aggregations
+*/
+export class AggregationFrame {
+    /**
+     * The columns for the AggregationFrame
+    */
+    columns: readonly Column[];
+
+    /**
+     * The keys to group by
+    */
+    readonly keyBy: readonly string[];
+
+    constructor(columns: Column[], keyBy?: string[]): AggregationFrame;
+
+    /**
+     * Calculate the average value in a column
+     *
+     * @note only works numeric data types
+     *
+     * @param field the name of the column to run the aggregation on
+     * @param as a optional name for the new column with the aggregated values
+    */
+    avg(field: string, as?: string): AggregationFrame;
+
+    /**
+     * Add all of the values in a column together
+     *
+     * @note only works numeric data types
+     *
+     * @param field the name of the column to run the aggregation on
+     * @param as a optional name for the new column with the aggregated values
+    */
+    sum(field: string, as?: string): AggregationFrame;
+
+    /**
+     * Find the minimum value in a column
+     *
+     * @note only works numeric data types
+     *
+     * @param field the name of the column to run the aggregation on
+     * @param as a optional name for the new column with the aggregated values
+    */
+    min(field: string, as?: string): AggregationFrame;
+
+    /**
+     * Find the maximum value in a column
+     *
+     * @note only works numeric data types
+     *
+     * @param field the name of the column to run the aggregation on
+     * @param as a optional name for the new column with the aggregated values
+    */
+    max(field: string, as?: string): AggregationFrame;
+
+    /**
+     * Count all of the values in a column
+     *
+     * @param field the name of the column to run the aggregation on
+     * @param as a optional name for the new column with the aggregated values
+    */
+    count(field: string, as?: string): AggregationFrame;
+
+    /**
+     * Create a groups of unique values
+     *
+     * @param field the name of the column to run the aggregation on
+     * @param as a optional name for the new column with the aggregated values
+    */
+    unique(field: string): AggregationFrame;
+
+    /**
+     * Group the data in hourly buckets
+     *
+     * @note only works Date data types
+     *
+     * @param field the name of the column to run the aggregation on
+    */
+    hourly(field: string): AggregationFrame;
+
+    /**
+     * Group the data in daily buckets
+     *
+     * @note only works Date data types
+     *
+     * @param field the name of the column to run the aggregation on
+    */
+    daily(field: string): AggregationFrame;
+
+    /**
+     * Group the data in monthly buckets
+     *
+     * @note only works Date data types
+     *
+     * @param field the name of the column to run the aggregation on
+    */
+    monthly(field: string): AggregationFrame;
+
+    /**
+     * Group the data in yearly buckets
+     *
+     * @note only works Date data types
+     *
+     * @param field the name of the column to run the aggregation on
+    */
+    yearly(field: string): AggregationFrame;
+
+    /**
+     * Run aggregations and flatten the grouped data into a DataFrame
+     * @returns the new columns
+    */
+    run(): Promise<Column[]>;
+
+    /**
+     * Reset the Aggregations
+    */
+    clear(): void;
 }
 ```
 

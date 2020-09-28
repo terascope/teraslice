@@ -4,13 +4,10 @@ import {
 } from '../vector';
 
 /**
- * A Vector builder
+ * Since Vectors are immutable, a Builder can be to construct a
+ * Vector. When values are inserted they are coerced and validated.
 */
 export abstract class Builder<T = unknown> {
-    readonly type: VectorType;
-    readonly config: DataTypeFieldConfig;
-    readonly valueFrom?: ValueFromFn<T>;
-
     /**
      * Make a instance of a Builder from a DataTypeField config
     */
@@ -51,8 +48,37 @@ export abstract class Builder<T = unknown> {
         return builder;
     }
 
+    /**
+     * The type of Vector, this should only be set the specific Vector type classes.
+    */
+    readonly type: VectorType;
+
+    /**
+     * The field type configuration
+    */
+    readonly config: DataTypeFieldConfig;
+
+    /**
+     * A function for converting a value to an JSON spec compatible format.
+     * This is specific on the vector type classes via a static method usually.
+    */
+    readonly valueFrom?: ValueFromFn<T>;
+
+    /**
+     * When Vector is an object type, this will be the data type fields
+     * for the object
+    */
     readonly childConfig?: DataTypeFields;
+
+    /**
+     * The values used to create the Vector.
+     * Do NOT mutate this.
+    */
     readonly values: Maybe<T>[];
+
+    /**
+     * The current insertion index (used for append)
+    */
     currentIndex = 0;
 
     constructor(
@@ -92,7 +118,9 @@ export abstract class Builder<T = unknown> {
         return this;
     }
 
-    /** Append a value to the end */
+    /**
+     * Append a value to the end
+    */
     append(value: unknown): Builder<T> {
         return this.set(this.currentIndex++, value);
     }

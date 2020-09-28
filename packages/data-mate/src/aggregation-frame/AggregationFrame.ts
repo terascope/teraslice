@@ -14,8 +14,16 @@ import { getBuilderForField } from './utils';
  * @todo verify the use of unique
 */
 export class AggregationFrame<T extends Record<string, any>> {
+    /**
+     * The columns for the AggregationFrame
+    */
     columns: readonly Column<any>[];
+
+    /**
+     * The keys to group by
+    */
     readonly keyBy: readonly (keyof T)[];
+
     protected readonly _aggregations = new Map<string, AggObject>();
 
     constructor(columns: readonly Column<any>[], keyBy?: readonly (keyof T)[]) {
@@ -326,6 +334,9 @@ export class AggregationFrame<T extends Record<string, any>> {
         };
     }
 
+    /**
+     * Reset the Aggregations
+    */
     clear(): void {
         this._aggregations.clear();
     }
