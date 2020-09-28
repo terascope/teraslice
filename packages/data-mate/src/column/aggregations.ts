@@ -1,6 +1,6 @@
 import formatDate from 'date-fns/format';
 import {
-    getTypeOf, isBigInt, toBigInt
+    getTypeOf, isBigInt, toBigInt, toBigIntOrThrow
 } from '@terascope/utils';
 import { Maybe } from '@terascope/types';
 import {
@@ -56,18 +56,18 @@ function getSameNumberType(
     if (a == null) {
         if (defaultVal == null) return [undefined, b as any];
         if (isBigInt(b)) {
-            return [toBigInt(defaultVal), b];
+            return [toBigIntOrThrow(defaultVal), b];
         }
         if (isBigInt(defaultVal)) {
-            return [defaultVal, toBigInt(b)];
+            return [defaultVal, toBigIntOrThrow(b)];
         }
         return [defaultVal, b];
     }
     if (isBigInt(a)) {
-        return [a, toBigInt(b)];
+        return [a, toBigIntOrThrow(b)];
     }
     if (isBigInt(b)) {
-        return [toBigInt(a), b];
+        return [toBigIntOrThrow(a), b];
     }
     if (typeof a === typeof b) return [a, b];
 

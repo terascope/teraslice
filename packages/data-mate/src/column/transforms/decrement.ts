@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { toBigInt } from '@terascope/utils';
+import { toBigIntOrThrow } from '@terascope/utils';
 import { VectorType } from '../../vector';
 import { ColumnTransformConfig, TransformMode, TransformType } from '../interfaces';
 
@@ -26,7 +26,7 @@ export const decrementConfig: ColumnTransformConfig<any, any, DecrementArgs> = {
     type: TransformType.TRANSFORM,
     create(vector, args) {
         if (vector.type === VectorType.BigInt) {
-            const by = toBigInt(args.by ?? 1);
+            const by = toBigIntOrThrow(args.by ?? 1);
             return {
                 mode: TransformMode.EACH_VALUE,
                 fn(value: bigint) {
