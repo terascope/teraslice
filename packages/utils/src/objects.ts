@@ -4,7 +4,7 @@ import { get, isPlainObject } from './deps';
 import { DataEntity } from './entities';
 
 /**
- * Similar to is-plain-object but works better when clone deeping a DataEntity
+ * Similar to is-plain-object but works better when you cloneDeep a DataEntity
 */
 export function isSimpleObject(input: unknown): input is Record<string, unknown> {
     if (input == null) return false;
@@ -134,7 +134,7 @@ export function filterObject<
 }
 
 /**
- * A typesafe get function (will always return the correct type)
+ * A type safe get function (will always return the correct type)
  *
  * **IMPORTANT** This does not behave like lodash.get,
  * it does not deal with dot notation (nested fields)
@@ -178,4 +178,25 @@ export function getField<T, P extends keyof T, V>(
         return result;
     }
     return result || defaultVal;
+}
+
+export function isSame(input: unknown, target: unknown): boolean {
+    if (isObjectEntity(input)) {
+        if (isObjectEntity(target)) {
+            const sortedInput = sortKeys(input as Record<string, unknown>, { deep: true });
+            const sortedTarget = sortKeys(target as Record<string, unknown>, { deep: true });
+            return JSON.stringify(sortedInput) === JSON.stringify(sortedTarget);
+        }
+        return false;
+    }
+
+    if (Array.isArray(input)) {
+        if (Array.isArray(target)) {
+            if (input.length !== target.length) return false;
+            return input.every((val, index) => isSame(val, target[index]));
+        }
+        return false;
+    }
+
+    return Object.is(input, target);
 }

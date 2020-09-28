@@ -1,4 +1,10 @@
 import convict from 'convict';
+import {
+    has,
+    get,
+    toString,
+    isSame
+} from '@terascope/utils';
 import SchemaCore, { OpType } from './core/schema-core';
 import {
     Context,
@@ -33,6 +39,39 @@ export default abstract class ConvictSchema<T extends Record<string, any>, S = a
 
     validateJob(_job: ValidatedJobConfig): void {
 
+    }
+
+    ensureAPIFromConfig(
+        apiName: string, job: ValidatedJobConfig, config: Record<string, any>
+    ): void {
+        if (!job.apis) job.apis = [];
+        const apiConfig = job.apis.find((jobApi) => jobApi._name === apiName);
+
+        if (!apiConfig) {
+            job.apis.push({
+                _name: apiName,
+                ...config
+            });
+        } else {
+            const mixedValues: Record<string, string[]> = {};
+
+            for (const [key, value] of Object.entries(apiConfig)) {
+                const configVal = get(config, key);
+                if (has(config, key) && !isSame(configVal, value)) {
+                    mixedValues[key] = [toString(configVal), toString(value)];
+                }
+            }
+
+            let errMsg = '';
+
+            for (const [key, values] of Object.entries(mixedValues)) {
+                errMsg += `parameter "${key}" in the apiConfig is set to "${values[1]}" and will take precedence over provided value "${values[0]}"\n`;
+            }
+
+            if (errMsg.length > 0) {
+                this.context.logger.warn(`Configuration clashes have been found between apiConfigs and opConfigs: \n${errMsg}`);
+            }
+        }
     }
 
     static type(): string {
