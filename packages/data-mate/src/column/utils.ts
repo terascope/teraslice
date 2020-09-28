@@ -1,11 +1,11 @@
 import { v4 as uuid } from 'uuid';
-import { toString } from '@terascope/utils';
+import { joinList, toString } from '@terascope/utils';
 import {
-    DataTypeFieldConfig, Maybe
+    DataTypeFieldConfig, DataTypeFields, Maybe
 } from '@terascope/types';
 import { Builder } from '../builder';
 import {
-    Vector, isVector
+    Vector, isVector, VectorType
 } from '../vector';
 import { ColumnTransformFn, TransformMode } from './interfaces';
 
@@ -91,4 +91,37 @@ export function isSameFieldConfig(
     if (a.locale !== b.locale) return false;
 
     return true;
+}
+
+export function validateFieldTransformArgs<A extends Record<string, any>>(
+    schema?: DataTypeFields, requiredArgs?: string[], args?: Partial<A>
+): A {
+    if (!schema) return {} as any;
+
+    const a = { ...args } as A;
+
+    for (const [name, config] of Object.entries(schema)) {
+        const field = name as keyof A;
+
+        const builder = Builder.make(config);
+        if (builder.valueFrom) {
+            a[field] = builder.valueFrom(a[field], builder) as any;
+        }
+
+        const required = requiredArgs?.includes(name);
+        if (required && a[field] == null) {
+            throw new Error(`Missing required parameter ${field}`);
+        }
+    }
+
+    return a;
+}
+
+export function validateFieldTransformType(
+    accepts: VectorType[], type: VectorType
+): void {
+    if (!accepts?.length) return;
+    if (!accepts.includes(type)) {
+        throw new Error(`Incompatible with field type ${type}, must be ${joinList(accepts)}`);
+    }
 }

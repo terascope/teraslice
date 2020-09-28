@@ -8,75 +8,172 @@ title: Data Frame
 
 ```ts
 /**
- * An immutable columnar table with APIs for data pipelines
- * Rows with only null/undefined values are ignored
+ * An immutable columnar table with APIs for data pipelines.
 */
-interface DataFrame<T extends Record<string, unknown> = Record<string, any>> {
+export class DataFrame {
     /**
      * Create a DataFrame from an array of JSON objects
     */
-    static fromJSON<R extends Record<string, unknown> = Record<string, any>>(
-        config: DataTypeConfig, records: R[]
-    ): DataFrame<R>;
+    static fromJSON(
+        config: DataTypeConfig|ReadonlyDataTypeConfig,
+        records: any[] = [],
+        options?: DataFrameOptions
+    ): DataFrame;
 
-    readonly name: string;
-    readonly columns: Column[];
+    /**
+     * The name of the DataFrame
+    */
+    name?: string;
+
+    /**
+     * The list of columns
+    */
+    readonly columns: readonly Column[];
+
     /**
      * Metadata about the DataFrame
     */
-    readonly metadata?: Record<string, any>;
+    readonly metadata: M;
 
     constructor(
         columns: Column[],
-        name?: string,
-        metadata?: Record<string, any>
-    ): DataFrame<T>
+        options?: DataFrameOptions
+    ): DataFrame
 
     * [Symbol.iterator](): IterableIterator<T>;
 
     /**
-     * Get the size of the DataFrame
+     * A Unique ID for the DataFrame
+     * The ID will only change if the columns or data change
     */
-    readonly size: number;
+    id: string;
 
     /**
-     * Get a columns by name, returns a new DataFrame
+     * Count of the number rows in the DataFrame
     */
-    select<K extends keyof T>(...fields: K[]): DataFrame<Pick<T, K>>;
+    size: number;
 
     /**
-     * Assign new columns to a new DataFrame
-     * This will eventually handle DataFrame input
+     * Get the DataType config from the columns.
+    */
+    config: DataTypeConfig;
+
+    /**
+     * Create a fork of the DataFrame
+    */
+    fork(columns: Column[]): DataFrame;
+
+
+    /**
+     * Get a column, or columns by name, returns a new DataFrame
+    */
+    select(...fields: string[]): DataFrame;
+
+    /**
+     * Get a column, or columns by index, returns a new DataFrame
+    */
+    selectAt(...indices: number[]): DataFrame;
+
+    /**
+     * Group DataFrame by columns and return a AggregationFrame instance
+     * which can be used to run aggregations
+    */
+    groupBy(fields: string[]): AggregationFrame;
+
+    /**
+     * Create a AggregationFrame instance which can be used to run aggregations
+    */
+    aggregate(): AggregationFrame;
+
+    /**
+     * Order the rows by fields, format of is `field:asc` or `field:desc`.
+     * Defaults to `asc` if none specified
+    */
+    orderBy(field: string, direction?: SortOrder): DataFrame;
+
+    /**
+     * Filter the DataFrame by fields, all fields must return true
+     * for a given row to returned in the filtered DataType
+     *
+     * @example
+     *
+     *     dataFrame.filter({
+     *         name(val) {
+     *             return val != null;
+     *         },
+     *         age(val) {
+     *             return val != null && val >= 20;
+     *         }
+     *     });
+    */
+    filterBy(filters: {
+        [field: string]: (value: any) => boolean>
+    }): DataFrame;
+
+    /**
+     * Assign new columns to a new DataFrame. If given a column already exists,
+     * the column will replace the existing one.
     */
     assign<R extends Record<string, unknown> = Record<string, any>>(
-        columns: Column[]
-    ): DataFrame<T & R>;
+        columns: readonly Column<any>[]
+    ): DataFrame<T & R> {
+        const newColumns = columns.filter((col) => {
+            if (this.getColumn(col.name)) return false;
+            return true;
+        });
+
+        return this.fork<T & R>(
+            this.columns.map((col) => {
+                const replaceCol = columns.find((c) => c.name === col.name);
+                if (replaceCol) return replaceCol;
+                return col;
+            }).concat(newColumns) as Column<any>[],
+        );
+    }
 
     /**
-     * Concat values to columns to this existing columns to a new DataFrame
-     * This will eventually handle DataFrame, Vector or JSON input
+     * Concat rows, or columns, to the end of the existing Columns
     */
-    concat(columns: Column[]): DataFrame<T>;
+    concat(columns: Column[]): DataFrame;
+    concat(columns: Column[]): DataFrame;
+
+    /**
+     * Rename an existing column
+    */
+    rename(name: string, renameTo: string): DataFrame;
 
     /**
      * Get a column by name
     */
-    getColumn<P extends keyof T>(name: P): Column<T[P]>|undefined;
+    getColumn(name: string): Column|undefined;
 
     /**
      * Get a column by index
     */
-    getColumnAt<P extends keyof T>(index: number): Column<T[P]>|undefined;
+    getColumnAt(index: number): Column|undefined;
 
     /**
-     * Get a row by index
+     * Get a row by index, if the row has only null values, returns undefined
     */
-    getRow(index: number, returnJSON = false): T|undefined;
+    getRow(index: number, json = false): any|undefined;
+
+    /**
+     * Create a new DataFrame with a range of rows
+    */
+    slice(start?: number, end?: number): DataFrame;
 
     /**
      * Convert the DataFrame an array of object (the output is JSON compatible)
     */
     toJSON(): T[];
+}
+
+/**
+ * DataFrame options
+*/
+export interface DataFrameOptions {
+    name?: string;
+    metadata?: Record<string, any>;
 }
 ```
 

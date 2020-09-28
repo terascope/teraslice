@@ -100,7 +100,6 @@ export abstract class Vector<T = unknown> {
             }
         }
 
-        // FIXME this doesn't handle coercion
         return this.fork(Object.freeze({
             values: Object.freeze(values)
         }));

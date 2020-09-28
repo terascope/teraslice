@@ -8,7 +8,7 @@ describe('DataFrame', () => {
         const dataFrame = DataFrame.fromJSON({ version: LATEST_VERSION, fields: {} }, []);
         expect(dataFrame).toBeInstanceOf(DataFrame);
         expect(dataFrame.columns).toBeArrayOfSize(0);
-        expect(dataFrame.count()).toEqual(0);
+        expect(dataFrame.size).toEqual(0);
         expect(dataFrame.toJSON()).toEqual([]);
         expect(dataFrame.id).toBeString();
     });
@@ -27,7 +27,7 @@ describe('DataFrame', () => {
             }
         ]);
         expect(dataFrame.columns).toBeArrayOfSize(1);
-        expect(dataFrame.count()).toEqual(1);
+        expect(dataFrame.size).toEqual(1);
         expect(dataFrame.toJSON()).toEqual([
             {
                 name: 'Billy'
@@ -73,7 +73,7 @@ describe('DataFrame', () => {
             {}
         ]);
         expect(dataFrame.columns).toBeArrayOfSize(1);
-        expect(dataFrame.count()).toEqual(4);
+        expect(dataFrame.size).toEqual(4);
         expect(dataFrame.toJSON()).toEqual([
             {
                 name: 'Billy'
@@ -109,7 +109,7 @@ describe('DataFrame', () => {
             }
         ]);
         expect(dataFrame.columns).toBeArrayOfSize(2);
-        expect(dataFrame.count()).toEqual(3);
+        expect(dataFrame.size).toEqual(3);
         expect(dataFrame.toJSON()).toEqual([
             {
                 name: 'Billy',
@@ -159,7 +159,7 @@ describe('DataFrame', () => {
             },
         ]);
         expect(dataFrame.columns).toBeArrayOfSize(2);
-        expect(dataFrame.count()).toEqual(2);
+        expect(dataFrame.size).toEqual(2);
         expect(dataFrame.toJSON()).toEqual([
             {
                 config: { foo: 'bar' },
@@ -241,7 +241,17 @@ describe('DataFrame', () => {
                 const resultFrame = dataFrame.select('name', 'age');
                 const names = resultFrame.columns.map(({ name }) => name);
                 expect(names).toEqual(['name', 'age']);
-                expect(resultFrame.count()).toEqual(dataFrame.count());
+                expect(resultFrame.size).toEqual(dataFrame.size);
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+        });
+
+        describe('->selectAt', () => {
+            it('should return a new frame with just those columns', () => {
+                const resultFrame = dataFrame.selectAt(1, 2);
+                const names = resultFrame.columns.map(({ name }) => name);
+                expect(names).toEqual(['name', 'age']);
+                expect(resultFrame.size).toEqual(dataFrame.size);
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
             });
         });
@@ -255,7 +265,7 @@ describe('DataFrame', () => {
                 const names = resultFrame.columns.map(({ name }) => name);
                 expect(names).toEqual(['name', 'age', 'friends', 'upper_name']);
 
-                expect(resultFrame.count()).toEqual(dataFrame.count());
+                expect(resultFrame.size).toEqual(dataFrame.size);
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
             });
 
@@ -272,7 +282,7 @@ describe('DataFrame', () => {
                     'FRANK',
                 ]);
 
-                expect(resultFrame.count()).toEqual(dataFrame.count());
+                expect(resultFrame.size).toEqual(dataFrame.size);
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
             });
         });
@@ -289,7 +299,7 @@ describe('DataFrame', () => {
                     expect(row).not.toHaveProperty('friends');
                 }
 
-                expect(resultFrame.count()).toEqual(dataFrame.count());
+                expect(resultFrame.size).toEqual(dataFrame.size);
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
             });
         });
@@ -298,7 +308,7 @@ describe('DataFrame', () => {
             it('should be able to get the first two rows', () => {
                 const resultFrame = dataFrame.slice(0, 2);
 
-                expect(resultFrame.count()).toEqual(2);
+                expect(resultFrame.size).toEqual(2);
                 expect(resultFrame.toJSON()).toEqual([
                     {
                         name: 'Jill',
@@ -317,7 +327,7 @@ describe('DataFrame', () => {
             it('should be able to get the last row', () => {
                 const resultFrame = dataFrame.slice(2, 3);
 
-                expect(resultFrame.count()).toEqual(1);
+                expect(resultFrame.size).toEqual(1);
                 expect(resultFrame.toJSON()).toEqual([
                     {
                         name: 'Frank',
@@ -339,7 +349,7 @@ describe('DataFrame', () => {
             it('should be able to append the existing columns', () => {
                 const resultFrame = dataFrame.concat(dataFrame.columns);
 
-                expect(resultFrame.count()).toEqual(dataFrame.count() * 2);
+                expect(resultFrame.size).toEqual(dataFrame.size * 2);
                 expect(resultFrame.toJSON()).toEqual(
                     dataFrame.toJSON().concat(dataFrame.toJSON())
                 );
@@ -351,7 +361,7 @@ describe('DataFrame', () => {
                     col.fork(col.vector.slice(0, i + 1))
                 )));
 
-                expect(resultFrame.count()).toEqual(6);
+                expect(resultFrame.size).toEqual(6);
                 expect(resultFrame.toJSON()).toEqual([
                     ...dataFrame.toJSON(),
                     {
@@ -382,7 +392,7 @@ describe('DataFrame', () => {
                     }
                 ]);
 
-                expect(resultFrame.count()).toEqual(5);
+                expect(resultFrame.size).toEqual(5);
                 expect(resultFrame.toJSON()).toEqual(
                     dataFrame.toJSON().concat([
                         {

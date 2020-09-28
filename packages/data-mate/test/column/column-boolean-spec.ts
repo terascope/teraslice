@@ -26,7 +26,7 @@ describe('Column (Boolean Types)', () => {
         });
 
         it('should have the correct size', () => {
-            expect(col.count()).toEqual(values.length);
+            expect(col.size).toEqual(values.length);
         });
 
         it('should have the same id when forked with the same vector', () => {
@@ -91,7 +91,7 @@ describe('Column (Boolean Types)', () => {
         });
 
         it('should have the correct size', () => {
-            expect(col.count()).toEqual(values.length);
+            expect(col.size).toEqual(values.length);
         });
 
         it('should have the same id when forked with the same vector', () => {
@@ -172,7 +172,7 @@ describe('Column (Boolean Types)', () => {
         });
 
         it('should have the correct size', () => {
-            expect(col.count()).toEqual(values.length);
+            expect(col.size).toEqual(values.length);
         });
 
         it('should have the same id when forked with the same vector', () => {

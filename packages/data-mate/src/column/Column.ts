@@ -10,7 +10,9 @@ import {
     ColumnOptions, ColumnTransformConfig, ColumnValidateConfig, TransformMode
 } from './interfaces';
 import { runVectorAggregation, ValueAggregation } from './aggregations';
-import { getVectorId, mapVector } from './utils';
+import {
+    getVectorId, mapVector, validateFieldTransformArgs, validateFieldTransformType
+} from './utils';
 
 /**
  * A single column of values with the same data type.
@@ -25,6 +27,9 @@ export class Column<T = unknown> {
     readonly version: DataTypeVersion;
     protected readonly _vector: Vector<T>;
 
+    /**
+     * Create a Column from an array of values
+    */
     static fromJSON<R>(
         options: ColumnOptions & { config: Readonly<DataTypeFieldConfig> },
         values: Maybe<R>[]|readonly Maybe<R>[] = []
@@ -40,28 +45,38 @@ export class Column<T = unknown> {
         this._vector = vector;
     }
 
+    /**
+     * Iterate over each value, this is returned in the stored value format.
+     * And may not be compatible with the JSON spec.
+    */
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
         yield* this._vector;
     }
 
     /**
-     * A Unique ID for the Column (excludes metadata)
+     * A Unique ID for the Column.
+     * The ID should only change if the data vector changes.
     */
     get id(): string {
         return getVectorId(this._vector);
     }
 
     /**
+     * Get the size of the column
+    */
+    get size(): number {
+        return this._vector.size;
+    }
+
+    /**
      * Get the underling Vector.
-     * Use with caution since it can cause this Column/DataFrame to be out-of-sync
     */
     get vector(): Vector<T> {
         return this._vector;
     }
 
     /**
-     * Get the underling Vector.
-     * Use with caution since it can cause this Column/DataFrame to be out-of-sync
+     * Get the Data Type field configuration.
     */
     get config(): Readonly<DataTypeFieldConfig> {
         return this._vector.config;
@@ -80,16 +95,21 @@ export class Column<T = unknown> {
     /**
      * Transform the values with in a column.
      *
-     * @note this will keep the same length
-     *
-     * @todo validate args and accept vector types
-     *
-     * @returns the new column
+     * @note this will always keep the same length
     */
     transform<R, A extends Record<string, any>>(
         transformConfig: ColumnTransformConfig<T, R, A>,
         args?: A
     ): Column<R> {
+        validateFieldTransformType(
+            transformConfig.accepts,
+            this._vector.type
+        );
+        validateFieldTransformArgs<A>(
+            transformConfig.argument_schema,
+            transformConfig.required_args,
+            args
+        );
         const options: ColumnOptions = {
             name: this.name,
             version: this.version,
@@ -114,15 +134,20 @@ export class Column<T = unknown> {
      * then the value is set to null.
      *
      * @note this will keep the same length
-     *
-     * @todo validate args and accept vector types
-     *
-     * @returns the new column so it works like fluent API
     */
     validate<A extends Record<string, any>>(
         validateConfig: ColumnValidateConfig<T, A>,
         args?: A
     ): Column<T> {
+        validateFieldTransformType(
+            validateConfig.accepts,
+            this._vector.type
+        );
+        validateFieldTransformArgs<A>(
+            validateConfig.argument_schema,
+            validateConfig.required_args,
+            args
+        );
         const options: ColumnOptions = {
             name: this.name,
             version: this.version,
@@ -164,24 +189,32 @@ export class Column<T = unknown> {
         return this.fork(builder.toVector());
     }
 
+    /**
+     * Average all of the values in the Column
+    */
     avg(): number|bigint {
         return runVectorAggregation(this._vector, ValueAggregation.avg);
     }
 
+    /**
+     * Sum all of the values in the Column
+    */
     sum(): number|bigint {
         return runVectorAggregation(this._vector, ValueAggregation.sum);
     }
 
+    /**
+     * Find the minimum value in the Column
+    */
     min(): number|bigint {
         return runVectorAggregation(this._vector, ValueAggregation.min);
     }
 
+    /**
+     * Find the maximum value in the Column
+    */
     max(): number|bigint {
         return runVectorAggregation(this._vector, ValueAggregation.max);
-    }
-
-    count(): number {
-        return runVectorAggregation(this._vector, ValueAggregation.count);
     }
 
     /**

@@ -10,28 +10,23 @@ import { Builder, getBuildersForConfig } from '../builder';
 
 /**
  * An immutable columnar table with APIs for data pipelines.
- *
- * @todo Add conventionally metadata
 */
 export class DataFrame<
     T extends Record<string, unknown> = Record<string, any>,
-    M extends Record<string, unknown> = Record<string, any>
 > {
     /**
      * Create a DataFrame from an array of JSON objects
     */
     static fromJSON<
         R extends Record<string, unknown> = Record<string, any>,
-        D extends Record<string, unknown> = Record<string, any>
     >(
         config: DataTypeConfig|ReadonlyDataTypeConfig,
         records: R[] = [],
-        options?: Omit<DataFrameOptions<R, D>, 'columns'>
+        options?: DataFrameOptions
     ): DataFrame<R> {
         const columns = distributeRowsToColumns(config, records);
-        return new DataFrame({
+        return new DataFrame(columns, {
             ...options,
-            columns,
         });
     }
 
@@ -48,22 +43,25 @@ export class DataFrame<
     /**
      * Metadata about the DataFrame
     */
-    readonly metadata: M;
+    readonly metadata: Record<string, any>;
 
     /** cached id for lazy loading the id */
     private __id?: string;
 
     protected readonly _size: number;
 
-    constructor(options: DataFrameOptions<T, M>) {
-        this.name = options.name;
-        this.metadata = { ...options.metadata } as M;
+    constructor(
+        columns: Column<any>[]|readonly Column<any>[],
+        options?: DataFrameOptions
+    ) {
+        this.name = options?.name;
+        this.metadata = options?.metadata ? { ...options.metadata } : {};
 
-        this.columns = Object.isFrozen(options.columns)
-            ? options.columns
-            : Object.freeze(options.columns);
+        this.columns = Object.isFrozen(columns)
+            ? columns
+            : Object.freeze(columns);
 
-        const lengths = this.columns.map((col) => col.count());
+        const lengths = this.columns.map((col) => col.size);
         if (new Set(lengths).size > 1) {
             throw new Error(
                 'All columns for a DataFrame must have the same length'
@@ -72,15 +70,19 @@ export class DataFrame<
         this._size = lengths[0] ?? 0;
     }
 
+    /**
+     * Iterate over each row, this returns the JSON compatible values.
+    */
     * [Symbol.iterator](): IterableIterator<T> {
         for (let i = 0; i < this._size; i++) {
-            const row = this.getRow(i, false);
+            const row = this.getRow(i, true);
             if (row) yield row;
         }
     }
 
     /**
-     * A Unique ID for the DataFrame (excludes metadata)
+     * A Unique ID for the DataFrame
+     * The ID will only change if the columns or data change
     */
     get id(): string {
         if (this.__id) return this.__id;
@@ -95,35 +97,42 @@ export class DataFrame<
     */
     fork<R extends Record<string, unknown> = T>(
         columns = this.columns
-    ): DataFrame<R, M> {
-        return new DataFrame<R, M>({
+    ): DataFrame<R> {
+        return new DataFrame<R>(columns, {
             name: this.name,
             metadata: this.metadata,
-            columns
         });
     }
 
     /**
-     * Get the length of the DataFrame
+     * Get the number of records in the DataFrame
     */
-    count(): number {
+    get size(): number {
         return this._size;
     }
 
     /**
-     * Get the DataType config from the columns
+     * Generate the DataType config from the columns.
     */
     get config(): DataTypeConfig {
         return columnsToDataTypeConfig(this.columns);
     }
 
     /**
-     * Get a column by name
-     * @returns a new DataFrame
+     * Get a column, or columns by name, returns a new DataFrame
     */
     select<K extends keyof T>(...fields: K[]): DataFrame<Pick<T, K>> {
         return this.fork(fields.map(
             (field): Column<any> => this.getColumn(field)!
+        ));
+    }
+
+    /**
+     * Get a column, or columns by index, returns a new DataFrame
+    */
+    selectAt(...indices: number[]): DataFrame<T> {
+        return this.fork(indices.map(
+            (index): Column<any> => this.getColumnAt(index)!
         ));
     }
 
@@ -169,7 +178,19 @@ export class DataFrame<
     }
 
     /**
-     * Filter the DataFrame by fields
+     * Filter the DataFrame by fields, all fields must return true
+     * for a given row to returned in the filtered DataType
+     *
+     * @example
+     *
+     *     dataFrame.filter({
+     *         name(val) {
+     *             return val != null;
+     *         },
+     *         age(val) {
+     *             return val != null && val >= 20;
+     *         }
+     *     });
     */
     filterBy(filters: FilterByFields<T>): DataFrame<T> {
         const indices: number[] = [];
@@ -212,8 +233,8 @@ export class DataFrame<
     }
 
     /**
-     * Assign new columns to a new DataFrame
-     * This will eventually handle DataFrame input
+     * Assign new columns to a new DataFrame. If given a column already exists,
+     * the column will replace the existing one.
     */
     assign<R extends Record<string, unknown> = Record<string, any>>(
         columns: readonly Column<any>[]
@@ -233,7 +254,7 @@ export class DataFrame<
     }
 
     /**
-     * Concat rows to the end of the existing Columns
+     * Concat rows, or columns, to the end of the existing Columns
     */
     concat(arg: (
         Partial<T>[]|Column<T>[]
@@ -355,26 +376,16 @@ export class DataFrame<
      * Convert the DataFrame an array of object (the output is JSON compatible)
     */
     toJSON(): T[] {
-        const rows: T[] = [];
-        for (let i = 0; i < this._size; i++) {
-            const row = this.getRow(i, true);
-            if (row) rows.push(row);
-        }
-        return rows;
+        return [...this];
     }
 }
 
 /**
  * DataFrame options
 */
-export interface DataFrameOptions<
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    T extends Record<string, unknown> = Record<string, any>,
-    M extends Record<string, unknown> = Record<string, any>
-> {
-    columns: Column<any>[]|readonly Column<any>[];
+export interface DataFrameOptions {
     name?: string;
-    metadata?: M;
+    metadata?: Record<string, any>;
 }
 
 export type FilterByFields<T> = Partial<{
