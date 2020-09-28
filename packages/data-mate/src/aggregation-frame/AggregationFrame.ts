@@ -235,7 +235,7 @@ export class AggregationFrame<T extends Record<string, any>> {
     */
     async run(): Promise<Column[]> {
         const buckets = new Map<string, any[]>();
-        const count = this.columns[0].count();
+        const count = Math.max(...this.columns.map((col) => col.size));
         const {
             builders, fieldAggs, keyAggs, otherCols
         } = this._builders();
