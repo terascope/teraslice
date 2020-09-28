@@ -120,7 +120,7 @@ export class DataFrame {
      * Concat rows, or columns, to the end of the existing Columns
     */
     concat(columns: Column[]): DataFrame;
-    concat(columns: Column[]): DataFrame;
+    concat(rows: AnyObject[]): DataFrame;
 
     /**
      * Rename an existing column
@@ -613,4 +613,82 @@ export class AggregationFrame {
 
 ## Examples
 
-**TODO**
+```ts
+const dataTypeConfig = {
+    version: 1,
+    fields: {
+        name: {
+            type: FieldType.Keyword,
+        },
+        age: {
+            type: FieldType.Short,
+        },
+        gender: {
+            type: FieldType.Keyword
+        },
+        birth_date: {
+            type: FieldType.Date
+        }
+    }
+};
+
+let dataFrame = DataFrame.fromJSON(dataTypeConfig, [
+    {
+        name: 'Jill',
+        age: 39,
+        gender: 'F',
+        birth_date: '1981-08-20T07:00:00.000Z',
+    },
+    {
+        name: 'Billy',
+        age: 47,
+        gender: 'M',
+        birth_date: '1973-06-05T07:00:00.000Z',
+    },
+    {
+        name: 'Frank',
+        age: 20,
+        gender: 'M',
+        date: '2000-03-05T07:00:00.000Z'
+    },
+]);
+
+// ...
+// Get the number of rows
+// ...
+dataFrame.size;
+// => 3
+
+// ...
+// Calculate the sum of a field
+// ...
+dataFrame.getColumn('age').sum();
+// => 106
+
+// ...
+// Transform a column
+// ...
+const upperCaseName = dataFrame
+    .getColumn('name')
+    .transform(ColumnTransform.toUpperCase);
+// => Column(name)['JILL', 'BILLY', 'FRANK']
+
+// ...
+// Replace the existing name column with the transformed one
+// ...
+dataFrame = dataFrame.assign([upperCaseName]);
+
+// ...
+// Count the number of records for each gender
+// ...
+const aggregatedColumns = await dataFrame
+    .select('name', 'gender')
+    .groupBy(['gender'])
+    .count('gender', 'count_per_gender')
+    .run();
+// => [
+//       Column(name)['JILL', 'BILLY'],
+//       Column(gender)['F', 'M']
+//       Column(count_per_gender)[1, 2]
+//    ]
+```
