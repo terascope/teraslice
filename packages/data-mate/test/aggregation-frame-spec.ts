@@ -84,6 +84,13 @@ describe('AggregationFrame', () => {
                 scores: [1, 0, 0],
                 date: '2020-07-15T16:39:11.195Z', // minus two months
             },
+            {
+                name: 'Nick',
+                age: null as any,
+                gender: null as any,
+                scores: [1, 1, 10, null as any],
+                date: '2018-01-15T10:39:11.195Z', // minus 2 years
+            },
         ]);
     });
 
@@ -123,7 +130,7 @@ describe('AggregationFrame', () => {
                     name: 'Billy',
                     age: 64,
                     gender: 'M',
-                    scores: 165,
+                    scores: 177,
                     date: '2020-09-15T17:39:11.195Z'
                 }
             ]);
@@ -182,7 +189,7 @@ describe('AggregationFrame', () => {
                     name: 'Billy',
                     age: 64,
                     gender: 'M',
-                    scores: 7.857142857142857,
+                    scores: 7.375,
                     date: '2020-09-15T17:39:11.195Z'
                 }
             ]);
@@ -338,7 +345,7 @@ describe('AggregationFrame', () => {
             );
             expect(resultFrame.toJSON()).toEqual([
                 {
-                    name: 7,
+                    name: 8,
                     age: 64,
                     gender: 'M',
                     scores: [4, 9, 3],
@@ -397,6 +404,11 @@ describe('AggregationFrame', () => {
                     gender: 'F',
                     scores: [1, 0, 0],
                     date: '2019-09-15T17:39:11.195Z',
+                },
+                {
+                    name: 'Nick',
+                    scores: [1, 1, 10, null],
+                    date: '2018-01-15T10:39:11.195Z',
                 }
             ]);
         });
@@ -448,6 +460,11 @@ describe('AggregationFrame', () => {
                     gender: 'F',
                     scores: [1, 0, 0],
                     date: '2019-09-15T17:39:11.195Z',
+                },
+                {
+                    name: 1,
+                    scores: [1, 1, 10, null],
+                    date: '2018-01-15T10:39:11.195Z',
                 }
             ]);
         });
@@ -501,6 +518,11 @@ describe('AggregationFrame', () => {
                     gender: 'F',
                     scores: [1, 0, 0],
                     date: '2019-09-15T17:39:11.195Z',
+                },
+                {
+                    name: 'Nick',
+                    scores: [1, 1, 10, null],
+                    date: '2018-01-15T10:39:11.195Z',
                 }
             ]);
         });
@@ -554,6 +576,11 @@ describe('AggregationFrame', () => {
                     gender: 'M',
                     scores: [1, 0, 0],
                     date: '2020-07-15T16:39:11.195Z'
+                },
+                {
+                    name: 1,
+                    scores: [1, 1, 10, null],
+                    date: '2018-01-15T10:39:11.195Z',
                 }
             ]);
         });
@@ -597,6 +624,12 @@ describe('AggregationFrame', () => {
                     gender: 'M',
                     scores: [1, 0, 0],
                     date: '2020-07-15T16:39:11.195Z'
+                },
+                {
+                    name: 'Nick',
+                    count: 1,
+                    scores: [1, 1, 10, null],
+                    date: '2018-01-15T10:39:11.195Z',
                 }
             ]);
         });
@@ -629,6 +662,11 @@ describe('AggregationFrame', () => {
                     gender: 'M',
                     scores: [1, 0, 0],
                     date: '2020-07-15T16:39:11.195Z'
+                },
+                {
+                    name: 1,
+                    scores: [1, 1, 10, null],
+                    date: '2018-01-15T10:39:11.195Z',
                 }
             ]);
         });
@@ -656,6 +694,12 @@ describe('AggregationFrame', () => {
                     gender: 'F',
                     scores: [1, 0, 0],
                     date: '2019-09-15T17:39:11.195Z'
+                },
+                {
+                    name: 'Nick',
+                    count: 1,
+                    scores: [1, 1, 10, null],
+                    date: '2018-01-15T10:39:11.195Z',
                 }
             ]);
         });

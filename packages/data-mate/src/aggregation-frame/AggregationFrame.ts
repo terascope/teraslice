@@ -258,6 +258,8 @@ export class AggregationFrame<T extends Record<string, any>> {
                 row[field] = res.value;
             }
 
+            if (!key && keyAggs.size) continue;
+
             for (const [field, col] of otherCols) {
                 row[field] = col.vector.get(i);
             }
