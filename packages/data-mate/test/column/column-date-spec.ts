@@ -55,10 +55,14 @@ describe('Column (Date Types)', () => {
                 ...col.config,
                 type: FieldType.String
             });
-            expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return null;
-                return new Date(value).toISOString();
-            }));
+            expect(newCol.toJSON()).toEqual([
+                '2020-09-23T14:54:21.020Z',
+                '1941-08-20T07:00:00.000Z',
+                '2020-09-23T00:00:00.000Z',
+                '2020-09-23T15:32:18.416Z',
+                null,
+                '2019-01-20T12:50:20.000Z'
+            ]);
         });
 
         it('should be able to transform using formatDate(format: "yyyy-MM-dd HH:mm:ss")', () => {
@@ -73,12 +77,12 @@ describe('Column (Date Types)', () => {
                 type: FieldType.Date
             });
             expect(newCol.toJSON()).toEqual([
-                '2020-09-23 07:54:21',
-                '1941-08-20 00:00:00',
-                '2020-09-22 17:00:00',
-                '2020-09-23 08:32:18',
+                '2020-09-23 00:54:21',
+                '1941-08-19 17:00:00',
+                '2020-09-22 10:00:00',
+                '2020-09-23 01:32:18',
                 null,
-                '2019-01-20 05:50:20',
+                '2019-01-19 22:50:20',
             ]);
         });
 

@@ -53,7 +53,7 @@ export class DateBuilder extends Builder<DateValue> {
             if (!thisArg.config.format) {
                 thisArg.config.format = DateFormat.iso_8601;
             }
-            return new DateValue(date.getTime(), date.toISOString());
+            return new DateValue(date.getTime() - systemTimezoneOffset, date.toISOString());
         }
 
         if (!thisArg.config.format) {
