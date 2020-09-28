@@ -1,6 +1,6 @@
 import { bigIntToJSON } from '@terascope/utils';
 import { Vector, VectorOptions } from '../Vector';
-import { VectorType } from '../interfaces';
+import { Data, VectorType } from '../interfaces';
 
 export class BigIntVector extends Vector<bigint> {
     static valueToJSON(value: bigint): any {
@@ -14,7 +14,7 @@ export class BigIntVector extends Vector<bigint> {
         });
     }
 
-    fork(data = this.data): BigIntVector {
+    fork(data: Data<bigint>): BigIntVector {
         return new BigIntVector({
             valueToJSON: this.valueToJSON,
             config: this.config,

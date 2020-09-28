@@ -59,10 +59,9 @@ export class DataFrame {
     config: DataTypeConfig;
 
     /**
-     * Create a fork of the DataFrame
+     * Create a new DataFrame with the same metadata but with different data
     */
     fork(columns: Column[]): DataFrame;
-
 
     /**
      * Get a column, or columns by name, returns a new DataFrame
@@ -224,9 +223,9 @@ export class Column {
     config: DataTypeFieldConfig;
 
     /**
-     * Create a fork of the Column
+     * Create a new Column with the same metadata but with different data
     */
-    fork(vector?: Vector): Column;
+    fork(vector: Vector): Column;
 
     /**
      * Transform the values with in a column.
@@ -377,9 +376,9 @@ export abstract class Vector {
     get(index: number, json?: boolean): any;
 
     /**
-     * Create a fork of the Vector
+     * Create a new Vector with the same metadata but with different data
     */
-    fork(data?: Data): Vector;
+    fork(data: Data): Vector;
 
     /**
      * Create a new Vector with the range of values

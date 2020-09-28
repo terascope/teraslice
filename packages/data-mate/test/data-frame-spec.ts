@@ -48,7 +48,7 @@ describe('DataFrame', () => {
                 name: 'Billy'
             }
         ]);
-        const resultFrame = dataFrame.fork();
+        const resultFrame = dataFrame.fork(dataFrame.columns);
         expect(resultFrame.id).toEqual(dataFrame.id);
     });
 

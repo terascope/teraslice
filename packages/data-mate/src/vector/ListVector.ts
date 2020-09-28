@@ -1,5 +1,5 @@
 import { Vector, VectorOptions } from './Vector';
-import { VectorType } from './interfaces';
+import { Data, VectorType } from './interfaces';
 
 export class ListVector<T = unknown> extends Vector<Vector<T>> {
     static valueToJSON(value: Vector<any>): any {
@@ -13,7 +13,7 @@ export class ListVector<T = unknown> extends Vector<Vector<T>> {
         });
     }
 
-    fork(data = this.data): ListVector<T> {
+    fork(data: Data<Vector<T>>): ListVector<T> {
         return new ListVector({
             valueToJSON: this.valueToJSON,
             config: this.config,

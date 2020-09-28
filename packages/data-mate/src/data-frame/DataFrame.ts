@@ -95,10 +95,10 @@ export class DataFrame<
     }
 
     /**
-     * Create a fork of the DataFrame
+     * Create a new DataFrame with the same metadata but with different data
     */
     fork<R extends Record<string, unknown> = T>(
-        columns = this.columns
+        columns: Column<any>[]|readonly Column<any>[]
     ): DataFrame<R> {
         return new DataFrame<R>(columns, {
             name: this.name,
@@ -323,7 +323,7 @@ export class DataFrame<
     ): DataFrame<Omit<T, K> & Record<R, T[K]>> {
         return this.fork(this.columns.map((col): Column<any> => {
             if (col.name !== name) return col;
-            const newCol = col.fork();
+            const newCol = col.fork(col.vector);
             newCol.name = renameTo;
             return newCol;
         }));

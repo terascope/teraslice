@@ -1,5 +1,5 @@
 import { Vector, VectorOptions } from '../Vector';
-import { VectorType } from '../interfaces';
+import { Data, VectorType } from '../interfaces';
 
 /**
  * @todo we need an to serialize to JSON correctly
@@ -11,7 +11,7 @@ export class ObjectVector<
         super(VectorType.Object, options);
     }
 
-    fork(data = this.data): ObjectVector<T> {
+    fork(data: Data<T>): ObjectVector<T> {
         return new ObjectVector({
             valueToJSON: this.valueToJSON,
             config: this.config,

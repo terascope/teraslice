@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { Vector, VectorOptions } from '../Vector';
-import { VectorType } from '../interfaces';
+import { Data, VectorType } from '../interfaces';
 
 /**
  * The internal date storage format
@@ -43,7 +43,7 @@ export class DateVector extends Vector<DateValue> {
         });
     }
 
-    fork(data = this.data): DateVector {
+    fork(data: Data<DateValue>): DateVector {
         return new DateVector({
             valueToJSON: this.valueToJSON,
             config: this.config,

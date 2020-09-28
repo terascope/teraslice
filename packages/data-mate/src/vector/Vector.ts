@@ -103,9 +103,9 @@ export abstract class Vector<T = unknown> {
     }
 
     /**
-     * Create a fork of the Vector
+     * Create a new Vector with the same metadata but with different data
     */
-    abstract fork(data?: Data<T>): Vector<T>;
+    abstract fork(data: Data<T>): Vector<T>;
 
     /**
      * Create a new Vector with the range of values

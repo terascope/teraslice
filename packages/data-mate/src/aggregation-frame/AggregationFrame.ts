@@ -219,7 +219,7 @@ export class AggregationFrame<T extends Record<string, any>> {
             for (const c of this.columns) {
                 columns.push(c);
                 if (c === col) {
-                    const newCol = c.fork();
+                    const newCol = c.fork(c.vector);
                     newCol.name = as;
                     columns.push(newCol);
                 }

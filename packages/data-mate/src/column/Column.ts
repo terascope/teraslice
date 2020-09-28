@@ -91,10 +91,10 @@ export class Column<T = unknown> {
     }
 
     /**
-     * Create a fork of the Column
+     * Create a new Column with the same metadata but with different data
     */
-    fork(vector?: Vector<T>): Column<T> {
-        return new Column<T>(vector ?? this.vector, {
+    fork(vector: Vector<T>): Column<T> {
+        return new Column<T>(vector, {
             name: this.name,
             version: this.version,
         });

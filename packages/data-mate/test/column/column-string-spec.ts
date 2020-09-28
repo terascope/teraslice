@@ -26,7 +26,7 @@ describe('Column (String Types)', () => {
         });
 
         it('should have the same id when forked with the same vector', () => {
-            expect(col.fork().id).toEqual(col.id);
+            expect(col.fork(col.vector).id).toEqual(col.id);
         });
 
         it('should NOT have the same id when forked with a different vector', () => {
