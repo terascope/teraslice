@@ -46,11 +46,12 @@ describe('Vector', () => {
         ],
         [
             FieldType.Date,
-            [nowDate, nowDate.toISOString(), now, null, undefined],
+            [nowDate, nowDate.toISOString(), now, '1941-08-20T07:00:00.000Z', null, undefined],
             [
                 nowDate.toISOString(),
                 nowDate.toISOString(),
                 nowDate.toISOString(),
+                '1941-08-20T07:00:00.000Z',
                 null,
                 null
             ]

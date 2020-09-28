@@ -1,7 +1,5 @@
 import 'jest-fixtures';
 import { DateFormat, FieldType, Maybe } from '@terascope/types';
-import formatDate from 'date-fns/format';
-import { getValidDate } from '@terascope/utils';
 import {
     Column, ColumnTransform, DateValue, Vector
 } from '../../src';
@@ -11,6 +9,7 @@ describe('Column (Date Types)', () => {
         let col: Column<DateValue>;
         const values: Maybe<any>[] = [
             '2020-09-23T14:54:21.020Z',
+            '1941-08-20T07:00:00.000Z',
             '2020-09-23',
             1600875138416,
             null,
@@ -62,23 +61,25 @@ describe('Column (Date Types)', () => {
             }));
         });
 
-        it('should be able to transform using formatDate(format: "pP")', () => {
+        it('should be able to transform using formatDate(format: "yyyy-MM-dd HH:mm:ss")', () => {
             const newCol = col.transform(ColumnTransform.formatDate, {
-                format: 'Pp'
+                format: 'yyyy-MM-dd HH:mm:ss'
             });
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
                 ...col.config,
-                format: 'Pp',
+                format: 'yyyy-MM-dd HH:mm:ss',
                 type: FieldType.Date
             });
-            expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return null;
-                const date = getValidDate(value);
-                if (date === false) return false;
-                return formatDate(date, 'Pp');
-            }));
+            expect(newCol.toJSON()).toEqual([
+                '2020-09-23 07:54:21',
+                '1941-08-20 00:00:00',
+                '2020-09-22 17:00:00',
+                '2020-09-23 08:32:18',
+                null,
+                '2019-01-20 05:50:20',
+            ]);
         });
 
         test.todo('should NOT able to transform without using formatDate()');
