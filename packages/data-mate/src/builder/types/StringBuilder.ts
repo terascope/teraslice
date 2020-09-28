@@ -13,9 +13,6 @@ function isToStringable(value: unknown): boolean {
     return false;
 }
 
-/**
- * @todo this should only toString js primitives
-*/
 export class StringBuilder extends Builder<string> {
     static valueFrom(value: unknown): string {
         if (!isToStringable(value)) {
