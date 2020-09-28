@@ -103,7 +103,7 @@ export class Column<T = unknown> {
     ): Column<R> {
         validateFieldTransformType(
             transformConfig.accepts,
-            this._vector.type
+            this._vector
         );
         validateFieldTransformArgs<A>(
             transformConfig.argument_schema,
@@ -141,7 +141,7 @@ export class Column<T = unknown> {
     ): Column<T> {
         validateFieldTransformType(
             validateConfig.accepts,
-            this._vector.type
+            this._vector
         );
         validateFieldTransformArgs<A>(
             validateConfig.argument_schema,

@@ -59,7 +59,7 @@ export class DataFrame<
 
         this.columns = Object.isFrozen(columns)
             ? columns
-            : Object.freeze(columns);
+            : Object.freeze(columns.slice());
 
         const lengths = this.columns.map((col) => col.size);
         if (new Set(lengths).size > 1) {

@@ -250,7 +250,7 @@ describe('DataFrame', () => {
             it('should return a new frame with just those columns', () => {
                 const resultFrame = dataFrame.selectAt(1, 2);
                 const names = resultFrame.columns.map(({ name }) => name);
-                expect(names).toEqual(['name', 'age']);
+                expect(names).toEqual(['age', 'friends']);
                 expect(resultFrame.size).toEqual(dataFrame.size);
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
             });

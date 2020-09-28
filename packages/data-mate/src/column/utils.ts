@@ -5,7 +5,7 @@ import {
 } from '@terascope/types';
 import { Builder } from '../builder';
 import {
-    Vector, isVector, VectorType
+    Vector, isVector, VectorType, Data
 } from '../vector';
 import { ColumnTransformFn, TransformMode } from './interfaces';
 
@@ -98,29 +98,35 @@ export function validateFieldTransformArgs<A extends Record<string, any>>(
 ): A {
     if (!schema) return {} as any;
 
-    const a = { ...args } as A;
+    const result = { ...args } as A;
 
     for (const [name, config] of Object.entries(schema)) {
         const field = name as keyof A;
 
-        const builder = Builder.make(config);
-        if (builder.valueFrom) {
-            a[field] = builder.valueFrom(a[field], builder) as any;
+        const required = requiredArgs?.includes(name);
+        if (required && result[field] == null) {
+            throw new Error(`Missing required parameter ${field}`);
         }
 
-        const required = requiredArgs?.includes(name);
-        if (required && a[field] == null) {
-            throw new Error(`Missing required parameter ${field}`);
+        const builder = Builder.make(config);
+        if (builder.valueFrom && result[field] != null) {
+            result[field] = builder.valueFrom(result[field], builder) as any;
         }
     }
 
-    return a;
+    return result;
 }
 
 export function validateFieldTransformType(
-    accepts: VectorType[], type: VectorType
+    accepts: VectorType[], vector: Vector<any>
 ): void {
     if (!accepts?.length) return;
+    // if the type is a List, then we need to give the child type
+    const type = vector.type === VectorType.List ? Vector.make({
+        ...vector.config,
+        array: false,
+    }, { values: [] } as Data<any>).type : vector.type;
+
     if (!accepts.includes(type)) {
         throw new Error(`Incompatible with field type ${type}, must be ${joinList(accepts)}`);
     }
