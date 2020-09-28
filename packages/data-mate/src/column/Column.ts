@@ -23,21 +23,29 @@ import {
  * @todo add pipeline that will do a chain of validators/transformations
 */
 export class Column<T = unknown> {
-    name: string;
-    readonly version: DataTypeVersion;
-    protected readonly _vector: Vector<T>;
-
     /**
      * Create a Column from an array of values
     */
     static fromJSON<R>(
-        options: ColumnOptions & { config: Readonly<DataTypeFieldConfig> },
-        values: Maybe<R>[]|readonly Maybe<R>[] = []
+        name: string,
+        config: Readonly<DataTypeFieldConfig>,
+        values: Maybe<R>[]|readonly Maybe<R>[] = [],
+        version?: DataTypeVersion
     ): Column<R extends (infer U)[] ? Vector<U> : R> {
-        const builder = Builder.make<R>(options.config, values.length);
+        const builder = Builder.make<R>(config, values.length);
         values.forEach((val) => builder.append(val));
-        return new Column<any>(builder.toVector(), options);
+        return new Column<any>(builder.toVector(), { name, version });
     }
+
+    /**
+     * The field name for the column
+    */
+    name: string;
+    /**
+    * The DataType version to use for the field definition
+   */
+    readonly version: DataTypeVersion;
+    protected readonly _vector: Vector<T>;
 
     constructor(vector: Vector<T>, options: ColumnOptions|Readonly<ColumnOptions>) {
         this.name = options.name;
@@ -133,7 +141,7 @@ export class Column<T = unknown> {
      * Creates a new column, if the function returns false
      * then the value is set to null.
      *
-     * @note this will keep the same length
+     * @note this will always keep the same length
     */
     validate<A extends Record<string, any>>(
         validateConfig: ColumnValidateConfig<T, A>,

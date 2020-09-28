@@ -17,11 +17,8 @@ describe('Column (Number Types)', () => {
         ];
 
         beforeEach(() => {
-            col = Column.fromJSON<number>({
-                name: 'score',
-                config: {
-                    type: FieldType.Short,
-                },
+            col = Column.fromJSON<number>('score', {
+                type: FieldType.Short,
             }, values);
         });
 
@@ -139,11 +136,8 @@ describe('Column (Number Types)', () => {
             4.3333334,
         ];
         beforeEach(() => {
-            col = Column.fromJSON<number>({
-                name: 'score',
-                config: {
-                    type: FieldType.Float,
-                },
+            col = Column.fromJSON<number>('score', {
+                type: FieldType.Float,
             }, values);
         });
 
@@ -237,12 +231,9 @@ describe('Column (Number Types)', () => {
             [4, 2, 0],
         ];
         beforeEach(() => {
-            col = Column.fromJSON<number[]>({
-                name: 'score',
-                config: {
-                    type: FieldType.Short,
-                    array: true
-                },
+            col = Column.fromJSON<number[]>('score', {
+                type: FieldType.Short,
+                array: true
             }, values as number[][]);
         });
 
@@ -294,11 +285,8 @@ describe('Column (Number Types)', () => {
             BigInt(12) ** multiplier
         ];
         beforeEach(() => {
-            col = Column.fromJSON<bigint>({
-                name: 'score',
-                config: {
-                    type: FieldType.Long,
-                },
+            col = Column.fromJSON<bigint>('score', {
+                type: FieldType.Long,
             }, values);
         });
 

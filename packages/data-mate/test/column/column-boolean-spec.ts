@@ -17,11 +17,8 @@ describe('Column (Boolean Types)', () => {
             false,
         ];
         beforeEach(() => {
-            col = Column.fromJSON<boolean>({
-                name: 'active',
-                config: {
-                    type: FieldType.Boolean,
-                },
+            col = Column.fromJSON<boolean>('active', {
+                type: FieldType.Boolean,
             }, values);
         });
 
@@ -82,11 +79,8 @@ describe('Column (Boolean Types)', () => {
             'WHO'
         ];
         beforeEach(() => {
-            col = Column.fromJSON<string>({
-                name: 'name',
-                config: {
-                    type: FieldType.Keyword,
-                },
+            col = Column.fromJSON<string>('name', {
+                type: FieldType.Keyword,
             }, values);
         });
 
@@ -162,12 +156,9 @@ describe('Column (Boolean Types)', () => {
             ['WHO']
         ];
         beforeEach(() => {
-            col = Column.fromJSON<string[]>({
-                name: 'name',
-                config: {
-                    type: FieldType.Keyword,
-                    array: true
-                },
+            col = Column.fromJSON<string[]>('name', {
+                type: FieldType.Keyword,
+                array: true
             }, values);
         });
 

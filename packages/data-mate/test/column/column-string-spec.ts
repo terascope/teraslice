@@ -16,11 +16,8 @@ describe('Column (String Types)', () => {
             'SpiderMan',
         ];
         beforeEach(() => {
-            col = Column.fromJSON<string>({
-                name: 'name',
-                config: {
-                    type: FieldType.Keyword,
-                },
+            col = Column.fromJSON<string>('name', {
+                type: FieldType.Keyword,
             }, values);
         });
 

@@ -114,22 +114,7 @@ export class DataFrame {
      * Assign new columns to a new DataFrame. If given a column already exists,
      * the column will replace the existing one.
     */
-    assign<R extends Record<string, unknown> = Record<string, any>>(
-        columns: readonly Column<any>[]
-    ): DataFrame<T & R> {
-        const newColumns = columns.filter((col) => {
-            if (this.getColumn(col.name)) return false;
-            return true;
-        });
-
-        return this.fork<T & R>(
-            this.columns.map((col) => {
-                const replaceCol = columns.find((c) => c.name === col.name);
-                if (replaceCol) return replaceCol;
-                return col;
-            }).concat(newColumns) as Column<any>[],
-        );
-    }
+    assign(columns: readonly Column[]): DataFrame;
 
     /**
      * Concat rows, or columns, to the end of the existing Columns
@@ -158,9 +143,9 @@ export class DataFrame {
     getRow(index: number, json = false): any|undefined;
 
     /**
-     * Create a new DataFrame with a range of rows
+     * Returns a DataFrame with a limited number of rows
     */
-    slice(start?: number, end?: number): DataFrame;
+    limit(num: number): DataFrame;
 
     /**
      * Convert the DataFrame an array of object (the output is JSON compatible)
@@ -181,106 +166,114 @@ export interface DataFrameOptions {
 
 ```ts
 /**
- * Column options
- */
-interface ColumnOptions<T> {
-    name: string;
-    config: DataTypeFieldConfig;
-    values: Vector<T>|(Maybe<T>[]);
-}
-
-/**
  * A single column of values with the same data type.
  *
- * Changing the values is safe as long the size doesn't change.
+ * Changing the values is safe as long the length doesn't change.
  * When adding or removing values it is better to create a new Column.
 */
-interface Column<T = unknown> {
-    readonly version: DataTypeVersion;
-    readonly name: string;
-    readonly config: DataTypeFieldConfig;
-
-    constructor(options: ColumnOptions<T>): Column<T>;
-
-    * [Symbol.iterator](): IterableIterator<Maybe<T>>;
+export class Column {
+    /**
+     * Create a Column from an array of values
+    */
+    static fromJSON(
+        name: string,
+        config: DataTypeFieldConfig,
+        values: any[] = [],
+    ): Column;
 
     /**
-     * Get the size of the values in the Vector
+     * The field name for the column
     */
-    readonly size: number;
+    name: string;
+
+    /**
+     * The DataType version to use for the field definition
+    */
+    readonly version: DataTypeVersion;
+
+    constructor(
+        vector: Vector,
+        options: ColumnOptions
+    ): Column;
+
+    /**
+     * Iterate over each value, this is returned in the stored value format.
+     * And may not be compatible with the JSON spec.
+    */
+    * [Symbol.iterator](): IterableIterator<any>;
+
+    /**
+     * A Unique ID for the Column.
+     * The ID should only change if the data vector changes.
+    */
+    get id(): string;
+
+    /**
+     * Get the size of the column
+    */
+    get size(): number;
+
+    /**
+     * Get the underling Vector.
+    */
+    get vector(): Vector;
+
+    /**
+     * Get the Data Type field configuration.
+    */
+    get config(): Readonly;
 
     /**
      * Create a fork of the Column
     */
-    fork(): Column<T>;
+    fork(vector?: Vector): Column;
 
     /**
-     * Get the underling Vector.
-     * Use with caution since it can cause this Column/DataFrame to be out-of-sync
-    */
-    readonly vector: Vector<T>;
-
-    /**
-     * Get value by index
-    */
-    get(index: number): Maybe<T>;
-
-    /**
-     * Set a value by index
-    */
-    set(index: number, value: Maybe<T>): void;
-
-    /**
-     * Get the distinct values in column
-    */
-    distinct(): number;
-
-    /**
-     * Map over the values and mutate them (must keep the same data type)
+     * Transform the values with in a column.
      *
-     * @note this mutates the values but doesn't change the size
-     * @returns the current column so it works like fluent API
+     * @note this will always keep the same length
     */
-    map(fn: (value: Maybe<T>, index: number) => Maybe<T>): Column<T>;
+    transform(config: ColumnTransformConfig, args?: Record<string, any>): Column;
 
     /**
-     * Reduce the column to particular value.
+     * Creates a new column, if the function returns false
+     * then the value is set to null.
      *
-     * In the future we will have optimized reducers
-     * depending on the data type reducer.
-     *
-     * @returns the accumulated values
+     * @note this will always keep the same length
     */
-    reduce<R>(fn: (acc: R, value: Maybe<T>, index: number) => R, initial: R): R;
+    validate(validateConfig: ColumnValidateConfig, args?: Record<string, any>): Column;
 
     /**
-     * Creates a new column, you can optionally transform the values
-     * but shouldn't change the size.
-     *
-     * This can be used to change the name, type of column.
-     * Useful for replacing a column in a DataFrame.
-     *
-     * @returns the new column so it works like fluent API
+     * Sort the column
     */
-    rename<R = T>(
-        columnOptions: ColumnOptions<R>,
-        fn?: (value: Maybe<T>, index: number) => Maybe<R>
-    ): Column<R>;
+    sort(direction?: SortOrder): Column;
 
     /**
-     * Creates a new column, you can optionally transform the values
-     * but shouldn't change the size.
-     *
-     * @returns the new column so it works like fluent API
+     * Average all of the values in the Column
     */
-    filter(fn: (value: Maybe<T>, index: number) => boolean): Column<T>;
+    avg(): number|bigint;
+
+    /**
+     * Sum all of the values in the Column
+    */
+    sum(): number|bigint;
+
+    /**
+     * Find the minimum value in the Column
+    */
+    min(): number|bigint;
+
+    /**
+     * Find the maximum value in the Column
+    */
+    max(): number|bigint;
 
     /**
      * Convert the Column an array of values (the output is JSON compatible)
      *
      * @note probably only useful for debugging
     */
-    toJSON<V>(): Maybe<V>[];
+    toJSON(): any[];
 }
 ```
 
@@ -288,84 +281,59 @@ interface Column<T = unknown> {
 
 ```ts
 /**
- * The Vector Type, this will change how the data is stored and read
-*/
-enum VectorType {
-    /**
-     * Currently this operates like String
-     * but I imagine will be expanding it.
-     * But will need to add format options
-    */
-    Date = 'Date',
-    String = 'String',
-    Int = 'Int',
-    Float = 'Float',
-    BigInt = 'BigInt',
-    Boolean = 'Boolean',
-    /** @todo */
-    Geo = 'Geo',
-    /** @todo */
-    Object = 'Object',
-    /**
-     * Arbitrary data can be stored with this
-    */
-    Any = 'Any',
-    /**
-     * The list type is used for fields marked as Arrays
-     * where each item in the Vector is a child element
-    */
-    List = 'List',
-}
-
-/**
- * Coerce a value so it can be stored in the vector
-*/
-type ValueFromFn<T> = (value: unknown, thisArg?: Vector<T>) => Maybe<T>;
-/**
- * Serialize a value to a JSON compatible format (so it can be JSON stringified)
-*/
-type ValueToJSONFn<T> = (value: Maybe<T>, thisArg?: Vector<T>) => any;
-
-/**
- * A list of Vector Options
- */
-interface VectorOptions<T> {
-    fieldType: FieldType;
-    values: Maybe<T>[];
-    valueFrom?: ValueFromFn<T>;
-    valueToJSON?: ValueToJSONFn<T>;
-}
-
-/**
  * An immutable typed Array class with a constrained API.
- *
- * @note null/undefined values are treated the same
 */
-interface Vector<T = unknown> {
+export abstract class Vector {
+    /**
+     * Make an instance of a Vector from a config
+    */
+    static make(
+        config: DataTypeFieldConfig,
+        data: Data,
+        childConfig?: DataTypeFields
+    ): Vector;
+
+    /**
+     * The type of Vector, this should only be set the specific Vector type classes.
+    */
     readonly type: VectorType;
-    readonly fieldType: FieldType;
-    readonly valueFrom?: ValueFromFn<T>;
-    readonly valueToJSON?: ValueToJSONFn<T>;
 
-    constructor(
-        /**
-         * This will be set automatically by specific Vector classes
-         */
-        type: VectorType,
-        options: VectorOptions<T>
-    ): Vector<T>;
+    /**
+     * The field type configuration
+    */
+    readonly config: DataTypeFieldConfig;
 
-    * [Symbol.iterator](): IterableIterator<Maybe<T>>;
+    /**
+     * A function for converting a value to an JSON spec compatible format.
+     * This is specific on the vector type classes via a static method usually.
+    */
+    readonly valueToJSON?: ValueToJSONFn;
+
+    /**
+     * When Vector is an object type, this will be the data type fields
+     * for the object
+    */
+    readonly childConfig?: ReadonlyDataTypeFields;
+
+    /**
+     * A data type agnostic in-memory representation of the data
+     * for a Vector and potential indices/unique values.
+     *
+     * This should be generated by the builder and
+     * should NOT be mutated one created.
+     *
+     * @internal
+    */
+    readonly data: Data;
+
+    constructor(options: VectorOptions): Vector;
+
+    * [Symbol.iterator](): IterableIterator<any>;
 
     /**
      * Returns the number items in the Vector
     */
-    readonly size: number;
-
-    /**
-     * Create a fork of the Vector
-    */
-    fork(): Vector<T>;
+    get size(): number;
 
     /**
      * Gets the number distinct values in the Vector
@@ -375,22 +343,34 @@ interface Vector<T = unknown> {
     /**
      * Get value by index
     */
-    get(index: number): Maybe<T>;
+    get(index: number, json?: boolean): any;
 
     /**
-     * Set a value by index
+     * Create a fork of the Vector
     */
-    set(index: number, value: Maybe<T>): void;
+    fork(data?: Data): Vector;
 
     /**
-     * Slice get select values from vector
+     * Create a new Vector with the range of values
     */
-    slice(start?: number, end?: number): Maybe<T>[];
+    slice(start?: number, end?: number): Vector;
 
     /**
-     * Convert the Vector an array of values (the output should be JSON compatible)
+     * Sort the values in a Vector and return
+     * an array with the updated indices.
     */
-    toJSON<V = T>(): Maybe<V>[];
+    getSortedIndices(direction?: SortOrder): number[];
+
+    /**
+     * Compare two different values on the Vector type.
+     * This can be used for equality or sorted.
+    */
+    compare(a: Maybe<T>, b: Maybe<T>): -1|0|1;
+
+    /**
+     * Convert the Vector an array of values (the output is JSON compatible)
+    */
+    toJSON(): any[];
 }
 ```
 

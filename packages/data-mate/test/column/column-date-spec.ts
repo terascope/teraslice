@@ -18,11 +18,8 @@ describe('Column (Date Types)', () => {
         ];
 
         beforeEach(() => {
-            col = Column.fromJSON<DateValue>({
-                name: 'date',
-                config: {
-                    type: FieldType.Date,
-                },
+            col = Column.fromJSON<DateValue>('date', {
+                type: FieldType.Date,
             }, values);
         });
 
@@ -96,11 +93,8 @@ describe('Column (Date Types)', () => {
         ];
 
         beforeEach(() => {
-            col = Column.fromJSON<string>({
-                name: 'date_str',
-                config: {
-                    type: FieldType.Keyword,
-                },
+            col = Column.fromJSON<string>('date_str', {
+                type: FieldType.Keyword,
             }, values);
         });
 
@@ -136,11 +130,8 @@ describe('Column (Date Types)', () => {
         ];
 
         beforeEach(() => {
-            col = Column.fromJSON<string>({
-                name: 'date_str',
-                config: {
-                    type: FieldType.Keyword,
-                },
+            col = Column.fromJSON<string>('date_str', {
+                type: FieldType.Keyword,
             }, values);
         });
 
@@ -180,11 +171,8 @@ describe('Column (Date Types)', () => {
         ];
 
         beforeEach(() => {
-            col = Column.fromJSON<string>({
-                name: 'date_str',
-                config: {
-                    type: FieldType.Keyword,
-                },
+            col = Column.fromJSON<string>('date_str', {
+                type: FieldType.Keyword,
             }, values);
         });
 
@@ -220,11 +208,8 @@ describe('Column (Date Types)', () => {
         ];
 
         beforeEach(() => {
-            col = Column.fromJSON<number>({
-                name: 'unix_time',
-                config: {
-                    type: FieldType.Number,
-                },
+            col = Column.fromJSON<number>('unix_time', {
+                type: FieldType.Number,
             }, values);
         });
 
@@ -284,11 +269,8 @@ describe('Column (Date Types)', () => {
         ];
 
         beforeEach(() => {
-            col = Column.fromJSON<string>({
-                name: 'unix_time_str',
-                config: {
-                    type: FieldType.Keyword,
-                },
+            col = Column.fromJSON<string>('unix_time_str', {
+                type: FieldType.Keyword,
             }, values);
         });
 
@@ -316,11 +298,8 @@ describe('Column (Date Types)', () => {
         ];
 
         beforeEach(() => {
-            col = Column.fromJSON<number>({
-                name: 'unix_time',
-                config: {
-                    type: FieldType.Number,
-                },
+            col = Column.fromJSON<number>('unix_time', {
+                type: FieldType.Number,
             }, values);
         });
 

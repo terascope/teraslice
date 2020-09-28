@@ -304,9 +304,9 @@ describe('DataFrame', () => {
             });
         });
 
-        describe('->slice', () => {
+        describe('->limit', () => {
             it('should be able to get the first two rows', () => {
-                const resultFrame = dataFrame.slice(0, 2);
+                const resultFrame = dataFrame.limit(2);
 
                 expect(resultFrame.size).toEqual(2);
                 expect(resultFrame.toJSON()).toEqual([
@@ -325,7 +325,7 @@ describe('DataFrame', () => {
             });
 
             it('should be able to get the last row', () => {
-                const resultFrame = dataFrame.slice(2, 3);
+                const resultFrame = dataFrame.limit(-1);
 
                 expect(resultFrame.size).toEqual(1);
                 expect(resultFrame.toJSON()).toEqual([

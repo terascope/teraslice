@@ -10,6 +10,8 @@ import { Builder, getBuildersForConfig } from '../builder';
 
 /**
  * An immutable columnar table with APIs for data pipelines.
+ *
+ * @note null/undefined values are treated the same
 */
 export class DataFrame<
     T extends Record<string, unknown> = Record<string, any>,
@@ -364,9 +366,16 @@ export class DataFrame<
     }
 
     /**
-     * Create a new DataFrame with a range of rows
+     * Returns a DataFrame with a limited number of rows
     */
-    slice(start?: number, end?: number): DataFrame<T> {
+    limit(num: number): DataFrame<T> {
+        let start: number|undefined;
+        let end: number|undefined;
+        if (num < 0) {
+            start = num;
+        } else {
+            end = num;
+        }
         return this.fork(this.columns.map(
             (col) => col.fork(col.vector.slice(start, end))
         ));
