@@ -152,7 +152,7 @@ describe('Op Test Harness', () => {
         });
     });
 
-    describe('op harness can handle new style procossors/readers/slicers', () => {
+    describe('op harness can handle new style processors/readers/slicers', () => {
         it('can load a operation', async () => {
             const opTest = opHarness({ Processor, Schema: ProcessorSchema });
             const opConfig = { _op: 'example-op', some: 'config' };
@@ -163,7 +163,7 @@ describe('Op Test Harness', () => {
 
             expect(results.touchedAt).toBeDefined();
             expect(typeof results.touchedAt).toEqual('string');
-            expect(isNaN(time)).toEqual(false);
+            expect(Number.isNaN(time)).toEqual(false);
         });
 
         it('can load a Fetcher', async () => {

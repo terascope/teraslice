@@ -16,7 +16,6 @@ import {
 import { isPlainObject, geoHash } from './deps';
 import { trim } from './strings';
 import { parseNumberList, toNumber, isNumber } from './numbers';
-import { TSError } from './errors';
 
 export const geoJSONTypes = Object.keys(GeoShapeType).map((key) => key.toLowerCase());
 
@@ -48,7 +47,7 @@ export function parseGeoDistance(str: string): GeoDistanceObj {
     const matches = trim(str).match(/(\d+)(.*)$/);
 
     if (!matches || !matches.length) {
-        throw new Error(`Incorrect geo distance parameter provided: ${str}`);
+        throw new TypeError(`Incorrect geo distance parameter provided: ${str}`);
     }
 
     const distance = Number(matches[1]);
@@ -60,7 +59,7 @@ export function parseGeoDistance(str: string): GeoDistanceObj {
 export function parseGeoDistanceUnit(input: string): GeoDistanceUnit {
     const unit = GEO_DISTANCE_UNITS[trim(input)];
     if (!unit) {
-        throw new Error(`Incorrect distance unit provided: ${input}`);
+        throw new TypeError(`Incorrect distance unit provided: ${input}`);
     }
     return unit;
 }
@@ -78,13 +77,13 @@ export function getLonAndLat(input: unknown, throwInvalid = true): [number, numb
     }
 
     if (throwInvalid && (!lat || !lon)) {
-        throw new TSError('Invalid geopoint object, it must contain keys lat,lon or latitude/longitude');
+        throw new TypeError('Invalid geopoint object, it must contain keys lat,lon or latitude/longitude');
     }
 
     lat = toNumber(lat);
     lon = toNumber(lon);
     if (!isNumber(lat) || !isNumber(lon)) {
-        if (throwInvalid) throw new TSError('Invalid geopoint, lat and lon must be numbers');
+        if (throwInvalid) throw new TypeError('Invalid geopoint, lat and lon must be numbers');
         return null;
     }
 
@@ -117,7 +116,7 @@ export function parseGeoPoint(point: GeoPointInput, throwInvalid = true): GeoPoi
     }
 
     if (throwInvalid && (lat == null || lon == null)) {
-        throw new TSError(`Invalid geopoint given to parse, point:${point}`);
+        throw new TypeError(`Invalid geopoint given to parse, point:${point}`);
     }
 
     // data incoming is lat,lon and we must return lon,lat

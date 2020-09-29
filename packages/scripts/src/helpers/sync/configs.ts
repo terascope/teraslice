@@ -36,6 +36,8 @@ export async function generateTSConfig(
             declaration: true,
             declarationMap: true,
             sourceMap: true,
+            // https://www.typescriptlang.org/tsconfig#disableReferencedProjectLoad
+            disableReferencedProjectLoad: true,
             typeRoots: ['./types', './node_modules/@types'],
             paths: {
                 '*': ['*', './types/*']

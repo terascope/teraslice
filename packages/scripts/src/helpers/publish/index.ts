@@ -32,7 +32,7 @@ export async function publish(action: PublishAction, options: PublishOptions): P
 }
 
 async function publishToNPM(options: PublishOptions) {
-    if (![PublishType.Latest, PublishType.Tag, PublishType.Prelease].includes(options.type)) {
+    if (![PublishType.Latest, PublishType.Tag, PublishType.Prerelease].includes(options.type)) {
         throw new Error(`NPM publish does NOT support publish type "${options.type}"`);
     }
     const result = await pMap(listPackages(), (pkgInfo) => npmPublish(pkgInfo, options), {
@@ -91,17 +91,16 @@ async function publishToDocker(options: PublishOptions) {
 
         if (options.type === PublishType.Latest) {
             imageToBuild = `${registry}:latest`;
-        } else if (options.type === PublishType.Tag || options.type === PublishType.Prelease) {
+        } else if (options.type === PublishType.Tag || options.type === PublishType.Prerelease) {
             const mainPkgInfo = getMainPackageInfo();
             if (!mainPkgInfo) {
                 throw new Error('At least one package must be specified with `terascope.main`');
             }
 
-            if (options.type === PublishType.Prelease) {
+            if (options.type === PublishType.Prerelease) {
                 if (getPublishTag(mainPkgInfo.version) !== 'prerelease') {
-                    throw new Error(
-                        'Refusing to publish non-prerelease docker image'
-                    );
+                    signale.info('No prerelease docker image to publish');
+                    return;
                 }
             }
 
@@ -133,7 +132,7 @@ async function publishToDocker(options: PublishOptions) {
     }
 
     if (err) {
-        if (options.type === PublishType.Prelease) {
+        if (options.type === PublishType.Prerelease) {
             signale.warn(err);
         } else {
             throw err;

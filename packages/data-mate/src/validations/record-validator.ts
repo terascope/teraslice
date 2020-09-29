@@ -1,7 +1,7 @@
 import * as ts from '@terascope/utils';
 import { xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import { isArray } from './field-validator';
-import DocumentMatcher from '../document-matcher';
+import { DocumentMatcher } from '../document-matcher';
 import { Repository, RecordInput, InputType } from '../interfaces';
 import { isString } from '../validations/field-validator';
 

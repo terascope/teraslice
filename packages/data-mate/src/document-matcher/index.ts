@@ -5,7 +5,7 @@ import logicBuilder from './logic-builder';
 
 const _logger = debugLogger('document-matcher');
 
-export default class DocumentMatcher {
+export class DocumentMatcher {
     private filterFn: BooleanCB;
 
     constructor(query: string, options: DocumentMatcherOptions = {}) {

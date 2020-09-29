@@ -1,4 +1,11 @@
-import { ESTypeMapping, ESMapping } from '@terascope/types';
+import {
+    ESTypeMapping, ESMapping,
+    availableFieldTypes, DataTypeFieldConfig,
+    DataTypeVersion, dataTypeVersions,
+    DataTypeFields, DataTypeConfig,
+    DeprecatedFieldType,
+} from '@terascope/types';
+
 import BaseType from './types/base-type';
 
 /** An object of base fields with their child fields */
@@ -33,95 +40,29 @@ export type GraphQLTypeReferences = { __all?: string[] } & {
     [typeName: string]: string[];
 };
 
-export type AvailableType =
-    | 'Boolean'
-    | 'Boundary'
-    | 'Byte'
-    | 'Date'
-    | 'Domain'
-    | 'Double'
-    | 'Float'
-    | 'Geo'
-    | 'GeoPoint'
-    | 'GeoJSON'
-    | 'Hostname'
-    | 'Integer'
-    | 'IPRange'
-    | 'IP'
-    | 'KeywordCaseInsensitive'
-    | 'KeywordTokensCaseInsensitive'
-    | 'KeywordPathAnalyzer'
-    | 'KeywordTokens'
-    | 'Keyword'
-    | 'Long'
-    | 'NgramTokens'
-    | 'Object'
-    | 'Short'
-    | 'Text'
-    | 'String'
-    | 'Number'
-    | 'Any';
+/**
+ * @deprecated use `FieldType` from `@terascope/types`
+*/
+export type AvailableType = DeprecatedFieldType;
 
-export const AvailableTypes: AvailableType[] = [
-    'Boolean',
-    'Boundary',
-    'Byte',
-    'Date',
-    'Domain',
-    'Double',
-    'Float',
-    'Geo',
-    'GeoPoint',
-    'GeoJSON',
-    'Hostname',
-    'Integer',
-    'IPRange',
-    'IP',
-    'KeywordCaseInsensitive',
-    'KeywordTokensCaseInsensitive',
-    'KeywordPathAnalyzer',
-    'KeywordTokens',
-    'Keyword',
-    'Long',
-    'NgramTokens',
-    'Object',
-    'Short',
-    'Text',
-    'String',
-    'Number',
-    'Any'
-];
+/**
+ * @deprecated use `availableFieldTypes` from `@terascope/types`
+*/
+export const AvailableTypes = availableFieldTypes as ReadonlyArray<DeprecatedFieldType>;
 
-export type AvailableVersion = 1;
-export const AvailableVersions: readonly AvailableVersion[] = [1];
+/**
+ * @deprecated use `DataTypeVersion` from `@terascope/types`
+*/
+export type AvailableVersion = DataTypeVersion;
+/**
+ * @deprecated use `dataTypeVersions` from `@terascope/types`
+*/
+export const AvailableVersions = dataTypeVersions;
 
-export type FieldTypeConfig = {
-    /**
-     * The type of field
-    */
-    type: AvailableType;
-    /**
-     * Indicates whether the field is an array
-    */
-    array?: boolean;
-    /**
-     * A description for the fields
-    */
-    description?: string;
-    /**
-     * Specifies whether the field is index in elasticsearch
-     *
-     * (Only type Object currently support this)
-     * @default true
-    */
-    indexed?: boolean;
-
-    /**
-     * A temporary flag to fix KeywordCaseInsensitive to be
-     * a type keyword with case insensitive .text fields
-    */
-    use_fields_hack?: boolean;
-};
+/**
+ * @deprecated use `DataTypeFieldConfig` from `@terascope/types`
+*/
+export type FieldTypeConfig = DataTypeFieldConfig;
 
 type ActualType = {
     [key in AvailableType]: {
@@ -131,14 +72,12 @@ type ActualType = {
 
 export type DataTypeMapping = { [key in AvailableVersion]: ActualType };
 
-export type TypeConfigFields = {
-    [key: string]: FieldTypeConfig;
-};
+/**
+ * @deprecated use `DataTypeFields` from `@terascope/types`
+*/
+export type TypeConfigFields = DataTypeFields;
 
-export type DataTypeConfig = {
-    fields: TypeConfigFields;
-    version: AvailableVersion;
-};
+export { DataTypeConfig };
 
 export interface GraphQLType {
     type: string;

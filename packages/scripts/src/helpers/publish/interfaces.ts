@@ -1,6 +1,6 @@
 export enum PublishType {
     Latest = 'latest',
-    Prelease = 'prerelease',
+    Prerelease = 'prerelease',
     Daily = 'daily',
     Dev = 'dev',
     Tag = 'tag'

@@ -1,5 +1,8 @@
 import * as geo from './geo-interfaces';
 
+/**
+ * The sort direction
+*/
 export type SortOrder = 'asc'|'desc';
 
 export type ElasticsearchDSLOptions = {

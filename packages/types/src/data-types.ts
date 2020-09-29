@@ -1,0 +1,175 @@
+import { Overwrite } from './utility';
+
+export enum FieldType {
+    Boolean = 'Boolean',
+    Boundary = 'Boundary',
+    Byte = 'Byte',
+    Date = 'Date',
+    Domain = 'Domain',
+    Double = 'Double',
+    Float = 'Float',
+    /**
+     * @deprecated use GeoPoint or GeoJSON instead
+    */
+    Geo = 'Geo',
+    GeoPoint = 'GeoPoint',
+    GeoJSON = 'GeoJSON',
+    Hostname = 'Hostname',
+    Integer = 'Integer',
+    IPRange = 'IPRange',
+    IP = 'IP',
+    KeywordCaseInsensitive = 'KeywordCaseInsensitive',
+    KeywordTokensCaseInsensitive= 'KeywordTokensCaseInsensitive',
+    KeywordPathAnalyzer = 'KeywordPathAnalyzer',
+    KeywordTokens = 'KeywordTokens',
+    Keyword = 'Keyword',
+    Long = 'Long',
+    NgramTokens = 'NgramTokens',
+    Object = 'Object',
+    Short = 'Short',
+    Text = 'Text',
+    String = 'String',
+    Number = 'Number',
+    Any = 'Any',
+}
+
+/**
+ * @deprecated use the enum FieldType
+*/
+export type DeprecatedFieldType =
+    | 'Boolean'
+    | 'Boundary'
+    | 'Byte'
+    | 'Date'
+    | 'Domain'
+    | 'Double'
+    | 'Float'
+    | 'Geo'
+    | 'GeoPoint'
+    | 'GeoJSON'
+    | 'Hostname'
+    | 'Integer'
+    | 'IPRange'
+    | 'IP'
+    | 'KeywordCaseInsensitive'
+    | 'KeywordTokensCaseInsensitive'
+    | 'KeywordPathAnalyzer'
+    | 'KeywordTokens'
+    | 'Keyword'
+    | 'Long'
+    | 'NgramTokens'
+    | 'Object'
+    | 'Short'
+    | 'Text'
+    | 'String'
+    | 'Number'
+    | 'Any';
+
+/**
+ * A list of all of the Field Types
+*/
+export const availableFieldTypes: ReadonlyArray<FieldType> = Object.freeze(
+    Object.values(FieldType)
+);
+
+/**
+ * The major DataType config version
+*/
+export type DataTypeVersion = 1;
+
+/**
+ * A list of DataType config versions
+*/
+export const dataTypeVersions: ReadonlyArray<DataTypeVersion> = Object.freeze([1]);
+
+/**
+ * A list of valid valid formats for FieldType.Date.
+ * date-fns string format can be used, see https://date-fns.org/v2.16.1/docs/format
+*/
+export enum DateFormat {
+    iso_8601 = 'iso_8601',
+    epoch_millis = 'epoch_millis',
+    epoch = 'epoch',
+    seconds = 'epoch',
+    milliseconds = 'epoch_millis',
+}
+
+/**
+ *  The configuration for an individual field
+*/
+export interface DataTypeFieldConfig {
+    /**
+     * The type of field
+    */
+    type: FieldType|DeprecatedFieldType;
+
+    /**
+     * Indicates whether the field is an array
+    */
+    array?: boolean;
+
+    /**
+     * A description for the fields
+    */
+    description?: string;
+
+    /**
+     * Specifies whether the field is index in elasticsearch
+     *
+     * (Only type Object currently support this)
+     * @default true
+    */
+    indexed?: boolean;
+
+    /**
+     * Specify the locale for the field (not compatible with all fields)
+     * Must be represented in a Language Tags (BCP 47)
+    */
+    locale?: string;
+
+    /**
+    * Specify the format for a specific fields.
+    * Currently this is only support with FieldType.Date
+    */
+    format?: string;
+
+    /**
+     * A temporary flag to fix KeywordCaseInsensitive to be
+     * a type keyword with case insensitive .text fields
+    */
+    use_fields_hack?: boolean;
+}
+
+/**
+ * The DataType fields configuration
+*/
+export type DataTypeFields = Record<string, DataTypeFieldConfig>;
+/**
+ * A readonly version of DataType fields configuration
+*/
+export type ReadonlyDataTypeFields = Record<string, Readonly<DataTypeFieldConfig>>;
+
+/**
+ * The DataType fields config with version
+*/
+export interface DataTypeConfig {
+    /**
+     *  The fields configuration
+    */
+    fields: DataTypeFields;
+
+    /**
+     * The major version of DataType config, defaults to the latest version.
+    */
+    version?: DataTypeVersion;
+}
+
+/**
+ * A readonly version of the DataTypeConfig
+*/
+export type ReadonlyDataTypeConfig = Readonly<Overwrite<DataTypeConfig, {
+    /**
+     *  The fields configuration
+    */
+    fields: ReadonlyDataTypeFields
+}>>;

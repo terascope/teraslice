@@ -1,6 +1,7 @@
 import 'jest-extended';
+import { DataTypeConfig } from '@terascope/types';
 import {
-    DataType, DataTypeConfig, LATEST_VERSION
+    DataType, LATEST_VERSION
 } from '../src';
 
 describe('DataType (elasticsearch)', () => {

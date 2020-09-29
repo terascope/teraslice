@@ -1,4 +1,17 @@
-/** Convert any input into a boolean, this will work with stringified boolean */
+/**
+ * Convert any input into a boolean, this will work with stringified boolean
+ *
+ * @example
+ *
+ *     toBoolean(1); // true
+ *     toBoolean(0); // false
+ *     toBoolean('1'); // true
+ *     toBoolean('0'); // false
+ *     toBoolean('yes'); // true
+ *     toBoolean('NO'); // false
+ *     toBoolean('true'); // true
+ *     toBoolean('FALSE'); // false
+*/
 export function toBoolean(input: unknown): boolean {
     if (isFalsy(input)) return false;
     if (isTruthy(input)) return true;
@@ -18,23 +31,44 @@ const _truthy = Object.freeze({
     yes: true,
 });
 
+/**
+ * Returns true if the value is a truthy like value
+*/
 export function isTruthy(input: unknown): boolean {
     if (input === true) return true;
     const val = typeof input === 'string' ? input.trim().toLowerCase() : String(input);
     return _truthy[val] === true;
 }
 
+/**
+ * Returns true if the value is a falsy like value
+*/
 export function isFalsy(input: unknown): boolean {
     if (input === false || input == null || input === '') return true;
     const val = typeof input === 'string' ? input.trim().toLowerCase() : String(input);
     return _falsy[val] === true;
 }
 
+/**
+ * Returns true if the input is a boolean
+*/
 export function isBoolean(input: unknown): input is boolean {
-    if (typeof input === 'boolean') return true;
-    return false;
+    return typeof input === 'boolean';
 }
 
+/**
+ * Returns true if the input is like a boolean.
+ * Use toBoolean to convert it to one.
+ *
+ * @example
+ *
+ *     isBooleanLike(); // false
+ *     isBooleanLike(null); // true
+ *     isBooleanLike(0); // true
+ *     isBooleanLike('0'); // true
+ *     isBooleanLike('false'); // true
+ *     isBooleanLike('no'); // true
+*/
 export function isBooleanLike(input: unknown): boolean {
     return isFalsy(input) || isTruthy(input);
 }

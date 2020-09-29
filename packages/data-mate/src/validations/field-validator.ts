@@ -1258,8 +1258,7 @@ export function isMIMEType(input: unknown, _parentContext?: unknown): boolean {
  *
  * FieldValidator.isPostalCode('85249'); // true
  * FieldValidator.isPostalCode('85249', {}, { locale: 'any' }); // true
- * FieldValidator.isPostalCode('85249', {}, { locale: 'ES' }); // true
- * FieldValidator.isPostalCode('85249', {}, { locale: 'ES' }); // true
+ * FieldValidator.isPostalCode('85249', {}, { locale: 'ES' }); // false
  * FieldValidator.isPostalCode('852', {}, { locale: 'IS' }); // true
  * FieldValidator.isPostalCode('885 49', {}, { locale: 'SE' }); // true
  * FieldValidator.isPostalCode(1234567890); // false
@@ -1308,7 +1307,7 @@ export function isValidDate(input: unknown, _parentContext?: unknown): boolean {
         return _lift(handleArgs(ts.isValidDate), input, _parentContext);
     }
 
-    return !isBoolean(input as any) && ts.isValidDate(input);
+    return !ts.isBoolean(input as any) && ts.isValidDate(input);
 }
 
 /**

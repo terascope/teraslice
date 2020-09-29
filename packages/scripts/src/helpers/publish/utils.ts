@@ -31,7 +31,7 @@ export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType)
             return false;
         }
 
-        if (type === PublishType.Prelease) {
+        if (type === PublishType.Prerelease) {
             if (isMain && !isPrelease) {
                 signale.info('* skipping main package until tag release');
                 return true;

@@ -1,8 +1,4 @@
-/** A simplified implementation of lodash isInteger */
-export function isInteger(val: unknown): val is number {
-    if (typeof val !== 'number') return false;
-    return Number.isInteger(val);
-}
+import { getTypeOf } from './deps';
 
 /** A native implementation of lodash random */
 export function random(min: number, max: number): number {
@@ -21,12 +17,132 @@ export function toNumber(input: unknown): number {
     return Number(input);
 }
 
-/** Convert any input to a integer, return false if unable to convert input  */
+/** Check if value is a bigint */
+export function isBigInt(input: unknown): input is bigint {
+    return typeof input === 'bigint';
+}
+
+/** Convert any input to a bigint */
+export function toBigInt(input: unknown): bigint|false {
+    try {
+        return toBigIntOrThrow(input);
+    } catch {
+        return false;
+    }
+}
+
+/** Convert any input to a bigint */
+export function toBigIntOrThrow(input: unknown): bigint {
+    if (isBigInt(input)) return input;
+
+    if (Number.isSafeInteger(input)) {
+        return BigInt(input);
+    }
+
+    if (!isNumberLike(input)) {
+        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a BigInt`);
+    }
+
+    return BigInt(Number.parseInt(input as any, 10));
+}
+
+const _maxBigInt = BigInt(Number.MAX_SAFE_INTEGER);
+/**
+ * Convert a BigInt to either a number of a string
+*/
+export function bigIntToJSON(int: bigint): string|number {
+    if (typeof int === 'number') return int;
+    const str = int.toLocaleString('en-US').replace(/,/g, '');
+    if (int < _maxBigInt) return parseInt(str, 10);
+    return str;
+}
+
+/**
+ * A stricter check for verifying a number string
+ * @todo this needs to be smarter
+*/
+export function isNumberLike(input: unknown): boolean {
+    if (typeof input === 'number') return true;
+    if (typeof input === 'object') return false;
+    if (typeof input === 'boolean') return false;
+
+    // https://regexr.com/5cljt
+    return /^\s*[+-]{0,1}[\d,]+(\.[\d]+){0,1}\s*$/.test(String(input));
+}
+
+/** A simplified implementation of lodash isInteger */
+export function isInteger(val: unknown): val is number {
+    if (typeof val !== 'number') return false;
+    return Number.isSafeInteger(val);
+}
+
+/** Convert an input to a integer, return false if unable to convert input  */
 export function toInteger(input: unknown): number | false {
+    try {
+        return toIntegerOrThrow(input);
+    } catch (err) {
+        return false;
+    }
+}
+
+/** Convert an input to a integer or throw */
+export function toIntegerOrThrow(input: unknown): number {
     if (isInteger(input)) return input;
-    const val = Number.parseInt(input as string, 10);
-    if (isNumber(val)) return val;
-    return false;
+
+    if (isBigInt(input)) {
+        const val = bigIntToJSON(input);
+        if (typeof val === 'string') {
+            throw new TypeError(`Expected ${val} (${getTypeOf(input)}) to be parsable to a integer`);
+        }
+        return val;
+    }
+
+    if (!isNumberLike(input)) {
+        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a integer`);
+    }
+
+    const val = Number.parseInt(input as any, 10);
+    if (isInteger(val)) return val;
+
+    throw new TypeError(`Expected ${val} (${getTypeOf(input)}) to be parsable to a integer`);
+}
+
+/** Verify the input is a finite number (and float like) */
+export function isFloat(val: unknown): val is number {
+    if (!isNumber(val)) return false;
+    if (val === Number.POSITIVE_INFINITY) return false;
+    if (val === Number.NEGATIVE_INFINITY) return false;
+    return true;
+}
+
+/** Convert an input to a float, return false if unable to convert input  */
+export function toFloat(input: unknown): number | false {
+    try {
+        return toFloatOrThrow(input);
+    } catch (err) {
+        return false;
+    }
+}
+
+/** Convert an input to a float or throw */
+export function toFloatOrThrow(input: unknown): number {
+    if (isFloat(input)) return input;
+    if (isBigInt(input)) {
+        const val = bigIntToJSON(input);
+        if (typeof val === 'string') {
+            throw new TypeError(`Expected ${val} (${getTypeOf(input)}) to be parsable to a float`);
+        }
+        return val;
+    }
+
+    if (!isNumberLike(input)) {
+        throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a float`);
+    }
+
+    const val = Number.parseFloat(input as any);
+    if (isFloat(val)) return val;
+
+    throw new TypeError(`Expected ${val} (${getTypeOf(input)}) to be parsable to a float`);
 }
 
 /**

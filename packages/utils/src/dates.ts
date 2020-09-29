@@ -1,28 +1,44 @@
 /**
  * A helper function for making an ISODate string
  */
-export function makeISODate(): string {
-    return new Date().toISOString();
+export function makeISODate(value?: Date|number|string|null|undefined): string {
+    if (value == null) return new Date().toISOString();
+    const date = getValidDate(value);
+    if (date === false) {
+        throw new Error(`Invalid date ${date}`);
+    }
+    return new Date(value).toISOString();
 }
 
 /** A simplified implementation of moment(new Date(val)).isValid() */
 export function isValidDate(val: unknown): boolean {
-    return getValidDate(val) !== false;
+    return getValidDate(val as any) !== false;
 }
 
-/** Check if the data is valid and return if it is */
-export function getValidDate(val: unknown): Date | false {
+/**
+ * Coerces value into a valid date, returns false if it is invalid
+*/
+export function getValidDate(val: Date|number|string|null|undefined): Date | false {
     if (val == null) return false;
-    if (isValidDateInstance(val)) return val as Date;
+    if (val instanceof Date) {
+        if (!isValidDateInstance(val)) {
+            return false;
+        }
+        return val;
+    }
+
     if (typeof val === 'number'
         && (val <= 0 || !Number.isSafeInteger(val))) {
         return false;
     }
-    const d = new Date(val as any);
-    return isValidDateInstance(d) && d;
+
+    const d = new Date(val);
+    if (isValidDateInstance(d)) return d;
+    return false;
 }
 
 export function isValidDateInstance(val: unknown): boolean {
+    // this has to use isNaN not Number.isNaN
     return val instanceof Date && !isNaN(val as any);
 }
 

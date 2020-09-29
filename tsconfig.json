@@ -17,6 +17,7 @@
         "declaration": true,
         "declarationMap": true,
         "sourceMap": true,
+        "disableReferencedProjectLoad": true,
         "typeRoots": [
             "./types",
             "./node_modules/@types"
