@@ -31,7 +31,7 @@ export class JobValidator {
         const apis = {};
 
         type ValidateJobFn = (job: ValidatedJobConfig) => void;
-        const validateJobFns: ValidateJobFn[] = [];
+        let validateJobFns: ValidateJobFn[] = [];
 
         const handleModule = (opConfig: OpConfig, op: OperationModule) => {
             const { Schema, API } = op;
@@ -58,6 +58,10 @@ export class JobValidator {
             return handleModule(opConfig, this.opLoader.loadProcessor(opConfig._op, assetIds));
         });
 
+        validateJobFns.forEach((fn) => { fn(jobConfig); });
+
+        validateJobFns = [];
+
         jobConfig.apis = jobConfig.apis.map((apiConfig) => {
             const { Schema } = this.opLoader.loadAPI(apiConfig._name, assetIds);
             const schema = new Schema(this.context, 'api');
@@ -70,9 +74,9 @@ export class JobValidator {
             return schema.validate(apiConfig);
         });
 
-        registerApis(this.context, jobConfig);
-
         validateJobFns.forEach((fn) => { fn(jobConfig); });
+
+        registerApis(this.context, jobConfig);
 
         Object.keys(apis).forEach((name) => {
             const api = apis[name];

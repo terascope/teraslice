@@ -1,8 +1,16 @@
 import 'jest-extended'; // require for type definitions
-import { ConvictSchema, TestContext, OpConfig } from '../../src';
+import {
+    ConvictSchema,
+    TestContext,
+    OpConfig,
+    ValidatedJobConfig,
+    newTestJobConfig,
+    AnyObject
+} from '../../src';
 
 describe('Convict Schema', () => {
     const context = new TestContext('job-components');
+
     interface ExampleOpConfig extends OpConfig {
         example: string;
     }
@@ -50,6 +58,48 @@ describe('Convict Schema', () => {
             expect(() => {
                 schema.validate({});
             }).toThrow();
+        });
+    });
+
+    describe('->ensureAPIFromConfig', () => {
+        let job: ValidatedJobConfig;
+        let testSchema: AnyObject;
+
+        beforeEach(() => {
+            const apiContext = new TestContext('schema-api-tests');
+
+            job = newTestJobConfig({
+                operations: [
+                    { _op: 'test-reader' },
+                    { _op: 'noop' },
+                ]
+            });
+
+            testSchema = new ExampleSchema(apiContext);
+        });
+
+        it('will inject apiConfig if api does not exist', () => {
+            testSchema.ensureAPIFromConfig('someApi', job, { some: 'configs' });
+
+            expect(job.apis).toBeArrayOfSize(1);
+            expect(job.apis[0]).toMatchObject({ _name: 'someApi', some: 'configs' });
+        });
+
+        it('will not make new api if it already exists', () => {
+            if (!job.apis) job.apis = [];
+            job.apis.push({ _name: 'someApi', some: 'otherStuff' });
+
+            testSchema.ensureAPIFromConfig('someApi', job, { some: 'otherStuff' });
+
+            expect(job.apis).toBeArrayOfSize(1);
+            expect(job.apis[0]).toMatchObject({ _name: 'someApi', some: 'otherStuff' });
+        });
+
+        it('will throw if apiConfigs clash with opConfig', () => {
+            if (!job.apis) job.apis = [];
+            job.apis.push({ _name: 'someApi', some: 'otherStuff' });
+
+            expect(() => testSchema.ensureAPIFromConfig('someApi', job, { some: 'configs' })).toThrow();
         });
     });
 

@@ -4,7 +4,7 @@ import { get, isPlainObject } from './deps';
 import { DataEntity } from './entities';
 
 /**
- * Similar to is-plain-object but works better when clone deeping a DataEntity
+ * Similar to is-plain-object but works better when you cloneDeep a DataEntity
 */
 export function isSimpleObject(input: unknown): input is Record<string, unknown> {
     if (input == null) return false;
@@ -134,7 +134,7 @@ export function filterObject<
 }
 
 /**
- * A typesafe get function (will always return the correct type)
+ * A type safe get function (will always return the correct type)
  *
  * **IMPORTANT** This does not behave like lodash.get,
  * it does not deal with dot notation (nested fields)
@@ -178,4 +178,45 @@ export function getField<T, P extends keyof T, V>(
         return result;
     }
     return result || defaultVal;
+}
+
+/**
+ * Compares two values and returns a boolean if they are the same.
+ * Object keys are sorted before comparison, arrays are NOT sorted and
+ * are compared value for value
+ *
+ * @example
+        isSame({ key1: 1, key2: 2 }, { key2: 2, key1: 1 }) === true;
+        isSame(null, null) === true;
+        isSame(undefined, undefined) === true;
+        isSame(NaN, NaN) === true;
+        isSame(3, 3) === true
+        isSame('hello', 'hello') === true
+        isSame([1, 2, 3], [1, 2, 3]) === true
+        isSame([{ some: 'obj' }], [{ some: 'obj' }]) === true
+
+        isSame(undefined, null) === false;
+        isSame([1, 2, 3], [1, 3, 2]) === false
+        isSame([1, 2, 3], [1, 2, undefined, 3]) === false
+        isSame(true, 'true') === false;
+*/
+export function isSame(input: unknown, target: unknown): boolean {
+    if (isObjectEntity(input)) {
+        if (isObjectEntity(target)) {
+            const sortedInput = sortKeys(input as Record<string, unknown>, { deep: true });
+            const sortedTarget = sortKeys(target as Record<string, unknown>, { deep: true });
+            return JSON.stringify(sortedInput) === JSON.stringify(sortedTarget);
+        }
+        return false;
+    }
+
+    if (Array.isArray(input)) {
+        if (Array.isArray(target)) {
+            if (input.length !== target.length) return false;
+            return input.every((val, index) => isSame(val, target[index]));
+        }
+        return false;
+    }
+
+    return Object.is(input, target);
 }
