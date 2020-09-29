@@ -186,19 +186,19 @@ export function getField<T, P extends keyof T, V>(
  * are compared value for value
  *
  * @example
- * isSame({ key1: 1, key2: 2 }, { key2: 2, key1: 1 }) === true;
- * isSame(null, null) === true;
- * isSame(undefined, undefined) === true;
- * isSame(NaN, NaN) === true;
- * isSame(3, 3) === true
- * isSame('hello', 'hello') === true
- * isSame([1, 2, 3], [1, 2, 3]) === true
- * isSame([{ some: 'obj' }], [{ some: 'obj' }]) === true
- *
- * isSame(undefined, null) === false;
- * isSame([1, 2, 3], [1, 3, 2]) === false
- * isSame([1, 2, 3], [1, 2, undefined, 3]) === false
- * isSame(true, 'true') === false;
+        isSame({ key1: 1, key2: 2 }, { key2: 2, key1: 1 }) === true;
+        isSame(null, null) === true;
+        isSame(undefined, undefined) === true;
+        isSame(NaN, NaN) === true;
+        isSame(3, 3) === true
+        isSame('hello', 'hello') === true
+        isSame([1, 2, 3], [1, 2, 3]) === true
+        isSame([{ some: 'obj' }], [{ some: 'obj' }]) === true
+
+        isSame(undefined, null) === false;
+        isSame([1, 2, 3], [1, 3, 2]) === false
+        isSame([1, 2, 3], [1, 2, undefined, 3]) === false
+        isSame(true, 'true') === false;
 */
 export function isSame(input: unknown, target: unknown): boolean {
     if (isObjectEntity(input)) {

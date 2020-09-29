@@ -48,22 +48,22 @@ export default abstract class ConvictSchema<T extends Record<string, any>, S = a
     * If the key/values do not match, then it will throw
     *
     * @example
-    * const job = newTestJobConfig({
+        const job = newTestJobConfig({
             operations: [
                 { _op: 'test-reader' },
                 { _op: 'noop' },
             ]
         });
 
-     schema.ensureAPIFromConfig('someApi', job, { some: 'configs' });
+        schema.ensureAPIFromConfig('someApi', job, { some: 'configs' });
 
-     job === {
-        apis: [{ _name: 'someApi', some: 'configs' }],
-        operations: [
-            { _op: 'test-reader' },
-            { _op: 'noop' },
-        ]
-     }
+        job === {
+            apis: [{ _name: 'someApi', some: 'configs' }],
+            operations: [
+                { _op: 'test-reader' },
+                { _op: 'noop' },
+            ]
+        }
 
     */
     ensureAPIFromConfig(
