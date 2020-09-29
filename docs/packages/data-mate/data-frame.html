@@ -1,0 +1,744 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Data Frame · Teraslice</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="## Components"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Data Frame · Teraslice"/><meta property="og:type" content="website"/><meta property="og:url" content="https://terascope.github.io/teraslice/"/><meta property="og:description" content="## Components"/><meta property="og:image" content="https://terascope.github.io/teraslice/img/docusaurus.png"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://terascope.github.io/teraslice/img/docusaurus.png"/><link rel="shortcut icon" href="/teraslice/img/favicon.png"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css"/><link rel="stylesheet" href="/teraslice/css/copy-code-block.css"/><link rel="stylesheet" href="/teraslice/css/custom.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/teraslice/js/copy-code-block.js"></script><script src="/teraslice/js/scrollSpy.js"></script><link rel="stylesheet" href="/teraslice/css/main.css"/><script src="/teraslice/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/teraslice/"><img class="logo" src="/teraslice/img/logo.png" alt="Teraslice"/><h2 class="headerTitleWithLogo">Teraslice</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/teraslice/docs/overview" target="_self">Docs</a></li><li class=""><a href="/teraslice/docs/asset-bundles" target="_self">Assets</a></li><li class="siteNavGroupActive"><a href="/teraslice/docs/packages" target="_self">Packages</a></li><li class=""><a href="https://github.com/terascope/teraslice" target="_self">GitHub</a></li><li class=""><a href="/teraslice/help" target="_self">Help</a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>data-mate</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Overview<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages">Overview</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Packages<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">data-types</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/data-types/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/data-types/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">data-mate</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/data-mate/overview">Data-Mate</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/teraslice/docs/packages/data-mate/data-frame">Data Frame</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/data-mate/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">elasticsearch-store</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/elasticsearch-store/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/elasticsearch-store/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">elasticsearch-api</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/elasticsearch-api/overview">Overview</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">job-components</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/job-components/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/job-components/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">terafoundation</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/terafoundation/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/terafoundation/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">teraslice</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice/overview">Overview</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">teraslice-cli</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice-cli/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice-cli/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">teraslice-client-js</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice-client-js/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice-client-js/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">teraslice-test-harness</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice-test-harness/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice-test-harness/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">ts-transforms</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/ts-transforms/plugins">Plugins</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/ts-transforms/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/ts-transforms/operations">Operations</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/ts-transforms/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">xlucene-parser</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/xlucene-parser/overview">xLucene Parser</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/xlucene-parser/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">xlucene-translator</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/xlucene-translator/overview">xLucene Translator</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/xlucene-translator/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">utils</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/utils/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/utils/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">eslint-config</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/eslint-config/overview">Overview</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">types</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/types/overview">Types</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/types/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">scripts</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/scripts/overview">Overview</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">teraslice-state-storage</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice-state-storage/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice-state-storage/api/overview">API</a></li></ul></div></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Legacy<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">teraslice-op-test-harness</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice-op-test-harness/overview">Overview</a></li></ul></div></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle collapsible">Internal<span class="arrow"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#565656" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></span></h3><ul class="hide"><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">docker-compose-js</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/docker-compose-js/overview">docker-compose-js</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/docker-compose-js/api/overview">API</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">generator-teraslice</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/generator-teraslice/overview">Overview</a></li></ul></div><div class="navGroup subNavGroup"><h4 class="navGroupSubcategoryTitle">teraslice-messaging</h4><ul><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice-messaging/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/teraslice/docs/packages/teraslice-messaging/api/overview">API</a></li></ul></div></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 id="__docusaurus" class="postHeaderTitle">Data Frame</h1></header><article><div><span><h2><a class="anchor" aria-hidden="true" id="components"></a><a href="#components" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Components</h2>
+<h3><a class="anchor" aria-hidden="true" id="dataframe"></a><a href="#dataframe" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>DataFrame</h3>
+<pre><code class="hljs css language-ts"><span class="hljs-comment">/**
+ * An immutable columnar table with APIs for data pipelines.
+*/</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> DataFrame {
+    <span class="hljs-comment">/**
+     * Create a DataFrame from an array of JSON objects
+    */</span>
+    <span class="hljs-keyword">static</span> fromJSON(
+        config: DataTypeConfig|ReadonlyDataTypeConfig,
+        records: <span class="hljs-built_in">any</span>[] = [],
+        options?: DataFrameOptions
+    ): DataFrame;
+
+    <span class="hljs-comment">/**
+     * The name of the DataFrame
+    */</span>
+    name?: <span class="hljs-built_in">string</span>;
+
+    <span class="hljs-comment">/**
+     * The list of columns
+    */</span>
+    readonly columns: readonly Column[];
+
+    <span class="hljs-comment">/**
+     * Metadata about the DataFrame
+    */</span>
+    readonly metadata: M;
+
+    <span class="hljs-keyword">constructor</span>(<span class="hljs-params">
+        columns: Column[],
+        options?: DataFrameOptions
+    </span>): DataFrame
+
+    * [Symbol.iterator](<span class="hljs-params"></span>): IterableIterator&lt;T&gt;;
+
+    <span class="hljs-comment">/**
+     * A Unique ID for the DataFrame
+     * The ID will only change if the columns or data change
+    */</span>
+    id: <span class="hljs-built_in">string</span>;
+
+    <span class="hljs-comment">/**
+     * Count of the number rows in the DataFrame
+    */</span>
+    size: <span class="hljs-built_in">number</span>;
+
+    <span class="hljs-comment">/**
+     * Get the DataType config from the columns.
+    */</span>
+    config: DataTypeConfig;
+
+    <span class="hljs-comment">/**
+     * Create a new DataFrame with the same metadata but with different data
+    */</span>
+    fork(columns: Column[]): DataFrame;
+
+    <span class="hljs-comment">/**
+     * Get a column, or columns by name, returns a new DataFrame
+    */</span>
+    select(...fields: <span class="hljs-built_in">string</span>[]): DataFrame;
+
+    <span class="hljs-comment">/**
+     * Get a column, or columns by index, returns a new DataFrame
+    */</span>
+    selectAt(...indices: <span class="hljs-built_in">number</span>[]): DataFrame;
+
+    <span class="hljs-comment">/**
+     * Group DataFrame by columns and return a AggregationFrame instance
+     * which can be used to run aggregations
+    */</span>
+    groupBy(fields: <span class="hljs-built_in">string</span>[]): AggregationFrame;
+
+    <span class="hljs-comment">/**
+     * Create a AggregationFrame instance which can be used to run aggregations
+    */</span>
+    aggregate(): AggregationFrame;
+
+    <span class="hljs-comment">/**
+     * Order the rows by fields, format of is `field:asc` or `field:desc`.
+     * Defaults to `asc` if none specified
+    */</span>
+    orderBy(field: <span class="hljs-built_in">string</span>, direction?: SortOrder): DataFrame;
+
+    <span class="hljs-comment">/**
+     * Filter the DataFrame by fields, all fields must return true
+     * for a given row to returned in the filtered DataType
+     *
+     * @example
+     *
+     *     dataFrame.filter({
+     *         name(val) {
+     *             return val != null;
+     *         },
+     *         age(val) {
+     *             return val != null &amp;&amp; val &gt;= 20;
+     *         }
+     *     });
+    */</span>
+    filterBy(filters: {
+        [field: <span class="hljs-built_in">string</span>]: <span class="hljs-function">(<span class="hljs-params">value: <span class="hljs-built_in">any</span></span>) =&gt;</span> <span class="hljs-built_in">boolean</span>&gt;
+    }): DataFrame;
+
+    <span class="hljs-comment">/**
+     * Assign new columns to a new DataFrame. If given a column already exists,
+     * the column will replace the existing one.
+    */</span>
+    assign(columns: readonly Column[]): DataFrame;
+
+    <span class="hljs-comment">/**
+     * Concat rows, or columns, to the end of the existing Columns
+    */</span>
+    concat(columns: Column[]): DataFrame;
+    concat(rows: AnyObject[]): DataFrame;
+
+    <span class="hljs-comment">/**
+     * Rename an existing column
+    */</span>
+    rename(name: <span class="hljs-built_in">string</span>, renameTo: <span class="hljs-built_in">string</span>): DataFrame;
+
+    <span class="hljs-comment">/**
+     * Get a column by name
+    */</span>
+    getColumn(name: <span class="hljs-built_in">string</span>): Column|<span class="hljs-literal">undefined</span>;
+
+    <span class="hljs-comment">/**
+     * Get a column by index
+    */</span>
+    getColumnAt(index: <span class="hljs-built_in">number</span>): Column|<span class="hljs-literal">undefined</span>;
+
+    <span class="hljs-comment">/**
+     * Get a row by index, if the row has only null values, returns undefined
+    */</span>
+    getRow(index: <span class="hljs-built_in">number</span>, json = <span class="hljs-literal">false</span>): <span class="hljs-built_in">any</span>|<span class="hljs-literal">undefined</span>;
+
+    <span class="hljs-comment">/**
+     * Returns a DataFrame with a limited number of rows
+    */</span>
+    limit(num: <span class="hljs-built_in">number</span>): DataFrame;
+
+    <span class="hljs-comment">/**
+     * Convert the DataFrame an array of object (the output is JSON compatible)
+    */</span>
+    toJSON(): T[];
+}
+
+<span class="hljs-comment">/**
+ * DataFrame options
+*/</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">interface</span> DataFrameOptions {
+    name?: <span class="hljs-built_in">string</span>;
+    metadata?: AnyObject;
+}
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="column"></a><a href="#column" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Column</h3>
+<pre><code class="hljs css language-ts"><span class="hljs-comment">/**
+ * A single column of values with the same data type.
+ *
+ * Changing the values is safe as long the length doesn't change.
+ * When adding or removing values it is better to create a new Column.
+*/</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> Column {
+    <span class="hljs-comment">/**
+     * Create a Column from an array of values
+    */</span>
+    <span class="hljs-keyword">static</span> fromJSON(
+        name: <span class="hljs-built_in">string</span>,
+        config: DataTypeFieldConfig,
+        values: <span class="hljs-built_in">any</span>[] = [],
+    ): Column;
+
+    <span class="hljs-comment">/**
+     * The field name for the column
+    */</span>
+    name: <span class="hljs-built_in">string</span>;
+
+    <span class="hljs-comment">/**
+     * The DataType version to use for the field definition
+    */</span>
+    readonly version: DataTypeVersion;
+
+    <span class="hljs-keyword">constructor</span>(<span class="hljs-params">
+        vector: Vector,
+        options: ColumnOptions
+    </span>): Column;
+
+    <span class="hljs-comment">/**
+     * Iterate over each value, this is returned in the stored value format.
+     * And may not be compatible with the JSON spec.
+    */</span>
+    * [Symbol.iterator](): IterableIterator&lt;<span class="hljs-built_in">any</span>&gt;;
+
+    <span class="hljs-comment">/**
+     * A Unique ID for the Column.
+     * The ID should only change if the data vector changes.
+    */</span>
+    id: <span class="hljs-built_in">string</span>;
+
+    <span class="hljs-comment">/**
+     * Get the size of the column
+    */</span>
+    size: <span class="hljs-built_in">number</span>;
+
+    <span class="hljs-comment">/**
+     * Get the underling Vector.
+    */</span>
+    vector: Vector;
+
+    <span class="hljs-comment">/**
+     * Get the Data Type field configuration.
+    */</span>
+    config: DataTypeFieldConfig;
+
+    <span class="hljs-comment">/**
+     * Create a new Column with the same metadata but with different data
+    */</span>
+    fork(vector: Vector): Column;
+
+    <span class="hljs-comment">/**
+     * Transform the values with in a column.
+     *
+     * @note this will always keep the same length
+    */</span>
+    transform(config: ColumnTransformConfig, args?: AnyObject): Column;
+
+    <span class="hljs-comment">/**
+     * Creates a new column, if the function returns false
+     * then the value is set to null.
+     *
+     * @note this will always keep the same length
+    */</span>
+    validate(validateConfig: ColumnValidateConfig, args?: AnyObject): Column;
+
+    <span class="hljs-comment">/**
+     * Sort the column
+    */</span>
+    sort(direction?: SortOrder): Column;
+
+    <span class="hljs-comment">/**
+     * Average all of the values in the Column
+    */</span>
+    avg(): <span class="hljs-built_in">number</span>|bigint;
+
+    <span class="hljs-comment">/**
+     * Sum all of the values in the Column
+    */</span>
+    sum(): <span class="hljs-built_in">number</span>|bigint;
+
+    <span class="hljs-comment">/**
+     * Find the minimum value in the Column
+    */</span>
+    min(): <span class="hljs-built_in">number</span>|bigint;
+
+    <span class="hljs-comment">/**
+     * Find the maximum value in the Column
+    */</span>
+    max(): <span class="hljs-built_in">number</span>|bigint;
+
+    <span class="hljs-comment">/**
+     * Convert the Column an array of values (the output is JSON compatible)
+     *
+     * @note probably only useful for debugging
+    */</span>
+    toJSON(): <span class="hljs-built_in">any</span>[];
+}
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="vector"></a><a href="#vector" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Vector</h3>
+<pre><code class="hljs css language-ts"><span class="hljs-comment">/**
+ * The Vector Type, this will change how the data is stored and read
+*/</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">enum</span> VectorType {
+    <span class="hljs-comment">/**
+     * Currently this operates like String
+     * but I imagine will be expanding it.
+     * But will need to add format options
+    */</span>
+    <span class="hljs-built_in">Date</span> = <span class="hljs-string">'Date'</span>,
+    <span class="hljs-built_in">String</span> = <span class="hljs-string">'String'</span>,
+    Int = <span class="hljs-string">'Int'</span>,
+    Float = <span class="hljs-string">'Float'</span>,
+    BigInt = <span class="hljs-string">'BigInt'</span>,
+    <span class="hljs-built_in">Boolean</span> = <span class="hljs-string">'Boolean'</span>,
+    GeoPoint = <span class="hljs-string">'GeoPoint'</span>,
+    GeoJSON = <span class="hljs-string">'GeoJSON'</span>,
+    IP = <span class="hljs-string">'IP'</span>,
+    IPRange = <span class="hljs-string">'IPRange'</span>,
+    <span class="hljs-built_in">Object</span> = <span class="hljs-string">'Object'</span>,
+    <span class="hljs-comment">/**
+     * Arbitrary data can be stored with this. Not recommended for use.
+    */</span>
+    Any = <span class="hljs-string">'Any'</span>,
+    <span class="hljs-comment">/**
+     * The list type is used for fields marked as Arrays
+     * where each item in the Vector is a child element
+    */</span>
+    List = <span class="hljs-string">'List'</span>,
+}
+
+<span class="hljs-comment">/**
+ * An immutable typed Array class with a constrained API.
+*/</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">class</span> Vector {
+    <span class="hljs-comment">/**
+     * Make an instance of a Vector from a config
+    */</span>
+    <span class="hljs-keyword">static</span> make(
+        config: DataTypeFieldConfig,
+        data: Data,
+        childConfig?: DataTypeFields
+    ): Vector;
+
+    <span class="hljs-comment">/**
+     * The type of Vector, this should only be set the specific Vector type classes.
+    */</span>
+    readonly <span class="hljs-keyword">type</span>: VectorType;
+
+    <span class="hljs-comment">/**
+     * The field type configuration
+    */</span>
+    readonly config: DataTypeFieldConfig;
+
+    <span class="hljs-comment">/**
+     * A function for converting a value to an JSON spec compatible format.
+     * This is specific on the vector type classes via a static method usually.
+    */</span>
+    readonly valueToJSON?: ValueToJSONFn;
+
+    <span class="hljs-comment">/**
+     * When Vector is an object type, this will be the data type fields
+     * for the object
+    */</span>
+    readonly childConfig?: ReadonlyDataTypeFields;
+
+    <span class="hljs-comment">/**
+     * A data type agnostic in-memory representation of the data
+     * for a Vector and potential indices/unique values.
+     *
+     * This should be generated by the builder and
+     * should NOT be mutated one created.
+     *
+     * @internal
+    */</span>
+    readonly data: Data;
+
+    <span class="hljs-keyword">constructor</span>(<span class="hljs-params">options: VectorOptions</span>): Vector;
+
+    * [Symbol.iterator](): IterableIterator&lt;<span class="hljs-built_in">any</span>&gt;;
+
+    <span class="hljs-comment">/**
+     * Returns the number items in the Vector
+    */</span>
+    size: <span class="hljs-built_in">number</span>;
+
+    <span class="hljs-comment">/**
+     * Gets the number distinct values in the Vector
+    */</span>
+    distinct(): <span class="hljs-built_in">number</span>;
+
+    <span class="hljs-comment">/**
+     * Get value by index
+    */</span>
+    <span class="hljs-keyword">get</span>(index: <span class="hljs-built_in">number</span>, json?: <span class="hljs-built_in">boolean</span>): <span class="hljs-built_in">any</span>;
+
+    <span class="hljs-comment">/**
+     * Create a new Vector with the same metadata but with different data
+    */</span>
+    fork(data: Data): Vector;
+
+    <span class="hljs-comment">/**
+     * Create a new Vector with the range of values
+    */</span>
+    slice(start?: <span class="hljs-built_in">number</span>, end?: <span class="hljs-built_in">number</span>): Vector;
+
+    <span class="hljs-comment">/**
+     * Sort the values in a Vector and return
+     * an array with the updated indices.
+    */</span>
+    getSortedIndices(direction?: SortOrder): <span class="hljs-built_in">number</span>[];
+
+    <span class="hljs-comment">/**
+     * Compare two different values on the Vector type.
+     * This can be used for equality or sorted.
+    */</span>
+    compare(a: Maybe&lt;T&gt;, b: Maybe&lt;T&gt;): <span class="hljs-number">-1</span>|<span class="hljs-number">0</span>|<span class="hljs-number">1</span>;
+
+    <span class="hljs-comment">/**
+     * Convert the Vector an array of values (the output is JSON compatible)
+    */</span>
+    toJSON(): <span class="hljs-built_in">any</span>[];
+}
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="builder"></a><a href="#builder" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Builder</h3>
+<pre><code class="hljs css language-ts"><span class="hljs-comment">/**
+ * Since Vectors are immutable, a Builder can be to construct a
+ * Vector. When values are inserted they are coerced and validated.
+*/</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">class</span> Builder {
+    <span class="hljs-comment">/**
+     * Make a instance of a Builder from a DataTypeField config
+    */</span>
+    <span class="hljs-keyword">static</span> make(
+        config: DataTypeFieldConfig,
+        length?: <span class="hljs-built_in">number</span>,
+        childConfig?: DataTypeFields
+    ): Builder;
+
+    <span class="hljs-comment">/**
+     * Convert a Vector to a Builder with current values
+     * populated depending on the length populated
+    */</span>
+    <span class="hljs-keyword">static</span> makeFromVector(vector: Vector, length: <span class="hljs-built_in">number</span>): Builder;
+
+     <span class="hljs-comment">/**
+     * The type of Vector, this should only be set the specific Vector type classes.
+    */</span>
+    readonly <span class="hljs-keyword">type</span>: VectorType;
+
+    <span class="hljs-comment">/**
+     * The field type configuration
+    */</span>
+    readonly config: DataTypeFieldConfig;
+
+    <span class="hljs-comment">/**
+     * A function for converting a value to an JSON spec compatible format.
+     * This is specific on the vector type classes via a static method usually.
+    */</span>
+    readonly valueFrom?: ValueFromFn;
+
+    <span class="hljs-comment">/**
+     * When Vector is an object type, this will be the data type fields
+     * for the object
+    */</span>
+    readonly childConfig?: DataTypeFields;
+
+    <span class="hljs-comment">/**
+     * The values used to create the Vector.
+     * Do NOT mutate this.
+    */</span>
+    readonly values: <span class="hljs-built_in">any</span>[];
+
+    <span class="hljs-comment">/**
+     * The current insertion index (used for append)
+    */</span>
+    currentIndex = <span class="hljs-number">0</span>;
+
+    <span class="hljs-keyword">constructor</span>(<span class="hljs-params">options: BuilderOptions</span>): Builder;
+
+    <span class="hljs-comment">/**
+     * Returns the number items in the Builder
+    */</span>
+    size: <span class="hljs-built_in">number</span>;
+
+    <span class="hljs-comment">/**
+     * Set value by index
+    */</span>
+    <span class="hljs-keyword">set</span>(index: <span class="hljs-built_in">number</span>, value: unknown): Builder;
+
+    <span class="hljs-comment">/**
+     * Append a value to the end
+    */</span>
+    append(value: unknown): Builder;
+
+    <span class="hljs-comment">/**
+     * Flush and convert the result to a Vector
+    */</span>
+    toVector(): Vector;
+}
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="aggregationframe"></a><a href="#aggregationframe" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>AggregationFrame</h3>
+<pre><code class="hljs css language-ts"><span class="hljs-comment">/**
+ * A frame dedicated to running a aggregations
+*/</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> AggregationFrame {
+    <span class="hljs-comment">/**
+     * The columns for the AggregationFrame
+    */</span>
+    columns: readonly Column[];
+
+    <span class="hljs-comment">/**
+     * The keys to group by
+    */</span>
+    readonly keyBy: readonly <span class="hljs-built_in">string</span>[];
+
+    <span class="hljs-keyword">constructor</span>(<span class="hljs-params">columns: Column[], keyBy?: <span class="hljs-built_in">string</span>[]</span>): AggregationFrame;
+
+    <span class="hljs-comment">/**
+     * Calculate the average value in a column
+     *
+     * @note only works numeric data types
+     *
+     * @param field the name of the column to run the aggregation on
+     * @param as a optional name for the new column with the aggregated values
+    */</span>
+    avg(field: <span class="hljs-built_in">string</span>, <span class="hljs-keyword">as</span>?: <span class="hljs-built_in">string</span>): AggregationFrame;
+
+    <span class="hljs-comment">/**
+     * Add all of the values in a column together
+     *
+     * @note only works numeric data types
+     *
+     * @param field the name of the column to run the aggregation on
+     * @param as a optional name for the new column with the aggregated values
+    */</span>
+    sum(field: <span class="hljs-built_in">string</span>, <span class="hljs-keyword">as</span>?: <span class="hljs-built_in">string</span>): AggregationFrame;
+
+    <span class="hljs-comment">/**
+     * Find the minimum value in a column
+     *
+     * @note only works numeric data types
+     *
+     * @param field the name of the column to run the aggregation on
+     * @param as a optional name for the new column with the aggregated values
+    */</span>
+    min(field: <span class="hljs-built_in">string</span>, <span class="hljs-keyword">as</span>?: <span class="hljs-built_in">string</span>): AggregationFrame;
+
+    <span class="hljs-comment">/**
+     * Find the maximum value in a column
+     *
+     * @note only works numeric data types
+     *
+     * @param field the name of the column to run the aggregation on
+     * @param as a optional name for the new column with the aggregated values
+    */</span>
+    max(field: <span class="hljs-built_in">string</span>, <span class="hljs-keyword">as</span>?: <span class="hljs-built_in">string</span>): AggregationFrame;
+
+    <span class="hljs-comment">/**
+     * Count all of the values in a column
+     *
+     * @param field the name of the column to run the aggregation on
+     * @param as a optional name for the new column with the aggregated values
+    */</span>
+    count(field: <span class="hljs-built_in">string</span>, <span class="hljs-keyword">as</span>?: <span class="hljs-built_in">string</span>): AggregationFrame;
+
+    <span class="hljs-comment">/**
+     * Create a groups of unique values
+     *
+     * @param field the name of the column to run the aggregation on
+     * @param as a optional name for the new column with the aggregated values
+    */</span>
+    unique(field: <span class="hljs-built_in">string</span>): AggregationFrame;
+
+    <span class="hljs-comment">/**
+     * Group the data in hourly buckets
+     *
+     * @note only works Date data types
+     *
+     * @param field the name of the column to run the aggregation on
+    */</span>
+    hourly(field: <span class="hljs-built_in">string</span>): AggregationFrame;
+
+    <span class="hljs-comment">/**
+     * Group the data in daily buckets
+     *
+     * @note only works Date data types
+     *
+     * @param field the name of the column to run the aggregation on
+    */</span>
+    daily(field: <span class="hljs-built_in">string</span>): AggregationFrame;
+
+    <span class="hljs-comment">/**
+     * Group the data in monthly buckets
+     *
+     * @note only works Date data types
+     *
+     * @param field the name of the column to run the aggregation on
+    */</span>
+    monthly(field: <span class="hljs-built_in">string</span>): AggregationFrame;
+
+    <span class="hljs-comment">/**
+     * Group the data in yearly buckets
+     *
+     * @note only works Date data types
+     *
+     * @param field the name of the column to run the aggregation on
+    */</span>
+    yearly(field: <span class="hljs-built_in">string</span>): AggregationFrame;
+
+    <span class="hljs-comment">/**
+     * Run aggregations and flatten the grouped data into a DataFrame
+     * @returns the new columns
+    */</span>
+    run(): <span class="hljs-built_in">Promise</span>&lt;Column[]&gt;;
+
+    <span class="hljs-comment">/**
+     * Reset the Aggregations
+    */</span>
+    clear(): <span class="hljs-built_in">void</span>;
+}
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="examples"></a><a href="#examples" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Examples</h2>
+<pre><code class="hljs css language-ts"><span class="hljs-keyword">const</span> dataTypeConfig = {
+    version: <span class="hljs-number">1</span>,
+    fields: {
+        name: {
+            <span class="hljs-keyword">type</span>: FieldType.Keyword,
+        },
+        age: {
+            <span class="hljs-keyword">type</span>: FieldType.Short,
+        },
+        gender: {
+            <span class="hljs-keyword">type</span>: FieldType.Keyword
+        },
+        birth_date: {
+            <span class="hljs-keyword">type</span>: FieldType.Date
+        }
+    }
+};
+
+<span class="hljs-keyword">let</span> dataFrame = DataFrame.fromJSON(dataTypeConfig, [
+    {
+        name: <span class="hljs-string">'Jill'</span>,
+        age: <span class="hljs-number">39</span>,
+        gender: <span class="hljs-string">'F'</span>,
+        birth_date: <span class="hljs-string">'1981-08-20T07:00:00.000Z'</span>,
+    },
+    {
+        name: <span class="hljs-string">'Billy'</span>,
+        age: <span class="hljs-number">47</span>,
+        gender: <span class="hljs-string">'M'</span>,
+        birth_date: <span class="hljs-string">'1973-06-05T07:00:00.000Z'</span>,
+    },
+    {
+        name: <span class="hljs-string">'Frank'</span>,
+        age: <span class="hljs-number">20</span>,
+        gender: <span class="hljs-string">'M'</span>,
+        date: <span class="hljs-string">'2000-03-05T07:00:00.000Z'</span>
+    },
+]);
+
+<span class="hljs-comment">// ...</span>
+<span class="hljs-comment">// Get the number of rows</span>
+<span class="hljs-comment">// ...</span>
+dataFrame.size;
+<span class="hljs-comment">// =&gt; 3</span>
+
+<span class="hljs-comment">// ...</span>
+<span class="hljs-comment">// Calculate the sum of a field</span>
+<span class="hljs-comment">// ...</span>
+dataFrame.getColumn(<span class="hljs-string">'age'</span>).sum();
+<span class="hljs-comment">// =&gt; 106</span>
+
+<span class="hljs-comment">// ...</span>
+<span class="hljs-comment">// Transform a column</span>
+<span class="hljs-comment">// ...</span>
+<span class="hljs-keyword">const</span> upperCaseName = dataFrame
+    .getColumn(<span class="hljs-string">'name'</span>)
+    .transform(ColumnTransform.toUpperCase);
+<span class="hljs-comment">// =&gt; Column(name)['JILL', 'BILLY', 'FRANK']</span>
+
+<span class="hljs-comment">// ...</span>
+<span class="hljs-comment">// Replace the existing name column with the transformed one</span>
+<span class="hljs-comment">// ...</span>
+dataFrame = dataFrame.assign([upperCaseName]);
+
+<span class="hljs-comment">// ...</span>
+<span class="hljs-comment">// Count the number of records for each gender</span>
+<span class="hljs-comment">// ...</span>
+<span class="hljs-keyword">const</span> aggregatedColumns = <span class="hljs-keyword">await</span> dataFrame
+    .select(<span class="hljs-string">'name'</span>, <span class="hljs-string">'gender'</span>)
+    .groupBy([<span class="hljs-string">'gender'</span>])
+    .count(<span class="hljs-string">'gender'</span>, <span class="hljs-string">'count_per_gender'</span>)
+    .run();
+<span class="hljs-comment">// =&gt; [</span>
+<span class="hljs-comment">//       Column(name)['JILL', 'BILLY'],</span>
+<span class="hljs-comment">//       Column(gender)['F', 'M']</span>
+<span class="hljs-comment">//       Column(count_per_gender)[1, 2]</span>
+<span class="hljs-comment">//    ]</span>
+</code></pre>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 9/29/2020</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/teraslice/docs/packages/data-mate/overview"><span class="arrow-prev">← </span><span>Data-Mate</span></a><a class="docs-next button" href="/teraslice/docs/packages/data-mate/api/overview"><span>API</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#components">Components</a><ul class="toc-headings"><li><a href="#dataframe">DataFrame</a></li><li><a href="#column">Column</a></li><li><a href="#vector">Vector</a></li><li><a href="#builder">Builder</a></li><li><a href="#aggregationframe">AggregationFrame</a></li></ul></li><li><a href="#examples">Examples</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/teraslice/" class="nav-home"></a><div><h5>Docs</h5><a href="/teraslice/docs/en/getting-started.html">Getting Started</a><a href="/teraslice/docs/en/packages.html">Packages</a><a href="/teraslice/docs/en/asset-bundles.html">Asset Bundles</a></div><div><h5>More</h5><a href="/teraslice/blog">Blog</a><a href="https://github.com/terascope/teraslice">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/terascope/teraslice/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><section class="copyright">Copyright © 2020 Terascope, LLC</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+                document.addEventListener('keyup', function(e) {
+                  if (e.target !== document.body) {
+                    return;
+                  }
+                  // keyCode for '/' (slash)
+                  if (e.keyCode === 191) {
+                    const search = document.getElementById('search_input_react');
+                    search && search.focus();
+                  }
+                });
+              </script><script>
+              var search = docsearch({
+                
+                apiKey: 'b074b9b57bfd2e4d8b411aee052825d2',
+                indexName: 'terascope_teraslice',
+                inputSelector: '#search_input_react'
+              });
+            </script></body></html>
