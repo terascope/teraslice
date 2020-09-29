@@ -271,7 +271,11 @@ describe('Column (Number Types)', () => {
             }));
         });
 
-        test.todo('should NOT be able to sort the values');
+        it('should NOT be able to sort the values', () => {
+            expect(() => {
+                col.sort();
+            }).toThrow('Sorting is not supported for ListVector');
+        });
     });
 
     describe(`when field type is ${FieldType.Long}`, () => {

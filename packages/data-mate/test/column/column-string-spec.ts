@@ -71,6 +71,11 @@ describe('Column (String Types)', () => {
             }));
         });
 
-        test.todo('should be immutable');
+        it('should be immutable', () => {
+            expect(() => {
+                // @ts-expect-error
+                newCol.vector = 'hi' as any;
+            }).toThrow();
+        });
     });
 });

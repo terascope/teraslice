@@ -11,6 +11,7 @@ export class ListVector<T = unknown> extends Vector<Vector<T>> {
             valueToJSON: ListVector.valueToJSON,
             ...options,
         });
+        this.sortable = false;
     }
 
     fork(data: Data<Vector<T>>): ListVector<T> {

@@ -11,7 +11,12 @@ import {
 import { Builder, Vector } from '../../src';
 
 describe('Vector', () => {
-    type Case = [type: FieldType, input: any[], output?: any[]];
+    type Case = [
+        type: FieldType,
+        input: any[],
+        output?: any[],
+        invalid?: any[]
+    ];
     const nowDate = new Date();
     const now = nowDate.getTime();
     const testCases: Case[] = [
@@ -21,8 +26,9 @@ describe('Vector', () => {
         ],
         [
             FieldType.String,
-            ['foo', 'bar', 1, 2, null, undefined],
-            ['foo', 'bar', '1', '2', null, null]
+            ['foo', 'bar', true, 1, 2, null, undefined],
+            ['foo', 'bar', 'true', '1', '2', null, null],
+            [{ foo: 'bar' }]
         ],
         [
             FieldType.Float,
@@ -32,7 +38,20 @@ describe('Vector', () => {
         [
             FieldType.Integer,
             [12.344, '2.01', BigInt(200), 1, 2, null, undefined],
-            [12, 2, 200, 1, 2, null, null]
+            [12, 2, 200, 1, 2, null, null],
+            [-(2 ** 31) - 1, 2 ** 31 + 1, 'foo']
+        ],
+        [
+            FieldType.Byte,
+            [12.344, '2.01', -1, 2, null, undefined],
+            [12, 2, -1, 2, null, null],
+            [128, -129, 'bar']
+        ],
+        [
+            FieldType.Short,
+            [12.344, '-2.01', 1000, 2, null, undefined],
+            [12, -2, 1000, 2, null, null],
+            [32_768, -32_769, 'baz', '++1']
         ],
         [
             FieldType.Long,
@@ -42,7 +61,8 @@ describe('Vector', () => {
         [
             FieldType.Boolean,
             ['yes', 'no', true, false, 0, 1, null, undefined],
-            [true, false, true, false, false, true, null, null]
+            [true, false, true, false, false, true, null, null],
+            ['Y E S', 'foo', 23]
         ],
         [
             FieldType.Date,
@@ -54,7 +74,8 @@ describe('Vector', () => {
                 '1941-08-20T07:00:00.000Z',
                 null,
                 null
-            ]
+            ],
+            ['not a date', Number.NaN],
         ],
         [
             FieldType.IP,
@@ -113,7 +134,7 @@ describe('Vector', () => {
                 { lat: 89.002, lon: 20.034990 },
                 null,
                 null
-            ]
+            ],
         ],
         [
             FieldType.GeoJSON,
@@ -219,10 +240,14 @@ describe('Vector', () => {
                 null,
                 null
             ],
+            [
+                [],
+                'foo',
+            ],
         ],
     ];
 
-    describe.each(testCases)('when field type is %s', (type, input, output) => {
+    describe.each(testCases)('when field type is %s', (type, input, output, invalid) => {
         let vector: Vector<any>;
         let expected: any[];
         beforeAll(() => {
@@ -265,13 +290,24 @@ describe('Vector', () => {
             }
         });
 
+        if (invalid?.length) {
+            test.each(invalid)('should NOT be able to parse %p', (val) => {
+                const builder = Builder.make({ type, array: false });
+                expect(() => {
+                    builder.append(val);
+                }).toThrowError();
+            });
+        }
+
         it('should be an instance of a Vector', () => {
             expect(vector).toBeInstanceOf(Vector);
         });
 
-        test.todo('should be immutable');
+        it('should be immutable', () => {
+            expect(() => {
+                // @ts-expect-error
+                vector.data.values[0] = '10';
+            }).toThrow();
+        });
     });
-
-    test.todo('->reduce');
-    test.todo('->filter');
 });

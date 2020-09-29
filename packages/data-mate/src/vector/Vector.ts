@@ -54,6 +54,11 @@ export abstract class Vector<T = unknown> {
     */
     readonly data: Data<T>;
 
+    /**
+     * If set to false, the Vector is not sortable
+    */
+    sortable = true;
+
     protected readonly _size: number;
 
     constructor(
@@ -123,6 +128,10 @@ export abstract class Vector<T = unknown> {
      * an array with the updated indices.
     */
     getSortedIndices(direction?: SortOrder): number[] {
+        if (!this.sortable) {
+            throw new Error(`Sorting is not supported for ${this.constructor.name}`);
+        }
+
         const indices: number[] = Array(this._size);
         const original: [number, Maybe<T>][] = Array(this._size);
 

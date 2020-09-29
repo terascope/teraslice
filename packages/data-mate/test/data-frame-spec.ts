@@ -196,7 +196,19 @@ describe('DataFrame', () => {
         });
     });
 
-    test.todo('should be immutable');
+    it('should be immutable', () => {
+        const dataFrame = DataFrame.fromJSON({
+            version: LATEST_VERSION,
+            fields: {
+                name: { type: FieldType.Keyword }
+            }
+        }, [{ name: 'Billy' }]);
+
+        expect(() => {
+            // @ts-expect-error
+            dataFrame.columns[0] = 'hi';
+        }).toThrow();
+    });
 
     describe('when manipulating a DataFrame', () => {
         type Person = { name: string; age: number; friends: string[] }

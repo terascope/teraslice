@@ -9,6 +9,7 @@ export class ObjectVector<
 > extends Vector<T> {
     constructor(options: VectorOptions<T>) {
         super(VectorType.Object, options);
+        this.sortable = false;
     }
 
     fork(data: Data<T>): ObjectVector<T> {
