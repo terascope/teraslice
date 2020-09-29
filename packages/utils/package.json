@@ -29,7 +29,7 @@
     },
     "dependencies": {
         "@terascope/types": "^0.5.0",
-        "debug": "^4.1.1",
+        "debug": "^4.2.0",
         "is-plain-object": "^4.1.1",
         "js-string-escape": "^1.0.1",
         "kind-of": "^6.0.3",
