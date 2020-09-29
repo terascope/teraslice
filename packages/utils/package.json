@@ -30,7 +30,7 @@
     "dependencies": {
         "@terascope/types": "^0.6.0",
         "debug": "^4.1.1",
-        "is-plain-object": "^4.1.1",
+        "is-plain-object": "^5.0.0",
         "js-string-escape": "^1.0.1",
         "kind-of": "^6.0.3",
         "latlon-geohash": "^1.1.0",
