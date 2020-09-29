@@ -1,5 +1,4 @@
 import { DateFormat, FieldType } from '@terascope/types';
-import formatDate from 'date-fns/format';
 import { DateValue, VectorType } from '../../vector';
 import {
     ColumnTransformConfig, TransformMode, TransformType
@@ -37,8 +36,7 @@ export const formatDateConfig: ColumnTransformConfig<DateValue, DateValue, Forma
             mode: TransformMode.EACH_VALUE,
             output: { format },
             fn(value: DateValue): DateValue {
-                const formatted = formatDate(value.value, format);
-                return new DateValue(value.value, formatted);
+                return DateValue.reformat(value, format);
             }
         };
     },

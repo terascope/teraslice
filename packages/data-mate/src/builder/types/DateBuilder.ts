@@ -1,10 +1,6 @@
-import { getValidDate, isValidDateInstance, toInteger } from '@terascope/utils';
-import parseDate from 'date-fns/parse';
 import { DateFormat } from '@terascope/types';
 import { DateValue, VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
-
-const systemTimezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
 
 export class DateBuilder extends Builder<DateValue> {
     static valueFrom(value: unknown, thisArg: DateBuilder): DateValue {
@@ -14,53 +10,38 @@ export class DateBuilder extends Builder<DateValue> {
 
         if (format && !(format in DateFormat)) {
             if (typeof value !== 'string') {
-                throw new Error(
-                    'Expected string values when using toDate({ format })'
-                );
+                throw new Error(`Expected string for formatted date fields, got ${value}`);
             }
 
-            const date = parseDate(value, format, Date.now());
-            if (!isValidDateInstance(date)) {
-                throw new Error(`Expected value ${value} to be a date string with format ${format}`);
+            if (thisArg.referenceDate == null) {
+                thisArg.referenceDate = new Date();
             }
-
-            const epochMillis = date.getTime() - systemTimezoneOffset;
-            return new DateValue(epochMillis, value);
+            const referenceDate = thisArg.referenceDate!;
+            return DateValue.fromValueToFormat(value, format, referenceDate);
         }
 
         if (format === DateFormat.epoch) {
-            const epoch = toInteger(value);
-            if (epoch === false || epoch < 0) {
-                throw new Error(`Expected value ${value} to be a valid time`);
-            }
-
-            const epochMillis = Math.floor(epoch * 1000);
-            if (epochMillis < 0 || !Number.isSafeInteger(epochMillis)) {
-                throw new Error(`Expected value ${value} to be a valid time`);
-            }
-
-            return new DateValue(epochMillis, epoch);
+            return DateValue.fromValueToEpoch(value as any);
         }
 
-        const date = getValidDate(value as any);
-        if (date === false) {
-            throw new Error(`Expected value ${value} to be a valid date`);
-        }
+        const dateValue = DateValue.fromValue(
+            value as any,
+            format as DateFormat.iso_8601|DateFormat.epoch_millis
+        );
 
-        if (typeof value === 'string'
-            || value instanceof Date
-            || thisArg.config.format === DateFormat.iso_8601) {
-            if (!thisArg.config.format) {
-                thisArg.config.format = DateFormat.iso_8601;
-            }
-            return new DateValue(date.getTime() - systemTimezoneOffset, date.toISOString());
-        }
-
+        // auto set the date format so it is consistently stored
         if (!thisArg.config.format) {
-            thisArg.config.format = DateFormat.epoch_millis;
+            if (dateValue.formatted) {
+                thisArg.config.format = DateFormat.iso_8601;
+            } else {
+                thisArg.config.format = DateFormat.epoch_millis;
+            }
         }
-        return new DateValue(date.getTime());
+
+        return dateValue;
     }
+
+    referenceDate?: Date;
 
     constructor(options: BuilderOptions<DateValue>) {
         super(VectorType.Date, {

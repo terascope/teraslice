@@ -88,7 +88,12 @@ export class DataFrame<
     */
     get id(): string {
         if (this.__id) return this.__id;
-        const long = this.columns.map((col) => `${col.name}(${col.id})`).sort().join(':');
+
+        const long = this.columns
+            .map((col) => `${col.name}(${col.id})`)
+            .sort()
+            .join(':');
+
         const id = md5(long);
         this.__id = id;
         return id;
