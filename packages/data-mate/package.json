@@ -45,7 +45,7 @@
         "ip6addr": "^0.2.3",
         "ipaddr.js": "^2.0.0",
         "is-cidr": "^4.0.2",
-        "jexl": "^2.2.2",
+        "jexl": "^2.3.0",
         "valid-url": "^1.0.9",
         "validator": "^13.1.1",
         "xlucene-parser": "^0.26.0"
