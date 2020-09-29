@@ -4,7 +4,8 @@ import {
     TestContext,
     OpConfig,
     ValidatedJobConfig,
-    newTestJobConfig
+    newTestJobConfig,
+    AnyObject
 } from '../../src';
 
 describe('Convict Schema', () => {
@@ -62,18 +63,23 @@ describe('Convict Schema', () => {
 
     describe('->ensureAPIFromConfig', () => {
         let job: ValidatedJobConfig;
+        let testSchema: AnyObject;
 
         beforeEach(() => {
+            const apiContext = new TestContext('schema-api-tests');
+
             job = newTestJobConfig({
                 operations: [
                     { _op: 'test-reader' },
                     { _op: 'noop' },
                 ]
             });
+
+            testSchema = new ExampleSchema(apiContext);
         });
 
         it('will inject apiConfig if api does not exist', () => {
-            schema.ensureAPIFromConfig('someApi', job, { some: 'configs' });
+            testSchema.ensureAPIFromConfig('someApi', job, { some: 'configs' });
 
             expect(job.apis).toBeArrayOfSize(1);
             expect(job.apis[0]).toMatchObject({ _name: 'someApi', some: 'configs' });
@@ -83,7 +89,7 @@ describe('Convict Schema', () => {
             if (!job.apis) job.apis = [];
             job.apis.push({ _name: 'someApi', some: 'otherStuff' });
 
-            schema.ensureAPIFromConfig('someApi', job, { some: 'otherStuff' });
+            testSchema.ensureAPIFromConfig('someApi', job, { some: 'otherStuff' });
 
             expect(job.apis).toBeArrayOfSize(1);
             expect(job.apis[0]).toMatchObject({ _name: 'someApi', some: 'otherStuff' });
@@ -93,9 +99,7 @@ describe('Convict Schema', () => {
             if (!job.apis) job.apis = [];
             job.apis.push({ _name: 'someApi', some: 'otherStuff' });
 
-            expect(
-                schema.ensureAPIFromConfig('someApi', job, { some: 'configs' })
-            ).toThrow();
+            expect(() => testSchema.ensureAPIFromConfig('someApi', job, { some: 'configs' })).toThrow();
         });
     });
 
