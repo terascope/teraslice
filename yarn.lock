@@ -2578,10 +2578,10 @@ ci-info@^2.0.0:
   resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-2.0.0.tgz#67a9e964be31a51e15e5010d58e6f12834002f46"
   integrity sha512-5tK7EtrZ0N+OLFMthtqOj4fI2Jeb88C4CAZPu25LDVUgXJ0A3Js4PMGqrn0JU1W0Mh1/Z8wZzYPxqUrXeBboCQ==
 
-cidr-regex@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/cidr-regex/-/cidr-regex-3.1.0.tgz#83189b2996a115cf20823f0697334117e3636122"
-  integrity sha512-1RUJy3vvQijcK9I4mDbJEMUROwGw5Vu7qmF6MIM6k08kKQzHhhEr1QnOY/t80lp/hWawxu08xzNfvH9w0dFhmA==
+cidr-regex@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/cidr-regex/-/cidr-regex-3.1.1.tgz#ba1972c57c66f61875f18fd7dd487469770b571d"
+  integrity sha512-RBqYd32aDwbCMFJRL6wHOlDNYJsPNTt8vC82ErHF5vKt8QQzxm1FrkW8s/R5pVrXMf17sba09Uoy91PKiddAsw==
   dependencies:
     ip-regex "^4.1.0"
 
@@ -5431,12 +5431,12 @@ is-ci@^2.0.0:
   dependencies:
     ci-info "^2.0.0"
 
-is-cidr@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/is-cidr/-/is-cidr-4.0.1.tgz#a078f3deca5d8edb3c05fc7fac1d8e17070e79eb"
-  integrity sha512-8Y/Vn1DKqTnQtloseNMBXcVNW65wc5e4fKVKfYaYhkPhrs6ozqOiiwfYThEeJvJHfsXmNK+YLKb5SgnR4hvPDA==
+is-cidr@^4.0.2:
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/is-cidr/-/is-cidr-4.0.2.tgz#94c7585e4c6c77ceabf920f8cde51b8c0fda8814"
+  integrity sha512-z4a1ENUajDbEl/Q6/pVBpTR1nBjjEE1X7qb7bmWYanNnPoKAvUCPFKeXV6Fe4mgTkWKBqiHIcwsI3SndiO5FeA==
   dependencies:
-    cidr-regex "^3.1.0"
+    cidr-regex "^3.1.1"
 
 is-data-descriptor@^0.1.4:
   version "0.1.4"
