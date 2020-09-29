@@ -41,6 +41,31 @@ export default abstract class ConvictSchema<T extends Record<string, any>, S = a
 
     }
 
+    /**
+    * This method will make sure that the api exists on the job, if it does not then
+    * it will inject it using apiName provided and with the config key/values provided.
+    * If the api does exist it will compare the apiConfig against the provided config.
+    * If the key/values do not match, then it will throw
+    *
+    * @example
+    * const job = newTestJobConfig({
+            operations: [
+                { _op: 'test-reader' },
+                { _op: 'noop' },
+            ]
+        });
+
+     schema.ensureAPIFromConfig('someApi', job, { some: 'configs' });
+
+     job === {
+        apis: [{ _name: 'someApi', some: 'configs' }],
+        operations: [
+            { _op: 'test-reader' },
+            { _op: 'noop' },
+        ]
+     }
+
+    */
     ensureAPIFromConfig(
         apiName: string, job: ValidatedJobConfig, config: Record<string, any>
     ): void {
@@ -69,7 +94,7 @@ export default abstract class ConvictSchema<T extends Record<string, any>, S = a
             }
 
             if (errMsg.length > 0) {
-                this.context.logger.warn(`Configuration clashes have been found between apiConfigs and opConfigs: \n${errMsg}`);
+                throw new Error(`Configuration clashes have been found between apiConfigs and opConfigs: \n${errMsg}`);
             }
         }
     }
