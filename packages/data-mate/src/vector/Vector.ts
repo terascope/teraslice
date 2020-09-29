@@ -1,7 +1,6 @@
-import { toString } from '@terascope/utils';
 import {
     DataTypeFieldConfig, DataTypeFields,
-    Maybe, Nil, SortOrder,
+    Maybe, SortOrder,
     ReadonlyDataTypeFields
 } from '@terascope/types';
 import { Data, VectorType } from './interfaces';
@@ -76,11 +75,17 @@ export abstract class Vector<T = unknown> {
 
         this.data = data;
         this.childConfig = childConfig;
-        this._size = this.data.values.length;
+        this._size = this.data.indices.length;
     }
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
-        yield* this.data.values;
+        for (const valIndex of this.data.indices) {
+            if (valIndex === -1) {
+                yield null;
+            } else {
+                yield this.data.values[valIndex];
+            }
+        }
     }
 
     /**
@@ -94,16 +99,21 @@ export abstract class Vector<T = unknown> {
      * Gets the number distinct values in the Vector
     */
     distinct(): number {
-        return new Set(this.data.values.map(toString)).size;
+        return this.data.values.length;
     }
 
     /**
      * Get value by index
     */
     get(index: number, json?: boolean): Maybe<T>|Maybe<JSONValue<T>> {
-        const val = this.data.values[index];
-        if (val == null) return val as Nil;
-        if (!json || !this.valueToJSON) return val;
+        const valIndex = this.data.indices[index];
+        if (valIndex === undefined) return undefined;
+        if (valIndex === -1) return null;
+
+        const val = this.data.values[valIndex];
+        if (!json || !this.valueToJSON) {
+            return val;
+        }
         return this.valueToJSON(val);
     }
 
@@ -116,9 +126,11 @@ export abstract class Vector<T = unknown> {
      * Create a new Vector with the range of values
     */
     slice(start?: number, end?: number): Vector<T> {
+        // FIXME
         return this.fork(Object.freeze({
-            values: Object.freeze(
-                this.data.values.slice(start, end)
+            ...this.data,
+            indices: Object.freeze(
+                this.data.indices.slice(start, end)
             )
         }));
     }

@@ -1,4 +1,4 @@
-import { DataTypeFieldConfig, DataTypeFields, Maybe } from '@terascope/types';
+import { DataTypeFieldConfig, DataTypeFields } from '@terascope/types';
 import {
     Vector, VectorType
 } from '../vector';
@@ -40,10 +40,12 @@ export abstract class Builder<T = unknown> {
             vector.childConfig
         );
 
-        const min = Math.min(vector.size, length);
-        for (let i = 0; i < min; i++) {
-            builder.values[i] = vector.get(i) as Maybe<R>;
-        }
+        const { data } = vector.slice(0, length);
+        // @ts-expect-error
+        builder.values = data.values.slice();
+        // @ts-expect-error
+        builder.indices = data.indices.slice();
+        builder.nullCount = data.nullCount;
         builder.currentIndex = vector.size;
         return builder;
     }
@@ -71,10 +73,25 @@ export abstract class Builder<T = unknown> {
     readonly childConfig?: DataTypeFields;
 
     /**
-     * The values used to create the Vector.
-     * Do NOT mutate this.
+     * The real index to values index lookup
+     *
+     * @internal
     */
-    readonly values: Maybe<T>[];
+    readonly indices: number[];
+
+    /**
+    * The unique values
+    *
+    * @internal
+   */
+    readonly values: T[];
+
+    /**
+    * The number of null values
+    *
+    * @internal
+   */
+    nullCount: number;
 
     /**
      * The current insertion index (used for append)
@@ -94,7 +111,9 @@ export abstract class Builder<T = unknown> {
         this.config = { ...config };
         this.valueFrom = valueFrom;
         this.childConfig = childConfig ? { ...childConfig } : undefined;
-        this.values = length != null ? Array(length) : [];
+        this.values = [];
+        this.indices = length != null ? Array(length) : [];
+        this.nullCount = 0;
     }
 
     /**
@@ -109,11 +128,19 @@ export abstract class Builder<T = unknown> {
     */
     set(index: number, value: unknown): Builder<T> {
         if (value == null) {
-            this.values[index] = null;
+            this.indices[index] = -1;
+            this.nullCount++;
         } else {
-            this.values[index] = (
+            const val = (
                 this.valueFrom ? this.valueFrom(value, this) : value
             ) as T;
+            const valIndex = this.values.indexOf(val);
+            if (valIndex === -1) {
+                const newValueIndex = this.values.push(val) - 1;
+                this.indices[index] = newValueIndex;
+            } else {
+                this.indices[index] = valIndex;
+            }
         }
         return this;
     }
@@ -130,11 +157,15 @@ export abstract class Builder<T = unknown> {
     */
     toVector(): Vector<T> {
         const vector = Vector.make({ ...this.config }, Object.freeze({
-            values: Object.freeze(this.values)
+            indices: Object.freeze(this.indices),
+            values: Object.freeze(this.values),
+            nullCount: this.nullCount,
         }), this.childConfig);
 
         // @ts-expect-error
         this.values = [];
+        // @ts-expect-error
+        this.indices = [];
         this.currentIndex = 0;
         return vector;
     }
