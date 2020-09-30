@@ -58,8 +58,6 @@ export abstract class Vector<T = unknown> {
     */
     sortable = true;
 
-    protected readonly _size: number;
-
     constructor(
         /**
          * This will be set automatically by specific Vector classes
@@ -75,7 +73,6 @@ export abstract class Vector<T = unknown> {
 
         this.data = data;
         this.childConfig = childConfig;
-        this._size = this.data.indices.length;
     }
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
@@ -92,7 +89,7 @@ export abstract class Vector<T = unknown> {
      * Returns the number items in the Vector
     */
     get size(): number {
-        return this._size;
+        return this.data.indices.length;
     }
 
     /**
@@ -144,10 +141,11 @@ export abstract class Vector<T = unknown> {
             throw new Error(`Sorting is not supported for ${this.constructor.name}`);
         }
 
-        const indices: number[] = Array(this._size);
-        const original: [number, Maybe<T>][] = Array(this._size);
+        const len = this.size;
+        const indices: number[] = Array(len);
+        const original: [number, Maybe<T>][] = Array(len);
 
-        for (let i = 0; i < this._size; i++) {
+        for (let i = 0; i < len; i++) {
             original[i] = [i, this.get(i) as Maybe<T>];
         }
 
@@ -155,7 +153,7 @@ export abstract class Vector<T = unknown> {
             .sort(([, a], [, b]) => this.compare(a, b))
             .forEach(([i], newPosition) => {
                 if (direction === 'desc') {
-                    indices[i] = Math.abs(newPosition - (this._size - 1));
+                    indices[i] = Math.abs(newPosition - (len - 1));
                 } else {
                     indices[i] = newPosition;
                 }

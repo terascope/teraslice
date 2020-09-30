@@ -117,6 +117,12 @@ export function validateFieldTransformArgs<A extends Record<string, any>>(
     return result;
 }
 
+const emptyData: Data<any> = Object.freeze({
+    values: Object.freeze([]),
+    indices: Object.freeze([]),
+    nullCount: 0
+});
+
 export function validateFieldTransformType(
     accepts: VectorType[], vector: Vector<any>
 ): void {
@@ -125,7 +131,7 @@ export function validateFieldTransformType(
     const type = vector.type === VectorType.List ? Vector.make({
         ...vector.config,
         array: false,
-    }, { values: [] } as Data<any>).type : vector.type;
+    }, emptyData).type : vector.type;
 
     if (!accepts.includes(type)) {
         throw new Error(`Incompatible with field type ${type}, must be ${joinList(accepts)}`);
