@@ -56,5 +56,5 @@ export type Data<T> = Readonly<{
 }>;
 
 export type DataValueTuple<T> = readonly [
-    count: number, value: T|null
+    indices: readonly number[], value: T|null
 ];

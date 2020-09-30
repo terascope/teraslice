@@ -2,6 +2,7 @@ import {
     DataTypeConfig, ReadonlyDataTypeConfig,
     Maybe, SortOrder
 } from '@terascope/types';
+import { times } from '@terascope/utils';
 import { Column } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import { columnsToDataTypeConfig, distributeRowsToColumns } from './utils';
@@ -203,13 +204,11 @@ export class DataFrame<
         const indices: number[] = [];
 
         for (let i = 0; i < this._size; i++) {
-            const row: Partial<T> = {};
             let passed = true;
             for (const field in filters) {
                 if (Object.prototype.hasOwnProperty.call(filters, field)) {
                     const col = this.getColumn(field)!;
                     const value = col.vector.get(i) as any;
-                    row[field] = value;
 
                     if (!filters[field]!(value)) {
                         passed = false;
@@ -281,28 +280,36 @@ export class DataFrame<
 
         if (!len) return this;
 
-        const total = len + this._size;
         const builders = new Map<string, Builder>();
 
+        const total = len + this._size;
         for (const col of this.columns) {
             builders.set(
-                col.name, Builder.makeFromVector(
-                    col.vector, total
-                )
+                col.name, Builder.makeFromVector(col.vector, total)
             );
         }
 
         if (arg[0] instanceof Column) {
             const columns = (arg as Column[]);
 
+            let _indices: number[]|undefined;
             for (const [field, builder] of builders) {
                 const col = columns.find(((c) => c.name === field));
-                for (let i = 0; i < len; i++) {
-                    if (col) {
-                        builder.append(col.vector.get(i));
-                    } else {
-                        builder.append(null);
+                if (col) {
+                    for (const [indices, value] of col.vector.values()) {
+                        builder.multiSet(indices, value);
                     }
+
+                    const remaining = len - col.size;
+                    if (remaining > 0) {
+                        builder.multiSet(
+                            times(remaining, (n) => n + col.size),
+                            null
+                        );
+                    }
+                } else {
+                    _indices ??= times(len);
+                    builder.multiSet(_indices, null);
                 }
             }
         } else {

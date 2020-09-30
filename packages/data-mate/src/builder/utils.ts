@@ -2,7 +2,6 @@ import { getGroupedFields } from '@terascope/data-types';
 import {
     DataTypeConfig, DataTypeFieldConfig, DataTypeFields, FieldType
 } from '@terascope/types';
-import { DataValueTuple } from '../vector';
 import { Builder, BuilderOptions } from './Builder';
 import { ListBuilder } from './ListBuilder';
 import {
@@ -36,10 +35,6 @@ export function _newBuilder<T>(
     config: DataTypeFieldConfig,
     length?: number,
     childConfig?: DataTypeFields,
-    /** @internal */
-    indices?: (string|null)[],
-    /** @internal */
-    entries?: [string|null, DataValueTuple<any>][],
 ): Builder<T> {
     const fieldType = config.type as FieldType;
     if (!(fieldType in FieldType)) {
@@ -48,12 +43,12 @@ export function _newBuilder<T>(
 
     if (config.array) {
         return new ListBuilder({
-            config, length, childConfig, indices, entries
+            config, length, childConfig
         }) as Builder<any>;
     }
 
     return _newBuilderForType(
-        config, length, childConfig, indices, entries
+        config, length, childConfig
     ) as Builder<T>;
 }
 
@@ -64,13 +59,9 @@ function _newBuilderForType(
     config: DataTypeFieldConfig,
     length?: number,
     childConfig?: DataTypeFields,
-    /** @internal */
-    indices?: (string|null)[],
-    /** @internal */
-    entries?: [string|null, DataValueTuple<any>][],
 ) {
     const options: BuilderOptions<any> = {
-        config, length, childConfig, indices, entries
+        config, length, childConfig
     };
     switch (config.type) {
         case FieldType.String:

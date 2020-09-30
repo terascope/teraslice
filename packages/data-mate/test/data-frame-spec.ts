@@ -356,15 +356,16 @@ describe('DataFrame', () => {
                 const resultFrame = dataFrame.concat([]);
 
                 expect(resultFrame.id).toEqual(dataFrame.id);
+                expect(resultFrame.size).toEqual(dataFrame.size);
             });
 
             it('should be able to append the existing columns', () => {
                 const resultFrame = dataFrame.concat(dataFrame.columns);
 
-                expect(resultFrame.size).toEqual(dataFrame.size * 2);
                 expect(resultFrame.toJSON()).toEqual(
                     dataFrame.toJSON().concat(dataFrame.toJSON())
                 );
+                expect(resultFrame.size).toEqual(dataFrame.size * 2);
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
             });
 
@@ -373,7 +374,6 @@ describe('DataFrame', () => {
                     col.fork(col.vector.slice(0, i + 1))
                 )));
 
-                expect(resultFrame.size).toEqual(6);
                 expect(resultFrame.toJSON()).toEqual([
                     ...dataFrame.toJSON(),
                     {
@@ -389,6 +389,7 @@ describe('DataFrame', () => {
                         friends: ['Jill']
                     },
                 ]);
+                expect(resultFrame.size).toEqual(6);
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
             });
 
@@ -404,7 +405,6 @@ describe('DataFrame', () => {
                     }
                 ]);
 
-                expect(resultFrame.size).toEqual(5);
                 expect(resultFrame.toJSON()).toEqual(
                     dataFrame.toJSON().concat([
                         {
@@ -417,6 +417,7 @@ describe('DataFrame', () => {
                         }
                     ] as any[])
                 );
+                expect(resultFrame.size).toEqual(5);
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
             });
         });

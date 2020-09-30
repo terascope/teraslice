@@ -85,6 +85,10 @@ export abstract class Vector<T = unknown> {
         }
     }
 
+    * values(): IterableIterator<DataValueTuple<T>> {
+        yield* this.data.values.values();
+    }
+
     get [HASH_CODE_SYMBOL](): string {
         if (this.__cachedHash) return this.__cachedHash;
 

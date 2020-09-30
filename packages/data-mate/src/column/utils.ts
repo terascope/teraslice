@@ -33,23 +33,23 @@ export function mapVector<T, R = T>(
     );
 
     if (transform.mode === TransformMode.NONE) {
-        for (const value of vector) {
-            builder.append(value);
+        for (const val of vector.values()) {
+            builder.multiSet(val[0], val[1]);
         }
         return builder.toVector();
     }
 
     if (transform.mode === TransformMode.EACH) {
-        for (const value of vector) {
-            builder.append(transform.fn(value));
+        for (const val of vector.values()) {
+            builder.multiSet(val[0], transform.fn(val[1]));
         }
         return builder.toVector();
     }
 
     if (transform.mode === TransformMode.EACH_VALUE) {
-        for (const value of vector) {
+        for (const [indices, value] of vector.values()) {
             if (transform.skipNulls !== false && value == null) {
-                builder.append(null);
+                builder.multiSet(indices, null);
             } else if (isVector<T>(value)) {
                 const values: Maybe<R>[] = [];
                 for (const val of value) {
@@ -61,9 +61,10 @@ export function mapVector<T, R = T>(
                         );
                     }
                 }
-                builder.append(values);
+                builder.multiSet(indices, values);
             } else {
-                builder.append(
+                builder.multiSet(
+                    indices,
                     transform.fn(value as any)
                 );
             }
