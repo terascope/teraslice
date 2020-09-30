@@ -2,7 +2,8 @@ import { getGroupedFields } from '@terascope/data-types';
 import {
     DataTypeConfig, DataTypeFieldConfig, DataTypeFields, FieldType
 } from '@terascope/types';
-import { Builder } from './Builder';
+import { DataValueTuple } from '../vector';
+import { Builder, BuilderOptions } from './Builder';
 import { ListBuilder } from './ListBuilder';
 import {
     AnyBuilder, BigIntBuilder, BooleanBuilder,
@@ -34,7 +35,11 @@ export function getBuildersForConfig<T extends Record<string, any> = Record<stri
 export function _newBuilder<T>(
     config: DataTypeFieldConfig,
     length?: number,
-    childConfig?: DataTypeFields
+    childConfig?: DataTypeFields,
+    /** @internal */
+    indices?: (string|null)[],
+    /** @internal */
+    entries?: [string|null, DataValueTuple<any>][],
 ): Builder<T> {
     const fieldType = config.type as FieldType;
     if (!(fieldType in FieldType)) {
@@ -42,10 +47,14 @@ export function _newBuilder<T>(
     }
 
     if (config.array) {
-        return new ListBuilder({ config, length, childConfig }) as Builder<any>;
+        return new ListBuilder({
+            config, length, childConfig, indices, entries
+        }) as Builder<any>;
     }
 
-    return _newBuilderForType(config, length, childConfig) as Builder<T>;
+    return _newBuilderForType(
+        config, length, childConfig, indices, entries
+    ) as Builder<T>;
 }
 
 /**
@@ -54,8 +63,15 @@ export function _newBuilder<T>(
 function _newBuilderForType(
     config: DataTypeFieldConfig,
     length?: number,
-    childConfig?: DataTypeFields
+    childConfig?: DataTypeFields,
+    /** @internal */
+    indices?: (string|null)[],
+    /** @internal */
+    entries?: [string|null, DataValueTuple<any>][],
 ) {
+    const options: BuilderOptions<any> = {
+        config, length, childConfig, indices, entries
+    };
     switch (config.type) {
         case FieldType.String:
         case FieldType.Text:
@@ -66,34 +82,34 @@ function _newBuilderForType(
         case FieldType.KeywordPathAnalyzer:
         case FieldType.Domain:
         case FieldType.Hostname:
-            return new StringBuilder({ config, length });
+            return new StringBuilder(options);
         case FieldType.IP:
-            return new IPBuilder({ config, length });
+            return new IPBuilder(options);
         case FieldType.IPRange:
-            return new IPRangeBuilder({ config, length });
+            return new IPRangeBuilder(options);
         case FieldType.Date:
-            return new DateBuilder({ config, length });
+            return new DateBuilder(options);
         case FieldType.Boolean:
-            return new BooleanBuilder({ config, length });
+            return new BooleanBuilder(options);
         case FieldType.Float:
         case FieldType.Number:
         case FieldType.Double:
             // Double can't supported entirely until we have BigFloat
-            return new FloatBuilder({ config, length });
+            return new FloatBuilder(options);
         case FieldType.Byte:
         case FieldType.Short:
         case FieldType.Integer:
-            return new IntBuilder({ config, length });
+            return new IntBuilder(options);
         case FieldType.Long:
-            return new BigIntBuilder({ config, length });
+            return new BigIntBuilder(options);
         case FieldType.Geo:
         case FieldType.GeoPoint:
-            return new GeoPointBuilder({ config, length });
+            return new GeoPointBuilder(options);
         case FieldType.GeoJSON:
-            return new GeoJSONBuilder({ config, length });
+            return new GeoJSONBuilder(options);
         case FieldType.Object:
-            return new ObjectBuilder({ config, length, childConfig });
+            return new ObjectBuilder(options);
         default:
-            return new AnyBuilder({ config, length });
+            return new AnyBuilder(options);
     }
 }

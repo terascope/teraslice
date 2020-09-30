@@ -16,11 +16,15 @@ export abstract class Builder<T = unknown> {
     static make<R = unknown>(
         config: DataTypeFieldConfig,
         length?: number,
-        childConfig?: DataTypeFields
+        childConfig?: DataTypeFields,
+        /** @internal */
+        indices?: (string|null)[],
+        /** @internal */
+        entries?: [string|null, DataValueTuple<R>][],
     ): Builder<R> {
         throw new Error(
             `This will functionality replaced in the index file
-            ${config} ${length} ${childConfig}`
+            ${config} ${length} ${childConfig} ${indices} ${entries}`
         );
     }
 
@@ -35,18 +39,24 @@ export abstract class Builder<T = unknown> {
         if (length == null) {
             throw new Error('Builder.makeFromVector requires a length');
         }
+
         // FIXME handle when length is less than the Vector size
 
-        const builder = Builder.make<R>(
-            vector.config,
-            length,
-            vector.childConfig
-        );
-
-        for (const val of vector) {
-            builder.append(val);
+        const indices = vector.data.indices.slice(0, length);
+        const entries: [string|null, DataValueTuple<R>][] = [];
+        for (const [hash, val] of vector.data.values) {
+            if (indices.includes(hash)) {
+                entries.push([hash, val]);
+            }
         }
-        return builder;
+
+        return Builder.make<R>(
+            vector.config,
+            undefined,
+            vector.childConfig,
+            indices,
+            entries,
+        );
     }
 
     /**
@@ -100,15 +110,18 @@ export abstract class Builder<T = unknown> {
          */
         type: VectorType,
         {
-            config, length, valueFrom, childConfig
-        }: BuilderOptions<T>
+            config, length, valueFrom, childConfig, entries, indices
+        }: BuilderOptions<T>,
     ) {
         this.type = type;
         this.config = { ...config };
         this.valueFrom = wrapValueFrom(valueFrom);
         this.childConfig = childConfig ? { ...childConfig } : undefined;
-        this.indices = length != null ? Array(length) : [];
-        this.values = new Map();
+        this.indices = indices ?? (length != null ? Array(length) : []);
+        if (indices) {
+            this.currentIndex = indices.length;
+        }
+        this.values = new Map(entries);
     }
 
     /**
@@ -189,4 +202,8 @@ export interface BuilderOptions<T> {
      * The type config for any nested fields (currently only works for objects)
     */
     childConfig?: DataTypeFields;
+    /** @internal */
+    indices?: (string|null)[],
+    /** @internal */
+    entries?: [string|null, DataValueTuple<T>][],
 }

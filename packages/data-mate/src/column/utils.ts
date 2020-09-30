@@ -33,24 +33,21 @@ export function mapVector<T, R = T>(
     );
 
     if (transform.mode === TransformMode.NONE) {
-        for (let i = 0; i < vector.size; i++) {
-            const value = vector.get(i) as Maybe<T|Vector<T>>;
+        for (const value of vector) {
             builder.append(value);
         }
         return builder.toVector();
     }
 
     if (transform.mode === TransformMode.EACH) {
-        for (let i = 0; i < vector.size; i++) {
-            const value = vector.get(i) as Maybe<T|Vector<T>>;
+        for (const value of vector) {
             builder.append(transform.fn(value));
         }
         return builder.toVector();
     }
 
     if (transform.mode === TransformMode.EACH_VALUE) {
-        for (let i = 0; i < vector.size; i++) {
-            const value = vector.get(i) as Maybe<T|Vector<T>>;
+        for (const value of vector) {
             if (transform.skipNulls !== false && value == null) {
                 builder.append(null);
             } else if (isVector<T>(value)) {
@@ -75,22 +72,6 @@ export function mapVector<T, R = T>(
     }
 
     throw new Error(`Unknown transformation ${toString(transform)}`);
-}
-
-export function isSameFieldConfig(
-    a: Readonly<DataTypeFieldConfig>, b: Readonly<DataTypeFieldConfig>
-): boolean {
-    if (a.type !== b.type) return false;
-
-    const aArray = a.array ?? false;
-    const bArray = a.array ?? false;
-    if (aArray !== bArray) return false;
-
-    if (a.format !== b.format) return false;
-
-    if (a.locale !== b.locale) return false;
-
-    return true;
 }
 
 export function validateFieldTransformArgs<A extends Record<string, any>>(

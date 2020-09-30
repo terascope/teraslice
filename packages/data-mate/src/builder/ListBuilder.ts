@@ -1,6 +1,7 @@
 import { castArray } from '@terascope/utils';
 import { Builder, BuilderOptions } from './Builder';
 import { Vector, VectorType } from '../vector';
+import { isSameFieldConfig } from '../core-utils';
 
 export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
     static valueFrom(values: unknown, thisArg?: ListBuilder<any>): Vector<any> {
@@ -9,7 +10,9 @@ export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
         }
         let arr: unknown[];
         if (values instanceof Vector) {
-            if (values.type === thisArg.type) return values;
+            if (isSameFieldConfig(values.config, thisArg.config)) {
+                return values;
+            }
             arr = [...values];
         } else {
             arr = castArray(values);

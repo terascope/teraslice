@@ -29,9 +29,7 @@ export class ObjectBuilder<
         const result: Partial<R> = {};
 
         for (const field of fields) {
-            if (input[field] == null) {
-                result[field] = null as any;
-            } else {
+            if (input[field] != null) {
                 const config = thisArg.childConfig[field as string];
                 // FIXME this could be improved to use the static method
                 const builder = Builder.make<any>(config);

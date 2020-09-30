@@ -227,8 +227,8 @@ describe('Column (Boolean Types)', () => {
                 null,
                 [false],
                 [false],
-                [null, true],
-                [null]
+                [true, true],
+                [true]
             ]);
         });
     });

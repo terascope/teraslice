@@ -87,7 +87,13 @@ export abstract class Vector<T = unknown> {
 
     get [HASH_CODE_SYMBOL](): string {
         if (this.__cachedHash) return this.__cachedHash;
-        return md5(this.data.indices.join());
+
+        const prefix = `${this.type}:${this.config.type}:${this.data.indices.length}`;
+        const suffix = this.data.indices.join();
+        const hash = md5(`${prefix}:${suffix}`);
+
+        this.__cachedHash = hash;
+        return hash;
     }
 
     /**
