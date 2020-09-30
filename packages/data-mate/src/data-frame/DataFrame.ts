@@ -4,9 +4,9 @@ import {
 } from '@terascope/types';
 import { Column } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
-import { md5 } from '../vector/utils';
 import { columnsToDataTypeConfig, distributeRowsToColumns } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
+import { md5 } from '../core-utils';
 
 /**
  * An immutable columnar table with APIs for data pipelines.

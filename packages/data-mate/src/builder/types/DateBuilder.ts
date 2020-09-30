@@ -1,5 +1,6 @@
 import { DateFormat } from '@terascope/types';
-import { DateValue, VectorType } from '../../vector';
+import { DateValue } from '../../core-utils';
+import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 
 export class DateBuilder extends Builder<DateValue> {

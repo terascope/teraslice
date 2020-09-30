@@ -4,9 +4,10 @@ import {
     KeyAggregation, ValueAggregation, valueAggMap,
     FieldAgg, KeyAggFn, keyAggMap
 } from '../column';
-import { md5, isNumberLike } from '../vector';
+import { isNumberLike } from '../vector';
 import { Builder } from '../builder';
 import { getBuilderForField } from './utils';
+import { md5 } from '../core-utils';
 
 /**
  * A frame dedicated to running a aggregations

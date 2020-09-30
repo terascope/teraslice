@@ -1,4 +1,5 @@
 import { getTypeOf, isPlainObject, toString } from '@terascope/utils';
+import { createObject } from '../../core-utils';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions, ValueFromFn } from '../Builder';
 
@@ -16,12 +17,12 @@ export class ObjectBuilder<
         }
 
         if (thisArg.childConfig == null) {
-            return { ...(value as R) };
+            return createObject(value as R);
         }
 
         const fields = Object.keys(thisArg.childConfig) as (keyof R)[];
         if (!fields.length) {
-            return { ...(value as R) };
+            return createObject(value as R);
         }
 
         const input = value as Record<keyof R, unknown>;
@@ -39,7 +40,8 @@ export class ObjectBuilder<
                 ) : input[field] as any;
             }
         }
-        return { ...result } as R;
+
+        return createObject(result as R);
     }
 
     constructor(options: BuilderOptions<T>) {
@@ -47,5 +49,9 @@ export class ObjectBuilder<
             valueFrom: ObjectBuilder.valueFrom as ValueFromFn<T>,
             ...options,
         });
+    }
+
+    indexOf(value: T): number {
+        return this.values.indexOf(value);
     }
 }

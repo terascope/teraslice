@@ -4,8 +4,9 @@ import {
 } from '@terascope/utils';
 import { Maybe } from '@terascope/types';
 import {
-    DateValue, Vector, VectorType, createKeyForValue, getNumericValues
+    Vector, VectorType, getNumericValues
 } from '../vector';
+import { DateValue, createKeyForValue } from '../core-utils';
 
 export enum ValueAggregation {
     avg = 'avg',

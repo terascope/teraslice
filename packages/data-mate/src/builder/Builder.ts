@@ -134,7 +134,7 @@ export abstract class Builder<T = unknown> {
             const val = (
                 this.valueFrom ? this.valueFrom(value, this) : value
             ) as T;
-            const valIndex = this.values.indexOf(val);
+            const valIndex = this.indexOf(val);
             if (valIndex === -1) {
                 const newValueIndex = this.values.push(val) - 1;
                 this.indices[index] = newValueIndex;
@@ -143,6 +143,13 @@ export abstract class Builder<T = unknown> {
             }
         }
         return this;
+    }
+
+    /**
+     * Get the index of an element, returns -1 if not found
+    */
+    indexOf(value: T): number {
+        return this.values.indexOf(value);
     }
 
     /**
