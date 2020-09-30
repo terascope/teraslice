@@ -118,9 +118,8 @@ export function validateFieldTransformArgs<A extends Record<string, any>>(
 }
 
 const emptyData: Data<any> = Object.freeze({
-    values: Object.freeze([]),
+    values: new Map(),
     indices: Object.freeze([]),
-    nullCount: 0
 });
 
 export function validateFieldTransformType(

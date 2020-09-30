@@ -1,5 +1,6 @@
 import { ESGeoShapeType, GeoShape, GeoShapeType } from '@terascope/types';
 import { getTypeOf, isGeoJSON, toString } from '@terascope/utils';
+import { createObject } from '../../core-utils';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 
@@ -14,8 +15,10 @@ export class GeoJSONBuilder extends Builder<GeoShape> {
             throw new TypeError(`Expected ${toString(value)} (${getTypeOf(value)}) to be a valid GeoJSON shape`);
         }
         const type = esTypeMap[value.type] ? esTypeMap[value.type] : value.type;
-        return { ...value, type };
+        return createObject({ ...value, type });
     }
+
+    isPrimitive = false;
 
     constructor(options: BuilderOptions<GeoShape>) {
         super(VectorType.GeoJSON, {

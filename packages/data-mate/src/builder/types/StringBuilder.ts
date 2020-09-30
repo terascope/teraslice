@@ -21,6 +21,8 @@ export class StringBuilder extends Builder<string> {
         return toString(value);
     }
 
+    isPrimitive = true;
+
     constructor(options: BuilderOptions<string>) {
         super(VectorType.String, {
             valueFrom: StringBuilder.valueFrom,

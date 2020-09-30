@@ -1,6 +1,6 @@
 import { Vector, VectorOptions } from '../Vector';
 import { Data, VectorType } from '../interfaces';
-import { DateValue } from './DateValue';
+import { DateValue } from '../../core-utils';
 
 export class DateVector extends Vector<DateValue> {
     static valueToJSON({ value, formatted }: DateValue): string|number {

@@ -6,7 +6,7 @@ import {
 } from '../../src';
 
 describe('Column (Number Types)', () => {
-    describe(`when field type is ${FieldType.Short}`, () => {
+    describe('when field type is Short', () => {
         let col: Column<number>;
         const values: Maybe<number>[] = [
             7,
@@ -126,7 +126,7 @@ describe('Column (Number Types)', () => {
         });
     });
 
-    describe(`when field type is ${FieldType.Float}`, () => {
+    describe('when field type is Float', () => {
         let col: Column<number>;
         const values: Maybe<number>[] = [
             7.92334,
@@ -278,7 +278,7 @@ describe('Column (Number Types)', () => {
         });
     });
 
-    describe(`when field type is ${FieldType.Long}`, () => {
+    describe('when field type is Long', () => {
         let col: Column<bigint>;
         const multiplier = BigInt(20);
         const values: Maybe<bigint>[] = [

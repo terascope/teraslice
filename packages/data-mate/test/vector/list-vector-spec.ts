@@ -41,7 +41,11 @@ describe('ListVector', () => {
         });
 
         it('should have the correct distinct values', () => {
-            expect(vector.distinct()).toBe(new Set(expected.map(toString)).size);
+            if (type === FieldType.Any) {
+                expect(vector.distinct()).toBe(new Set(expected).size);
+            } else {
+                expect(vector.distinct()).toBe(new Set(expected.map(toString)).size);
+            }
         });
 
         it('should have the correct field config', () => {

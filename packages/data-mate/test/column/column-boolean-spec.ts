@@ -7,7 +7,7 @@ import {
 } from '../../src';
 
 describe('Column (Boolean Types)', () => {
-    describe(`when field type is ${FieldType.Boolean}`, () => {
+    describe('when field type is Boolean', () => {
         let col: Column<boolean>;
         const values: Maybe<boolean>[] = [
             true,
@@ -66,7 +66,7 @@ describe('Column (Boolean Types)', () => {
         });
     });
 
-    describe(`when field type is ${FieldType.Keyword}`, () => {
+    describe('when field type is Keyword', () => {
         let col: Column<string>;
         const values: Maybe<string>[] = [
             'True',
@@ -144,7 +144,7 @@ describe('Column (Boolean Types)', () => {
         });
     });
 
-    describe(`when field type is ${FieldType.Keyword} and is an array`, () => {
+    describe('when field type is Keyword and is an array', () => {
         let col: Column<Vector<string>>;
         const values: Maybe<string[]>[] = [
             ['True'],
@@ -187,11 +187,15 @@ describe('Column (Boolean Types)', () => {
         it('should be able to validate using isBoolean', () => {
             const newCol = col.validate(ColumnValidator.isBoolean);
             expect(newCol.id).not.toBe(col.id);
-            expect(newCol.toJSON()).toEqual(
-                values.map((val) => (
-                    Array.isArray(val) ? val.map(() => null) : null
-                ))
-            );
+            expect(newCol.toJSON()).toEqual([
+                [null],
+                [],
+                null,
+                [null],
+                [null],
+                [null, null],
+                [null]
+            ]);
         });
 
         it('should be able to validate using isBooleanLike', () => {
@@ -217,13 +221,15 @@ describe('Column (Boolean Types)', () => {
                 type: FieldType.Boolean
             });
 
-            expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return null;
-
-                return value.map((val) => (
-                    val != null ? toBoolean(val) : null
-                ));
-            }));
+            expect(newCol.toJSON()).toEqual([
+                [true],
+                [],
+                null,
+                [false],
+                [false],
+                [null, true],
+                [null]
+            ]);
         });
     });
 });

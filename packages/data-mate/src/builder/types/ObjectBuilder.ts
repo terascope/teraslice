@@ -35,23 +35,21 @@ export class ObjectBuilder<
                 const config = thisArg.childConfig[field as string];
                 // FIXME this could be improved to use the static method
                 const builder = Builder.make<any>(config);
-                result[field] = builder.valueFrom ? builder.valueFrom(
+                result[field] = builder.valueFrom(
                     input[field], builder
-                ) : input[field] as any;
+                );
             }
         }
 
         return createObject(result as R);
     }
 
+    isPrimitive = false;
+
     constructor(options: BuilderOptions<T>) {
         super(VectorType.Object, {
             valueFrom: ObjectBuilder.valueFrom as ValueFromFn<T>,
             ...options,
         });
-    }
-
-    indexOf(value: T): number {
-        return this.values.indexOf(value);
     }
 }

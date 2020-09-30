@@ -3,7 +3,8 @@ import {
     Maybe, SortOrder,
     ReadonlyDataTypeFields
 } from '@terascope/types';
-import { Data, VectorType } from './interfaces';
+import { HASH_CODE_SYMBOL, md5 } from '../core-utils';
+import { Data, DataValueTuple, VectorType } from './interfaces';
 
 /**
  * An immutable typed Array class with a constrained API.
@@ -58,6 +59,8 @@ export abstract class Vector<T = unknown> {
     */
     sortable = true;
 
+    private __cachedHash?: string|undefined;
+
     constructor(
         /**
          * This will be set automatically by specific Vector classes
@@ -77,12 +80,14 @@ export abstract class Vector<T = unknown> {
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
         for (const valIndex of this.data.indices) {
-            if (valIndex === -1) {
-                yield null;
-            } else {
-                yield this.data.values[valIndex];
-            }
+            const [, value] = this.data.values.get(valIndex)!;
+            yield value;
         }
+    }
+
+    get [HASH_CODE_SYMBOL](): string {
+        if (this.__cachedHash) return this.__cachedHash;
+        return md5(this.data.indices.join());
     }
 
     /**
@@ -96,22 +101,22 @@ export abstract class Vector<T = unknown> {
      * Gets the number distinct values in the Vector
     */
     distinct(): number {
-        return this.data.values.length;
+        return this.data.values.size;
     }
 
     /**
      * Get value by index
     */
     get(index: number, json?: boolean): Maybe<T>|Maybe<JSONValue<T>> {
-        const valIndex = this.data.indices[index];
-        if (valIndex === undefined) return undefined;
-        if (valIndex === -1) return null;
+        const hash = this.data.indices[index];
+        // return the hash so we can pass through undefined
+        if (hash == null) return hash;
 
-        const val = this.data.values[valIndex];
+        const [, val] = this.data.values.get(hash)!;
         if (!json || !this.valueToJSON) {
             return val;
         }
-        return this.valueToJSON(val);
+        return this.valueToJSON(val as T);
     }
 
     /**
@@ -123,12 +128,16 @@ export abstract class Vector<T = unknown> {
      * Create a new Vector with the range of values
     */
     slice(start?: number, end?: number): Vector<T> {
-        // FIXME
+        const indices = this.data.indices.slice(start, end);
+        const entries: [string|null, DataValueTuple<T>][] = [];
+        for (const [hash, val] of this.data.values) {
+            if (indices.includes(hash)) {
+                entries.push([hash, val]);
+            }
+        }
         return this.fork(Object.freeze({
-            ...this.data,
-            indices: Object.freeze(
-                this.data.indices.slice(start, end)
-            )
+            values: new Map(entries),
+            indices: Object.freeze(indices)
         }));
     }
 

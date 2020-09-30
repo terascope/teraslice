@@ -5,7 +5,7 @@ import {
 } from '../../src';
 
 describe('Column (Date Types)', () => {
-    describe(`when field type is ${FieldType.Date}`, () => {
+    describe('when field type is Date', () => {
         let col: Column<DateValue>;
         const values: Maybe<any>[] = [
             '2020-09-23T14:54:21.020Z',
@@ -89,7 +89,7 @@ describe('Column (Date Types)', () => {
         test.todo('should NOT able to transform without using formatDate()');
     });
 
-    describe(`when field type is ${FieldType.Keyword}`, () => {
+    describe('when field type is Keyword', () => {
         let col: Column<string>;
         const values: Maybe<string>[] = [
             '2020-09-23',
@@ -126,7 +126,7 @@ describe('Column (Date Types)', () => {
         });
     });
 
-    describe(`when field type is ${FieldType.Keyword} (with time)`, () => {
+    describe('when field type is Keyword (with time)', () => {
         let col: Column<string>;
         const values: Maybe<string>[] = [
             '2018-02-02 00:23:01',
@@ -167,7 +167,7 @@ describe('Column (Date Types)', () => {
         });
     });
 
-    describe(`when field type is ${FieldType.Keyword} (with time and timezone)`, () => {
+    describe('when field type is Keyword (with time and timezone)', () => {
         let col: Column<string>;
         const values: Maybe<string>[] = [
             '2018-02-02 00:23:0 -08:00',
@@ -204,7 +204,7 @@ describe('Column (Date Types)', () => {
         });
     });
 
-    describe(`when field type is ${FieldType.Integer} (millisecond)`, () => {
+    describe('when field type is Integer (millisecond)', () => {
         let col: Column<number>;
         const values: Maybe<number>[] = [
             1600844405020,
@@ -265,7 +265,7 @@ describe('Column (Date Types)', () => {
         });
     });
 
-    describe(`when field type is ${FieldType.Keyword} (millisecond)`, () => {
+    describe('when field type is Keyword (millisecond)', () => {
         let col: Column<string>;
         const values: Maybe<string>[] = [
             '1600844405020',
@@ -294,7 +294,7 @@ describe('Column (Date Types)', () => {
         });
     });
 
-    describe(`when field type is ${FieldType.Integer} (seconds)`, () => {
+    describe('when field type is Integer (seconds)', () => {
         let col: Column<number>;
         const values: Maybe<number>[] = [
             1600844405,

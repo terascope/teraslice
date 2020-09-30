@@ -25,6 +25,8 @@ export class IntBuilder extends Builder<number> {
         return int;
     }
 
+    isPrimitive = true;
+
     constructor(options: BuilderOptions<number>) {
         super(VectorType.Int, {
             valueFrom: IntBuilder.valueFrom,

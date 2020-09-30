@@ -6,7 +6,7 @@ import { Maybe } from '@terascope/types';
 import {
     Vector, VectorType, getNumericValues
 } from '../vector';
-import { DateValue, createKeyForValue } from '../core-utils';
+import { DateValue, getHashCodeFrom } from '../core-utils';
 
 export enum ValueAggregation {
     avg = 'avg',
@@ -234,11 +234,9 @@ function makeDateAgg(dateFormat: string): MakeKeyAggFn {
 function makeUniqueKeyAgg(vector: Vector<unknown>): KeyAggFn {
     return (index) => {
         const value = vector.get(index);
-        if (value == null || value === '') {
-            return { key: undefined, value };
-        }
+        const code = getHashCodeFrom(value);
         return {
-            key: createKeyForValue(value),
+            key: code != null ? code : undefined,
             value
         };
     };

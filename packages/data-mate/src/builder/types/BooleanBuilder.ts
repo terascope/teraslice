@@ -10,6 +10,8 @@ export class BooleanBuilder extends Builder<boolean> {
         return toBoolean(value);
     }
 
+    isPrimitive = true;
+
     constructor(options: BuilderOptions<boolean>) {
         super(VectorType.Boolean, {
             valueFrom: BooleanBuilder.valueFrom,

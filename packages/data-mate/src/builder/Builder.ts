@@ -1,5 +1,7 @@
 import { DataTypeFieldConfig, DataTypeFields } from '@terascope/types';
+import { getHashCodeFrom } from '../core-utils';
 import {
+    DataValueTuple,
     Vector, VectorType
 } from '../vector';
 
@@ -28,11 +30,12 @@ export abstract class Builder<T = unknown> {
     */
     static makeFromVector<R>(
         vector: Vector<R>,
-        length: number
+        length: number,
     ): Builder<R> {
         if (length == null) {
             throw new Error('Builder.makeFromVector requires a length');
         }
+        // FIXME handle when length is less than the Vector size
 
         const builder = Builder.make<R>(
             vector.config,
@@ -40,13 +43,9 @@ export abstract class Builder<T = unknown> {
             vector.childConfig
         );
 
-        const { data } = vector.slice(0, length);
-        // @ts-expect-error
-        builder.values = data.values.slice();
-        // @ts-expect-error
-        builder.indices = data.indices.slice();
-        builder.nullCount = data.nullCount;
-        builder.currentIndex = vector.size;
+        for (const val of vector) {
+            builder.append(val);
+        }
         return builder;
     }
 
@@ -64,7 +63,7 @@ export abstract class Builder<T = unknown> {
      * A function for converting a value to an JSON spec compatible format.
      * This is specific on the vector type classes via a static method usually.
     */
-    readonly valueFrom?: ValueFromFn<T>;
+    readonly valueFrom: ValueFromFn<T>;
 
     /**
      * When Vector is an object type, this will be the data type fields
@@ -77,26 +76,23 @@ export abstract class Builder<T = unknown> {
      *
      * @internal
     */
-    readonly indices: number[];
+    readonly indices: (string|null)[];
 
     /**
-    * The unique values
-    *
-    * @internal
-   */
-    readonly values: T[];
-
-    /**
-    * The number of null values
-    *
-    * @internal
-   */
-    nullCount: number;
+     * When value is not a primitive, we need a way to look up the index by the hash code
+     * @internal
+    */
+    readonly values = new Map<string|null, DataValueTuple<T>>();
 
     /**
      * The current insertion index (used for append)
     */
     currentIndex = 0;
+
+    /**
+     * This changes the behavior in how the unique values are calculated
+    */
+    abstract isPrimitive: boolean;
 
     constructor(
         /**
@@ -109,47 +105,31 @@ export abstract class Builder<T = unknown> {
     ) {
         this.type = type;
         this.config = { ...config };
-        this.valueFrom = valueFrom;
+        this.valueFrom = wrapValueFrom(valueFrom);
         this.childConfig = childConfig ? { ...childConfig } : undefined;
-        this.values = [];
         this.indices = length != null ? Array(length) : [];
-        this.nullCount = 0;
+        this.values = new Map();
     }
 
     /**
      * Returns the number items in the Builder
     */
     get size(): number {
-        return this.values.length;
+        return this.indices.length;
     }
 
     /**
      * Set value by index
     */
     set(index: number, value: unknown): Builder<T> {
-        if (value == null) {
-            this.indices[index] = -1;
-            this.nullCount++;
-        } else {
-            const val = (
-                this.valueFrom ? this.valueFrom(value, this) : value
-            ) as T;
-            const valIndex = this.indexOf(val);
-            if (valIndex === -1) {
-                const newValueIndex = this.values.push(val) - 1;
-                this.indices[index] = newValueIndex;
-            } else {
-                this.indices[index] = valIndex;
-            }
-        }
-        return this;
-    }
+        const val = value == null ? null : this.valueFrom(value, this);
+        const hash = getHashCodeFrom(val, !this.isPrimitive);
 
-    /**
-     * Get the index of an element, returns -1 if not found
-    */
-    indexOf(value: T): number {
-        return this.values.indexOf(value);
+        this.indices[index] = hash;
+
+        const [count, storedVal] = this.values.get(hash) ?? [1, val];
+        this.values.set(hash, [count + 1, storedVal]);
+        return this;
     }
 
     /**
@@ -165,12 +145,11 @@ export abstract class Builder<T = unknown> {
     toVector(): Vector<T> {
         const vector = Vector.make({ ...this.config }, Object.freeze({
             indices: Object.freeze(this.indices),
-            values: Object.freeze(this.values),
-            nullCount: this.nullCount,
+            values: this.values as ReadonlyMap<string|null, DataValueTuple<T>>,
         }), this.childConfig);
 
         // @ts-expect-error
-        this.values = [];
+        this.values = new Map();
         // @ts-expect-error
         this.indices = [];
         this.currentIndex = 0;
@@ -183,6 +162,11 @@ export abstract class Builder<T = unknown> {
  */
 export function isBuilder<T>(input: unknown): input is Builder<T> {
     return input instanceof Builder;
+}
+
+function wrapValueFrom<T>(valueFrom?: ValueFromFn<T>): ValueFromFn<T> {
+    if (valueFrom == null) return (value) => value as T;
+    return valueFrom;
 }
 
 /**

@@ -235,7 +235,7 @@ describe('Vector', () => {
             ],
             [
                 { foo: 'bar', other: { 1: 2 }, arr: [1, 2, 3] },
-                { field1: null, field2: undefined },
+                {},
                 {},
                 null,
                 null
@@ -272,7 +272,11 @@ describe('Vector', () => {
         });
 
         it('should have the correct distinct values', () => {
-            expect(vector.distinct()).toBe(new Set(expected.map(toString)).size);
+            if (type === FieldType.Any) {
+                expect(vector.distinct()).toBe(new Set(expected).size);
+            } else {
+                expect(vector.distinct()).toBe(new Set(expected.map(toString)).size);
+            }
         });
 
         it('should have the correct field config', () => {
@@ -306,7 +310,7 @@ describe('Vector', () => {
         it('should be immutable', () => {
             expect(() => {
                 // @ts-expect-error
-                vector.data.values[0] = '10';
+                vector.data.values = '10';
             }).toThrow();
         });
     });

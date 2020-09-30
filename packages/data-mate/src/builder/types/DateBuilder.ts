@@ -42,6 +42,8 @@ export class DateBuilder extends Builder<DateValue> {
         return dateValue;
     }
 
+    isPrimitive = false;
+
     referenceDate?: Date;
 
     constructor(options: BuilderOptions<DateValue>) {

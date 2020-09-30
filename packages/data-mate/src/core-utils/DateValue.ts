@@ -5,6 +5,7 @@ import {
 import parseDate from 'date-fns/parse';
 import formatDate from 'date-fns/format';
 import { DateFormat } from '@terascope/types';
+import { HASH_CODE_SYMBOL } from './data';
 
 /**
  * The internal date storage format
@@ -88,6 +89,10 @@ export class DateValue {
 
     [Symbol.toPrimitive](hint: 'string'|'number'|'default'): any {
         if (hint === 'number') return this.value;
+        return `${this.formatted ?? this.value}`;
+    }
+
+    get [HASH_CODE_SYMBOL](): string {
         return `${this.formatted ?? this.value}`;
     }
 }

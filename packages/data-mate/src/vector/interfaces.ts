@@ -40,23 +40,21 @@ export enum VectorType {
 */
 export type Data<T> = Readonly<{
     /**
-     * The real index to values index lookup
+     * The index represent the order of the values,
+     * the value is the hash of where to find the index
      *
      * @internal
     */
-    readonly indices: readonly number[];
+    readonly indices: readonly (string|null)[];
 
     /**
      * The unique values
      *
      * @internal
     */
-    readonly values: readonly T[];
-
-    /**
-     * The number of null values
-     *
-     * @internal
-    */
-    readonly nullCount: number;
+    readonly values: ReadonlyMap<string|null, DataValueTuple<T>>;
 }>;
+
+export type DataValueTuple<T> = readonly [
+    count: number, value: T|null
+];

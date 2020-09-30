@@ -6,7 +6,7 @@ import {
 } from '../../src';
 
 describe('Column (String Types)', () => {
-    describe(`when field type is ${FieldType.Keyword}`, () => {
+    describe('when field type is Keyword', () => {
         let col: Column<string>;
         const values: Maybe<string>[] = [
             'Batman',

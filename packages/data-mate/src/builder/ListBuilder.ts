@@ -1,5 +1,4 @@
 import { castArray } from '@terascope/utils';
-import { DataTypeFields } from '@terascope/types';
 import { Builder, BuilderOptions } from './Builder';
 import { Vector, VectorType } from '../vector';
 
@@ -26,13 +25,12 @@ export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
         return builder.toVector();
     }
 
-    childConfig?: DataTypeFields;
+    isPrimitive = false;
 
-    constructor(options: BuilderOptions<Vector<T>> & { childConfig?: DataTypeFields }) {
+    constructor(options: BuilderOptions<Vector<T>>) {
         super(VectorType.List, {
             valueFrom: ListBuilder.valueFrom,
             ...options,
         });
-        this.childConfig = options.childConfig;
     }
 }
