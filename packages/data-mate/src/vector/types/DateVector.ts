@@ -1,5 +1,5 @@
 import { Vector, VectorOptions } from '../Vector';
-import { Data, VectorType } from '../interfaces';
+import { OldData, VectorType } from '../interfaces';
 import { DateValue } from '../../core-utils';
 
 export class DateVector extends Vector<DateValue> {
@@ -14,7 +14,7 @@ export class DateVector extends Vector<DateValue> {
         });
     }
 
-    fork(data: Data<DateValue>): DateVector {
+    fork(data: OldData<DateValue>): DateVector {
         return new DateVector({
             valueToJSON: this.valueToJSON,
             config: this.config,

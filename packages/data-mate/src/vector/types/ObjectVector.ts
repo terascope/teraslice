@@ -1,5 +1,5 @@
 import { Vector, VectorOptions } from '../Vector';
-import { Data, VectorType } from '../interfaces';
+import { OldData, VectorType } from '../interfaces';
 
 /**
  * @todo we need an to serialize to JSON correctly
@@ -12,7 +12,7 @@ export class ObjectVector<
         this.sortable = false;
     }
 
-    fork(data: Data<T>): ObjectVector<T> {
+    fork(data: OldData<T>): ObjectVector<T> {
         return new ObjectVector({
             valueToJSON: this.valueToJSON,
             config: this.config,

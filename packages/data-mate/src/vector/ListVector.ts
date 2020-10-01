@@ -1,5 +1,5 @@
 import { Vector, VectorOptions } from './Vector';
-import { Data, VectorType } from './interfaces';
+import { OldData, VectorType } from './interfaces';
 
 export class ListVector<T = unknown> extends Vector<Vector<T>> {
     static valueToJSON(value: Vector<any>): any {
@@ -14,7 +14,7 @@ export class ListVector<T = unknown> extends Vector<Vector<T>> {
         this.sortable = false;
     }
 
-    fork(data: Data<Vector<T>>): ListVector<T> {
+    fork(data: OldData<Vector<T>>): ListVector<T> {
         return new ListVector({
             valueToJSON: this.valueToJSON,
             config: this.config,

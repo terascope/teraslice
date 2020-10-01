@@ -5,7 +5,7 @@ import {
 } from '@terascope/types';
 import { Builder } from '../builder';
 import {
-    Vector, isVector, VectorType, Data
+    Vector, isVector, VectorType, OldData
 } from '../vector';
 import { ColumnTransformFn, TransformMode } from './interfaces';
 
@@ -99,7 +99,7 @@ export function validateFieldTransformArgs<A extends Record<string, any>>(
     return result;
 }
 
-const emptyData: Data<any> = Object.freeze({
+const emptyData: OldData<any> = Object.freeze({
     values: new Map(),
     indices: Object.freeze([]),
 });

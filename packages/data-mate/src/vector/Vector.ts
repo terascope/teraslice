@@ -4,7 +4,7 @@ import {
     ReadonlyDataTypeFields
 } from '@terascope/types';
 import { createHashCode, HASH_CODE_SYMBOL } from '../core-utils';
-import { Data, DataValueTuple, VectorType } from './interfaces';
+import { OldData, DataValueTuple, VectorType } from './interfaces';
 
 /**
  * An immutable typed Array class with a constrained API.
@@ -15,7 +15,7 @@ export abstract class Vector<T = unknown> {
     */
     static make<R>(
         config: Readonly<DataTypeFieldConfig>,
-        data: Data<R>,
+        data: OldData<R>,
         childConfig?: DataTypeFields
     ): Vector<R> {
         throw new Error(`This is overridden in the index file, ${config} ${data} ${childConfig}`);
@@ -52,7 +52,7 @@ export abstract class Vector<T = unknown> {
      *
      * @internal
     */
-    readonly data: Data<T>;
+    readonly data: OldData<T>;
 
     /**
      * If set to false, the Vector is not sortable
@@ -132,7 +132,7 @@ export abstract class Vector<T = unknown> {
     /**
      * Create a new Vector with the same metadata but with different data
     */
-    abstract fork(data: Data<T>): Vector<T>;
+    abstract fork(data: OldData<T>): Vector<T>;
 
     /**
      * Create a new Vector with the range of values
@@ -221,7 +221,7 @@ export type ValueToJSONFn<T> = (value: T, thisArg?: Vector<T>) => any;
  * A list of Vector Options
  */
 export interface VectorOptions<T> {
-    data: Data<T>;
+    data: OldData<T>;
     config: Readonly<DataTypeFieldConfig>;
     valueToJSON?: ValueToJSONFn<T>;
     childConfig?: ReadonlyDataTypeFields;

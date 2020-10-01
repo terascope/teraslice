@@ -38,7 +38,7 @@ export enum VectorType {
  *
  * @internal
 */
-export type Data<T> = Readonly<{
+export type OldData<T> = Readonly<{
     /**
      * The index represent the order of the values,
      * the value is the hash of where to find the index

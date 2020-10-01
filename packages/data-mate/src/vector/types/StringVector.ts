@@ -1,12 +1,12 @@
 import { Vector, VectorOptions } from '../Vector';
-import { Data, VectorType } from '../interfaces';
+import { OldData, VectorType } from '../interfaces';
 
 export class StringVector extends Vector<string> {
     constructor(options: VectorOptions<string>) {
         super(VectorType.String, options);
     }
 
-    fork(data: Data<string>): StringVector {
+    fork(data: OldData<string>): StringVector {
         return new StringVector({
             valueToJSON: this.valueToJSON,
             config: this.config,
