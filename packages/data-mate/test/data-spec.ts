@@ -16,6 +16,13 @@ describe('Data', () => {
                 values.forEach((v, i) => data.set(i, v));
             });
 
+            it('should not be able to write after frozen', () => {
+                data.freeze();
+                expect(() => {
+                    data.set(2, 'fail');
+                }).toThrowError();
+            });
+
             it('should have the correct indices', () => {
                 expect(data.indices).toStrictEqual(
                     Uint8Array.of(1, 2, 3, 4, 5, 6, 7, 8)

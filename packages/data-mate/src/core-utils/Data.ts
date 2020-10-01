@@ -67,6 +67,11 @@ export class Data<T> {
         if (!this.nulls) return this.values.length;
         return this.values.length + 1;
     }
+
+    freeze(): void {
+        this.#__writable = false;
+        Object.freeze(this);
+    }
 }
 
 export type TypedArray = Uint8Array
