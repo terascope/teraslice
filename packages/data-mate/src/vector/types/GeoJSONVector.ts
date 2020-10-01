@@ -1,13 +1,14 @@
 import { GeoShape } from '@terascope/types';
 import { Vector, VectorOptions } from '../Vector';
-import { OldData, VectorType } from '../interfaces';
+import { VectorType } from '../interfaces';
+import { Data } from '../../core-utils';
 
 export class GeoJSONVector extends Vector<GeoShape> {
     constructor(options: VectorOptions<GeoShape>) {
         super(VectorType.GeoJSON, options);
     }
 
-    fork(data: OldData<GeoShape>): GeoJSONVector {
+    fork(data: Data<GeoShape>): GeoJSONVector {
         return new GeoJSONVector({
             valueToJSON: this.valueToJSON,
             config: this.config,

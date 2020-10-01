@@ -1,12 +1,13 @@
 import { Vector, VectorOptions } from '../Vector';
-import { OldData, VectorType } from '../interfaces';
+import { VectorType } from '../interfaces';
+import { Data } from '../../core-utils';
 
 export class IntVector extends Vector<number> {
     constructor(options: VectorOptions<number>) {
         super(VectorType.Int, options);
     }
 
-    fork(data: OldData<number>): IntVector {
+    fork(data: Data<number>): IntVector {
         return new IntVector({
             valueToJSON: this.valueToJSON,
             config: this.config,

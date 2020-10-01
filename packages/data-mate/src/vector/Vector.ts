@@ -3,8 +3,8 @@ import {
     Maybe, SortOrder,
     ReadonlyDataTypeFields
 } from '@terascope/types';
-import { createHashCode, HASH_CODE_SYMBOL } from '../core-utils';
-import { OldData, DataValueTuple, VectorType } from './interfaces';
+import { createHashCode, Data, HASH_CODE_SYMBOL } from '../core-utils';
+import { VectorType } from './interfaces';
 
 /**
  * An immutable typed Array class with a constrained API.
@@ -15,7 +15,7 @@ export abstract class Vector<T = unknown> {
     */
     static make<R>(
         config: Readonly<DataTypeFieldConfig>,
-        data: OldData<R>,
+        data: Data<R>,
         childConfig?: DataTypeFields
     ): Vector<R> {
         throw new Error(`This is overridden in the index file, ${config} ${data} ${childConfig}`);
@@ -52,7 +52,7 @@ export abstract class Vector<T = unknown> {
      *
      * @internal
     */
-    readonly data: OldData<T>;
+    readonly data: Data<T>;
 
     /**
      * If set to false, the Vector is not sortable
@@ -79,14 +79,11 @@ export abstract class Vector<T = unknown> {
     }
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
-        for (const valIndex of this.data.indices) {
-            const [, value] = this.data.values.get(valIndex)!;
-            yield value;
-        }
+        yield* this.data;
     }
 
-    * values(): IterableIterator<DataValueTuple<T>> {
-        yield* this.data.values.values();
+    * associations(): IterableIterator<[readonly number[], Maybe<T>]> {
+        yield* this.data.associations();
     }
 
     get [HASH_CODE_SYMBOL](): string {
@@ -111,44 +108,41 @@ export abstract class Vector<T = unknown> {
      * Gets the number distinct values in the Vector
     */
     distinct(): number {
-        return this.data.values.size;
+        return this.data.distinct();
     }
 
     /**
      * Get value by index
     */
     get(index: number, json?: boolean): Maybe<T>|Maybe<JSONValue<T>> {
-        const hash = this.data.indices[index];
-        // return the hash so we can pass through undefined
-        if (hash == null) return hash;
+        const val = this.data.get(index);
 
-        const [, val] = this.data.values.get(hash)!;
         if (!json || !this.valueToJSON) {
             return val;
         }
+
+        if (val == null) return val;
         return this.valueToJSON(val as T);
     }
 
     /**
      * Create a new Vector with the same metadata but with different data
     */
-    abstract fork(data: OldData<T>): Vector<T>;
+    abstract fork(data: Data<T>): Vector<T>;
 
     /**
      * Create a new Vector with the range of values
     */
     slice(start?: number, end?: number): Vector<T> {
         const indices = this.data.indices.slice(start, end);
-        const entries: [string|null, DataValueTuple<T>][] = [];
-        for (const [hash, val] of this.data.values) {
-            if (indices.includes(hash)) {
-                entries.push([hash, val]);
-            }
+        const data = new Data<T>(indices.length);
+        data.isPrimitive = this.data.isPrimitive;
+        let currentIndex = 0;
+        for (const index of indices) {
+            const val = this.data.get(index);
+            data.set(currentIndex++, val);
         }
-        return this.fork(Object.freeze({
-            values: new Map(entries),
-            indices: Object.freeze(indices)
-        }));
+        return this.fork(data);
     }
 
     /**
@@ -221,7 +215,7 @@ export type ValueToJSONFn<T> = (value: T, thisArg?: Vector<T>) => any;
  * A list of Vector Options
  */
 export interface VectorOptions<T> {
-    data: OldData<T>;
+    data: Data<T>;
     config: Readonly<DataTypeFieldConfig>;
     valueToJSON?: ValueToJSONFn<T>;
     childConfig?: ReadonlyDataTypeFields;

@@ -1,4 +1,5 @@
 import { Maybe } from '@terascope/types';
+import { toString } from '@terascope/utils';
 
 /**
  * A data type agnostic in-memory representation of the data
@@ -25,30 +26,60 @@ export class Data<T> {
 
     isPrimitive = false;
 
-    #__writable = true;
+    isFrozen = false;
 
-    constructor(size: number) {
+    constructor(size?: number) {
         this.values = [];
-        this.indices = getTypedPointerArray(size);
+        this.indices = size != null
+            ? getTypedPointerArray(size)
+            : new Float64Array();
     }
 
-    set(index: number, value: Maybe<T>): void {
-        if (!this.#__writable) {
+    * [Symbol.iterator](): IterableIterator<Maybe<T>> {
+        for (const valIndex of this.indices) {
+            if (valIndex === 0) yield null;
+            else yield this.values[valIndex - 1];
+        }
+    }
+
+    * associations(): IterableIterator<[readonly number[], Maybe<T>]> {
+        const [reversed, nulls] = this.reverseIndices();
+        const len = reversed.length;
+        for (let i = 0; i < len; i++) {
+            yield [reversed[i], this.values[i]];
+        }
+        yield [nulls, null];
+    }
+
+    set(index: number, value: Maybe<T>): Data<T> {
+        this.mset([index], value);
+        return this;
+    }
+
+    mset(indices: number[]|readonly number[], value: Maybe<T>): Data<T> {
+        if (this.isFrozen) {
             throw new Error('Cannot write to frozen Data instance');
         }
 
         if (value == null) {
-            this.indices[index] = 0;
-            this.nulls++;
-            return;
+            for (const index of indices) {
+                this.indices[index] = 0;
+            }
+            this.nulls += indices.length;
+            return this;
         }
+
         const existingIndex = this.values.indexOf(value);
+        let valIndex: number;
         if (existingIndex === -1) {
-            const newLength = this.values.push(value);
-            this.indices[index] = newLength;
+            valIndex = this.values.push(value);
         } else {
-            this.indices[index] = existingIndex + 1;
+            valIndex = existingIndex + 1;
         }
+        for (const index of indices) {
+            this.indices[index] = valIndex;
+        }
+        return this;
     }
 
     get(index: number): Maybe<T> {
@@ -64,13 +95,46 @@ export class Data<T> {
     }
 
     distinct(): number {
-        if (!this.nulls) return this.values.length;
-        return this.values.length + 1;
+        if (this.isPrimitive) {
+            return this.values.length;
+        }
+        return new Set(this.values.map(toString)).size;
     }
 
-    freeze(): void {
-        this.#__writable = false;
+    freeze(): Data<T> {
+        this.isFrozen = true;
         Object.freeze(this);
+        return this;
+    }
+
+    fork(length: number): Data<T> {
+        if (length < this.indices.length) {
+            throw new Error('Data.fork doesn\'t support decreasing the number of values');
+        }
+        const descriptors = Object.getOwnPropertyDescriptors(this);
+        descriptors.values.value = descriptors.values.value!.slice();
+        descriptors.indices.value = descriptors.indices.value!.slice();
+        return Object.create(
+            Object.getPrototypeOf(this),
+            descriptors
+        );
+    }
+
+    reverseIndices(): [reversed: (number[])[], nulls: number[]] {
+        const len = this.indices.length;
+        const reversed: (number[])[] = Array(this.values.length);
+        const nulls = Array(this.nulls);
+        let n = 0;
+        for (let i = 0; i < len; i++) {
+            const valIndex = this.indices[i];
+            if (valIndex !== 0) {
+                reversed[valIndex - 1] ??= [];
+                reversed[valIndex - 1].push(i);
+            } else {
+                nulls[n++] = i;
+            }
+        }
+        return [reversed, nulls];
     }
 }
 

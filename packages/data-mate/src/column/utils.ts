@@ -5,9 +5,10 @@ import {
 } from '@terascope/types';
 import { Builder } from '../builder';
 import {
-    Vector, isVector, VectorType, OldData
+    Vector, isVector, VectorType
 } from '../vector';
 import { ColumnTransformFn, TransformMode } from './interfaces';
+import { Data } from '../core-utils';
 
 const _vectorIds = new WeakMap<Vector<any>, string>();
 export function getVectorId(vector: Vector<any>): string {
@@ -33,23 +34,23 @@ export function mapVector<T, R = T>(
     );
 
     if (transform.mode === TransformMode.NONE) {
-        for (const val of vector.values()) {
-            builder.multiSet(val[0], val[1]);
+        for (const val of vector.associations()) {
+            builder.mset(val[0], val[1]);
         }
         return builder.toVector();
     }
 
     if (transform.mode === TransformMode.EACH) {
-        for (const val of vector.values()) {
-            builder.multiSet(val[0], transform.fn(val[1]));
+        for (const val of vector.associations()) {
+            builder.mset(val[0], transform.fn(val[1]));
         }
         return builder.toVector();
     }
 
     if (transform.mode === TransformMode.EACH_VALUE) {
-        for (const [indices, value] of vector.values()) {
+        for (const [indices, value] of vector.associations()) {
             if (transform.skipNulls !== false && value == null) {
-                builder.multiSet(indices, null);
+                builder.mset(indices, null);
             } else if (isVector<T>(value)) {
                 const values: Maybe<R>[] = [];
                 for (const val of value) {
@@ -61,9 +62,9 @@ export function mapVector<T, R = T>(
                         );
                     }
                 }
-                builder.multiSet(indices, values);
+                builder.mset(indices, values);
             } else {
-                builder.multiSet(
+                builder.mset(
                     indices,
                     transform.fn(value as any)
                 );
@@ -99,10 +100,7 @@ export function validateFieldTransformArgs<A extends Record<string, any>>(
     return result;
 }
 
-const emptyData: OldData<any> = Object.freeze({
-    values: new Map(),
-    indices: Object.freeze([]),
-});
+const emptyData = new Data<any>(0).freeze();
 
 export function validateFieldTransformType(
     accepts: VectorType[], vector: Vector<any>

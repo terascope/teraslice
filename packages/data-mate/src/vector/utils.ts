@@ -10,12 +10,12 @@ import {
     FloatVector, GeoJSONVector, GeoPointVector, IntVector,
     ObjectVector, StringVector, IPVector, IPRangeVector,
 } from './types';
-import { OldData } from './interfaces';
 import { Vector } from './Vector';
+import { Data } from '../core-utils';
 
 export function _newVector<T>(
     config: Readonly<DataTypeFieldConfig>,
-    data: OldData<any>,
+    data: Data<any>,
     childConfig?: ReadonlyDataTypeFields
 ): Vector<T> {
     const fieldType = config.type as FieldType;
@@ -39,7 +39,7 @@ export function _newVector<T>(
 */
 function _newVectorForType(
     config: Readonly<DataTypeFieldConfig>,
-    data: OldData<any>,
+    data: Data<any>,
     childConfig?: ReadonlyDataTypeFields
 ) {
     switch (config.type as FieldType) {

@@ -1,12 +1,13 @@
 import { Vector, VectorOptions } from '../Vector';
-import { OldData, VectorType } from '../interfaces';
+import { VectorType } from '../interfaces';
+import { Data } from '../../core-utils';
 
 export class AnyVector extends Vector<any> {
     constructor(options: VectorOptions<any>) {
         super(VectorType.Any, options);
     }
 
-    fork(data: OldData<any>): AnyVector {
+    fork(data: Data<any>): AnyVector {
         return new AnyVector({
             valueToJSON: this.valueToJSON,
             config: this.config,

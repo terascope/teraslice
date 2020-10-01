@@ -1,7 +1,6 @@
 import { DataTypeFieldConfig, DataTypeFields } from '@terascope/types';
-import { getHashCodeFrom } from '../core-utils';
+import { Data } from '../core-utils';
 import {
-    DataValueTuple,
     Vector, VectorType
 } from '../vector';
 
@@ -15,7 +14,7 @@ export abstract class Builder<T = unknown> {
     */
     static make<R = unknown>(
         config: DataTypeFieldConfig,
-        length?: number,
+        length?: number|Data<R>,
         childConfig?: DataTypeFields,
     ): Builder<R> {
         throw new Error(
@@ -34,12 +33,9 @@ export abstract class Builder<T = unknown> {
     ): Builder<R> {
         const builder = Builder.make<R>(
             vector.config,
-            length,
+            vector.data.fork(length),
             vector.childConfig,
         );
-        for (const [hash, val] of vector.data.values) {
-            builder.multiSet(val[0], val[1], hash);
-        }
         builder.currentIndex = vector.size;
         return builder;
     }
@@ -67,17 +63,9 @@ export abstract class Builder<T = unknown> {
     readonly childConfig?: DataTypeFields;
 
     /**
-     * The real index to values index lookup
-     *
      * @internal
     */
-    readonly indices: (string|null)[];
-
-    /**
-     * When value is not a primitive, we need a way to look up the index by the hash code
-     * @internal
-    */
-    readonly values = new Map<string|null, DataValueTuple<T>>();
+    readonly data: Data<T>;
 
     /**
      * The current insertion index (used for append)
@@ -102,32 +90,35 @@ export abstract class Builder<T = unknown> {
         this.config = { ...config };
         this.valueFrom = wrapValueFrom(valueFrom);
         this.childConfig = childConfig ? { ...childConfig } : undefined;
-        this.indices = length != null ? Array(length) : [];
-        this.values = new Map();
+        if (length instanceof Data) {
+            this.data = length;
+        } else {
+            this.data = new Data(length);
+        }
     }
 
     /**
      * Returns the number items in the Builder
     */
     get size(): number {
-        return this.indices.length;
+        return this.data.values.length;
     }
 
     /**
      * Set value by index
     */
     set(index: number, value: unknown): Builder<T> {
-        const [hash, val] = this._getValue(value);
-        this._setValue(hash, [index], val);
+        const val = value == null ? null : this.valueFrom(value, this);
+        this.data.set(index, val);
         return this;
     }
 
     /**
      * Set a single unique value on multiple indices
     */
-    multiSet(indices: number[]|readonly number[], value: unknown, _hash?: string|null): Builder<T> {
-        const [hash, val] = this._getValue(value, _hash);
-        this._setValue(hash, indices, val);
+    mset(indices: number[]|readonly number[], value: unknown): Builder<T> {
+        const val = value == null ? null : this.valueFrom(value, this);
+        this.data.mset(indices, val);
         return this;
     }
 
@@ -142,42 +133,18 @@ export abstract class Builder<T = unknown> {
      * Flush and convert the result to a Vector
     */
     toVector(): Vector<T> {
-        const vector = Vector.make({ ...this.config }, Object.freeze({
-            indices: Object.freeze(this.indices),
-            values: this.values as ReadonlyMap<string|null, DataValueTuple<T>>,
-        }), this.childConfig);
+        this.data.isPrimitive = true;
+        this.data.freeze();
+        const vector = Vector.make(
+            Object.freeze({ ...this.config }),
+            this.data,
+            this.childConfig
+        );
 
         // @ts-expect-error
-        this.values = undefined;
-        // @ts-expect-error
-        this.indices = undefined;
+        this.data = undefined;
         this.currentIndex = -1;
         return vector;
-    }
-
-    protected _setValue(
-        hash: string|null, indices: readonly number[], value: T|null
-    ): void {
-        for (const index of indices) {
-            this.indices[index] = hash;
-        }
-        const existing = this.values.get(hash);
-        if (existing) {
-            this.values.set(hash, [existing[0].concat(indices), existing[1]]);
-        } else {
-            this.values.set(hash, [indices, value]);
-        }
-    }
-
-    protected _getValue(value: unknown, _hash?: string|null): [string|null, T|null] {
-        if (value == null) {
-            return [null, null];
-        }
-        if (_hash === undefined) {
-            const val = this.valueFrom(value, this);
-            return [getHashCodeFrom(val, !this.isPrimitive), val];
-        }
-        return [_hash, value as T];
     }
 }
 
@@ -207,7 +174,8 @@ export type ValueFromFn<T> = (
 export interface BuilderOptions<T> {
     config: DataTypeFieldConfig;
     /** Preallocate this many items */
-    length?: number;
+    length?: number|Data<T>;
+
     valueFrom?: ValueFromFn<T>;
     /**
      * The type config for any nested fields (currently only works for objects)

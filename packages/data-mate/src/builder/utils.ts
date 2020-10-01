@@ -2,6 +2,7 @@ import { getGroupedFields } from '@terascope/data-types';
 import {
     DataTypeConfig, DataTypeFieldConfig, DataTypeFields, FieldType
 } from '@terascope/types';
+import { Data } from '../core-utils';
 import { Builder, BuilderOptions } from './Builder';
 import { ListBuilder } from './ListBuilder';
 import {
@@ -33,7 +34,7 @@ export function getBuildersForConfig<T extends Record<string, any> = Record<stri
 
 export function _newBuilder<T>(
     config: DataTypeFieldConfig,
-    length?: number,
+    length?: number|Data<any>,
     childConfig?: DataTypeFields,
 ): Builder<T> {
     const fieldType = config.type as FieldType;
@@ -57,7 +58,7 @@ export function _newBuilder<T>(
 */
 function _newBuilderForType(
     config: DataTypeFieldConfig,
-    length?: number,
+    length?: number|Data<any>,
     childConfig?: DataTypeFields,
 ) {
     const options: BuilderOptions<any> = {

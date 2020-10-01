@@ -296,24 +296,23 @@ export class DataFrame<
             for (const [field, builder] of builders) {
                 const col = columns.find(((c) => c.name === field));
                 if (col) {
-                    for (const [hash, [indices, value]] of col.vector.data.values) {
-                        builder.multiSet(
+                    for (const [indices, value] of col.vector.associations()) {
+                        builder.mset(
                             indices.map((i) => builder.currentIndex + i),
                             value,
-                            hash
                         );
                     }
 
                     const remaining = len - col.size;
                     if (remaining > 0) {
-                        builder.multiSet(
+                        builder.mset(
                             times(remaining, (n) => total - n - 1),
                             null
                         );
                     }
                 } else {
                     _indices ??= times(len);
-                    builder.multiSet(_indices, null);
+                    builder.mset(_indices, null);
                 }
             }
         } else {

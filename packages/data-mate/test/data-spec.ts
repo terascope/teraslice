@@ -108,13 +108,53 @@ describe('Data', () => {
             });
 
             it('should have the correct distinct values', () => {
-                expect(data.distinct()).toEqual(5);
+                expect(data.distinct()).toEqual(4);
             });
 
             it('should be able to get all of the values', () => {
                 const result = times(size, (i) => data.get(i));
                 expect(result).toStrictEqual([...values]);
             });
+        });
+    });
+
+    describe('when dealing with non-primitive values', () => {
+        const size = 8;
+        const values = Object.freeze(times(size, (n) => (
+            n === 4 ? null : { a: n % 2 }
+        )));
+
+        type TestObj = { a: number };
+        let data: Data<TestObj>;
+        beforeEach(() => {
+            data = new Data(size);
+            data.isPrimitive = false;
+            values.forEach((v, i) => data.set(i, v));
+        });
+
+        it('should have the correct indices', () => {
+            expect(data.indices).toStrictEqual(
+                Uint8Array.of(1, 2, 3, 4, 0, 5, 6, 7)
+            );
+        });
+
+        it('should have the correct values', () => {
+            expect(data.values).toStrictEqual(
+                [{ a: 0 }, { a: 1 }, { a: 0 }, { a: 1 }, { a: 1 }, { a: 0 }, { a: 1 }]
+            );
+        });
+
+        it('should have the correct nulls', () => {
+            expect(data.nulls).toEqual(1);
+        });
+
+        it('should have the correct distinct values', () => {
+            expect(data.distinct()).toEqual(2);
+        });
+
+        it('should be able to get all of the values', () => {
+            const result = times(size, (i) => data.get(i));
+            expect(result).toStrictEqual([...values]);
         });
     });
 });
