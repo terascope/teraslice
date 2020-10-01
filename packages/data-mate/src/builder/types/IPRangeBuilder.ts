@@ -16,8 +16,6 @@ export class IPRangeBuilder extends Builder<string> {
         return value;
     }
 
-    isPrimitive = true;
-
     constructor(options: BuilderOptions<string>) {
         super(VectorType.IPRange, {
             valueFrom: IPRangeBuilder.valueFrom,

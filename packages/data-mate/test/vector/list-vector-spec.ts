@@ -1,5 +1,5 @@
 import 'jest-fixtures';
-import { bigIntToJSON, toString } from '@terascope/utils';
+import { bigIntToJSON, isNotNil, toString } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     Vector, Builder
@@ -41,11 +41,9 @@ describe('ListVector', () => {
         });
 
         it('should have the correct distinct values', () => {
-            if (type === FieldType.Any) {
-                expect(vector.distinct()).toBe(new Set(expected).size);
-            } else {
-                expect(vector.distinct()).toBe(new Set(expected.map(toString)).size);
-            }
+            expect(vector.distinct()).toBe(new Set(
+                expected.filter(isNotNil).map(toString)
+            ).size);
         });
 
         it('should have the correct field config', () => {

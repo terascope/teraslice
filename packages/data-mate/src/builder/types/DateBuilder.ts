@@ -42,8 +42,6 @@ export class DateBuilder extends Builder<DateValue> {
         return dateValue;
     }
 
-    isPrimitive = false;
-
     referenceDate?: Date;
 
     constructor(options: BuilderOptions<DateValue>) {
@@ -51,5 +49,6 @@ export class DateBuilder extends Builder<DateValue> {
             valueFrom: DateBuilder.valueFrom,
             ...options,
         });
+        this.data.isNaturallyDistinct = false;
     }
 }

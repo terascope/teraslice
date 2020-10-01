@@ -28,12 +28,11 @@ export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
         return builder.toVector();
     }
 
-    isPrimitive = false;
-
     constructor(options: BuilderOptions<Vector<T>>) {
         super(VectorType.List, {
             valueFrom: ListBuilder.valueFrom,
             ...options,
         });
+        this.data.isNaturallyDistinct = false;
     }
 }

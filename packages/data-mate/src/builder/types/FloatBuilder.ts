@@ -7,8 +7,6 @@ export class FloatBuilder extends Builder<number> {
         return toFloatOrThrow(value);
     }
 
-    isPrimitive = true;
-
     constructor(options: BuilderOptions<number>) {
         super(VectorType.Float, {
             valueFrom: FloatBuilder.valueFrom,

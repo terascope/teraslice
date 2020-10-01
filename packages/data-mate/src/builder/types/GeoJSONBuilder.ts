@@ -18,12 +18,11 @@ export class GeoJSONBuilder extends Builder<GeoShape> {
         return createObject({ ...value, type });
     }
 
-    isPrimitive = false;
-
     constructor(options: BuilderOptions<GeoShape>) {
         super(VectorType.GeoJSON, {
             valueFrom: GeoJSONBuilder.valueFrom,
             ...options,
         });
+        this.data.isNaturallyDistinct = false;
     }
 }

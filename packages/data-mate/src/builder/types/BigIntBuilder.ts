@@ -7,12 +7,12 @@ export class BigIntBuilder extends Builder<bigint> {
         return toBigIntOrThrow(value);
     }
 
-    isPrimitive = true;
-
     constructor(options: BuilderOptions<bigint>) {
         super(VectorType.BigInt, {
             valueFrom: BigIntBuilder.valueFrom,
             ...options,
         });
+
+        this.data.isNaturallyDistinct = false;
     }
 }

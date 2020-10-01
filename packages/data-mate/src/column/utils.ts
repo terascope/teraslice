@@ -34,21 +34,21 @@ export function mapVector<T, R = T>(
     );
 
     if (transform.mode === TransformMode.NONE) {
-        for (const val of vector.associations()) {
-            builder.mset(val[0], val[1]);
+        for (const [value, indices] of vector.data.associations()) {
+            builder.mset(indices, value);
         }
         return builder.toVector();
     }
 
     if (transform.mode === TransformMode.EACH) {
-        for (const val of vector.associations()) {
-            builder.mset(val[0], transform.fn(val[1]));
+        for (const [value, indices] of vector.data.associations()) {
+            builder.mset(indices, transform.fn(value));
         }
         return builder.toVector();
     }
 
     if (transform.mode === TransformMode.EACH_VALUE) {
-        for (const [indices, value] of vector.associations()) {
+        for (const [value, indices] of vector.data.associations()) {
             if (transform.skipNulls !== false && value == null) {
                 builder.mset(indices, null);
             } else if (isVector<T>(value)) {

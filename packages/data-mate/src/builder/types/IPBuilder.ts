@@ -21,8 +21,6 @@ export class IPBuilder extends Builder<string> {
         return value;
     }
 
-    isPrimitive = true;
-
     constructor(options: BuilderOptions<string>) {
         super(VectorType.IP, {
             valueFrom: IPBuilder.valueFrom,

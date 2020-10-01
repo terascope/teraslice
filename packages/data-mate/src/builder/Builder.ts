@@ -36,7 +36,6 @@ export abstract class Builder<T = unknown> {
             vector.data.fork(length),
             vector.childConfig,
         );
-        builder.currentIndex = vector.size;
         return builder;
     }
 
@@ -72,11 +71,6 @@ export abstract class Builder<T = unknown> {
     */
     currentIndex = 0;
 
-    /**
-     * This changes the behavior in how the unique values are calculated
-    */
-    abstract isPrimitive: boolean;
-
     constructor(
         /**
          * This will be set automatically by specific Builder classes
@@ -92,6 +86,9 @@ export abstract class Builder<T = unknown> {
         this.childConfig = childConfig ? { ...childConfig } : undefined;
         if (length instanceof Data) {
             this.data = length;
+            if (this.data.isFrozen) {
+                throw new Error(`${this.constructor.name} constructed with frozen data`);
+            }
         } else {
             this.data = new Data(length);
         }
@@ -133,11 +130,9 @@ export abstract class Builder<T = unknown> {
      * Flush and convert the result to a Vector
     */
     toVector(): Vector<T> {
-        this.data.isPrimitive = true;
-        this.data.freeze();
         const vector = Vector.make(
             Object.freeze({ ...this.config }),
-            this.data,
+            this.data.freeze(),
             this.childConfig
         );
 

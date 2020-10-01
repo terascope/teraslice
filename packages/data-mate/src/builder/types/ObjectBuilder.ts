@@ -39,15 +39,14 @@ export class ObjectBuilder<
             }
         }
 
-        return createObject(result as R);
+        return createObject(result as R, false);
     }
-
-    isPrimitive = false;
 
     constructor(options: BuilderOptions<T>) {
         super(VectorType.Object, {
             valueFrom: ObjectBuilder.valueFrom as ValueFromFn<T>,
             ...options,
         });
+        this.data.isNaturallyDistinct = false;
     }
 }

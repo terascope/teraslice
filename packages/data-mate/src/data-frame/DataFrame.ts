@@ -284,9 +284,10 @@ export class DataFrame<
 
         const total = len + this._size;
         for (const col of this.columns) {
-            builders.set(
-                col.name, Builder.makeFromVector(col.vector, total)
+            const builder = Builder.makeFromVector(
+                col.vector, total
             );
+            builders.set(col.name, builder);
         }
 
         if (arg[0] instanceof Column) {
@@ -296,9 +297,9 @@ export class DataFrame<
             for (const [field, builder] of builders) {
                 const col = columns.find(((c) => c.name === field));
                 if (col) {
-                    for (const [indices, value] of col.vector.associations()) {
+                    for (const [value, indices] of col.vector.data.associations()) {
                         builder.mset(
-                            indices.map((i) => builder.currentIndex + i),
+                            indices.map((i) => this._size + i),
                             value,
                         );
                     }
@@ -319,7 +320,7 @@ export class DataFrame<
             const records = (arg as T[]);
             for (const [field, builder] of builders) {
                 for (let i = 0; i < len; i++) {
-                    builder.set(i, records[i][field]);
+                    builder.set(this._size + i, records[i][field]);
                 }
             }
         }

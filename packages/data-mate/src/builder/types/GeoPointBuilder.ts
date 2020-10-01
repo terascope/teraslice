@@ -19,5 +19,6 @@ export class GeoPointBuilder extends Builder<GeoPoint> {
             valueFrom: GeoPointBuilder.valueFrom,
             ...options,
         });
+        this.data.isNaturallyDistinct = false;
     }
 }

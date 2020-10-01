@@ -18,6 +18,7 @@ describe('Data', () => {
 
             it('should not be able to write after frozen', () => {
                 data.freeze();
+                expect(data.isFrozen).toBeTrue();
                 expect(() => {
                     data.set(2, 'fail');
                 }).toThrowError();
@@ -80,6 +81,13 @@ describe('Data', () => {
                 const result = times(size, (i) => data.get(i));
                 expect(result).toStrictEqual([...values]);
             });
+
+            it('should be able to get the associations', () => {
+                expect([...data.associations()]).toStrictEqual([
+                    ['a0', [0, 2, 4, 6]],
+                    ['a1', [1, 3, 5, 7]],
+                ]);
+            });
         });
 
         describe('when there are null values', () => {
@@ -115,6 +123,137 @@ describe('Data', () => {
                 const result = times(size, (i) => data.get(i));
                 expect(result).toStrictEqual([...values]);
             });
+
+            it('should be able to slice the data', () => {
+                const sliced = data.freeze().slice();
+
+                expect(sliced.isFrozen).toBeFalse();
+                expect(Object.isFrozen(sliced)).toBeFalse();
+
+                expect(sliced.isNaturallyDistinct).toEqual(data.isNaturallyDistinct);
+                expect(sliced.nulls).toEqual(data.nulls);
+
+                expect(sliced).not.toBe(data);
+
+                expect(sliced.indices).toStrictEqual(data.indices);
+                expect(sliced.indices).not.toBe(data.indices);
+
+                expect(sliced.values).toStrictEqual(data.values);
+                expect(sliced.values).not.toBe(data.values);
+
+                const result = times(size, (i) => data.get(i));
+                expect(result).toStrictEqual([...values]);
+            });
+
+            it('should be able to fork the data', () => {
+                const sliced = data.freeze().fork(data.size);
+
+                expect(sliced.isFrozen).toBeFalse();
+                expect(Object.isFrozen(sliced)).toBeFalse();
+
+                expect(sliced.isNaturallyDistinct).toEqual(data.isNaturallyDistinct);
+                expect(sliced.nulls).toEqual(data.nulls);
+
+                expect(sliced).not.toBe(data);
+
+                expect(sliced.indices).toStrictEqual(data.indices);
+                expect(sliced.indices).not.toBe(data.indices);
+
+                expect(sliced.values).toStrictEqual(data.values);
+                expect(sliced.values).not.toBe(data.values);
+
+                const result = times(size, (i) => data.get(i));
+                expect(result).toStrictEqual([...values]);
+            });
+
+            it('should be able to get the associations', () => {
+                expect([...data.associations()]).toStrictEqual([
+                    ['a0', [0]],
+                    ['a2', [2]],
+                    ['a4', [4]],
+                    ['a6', [6]],
+                    [null, [1, 3, 5, 7]],
+                ]);
+            });
+        });
+
+        describe('when there are only null values', () => {
+            const values = Object.freeze(times(size, () => null));
+
+            beforeEach(() => {
+                values.forEach((v, i) => data.set(i, v));
+            });
+
+            it('should have the correct indices', () => {
+                expect(data.indices).toStrictEqual(
+                    Uint8Array.of(0, 0, 0, 0, 0, 0, 0, 0)
+                );
+            });
+
+            it('should have the correct values', () => {
+                expect(data.values).toStrictEqual([]);
+            });
+
+            it('should have the correct nulls', () => {
+                expect(data.nulls).toEqual(size);
+            });
+
+            it('should have the correct distinct values', () => {
+                expect(data.distinct()).toEqual(0);
+            });
+
+            it('should be able to get all of the values', () => {
+                const result = times(size, (i) => data.get(i));
+                expect(result).toStrictEqual([...values]);
+            });
+
+            it('should be able to slice the data', () => {
+                const sliced = data.freeze().slice();
+
+                expect(sliced.isFrozen).toBeFalse();
+                expect(Object.isFrozen(sliced)).toBeFalse();
+
+                expect(sliced.isNaturallyDistinct).toEqual(data.isNaturallyDistinct);
+                expect(sliced.nulls).toEqual(data.nulls);
+
+                expect(sliced).not.toBe(data);
+
+                expect(sliced.indices).toStrictEqual(data.indices);
+                expect(sliced.indices).not.toBe(data.indices);
+
+                expect(sliced.values).toStrictEqual(data.values);
+                expect(sliced.values).not.toBe(data.values);
+
+                const result = times(size, (i) => data.get(i));
+                expect(result).toStrictEqual([...values]);
+            });
+
+            it('should be able to fork the data', () => {
+                const sliced = data.freeze().fork(data.size);
+
+                expect(sliced.isFrozen).toBeFalse();
+                expect(Object.isFrozen(sliced)).toBeFalse();
+
+                expect(sliced.isNaturallyDistinct).toEqual(data.isNaturallyDistinct);
+                expect(sliced.nulls).toEqual(data.nulls);
+
+                expect(sliced).not.toBe(data);
+
+                expect(sliced.indices).toStrictEqual(data.indices);
+                expect(sliced.indices).not.toBe(data.indices);
+
+                expect(sliced.values).toStrictEqual(data.values);
+                expect(sliced.values).not.toBe(data.values);
+
+                const result = times(size, (i) => data.get(i));
+                expect(result).toStrictEqual([...values]);
+            });
+
+            it('should be able to get the associations', () => {
+                expect([...data.associations()]).toStrictEqual([
+                    [null, [0, 1, 2, 3, 4, 5, 6, 7]],
+                ]);
+            });
         });
     });
 
@@ -128,7 +267,7 @@ describe('Data', () => {
         let data: Data<TestObj>;
         beforeEach(() => {
             data = new Data(size);
-            data.isPrimitive = false;
+            data.isNaturallyDistinct = false;
             values.forEach((v, i) => data.set(i, v));
         });
 

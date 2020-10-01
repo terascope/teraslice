@@ -75,6 +75,9 @@ export abstract class Vector<T = unknown> {
         this.valueToJSON = valueToJSON;
 
         this.data = data;
+        if (!this.data.isFrozen) {
+            throw new Error(`${this.constructor.name} constructed with writable data`);
+        }
         this.childConfig = childConfig;
     }
 
@@ -82,17 +85,10 @@ export abstract class Vector<T = unknown> {
         yield* this.data;
     }
 
-    * associations(): IterableIterator<[readonly number[], Maybe<T>]> {
-        yield* this.data.associations();
-    }
-
     get [HASH_CODE_SYMBOL](): string {
         if (this.__cachedHash) return this.__cachedHash;
 
-        const prefix = `${this.type}:${this.config.type}:${this.data.indices.length}`;
-        const suffix = this.data.indices.join();
-        const hash = createHashCode(`${prefix}:${suffix}`) as string;
-
+        const hash = createHashCode(this.toJSON());
         this.__cachedHash = hash;
         return hash;
     }
@@ -101,7 +97,7 @@ export abstract class Vector<T = unknown> {
      * Returns the number items in the Vector
     */
     get size(): number {
-        return this.data.indices.length;
+        return this.data.size;
     }
 
     /**
@@ -134,15 +130,9 @@ export abstract class Vector<T = unknown> {
      * Create a new Vector with the range of values
     */
     slice(start?: number, end?: number): Vector<T> {
-        const indices = this.data.indices.slice(start, end);
-        const data = new Data<T>(indices.length);
-        data.isPrimitive = this.data.isPrimitive;
-        let currentIndex = 0;
-        for (const index of indices) {
-            const val = this.data.get(index);
-            data.set(currentIndex++, val);
-        }
-        return this.fork(data);
+        return this.fork(
+            this.data.slice(start, end).freeze()
+        );
     }
 
     /**

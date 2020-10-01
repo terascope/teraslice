@@ -1,5 +1,5 @@
 import 'jest-fixtures';
-import { toString, bigIntToJSON } from '@terascope/utils';
+import { toString, bigIntToJSON, isNotNil } from '@terascope/utils';
 import {
     DateFormat,
     ESGeoShapeMultiPolygon,
@@ -272,11 +272,9 @@ describe('Vector', () => {
         });
 
         it('should have the correct distinct values', () => {
-            if (type === FieldType.Any) {
-                expect(vector.distinct()).toBe(new Set(expected).size);
-            } else {
-                expect(vector.distinct()).toBe(new Set(expected.map(toString)).size);
-            }
+            expect(vector.distinct()).toBe(new Set(
+                expected.filter(isNotNil).map(toString)
+            ).size);
         });
 
         it('should have the correct field config', () => {
