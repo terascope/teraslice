@@ -7,6 +7,18 @@ export function md5(value: string|Buffer): string {
     return createHash('md5').update(value).digest('hex');
 }
 
+export function createHashCode(value: unknown): string|null {
+    if (value == null) return null;
+
+    const str = toString(value);
+
+    if (str.length > 35) {
+        return `0:${md5(str)}`;
+    }
+
+    return `1:${str}`;
+}
+
 export function getHashCodeFrom(input: unknown, throwIfNotFound = false): string|null {
     if (input == null) return null;
     if (typeof input === 'object' && input != null && input[HASH_CODE_SYMBOL] != null) {
@@ -31,13 +43,12 @@ export function createObject<T extends Record<string, any>>(input: T, sortKeys =
         const key = keys[i];
         if (input[key] != null) {
             result[key] = input[key];
-            const typeOf = typeof input[key];
-            hash += `${key}(${typeOf}):${toString(input[key])};`;
+            hash += createHashCode(input[key]);
         }
     }
 
     Object.defineProperty(result, HASH_CODE_SYMBOL, {
-        value: md5(hash),
+        value: createHashCode(hash),
         configurable: false,
         enumerable: false,
         writable: false,

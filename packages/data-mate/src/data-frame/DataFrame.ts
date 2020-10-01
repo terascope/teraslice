@@ -7,7 +7,7 @@ import { Column } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import { columnsToDataTypeConfig, distributeRowsToColumns } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
-import { md5 } from '../core-utils';
+import { createHashCode } from '../core-utils';
 
 /**
  * An immutable columnar table with APIs for data pipelines.
@@ -95,7 +95,7 @@ export class DataFrame<
             .sort()
             .join(':');
 
-        const id = md5(long);
+        const id = createHashCode(long) as string;
         this.__id = id;
         return id;
     }
@@ -296,14 +296,18 @@ export class DataFrame<
             for (const [field, builder] of builders) {
                 const col = columns.find(((c) => c.name === field));
                 if (col) {
-                    for (const [indices, value] of col.vector.values()) {
-                        builder.multiSet(indices, value);
+                    for (const [hash, [indices, value]] of col.vector.data.values) {
+                        builder.multiSet(
+                            indices.map((i) => builder.currentIndex + i),
+                            value,
+                            hash
+                        );
                     }
 
                     const remaining = len - col.size;
                     if (remaining > 0) {
                         builder.multiSet(
-                            times(remaining, (n) => n + col.size),
+                            times(remaining, (n) => total - n - 1),
                             null
                         );
                     }
@@ -313,10 +317,10 @@ export class DataFrame<
                 }
             }
         } else {
-            for (const record of (arg as T[])) {
-                for (const col of this.columns) {
-                    const builder = builders.get(col.name)!;
-                    builder.append(record[col.name]);
+            const records = (arg as T[]);
+            for (const [field, builder] of builders) {
+                for (let i = 0; i < len; i++) {
+                    builder.set(i, records[i][field]);
                 }
             }
         }

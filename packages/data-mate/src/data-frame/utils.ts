@@ -13,11 +13,9 @@ export function distributeRowsToColumns(
     const len = records.length;
     const builders = getBuildersForConfig(config, len);
 
-    for (let i = 0; i < len; i++) {
-        const record: Record<string, unknown> = records[i] || {};
-
-        for (const [field, builder] of builders) {
-            builder.append(record[field] ?? null);
+    for (const [field, builder] of builders) {
+        for (let i = 0; i < len; i++) {
+            builder.append(records[i][field]);
         }
     }
 

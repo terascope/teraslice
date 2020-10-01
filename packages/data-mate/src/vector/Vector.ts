@@ -3,7 +3,7 @@ import {
     Maybe, SortOrder,
     ReadonlyDataTypeFields
 } from '@terascope/types';
-import { HASH_CODE_SYMBOL, md5 } from '../core-utils';
+import { createHashCode, HASH_CODE_SYMBOL } from '../core-utils';
 import { Data, DataValueTuple, VectorType } from './interfaces';
 
 /**
@@ -94,7 +94,7 @@ export abstract class Vector<T = unknown> {
 
         const prefix = `${this.type}:${this.config.type}:${this.data.indices.length}`;
         const suffix = this.data.indices.join();
-        const hash = md5(`${prefix}:${suffix}`);
+        const hash = createHashCode(`${prefix}:${suffix}`) as string;
 
         this.__cachedHash = hash;
         return hash;

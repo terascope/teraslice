@@ -7,7 +7,7 @@ import {
 import { isNumberLike } from '../vector';
 import { Builder } from '../builder';
 import { getBuilderForField } from './utils';
-import { md5 } from '../core-utils';
+import { createHashCode } from '../core-utils';
 
 /**
  * A frame dedicated to running a aggregations
@@ -265,7 +265,7 @@ export class AggregationFrame<T extends Record<string, any>> {
                 row[field] = col.vector.get(i);
             }
 
-            const groupKey = md5(key);
+            const groupKey = createHashCode(key) as string;
             const bucket = buckets.get(groupKey) || [];
             bucket.push(row);
             buckets.set(groupKey, bucket);
