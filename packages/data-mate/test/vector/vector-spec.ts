@@ -235,7 +235,7 @@ describe('Vector', () => {
             ],
             [
                 { foo: 'bar', other: { 1: 2 }, arr: [1, 2, 3] },
-                {},
+                { field1: null, field2: undefined },
                 {},
                 null,
                 null
