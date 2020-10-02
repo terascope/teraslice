@@ -15,7 +15,7 @@ import {
 
 export function getBuildersForConfig<T extends Record<string, any> = Record<string, unknown>>(
     config: DataTypeConfig, length?: number
-): Map<keyof T, Builder<unknown>> {
+): Map<(keyof T), Builder<unknown>> {
     const builders = new Map<keyof T, Builder<unknown>>();
     const groupedFieldEntries = Object.entries(getGroupedFields(config.fields));
 
