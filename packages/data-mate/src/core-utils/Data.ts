@@ -25,29 +25,34 @@ export class Data<T> {
     /**
      * The number of null values
     */
-    nulls = 0;
+    nulls: number;
 
     /**
      * If false, the values might duplicate references to the same object
     */
-    isNaturallyDistinct = true;
+    isNaturallyDistinct: boolean;
 
     constructor(
         size?: number,
-        _values?: T[],
-        _indices?: TypedArray|number[]
+        _data?: Data<T>,
     ) {
-        this.indices = size != null
-            ? getTypedPointerArray(size)
-            : [];
-
-        this.values = _values ?? [];
-        if (_indices) {
-            if (Array.isArray(this.indices)) {
-                this.indices = _indices;
+        if (_data) {
+            this.isNaturallyDistinct = _data.isNaturallyDistinct;
+            if (size == null) {
+                this.indices = _data.indices.slice();
             } else {
-                this.indices.set(_indices, 0);
+                this.indices = getTypedPointerArray(size);
+                this.indices.set(_data.indices, 0);
             }
+            this.values = _data.values.slice();
+            this.nulls = _data.nulls;
+        } else {
+            this.isNaturallyDistinct = true;
+            this.indices = size != null
+                ? getTypedPointerArray(size)
+                : [];
+            this.values = [];
+            this.nulls = 0;
         }
     }
 
@@ -67,7 +72,7 @@ export class Data<T> {
     }
 
     /**
-     * Get a tuple of indices to values
+     * Get a tuple of indices to values (unordered)
     */
     * associations(): IterableIterator<[
         value: Maybe<T>,
@@ -173,14 +178,7 @@ export class Data<T> {
         if (length < this.size) {
             throw new Error('Data.fork doesn\'t support decreasing the number of values');
         }
-        const data = new Data<T>(
-            length,
-            this.values.slice(),
-            this.indices.slice()
-        );
-        data.nulls = this.nulls;
-        data.isNaturallyDistinct = this.isNaturallyDistinct;
-        return data;
+        return new Data<T>(length, this);
     }
 
     /**

@@ -8,7 +8,6 @@ export class GeoPointBuilder extends Builder<GeoPoint> {
     static valueFrom(value: unknown): GeoPoint {
         return createObject(
             parseGeoPoint(value as any, true),
-            false // there is no need to sort because we know it will be sorted
         );
     }
 

@@ -234,9 +234,12 @@ function makeDateAgg(dateFormat: string): MakeKeyAggFn {
 function makeUniqueKeyAgg(vector: Vector<unknown>): KeyAggFn {
     return (index) => {
         const value = vector.get(index);
-        const code = getHashCodeFrom(value);
+        if (value == null) {
+            return { key: undefined, value: null };
+        }
+
         return {
-            key: code != null ? code : undefined,
+            key: getHashCodeFrom(value),
             value
         };
     };

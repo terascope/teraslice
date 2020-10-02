@@ -53,7 +53,7 @@ export abstract class Builder<T = unknown> {
      * A function for converting a value to an JSON spec compatible format.
      * This is specific on the vector type classes via a static method usually.
     */
-    readonly valueFrom: ValueFromFn<T>;
+    readonly valueFrom?: ValueFromFn<T>;
 
     /**
      * When Vector is an object type, this will be the data type fields
@@ -69,7 +69,7 @@ export abstract class Builder<T = unknown> {
     /**
      * The current insertion index (used for append)
     */
-    currentIndex = 0;
+    currentIndex: number;
 
     constructor(
         /**
@@ -82,7 +82,7 @@ export abstract class Builder<T = unknown> {
     ) {
         this.type = type;
         this.config = { ...config };
-        this.valueFrom = wrapValueFrom(valueFrom);
+        this.valueFrom = valueFrom;
         this.childConfig = childConfig ? { ...childConfig } : undefined;
         if (length instanceof Data) {
             this.data = length;
@@ -92,6 +92,7 @@ export abstract class Builder<T = unknown> {
         } else {
             this.data = new Data(length);
         }
+        this.currentIndex = 0;
     }
 
     /**
@@ -105,7 +106,7 @@ export abstract class Builder<T = unknown> {
      * Set value by index
     */
     set(index: number, value: unknown): Builder<T> {
-        const val = value == null ? null : this.valueFrom(value, this);
+        const val = this._valueFrom(value);
         this.data.set(index, val);
         return this;
     }
@@ -114,7 +115,7 @@ export abstract class Builder<T = unknown> {
      * Set a single unique value on multiple indices
     */
     mset(indices: number[]|readonly number[], value: unknown): Builder<T> {
-        const val = value == null ? null : this.valueFrom(value, this);
+        const val = this._valueFrom(value);
         this.data.mset(indices, val);
         return this;
     }
@@ -141,6 +142,12 @@ export abstract class Builder<T = unknown> {
         this.currentIndex = -1;
         return vector;
     }
+
+    _valueFrom(value: unknown): T|null {
+        if (value == null) return null;
+        if (!this.valueFrom) return value as T;
+        return this.valueFrom(value, this);
+    }
 }
 
 /**
@@ -148,11 +155,6 @@ export abstract class Builder<T = unknown> {
  */
 export function isBuilder<T>(input: unknown): input is Builder<T> {
     return input instanceof Builder;
-}
-
-function wrapValueFrom<T>(valueFrom?: ValueFromFn<T>): ValueFromFn<T> {
-    if (valueFrom == null) return (value) => value as T;
-    return valueFrom;
 }
 
 /**

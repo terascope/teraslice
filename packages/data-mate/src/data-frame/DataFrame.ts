@@ -2,10 +2,11 @@ import {
     DataTypeConfig, ReadonlyDataTypeConfig,
     Maybe, SortOrder
 } from '@terascope/types';
-import { times } from '@terascope/utils';
 import { Column } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
-import { columnsToDataTypeConfig, distributeRowsToColumns } from './utils';
+import {
+    buildRecords, columnsToDataTypeConfig, concatColumnsToColumns, distributeRowsToColumns
+} from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
 import { createHashCode } from '../core-utils';
 
@@ -41,7 +42,7 @@ export class DataFrame<
     /**
      * The list of columns
     */
-    readonly columns: readonly Column[];
+    readonly columns: readonly Column<any, keyof T>[];
 
     /**
      * Metadata about the DataFrame
@@ -54,7 +55,7 @@ export class DataFrame<
     protected readonly _size: number;
 
     constructor(
-        columns: Column<any>[]|readonly Column<any>[],
+        columns: Column<any, keyof T>[]|readonly Column<any, keyof T>[],
         options?: DataFrameOptions
     ) {
         this.name = options?.name;
@@ -104,7 +105,7 @@ export class DataFrame<
      * Create a new DataFrame with the same metadata but with different data
     */
     fork<R extends Record<string, unknown> = T>(
-        columns: Column<any>[]|readonly Column<any>[]
+        columns: Column<any, keyof R>[]|readonly Column<any, keyof R>[]
     ): DataFrame<R> {
         return new DataFrame<R>(columns, {
             name: this.name,
@@ -131,16 +132,16 @@ export class DataFrame<
     */
     select<K extends keyof T>(...fields: K[]): DataFrame<Pick<T, K>> {
         return this.fork(fields.map(
-            (field): Column<any> => this.getColumn(field)!
+            (field): Column<any, any> => this.getColumn(field)!
         ));
     }
 
     /**
      * Get a column, or columns by index, returns a new DataFrame
     */
-    selectAt(...indices: number[]): DataFrame<T> {
+    selectAt<R extends Record<string, unknown> = T>(...indices: number[]): DataFrame<R> {
         return this.fork(indices.map(
-            (index): Column<any> => this.getColumnAt(index)!
+            (index): Column<any, any> => this.getColumnAt(index)!
         ));
     }
 
@@ -201,30 +202,26 @@ export class DataFrame<
      *     });
     */
     filterBy(filters: FilterByFields<T>): DataFrame<T> {
-        const indices: number[] = [];
+        const indices = new Set<number>();
+        const add = indices.add.bind(indices);
+        const remove = indices.delete.bind(indices);
 
-        for (let i = 0; i < this._size; i++) {
-            let passed = true;
-            for (const field in filters) {
-                if (Object.prototype.hasOwnProperty.call(filters, field)) {
-                    const col = this.getColumn(field)!;
-                    const value = col.vector.get(i) as any;
-
-                    if (!filters[field]!(value)) {
-                        passed = false;
-                        break;
+        for (const field in filters) {
+            if (Object.prototype.hasOwnProperty.call(filters, field)) {
+                const col = this.getColumn(field)!;
+                for (const [val, valIndices] of col.vector.data.associations()) {
+                    if (filters[field]!(val)) {
+                        valIndices.forEach(add);
+                    } else {
+                        valIndices.forEach(remove);
                     }
                 }
             }
-
-            if (passed) {
-                indices.push(i);
-            }
         }
 
-        if (indices.length === this._size) return this;
+        if (indices.size === this._size) return this;
 
-        const builders = getBuildersForConfig(this.config, indices.length);
+        const builders = getBuildersForConfig<T>(this.config, indices.size);
 
         for (const index of indices) {
             for (const col of this.columns) {
@@ -263,9 +260,9 @@ export class DataFrame<
      * Concat rows, or columns, to the end of the existing Columns
     */
     concat(arg: (
-        Partial<T>[]|Column<T>[]
+        Partial<T>[]|Column<any, keyof T>[]
     )|(
-        readonly Partial<T>[]|readonly Column<T>[]
+        readonly Partial<T>[]|readonly Column<any, keyof T>[]
     )): DataFrame<T> {
         if (!arg || !arg.length) return this;
 
@@ -280,54 +277,35 @@ export class DataFrame<
 
         if (!len) return this;
 
-        const builders = new Map<string, Builder>();
+        const builders = new Map<keyof T, Builder>();
 
         const total = len + this._size;
         for (const col of this.columns) {
             const builder = Builder.makeFromVector(
                 col.vector, total
             );
+            builder.currentIndex = this._size;
             builders.set(col.name, builder);
         }
 
         if (arg[0] instanceof Column) {
-            const columns = (arg as Column[]);
-
-            let _indices: number[]|undefined;
-            for (const [field, builder] of builders) {
-                const col = columns.find(((c) => c.name === field));
-                if (col) {
-                    for (const [value, indices] of col.vector.data.associations()) {
-                        builder.mset(
-                            indices.map((i) => this._size + i),
-                            value,
-                        );
-                    }
-
-                    const remaining = len - col.size;
-                    if (remaining > 0) {
-                        builder.mset(
-                            times(remaining, (n) => total - n - 1),
-                            null
-                        );
-                    }
-                } else {
-                    _indices ??= times(len);
-                    builder.mset(_indices, null);
-                }
-            }
-        } else {
-            const records = (arg as T[]);
-            for (const [field, builder] of builders) {
-                for (let i = 0; i < len; i++) {
-                    builder.set(this._size + i, records[i][field]);
-                }
-            }
+            return this.fork(
+                concatColumnsToColumns(
+                    builders,
+                    arg as Column<any, keyof T>[],
+                    this._size,
+                ).map(([name, builder]) => this.getColumn(name)!.fork(
+                    builder.toVector()
+                ))
+            );
         }
-
-        return this.fork(this.columns.map(
-            (col) => col.fork(builders.get(col.name)!.toVector())
-        ));
+        return this.fork(
+            buildRecords<T>(builders, arg as T[]).map(
+                ([name, builder]) => this.getColumn(name)!.fork(
+                    builder.toVector()
+                )
+            )
+        );
     }
 
     /**
@@ -337,18 +315,16 @@ export class DataFrame<
         name: K,
         renameTo: R,
     ): DataFrame<Omit<T, K> & Record<R, T[K]>> {
-        return this.fork(this.columns.map((col): Column<any> => {
+        return this.fork(this.columns.map((col): Column<any, any> => {
             if (col.name !== name) return col;
-            const newCol = col.fork(col.vector);
-            newCol.name = renameTo;
-            return newCol;
+            return col.rename(renameTo);
         }));
     }
 
     /**
      * Get a column by name
     */
-    getColumn<P extends keyof T>(name: P): Column<T[P]>|undefined {
+    getColumn<P extends keyof T>(name: P): Column<T[P], P>|undefined {
         const index = this.columns.findIndex((col) => col.name === name);
         return this.getColumnAt<P>(index);
     }
@@ -356,8 +332,8 @@ export class DataFrame<
     /**
      * Get a column by index
     */
-    getColumnAt<P extends keyof T>(index: number): Column<T[P]>|undefined {
-        return this.columns[index] as Column<any>|undefined;
+    getColumnAt<P extends keyof T>(index: number): Column<T[P], P>|undefined {
+        return this.columns[index] as Column<any, P>|undefined;
     }
 
     /**

@@ -35,26 +35,15 @@ export function getHashCodeFrom(input: unknown, throwIfNotFound = false): string
     return createHashCode(input);
 }
 
-export function createObject<T extends Record<string, any>>(input: T, sortKeys = true): T {
-    const result: Record<string, any> = {};
-    const keys = sortKeys ? Object.keys(input).sort() : Object.keys(input);
-
-    const len = keys.length;
-    for (let i = 0; i < len; i++) {
-        const key = keys[i];
-        if (input[key] != null) {
-            result[key] = input[key];
-        }
-    }
-
-    Object.defineProperty(result, HASH_CODE_SYMBOL, {
-        value: _createObjectHashCode.bind(result),
+export function createObject<T extends Record<string, any>>(input: T): T {
+    Object.defineProperty(input, HASH_CODE_SYMBOL, {
+        value: _createObjectHashCode.bind(input),
         configurable: false,
         enumerable: false,
         writable: false,
     });
 
-    return Object.freeze(result) as T;
+    return Object.freeze(input) as T;
 }
 
 function _createObjectHashCode() {

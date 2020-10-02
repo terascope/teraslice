@@ -17,12 +17,12 @@ export class ObjectBuilder<
         }
 
         if (thisArg.childConfig == null) {
-            return createObject(value as R);
+            return createObject({ ...value as R });
         }
 
         const fields = Object.keys(thisArg.childConfig) as (keyof R)[];
         if (!fields.length) {
-            return createObject(value as R);
+            return createObject({ ...value as R });
         }
 
         const input = value as Record<keyof R, unknown>;
@@ -33,13 +33,15 @@ export class ObjectBuilder<
                 const config = thisArg.childConfig[field as string];
                 // FIXME this could be improved to use the static method
                 const builder = Builder.make<any>(config);
-                result[field] = builder.valueFrom(
+                result[field] = builder.valueFrom ? builder.valueFrom(
                     input[field], builder
-                );
+                ) : builder.valueFrom;
+            } else {
+                input[field] = null;
             }
         }
 
-        return createObject(result as R, false);
+        return createObject(result as R);
     }
 
     constructor(options: BuilderOptions<T>) {

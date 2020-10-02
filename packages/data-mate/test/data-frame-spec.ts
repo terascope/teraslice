@@ -270,8 +270,11 @@ describe('DataFrame', () => {
 
         describe('->assign', () => {
             it('should be able to a new frame with the new column', () => {
-                const newCol = dataFrame.getColumn('name')!.transform(ColumnTransform.toUpperCase);
-                newCol.name = 'upper_name';
+                const newCol = dataFrame
+                    .getColumn('name')!
+                    .transform(ColumnTransform.toUpperCase)
+                    .rename('upper_name');
+
                 const resultFrame = dataFrame.assign([newCol]);
 
                 const names = resultFrame.columns.map(({ name }) => name);

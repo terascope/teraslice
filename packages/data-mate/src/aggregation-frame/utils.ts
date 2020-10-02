@@ -6,7 +6,7 @@ import {
 } from '../vector';
 
 export function getBuilderForField(
-    col: Column<any>,
+    col: Column<any, any>,
     keyAgg?: KeyAggregation,
     valueAgg?: ValueAggregation
 ): Builder<any> {

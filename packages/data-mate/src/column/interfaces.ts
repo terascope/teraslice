@@ -6,8 +6,8 @@ import { Vector, VectorType } from '../vector';
 /**
  * Column options
  */
-export interface ColumnOptions {
-    name: string;
+export interface ColumnOptions<N extends (number|string|symbol) = string> {
+    name: N;
     version?: DataTypeVersion;
 }
 

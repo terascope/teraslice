@@ -18,16 +18,16 @@ export class AggregationFrame<T extends Record<string, any>> {
     /**
      * The columns for the AggregationFrame
     */
-    columns: readonly Column<any>[];
+    columns: readonly Column<any, keyof T>[];
 
     /**
      * The keys to group by
     */
     readonly keyBy: readonly (keyof T)[];
 
-    protected readonly _aggregations = new Map<string, AggObject>();
+    protected readonly _aggregations = new Map<keyof T, AggObject>();
 
-    constructor(columns: readonly Column<any>[], keyBy?: readonly (keyof T)[]) {
+    constructor(columns: readonly Column<any, keyof T>[], keyBy?: readonly (keyof T)[]) {
         this.columns = Object.freeze(columns.slice());
         this.keyBy = Object.freeze(keyBy ?? []);
         for (const key of this.keyBy) {
@@ -43,7 +43,14 @@ export class AggregationFrame<T extends Record<string, any>> {
      * @param field the name of the column to run the aggregation on
      * @param as a optional name for the new column with the aggregated values
     */
-    [ValueAggregation.avg](field: keyof T, as?: string): AggregationFrame<T> {
+    [ValueAggregation.avg](field: keyof T): AggregationFrame<T>;
+    [ValueAggregation.avg]<A extends string>(
+        field: keyof T, as: A
+    ): AggregationFrame<WithAlias<T, A, number>>;
+    [ValueAggregation.avg]<A extends string>(
+        field: keyof T,
+        as?: A
+    ): AggregationFrame<T|WithAlias<T, A, number>> {
         const { name, type } = this._ensureColumn(field, as);
         if (!isNumberLike(type)) {
             throw new Error(`${ValueAggregation.avg} requires a numeric field type`);
@@ -51,7 +58,7 @@ export class AggregationFrame<T extends Record<string, any>> {
         const aggObject = this._aggregations.get(name) ?? { };
         aggObject.value = ValueAggregation.avg;
         this._aggregations.set(name, aggObject);
-        return this;
+        return this as AggregationFrame<T|WithAlias<T, A, number>>;
     }
 
     /**
@@ -62,7 +69,14 @@ export class AggregationFrame<T extends Record<string, any>> {
      * @param field the name of the column to run the aggregation on
      * @param as a optional name for the new column with the aggregated values
     */
-    [ValueAggregation.sum](field: keyof T, as?: string): AggregationFrame<T> {
+    [ValueAggregation.sum](field: keyof T): AggregationFrame<T>;
+    [ValueAggregation.sum]<A extends string>(
+        field: keyof T, as: A
+    ): AggregationFrame<WithAlias<T, A, number>>;
+    [ValueAggregation.sum]<A extends string>(
+        field: keyof T,
+        as?: A
+    ): AggregationFrame<T|WithAlias<T, A, number>> {
         const { name, type } = this._ensureColumn(field, as);
         if (!isNumberLike(type)) {
             throw new Error(`${ValueAggregation.sum} requires a numeric field type`);
@@ -70,7 +84,7 @@ export class AggregationFrame<T extends Record<string, any>> {
         const aggObject = this._aggregations.get(name) ?? { };
         aggObject.value = ValueAggregation.sum;
         this._aggregations.set(name, aggObject);
-        return this;
+        return this as AggregationFrame<T|WithAlias<T, A, number>>;
     }
 
     /**
@@ -81,7 +95,14 @@ export class AggregationFrame<T extends Record<string, any>> {
      * @param field the name of the column to run the aggregation on
      * @param as a optional name for the new column with the aggregated values
     */
-    [ValueAggregation.min](field: keyof T, as?: string): AggregationFrame<T> {
+    [ValueAggregation.min](field: keyof T): AggregationFrame<T>;
+    [ValueAggregation.min]<A extends string>(
+        field: keyof T, as: A
+    ): AggregationFrame<WithAlias<T, A, number>>;
+    [ValueAggregation.min]<A extends string>(
+        field: keyof T,
+        as?: A
+    ): AggregationFrame<T|WithAlias<T, A, number>> {
         const { name, type } = this._ensureColumn(field, as);
         if (!isNumberLike(type)) {
             throw new Error(`${ValueAggregation.min} requires a numeric field type`);
@@ -89,7 +110,7 @@ export class AggregationFrame<T extends Record<string, any>> {
         const aggObject = this._aggregations.get(name) ?? { };
         aggObject.value = ValueAggregation.min;
         this._aggregations.set(name, aggObject);
-        return this;
+        return this as AggregationFrame<T|WithAlias<T, A, number>>;
     }
 
     /**
@@ -100,7 +121,14 @@ export class AggregationFrame<T extends Record<string, any>> {
      * @param field the name of the column to run the aggregation on
      * @param as a optional name for the new column with the aggregated values
     */
-    [ValueAggregation.max](field: keyof T, as?: string): AggregationFrame<T> {
+    [ValueAggregation.max](field: keyof T): AggregationFrame<T>;
+    [ValueAggregation.max]<A extends string>(
+        field: keyof T, as: A
+    ): AggregationFrame<WithAlias<T, A, number>>;
+    [ValueAggregation.max]<A extends string>(
+        field: keyof T,
+        as?: A
+    ): AggregationFrame<T|WithAlias<T, A, number>> {
         const { name, type } = this._ensureColumn(field, as);
         if (!isNumberLike(type)) {
             throw new Error(`${ValueAggregation.max} requires a numeric field type`);
@@ -108,7 +136,7 @@ export class AggregationFrame<T extends Record<string, any>> {
         const aggObject = this._aggregations.get(name) ?? { };
         aggObject.value = ValueAggregation.max;
         this._aggregations.set(name, aggObject);
-        return this;
+        return this as AggregationFrame<T|WithAlias<T, A, number>>;
     }
 
     /**
@@ -117,12 +145,19 @@ export class AggregationFrame<T extends Record<string, any>> {
      * @param field the name of the column to run the aggregation on
      * @param as a optional name for the new column with the aggregated values
     */
-    [ValueAggregation.count](field: keyof T, as?: string): AggregationFrame<T> {
+    [ValueAggregation.count](field: keyof T): AggregationFrame<T>;
+    [ValueAggregation.count]<A extends string>(
+        field: keyof T, as: A
+    ): AggregationFrame<WithAlias<T, A, number>>;
+    [ValueAggregation.count]<A extends string>(
+        field: keyof T,
+        as?: A
+    ): AggregationFrame<T|WithAlias<T, A, number>> {
         const { name } = this._ensureColumn(field, as);
         const aggObject = this._aggregations.get(name) ?? { };
         aggObject.value = ValueAggregation.count;
         this._aggregations.set(name, aggObject);
-        return this;
+        return this as AggregationFrame<T|WithAlias<T, A, number>>;
     }
 
     /**
@@ -211,18 +246,19 @@ export class AggregationFrame<T extends Record<string, any>> {
         return this;
     }
 
-    private _ensureColumn(field: keyof T, as?: string): { name: string, type: FieldType } {
+    private _ensureColumn(field: keyof T, as?: string): {
+        name: keyof T,
+        type: FieldType
+    } {
         const col = this.columns.find((c) => c.name === field);
         if (!col) throw new Error(`Unknown column named "${field}"`);
 
         if (as) {
-            const columns: Column<any>[] = [];
+            const columns: Column<any, keyof T>[] = [];
             for (const c of this.columns) {
                 columns.push(c);
                 if (c === col) {
-                    const newCol = c.fork(c.vector);
-                    newCol.name = as;
-                    columns.push(newCol);
+                    columns.push(c.rename(as));
                 }
             }
             this.columns = Object.freeze(columns);
@@ -242,7 +278,7 @@ export class AggregationFrame<T extends Record<string, any>> {
      * Run aggregations and flatten the grouped data into a DataFrame
      * @returns the new columns
     */
-    async run(): Promise<Column[]> {
+    async run(): Promise<Column<any, keyof T>[]> {
         const buckets = new Map<string, any[]>();
         const count = Math.max(...this.columns.map((col) => col.size));
         const {
@@ -250,13 +286,13 @@ export class AggregationFrame<T extends Record<string, any>> {
         } = this._builders();
 
         for (let i = 0; i < count; i++) {
-            const row: Record<string, any> = {};
+            const row: Partial<T> = {};
 
             let key = '';
             for (const [field, getKey] of keyAggs) {
                 const res = getKey(i);
                 if (res.key) key += res.key;
-                row[field] = res.value;
+                row[field] = res.value as any;
             }
 
             if (!key && keyAggs.size) continue;
@@ -280,7 +316,7 @@ export class AggregationFrame<T extends Record<string, any>> {
             }
 
             let useIndex = 0;
-            const remainingFields: string[] = [];
+            const remainingFields: (keyof T)[] = [];
             for (const [field, builder] of builders) {
                 const agg = fieldAggs.get(field);
                 if (agg != null) {
@@ -299,17 +335,17 @@ export class AggregationFrame<T extends Record<string, any>> {
             }
         }
 
-        return [...builders].map(([name, builder]) => new Column<any>(builder.toVector(), {
-            name,
-            version: this.columns.find((col) => col.name === name)!.version
-        }));
+        return [...builders].map(([name, builder]) => {
+            const column = this.columns.find((col) => col.name === name)!;
+            return column.fork(builder.toVector());
+        });
     }
 
     private _builders() {
-        const builders = new Map<string, Builder<any>>();
-        const fieldAggs = new Map<string, FieldAgg>();
-        const keyAggs = new Map<string, KeyAggFn>();
-        const otherCols = new Map<string, Column<any>>();
+        const builders = new Map<keyof T, Builder<any>>();
+        const fieldAggs = new Map<keyof T, FieldAgg>();
+        const keyAggs = new Map<keyof T, KeyAggFn>();
+        const otherCols = new Map<keyof T, Column<any, keyof T>>();
 
         for (const col of this.columns) {
             const agg = this._aggregations.get(col.name);
@@ -348,3 +384,7 @@ export class AggregationFrame<T extends Record<string, any>> {
 type AggObject = {
     key?: KeyAggregation; value?: ValueAggregation
 };
+
+type WithAlias<T extends Record<string, unknown>, A extends string, V> = {
+    [P in (keyof T)|A]: V;
+}
