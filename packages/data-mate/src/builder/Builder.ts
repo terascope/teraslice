@@ -14,7 +14,7 @@ export abstract class Builder<T = unknown> {
     */
     static make<R = unknown>(
         config: DataTypeFieldConfig,
-        length?: number|Data<R>,
+        length: number|Data<R>,
         childConfig?: DataTypeFields,
     ): Builder<R> {
         throw new Error(
@@ -170,8 +170,9 @@ export type ValueFromFn<T> = (
  */
 export interface BuilderOptions<T> {
     config: DataTypeFieldConfig;
-    /** Preallocate this many items */
-    length?: number|Data<T>;
+
+    /** Preallocate the Data */
+    length: number|Data<T>;
 
     valueFrom?: ValueFromFn<T>;
     /**

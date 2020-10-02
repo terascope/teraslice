@@ -33,24 +33,18 @@ export class Data<T> {
     isNaturallyDistinct: boolean;
 
     constructor(
-        size?: number,
+        size: number,
         _data?: Data<T>,
     ) {
         if (_data) {
             this.isNaturallyDistinct = _data.isNaturallyDistinct;
-            if (size == null) {
-                this.indices = _data.indices.slice();
-            } else {
-                this.indices = getTypedPointerArray(size);
-                this.indices.set(_data.indices, 0);
-            }
+            this.indices = getTypedPointerArray(size);
+            this.indices.set(_data.indices, 0);
             this.values = _data.values.slice();
             this.nulls = _data.nulls;
         } else {
             this.isNaturallyDistinct = true;
-            this.indices = size != null
-                ? getTypedPointerArray(size)
-                : [];
+            this.indices = getTypedPointerArray(size);
             this.values = [];
             this.nulls = 0;
         }

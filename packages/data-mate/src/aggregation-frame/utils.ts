@@ -7,19 +7,20 @@ import {
 
 export function getBuilderForField(
     col: Column<any, any>,
+    length: number,
     keyAgg?: KeyAggregation,
     valueAgg?: ValueAggregation
 ): Builder<any> {
     if (!keyAgg && !valueAgg) {
         return Builder.make(
-            col.config, undefined, col.vector.childConfig
+            col.config, length, col.vector.childConfig
         );
     }
 
     if (keyAgg && !valueAgg) {
         return Builder.make<any>(
             col.config,
-            undefined,
+            length,
             col.vector.childConfig
         );
     }
@@ -55,5 +56,5 @@ export function getBuilderForField(
         type,
         array: false,
         description: col.config.description // FIXME append agg info
-    });
+    }, length);
 }

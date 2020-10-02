@@ -14,7 +14,7 @@ import {
 } from './types';
 
 export function getBuildersForConfig<T extends Record<string, any> = Record<string, unknown>>(
-    config: DataTypeConfig, length?: number
+    config: DataTypeConfig, length: number
 ): Map<(keyof T), Builder<unknown>> {
     const builders = new Map<keyof T, Builder<unknown>>();
     const groupedFieldEntries = Object.entries(getGroupedFields(config.fields));
@@ -34,7 +34,7 @@ export function getBuildersForConfig<T extends Record<string, any> = Record<stri
 
 export function _newBuilder<T>(
     config: DataTypeFieldConfig,
-    length?: number|Data<any>,
+    length: number|Data<any>,
     childConfig?: DataTypeFields,
 ): Builder<T> {
     const fieldType = config.type as FieldType;
@@ -58,7 +58,7 @@ export function _newBuilder<T>(
 */
 function _newBuilderForType(
     config: DataTypeFieldConfig,
-    length?: number|Data<any>,
+    length: number|Data<any>,
     childConfig?: DataTypeFields,
 ) {
     const options: BuilderOptions<any> = {

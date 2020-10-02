@@ -91,7 +91,7 @@ export function validateFieldTransformArgs<A extends Record<string, any>>(
             throw new Error(`Missing required parameter ${field}`);
         }
 
-        const builder = Builder.make(config);
+        const builder = Builder.make(config, 0);
         if (builder.valueFrom && result[field] != null) {
             result[field] = builder.valueFrom(result[field], builder) as any;
         }

@@ -20,7 +20,7 @@ describe('ListVector', () => {
         let vector: Vector<any>;
         let expected: any[];
         beforeAll(() => {
-            const builder = Builder.make({ type, array: true });
+            const builder = Builder.make({ type, array: true }, input.length);
             input.forEach((val) => builder.append(val));
             vector = builder.toVector();
             expected = (output ?? input).map((val) => {

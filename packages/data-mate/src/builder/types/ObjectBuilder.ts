@@ -32,7 +32,7 @@ export class ObjectBuilder<
             if (input[field] != null) {
                 const config = thisArg.childConfig[field as string];
                 // FIXME this could be improved to use the static method
-                const builder = Builder.make<any>(config);
+                const builder = Builder.make<any>(config, 0);
                 result[field] = builder.valueFrom ? builder.valueFrom(
                     input[field], builder
                 ) : builder.valueFrom;

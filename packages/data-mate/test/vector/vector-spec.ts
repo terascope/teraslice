@@ -251,7 +251,7 @@ describe('Vector', () => {
         let vector: Vector<any>;
         let expected: any[];
         beforeAll(() => {
-            const builder = Builder.make({ type, array: false });
+            const builder = Builder.make({ type, array: false }, input.length);
             input.forEach((val) => builder.append(val));
             vector = builder.toVector();
             expected = (output ?? input).map((val) => {
@@ -294,7 +294,9 @@ describe('Vector', () => {
 
         if (invalid?.length) {
             test.each(invalid)('should NOT be able to parse %p', (val) => {
-                const builder = Builder.make({ type, array: false });
+                const builder = Builder.make({
+                    type, array: false
+                }, invalid.length);
                 expect(() => {
                     builder.append(val);
                 }).toThrowError();

@@ -282,7 +282,7 @@ export class AggregationFrame<T extends Record<string, any>> {
         const buckets = new Map<string, any[]>();
         const count = Math.max(...this.columns.map((col) => col.size));
         const {
-            builders, fieldAggs, keyAggs, otherCols
+            fieldAggs, keyAggs, otherCols
         } = this._builders();
 
         for (let i = 0; i < count; i++) {
@@ -305,6 +305,15 @@ export class AggregationFrame<T extends Record<string, any>> {
             const bucket = buckets.get(groupKey) || [];
             bucket.push(row);
             buckets.set(groupKey, bucket);
+        }
+
+        const builders = new Map<keyof T, Builder<any>>();
+        for (const col of this.columns) {
+            const agg = this._aggregations.get(col.name);
+            const builder = getBuilderForField(
+                col, buckets.size, agg?.key, agg?.value
+            );
+            builders.set(col.name, builder);
         }
 
         for (const bucket of buckets.values()) {
@@ -342,7 +351,6 @@ export class AggregationFrame<T extends Record<string, any>> {
     }
 
     private _builders() {
-        const builders = new Map<keyof T, Builder<any>>();
         const fieldAggs = new Map<keyof T, FieldAgg>();
         const keyAggs = new Map<keyof T, KeyAggFn>();
         const otherCols = new Map<keyof T, Column<any, keyof T>>();
@@ -350,8 +358,6 @@ export class AggregationFrame<T extends Record<string, any>> {
         for (const col of this.columns) {
             const agg = this._aggregations.get(col.name);
             let addToOther = true;
-            const builder = getBuilderForField(col, agg?.key, agg?.value);
-            builders.set(col.name, builder);
 
             if (agg) {
                 if (agg.value) {
@@ -369,7 +375,7 @@ export class AggregationFrame<T extends Record<string, any>> {
         }
 
         return {
-            builders, fieldAggs, keyAggs, otherCols
+            fieldAggs, keyAggs, otherCols
         };
     }
 
