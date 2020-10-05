@@ -1,6 +1,5 @@
 import { Maybe } from '@terascope/types';
 import { ReadableDataValue, TypedArray, WritableDataValue } from './interfaces';
-import { getPointerArray } from './utils';
 
 /**
  * A data type agnostic in-memory representation of the data
@@ -20,12 +19,6 @@ export class WritableData<T> {
     }
 
     /**
-     * The index represent the order of the values,
-     * the value is the hash of where to find the index
-    */
-    readonly indices: TypedArray;
-
-    /**
      * The value to indices Map
     */
     readonly values: Map<T, WritableDataValue>;
@@ -40,8 +33,7 @@ export class WritableData<T> {
         from: readonly ReadableDataValue<T>[]
     ) {
         this.size = size;
-        this.indices = getPointerArray(size);
-        this.values = new Map(fromToIterable(from, this.indices));
+        this.values = new Map(fromToIterable(from));
     }
 
     /**
@@ -52,16 +44,10 @@ export class WritableData<T> {
 
         const existing = this.values.get(value);
         if (existing) {
-            existing.indices.push(index);
+            existing.push(index);
         } else {
-            const valIndex = this.values.size + 1;
-            this.values.set(value, {
-                index: valIndex,
-                indices: [index],
-            });
-            this.indices[index] = valIndex;
+            this.values.set(value, [index]);
         }
-
         return this;
     }
 
@@ -73,19 +59,9 @@ export class WritableData<T> {
 
         const existing = this.values.get(value);
         if (existing) {
-            for (const index of indices) {
-                this.indices[index] = existing.index;
-                existing.indices.push(index);
-            }
+            existing.push(...indices);
         } else {
-            const valIndex = this.values.size + 1;
-            this.values.set(value, {
-                index: valIndex,
-                indices: Array.from(indices, (v) => {
-                    this.indices[v] = valIndex;
-                    return v;
-                })
-            });
+            this.values.set(value, Array.from(indices));
         }
         return this;
     }
@@ -93,18 +69,10 @@ export class WritableData<T> {
 
 function* fromToIterable<T>(
     from: readonly ReadableDataValue<T>[],
-    indices: TypedArray,
 ): Iterable<[T, WritableDataValue]> {
     const size = from.length;
     for (let i = 0; i < size; i++) {
         const val = from[i];
-        const index = i + 1;
-        yield [val.value, {
-            index,
-            indices: Array.from(val.indices, (v) => {
-                indices[v] = index;
-                return v;
-            }),
-        }];
+        yield [val.value, val.indices.slice()];
     }
 }

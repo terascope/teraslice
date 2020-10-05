@@ -4,6 +4,8 @@ import { ReadableDataValue, TypedArray, WritableDataValue } from './interfaces';
 import { getTypedArrayClass } from './utils';
 import { WritableData } from './WritableData';
 
+const _indicesCache = new WeakMap<ReadableData<any>, TypedArray>();
+
 /**
  * A data type agnostic in-memory representation of the data
  * for a Vector and indices/unique values.
@@ -15,20 +17,18 @@ import { WritableData } from './WritableData';
 */
 export class ReadableData<T> {
     /**
-     * The index represent the order of the values,
-     * the value is the hash of where to find the index
-    */
-    readonly indices: TypedArray;
-
-    /**
      * The values to value index lookup table
     */
     readonly values: readonly ReadableDataValue<T>[];
 
+    /**
+     * The number of total number of values stored
+    */
+    readonly size: number;
+
     constructor(data: WritableData<T>) {
-        const PointerArray = getTypedArrayClass(data.values.size + 1);
-        this.indices = PointerArray.from(data.indices);
         this.values = Array.from(data.values, fromValue);
+        this.size = data.size;
         Object.freeze(this);
     }
 
@@ -52,8 +52,25 @@ export class ReadableData<T> {
         }
     }
 
-    get size(): number {
-        return this.indices.length;
+    /**
+     * The index represent the order of the values,
+     * the value is the hash of where to find the index
+    */
+    get indices(): TypedArray {
+        const cached = _indicesCache.get(this);
+        if (cached) return cached;
+
+        const PointerArray = getTypedArrayClass(this.values.length + 1);
+        const indices = new PointerArray(this.size);
+        let valIndex = 0;
+        for (const val of this.values) {
+            valIndex += 1;
+            for (const index of val.indices) {
+                indices[index] = valIndex;
+            }
+        }
+        _indicesCache.set(this, indices);
+        return indices;
     }
 
     /**
@@ -127,7 +144,7 @@ export class ReadableData<T> {
     }
 }
 
-function fromValue<T>([value, { indices }]: [T, WritableDataValue]): ReadableDataValue<T> {
+function fromValue<T>([value, indices]: [T, WritableDataValue]): ReadableDataValue<T> {
     return {
         value,
         indices,

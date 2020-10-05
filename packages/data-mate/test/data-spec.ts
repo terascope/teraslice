@@ -57,7 +57,6 @@ describe('Data', () => {
             it('should have the correct indices', () => {
                 const indices = Uint8Array.of(1, 2, 1, 2, 1, 2, 1, 2);
                 expect(readable.indices).toStrictEqual(indices);
-                expect(writable.indices).toStrictEqual(indices);
             });
 
             it('should have the correct values', () => {
@@ -91,7 +90,6 @@ describe('Data', () => {
 
             it('should have the correct indices', () => {
                 const indices = Uint8Array.of(1, 0, 2, 0, 3, 0, 4, 0);
-                expect(writable.indices).toStrictEqual(indices);
                 expect(readable.indices).toStrictEqual(indices);
             });
 
@@ -118,9 +116,6 @@ describe('Data', () => {
 
                 expect(sliced).toBeInstanceOf(WritableData);
 
-                expect(sliced.indices).toStrictEqual(readable.indices);
-                expect(sliced.indices).not.toBe(readable.indices);
-
                 const data = new ReadableData(sliced);
                 const result = times(size, (i) => data.get(i));
                 expect(result).toStrictEqual([...values]);
@@ -130,11 +125,6 @@ describe('Data', () => {
                 const sliced = readable.toWritable(readable.size + 1);
 
                 expect(sliced).toBeInstanceOf(WritableData);
-
-                expect(sliced.indices).toStrictEqual(
-                    Uint8Array.from([...readable.indices, 0])
-                );
-                expect(sliced.indices).not.toBe(readable.indices);
 
                 const data = new ReadableData(sliced);
                 const result = times(size + 1, (i) => data.get(i));
@@ -152,7 +142,6 @@ describe('Data', () => {
 
             it('should have the correct indices', () => {
                 const indices = Uint8Array.of(0, 0, 0, 0, 0, 0, 0, 0);
-                expect(writable.indices).toStrictEqual(indices);
                 expect(readable.indices).toStrictEqual(indices);
             });
 
@@ -173,9 +162,6 @@ describe('Data', () => {
                 const sliced = readable.slice();
 
                 expect(sliced).toBeInstanceOf(WritableData);
-
-                expect(sliced.indices).toStrictEqual(readable.indices);
-                expect(sliced.indices).not.toBe(readable.indices);
 
                 const data = new ReadableData(sliced);
                 const result = times(size, (i) => data.get(i));
@@ -202,7 +188,6 @@ describe('Data', () => {
         it('should have the correct indices', () => {
             const indices = Uint8Array.of(1, 2, 3, 4, 0, 5, 6, 7);
             expect(readable.indices).toStrictEqual(indices);
-            expect(writable.indices).toStrictEqual(indices);
         });
 
         it('should not be a primitive', () => {

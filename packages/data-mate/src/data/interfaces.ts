@@ -13,13 +13,4 @@ export type ReadableDataValue<T> = Readonly<{
     value: T;
 }>;
 
-export type WritableDataValue = {
-    /**
-     * The value index
-    */
-    index: number;
-    /**
-     * Indices
-    */
-    indices: number[];
-}
+export type WritableDataValue = number[];
