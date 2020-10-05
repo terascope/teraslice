@@ -1,5 +1,6 @@
 import { getTypeOf, isPlainObject, toString } from '@terascope/utils';
 import { createObject } from '../../core-utils';
+import { WritableData } from '../../data';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions, ValueFromFn } from '../Builder';
 
@@ -32,7 +33,7 @@ export class ObjectBuilder<
             if (input[field] != null) {
                 const config = thisArg.childConfig[field as string];
                 // FIXME this could be improved to use the static method
-                const builder = Builder.make<any>(config, 0);
+                const builder = Builder.make<any>(config, new WritableData(0));
                 result[field] = builder.valueFrom ? builder.valueFrom(
                     input[field], builder
                 ) : builder.valueFrom;
@@ -44,11 +45,14 @@ export class ObjectBuilder<
         return createObject(result as R);
     }
 
-    constructor(options: BuilderOptions<T>) {
-        super(VectorType.Object, {
+    constructor(
+        data: WritableData<T>,
+        options: BuilderOptions<T>
+    ) {
+        data.isPrimitive = false;
+        super(VectorType.Object, data, {
             valueFrom: ObjectBuilder.valueFrom as ValueFromFn<T>,
             ...options,
         });
-        this.data.isNaturallyDistinct = false;
     }
 }

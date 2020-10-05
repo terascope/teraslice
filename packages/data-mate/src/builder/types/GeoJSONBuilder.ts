@@ -1,6 +1,7 @@
 import { ESGeoShapeType, GeoShape, GeoShapeType } from '@terascope/types';
 import { getTypeOf, isGeoJSON, toString } from '@terascope/utils';
 import { createObject } from '../../core-utils';
+import { WritableData } from '../../data';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 
@@ -18,11 +19,14 @@ export class GeoJSONBuilder extends Builder<GeoShape> {
         return createObject({ ...value, type });
     }
 
-    constructor(options: BuilderOptions<GeoShape>) {
-        super(VectorType.GeoJSON, {
+    constructor(
+        data: WritableData<GeoShape>,
+        options: BuilderOptions<GeoShape>
+    ) {
+        data.isPrimitive = false;
+        super(VectorType.GeoJSON, data, {
             valueFrom: GeoJSONBuilder.valueFrom,
             ...options,
         });
-        this.data.isNaturallyDistinct = false;
     }
 }

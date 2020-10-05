@@ -8,7 +8,7 @@ import {
     Vector, isVector, VectorType
 } from '../vector';
 import { ColumnTransformFn, TransformMode } from './interfaces';
-import { Data } from '../core-utils';
+import { ReadableData, WritableData } from '../data';
 
 const _vectorIds = new WeakMap<Vector<any>, string>();
 export function getVectorId(vector: Vector<any>): string {
@@ -29,51 +29,73 @@ export function mapVector<T, R = T>(
 ): Vector<R> {
     const builder = Builder.make<R>(
         { ...vector.config, ...config, ...transform.output },
-        vector.size,
+        new WritableData(vector.size),
         vector.childConfig
     );
 
     if (transform.mode === TransformMode.NONE) {
-        for (const [value, indices] of vector.data.associations()) {
-            builder.mset(indices, value);
-        }
-        return builder.toVector();
+        return mapVectorNone(vector, builder);
     }
 
     if (transform.mode === TransformMode.EACH) {
-        for (const [value, indices] of vector.data.associations()) {
-            builder.mset(indices, transform.fn(value));
-        }
-        return builder.toVector();
+        return mapVectorEach(vector, builder, transform.fn);
     }
 
     if (transform.mode === TransformMode.EACH_VALUE) {
-        for (const [value, indices] of vector.data.associations()) {
-            if (transform.skipNulls !== false && value == null) {
-                builder.mset(indices, null);
-            } else if (isVector<T>(value)) {
-                const values: Maybe<R>[] = [];
-                for (const val of value) {
-                    if (transform.skipNulls !== false && val == null) {
-                        values.push(null);
-                    } else {
-                        values.push(
-                            transform.fn(val as any)
-                        );
-                    }
-                }
-                builder.mset(indices, values);
-            } else {
-                builder.mset(
-                    indices,
-                    transform.fn(value as any)
-                );
-            }
-        }
-        return builder.toVector();
+        return mapVectorEachValue(
+            vector, builder, transform.fn, transform.skipNulls ?? true
+        );
     }
 
     throw new Error(`Unknown transformation ${toString(transform)}`);
+}
+
+export function mapVectorNone<T, R = T>(
+    vector: Vector<T>,
+    builder: Builder<R>,
+): Vector<R> {
+    for (const { value, indices } of vector.data.values) {
+        builder.mset(value, indices);
+    }
+    return builder.toVector();
+}
+
+export function mapVectorEach<T, R = T>(
+    vector: Vector<T>,
+    builder: Builder<R>,
+    fn: (value: Maybe<T|Vector<T>>) => Maybe<R|Vector<R>>,
+): Vector<R> {
+    for (const { value, indices } of vector.data.values) {
+        builder.mset(fn(value), indices);
+    }
+    return builder.toVector();
+}
+
+export function mapVectorEachValue<T, R = T>(
+    vector: Vector<T>,
+    builder: Builder<R>,
+    fn: (value: T) => Maybe<R>,
+    skipNulls: boolean
+): Vector<R> {
+    for (const { value, indices } of vector.data.values) {
+        if (isVector<T>(value)) {
+            const values: Maybe<R>[] = [];
+            for (const val of value) {
+                if (skipNulls && val == null) {
+                    values.push(null);
+                } else {
+                    values.push(fn(val as any));
+                }
+            }
+            builder.mset(values, indices);
+        } else {
+            builder.mset(
+                fn(value as any),
+                indices,
+            );
+        }
+    }
+    return builder.toVector();
 }
 
 export function validateFieldTransformArgs<A extends Record<string, any>>(
@@ -91,7 +113,7 @@ export function validateFieldTransformArgs<A extends Record<string, any>>(
             throw new Error(`Missing required parameter ${field}`);
         }
 
-        const builder = Builder.make(config, 0);
+        const builder = Builder.make(config, new WritableData(0));
         if (builder.valueFrom && result[field] != null) {
             result[field] = builder.valueFrom(result[field], builder) as any;
         }
@@ -100,7 +122,7 @@ export function validateFieldTransformArgs<A extends Record<string, any>>(
     return result;
 }
 
-const emptyData = new Data<any>(0).freeze();
+const emptyData = new ReadableData<any>(new WritableData(0));
 
 export function validateFieldTransformType(
     accepts: VectorType[], vector: Vector<any>

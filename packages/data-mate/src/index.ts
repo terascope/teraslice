@@ -14,6 +14,7 @@ export * from './aggregations';
 export * from './builder';
 export * from './column';
 export * from './core-utils';
+export * from './data';
 export * from './data-frame';
 export * from './document-matcher';
 export * from './interfaces';

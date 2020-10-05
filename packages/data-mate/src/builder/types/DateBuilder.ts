@@ -1,5 +1,6 @@
 import { DateFormat } from '@terascope/types';
 import { DateValue } from '../../core-utils';
+import { WritableData } from '../../data';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 
@@ -44,11 +45,14 @@ export class DateBuilder extends Builder<DateValue> {
 
     referenceDate?: Date;
 
-    constructor(options: BuilderOptions<DateValue>) {
-        super(VectorType.Date, {
+    constructor(
+        data: WritableData<DateValue>,
+        options: BuilderOptions<DateValue>
+    ) {
+        data.isPrimitive = false;
+        super(VectorType.Date, data, {
             valueFrom: DateBuilder.valueFrom,
             ...options,
         });
-        this.data.isNaturallyDistinct = false;
     }
 }

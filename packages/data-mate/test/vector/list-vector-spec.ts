@@ -2,7 +2,7 @@ import 'jest-fixtures';
 import { bigIntToJSON, isNotNil, toString } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
-    Vector, Builder
+    Vector, Builder, WritableData
 } from '../../src';
 
 describe('ListVector', () => {
@@ -20,8 +20,11 @@ describe('ListVector', () => {
         let vector: Vector<any>;
         let expected: any[];
         beforeAll(() => {
-            const builder = Builder.make({ type, array: true }, input.length);
+            const builder = Builder.make(
+                { type, array: true }, new WritableData(input.length)
+            );
             input.forEach((val) => builder.append(val));
+
             vector = builder.toVector();
             expected = (output ?? input).map((val) => {
                 if (typeof val === 'bigint') {

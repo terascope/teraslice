@@ -13,6 +13,7 @@ import { runVectorAggregation, ValueAggregation } from './aggregations';
 import {
     getVectorId, mapVector, validateFieldTransformArgs, validateFieldTransformType
 } from './utils';
+import { WritableData } from '../data';
 
 /**
  * A single column of values with the same data type.
@@ -31,7 +32,7 @@ export class Column<T = unknown, N extends (number|string|symbol) = string> {
         config: Readonly<DataTypeFieldConfig>,
         values: Maybe<R>[]|readonly Maybe<R>[] = [],
         version?: DataTypeVersion): Column<R extends (infer U)[] ? Vector<U> : R, F> {
-        const builder = Builder.make<R>(config, values.length);
+        const builder = Builder.make<R>(config, new WritableData(values.length));
 
         values.forEach((val) => builder.append(val));
 
@@ -200,7 +201,9 @@ export class Column<T = unknown, N extends (number|string|symbol) = string> {
     sort(direction?: SortOrder): Column<T, N> {
         const sortedIndices = this._vector.getSortedIndices(direction);
         const len = sortedIndices.length;
-        const builder = Builder.make<T>(this.config, len, this.vector.childConfig);
+        const builder = Builder.make<T>(
+            this.config, new WritableData(len), this.vector.childConfig
+        );
 
         for (let i = 0; i < len; i++) {
             const moveTo = sortedIndices[i];

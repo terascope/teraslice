@@ -209,11 +209,11 @@ export class DataFrame<
         for (const field in filters) {
             if (Object.prototype.hasOwnProperty.call(filters, field)) {
                 const col = this.getColumn(field)!;
-                for (const [val, valIndices] of col.vector.data.associations()) {
-                    if (filters[field]!(val)) {
-                        valIndices.forEach(add);
+                for (const v of col.vector.data.values) {
+                    if (filters[field]!(v.value)) {
+                        v.indices.forEach(add);
                     } else {
-                        valIndices.forEach(remove);
+                        v.indices.forEach(remove);
                     }
                 }
             }

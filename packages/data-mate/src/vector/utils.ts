@@ -11,11 +11,11 @@ import {
     ObjectVector, StringVector, IPVector, IPRangeVector,
 } from './types';
 import { Vector } from './Vector';
-import { Data } from '../core-utils';
+import { ReadableData } from '../data';
 
 export function _newVector<T>(
     config: Readonly<DataTypeFieldConfig>,
-    data: Data<any>,
+    data: ReadableData<any>,
     childConfig?: ReadonlyDataTypeFields
 ): Vector<T> {
     const fieldType = config.type as FieldType;
@@ -39,7 +39,7 @@ export function _newVector<T>(
 */
 function _newVectorForType(
     config: Readonly<DataTypeFieldConfig>,
-    data: Data<any>,
+    data: ReadableData<any>,
     childConfig?: ReadonlyDataTypeFields
 ) {
     switch (config.type as FieldType) {

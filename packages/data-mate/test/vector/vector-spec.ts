@@ -8,7 +8,7 @@ import {
     ESGeoShapeType,
     FieldType, GeoShapeMultiPolygon, GeoShapePoint, GeoShapePolygon, GeoShapeType
 } from '@terascope/types';
-import { Builder, Vector } from '../../src';
+import { Builder, Vector, WritableData } from '../../src';
 
 describe('Vector', () => {
     type Case = [
@@ -251,7 +251,10 @@ describe('Vector', () => {
         let vector: Vector<any>;
         let expected: any[];
         beforeAll(() => {
-            const builder = Builder.make({ type, array: false }, input.length);
+            const builder = Builder.make(
+                { type, array: false },
+                new WritableData(input.length)
+            );
             input.forEach((val) => builder.append(val));
             vector = builder.toVector();
             expected = (output ?? input).map((val) => {
@@ -296,7 +299,7 @@ describe('Vector', () => {
             test.each(invalid)('should NOT be able to parse %p', (val) => {
                 const builder = Builder.make({
                     type, array: false
-                }, invalid.length);
+                }, new WritableData(invalid.length));
                 expect(() => {
                     builder.append(val);
                 }).toThrowError();

@@ -3,7 +3,8 @@ import {
     Maybe, SortOrder,
     ReadonlyDataTypeFields
 } from '@terascope/types';
-import { createHashCode, Data, HASH_CODE_SYMBOL } from '../core-utils';
+import { createHashCode, HASH_CODE_SYMBOL } from '../core-utils';
+import { ReadableData } from '../data';
 import { VectorType } from './interfaces';
 
 /**
@@ -15,7 +16,7 @@ export abstract class Vector<T = unknown> {
     */
     static make<R>(
         config: Readonly<DataTypeFieldConfig>,
-        data: Data<R>,
+        data: ReadableData<R>,
         childConfig?: DataTypeFields
     ): Vector<R> {
         throw new Error(`This is overridden in the index file, ${config} ${data} ${childConfig}`);
@@ -52,7 +53,7 @@ export abstract class Vector<T = unknown> {
      *
      * @internal
     */
-    readonly data: Data<T>;
+    readonly data: ReadableData<T>;
 
     /**
      * If set to false, the Vector is not sortable
@@ -75,9 +76,6 @@ export abstract class Vector<T = unknown> {
         this.valueToJSON = valueToJSON;
 
         this.data = data;
-        if (!this.data.isFrozen) {
-            throw new Error(`${this.constructor.name} constructed with writable data`);
-        }
         this.childConfig = childConfig;
     }
 
@@ -124,14 +122,14 @@ export abstract class Vector<T = unknown> {
     /**
      * Create a new Vector with the same metadata but with different data
     */
-    abstract fork(data: Data<T>): Vector<T>;
+    abstract fork(data: ReadableData<T>): Vector<T>;
 
     /**
      * Create a new Vector with the range of values
     */
     slice(start?: number, end?: number): Vector<T> {
         return this.fork(
-            this.data.slice(start, end).freeze()
+            new ReadableData(this.data.slice(start, end))
         );
     }
 
@@ -205,7 +203,7 @@ export type ValueToJSONFn<T> = (value: T, thisArg?: Vector<T>) => any;
  * A list of Vector Options
  */
 export interface VectorOptions<T> {
-    data: Data<T>;
+    data: ReadableData<T>;
     config: Readonly<DataTypeFieldConfig>;
     valueToJSON?: ValueToJSONFn<T>;
     childConfig?: ReadonlyDataTypeFields;

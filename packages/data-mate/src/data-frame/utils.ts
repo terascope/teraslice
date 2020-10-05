@@ -11,14 +11,22 @@ export function buildRecords<T extends Record<string, any>>(
     builders: Map<keyof T, Builder<unknown>>,
     records: T[],
 ): [keyof T, Builder<any>][] {
+    const _builders = [...builders];
+    const append = _buildersAppend(_builders);
     const len = records.length;
-
     for (let i = 0; i < len; i++) {
-        for (const [field, builder] of builders) {
-            builder.append(records[i][field]);
-        }
+        append(records[i]);
     }
-    return [...builders];
+    return _builders;
+}
+
+function _buildersAppend<T extends Record<string, any>>(builders: [keyof T, Builder<any>][]) {
+    const len = builders.length;
+    return function __buildersAppend(record: T) {
+        for (let i = 0; i < len; i++) {
+            builders[i][1].append(record[builders[i][0]]);
+        }
+    };
 }
 
 export function distributeRowsToColumns<T extends Record<string, any>>(
@@ -43,16 +51,12 @@ export function concatColumnsToColumns<T extends Record<string, any>>(
     for (const [field, builder] of builders) {
         const col = columns.find(((c) => c.name === field));
         if (col) {
-            for (const [value, indices] of col.vector.data.associations()) {
+            for (const { value, indices } of col.vector.data.values) {
                 builder.mset(
-                    indices.map((i) => offset + i),
                     value,
+                    indices.map((i: number) => offset + i),
                 );
             }
-
-            builder.data.nulls = builder.size - col.size;
-        } else {
-            builder.data.nulls = builder.size;
         }
     }
     return [...builders];

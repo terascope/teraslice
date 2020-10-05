@@ -1,4 +1,5 @@
 import { toBigIntOrThrow } from '@terascope/utils';
+import { WritableData } from '../../data';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 
@@ -7,12 +8,13 @@ export class BigIntBuilder extends Builder<bigint> {
         return toBigIntOrThrow(value);
     }
 
-    constructor(options: BuilderOptions<bigint>) {
-        super(VectorType.BigInt, {
+    constructor(
+        data: WritableData<bigint>,
+        options: BuilderOptions<bigint>
+    ) {
+        super(VectorType.BigInt, data, {
             valueFrom: BigIntBuilder.valueFrom,
             ...options,
         });
-
-        this.data.isNaturallyDistinct = false;
     }
 }

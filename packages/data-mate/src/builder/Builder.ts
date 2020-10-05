@@ -1,5 +1,5 @@
 import { DataTypeFieldConfig, DataTypeFields } from '@terascope/types';
-import { Data } from '../core-utils';
+import { ReadableData, WritableData, TypedArray } from '../data';
 import {
     Vector, VectorType
 } from '../vector';
@@ -14,7 +14,7 @@ export abstract class Builder<T = unknown> {
     */
     static make<R = unknown>(
         config: DataTypeFieldConfig,
-        length: number|Data<R>,
+        data: WritableData<R>,
         childConfig?: DataTypeFields,
     ): Builder<R> {
         throw new Error(
@@ -29,11 +29,11 @@ export abstract class Builder<T = unknown> {
     */
     static makeFromVector<R>(
         vector: Vector<R>,
-        length: number,
+        size: number,
     ): Builder<R> {
         const builder = Builder.make<R>(
             vector.config,
-            vector.data.fork(length),
+            vector.data.toWritable(size),
             vector.childConfig,
         );
         return builder;
@@ -64,7 +64,7 @@ export abstract class Builder<T = unknown> {
     /**
      * @internal
     */
-    readonly data: Data<T>;
+    readonly data: WritableData<T>;
 
     /**
      * The current insertion index (used for append)
@@ -76,30 +76,17 @@ export abstract class Builder<T = unknown> {
          * This will be set automatically by specific Builder classes
          */
         type: VectorType,
+        data: WritableData<T>,
         {
-            config, length, valueFrom, childConfig
+            config, valueFrom, childConfig
         }: BuilderOptions<T>,
     ) {
         this.type = type;
         this.config = { ...config };
         this.valueFrom = valueFrom;
         this.childConfig = childConfig ? { ...childConfig } : undefined;
-        if (length instanceof Data) {
-            this.data = length;
-            if (this.data.isFrozen) {
-                throw new Error(`${this.constructor.name} constructed with frozen data`);
-            }
-        } else {
-            this.data = new Data(length);
-        }
+        this.data = data;
         this.currentIndex = 0;
-    }
-
-    /**
-     * Returns the number items in the Builder
-    */
-    get size(): number {
-        return this.data.values.length;
     }
 
     /**
@@ -114,9 +101,9 @@ export abstract class Builder<T = unknown> {
     /**
      * Set a single unique value on multiple indices
     */
-    mset(indices: number[]|readonly number[], value: unknown): Builder<T> {
+    mset(value: unknown, indices: TypedArray): Builder<T> {
         const val = this._valueFrom(value);
-        this.data.mset(indices, val);
+        this.data.mset(val, indices);
         return this;
     }
 
@@ -132,8 +119,8 @@ export abstract class Builder<T = unknown> {
     */
     toVector(): Vector<T> {
         const vector = Vector.make(
-            Object.freeze({ ...this.config }),
-            this.data.freeze(),
+            Object.freeze(this.config),
+            new ReadableData(this.data),
             this.childConfig
         );
 
@@ -170,9 +157,6 @@ export type ValueFromFn<T> = (
  */
 export interface BuilderOptions<T> {
     config: DataTypeFieldConfig;
-
-    /** Preallocate the Data */
-    length: number|Data<T>;
 
     valueFrom?: ValueFromFn<T>;
     /**

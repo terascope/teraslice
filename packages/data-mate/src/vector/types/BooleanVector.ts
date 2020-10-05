@@ -1,13 +1,13 @@
 import { Vector, VectorOptions } from '../Vector';
 import { VectorType } from '../interfaces';
-import { Data } from '../../core-utils';
+import { ReadableData } from '../../data';
 
 export class BooleanVector extends Vector<boolean> {
     constructor(options: VectorOptions<boolean>) {
         super(VectorType.Boolean, options);
     }
 
-    fork(data: Data<boolean>): BooleanVector {
+    fork(data: ReadableData<boolean>): BooleanVector {
         return new BooleanVector({
             valueToJSON: this.valueToJSON,
             config: this.config,

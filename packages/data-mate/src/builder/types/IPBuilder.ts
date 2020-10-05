@@ -2,6 +2,7 @@ import { isIP as checkIP } from 'net';
 import { getTypeOf, isString } from '@terascope/utils';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
+import { WritableData } from '../../data';
 
 function isValidIP(input: unknown): input is string {
     if (!isString(input)) return false;
@@ -21,8 +22,11 @@ export class IPBuilder extends Builder<string> {
         return value;
     }
 
-    constructor(options: BuilderOptions<string>) {
-        super(VectorType.IP, {
+    constructor(
+        data: WritableData<string>,
+        options: BuilderOptions<string>
+    ) {
+        super(VectorType.IP, data, {
             valueFrom: IPBuilder.valueFrom,
             ...options,
         });

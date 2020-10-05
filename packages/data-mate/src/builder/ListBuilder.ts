@@ -2,6 +2,7 @@ import { castArray } from '@terascope/utils';
 import { Builder, BuilderOptions } from './Builder';
 import { Vector, VectorType } from '../vector';
 import { isSameFieldConfig } from '../core-utils';
+import { WritableData } from '../data';
 
 export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
     static valueFrom(values: unknown, thisArg?: ListBuilder<any>): Vector<any> {
@@ -21,18 +22,21 @@ export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
         const builder = Builder.make({
             ...thisArg.config,
             array: false,
-        }, arr.length, thisArg.childConfig);
+        }, new WritableData(arr.length), thisArg.childConfig);
 
         arr.forEach((value) => builder.append(value));
 
         return builder.toVector();
     }
 
-    constructor(options: BuilderOptions<Vector<T>>) {
-        super(VectorType.List, {
+    constructor(
+        data: WritableData<Vector<T>>,
+        options: BuilderOptions<Vector<T>>
+    ) {
+        super(VectorType.List, data, {
             valueFrom: ListBuilder.valueFrom,
             ...options,
         });
-        this.data.isNaturallyDistinct = false;
+        this.data.isPrimitive = false;
     }
 }

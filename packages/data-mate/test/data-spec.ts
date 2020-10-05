@@ -1,51 +1,48 @@
 import { times } from '@terascope/utils';
 import 'jest-extended';
-import { Data } from '../src/core-utils/Data';
+import { ReadableData, WritableData } from '../src/data';
 
 describe('Data', () => {
     describe('when constructing with a size of 8', () => {
         const size = 8;
-        let data: Data<string>;
+        let writable: WritableData<string>;
+        let readable: ReadableData<string>;
         beforeEach(() => {
-            data = new Data(size);
+            writable = new WritableData(size);
         });
 
         describe('when the values are all unique', () => {
             const values = Object.freeze(times(size, (n) => `a${n}`));
             beforeEach(() => {
-                values.forEach((v, i) => data.set(i, v));
-            });
-
-            it('should not be able to write after frozen', () => {
-                data.freeze();
-                expect(data.isFrozen).toBeTrue();
-                expect(() => {
-                    data.set(2, 'fail');
-                }).toThrowError();
+                values.forEach((v, i) => writable.set(i, v));
+                readable = new ReadableData(writable);
             });
 
             it('should have the correct indices', () => {
-                expect(data.indices).toStrictEqual(
-                    Uint8Array.of(1, 2, 3, 4, 5, 6, 7, 8)
-                );
+                const indices = Uint8Array.of(1, 2, 3, 4, 5, 6, 7, 8);
+                expect(writable.indices).toStrictEqual(indices);
+                expect(readable.indices).toStrictEqual(indices);
             });
 
             it('should have the correct values', () => {
-                expect(data.values).toStrictEqual(
-                    ['a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7']
-                );
-            });
-
-            it('should have the correct nulls', () => {
-                expect(data.nulls).toEqual(0);
+                expect(readable.values).toStrictEqual([
+                    { value: 'a0', indices: Uint8Array.of(0) },
+                    { value: 'a1', indices: Uint8Array.of(1) },
+                    { value: 'a2', indices: Uint8Array.of(2) },
+                    { value: 'a3', indices: Uint8Array.of(3) },
+                    { value: 'a4', indices: Uint8Array.of(4) },
+                    { value: 'a5', indices: Uint8Array.of(5) },
+                    { value: 'a6', indices: Uint8Array.of(6) },
+                    { value: 'a7', indices: Uint8Array.of(7) }
+                ]);
             });
 
             it('should have the correct distinct values', () => {
-                expect(data.distinct()).toEqual(size);
+                expect(readable.distinct()).toEqual(size);
             });
 
             it('should be able to get all of the values', () => {
-                const result = times(size, (i) => data.get(i));
+                const result = times(size, (i) => readable.get(i));
                 expect(result).toStrictEqual([...values]);
             });
         });
@@ -54,39 +51,32 @@ describe('Data', () => {
             const values = Object.freeze(times(size, (n) => `a${n % 2}`));
 
             beforeEach(() => {
-                values.forEach((v, i) => data.set(i, v));
+                values.forEach((v, i) => writable.set(i, v));
+                readable = new ReadableData(writable);
             });
 
             it('should have the correct indices', () => {
-                expect(data.indices).toStrictEqual(
-                    Uint8Array.of(1, 2, 1, 2, 1, 2, 1, 2)
-                );
+                const indices = Uint8Array.of(1, 2, 1, 2, 1, 2, 1, 2);
+                expect(readable.indices).toStrictEqual(indices);
+                expect(writable.indices).toStrictEqual(indices);
             });
 
             it('should have the correct values', () => {
-                expect(data.values).toStrictEqual(
-                    ['a0', 'a1']
+                expect(readable.values).toStrictEqual(
+                    [
+                        { value: 'a0', indices: Uint8Array.of(0, 2, 4, 6) },
+                        { value: 'a1', indices: Uint8Array.of(1, 3, 5, 7) }
+                    ],
                 );
             });
 
-            it('should have the correct nulls', () => {
-                expect(data.nulls).toEqual(0);
-            });
-
             it('should have the correct distinct values', () => {
-                expect(data.distinct()).toEqual(2);
+                expect(readable.distinct()).toEqual(2);
             });
 
             it('should be able to get all of the values', () => {
-                const result = times(size, (i) => data.get(i));
+                const result = times(size, (i) => readable.get(i));
                 expect(result).toStrictEqual([...values]);
-            });
-
-            it('should be able to get the associations', () => {
-                expect([...data.associations()]).toStrictEqual([
-                    ['a0', [0, 2, 4, 6]],
-                    ['a1', [1, 3, 5, 7]],
-                ]);
             });
         });
 
@@ -96,84 +86,62 @@ describe('Data', () => {
             )));
 
             beforeEach(() => {
-                values.forEach((v, i) => data.set(i, v));
+                values.forEach((v, i) => writable.set(i, v));
+                readable = new ReadableData(writable);
             });
 
             it('should have the correct indices', () => {
-                expect(data.indices).toStrictEqual(
-                    Uint8Array.of(1, 0, 2, 0, 3, 0, 4, 0)
-                );
+                const indices = Uint8Array.of(1, 0, 2, 0, 3, 0, 4, 0);
+                expect(writable.indices).toStrictEqual(indices);
+                expect(readable.indices).toStrictEqual(indices);
             });
 
             it('should have the correct values', () => {
-                expect(data.values).toStrictEqual(
-                    ['a0', 'a2', 'a4', 'a6']
-                );
-            });
-
-            it('should have the correct nulls', () => {
-                expect(data.nulls).toEqual(4);
+                expect(readable.values).toStrictEqual([
+                    { value: 'a0', indices: Uint8Array.of(0) },
+                    { value: 'a2', indices: Uint8Array.of(2) },
+                    { value: 'a4', indices: Uint8Array.of(4) },
+                    { value: 'a6', indices: Uint8Array.of(6) },
+                ]);
             });
 
             it('should have the correct distinct values', () => {
-                expect(data.distinct()).toEqual(4);
+                expect(readable.distinct()).toEqual(4);
             });
 
             it('should be able to get all of the values', () => {
-                const result = times(size, (i) => data.get(i));
+                const result = times(size, (i) => readable.get(i));
                 expect(result).toStrictEqual([...values]);
             });
 
             it('should be able to slice the data', () => {
-                const sliced = data.freeze().slice();
+                const sliced = readable.slice();
 
-                expect(sliced.isFrozen).toBeFalse();
-                expect(Object.isFrozen(sliced)).toBeFalse();
+                expect(sliced).toBeInstanceOf(WritableData);
+                expect(sliced.isPrimitive).toEqual(readable.isPrimitive);
 
-                expect(sliced.isNaturallyDistinct).toEqual(data.isNaturallyDistinct);
-                expect(sliced.nulls).toEqual(data.nulls);
+                expect(sliced.indices).toStrictEqual(readable.indices);
+                expect(sliced.indices).not.toBe(readable.indices);
 
-                expect(sliced).not.toBe(data);
-
-                expect(sliced.indices).toStrictEqual(data.indices);
-                expect(sliced.indices).not.toBe(data.indices);
-
-                expect(sliced.values).toStrictEqual(data.values);
-                expect(sliced.values).not.toBe(data.values);
-
+                const data = new ReadableData(sliced);
                 const result = times(size, (i) => data.get(i));
                 expect(result).toStrictEqual([...values]);
             });
 
             it('should be able to fork the data', () => {
-                const sliced = data.freeze().fork(data.size);
+                const sliced = readable.toWritable(readable.size + 1);
 
-                expect(sliced.isFrozen).toBeFalse();
-                expect(Object.isFrozen(sliced)).toBeFalse();
+                expect(sliced).toBeInstanceOf(WritableData);
+                expect(sliced.isPrimitive).toEqual(readable.isPrimitive);
 
-                expect(sliced.isNaturallyDistinct).toEqual(data.isNaturallyDistinct);
-                expect(sliced.nulls).toEqual(data.nulls);
+                expect(sliced.indices).toStrictEqual(
+                    Uint8Array.from([...readable.indices, 0])
+                );
+                expect(sliced.indices).not.toBe(readable.indices);
 
-                expect(sliced).not.toBe(data);
-
-                expect(sliced.indices).toStrictEqual(data.indices);
-                expect(sliced.indices).not.toBe(data.indices);
-
-                expect(sliced.values).toStrictEqual(data.values);
-                expect(sliced.values).not.toBe(data.values);
-
-                const result = times(size, (i) => data.get(i));
-                expect(result).toStrictEqual([...values]);
-            });
-
-            it('should be able to get the associations', () => {
-                expect([...data.associations()]).toStrictEqual([
-                    ['a0', [0]],
-                    ['a2', [2]],
-                    ['a4', [4]],
-                    ['a6', [6]],
-                    [null, [1, 3, 5, 7]],
-                ]);
+                const data = new ReadableData(sliced);
+                const result = times(size + 1, (i) => data.get(i));
+                expect(result).toStrictEqual([...values, null]);
             });
         });
 
@@ -181,78 +149,41 @@ describe('Data', () => {
             const values = Object.freeze(times(size, () => null));
 
             beforeEach(() => {
-                values.forEach((v, i) => data.set(i, v));
+                values.forEach((v, i) => writable.set(i, v));
+                readable = new ReadableData(writable);
             });
 
             it('should have the correct indices', () => {
-                expect(data.indices).toStrictEqual(
-                    Uint8Array.of(0, 0, 0, 0, 0, 0, 0, 0)
-                );
+                const indices = Uint8Array.of(0, 0, 0, 0, 0, 0, 0, 0);
+                expect(writable.indices).toStrictEqual(indices);
+                expect(readable.indices).toStrictEqual(indices);
             });
 
             it('should have the correct values', () => {
-                expect(data.values).toStrictEqual([]);
-            });
-
-            it('should have the correct nulls', () => {
-                expect(data.nulls).toEqual(size);
+                expect(readable.values).toStrictEqual([]);
             });
 
             it('should have the correct distinct values', () => {
-                expect(data.distinct()).toEqual(0);
+                expect(readable.distinct()).toEqual(0);
             });
 
             it('should be able to get all of the values', () => {
-                const result = times(size, (i) => data.get(i));
+                const result = times(size, (i) => readable.get(i));
                 expect(result).toStrictEqual([...values]);
             });
 
             it('should be able to slice the data', () => {
-                const sliced = data.freeze().slice();
+                const sliced = readable.slice();
 
-                expect(sliced.isFrozen).toBeFalse();
-                expect(Object.isFrozen(sliced)).toBeFalse();
+                expect(sliced).toBeInstanceOf(WritableData);
+                expect(sliced.isPrimitive).toEqual(readable.isPrimitive);
 
-                expect(sliced.isNaturallyDistinct).toEqual(data.isNaturallyDistinct);
-                expect(sliced.nulls).toEqual(data.nulls);
+                expect(sliced.indices).toStrictEqual(readable.indices);
+                expect(sliced.indices).not.toBe(readable.indices);
 
-                expect(sliced).not.toBe(data);
-
-                expect(sliced.indices).toStrictEqual(data.indices);
-                expect(sliced.indices).not.toBe(data.indices);
-
-                expect(sliced.values).toStrictEqual(data.values);
-                expect(sliced.values).not.toBe(data.values);
-
+                const data = new ReadableData(sliced);
                 const result = times(size, (i) => data.get(i));
                 expect(result).toStrictEqual([...values]);
-            });
-
-            it('should be able to fork the data', () => {
-                const sliced = data.freeze().fork(data.size);
-
-                expect(sliced.isFrozen).toBeFalse();
-                expect(Object.isFrozen(sliced)).toBeFalse();
-
-                expect(sliced.isNaturallyDistinct).toEqual(data.isNaturallyDistinct);
-                expect(sliced.nulls).toEqual(data.nulls);
-
-                expect(sliced).not.toBe(data);
-
-                expect(sliced.indices).toStrictEqual(data.indices);
-                expect(sliced.indices).not.toBe(data.indices);
-
-                expect(sliced.values).toStrictEqual(data.values);
-                expect(sliced.values).not.toBe(data.values);
-
-                const result = times(size, (i) => data.get(i));
-                expect(result).toStrictEqual([...values]);
-            });
-
-            it('should be able to get the associations', () => {
-                expect([...data.associations()]).toStrictEqual([
-                    [null, [0, 1, 2, 3, 4, 5, 6, 7]],
-                ]);
             });
         });
     });
@@ -264,35 +195,39 @@ describe('Data', () => {
         )));
 
         type TestObj = { a: number };
-        let data: Data<TestObj>;
+        let writable: WritableData<TestObj>;
+        let readable: ReadableData<TestObj>;
         beforeEach(() => {
-            data = new Data(size);
-            data.isNaturallyDistinct = false;
-            values.forEach((v, i) => data.set(i, v));
+            writable = new WritableData(size);
+            writable.isPrimitive = false;
+            values.forEach((v, i) => writable.set(i, v));
+            readable = new ReadableData(writable);
         });
 
         it('should have the correct indices', () => {
-            expect(data.indices).toStrictEqual(
-                Uint8Array.of(1, 2, 3, 4, 0, 5, 6, 7)
-            );
+            const indices = Uint8Array.of(1, 2, 3, 4, 0, 5, 6, 7);
+            expect(readable.indices).toStrictEqual(indices);
+            expect(writable.indices).toStrictEqual(indices);
         });
 
         it('should have the correct values', () => {
-            expect(data.values).toStrictEqual(
-                [{ a: 0 }, { a: 1 }, { a: 0 }, { a: 1 }, { a: 1 }, { a: 0 }, { a: 1 }]
-            );
-        });
-
-        it('should have the correct nulls', () => {
-            expect(data.nulls).toEqual(1);
+            expect(readable.values).toStrictEqual([
+                { value: { a: 0 }, indices: Uint8Array.of(0) },
+                { value: { a: 1 }, indices: Uint8Array.of(1) },
+                { value: { a: 0 }, indices: Uint8Array.of(2) },
+                { value: { a: 1 }, indices: Uint8Array.of(3) },
+                { value: { a: 1 }, indices: Uint8Array.of(5) },
+                { value: { a: 0 }, indices: Uint8Array.of(6) },
+                { value: { a: 1 }, indices: Uint8Array.of(7) },
+            ]);
         });
 
         it('should have the correct distinct values', () => {
-            expect(data.distinct()).toEqual(2);
+            expect(readable.distinct()).toEqual(2);
         });
 
         it('should be able to get all of the values', () => {
-            const result = times(size, (i) => data.get(i));
+            const result = times(size, (i) => readable.get(i));
             expect(result).toStrictEqual([...values]);
         });
     });

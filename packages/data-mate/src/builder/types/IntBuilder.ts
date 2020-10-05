@@ -1,5 +1,6 @@
 import { FieldType } from '@terascope/types';
 import { toIntegerOrThrow } from '@terascope/utils';
+import { WritableData } from '../../data';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 
@@ -25,8 +26,11 @@ export class IntBuilder extends Builder<number> {
         return int;
     }
 
-    constructor(options: BuilderOptions<number>) {
-        super(VectorType.Int, {
+    constructor(
+        data: WritableData<number>,
+        options: BuilderOptions<number>
+    ) {
+        super(VectorType.Int, data, {
             valueFrom: IntBuilder.valueFrom,
             ...options,
         });

@@ -1,6 +1,7 @@
 import { FieldType } from '@terascope/types';
 import { Builder } from '../builder';
 import { Column, ValueAggregation, KeyAggregation } from '../column';
+import { WritableData } from '../data';
 import {
     isNumberLike, isFloatLike
 } from '../vector';
@@ -11,16 +12,17 @@ export function getBuilderForField(
     keyAgg?: KeyAggregation,
     valueAgg?: ValueAggregation
 ): Builder<any> {
+    const data = new WritableData(length);
     if (!keyAgg && !valueAgg) {
         return Builder.make(
-            col.config, length, col.vector.childConfig
+            col.config, data, col.vector.childConfig
         );
     }
 
     if (keyAgg && !valueAgg) {
         return Builder.make<any>(
             col.config,
-            length,
+            data,
             col.vector.childConfig
         );
     }
@@ -56,5 +58,5 @@ export function getBuilderForField(
         type,
         array: false,
         description: col.config.description // FIXME append agg info
-    }, length);
+    }, data);
 }

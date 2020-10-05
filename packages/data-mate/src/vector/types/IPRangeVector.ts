@@ -1,13 +1,13 @@
 import { Vector, VectorOptions } from '../Vector';
 import { VectorType } from '../interfaces';
-import { Data } from '../../core-utils';
+import { ReadableData } from '../../data';
 
 export class IPRangeVector extends Vector<string> {
     constructor(options: VectorOptions<string>) {
         super(VectorType.IPRange, options);
     }
 
-    fork(data: Data<string>): IPRangeVector {
+    fork(data: ReadableData<string>): IPRangeVector {
         return new IPRangeVector({
             valueToJSON: this.valueToJSON,
             config: this.config,
