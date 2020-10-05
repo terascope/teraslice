@@ -28,7 +28,7 @@ export function getBuildersForConfig<T extends Record<string, any> = Record<stri
         });
         builders.set(field, Builder.make(
             config.fields[field],
-            new WritableData(size),
+            WritableData.make(size),
             childConfig
         ));
     }

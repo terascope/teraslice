@@ -31,9 +31,10 @@ export abstract class Builder<T = unknown> {
         vector: Vector<R>,
         size: number,
     ): Builder<R> {
+        const data = vector.data.toWritable(size);
         const builder = Builder.make<R>(
             vector.config,
-            vector.data.toWritable(size),
+            data,
             vector.childConfig,
         );
         return builder;
@@ -101,7 +102,7 @@ export abstract class Builder<T = unknown> {
     /**
      * Set a single unique value on multiple indices
     */
-    mset(value: unknown, indices: TypedArray): Builder<T> {
+    mset(value: unknown, indices: readonly number[]|TypedArray): Builder<T> {
         const val = this._valueFrom(value);
         this.data.mset(val, indices);
         return this;

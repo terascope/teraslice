@@ -16,7 +16,6 @@ export class GeoPointBuilder extends Builder<GeoPoint> {
         data: WritableData<GeoPoint>,
         options: BuilderOptions<GeoPoint>
     ) {
-        data.isPrimitive = false;
         super(VectorType.GeoPoint, data, {
             valueFrom: GeoPointBuilder.valueFrom,
             ...options,

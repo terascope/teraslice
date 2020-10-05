@@ -21,7 +21,7 @@ describe('ListVector', () => {
         let expected: any[];
         beforeAll(() => {
             const builder = Builder.make(
-                { type, array: true }, new WritableData(input.length)
+                { type, array: true }, WritableData.make(input.length)
             );
             input.forEach((val) => builder.append(val));
 

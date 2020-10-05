@@ -49,7 +49,6 @@ export class DateBuilder extends Builder<DateValue> {
         data: WritableData<DateValue>,
         options: BuilderOptions<DateValue>
     ) {
-        data.isPrimitive = false;
         super(VectorType.Date, data, {
             valueFrom: DateBuilder.valueFrom,
             ...options,

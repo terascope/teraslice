@@ -12,7 +12,7 @@ export function getBuilderForField(
     keyAgg?: KeyAggregation,
     valueAgg?: ValueAggregation
 ): Builder<any> {
-    const data = new WritableData(length);
+    const data = WritableData.make(length);
     if (!keyAgg && !valueAgg) {
         return Builder.make(
             col.config, data, col.vector.childConfig

@@ -7,7 +7,6 @@ export class AnyBuilder extends Builder<any> {
         data: WritableData<any>,
         options: BuilderOptions<any>
     ) {
-        data.isPrimitive = false;
         super(VectorType.Any, data, options);
     }
 }

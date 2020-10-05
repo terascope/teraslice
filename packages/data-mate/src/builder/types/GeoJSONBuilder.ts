@@ -23,7 +23,6 @@ export class GeoJSONBuilder extends Builder<GeoShape> {
         data: WritableData<GeoShape>,
         options: BuilderOptions<GeoShape>
     ) {
-        data.isPrimitive = false;
         super(VectorType.GeoJSON, data, {
             valueFrom: GeoJSONBuilder.valueFrom,
             ...options,

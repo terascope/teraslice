@@ -29,7 +29,7 @@ export function mapVector<T, R = T>(
 ): Vector<R> {
     const builder = Builder.make<R>(
         { ...vector.config, ...config, ...transform.output },
-        new WritableData(vector.size),
+        WritableData.make(vector.size),
         vector.childConfig
     );
 
@@ -113,7 +113,7 @@ export function validateFieldTransformArgs<A extends Record<string, any>>(
             throw new Error(`Missing required parameter ${field}`);
         }
 
-        const builder = Builder.make(config, new WritableData(0));
+        const builder = Builder.make(config, WritableData.make(0));
         if (builder.valueFrom && result[field] != null) {
             result[field] = builder.valueFrom(result[field], builder) as any;
         }
@@ -122,7 +122,7 @@ export function validateFieldTransformArgs<A extends Record<string, any>>(
     return result;
 }
 
-const emptyData = new ReadableData<any>(new WritableData(0));
+const emptyData = new ReadableData<any>(WritableData.make(0));
 
 export function validateFieldTransformType(
     accepts: VectorType[], vector: Vector<any>

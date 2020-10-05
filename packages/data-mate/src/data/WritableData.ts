@@ -1,17 +1,6 @@
 import { Maybe } from '@terascope/types';
-import { TypedArray, TypedArrayConstructor } from './interfaces';
-import { getTypedArrayClass } from './utils';
-
-export type ValueIndices = {
-    /**
-     * The value index
-    */
-    index: number;
-    /**
-     * Indices
-    */
-    indices: TypedArray;
-}
+import { ReadableDataValue, TypedArray, WritableDataValue } from './interfaces';
+import { getPointerArray } from './utils';
 
 /**
  * A data type agnostic in-memory representation of the data
@@ -24,25 +13,11 @@ export type ValueIndices = {
 */
 export class WritableData<T> {
     /**
-     * The value to indices Map
+     * Create an WritableData with a fixed size
     */
-    readonly values: Map<T, ValueIndices>;
-
-    /**
-     * A flag to indicate whether the values stored a javascript primitive.
-     * For example, boolean, string, symbol, number, bigint, etc.
-     * If false the values will require more complicated unique checks
-     *
-     * @default true
-    */
-    isPrimitive: boolean;
-
-    readonly size: number;
-
-    /**
-     * The correctly sized typed array constructor used for the indices
-    */
-    readonly PointerArray: TypedArrayConstructor;
+    static make<R>(size: number): WritableData<R> {
+        return new WritableData(size, []);
+    }
 
     /**
      * The index represent the order of the values,
@@ -50,12 +25,23 @@ export class WritableData<T> {
     */
     readonly indices: TypedArray;
 
-    constructor(size: number) {
+    /**
+     * The value to indices Map
+    */
+    readonly values: Map<T, WritableDataValue>;
+
+    /**
+     * The total number of values stored
+    */
+    readonly size: number;
+
+    constructor(
+        size: number,
+        from: readonly ReadableDataValue<T>[]
+    ) {
         this.size = size;
-        this.isPrimitive = true;
-        this.PointerArray = getTypedArrayClass(size);
-        this.indices = new this.PointerArray(size);
-        this.values = new Map();
+        this.indices = getPointerArray(size);
+        this.values = new Map(fromToIterable(from, this.indices));
     }
 
     /**
@@ -66,14 +52,13 @@ export class WritableData<T> {
 
         const existing = this.values.get(value);
         if (existing) {
-            existing.indices = this._appendIndex(
-                existing.indices, index, existing.index
-            );
+            this.indices[index] = existing.index;
+            existing.indices.push(index);
         } else {
             const valIndex = this.values.size + 1;
             this.values.set(value, {
                 index: valIndex,
-                indices: this.PointerArray.of(index)
+                indices: [index],
             });
             this.indices[index] = valIndex;
         }
@@ -84,19 +69,20 @@ export class WritableData<T> {
     /**
      * Set the same value against multiple indices
     */
-    mset(value: Maybe<T>, indices: TypedArray): WritableData<T> {
+    mset(value: Maybe<T>, indices: readonly number[]|TypedArray): WritableData<T> {
         if (value == null) return this;
 
         const existing = this.values.get(value);
         if (existing) {
-            existing.indices = this._concatIndices(
-                existing.indices, indices, existing.index
-            );
+            for (const index of indices) {
+                this.indices[index] = existing.index;
+                existing.indices.push(index);
+            }
         } else {
             const valIndex = this.values.size + 1;
             this.values.set(value, {
                 index: valIndex,
-                indices: this.PointerArray.from(indices, (v) => {
+                indices: Array.from(indices, (v) => {
                     this.indices[v] = valIndex;
                     return v;
                 })
@@ -104,26 +90,22 @@ export class WritableData<T> {
         }
         return this;
     }
+}
 
-    private _appendIndex(existing: TypedArray, index: number, valIndex: number): TypedArray {
-        const indices = new this.PointerArray(existing.length + 1);
-        indices.set(existing, 0);
-        indices[existing.length] = index;
-        this.indices[index] = valIndex;
-        return indices;
-    }
-
-    private _concatIndices(
-        existing: TypedArray,
-        indices: TypedArray,
-        valIndex: number
-    ): TypedArray {
-        const result = new this.PointerArray(existing.length + 1);
-        result.set(existing, 0);
-        result.set(this.PointerArray.from(indices, (v) => {
-            this.indices[v] = valIndex;
-            return v;
-        }), existing.length);
-        return result;
+function* fromToIterable<T>(
+    from: readonly ReadableDataValue<T>[],
+    indices: TypedArray,
+): Iterable<[T, WritableDataValue]> {
+    const size = from.length;
+    for (let i = 0; i < size; i++) {
+        const val = from[i];
+        const index = i + 1;
+        yield [val.value, {
+            index,
+            indices: Array.from(val.indices, (v) => {
+                indices[v] = index;
+                return v;
+            }),
+        }];
     }
 }

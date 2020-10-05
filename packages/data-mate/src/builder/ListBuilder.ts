@@ -22,7 +22,7 @@ export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
         const builder = Builder.make({
             ...thisArg.config,
             array: false,
-        }, new WritableData(arr.length), thisArg.childConfig);
+        }, WritableData.make(arr.length), thisArg.childConfig);
 
         arr.forEach((value) => builder.append(value));
 
@@ -37,6 +37,5 @@ export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
             valueFrom: ListBuilder.valueFrom,
             ...options,
         });
-        this.data.isPrimitive = false;
     }
 }

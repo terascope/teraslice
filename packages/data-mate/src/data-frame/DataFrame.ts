@@ -277,16 +277,9 @@ export class DataFrame<
 
         if (!len) return this;
 
-        const builders = new Map<keyof T, Builder>();
-
-        const total = len + this._size;
-        for (const col of this.columns) {
-            const builder = Builder.makeFromVector(
-                col.vector, total
-            );
-            builder.currentIndex = this._size;
-            builders.set(col.name, builder);
-        }
+        const builders = new Map<keyof T, Builder>(
+            this._columnsToBuilderEntries(len + this._size)
+        );
 
         if (arg[0] instanceof Column) {
             return this.fork(
@@ -306,6 +299,16 @@ export class DataFrame<
                 )
             )
         );
+    }
+
+    private* _columnsToBuilderEntries(size: number): Iterable<[keyof T, Builder]> {
+        for (const col of this.columns) {
+            const builder = Builder.makeFromVector(
+                col.vector, size
+            );
+            builder.currentIndex = this._size;
+            yield [col.name, builder];
+        }
     }
 
     /**

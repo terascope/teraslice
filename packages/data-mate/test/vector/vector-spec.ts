@@ -253,7 +253,7 @@ describe('Vector', () => {
         beforeAll(() => {
             const builder = Builder.make(
                 { type, array: false },
-                new WritableData(input.length)
+                WritableData.make(input.length)
             );
             input.forEach((val) => builder.append(val));
             vector = builder.toVector();
@@ -299,7 +299,7 @@ describe('Vector', () => {
             test.each(invalid)('should NOT be able to parse %p', (val) => {
                 const builder = Builder.make({
                     type, array: false
-                }, new WritableData(invalid.length));
+                }, WritableData.make(invalid.length));
                 expect(() => {
                     builder.append(val);
                 }).toThrowError();

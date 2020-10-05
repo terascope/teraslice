@@ -1,12 +1,8 @@
 import { Maybe } from '@terascope/types';
 import { getHashCodeFrom } from '../core-utils/data-helpers';
-import { TypedArray } from './interfaces';
-import { ValueIndices, WritableData } from './WritableData';
-
-type ValueEntry<T> = Readonly<{
-    indices: TypedArray;
-    value: T;
-}>;
+import { ReadableDataValue, TypedArray, WritableDataValue } from './interfaces';
+import { getTypedArrayClass } from './utils';
+import { WritableData } from './WritableData';
 
 /**
  * A data type agnostic in-memory representation of the data
@@ -27,7 +23,14 @@ export class ReadableData<T> {
     /**
      * The values to value index lookup table
     */
-    readonly values: readonly ValueEntry<T>[];
+    readonly values: readonly ReadableDataValue<T>[];
+
+    constructor(data: WritableData<T>) {
+        const PointerArray = getTypedArrayClass(data.values.size + 1);
+        this.indices = PointerArray.from(data.indices);
+        this.values = Array.from(data.values, fromValue);
+        Object.freeze(this);
+    }
 
     /**
     * A flag to indicate whether the values stored a javascript primitive.
@@ -35,16 +38,11 @@ export class ReadableData<T> {
     * If false the values will require more complicated unique checks
     *
     * @default true
-   */
-    isPrimitive: boolean;
-
-    constructor(data: WritableData<T>) {
-        this.isPrimitive = data.isPrimitive;
-        this.indices = data.indices;
-        this.values = Object.freeze(
-            Array.from(data.values, getValueEntry)
-        );
-        Object.freeze(this);
+    */
+    get isPrimitive(): boolean {
+        const [val] = this.values;
+        if (val == null) return true;
+        return typeof val.value !== 'object';
     }
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
@@ -78,32 +76,32 @@ export class ReadableData<T> {
         if (this.isPrimitive) {
             return this.values.length;
         }
-        return new Set(this.getValuePrimitives()).size;
+        return new Set(this.getValuePrimitivesOrHash()).size;
     }
 
     /**
      * Fork the Data object with specific length.
+     *
+     * @param size optionally increase the size of the Data
     */
-    toWritable(length = this.size): WritableData<T> {
-        if (length < this.size) {
+    toWritable(size = this.size): WritableData<T> {
+        if (size < this.size) {
             throw new Error('ReadableData.toWritable doesn\'t support decreasing the number of values');
         }
-        const data = new WritableData<T>(length);
-        data.isPrimitive = this.isPrimitive;
-        for (const val of this.values) {
-            data.mset(val.value, val.indices);
-        }
-        return data;
+
+        return new WritableData<T>(size, this.values);
     }
 
     /**
      * Create a new Data with the range of values
     */
-    slice(start?: number, end?: number): WritableData<T> {
+    slice(start = 0, end = this.size): WritableData<T> {
+        if (start === 0 && end === this.size) {
+            return this.toWritable();
+        }
         const indices = this.indices.slice(start, end);
 
-        const data = new WritableData<T>(indices.length);
-        data.isPrimitive = this.isPrimitive;
+        const data = WritableData.make<T>(indices.length);
 
         let currentIndex = 0;
         for (const index of indices) {
@@ -117,7 +115,7 @@ export class ReadableData<T> {
     /**
      * Get an iterable for getting the primitive values
     */
-    * getValuePrimitives(): Iterable<any> {
+    * getValuePrimitivesOrHash(): Iterable<any> {
         if (this.isPrimitive) {
             yield* this;
             return;
@@ -129,7 +127,7 @@ export class ReadableData<T> {
     }
 }
 
-function getValueEntry<T>([value, { indices }]: [T, ValueIndices]): ValueEntry<T> {
+function fromValue<T>([value, { indices }]: [T, WritableDataValue]): ReadableDataValue<T> {
     return {
         value,
         indices,

@@ -8,7 +8,7 @@ describe('Data', () => {
         let writable: WritableData<string>;
         let readable: ReadableData<string>;
         beforeEach(() => {
-            writable = new WritableData(size);
+            writable = WritableData.make(size);
         });
 
         describe('when the values are all unique', () => {
@@ -20,20 +20,19 @@ describe('Data', () => {
 
             it('should have the correct indices', () => {
                 const indices = Uint8Array.of(1, 2, 3, 4, 5, 6, 7, 8);
-                expect(writable.indices).toStrictEqual(indices);
                 expect(readable.indices).toStrictEqual(indices);
             });
 
             it('should have the correct values', () => {
                 expect(readable.values).toStrictEqual([
-                    { value: 'a0', indices: Uint8Array.of(0) },
-                    { value: 'a1', indices: Uint8Array.of(1) },
-                    { value: 'a2', indices: Uint8Array.of(2) },
-                    { value: 'a3', indices: Uint8Array.of(3) },
-                    { value: 'a4', indices: Uint8Array.of(4) },
-                    { value: 'a5', indices: Uint8Array.of(5) },
-                    { value: 'a6', indices: Uint8Array.of(6) },
-                    { value: 'a7', indices: Uint8Array.of(7) }
+                    { value: 'a0', indices: Array.of(0) },
+                    { value: 'a1', indices: Array.of(1) },
+                    { value: 'a2', indices: Array.of(2) },
+                    { value: 'a3', indices: Array.of(3) },
+                    { value: 'a4', indices: Array.of(4) },
+                    { value: 'a5', indices: Array.of(5) },
+                    { value: 'a6', indices: Array.of(6) },
+                    { value: 'a7', indices: Array.of(7) }
                 ]);
             });
 
@@ -64,8 +63,8 @@ describe('Data', () => {
             it('should have the correct values', () => {
                 expect(readable.values).toStrictEqual(
                     [
-                        { value: 'a0', indices: Uint8Array.of(0, 2, 4, 6) },
-                        { value: 'a1', indices: Uint8Array.of(1, 3, 5, 7) }
+                        { value: 'a0', indices: Array.of(0, 2, 4, 6) },
+                        { value: 'a1', indices: Array.of(1, 3, 5, 7) }
                     ],
                 );
             });
@@ -98,10 +97,10 @@ describe('Data', () => {
 
             it('should have the correct values', () => {
                 expect(readable.values).toStrictEqual([
-                    { value: 'a0', indices: Uint8Array.of(0) },
-                    { value: 'a2', indices: Uint8Array.of(2) },
-                    { value: 'a4', indices: Uint8Array.of(4) },
-                    { value: 'a6', indices: Uint8Array.of(6) },
+                    { value: 'a0', indices: Array.of(0) },
+                    { value: 'a2', indices: Array.of(2) },
+                    { value: 'a4', indices: Array.of(4) },
+                    { value: 'a6', indices: Array.of(6) },
                 ]);
             });
 
@@ -118,7 +117,6 @@ describe('Data', () => {
                 const sliced = readable.slice();
 
                 expect(sliced).toBeInstanceOf(WritableData);
-                expect(sliced.isPrimitive).toEqual(readable.isPrimitive);
 
                 expect(sliced.indices).toStrictEqual(readable.indices);
                 expect(sliced.indices).not.toBe(readable.indices);
@@ -132,7 +130,6 @@ describe('Data', () => {
                 const sliced = readable.toWritable(readable.size + 1);
 
                 expect(sliced).toBeInstanceOf(WritableData);
-                expect(sliced.isPrimitive).toEqual(readable.isPrimitive);
 
                 expect(sliced.indices).toStrictEqual(
                     Uint8Array.from([...readable.indices, 0])
@@ -176,7 +173,6 @@ describe('Data', () => {
                 const sliced = readable.slice();
 
                 expect(sliced).toBeInstanceOf(WritableData);
-                expect(sliced.isPrimitive).toEqual(readable.isPrimitive);
 
                 expect(sliced.indices).toStrictEqual(readable.indices);
                 expect(sliced.indices).not.toBe(readable.indices);
@@ -198,8 +194,7 @@ describe('Data', () => {
         let writable: WritableData<TestObj>;
         let readable: ReadableData<TestObj>;
         beforeEach(() => {
-            writable = new WritableData(size);
-            writable.isPrimitive = false;
+            writable = WritableData.make(size);
             values.forEach((v, i) => writable.set(i, v));
             readable = new ReadableData(writable);
         });
@@ -210,15 +205,19 @@ describe('Data', () => {
             expect(writable.indices).toStrictEqual(indices);
         });
 
+        it('should not be a primitive', () => {
+            expect(readable.isPrimitive).toBeFalse();
+        });
+
         it('should have the correct values', () => {
             expect(readable.values).toStrictEqual([
-                { value: { a: 0 }, indices: Uint8Array.of(0) },
-                { value: { a: 1 }, indices: Uint8Array.of(1) },
-                { value: { a: 0 }, indices: Uint8Array.of(2) },
-                { value: { a: 1 }, indices: Uint8Array.of(3) },
-                { value: { a: 1 }, indices: Uint8Array.of(5) },
-                { value: { a: 0 }, indices: Uint8Array.of(6) },
-                { value: { a: 1 }, indices: Uint8Array.of(7) },
+                { value: { a: 0 }, indices: Array.of(0) },
+                { value: { a: 1 }, indices: Array.of(1) },
+                { value: { a: 0 }, indices: Array.of(2) },
+                { value: { a: 1 }, indices: Array.of(3) },
+                { value: { a: 1 }, indices: Array.of(5) },
+                { value: { a: 0 }, indices: Array.of(6) },
+                { value: { a: 1 }, indices: Array.of(7) },
             ]);
         });
 

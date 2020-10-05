@@ -32,7 +32,7 @@ export class Column<T = unknown, N extends (number|string|symbol) = string> {
         config: Readonly<DataTypeFieldConfig>,
         values: Maybe<R>[]|readonly Maybe<R>[] = [],
         version?: DataTypeVersion): Column<R extends (infer U)[] ? Vector<U> : R, F> {
-        const builder = Builder.make<R>(config, new WritableData(values.length));
+        const builder = Builder.make<R>(config, WritableData.make(values.length));
 
         values.forEach((val) => builder.append(val));
 
@@ -202,7 +202,7 @@ export class Column<T = unknown, N extends (number|string|symbol) = string> {
         const sortedIndices = this._vector.getSortedIndices(direction);
         const len = sortedIndices.length;
         const builder = Builder.make<T>(
-            this.config, new WritableData(len), this.vector.childConfig
+            this.config, WritableData.make(len), this.vector.childConfig
         );
 
         for (let i = 0; i < len; i++) {

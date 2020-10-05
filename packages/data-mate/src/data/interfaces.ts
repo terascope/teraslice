@@ -7,3 +7,19 @@ export type TypedArrayConstructor = Uint8ArrayConstructor
 |Uint16ArrayConstructor
 |Uint32ArrayConstructor
 |Float64ArrayConstructor;
+
+export type ReadableDataValue<T> = Readonly<{
+    indices: readonly number[];
+    value: T;
+}>;
+
+export type WritableDataValue = {
+    /**
+     * The value index
+    */
+    index: number;
+    /**
+     * Indices
+    */
+    indices: number[];
+}
