@@ -38,12 +38,14 @@ export function mapVector<T, R = T>(
     }
 
     if (transform.mode === TransformMode.EACH) {
-        return mapVectorEach(vector, builder, transform.fn);
+        return mapVectorEach(
+            vector, builder, transform.fn
+        );
     }
 
     if (transform.mode === TransformMode.EACH_VALUE) {
         return mapVectorEachValue(
-            vector, builder, transform.fn, transform.skipNulls ?? true
+            vector, builder, transform.fn
         );
     }
 
@@ -75,22 +77,17 @@ export function mapVectorEachValue<T, R = T>(
     vector: Vector<T>,
     builder: Builder<R>,
     fn: (value: T) => Maybe<R>,
-    skipNulls: boolean
 ): Vector<R> {
     for (const { value, indices } of vector.data.values) {
         if (isVector<T>(value)) {
             const values: Maybe<R>[] = [];
             for (const val of value) {
-                if (skipNulls && val == null) {
-                    values.push(null);
-                } else {
-                    values.push(fn(val as any));
-                }
+                values.push(val == null ? fn(val as any) : null);
             }
             builder.mset(values, indices);
         } else {
             builder.mset(
-                fn(value as any),
+                fn(value),
                 indices,
             );
         }

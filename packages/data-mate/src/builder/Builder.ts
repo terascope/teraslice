@@ -37,6 +37,7 @@ export abstract class Builder<T = unknown> {
             data,
             vector.childConfig,
         );
+        builder.currentIndex = vector.data.size;
         return builder;
     }
 

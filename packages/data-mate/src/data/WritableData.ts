@@ -52,7 +52,6 @@ export class WritableData<T> {
 
         const existing = this.values.get(value);
         if (existing) {
-            this.indices[index] = existing.index;
             existing.indices.push(index);
         } else {
             const valIndex = this.values.size + 1;

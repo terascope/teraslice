@@ -84,3 +84,20 @@ export function columnsToDataTypeConfig<T extends Record<string, unknown>>(
         fields,
     };
 }
+
+export function* columnsToBuilderEntries<T extends Record<string, unknown>>(
+    columns: readonly Column<any, keyof T>[],
+    size: number
+): Iterable<[keyof T, Builder]> {
+    for (const column of columns) {
+        yield _columnToBuilderEntry(column, size);
+    }
+}
+
+function _columnToBuilderEntry<T extends Record<string, unknown>>(
+    column: Column<any, keyof T>, size: number
+): [keyof T, Builder<any>] {
+    return [column.name, Builder.makeFromVector<any>(
+        column.vector, size
+    )];
+}

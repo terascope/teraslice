@@ -5,7 +5,8 @@ import {
 import { Column } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import {
-    buildRecords, columnsToDataTypeConfig, concatColumnsToColumns, distributeRowsToColumns
+    buildRecords, columnsToBuilderEntries, columnsToDataTypeConfig,
+    concatColumnsToColumns, distributeRowsToColumns
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
 import { createHashCode } from '../core-utils';
@@ -278,7 +279,11 @@ export class DataFrame<
         if (!len) return this;
 
         const builders = new Map<keyof T, Builder>(
-            this._columnsToBuilderEntries(len + this._size)
+            columnsToBuilderEntries(this.columns, len + this._size)
+        );
+
+        const finish = ([name, builder]: [keyof T, Builder<any>]) => (
+            this.getColumn(name)!.fork(builder.toVector())
         );
 
         if (arg[0] instanceof Column) {
@@ -287,28 +292,12 @@ export class DataFrame<
                     builders,
                     arg as Column<any, keyof T>[],
                     this._size,
-                ).map(([name, builder]) => this.getColumn(name)!.fork(
-                    builder.toVector()
-                ))
+                ).map(finish)
             );
         }
         return this.fork(
-            buildRecords<T>(builders, arg as T[]).map(
-                ([name, builder]) => this.getColumn(name)!.fork(
-                    builder.toVector()
-                )
-            )
+            buildRecords<T>(builders, arg as T[]).map(finish)
         );
-    }
-
-    private* _columnsToBuilderEntries(size: number): Iterable<[keyof T, Builder]> {
-        for (const col of this.columns) {
-            const builder = Builder.makeFromVector(
-                col.vector, size
-            );
-            builder.currentIndex = this._size;
-            yield [col.name, builder];
-        }
     }
 
     /**
