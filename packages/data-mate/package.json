@@ -46,7 +46,7 @@
         "ipaddr.js": "^2.0.0",
         "is-cidr": "^4.0.2",
         "jexl": "^2.2.2",
-        "uuid": "^8.3.0",
+        "uuid": "^8.3.1",
         "valid-url": "^1.0.9",
         "validator": "^13.1.1",
         "xlucene-parser": "^0.27.0"
