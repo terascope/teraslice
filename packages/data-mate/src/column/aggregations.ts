@@ -51,6 +51,7 @@ function _multiplyReducer(acc: any, curr: any) {
     if (isBigInt(curr)) return BigInt(acc) * curr;
     return acc * BigInt(curr);
 }
+
 function multiply(value: number|bigint, ...values: (number|bigint)[]): number|bigint {
     return values.reduce(_multiplyReducer, value);
 }
@@ -91,20 +92,19 @@ function makeAvgAgg(vector: Vector<any>): FieldAgg {
         push(value: unknown, indices) {
             const multiplier = indices.length;
             const res = getNumericValues(value);
-            const sum = multiply(multiplier, add(0, ...res.values));
-            agg.value = agg.value != null ? add(sum, agg.value) : sum;
+            if (res.values.length) {
+                const sum = multiply(multiplier, add(0, ...res.values));
+                agg.value = agg.value != null ? add(sum, agg.value) : sum;
+            }
             agg.total += res.values.length * multiplier;
         },
         flush() {
             if (agg.value == null) return { value: undefined };
 
-            if (type === 'bigint') {
-                const result = { value: (agg.value as bigint) / BigInt(agg.total) };
-                agg = { total: 0 };
-                return result;
-            }
+            const total = type === 'bigint' ? BigInt(agg.total) : agg.total;
 
-            const result = { value: (agg.value as number) / agg.total };
+            const avg = (agg.value as any) / (total as any);
+            const result = Number.isNaN(avg) ? { value: undefined } : { value: avg };
             agg = { total: 0 };
             return result;
         },

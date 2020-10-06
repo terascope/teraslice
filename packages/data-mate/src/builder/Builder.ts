@@ -4,6 +4,8 @@ import {
     Vector, VectorType
 } from '../vector';
 
+const emptyData = WritableData.make(0);
+
 /**
  * Since Vectors are immutable, a Builder can be to construct a
  * Vector. When values are inserted they are coerced and validated.
@@ -127,7 +129,7 @@ export abstract class Builder<T = unknown> {
         );
 
         // @ts-expect-error
-        this.data = undefined;
+        this.data = emptyData;
         this.currentIndex = -1;
         return vector;
     }
