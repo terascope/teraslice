@@ -70,9 +70,7 @@ export class WritableData<T> {
 function* fromToIterable<T>(
     from: readonly ReadableDataValue<T>[],
 ): Iterable<[T, WritableDataValue]> {
-    const size = from.length;
-    for (let i = 0; i < size; i++) {
-        const val = from[i];
+    for (const val of from) {
         yield [val.value, val.indices.slice()];
     }
 }

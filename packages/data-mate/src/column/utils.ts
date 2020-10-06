@@ -82,7 +82,7 @@ export function mapVectorEachValue<T, R = T>(
         if (isVector<T>(value)) {
             const values: Maybe<R>[] = [];
             for (const val of value) {
-                values.push(val == null ? fn(val as any) : null);
+                values.push(val != null ? fn(val as any) : null);
             }
             builder.mset(values, indices);
         } else {

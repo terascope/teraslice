@@ -60,15 +60,7 @@ export class ReadableData<T> {
         const cached = _indicesCache.get(this);
         if (cached) return cached;
 
-        const PointerArray = getTypedArrayClass(this.values.length + 1);
-        const indices = new PointerArray(this.size);
-        let valIndex = 0;
-        for (const val of this.values) {
-            valIndex += 1;
-            for (const index of val.indices) {
-                indices[index] = valIndex;
-            }
-        }
+        const indices = generateIndices(this.values, this.size);
         _indicesCache.set(this, indices);
         return indices;
     }
@@ -149,4 +141,28 @@ function fromValue<T>([value, indices]: [T, WritableDataValue]): ReadableDataVal
         value,
         indices,
     };
+}
+
+function generateIndices<T>(values: readonly ReadableDataValue<T>[], size: number): TypedArray {
+    // since 0 is always null we need to add one to the values length
+    const PointerArray = getTypedArrayClass(values.length + 1);
+    const indices = new PointerArray(size);
+
+    const len = values.length;
+    for (let i = 0; i < len; i++) {
+        setValIndices(indices, values[i].indices, i + 1);
+    }
+
+    return indices;
+}
+
+function setValIndices(
+    indices: TypedArray,
+    valIndices: readonly number[],
+    valIndex: number
+): void {
+    const len = valIndices.length;
+    for (let i = 0; i < len; i++) {
+        indices[valIndices[i]] = valIndex;
+    }
 }

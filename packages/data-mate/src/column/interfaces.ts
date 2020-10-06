@@ -82,12 +82,10 @@ export type ColumnTransformFn<
 }|{
     mode: TransformMode.EACH_VALUE;
     output?: Partial<DataTypeFieldConfig>;
-    skipNulls: false;
     fn: (value: Maybe<T>) => Maybe<R>;
 }|{
     mode: TransformMode.EACH_VALUE;
     output?: Partial<DataTypeFieldConfig>;
-    skipNulls?: true|undefined;
     fn: (value: T) => Maybe<R>;
 }|{
     mode: TransformMode.NONE;
@@ -123,11 +121,9 @@ export type ColumnValidateFn<
     fn: (value: Maybe<T|Vector<T>>) => boolean;
 }|{
     mode: TransformMode.EACH_VALUE;
-    skipNulls: false;
     fn: (value: Maybe<T>) => boolean;
 }|{
     mode: TransformMode.EACH_VALUE;
-    skipNulls?: true|undefined;
     fn: (value: T) => boolean;
 }|{
     mode: TransformMode.NONE;
