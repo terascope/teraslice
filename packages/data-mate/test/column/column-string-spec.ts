@@ -54,10 +54,13 @@ describe('Column (String Types)', () => {
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual(col.config);
-            expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (typeof value === 'string') return value.toUpperCase();
-                return null;
-            }));
+            expect(newCol.toJSON()).toEqual([
+                'BATMAN',
+                'ROBIN',
+                'SUPERMAN',
+                null,
+                'SPIDERMAN',
+            ]);
         });
 
         it('should be able to transform using toLowerCase', () => {
@@ -65,10 +68,29 @@ describe('Column (String Types)', () => {
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual(col.config);
-            expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (typeof value === 'string') return value.toLowerCase();
-                return null;
-            }));
+            expect(newCol.toJSON()).toEqual([
+                'batman',
+                'robin',
+                'superman',
+                null,
+                'spiderman',
+            ]);
+        });
+
+        it('should be able to transform using truncate', () => {
+            const newCol = col.transform(ColumnTransform.truncate, {
+                size: 5
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual([
+                'Batma',
+                'Robin',
+                'Super',
+                null,
+                'Spide',
+            ]);
         });
 
         it('should be immutable', () => {

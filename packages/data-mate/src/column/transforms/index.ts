@@ -13,6 +13,7 @@ import { toUpperCaseConfig } from './toUpperCase';
 import { trimConfig } from './trim';
 import { trimEndConfig } from './trimEnd';
 import { trimStartConfig } from './trimStart';
+import { truncateConfig } from './truncate';
 
 export const ColumnTransform = Object.freeze({
     decrement: decrementConfig,
@@ -26,4 +27,5 @@ export const ColumnTransform = Object.freeze({
     trim: trimConfig,
     trimEnd: trimEndConfig,
     trimStart: trimStartConfig,
+    truncate: truncateConfig,
 });
