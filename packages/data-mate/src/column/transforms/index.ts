@@ -10,6 +10,9 @@ import { toDateConfig } from './toDate';
 import { toLowerCaseConfig } from './toLowerCase';
 import { toStringConfig } from './toString';
 import { toUpperCaseConfig } from './toUpperCase';
+import { trimConfig } from './trim';
+import { trimEndConfig } from './trimEnd';
+import { trimStartConfig } from './trimStart';
 
 export const ColumnTransform = Object.freeze({
     decrement: decrementConfig,
@@ -20,4 +23,7 @@ export const ColumnTransform = Object.freeze({
     toLowerCase: toLowerCaseConfig,
     toString: toStringConfig,
     toUpperCase: toUpperCaseConfig,
+    trim: trimConfig,
+    trimEnd: trimEndConfig,
+    trimStart: trimStartConfig,
 });

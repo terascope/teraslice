@@ -78,4 +78,125 @@ describe('Column (String Types)', () => {
             }).toThrow();
         });
     });
+
+    describe('when field type is Text (with whitespace)', () => {
+        let col: Column<string>;
+        const values: Maybe<string>[] = [
+            '     left',
+            'right    ',
+            '  center ',
+            '         ',
+            'fast cars race fast',
+            '.*.*a regex test.*.*.*.*',
+            '\t\r\rexample\r\r',
+        ];
+
+        beforeEach(() => {
+            col = Column.fromJSON<string>('txt', {
+                type: FieldType.Text,
+            }, values);
+        });
+
+        it('should be able to transform using trim()', () => {
+            const newCol = col.transform(ColumnTransform.trim);
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual([
+                'left',
+                'right',
+                'center',
+                '',
+                'fast cars race fast',
+                '.*.*a regex test.*.*.*.*',
+                'example',
+            ]);
+        });
+
+        it('should be able to transform using trim(char: "fast")', () => {
+            const newCol = col.transform(ColumnTransform.trim, {
+                char: 'fast'
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual([
+                '     left',
+                'right    ',
+                '  center ',
+                '         ',
+                ' cars race ',
+                '.*.*a regex test.*.*.*.*',
+                '\t\r\rexample\r\r',
+            ]);
+        });
+
+        it('should be able to transform using trim(char: ".*")', () => {
+            const newCol = col.transform(ColumnTransform.trim, {
+                char: '.*'
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual([
+                '     left',
+                'right    ',
+                '  center ',
+                '         ',
+                'fast cars race fast',
+                'a regex test',
+                '\t\r\rexample\r\r',
+            ]);
+        });
+
+        it('should be able to transform using trim(char: "\\r")', () => {
+            const newCol = col.transform(ColumnTransform.trim, {
+                char: '\r'
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual([
+                '     left',
+                'right    ',
+                '  center ',
+                '         ',
+                'fast cars race fast',
+                '.*.*a regex test.*.*.*.*',
+                'example',
+            ]);
+        });
+
+        it('should be able to transform using trimStart()', () => {
+            const newCol = col.transform(ColumnTransform.trimStart);
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual([
+                'left',
+                'right    ',
+                'center ',
+                '',
+                'fast cars race fast',
+                '.*.*a regex test.*.*.*.*',
+                'example\r\r',
+            ]);
+        });
+
+        it('should be able to transform using trimEnd()', () => {
+            const newCol = col.transform(ColumnTransform.trimEnd);
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual([
+                '     left',
+                'right',
+                '  center',
+                '',
+                'fast cars race fast',
+                '.*.*a regex test.*.*.*.*',
+                '\t\r\rexample',
+            ]);
+        });
+    });
 });
