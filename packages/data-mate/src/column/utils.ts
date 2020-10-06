@@ -67,8 +67,9 @@ export function mapVectorEach<T, R = T>(
     builder: Builder<R>,
     fn: (value: Maybe<T|Vector<T>>) => Maybe<R|Vector<R>>,
 ): Vector<R> {
-    for (const { value, indices } of vector.data.values) {
-        builder.mset(fn(value), indices);
+    let i = 0;
+    for (const value of vector) {
+        builder.set(i++, fn(value));
     }
     return builder.toVector();
 }
@@ -78,19 +79,17 @@ export function mapVectorEachValue<T, R = T>(
     builder: Builder<R>,
     fn: (value: T) => Maybe<R>,
 ): Vector<R> {
-    for (const { value, indices } of vector.data.values) {
-        if (isVector<T>(value)) {
-            const values: Maybe<R>[] = [];
-            for (const val of value) {
-                values.push(val != null ? fn(val as any) : null);
-            }
-            builder.mset(values, indices);
-        } else {
-            builder.mset(
-                fn(value),
-                indices,
-            );
+    function _mapValue(value: T|Vector<T>): Maybe<R> {
+        if (!isVector<T>(value)) return fn(value);
+        const values: Maybe<R>[] = [];
+        for (const val of value) {
+            values.push(val != null ? fn(val as any) : null);
         }
+        return values as any;
+    }
+
+    for (const { value, indices } of vector.data.values) {
+        builder.mset(_mapValue(value), indices);
     }
     return builder.toVector();
 }
