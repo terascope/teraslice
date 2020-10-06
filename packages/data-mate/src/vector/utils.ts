@@ -95,7 +95,7 @@ export function getNumericValues(value: unknown): {
     type: 'bigint'
 } {
     if (value == null) {
-        return { type: 'number', values: [] };
+        return { values: [], type: 'number' };
     }
 
     if (isNumber(value)) {
@@ -106,22 +106,30 @@ export function getNumericValues(value: unknown): {
     }
 
     if (value instanceof IntVector || value instanceof FloatVector) {
-        const values: number[] = [];
-        for (const val of value) {
-            if (isNumber(val)) values.push(val);
-        }
-        return { values, type: 'number' };
+        return {
+            values: _getAllValues(value.data.values),
+            type: 'number'
+        };
     }
 
     if (value instanceof BigIntVector) {
-        const values: bigint[] = [];
-        for (const val of value) {
-            if (isBigInt(val)) values.push(val);
-        }
-        return { values, type: 'bigint' };
+        return {
+            values: _getAllValues(value.data.values),
+            type: 'bigint'
+        };
     }
 
     throw new Error(`Unable to get numeric values from input ${getTypeOf(value)}`);
+}
+function _getAllValues(values: readonly Readonly<{ value: any, indices: readonly number[] }>[]) {
+    const result: any[] = [];
+    for (const value of values) {
+        result.push(..._getValues(value));
+    }
+    return result;
+}
+function _getValues(v: { value: any, indices: readonly number[] }) {
+    return Array.from({ length: v.indices.length }, () => v.value);
 }
 
 export function isNumberLike(type: FieldType): boolean {
