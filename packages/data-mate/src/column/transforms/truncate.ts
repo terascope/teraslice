@@ -26,7 +26,7 @@ export const truncateConfig: ColumnTransformConfig<string, string, TruncateArgs>
             }
         };
     },
-    description: 'Constrain a string to specific size.',
+    description: 'Constrain a string to specific size',
     argument_schema: {
         size: {
             type: FieldType.Integer

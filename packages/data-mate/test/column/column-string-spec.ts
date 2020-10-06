@@ -93,6 +93,22 @@ describe('Column (String Types)', () => {
             ]);
         });
 
+        it('should be able to transform using setDefault(value: "human")', () => {
+            const newCol = col.transform(ColumnTransform.setDefault, {
+                value: 'human'
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual([
+                'Batman',
+                'Robin',
+                'Superman',
+                'human',
+                'SpiderMan',
+            ]);
+        });
+
         it('should be immutable', () => {
             expect(() => {
                 // @ts-expect-error

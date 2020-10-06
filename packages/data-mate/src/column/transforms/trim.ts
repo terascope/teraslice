@@ -8,7 +8,7 @@ type TrimArgs = {
 };
 
 /**
- * Trim whitespace, or specific character, from the beginning and end of a string.
+ * Trim whitespace, or specific character, from the beginning and end of a string
  *
  * @example
  *
@@ -34,10 +34,11 @@ export const trimConfig: ColumnTransformConfig<string, string, TrimArgs> = {
             }
         };
     },
-    description: 'Trim whitespace, or specific character, from the beginning and end of a string.',
+    description: 'Trim whitespace, or specific character, from the beginning and end of a string',
     argument_schema: {
         char: {
-            type: FieldType.String
+            type: FieldType.String,
+            description: 'The character to trim'
         }
     },
     accepts: [VectorType.String],

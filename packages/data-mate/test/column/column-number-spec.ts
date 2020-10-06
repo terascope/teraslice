@@ -271,6 +271,23 @@ describe('Column (Number Types)', () => {
             }));
         });
 
+        it('should be able to transform the column using setDefault', () => {
+            const newCol = col.transform(ColumnTransform.setDefault, {
+                value: 100,
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+
+            expect(newCol.toJSON()).toEqual([
+                [7, 3],
+                [2, 100, 4],
+                [6, 324, 5],
+                [100],
+                [4, 2, 0],
+            ]);
+        });
+
         it('should NOT be able to sort the values', () => {
             expect(() => {
                 col.sort();

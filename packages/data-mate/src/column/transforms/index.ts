@@ -5,6 +5,7 @@
 import { decrementConfig } from './decrement';
 import { formatDateConfig } from './formatDate';
 import { incrementConfig } from './increment';
+import { setDefaultConfig } from './setDefault';
 import { toBooleanConfig } from './toBoolean';
 import { toDateConfig } from './toDate';
 import { toLowerCaseConfig } from './toLowerCase';
@@ -19,6 +20,7 @@ export const ColumnTransform = Object.freeze({
     decrement: decrementConfig,
     formatDate: formatDateConfig,
     increment: incrementConfig,
+    setDefault: setDefaultConfig,
     toBoolean: toBooleanConfig,
     toDate: toDateConfig,
     toLowerCase: toLowerCaseConfig,
