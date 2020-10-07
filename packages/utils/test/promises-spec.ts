@@ -166,7 +166,7 @@ describe('Utils', () => {
 
     describe('pWhile', () => {
         const defaultOptions: PWhileOptions = {
-            timeoutMs: 100,
+            timeoutMs: 200,
             enabledJitter: true,
         };
 
@@ -183,9 +183,11 @@ describe('Utils', () => {
             const fn = async () => {
                 throw new Error('Uh oh');
             };
-            return expect(pWhile(fn, defaultOptions)).rejects.toThrow('Uh oh');
+            await expect(pWhile(fn, defaultOptions)).rejects.toThrow('Uh oh');
         });
 
-        it('should run until it times out', async () => expect(pWhile(async () => false, defaultOptions)).rejects.toThrow(/Request timeout after \d+(ms|sec)/));
+        it('should run until it times out', async () => {
+            await expect(pWhile(async () => false, defaultOptions)).rejects.toThrow(/Request timeout after \d+(ms|sec)/);
+        });
     });
 });
