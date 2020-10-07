@@ -10,13 +10,17 @@ const run = async () => {
     const dataFrame = DataFrame.fromJSON(config, data);
     suite.add('Add column', {
         fn() {
-            dataFrame.assign(dataFrame.columns[0].rename('new_column'));
+            dataFrame.assign([
+                dataFrame.columns[0].rename('new_column')
+            ]);
         }
     });
 
     suite.add('Replace column', {
         fn() {
-            dataFrame.assign(dataFrame.columns[0].fork());
+            dataFrame.assign([
+                dataFrame.columns[0].fork()
+            ]);
         }
     });
 

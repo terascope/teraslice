@@ -11,7 +11,7 @@ const run = async () => {
     const names = dataFrame.columns.map((col) => col.name);
     suite.add('Select one', {
         fn() {
-            dataFrame.assign(...names.slice(0, 1));
+            dataFrame.select(...names.slice(0, 1));
         }
     });
 
