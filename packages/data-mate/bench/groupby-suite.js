@@ -1,0 +1,38 @@
+'use strict';
+
+const { Suite } = require('./helpers');
+const { config, data } = require('./fixtures/people');
+const { DataFrame } = require('../dist/src');
+
+const run = async () => {
+    const suite = Suite('Aggregate');
+
+    const dataFrame = DataFrame.fromJSON(config, data);
+    for (const column of dataFrame.columns) {
+        const fieldInfo = `${column.name} (${column.config.type}${column.config.array ? '[]' : ''})`;
+        suite.add(`(${column.vector.distinct()} distinct) ${fieldInfo}`, {
+            defer: true,
+            fn(deferred) {
+                dataFrame.groupBy([column.name])
+                    .run()
+                    .then(() => {
+                        deferred.resolve();
+                    });
+            }
+        });
+    }
+
+    return suite.run({
+        async: true,
+        initCount: 2,
+        minSamples: 3,
+        maxTime: 15,
+    });
+};
+if (require.main === module) {
+    run().then((suite) => {
+        suite.on('complete', () => {});
+    });
+} else {
+    module.exports = run;
+}
