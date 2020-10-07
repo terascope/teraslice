@@ -119,7 +119,7 @@ export function getNumericValues(value: unknown): {
         };
     }
 
-    throw new Error(`Unable to get numeric values from input ${getTypeOf(value)}`);
+    throw new Error(`Unable to get numeric values from ${value} (${getTypeOf(value)})`);
 }
 function _getAllValues(values: readonly Readonly<{ value: any, indices: readonly number[] }>[]) {
     const result: any[] = [];
@@ -141,12 +141,12 @@ export function isFloatLike(type: FieldType): boolean {
     if (type === FieldType.Float) return true;
     if (type === FieldType.Number) return true;
     if (type === FieldType.Double) return true;
-    return true;
+    return false;
 }
 
 export function isIntLike(type: FieldType): boolean {
     if (type === FieldType.Byte) return true;
     if (type === FieldType.Short) return true;
     if (type === FieldType.Integer) return true;
-    return true;
+    return false;
 }

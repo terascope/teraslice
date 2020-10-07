@@ -36,9 +36,9 @@ export function getBuilderForField(
             type = FieldType.Float;
         }
     } else if (valueAgg === ValueAggregation.sum) {
-        if (type === FieldType.Long || type === FieldType.Integer) {
+        if (currentType === FieldType.Long || currentType === FieldType.Integer) {
             type = FieldType.Long;
-        } else if (type === FieldType.Short || type === FieldType.Byte) {
+        } else if (currentType === FieldType.Short || currentType === FieldType.Byte) {
             type = FieldType.Integer;
         } else if (isFloatLike(currentType)) {
             type = FieldType.Float;
@@ -50,8 +50,9 @@ export function getBuilderForField(
     } else if (valueAgg === ValueAggregation.count) {
         type = FieldType.Integer;
     }
+
     if (!type) {
-        throw new Error(`Unsupported field type ${type} for aggregation ${valueAgg}`);
+        throw new Error(`Unsupported field type ${currentType} for aggregation ${valueAgg}`);
     }
 
     return Builder.make<any>({

@@ -2,6 +2,7 @@ import {
     DataTypeConfig, ReadonlyDataTypeConfig,
     Maybe, SortOrder
 } from '@terascope/types';
+import { castArray } from '@terascope/utils';
 import { Column } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import {
@@ -151,8 +152,8 @@ export class DataFrame<
      * Group DataFrame by columns and return a AggregationFrame instance
      * which can be used to run aggregations
     */
-    groupBy(fields: (keyof T)[]): AggregationFrame<T> {
-        return new AggregationFrame<T>(this.columns, fields);
+    groupBy(fields: (keyof T)[]|keyof T): AggregationFrame<T> {
+        return new AggregationFrame<T>(this.columns, castArray(fields));
     }
 
     /**
