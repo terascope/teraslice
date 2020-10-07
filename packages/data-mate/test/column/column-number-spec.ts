@@ -271,7 +271,7 @@ describe('Column (Number Types)', () => {
             }));
         });
 
-        it('should be able to transform the column using setDefault', () => {
+        it('should be able to transform the column using setDefault(value: 100)', () => {
             const newCol = col.transform(ColumnTransform.setDefault, {
                 value: 100,
             });
@@ -284,6 +284,23 @@ describe('Column (Number Types)', () => {
                 [2, 100, 4],
                 [6, 324, 5],
                 [100],
+                [4, 2, 0],
+            ]);
+        });
+
+        it('should be able to transform the column using setDefault(value: [-50])', () => {
+            const newCol = col.transform(ColumnTransform.setDefault, {
+                value: [-50],
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+
+            expect(newCol.toJSON()).toEqual([
+                [7, 3],
+                [2, null, 4],
+                [6, 324, 5],
+                [-50],
                 [4, 2, 0],
             ]);
         });
