@@ -319,7 +319,7 @@ export abstract class Vector {
     */
     static make(
         config: DataTypeFieldConfig,
-        data: Data,
+        data: ReadableData,
         childConfig?: DataTypeFields
     ): Vector;
 
@@ -354,7 +354,7 @@ export abstract class Vector {
      *
      * @internal
     */
-    readonly data: Data;
+    readonly data: ReadableData;
 
     constructor(options: VectorOptions): Vector;
 
@@ -378,7 +378,7 @@ export abstract class Vector {
     /**
      * Create a new Vector with the same metadata but with different data
     */
-    fork(data: Data): Vector;
+    fork(data: ReadableData): Vector;
 
     /**
      * Create a new Vector with the range of values
@@ -395,7 +395,7 @@ export abstract class Vector {
      * Compare two different values on the Vector type.
      * This can be used for equality or sorted.
     */
-    compare(a: Maybe<T>, b: Maybe<T>): -1|0|1;
+    compare(a: Maybe<any>, b: Maybe<any>): -1|0|1;
 
     /**
      * Convert the Vector an array of values (the output is JSON compatible)
@@ -418,7 +418,7 @@ export abstract class Builder {
     */
     static make(
         config: DataTypeFieldConfig,
-        length?: number,
+        data?: WritableData,
         childConfig?: DataTypeFields
     ): Builder;
 
@@ -426,7 +426,10 @@ export abstract class Builder {
      * Convert a Vector to a Builder with current values
      * populated depending on the length populated
     */
-    static makeFromVector(vector: Vector, length: number): Builder;
+    static makeFromVector(
+        vector: Vector,
+        size: number
+    ): Builder;
 
      /**
      * The type of Vector, this should only be set the specific Vector type classes.
@@ -451,10 +454,9 @@ export abstract class Builder {
     readonly childConfig?: DataTypeFields;
 
     /**
-     * The values used to create the Vector.
-     * Do NOT mutate this.
+     * @internal
     */
-    readonly values: any[];
+    readonly data: WritableData;
 
     /**
      * The current insertion index (used for append)
@@ -472,6 +474,11 @@ export abstract class Builder {
      * Set value by index
     */
     set(index: number, value: unknown): Builder;
+
+    /**
+     * Set a single unique value on multiple indices
+    */
+    mset(value: unknown, indices: number[]): Builder;
 
     /**
      * Append a value to the end
@@ -600,7 +607,7 @@ export class AggregationFrame {
      * Run aggregations and flatten the grouped data into a DataFrame
      * @returns the new columns
     */
-    run(): Promise<Column[]>;
+    run(): Promise<DataFrame>;
 
     /**
      * Reset the Aggregations
@@ -680,14 +687,13 @@ dataFrame = dataFrame.assign([upperCaseName]);
 // ...
 // Count the number of records for each gender
 // ...
-const aggregatedColumns = await dataFrame
+const resultFrame = await dataFrame
     .select('name', 'gender')
     .groupBy(['gender'])
     .count('gender', 'count_per_gender')
     .run();
 // => [
-//       Column(name)['JILL', 'BILLY'],
-//       Column(gender)['F', 'M']
-//       Column(count_per_gender)[1, 2]
+//       { name: 'JILL', gender: 'F', count_per_gender: 1 },
+//       { name: 'BILLY', gender: 'M', count_per_gender: 2 }
 //    ]
 ```

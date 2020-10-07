@@ -28,7 +28,10 @@ export class AggregationFrame<T extends Record<string, any>> {
 
     protected readonly _aggregations = new Map<keyof T, AggObject>();
 
-    constructor(columns: readonly Column<any, keyof T>[], keyBy?: readonly (keyof T)[]) {
+    constructor(
+        columns: readonly Column<any, keyof T>[],
+        keyBy?: readonly (keyof T)[]
+    ) {
         this.columns = Object.freeze(columns.slice());
         this.keyBy = Object.freeze(keyBy ?? []);
         for (const key of this.keyBy) {
@@ -51,7 +54,7 @@ export class AggregationFrame<T extends Record<string, any>> {
     [ValueAggregation.avg]<A extends string>(
         field: keyof T,
         as?: A
-    ): AggregationFrame<T|WithAlias<T, A, number>> {
+    ): AggregationFrame<T>|AggregationFrame<WithAlias<T, A, number>> {
         const { name, type } = this._ensureColumn(field, as);
         if (!isNumberLike(type)) {
             throw new Error(`${ValueAggregation.avg} requires a numeric field type`);
@@ -77,7 +80,7 @@ export class AggregationFrame<T extends Record<string, any>> {
     [ValueAggregation.sum]<A extends string>(
         field: keyof T,
         as?: A
-    ): AggregationFrame<T|WithAlias<T, A, number>> {
+    ): AggregationFrame<T>|AggregationFrame<WithAlias<T, A, number>> {
         const { name, type } = this._ensureColumn(field, as);
         if (!isNumberLike(type)) {
             throw new Error(`${ValueAggregation.sum} requires a numeric field type`);
@@ -103,7 +106,7 @@ export class AggregationFrame<T extends Record<string, any>> {
     [ValueAggregation.min]<A extends string>(
         field: keyof T,
         as?: A
-    ): AggregationFrame<T|WithAlias<T, A, number>> {
+    ): AggregationFrame<T>|AggregationFrame<WithAlias<T, A, number>> {
         const { name, type } = this._ensureColumn(field, as);
         if (!isNumberLike(type)) {
             throw new Error(`${ValueAggregation.min} requires a numeric field type`);
@@ -129,7 +132,7 @@ export class AggregationFrame<T extends Record<string, any>> {
     [ValueAggregation.max]<A extends string>(
         field: keyof T,
         as?: A
-    ): AggregationFrame<T|WithAlias<T, A, number>> {
+    ): AggregationFrame<T>|AggregationFrame<WithAlias<T, A, number>> {
         const { name, type } = this._ensureColumn(field, as);
         if (!isNumberLike(type)) {
             throw new Error(`${ValueAggregation.max} requires a numeric field type`);
@@ -153,7 +156,7 @@ export class AggregationFrame<T extends Record<string, any>> {
     [ValueAggregation.count]<A extends string>(
         field: keyof T,
         as?: A
-    ): AggregationFrame<T|WithAlias<T, A, number>> {
+    ): AggregationFrame<T>|AggregationFrame<WithAlias<T, A, number>> {
         const { name } = this._ensureColumn(field, as);
         const aggObject = this._aggregations.get(name) ?? { };
         aggObject.value = ValueAggregation.count;
@@ -279,10 +282,10 @@ export class AggregationFrame<T extends Record<string, any>> {
      * Run aggregations and flatten the grouped data into a DataFrame
      * @returns the new columns
     */
-    async run(): Promise<Column<any, keyof T>[]> {
+    async _run(): Promise<Column<any, keyof T>[]> {
         const {
             fieldAggs, keyAggs, otherCols
-        } = this._builders();
+        } = this._aggregationBuilders();
         const buckets = await this._generateBuckets(keyAggs, otherCols);
         const builders = this._generateBuilders(buckets);
 
@@ -373,7 +376,7 @@ export class AggregationFrame<T extends Record<string, any>> {
         }
     }
 
-    private _builders() {
+    private _aggregationBuilders() {
         const fieldAggs = new Map<keyof T, FieldAgg>();
         const keyAggs = new Map<keyof T, KeyAggFn>();
         const otherCols = new Map<keyof T, Column<any, keyof T>>();

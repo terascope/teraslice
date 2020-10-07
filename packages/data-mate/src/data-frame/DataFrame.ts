@@ -249,7 +249,7 @@ export class DataFrame<
     )|(
         readonly Partial<T>[]|readonly Column<any, keyof T>[]
     )): DataFrame<T> {
-        if (!arg || !arg.length) return this;
+        if (!arg?.length) return this;
 
         let len: number;
         if (arg[0] instanceof Column) {
