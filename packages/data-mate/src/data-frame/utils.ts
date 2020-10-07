@@ -101,3 +101,39 @@ function _columnToBuilderEntry<T extends Record<string, unknown>>(
         column.vector, size
     )];
 }
+
+export function processFieldFilter(
+    indices: Set<number>,
+    column: Column<any>,
+    filter: (value: any) => boolean,
+): void {
+    function add(index: number) { indices.add(index); }
+    function remove(index: number) { indices.delete(index); }
+    for (const v of column.vector.data.values) {
+        v.indices.forEach(
+            filter(v.value) ? add : remove
+        );
+    }
+}
+
+export function createColumnsWithIndices<T extends Record<string, any>>(
+    columns: readonly Column<any, keyof T>[],
+    indices: Iterable<number>,
+    size: number
+): readonly Column<any, keyof T>[] {
+    const builders = getBuildersForConfig<T>(
+        columnsToDataTypeConfig(columns), size
+    );
+
+    for (const index of indices) {
+        for (const col of columns) {
+            const val = col.vector.get(index);
+            builders.get(col.name)!.append(val);
+        }
+    }
+
+    function finish(col: Column<any, keyof T>) {
+        return col.fork(builders.get(col.name)!.toVector());
+    }
+    return columns.map(finish);
+}

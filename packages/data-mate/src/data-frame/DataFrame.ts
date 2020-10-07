@@ -6,10 +6,11 @@ import { Column } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import {
     buildRecords, columnsToBuilderEntries, columnsToDataTypeConfig,
-    concatColumnsToColumns, distributeRowsToColumns
+    concatColumnsToColumns, createColumnsWithIndices, distributeRowsToColumns, processFieldFilter
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
 import { createHashCode } from '../core-utils';
+import { getMaxColumnSize } from '../aggregation-frame/utils';
 
 /**
  * An immutable columnar table with APIs for data pipelines.
@@ -204,35 +205,18 @@ export class DataFrame<
     */
     filterBy(filters: FilterByFields<T>): DataFrame<T> {
         const indices = new Set<number>();
-        const add = indices.add.bind(indices);
-        const remove = indices.delete.bind(indices);
 
-        for (const field in filters) {
-            if (Object.prototype.hasOwnProperty.call(filters, field)) {
-                const col = this.getColumn(field)!;
-                for (const v of col.vector.data.values) {
-                    if (filters[field]!(v.value)) {
-                        v.indices.forEach(add);
-                    } else {
-                        v.indices.forEach(remove);
-                    }
-                }
-            }
+        for (const [field, filter] of Object.entries(filters)) {
+            processFieldFilter(
+                indices, this.getColumn(field)!, filter
+            );
         }
 
         if (indices.size === this._size) return this;
-
-        const builders = getBuildersForConfig<T>(this.config, indices.size);
-
-        for (const index of indices) {
-            for (const col of this.columns) {
-                const val = col.vector.get(index);
-                builders.get(col.name)!.append(val);
-            }
-        }
-
-        return this.fork(this.columns.map(
-            (col) => col.fork(builders.get(col.name)!.toVector())
+        return this.fork(createColumnsWithIndices(
+            this.columns,
+            indices,
+            indices.size
         ));
     }
 
@@ -269,9 +253,7 @@ export class DataFrame<
 
         let len: number;
         if (arg[0] instanceof Column) {
-            len = Math.max(
-                ...(arg as Column[]).map((col) => col.vector.size)
-            );
+            len = getMaxColumnSize(arg as Column[]);
         } else {
             len = (arg as T[]).length;
         }

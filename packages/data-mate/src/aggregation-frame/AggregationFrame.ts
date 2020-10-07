@@ -1,4 +1,5 @@
 import { FieldType } from '@terascope/types';
+import { pImmediate } from '@terascope/utils';
 import {
     Column,
     KeyAggregation, ValueAggregation, valueAggMap,
@@ -6,7 +7,7 @@ import {
 } from '../column';
 import { isNumberLike } from '../vector';
 import { Builder } from '../builder';
-import { getBuilderForField } from './utils';
+import { getBuilderForField, getMaxColumnSize } from './utils';
 import { createHashCode } from '../core-utils';
 
 /**
@@ -279,12 +280,30 @@ export class AggregationFrame<T extends Record<string, any>> {
      * @returns the new columns
     */
     async run(): Promise<Column<any, keyof T>[]> {
-        const buckets = new Map<string, any[]>();
-        const count = Math.max(...this.columns.map((col) => col.size));
         const {
             fieldAggs, keyAggs, otherCols
         } = this._builders();
+        const buckets = await this._generateBuckets(keyAggs, otherCols);
+        const builders = this._generateBuilders(buckets);
 
+        for (const bucket of buckets.values()) {
+            await this._runBucket(builders, fieldAggs, bucket);
+            await pImmediate();
+        }
+
+        return [...builders].map(([name, builder]) => {
+            const column = this.columns.find((col) => col.name === name)!;
+            return column.fork(builder.toVector());
+        });
+    }
+
+    private async _generateBuckets(
+        keyAggs: Map<keyof T, KeyAggFn>,
+        otherCols: Map<keyof T, Column<any, keyof T>>
+    ): Promise<Map<string, any[]>> {
+        const buckets = new Map<string, any[]>();
+
+        const count = getMaxColumnSize(this.columns);
         for (let i = 0; i < count; i++) {
             const row: Partial<T> = {};
 
@@ -306,7 +325,11 @@ export class AggregationFrame<T extends Record<string, any>> {
             bucket.push(row);
             buckets.set(groupKey, bucket);
         }
+        await pImmediate();
+        return buckets;
+    }
 
+    private _generateBuilders(buckets: Map<string, any[]>): Map<keyof T, Builder<any>> {
         const builders = new Map<keyof T, Builder<any>>();
         for (const col of this.columns) {
             const agg = this._aggregations.get(col.name);
@@ -315,39 +338,39 @@ export class AggregationFrame<T extends Record<string, any>> {
             );
             builders.set(col.name, builder);
         }
+        return builders;
+    }
 
-        for (const bucket of buckets.values()) {
-            const len = bucket.length;
-            for (let i = 0; i < len; i++) {
-                for (const [field, agg] of fieldAggs) {
-                    agg.push(bucket[i][field], [i]);
-                }
-            }
-
-            let useIndex = 0;
-            const remainingFields: (keyof T)[] = [];
-            for (const [field, builder] of builders) {
-                const agg = fieldAggs.get(field);
-                if (agg != null) {
-                    const res = agg.flush();
-                    if (res.index != null && res.index > useIndex) {
-                        useIndex = res.index;
-                    }
-                    builder.append(res.value);
-                } else {
-                    remainingFields.push(field);
-                }
-            }
-
-            for (const field of remainingFields) {
-                builders.get(field)!.append(bucket[useIndex][field]);
+    private async _runBucket(
+        builders: Map<keyof T, Builder<any>>,
+        fieldAggs: Map<keyof T, FieldAgg>,
+        bucket: any[]
+    ): Promise<void> {
+        const len = bucket.length;
+        for (let i = 0; i < len; i++) {
+            for (const [field, agg] of fieldAggs) {
+                agg.push(bucket[i][field], [i]);
             }
         }
 
-        return [...builders].map(([name, builder]) => {
-            const column = this.columns.find((col) => col.name === name)!;
-            return column.fork(builder.toVector());
-        });
+        let useIndex = 0;
+        const remainingFields: (keyof T)[] = [];
+        for (const [field, builder] of builders) {
+            const agg = fieldAggs.get(field);
+            if (agg != null) {
+                const res = agg.flush();
+                if (res.index != null && res.index > useIndex) {
+                    useIndex = res.index;
+                }
+                builder.append(res.value);
+            } else {
+                remainingFields.push(field);
+            }
+        }
+
+        for (const field of remainingFields) {
+            builders.get(field)!.append(bucket[useIndex][field]);
+        }
     }
 
     private _builders() {

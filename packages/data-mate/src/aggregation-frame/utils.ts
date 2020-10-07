@@ -60,3 +60,11 @@ export function getBuilderForField(
         description: col.config.description // FIXME append agg info
     }, data);
 }
+
+export function getMaxColumnSize(
+    columns: readonly Column<any, any>[]
+): number {
+    return Math.max(
+        ...columns.map((col) => col.vector.size)
+    );
+}
