@@ -291,8 +291,8 @@ export class AggregationFrame<T extends Record<string, any>> {
 
         for (const bucket of buckets.values()) {
             await this._runBucket(builders, fieldAggs, bucket);
-            await pImmediate();
         }
+        await pImmediate();
 
         return [...builders].map(([name, builder]) => {
             const column = this.columns.find((col) => col.name === name)!;

@@ -50,7 +50,7 @@ const dataTypeConfig = {
     }
 };
 
-const numRecords = 500;
+const numRecords = 1800;
 const year = new Date().getFullYear();
 const records = times(numRecords, () => {
     const age = chance.age();
@@ -76,6 +76,10 @@ const records = times(numRecords, () => {
     };
 });
 
+// add some duplicates
+records.splice(500, 0, ...records.slice(100, 200));
+records.splice(1300, 0, ...records.slice(500, 600));
+
 function randArrSize(fn, arg) {
     return times(random(0, 5), () => randNull(fn, arg));
 }
@@ -86,7 +90,15 @@ function randNull(fn, arg) {
     return fn.call(chance, arg);
 }
 
+// eslint-disable-next-line no-console
+console.dir({
+    dataTypeConfig,
+    records,
+}, {
+    maxArrayLength: 1,
+    depth: 5
+});
 fs.writeFileSync(path.join(__dirname, 'fixtures/data.json'), JSON.stringify({
     config: dataTypeConfig,
     data: records
-}, null, 2));
+}));
