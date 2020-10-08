@@ -89,7 +89,8 @@ export class DateValue {
 
     [Symbol.toPrimitive](hint: 'string'|'number'|'default'): any {
         if (hint === 'number') return this.value;
-        return `${this.formatted ?? this.value}`;
+        if (!this.formatted) return new Date(this.value).toISOString();
+        return `${this.formatted}`;
     }
 
     get [HASH_CODE_SYMBOL](): string {

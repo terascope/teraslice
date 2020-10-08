@@ -36,11 +36,14 @@ describe('Column (Date Types)', () => {
         });
 
         it('should be able to iterate over the values', () => {
-            const vals = values.map((val) => {
-                if (val == null) return null;
-                return new Date(val).toISOString();
-            });
-            expect(col.toJSON()).toEqual(vals);
+            expect(col.toJSON()).toEqual([
+                '2020-09-23T14:54:21.020Z',
+                '1941-08-20T07:00:00.000Z',
+                '2020-09-23T00:00:00.000Z',
+                1600875138416,
+                null,
+                '2019-01-20T12:50:20.000Z'
+            ]);
         });
 
         it('should be able to get the Vector', () => {

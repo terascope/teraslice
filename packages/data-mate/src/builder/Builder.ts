@@ -21,7 +21,7 @@ export abstract class Builder<T = unknown> {
     ): Builder<R> {
         throw new Error(
             `This will functionality replaced in the index file
-            ${config} ${length} ${childConfig}`
+            ${config} ${length} ${data} ${childConfig}`
         );
     }
 
@@ -51,7 +51,7 @@ export abstract class Builder<T = unknown> {
     /**
      * The field type configuration
     */
-    readonly config: DataTypeFieldConfig;
+    readonly config: Readonly<DataTypeFieldConfig>;
 
     /**
      * A function for converting a value to an JSON spec compatible format.
@@ -86,7 +86,7 @@ export abstract class Builder<T = unknown> {
         }: BuilderOptions<T>,
     ) {
         this.type = type;
-        this.config = { ...config };
+        this.config = Object.isFrozen(config) ? config : Object.freeze({ ...config });
         this.valueFrom = valueFrom;
         this.childConfig = childConfig ? { ...childConfig } : undefined;
         this.data = data;
@@ -123,7 +123,7 @@ export abstract class Builder<T = unknown> {
     */
     toVector(): Vector<T> {
         const vector = Vector.make(
-            Object.freeze(this.config),
+            this.config,
             new ReadableData(this.data),
             this.childConfig
         );
@@ -160,7 +160,7 @@ export type ValueFromFn<T> = (
  * A list of Builder Options
  */
 export interface BuilderOptions<T> {
-    config: DataTypeFieldConfig;
+    config: DataTypeFieldConfig|Readonly<DataTypeFieldConfig>;
 
     valueFrom?: ValueFromFn<T>;
     /**

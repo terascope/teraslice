@@ -1,7 +1,6 @@
 import 'jest-fixtures';
 import { toString, bigIntToJSON, isNotNil } from '@terascope/utils';
 import {
-    DateFormat,
     ESGeoShapeMultiPolygon,
     ESGeoShapePoint,
     ESGeoShapePolygon,
@@ -70,7 +69,7 @@ describe('Vector', () => {
             [
                 nowDate.toISOString(),
                 nowDate.toISOString(),
-                nowDate.toISOString(),
+                now,
                 '1941-08-20T07:00:00.000Z',
                 null,
                 null
@@ -281,18 +280,10 @@ describe('Vector', () => {
         });
 
         it('should have the correct field config', () => {
-            if (type === FieldType.Date) {
-                expect(vector.config).toEqual({
-                    type,
-                    format: DateFormat.iso_8601,
-                    array: false
-                });
-            } else {
-                expect(vector.config).toEqual({
-                    type,
-                    array: false
-                });
-            }
+            expect(vector.config).toEqual({
+                type,
+                array: false
+            });
         });
 
         if (invalid?.length) {
