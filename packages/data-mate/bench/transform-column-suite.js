@@ -2,7 +2,7 @@
 
 const { Suite } = require('./helpers');
 const { config, data } = require('./fixtures/data.json');
-const { DataFrame, ColumnTransform } = require('../dist/src');
+const { DataFrame, ColumnTransform } = require('./src');
 
 const run = async () => {
     const suite = Suite('Transform Column');

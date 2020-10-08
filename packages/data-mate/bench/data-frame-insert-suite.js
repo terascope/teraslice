@@ -2,7 +2,7 @@
 
 const { Suite } = require('./helpers');
 const { config, data } = require('./fixtures/data.json');
-const { DataFrame } = require('../dist/src');
+const { DataFrame } = require('./src');
 
 const emptyDataFrame = DataFrame.fromJSON(config, []);
 
