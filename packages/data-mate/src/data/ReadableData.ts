@@ -7,13 +7,7 @@ import { WritableData } from './WritableData';
 const _indicesCache = new WeakMap<ReadableData<any>, TypedArray>();
 
 /**
- * A data type agnostic in-memory representation of the data
- * for a Vector and indices/unique values.
- *
- * This is usually made in the Builder and then
- * frozen before handing it to the Vector.
- *
- * @internal
+ * A generic readonly optimized view of data used for Vectors.
 */
 export class ReadableData<T> {
     /**
@@ -55,6 +49,8 @@ export class ReadableData<T> {
     /**
      * The index represent the order of the values,
      * the value is the hash of where to find the index
+     *
+     * @note this is O(n) on the first call
     */
     get indices(): TypedArray {
         const cached = _indicesCache.get(this);
@@ -79,7 +75,7 @@ export class ReadableData<T> {
     /**
      * Get the distinct values.
      *
-     * @note this is can be expensive for non-primitive values, like objects
+     * @note this is O(1) for non-object types and O(n) + extra hashing logic for larger objects
     */
     distinct(): number {
         if (this.isPrimitive) {

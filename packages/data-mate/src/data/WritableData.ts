@@ -2,13 +2,8 @@ import { Maybe } from '@terascope/types';
 import { ReadableDataValue, TypedArray, WritableDataValue } from './interfaces';
 
 /**
- * A data type agnostic in-memory representation of the data
- * for a Vector and indices/unique values.
- *
- * This is usually made in the Builder and then
- * frozen before handing it to the Vector.
- *
- * @internal
+ * A generic write-only optimized view of data used for Builders.
+ * This does not handle updating existing indices, so don't do that.
 */
 export class WritableData<T> {
     /**
