@@ -70,6 +70,6 @@ function* fromToIterable<T>(
     from: readonly ReadableDataValue<T>[],
 ): Iterable<[T, WritableDataValue]> {
     for (const val of from) {
-        yield [val.value, val.indices.slice()];
+        yield [val.v, val.i.slice()];
     }
 }

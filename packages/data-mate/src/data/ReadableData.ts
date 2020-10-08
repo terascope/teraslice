@@ -36,13 +36,13 @@ export class ReadableData<T> {
     get isPrimitive(): boolean {
         const [val] = this.values;
         if (val == null) return true;
-        return typeof val.value !== 'object';
+        return typeof val.v !== 'object';
     }
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
         for (const valIndex of this.indices) {
             if (valIndex === 0) yield null;
-            else yield this.values[valIndex - 1].value;
+            else yield this.values[valIndex - 1].v;
         }
     }
 
@@ -69,7 +69,7 @@ export class ReadableData<T> {
         if (valueIndex === undefined) return undefined;
         if (valueIndex === 0) return null;
 
-        return this.values[valueIndex - 1].value;
+        return this.values[valueIndex - 1].v;
     }
 
     /**
@@ -110,7 +110,7 @@ export class ReadableData<T> {
 
         let currentIndex = 0;
         for (const index of indices) {
-            const val = index === 0 ? null : this.values[index - 1].value;
+            const val = index === 0 ? null : this.values[index - 1].v;
             data.set(currentIndex++, val);
         }
 
@@ -126,7 +126,7 @@ export class ReadableData<T> {
             return;
         }
 
-        for (const { value } of this.values) {
+        for (const { v: value } of this.values) {
             yield getHashCodeFrom(value);
         }
     }
@@ -134,8 +134,8 @@ export class ReadableData<T> {
 
 function fromValue<T>([value, indices]: [T, WritableDataValue]): ReadableDataValue<T> {
     return {
-        value,
-        indices,
+        v: value,
+        i: indices,
     };
 }
 
@@ -146,7 +146,7 @@ function generateIndices<T>(values: readonly ReadableDataValue<T>[], size: numbe
 
     const len = values.length;
     for (let i = 0; i < len; i++) {
-        setValIndices(indices, values[i].indices, i + 1);
+        setValIndices(indices, values[i].i, i + 1);
     }
 
     return indices;

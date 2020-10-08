@@ -3,7 +3,7 @@ import { joinList, toString } from '@terascope/utils';
 import {
     DataTypeFieldConfig, DataTypeFields, Maybe
 } from '@terascope/types';
-import { Builder } from '../builder';
+import { Builder, copyVectorToBuilder, transformVectorToBuilder } from '../builder';
 import {
     Vector, isVector, VectorType
 } from '../vector';
@@ -34,7 +34,7 @@ export function mapVector<T, R = T>(
     );
 
     if (transform.mode === TransformMode.NONE) {
-        return mapVectorNone(vector, builder);
+        return copyVectorToBuilder(vector, builder);
     }
 
     if (transform.mode === TransformMode.EACH) {
@@ -50,16 +50,6 @@ export function mapVector<T, R = T>(
     }
 
     throw new Error(`Unknown transformation ${toString(transform)}`);
-}
-
-export function mapVectorNone<T, R = T>(
-    vector: Vector<T>,
-    builder: Builder<R>,
-): Vector<R> {
-    for (const { value, indices } of vector.data.values) {
-        builder.mset(value, indices);
-    }
-    return builder.toVector();
 }
 
 export function mapVectorEach<T, R = T>(
@@ -88,10 +78,7 @@ export function mapVectorEachValue<T, R = T>(
         return values as any;
     }
 
-    for (const { value, indices } of vector.data.values) {
-        builder.mset(_mapValue(value), indices);
-    }
-    return builder.toVector();
+    return transformVectorToBuilder(vector, builder, _mapValue);
 }
 
 export function validateFieldTransformArgs<A extends Record<string, any>>(

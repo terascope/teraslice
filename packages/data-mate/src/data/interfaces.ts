@@ -9,8 +9,14 @@ export type TypedArrayConstructor = Uint8ArrayConstructor
 |Float64ArrayConstructor;
 
 export type ReadableDataValue<T> = Readonly<{
-    indices: readonly number[];
-    value: T;
+    /**
+     * A list of the value positions
+    */
+    i: readonly number[];
+    /**
+     * The non-null value
+    */
+    v: T;
 }>;
 
 export type WritableDataValue = number[];

@@ -1,4 +1,4 @@
-import { DataTypeFieldConfig, DataTypeFields } from '@terascope/types';
+import { DataTypeFieldConfig, DataTypeFields, Maybe } from '@terascope/types';
 import { freezeObject } from '../core-utils';
 import { ReadableData, WritableData, TypedArray } from '../data';
 import {
@@ -166,4 +166,31 @@ export interface BuilderOptions<T> {
      * The type config for any nested fields (currently only works for objects)
     */
     childConfig?: DataTypeFields;
+}
+
+/**
+ * Copy the values from a Vector to a Builder
+*/
+export function copyVectorToBuilder<T, R>(
+    vector: Vector<T>,
+    builder: Builder<R>,
+): Vector<R> {
+    for (const value of vector.data.values) {
+        builder.mset(value.v, value.i);
+    }
+    return builder.toVector();
+}
+
+/**
+ * Copy the values from a Vector to a Builder
+*/
+export function transformVectorToBuilder<T, R>(
+    vector: Vector<T>,
+    builder: Builder<R>,
+    transform: (value: T) => Maybe<R>,
+): Vector<R> {
+    for (const value of vector.data.values) {
+        builder.mset(transform(value.v), value.i);
+    }
+    return builder.toVector();
 }

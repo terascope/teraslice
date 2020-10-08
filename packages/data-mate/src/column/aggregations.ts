@@ -31,8 +31,8 @@ export const valueAggMap: Record<ValueAggregation, MakeValueAgg> = {
 
 export function runVectorAggregation<V>(vector: Vector<any>, valueAgg: ValueAggregation): V {
     const agg = valueAggMap[valueAgg](vector);
-    for (const { value, indices } of vector.data.values) {
-        agg.push(value, indices);
+    for (const value of vector.data.values) {
+        agg.push(value.v, value.i);
     }
     return agg.flush().value as any;
 }

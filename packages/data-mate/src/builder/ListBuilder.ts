@@ -1,6 +1,6 @@
 import { castArray } from '@terascope/utils';
 import { DataTypeFieldConfig } from '@terascope/types';
-import { Builder, BuilderOptions } from './Builder';
+import { Builder, BuilderOptions, copyVectorToBuilder } from './Builder';
 import { Vector, VectorType } from '../vector';
 import { isSameFieldConfig } from '../core-utils';
 import { WritableData } from '../data';
@@ -12,17 +12,11 @@ export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
         if (values instanceof Vector) {
             if (isSameFieldConfig(values.config, config)) return values;
 
-            const builder = Builder.make(
+            return copyVectorToBuilder(values, Builder.make(
                 config,
                 WritableData.make(values.size),
                 thisArg.childConfig
-            );
-
-            for (const { value, indices } of values.data.values) {
-                builder.mset(value, indices);
-            }
-
-            return builder.toVector();
+            ));
         }
 
         const arr = castArray(values);

@@ -11,7 +11,7 @@ import {
     ObjectVector, StringVector, IPVector, IPRangeVector,
 } from './types';
 import { Vector } from './Vector';
-import { ReadableData } from '../data';
+import { ReadableData, ReadableDataValue } from '../data';
 
 export function _newVector<T>(
     config: Readonly<DataTypeFieldConfig>,
@@ -121,15 +121,15 @@ export function getNumericValues(value: unknown): {
 
     throw new Error(`Unable to get numeric values from ${value} (${getTypeOf(value)})`);
 }
-function _getAllValues(values: readonly Readonly<{ value: any, indices: readonly number[] }>[]) {
+function _getAllValues(values: readonly Readonly<ReadableDataValue<any>>[]) {
     const result: any[] = [];
     for (const value of values) {
         result.push(..._getValues(value));
     }
     return result;
 }
-function _getValues(v: { value: any, indices: readonly number[] }) {
-    return Array.from({ length: v.indices.length }, () => v.value);
+function _getValues(value: ReadableDataValue<any>) {
+    return Array(value.i.length).fill(value.v);
 }
 
 export function isNumberLike(type: FieldType): boolean {
