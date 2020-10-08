@@ -10,11 +10,10 @@ function Suite(name) {
     return new benchmark.Suite(name)
         .on('cycle', (e) => {
             const t = e.target;
-            if (t.failure) {
-                console.error(`${padl(10, t.name)}FAILED: ${e.target.failure}`);
+            if (t.error) {
+                console.error(`${padl(50, t.name)}${padr(60, t.error)}`);
             } else {
-                const result = `${padl(50, t.name)
-          + padr(13, `${t.hz.toFixed(2)} op/s`)
+                const result = `${padl(50, t.name)}${padr(13, `${t.hz.toFixed(2)} op/s`)
                 } \xb1${
                     padr(7, `${t.stats.rme.toFixed(2)}%`)
                 }${padr(15, ` (${t.stats.sample.length} samples)`)}`;

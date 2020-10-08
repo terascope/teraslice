@@ -10,11 +10,10 @@ function Suite(name) {
     return new benchmark.Suite(name)
         .on('cycle', (e) => {
             const t = e.target;
-            if (t.failure) {
-                console.error(`${padl(10, t.name)}FAILED: ${e.target.failure}`);
+            if (t.error) {
+                console.error(`${padl(50, t.name)}${padr(60, t.error)}`);
             } else {
-                const result = `${padl(30, t.name)
-          + padr(13, `${t.hz.toFixed(2)} op/s`)
+                const result = `${padl(50, t.name)}${padr(13, `${t.hz.toFixed(2)} op/s`)
                 } \xb1${
                     padr(7, `${t.stats.rme.toFixed(2)}%`)
                 }${padr(15, ` (${t.stats.sample.length} samples)`)}`;
@@ -29,12 +28,12 @@ function Suite(name) {
 
             this.filter('fastest')
                 .forEach((item) => {
-                    console.log(banner(90, `Best: ${item.name}`, '+'));
+                    console.log(banner(100, `Best: ${item.name}`, '+'));
                 });
 
             this.filter('slowest')
                 .forEach((item) => {
-                    console.log(banner(90, `Worst: ${item.name}`, '-'));
+                    console.log(banner(100, `Worst: ${item.name}`, '-'));
                 });
 
             process.stdout.write('\n');
@@ -64,7 +63,7 @@ function banner(n, s, c = '-') {
 }
 
 function printHeader(msg, sep) {
-    process.stdout.write(` \n${banner(90, msg, sep)}\n \n`);
+    process.stdout.write(` \n${banner(100, msg, sep)}\n \n`);
 }
 
 module.exports = { Suite, printHeader };
