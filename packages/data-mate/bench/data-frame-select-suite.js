@@ -5,7 +5,7 @@ const { config, data } = require('./fixtures/people');
 const { DataFrame } = require('../dist/src');
 
 const run = async () => {
-    const suite = Suite('DataFrame->assign');
+    const suite = Suite('DataFrame->select');
 
     const dataFrame = DataFrame.fromJSON(config, data);
     const names = dataFrame.columns.map((col) => col.name);

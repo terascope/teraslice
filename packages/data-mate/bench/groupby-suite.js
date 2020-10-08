@@ -5,7 +5,7 @@ const { config, data } = require('./fixtures/people');
 const { DataFrame } = require('../dist/src');
 
 const run = async () => {
-    const suite = Suite('Aggregate');
+    const suite = Suite('Group By');
 
     const dataFrame = DataFrame.fromJSON(config, data);
     for (const column of dataFrame.columns) {
@@ -15,9 +15,7 @@ const run = async () => {
             fn(deferred) {
                 dataFrame.groupBy([column.name])
                     .run()
-                    .then(() => {
-                        deferred.resolve();
-                    });
+                    .then(deferred.resolve, deferred.reject);
             }
         });
     }

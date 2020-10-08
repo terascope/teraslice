@@ -19,9 +19,7 @@ const run = async () => {
                     fn(deferred) {
                         aggregateFrame[agg](column.name)
                             .run()
-                            .then(() => {
-                                deferred.resolve();
-                            });
+                            .then(deferred.resolve, deferred.reject);
                     }
                 });
             }
