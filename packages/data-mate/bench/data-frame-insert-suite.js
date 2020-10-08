@@ -1,7 +1,7 @@
 'use strict';
 
 const { Suite } = require('./helpers');
-const { config, data } = require('./fixtures/people');
+const { config, data } = require('./fixtures/data.json');
 const { DataFrame } = require('../dist/src');
 
 const emptyDataFrame = DataFrame.fromJSON(config, []);
@@ -21,7 +21,7 @@ const run = async () => Suite('DataFrame Insert')
         async: true,
         initCount: 2,
         minSamples: 5,
-        maxTime: 15,
+        maxTime: 20,
     });
 
 if (require.main === module) {

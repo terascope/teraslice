@@ -1,7 +1,7 @@
 'use strict';
 
 const { Suite } = require('./helpers');
-const { config, data } = require('./fixtures/people');
+const { config, data } = require('./fixtures/data.json');
 const { DataFrame, isNumberLike, ValueAggregation } = require('../dist/src');
 
 const run = async () => {
@@ -19,7 +19,7 @@ const run = async () => {
                     fn(deferred) {
                         aggregateFrame[agg](column.name)
                             .run()
-                            .then(deferred.resolve, deferred.reject);
+                            .then(() => deferred.resolve(), deferred.reject);
                     }
                 });
             }
@@ -29,8 +29,8 @@ const run = async () => {
     return suite.run({
         async: true,
         initCount: 2,
-        minSamples: 3,
-        maxTime: 15,
+        minSamples: 2,
+        maxTime: 20,
     });
 };
 if (require.main === module) {
