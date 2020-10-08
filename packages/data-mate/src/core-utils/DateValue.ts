@@ -55,9 +55,8 @@ export class DateValue {
             || defaultFormat === DateFormat.iso_8601
         );
 
-        const epochMillis = date.getTime();
         return new DateValue(
-            epochMillis,
+            date.getTime(),
             storeInISO ? date.toISOString() : undefined
         );
     }

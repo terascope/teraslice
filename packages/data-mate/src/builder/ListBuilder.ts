@@ -1,30 +1,40 @@
 import { castArray } from '@terascope/utils';
+import { DataTypeFieldConfig } from '@terascope/types';
 import { Builder, BuilderOptions } from './Builder';
 import { Vector, VectorType } from '../vector';
 import { isSameFieldConfig } from '../core-utils';
 import { WritableData } from '../data';
 
 export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
-    static valueFrom(values: unknown, thisArg?: ListBuilder<any>): Vector<any> {
-        if (!thisArg) {
-            throw new Error('Expected thisArg');
-        }
-        let arr: unknown[];
+    static valueFrom(values: unknown, thisArg: ListBuilder<any>): Vector<any> {
+        const config = getValueConfig(thisArg.config);
+
         if (values instanceof Vector) {
-            if (isSameFieldConfig(values.config, thisArg.config)) {
-                return values;
+            if (isSameFieldConfig(values.config, config)) return values;
+
+            const builder = Builder.make(
+                config,
+                WritableData.make(values.size),
+                thisArg.childConfig
+            );
+
+            for (const { value, indices } of values.data.values) {
+                builder.mset(value, indices);
             }
-            arr = [...values];
-        } else {
-            arr = castArray(values);
+
+            return builder.toVector();
         }
 
-        const builder = Builder.make({
-            ...thisArg.config,
-            array: false,
-        }, WritableData.make(arr.length), thisArg.childConfig);
+        const arr = castArray(values);
+        const builder = Builder.make(
+            config,
+            WritableData.make(arr.length),
+            thisArg.childConfig
+        );
 
-        arr.forEach((value) => builder.append(value));
+        for (const value of arr) {
+            builder.append(value);
+        }
 
         return builder.toVector();
     }
@@ -38,4 +48,17 @@ export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
             ...options,
         });
     }
+}
+
+const _cache = new WeakMap<Readonly<DataTypeFieldConfig>, Readonly<DataTypeFieldConfig>>();
+function getValueConfig(baseConfig: Readonly<DataTypeFieldConfig>): Readonly<DataTypeFieldConfig> {
+    const cached = _cache.get(baseConfig);
+    if (cached) return cached;
+
+    const config = Object.freeze({
+        ...baseConfig,
+        array: false,
+    });
+    _cache.set(baseConfig, config);
+    return config;
 }

@@ -10,7 +10,7 @@ import {
     concatColumnsToColumns, createColumnsWithIndices, distributeRowsToColumns, processFieldFilter
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
-import { createHashCode } from '../core-utils';
+import { createHashCode, freezeArray } from '../core-utils';
 import { getMaxColumnSize } from '../aggregation-frame/utils';
 
 /**
@@ -64,9 +64,7 @@ export class DataFrame<
         this.name = options?.name;
         this.metadata = options?.metadata ? { ...options.metadata } : {};
 
-        this.columns = Object.isFrozen(columns)
-            ? columns
-            : Object.freeze(columns.slice());
+        this.columns = freezeArray(columns);
 
         const lengths = this.columns.map((col) => col.size);
         if (new Set(lengths).size > 1) {

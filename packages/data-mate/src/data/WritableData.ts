@@ -60,6 +60,10 @@ export class WritableData<T> {
         }
         return this;
     }
+
+    clear(): void {
+        this.values.clear();
+    }
 }
 
 function* fromToIterable<T>(

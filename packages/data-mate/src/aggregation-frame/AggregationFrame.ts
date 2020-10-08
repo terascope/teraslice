@@ -8,7 +8,7 @@ import {
 import { isNumberLike } from '../vector';
 import { Builder } from '../builder';
 import { getBuilderForField, getMaxColumnSize } from './utils';
-import { createHashCode } from '../core-utils';
+import { createHashCode, freezeArray } from '../core-utils';
 
 /**
  * A frame dedicated to running a aggregations
@@ -32,8 +32,8 @@ export class AggregationFrame<T extends Record<string, any>> {
         columns: readonly Column<any, keyof T>[],
         keyBy?: readonly (keyof T)[]
     ) {
-        this.columns = Object.freeze(columns.slice());
-        this.keyBy = Object.freeze(keyBy ?? []);
+        this.columns = freezeArray(columns);
+        this.keyBy = freezeArray(keyBy ?? []);
         for (const key of this.keyBy) {
             this[KeyAggregation.unique](key);
         }

@@ -1,10 +1,9 @@
 import { DataTypeFieldConfig, DataTypeFields } from '@terascope/types';
+import { freezeObject } from '../core-utils';
 import { ReadableData, WritableData, TypedArray } from '../data';
 import {
     Vector, VectorType
 } from '../vector';
-
-const emptyData = WritableData.make(0);
 
 /**
  * Since Vectors are immutable, a Builder can be to construct a
@@ -86,9 +85,9 @@ export abstract class Builder<T = unknown> {
         }: BuilderOptions<T>,
     ) {
         this.type = type;
-        this.config = Object.isFrozen(config) ? config : Object.freeze({ ...config });
+        this.config = freezeObject(config);
         this.valueFrom = valueFrom;
-        this.childConfig = childConfig ? { ...childConfig } : undefined;
+        this.childConfig = childConfig ? freezeObject(childConfig) : undefined;
         this.data = data;
         this.currentIndex = 0;
     }
@@ -97,8 +96,9 @@ export abstract class Builder<T = unknown> {
      * Set value by index
     */
     set(index: number, value: unknown): Builder<T> {
-        const val = this._valueFrom(value);
-        this.data.set(index, val);
+        if (value == null) return this;
+
+        this.data.set(index, this._valueFrom(value));
         return this;
     }
 
@@ -106,8 +106,9 @@ export abstract class Builder<T = unknown> {
      * Set a single unique value on multiple indices
     */
     mset(value: unknown, indices: readonly number[]|TypedArray): Builder<T> {
-        const val = this._valueFrom(value);
-        this.data.mset(val, indices);
+        if (value == null) return this;
+
+        this.data.mset(this._valueFrom(value), indices);
         return this;
     }
 
@@ -128,14 +129,12 @@ export abstract class Builder<T = unknown> {
             this.childConfig
         );
 
-        // @ts-expect-error
-        this.data = emptyData;
-        this.currentIndex = -1;
+        this.data.clear();
+        this.currentIndex = 0;
         return vector;
     }
 
     _valueFrom(value: unknown): T|null {
-        if (value == null) return null;
         if (!this.valueFrom) return value as T;
         return this.valueFrom(value, this);
     }
