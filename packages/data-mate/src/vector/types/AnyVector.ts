@@ -1,6 +1,6 @@
 import { Vector, VectorOptions } from '../Vector';
 import { VectorType } from '../interfaces';
-import { ReadableData } from '../../data';
+import { ReadableData } from '../../core';
 
 export class AnyVector extends Vector<any> {
     constructor(options: VectorOptions<any>) {

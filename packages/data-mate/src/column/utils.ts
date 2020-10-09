@@ -8,7 +8,7 @@ import {
     Vector, isVector, VectorType
 } from '../vector';
 import { ColumnTransformFn, TransformMode } from './interfaces';
-import { ReadableData, WritableData } from '../data';
+import { ReadableData, WritableData } from '../core';
 
 const _vectorIds = new WeakMap<Vector<any>, string>();
 export function getVectorId(vector: Vector<any>): string {

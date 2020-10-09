@@ -11,7 +11,7 @@ import {
     ObjectVector, StringVector, IPVector, IPRangeVector,
 } from './types';
 import { Vector } from './Vector';
-import { ReadableData, ReadableDataValue } from '../data';
+import { ReadableData, ReadableDataValue } from '../core';
 
 export function _newVector<T>(
     config: Readonly<DataTypeFieldConfig>,

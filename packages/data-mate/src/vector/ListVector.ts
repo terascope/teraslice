@@ -1,6 +1,6 @@
 import { Vector, VectorOptions } from './Vector';
 import { VectorType } from './interfaces';
-import { ReadableData } from '../data';
+import { ReadableData } from '../core';
 
 export class ListVector<T = unknown> extends Vector<Vector<T>> {
     static valueToJSON(value: Vector<any>): any {

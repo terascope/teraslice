@@ -1,7 +1,7 @@
 import { ESGeoShapeType, GeoShape, GeoShapeType } from '@terascope/types';
 import { getTypeOf, isGeoJSON, toString } from '@terascope/utils';
-import { createObject } from '../../core';
-import { WritableData } from '../../data';
+import { createObject, WritableData } from '../../core';
+
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 

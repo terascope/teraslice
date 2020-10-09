@@ -13,7 +13,7 @@ import { runVectorAggregation, ValueAggregation } from './aggregations';
 import {
     getVectorId, mapVector, validateFieldTransformArgs, validateFieldTransformType
 } from './utils';
-import { WritableData } from '../data';
+import { WritableData } from '../core';
 
 /**
  * A single column of values with the same data type.

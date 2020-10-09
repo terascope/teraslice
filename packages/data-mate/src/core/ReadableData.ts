@@ -1,7 +1,6 @@
 import { Maybe } from '@terascope/types';
-import { getHashCodeFrom } from '../core/data-helpers';
 import { ReadableDataValue, TypedArray, WritableDataValue } from './interfaces';
-import { getTypedArrayClass } from './utils';
+import { getTypedArrayClass, getHashCodeFrom } from './utils';
 import { WritableData } from './WritableData';
 
 const _indicesCache = new WeakMap<ReadableData<any>, TypedArray>();

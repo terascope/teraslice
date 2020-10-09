@@ -2,7 +2,7 @@ import { getGroupedFields } from '@terascope/data-types';
 import {
     DataTypeConfig, DataTypeFieldConfig, DataTypeFields, FieldType
 } from '@terascope/types';
-import { WritableData } from '../data';
+import { WritableData } from '../core';
 import { Builder, BuilderOptions } from './Builder';
 import { ListBuilder } from './ListBuilder';
 import {

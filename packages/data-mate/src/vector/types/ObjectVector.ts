@@ -1,6 +1,6 @@
 import { Vector, VectorOptions } from '../Vector';
 import { VectorType } from '../interfaces';
-import { ReadableData } from '../../data';
+import { ReadableData } from '../../core';
 
 /**
  * @todo we need an to serialize to JSON correctly

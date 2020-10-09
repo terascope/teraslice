@@ -1,6 +1,6 @@
 import { getTypeOf, isPlainObject, toString } from '@terascope/utils';
-import { createObject } from '../../core';
-import { WritableData } from '../../data';
+import { createObject, WritableData } from '../../core';
+
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions, ValueFromFn } from '../Builder';
 

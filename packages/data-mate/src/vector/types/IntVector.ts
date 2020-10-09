@@ -1,6 +1,6 @@
 import { Vector, VectorOptions } from '../Vector';
 import { VectorType } from '../interfaces';
-import { ReadableData } from '../../data';
+import { ReadableData } from '../../core';
 
 export class IntVector extends Vector<number> {
     constructor(options: VectorOptions<number>) {

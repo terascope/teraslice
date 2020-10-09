@@ -2,7 +2,7 @@ import { isIP as checkIP } from 'net';
 import { getTypeOf, isString } from '@terascope/utils';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
-import { WritableData } from '../../data';
+import { WritableData } from '../../core';
 
 function isValidIP(input: unknown): input is string {
     if (!isString(input)) return false;

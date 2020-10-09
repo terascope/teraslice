@@ -5,7 +5,7 @@ import {
 import parseDate from 'date-fns/parse';
 import formatDate from 'date-fns/format';
 import { DateFormat } from '@terascope/types';
-import { HASH_CODE_SYMBOL } from './data-helpers';
+import { HASH_CODE_SYMBOL } from './interfaces';
 
 /**
  * The internal date storage format

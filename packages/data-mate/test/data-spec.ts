@@ -1,6 +1,6 @@
 import { times } from '@terascope/utils';
 import 'jest-extended';
-import { ReadableData, WritableData } from '../src/data';
+import { ReadableData, WritableData } from '../src/core';
 
 describe('Data', () => {
     describe('when constructing with a size of 8', () => {

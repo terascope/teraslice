@@ -1,7 +1,7 @@
 import { GeoShape } from '@terascope/types';
 import { Vector, VectorOptions } from '../Vector';
 import { VectorType } from '../interfaces';
-import { ReadableData } from '../../data';
+import { ReadableData } from '../../core';
 
 export class GeoJSONVector extends Vector<GeoShape> {
     constructor(options: VectorOptions<GeoShape>) {

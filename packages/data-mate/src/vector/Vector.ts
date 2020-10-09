@@ -4,7 +4,7 @@ import {
     ReadonlyDataTypeFields
 } from '@terascope/types';
 import { createHashCode, HASH_CODE_SYMBOL } from '../core';
-import { ReadableData } from '../data';
+import { ReadableData } from '../core';
 import { VectorType } from './interfaces';
 
 /**

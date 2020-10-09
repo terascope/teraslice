@@ -2,8 +2,7 @@ import { castArray } from '@terascope/utils';
 import { DataTypeFieldConfig } from '@terascope/types';
 import { Builder, BuilderOptions, copyVectorToBuilder } from './Builder';
 import { Vector, VectorType } from '../vector';
-import { isSameFieldConfig } from '../core';
-import { WritableData } from '../data';
+import { isSameFieldConfig, WritableData } from '../core';
 
 export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
     static valueFrom(values: unknown, thisArg: ListBuilder<any>): Vector<any> {

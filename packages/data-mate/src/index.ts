@@ -29,7 +29,7 @@ export * from './aggregations';
 export * from './builder';
 export * from './column';
 export * from './core';
-export * from './data';
+export * from './core';
 export * from './data-frame';
 export * from './document-matcher';
 export * from './interfaces';

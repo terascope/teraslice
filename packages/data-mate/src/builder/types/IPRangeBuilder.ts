@@ -2,7 +2,7 @@ import validateCIDR from 'is-cidr';
 import { getTypeOf, isString } from '@terascope/utils';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
-import { WritableData } from '../../data';
+import { WritableData } from '../../core';
 
 function isValidIPRange(input: unknown): input is string {
     if (!isString(input)) return false;

@@ -1,6 +1,6 @@
 import { DateFormat } from '@terascope/types';
-import { DateValue } from '../../core';
-import { WritableData } from '../../data';
+import { DateValue, WritableData } from '../../core';
+
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 import { makeCachedValueFrom } from './utils';

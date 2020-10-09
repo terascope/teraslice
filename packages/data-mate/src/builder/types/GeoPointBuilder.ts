@@ -1,7 +1,7 @@
 import { GeoPoint } from '@terascope/types';
 import { parseGeoPoint } from '@terascope/utils';
-import { createObject } from '../../core';
-import { WritableData } from '../../data';
+import { createObject, WritableData } from '../../core';
+
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 

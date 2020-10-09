@@ -1,7 +1,7 @@
 import { FieldType } from '@terascope/types';
 import { Builder } from '../builder';
 import { Column, ValueAggregation, KeyAggregation } from '../column';
-import { WritableData } from '../data';
+import { WritableData } from '../core';
 import {
     isNumberLike, isFloatLike
 } from '../vector';

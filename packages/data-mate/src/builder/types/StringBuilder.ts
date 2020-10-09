@@ -1,5 +1,5 @@
 import { getTypeOf, toString } from '@terascope/utils';
-import { WritableData } from '../../data';
+import { WritableData } from '../../core';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 
