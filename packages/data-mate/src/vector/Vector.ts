@@ -3,8 +3,7 @@ import {
     Maybe, SortOrder,
     ReadonlyDataTypeFields
 } from '@terascope/types';
-import { createHashCode, HASH_CODE_SYMBOL } from '../core';
-import { ReadableData } from '../core';
+import { ReadableData, createHashCode, HASH_CODE_SYMBOL } from '../core';
 import { VectorType } from './interfaces';
 
 /**

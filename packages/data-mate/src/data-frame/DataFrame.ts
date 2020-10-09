@@ -38,7 +38,7 @@ export class DataFrame<
     }
 
     /**
-     * The name of the DataFrame
+     * The name of the Frame
     */
     name?: string;
 
@@ -48,7 +48,7 @@ export class DataFrame<
     readonly columns: readonly Column<any, keyof T>[];
 
     /**
-     * Metadata about the DataFrame
+     * Metadata about the Frame
     */
     readonly metadata: Record<string, any>;
 
@@ -151,14 +151,21 @@ export class DataFrame<
      * which can be used to run aggregations
     */
     groupBy(fields: (keyof T)[]|keyof T): AggregationFrame<T> {
-        return new AggregationFrame<T>(this.columns, castArray(fields));
+        const aggregationFrame = this.aggregate();
+        for (const field of castArray(fields)) {
+            aggregationFrame.unique(field);
+        }
+        return aggregationFrame;
     }
 
     /**
      * Create a AggregationFrame instance which can be used to run aggregations
     */
     aggregate(): AggregationFrame<T> {
-        return new AggregationFrame<T>(this.columns, []);
+        return new AggregationFrame<T>(this.columns, {
+            name: this.name,
+            metadata: this.metadata,
+        });
     }
 
     /**
@@ -190,7 +197,7 @@ export class DataFrame<
     /**
      * Sort the records by a field, an alias of orderBy.
      *
-     * @see DataFrame.orderBy
+     * @see orderBy
     */
     sort(field: keyof T, direction?: SortOrder): DataFrame<T> {
         return this.orderBy(field, direction);

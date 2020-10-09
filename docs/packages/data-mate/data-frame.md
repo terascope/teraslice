@@ -21,7 +21,7 @@ export class DataFrame {
     ): DataFrame;
 
     /**
-     * The name of the DataFrame
+     * The name of the Frame
     */
     name?: string;
 
@@ -31,7 +31,7 @@ export class DataFrame {
     readonly columns: readonly Column[];
 
     /**
-     * Metadata about the DataFrame
+     * Metadata about the Frame
     */
     readonly metadata: M;
 
@@ -89,6 +89,11 @@ export class DataFrame {
      * Defaults to `asc` if none specified
     */
     orderBy(field: string, direction?: SortOrder): DataFrame;
+
+    /**
+     * An alias to orderBy
+    */
+    sort(field: string, direction?: SortOrder): DataFrame;
 
     /**
      * Filter the DataFrame by fields, all fields must return true
@@ -496,18 +501,29 @@ export abstract class Builder {
 
 ```ts
 /**
- * A frame dedicated to running a aggregations
+ * A deferred execution frame dedicated to running a aggregations.
+ *
+ * This is different from a DataFrame for a few reasons:
+ *  - GroupBy and aggregations have to run at the same time in-order to get the correctly results.
+ *  - The operations are added to an instruction set and in one optimized execution.
+ *  - All methods in the AggregationFrame will mutate the execution
+ *    instructions instead of return a new instance with the applied changes.
 */
 export class AggregationFrame {
     /**
-     * The columns for the AggregationFrame
+     * The name of the Frame
+    */
+    name?: string;
+
+    /**
+     * The list of columns
     */
     columns: readonly Column[];
 
     /**
-     * The keys to group by
+     * Metadata about the Frame
     */
-    readonly keyBy: readonly string[];
+    readonly metadata: Record<string, any>;
 
     constructor(columns: Column[], keyBy?: string[]): AggregationFrame;
 
@@ -519,7 +535,7 @@ export class AggregationFrame {
      * @param field the name of the column to run the aggregation on
      * @param as a optional name for the new column with the aggregated values
     */
-    avg(field: string, as?: string): AggregationFrame;
+    avg(field: string, as?: string): this;
 
     /**
      * Add all of the values in a column together
@@ -529,7 +545,7 @@ export class AggregationFrame {
      * @param field the name of the column to run the aggregation on
      * @param as a optional name for the new column with the aggregated values
     */
-    sum(field: string, as?: string): AggregationFrame;
+    sum(field: string, as?: string): this;
 
     /**
      * Find the minimum value in a column
@@ -539,7 +555,7 @@ export class AggregationFrame {
      * @param field the name of the column to run the aggregation on
      * @param as a optional name for the new column with the aggregated values
     */
-    min(field: string, as?: string): AggregationFrame;
+    min(field: string, as?: string): this;
 
     /**
      * Find the maximum value in a column
@@ -549,7 +565,7 @@ export class AggregationFrame {
      * @param field the name of the column to run the aggregation on
      * @param as a optional name for the new column with the aggregated values
     */
-    max(field: string, as?: string): AggregationFrame;
+    max(field: string, as?: string): this;
 
     /**
      * Count all of the values in a column
@@ -557,7 +573,7 @@ export class AggregationFrame {
      * @param field the name of the column to run the aggregation on
      * @param as a optional name for the new column with the aggregated values
     */
-    count(field: string, as?: string): AggregationFrame;
+    count(field: string, as?: string): this;
 
     /**
      * Create a groups of unique values
@@ -565,7 +581,7 @@ export class AggregationFrame {
      * @param field the name of the column to run the aggregation on
      * @param as a optional name for the new column with the aggregated values
     */
-    unique(field: string): AggregationFrame;
+    unique(field: string): this;
 
     /**
      * Group the data in hourly buckets
@@ -574,7 +590,7 @@ export class AggregationFrame {
      *
      * @param field the name of the column to run the aggregation on
     */
-    hourly(field: string): AggregationFrame;
+    hourly(field: string): this;
 
     /**
      * Group the data in daily buckets
@@ -583,7 +599,7 @@ export class AggregationFrame {
      *
      * @param field the name of the column to run the aggregation on
     */
-    daily(field: string): AggregationFrame;
+    daily(field: string): this;
 
     /**
      * Group the data in monthly buckets
@@ -592,7 +608,7 @@ export class AggregationFrame {
      *
      * @param field the name of the column to run the aggregation on
     */
-    monthly(field: string): AggregationFrame;
+    monthly(field: string): this;
 
     /**
      * Group the data in yearly buckets
@@ -601,18 +617,52 @@ export class AggregationFrame {
      *
      * @param field the name of the column to run the aggregation on
     */
-    yearly(field: string): AggregationFrame;
+    yearly(field: string): this;
 
     /**
-     * Run aggregations and flatten the grouped data into a DataFrame
+     * Execute and run aggregations and flatten the grouped data into a DataFrame
      * @returns the new columns
     */
     run(): Promise<DataFrame>;
 
     /**
+     * Execute the aggregations and flatten the grouped data.
+     * Assigns the new columns to this.
+    */
+    execute(): Promise<this>;
+
+    /**
+     * Order the rows by fields, format of is `field:asc` or `field:desc`.
+     * Defaults to `asc` if none specified
+    */
+    orderBy(field: string, direction?: SortOrder): this;
+
+    /**
+     * Sort the records by a field, an alias of orderBy.
+     *
+     * @see orderBy
+    */
+    sort(field: string, direction?: SortOrder): this;
+
+    /**
+     * Limit the number of results being returned
+    */
+    limit(num: number): this;
+
+    /**
+     * Get a column by name
+    */
+    getColumn(name: string): Column|undefined;
+
+    /**
+     * Get a column by index
+    */
+    getColumnAt(index: number): Column|undefined;
+
+    /**
      * Reset the Aggregations
     */
-    clear(): void;
+    clear(): this;
 }
 ```
 

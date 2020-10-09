@@ -21,9 +21,30 @@ declare module './aggregation-frame/AggregationFrame' {
     }
 }
 
-AggregationFrame.prototype.run = function run() {
-    return this._run().then((columns) => new DataFrame(columns as any));
+AggregationFrame.prototype.run = async function run() {
+    await this.execute();
+
+    let dataFrame = new DataFrame(this.columns as any, {
+        name: this.name,
+        metadata: this.metadata,
+    });
+
+    if (this._sortField) {
+        dataFrame = dataFrame.orderBy(
+            this._sortField as any,
+            this._sortDirection
+        );
+    }
+    if (this._limit) {
+        dataFrame = dataFrame.limit(
+            this._limit
+        );
+    }
+
+    this.clear();
+    return dataFrame;
 };
+
 export * from './aggregation-frame';
 export * from './aggregations';
 export * from './builder';
