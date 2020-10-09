@@ -525,7 +525,10 @@ export class AggregationFrame {
     */
     readonly metadata: Record<string, any>;
 
-    constructor(columns: Column[], keyBy?: string[]): AggregationFrame;
+    constructor(
+        columns: Column[],
+        options?: DataFrameOptions
+    ): AggregationFrame;
 
     /**
      * Calculate the average value in a column
@@ -741,6 +744,7 @@ const resultFrame = await dataFrame
     .select('name', 'gender')
     .groupBy(['gender'])
     .count('gender', 'count_per_gender')
+    .orderBy('count_per_gender')
     .run();
 // => [
 //       { name: 'JILL', gender: 'F', count_per_gender: 1 },

@@ -284,6 +284,8 @@ export class AggregationFrame<
      * Defaults to `asc` if none specified
     */
     orderBy(field: keyof T, direction?: SortOrder): this {
+        if (!field) throw new Error('Missing required field to sort on');
+
         this._sortField = field;
         this._sortDirection = direction;
         return this;
@@ -352,6 +354,8 @@ export class AggregationFrame<
     /**
      * Execute the aggregations and flatten the grouped data.
      * Assigns the new columns to this.
+     *
+     * @todo move the limit and sort logic to here
     */
     async execute(): Promise<this> {
         if (!this._aggregations.size) {
