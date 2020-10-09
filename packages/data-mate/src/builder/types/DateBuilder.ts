@@ -1,5 +1,5 @@
 import { DateFormat } from '@terascope/types';
-import { DateValue } from '../../core-utils';
+import { DateValue } from '../../core';
 import { WritableData } from '../../data';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';

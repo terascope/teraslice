@@ -1,6 +1,6 @@
 import { Vector, VectorOptions } from '../Vector';
 import { VectorType } from '../interfaces';
-import { DateValue } from '../../core-utils';
+import { DateValue } from '../../core';
 import { ReadableData } from '../../data';
 
 export class DateVector extends Vector<DateValue> {

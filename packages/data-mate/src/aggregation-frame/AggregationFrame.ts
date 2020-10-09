@@ -8,7 +8,7 @@ import {
 import { isNumberLike } from '../vector';
 import { Builder } from '../builder';
 import { getBuilderForField, getMaxColumnSize } from './utils';
-import { createHashCode, freezeArray } from '../core-utils';
+import { createHashCode, freezeArray } from '../core';
 
 /**
  * A frame dedicated to running a aggregations

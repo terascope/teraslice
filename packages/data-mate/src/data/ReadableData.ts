@@ -1,5 +1,5 @@
 import { Maybe } from '@terascope/types';
-import { getHashCodeFrom } from '../core-utils/data-helpers';
+import { getHashCodeFrom } from '../core/data-helpers';
 import { ReadableDataValue, TypedArray, WritableDataValue } from './interfaces';
 import { getTypedArrayClass } from './utils';
 import { WritableData } from './WritableData';

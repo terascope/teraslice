@@ -10,7 +10,7 @@ import {
     concatColumnsToColumns, createColumnsWithIndices, distributeRowsToColumns, processFieldFilter
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
-import { createHashCode, freezeArray } from '../core-utils';
+import { createHashCode, freezeArray } from '../core';
 import { getMaxColumnSize } from '../aggregation-frame/utils';
 
 /**

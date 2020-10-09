@@ -1,5 +1,5 @@
 import { DataTypeFieldConfig, DataTypeFields, Maybe } from '@terascope/types';
-import { freezeObject } from '../core-utils';
+import { freezeObject } from '../core';
 import { ReadableData, WritableData, TypedArray } from '../data';
 import {
     Vector, VectorType

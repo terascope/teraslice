@@ -5,7 +5,7 @@ import {
 import {
     Vector, VectorType, getNumericValues
 } from '../vector';
-import { DateValue, getHashCodeFrom } from '../core-utils';
+import { DateValue, getHashCodeFrom } from '../core';
 
 export enum ValueAggregation {
     avg = 'avg',
