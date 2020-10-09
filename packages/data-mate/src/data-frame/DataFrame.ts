@@ -188,6 +188,15 @@ export class DataFrame<
     }
 
     /**
+     * Sort the records by a field, an alias of orderBy.
+     *
+     * @see DataFrame.orderBy
+    */
+    sort(field: keyof T, direction?: SortOrder): DataFrame<T> {
+        return this.orderBy(field, direction);
+    }
+
+    /**
      * Filter the DataFrame by fields, all fields must return true
      * for a given row to returned in the filtered DataType
      *

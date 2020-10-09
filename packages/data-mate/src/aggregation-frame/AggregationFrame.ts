@@ -1,4 +1,4 @@
-import { FieldType } from '@terascope/types';
+import { FieldType, SortOrder } from '@terascope/types';
 import { pImmediate } from '@terascope/utils';
 import {
     Column,
@@ -25,6 +25,16 @@ export class AggregationFrame<T extends Record<string, any>> {
      * The keys to group by
     */
     readonly keyBy: readonly (keyof T)[];
+
+    /**
+     * The field to sort by
+    */
+    sortField?: keyof T;
+
+    /**
+     * When sortField is set, this will determine the direction to sort the fields
+    */
+    sortDirection?: SortOrder;
 
     protected readonly _aggregations = new Map<keyof T, AggObject>();
 
