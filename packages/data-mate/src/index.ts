@@ -29,16 +29,15 @@ AggregationFrame.prototype.run = async function run() {
         metadata: this.metadata,
     });
 
-    if (this._sortFields) {
+    const aggFrame = this as any;
+    if (aggFrame._sortFields?.length) {
         dataFrame = dataFrame.orderBy(
-            this._sortFields as any,
-            this._sortDirection
+            aggFrame._sortFields,
+            aggFrame._sortDirection
         );
-    }
-    if (this._limit) {
-        dataFrame = dataFrame.limit(
-            this._limit
-        );
+        if (aggFrame._limit != null) {
+            dataFrame = dataFrame.limit(aggFrame._limit);
+        }
     }
 
     this.reset();
@@ -51,7 +50,7 @@ for (const dataFrameMethod of Reflect.ownKeys(DataFrame.prototype)) {
         AggregationFrame.prototype[dataFrameMethod] = () => {
             throw new Error(
                 `Unsupported method on ${String(dataFrameMethod)} AggregationFrame.
-Use it before DataFrame.aggregate/DataFrame.groupBy or after AggregationFrame.run()`
+Use it before DataFrame.aggregate or after AggregationFrame.run()`
             );
         };
     }

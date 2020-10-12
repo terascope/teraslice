@@ -13,7 +13,9 @@ const run = async () => {
         suite.add(`(${column.vector.distinct()} distinct) ${fieldInfo}`, {
             defer: true,
             fn(deferred) {
-                dataFrame.groupBy([column.name])
+                dataFrame
+                    .aggregate()
+                    .groupBy(column.name)
                     .run()
                     .then(() => deferred.resolve(), deferred.reject);
             }

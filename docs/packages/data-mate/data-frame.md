@@ -72,13 +72,6 @@ export class DataFrame {
      * Get a column, or columns by index, returns a new DataFrame
     */
     selectAt(...indices: number[]): DataFrame;
-
-    /**
-     * Group DataFrame by columns and return a AggregationFrame instance
-     * which can be used to run aggregations
-    */
-    groupBy(fields: string[]): AggregationFrame;
-
     /**
      * Create a AggregationFrame instance which can be used to run aggregations
     */
@@ -744,7 +737,8 @@ dataFrame = dataFrame.assign([upperCaseName]);
 // ...
 const resultFrame = await dataFrame
     .select('name', 'gender')
-    .groupBy(['gender'])
+    .aggregate()
+    .groupBy('gender')
     .count('gender', 'count_per_gender')
     .orderBy('count_per_gender')
     .run();

@@ -11,7 +11,7 @@ import { getBuilderForField, getMaxColumnSize } from './utils';
 import {
     createHashCode, FieldArg, freezeArray, getFieldsFromArg
 } from '../core';
-import { columnsToDataTypeConfig } from '../data-frame/utils';
+import { columnsToDataTypeConfig, makeKeyForRow } from '../data-frame/utils';
 
 /**
  * A deferred execution frame dedicated to running a aggregations.
@@ -51,20 +51,22 @@ export class AggregationFrame<
      * The field to sort by
      * @internal
     */
-    _sortFields?: readonly (keyof T)[];
+    protected _sortFields?: readonly (keyof T)[];
 
     /**
      * When _sortField is set, this will determine the direction to sort the fields
      * @internal
     */
-    _sortDirection?: SortOrder;
+    protected _sortDirection?: SortOrder;
 
     /**
      * The number of records to limit the result by
-     * @internal
     */
-    _limit?: number;
+    protected _limit?: number;
 
+    /**
+     * The Aggregations to run
+    */
     protected readonly _aggregations = new Map<keyof T, AggObject>();
 
     /**
@@ -521,25 +523,23 @@ export class AggregationFrame<
         const buckets = new Map<string, any[]>();
 
         const count = this.size;
+        const noSort = !this._sortFields?.length;
         for (let i = 0; i < count; i++) {
-            const row: Partial<T> = {};
-
-            let key = '';
-            for (const [field, getKey] of keyAggs) {
-                const res = getKey(i);
-                if (res.key) key += res.key;
-                row[field] = res.value as any;
+            // if there isn't a sort we can limit the number of buckets processed
+            if (noSort && this._limit != null && buckets.size >= this._limit) {
+                break;
             }
 
-            if (!key && keyAggs.size) continue;
+            const res = makeKeyForRow(keyAggs, i);
+            if (!res) continue;
 
             for (const [field, col] of otherCols) {
-                row[field] = col.vector.get(i);
+                res.row[field] = col.vector.get(i);
             }
 
-            const groupKey = createHashCode(key) as string;
+            const groupKey = createHashCode(res.key) as string;
             const bucket = buckets.get(groupKey) || [];
-            bucket.push(row);
+            bucket.push(res.row);
             buckets.set(groupKey, bucket);
         }
         await pImmediate();

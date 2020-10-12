@@ -157,18 +157,6 @@ export class DataFrame<
     }
 
     /**
-     * Group DataFrame by columns and return a AggregationFrame instance
-     * which can be used to run aggregations
-    */
-    groupBy(...fieldArg: FieldArg<keyof T>[]): AggregationFrame<T> {
-        const aggregationFrame = this.aggregate();
-        aggregationFrame.groupBy(
-            [...getFieldsFromArg(this.fields, fieldArg)]
-        );
-        return aggregationFrame;
-    }
-
-    /**
      * Create a AggregationFrame instance which can be used to run aggregations
     */
     aggregate(): AggregationFrame<T> {
