@@ -130,6 +130,30 @@ describe('Data', () => {
                 const result = times(size + 1, (i) => data.get(i));
                 expect(result).toStrictEqual([...values, null]);
             });
+
+            it('should be able to resize the data (decrease)', () => {
+                const sliced = readable.toWritable(2);
+
+                expect(sliced).toBeInstanceOf(WritableData);
+                expect(sliced.size).toBe(2);
+
+                const data = new ReadableData(sliced);
+                const result = times(2, (i) => data.get(i) ?? null);
+                expect(result).toStrictEqual(values.slice(0, 2));
+            });
+
+            it('should be able to resize the data (increase)', () => {
+                const sliced = readable.toWritable(size + 2);
+
+                expect(sliced).toBeInstanceOf(WritableData);
+                expect(sliced.size).toBe(size + 2);
+
+                const data = new ReadableData(sliced);
+                const result = times(10, (i) => data.get(i) ?? null);
+                expect(result).toStrictEqual(
+                    [...values].concat(null, null)
+                );
+            });
         });
 
         describe('when there are only null values', () => {
@@ -166,6 +190,16 @@ describe('Data', () => {
                 const data = new ReadableData(sliced);
                 const result = times(size, (i) => data.get(i));
                 expect(result).toStrictEqual([...values]);
+            });
+
+            it('should be able to resize the data', () => {
+                const sliced = readable.toWritable(2);
+
+                expect(sliced).toBeInstanceOf(WritableData);
+
+                const data = new ReadableData(sliced);
+                const result = times(2, (i) => data.get(i));
+                expect(result).toStrictEqual(values.slice(0, 2));
             });
         });
     });

@@ -80,9 +80,9 @@ export class WritableData<T> {
         this._size = size;
         if (skipIndicesCheck) return this;
 
-        const gt = makeGreaterThan(size);
+        const lt = makeLessThanOrEqual(size);
         for (const [value, indices] of this.values) {
-            const newIndices = indices.filter(gt);
+            const newIndices = indices.filter(lt);
             if (!newIndices.length) this.values.delete(value);
             else this.values.set(value, newIndices);
         }
@@ -90,8 +90,8 @@ export class WritableData<T> {
     }
 }
 
-function makeGreaterThan(input: number) {
-    return (num: number) => num > input;
+function makeLessThanOrEqual(input: number) {
+    return (num: number) => num <= input;
 }
 
 function* fromToIterable<T>(

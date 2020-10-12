@@ -228,14 +228,14 @@ export class AggregationFrame<
      * @param field the name of the column to run the aggregation on
      * @param as a optional name for the new column with the aggregated values
     */
-    [ValueAggregation.count](field: keyof T): AggregationFrame<T>;
+    [ValueAggregation.count](field: keyof T): this;
     [ValueAggregation.count]<A extends string>(
         field: keyof T, as: A
     ): AggregationFrame<WithAlias<T, A, number>>;
     [ValueAggregation.count]<A extends string>(
         field: keyof T,
         as?: A
-    ): AggregationFrame<T>|AggregationFrame<WithAlias<T, A, number>> {
+    ): this|AggregationFrame<WithAlias<T, A, number>> {
         const { name } = this._ensureColumn(field, as);
         const aggObject = this._aggregations.get(name) ?? { };
         aggObject.value = ValueAggregation.count;
