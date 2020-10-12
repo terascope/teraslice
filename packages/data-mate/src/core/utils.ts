@@ -1,10 +1,47 @@
 import { createHash } from 'crypto';
-import { getTypeOf, isFunction, toString } from '@terascope/utils';
 import {
-    HASH_CODE_SYMBOL,
-    MAX_16BIT_INT, MAX_32BIT_INT, MAX_8BIT_INT,
-    TypedArray, TypedArrayConstructor
+    getTypeOf, isFunction, toString
+} from '@terascope/utils';
+import {
+    FieldArg, TypedArray, TypedArrayConstructor,
+    HASH_CODE_SYMBOL, MAX_16BIT_INT, MAX_32BIT_INT, MAX_8BIT_INT,
 } from './interfaces';
+
+export function getFieldsFromArg<
+    K extends(number|string|symbol)
+>(fields: readonly K[], arg: FieldArg<K>[]): ReadonlySet<K> {
+    if (!Array.isArray(arg)) {
+        throw new Error(`Expected field arg, got ${arg} (${getTypeOf(arg)})`);
+    }
+
+    const result = new Set<K>();
+    const addFieldArg = _makeAddFieldsArg(fields, result);
+
+    for (const fieldArg of arg) {
+        if (Array.isArray(fieldArg)) {
+            fieldArg.forEach(addFieldArg);
+        } else {
+            addFieldArg(fieldArg as K);
+        }
+    }
+
+    if (!result.size) {
+        throw new Error('Expected at least one field');
+    }
+
+    return result;
+}
+
+function _makeAddFieldsArg<K extends(number|string|symbol)>(
+    fields: readonly K[],
+    result: Set<K>,) {
+    return function addFieldArg(field: K): void {
+        if (!fields.includes(field)) {
+            throw new Error(`Unknown field ${field}`);
+        }
+        result.add(field);
+    };
+}
 
 /**
  * Gets the correctly sized TypeArray depending on the length of items

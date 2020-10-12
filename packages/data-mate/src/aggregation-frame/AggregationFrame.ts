@@ -8,7 +8,9 @@ import {
 import { isNumberLike } from '../vector';
 import { Builder } from '../builder';
 import { getBuilderForField, getMaxColumnSize } from './utils';
-import { createHashCode, freezeArray } from '../core';
+import {
+    createHashCode, FieldArg, freezeArray, getFieldsFromArg
+} from '../core';
 import { columnsToDataTypeConfig } from '../data-frame/utils';
 
 /**
@@ -36,6 +38,11 @@ export class AggregationFrame<
     columns: readonly Column<any, keyof T>[];
 
     /**
+     * An array of the column names
+    */
+    fields: readonly (keyof T)[];
+
+    /**
      * Metadata about the Frame
     */
     readonly metadata: Record<string, any>;
@@ -44,7 +51,7 @@ export class AggregationFrame<
      * The field to sort by
      * @internal
     */
-    _sortField?: keyof T;
+    _sortField?: readonly (keyof T)[];
 
     /**
      * When _sortField is set, this will determine the direction to sort the fields
@@ -70,6 +77,7 @@ export class AggregationFrame<
         options: AggregationFrameOptions
     ) {
         this.columns = freezeArray(columns);
+        this.fields = Object.freeze(this.columns.map((col) => col.name));
         this.name = options?.name;
         this.metadata = options?.metadata ? { ...options.metadata } : {};
         this._groupByFields = [];
@@ -96,8 +104,10 @@ export class AggregationFrame<
     /**
      * GroupBy fields
     */
-    groupBy(fields: (keyof T)[]): this {
-        this._groupByFields.push(...fields);
+    groupBy(...fieldArg: FieldArg<keyof T>[]): this {
+        this._groupByFields.push(
+            ...getFieldsFromArg(this.fields, fieldArg)
+        );
         return this;
     }
 
@@ -302,10 +312,13 @@ export class AggregationFrame<
      * Order the rows by fields, format of is `field:asc` or `field:desc`.
      * Defaults to `asc` if none specified
     */
-    orderBy(field: keyof T, direction?: SortOrder): this {
-        if (!field) throw new Error('Missing required field to sort on');
+    orderBy(fieldArg: FieldArg<keyof T>, direction?: SortOrder): this {
+        const fields = getFieldsFromArg(this.fields, [fieldArg]);
+        if (fields.size > 1) {
+            throw new Error('AggregationFrame.orderBy can only works with one field currently');
+        }
 
-        this._sortField = field;
+        this._sortField = [...fields];
         this._sortDirection = direction;
         return this;
     }
@@ -315,8 +328,8 @@ export class AggregationFrame<
      *
      * @see orderBy
     */
-    sort(field: keyof T, direction?: SortOrder): this {
-        return this.orderBy(field, direction);
+    sort(fieldArg: FieldArg<keyof T>, direction?: SortOrder): this {
+        return this.orderBy(fieldArg, direction);
     }
 
     /**
@@ -330,8 +343,8 @@ export class AggregationFrame<
     /**
      * Get a column by name
     */
-    getColumn<P extends keyof T>(name: P): Column<T[P], P>|undefined {
-        const index = this.columns.findIndex((col) => col.name === name);
+    getColumn<P extends keyof T>(field: P): Column<T[P], P>|undefined {
+        const index = this.columns.findIndex((col) => col.name === field);
         return this.getColumnAt<P>(index);
     }
 
@@ -340,6 +353,61 @@ export class AggregationFrame<
     */
     getColumnAt<P extends keyof T>(index: number): Column<T[P], P>|undefined {
         return this.columns[index] as Column<any, P>|undefined;
+    }
+
+    /**
+     * Rename an existing column
+    */
+    rename<K extends keyof T, R extends string>(
+        name: K,
+        renameTo: R,
+    ): AggregationFrame<Omit<T, K> & Record<R, T[K]>> {
+        this.columns = Object.freeze(this.columns.map((col): Column<any, any> => {
+            if (col.name !== name) return col;
+            return col.rename(renameTo);
+        }));
+
+        this.fields = Object.freeze(this.fields.map((field) => {
+            if (field === name) return renameTo;
+            return field;
+        }));
+
+        this._sortField = this._sortField ? Object.freeze(this._sortField.map((field) => {
+            if (field === name) return renameTo;
+            return field;
+        })) : this._sortField;
+
+        const agg = this._aggregations.get(name);
+        if (agg) {
+            this._aggregations.delete(name);
+            this._aggregations.set(renameTo, agg);
+        }
+        return this as any;
+    }
+
+    /**
+     * Assign new columns, if given a column already exists,
+     * the column will replace the existing one.
+    */
+    assign<R extends Record<string, unknown> = Record<string, any>>(
+        columns: readonly Column<any>[]
+    ): AggregationFrame<T & R> {
+        const newColumns = columns.filter((col) => {
+            if (this.getColumn(col.name)) return false;
+            return true;
+        });
+
+        this.columns = Object.freeze(this.columns.map((col) => {
+            const replaceCol = columns.find((c) => c.name === col.name);
+            if (replaceCol) return replaceCol;
+            return col;
+        }).concat(newColumns)) as readonly Column<any>[];
+
+        this.fields = Object.freeze(
+            this.fields.concat(newColumns.map((col) => col.name))
+        );
+
+        return this as any;
     }
 
     private _ensureColumn(field: keyof T, as?: string): {
@@ -355,6 +423,7 @@ export class AggregationFrame<
                 columns.push(c);
                 if (c === col) {
                     columns.push(c.rename(as));
+                    this.fields = Object.freeze(this.fields.concat(as));
                 }
             }
             this.columns = Object.freeze(columns);

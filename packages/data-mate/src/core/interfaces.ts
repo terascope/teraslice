@@ -26,3 +26,5 @@ export type ReadableDataValue<T> = Readonly<{
 }>;
 
 export type WritableDataValue = number[];
+
+export type FieldArg<K extends (string|number|symbol)> = K[]|(readonly K[])|K;

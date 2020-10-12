@@ -2,7 +2,6 @@ import {
     DataTypeConfig, ReadonlyDataTypeConfig,
     Maybe, SortOrder
 } from '@terascope/types';
-import { castArray } from '@terascope/utils';
 import { Column, KeyAggFn, makeUniqueKeyAgg } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import {
@@ -12,7 +11,9 @@ import {
     processFieldFilter
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
-import { createHashCode, freezeArray } from '../core';
+import {
+    createHashCode, FieldArg, freezeArray, getFieldsFromArg
+} from '../core';
 import { getMaxColumnSize } from '../aggregation-frame/utils';
 
 /**
@@ -50,6 +51,11 @@ export class DataFrame<
     readonly columns: readonly Column<any, keyof T>[];
 
     /**
+     * An array of the column names
+    */
+    readonly fields: readonly (keyof T)[];
+
+    /**
      * Metadata about the Frame
     */
     readonly metadata: Record<string, any>;
@@ -67,6 +73,7 @@ export class DataFrame<
         this.metadata = options?.metadata ? { ...options.metadata } : {};
 
         this.columns = freezeArray(columns);
+        this.fields = Object.freeze(this.columns.map((col) => col.name));
 
         const lengths = this.columns.map((col) => col.size);
         if (new Set(lengths).size > 1) {
@@ -133,7 +140,8 @@ export class DataFrame<
     /**
      * Get a column, or columns by name, returns a new DataFrame
     */
-    select<K extends keyof T>(...fields: K[]): DataFrame<Pick<T, K>> {
+    select<K extends keyof T>(...fieldArg: FieldArg<K>[]): DataFrame<Pick<T, K>> {
+        const fields = [...getFieldsFromArg(this.fields, fieldArg)];
         return this.fork(fields.map(
             (field): Column<any, any> => this.getColumn(field)!
         ));
@@ -152,9 +160,11 @@ export class DataFrame<
      * Group DataFrame by columns and return a AggregationFrame instance
      * which can be used to run aggregations
     */
-    groupBy(fields: (keyof T)[]|keyof T): AggregationFrame<T> {
+    groupBy(...fieldArg: FieldArg<keyof T>[]): AggregationFrame<T> {
         const aggregationFrame = this.aggregate();
-        aggregationFrame.groupBy(castArray(fields));
+        aggregationFrame.groupBy(
+            [...getFieldsFromArg(this.fields, fieldArg)]
+        );
         return aggregationFrame;
     }
 
@@ -172,7 +182,13 @@ export class DataFrame<
      * Order the rows by fields, format of is `field:asc` or `field:desc`.
      * Defaults to `asc` if none specified
     */
-    orderBy(field: keyof T, direction?: SortOrder): DataFrame<T> {
+    orderBy(fieldArg: FieldArg<keyof T>, direction?: SortOrder): DataFrame<T> {
+        const fields = getFieldsFromArg(this.fields, [fieldArg]);
+        if (fields.size > 1) {
+            throw new Error('DataFrame.orderBy can only works with one field currently');
+        }
+
+        const [field] = fields;
         const sortColumn = this.getColumn(field);
         if (!sortColumn) throw new Error(`Unknown column ${field}`);
 
@@ -199,8 +215,8 @@ export class DataFrame<
      *
      * @see orderBy
     */
-    sort(field: keyof T, direction?: SortOrder): DataFrame<T> {
-        return this.orderBy(field, direction);
+    sort(fieldArg: FieldArg<keyof T>, direction?: SortOrder): DataFrame<T> {
+        return this.orderBy(fieldArg, direction);
     }
 
     /**
@@ -236,14 +252,15 @@ export class DataFrame<
     }
 
     /**
-     * Reduce duplicate rows with the same value for select fields
+     * Remove duplicate rows with the same value for select fields
     */
-    unique(fields: (keyof T)[]|keyof T): DataFrame<T> {
+    unique(...fieldArg: FieldArg<keyof T>[]): DataFrame<T> {
+        const fields = getFieldsFromArg(this.fields, fieldArg);
         const buckets = new Set<string>();
         const keyAggs = new Map<keyof T, KeyAggFn>();
 
         const columns = new Map(this.columns.map((col) => [col.name, col]));
-        for (const name of castArray(fields)) {
+        for (const name of fields) {
             const column = columns.get(name);
             if (column) {
                 keyAggs.set(column.name, makeUniqueKeyAgg(column.vector));
@@ -271,6 +288,13 @@ export class DataFrame<
             builder.data.resize(buckets.size, true);
             return columns.get(name)!.fork(builder.toVector());
         }));
+    }
+
+    /**
+     * Alias for unique
+    */
+    distinct(...fieldArg: FieldArg<keyof T>[]): DataFrame<T> {
+        return this.unique(...fieldArg);
     }
 
     /**
@@ -351,8 +375,8 @@ export class DataFrame<
     /**
      * Get a column by name
     */
-    getColumn<P extends keyof T>(name: P): Column<T[P], P>|undefined {
-        const index = this.columns.findIndex((col) => col.name === name);
+    getColumn<P extends keyof T>(field: P): Column<T[P], P>|undefined {
+        const index = this.columns.findIndex((col) => col.name === field);
         return this.getColumnAt<P>(index);
     }
 

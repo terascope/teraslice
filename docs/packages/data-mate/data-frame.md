@@ -96,6 +96,16 @@ export class DataFrame {
     sort(field: string, direction?: SortOrder): DataFrame;
 
     /**
+     * Remove duplicate rows with the same value for select fields
+    */
+    unique(fields: string[]|string): DataFrame;
+
+    /**
+     * Alias for unique
+    */
+    distinct(fields: string[]|string): DataFrame;
+
+    /**
      * Filter the DataFrame by fields, all fields must return true
      * for a given row to returned in the filtered DataType
      *
@@ -577,14 +587,6 @@ export class AggregationFrame {
      * @param as a optional name for the new column with the aggregated values
     */
     count(field: string, as?: string): this;
-
-    /**
-     * Create a groups of unique values
-     *
-     * @param field the name of the column to run the aggregation on
-     * @param as a optional name for the new column with the aggregated values
-    */
-    unique(field: string): this;
 
     /**
      * Group the data in hourly buckets
