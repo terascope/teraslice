@@ -18,23 +18,27 @@ export class WritableData<T> {
     */
     readonly values: Map<T, WritableDataValue>;
 
-    /**
-     * The total number of values stored
-    */
-    readonly size: number;
+    private _size: number;
 
     constructor(
         size: number,
         from: readonly ReadableDataValue<T>[]
     ) {
-        this.size = size;
+        this._size = size;
         this.values = new Map(fromToIterable(from));
+    }
+
+    /**
+     * The total number of values stored
+    */
+    get size(): number {
+        return this._size;
     }
 
     /**
      * Set a value for an index
     */
-    set(index: number, value: Maybe<T>): WritableData<T> {
+    set(index: number, value: Maybe<T>): this {
         if (value == null) return this;
 
         const existing = this.values.get(value);
@@ -49,7 +53,7 @@ export class WritableData<T> {
     /**
      * Set the same value against multiple indices
     */
-    mset(value: Maybe<T>, indices: readonly number[]|TypedArray): WritableData<T> {
+    mset(value: Maybe<T>, indices: readonly number[]|TypedArray): this {
         if (value == null) return this;
 
         const existing = this.values.get(value);
@@ -61,8 +65,20 @@ export class WritableData<T> {
         return this;
     }
 
-    clear(): void {
+    /**
+     * Reset the values
+    */
+    reset(): this {
         this.values.clear();
+        return this;
+    }
+
+    /**
+     * Resize the number of values
+    */
+    resize(size: number): this {
+        this._size = size;
+        return this;
     }
 }
 

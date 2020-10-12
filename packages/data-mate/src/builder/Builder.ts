@@ -130,7 +130,7 @@ export abstract class Builder<T = unknown> {
             this.childConfig
         );
 
-        this.data.clear();
+        this.data.reset();
         this.currentIndex = 0;
         return vector;
     }

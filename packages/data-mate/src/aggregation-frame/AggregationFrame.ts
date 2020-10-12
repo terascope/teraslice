@@ -377,7 +377,7 @@ export class AggregationFrame<
      * @todo move the limit and sort logic to here
     */
     async execute(): Promise<this> {
-        if (!this._aggregations.size) {
+        if (!this._aggregations.size && !this._groupByFields.length) {
             throw new Error('No aggregations specified to run');
         }
 

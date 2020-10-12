@@ -331,8 +331,7 @@ describe('AggregationFrame', () => {
 
     describe('->unique(name)', () => {
         it('should get the right result when using groupBy(gender)', async () => {
-            let resultFrame = await dataFrame.groupBy(['gender']).run();
-            resultFrame = resultFrame.unique(['name']);
+            const resultFrame = dataFrame.unique(['name', 'gender']);
 
             expect(resultFrame.toJSON()).toEqual([
                 {
@@ -388,7 +387,7 @@ describe('AggregationFrame', () => {
 
     describe('->unique(scores)', () => {
         it('should get the right result when using aggregate()', async () => {
-            const resultFrame = await dataFrame.unique('scores');
+            const resultFrame = dataFrame.unique('scores');
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Billy',

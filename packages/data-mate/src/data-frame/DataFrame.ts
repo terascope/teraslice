@@ -3,7 +3,7 @@ import {
     Maybe, SortOrder
 } from '@terascope/types';
 import { castArray } from '@terascope/utils';
-import { Column } from '../column';
+import { Column, KeyAggFn, makeUniqueKeyAgg } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import {
     buildRecords, columnsToBuilderEntries, columnsToDataTypeConfig,
@@ -236,8 +236,53 @@ export class DataFrame<
     /**
      * FIXME
     */
-    unique(_fields: (keyof T)[]|keyof T): DataFrame<T> {
-        return this;
+    unique(fields: (keyof T)[]|keyof T): DataFrame<T> {
+        const buckets = new Set<string>();
+        const keyAggs = new Map<keyof T, KeyAggFn>();
+
+        for (const name of castArray(fields)) {
+            const column = this.getColumn(name);
+            if (column) {
+                keyAggs.set(column.name, makeUniqueKeyAgg(column.vector));
+            } else {
+                throw new Error(`Unknown column ${name}`);
+            }
+        }
+
+        const builders = getBuildersForConfig<T>(this.config, this.size);
+
+        for (let i = 0; i < this.size; i++) {
+            const keyValues: Partial<T> = {};
+
+            let key = '';
+            for (const [field, getKey] of keyAggs) {
+                const res = getKey(i);
+                if (res.key) key += res.key;
+                keyValues[field] = res.value as any;
+            }
+
+            if (!key && keyAggs.size) continue;
+
+            const groupKey = createHashCode(key);
+            if (!buckets.has(groupKey)) {
+                const resultIndex = buckets.size;
+                buckets.add(groupKey);
+
+                for (const [name, builder] of builders) {
+                    if (name in keyValues) {
+                        builder.set(resultIndex, keyValues[name]);
+                    } else {
+                        const col = this.getColumn(name)!;
+                        builder.set(resultIndex, col.vector.get(i));
+                    }
+                }
+            }
+        }
+
+        return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => {
+            builder.data.resize(buckets.size);
+            return this.getColumn(name)!.fork(builder.toVector());
+        }));
     }
 
     /**
