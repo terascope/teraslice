@@ -211,6 +211,8 @@ export class DataFrame<
      * Filter the DataFrame by fields, all fields must return true
      * for a given row to returned in the filtered DataType
      *
+     * @todo support filtering rows via a single function
+     *
      * @example
      *
      *     dataFrame.filter({
