@@ -1,4 +1,5 @@
 import { FieldType } from '@terascope/types';
+import { DateValue } from '../../core';
 import { VectorType } from '../../vector';
 import { ColumnTransformConfig, TransformMode, TransformType } from '../interfaces';
 
@@ -20,7 +21,7 @@ export const toStringConfig: ColumnTransformConfig<any, string> = {
         if (vector.type === VectorType.Date) {
             return {
                 mode: TransformMode.EACH_VALUE,
-                fn(value: string) {
+                fn(value: DateValue) {
                     return `${value}`;
                 }
             };

@@ -5,6 +5,7 @@ import {
 import parseDate from 'date-fns/parse';
 import formatDate from 'date-fns/format';
 import { DateFormat } from '@terascope/types';
+import { HASH_CODE_SYMBOL } from './interfaces';
 
 /**
  * The internal date storage format
@@ -54,9 +55,8 @@ export class DateValue {
             || defaultFormat === DateFormat.iso_8601
         );
 
-        const epochMillis = date.getTime();
         return new DateValue(
-            epochMillis,
+            date.getTime(),
             storeInISO ? date.toISOString() : undefined
         );
     }
@@ -88,6 +88,11 @@ export class DateValue {
 
     [Symbol.toPrimitive](hint: 'string'|'number'|'default'): any {
         if (hint === 'number') return this.value;
+        if (!this.formatted) return new Date(this.value).toISOString();
+        return `${this.formatted}`;
+    }
+
+    get [HASH_CODE_SYMBOL](): string {
         return `${this.formatted ?? this.value}`;
     }
 }

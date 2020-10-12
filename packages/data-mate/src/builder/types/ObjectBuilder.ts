@@ -1,4 +1,6 @@
 import { getTypeOf, isPlainObject, toString } from '@terascope/utils';
+import { createObject, WritableData } from '../../core';
+
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions, ValueFromFn } from '../Builder';
 
@@ -16,34 +18,38 @@ export class ObjectBuilder<
         }
 
         if (thisArg.childConfig == null) {
-            return { ...(value as R) };
+            return createObject({ ...value as R });
         }
 
         const fields = Object.keys(thisArg.childConfig) as (keyof R)[];
         if (!fields.length) {
-            return { ...(value as R) };
+            return createObject({ ...value as R });
         }
 
         const input = value as Record<keyof R, unknown>;
         const result: Partial<R> = {};
 
         for (const field of fields) {
-            if (input[field] == null) {
-                result[field] = null as any;
-            } else {
+            if (input[field] != null) {
                 const config = thisArg.childConfig[field as string];
                 // FIXME this could be improved to use the static method
-                const builder = Builder.make<any>(config);
+                const builder = Builder.make<any>(config, WritableData.make(0));
                 result[field] = builder.valueFrom ? builder.valueFrom(
                     input[field], builder
-                ) : input[field] as any;
+                ) : builder.valueFrom;
+            } else {
+                input[field] = null;
             }
         }
-        return { ...result } as R;
+
+        return createObject(result as R);
     }
 
-    constructor(options: BuilderOptions<T>) {
-        super(VectorType.Object, {
+    constructor(
+        data: WritableData<T>,
+        options: BuilderOptions<T>
+    ) {
+        super(VectorType.Object, data, {
             valueFrom: ObjectBuilder.valueFrom as ValueFromFn<T>,
             ...options,
         });

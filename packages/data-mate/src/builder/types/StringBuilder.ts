@@ -1,4 +1,5 @@
 import { getTypeOf, toString } from '@terascope/utils';
+import { WritableData } from '../../core';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 
@@ -21,8 +22,11 @@ export class StringBuilder extends Builder<string> {
         return toString(value);
     }
 
-    constructor(options: BuilderOptions<string>) {
-        super(VectorType.String, {
+    constructor(
+        data: WritableData<string>,
+        options: BuilderOptions<string>
+    ) {
+        super(VectorType.String, data, {
             valueFrom: StringBuilder.valueFrom,
             ...options,
         });

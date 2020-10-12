@@ -1,52 +1,65 @@
 import { DateFormat } from '@terascope/types';
-import { DateValue, VectorType } from '../../vector';
+import { DateValue, WritableData } from '../../core';
+
+import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
+import { makeCachedValueFrom } from './utils';
 
 export class DateBuilder extends Builder<DateValue> {
-    static valueFrom(value: unknown, thisArg: DateBuilder): DateValue {
+    static valueFrom = makeCachedValueFrom((value: unknown, thisArg: DateBuilder): DateValue => {
         if (value instanceof DateValue) return value;
 
-        const { format } = thisArg.config;
-
-        if (format && !(format in DateFormat)) {
-            if (typeof value !== 'string') {
-                throw new Error(`Expected string for formatted date fields, got ${value}`);
-            }
-
-            if (thisArg.referenceDate == null) {
-                thisArg.referenceDate = new Date();
-            }
-            const referenceDate = thisArg.referenceDate!;
-            return DateValue.fromValueToFormat(value, format, referenceDate);
+        if (thisArg.config.format) {
+            return fromValueWithFormat(
+                value,
+                thisArg.config.format,
+                getReferenceDate(thisArg)
+            );
         }
 
-        if (format === DateFormat.epoch) {
-            return DateValue.fromValueToEpoch(value as any);
-        }
+        return DateValue.fromValue(value as any);
+    })
 
-        const dateValue = DateValue.fromValue(
-            value as any,
-            format as DateFormat.iso_8601|DateFormat.epoch_millis
-        );
-
-        // auto set the date format so it is consistently stored
-        if (!thisArg.config.format) {
-            if (dateValue.formatted) {
-                thisArg.config.format = DateFormat.iso_8601;
-            } else {
-                thisArg.config.format = DateFormat.epoch_millis;
-            }
-        }
-
-        return dateValue;
-    }
-
-    referenceDate?: Date;
-
-    constructor(options: BuilderOptions<DateValue>) {
-        super(VectorType.Date, {
+    constructor(
+        data: WritableData<DateValue>,
+        options: BuilderOptions<DateValue>
+    ) {
+        super(VectorType.Date, data, {
             valueFrom: DateBuilder.valueFrom,
             ...options,
         });
     }
+}
+
+const _refDates = new WeakMap<Builder<DateValue>, Date>();
+function getReferenceDate(builder: Builder<DateValue>): Date {
+    const cached = _refDates.get(builder);
+    if (cached) return cached;
+
+    const date = new Date();
+    _refDates.set(builder, date);
+    return date;
+}
+
+function fromValueWithFormat(
+    value: any,
+    format: DateFormat|string,
+    referenceDate: Date
+): DateValue {
+    if (format && !(format in DateFormat)) {
+        if (typeof value !== 'string') {
+            throw new Error(`Expected string for formatted date fields, got ${value}`);
+        }
+
+        return DateValue.fromValueToFormat(value, format, referenceDate!);
+    }
+
+    if (format === DateFormat.epoch) {
+        return DateValue.fromValueToEpoch(value);
+    }
+
+    return DateValue.fromValue(
+        value,
+        format as DateFormat.iso_8601|DateFormat.epoch_millis
+    );
 }

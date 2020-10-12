@@ -13,6 +13,7 @@ import { runVectorAggregation, ValueAggregation } from './aggregations';
 import {
     getVectorId, mapVector, validateFieldTransformArgs, validateFieldTransformType
 } from './utils';
+import { WritableData } from '../core';
 
 /**
  * A single column of values with the same data type.
@@ -22,32 +23,37 @@ import {
  *
  * @todo add pipeline that will do a chain of validators/transformations
 */
-export class Column<T = unknown> {
+export class Column<T = unknown, N extends (number|string|symbol) = string> {
     /**
      * Create a Column from an array of values
     */
-    static fromJSON<R>(
-        name: string,
+    static fromJSON<R, F extends(number|string|symbol) = string>(
+        name: F,
         config: Readonly<DataTypeFieldConfig>,
         values: Maybe<R>[]|readonly Maybe<R>[] = [],
-        version?: DataTypeVersion
-    ): Column<R extends (infer U)[] ? Vector<U> : R> {
-        const builder = Builder.make<R>(config, values.length);
+        version?: DataTypeVersion): Column<R extends (infer U)[] ? Vector<U> : R, F> {
+        const builder = Builder.make<R>(config, WritableData.make(values.length));
+
         values.forEach((val) => builder.append(val));
-        return new Column<any>(builder.toVector(), { name, version });
+
+        return new Column<any, F>(builder.toVector(), {
+            name, version
+        });
     }
 
     /**
      * The field name for the column
     */
-    name: string;
+    name: N;
+
     /**
-    * The DataType version to use for the field definition
-   */
+     * The DataType version to use for the field definition
+    */
     readonly version: DataTypeVersion;
+
     protected readonly _vector: Vector<T>;
 
-    constructor(vector: Vector<T>, options: ColumnOptions|Readonly<ColumnOptions>) {
+    constructor(vector: Vector<T>, options: ColumnOptions<N>|Readonly<ColumnOptions<N>>) {
         this.name = options.name;
         this.version = options.version ?? LATEST_VERSION;
         this._vector = vector;
@@ -91,10 +97,19 @@ export class Column<T = unknown> {
     }
 
     /**
+     * Rename the column
+    */
+    rename<K extends(number|string|symbol)>(name: K): Column<T, K> {
+        const col = this.fork(this._vector) as unknown as Column<T, K>;
+        col.name = name;
+        return col;
+    }
+
+    /**
      * Create a new Column with the same metadata but with different data
     */
-    fork(vector: Vector<T>): Column<T> {
-        return new Column<T>(vector, {
+    fork(vector: Vector<T>): Column<T, N> {
+        return new Column<T, N>(vector, {
             name: this.name,
             version: this.version,
         });
@@ -108,7 +123,7 @@ export class Column<T = unknown> {
     transform<R, A extends Record<string, any>>(
         transformConfig: ColumnTransformConfig<T, R, A>,
         args?: A
-    ): Column<R> {
+    ): Column<R, N> {
         validateFieldTransformType(
             transformConfig.accepts,
             this._vector
@@ -118,7 +133,7 @@ export class Column<T = unknown> {
             transformConfig.required_args,
             args
         );
-        const options: ColumnOptions = {
+        const options: ColumnOptions<N> = {
             name: this.name,
             version: this.version,
         };
@@ -127,7 +142,7 @@ export class Column<T = unknown> {
             this.vector, { ...args } as A
         );
 
-        return new Column<R>(
+        return new Column<R, N>(
             mapVector<T, R>(
                 this.vector,
                 transform,
@@ -146,7 +161,7 @@ export class Column<T = unknown> {
     validate<A extends Record<string, any>>(
         validateConfig: ColumnValidateConfig<T, A>,
         args?: A
-    ): Column<T> {
+    ): Column<T, N> {
         validateFieldTransformType(
             validateConfig.accepts,
             this._vector
@@ -156,7 +171,7 @@ export class Column<T = unknown> {
             validateConfig.required_args,
             args
         );
-        const options: ColumnOptions = {
+        const options: ColumnOptions<N> = {
             name: this.name,
             version: this.version,
         };
@@ -174,7 +189,7 @@ export class Column<T = unknown> {
             }
         }) : validator;
 
-        return new Column<T>(
+        return new Column<T, N>(
             mapVector<T, T>(this.vector, transform),
             options
         );
@@ -183,10 +198,12 @@ export class Column<T = unknown> {
     /**
      * Sort the column
     */
-    sort(direction?: SortOrder): Column<T> {
+    sort(direction?: SortOrder): Column<T, N> {
         const sortedIndices = this._vector.getSortedIndices(direction);
         const len = sortedIndices.length;
-        const builder = Builder.make<T>(this.config, len, this.vector.childConfig);
+        const builder = Builder.make<T>(
+            this.config, WritableData.make(len), this.vector.childConfig
+        );
 
         for (let i = 0; i < len; i++) {
             const moveTo = sortedIndices[i];

@@ -1,5 +1,3 @@
-import { Maybe } from '@terascope/types';
-
 /**
  * The Vector Type, this will change how the data is stored and read
 */
@@ -40,6 +38,23 @@ export enum VectorType {
  *
  * @internal
 */
-export type Data<T> = Readonly<{
-    readonly values: readonly Maybe<T>[];
+export type OldData<T> = Readonly<{
+    /**
+     * The index represent the order of the values,
+     * the value is the hash of where to find the index
+     *
+     * @internal
+    */
+    readonly indices: readonly (string|null)[];
+
+    /**
+     * The unique values
+     *
+     * @internal
+    */
+    readonly values: ReadonlyMap<string|null, DataValueTuple<T>>;
 }>;
+
+export type DataValueTuple<T> = readonly [
+    indices: readonly number[], value: T|null
+];

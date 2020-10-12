@@ -1,7 +1,6 @@
 export * from './AnyVector';
 export * from './BigIntVector';
 export * from './BooleanVector';
-export * from './DateValue';
 export * from './DateVector';
 export * from './FloatVector';
 export * from './GeoJSONVector';

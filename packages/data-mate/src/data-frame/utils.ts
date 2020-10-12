@@ -3,38 +3,74 @@ import {
     DataTypeConfig, ReadonlyDataTypeConfig,
     DataTypeFields, DataTypeVersion
 } from '@terascope/types';
-import { getBuildersForConfig } from '../builder';
-import { Column } from '../column';
+import { Builder, getBuildersForConfig } from '../builder';
+import { Column, KeyAggFn } from '../column';
+import { createHashCode } from '../core';
 import { ListVector, ObjectVector } from '../vector';
 
-export function distributeRowsToColumns(
-    config: DataTypeConfig|ReadonlyDataTypeConfig, records: Record<string, unknown>[]
-): Column[] {
+export function buildRecords<T extends Record<string, any>>(
+    builders: Map<keyof T, Builder<unknown>>,
+    records: T[],
+): [keyof T, Builder<any>][] {
+    const _builders = [...builders];
+    const append = _buildersAppend(_builders);
     const len = records.length;
-    const builders = getBuildersForConfig(config, len);
-
     for (let i = 0; i < len; i++) {
-        const record: Record<string, unknown> = records[i] || {};
-
-        for (const [field, builder] of builders) {
-            builder.append(record[field] ?? null);
-        }
+        append(records[i]);
     }
-
-    return [...builders].map(([name, builder]) => new Column(builder.toVector(), {
-        name,
-        version: config.version,
-    }));
+    return _builders;
 }
 
-export function columnsToDataTypeConfig(
-    columns: readonly Column<unknown>[]
+function _buildersAppend<T extends Record<string, any>>(builders: [keyof T, Builder<any>][]) {
+    const len = builders.length;
+    return function __buildersAppend(record: T) {
+        for (let i = 0; i < len; i++) {
+            builders[i][1].append(record[builders[i][0]]);
+        }
+    };
+}
+
+export function distributeRowsToColumns<T extends Record<string, any>>(
+    config: DataTypeConfig|ReadonlyDataTypeConfig, records: T[]
+): Column<any, keyof T>[] {
+    return buildRecords(
+        getBuildersForConfig<T>(config, records.length),
+        records
+    ).map(([name, builder]) => (
+        new Column(builder.toVector(), {
+            name,
+            version: config.version
+        })
+    ));
+}
+
+export function concatColumnsToColumns<T extends Record<string, any>>(
+    builders: Map<keyof T, Builder<any>>,
+    columns: readonly Column<any, keyof T>[],
+    offset: number
+): [keyof T, Builder<any>][] {
+    for (const [field, builder] of builders) {
+        const col = columns.find(((c) => c.name === field));
+        if (col) {
+            for (const value of col.vector.data.values) {
+                builder.mset(
+                    value.v,
+                    value.i.map((i) => offset + i),
+                );
+            }
+        }
+    }
+    return [...builders];
+}
+
+export function columnsToDataTypeConfig<T extends Record<string, unknown>>(
+    columns: readonly Column<unknown, keyof T>[]
 ): DataTypeConfig {
     const versions = new Set<DataTypeVersion>();
     const fields: DataTypeFields = {};
     for (const col of columns) {
         versions.add(col.version);
-        fields[col.name] = col.config;
+        fields[String(col.name)] = col.config;
         // make sure we populate the nested fields
         if (col.vector instanceof ObjectVector || col.vector instanceof ListVector) {
             if (col.vector.childConfig) {
@@ -47,5 +83,98 @@ export function columnsToDataTypeConfig(
     return {
         version: versions.size ? (Math.max(...versions) as DataTypeVersion) : LATEST_VERSION,
         fields,
+    };
+}
+
+export function* columnsToBuilderEntries<T extends Record<string, unknown>>(
+    columns: readonly Column<any, keyof T>[],
+    size: number
+): Iterable<[keyof T, Builder]> {
+    for (const column of columns) {
+        yield _columnToBuilderEntry(column, size);
+    }
+}
+
+function _columnToBuilderEntry<T extends Record<string, unknown>>(
+    column: Column<any, keyof T>, size: number
+): [keyof T, Builder<any>] {
+    return [column.name, Builder.makeFromVector<any>(
+        column.vector, size
+    )];
+}
+
+export function processFieldFilter(
+    indices: Set<number>,
+    column: Column<any>,
+    filter: (value: any) => boolean,
+): void {
+    function add(index: number) { indices.add(index); }
+    function remove(index: number) { indices.delete(index); }
+    for (const v of column.vector.data.values) {
+        v.i.forEach(
+            filter(v.v) ? add : remove
+        );
+    }
+}
+
+export function createColumnsWithIndices<T extends Record<string, any>>(
+    columns: readonly Column<any, keyof T>[],
+    indices: Iterable<number>,
+    size: number
+): readonly Column<any, keyof T>[] {
+    const builders = getBuildersForConfig<T>(
+        columnsToDataTypeConfig(columns), size
+    );
+
+    for (const index of indices) {
+        for (const col of columns) {
+            const val = col.vector.get(index);
+            builders.get(col.name)!.append(val);
+        }
+    }
+
+    function finish(col: Column<any, keyof T>) {
+        return col.fork(builders.get(col.name)!.toVector());
+    }
+    return columns.map(finish);
+}
+
+export function makeUniqueRowBuilder<T extends Record<string, any>>(
+    builders: Map<keyof T, Builder<any>>,
+    buckets: Set<string>,
+    getColumnValue: (name: keyof T, i: number) => any
+) {
+    return function uniqueRowBuilder(row: Partial<T>, key: string, index: number): void {
+        const resultIndex = buckets.size;
+        buckets.add(key);
+
+        for (const [name, builder] of builders) {
+            if (name in row) {
+                builder.set(resultIndex, row[name]);
+            } else {
+                builder.set(resultIndex, getColumnValue(name, index));
+            }
+        }
+    };
+}
+
+export function makeKeyForRow<T extends Record<string, any>>(
+    keyAggs: Map<keyof T, KeyAggFn>,
+    index: number
+): { row: Partial<T>; key: string }|undefined {
+    const row: Partial<T> = {};
+    let valueKey = '';
+    for (const [field, getKey] of keyAggs) {
+        const res = getKey(index);
+        if (res.key) valueKey += res.key;
+        row[field] = res.value as any;
+    }
+
+    if (!valueKey && keyAggs.size) return;
+
+    const groupKey = createHashCode(valueKey);
+    return {
+        row,
+        key: groupKey,
     };
 }

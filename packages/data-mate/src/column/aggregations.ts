@@ -1,11 +1,11 @@
 import formatDate from 'date-fns/format';
 import {
-    getTypeOf, isBigInt, toBigInt, toBigIntOrThrow
+    isBigInt, toBigInt
 } from '@terascope/utils';
-import { Maybe } from '@terascope/types';
 import {
-    DateValue, Vector, VectorType, createKeyForValue, getNumericValues
+    Vector, VectorType, getNumericValues
 } from '../vector';
+import { DateValue, getHashCodeFrom } from '../core';
 
 export enum ValueAggregation {
     avg = 'avg',
@@ -16,7 +16,7 @@ export enum ValueAggregation {
 }
 
 export type FieldAgg = {
-    push(value: unknown, index: number): void;
+    push(value: unknown, index: readonly number[]): void;
     flush(): { value: unknown, index?: number };
 }
 export type MakeValueAgg = (vector: Vector<unknown>) => FieldAgg;
@@ -31,49 +31,29 @@ export const valueAggMap: Record<ValueAggregation, MakeValueAgg> = {
 
 export function runVectorAggregation<V>(vector: Vector<any>, valueAgg: ValueAggregation): V {
     const agg = valueAggMap[valueAgg](vector);
-    let i = -1;
-    for (const value of vector) {
-        agg.push(value, ++i);
+    for (const value of vector.data.values) {
+        agg.push(value.v, value.i);
     }
     return agg.flush().value as any;
 }
 
-function getSameNumberType(
-    a: Maybe<number|bigint>,
-    b: number|bigint,
-    defaultVal: bigint
-): [bigint, bigint]
-function getSameNumberType(
-    a: Maybe<number|bigint>,
-    b: number|bigint,
-    defaultVal: number
-): [number, number]
-function getSameNumberType(
-    a: Maybe<number|bigint>,
-    b: number|bigint,
-    defaultVal?: number|bigint
-): [number|undefined, number]|[bigint|undefined, bigint] {
-    if (a == null) {
-        if (defaultVal == null) return [undefined, b as any];
-        if (isBigInt(b)) {
-            return [toBigIntOrThrow(defaultVal), b];
-        }
-        if (isBigInt(defaultVal)) {
-            return [defaultVal, toBigIntOrThrow(b)];
-        }
-        return [defaultVal, b];
-    }
-    if (isBigInt(a)) {
-        return [a, toBigIntOrThrow(b)];
-    }
-    if (isBigInt(b)) {
-        return [toBigIntOrThrow(a), b];
-    }
-    if (typeof a === typeof b) return [a, b];
+function _addReducer(acc: any, curr: any) {
+    if (typeof acc === typeof curr) return acc + curr;
+    if (isBigInt(curr)) return BigInt(acc) + curr;
+    return acc + BigInt(curr);
+}
+function add(value: number|bigint, ...values: (number|bigint)[]): number|bigint {
+    return values.reduce(_addReducer, value);
+}
 
-    throw new TypeError(
-        `Invalid number comparison, got ${getTypeOf(a)} and ${getTypeOf(b)}`
-    );
+function _multiplyReducer(acc: any, curr: any) {
+    if (typeof acc === typeof curr) return acc * curr;
+    if (isBigInt(curr)) return BigInt(acc) * curr;
+    return acc * BigInt(curr);
+}
+
+function multiply(value: number|bigint, ...values: (number|bigint)[]): number|bigint {
+    return values.reduce(_multiplyReducer, value);
 }
 
 function makeSumAgg(vector: Vector<any>): FieldAgg {
@@ -83,12 +63,11 @@ function makeSumAgg(vector: Vector<any>): FieldAgg {
     } = { value: 0 };
 
     return {
-        push(value: unknown) {
+        push(value, indices) {
+            const multiplier = indices.length;
             const res = getNumericValues(value);
-            for (const num of res.values) {
-                const [a, b] = getSameNumberType(agg.value, num, 0);
-                agg.value = a + b;
-            }
+            const sum = multiply(multiplier, add(0, ...res.values));
+            agg.value = add(agg.value, sum);
         },
         flush() {
             if (agg.value == null) return { value: undefined };
@@ -110,25 +89,22 @@ function makeAvgAgg(vector: Vector<any>): FieldAgg {
     } = { total: 0 };
 
     return {
-        push(value: unknown) {
+        push(value: unknown, indices) {
+            const multiplier = indices.length;
             const res = getNumericValues(value);
-
-            for (const num of res.values) {
-                const [a, b] = getSameNumberType(agg.value, num, 0);
-                agg.value = a + b;
-                agg.total++;
+            if (res.values.length) {
+                const sum = multiply(multiplier, add(0, ...res.values));
+                agg.value = agg.value != null ? add(sum, agg.value) : sum;
             }
+            agg.total += res.values.length * multiplier;
         },
         flush() {
             if (agg.value == null) return { value: undefined };
 
-            if (type === 'bigint') {
-                const result = { value: (agg.value as bigint) / BigInt(agg.total) };
-                agg = { total: 0 };
-                return result;
-            }
+            const total = type === 'bigint' ? BigInt(agg.total) : agg.total;
 
-            const result = { value: (agg.value as number) / agg.total };
+            const avg = (agg.value as any) / (total as any);
+            const result = Number.isNaN(avg) ? { value: undefined } : { value: avg };
             agg = { total: 0 };
             return result;
         },
@@ -142,12 +118,12 @@ function makeMinAgg(): FieldAgg {
     } = { index: -1 };
 
     return {
-        push(value, index) {
+        push(value, indices) {
             const res = getNumericValues(value);
             for (const num of res.values) {
                 if (agg.value == null || num < agg.value) {
                     agg.value = num;
-                    agg.index = index;
+                    agg.index = indices[0]!;
                 }
             }
         },
@@ -166,12 +142,12 @@ function makeMaxAgg(): FieldAgg {
     } = { index: -1 };
 
     return {
-        push(value, index) {
+        push(value, indices) {
             const res = getNumericValues(value);
             for (const num of res.values) {
                 if (agg.value == null || num > agg.value) {
                     agg.value = num;
-                    agg.index = index;
+                    agg.index = indices[0]!;
                 }
             }
         },
@@ -199,7 +175,6 @@ function makeCountAgg(): FieldAgg {
 }
 
 export enum KeyAggregation {
-    unique = 'unique',
     hourly = 'hourly',
     daily = 'daily',
     monthly = 'monthly',
@@ -211,7 +186,6 @@ export type KeyAggFn = (index: number) => {
 };
 export type MakeKeyAggFn = (col: Vector<unknown>) => KeyAggFn;
 export const keyAggMap: Record<KeyAggregation, MakeKeyAggFn> = {
-    [KeyAggregation.unique]: makeUniqueKeyAgg,
     [KeyAggregation.hourly]: makeDateAgg('yyyy:MM:dd:hh'),
     [KeyAggregation.daily]: makeDateAgg('yyyy:MM:dd'),
     [KeyAggregation.monthly]: makeDateAgg('yyyy:MM'),
@@ -230,14 +204,15 @@ function makeDateAgg(dateFormat: string): MakeKeyAggFn {
     };
 }
 
-function makeUniqueKeyAgg(vector: Vector<unknown>): KeyAggFn {
+export function makeUniqueKeyAgg(vector: Vector<any>): KeyAggFn {
     return (index) => {
         const value = vector.get(index);
-        if (value == null || value === '') {
-            return { key: undefined, value };
+        if (value == null) {
+            return { key: undefined, value: null };
         }
+
         return {
-            key: createKeyForValue(value),
+            key: getHashCodeFrom(value),
             value
         };
     };

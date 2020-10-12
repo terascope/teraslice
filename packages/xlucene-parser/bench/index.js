@@ -35,7 +35,7 @@ function start(name, dir) {
 }
 
 if (require.main === module) {
-    start('utils', __dirname);
+    start('xlucene-parser', __dirname);
 } else {
     module.exports = start;
 }

@@ -2,11 +2,19 @@ import {
     DataTypeConfig, ReadonlyDataTypeConfig,
     Maybe, SortOrder
 } from '@terascope/types';
-import { Column } from '../column';
+import { Column, KeyAggFn, makeUniqueKeyAgg } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
-import { md5 } from '../vector/utils';
-import { columnsToDataTypeConfig, distributeRowsToColumns } from './utils';
+import {
+    buildRecords, columnsToBuilderEntries, columnsToDataTypeConfig,
+    concatColumnsToColumns, createColumnsWithIndices,
+    distributeRowsToColumns, makeKeyForRow, makeUniqueRowBuilder,
+    processFieldFilter
+} from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
+import {
+    createHashCode, FieldArg, freezeArray, getFieldsFromArg
+} from '../core';
+import { getMaxColumnSize } from '../aggregation-frame/utils';
 
 /**
  * An immutable columnar table with APIs for data pipelines.
@@ -33,17 +41,22 @@ export class DataFrame<
     }
 
     /**
-     * The name of the DataFrame
+     * The name of the Frame
     */
     name?: string;
 
     /**
      * The list of columns
     */
-    readonly columns: readonly Column[];
+    readonly columns: readonly Column<any, keyof T>[];
 
     /**
-     * Metadata about the DataFrame
+     * An array of the column names
+    */
+    readonly fields: readonly (keyof T)[];
+
+    /**
+     * Metadata about the Frame
     */
     readonly metadata: Record<string, any>;
 
@@ -53,15 +66,14 @@ export class DataFrame<
     protected readonly _size: number;
 
     constructor(
-        columns: Column<any>[]|readonly Column<any>[],
+        columns: Column<any, keyof T>[]|readonly Column<any, keyof T>[],
         options?: DataFrameOptions
     ) {
         this.name = options?.name;
         this.metadata = options?.metadata ? { ...options.metadata } : {};
 
-        this.columns = Object.isFrozen(columns)
-            ? columns
-            : Object.freeze(columns.slice());
+        this.columns = freezeArray(columns);
+        this.fields = Object.freeze(this.columns.map((col) => col.name));
 
         const lengths = this.columns.map((col) => col.size);
         if (new Set(lengths).size > 1) {
@@ -94,7 +106,7 @@ export class DataFrame<
             .sort()
             .join(':');
 
-        const id = md5(long);
+        const id = createHashCode(long) as string;
         this.__id = id;
         return id;
     }
@@ -103,7 +115,7 @@ export class DataFrame<
      * Create a new DataFrame with the same metadata but with different data
     */
     fork<R extends Record<string, unknown> = T>(
-        columns: Column<any>[]|readonly Column<any>[]
+        columns: Column<any, keyof R>[]|readonly Column<any, keyof R>[]
     ): DataFrame<R> {
         return new DataFrame<R>(columns, {
             name: this.name,
@@ -128,41 +140,43 @@ export class DataFrame<
     /**
      * Get a column, or columns by name, returns a new DataFrame
     */
-    select<K extends keyof T>(...fields: K[]): DataFrame<Pick<T, K>> {
+    select<K extends keyof T>(...fieldArg: FieldArg<K>[]): DataFrame<Pick<T, K>> {
+        const fields = [...getFieldsFromArg(this.fields, fieldArg)];
         return this.fork(fields.map(
-            (field): Column<any> => this.getColumn(field)!
+            (field): Column<any, any> => this.getColumn(field)!
         ));
     }
 
     /**
      * Get a column, or columns by index, returns a new DataFrame
     */
-    selectAt(...indices: number[]): DataFrame<T> {
+    selectAt<R extends Record<string, unknown> = T>(...indices: number[]): DataFrame<R> {
         return this.fork(indices.map(
-            (index): Column<any> => this.getColumnAt(index)!
+            (index): Column<any, any> => this.getColumnAt(index)!
         ));
-    }
-
-    /**
-     * Group DataFrame by columns and return a AggregationFrame instance
-     * which can be used to run aggregations
-    */
-    groupBy(fields: (keyof T)[]): AggregationFrame<T> {
-        return new AggregationFrame<T>(this.columns, fields);
     }
 
     /**
      * Create a AggregationFrame instance which can be used to run aggregations
     */
     aggregate(): AggregationFrame<T> {
-        return new AggregationFrame<T>(this.columns, []);
+        return new AggregationFrame<T>(this.columns, {
+            name: this.name,
+            metadata: this.metadata,
+        });
     }
 
     /**
      * Order the rows by fields, format of is `field:asc` or `field:desc`.
      * Defaults to `asc` if none specified
     */
-    orderBy(field: keyof T, direction?: SortOrder): DataFrame<T> {
+    orderBy(fieldArg: FieldArg<keyof T>, direction?: SortOrder): DataFrame<T> {
+        const fields = getFieldsFromArg(this.fields, [fieldArg]);
+        if (fields.size > 1) {
+            throw new Error('DataFrame.orderBy can only works with one field currently');
+        }
+
+        const [field] = fields;
         const sortColumn = this.getColumn(field);
         if (!sortColumn) throw new Error(`Unknown column ${field}`);
 
@@ -185,8 +199,19 @@ export class DataFrame<
     }
 
     /**
+     * Sort the records by a field, an alias of orderBy.
+     *
+     * @see orderBy
+    */
+    sort(fieldArg: FieldArg<keyof T>, direction?: SortOrder): DataFrame<T> {
+        return this.orderBy(fieldArg, direction);
+    }
+
+    /**
      * Filter the DataFrame by fields, all fields must return true
      * for a given row to returned in the filtered DataType
+     *
+     * @todo support filtering rows via a single function
      *
      * @example
      *
@@ -200,43 +225,66 @@ export class DataFrame<
      *     });
     */
     filterBy(filters: FilterByFields<T>): DataFrame<T> {
-        const indices: number[] = [];
+        const indices = new Set<number>();
+
+        for (const [field, filter] of Object.entries(filters)) {
+            processFieldFilter(
+                indices, this.getColumn(field)!, filter
+            );
+        }
+
+        if (indices.size === this._size) return this;
+        return this.fork(createColumnsWithIndices(
+            this.columns,
+            indices,
+            indices.size
+        ));
+    }
+
+    /**
+     * Remove duplicate rows with the same value for select fields
+    */
+    unique(...fieldArg: FieldArg<keyof T>[]): DataFrame<T> {
+        const fields = getFieldsFromArg(this.fields, fieldArg);
+        const buckets = new Set<string>();
+        const keyAggs = new Map<keyof T, KeyAggFn>();
+
+        const columns = new Map(this.columns.map((col) => [col.name, col]));
+        for (const name of fields) {
+            const column = columns.get(name);
+            if (column) {
+                keyAggs.set(column.name, makeUniqueKeyAgg(column.vector));
+            } else {
+                throw new Error(`Unknown column ${name}`);
+            }
+        }
+
+        const builders = getBuildersForConfig<T>(this.config, this.size);
+
+        const rowBuilder = makeUniqueRowBuilder(
+            builders,
+            buckets,
+            (name, i) => columns.get(name)!.vector.get(i)
+        );
 
         for (let i = 0; i < this._size; i++) {
-            const row: Partial<T> = {};
-            let passed = true;
-            for (const field in filters) {
-                if (Object.prototype.hasOwnProperty.call(filters, field)) {
-                    const col = this.getColumn(field)!;
-                    const value = col.vector.get(i) as any;
-                    row[field] = value;
-
-                    if (!filters[field]!(value)) {
-                        passed = false;
-                        break;
-                    }
-                }
-            }
-
-            if (passed) {
-                indices.push(i);
+            const res = makeKeyForRow(keyAggs, i);
+            if (res && !buckets.has(res.key)) {
+                rowBuilder(res.row, res.key, i);
             }
         }
 
-        if (indices.length === this._size) return this;
+        return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => {
+            builder.data.resize(buckets.size, true);
+            return columns.get(name)!.fork(builder.toVector());
+        }));
+    }
 
-        const builders = getBuildersForConfig(this.config, indices.length);
-
-        for (const index of indices) {
-            for (const col of this.columns) {
-                const val = col.vector.get(index);
-                builders.get(col.name)!.append(val);
-            }
-        }
-
-        return this.fork(this.columns.map(
-            (col) => col.fork(builders.get(col.name)!.toVector())
-        ));
+    /**
+     * Alias for unique
+    */
+    distinct(...fieldArg: FieldArg<keyof T>[]): DataFrame<T> {
+        return this.unique(...fieldArg);
     }
 
     /**
@@ -264,59 +312,41 @@ export class DataFrame<
      * Concat rows, or columns, to the end of the existing Columns
     */
     concat(arg: (
-        Partial<T>[]|Column<T>[]
+        Partial<T>[]|Column<any, keyof T>[]
     )|(
-        readonly Partial<T>[]|readonly Column<T>[]
+        readonly Partial<T>[]|readonly Column<any, keyof T>[]
     )): DataFrame<T> {
-        if (!arg || !arg.length) return this;
+        if (!arg?.length) return this;
 
         let len: number;
         if (arg[0] instanceof Column) {
-            len = Math.max(
-                ...(arg as Column[]).map((col) => col.vector.size)
-            );
+            len = getMaxColumnSize(arg as Column[]);
         } else {
             len = (arg as T[]).length;
         }
 
         if (!len) return this;
 
-        const total = len + this._size;
-        const builders = new Map<string, Builder>();
+        const builders = new Map<keyof T, Builder>(
+            columnsToBuilderEntries(this.columns, len + this._size)
+        );
 
-        for (const col of this.columns) {
-            builders.set(
-                col.name, Builder.makeFromVector(
-                    col.vector, total
-                )
-            );
-        }
+        const finish = ([name, builder]: [keyof T, Builder<any>]) => (
+            this.getColumn(name)!.fork(builder.toVector())
+        );
 
         if (arg[0] instanceof Column) {
-            const columns = (arg as Column[]);
-
-            for (const [field, builder] of builders) {
-                const col = columns.find(((c) => c.name === field));
-                for (let i = 0; i < len; i++) {
-                    if (col) {
-                        builder.append(col.vector.get(i));
-                    } else {
-                        builder.append(null);
-                    }
-                }
-            }
-        } else {
-            for (const record of (arg as T[])) {
-                for (const col of this.columns) {
-                    const builder = builders.get(col.name)!;
-                    builder.append(record[col.name]);
-                }
-            }
+            return this.fork(
+                concatColumnsToColumns(
+                    builders,
+                    arg as Column<any, keyof T>[],
+                    this._size,
+                ).map(finish)
+            );
         }
-
-        return this.fork(this.columns.map(
-            (col) => col.fork(builders.get(col.name)!.toVector())
-        ));
+        return this.fork(
+            buildRecords<T>(builders, arg as T[]).map(finish)
+        );
     }
 
     /**
@@ -326,27 +356,25 @@ export class DataFrame<
         name: K,
         renameTo: R,
     ): DataFrame<Omit<T, K> & Record<R, T[K]>> {
-        return this.fork(this.columns.map((col): Column<any> => {
+        return this.fork(this.columns.map((col): Column<any, any> => {
             if (col.name !== name) return col;
-            const newCol = col.fork(col.vector);
-            newCol.name = renameTo;
-            return newCol;
+            return col.rename(renameTo);
         }));
     }
 
     /**
      * Get a column by name
     */
-    getColumn<P extends keyof T>(name: P): Column<T[P]>|undefined {
-        const index = this.columns.findIndex((col) => col.name === name);
+    getColumn<P extends keyof T>(field: P): Column<T[P], P>|undefined {
+        const index = this.columns.findIndex((col) => col.name === field);
         return this.getColumnAt<P>(index);
     }
 
     /**
      * Get a column by index
     */
-    getColumnAt<P extends keyof T>(index: number): Column<T[P]>|undefined {
-        return this.columns[index] as Column<any>|undefined;
+    getColumnAt<P extends keyof T>(index: number): Column<T[P], P>|undefined {
+        return this.columns[index] as Column<any, P>|undefined;
     }
 
     /**

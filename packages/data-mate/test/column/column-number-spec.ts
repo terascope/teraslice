@@ -6,7 +6,7 @@ import {
 } from '../../src';
 
 describe('Column (Number Types)', () => {
-    describe(`when field type is ${FieldType.Short}`, () => {
+    describe('when field type is Short', () => {
         let col: Column<number>;
         const values: Maybe<number>[] = [
             7,
@@ -126,7 +126,7 @@ describe('Column (Number Types)', () => {
         });
     });
 
-    describe(`when field type is ${FieldType.Float}`, () => {
+    describe('when field type is Float', () => {
         let col: Column<number>;
         const values: Maybe<number>[] = [
             7.92334,
@@ -271,6 +271,40 @@ describe('Column (Number Types)', () => {
             }));
         });
 
+        it('should be able to transform the column using setDefault(value: 100)', () => {
+            const newCol = col.transform(ColumnTransform.setDefault, {
+                value: 100,
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+
+            expect(newCol.toJSON()).toEqual([
+                [7, 3],
+                [2, 100, 4],
+                [6, 324, 5],
+                [100],
+                [4, 2, 0],
+            ]);
+        });
+
+        it('should be able to transform the column using setDefault(value: [-50])', () => {
+            const newCol = col.transform(ColumnTransform.setDefault, {
+                value: [-50],
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+
+            expect(newCol.toJSON()).toEqual([
+                [7, 3],
+                [2, null, 4],
+                [6, 324, 5],
+                [-50],
+                [4, 2, 0],
+            ]);
+        });
+
         it('should NOT be able to sort the values', () => {
             expect(() => {
                 col.sort();
@@ -278,7 +312,7 @@ describe('Column (Number Types)', () => {
         });
     });
 
-    describe(`when field type is ${FieldType.Long}`, () => {
+    describe('when field type is Long', () => {
         let col: Column<bigint>;
         const multiplier = BigInt(20);
         const values: Maybe<bigint>[] = [

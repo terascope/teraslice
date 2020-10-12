@@ -1,25 +1,28 @@
 import { FieldType } from '@terascope/types';
 import { Builder } from '../builder';
 import { Column, ValueAggregation, KeyAggregation } from '../column';
+import { WritableData } from '../core';
 import {
     isNumberLike, isFloatLike
 } from '../vector';
 
 export function getBuilderForField(
-    col: Column<any>,
+    col: Column<any, any>,
+    length: number,
     keyAgg?: KeyAggregation,
     valueAgg?: ValueAggregation
 ): Builder<any> {
+    const data = WritableData.make(length);
     if (!keyAgg && !valueAgg) {
         return Builder.make(
-            col.config, undefined, col.vector.childConfig
+            col.config, data, col.vector.childConfig
         );
     }
 
     if (keyAgg && !valueAgg) {
         return Builder.make<any>(
             col.config,
-            undefined,
+            data,
             col.vector.childConfig
         );
     }
@@ -33,9 +36,9 @@ export function getBuilderForField(
             type = FieldType.Float;
         }
     } else if (valueAgg === ValueAggregation.sum) {
-        if (type === FieldType.Long || type === FieldType.Integer) {
+        if (currentType === FieldType.Long || currentType === FieldType.Integer) {
             type = FieldType.Long;
-        } else if (type === FieldType.Short || type === FieldType.Byte) {
+        } else if (currentType === FieldType.Short || currentType === FieldType.Byte) {
             type = FieldType.Integer;
         } else if (isFloatLike(currentType)) {
             type = FieldType.Float;
@@ -47,13 +50,22 @@ export function getBuilderForField(
     } else if (valueAgg === ValueAggregation.count) {
         type = FieldType.Integer;
     }
+
     if (!type) {
-        throw new Error(`Unsupported field type ${type} for aggregation ${valueAgg}`);
+        throw new Error(`Unsupported field type ${currentType} for aggregation ${valueAgg}`);
     }
 
     return Builder.make<any>({
         type,
         array: false,
         description: col.config.description // FIXME append agg info
-    });
+    }, data);
+}
+
+export function getMaxColumnSize(
+    columns: readonly Column<any, any>[]
+): number {
+    return Math.max(
+        ...columns.map((col) => col.vector.size)
+    );
 }

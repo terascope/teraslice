@@ -2,7 +2,8 @@ import { getGroupedFields } from '@terascope/data-types';
 import {
     DataTypeConfig, DataTypeFieldConfig, DataTypeFields, FieldType
 } from '@terascope/types';
-import { Builder } from './Builder';
+import { WritableData } from '../core';
+import { Builder, BuilderOptions } from './Builder';
 import { ListBuilder } from './ListBuilder';
 import {
     AnyBuilder, BigIntBuilder, BooleanBuilder,
@@ -13,8 +14,8 @@ import {
 } from './types';
 
 export function getBuildersForConfig<T extends Record<string, any> = Record<string, unknown>>(
-    config: DataTypeConfig, length?: number
-): Map<keyof T, Builder<unknown>> {
+    config: DataTypeConfig, size: number
+): Map<(keyof T), Builder<unknown>> {
     const builders = new Map<keyof T, Builder<unknown>>();
     const groupedFieldEntries = Object.entries(getGroupedFields(config.fields));
 
@@ -25,7 +26,11 @@ export function getBuildersForConfig<T extends Record<string, any> = Record<stri
             const nestedField = fullField.replace(`${field}.`, '');
             childConfig[nestedField] = config.fields[fullField];
         });
-        builders.set(field, Builder.make(config.fields[field], length, childConfig));
+        builders.set(field, Builder.make(
+            config.fields[field],
+            WritableData.make(size),
+            childConfig
+        ));
     }
 
     return builders;
@@ -33,8 +38,8 @@ export function getBuildersForConfig<T extends Record<string, any> = Record<stri
 
 export function _newBuilder<T>(
     config: DataTypeFieldConfig,
-    length?: number,
-    childConfig?: DataTypeFields
+    data: WritableData<any>,
+    childConfig?: DataTypeFields,
 ): Builder<T> {
     const fieldType = config.type as FieldType;
     if (!(fieldType in FieldType)) {
@@ -42,10 +47,14 @@ export function _newBuilder<T>(
     }
 
     if (config.array) {
-        return new ListBuilder({ config, length, childConfig }) as Builder<any>;
+        return new ListBuilder(data, {
+            config, childConfig
+        }) as Builder<any>;
     }
 
-    return _newBuilderForType(config, length, childConfig) as Builder<T>;
+    return _newBuilderForType(
+        config, data, childConfig
+    ) as Builder<T>;
 }
 
 /**
@@ -53,9 +62,12 @@ export function _newBuilder<T>(
 */
 function _newBuilderForType(
     config: DataTypeFieldConfig,
-    length?: number,
-    childConfig?: DataTypeFields
+    data: WritableData<any>,
+    childConfig?: DataTypeFields,
 ) {
+    const options: BuilderOptions<any> = {
+        config, childConfig
+    };
     switch (config.type) {
         case FieldType.String:
         case FieldType.Text:
@@ -66,34 +78,34 @@ function _newBuilderForType(
         case FieldType.KeywordPathAnalyzer:
         case FieldType.Domain:
         case FieldType.Hostname:
-            return new StringBuilder({ config, length });
+            return new StringBuilder(data, options);
         case FieldType.IP:
-            return new IPBuilder({ config, length });
+            return new IPBuilder(data, options);
         case FieldType.IPRange:
-            return new IPRangeBuilder({ config, length });
+            return new IPRangeBuilder(data, options);
         case FieldType.Date:
-            return new DateBuilder({ config, length });
+            return new DateBuilder(data, options);
         case FieldType.Boolean:
-            return new BooleanBuilder({ config, length });
+            return new BooleanBuilder(data, options);
         case FieldType.Float:
         case FieldType.Number:
         case FieldType.Double:
             // Double can't supported entirely until we have BigFloat
-            return new FloatBuilder({ config, length });
+            return new FloatBuilder(data, options);
         case FieldType.Byte:
         case FieldType.Short:
         case FieldType.Integer:
-            return new IntBuilder({ config, length });
+            return new IntBuilder(data, options);
         case FieldType.Long:
-            return new BigIntBuilder({ config, length });
+            return new BigIntBuilder(data, options);
         case FieldType.Geo:
         case FieldType.GeoPoint:
-            return new GeoPointBuilder({ config, length });
+            return new GeoPointBuilder(data, options);
         case FieldType.GeoJSON:
-            return new GeoJSONBuilder({ config, length });
+            return new GeoJSONBuilder(data, options);
         case FieldType.Object:
-            return new ObjectBuilder({ config, length, childConfig });
+            return new ObjectBuilder(data, options);
         default:
-            return new AnyBuilder({ config, length });
+            return new AnyBuilder(data, options);
     }
 }

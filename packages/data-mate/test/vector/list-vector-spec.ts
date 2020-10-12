@@ -1,8 +1,8 @@
 import 'jest-fixtures';
-import { bigIntToJSON, toString } from '@terascope/utils';
+import { bigIntToJSON, isNotNil, toString } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
-    Vector, Builder
+    Vector, Builder, WritableData
 } from '../../src';
 
 describe('ListVector', () => {
@@ -20,8 +20,11 @@ describe('ListVector', () => {
         let vector: Vector<any>;
         let expected: any[];
         beforeAll(() => {
-            const builder = Builder.make({ type, array: true });
+            const builder = Builder.make(
+                { type, array: true }, WritableData.make(input.length)
+            );
             input.forEach((val) => builder.append(val));
+
             vector = builder.toVector();
             expected = (output ?? input).map((val) => {
                 if (typeof val === 'bigint') {
@@ -41,7 +44,9 @@ describe('ListVector', () => {
         });
 
         it('should have the correct distinct values', () => {
-            expect(vector.distinct()).toBe(new Set(expected.map(toString)).size);
+            expect(vector.countUnique()).toBe(new Set(
+                expected.filter(isNotNil).map(toString)
+            ).size);
         });
 
         it('should have the correct field config', () => {

@@ -1,12 +1,13 @@
 import { Vector, VectorOptions } from '../Vector';
-import { Data, VectorType } from '../interfaces';
+import { VectorType } from '../interfaces';
+import { ReadableData } from '../../core';
 
 export class FloatVector extends Vector<number> {
     constructor(options: VectorOptions<number>) {
         super(VectorType.Float, options);
     }
 
-    fork(data: Data<number>): FloatVector {
+    fork(data: ReadableData<number>): FloatVector {
         return new FloatVector({
             valueToJSON: this.valueToJSON,
             config: this.config,

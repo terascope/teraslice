@@ -1,38 +1,57 @@
 import { castArray } from '@terascope/utils';
-import { DataTypeFields } from '@terascope/types';
-import { Builder, BuilderOptions } from './Builder';
+import { DataTypeFieldConfig } from '@terascope/types';
+import { Builder, BuilderOptions, copyVectorToBuilder } from './Builder';
 import { Vector, VectorType } from '../vector';
+import { isSameFieldConfig, WritableData } from '../core';
 
 export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
-    static valueFrom(values: unknown, thisArg?: ListBuilder<any>): Vector<any> {
-        if (!thisArg) {
-            throw new Error('Expected thisArg');
-        }
-        let arr: unknown[];
+    static valueFrom(values: unknown, thisArg: ListBuilder<any>): Vector<any> {
+        const config = getValueConfig(thisArg.config);
+
         if (values instanceof Vector) {
-            if (values.type === thisArg.type) return values;
-            arr = [...values];
-        } else {
-            arr = castArray(values);
+            if (isSameFieldConfig(values.config, config)) return values;
+
+            return copyVectorToBuilder(values, Builder.make(
+                config,
+                WritableData.make(values.size),
+                thisArg.childConfig
+            ));
         }
 
-        const builder = Builder.make({
-            ...thisArg.config,
-            array: false,
-        }, arr.length, thisArg.childConfig);
+        const arr = castArray(values);
+        const builder = Builder.make(
+            config,
+            WritableData.make(arr.length),
+            thisArg.childConfig
+        );
 
-        arr.forEach((value) => builder.append(value));
+        for (const value of arr) {
+            builder.append(value);
+        }
 
         return builder.toVector();
     }
 
-    childConfig?: DataTypeFields;
-
-    constructor(options: BuilderOptions<Vector<T>> & { childConfig?: DataTypeFields }) {
-        super(VectorType.List, {
+    constructor(
+        data: WritableData<Vector<T>>,
+        options: BuilderOptions<Vector<T>>
+    ) {
+        super(VectorType.List, data, {
             valueFrom: ListBuilder.valueFrom,
             ...options,
         });
-        this.childConfig = options.childConfig;
     }
+}
+
+const _cache = new WeakMap<Readonly<DataTypeFieldConfig>, Readonly<DataTypeFieldConfig>>();
+function getValueConfig(baseConfig: Readonly<DataTypeFieldConfig>): Readonly<DataTypeFieldConfig> {
+    const cached = _cache.get(baseConfig);
+    if (cached) return cached;
+
+    const config = Object.freeze({
+        ...baseConfig,
+        array: false,
+    });
+    _cache.set(baseConfig, config);
+    return config;
 }

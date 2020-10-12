@@ -1,5 +1,6 @@
 import { DateFormat, FieldType } from '@terascope/types';
-import { DateValue, VectorType } from '../../vector';
+import { DateValue } from '../../core';
+import { VectorType } from '../../vector';
 import {
     ColumnTransformConfig, TransformMode, TransformType
 } from '../interfaces';

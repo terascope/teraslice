@@ -1,6 +1,6 @@
 import { Vector, VectorOptions } from '../Vector';
-import { Data, VectorType } from '../interfaces';
-import { DateValue } from './DateValue';
+import { VectorType } from '../interfaces';
+import { DateValue, ReadableData } from '../../core';
 
 export class DateVector extends Vector<DateValue> {
     static valueToJSON({ value, formatted }: DateValue): string|number {
@@ -14,7 +14,7 @@ export class DateVector extends Vector<DateValue> {
         });
     }
 
-    fork(data: Data<DateValue>): DateVector {
+    fork(data: ReadableData<DateValue>): DateVector {
         return new DateVector({
             valueToJSON: this.valueToJSON,
             config: this.config,

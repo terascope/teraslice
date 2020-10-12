@@ -73,7 +73,7 @@ export function trim(input: unknown, char = ' '): string {
 export function trimStart(input: unknown, char = ' '): string {
     const str = toString(input);
     if (char === ' ') {
-        return str.replace(/^\s+/, '');
+        return str.trimStart();
     }
 
     let start = str.indexOf(char);
@@ -92,7 +92,7 @@ export function trimStart(input: unknown, char = ' '): string {
 export function trimEnd(input: unknown, char = ' '): string {
     const str = toString(input);
     if (char === ' ') {
-        return str.replace(/\s+$/, '');
+        return str.trimEnd();
     }
 
     let end = str.lastIndexOf(char);

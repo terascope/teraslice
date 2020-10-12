@@ -1,0 +1,115 @@
+import { createHash } from 'crypto';
+import {
+    getTypeOf, isFunction, toString
+} from '@terascope/utils';
+import {
+    FieldArg, TypedArray, TypedArrayConstructor,
+    HASH_CODE_SYMBOL, MAX_16BIT_INT, MAX_32BIT_INT, MAX_8BIT_INT,
+} from './interfaces';
+
+export function getFieldsFromArg<
+    K extends(number|string|symbol)
+>(fields: readonly K[], arg: FieldArg<K>[]): ReadonlySet<K> {
+    if (!Array.isArray(arg)) {
+        throw new Error(`Expected field arg, got ${arg} (${getTypeOf(arg)})`);
+    }
+
+    const result = new Set<K>();
+    const addFieldArg = _makeAddFieldsArg(fields, result);
+
+    for (const fieldArg of arg) {
+        if (Array.isArray(fieldArg)) {
+            fieldArg.forEach(addFieldArg);
+        } else {
+            addFieldArg(fieldArg as K);
+        }
+    }
+
+    if (!result.size) {
+        throw new Error('Expected at least one field');
+    }
+
+    return result;
+}
+
+function _makeAddFieldsArg<K extends(number|string|symbol)>(
+    fields: readonly K[],
+    result: Set<K>,) {
+    return function addFieldArg(field: K): void {
+        if (!fields.includes(field)) {
+            throw new Error(`Unknown field ${field}`);
+        }
+        result.add(field);
+    };
+}
+
+/**
+ * Gets the correctly sized TypeArray depending on the length of items
+ */
+export function getPointerArray(size: number): TypedArray {
+    const PointerArray = getTypedArrayClass(size);
+    return new PointerArray(size);
+}
+
+/**
+ * Gets the correctly sized TypeArray constructor depending on the size of values being stored
+ */
+export function getTypedArrayClass(size: number): TypedArrayConstructor {
+    const maxIndex = size - 1;
+
+    if (maxIndex <= MAX_8BIT_INT) return Uint8Array;
+
+    if (maxIndex <= MAX_16BIT_INT) return Uint16Array;
+
+    if (maxIndex <= MAX_32BIT_INT) return Uint32Array;
+
+    return Float64Array;
+}
+
+export function md5(value: string|Buffer): string {
+    return createHash('md5').update(value).digest('hex');
+}
+
+export function createHashCode(value: unknown): string {
+    if (value == null) return '';
+
+    const str = toString(value);
+
+    if (str.length > 35) {
+        return `0:${md5(str)}`;
+    }
+
+    return `1:${str}`;
+}
+
+export function getHashCodeFrom(input: unknown, throwIfNotFound = false): string {
+    if (typeof input === 'object' && input != null && input[HASH_CODE_SYMBOL] != null) {
+        if (isFunction(input[HASH_CODE_SYMBOL])) {
+            return input[HASH_CODE_SYMBOL]();
+        }
+        return input[HASH_CODE_SYMBOL];
+    }
+
+    if (throwIfNotFound) {
+        throw new Error(
+            `Expected ${toString(input)} (${getTypeOf(input)}) to have ${String(HASH_CODE_SYMBOL)}`
+        );
+    }
+    return createHashCode(input);
+}
+
+export function createObject<T extends Record<string, any>>(input: T): T {
+    Object.defineProperty(input, HASH_CODE_SYMBOL, {
+        value: _createObjectHashCode.bind(input),
+        configurable: false,
+        enumerable: false,
+        writable: false,
+    });
+
+    return Object.freeze(input) as T;
+}
+
+function _createObjectHashCode() {
+    // @ts-expect-error because this bound
+    return getHashCodeFrom(Object.entries(this), false);
+}

@@ -15,16 +15,24 @@ export function isSimpleObject(input: unknown): input is Record<string, unknown>
     return typeof input === 'object';
 }
 
+/**
+ * Get the first value in an object
+*/
 export function getFirstValue<T>(input: { [key: string]: T }): T | undefined {
     return Object.values(input)[0];
 }
 
+/**
+ * Get the first key in an object
+*/
 export function getFirstKey<T>(input: T): (keyof T) | undefined {
     return Object.keys(input)[0] as keyof T;
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function isObjectEntity(input: unknown) {
+/**
+ * Verify if the input is a object like type
+*/
+export function isObjectEntity(input: unknown): boolean {
     return DataEntity.isDataEntity(input) || isSimpleObject(input);
 }
 

@@ -96,10 +96,12 @@ describe('AggregationFrame', () => {
 
     describe('->sum(age)', () => {
         it('should get the right result when using groupBy(gender)', async () => {
-            const grouped = dataFrame.groupBy(['gender']);
-            const resultFrame = new DataFrame(
-                await grouped.sum('age').run()
-            );
+            const resultFrame = await dataFrame
+                .aggregate()
+                .groupBy(['gender'])
+                .sum('age')
+                .run();
+
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Billy',
@@ -122,9 +124,7 @@ describe('AggregationFrame', () => {
     describe('->sum(scores)', () => {
         it('should get the right result when using aggregate()', async () => {
             const grouped = dataFrame.aggregate();
-            const resultFrame = new DataFrame(
-                await grouped.sum('scores').run()
-            );
+            const resultFrame = await grouped.sum('scores').run();
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Billy',
@@ -139,10 +139,12 @@ describe('AggregationFrame', () => {
 
     describe('->avg(age)', () => {
         it('should get the right result when using groupBy(gender)', async () => {
-            const grouped = dataFrame.groupBy(['gender']);
-            const resultFrame = new DataFrame(
-                await grouped.avg('age').run()
-            );
+            const resultFrame = await dataFrame
+                .aggregate()
+                .groupBy(['gender'])
+                .avg('age')
+                .run();
+
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Billy',
@@ -163,9 +165,7 @@ describe('AggregationFrame', () => {
 
         it('should get the right result when using aggregate()', async () => {
             const grouped = dataFrame.aggregate();
-            const resultFrame = new DataFrame(
-                await grouped.avg('age').run()
-            );
+            const resultFrame = await grouped.avg('age').run();
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Billy',
@@ -181,9 +181,7 @@ describe('AggregationFrame', () => {
     describe('->avg(scores)', () => {
         it('should get the right result when using aggregate()', async () => {
             const grouped = dataFrame.aggregate();
-            const resultFrame = new DataFrame(
-                await grouped.avg('scores').run()
-            );
+            const resultFrame = await grouped.avg('scores').run();
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Billy',
@@ -198,10 +196,11 @@ describe('AggregationFrame', () => {
 
     describe('->min(age)', () => {
         it('should get the right result when using groupBy(gender)', async () => {
-            const grouped = dataFrame.groupBy(['gender']);
-            const resultFrame = new DataFrame(
-                await grouped.min('age').run()
-            );
+            const resultFrame = await dataFrame
+                .aggregate()
+                .groupBy('gender')
+                .min('age')
+                .run();
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Joey',
@@ -222,9 +221,7 @@ describe('AggregationFrame', () => {
 
         it('should get the right result when using aggregate()', async () => {
             const grouped = dataFrame.aggregate();
-            const resultFrame = new DataFrame(
-                await grouped.min('age').run()
-            );
+            const resultFrame = await grouped.min('age').run();
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Joey',
@@ -240,9 +237,7 @@ describe('AggregationFrame', () => {
     describe('->min(scores)', () => {
         it('should get the right result when using aggregate()', async () => {
             const grouped = dataFrame.aggregate();
-            const resultFrame = new DataFrame(
-                await grouped.min('scores').run()
-            );
+            const resultFrame = await grouped.min('scores').run();
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Nancy',
@@ -257,10 +252,11 @@ describe('AggregationFrame', () => {
 
     describe('->max(age)', () => {
         it('should get the right result when using groupBy(gender)', async () => {
-            const grouped = dataFrame.groupBy(['gender']);
-            const resultFrame = new DataFrame(
-                await grouped.max('age').run()
-            );
+            const resultFrame = await dataFrame
+                .aggregate()
+                .groupBy('gender')
+                .max('age')
+                .run();
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Billy',
@@ -281,9 +277,7 @@ describe('AggregationFrame', () => {
 
         it('should get the right result when using aggregate()', async () => {
             const grouped = dataFrame.aggregate();
-            const resultFrame = new DataFrame(
-                await grouped.max('age').run()
-            );
+            const resultFrame = await grouped.max('age').run();
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Nancy',
@@ -299,9 +293,7 @@ describe('AggregationFrame', () => {
     describe('->max(scores)', () => {
         it('should get the right result when using aggregate()', async () => {
             const grouped = dataFrame.aggregate();
-            const resultFrame = new DataFrame(
-                await grouped.max('scores').run()
-            );
+            const resultFrame = await grouped.max('scores').run();
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Joey',
@@ -316,10 +308,12 @@ describe('AggregationFrame', () => {
 
     describe('->count(name)', () => {
         it('should get the right result when using groupBy(gender)', async () => {
-            const grouped = dataFrame.groupBy(['gender']);
-            const resultFrame = new DataFrame(
-                await grouped.count('name').run()
-            );
+            const resultFrame = await dataFrame
+                .aggregate()
+                .groupBy('gender')
+                .count('name')
+                .run();
+
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 4,
@@ -340,9 +334,7 @@ describe('AggregationFrame', () => {
 
         it('should get the right result when using aggregate()', async () => {
             const grouped = dataFrame.aggregate();
-            const resultFrame = new DataFrame(
-                await grouped.count('name').run()
-            );
+            const resultFrame = await grouped.count('name').run();
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 8,
@@ -357,10 +349,7 @@ describe('AggregationFrame', () => {
 
     describe('->unique(name)', () => {
         it('should get the right result when using groupBy(gender)', async () => {
-            const grouped = dataFrame.groupBy(['gender']);
-            const resultFrame = new DataFrame(
-                await grouped.unique('name').run()
-            );
+            const resultFrame = dataFrame.unique(['name', 'gender']);
 
             expect(resultFrame.toJSON()).toEqual([
                 {
@@ -412,70 +401,11 @@ describe('AggregationFrame', () => {
                 }
             ]);
         });
-
-        it('should get the right result when using it with count(name)', async () => {
-            const grouped = dataFrame.groupBy(['gender']);
-            const resultFrame = new DataFrame(
-                await grouped.unique('name').count('name').run()
-            );
-            expect(resultFrame.toJSON()).toEqual([
-                {
-                    name: 1,
-                    age: 64,
-                    gender: 'M',
-                    scores: [4, 9, 3],
-                    date: '2020-09-15T17:39:11.195Z',
-                },
-                {
-                    name: 2,
-                    age: 25,
-                    gender: 'M',
-                    scores: [2, 4, 19],
-                    date: '2020-09-15T16:39:11.195Z',
-                },
-                {
-                    name: 1,
-                    age: 40,
-                    gender: 'F',
-                    scores: [2, 2, 2],
-                    date: '2020-09-15T15:39:11.195Z',
-                },
-                {
-                    name: 1,
-                    age: 32,
-                    gender: 'F',
-                    scores: [20, 4, 19],
-                    date: '2020-09-15T15:39:11.195Z',
-                },
-                {
-                    name: 1,
-                    age: 20,
-                    gender: 'M',
-                    scores: [50, 4, 19],
-                    date: '2020-09-13T17:39:11.195Z',
-                },
-                {
-                    name: 1,
-                    age: 84,
-                    gender: 'F',
-                    scores: [1, 0, 0],
-                    date: '2019-09-15T17:39:11.195Z',
-                },
-                {
-                    name: 1,
-                    scores: [1, 1, 10, null],
-                    date: '2018-01-15T10:39:11.195Z',
-                }
-            ]);
-        });
     });
 
     describe('->unique(scores)', () => {
         it('should get the right result when using aggregate()', async () => {
-            const grouped = dataFrame.aggregate();
-            const resultFrame = new DataFrame(
-                await grouped.unique('scores').run()
-            );
+            const resultFrame = dataFrame.unique('scores');
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Billy',
@@ -531,9 +461,7 @@ describe('AggregationFrame', () => {
     describe('->hourly(date)', () => {
         it('should get the right result when using aggregate()', async () => {
             const grouped = dataFrame.aggregate();
-            const resultFrame = new DataFrame(
-                await grouped.hourly('date').count('name').run()
-            );
+            const resultFrame = await grouped.hourly('date').count('name').run();
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 1,
@@ -589,9 +517,7 @@ describe('AggregationFrame', () => {
     describe('->daily(date)', () => {
         it('should get the right result when using aggregate()', async () => {
             const grouped = dataFrame.aggregate();
-            const resultFrame = new DataFrame(
-                await grouped.daily('date').count('name', 'count').run()
-            );
+            const resultFrame = await grouped.daily('date').count('name', 'count').run();
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Billy',
@@ -638,9 +564,7 @@ describe('AggregationFrame', () => {
     describe('->monthly(date)', () => {
         it('should get the right result when using aggregate()', async () => {
             const grouped = dataFrame.aggregate();
-            const resultFrame = new DataFrame(
-                await grouped.monthly('date').count('name').run()
-            );
+            const resultFrame = await grouped.monthly('date').count('name').run();
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 5,
@@ -675,9 +599,7 @@ describe('AggregationFrame', () => {
     describe('->yearly(date)', () => {
         it('should get the right result when using aggregate()', async () => {
             const grouped = dataFrame.aggregate();
-            const resultFrame = new DataFrame(
-                await grouped.yearly('date').count('name', 'count').run()
-            );
+            const resultFrame = await grouped.yearly('date').count('name', 'count').run();
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Billy',
@@ -700,6 +622,59 @@ describe('AggregationFrame', () => {
                     count: 1,
                     scores: [1, 1, 10, null],
                     date: '2018-01-15T10:39:11.195Z',
+                }
+            ]);
+        });
+    });
+
+    describe('when using the column manipulations', () => {
+        it('should handle a complex chain of operations (without sort)', async () => {
+            const resultFrame = await dataFrame.aggregate()
+                .limit(3)
+                .count('name', 'count')
+                .monthly('date')
+                .rename('name', 'person')
+                .select('person', 'count')
+                .run();
+
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    person: 'Billy',
+                    count: 5,
+                },
+                {
+                    person: 'Nancy',
+                    count: 1,
+                },
+                {
+                    person: 'Frank',
+                    count: 1,
+                }
+            ]);
+        });
+
+        it('should handle a complex chain of operations (with sort)', async () => {
+            const resultFrame = await dataFrame.aggregate()
+                .monthly('date')
+                .count('name', 'count')
+                .select('name', 'count')
+                .rename('name', 'person')
+                .sort('count', 'asc')
+                .limit(3)
+                .run();
+
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    person: 'Nancy',
+                    count: 1,
+                },
+                {
+                    person: 'Frank',
+                    count: 1,
+                },
+                {
+                    person: 'Nick',
+                    count: 1,
                 }
             ]);
         });

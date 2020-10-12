@@ -3,11 +3,12 @@ import { joinList, toString } from '@terascope/utils';
 import {
     DataTypeFieldConfig, DataTypeFields, Maybe
 } from '@terascope/types';
-import { Builder } from '../builder';
+import { Builder, copyVectorToBuilder, transformVectorToBuilder } from '../builder';
 import {
-    Vector, isVector, VectorType, Data
+    Vector, isVector, VectorType
 } from '../vector';
 import { ColumnTransformFn, TransformMode } from './interfaces';
+import { ReadableData, WritableData } from '../core';
 
 const _vectorIds = new WeakMap<Vector<any>, string>();
 export function getVectorId(vector: Vector<any>): string {
@@ -28,69 +29,56 @@ export function mapVector<T, R = T>(
 ): Vector<R> {
     const builder = Builder.make<R>(
         { ...vector.config, ...config, ...transform.output },
-        vector.size,
+        WritableData.make(vector.size),
         vector.childConfig
     );
 
     if (transform.mode === TransformMode.NONE) {
-        for (let i = 0; i < vector.size; i++) {
-            const value = vector.get(i) as Maybe<T|Vector<T>>;
-            builder.append(value);
-        }
-        return builder.toVector();
+        return copyVectorToBuilder(vector, builder);
     }
 
     if (transform.mode === TransformMode.EACH) {
-        for (let i = 0; i < vector.size; i++) {
-            const value = vector.get(i) as Maybe<T|Vector<T>>;
-            builder.append(transform.fn(value));
-        }
-        return builder.toVector();
+        return mapVectorEach(
+            vector, builder, transform.fn
+        );
     }
 
     if (transform.mode === TransformMode.EACH_VALUE) {
-        for (let i = 0; i < vector.size; i++) {
-            const value = vector.get(i) as Maybe<T|Vector<T>>;
-            if (transform.skipNulls !== false && value == null) {
-                builder.append(null);
-            } else if (isVector<T>(value)) {
-                const values: Maybe<R>[] = [];
-                for (const val of value) {
-                    if (transform.skipNulls !== false && val == null) {
-                        values.push(null);
-                    } else {
-                        values.push(
-                            transform.fn(val as any)
-                        );
-                    }
-                }
-                builder.append(values);
-            } else {
-                builder.append(
-                    transform.fn(value as any)
-                );
-            }
-        }
-        return builder.toVector();
+        return mapVectorEachValue(
+            vector, builder, transform.fn
+        );
     }
 
     throw new Error(`Unknown transformation ${toString(transform)}`);
 }
 
-export function isSameFieldConfig(
-    a: Readonly<DataTypeFieldConfig>, b: Readonly<DataTypeFieldConfig>
-): boolean {
-    if (a.type !== b.type) return false;
+export function mapVectorEach<T, R = T>(
+    vector: Vector<T>,
+    builder: Builder<R>,
+    fn: (value: Maybe<T|Vector<T>>) => Maybe<R|Vector<R>>,
+): Vector<R> {
+    let i = 0;
+    for (const value of vector) {
+        builder.set(i++, fn(value));
+    }
+    return builder.toVector();
+}
 
-    const aArray = a.array ?? false;
-    const bArray = a.array ?? false;
-    if (aArray !== bArray) return false;
+export function mapVectorEachValue<T, R = T>(
+    vector: Vector<T>,
+    builder: Builder<R>,
+    fn: (value: T) => Maybe<R>,
+): Vector<R> {
+    function _mapValue(value: T|Vector<T>): Maybe<R> {
+        if (!isVector<T>(value)) return fn(value);
+        const values: Maybe<R>[] = [];
+        for (const val of value) {
+            values.push(val != null ? fn(val as any) : null);
+        }
+        return values as any;
+    }
 
-    if (a.format !== b.format) return false;
-
-    if (a.locale !== b.locale) return false;
-
-    return true;
+    return transformVectorToBuilder(vector, builder, _mapValue);
 }
 
 export function validateFieldTransformArgs<A extends Record<string, any>>(
@@ -108,7 +96,7 @@ export function validateFieldTransformArgs<A extends Record<string, any>>(
             throw new Error(`Missing required parameter ${field}`);
         }
 
-        const builder = Builder.make(config);
+        const builder = Builder.make(config, WritableData.make(0));
         if (builder.valueFrom && result[field] != null) {
             result[field] = builder.valueFrom(result[field], builder) as any;
         }
@@ -116,6 +104,8 @@ export function validateFieldTransformArgs<A extends Record<string, any>>(
 
     return result;
 }
+
+const emptyData = new ReadableData<any>(WritableData.make(0));
 
 export function validateFieldTransformType(
     accepts: VectorType[], vector: Vector<any>
@@ -125,7 +115,7 @@ export function validateFieldTransformType(
     const type = vector.type === VectorType.List ? Vector.make({
         ...vector.config,
         array: false,
-    }, { values: [] } as Data<any>).type : vector.type;
+    }, emptyData).type : vector.type;
 
     if (!accepts.includes(type)) {
         throw new Error(`Incompatible with field type ${type}, must be ${joinList(accepts)}`);

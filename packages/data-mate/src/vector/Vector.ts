@@ -1,10 +1,10 @@
-import { toString } from '@terascope/utils';
 import {
     DataTypeFieldConfig, DataTypeFields,
-    Maybe, Nil, SortOrder,
+    Maybe, SortOrder,
     ReadonlyDataTypeFields
 } from '@terascope/types';
-import { Data, VectorType } from './interfaces';
+import { ReadableData, createHashCode, HASH_CODE_SYMBOL } from '../core';
+import { VectorType } from './interfaces';
 
 /**
  * An immutable typed Array class with a constrained API.
@@ -15,7 +15,7 @@ export abstract class Vector<T = unknown> {
     */
     static make<R>(
         config: Readonly<DataTypeFieldConfig>,
-        data: Data<R>,
+        data: ReadableData<R>,
         childConfig?: DataTypeFields
     ): Vector<R> {
         throw new Error(`This is overridden in the index file, ${config} ${data} ${childConfig}`);
@@ -52,14 +52,14 @@ export abstract class Vector<T = unknown> {
      *
      * @internal
     */
-    readonly data: Data<T>;
+    readonly data: ReadableData<T>;
 
     /**
      * If set to false, the Vector is not sortable
     */
     sortable = true;
 
-    protected readonly _size: number;
+    private __cachedHash?: string|undefined;
 
     constructor(
         /**
@@ -76,51 +76,60 @@ export abstract class Vector<T = unknown> {
 
         this.data = data;
         this.childConfig = childConfig;
-        this._size = this.data.values.length;
     }
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
-        yield* this.data.values;
+        yield* this.data;
+    }
+
+    get [HASH_CODE_SYMBOL](): string {
+        if (this.__cachedHash) return this.__cachedHash;
+
+        const hash = createHashCode(this.toJSON());
+        this.__cachedHash = hash;
+        return hash;
     }
 
     /**
      * Returns the number items in the Vector
     */
     get size(): number {
-        return this._size;
+        return this.data.size;
     }
 
     /**
      * Gets the number distinct values in the Vector
     */
-    distinct(): number {
-        return new Set(this.data.values.map(toString)).size;
+    countUnique(): number {
+        return this.data.countUnique();
     }
 
     /**
      * Get value by index
     */
     get(index: number, json?: boolean): Maybe<T>|Maybe<JSONValue<T>> {
-        const val = this.data.values[index];
-        if (val == null) return val as Nil;
-        if (!json || !this.valueToJSON) return val;
-        return this.valueToJSON(val);
+        const val = this.data.get(index);
+
+        if (!json || !this.valueToJSON) {
+            return val;
+        }
+
+        if (val == null) return val;
+        return this.valueToJSON(val as T);
     }
 
     /**
      * Create a new Vector with the same metadata but with different data
     */
-    abstract fork(data: Data<T>): Vector<T>;
+    abstract fork(data: ReadableData<T>): Vector<T>;
 
     /**
      * Create a new Vector with the range of values
     */
     slice(start?: number, end?: number): Vector<T> {
-        return this.fork(Object.freeze({
-            values: Object.freeze(
-                this.data.values.slice(start, end)
-            )
-        }));
+        return this.fork(
+            new ReadableData(this.data.slice(start, end))
+        );
     }
 
     /**
@@ -132,10 +141,11 @@ export abstract class Vector<T = unknown> {
             throw new Error(`Sorting is not supported for ${this.constructor.name}`);
         }
 
-        const indices: number[] = Array(this._size);
-        const original: [number, Maybe<T>][] = Array(this._size);
+        const len = this.size;
+        const indices: number[] = Array(len);
+        const original: [number, Maybe<T>][] = Array(len);
 
-        for (let i = 0; i < this._size; i++) {
+        for (let i = 0; i < len; i++) {
             original[i] = [i, this.get(i) as Maybe<T>];
         }
 
@@ -143,7 +153,7 @@ export abstract class Vector<T = unknown> {
             .sort(([, a], [, b]) => this.compare(a, b))
             .forEach(([i], newPosition) => {
                 if (direction === 'desc') {
-                    indices[i] = Math.abs(newPosition - (this._size - 1));
+                    indices[i] = Math.abs(newPosition - (len - 1));
                 } else {
                     indices[i] = newPosition;
                 }
@@ -192,7 +202,7 @@ export type ValueToJSONFn<T> = (value: T, thisArg?: Vector<T>) => any;
  * A list of Vector Options
  */
 export interface VectorOptions<T> {
-    data: Data<T>;
+    data: ReadableData<T>;
     config: Readonly<DataTypeFieldConfig>;
     valueToJSON?: ValueToJSONFn<T>;
     childConfig?: ReadonlyDataTypeFields;

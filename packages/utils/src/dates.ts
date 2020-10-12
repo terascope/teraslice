@@ -37,7 +37,7 @@ export function getValidDate(val: Date|number|string|null|undefined): Date | fal
     return false;
 }
 
-export function isValidDateInstance(val: unknown): boolean {
+export function isValidDateInstance(val: unknown): val is Date {
     // this has to use isNaN not Number.isNaN
     return val instanceof Date && !isNaN(val as any);
 }

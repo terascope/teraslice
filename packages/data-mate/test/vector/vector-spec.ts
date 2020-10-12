@@ -1,14 +1,13 @@
 import 'jest-fixtures';
-import { toString, bigIntToJSON } from '@terascope/utils';
+import { toString, bigIntToJSON, isNotNil } from '@terascope/utils';
 import {
-    DateFormat,
     ESGeoShapeMultiPolygon,
     ESGeoShapePoint,
     ESGeoShapePolygon,
     ESGeoShapeType,
     FieldType, GeoShapeMultiPolygon, GeoShapePoint, GeoShapePolygon, GeoShapeType
 } from '@terascope/types';
-import { Builder, Vector } from '../../src';
+import { Builder, Vector, WritableData } from '../../src';
 
 describe('Vector', () => {
     type Case = [
@@ -70,7 +69,7 @@ describe('Vector', () => {
             [
                 nowDate.toISOString(),
                 nowDate.toISOString(),
-                nowDate.toISOString(),
+                now,
                 '1941-08-20T07:00:00.000Z',
                 null,
                 null
@@ -251,7 +250,10 @@ describe('Vector', () => {
         let vector: Vector<any>;
         let expected: any[];
         beforeAll(() => {
-            const builder = Builder.make({ type, array: false });
+            const builder = Builder.make(
+                { type, array: false },
+                WritableData.make(input.length)
+            );
             input.forEach((val) => builder.append(val));
             vector = builder.toVector();
             expected = (output ?? input).map((val) => {
@@ -272,27 +274,23 @@ describe('Vector', () => {
         });
 
         it('should have the correct distinct values', () => {
-            expect(vector.distinct()).toBe(new Set(expected.map(toString)).size);
+            expect(vector.countUnique()).toBe(new Set(
+                expected.filter(isNotNil).map(toString)
+            ).size);
         });
 
         it('should have the correct field config', () => {
-            if (type === FieldType.Date) {
-                expect(vector.config).toEqual({
-                    type,
-                    format: DateFormat.iso_8601,
-                    array: false
-                });
-            } else {
-                expect(vector.config).toEqual({
-                    type,
-                    array: false
-                });
-            }
+            expect(vector.config).toEqual({
+                type,
+                array: false
+            });
         });
 
         if (invalid?.length) {
             test.each(invalid)('should NOT be able to parse %p', (val) => {
-                const builder = Builder.make({ type, array: false });
+                const builder = Builder.make({
+                    type, array: false
+                }, WritableData.make(invalid.length));
                 expect(() => {
                     builder.append(val);
                 }).toThrowError();
@@ -306,7 +304,7 @@ describe('Vector', () => {
         it('should be immutable', () => {
             expect(() => {
                 // @ts-expect-error
-                vector.data.values[0] = '10';
+                vector.data.values = '10';
             }).toThrow();
         });
     });

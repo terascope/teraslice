@@ -1,4 +1,5 @@
 import { getTypeOf, isBooleanLike, toBoolean } from '@terascope/utils';
+import { WritableData } from '../../core';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 
@@ -10,8 +11,11 @@ export class BooleanBuilder extends Builder<boolean> {
         return toBoolean(value);
     }
 
-    constructor(options: BuilderOptions<boolean>) {
-        super(VectorType.Boolean, {
+    constructor(
+        data: WritableData<boolean>,
+        options: BuilderOptions<boolean>
+    ) {
+        super(VectorType.Boolean, data, {
             valueFrom: BooleanBuilder.valueFrom,
             ...options,
         });

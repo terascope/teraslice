@@ -21,7 +21,7 @@ export class DataFrame {
     ): DataFrame;
 
     /**
-     * The name of the DataFrame
+     * The name of the Frame
     */
     name?: string;
 
@@ -31,7 +31,7 @@ export class DataFrame {
     readonly columns: readonly Column[];
 
     /**
-     * Metadata about the DataFrame
+     * Metadata about the Frame
     */
     readonly metadata: M;
 
@@ -72,13 +72,6 @@ export class DataFrame {
      * Get a column, or columns by index, returns a new DataFrame
     */
     selectAt(...indices: number[]): DataFrame;
-
-    /**
-     * Group DataFrame by columns and return a AggregationFrame instance
-     * which can be used to run aggregations
-    */
-    groupBy(fields: string[]): AggregationFrame;
-
     /**
      * Create a AggregationFrame instance which can be used to run aggregations
     */
@@ -89,6 +82,21 @@ export class DataFrame {
      * Defaults to `asc` if none specified
     */
     orderBy(field: string, direction?: SortOrder): DataFrame;
+
+    /**
+     * An alias to orderBy
+    */
+    sort(field: string, direction?: SortOrder): DataFrame;
+
+    /**
+     * Remove duplicate rows with the same value for select fields
+    */
+    unique(fields: string[]|string): DataFrame;
+
+    /**
+     * Alias for unique
+    */
+    distinct(fields: string[]|string): DataFrame;
 
     /**
      * Filter the DataFrame by fields, all fields must return true
@@ -319,7 +327,7 @@ export abstract class Vector {
     */
     static make(
         config: DataTypeFieldConfig,
-        data: Data,
+        data: ReadableData,
         childConfig?: DataTypeFields
     ): Vector;
 
@@ -354,7 +362,7 @@ export abstract class Vector {
      *
      * @internal
     */
-    readonly data: Data;
+    readonly data: ReadableData;
 
     constructor(options: VectorOptions): Vector;
 
@@ -378,7 +386,7 @@ export abstract class Vector {
     /**
      * Create a new Vector with the same metadata but with different data
     */
-    fork(data: Data): Vector;
+    fork(data: ReadableData): Vector;
 
     /**
      * Create a new Vector with the range of values
@@ -395,7 +403,7 @@ export abstract class Vector {
      * Compare two different values on the Vector type.
      * This can be used for equality or sorted.
     */
-    compare(a: Maybe<T>, b: Maybe<T>): -1|0|1;
+    compare(a: Maybe<any>, b: Maybe<any>): -1|0|1;
 
     /**
      * Convert the Vector an array of values (the output is JSON compatible)
@@ -418,7 +426,7 @@ export abstract class Builder {
     */
     static make(
         config: DataTypeFieldConfig,
-        length?: number,
+        data?: WritableData,
         childConfig?: DataTypeFields
     ): Builder;
 
@@ -426,7 +434,10 @@ export abstract class Builder {
      * Convert a Vector to a Builder with current values
      * populated depending on the length populated
     */
-    static makeFromVector(vector: Vector, length: number): Builder;
+    static makeFromVector(
+        vector: Vector,
+        size: number
+    ): Builder;
 
      /**
      * The type of Vector, this should only be set the specific Vector type classes.
@@ -451,10 +462,9 @@ export abstract class Builder {
     readonly childConfig?: DataTypeFields;
 
     /**
-     * The values used to create the Vector.
-     * Do NOT mutate this.
+     * @internal
     */
-    readonly values: any[];
+    readonly data: WritableData;
 
     /**
      * The current insertion index (used for append)
@@ -474,6 +484,11 @@ export abstract class Builder {
     set(index: number, value: unknown): Builder;
 
     /**
+     * Set a single unique value on multiple indices
+    */
+    mset(value: unknown, indices: number[]): Builder;
+
+    /**
      * Append a value to the end
     */
     append(value: unknown): Builder;
@@ -489,20 +504,34 @@ export abstract class Builder {
 
 ```ts
 /**
- * A frame dedicated to running a aggregations
+ * A deferred execution frame dedicated to running a aggregations.
+ *
+ * This is different from a DataFrame for a few reasons:
+ *  - GroupBy and aggregations have to run at the same time in-order to get the correctly results.
+ *  - The operations are added to an instruction set and in one optimized execution.
+ *  - All methods in the AggregationFrame will mutate the execution
+ *    instructions instead of return a new instance with the applied changes.
 */
 export class AggregationFrame {
     /**
-     * The columns for the AggregationFrame
+     * The name of the Frame
+    */
+    name?: string;
+
+    /**
+     * The list of columns
     */
     columns: readonly Column[];
 
     /**
-     * The keys to group by
+     * Metadata about the Frame
     */
-    readonly keyBy: readonly string[];
+    readonly metadata: Record<string, any>;
 
-    constructor(columns: Column[], keyBy?: string[]): AggregationFrame;
+    constructor(
+        columns: Column[],
+        options?: DataFrameOptions
+    ): AggregationFrame;
 
     /**
      * Calculate the average value in a column
@@ -512,7 +541,7 @@ export class AggregationFrame {
      * @param field the name of the column to run the aggregation on
      * @param as a optional name for the new column with the aggregated values
     */
-    avg(field: string, as?: string): AggregationFrame;
+    avg(field: string, as?: string): this;
 
     /**
      * Add all of the values in a column together
@@ -522,7 +551,7 @@ export class AggregationFrame {
      * @param field the name of the column to run the aggregation on
      * @param as a optional name for the new column with the aggregated values
     */
-    sum(field: string, as?: string): AggregationFrame;
+    sum(field: string, as?: string): this;
 
     /**
      * Find the minimum value in a column
@@ -532,7 +561,7 @@ export class AggregationFrame {
      * @param field the name of the column to run the aggregation on
      * @param as a optional name for the new column with the aggregated values
     */
-    min(field: string, as?: string): AggregationFrame;
+    min(field: string, as?: string): this;
 
     /**
      * Find the maximum value in a column
@@ -542,7 +571,7 @@ export class AggregationFrame {
      * @param field the name of the column to run the aggregation on
      * @param as a optional name for the new column with the aggregated values
     */
-    max(field: string, as?: string): AggregationFrame;
+    max(field: string, as?: string): this;
 
     /**
      * Count all of the values in a column
@@ -550,15 +579,7 @@ export class AggregationFrame {
      * @param field the name of the column to run the aggregation on
      * @param as a optional name for the new column with the aggregated values
     */
-    count(field: string, as?: string): AggregationFrame;
-
-    /**
-     * Create a groups of unique values
-     *
-     * @param field the name of the column to run the aggregation on
-     * @param as a optional name for the new column with the aggregated values
-    */
-    unique(field: string): AggregationFrame;
+    count(field: string, as?: string): this;
 
     /**
      * Group the data in hourly buckets
@@ -567,7 +588,7 @@ export class AggregationFrame {
      *
      * @param field the name of the column to run the aggregation on
     */
-    hourly(field: string): AggregationFrame;
+    hourly(field: string): this;
 
     /**
      * Group the data in daily buckets
@@ -576,7 +597,7 @@ export class AggregationFrame {
      *
      * @param field the name of the column to run the aggregation on
     */
-    daily(field: string): AggregationFrame;
+    daily(field: string): this;
 
     /**
      * Group the data in monthly buckets
@@ -585,7 +606,7 @@ export class AggregationFrame {
      *
      * @param field the name of the column to run the aggregation on
     */
-    monthly(field: string): AggregationFrame;
+    monthly(field: string): this;
 
     /**
      * Group the data in yearly buckets
@@ -594,18 +615,52 @@ export class AggregationFrame {
      *
      * @param field the name of the column to run the aggregation on
     */
-    yearly(field: string): AggregationFrame;
+    yearly(field: string): this;
 
     /**
-     * Run aggregations and flatten the grouped data into a DataFrame
+     * Execute and run aggregations and flatten the grouped data into a DataFrame
      * @returns the new columns
     */
-    run(): Promise<Column[]>;
+    run(): Promise<DataFrame>;
+
+    /**
+     * Execute the aggregations and flatten the grouped data.
+     * Assigns the new columns to this.
+    */
+    execute(): Promise<this>;
+
+    /**
+     * Order the rows by fields, format of is `field:asc` or `field:desc`.
+     * Defaults to `asc` if none specified
+    */
+    orderBy(field: string, direction?: SortOrder): this;
+
+    /**
+     * Sort the records by a field, an alias of orderBy.
+     *
+     * @see orderBy
+    */
+    sort(field: string, direction?: SortOrder): this;
+
+    /**
+     * Limit the number of results being returned
+    */
+    limit(num: number): this;
+
+    /**
+     * Get a column by name
+    */
+    getColumn(name: string): Column|undefined;
+
+    /**
+     * Get a column by index
+    */
+    getColumnAt(index: number): Column|undefined;
 
     /**
      * Reset the Aggregations
     */
-    clear(): void;
+    clear(): this;
 }
 ```
 
@@ -680,14 +735,15 @@ dataFrame = dataFrame.assign([upperCaseName]);
 // ...
 // Count the number of records for each gender
 // ...
-const aggregatedColumns = await dataFrame
+const resultFrame = await dataFrame
     .select('name', 'gender')
-    .groupBy(['gender'])
+    .aggregate()
+    .groupBy('gender')
     .count('gender', 'count_per_gender')
+    .orderBy('count_per_gender')
     .run();
 // => [
-//       Column(name)['JILL', 'BILLY'],
-//       Column(gender)['F', 'M']
-//       Column(count_per_gender)[1, 2]
+//       { name: 'JILL', gender: 'F', count_per_gender: 1 },
+//       { name: 'BILLY', gender: 'M', count_per_gender: 2 }
 //    ]
 ```
