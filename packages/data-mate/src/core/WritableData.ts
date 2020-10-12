@@ -76,16 +76,28 @@ export class WritableData<T> {
     /**
      * Resize the number of values
     */
-    resize(size: number): this {
+    resize(size: number, skipIndicesCheck = false): this {
         this._size = size;
+        if (skipIndicesCheck) return this;
+
+        const gt = makeGreaterThan(size);
+        for (const [value, indices] of this.values) {
+            const newIndices = indices.filter(gt);
+            if (!newIndices.length) this.values.delete(value);
+            else this.values.set(value, newIndices);
+        }
         return this;
     }
+}
+
+function makeGreaterThan(input: number) {
+    return (num: number) => num > input;
 }
 
 function* fromToIterable<T>(
     from: readonly ReadableDataValue<T>[],
 ): Iterable<[T, WritableDataValue]> {
     for (const val of from) {
-        yield [val.v, val.i.slice()];
+        if (val.i.length) yield [val.v, val.i.slice()];
     }
 }

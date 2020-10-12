@@ -7,7 +7,9 @@ import { Column, KeyAggFn, makeUniqueKeyAgg } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import {
     buildRecords, columnsToBuilderEntries, columnsToDataTypeConfig,
-    concatColumnsToColumns, createColumnsWithIndices, distributeRowsToColumns, processFieldFilter
+    concatColumnsToColumns, createColumnsWithIndices,
+    distributeRowsToColumns, makeKeyForRow, makeUniqueRowBuilder,
+    processFieldFilter
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
 import { createHashCode, freezeArray } from '../core';
@@ -234,14 +236,15 @@ export class DataFrame<
     }
 
     /**
-     * FIXME
+     * Reduce duplicate rows with the same value for select fields
     */
     unique(fields: (keyof T)[]|keyof T): DataFrame<T> {
         const buckets = new Set<string>();
         const keyAggs = new Map<keyof T, KeyAggFn>();
 
+        const columns = new Map(this.columns.map((col) => [col.name, col]));
         for (const name of castArray(fields)) {
-            const column = this.getColumn(name);
+            const column = columns.get(name);
             if (column) {
                 keyAggs.set(column.name, makeUniqueKeyAgg(column.vector));
             } else {
@@ -251,37 +254,22 @@ export class DataFrame<
 
         const builders = getBuildersForConfig<T>(this.config, this.size);
 
-        for (let i = 0; i < this.size; i++) {
-            const keyValues: Partial<T> = {};
+        const rowBuilder = makeUniqueRowBuilder(
+            builders,
+            buckets,
+            (name, i) => columns.get(name)!.vector.get(i)
+        );
 
-            let key = '';
-            for (const [field, getKey] of keyAggs) {
-                const res = getKey(i);
-                if (res.key) key += res.key;
-                keyValues[field] = res.value as any;
-            }
-
-            if (!key && keyAggs.size) continue;
-
-            const groupKey = createHashCode(key);
-            if (!buckets.has(groupKey)) {
-                const resultIndex = buckets.size;
-                buckets.add(groupKey);
-
-                for (const [name, builder] of builders) {
-                    if (name in keyValues) {
-                        builder.set(resultIndex, keyValues[name]);
-                    } else {
-                        const col = this.getColumn(name)!;
-                        builder.set(resultIndex, col.vector.get(i));
-                    }
-                }
+        for (let i = 0; i < this._size; i++) {
+            const res = makeKeyForRow(keyAggs, i);
+            if (res && !buckets.has(res.key)) {
+                rowBuilder(res.row, res.key, i);
             }
         }
 
         return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => {
-            builder.data.resize(buckets.size);
-            return this.getColumn(name)!.fork(builder.toVector());
+            builder.data.resize(buckets.size, true);
+            return columns.get(name)!.fork(builder.toVector());
         }));
     }
 

@@ -86,11 +86,13 @@ export class ReadableData<T> {
     /**
      * Fork the Data object with specific length.
      *
-     * @param size optionally increase the size of the Data
+     * @param size optionally change the size of the Data
     */
     toWritable(size = this.size): WritableData<T> {
         if (size < this.size) {
-            throw new Error('ReadableData.toWritable doesn\'t support decreasing the number of values');
+            return new WritableData<T>(
+                this.size, this.values
+            ).resize(size);
         }
 
         return new WritableData<T>(size, this.values);

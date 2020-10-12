@@ -4,7 +4,8 @@ import {
     DataTypeFields, DataTypeVersion
 } from '@terascope/types';
 import { Builder, getBuildersForConfig } from '../builder';
-import { Column } from '../column';
+import { Column, KeyAggFn } from '../column';
+import { createHashCode } from '../core';
 import { ListVector, ObjectVector } from '../vector';
 
 export function buildRecords<T extends Record<string, any>>(
@@ -136,4 +137,44 @@ export function createColumnsWithIndices<T extends Record<string, any>>(
         return col.fork(builders.get(col.name)!.toVector());
     }
     return columns.map(finish);
+}
+
+export function makeUniqueRowBuilder<T extends Record<string, any>>(
+    builders: Map<keyof T, Builder<any>>,
+    buckets: Set<string>,
+    getColumnValue: (name: keyof T, i: number) => any
+) {
+    return function uniqueRowBuilder(row: Partial<T>, key: string, index: number): void {
+        const resultIndex = buckets.size;
+        buckets.add(key);
+
+        for (const [name, builder] of builders) {
+            if (name in row) {
+                builder.set(resultIndex, row[name]);
+            } else {
+                builder.set(resultIndex, getColumnValue(name, index));
+            }
+        }
+    };
+}
+
+export function makeKeyForRow<T extends Record<string, any>>(
+    keyAggs: Map<keyof T, KeyAggFn>,
+    index: number
+): { row: Partial<T>; key: string }|undefined {
+    const row: Partial<T> = {};
+    let valueKey = '';
+    for (const [field, getKey] of keyAggs) {
+        const res = getKey(index);
+        if (res.key) valueKey += res.key;
+        row[field] = res.value as any;
+    }
+
+    if (!valueKey && keyAggs.size) return;
+
+    const groupKey = createHashCode(valueKey);
+    return {
+        row,
+        key: groupKey,
+    };
 }
