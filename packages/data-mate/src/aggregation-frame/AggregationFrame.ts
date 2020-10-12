@@ -1,14 +1,15 @@
-import { FieldType, SortOrder } from '@terascope/types';
+import { DataTypeConfig, FieldType, SortOrder } from '@terascope/types';
 import { pImmediate } from '@terascope/utils';
 import {
     Column,
     KeyAggregation, ValueAggregation, valueAggMap,
-    FieldAgg, KeyAggFn, keyAggMap
+    FieldAgg, KeyAggFn, keyAggMap, makeUniqueKeyAgg
 } from '../column';
 import { isNumberLike } from '../vector';
 import { Builder } from '../builder';
 import { getBuilderForField, getMaxColumnSize } from './utils';
 import { createHashCode, freezeArray } from '../core';
+import { columnsToDataTypeConfig } from '../data-frame/utils';
 
 /**
  * A deferred execution frame dedicated to running a aggregations.
@@ -59,6 +60,11 @@ export class AggregationFrame<
 
     protected readonly _aggregations = new Map<keyof T, AggObject>();
 
+    /**
+     * Group By fields
+    */
+    protected readonly _groupByFields: (keyof T)[];
+
     constructor(
         columns: Column<any, keyof T>[]|readonly Column<any, keyof T>[],
         options: AggregationFrameOptions
@@ -66,6 +72,33 @@ export class AggregationFrame<
         this.columns = freezeArray(columns);
         this.name = options?.name;
         this.metadata = options?.metadata ? { ...options.metadata } : {};
+        this._groupByFields = [];
+    }
+
+    /**
+     * Get the number of records in the AggregationFrame
+    */
+    get size(): number {
+        return getMaxColumnSize(this.columns);
+    }
+
+    /**
+     * Generate the DataType config from the columns.
+    */
+    get config(): DataTypeConfig {
+        return columnsToDataTypeConfig(this.columns);
+    }
+
+    get id(): string {
+        throw new Error(`${this.constructor.name}.id is currently unsupported`);
+    }
+
+    /**
+     * GroupBy fields
+    */
+    groupBy(fields: (keyof T)[]): this {
+        this._groupByFields.push(...fields);
+        return this;
     }
 
     /**
@@ -191,20 +224,6 @@ export class AggregationFrame<
         aggObject.value = ValueAggregation.count;
         this._aggregations.set(name, aggObject);
         return this as AggregationFrame<T|WithAlias<T, A, number>>;
-    }
-
-    /**
-     * Create a groups of unique values
-     *
-     * @param field the name of the column to run the aggregation on
-     * @param as a optional name for the new column with the aggregated values
-    */
-    [KeyAggregation.unique](field: keyof T): this {
-        const { name } = this._ensureColumn(field);
-        const aggObject = this._aggregations.get(name) ?? { };
-        aggObject.key = KeyAggregation.unique;
-        this._aggregations.set(name, aggObject);
-        return this;
     }
 
     /**
@@ -384,10 +403,11 @@ export class AggregationFrame<
     /**
      * Reset the Aggregations
     */
-    clear(): this {
+    reset(): this {
         this._limit = undefined;
         this._sortField = undefined;
         this._sortDirection = undefined;
+        this._groupByFields.length = 0;
         this._aggregations.clear();
         return this;
     }
@@ -398,7 +418,7 @@ export class AggregationFrame<
     ): Promise<Map<string, any[]>> {
         const buckets = new Map<string, any[]>();
 
-        const count = getMaxColumnSize(this.columns);
+        const count = this.size;
         for (let i = 0; i < count; i++) {
             const row: Partial<T> = {};
 
@@ -477,11 +497,22 @@ export class AggregationFrame<
             const agg = this._aggregations.get(col.name);
             let addToOther = true;
 
+            const isInGroupBy = this._groupByFields.includes(col.name);
+            if (isInGroupBy) {
+                keyAggs.set(col.name, makeUniqueKeyAgg(col.vector));
+                addToOther = false;
+            }
+
             if (agg) {
                 if (agg.value) {
                     fieldAggs.set(col.name, valueAggMap[agg.value](col.vector));
                 }
                 if (agg.key) {
+                    if (isInGroupBy) {
+                        throw new Error(
+                            `Invalid to combination of groupBy and ${agg.key} for field ${col.name}`
+                        );
+                    }
                     keyAggs.set(col.name, keyAggMap[agg.key](col.vector));
                     addToOther = false;
                 }

@@ -175,7 +175,6 @@ function makeCountAgg(): FieldAgg {
 }
 
 export enum KeyAggregation {
-    unique = 'unique',
     hourly = 'hourly',
     daily = 'daily',
     monthly = 'monthly',
@@ -187,7 +186,6 @@ export type KeyAggFn = (index: number) => {
 };
 export type MakeKeyAggFn = (col: Vector<unknown>) => KeyAggFn;
 export const keyAggMap: Record<KeyAggregation, MakeKeyAggFn> = {
-    [KeyAggregation.unique]: makeUniqueKeyAgg,
     [KeyAggregation.hourly]: makeDateAgg('yyyy:MM:dd:hh'),
     [KeyAggregation.daily]: makeDateAgg('yyyy:MM:dd'),
     [KeyAggregation.monthly]: makeDateAgg('yyyy:MM'),
@@ -206,7 +204,7 @@ function makeDateAgg(dateFormat: string): MakeKeyAggFn {
     };
 }
 
-function makeUniqueKeyAgg(vector: Vector<unknown>): KeyAggFn {
+export function makeUniqueKeyAgg(vector: Vector<unknown>): KeyAggFn {
     return (index) => {
         const value = vector.get(index);
         if (value == null) {

@@ -152,9 +152,7 @@ export class DataFrame<
     */
     groupBy(fields: (keyof T)[]|keyof T): AggregationFrame<T> {
         const aggregationFrame = this.aggregate();
-        for (const field of castArray(fields)) {
-            aggregationFrame.unique(field);
-        }
+        aggregationFrame.groupBy(castArray(fields));
         return aggregationFrame;
     }
 
@@ -233,6 +231,13 @@ export class DataFrame<
             indices,
             indices.size
         ));
+    }
+
+    /**
+     * FIXME
+    */
+    unique(_fields: (keyof T)[]|keyof T): DataFrame<T> {
+        return this;
     }
 
     /**

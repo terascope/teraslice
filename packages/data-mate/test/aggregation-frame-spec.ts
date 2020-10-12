@@ -331,8 +331,8 @@ describe('AggregationFrame', () => {
 
     describe('->unique(name)', () => {
         it('should get the right result when using groupBy(gender)', async () => {
-            const grouped = dataFrame.groupBy(['gender']);
-            const resultFrame = await grouped.unique('name').run();
+            let resultFrame = await dataFrame.groupBy(['gender']).run();
+            resultFrame = resultFrame.unique(['name']);
 
             expect(resultFrame.toJSON()).toEqual([
                 {
@@ -384,70 +384,11 @@ describe('AggregationFrame', () => {
                 }
             ]);
         });
-
-        it('should get the right result when using it with count(name)', async () => {
-            const grouped = dataFrame.groupBy(['gender']);
-            const resultFrame = await grouped
-                .unique('name')
-                .count('name')
-                .run();
-
-            expect(resultFrame.toJSON()).toEqual([
-                {
-                    name: 1,
-                    age: 64,
-                    gender: 'M',
-                    scores: [4, 9, 3],
-                    date: '2020-09-15T17:39:11.195Z',
-                },
-                {
-                    name: 2,
-                    age: 25,
-                    gender: 'M',
-                    scores: [2, 4, 19],
-                    date: '2020-09-15T16:39:11.195Z',
-                },
-                {
-                    name: 1,
-                    age: 40,
-                    gender: 'F',
-                    scores: [2, 2, 2],
-                    date: '2020-09-15T15:39:11.195Z',
-                },
-                {
-                    name: 1,
-                    age: 32,
-                    gender: 'F',
-                    scores: [20, 4, 19],
-                    date: '2020-09-15T15:39:11.195Z',
-                },
-                {
-                    name: 1,
-                    age: 20,
-                    gender: 'M',
-                    scores: [50, 4, 19],
-                    date: '2020-09-13T17:39:11.195Z',
-                },
-                {
-                    name: 1,
-                    age: 84,
-                    gender: 'F',
-                    scores: [1, 0, 0],
-                    date: '2019-09-15T17:39:11.195Z',
-                },
-                {
-                    name: 1,
-                    scores: [1, 1, 10, null],
-                    date: '2018-01-15T10:39:11.195Z',
-                }
-            ]);
-        });
     });
 
     describe('->unique(scores)', () => {
         it('should get the right result when using aggregate()', async () => {
-            const grouped = dataFrame.aggregate();
-            const resultFrame = await grouped.unique('scores').run();
+            const resultFrame = await dataFrame.unique('scores');
             expect(resultFrame.toJSON()).toEqual([
                 {
                     name: 'Billy',

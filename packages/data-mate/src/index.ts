@@ -41,9 +41,21 @@ AggregationFrame.prototype.run = async function run() {
         );
     }
 
-    this.clear();
+    this.reset();
     return dataFrame;
 };
+
+const aggregationFrameMethods = Reflect.ownKeys(AggregationFrame.prototype);
+for (const dataFrameMethod of Reflect.ownKeys(DataFrame.prototype)) {
+    if (!aggregationFrameMethods.includes(dataFrameMethod)) {
+        AggregationFrame.prototype[dataFrameMethod] = () => {
+            throw new Error(
+                `Unsupported method on ${String(dataFrameMethod)} AggregationFrame.
+Use it before DataFrame.aggregate/DataFrame.groupBy or after AggregationFrame.run()`
+            );
+        };
+    }
+}
 
 export * from './aggregation-frame';
 export * from './aggregations';
