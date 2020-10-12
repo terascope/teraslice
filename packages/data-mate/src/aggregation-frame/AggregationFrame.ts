@@ -51,7 +51,7 @@ export class AggregationFrame<
      * The field to sort by
      * @internal
     */
-    _sortField?: readonly (keyof T)[];
+    _sortFields?: readonly (keyof T)[];
 
     /**
      * When _sortField is set, this will determine the direction to sort the fields
@@ -70,7 +70,12 @@ export class AggregationFrame<
     /**
      * Group By fields
     */
-    protected readonly _groupByFields: (keyof T)[];
+    protected _groupByFields: readonly (keyof T)[];
+
+    /**
+     * The field to sort by
+    */
+    protected _selectFields?: readonly (keyof T)[];
 
     constructor(
         columns: Column<any, keyof T>[]|readonly Column<any, keyof T>[],
@@ -105,9 +110,9 @@ export class AggregationFrame<
      * GroupBy fields
     */
     groupBy(...fieldArg: FieldArg<keyof T>[]): this {
-        this._groupByFields.push(
-            ...getFieldsFromArg(this.fields, fieldArg)
-        );
+        this._groupByFields = Object.freeze(this._groupByFields.concat(
+            Array.from(getFieldsFromArg(this.fields, fieldArg))
+        ));
         return this;
     }
 
@@ -318,7 +323,7 @@ export class AggregationFrame<
             throw new Error('AggregationFrame.orderBy can only works with one field currently');
         }
 
-        this._sortField = [...fields];
+        this._sortFields = Object.freeze([...fields]);
         this._sortDirection = direction;
         return this;
     }
@@ -338,6 +343,14 @@ export class AggregationFrame<
     limit(num: number): this {
         this._limit = num;
         return this;
+    }
+
+    /**
+     * After the aggregations run, return only these selected fields
+    */
+    select<K extends keyof T>(...fieldArg: FieldArg<K>[]): AggregationFrame<Pick<T, K>> {
+        this._selectFields = Object.freeze([...getFieldsFromArg(this.fields, fieldArg)]);
+        return this as any;
     }
 
     /**
@@ -362,26 +375,45 @@ export class AggregationFrame<
         name: K,
         renameTo: R,
     ): AggregationFrame<Omit<T, K> & Record<R, T[K]>> {
-        this.columns = Object.freeze(this.columns.map((col): Column<any, any> => {
-            if (col.name !== name) return col;
-            return col.rename(renameTo);
-        }));
+        this.columns = Object.freeze(
+            this.columns.map((col): Column<any, any> => {
+                if (col.name !== name) return col;
+                return col.rename(renameTo);
+            })
+        );
 
         this.fields = Object.freeze(this.fields.map((field) => {
             if (field === name) return renameTo;
             return field;
         }));
 
-        this._sortField = this._sortField ? Object.freeze(this._sortField.map((field) => {
-            if (field === name) return renameTo;
-            return field;
-        })) : this._sortField;
+        this._sortFields = this._sortFields ? Object.freeze(
+            this._sortFields.map((field) => {
+                if (field === name) return renameTo;
+                return field;
+            })
+        ) : this._sortFields;
+
+        this._selectFields = this._selectFields ? Object.freeze(
+            this._selectFields.map((field) => {
+                if (field === name) return renameTo;
+                return field;
+            })
+        ) : this._selectFields;
+
+        this._groupByFields = Object.freeze(
+            this._groupByFields.map((field) => {
+                if (field === name) return renameTo;
+                return field;
+            })
+        );
 
         const agg = this._aggregations.get(name);
         if (agg) {
             this._aggregations.delete(name);
             this._aggregations.set(renameTo, agg);
         }
+
         return this as any;
     }
 
@@ -474,9 +506,10 @@ export class AggregationFrame<
     */
     reset(): this {
         this._limit = undefined;
-        this._sortField = undefined;
+        this._sortFields = undefined;
         this._sortDirection = undefined;
-        this._groupByFields.length = 0;
+        this._selectFields = undefined;
+        this._groupByFields = Object.freeze([]);
         this._aggregations.clear();
         return this;
     }
@@ -520,7 +553,9 @@ export class AggregationFrame<
             const builder = getBuilderForField(
                 col, buckets.size, agg?.key, agg?.value
             );
-            builders.set(col.name, builder);
+            if (!this._selectFields?.length || this._selectFields.includes(col.name)) {
+                builders.set(col.name, builder);
+            }
         }
         return builders;
     }

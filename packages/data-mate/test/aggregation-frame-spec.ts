@@ -608,4 +608,32 @@ describe('AggregationFrame', () => {
             ]);
         });
     });
+
+    describe('when using the column manipulations', () => {
+        it('should handle a complex set of manipulations', async () => {
+            const resultFrame = await dataFrame.aggregate()
+                .limit(3)
+                .groupBy('name')
+                .count('name', 'count')
+                .yearly('date')
+                .select('name', 'count')
+                .orderBy('name', 'desc')
+                .run();
+
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'Nick',
+                    count: 1,
+                },
+                {
+                    name: 'Nancy',
+                    count: 1,
+                },
+                {
+                    name: 'Joey',
+                    count: 1,
+                }
+            ]);
+        });
+    });
 });

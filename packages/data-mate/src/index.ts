@@ -29,9 +29,9 @@ AggregationFrame.prototype.run = async function run() {
         metadata: this.metadata,
     });
 
-    if (this._sortField) {
+    if (this._sortFields) {
         dataFrame = dataFrame.orderBy(
-            this._sortField as any,
+            this._sortFields as any,
             this._sortDirection
         );
     }
