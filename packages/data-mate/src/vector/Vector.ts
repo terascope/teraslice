@@ -100,8 +100,8 @@ export abstract class Vector<T = unknown> {
     /**
      * Gets the number distinct values in the Vector
     */
-    distinct(): number {
-        return this.data.distinct();
+    countUnique(): number {
+        return this.data.countUnique();
     }
 
     /**

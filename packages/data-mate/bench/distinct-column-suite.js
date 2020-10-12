@@ -10,9 +10,9 @@ const run = async () => {
     const dataFrame = DataFrame.fromJSON(config, data);
     for (const column of dataFrame.columns) {
         const fieldInfo = `${column.name} (${column.config.type}${column.config.array ? '[]' : ''})`;
-        suite.add(`(${column.vector.distinct()} distinct) ${fieldInfo}`, {
+        suite.add(`(${column.vector.countUnique()} distinct) ${fieldInfo}`, {
             fn() {
-                column.vector.distinct();
+                column.vector.countUnique();
             }
         });
     }

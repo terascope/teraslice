@@ -44,7 +44,7 @@ describe('ListVector', () => {
         });
 
         it('should have the correct distinct values', () => {
-            expect(vector.distinct()).toBe(new Set(
+            expect(vector.countUnique()).toBe(new Set(
                 expected.filter(isNotNil).map(toString)
             ).size);
         });

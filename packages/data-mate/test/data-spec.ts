@@ -37,7 +37,7 @@ describe('Data', () => {
             });
 
             it('should have the correct distinct values', () => {
-                expect(readable.distinct()).toEqual(size);
+                expect(readable.countUnique()).toEqual(size);
             });
 
             it('should be able to get all of the values', () => {
@@ -69,7 +69,7 @@ describe('Data', () => {
             });
 
             it('should have the correct distinct values', () => {
-                expect(readable.distinct()).toEqual(2);
+                expect(readable.countUnique()).toEqual(2);
             });
 
             it('should be able to get all of the values', () => {
@@ -93,6 +93,10 @@ describe('Data', () => {
                 expect(readable.indices).toStrictEqual(indices);
             });
 
+            it('should be a primitive', () => {
+                expect(readable.isPrimitive).toBeTrue();
+            });
+
             it('should have the correct values', () => {
                 expect(readable.values).toStrictEqual([
                     { v: 'a0', i: [0] },
@@ -103,7 +107,7 @@ describe('Data', () => {
             });
 
             it('should have the correct distinct values', () => {
-                expect(readable.distinct()).toEqual(4);
+                expect(readable.countUnique()).toEqual(4);
             });
 
             it('should be able to get all of the values', () => {
@@ -164,6 +168,10 @@ describe('Data', () => {
                 readable = new ReadableData(writable);
             });
 
+            it('should be a primitive', () => {
+                expect(readable.isPrimitive).toBeTrue();
+            });
+
             it('should have the correct indices', () => {
                 const indices = Uint8Array.of(0, 0, 0, 0, 0, 0, 0, 0);
                 expect(readable.indices).toStrictEqual(indices);
@@ -174,7 +182,7 @@ describe('Data', () => {
             });
 
             it('should have the correct distinct values', () => {
-                expect(readable.distinct()).toEqual(0);
+                expect(readable.countUnique()).toEqual(0);
             });
 
             it('should be able to get all of the values', () => {
@@ -241,7 +249,7 @@ describe('Data', () => {
         });
 
         it('should have the correct distinct values', () => {
-            expect(readable.distinct()).toEqual(2);
+            expect(readable.countUnique()).toEqual(2);
         });
 
         it('should be able to get all of the values', () => {

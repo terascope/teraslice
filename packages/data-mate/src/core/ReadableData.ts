@@ -19,23 +19,22 @@ export class ReadableData<T> {
     */
     readonly size: number;
 
+    /**
+     * A flag to indicate whether the values stored a javascript primitive.
+     * For example, boolean, string, symbol, number, bigint, etc.
+     * If false the values will require more complicated unique checks
+     *
+     * @default true
+    */
+    readonly isPrimitive: boolean;
+
     constructor(data: WritableData<T>) {
         this.values = Array.from(data.values, fromValue);
         this.size = data.size;
+        this.isPrimitive = this.values.length
+            ? typeof this.values[0].v !== 'object'
+            : true;
         Object.freeze(this);
-    }
-
-    /**
-    * A flag to indicate whether the values stored a javascript primitive.
-    * For example, boolean, string, symbol, number, bigint, etc.
-    * If false the values will require more complicated unique checks
-    *
-    * @default true
-    */
-    get isPrimitive(): boolean {
-        const [val] = this.values;
-        if (val == null) return true;
-        return typeof val.v !== 'object';
     }
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
@@ -72,15 +71,36 @@ export class ReadableData<T> {
     }
 
     /**
-     * Get the distinct values.
+     * Get the count of distinct values.
      *
      * @note this is O(1) for non-object types and O(n) + extra hashing logic for larger objects
     */
-    distinct(): number {
+    countUnique(): number {
         if (this.isPrimitive) {
             return this.values.length;
         }
-        return new Set(this.getValuePrimitivesOrHash()).size;
+        return new Set(this.unique()).size;
+    }
+
+    /**
+     * An iterable of the unique values
+    */
+    * unique(): Iterable<T> {
+        if (this.isPrimitive) {
+            for (const val of this.values) {
+                yield val.v;
+            }
+            return;
+        }
+
+        const hashes = new Set<string>();
+        for (const val of this.values) {
+            const hash = getHashCodeFrom(val.v);
+            if (!hashes.has(hash)) {
+                hashes.add(hash);
+                yield val.v;
+            }
+        }
     }
 
     /**
@@ -116,20 +136,6 @@ export class ReadableData<T> {
         }
 
         return data;
-    }
-
-    /**
-     * Get an iterable for getting the primitive values
-    */
-    * getValuePrimitivesOrHash(): Iterable<any> {
-        if (this.isPrimitive) {
-            yield* this;
-            return;
-        }
-
-        for (const { v: value } of this.values) {
-            yield getHashCodeFrom(value);
-        }
     }
 }
 
