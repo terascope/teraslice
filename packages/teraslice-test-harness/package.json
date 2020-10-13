@@ -33,10 +33,10 @@
         "@terascope/teraslice-op-test-harness": "^1.23.0"
     },
     "devDependencies": {
-        "@terascope/job-components": "^0.42.1"
+        "@terascope/job-components": "^0.42.2"
     },
     "peerDependencies": {
-        "@terascope/job-components": "^0.42.1"
+        "@terascope/job-components": "^0.42.2"
     },
     "engines": {
         "node": ">=10.16.0"
