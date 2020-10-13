@@ -31,7 +31,7 @@
     },
     "resolutions": {
         "@turf/clean-coords": "^6.0.1",
-        "@types/lodash": "^4.14.158",
+        "@types/lodash": "^4.14.162",
         "debug": "^4.1.1",
         "ms": "^2.1.2",
         "typescript": "~4.0.2"
