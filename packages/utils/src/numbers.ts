@@ -1,5 +1,16 @@
 import { getTypeOf } from './deps';
 
+let supportsBigInt = true;
+try {
+    if (typeof globalThis.BigInt === 'undefined') {
+        console.warn('BigInt isn\'t supported in this environment');
+        supportsBigInt = false;
+    }
+} catch (err) {
+    console.warn('BigInt isn\'t supported in this environment');
+    supportsBigInt = false;
+}
+
 /** A native implementation of lodash random */
 export function random(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -24,6 +35,9 @@ export function isBigInt(input: unknown): input is bigint {
 
 /** Convert any input to a bigint */
 export function toBigInt(input: unknown): bigint|false {
+    if (!supportsBigInt) {
+        throw new Error('BigInt isn\'t supported in this environment');
+    }
     try {
         return toBigIntOrThrow(input);
     } catch {
@@ -34,6 +48,9 @@ export function toBigInt(input: unknown): bigint|false {
 /** Convert any input to a bigint */
 export function toBigIntOrThrow(input: unknown): bigint {
     if (isBigInt(input)) return input;
+    if (!supportsBigInt) {
+        throw new Error('BigInt isn\'t supported in this environment');
+    }
 
     if (Number.isSafeInteger(input)) {
         return BigInt(input);
@@ -46,7 +63,10 @@ export function toBigIntOrThrow(input: unknown): bigint {
     return BigInt(Number.parseInt(input as any, 10));
 }
 
-const _maxBigInt = BigInt(Number.MAX_SAFE_INTEGER);
+const _maxBigInt: bigint = supportsBigInt
+    ? BigInt(Number.MAX_SAFE_INTEGER)
+    : (Number.MAX_SAFE_INTEGER as any);
+
 /**
  * Convert a BigInt to either a number of a string
 */
