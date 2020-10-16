@@ -114,13 +114,30 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function mget(query, fullResponse = false) {
-        return _clientRequest('mget', query)
+        return _clientRequest('mget', _checkType(query))
             .then((results) => {
                 if (fullResponse) return results;
                 return results.docs
                     .filter((doc) => doc.found)
                     .map(convertDocToDataEntity);
             });
+    }
+
+    function _checkType(data) {
+        const esVersion = getESVersion();
+
+        if (esVersion >= 7) {
+            if (Array.isArray(data)) {
+                return data.map((d) => {
+                    const [value] = Object.values(d);
+                    delete value._type;
+                    return d;
+                });
+            }
+            delete data.type;
+        }
+
+        return data;
     }
 
     function getFn(query, fullResponse = false) {
@@ -132,23 +149,23 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function indexFn(query) {
-        return _clientRequest('index', query);
+        return _clientRequest('index', _checkType(query));
     }
 
     function indexWithId(query) {
-        return _clientRequest('index', query).then(() => query.body);
+        return _clientRequest('index', _checkType(query)).then(() => query.body);
     }
 
     function create(query) {
-        return _clientRequest('create', query).then(() => query.body);
+        return _clientRequest('create', _checkType(query)).then(() => query.body);
     }
 
     function update(query) {
-        return _clientRequest('update', query).then(() => query.body.doc);
+        return _clientRequest('update', _checkType(query)).then(() => query.body.doc);
     }
 
     function remove(query) {
-        return _clientRequest('delete', query).then((result) => result.found);
+        return _clientRequest('delete', _checkType(query)).then((result) => result.found);
     }
 
     function indexExists(query) {
@@ -334,7 +351,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                     });
             }
 
-            _sendData(data);
+            _sendData(_checkType(data));
         });
     }
 
