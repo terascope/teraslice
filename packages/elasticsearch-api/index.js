@@ -124,14 +124,11 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function _checkType(data) {
-        const esVersion = getESVersion();
-
-        if (esVersion >= 7) {
+        if (getESVersion() >= 7) {
             if (Array.isArray(data)) {
-                return data.map((d) => {
-                    const [value] = Object.values(d);
-                    delete value._type;
-                    return d;
+                return data.map((i) => {
+                    delete Object.values(i)[0]._type;
+                    return i;
                 });
             }
             delete data.type;
