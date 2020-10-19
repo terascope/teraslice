@@ -624,7 +624,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     function _removeTypeFromBulkRequest(query) {
         return query.map((queryItem) => {
             if (isSimpleObject(queryItem)) {
-                // determine if the array item is the metadata or the record
+                // get the metadata and ignore the record
                 const bulkMetaData = _getBulkMetaData(queryItem);
 
                 if (_hasBulkMetaDataProps(bulkMetaData)) {
