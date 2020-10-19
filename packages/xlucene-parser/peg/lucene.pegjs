@@ -20,7 +20,7 @@ start
     = ws* negate:NegationExpression ws* EOF { return negate }
     / ws* logic:LogicalGroup ws* EOF { return logic; }
     / ws* term:TermExpression ws* EOF { return term; }
-    / ws* term:UnqoutedTermType ws* EOF { return term; }
+    / ws* term:UnquotedTermType ws* EOF { return term; }
     / ws* group:ParensGroup ws* EOF { return group; }
     / ws* EOF {
         return {
@@ -326,13 +326,13 @@ ParensStringType
     = ParensStart ws* term:QuotedStringType ws* ParensEnd {
         return term;
     }
-    / ParensStart ws* term:UnqoutedStringType ws* ParensEnd {
+    / ParensStart ws* term:UnquotedStringType ws* ParensEnd {
         return term;
     }
 
 
-UnqoutedTermType
-    = term:UnqoutedStringType {
+UnquotedTermType
+    = term:UnquotedStringType {
         return {
             ...term,
             field: null,
@@ -510,7 +510,7 @@ QuotedStringType
         };
     }
 
-UnqoutedStringType
+UnquotedStringType
     = value:UnquotedTerm {
        return {
            type: i.ASTType.Term,

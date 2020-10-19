@@ -246,7 +246,7 @@ export default [
     }, { count: xLuceneFieldType.Integer }, { foo: 155, bar: 223 }],
     [
         'count:(155 OR "223")',
-        'OR grouping with quoted and unqouted integers',
+        'OR grouping with quoted and unquoted integers',
         {
             type: 'field-group',
             field: 'count',
@@ -281,7 +281,7 @@ export default [
     ],
     [
         'count:($foo OR $bar)',
-        'OR grouping with quoted and unqouted integers with variables',
+        'OR grouping with quoted and unquoted integers with variables',
         {
             type: 'field-group',
             field: 'count',
@@ -317,7 +317,7 @@ export default [
     ],
     [
         'bool:(true OR "false")',
-        'OR grouping with quoted and unqouted booleans',
+        'OR grouping with quoted and unquoted booleans',
         {
             type: 'field-group',
             field: 'bool',

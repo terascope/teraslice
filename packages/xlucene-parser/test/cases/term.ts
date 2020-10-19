@@ -229,7 +229,7 @@ export default [
     ],
     [
         'count_str:123',
-        'field with unqouted string type that is numeric',
+        'field with unquoted string type that is numeric',
         {
             type: ASTType.Term,
             field_type: xLuceneFieldType.String,
@@ -243,7 +243,7 @@ export default [
     ],
     [
         'large_numeric_str:4555029426647693529',
-        'field with unqouted string type that is large numeric value',
+        'field with unquoted string type that is large numeric value',
         {
             type: ASTType.Term,
             field_type: xLuceneFieldType.String,
@@ -361,7 +361,7 @@ export default [
     ],
     [
         'val:(155 223)',
-        'a field with parens unqouted integers',
+        'a field with parens unquoted integers',
         {
             type: ASTType.Term,
             field_type: xLuceneFieldType.String,
@@ -372,7 +372,7 @@ export default [
     ],
     [
         '(155 223)',
-        'a parens unqouted string',
+        'a parens unquoted string',
         {
             type: ASTType.Term,
             field_type: xLuceneFieldType.String,
@@ -405,7 +405,7 @@ export default [
     ],
     [
         'field:"valueSomething(abcd70576983)"',
-        'a double qouted value with unescaped parens',
+        'a double quoted value with unescaped parens',
         {
             type: ASTType.Term,
             field_type: xLuceneFieldType.String,
@@ -416,7 +416,7 @@ export default [
     ],
     [
         '"hi(hello)howdy"',
-        'a field-less double qouted value with unescaped parens',
+        'a field-less double quoted value with unescaped parens',
         {
             type: ASTType.Term,
             field_type: xLuceneFieldType.String,
@@ -427,7 +427,7 @@ export default [
     ],
     [
         "field:' hello(123) there'",
-        'a single qouted value with unescaped parens',
+        'a single quoted value with unescaped parens',
         {
             type: ASTType.Term,
             field_type: xLuceneFieldType.String,
@@ -438,7 +438,7 @@ export default [
     ],
     [
         "' :(hello)'",
-        'a field-less single qouted value with unescaped parens',
+        'a field-less single quoted value with unescaped parens',
         {
             type: ASTType.Term,
             field_type: xLuceneFieldType.String,
@@ -449,7 +449,7 @@ export default [
     ],
     [
         "example: '+ -  ( ) { } [ ] ^ \\' \" ? & | / ~ * OR NOT'",
-        'a single qouted value with all of the reserved characters',
+        'a single quoted value with all of the reserved characters',
         {
             type: ASTType.Term,
             field_type: xLuceneFieldType.String,
@@ -460,7 +460,7 @@ export default [
     ],
     [
         'example: "+ -  ( ) { } [ ] ^ \' \\" ? & | / ~ * OR NOT" ',
-        'a double qouted value with all of the reserved characters',
+        'a double quoted value with all of the reserved characters',
         {
             type: ASTType.Term,
             field_type: xLuceneFieldType.String,
@@ -482,7 +482,7 @@ export default [
     ],
     [
         `id:${escapeString('some\\"thing\\"else')}`,
-        'an unqouted string with qoutes inside',
+        'an unquoted string with qoutes inside',
         {
             type: ASTType.Term,
             field_type: xLuceneFieldType.String,
@@ -504,7 +504,7 @@ export default [
     ],
     [
         `id:"${escapeString('some \\"thing\\" else')}"`,
-        'a double qouted value with escaped double qoutes',
+        'a double quoted value with escaped double qoutes',
         {
             type: ASTType.Term,
             field_type: xLuceneFieldType.String,
@@ -515,7 +515,7 @@ export default [
     ],
     [
         `id:'${escapeString('some\\ \\"thing\\" else')}'`,
-        'a single qouted value with escaped double qoutes and spaces',
+        'a single quoted value with escaped double qoutes and spaces',
         {
             type: ASTType.Term,
             field_type: xLuceneFieldType.String,
@@ -559,7 +559,7 @@ export default [
     ],
     [
         `field:'${escapeString('/value\\\\')}'`,
-        'single qouted value with ending double escape',
+        'single quoted value with ending double escape',
         {
             type: ASTType.Term,
             field_type: xLuceneFieldType.String,

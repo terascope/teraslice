@@ -332,7 +332,7 @@ export default [
     ],
     [
         'AqMvPMCS76u0 OR foo',
-        'OR with unqouted strings',
+        'OR with unquoted strings',
         {
             type: 'logical-group',
             flow: [
