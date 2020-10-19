@@ -12,6 +12,7 @@ const {
     get,
     toNumber,
     isString,
+    isSimpleObject,
     castArray,
     flatten,
     toBoolean,
@@ -114,7 +115,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function mget(query, fullResponse = false) {
-        return _clientRequest('mget', _checkType(query))
+        return _clientRequest('mget', _adjustTypeForEs7(query))
             .then((results) => {
                 if (fullResponse) return results;
                 return results.docs
@@ -123,18 +124,20 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             });
     }
 
-    function _checkType(data) {
+    function _adjustTypeForEs7(query) {
         if (getESVersion() >= 7) {
-            if (Array.isArray(data)) {
-                return data.map((i) => {
-                    delete Object.values(i)[0]._type;
-                    return i;
+            if (Array.isArray(query)) {
+                return query.map((queryItem) => {
+                    if (isSimpleObject(queryItem)) {
+                        Object.values(queryItem).forEach((item) => delete item._type);
+                    }
+                    return queryItem;
                 });
             }
-            delete data.type;
+            delete query.type;
         }
 
-        return data;
+        return query;
     }
 
     function getFn(query, fullResponse = false) {
@@ -146,23 +149,23 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function indexFn(query) {
-        return _clientRequest('index', _checkType(query));
+        return _clientRequest('index', _adjustTypeForEs7(query));
     }
 
     function indexWithId(query) {
-        return _clientRequest('index', _checkType(query)).then(() => query.body);
+        return _clientRequest('index', _adjustTypeForEs7(query)).then(() => query.body);
     }
 
     function create(query) {
-        return _clientRequest('create', _checkType(query)).then(() => query.body);
+        return _clientRequest('create', _adjustTypeForEs7(query)).then(() => query.body);
     }
 
     function update(query) {
-        return _clientRequest('update', _checkType(query)).then(() => query.body.doc);
+        return _clientRequest('update', _adjustTypeForEs7(query)).then(() => query.body.doc);
     }
 
     function remove(query) {
-        return _clientRequest('delete', _checkType(query)).then((result) => result.found);
+        return _clientRequest('delete', _adjustTypeForEs7(query)).then((result) => result.found);
     }
 
     function indexExists(query) {
@@ -348,7 +351,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                     });
             }
 
-            _sendData(_checkType(data));
+            _sendData(_adjustTypeForEs7(data));
         });
     }
 
