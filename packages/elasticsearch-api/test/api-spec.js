@@ -750,6 +750,52 @@ describe('elasticsearch-api', () => {
         });
     });
 
+    it('will not remove _type from record in a bulk send', async () => {
+        const es7client = cloneDeep(client);
+
+        es7client.transport._config = { apiVersion: '7.0' };
+
+        const api = esApi(es7client, logger);
+
+        const myBulkData = [
+            { delete: { _index: 'some_index', _type: 'events', _id: 5 } },
+            { index: { _index: 'some_index', _type: 'events', _id: 1 } },
+            { title: 'foo', _type: 'doc', name: 'joe' }
+        ];
+
+        await api.bulkSend(myBulkData);
+        expect(bulkData).toEqual({
+            body: [
+                { delete: { _index: 'some_index', _id: 5 } },
+                { index: { _index: 'some_index', _id: 1 } },
+                { title: 'foo', _type: 'doc', name: 'joe' }
+            ]
+        });
+    });
+
+    it('will not err if no _type in es7 bulk request metadata', async () => {
+        const es7client = cloneDeep(client);
+
+        es7client.transport._config = { apiVersion: '7.0' };
+
+        const api = esApi(es7client, logger);
+
+        const myBulkData = [
+            { delete: { _index: 'some_index', _id: 5 } },
+            { index: { _index: 'some_index', _id: 1 } },
+            { title: 'foo', _type: 'doc', name: 'joe' }
+        ];
+
+        await api.bulkSend(myBulkData);
+        expect(bulkData).toEqual({
+            body: [
+                { delete: { _index: 'some_index', _id: 5 } },
+                { index: { _index: 'some_index', _id: 1 } },
+                { title: 'foo', _type: 'doc', name: 'joe' }
+            ]
+        });
+    });
+
     it('can call bulkSend with errors', async () => {
         const api = esApi(client, logger);
         const myBulkData = [

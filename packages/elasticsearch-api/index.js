@@ -124,22 +124,6 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             });
     }
 
-    function _adjustTypeForEs7(query) {
-        if (getESVersion() >= 7) {
-            if (Array.isArray(query)) {
-                return query.map((queryItem) => {
-                    if (isSimpleObject(queryItem)) {
-                        Object.values(queryItem).forEach((item) => delete item._type);
-                    }
-                    return queryItem;
-                });
-            }
-            delete query.type;
-        }
-
-        return query;
-    }
-
     function getFn(query, fullResponse = false) {
         if (fullResponse) {
             return _clientRequest('get', query);
@@ -624,6 +608,47 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         if (getESVersion() >= 7) {
             queryParam.trackTotalHits = true;
         }
+    }
+
+    function _adjustTypeForEs7(query) {
+        if (getESVersion() >= 7) {
+            if (Array.isArray(query)) {
+                return _removeTypeFromBulkRequest(query);
+            }
+            delete query.type;
+        }
+
+        return query;
+    }
+
+    function _removeTypeFromBulkRequest(query) {
+        return query.map((queryItem) => {
+            if (isSimpleObject(queryItem)) {
+                // determine if the array item is the metadata or the record
+                const bulkMetaData = _getBulkMetaData(queryItem);
+
+                if (_hasBulkMetaDataProps(bulkMetaData)) {
+                    delete bulkMetaData._type;
+                }
+            }
+            return queryItem;
+        });
+    }
+
+    function _getBulkMetaData(queryItem) {
+        // bulk actions are index, create, delete, and update
+        return queryItem.index
+            || queryItem.create
+            || queryItem.delete
+            || queryItem.update;
+    }
+
+    function _hasBulkMetaDataProps(bulkMetaData) {
+        return bulkMetaData
+            && isSimpleObject(bulkMetaData)
+            && '_index' in bulkMetaData
+            && '_id' in bulkMetaData
+            && '_type' in bulkMetaData;
     }
 
     /**
