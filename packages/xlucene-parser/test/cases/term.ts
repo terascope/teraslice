@@ -1,7 +1,7 @@
 /* eslint-disable quotes */
 import { xLuceneFieldType } from '@terascope/types';
 import { escapeString } from '@terascope/utils';
-import { ASTType } from '../../../src';
+import { ASTType } from '../../src';
 import { TestCase } from './interfaces';
 
 export default [

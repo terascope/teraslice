@@ -1,7 +1,7 @@
 import 'jest-extended';
 import { TSError, times } from '@terascope/utils';
 import { xLuceneFieldType } from '@terascope/types';
-import allTestCases from './cases/parser';
+import allTestCases from './cases';
 import { Parser, ASTType } from '../src';
 
 describe('Parser', () => {
