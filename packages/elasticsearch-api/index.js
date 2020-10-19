@@ -12,6 +12,7 @@ const {
     get,
     toNumber,
     isString,
+    isSimpleObject,
     castArray,
     flatten,
     toBoolean,
@@ -114,7 +115,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function mget(query, fullResponse = false) {
-        return _clientRequest('mget', query)
+        return _clientRequest('mget', _adjustTypeForEs7(query))
             .then((results) => {
                 if (fullResponse) return results;
                 return results.docs
@@ -132,23 +133,23 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
     }
 
     function indexFn(query) {
-        return _clientRequest('index', query);
+        return _clientRequest('index', _adjustTypeForEs7(query));
     }
 
     function indexWithId(query) {
-        return _clientRequest('index', query).then(() => query.body);
+        return _clientRequest('index', _adjustTypeForEs7(query)).then(() => query.body);
     }
 
     function create(query) {
-        return _clientRequest('create', query).then(() => query.body);
+        return _clientRequest('create', _adjustTypeForEs7(query)).then(() => query.body);
     }
 
     function update(query) {
-        return _clientRequest('update', query).then(() => query.body.doc);
+        return _clientRequest('update', _adjustTypeForEs7(query)).then(() => query.body.doc);
     }
 
     function remove(query) {
-        return _clientRequest('delete', query).then((result) => result.found);
+        return _clientRequest('delete', _adjustTypeForEs7(query)).then((result) => result.found);
     }
 
     function indexExists(query) {
@@ -334,7 +335,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
                     });
             }
 
-            _sendData(data);
+            _sendData(_adjustTypeForEs7(data));
         });
     }
 
@@ -607,6 +608,47 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
         if (getESVersion() >= 7) {
             queryParam.trackTotalHits = true;
         }
+    }
+
+    function _adjustTypeForEs7(query) {
+        if (getESVersion() >= 7) {
+            if (Array.isArray(query)) {
+                return _removeTypeFromBulkRequest(query);
+            }
+            delete query.type;
+        }
+
+        return query;
+    }
+
+    function _removeTypeFromBulkRequest(query) {
+        return query.map((queryItem) => {
+            if (isSimpleObject(queryItem)) {
+                // get the metadata and ignore the record
+                const bulkMetaData = _getBulkMetaData(queryItem);
+
+                if (_hasBulkMetaDataProps(bulkMetaData)) {
+                    delete bulkMetaData._type;
+                }
+            }
+            return queryItem;
+        });
+    }
+
+    function _getBulkMetaData(queryItem) {
+        // bulk actions are index, create, delete, and update
+        return queryItem.index
+            || queryItem.create
+            || queryItem.delete
+            || queryItem.update;
+    }
+
+    function _hasBulkMetaDataProps(bulkMetaData) {
+        return bulkMetaData
+            && isSimpleObject(bulkMetaData)
+            && '_index' in bulkMetaData
+            && '_id' in bulkMetaData
+            && '_type' in bulkMetaData;
     }
 
     /**

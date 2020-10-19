@@ -6,7 +6,13 @@ const esApi = require('..');
 
 describe('elasticsearch-api', () => {
     let recordsReturned = [];
+    let mgetQuery;
+    let bulkData;
     let searchQuery;
+    let indexQuery;
+    let createQuery;
+    let updateQuery;
+    let removeQuery;
     let failed = 0;
     let failures = [];
     let total = 0;
@@ -221,13 +227,36 @@ describe('elasticsearch-api', () => {
                 }
             }
         },
-        mget: () => Promise.resolve(getMGetData()),
+        mget: (query) => {
+            mgetQuery = query;
+            return Promise.resolve(getMGetData());
+        },
+        // let getQuery;
+        // let indexQuery;
+        // let createQuery;
+        // let updateQuery;
+        // let deleteQuery;
         get: () => Promise.resolve(recordsReturned[0]),
-        index: () => Promise.resolve(postedData('created')),
-        create: (obj) => Promise.resolve(postedData('created', obj.id)),
-        update: () => Promise.resolve(postedData('updated')),
-        delete: () => Promise.resolve(postedData('deleted')),
-        bulk: (data) => Promise.resolve(createBulkResponse(data)),
+        index: (query) => {
+            indexQuery = query;
+            return Promise.resolve(postedData('created'));
+        },
+        create: (obj) => {
+            createQuery = obj;
+            return Promise.resolve(postedData('created', obj.id));
+        },
+        update: (query) => {
+            updateQuery = query;
+            return Promise.resolve(postedData('updated'));
+        },
+        delete: (query) => {
+            removeQuery = query;
+            return Promise.resolve(postedData('deleted'));
+        },
+        bulk: (data) => {
+            bulkData = data;
+            return Promise.resolve(createBulkResponse(data));
+        },
         search: (_query) => {
             searchQuery = _query;
             logger.debug(searchQuery);
@@ -370,6 +399,7 @@ describe('elasticsearch-api', () => {
             api.search(query),
             apiFullResponse.search(query)
         ]);
+
         expect(results1).toEqual([recordsReturned[0]._source]);
         expect(results1).toEqual([{ some: 'data' }]);
         expect(DataEntity.isDataEntity(results1[0])).toEqual(true);
@@ -414,6 +444,7 @@ describe('elasticsearch-api', () => {
                 failures = [];
             })
         ]);
+
         expect(results).toEqual([recordsReturned[0]._source]);
         failed = 4;
         failures = [{ reason: { type: 'some other error' } }];
@@ -432,12 +463,18 @@ describe('elasticsearch-api', () => {
     });
 
     it('can call mget', async () => {
-        const query = { body: 'someQuery' };
+        const query = {
+            index: 'someIndex',
+            type: 'someType',
+            body: { ids: ['id1', 'id2'] }
+        };
+
         const api = esApi(client, logger);
+
         recordsReturned = [
             {
                 _index: 'someIndex',
-                _id: 'someId',
+                _id: 'id1',
                 found: true,
                 _source: { some: 'data' }
             },
@@ -448,10 +485,47 @@ describe('elasticsearch-api', () => {
         ];
 
         const results = await api.mget(query);
+
         expect(results.length).toEqual(1);
         expect(results).toEqual([{ some: 'data' }]);
         expect(DataEntity.isDataEntity(results[0])).toEqual(true);
-        expect(results[0].getMetadata()).toMatchObject({ _index: 'someIndex', _key: 'someId' });
+        expect(results[0].getMetadata()).toMatchObject({ _index: 'someIndex', _key: 'id1' });
+    });
+
+    it('mget removes type for es7 indices', async () => {
+        const query = {
+            index: 'someIndex',
+            type: 'someType',
+            body: { ids: ['id1', 'id2'] }
+        };
+
+        const es7client = cloneDeep(client);
+
+        es7client.transport._config = { apiVersion: '7.0' };
+
+        const api = esApi(es7client, logger);
+
+        recordsReturned = [
+            {
+                _index: 'someIndex',
+                _id: 'id1',
+                found: true,
+                _source: { some: 'data' }
+            },
+            {
+                found: false,
+                _source: { some: 'notFounddata' }
+            }
+        ];
+
+        const results = await api.mget(query);
+
+        expect(mgetQuery).toEqual({
+            index: 'someIndex',
+            body: { ids: ['id1', 'id2'] }
+        });
+
+        expect(results.length).toEqual(1);
     });
 
     it('can call get', async () => {
@@ -472,6 +546,20 @@ describe('elasticsearch-api', () => {
         return expect(results.created).toEqual(true);
     });
 
+    it('removes types in index request for es7', async () => {
+        const query = { index: 'someIndex', type: 'sometype', body: 'someQuery' };
+
+        const es7client = cloneDeep(client);
+
+        es7client.transport._config = { apiVersion: '7.0' };
+
+        const api = await esApi(es7client, logger);
+
+        await api.index(query);
+
+        expect(indexQuery).toEqual({ index: 'someIndex', body: 'someQuery' });
+    });
+
     it('can call indexWithId', async () => {
         const query = {
             index: 'someIndex',
@@ -486,12 +574,47 @@ describe('elasticsearch-api', () => {
         return expect(results).toEqual(query.body);
     });
 
+    it('can remove type from indexWithId for es7', async () => {
+        const query = {
+            index: 'someIndex',
+            id: 'someId',
+            type: 'sometype',
+            body: 'someQuery'
+        };
+
+        const es7client = cloneDeep(client);
+        es7client.transport._config = { apiVersion: '7.0' };
+        const api = esApi(es7client, logger);
+
+        recordsReturned = [{ _source: { some: 'data' } }];
+
+        await api.indexWithId(query);
+
+        expect(indexQuery).toEqual({
+            index: 'someIndex',
+            id: 'someId',
+            body: 'someQuery'
+        });
+    });
+
     it('can call create', async () => {
         const query = { index: 'someIndex', type: 'sometype', body: 'someQuery' };
         const api = esApi(client, logger);
 
         const results = await api.create(query);
         return expect(results).toEqual(query.body);
+    });
+
+    it('can remove type from create request for es7', async () => {
+        const query = { index: 'someIndex', type: 'sometype', body: 'someQuery' };
+
+        const es7client = cloneDeep(client);
+        es7client.transport._config = { apiVersion: '7.0' };
+        const api = esApi(es7client, logger);
+
+        await api.create(query);
+
+        expect(createQuery).toEqual({ index: 'someIndex', body: 'someQuery' });
     });
 
     it('can call update', async () => {
@@ -502,12 +625,35 @@ describe('elasticsearch-api', () => {
         return expect(results).toEqual(query.body.doc);
     });
 
+    it('can remove type from update requests on es7', async () => {
+        const query = { index: 'someIndex', type: 'sometype', body: { doc: { some: 'data' } } };
+
+        const es7client = cloneDeep(client);
+        es7client.transport._config = { apiVersion: '7.0' };
+        const api = esApi(es7client, logger);
+
+        await api.update(query);
+        expect(updateQuery).toEqual({ index: 'someIndex', body: { doc: { some: 'data' } } });
+    });
+
     it('can call remove', async () => {
         const query = { index: 'someIndex', type: 'sometype', id: 'someId' };
         const api = esApi(client, logger);
 
         const results = await api.remove(query);
         return expect(results).toEqual(true);
+    });
+
+    it('can remove type from query on remove call on es7', async () => {
+        const query = { index: 'someIndex', type: 'sometype', id: 'someId' };
+
+        const es7client = cloneDeep(client);
+        es7client.transport._config = { apiVersion: '7.0' };
+        const api = esApi(es7client, logger);
+
+        await api.remove(query);
+
+        expect(removeQuery).toEqual({ index: 'someIndex', id: 'someId' });
     });
 
     it('can call indexExists', async () => {
@@ -579,6 +725,75 @@ describe('elasticsearch-api', () => {
 
         const results = await api.bulkSend(myBulkData);
         return expect(results).toBeTruthy();
+    });
+
+    it('can remove type from bulk send', async () => {
+        const es7client = cloneDeep(client);
+
+        es7client.transport._config = { apiVersion: '7.0' };
+
+        const api = esApi(es7client, logger);
+
+        const myBulkData = [
+            { index: { _index: 'some_index', _type: 'events', _id: 1 } },
+            { title: 'foo' },
+            { delete: { _index: 'some_index', _type: 'events', _id: 5 } }
+        ];
+
+        await api.bulkSend(myBulkData);
+        expect(bulkData).toEqual({
+            body: [
+                { index: { _index: 'some_index', _id: 1 } },
+                { title: 'foo' },
+                { delete: { _index: 'some_index', _id: 5 } }
+            ]
+        });
+    });
+
+    it('will not remove _type from record in a bulk send', async () => {
+        const es7client = cloneDeep(client);
+
+        es7client.transport._config = { apiVersion: '7.0' };
+
+        const api = esApi(es7client, logger);
+
+        const myBulkData = [
+            { delete: { _index: 'some_index', _type: 'events', _id: 5 } },
+            { index: { _index: 'some_index', _type: 'events', _id: 1 } },
+            { title: 'foo', _type: 'doc', name: 'joe' }
+        ];
+
+        await api.bulkSend(myBulkData);
+        expect(bulkData).toEqual({
+            body: [
+                { delete: { _index: 'some_index', _id: 5 } },
+                { index: { _index: 'some_index', _id: 1 } },
+                { title: 'foo', _type: 'doc', name: 'joe' }
+            ]
+        });
+    });
+
+    it('will not err if no _type in es7 bulk request metadata', async () => {
+        const es7client = cloneDeep(client);
+
+        es7client.transport._config = { apiVersion: '7.0' };
+
+        const api = esApi(es7client, logger);
+
+        const myBulkData = [
+            { delete: { _index: 'some_index', _id: 5 } },
+            { index: { _index: 'some_index', _id: 1 } },
+            { title: 'foo', _type: 'doc', name: 'joe' }
+        ];
+
+        await api.bulkSend(myBulkData);
+        expect(bulkData).toEqual({
+            body: [
+                { delete: { _index: 'some_index', _id: 5 } },
+                { index: { _index: 'some_index', _id: 1 } },
+                { title: 'foo', _type: 'doc', name: 'joe' }
+            ]
+        });
     });
 
     it('can call bulkSend with errors', async () => {
