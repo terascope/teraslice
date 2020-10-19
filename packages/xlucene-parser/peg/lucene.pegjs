@@ -11,6 +11,7 @@
         getVariable,
         makeFlow,
         validateRestrictedVariable,
+        logger,
     } = makeContext(options.contextArg);
 }
 
@@ -113,15 +114,13 @@ OrConjunction
         return [right]
     }
     // Implicit ORs only work with at least one quoted, field/value pair or parens group
-    / left:FieldOrQuotedTermGroup ws+ right:FieldOrQuotedTermGroup {
+    / left:(ImplicitValue) ws+ right:(ImplicitValue) {
+        // Implicit OR
         return [left, right]
     }
-    / left:FieldOrQuotedTermGroup ws+ right:TermGroup {
-        return [left, right]
-    }
-    / left:TermGroup ws+ right:FieldOrQuotedTermGroup {
-        return [left, right]
-    }
+
+ImplicitValue
+    = NegationExpression / ParensGroup / VariableType / TermExpression
 
 TermGroup
     = NegationExpression / ParensGroup / VariableType / TermExpression
@@ -323,13 +322,9 @@ OldGeoTermExpression
     }
 
 ParensStringType
-    = ParensStart ws* term:QuotedStringType ws* ParensEnd {
+    = ParensStart ws* term:(QuotedStringType/UnquotedStringType) ws* ParensEnd {
         return term;
     }
-    / ParensStart ws* term:UnquotedStringType ws* ParensEnd {
-        return term;
-    }
-
 
 UnquotedTermType
     = term:UnquotedStringType {

@@ -18,13 +18,31 @@ export default [
     ],
     [
         'foo bar',
-        'an unquoted string',
+        'an unquoted/un-grouped string',
         {
-            type: ASTType.Term,
-            field_type: xLuceneFieldType.String,
-            quoted: false,
-            field: null,
-            value: 'foo bar',
+            type: ASTType.LogicalGroup,
+            flow: [
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [{
+                        type: ASTType.Term,
+                        field_type: xLuceneFieldType.String,
+                        quoted: false,
+                        field: null,
+                        value: 'foo',
+                    }]
+                },
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [{
+                        type: ASTType.Term,
+                        field_type: xLuceneFieldType.String,
+                        quoted: false,
+                        field: null,
+                        value: 'bar',
+                    }]
+                }
+            ]
         },
     ],
     [
@@ -360,17 +378,7 @@ export default [
         },
     ],
     [
-        'val:(155 223)',
-        'a field with parens unquoted integers',
-        {
-            type: ASTType.Term,
-            field_type: xLuceneFieldType.String,
-            field: 'val',
-            quoted: false,
-            value: '155 223',
-        },
-    ],
-    [
+        // FIXME
         '(155 223)',
         'a parens unquoted string',
         {
