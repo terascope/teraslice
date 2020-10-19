@@ -1,5 +1,5 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { ASTType } from '../../../src';
+import { ASTType } from '../../src';
 import { TestCase } from './interfaces';
 
 export default [
@@ -332,7 +332,7 @@ export default [
     ],
     [
         'AqMvPMCS76u0 OR foo',
-        'OR with unqouted strings',
+        'OR with unquoted strings',
         {
             type: 'logical-group',
             flow: [

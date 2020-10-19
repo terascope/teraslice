@@ -144,9 +144,11 @@ export default function makeContext(arg: i.ContextArg) {
 
         if (fieldType === node.field_type) return;
 
-        utils.logger.trace(
-            `coercing field "${field}":${node.value} type of ${node.field_type} to ${fieldType}`
-        );
+        if (fieldType) {
+            utils.logger.trace(
+                `coercing field "${field}":${node.value} type of ${node.field_type} to ${fieldType}`
+            );
+        }
 
         // in the case of analyzed fields we should update the
         // node to indicate so non-term level queries can be performed

@@ -11,6 +11,7 @@
         getVariable,
         makeFlow,
         validateRestrictedVariable,
+        logger,
     } = makeContext(options.contextArg);
 }
 
@@ -20,7 +21,7 @@ start
     = ws* negate:NegationExpression ws* EOF { return negate }
     / ws* logic:LogicalGroup ws* EOF { return logic; }
     / ws* term:TermExpression ws* EOF { return term; }
-    / ws* term:UnqoutedTermType ws* EOF { return term; }
+    / ws* term:UnquotedTermType ws* EOF { return term; }
     / ws* group:ParensGroup ws* EOF { return group; }
     / ws* EOF {
         return {
@@ -113,15 +114,13 @@ OrConjunction
         return [right]
     }
     // Implicit ORs only work with at least one quoted, field/value pair or parens group
-    / left:FieldOrQuotedTermGroup ws+ right:FieldOrQuotedTermGroup {
+    / left:(ImplicitValue) ws+ right:(ImplicitValue) {
+        // Implicit OR
         return [left, right]
     }
-    / left:FieldOrQuotedTermGroup ws+ right:TermGroup {
-        return [left, right]
-    }
-    / left:TermGroup ws+ right:FieldOrQuotedTermGroup {
-        return [left, right]
-    }
+
+ImplicitValue
+    = NegationExpression / ParensGroup / VariableType / TermExpression
 
 TermGroup
     = NegationExpression / ParensGroup / VariableType / TermExpression
@@ -323,16 +322,12 @@ OldGeoTermExpression
     }
 
 ParensStringType
-    = ParensStart ws* term:QuotedStringType ws* ParensEnd {
-        return term;
-    }
-    / ParensStart ws* term:UnqoutedStringType ws* ParensEnd {
+    = ParensStart ws* term:(QuotedStringType/UnquotedStringType) ws* ParensEnd {
         return term;
     }
 
-
-UnqoutedTermType
-    = term:UnqoutedStringType {
+UnquotedTermType
+    = term:UnquotedStringType {
         return {
             ...term,
             field: null,
@@ -510,7 +505,7 @@ QuotedStringType
         };
     }
 
-UnqoutedStringType
+UnquotedStringType
     = value:UnquotedTerm {
        return {
            type: i.ASTType.Term,

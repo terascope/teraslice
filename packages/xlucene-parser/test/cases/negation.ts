@@ -1,5 +1,5 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { ASTType } from '../../../src';
+import { ASTType } from '../../src';
 import { TestCase } from './interfaces';
 
 export default [

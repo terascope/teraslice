@@ -1,10 +1,10 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { ASTType } from '../../../src';
+import { ASTType } from '../../src';
 import { TestCase } from './interfaces';
 
 export default [
     ['count:(>=10 AND <=20 AND >=100)', 'a field group expression with ranges', {
-        type: 'field-group',
+        type: ASTType.FieldGroup,
         field: 'count',
         flow: [
             {
@@ -42,7 +42,7 @@ export default [
         ]
     }],
     ['count:(>=$foo AND <=$bar AND >=$baz)', 'a field group expression with ranges with variables', {
-        type: 'field-group',
+        type: ASTType.FieldGroup,
         field: 'count',
         flow: [
             {
@@ -80,7 +80,7 @@ export default [
         ]
     }, { count: xLuceneFieldType.Integer }, { foo: 10, bar: 20, baz: 100 }],
     ['count:(>=10 OR <=20 OR >=100)', 'a chained OR field group expression with ranges', {
-        type: 'field-group',
+        type: ASTType.FieldGroup,
         field: 'count',
         flow: [
             {
@@ -128,7 +128,7 @@ export default [
         ]
     }],
     ['id: (AqMvPMCS76u0 OR 497qIZuha9_u OR Oc2DG0O2gbcY)', 'chained ORs with restricted strings', {
-        type: 'field-group',
+        type: ASTType.FieldGroup,
         field: 'id',
         flow: [
             {
@@ -164,7 +164,7 @@ export default [
         ]
     }],
     ['name:(Bob* OR Joe*)', 'chained ORs with wildcards', {
-        type: 'field-group',
+        type: ASTType.FieldGroup,
         field: 'name',
         flow: [
             {
@@ -188,7 +188,7 @@ export default [
         ]
     }],
     ['count:(155 "223")', 'implicit OR grouping', {
-        type: 'field-group',
+        type: ASTType.FieldGroup,
         field: 'count',
         flow: [
             {
@@ -217,7 +217,7 @@ export default [
         ]
     }],
     ['count:($foo $bar)', 'implicit OR grouping with variables', {
-        type: 'field-group',
+        type: ASTType.FieldGroup,
         field: 'count',
         flow: [
             {
@@ -246,9 +246,9 @@ export default [
     }, { count: xLuceneFieldType.Integer }, { foo: 155, bar: 223 }],
     [
         'count:(155 OR "223")',
-        'OR grouping with quoted and unqouted integers',
+        'OR grouping with quoted and unquoted integers',
         {
-            type: 'field-group',
+            type: ASTType.FieldGroup,
             field: 'count',
             flow: [
                 {
@@ -281,9 +281,9 @@ export default [
     ],
     [
         'count:($foo OR $bar)',
-        'OR grouping with quoted and unqouted integers with variables',
+        'OR grouping with quoted and unquoted integers with variables',
         {
-            type: 'field-group',
+            type: ASTType.FieldGroup,
             field: 'count',
             flow: [
                 {
@@ -317,9 +317,9 @@ export default [
     ],
     [
         'bool:(true OR "false")',
-        'OR grouping with quoted and unqouted booleans',
+        'OR grouping with quoted and unquoted booleans',
         {
-            type: 'field-group',
+            type: ASTType.FieldGroup,
             field: 'bool',
             flow: [
                 {
@@ -351,7 +351,7 @@ export default [
         }
     ],
     ['example:("foo" AND ("bar" OR "baz"))', 'implicit or grouping', {
-        type: 'field-group',
+        type: ASTType.FieldGroup,
         field: 'example',
         flow: [
             {
@@ -395,7 +395,7 @@ export default [
         ]
     }],
     ['example:("foo" AND other:"bar")', 'implicit or grouping', {
-        type: 'field-group',
+        type: ASTType.FieldGroup,
         field: 'example',
         flow: [
             {
@@ -418,7 +418,7 @@ export default [
         ]
     }],
     ['val:(NOT 1 AND 2)', 'negated field group', {
-        type: 'field-group',
+        type: ASTType.FieldGroup,
         field: 'val',
         flow: [
             {
@@ -444,7 +444,7 @@ export default [
         ]
     }],
     ['val:(NOT $foo AND $bar)', 'negated field group with variables', {
-        type: 'field-group',
+        type: ASTType.FieldGroup,
         field: 'val',
         flow: [
             {
@@ -469,20 +469,110 @@ export default [
             }
         ]
     }, { val: xLuceneFieldType.Integer }, { foo: 1, bar: 2 }],
-    ['some_ref:("A")', 'single value field group',
+    ['some_ref:("A")', 'single value field group', {
+        type: ASTType.Term,
+        field_type: xLuceneFieldType.String,
+        field: 'some_ref',
+        quoted: true,
+        value: 'A',
+    }],
+    ["some_ref:('A')", 'single value field group', {
+        type: ASTType.Term,
+        field_type: xLuceneFieldType.String,
+        field: 'some_ref',
+        quoted: true,
+        value: 'A',
+    }],
+    ['foo:(bar baz)', 'multi-value field group with no quotes', {
+        type: ASTType.FieldGroup,
+        field: 'foo',
+        flow: [
+            {
+                type: ASTType.Conjunction,
+                nodes: [
+                    {
+                        type: ASTType.Term,
+                        field: 'foo',
+                        field_type: xLuceneFieldType.String,
+                        value: 'bar',
+                    },
+                ],
+            },
+            {
+                type: ASTType.Conjunction,
+                nodes: [
+                    {
+                        type: ASTType.Term,
+                        field: 'foo',
+                        field_type: xLuceneFieldType.String,
+                        value: 'baz'
+                    }
+                ]
+            }
+        ]
+    }],
+    ['foo:(@bar OR @baz)', 'multi-value field group with no quotes and @', {
+        type: ASTType.FieldGroup,
+        field: 'foo',
+        flow: [
+            {
+                type: ASTType.Conjunction,
+                nodes: [
+                    {
+                        type: ASTType.Term,
+                        field: 'foo',
+                        field_type: xLuceneFieldType.String,
+                        quoted: false,
+                        restricted: true,
+                        value: '@bar',
+                    },
+                ],
+            },
+            {
+                type: ASTType.Conjunction,
+                nodes: [
+                    {
+                        type: ASTType.Term,
+                        field: 'foo',
+                        field_type: xLuceneFieldType.String,
+                        quoted: false,
+                        restricted: true,
+                        value: '@baz'
+                    }
+                ]
+            }
+        ]
+    }],
+    [
+        'val:(155 223)',
+        'a field with parens unquoted integers',
         {
-            type: ASTType.Term,
-            field_type: xLuceneFieldType.String,
-            field: 'some_ref',
-            quoted: true,
-            value: 'A',
-        }],
-    ["some_ref:('A')", 'single value field group',
-        {
-            type: ASTType.Term,
-            field_type: xLuceneFieldType.String,
-            field: 'some_ref',
-            quoted: true,
-            value: 'A',
-        }],
+            type: ASTType.FieldGroup,
+            field: 'val',
+            flow: [
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field: 'val',
+                            field_type: xLuceneFieldType.Integer,
+                            value: 155,
+                        },
+                    ],
+                },
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field: 'val',
+                            field_type: xLuceneFieldType.Integer,
+                            value: 223
+                        }
+                    ]
+                }
+            ]
+        },
+    ],
 ] as TestCase[];
