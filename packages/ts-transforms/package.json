@@ -51,7 +51,7 @@
         "@types/jexl": "^2.2.0",
         "@types/valid-url": "^1.0.2",
         "@types/validator": "^13.0.0",
-        "@types/yargs": "^15.0.8",
+        "@types/yargs": "^15.0.9",
         "execa": "^4.0.3"
     },
     "engines": {

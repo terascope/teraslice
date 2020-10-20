@@ -64,7 +64,7 @@
         "@types/prompts": "^2.0.9",
         "@types/signale": "^1.4.0",
         "@types/tmp": "^0.2.0",
-        "@types/yargs": "^15.0.8",
+        "@types/yargs": "^15.0.9",
         "@types/yeoman-assert": "^3.1.1",
         "@types/yeoman-environment": "^2.10.0",
         "@types/yeoman-generator": "^4.11.1",
