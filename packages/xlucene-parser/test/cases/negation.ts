@@ -81,7 +81,7 @@ export default [
                 type: ASTType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
-                value: { type: 'value', value: 'Madman', },
+                value: { type: 'variable', value: 'foo', },
             },
         },
         { name: xLuceneFieldType.String },

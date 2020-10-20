@@ -456,14 +456,14 @@ export default [
                             type: ASTType.Term,
                             field: 'val',
                             field_type: xLuceneFieldType.Integer,
-                            value: { type: 'value', value: 1, },
+                            value: { type: 'variable', value: 'foo', },
                         }
                     },
                     {
                         type: ASTType.Term,
                         field: 'val',
                         field_type: xLuceneFieldType.Integer,
-                        value: { type: 'value', value: 2 },
+                        value: { type: 'variable', value: 'bar' },
                     }
                 ]
             }
