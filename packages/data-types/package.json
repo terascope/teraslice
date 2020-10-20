@@ -32,7 +32,7 @@
         "@terascope/utils": "^0.32.2",
         "graphql": "^15.3.0",
         "lodash.defaultsdeep": "^4.6.1",
-        "yargs": "^16.0.3"
+        "yargs": "^16.1.0"
     },
     "devDependencies": {
         "@types/lodash.defaultsdeep": "^4.6.6",
