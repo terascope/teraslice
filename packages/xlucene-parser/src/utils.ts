@@ -136,17 +136,27 @@ export function validateVariables(obj: xLuceneVariables): xLuceneVariables {
 //     throw new Error(`Unsupported type of ${type} received for variable $${value.value}`);
 // }
 export function getFieldValue<T>(
+    value: i.FieldValue<T>[],
+    variables: xLuceneVariables,
+): T[];
+export function getFieldValue<T>(
     value: i.FieldValue<T>,
     variables: xLuceneVariables,
-    allowMissingValue = false
-): T {
+): T;
+export function getFieldValue<T>(
+    value: i.FieldValue<T>|i.FieldValue<T>[],
+    variables: xLuceneVariables,
+): T|T[] {
+    if (Array.isArray(value)) {
+        return value.map((val) => getFieldValue(val, variables)) as T[];
+    }
     if (value.type === 'variable') {
         if (variables[value.value] != null) {
             return variables[value.value] as T;
         }
         throw new Error(`Could not find a variable set with key $${value.value}`);
     }
-    if (allowMissingValue || value.value != null) {
+    if (value.value != null) {
         return value.value;
     }
 
