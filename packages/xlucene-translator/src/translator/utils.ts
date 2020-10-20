@@ -93,13 +93,13 @@ export function translateQuery(
         }
 
         if (p.isTerm(node)) {
-            if (node.value.value === 'variable') {
+            if (node.value.type === 'variable') {
                 const value = p.getFieldValue(node.value, variables);
-                if (isRegExpLike(value)) {
-                    return buildRegExprQuery(value);
-                }
                 if (Array.isArray(value)) {
                     return buildBoolQuery(makeOrConjunction(node, value));
+                }
+                if (isRegExpLike(value)) {
+                    return buildRegExprQuery(value as any);
                 }
             }
             return buildTermQuery(node);
@@ -147,7 +147,7 @@ export function translateQuery(
     }
 
     function makeOrConjunction(node: p.TermLikeAST, values: any[]): p.LogicalGroup {
-        return {
+        const logicalGroup: p.LogicalGroup = {
             type: p.ASTType.LogicalGroup,
             flow: values.map((value) => ({
                 type: p.ASTType.Conjunction,
@@ -160,6 +160,8 @@ export function translateQuery(
                 }]
             } as p.Conjunction))
         };
+        logger.trace('built a logical group from variable array', { node, values, logicalGroup });
+        return logicalGroup;
     }
 
     function buildMultiMatchQuery(node: p.TermLikeAST, query: string): i.MultiMatchQuery {

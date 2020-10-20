@@ -36,7 +36,10 @@ export function makeContext(arg: i.ContextArg) {
 
         if (utils.isTermType(node) && !node.field) {
             node.field = field;
+            const fieldType = getFieldType(field);
             coerceTermType(node);
+            // @ts-expect-error
+            if (!node.field_type && fieldType) node.field_type = fieldType;
             return;
         }
 
@@ -113,16 +116,11 @@ export function makeContext(arg: i.ContextArg) {
         if (fieldType === xLuceneFieldType.AnalyzedString) {
             node.analyzed = true;
         }
+        if (node.operator && fieldType) {
+            node.field_type = fieldType as xLuceneFieldType.Integer;
+        }
 
         if (fieldType === node.field_type) return;
-
-        if (utils.isRange(node) && fieldType) {
-            node.type = i.ASTType.Range;
-            node.left.field_type = fieldType as xLuceneFieldType.Integer;
-            if (node.right) {
-                node.right.field_type = fieldType as xLuceneFieldType.Integer;
-            }
-        }
         if (node.value.type !== 'value') return;
 
         const value = node.value.value as any;
@@ -208,7 +206,7 @@ export function makeContext(arg: i.ContextArg) {
 
         if (fieldType === xLuceneFieldType.String) {
             node.field_type = fieldType;
-            if (isRegExpLike(value) || node.type === i.ASTType.Regexp) {
+            if (node.type === i.ASTType.Regexp || isRegExpLike(value)) {
                 node.type = i.ASTType.Regexp;
                 node.value = {
                     type: 'value',
