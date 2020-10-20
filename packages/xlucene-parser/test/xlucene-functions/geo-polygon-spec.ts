@@ -10,7 +10,7 @@ import {
 } from '@terascope/types';
 import { randomPolygon } from '@turf/random';
 import { getCoords } from '@turf/invariant';
-import { Parser } from '../../src';
+import { Parser, initFunction } from '../../src';
 import { FunctionElasticsearchOptions, FunctionNode } from '../../src/interfaces';
 
 describe('geoPolygon', () => {
@@ -30,8 +30,14 @@ describe('geoPolygon', () => {
                 type_config: typeConfig,
             });
             const {
-                name, type, field, instance
+                name, type, field
             } = ast as FunctionNode;
+
+            const instance = initFunction({
+                node: ast as FunctionNode,
+                variables: {},
+                type_config: typeConfig
+            });
 
             expect(name).toEqual('geoPolygon');
             expect(type).toEqual('function');
@@ -68,9 +74,11 @@ describe('geoPolygon', () => {
 
                 const astResults = queries
                     .map((query) => new Parser(query, { type_config: typeConfig }))
-                    .map((parser) => (
-                        parser.ast as FunctionNode
-                    ).instance.toElasticsearchQuery('location', options));
+                    .map((parser) => initFunction({
+                        node: (parser.ast as FunctionNode),
+                        type_config: typeConfig,
+                        variables: {},
+                    }).toElasticsearchQuery('location', options));
 
                 astResults.forEach((ast) => {
                     expect(ast.query).toEqual(results);
@@ -93,7 +101,11 @@ describe('geoPolygon', () => {
                     type_config: typeConfig,
                     variables
                 });
-                const { instance: { toElasticsearchQuery } } = ast as FunctionNode;
+                const { toElasticsearchQuery } = initFunction({
+                    node: ast as FunctionNode,
+                    variables,
+                    type_config: typeConfig
+                });
 
                 const expected = {
                     geo_polygon: {
@@ -131,7 +143,11 @@ describe('geoPolygon', () => {
                     type_config: typeConfig,
                     variables
                 });
-                const { instance: { toElasticsearchQuery } } = ast as FunctionNode;
+                const { toElasticsearchQuery } = initFunction({
+                    node: ast as FunctionNode,
+                    variables,
+                    type_config: typeConfig
+                });
 
                 const expected = {
                     bool: {
@@ -204,7 +220,11 @@ describe('geoPolygon', () => {
                     type_config: typeConfig,
                     variables
                 });
-                const { instance: { toElasticsearchQuery } } = ast as FunctionNode;
+                const { toElasticsearchQuery } = initFunction({
+                    node: ast as FunctionNode,
+                    variables,
+                    type_config: typeConfig
+                });
 
                 const expected = {
                     bool: {
@@ -252,7 +272,11 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig,
                 });
-                const { instance: { match } } = ast as FunctionNode;
+                const { match } = initFunction({
+                    node: ast as FunctionNode,
+                    type_config: typeConfig,
+                    variables: {}
+                });
 
                 const geoPoint1 = '83.435967,144.867710';
                 const geoPoint2 = '-22.435967,-150.867710';
@@ -292,8 +316,14 @@ describe('geoPolygon', () => {
                 type_config: typeConfig,
             });
             const {
-                name, type, field, instance
+                name, type, field
             } = ast as FunctionNode;
+
+            const instance = initFunction({
+                node: ast as FunctionNode,
+                variables: {},
+                type_config: typeConfig
+            });
 
             expect(name).toEqual('geoPolygon');
             expect(type).toEqual('function');
@@ -331,9 +361,11 @@ describe('geoPolygon', () => {
 
                 const astResults = queries
                     .map((query) => new Parser(query, { type_config: typeConfig }))
-                    .map((parser) => (
-                        parser.ast as FunctionNode
-                    ).instance.toElasticsearchQuery('location', options));
+                    .map((parser) => initFunction({
+                        node: (parser.ast as FunctionNode),
+                        type_config: typeConfig,
+                        variables: {},
+                    }).toElasticsearchQuery('location', options));
 
                 astResults.forEach((ast) => {
                     expect(ast.query).toEqual(results);
@@ -341,7 +373,7 @@ describe('geoPolygon', () => {
                 });
             });
 
-            it('can produce elsaticsearch DSL with relation set to within', () => {
+            it('can produce elasticsearch DSL with relation set to within', () => {
                 const expectedResults = {
                     geo_shape: {
                         location: {
@@ -360,14 +392,18 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig,
                 });
-                const { instance } = ast as FunctionNode;
-                const results = instance.toElasticsearchQuery('location', options);
+                const { toElasticsearchQuery } = initFunction({
+                    node: ast as FunctionNode,
+                    variables: {},
+                    type_config: typeConfig
+                });
+                const results = toElasticsearchQuery('location', options);
 
                 expect(results.query).toEqual(expectedResults);
                 expect(results.sort).toBeUndefined();
             });
 
-            it('can produce elsaticsearch DSL with relation set to intersects', () => {
+            it('can produce elasticsearch DSL with relation set to intersects', () => {
                 const expectedResults = {
                     geo_shape: {
                         location: {
@@ -386,14 +422,18 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig,
                 });
-                const { instance } = ast as FunctionNode;
-                const results = instance.toElasticsearchQuery('location', options);
+                const { toElasticsearchQuery } = initFunction({
+                    node: ast as FunctionNode,
+                    variables: {},
+                    type_config: typeConfig
+                });
+                const results = toElasticsearchQuery('location', options);
 
                 expect(results.query).toEqual(expectedResults);
                 expect(results.sort).toBeUndefined();
             });
 
-            it('can produce elsaticsearch DSL with relation set to contains', () => {
+            it('can produce elasticsearch DSL with relation set to contains', () => {
                 const expectedResults = {
                     geo_shape: {
                         location: {
@@ -412,14 +452,18 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig,
                 });
-                const { instance } = ast as FunctionNode;
-                const results = instance.toElasticsearchQuery('location', options);
+                const { toElasticsearchQuery } = initFunction({
+                    node: ast as FunctionNode,
+                    variables: {},
+                    type_config: typeConfig
+                });
+                const results = toElasticsearchQuery('location', options);
 
                 expect(results.query).toEqual(expectedResults);
                 expect(results.sort).toBeUndefined();
             });
 
-            it('can produce elsaticsearch DSL with relation set to disjoint', () => {
+            it('can produce elasticsearch DSL with relation set to disjoint', () => {
                 const expectedResults = {
                     geo_shape: {
                         location: {
@@ -438,8 +482,12 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig,
                 });
-                const { instance } = ast as FunctionNode;
-                const results = instance.toElasticsearchQuery('location', options);
+                const { toElasticsearchQuery } = initFunction({
+                    node: ast as FunctionNode,
+                    variables: {},
+                    type_config: typeConfig
+                });
+                const results = toElasticsearchQuery('location', options);
 
                 expect(results.query).toEqual(expectedResults);
                 expect(results.sort).toBeUndefined();
@@ -509,7 +557,11 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig
                 });
-                const { instance: { match } } = ast as FunctionNode;
+                const { match } = initFunction({
+                    node: ast as FunctionNode,
+                    type_config: typeConfig,
+                    variables: {}
+                });
 
                 expect(match(withinPoints)).toEqual(true);
                 expect(match(containPoints)).toEqual(false);
@@ -523,7 +575,11 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig
                 });
-                const { instance: { match } } = ast as FunctionNode;
+                const { match } = initFunction({
+                    node: ast as FunctionNode,
+                    type_config: typeConfig,
+                    variables: {}
+                });
 
                 expect(match(withinPoints)).toEqual(true);
                 expect(match(containPoints)).toEqual(false);
@@ -537,7 +593,11 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig
                 });
-                const { instance: { match } } = ast as FunctionNode;
+                const { match } = initFunction({
+                    node: ast as FunctionNode,
+                    type_config: typeConfig,
+                    variables: {}
+                });
 
                 expect(match(withinPoints)).toEqual(false);
                 expect(match(containPoints)).toEqual(true);
@@ -551,7 +611,11 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig
                 });
-                const { instance: { match } } = ast as FunctionNode;
+                const { match } = initFunction({
+                    node: ast as FunctionNode,
+                    type_config: typeConfig,
+                    variables: {}
+                });
 
                 expect(match(withinPoints)).toEqual(false);
                 expect(match(containPoints)).toEqual(false);
@@ -565,7 +629,11 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig
                 });
-                const { instance: { match } } = ast as FunctionNode;
+                const { match } = initFunction({
+                    node: ast as FunctionNode,
+                    type_config: typeConfig,
+                    variables: {}
+                });
 
                 expect(match(withinPoints)).toEqual(false);
                 expect(match(containPoints)).toEqual(false);
@@ -579,7 +647,11 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig
                 });
-                const { instance: { match } } = ast as FunctionNode;
+                const { match } = initFunction({
+                    node: ast as FunctionNode,
+                    type_config: typeConfig,
+                    variables: {}
+                });
 
                 expect(match(matchingPoint)).toEqual(true);
                 expect(match(nonMatchingPoint)).toEqual(false);
@@ -591,7 +663,11 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig
                 });
-                const { instance: { match } } = ast as FunctionNode;
+                const { match } = initFunction({
+                    node: ast as FunctionNode,
+                    type_config: typeConfig,
+                    variables: {}
+                });
 
                 expect(match(matchingPoint)).toEqual(false);
                 expect(match(nonMatchingPoint)).toEqual(false);
@@ -603,7 +679,11 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig
                 });
-                const { instance: { match } } = ast as FunctionNode;
+                const { match } = initFunction({
+                    node: ast as FunctionNode,
+                    type_config: typeConfig,
+                    variables: {}
+                });
 
                 expect(match(matchingPoint)).toEqual(false);
                 expect(match(nonMatchingPoint)).toEqual(false);
@@ -615,7 +695,11 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig
                 });
-                const { instance: { match } } = ast as FunctionNode;
+                const { match } = initFunction({
+                    node: ast as FunctionNode,
+                    type_config: typeConfig,
+                    variables: {}
+                });
 
                 expect(match(matchingPoint)).toEqual(false);
                 expect(match(nonMatchingPoint)).toEqual(true);
@@ -627,7 +711,11 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig
                 });
-                const { instance: { match } } = ast as FunctionNode;
+                const { match } = initFunction({
+                    node: ast as FunctionNode,
+                    type_config: typeConfig,
+                    variables: {}
+                });
 
                 expect(match(multiPolygon)).toEqual(false);
             });
@@ -638,7 +726,11 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig
                 });
-                const { instance: { match } } = ast as FunctionNode;
+                const { match } = initFunction({
+                    node: ast as FunctionNode,
+                    type_config: typeConfig,
+                    variables: {}
+                });
 
                 expect(match(multiPolygon)).toEqual(false);
             });
@@ -649,7 +741,11 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig
                 });
-                const { instance: { match } } = ast as FunctionNode;
+                const { match } = initFunction({
+                    node: ast as FunctionNode,
+                    type_config: typeConfig,
+                    variables: {}
+                });
 
                 expect(match(multiPolygon)).toEqual(false);
             });
@@ -660,7 +756,11 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig
                 });
-                const { instance: { match } } = ast as FunctionNode;
+                const { match } = initFunction({
+                    node: ast as FunctionNode,
+                    type_config: typeConfig,
+                    variables: {}
+                });
 
                 expect(match(multiPolygon)).toEqual(false);
             });
@@ -671,7 +771,11 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig
                 });
-                const { instance: { match } } = ast as FunctionNode;
+                const { match } = initFunction({
+                    node: ast as FunctionNode,
+                    type_config: typeConfig,
+                    variables: {}
+                });
 
                 expect(match(multiPolygonWithHoles)).toEqual(false);
             });
@@ -682,7 +786,11 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig
                 });
-                const { instance: { match } } = ast as FunctionNode;
+                const { match } = initFunction({
+                    node: ast as FunctionNode,
+                    type_config: typeConfig,
+                    variables: {}
+                });
 
                 expect(match(multiPolygonWithHoles)).toEqual(false);
             });
@@ -693,7 +801,11 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig
                 });
-                const { instance: { match } } = ast as FunctionNode;
+                const { match } = initFunction({
+                    node: ast as FunctionNode,
+                    type_config: typeConfig,
+                    variables: {}
+                });
 
                 expect(match(multiPolygonWithHoles)).toEqual(false);
             });
@@ -704,7 +816,11 @@ describe('geoPolygon', () => {
                 const { ast } = new Parser(query, {
                     type_config: typeConfig
                 });
-                const { instance: { match } } = ast as FunctionNode;
+                const { match } = initFunction({
+                    node: ast as FunctionNode,
+                    type_config: typeConfig,
+                    variables: {}
+                });
 
                 expect(match(multiPolygonWithHoles)).toEqual(false);
             });

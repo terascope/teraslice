@@ -1,17 +1,21 @@
-import { AnyQuery } from '@terascope/types';
+import { AnyQuery, xLuceneVariables } from '@terascope/types';
 import { parseGeoPoint, parseGeoDistance } from '@terascope/utils';
 import { polyHasPoint, makeCircle } from './helpers';
 import * as i from '../../interfaces';
+import { getFieldValue, logger } from '../../utils';
 
-function validate(params: i.Term[]) {
+function validate(params: i.Term[], variables: xLuceneVariables) {
     const distanceParam = params.find((node) => node.field === 'distance');
     const geoPointParam = params.find((node) => node.field === 'point');
 
     if (distanceParam == null) throw new Error('Invalid geoDistance query, need to specify a "distance" parameter');
     if (geoPointParam == null) throw new Error('Invalid geoDistance query, need to specify a "point" parameter');
 
-    const point = parseGeoPoint(geoPointParam.value as string);
-    const distance = parseGeoDistance(distanceParam.value as string);
+    const geoPointValue = getFieldValue<string>(geoPointParam.value, variables);
+    const distanceValue = getFieldValue<string>(distanceParam.value, variables);
+
+    const point = parseGeoPoint(geoPointValue);
+    const distance = parseGeoDistance(distanceValue);
 
     return {
         ...point,
@@ -22,11 +26,15 @@ function validate(params: i.Term[]) {
 const geoDistance: i.FunctionDefinition = {
     name: 'geoDistance',
     version: '1',
-    create(_field: string, params: any, { logger }) {
-        if (!_field || _field === '*') throw new Error('Field for geoDistance cannot be empty or "*"');
+    create({
+        node, variables
+    }) {
+        if (!node.field || node.field === '*') {
+            throw new Error('Field for geoDistance cannot be empty or "*"');
+        }
         const {
             lat, lon, distance, unit: paramUnit
-        } = validate(params);
+        } = validate(node.params, variables);
 
         function toElasticsearchQuery(field: string, options: i.FunctionElasticsearchOptions) {
             const unit = paramUnit || options.geo_sort_unit;

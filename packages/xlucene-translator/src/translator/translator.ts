@@ -54,6 +54,7 @@ export class Translator {
             logger,
             type_config: this.typeConfig,
             default_geo_field: this._defaultGeoField,
+            variables: this.variables ?? {},
             geo_sort_point: opts.geo_sort_point,
             geo_sort_order: opts.geo_sort_order || this._defaultGeoSortOrder,
             geo_sort_unit: opts.geo_sort_unit || this._defaultGeoSortUnit,

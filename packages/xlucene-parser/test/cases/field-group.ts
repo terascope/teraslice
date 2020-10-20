@@ -16,7 +16,7 @@ export default [
                         left: {
                             operator: 'gte',
                             field_type: xLuceneFieldType.Integer,
-                            value: 10,
+                            value: { type: 'value', value: 10, },
                         }
                     },
                     {
@@ -25,7 +25,7 @@ export default [
                         left: {
                             operator: 'lte',
                             field_type: xLuceneFieldType.Integer,
-                            value: 20,
+                            value: { type: 'value', value: 20, },
                         }
                     },
                     {
@@ -34,7 +34,7 @@ export default [
                         left: {
                             operator: 'gte',
                             field_type: xLuceneFieldType.Integer,
-                            value: 100,
+                            value: { type: 'value', value: 100, },
                         }
                     }
                 ]
@@ -54,7 +54,7 @@ export default [
                         left: {
                             operator: 'gte',
                             field_type: xLuceneFieldType.Integer,
-                            value: 10,
+                            value: { type: 'variable', value: 'foo', },
                         }
                     },
                     {
@@ -63,7 +63,7 @@ export default [
                         left: {
                             operator: 'lte',
                             field_type: xLuceneFieldType.Integer,
-                            value: 20,
+                            value: { type: 'variable', value: 'baz', },
                         }
                     },
                     {
@@ -72,7 +72,7 @@ export default [
                         left: {
                             operator: 'gte',
                             field_type: xLuceneFieldType.Integer,
-                            value: 100,
+                            value: { type: 'variable', value: 'bar', },
                         }
                     }
                 ]
@@ -92,7 +92,7 @@ export default [
                         left: {
                             operator: 'gte',
                             field_type: xLuceneFieldType.Integer,
-                            value: 10,
+                            value: { type: 'value', value: 10, },
                         }
                     },
                 ]
@@ -106,7 +106,7 @@ export default [
                         left: {
                             operator: 'lte',
                             field_type: xLuceneFieldType.Integer,
-                            value: 20,
+                            value: { type: 'value', value: 20, },
                         }
                     },
                 ]
@@ -120,7 +120,7 @@ export default [
                         left: {
                             operator: 'gte',
                             field_type: xLuceneFieldType.Integer,
-                            value: 100,
+                            value: { type: 'value', value: 100, },
                         }
                     }
                 ]
@@ -137,7 +137,7 @@ export default [
                     {
                         type: ASTType.Term,
                         field_type: xLuceneFieldType.String,
-                        value: 'AqMvPMCS76u0',
+                        value: { type: 'value', value: 'AqMvPMCS76u0', },
                     }
                 ]
             },
@@ -147,7 +147,7 @@ export default [
                     {
                         type: ASTType.Term,
                         field_type: xLuceneFieldType.String,
-                        value: '497qIZuha9_u',
+                        value: { type: 'value', value: '497qIZuha9_u', },
                     }
                 ]
             },
@@ -157,7 +157,7 @@ export default [
                     {
                         type: ASTType.Term,
                         field_type: xLuceneFieldType.String,
-                        value: 'Oc2DG0O2gbcY',
+                        value: { type: 'value', value: 'Oc2DG0O2gbcY', },
                     }
                 ]
             }
@@ -172,7 +172,7 @@ export default [
                 nodes: [
                     {
                         type: ASTType.Wildcard,
-                        value: 'Bob*',
+                        value: { type: 'value', value: 'Bob*', },
                     }
                 ]
             },
@@ -181,7 +181,7 @@ export default [
                 nodes: [
                     {
                         type: ASTType.Wildcard,
-                        value: 'Joe*',
+                        value: { type: 'value', value: 'Joe*', },
                     }
                 ]
             },
@@ -198,7 +198,7 @@ export default [
                         type: ASTType.Term,
                         field: 'count',
                         field_type: xLuceneFieldType.Integer,
-                        value: 155
+                        value: { type: 'value', value: 155 },
                     },
                 ]
             },
@@ -210,7 +210,7 @@ export default [
                         field: 'count',
                         field_type: xLuceneFieldType.String,
                         quoted: true,
-                        value: '223'
+                        value: { type: 'value', value: '223' },
                     }
                 ]
             }
@@ -227,7 +227,7 @@ export default [
                         type: ASTType.Term,
                         field: 'count',
                         field_type: xLuceneFieldType.Integer,
-                        value: 155
+                        value: { type: 'variable', value: 'foo' },
                     },
                 ]
             },
@@ -238,7 +238,7 @@ export default [
                         type: ASTType.Term,
                         field: 'count',
                         field_type: xLuceneFieldType.Integer,
-                        value: 223
+                        value: { type: 'variable', value: 'bar' },
                     }
                 ]
             }
@@ -258,7 +258,7 @@ export default [
                             type: ASTType.Term,
                             field: 'count',
                             field_type: xLuceneFieldType.Integer,
-                            value: 155
+                            value: { type: 'value', value: 155 },
                         },
                     ]
                 },
@@ -269,7 +269,7 @@ export default [
                             type: ASTType.Term,
                             field: 'count',
                             field_type: xLuceneFieldType.Integer,
-                            value: 223
+                            value: { type: 'value', value: 223 },
                         }
                     ]
                 }
@@ -293,7 +293,7 @@ export default [
                             type: ASTType.Term,
                             field: 'count',
                             field_type: xLuceneFieldType.Integer,
-                            value: 155
+                            value: { type: 'variable', value: 'foo' },
                         },
                     ]
                 },
@@ -304,7 +304,7 @@ export default [
                             type: ASTType.Term,
                             field: 'count',
                             field_type: xLuceneFieldType.Integer,
-                            value: 223
+                            value: { type: 'variable', value: 'bar' },
                         }
                     ]
                 }
@@ -329,7 +329,7 @@ export default [
                             type: ASTType.Term,
                             field: 'bool',
                             field_type: xLuceneFieldType.Boolean,
-                            value: true
+                            value: { type: 'value', value: true },
                         },
                     ]
                 },
@@ -340,7 +340,7 @@ export default [
                             type: ASTType.Term,
                             field: 'bool',
                             field_type: xLuceneFieldType.Boolean,
-                            value: false
+                            value: { type: 'value', value: false },
                         }
                     ]
                 }
@@ -361,7 +361,7 @@ export default [
                         type: ASTType.Term,
                         field: 'example',
                         field_type: xLuceneFieldType.String,
-                        value: 'foo'
+                        value: { type: 'value', value: 'foo' },
                     },
                     {
                         type: ASTType.LogicalGroup,
@@ -373,7 +373,7 @@ export default [
                                         type: ASTType.Term,
                                         field: 'example',
                                         field_type: xLuceneFieldType.String,
-                                        value: 'bar'
+                                        value: { type: 'value', value: 'bar' },
                                     },
                                 ]
                             },
@@ -384,7 +384,7 @@ export default [
                                         type: ASTType.Term,
                                         field: 'example',
                                         field_type: xLuceneFieldType.String,
-                                        value: 'baz'
+                                        value: { type: 'value', value: 'baz' },
                                     },
                                 ]
                             }
@@ -405,13 +405,13 @@ export default [
                         type: ASTType.Term,
                         field_type: xLuceneFieldType.String,
                         field: 'example',
-                        value: 'foo'
+                        value: { type: 'value', value: 'foo' },
                     },
                     {
                         type: ASTType.Term,
                         field: 'other',
                         field_type: xLuceneFieldType.String,
-                        value: 'bar'
+                        value: { type: 'value', value: 'bar' },
                     },
                 ]
             }
@@ -430,14 +430,14 @@ export default [
                             type: ASTType.Term,
                             field: 'val',
                             field_type: xLuceneFieldType.Integer,
-                            value: 1,
+                            value: { type: 'value', value: 1, },
                         }
                     },
                     {
                         type: ASTType.Term,
                         field: 'val',
                         field_type: xLuceneFieldType.Integer,
-                        value: 2
+                        value: { type: 'value', value: 2 },
                     }
                 ]
             }
@@ -456,14 +456,14 @@ export default [
                             type: ASTType.Term,
                             field: 'val',
                             field_type: xLuceneFieldType.Integer,
-                            value: 1,
+                            value: { type: 'value', value: 1, },
                         }
                     },
                     {
                         type: ASTType.Term,
                         field: 'val',
                         field_type: xLuceneFieldType.Integer,
-                        value: 2
+                        value: { type: 'value', value: 2 },
                     }
                 ]
             }
@@ -474,14 +474,14 @@ export default [
         field_type: xLuceneFieldType.String,
         field: 'some_ref',
         quoted: true,
-        value: 'A',
+        value: { type: 'value', value: 'A', },
     }],
     ["some_ref:('A')", 'single value field group', {
         type: ASTType.Term,
         field_type: xLuceneFieldType.String,
         field: 'some_ref',
         quoted: true,
-        value: 'A',
+        value: { type: 'value', value: 'A', },
     }],
     ['foo:(bar baz)', 'multi-value field group with no quotes', {
         type: ASTType.FieldGroup,
@@ -494,7 +494,7 @@ export default [
                         type: ASTType.Term,
                         field: 'foo',
                         field_type: xLuceneFieldType.String,
-                        value: 'bar',
+                        value: { type: 'value', value: 'bar', },
                     },
                 ],
             },
@@ -505,7 +505,7 @@ export default [
                         type: ASTType.Term,
                         field: 'foo',
                         field_type: xLuceneFieldType.String,
-                        value: 'baz'
+                        value: { type: 'value', value: 'baz' },
                     }
                 ]
             }
@@ -524,7 +524,7 @@ export default [
                         field_type: xLuceneFieldType.String,
                         quoted: false,
                         restricted: true,
-                        value: '@bar',
+                        value: { type: 'value', value: '@bar', },
                     },
                 ],
             },
@@ -537,7 +537,7 @@ export default [
                         field_type: xLuceneFieldType.String,
                         quoted: false,
                         restricted: true,
-                        value: '@baz'
+                        value: { type: 'value', value: '@baz' },
                     }
                 ]
             }
@@ -557,7 +557,7 @@ export default [
                             type: ASTType.Term,
                             field: 'val',
                             field_type: xLuceneFieldType.Integer,
-                            value: 155,
+                            value: { type: 'value', value: 155, },
                         },
                     ],
                 },
@@ -568,7 +568,7 @@ export default [
                             type: ASTType.Term,
                             field: 'val',
                             field_type: xLuceneFieldType.Integer,
-                            value: 223
+                            value: { type: 'value', value: 223 },
                         }
                     ]
                 }

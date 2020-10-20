@@ -4,7 +4,8 @@ import {
     isPlainObject,
     TSError,
     isWildCardString,
-    debugLogger
+    debugLogger,
+    toString,
 } from '@terascope/utils';
 import { xLuceneFieldType, xLuceneVariables, CoordinateTuple } from '@terascope/types';
 import * as i from './interfaces';
@@ -48,7 +49,7 @@ export function isGeoBoundingBox(node: unknown): node is i.GeoBoundingBox {
     return _getType(node) === i.ASTType.GeoBoundingBox;
 }
 
-export function isFunctionExpression(node: unknown): node is i.FunctionNode {
+export function isFunctionNode(node: unknown): node is i.FunctionNode {
     return _getType(node) === i.ASTType.Function;
 }
 
@@ -88,10 +89,6 @@ export function isBooleanDataType(node: unknown): node is i.BooleanDataType {
     return node && (node as any).field_type === 'boolean';
 }
 
-export function getAnyValue(node: unknown): any {
-    return node && (node as any).value;
-}
-
 export function getField(node: unknown): string|undefined {
     if (!node) return;
     if (!(node as any).field || !isString((node as any).field)) return;
@@ -106,7 +103,8 @@ export const termTypes: i.ASTType[] = [
     i.ASTType.Wildcard,
     i.ASTType.GeoDistance,
     i.ASTType.GeoBoundingBox,
-    i.ASTType.Function
+    i.ASTType.Function,
+    i.ASTType.TermList,
 ];
 
 export function isTermType(node: unknown): node is i.TermLike {
@@ -121,8 +119,39 @@ export function isGroupLike(node: unknown): node is i.GroupLikeAST {
 }
 
 export function validateVariables(obj: xLuceneVariables): xLuceneVariables {
-    if (!isPlainObject(obj)) throw new TSError('Invalid xLuceneVariables configuration provided, it must be an object');
+    if (!isPlainObject(obj)) {
+        throw new TSError('Invalid xLuceneVariables configuration provided, it must be an object');
+    }
     return { ...obj };
+}
+
+// const variableTypes = Object.freeze({
+//     String: true,
+//     Number: true,
+//     Boolean: true,
+//     RegExp: true,
+// });
+// const type = getTypeOf(variables[value.value]);
+// if (!variableTypes[type]) {
+//     throw new Error(`Unsupported type of ${type} received for variable $${value.value}`);
+// }
+export function getFieldValue<T>(
+    value: i.FieldValue<T>,
+    variables: xLuceneVariables,
+    allowMissingValue = false
+): T {
+    if (value.type === 'variable') {
+        if (variables[value.value] != null) {
+            return variables[value.value] as T;
+        }
+        throw new Error(`Could not find a variable set with key $${value.value}`);
+    }
+    if (allowMissingValue || value.value != null) {
+        return value.value;
+    }
+
+    // should never get here
+    throw new Error(`Missing value, got ${toString(value)}`);
 }
 
 export function isInfiniteValue(input?: number|string): boolean {
@@ -146,46 +175,23 @@ export interface ParsedRange {
     'lt'?: number|string;
 }
 
-export function parseRange(node: i.Range, excludeInfinite = false): ParsedRange {
+export function parseRange(
+    node: i.Range, variables: xLuceneVariables, excludeInfinite = false
+): ParsedRange {
     const results = {};
 
-    if (!excludeInfinite || !isInfiniteValue(node.left.value)) {
-        results[node.left.operator] = node.left.value;
+    const leftValue = getFieldValue(node.left.value, variables);
+    if (!excludeInfinite || !isInfiniteValue(leftValue)) {
+        results[node.left.operator] = leftValue;
     }
 
     if (node.right) {
-        if (!excludeInfinite || !isInfiniteValue(node.right.value)) {
-            results[node.right.operator] = node.right.value;
+        const rightValue = getFieldValue(node.right.value, variables);
+        if (!excludeInfinite || !isInfiniteValue(rightValue)) {
+            results[node.right.operator] = rightValue;
         }
     }
     return results;
-}
-
-function isGreaterThan(node: i.RangeNode) {
-    if (node.operator === 'gte' || node.operator === 'gt') return true;
-    return false;
-}
-
-export function buildRangeQueryString(node: i.Range): string | undefined {
-    if (node.right) {
-        const leftBrace = node.left.operator === 'gte' ? '[' : '{';
-        const rightBrace = node.right.operator === 'lte' ? ']' : '}';
-        return `${leftBrace}${node.left.value} TO ${node.right.value}${rightBrace}`;
-    }
-    // cannot have a single value infinity range query
-    if (isInfiniteValue(node.left.value)) return;
-    // queryString cannot use ranges like >=1000, must convert to equivalent [1000 TO *]
-    if (isGreaterThan(node.left)) {
-        if (node.left.operator === 'gte') {
-            return `[${node.left.value} TO *]`;
-        }
-        return `{${node.left.value} TO *]`;
-    }
-
-    if (node.left.operator === 'lte') {
-        return `[* TO ${node.left.value}]`;
-    }
-    return `[* TO ${node.left.value}}`;
 }
 
 export function coordinateToXlucene(cord: CoordinateTuple): string {

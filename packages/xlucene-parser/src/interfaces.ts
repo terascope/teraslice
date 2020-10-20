@@ -35,7 +35,8 @@ export type TermLikeType =
     ASTType.Wildcard|
     ASTType.GeoBoundingBox|
     ASTType.GeoDistance|
-    ASTType.Function
+    ASTType.Function|
+    ASTType.TermList;
 
 export interface TermLikeAST {
     type: TermLikeType;
@@ -56,7 +57,8 @@ export enum ASTType {
     Regexp = 'regexp',
     Wildcard = 'wildcard',
     Empty = 'empty',
-    Function = 'function'
+    Function = 'function',
+    TermList = 'term-list',
 }
 
 export interface EmptyAST {
@@ -68,30 +70,43 @@ export interface EmptyAST {
 
 export type Field = string|null;
 
+export type FieldValue<T> = {
+    type: 'value';
+    value: T;
+}|{
+    type: 'variable';
+    value: string;
+};
+
+export interface TermList extends TermLikeAST {
+    type: ASTType.TermList;
+    values: FieldValue<any>[];
+}
+
 export interface AnyDataType {
     /**
      * The field type here may be the field type specified
      * in the type_config
     */
     field_type: t.xLuceneFieldType;
-    value: string|number|boolean|any;
+    value: FieldValue<string|number|boolean|any>;
 }
 
 export interface NumberDataType {
     field_type: t.xLuceneFieldType.Integer | t.xLuceneFieldType.Float;
-    value: number;
+    value: FieldValue<number>;
 }
 
 export interface StringDataType {
     field_type: t.xLuceneFieldType.String;
-    value: string;
+    value: FieldValue<string>;
     quoted: boolean;
     restricted?: boolean;
 }
 
 export interface BooleanDataType {
     field_type: t.xLuceneFieldType.Boolean;
-    value: boolean;
+    value: FieldValue<boolean>;
 }
 
 export interface LogicalGroup extends GroupLikeAST {
@@ -170,9 +185,12 @@ export interface GeoBoundingBox extends TermLikeAST {
 
 export interface FunctionNode extends TermLikeAST {
     type: ASTType.Function;
+    /**
+     * The name of the function
+    */
     name: string;
     description?: string;
-    instance: FunctionMethods;
+    params: Term[];
     // we need this type for typescript to
     // detect the union correctly
     __function?: boolean;
@@ -200,18 +218,15 @@ export interface Term extends AnyDataType, TermLikeAST {
 }
 
 export interface FunctionConfig {
-    logger: Logger;
-    typeConfig: t.xLuceneTypeConfig;
+    node: FunctionNode;
+    type_config: t.xLuceneTypeConfig;
+    variables: t.xLuceneVariables;
 }
 
 export interface FunctionDefinition {
     version: string;
     name: string;
-    create: (
-        field: string,
-        params: any,
-        config: FunctionConfig
-    ) => FunctionMethods;
+    create: (config: FunctionConfig) => FunctionMethods;
 }
 
 export interface FunctionMethodsResults {

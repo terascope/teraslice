@@ -7,24 +7,24 @@ export default [
         type: ASTType.Regexp,
         field_type: xLuceneFieldType.String,
         field: 'example',
-        value: '[a-z]+'
+        value: { type: 'value', value: '[a-z]+' },
     }],
     ['example: $foo', 'a basic regexp with variables', {
-        type: ASTType.Regexp,
+        type: ASTType.Term,
         field_type: xLuceneFieldType.String,
         field: 'example',
-        value: '[a-z]+'
+        value: { type: 'variable', value: 'foo' },
     }, { example: xLuceneFieldType.String }, { foo: /[a-z]+/ }],
     ['example:/foo:bar/', 'a regexp with a colon', {
         type: ASTType.Regexp,
         field_type: xLuceneFieldType.String,
         field: 'example',
-        value: 'foo:bar'
+        value: { type: 'value', value: 'foo:bar' },
     }],
     ['example:/0-9+\\//', 'regex with an escaped forward slash', {
         type: ASTType.Regexp,
         field_type: xLuceneFieldType.String,
         field: 'example',
-        value: '0-9+\\/'
+        value: { type: 'value', value: '0-9+\\/' },
     }],
 ] as TestCase[];

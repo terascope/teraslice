@@ -2,7 +2,8 @@ import {
     TSError,
     isString,
     isEmpty,
-    matchWildcard
+    matchWildcard,
+    isRegExpLike,
 } from '@terascope/utils';
 import * as p from 'xlucene-parser';
 import * as i from '@terascope/types';
@@ -28,12 +29,16 @@ export function translateQuery(
     parser: p.Parser,
     options: UtilsTranslateQueryOptions
 ): i.ElasticsearchDSLResult {
-    const { logger, type_config: typeConfig } = options;
+    const { logger, type_config: typeConfig, variables } = options;
     let sort: i.AnyQuerySort|i.AnyQuerySort[]|undefined;
 
     function buildAnyQuery(node: p.AST): i.AnyQuery | undefined {
         // if no field and is wildcard
-        if (p.isWildcard(node) && !node.field && node.value === '*') {
+        if (
+            p.isWildcard(node)
+            && !node.field
+            && p.getFieldValue(node.value, variables) === '*'
+        ) {
             return {
                 bool: {
                     filter: [],
@@ -88,6 +93,15 @@ export function translateQuery(
         }
 
         if (p.isTerm(node)) {
+            if (node.value.value === 'variable') {
+                const value = p.getFieldValue(node.value, variables);
+                if (isRegExpLike(value)) {
+                    return buildRegExprQuery(value);
+                }
+                if (Array.isArray(value)) {
+                    return buildBoolQuery(makeOrConjunction(node, value));
+                }
+            }
             return buildTermQuery(node);
         }
 
@@ -111,8 +125,9 @@ export function translateQuery(
             return buildGeoDistanceQuery(node);
         }
 
-        if (p.isFunctionExpression(node)) {
-            const { query, sort: sortQuery } = node.instance.toElasticsearchQuery(
+        if (p.isFunctionNode(node)) {
+            const instance = p.initFunction({ node, variables, type_config: typeConfig });
+            const { query, sort: sortQuery } = instance.toElasticsearchQuery(
                 getTermField(node),
                 options
             );
@@ -129,6 +144,22 @@ export function translateQuery(
 
             return query;
         }
+    }
+
+    function makeOrConjunction(node: p.TermLikeAST, values: any[]): p.LogicalGroup {
+        return {
+            type: p.ASTType.LogicalGroup,
+            flow: values.map((value) => ({
+                type: p.ASTType.Conjunction,
+                nodes: [{
+                    ...node,
+                    value: {
+                        type: 'value',
+                        value
+                    }
+                }]
+            } as p.Conjunction))
+        };
     }
 
     function buildMultiMatchQuery(node: p.TermLikeAST, query: string): i.MultiMatchQuery {
@@ -203,14 +234,15 @@ export function translateQuery(
             if (!node.right) {
                 return;
             }
-            const query = `${node.left.operator}${node.left.value}`;
+            const leftValue = p.getFieldValue(node.left.value, variables);
+            const query = `${node.left.operator}${leftValue}`;
             return buildMultiMatchQuery(node, query);
         }
 
         const field = getTermField(node);
         const rangeQuery: i.RangeQuery = {
             range: {
-                [field]: p.parseRange(node, true),
+                [field]: p.parseRange(node, variables, true),
             },
         };
 
@@ -219,19 +251,21 @@ export function translateQuery(
     }
 
     function buildTermQuery(node: p.Term): TermQueryResults {
+        const value = p.getFieldValue(node.value, variables);
+
         if (isMultiMatch(node)) {
-            const query = `${node.value}`;
+            const query = `${value}`;
             return buildMultiMatchQuery(node, query);
         }
 
         const field = getTermField(node);
 
-        if (isString(node.value) || node.analyzed) {
+        if (isString(value) || node.analyzed) {
             const matchQuery: i.MatchQuery = {
                 match: {
                     [field]: {
                         operator: 'and',
-                        query: node.value,
+                        query: value,
                     },
                 },
             };
@@ -242,7 +276,7 @@ export function translateQuery(
 
         const termQuery: i.TermQuery = {
             term: {
-                [field]: node.value,
+                [field]: value,
             },
         };
 
@@ -251,8 +285,10 @@ export function translateQuery(
     }
 
     function buildWildcardQuery(node: p.Wildcard): WildCardQueryResults {
+        const value = p.getFieldValue(node.value, variables);
+
         if (isMultiMatch(node)) {
-            const query = `${node.value}`;
+            const query = `${value}`;
             return buildMultiMatchQuery(node, query);
         }
 
@@ -262,14 +298,14 @@ export function translateQuery(
             return {
                 query_string: {
                     fields: [field],
-                    query: `${node.value}`
+                    query: value
                 }
             };
         }
 
         const wildcardQuery: i.WildcardQuery = {
             wildcard: {
-                [field]: node.value,
+                [field]: value,
             },
         };
 
@@ -280,8 +316,9 @@ export function translateQuery(
     function buildRegExprQuery(
         node: p.Regexp
     ): i.RegExprQuery | i.MultiMatchQuery | i.QueryStringQuery {
+        const value = p.getFieldValue(node.value, variables);
         if (isMultiMatch(node)) {
-            const query = `${node.value}`;
+            const query = `${value}`;
             return buildMultiMatchQuery(node, query);
         }
 
@@ -291,7 +328,7 @@ export function translateQuery(
             return {
                 query_string: {
                     fields: [field],
-                    query: `/${node.value}/`
+                    query: `/${value}/`
                 }
             };
         }
@@ -299,7 +336,7 @@ export function translateQuery(
         const regexQuery: i.RegExprQuery = {
             regexp: {
                 [field]: {
-                    value: node.value,
+                    value,
                     flags: 'COMPLEMENT|EMPTY|INTERSECTION|INTERVAL'
                 }
             },

@@ -64,41 +64,15 @@ describe('Parser', () => {
         });
     });
 
-    describe('when given a invalid function query "location: something(hello: "world")', () => {
-        it('should throw an error', () => {
-            const errMsg = 'Failure to parse xLucene query "location: something(hello:"world")", caused by Error: Could not find an xLucene function with name "something"';
-            expect(() => {
-                new Parser('location: something(hello:"world")');
-            }).toThrowWithMessage(TSError, errMsg);
-        });
-    });
-
-    describe('when given a invalid function query "location:geoBox()", it can still parse syntax but break at validation', () => {
-        it('should throw an error', () => {
-            const errMsg = 'Failure to parse xLucene query "location:geoBox()", caused by Error: Invalid geoBox query, need to specify a "topLeft" parameter';
-            expect(() => {
-                new Parser('location:geoBox()');
-            }).toThrowWithMessage(TSError, errMsg);
-        });
-    });
-
-    describe('when given a invalid function query "location:geoPolygon(points:[["123.43,223.43", "102.3,123.4"], "99.3,154.4" ])", it can still parse array of arrays but break validation', () => {
-        it('should throw an error', () => {
-            expect(() => {
-                new Parser('location:geoPolygon(points:[["123.43,223.43", "102.3,123.4"], "99.3,154.4" ])');
-            }).toThrow();
-        });
-    });
-
     describe('when given variables in a query', () => {
-        it('should throw an error if no variables are supplied', () => {
+        it('should not throw an error if no variables are supplied', () => {
             const errMsg = /Could not find a variable set with key "bar"/;
             expect(() => {
                 new Parser('foo:$bar');
-            }).toThrowWithMessage(TSError, errMsg);
+            }).not.toThrowWithMessage(TSError, errMsg);
         });
 
-        it('should throw an error if a variable value is an object if the field name is not part of a function expression', () => {
+        it('should not throw an error if a variable value is an object if the field name is not part of a function expression', () => {
             expect(() => {
                 new Parser('foo:$bar', {
                     variables: {
@@ -106,27 +80,23 @@ describe('Parser', () => {
                         other: 'variable'
                     }
                 });
-            }).toThrow();
+            }).not.toThrow();
         });
     });
 
-    it('restricted variables will throw if given bad values', () => {
+    it('should not throw if given invalid variable values', () => {
         const query = 'foo: $bar';
         const typeConfig = { foo: xLuceneFieldType.String };
-        const errMsg = 'Unsupported type of';
 
         function test(val: any) {
             const variables = { bar: val };
 
-            try {
+            expect(() => {
                 new Parser(query, {
                     type_config: typeConfig,
                     variables
                 });
-                throw new Error('this should throw');
-            } catch (err) {
-                expect(err.message).toContain(errMsg);
-            }
+            }).not.toThrow();
         }
 
         const testCases: any[] = [

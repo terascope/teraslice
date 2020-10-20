@@ -24,6 +24,7 @@ describe('Translator', () => {
         expect(translateQuery(parser, {
             logger,
             type_config: {},
+            variables: {},
             geo_sort_order: 'asc',
             geo_sort_unit: 'meters',
         })).toEqual({

@@ -1,6 +1,5 @@
 import * as utils from '@terascope/utils';
 import * as t from '@terascope/types';
-import { AnyQuery } from '@terascope/types';
 import {
     polyHasPoint,
     makeShape,
@@ -8,6 +7,7 @@ import {
     validateListCoords
 } from './helpers';
 import * as i from '../../interfaces';
+import { getFieldValue, logger } from '../../utils';
 
 const compatMapping = {
     [t.GeoShapeType.Polygon]: t.ESGeoShapeType.Polygon,
@@ -25,36 +25,47 @@ interface PolyHolesQuery {
     };
 }
 
-function validate(params: i.Term[]): { polygonShape: t.GeoShape; relation: t.GeoShapeRelation } {
+const relations = new Set(Object.values(t.GeoShapeRelation));
+
+function validate(
+    params: i.Term[],
+    variables: t.xLuceneVariables
+): { polygonShape: t.GeoShape; relation: t.GeoShapeRelation } {
     const geoPointsParam = params.find((node) => node.field === 'points');
     const geoRelationParam = params.find((node) => node.field === 'relation');
     let relation: t.GeoShapeRelation;
 
     if (geoRelationParam) {
-        const relationKeys = Object.values(t.GeoShapeRelation);
-        if (!relationKeys.includes(geoRelationParam.value as t.GeoShapeRelation)) {
-            throw new utils.TSError(`Invalid relation value "${geoRelationParam.value}"`);
+        const geoRelationValue = getFieldValue<t.GeoShapeRelation>(
+            geoRelationParam.value, variables
+        );
+        if (!relations.has(geoRelationValue)) {
+            throw new Error(`Invalid relation value "${geoRelationValue}"`);
         }
-        relation = geoRelationParam.value as t.GeoShapeRelation;
+        relation = geoRelationValue;
     } else {
         relation = t.GeoShapeRelation.Within;
     }
 
-    if (geoPointsParam == null) throw new utils.TSError('Invalid geoPolygon query, need to specify a "points" parameter');
+    if (geoPointsParam == null) {
+        throw new Error('Invalid geoPolygon query, need to specify a "points" parameter');
+    }
 
     let polygonShape: t.GeoShape = {
         type: t.GeoShapeType.Polygon,
         coordinates: []
     };
 
-    const geoPointsValue = geoPointsParam.value;
+    const geoPointsValue = getFieldValue(geoPointsParam.value, variables);
 
     if (utils.isGeoShapePolygon(geoPointsValue) || utils.isGeoShapeMultiPolygon(geoPointsValue)) {
         polygonShape = geoPointsValue;
     } else {
-        if (!Array.isArray(geoPointsParam.value)) throw new utils.TSError('Invalid points parameter, it must either be a geoShape or be an array of geo-points');
+        if (!Array.isArray(geoPointsValue)) {
+            throw new Error('Invalid points parameter, it must either be a geoShape or be an array of geo-points');
+        }
 
-        const points: t.CoordinateTuple[] = geoPointsParam.value.map((node) => {
+        const points: t.CoordinateTuple[] = geoPointsValue.map((node) => {
             const value = node.value || node;
             const { lat, lon } = utils.parseGeoPoint(value);
             return [lon, lat];
@@ -69,22 +80,26 @@ function validate(params: i.Term[]): { polygonShape: t.GeoShape; relation: t.Geo
 const geoPolygon: i.FunctionDefinition = {
     name: 'geoPolygon',
     version: '1',
-    create(_field: string, params: any, { logger, typeConfig }) {
-        if (!_field || _field === '*') throw new Error('Field for geoPolygon cannot be empty or "*"');
-        const { polygonShape, relation } = validate(params);
+    create({
+        node, type_config: typeConfig, variables,
+    }) {
+        if (!node.field || node.field === '*') {
+            throw new Error('Field for geoPolygon cannot be empty or "*"');
+        }
+        const { polygonShape, relation } = validate(node.params, variables);
         let type: string;
 
-        if (utils.isWildCardString(_field)) {
+        if (utils.isWildCardString(node.field)) {
             const results: string[] = [];
             // collect all pertinent typeConfig fields to wildcard
             for (const [key] of Object.entries(typeConfig)) {
-                if (utils.matchWildcard(_field, key)) results.push(typeConfig[key]);
+                if (utils.matchWildcard(node.field, key)) results.push(typeConfig[key]);
             }
             const types = utils.uniq(results);
             if (types.length > 1) throw new utils.TSError(`Cannot query geoPolygon against different field types ${JSON.stringify(types)}`);
             [type] = types;
         } else {
-            type = typeConfig[_field];
+            type = typeConfig[node.field];
             // can remove the second check when "geo" if fully deprecated
         }
 
@@ -179,7 +194,7 @@ const geoPolygon: i.FunctionDefinition = {
                         relation
                     }
                 }
-            } as AnyQuery;
+            } as t.AnyQuery;
             if (logger.level() === 10) logger.trace('built geo polygon to polygon query', { query });
 
             return { query };

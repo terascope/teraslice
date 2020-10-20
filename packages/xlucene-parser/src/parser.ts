@@ -24,13 +24,6 @@ export class Parser {
         try {
             this.ast = parse(this.query, { contextArg });
 
-            this.forTypes([i.ASTType.Function], (_node) => {
-                const node = _node as i.FunctionNode;
-                if (node.instance) {
-                    node.instance = (node as any).instance();
-                }
-            });
-
             if (utils.logger.level() === 10) {
                 const astJSON = JSON.stringify(this.ast, null, 4);
                 utils.logger.trace(`parsed ${this.query ? this.query : "''"} to `, astJSON);

@@ -1,31 +1,29 @@
 import {
     TSError,
-    getTypeOf,
     parseGeoDistance,
     parseGeoPoint,
     isRegExpLike,
     isWildCardString,
+    toFloatOrThrow,
+    toIntegerOrThrow,
 } from '@terascope/utils';
 import {
     xLuceneFieldType,
-    xLuceneVariables,
     xLuceneTypeConfig,
 } from '@terascope/types';
 import { Netmask } from 'netmask';
 import * as i from './interfaces';
 import * as utils from './utils';
-import xLuceneFunctions from './functions';
 
 const inferredFieldTypes = Object.freeze({
     [xLuceneFieldType.String]: true,
 });
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export default function makeContext(arg: i.ContextArg) {
+export function makeContext(arg: i.ContextArg) {
     let typeConfig: xLuceneTypeConfig;
-    let variables: xLuceneVariables;
     // eslint-disable-next-line
-    ({ typeConfig = {}, variables = {} } = arg);
+    ({ typeConfig = {} } = arg);
     if (!typeConfig) {
         throw new Error('xLucene Parser given invalid context');
     }
@@ -70,13 +68,6 @@ export default function makeContext(arg: i.ContextArg) {
         return typeConfig[field];
     }
 
-    function getVariable(value: string) {
-        const variable = variables[value];
-        if (variable === undefined) throw new TSError(`Could not find a variable set with key "${value}"`);
-        if (Array.isArray(variable)) return variable.slice();
-        return variable;
-    }
-
     function isInferredTermType(field: string): boolean {
         const fieldType = getFieldType(field);
         if (!fieldType) return false;
@@ -93,35 +84,16 @@ export default function makeContext(arg: i.ContextArg) {
 
         if (fieldType === xLuceneFieldType.String) {
             term.quoted = false;
-            term.value = String(value);
+            term.value = {
+                type: 'value',
+                value: String(value),
+            };
             return term;
         }
 
         utils.logger.warn(`Unsupported field inferred field type ${fieldType} for field ${field}`);
-        term.value = value;
+        term.value = { type: 'value', value };
         return term;
-    }
-
-    function parseFunction(field: string, name: string, params: i.Term[]) {
-        const fnType = xLuceneFunctions[name];
-        if (fnType == null) throw new Error(`Could not find an xLucene function with name "${name}"`);
-        // we are delaying instantiation until after parser since this can be called multiple times
-        return () => fnType.create(field, params, {
-            logger: utils.logger, typeConfig
-        });
-    }
-
-    function makeFlow(field: string, values: any[], varName: string) {
-        return values.map((value) => {
-            validateRestrictedVariable(value, varName);
-            const node = { field, type: i.ASTType.Term, value };
-            coerceTermType(node);
-            // this creates an OR statement
-            return {
-                type: i.ASTType.Conjunction,
-                nodes: [node]
-            };
-        });
     }
 
     function parseVariableRegex(str: string & RegExp) {
@@ -144,9 +116,19 @@ export default function makeContext(arg: i.ContextArg) {
 
         if (fieldType === node.field_type) return;
 
+        if (utils.isRange(node) && fieldType) {
+            node.type = i.ASTType.Range;
+            node.left.field_type = fieldType as xLuceneFieldType.Integer;
+            if (node.right) {
+                node.right.field_type = fieldType as xLuceneFieldType.Integer;
+            }
+        }
+        if (node.value.type !== 'value') return;
+
+        const value = node.value.value as any;
         if (fieldType) {
             utils.logger.trace(
-                `coercing field "${field}":${node.value} type of ${node.field_type} to ${fieldType}`
+                `coercing field "${field}":${value} type of ${node.field_type} to ${fieldType}`
             );
         }
 
@@ -166,17 +148,23 @@ export default function makeContext(arg: i.ContextArg) {
             node.type = i.ASTType.Range;
             delete node.quoted;
 
-            const { start, end } = getIPRange(node.value);
+            const { start, end } = getIPRange(value);
 
             node.left = {
                 operator: 'gte',
                 field_type: xLuceneFieldType.IP,
-                value: start,
+                value: {
+                    type: 'value',
+                    value: start,
+                }
             };
             node.right = {
                 operator: 'lte',
                 field_type: xLuceneFieldType.IP,
-                value: end,
+                value: {
+                    type: 'value',
+                    value: end,
+                },
             };
         }
 
@@ -185,27 +173,24 @@ export default function makeContext(arg: i.ContextArg) {
             node.type = i.ASTType.Term;
             delete node.quoted;
             delete node.restricted;
-            if (node.value === 'true') {
-                node.value = true;
+            if (value === 'true') {
+                node.value = { type: 'value', value: true };
             }
-            if (node.value === 'false') {
-                node.value = false;
+            if (value === 'false') {
+                node.value = { type: 'value', value: false };
             }
             return;
         }
 
         if (fieldType === xLuceneFieldType.Integer) {
-            if (utils.isRange(node)) {
-                node.type = i.ASTType.Range;
-                node.left.field_type = fieldType;
-                if (node.right) node.right.field_type = fieldType;
-            } else {
-                delete node.quoted;
-                delete node.restricted;
-                node.field_type = fieldType;
-                node.type = i.ASTType.Term;
-                node.value = parseInt(node.value, 10);
-            }
+            delete node.quoted;
+            delete node.restricted;
+            node.field_type = fieldType;
+            node.type = i.ASTType.Term;
+            node.value = {
+                type: 'value',
+                value: toIntegerOrThrow(value)
+            };
             return;
         }
 
@@ -214,20 +199,29 @@ export default function makeContext(arg: i.ContextArg) {
             node.type = i.ASTType.Term;
             delete node.quoted;
             delete node.restricted;
-            node.value = parseFloat(node.value);
+            node.value = {
+                type: 'value',
+                value: toFloatOrThrow(value),
+            };
             return;
         }
 
         if (fieldType === xLuceneFieldType.String) {
             node.field_type = fieldType;
-            if (isRegExpLike(node.value) || node.type === i.ASTType.Regexp) {
+            if (isRegExpLike(value) || node.type === i.ASTType.Regexp) {
                 node.type = i.ASTType.Regexp;
-                node.value = parseVariableRegex(node.value);
-            } else if (isWildCardString(node.value)) {
+                node.value = {
+                    type: 'value',
+                    value: parseVariableRegex(value)
+                };
+            } else if (isWildCardString(value)) {
                 node.type = i.ASTType.Wildcard;
             } else {
                 node.quoted = false;
-                node.value = `${node.value}`;
+                node.value = {
+                    type: 'value',
+                    value: String(value),
+                };
                 node.type = i.ASTType.Term;
             }
         }
@@ -241,26 +235,8 @@ export default function makeContext(arg: i.ContextArg) {
         parseInferredTermType,
         isInferredTermType,
         propagateDefaultField,
-        parseFunction,
-        getVariable,
-        makeFlow,
-        validateRestrictedVariable
+        getFieldType,
     };
-}
-
-const variableTypes = Object.freeze({
-    String: true,
-    Number: true,
-    Boolean: true,
-    RegExp: true,
-});
-
-// cannot allow variables that are objects, errors, maps, sets, buffers
-function validateRestrictedVariable(variable: any, varName: string) {
-    const type = getTypeOf(variable);
-    if (!variableTypes[type]) {
-        throw new Error(`Unsupported type of ${type} received for variable $${varName}`);
-    }
 }
 
 function getIPRange(val: string): { start: string, end: string} {

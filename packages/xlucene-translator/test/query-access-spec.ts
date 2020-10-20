@@ -203,7 +203,7 @@ describe('QueryAccess', () => {
         });
 
         it('should throw if field is not included with other term', () => {
-            const query = 'hello:world AND bar:foo';
+            const query = 'hello:world AND bar:12';
 
             expect(() => queryAccess.restrict(query)).toThrow();
         });
@@ -246,7 +246,7 @@ describe('QueryAccess', () => {
         });
 
         it('should allow field listed if included', () => {
-            const query = 'bar:foo';
+            const query = 'bar:12';
 
             expect(queryAccess.restrict(query)).toEqual(query);
         });

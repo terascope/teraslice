@@ -132,7 +132,9 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             }
 
             if (p.isWildcard(node)) {
-                if (this.preventPrefixWildcard && startsWithWildcard(node.value)) {
+                const value = p.getFieldValue(node.value, this.variables);
+
+                if (this.preventPrefixWildcard && startsWithWildcard(value)) {
                     throw new ts.TSError("Wildcard queries of the form 'fieldname:*value' or 'fieldname:?value' in query are restricted", {
                         statusCode: 403,
                         context: {
