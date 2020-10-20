@@ -80,7 +80,7 @@ export type FieldValue<T> = {
 
 export interface TermList extends TermLikeAST {
     type: ASTType.TermList;
-    values: FieldValue<any>[];
+    value: FieldValue<any>[];
 }
 
 export interface AnyDataType {

@@ -281,7 +281,7 @@ TermListExpression
         return {
             type: i.ASTType.TermList,
             field,
-            values
+            value: values
         }
     }
 
