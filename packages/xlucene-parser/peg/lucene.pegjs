@@ -111,16 +111,12 @@ OrConjunction
         if (nodes) {
             return [ [ right, ...nodes ] ];
         }
-        return [right]
+        return [right];
     }
     // Implicit ORs only work with at least one quoted, field/value pair or parens group
-    / left:(ImplicitValue) ws+ right:(ImplicitValue) {
-        // Implicit OR
-        return [left, right]
+    / left:TermGroup ws+ right:TermGroup {
+        return [left, right];
     }
-
-ImplicitValue
-    = NegationExpression / ParensGroup / VariableType / TermExpression
 
 TermGroup
     = NegationExpression / ParensGroup / VariableType / TermExpression
