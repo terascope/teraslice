@@ -33,12 +33,20 @@ export function makeContext(arg: i.ContextArg) {
     */
     function propagateDefaultField(node: i.AnyAST, field: string): void {
         if (!node) return;
-        if (utils.isTermType(node) && !node.field) {
-            node.field = field;
-            const fieldType = getFieldType(field);
-            coerceTermType(node);
-            // @ts-expect-error
-            if (!node.field_type && fieldType) node.field_type = fieldType;
+
+        if (utils.isRange(node)) {
+            node.field ??= field;
+            const fieldType = getFieldType(node.field);
+            if (fieldType) node.field_type = fieldType;
+
+            coerceTermType(node.left, node.field);
+            if (node.right) coerceTermType(node.right, node.field);
+            return;
+        }
+
+        if (utils.isTermType(node)) {
+            node.field ??= field;
+            coerceTermType(node, node.field);
             return;
         }
 
@@ -105,8 +113,9 @@ export function makeContext(arg: i.ContextArg) {
         return str;
     }
 
-    function coerceTermType(node: any, _field?: string) {
+    function coerceTermType(node: any, _field?: string): void {
         if (!node) return;
+
         const field = node.field || _field;
         if (!field) return;
 
@@ -114,28 +123,6 @@ export function makeContext(arg: i.ContextArg) {
 
         if (fieldType === xLuceneFieldType.AnalyzedString) {
             node.analyzed = true;
-        }
-
-        if (node.operator && fieldType && !node.field_type) {
-            node.field_type = fieldType;
-        }
-
-        if (node.left && fieldType && !node.left.field_type) {
-            node.field_type = fieldType;
-        }
-
-        if (node.right && fieldType && !node.right.field_type) {
-            node.field_type = fieldType;
-        }
-
-        if (fieldType === node.field_type) return;
-        if (node?.value?.type !== 'value') return;
-
-        const value = node.value.value as any;
-        if (fieldType) {
-            utils.logger.trace(
-                `coercing field "${field}":${value} type of ${node.field_type} to ${fieldType}`
-            );
         }
 
         // in the case of analyzed fields we should update the
@@ -149,8 +136,26 @@ export function makeContext(arg: i.ContextArg) {
             }
         }
 
+        // we only want to coerce raw values with a field type
+        if (fieldType && node.value?.type === 'value') {
+            _coerceTermValue(node, field, fieldType);
+        }
+
+        // update the field type after the coercion
+        if (fieldType) node.field_type = fieldType;
+    }
+
+    function _coerceTermValue(
+        node: any,
+        field: string,
+        fieldType: xLuceneFieldType
+    ): void {
+        const value = node.value.value as any;
+        utils.logger.trace(
+            `coercing field "${field}":${value} type of ${node.field_type} to ${fieldType}`
+        );
+
         if (fieldType === xLuceneFieldType.IPRange) {
-            node.field_type = fieldType;
             node.type = i.ASTType.Range;
             delete node.quoted;
 
@@ -174,8 +179,7 @@ export function makeContext(arg: i.ContextArg) {
             };
         }
 
-        if (fieldType === xLuceneFieldType.Boolean) {
-            node.field_type = fieldType;
+        if (node.field_type !== fieldType && fieldType === xLuceneFieldType.Boolean) {
             node.type = i.ASTType.Term;
             delete node.quoted;
             delete node.restricted;
@@ -188,11 +192,10 @@ export function makeContext(arg: i.ContextArg) {
             return;
         }
 
-        if (fieldType === xLuceneFieldType.Integer) {
+        if (node.field_type !== fieldType && fieldType === xLuceneFieldType.Integer) {
+            node.type = i.ASTType.Term;
             delete node.quoted;
             delete node.restricted;
-            node.field_type = fieldType;
-            node.type = i.ASTType.Term;
             node.value = {
                 type: 'value',
                 value: toIntegerOrThrow(value)
@@ -200,8 +203,7 @@ export function makeContext(arg: i.ContextArg) {
             return;
         }
 
-        if (fieldType === xLuceneFieldType.Float) {
-            node.field_type = fieldType;
+        if (node.field_type !== fieldType && fieldType === xLuceneFieldType.Float) {
             node.type = i.ASTType.Term;
             delete node.quoted;
             delete node.restricted;
@@ -212,8 +214,7 @@ export function makeContext(arg: i.ContextArg) {
             return;
         }
 
-        if (fieldType === xLuceneFieldType.String) {
-            node.field_type = fieldType;
+        if (node.field_type !== fieldType && fieldType === xLuceneFieldType.String) {
             if (node.type === i.ASTType.Regexp || isRegExpLike(value)) {
                 node.type = i.ASTType.Regexp;
                 node.value = {
@@ -223,12 +224,12 @@ export function makeContext(arg: i.ContextArg) {
             } else if (isWildCardString(value)) {
                 node.type = i.ASTType.Wildcard;
             } else {
-                node.quoted = false;
+                node.type = i.ASTType.Term;
+                node.quoted ??= false;
                 node.value = {
                     type: 'value',
                     value: String(value),
                 };
-                node.type = i.ASTType.Term;
             }
         }
     }

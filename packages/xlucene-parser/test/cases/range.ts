@@ -102,12 +102,12 @@ export default [
             left: {
                 operator: 'gte',
                 field_type: xLuceneFieldType.Integer,
-                value: { type: 'value', value: 1.5 }
+                value: { type: 'value', value: 1 }
             },
             right: {
                 operator: 'lte',
                 field_type: xLuceneFieldType.Integer,
-                value: { type: 'value', value: 5.3 }
+                value: { type: 'value', value: 5 }
             }
         },
         {
