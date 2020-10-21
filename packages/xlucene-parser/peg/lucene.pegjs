@@ -118,8 +118,6 @@ OrConjunction
 TermGroup
     = NegationExpression / ParensGroup / VariableType / TermExpression
 
-FieldOrQuotedTermGroup
-    = ParensGroup / VariableType / FieldOrQuotedTermExpression
 
 NegationExpression
     = 'NOT' ws+ node:NegatedTermGroup {
@@ -449,7 +447,7 @@ VariableType
                 value
             },
         };
-        coerceTermType(node);
+
         return node;
     }
 

@@ -33,7 +33,6 @@ export function makeContext(arg: i.ContextArg) {
     */
     function propagateDefaultField(node: i.AnyAST, field: string): void {
         if (!node) return;
-
         if (utils.isTermType(node) && !node.field) {
             node.field = field;
             const fieldType = getFieldType(field);
@@ -116,12 +115,21 @@ export function makeContext(arg: i.ContextArg) {
         if (fieldType === xLuceneFieldType.AnalyzedString) {
             node.analyzed = true;
         }
-        if (node.operator && fieldType) {
-            node.field_type = fieldType as xLuceneFieldType.Integer;
+
+        if (node.operator && fieldType && !node.field_type) {
+            node.field_type = fieldType;
+        }
+
+        if (node.left && fieldType && !node.left.field_type) {
+            node.field_type = fieldType;
+        }
+
+        if (node.right && fieldType && !node.right.field_type) {
+            node.field_type = fieldType;
         }
 
         if (fieldType === node.field_type) return;
-        if (node.value.type !== 'value') return;
+        if (node?.value?.type !== 'value') return;
 
         const value = node.value.value as any;
         if (fieldType) {

@@ -63,7 +63,7 @@ export default [
                         left: {
                             operator: 'lte',
                             field_type: xLuceneFieldType.Integer,
-                            value: { type: 'variable', value: 'baz', },
+                            value: { type: 'variable', value: 'bar', },
                         }
                     },
                     {
@@ -72,7 +72,7 @@ export default [
                         left: {
                             operator: 'gte',
                             field_type: xLuceneFieldType.Integer,
-                            value: { type: 'variable', value: 'bar', },
+                            value: { type: 'variable', value: 'baz', },
                         }
                     }
                 ]

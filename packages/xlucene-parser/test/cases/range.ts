@@ -102,12 +102,12 @@ export default [
             left: {
                 operator: 'gte',
                 field_type: xLuceneFieldType.Integer,
-                value: { type: 'value', value: 1, }
+                value: { type: 'value', value: 1.5 }
             },
             right: {
                 operator: 'lte',
                 field_type: xLuceneFieldType.Integer,
-                value: { type: 'value', value: 5, }
+                value: { type: 'value', value: 5.3 }
             }
         },
         {
@@ -246,13 +246,13 @@ export default [
             type: ASTType.Range,
             field: 'date',
             left: {
-                field_type: xLuceneFieldType.String,
+                field_type: xLuceneFieldType.Date,
                 value: { type: 'value', value: '2020-02-10T10:06:06.0' },
                 operator: 'gte'
             },
             right: {
                 operator: 'lte',
-                field_type: xLuceneFieldType.String,
+                field_type: xLuceneFieldType.Date,
                 value: { type: 'value', value: '2020-02-10T10:06:07.199999999999999' }
             }
         },
