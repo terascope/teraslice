@@ -2,20 +2,20 @@
 {
     const {
         parseGeoPoint,
-        parseGeoDistance,
         coerceTermType,
         parseInferredTermType,
         isInferredTermType,
         propagateDefaultField,
         logger,
-        getFieldType
+        getFieldType,
+        throwOnOldGeoUsage
     } = makeContext(options.contextArg);
 }
 
 
 /** Control Flow **/
 start
-    = ws* negate:NegationExpression ws* EOF { return negate }
+    = ws* negate:NegationExpression ws* EOF { return negate; }
     / ws* logic:LogicalGroup ws* EOF { return logic; }
     / ws* term:TermExpression ws* EOF { return term; }
     / ws* term:UnquotedTermType ws* EOF { return term; }
@@ -305,10 +305,7 @@ TermListTerm
 
 OldGeoTermExpression
     = field:FieldName ws* FieldSeparator ws* ParensStart ws* term:OldGeoTermType ws* ParensEnd {
-        return {
-            ...term,
-            field,
-        };
+        throwOnOldGeoUsage(term, field);
     }
 
 ParensStringType
@@ -567,7 +564,7 @@ OldGeoDistance
         if (term.value.type !== 'value') {
             throw new Error('Legacy xLucene geo distance does not support variables');
         }
-        return parseGeoDistance(term.value.value);
+        return { distance: term.value.value };
     }
 
 OldGeoDistanceType

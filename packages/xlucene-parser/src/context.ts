@@ -8,6 +8,7 @@ import {
     toIntegerOrThrow,
 } from '@terascope/utils';
 import {
+    GeoPoint,
     xLuceneFieldType,
     xLuceneTypeConfig,
 } from '@terascope/types';
@@ -234,6 +235,22 @@ export function makeContext(arg: i.ContextArg) {
         }
     }
 
+    function throwOnOldGeoUsage(
+        term: i.GeoBoundingBox|i.GeoDistance, field: string
+    ): never {
+        function formatPoint(point: GeoPoint) {
+            return `"${point.lat},${point.lon}"`;
+        }
+
+        if (term.type === i.ASTType.GeoBoundingBox) {
+            const example = `${field}:geoBox(bottom_right:${formatPoint(term.bottom_right)}, top_left:${formatPoint(term.top_left)})`;
+            throw new Error(`Invalid geo bounding box syntax, please use "${example}" syntax instead`);
+        }
+
+        const example = `${field}:geoDistance(point:${formatPoint(term)}, distance:${term.distance})`;
+        throw new Error(`Invalid geo distance syntax, please use "${example}" syntax instead`);
+    }
+
     return {
         logger: utils.logger,
         parseGeoPoint,
@@ -243,6 +260,7 @@ export function makeContext(arg: i.ContextArg) {
         isInferredTermType,
         propagateDefaultField,
         getFieldType,
+        throwOnOldGeoUsage,
     };
 }
 

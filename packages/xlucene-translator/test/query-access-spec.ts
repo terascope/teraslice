@@ -611,7 +611,7 @@ describe('QueryAccess', () => {
         });
 
         it('should be able to return a restricted geo query and add the geo sort', async () => {
-            const q = 'foo:(_geo_point_:"33.435518,-111.873616" _geo_distance_:5000yd)';
+            const q = 'foo:geoDistance(point:"33.435518,-111.873616" distance:5000yd)';
             const result = await queryAccess.restrictSearchQuery(q, {
                 geo_sort_order: 'asc'
             });
