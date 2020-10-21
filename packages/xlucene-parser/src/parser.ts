@@ -1,8 +1,9 @@
 import {
     TSError,
-    trim
+    trim,
+    isRegExpLike
 } from '@terascope/utils';
-import { xLuceneVariables } from '@terascope/types';
+import { xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import { parse } from './peg-engine';
 import * as i from './interfaces';
 import * as utils from './utils';
@@ -10,15 +11,23 @@ import * as utils from './utils';
 export class Parser {
     readonly ast: i.AST;
     readonly query: string;
-    readonly variables: xLuceneVariables;
+    readonly typeConfig: xLuceneTypeConfig;
 
-    constructor(query: string, options: i.ParserOptions = {}) {
+    constructor(
+        query: string,
+        options: i.ParserOptions = {},
+        _overrideAST?: i.AST
+    ) {
         this.query = trim(query || '');
 
-        this.variables = options.variables ? utils.validateVariables(options.variables) : {};
+        this.typeConfig = { ...options.type_config };
+        if (_overrideAST) {
+            this.ast = _overrideAST;
+            return;
+        }
+
         const contextArg: i.ContextArg = {
-            typeConfig: options.type_config,
-            variables: this.variables,
+            typeConfig: this.typeConfig,
         };
 
         try {
@@ -70,4 +79,146 @@ export class Parser {
     forTermTypes(cb: (node: i.TermLike) => void): void {
         this.forTypes(utils.termTypes, cb as (node: i.AnyAST) => void);
     }
+
+    resolveVariables(variables: xLuceneVariables): Parser {
+        const validatedVariables = utils.validateVariables(variables);
+
+        const ast = this.mapAST((node, parent) => {
+            if (node.type === i.ASTType.TermList) {
+                return coerceTermList(node, validatedVariables);
+            }
+            if ('value' in node) {
+                return coerceNodeValue(
+                    node,
+                    validatedVariables,
+                    parent?.type === i.ASTType.Function
+                );
+            }
+
+            return node;
+        });
+
+        return new Parser(this.query, {
+            type_config: this.typeConfig,
+        }, ast);
+    }
+
+    /**
+     * Map the AST and return a new AST
+    */
+    mapAST(fn: (node: i.AnyAST, parent?: i.AnyAST) => i.AnyAST): i.AST {
+        const mapNode = (ogNode: i.AnyAST, parent?: i.AnyAST): i.AnyAST => {
+            const node = fn({ ...ogNode }, parent);
+
+            if (utils.isNegation(node)) {
+                node.node = mapNode(node.node, node);
+            } else if (utils.isFunctionNode(node)) {
+                node.params = node.params.map((conj) => {
+                    const newNode = mapNode(conj, node);
+                    if (newNode.type !== i.ASTType.Term && newNode.type !== i.ASTType.TermList) {
+                        throw new Error(
+                            `Only a ${i.ASTType.Term} or ${i.ASTType.TermList} node type can be returned, got ${newNode.type}`
+                        );
+                    }
+                    return newNode;
+                });
+            } else if (utils.isGroupLike(node)) {
+                node.flow = node.flow.map((conj) => {
+                    const newNode = mapNode(conj, node);
+                    if (newNode.type !== i.ASTType.Conjunction) {
+                        throw new Error(
+                            `Only a ${i.ASTType.Conjunction} node type can be returned, got ${newNode.type}`
+                        );
+                    }
+                    return newNode;
+                });
+            } else if (utils.isConjunction(node)) {
+                node.nodes = node.nodes.map((conj) => mapNode(conj, node));
+            }
+            return node;
+        };
+
+        return mapNode(this.ast);
+    }
+}
+
+function coerceTermList(node: i.TermList, variables: xLuceneVariables) {
+    const values = utils.getFieldValue<any>(node.value, variables);
+    return {
+        ...node,
+        values: values.map((value) => ({
+            type: 'value',
+            value,
+        }))
+    };
+}
+
+function coerceNodeValue(
+    node: i.Term|i.Regexp|i.Wildcard,
+    variables: xLuceneVariables,
+    skipAutoFieldGroup?: boolean
+): i.AnyAST {
+    const value = utils.getFieldValue<any>(node.value, variables);
+    const coercingFn = utils.coerceValueFns[node.field_type] ?? ((v: any) => v);
+
+    if (Array.isArray(value)) {
+        if (skipAutoFieldGroup) {
+            return {
+                ...node,
+                value: {
+                    type: 'value',
+                    value: value.map(coercingFn) as any
+                }
+            };
+        }
+
+        const fieldGroup: i.FieldGroup = {
+            type: i.ASTType.FieldGroup,
+            field: node.field as string,
+            field_type: node.field_type,
+            flow: value.map((val: any) => ({
+                type: i.ASTType.Conjunction,
+                nodes: [{
+                    ...node,
+                    value: {
+                        type: 'value',
+                        value: coercingFn(val)
+                    }
+                }]
+            } as i.Conjunction))
+        };
+        return fieldGroup;
+    }
+
+    if (node.type !== i.ASTType.Regexp && isRegExpLike(value)) {
+        return {
+            type: i.ASTType.Regexp,
+            field: node.field,
+            field_type: node.field_type as xLuceneFieldType.String,
+            quoted: false,
+            value: {
+                type: 'value',
+                value: parseVariableRegex(value)
+            }
+        };
+    }
+
+    if (node.field_type === xLuceneFieldType.IPRange) {
+        return utils.createIPRangeFromTerm(node, value);
+    }
+
+    return {
+        ...node,
+        value: {
+            type: 'value',
+            value: coercingFn(value)
+        }
+    };
+}
+
+function parseVariableRegex(str: string & RegExp) {
+    if (str.source) return str.source;
+    const results = /\/(.*)\//.exec(str);
+    if (results) return results[1];
+    return str;
 }

@@ -99,8 +99,8 @@ describe('geoPolygon', () => {
 
                 const { ast } = new Parser(xQuery, {
                     type_config: typeConfig,
-                    variables
-                });
+                }).resolveVariables(variables);
+
                 const { toElasticsearchQuery } = initFunction({
                     node: ast as FunctionNode,
                     variables,
@@ -140,9 +140,9 @@ describe('geoPolygon', () => {
                 const xQuery = 'location: geoPolygon(points: $points1)';
 
                 const { ast } = new Parser(xQuery, {
-                    type_config: typeConfig,
-                    variables
-                });
+                    type_config: typeConfig
+                }).resolveVariables(variables);
+
                 const { toElasticsearchQuery } = initFunction({
                     node: ast as FunctionNode,
                     variables,
@@ -218,8 +218,8 @@ describe('geoPolygon', () => {
 
                 const { ast } = new Parser(xQuery, {
                     type_config: typeConfig,
-                    variables
-                });
+                }).resolveVariables(variables);
+
                 const { toElasticsearchQuery } = initFunction({
                     node: ast as FunctionNode,
                     variables,

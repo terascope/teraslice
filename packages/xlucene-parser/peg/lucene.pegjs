@@ -145,6 +145,7 @@ FieldGroup
             ...group,
             type: i.ASTType.FieldGroup,
             field,
+            field_type: getFieldType(field)
         };
         propagateDefaultField(group, field);
         return node;

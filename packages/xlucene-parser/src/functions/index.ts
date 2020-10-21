@@ -21,7 +21,7 @@ export const xLuceneFunctions: Record<xLuceneFunction, FunctionDefinition> = {
 
 export function initFunction({ node, variables, type_config }: {
     node: FunctionNode,
-    variables: xLuceneVariables,
+    variables?: xLuceneVariables,
     type_config: xLuceneTypeConfig,
 }): FunctionMethods {
     const fnType = xLuceneFunctions[node.name] as FunctionDefinition|undefined;
@@ -30,6 +30,6 @@ export function initFunction({ node, variables, type_config }: {
     }
 
     return fnType.create({
-        type_config, node, variables
+        type_config, node, variables: variables ?? {}
     });
 }

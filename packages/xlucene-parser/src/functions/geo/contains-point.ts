@@ -27,7 +27,7 @@ const geoContainsPoint: i.FunctionDefinition = {
         if (!node.field || node.field === '*') {
             throw new Error('Field for geoContainsPoint cannot be empty or "*"');
         }
-        const { lat, lon } = validate(node.params, variables);
+        const { lat, lon } = validate(node.params as i.Term[], variables);
 
         function toElasticsearchQuery(field: string) {
             const query: AnyQuery = {

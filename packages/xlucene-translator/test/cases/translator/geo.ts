@@ -99,7 +99,7 @@ export default [
         }
     ],
     [
-        'loc_a:geoDistance(point:"22.435518,-22.873616" distance_:22NM) AND loc_b:geoDistance(point:"11.435518,-11.873616" distance_:11cm)',
+        'loc_a:geoDistance(point:"22.435518,-22.873616" distance:22NM) AND loc_b:geoDistance(point:"11.435518,-11.873616" distance:11cm)',
         '.',
         {
             query: {

@@ -34,7 +34,7 @@ const geoDistance: i.FunctionDefinition = {
         }
         const {
             lat, lon, distance, unit: paramUnit
-        } = validate(node.params, variables);
+        } = validate(node.params as i.Term[], variables);
 
         function toElasticsearchQuery(field: string, options: i.FunctionElasticsearchOptions) {
             const unit = paramUnit || options.geo_sort_unit;

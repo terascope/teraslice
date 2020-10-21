@@ -599,15 +599,12 @@ export default [
         {
             field: xLuceneFieldType.String
         },
-        {
-            bar_val: 'someValue'
-        }
     ],
     [
         `field:$bar`,
         'variable with value is a boolean',
         {
-            value: { type: 'variable', value: 'bar', },
+            value: { type: 'value', value: false, },
             field: 'field',
             type: ASTType.Term,
             field_type: xLuceneFieldType.Boolean,
@@ -631,9 +628,6 @@ export default [
         {
             field: xLuceneFieldType.Integer,
         },
-        {
-            bar2: 2345
-        }
     ],
     [
         'field:something.com',

@@ -3,8 +3,6 @@ import * as t from '@terascope/types';
 
 export interface ParserOptions {
     type_config?: t.xLuceneTypeConfig;
-    logger?: Logger;
-    variables?: t.xLuceneVariables;
 }
 
 export interface ContextArg {
@@ -14,8 +12,8 @@ export interface ContextArg {
 
 export type AST = EmptyAST | LogicalGroup | Term
 | Conjunction | Negation | FieldGroup
-| Exists | Range | GeoDistance
-| GeoBoundingBox | Regexp | Wildcard | FunctionNode;
+| Exists | Range | Regexp | Wildcard
+| FunctionNode | TermList;
 
 export type AnyAST = AST;
 
@@ -134,6 +132,7 @@ export interface Negation {
 
 export interface FieldGroup extends GroupLikeAST {
     type: ASTType.FieldGroup;
+    field_type: t.xLuceneFieldType;
     field: string;
     // we need this type for typescript to
     // detect the union correctly
@@ -159,8 +158,15 @@ export interface Range extends TermLikeAST {
     __range?: boolean;
 }
 
-export interface RangeNode extends NumberDataType {
+export interface RangeNode {
     operator: RangeOperator;
+    field_type: t.xLuceneFieldType.Integer
+    | t.xLuceneFieldType.Float
+    | t.xLuceneFieldType.String
+    | t.xLuceneFieldType.AnalyzedString
+    | t.xLuceneFieldType.Date
+    | t.xLuceneFieldType.IP;
+    value: FieldValue<number|string>;
 }
 
 export interface GeoDistance extends t.GeoPoint, TermLikeAST {
@@ -190,7 +196,7 @@ export interface FunctionNode extends TermLikeAST {
     */
     name: string;
     description?: string;
-    params: Term[];
+    params: (Term|TermList)[];
     // we need this type for typescript to
     // detect the union correctly
     __function?: boolean;

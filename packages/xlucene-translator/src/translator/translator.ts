@@ -30,10 +30,13 @@ export class Translator {
         if (isString(input)) {
             this._parser = new Parser(input, {
                 type_config: this.typeConfig,
-                variables: this.variables
             });
         } else {
             this._parser = input;
+        }
+
+        if (options.variables) {
+            this._parser = this._parser.resolveVariables(options.variables);
         }
 
         if (options.default_geo_field) {

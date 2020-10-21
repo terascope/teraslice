@@ -6,7 +6,15 @@ import {
     isWildCardString,
     debugLogger,
     toString,
+    primitiveToString,
+    isPrimitiveValue,
+    toBoolean,
+    toNumber,
+    toIntegerOrThrow,
+    toFloatOrThrow,
+    getTypeOf
 } from '@terascope/utils';
+import { Netmask } from 'netmask';
 import { xLuceneFieldType, xLuceneVariables, CoordinateTuple } from '@terascope/types';
 import * as i from './interfaces';
 
@@ -207,4 +215,68 @@ export function parseRange(
 export function coordinateToXlucene(cord: CoordinateTuple): string {
     // tuple is [lon, lat], need to return "lat, lon"
     return `"${cord[1]}, ${cord[0]}"`;
+}
+
+type CoerceValueFns = Partial<Record<xLuceneFieldType, ((value: any) => any)>>;
+export const coerceValueFns: CoerceValueFns = Object.freeze({
+    [xLuceneFieldType.AnalyzedString]: primitiveToString,
+    [xLuceneFieldType.String]: primitiveToString,
+    [xLuceneFieldType.Boolean]: toBoolean,
+    [xLuceneFieldType.Date](value) {
+        if (!isPrimitiveValue(value)) {
+            throw new Error(`Expected ${value} (${getTypeOf(value)}) to be in a date like format`);
+        }
+        return value;
+    },
+    [xLuceneFieldType.Number](value) {
+        const numValue = toNumber(value);
+        if (Number.isNaN(numValue)) {
+            throw new Error(`Expected ${value} (${getTypeOf(value)}) to be in a number like format`);
+        }
+        return numValue;
+    },
+    [xLuceneFieldType.Float]: toFloatOrThrow,
+    [xLuceneFieldType.Integer]: toIntegerOrThrow,
+    [xLuceneFieldType.IP](value) {
+        if (typeof value !== 'string') {
+            throw new Error(`Expected ${value} (${getTypeOf(value)}) to be in a IP like format`);
+        }
+        return value;
+    },
+});
+
+export function createIPRangeFromTerm(node: i.Term, value: string): i.Range {
+    const { start, end } = parseIPRange(value);
+
+    return {
+        type: i.ASTType.Range,
+        field: node.field,
+        field_type: node.field_type,
+        left: {
+            operator: 'gte',
+            field_type: xLuceneFieldType.IP,
+            value: {
+                type: 'value',
+                value: start,
+            }
+        },
+        right: {
+            operator: 'lte',
+            field_type: xLuceneFieldType.IP,
+            value: {
+                type: 'value',
+                value: end,
+            },
+        }
+    };
+}
+
+function parseIPRange(val: string): { start: string, end: string} {
+    try {
+        const block = new Netmask(val);
+        const end = block.broadcast ? block.broadcast : block.last;
+        return { start: block.base, end };
+    } catch (err) {
+        throw new TSError(`Invalid value ${val}, could not convert to ip_range`);
+    }
 }

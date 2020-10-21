@@ -45,8 +45,8 @@ describe('geoDistance', () => {
         const query = 'location:geoDistance(point:$point1 distance: $distance1)';
         const { ast } = new Parser(query, {
             type_config: typeConfig,
-            variables,
-        });
+        }).resolveVariables(variables);
+
         const {
             name, type, field
         } = ast as FunctionNode;
@@ -114,7 +114,7 @@ describe('geoDistance', () => {
             ];
 
             const astResults = queries
-                .map((query) => new Parser(query, { type_config: typeConfig, variables }))
+                .map((query) => new Parser(query, { type_config: typeConfig }))
                 .map((parser) => initFunction({
                     node: (parser.ast as FunctionNode),
                     type_config: typeConfig,
@@ -156,8 +156,8 @@ describe('geoDistance', () => {
             const query = 'location:geoDistance(point:$point1 distance: $distance1)';
             const { ast } = new Parser(query, {
                 type_config: typeConfig,
-                variables,
-            });
+            }).resolveVariables(variables);
+
             const { match } = initFunction({
                 node: ast as FunctionNode,
                 type_config: typeConfig,

@@ -78,7 +78,7 @@ export default [
                 ]
             }
         ]
-    }, { count: xLuceneFieldType.Integer }, { foo: 10, bar: 20, baz: 100 }],
+    }, { count: xLuceneFieldType.Integer }],
     ['count:(>=10 OR <=20 OR >=100)', 'a chained OR field group expression with ranges', {
         type: ASTType.FieldGroup,
         field: 'count',
@@ -243,7 +243,7 @@ export default [
                 ]
             }
         ]
-    }, { count: xLuceneFieldType.Integer }, { foo: 155, bar: 223 }],
+    }, { count: xLuceneFieldType.Integer }],
     [
         'count:(155 OR "223")',
         'OR grouping with quoted and unquoted integers',
@@ -313,7 +313,6 @@ export default [
         {
             count: xLuceneFieldType.Integer
         },
-        { foo: 155, bar: 223 }
     ],
     [
         'bool:(true OR "false")',
@@ -468,7 +467,7 @@ export default [
                 ]
             }
         ]
-    }, { val: xLuceneFieldType.Integer }, { foo: 1, bar: 2 }],
+    }, { val: xLuceneFieldType.Integer }],
     ['some_ref:("A")', 'single value field group', {
         type: ASTType.Term,
         field_type: xLuceneFieldType.String,

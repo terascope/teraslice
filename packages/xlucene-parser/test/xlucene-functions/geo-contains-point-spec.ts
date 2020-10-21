@@ -45,8 +45,8 @@ describe('geoContainsPoint', () => {
         const query = 'location:geoContainsPoint(point: $point1)';
         const { ast } = new Parser(query, {
             type_config: typeConfig,
-            variables,
-        });
+        }).resolveVariables(variables);
+
         const {
             name, type, field
         } = ast as FunctionNode;
@@ -102,7 +102,10 @@ describe('geoContainsPoint', () => {
             ];
 
             const astResults = queries
-                .map((query) => new Parser(query, { type_config: typeConfig, variables }))
+                .map((query) => (
+                    new Parser(query, { type_config: typeConfig })
+                        .resolveVariables(variables)
+                ))
                 .map((parser) => initFunction({
                     node: (parser.ast as FunctionNode),
                     type_config: typeConfig,
@@ -174,7 +177,6 @@ describe('geoContainsPoint', () => {
             const { match } = initFunction({
                 node: ast as FunctionNode,
                 type_config: typeConfig,
-                variables: {}
             });
 
             expect(match(polygon)).toEqual(true);
@@ -190,14 +192,13 @@ describe('geoContainsPoint', () => {
             const { match } = initFunction({
                 node: ast as FunctionNode,
                 type_config: typeConfig,
-                variables: {}
             });
 
             expect(match(polygonWithHoles)).toEqual(true);
             expect(match(nonMatchingPolygon)).toEqual(false);
         });
 
-        it('point can match against a multipolygon', () => {
+        it('point can match against a multi-polygon', () => {
             const query = `location:geoContainsPoint(point:${coordinateToXlucene(pointInPoly)})`;
 
             const { ast } = new Parser(query, {
@@ -206,7 +207,6 @@ describe('geoContainsPoint', () => {
             const { match } = initFunction({
                 node: ast as FunctionNode,
                 type_config: typeConfig,
-                variables: {}
             });
 
             expect(match(multiPolygon)).toEqual(true);
@@ -218,10 +218,10 @@ describe('geoContainsPoint', () => {
             const { ast } = new Parser(query, {
                 type_config: typeConfig,
             });
+
             const { match } = initFunction({
                 node: ast as FunctionNode,
                 type_config: typeConfig,
-                variables: {}
             });
 
             expect(match(matchingPoint)).toEqual(true);
@@ -236,8 +236,8 @@ describe('geoContainsPoint', () => {
 
             const { ast } = new Parser(query, {
                 type_config: typeConfig,
-                variables,
-            });
+            }).resolveVariables(variables);
+
             const { match } = initFunction({
                 node: ast as FunctionNode,
                 type_config: typeConfig,

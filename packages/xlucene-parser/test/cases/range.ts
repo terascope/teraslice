@@ -274,6 +274,6 @@ export default [
                 value: { type: 'value', value: '1.2.3.255' }
             }
         },
-        { ip_range: xLuceneFieldType.IPRange }
+        { ip_range: xLuceneFieldType.IPRange },
     ],
 ] as TestCase[];

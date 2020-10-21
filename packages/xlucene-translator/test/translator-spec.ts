@@ -137,7 +137,7 @@ describe('Translator', () => {
                         return `[* TO ${randomInt(n)}}`;
                     }
                     if (Math.random() < Math.random()) {
-                        return `(_geo_point_:"${randomFloat(n)},${randomFloat(n)}" _geo_distance_:${randomInt(n)}m)`;
+                        return `geoDistance(point: "${randomFloat(n)},${randomFloat(n)}" distance:${randomInt(n)}m)`;
                     }
                     return '"some-random-string"';
                 };

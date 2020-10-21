@@ -86,7 +86,9 @@ const geoPolygon: i.FunctionDefinition = {
         if (!node.field || node.field === '*') {
             throw new Error('Field for geoPolygon cannot be empty or "*"');
         }
-        const { polygonShape, relation } = validate(node.params, variables);
+        const { polygonShape, relation } = validate(
+            node.params as i.Term[], variables
+        );
         let type: string;
 
         if (utils.isWildCardString(node.field)) {

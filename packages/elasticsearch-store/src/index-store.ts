@@ -824,9 +824,7 @@ export default class IndexStore<T extends ts.AnyObject> {
     ) {
         const _queryAccess = (queryAccess || this._defaultQueryAccess);
         const query = _queryAccess
-            ? _queryAccess.restrict(q, {
-                variables: options?.variables
-            })
+            ? _queryAccess.restrict(q)
             : q;
 
         const translator = this._translator.make(query, {

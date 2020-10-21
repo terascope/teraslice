@@ -3,7 +3,6 @@ import {
     isString,
     isEmpty,
     matchWildcard,
-    isRegExpLike,
 } from '@terascope/utils';
 import * as p from 'xlucene-parser';
 import * as i from '@terascope/types';
@@ -93,15 +92,6 @@ export function translateQuery(
         }
 
         if (p.isTerm(node)) {
-            if (node.value.type === 'variable') {
-                const value = p.getFieldValue(node.value, variables);
-                if (Array.isArray(value)) {
-                    return buildBoolQuery(makeOrConjunction(node, value));
-                }
-                if (isRegExpLike(value)) {
-                    return buildRegExprQuery(value as any);
-                }
-            }
             return buildTermQuery(node);
         }
 
@@ -144,24 +134,6 @@ export function translateQuery(
 
             return query;
         }
-    }
-
-    function makeOrConjunction(node: p.TermLikeAST, values: any[]): p.LogicalGroup {
-        const logicalGroup: p.LogicalGroup = {
-            type: p.ASTType.LogicalGroup,
-            flow: values.map((value) => ({
-                type: p.ASTType.Conjunction,
-                nodes: [{
-                    ...node,
-                    value: {
-                        type: 'value',
-                        value
-                    }
-                }]
-            } as p.Conjunction))
-        };
-        logger.trace('built a logical group from variable array', { node, values, logicalGroup });
-        return logicalGroup;
     }
 
     function buildMultiMatchQuery(node: p.TermLikeAST, query: string): i.MultiMatchQuery {

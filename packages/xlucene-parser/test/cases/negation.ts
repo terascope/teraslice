@@ -55,7 +55,6 @@ export default [
             },
         },
         { name: xLuceneFieldType.String },
-        { foo: 'Madman' }
     ],
     [
         '(NOT name:$foo)',
@@ -70,7 +69,6 @@ export default [
             },
         },
         { name: xLuceneFieldType.String },
-        { foo: 'Madman' }
     ],
     [
         '!name:$foo',
@@ -85,7 +83,6 @@ export default [
             },
         },
         { name: xLuceneFieldType.String },
-        { foo: 'Madman' }
     ],
     [
         '!(name:$foo)',
@@ -100,7 +97,6 @@ export default [
             },
         },
         { name: xLuceneFieldType.String },
-        { foo: 'Madman' }
     ],
     [
         'foo:bar NOT name:Madman',

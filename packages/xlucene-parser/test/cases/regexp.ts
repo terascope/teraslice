@@ -10,10 +10,10 @@ export default [
         value: { type: 'value', value: '[a-z]+' },
     }],
     ['example: $foo', 'a basic regexp with variables', {
-        type: ASTType.Term,
+        type: ASTType.Regexp,
         field_type: xLuceneFieldType.String,
         field: 'example',
-        value: { type: 'variable', value: 'foo' },
+        value: { type: 'value', value: '[a-z]+' },
     }, { example: xLuceneFieldType.String }, { foo: /[a-z]+/ }],
     ['example:/foo:bar/', 'a regexp with a colon', {
         type: ASTType.Regexp,

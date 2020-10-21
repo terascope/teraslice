@@ -51,7 +51,6 @@ export default [
             ],
         },
         { a: xLuceneFieldType.Integer, b: xLuceneFieldType.Integer },
-        { foo: 1, bar: 1 }
     ],
     [
         '(a:1 AND b:1)',
@@ -137,6 +136,50 @@ export default [
             type: ASTType.Term,
             field: 'foo',
             value: { type: 'variable', value: 'bar', },
+        },
+        {
+            foo: xLuceneFieldType.Integer
+        },
+    ],
+    [
+        'foo:$bar',
+        'variable array substitution',
+        {
+            type: ASTType.FieldGroup,
+            field: 'foo',
+            field_type: xLuceneFieldType.Integer,
+            flow: [
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field_type: xLuceneFieldType.Integer,
+                            value: { type: 'value', value: 1 },
+                        }
+                    ]
+                },
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field_type: xLuceneFieldType.Integer,
+                            value: { type: 'value', value: 2 },
+                        }
+                    ]
+                },
+                {
+                    type: ASTType.Conjunction,
+                    nodes: [
+                        {
+                            type: ASTType.Term,
+                            field_type: xLuceneFieldType.Integer,
+                            value: { type: 'value', value: 3 },
+                        }
+                    ]
+                }
+            ]
         },
         {
             foo: xLuceneFieldType.Integer

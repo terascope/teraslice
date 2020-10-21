@@ -29,7 +29,7 @@ const geoBox: i.FunctionDefinition = {
         if (!node.field || node.field === '*') {
             throw new Error('Field for geoBox cannot be empty or "*"');
         }
-        const { top_left, bottom_right } = validate(node.params, variables);
+        const { top_left, bottom_right } = validate(node.params as i.Term[], variables);
 
         function toElasticsearchQuery(field: string) {
             const query: AnyQuery = {};

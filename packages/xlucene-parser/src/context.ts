@@ -1,9 +1,6 @@
 import {
-    TSError,
     parseGeoDistance,
     parseGeoPoint,
-    isRegExpLike,
-    isWildCardString,
     toFloatOrThrow,
     toIntegerOrThrow,
 } from '@terascope/utils';
@@ -12,7 +9,6 @@ import {
     xLuceneFieldType,
     xLuceneTypeConfig,
 } from '@terascope/types';
-import { Netmask } from 'netmask';
 import * as i from './interfaces';
 import * as utils from './utils';
 
@@ -107,13 +103,6 @@ export function makeContext(arg: i.ContextArg) {
         return term;
     }
 
-    function parseVariableRegex(str: string & RegExp) {
-        if (str.source) return str.source;
-        const results = /\/(.*)\//.exec(str);
-        if (results) return results[1];
-        return str;
-    }
-
     function coerceTermType(node: any, _field?: string): void {
         if (!node) return;
 
@@ -156,28 +145,9 @@ export function makeContext(arg: i.ContextArg) {
             `coercing field "${field}":${value} type of ${node.field_type} to ${fieldType}`
         );
 
-        if (fieldType === xLuceneFieldType.IPRange) {
-            node.type = i.ASTType.Range;
-            delete node.quoted;
-
-            const { start, end } = getIPRange(value);
-
-            node.left = {
-                operator: 'gte',
-                field_type: xLuceneFieldType.IP,
-                value: {
-                    type: 'value',
-                    value: start,
-                }
-            };
-            node.right = {
-                operator: 'lte',
-                field_type: xLuceneFieldType.IP,
-                value: {
-                    type: 'value',
-                    value: end,
-                },
-            };
+        if (node.type === i.ASTType.Term && fieldType === xLuceneFieldType.IPRange) {
+            Object.assign(node, utils.createIPRangeFromTerm(node, value));
+            return;
         }
 
         if (node.field_type !== fieldType && fieldType === xLuceneFieldType.Boolean) {
@@ -216,22 +186,12 @@ export function makeContext(arg: i.ContextArg) {
         }
 
         if (node.field_type !== fieldType && fieldType === xLuceneFieldType.String) {
-            if (node.type === i.ASTType.Regexp || isRegExpLike(value)) {
-                node.type = i.ASTType.Regexp;
-                node.value = {
-                    type: 'value',
-                    value: parseVariableRegex(value)
-                };
-            } else if (isWildCardString(value)) {
-                node.type = i.ASTType.Wildcard;
-            } else {
-                node.type = i.ASTType.Term;
-                node.quoted ??= false;
-                node.value = {
-                    type: 'value',
-                    value: String(value),
-                };
-            }
+            node.type = i.ASTType.Term;
+            node.quoted ??= false;
+            node.value = {
+                type: 'value',
+                value: String(value),
+            };
         }
     }
 
@@ -262,14 +222,4 @@ export function makeContext(arg: i.ContextArg) {
         getFieldType,
         throwOnOldGeoUsage,
     };
-}
-
-function getIPRange(val: string): { start: string, end: string} {
-    try {
-        const block = new Netmask(val);
-        const end = block.broadcast ? block.broadcast : block.last;
-        return { start: block.base, end };
-    } catch (err) {
-        throw new TSError(`Invalid value ${val}, could not convert to ip_range`);
-    }
 }
