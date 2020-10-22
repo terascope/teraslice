@@ -630,6 +630,32 @@ export default [
         },
     ],
     [
+        `field:@bar2`,
+        'a scoped variable',
+        {
+            value: { type: 'variable', value: '@bar2', scoped: true },
+            field: 'field',
+            type: ASTType.Term,
+            field_type: xLuceneFieldType.Integer,
+        },
+        {
+            field: xLuceneFieldType.Integer,
+        },
+    ],
+    [
+        `field:@example.foo`,
+        'a nested scoped variable',
+        {
+            value: { type: 'variable', value: '@example.foo', scoped: true },
+            field: 'field',
+            type: ASTType.Term,
+            field_type: xLuceneFieldType.String,
+        },
+        {
+            field: xLuceneFieldType.String,
+        },
+    ],
+    [
         'field:something.com',
         'can parse string values with dots',
         {
@@ -639,6 +665,18 @@ export default [
             restricted: true,
             field: 'field',
             value: { type: 'value', value: 'something.com', },
+        },
+    ],
+    [
+        'field:foo@something.com',
+        'can parse an email',
+        {
+            type: ASTType.Term,
+            field_type: xLuceneFieldType.String,
+            quoted: false,
+            restricted: true,
+            field: 'field',
+            value: { type: 'value', value: 'foo@something.com', },
         },
     ],
     [

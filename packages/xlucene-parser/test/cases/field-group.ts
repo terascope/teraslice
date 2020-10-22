@@ -521,9 +521,7 @@ export default [
                         type: ASTType.Term,
                         field: 'foo',
                         field_type: xLuceneFieldType.String,
-                        quoted: false,
-                        restricted: true,
-                        value: { type: 'value', value: '@bar', },
+                        value: { type: 'variable', scoped: true, value: '@bar', },
                     },
                 ],
             },
@@ -534,13 +532,13 @@ export default [
                         type: ASTType.Term,
                         field: 'foo',
                         field_type: xLuceneFieldType.String,
-                        quoted: false,
-                        restricted: true,
-                        value: { type: 'value', value: '@baz' },
+                        value: { type: 'variable', scoped: true, value: '@baz' },
                     }
                 ]
             }
         ]
+    }, {
+        foo: xLuceneFieldType.String,
     }],
     [
         'val:(155 223)',

@@ -69,6 +69,7 @@ export type FieldValue<T> = {
     value: T;
 }|{
     type: 'variable';
+    scoped: boolean;
     value: string;
 };
 

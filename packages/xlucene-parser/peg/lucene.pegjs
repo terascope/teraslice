@@ -197,16 +197,12 @@ BaseTermExpression
     }
 
 VariableExpression
-    = field:FieldName ws* FieldSeparator ws* VariableSign chars:VariableChar+ {
-        const key = chars.join('');
+    = field:FieldName ws* FieldSeparator ws* variableTerm:VariableType {
         const node = {
             type: i.ASTType.Term,
             field,
             field_type: getFieldType(field),
-            value: {
-                type: 'variable',
-                value: key,
-            },
+            value: variableTerm.value,
         };
         coerceTermType(node, field);
         return node;
@@ -285,11 +281,8 @@ TermListExpression
     }
 
 TermListItem
-    = ws* Comma* ws* VariableSign chars:VariableChar ws* Comma* ws* {
-        return { type: 'variable', value: chars.join('') }
-    }
-    / ws* Comma* ws* term:TermListTerm ws* Comma* ws* {
-        return term.value
+    = ws* Comma* ws* term:(VariableType/TermListTerm) ws* Comma* ws* {
+        return term.value;
     }
     /  ws* Comma* ListStart ws* list:TermListItem* ws* ListEnd ws* Comma* ws* {
         // needs to recursive check to see if value is list
@@ -442,6 +435,20 @@ VariableType
             type: i.ASTType.Term,
             value: {
                 type: 'variable',
+                scoped: false,
+                value
+            },
+        };
+
+        return node;
+    }
+    / ScopedVariableSign chars:ScopedVariableChar+ {
+        const value = `@${chars.join('')}`;
+        const node = {
+            type: i.ASTType.Term,
+            value: {
+                type: 'variable',
+                scoped: true,
                 value
             },
         };
@@ -679,6 +686,9 @@ FieldChar "field"
 VariableChar
   = [_a-zA-Z0-9]
 
+ScopedVariableChar
+  = [_a-zA-Z0-9\.]
+
 FieldSeparator ""
   = ':'
 
@@ -752,6 +762,9 @@ Digit "a character between 0-9"
 
 VariableSign
     = '$'
+
+ScopedVariableSign
+    = '@'
 
 NumReservedChar
   = " "
