@@ -1,7 +1,7 @@
 export enum ESGeoShapeType {
     Point = 'point',
     Polygon = 'polygon',
-    MultiPolygon = 'multipolygon'
+    MultiPolygon = 'multi-polygon'
 }
 
 export type ESGeoShapePoint = {

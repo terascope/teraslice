@@ -200,7 +200,7 @@ describe('geoPolygon', () => {
                 expect(sort).toBeUndefined();
             });
 
-            it('can produce elasticsearch DSL with variables set to multipolygons', () => {
+            it('can produce elasticsearch DSL with variables set to multi-polygons', () => {
                 const variables = {
                     points1: {
                         type: GeoShapeType.MultiPolygon,
@@ -705,7 +705,7 @@ describe('geoPolygon', () => {
                 expect(match(nonMatchingPoint)).toEqual(true);
             });
 
-            it('poly v multipolygon and default relation (within)', () => {
+            it('poly v multi-polygon and default relation (within)', () => {
                 const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)})`;
 
                 const { ast } = new Parser(query, {
@@ -720,7 +720,7 @@ describe('geoPolygon', () => {
                 expect(match(multiPolygon)).toEqual(false);
             });
 
-            it('poly v multipolygon with contains relation', () => {
+            it('poly v multi-polygon with contains relation', () => {
                 const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)} relation: ${GeoShapeRelation.Contains})`;
 
                 const { ast } = new Parser(query, {
@@ -735,7 +735,7 @@ describe('geoPolygon', () => {
                 expect(match(multiPolygon)).toEqual(false);
             });
 
-            it('poly v multipolygon with intersects relation', () => {
+            it('poly v multi-polygon with intersects relation', () => {
                 const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)} relation: ${GeoShapeRelation.Intersects})`;
 
                 const { ast } = new Parser(query, {
@@ -750,7 +750,7 @@ describe('geoPolygon', () => {
                 expect(match(multiPolygon)).toEqual(false);
             });
 
-            it('poly v multipolygon with disjoint relation', () => {
+            it('poly v multi-polygon with disjoint relation', () => {
                 const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)} relation: ${GeoShapeRelation.Disjoint})`;
 
                 const { ast } = new Parser(query, {
@@ -765,7 +765,7 @@ describe('geoPolygon', () => {
                 expect(match(multiPolygon)).toEqual(false);
             });
 
-            it('poly v multipolygon with holes and default relation (within)', () => {
+            it('poly v multi-polygon with holes and default relation (within)', () => {
                 const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)})`;
 
                 const { ast } = new Parser(query, {
@@ -780,7 +780,7 @@ describe('geoPolygon', () => {
                 expect(match(multiPolygonWithHoles)).toEqual(false);
             });
 
-            it('poly v multipolygon with holes and contains relation', () => {
+            it('poly v multi-polygon with holes and contains relation', () => {
                 const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)} relation: ${GeoShapeRelation.Contains})`;
 
                 const { ast } = new Parser(query, {
@@ -795,7 +795,7 @@ describe('geoPolygon', () => {
                 expect(match(multiPolygonWithHoles)).toEqual(false);
             });
 
-            it('poly v multipolygon with holes and intersects relation', () => {
+            it('poly v multi-polygon with holes and intersects relation', () => {
                 const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)} relation: ${GeoShapeRelation.Intersects})`;
 
                 const { ast } = new Parser(query, {
@@ -810,7 +810,7 @@ describe('geoPolygon', () => {
                 expect(match(multiPolygonWithHoles)).toEqual(false);
             });
 
-            it('poly v multipolygon with holes and disjoint relation', () => {
+            it('poly v multi-polygon with holes and disjoint relation', () => {
                 const query = `location: geoPolygon(points:${JSON.stringify(queryPoints)} relation: ${GeoShapeRelation.Disjoint})`;
 
                 const { ast } = new Parser(query, {

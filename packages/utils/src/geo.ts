@@ -77,13 +77,13 @@ export function getLonAndLat(input: unknown, throwInvalid = true): [number, numb
     }
 
     if (throwInvalid && (!lat || !lon)) {
-        throw new TypeError('Invalid geopoint object, it must contain keys lat,lon or latitude/longitude');
+        throw new TypeError('Invalid geo point object, it must contain keys lat,lon or latitude/longitude');
     }
 
     lat = toNumber(lat);
     lon = toNumber(lon);
     if (!isNumber(lat) || !isNumber(lon)) {
-        if (throwInvalid) throw new TypeError('Invalid geopoint, lat and lon must be numbers');
+        if (throwInvalid) throw new TypeError('Invalid geo point, lat and lon must be numbers');
         return null;
     }
 
@@ -116,7 +116,7 @@ export function parseGeoPoint(point: GeoPointInput, throwInvalid = true): GeoPoi
     }
 
     if (throwInvalid && (lat == null || lon == null)) {
-        throw new TypeError(`Invalid geopoint given to parse, point:${point}`);
+        throw new TypeError(`Invalid geo point given to parse, point:${point}`);
     }
 
     // data incoming is lat,lon and we must return lon,lat
