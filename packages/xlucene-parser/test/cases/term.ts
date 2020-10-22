@@ -656,6 +656,32 @@ export default [
         },
     ],
     [
+        `field:"@example.foo"`,
+        'wont confuse quoted for scoped variable',
+        {
+            value: { type: 'value', value: '@example.foo' },
+            field: 'field',
+            type: ASTType.Term,
+            field_type: xLuceneFieldType.String,
+        },
+        {
+            field: xLuceneFieldType.String,
+        },
+    ],
+    [
+        `field:\\@example.foo`,
+        'wont confuse escaped value for scoped variable',
+        {
+            value: { type: 'value', value: '\\@example.foo' },
+            field: 'field',
+            type: ASTType.Term,
+            field_type: xLuceneFieldType.String,
+        },
+        {
+            field: xLuceneFieldType.String,
+        },
+    ],
+    [
         'field:something.com',
         'can parse string values with dots',
         {

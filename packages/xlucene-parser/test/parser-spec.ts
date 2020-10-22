@@ -73,6 +73,26 @@ describe('Parser', () => {
         });
     });
 
+    describe('when given a invalid scoped query', () => {
+        it('should throw if there are multiple dots', () => {
+            expect(() => {
+                new Parser('foo:@bar..baz');
+            }).toThrow();
+        });
+
+        it('should throw an error if it is combined with &', () => {
+            expect(() => {
+                new Parser('foo:$@bar');
+            }).toThrow();
+        });
+
+        it('should throw an error if it is combined with & and @ is escaped', () => {
+            expect(() => {
+                new Parser('field:$\\@example');
+            }).toThrow();
+        });
+    });
+
     test.each([
         { some: 'data' },
         Buffer.from('1234'),

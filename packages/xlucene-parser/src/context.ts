@@ -23,6 +23,14 @@ export function makeContext(arg: i.ContextArg) {
         throw new Error('xLucene Parser given invalid context');
     }
 
+    function validateScopedChars(chars: string[]) {
+        chars.forEach((char, ind) => {
+            if (char === '.' && chars[ind + 1] === '.') {
+                throw new Error(`Invalid scoped variable "@${chars.join('')}", char "." cannot be next to another "." char`);
+            }
+        });
+    }
+
     /**
     * Propagate the default field on a field group expression
     */
@@ -190,5 +198,6 @@ export function makeContext(arg: i.ContextArg) {
         propagateDefaultField,
         getFieldType,
         throwOnOldGeoUsage,
+        validateScopedChars
     };
 }

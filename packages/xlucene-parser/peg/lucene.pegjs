@@ -8,7 +8,8 @@
         propagateDefaultField,
         logger,
         getFieldType,
-        throwOnOldGeoUsage
+        throwOnOldGeoUsage,
+        validateScopedChars
     } = makeContext(options.contextArg);
 }
 
@@ -442,7 +443,15 @@ VariableType
 
         return node;
     }
+    / VariableSign ScopedVariableSign chars:VariableChar+ {
+        throw new Error('Cannot have a variable char next to a "@" char')
+    }
+     / VariableSign Escape ScopedVariableSign chars:ScopedVariableChar+ {
+        throw new Error('Cannot have a variable char next to an escaped "@" char')
+    }
     / ScopedVariableSign chars:ScopedVariableChar+ {
+       validateScopedChars(chars);
+
         const value = `@${chars.join('')}`;
         const node = {
             type: i.ASTType.Term,
@@ -796,6 +805,7 @@ ReservedChar
   / " "
   / ConjunctionOperator
   / NotOperator
+  / '@'
 
 EOF
   = !.
