@@ -94,8 +94,15 @@ export class Parser {
     /**
      * Iterate over all of the Term-Like nodes.
     */
-    forTermTypes(cb: (node: i.TermLike) => void): void {
-        this.forTypes(utils.termTypes, cb as (node: i.AnyAST) => void);
+    forTermTypes(
+        cb: (node: i.TermLike) => void,
+        skipFunctionParams = true,
+    ): void {
+        let types: readonly i.ASTType[] = utils.termTypes;
+        if (skipFunctionParams) {
+            types = utils.termTypes.filter((term) => term !== i.ASTType.Function);
+        }
+        this.forTypes(types, cb as (node: i.AnyAST) => void);
     }
 
     /**
@@ -121,7 +128,7 @@ export class Parser {
             }
 
             cb(node.value, node);
-        });
+        }, false);
     }
 
     /**

@@ -124,16 +124,6 @@ export function validateVariables(obj: xLuceneVariables): xLuceneVariables {
     return { ...obj };
 }
 
-// const variableTypes = Object.freeze({
-//     String: true,
-//     Number: true,
-//     Boolean: true,
-//     RegExp: true,
-// });
-// const type = getTypeOf(variables[value.value]);
-// if (!variableTypes[type]) {
-//     throw new Error(`Unsupported type of ${type} received for variable $${value.value}`);
-// }
 export function getFieldValue<T>(
     value: i.FieldValue<T>[],
     variables: xLuceneVariables,
@@ -153,7 +143,11 @@ export function getFieldValue<T>(
         if (variables[value.value] != null) {
             return variables[value.value] as T;
         }
-        throw new Error(`Could not find a variable set with key $${value.value}`);
+        if (value.scoped) {
+            throw new Error(`Could not find a scoped variable ${value.value}`);
+        } else {
+            throw new Error(`Could not find a variable $${value.value}`);
+        }
     }
     if (value.value != null) {
         return value.value;
@@ -279,6 +273,6 @@ function parseIPRange(val: string): { start: string, end: string} {
         const end = block.broadcast ? block.broadcast : block.last;
         return { start: block.base, end };
     } catch (err) {
-        throw new TSError(`Invalid value ${val}, could not convert to ip_range`);
+        throw new Error(`Invalid value ${val}, could not convert to ip_range`);
     }
 }
