@@ -55,14 +55,14 @@ export class Parser {
      * Recursively Iterate over all or select set of the nodes types
     */
     forTypes<T extends i.ASTType[]|readonly i.ASTType[]>(
-        types: T, cb: (node: i.AnyAST) => void
+        types: T, cb: (node: i.AnyAST) => void, skipFunctionParams = false
     ): void {
         const walkNode = (node: i.AnyAST) => {
             if (types.includes(node.type)) {
                 cb(node);
             }
 
-            if (utils.isFunctionNode(node)) {
+            if (!skipFunctionParams && utils.isFunctionNode(node)) {
                 for (const param of node.params) {
                     walkNode(param);
                 }
@@ -96,13 +96,13 @@ export class Parser {
     */
     forTermTypes(
         cb: (node: i.TermLike) => void,
-        skipFunctionParams = true,
+        skipFunctionParams = true
     ): void {
-        let types: readonly i.ASTType[] = utils.termTypes;
-        if (skipFunctionParams) {
-            types = utils.termTypes.filter((term) => term !== i.ASTType.Function);
-        }
-        this.forTypes(types, cb as (node: i.AnyAST) => void);
+        this.forTypes(
+            utils.termTypes,
+            cb as (node: i.AnyAST) => void,
+            skipFunctionParams
+        );
     }
 
     /**
