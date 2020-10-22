@@ -25,7 +25,7 @@ export interface GroupLikeAST {
     flow: Conjunction[];
 }
 
-export type TermLike = Term|Regexp|Range|Wildcard|FunctionNode;
+export type TermLike = Term|Regexp|Range|Wildcard|FunctionNode|TermList;
 export type TermLikeType =
     ASTType.Term|
     ASTType.Regexp|

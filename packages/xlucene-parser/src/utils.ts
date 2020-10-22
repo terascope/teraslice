@@ -97,7 +97,7 @@ export function getField(node: unknown): string|undefined {
 }
 
 /** term level queries with field (string|null)  */
-export const termTypes: i.ASTType[] = [
+export const termTypes: readonly i.ASTType[] = [
     i.ASTType.Term,
     i.ASTType.Regexp,
     i.ASTType.Range,

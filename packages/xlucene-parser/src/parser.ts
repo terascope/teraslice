@@ -8,6 +8,9 @@ import { parse } from './peg-engine';
 import * as i from './interfaces';
 import * as utils from './utils';
 
+/**
+ * Parse a xLucene query
+*/
 export class Parser {
     readonly ast: i.AST;
     readonly query: string;
@@ -48,10 +51,22 @@ export class Parser {
         }
     }
 
-    forTypes<T extends i.ASTType[]>(types: T, cb: (node: i.AnyAST) => void): void {
+    /**
+     * Recursively Iterate over all or select set of the nodes types
+    */
+    forTypes<T extends i.ASTType[]|readonly i.ASTType[]>(
+        types: T, cb: (node: i.AnyAST) => void
+    ): void {
         const walkNode = (node: i.AnyAST) => {
             if (types.includes(node.type)) {
                 cb(node);
+            }
+
+            if (utils.isFunctionNode(node)) {
+                for (const param of node.params) {
+                    walkNode(param);
+                }
+                return;
             }
 
             if (utils.isNegation(node)) {
@@ -76,10 +91,42 @@ export class Parser {
         walkNode(this.ast);
     }
 
+    /**
+     * Iterate over all of the Term-Like nodes.
+    */
     forTermTypes(cb: (node: i.TermLike) => void): void {
         this.forTypes(utils.termTypes, cb as (node: i.AnyAST) => void);
     }
 
+    /**
+     * Iterate over all of the field value from Term-Like nodes,
+     * this is useful for validating values and variables.
+    */
+    forEachFieldValue(cb: (value: i.FieldValue<any>, node: i.TermLike) => void): void {
+        this.forTermTypes((node) => {
+            if (node.type === i.ASTType.Function) return;
+            if (node.type === i.ASTType.Range) {
+                cb(node.left.value, node);
+                if (node.right) {
+                    cb(node.right.value, node);
+                }
+                return;
+            }
+
+            if (node.type === i.ASTType.TermList) {
+                node.value.forEach((value) => {
+                    cb(value, node);
+                });
+                return;
+            }
+
+            cb(node.value, node);
+        });
+    }
+
+    /**
+     * Validate and resolve the variables, returns a new Parser instance
+    */
     resolveVariables(variables: xLuceneVariables): Parser {
         const validatedVariables = utils.validateVariables(variables);
 

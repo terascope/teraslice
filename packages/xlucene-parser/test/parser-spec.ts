@@ -2,7 +2,9 @@ import 'jest-extended';
 import { TSError, times, toString } from '@terascope/utils';
 import { xLuceneFieldType } from '@terascope/types';
 import allTestCases from './cases';
-import { Parser, ASTType } from '../src';
+import {
+    Parser, ASTType, FieldValue, TermLike
+} from '../src';
 
 describe('Parser', () => {
     for (const [key, testCases] of Object.entries(allTestCases)) {
@@ -91,6 +93,25 @@ describe('Parser', () => {
                 new Parser('field:$\\@example');
             }).toThrow();
         });
+    });
+
+    it('should be to iterate over all of the values', () => {
+        const parser = new Parser([
+            'a:$foo',
+            'b:>=20',
+            'a:($foo @bar)',
+            'geo:geoBox(top_left:" 33.906320, -112.758421", bottom_right:$bottom_right)',
+        ].join(' AND '), {
+            type_config: {
+                a: xLuceneFieldType.Integer,
+                b: xLuceneFieldType.Integer,
+                geo: xLuceneFieldType.GeoPoint,
+            },
+        });
+
+        const nodes: [FieldValue<any>, TermLike][] = [];
+        parser.forEachFieldValue((value, node) => nodes.push([value, node]));
+        expect(nodes).toMatchSnapshot();
     });
 
     test.each([

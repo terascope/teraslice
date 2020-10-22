@@ -656,6 +656,22 @@ export default [
         },
     ],
     [
+        `field:@bar_string`,
+        'a scoped variable that gets translated',
+        {
+            value: { type: 'value', value: 'EXAMPLE' },
+            field: 'field',
+            type: ASTType.Term,
+            field_type: xLuceneFieldType.String,
+        },
+        {
+            field: xLuceneFieldType.String,
+        },
+        {
+            '@bar_string': 'EXAMPLE'
+        }
+    ],
+    [
         `field:"@example.foo"`,
         'wont confuse quoted for scoped variable',
         {

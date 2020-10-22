@@ -1,20 +1,29 @@
 import { ParserOptions } from './interfaces';
 import { Parser } from './parser';
 
-type Cached = { [query: string]: Parser };
+type Cached = Map<string, Parser>;
 const _cache = new WeakMap<CachedParser, Cached>();
 
 export class CachedParser {
     constructor() {
-        _cache.set(this, {});
+        _cache.set(this, new Map());
     }
 
     make(query: string, options?: ParserOptions): Parser {
-        return new Parser(query, options);
+        const typeConfigKey = options?.type_config ? JSON.stringify(options.type_config) : '';
+        const key = `${query}${typeConfigKey}`;
+
+        const cached = _cache.get(this)!;
+        const cachedParser = cached.get(key);
+        if (cachedParser) return cachedParser;
+
+        const parsed = new Parser(query, options);
+        cached.set(key, parsed);
+        return parsed;
     }
 
     reset(): void {
-        _cache.delete(this);
-        _cache.set(this, {});
+        const cached = _cache.get(this)!;
+        cached.clear();
     }
 }
