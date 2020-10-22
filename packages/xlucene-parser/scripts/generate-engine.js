@@ -21,7 +21,7 @@ function generate() {
         format: 'commonjs',
         tspegjs: {
             noTslint: true,
-            customHeader: "import makeContext from './context';\nimport * as i from './interfaces';\n import { xLuceneFieldType } from '@terascope/types';"
+            customHeader: "import { makeContext } from './context';\nimport * as i from './interfaces';\nimport { xLuceneFieldType } from '@terascope/types';"
         },
     });
 

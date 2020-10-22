@@ -203,7 +203,7 @@ describe('Utils', () => {
             expect(variables).toEqual({ points_1: input.location });
         });
 
-        it('can make a geo bbox join if field type is set to "geoPoint" with GeoJSON multipolygon data', () => {
+        it('can make a geo bbox join if field type is set to "geoPoint" with GeoJSON multi-polygon data', () => {
             const data: GeoShapeMultiPolygon = {
                 type: GeoShapeType.MultiPolygon,
                 coordinates: [
@@ -314,7 +314,7 @@ describe('Utils', () => {
             expect(variables).toEqual({ points_1: input.location, relation_1: 'disjoint' });
         });
 
-        it('can make a geoPolygon join if field type is set to "geoJSON" with geoJSON multipolygon data', () => {
+        it('can make a geoPolygon join if field type is set to "geoJSON" with geoJSON multi-polygon data', () => {
             const data: GeoShapeMultiPolygon = {
                 type: GeoShapeType.MultiPolygon,
                 coordinates: [
@@ -375,7 +375,7 @@ describe('Utils', () => {
             expect(variables).toEqual({ points_1: input.location, relation_1: 'within' });
         });
 
-        it('can make a geoPolygon join if field type is set to "GeoPoint" with geoJSON multipolygon data that has holes', () => {
+        it('can make a geoPolygon join if field type is set to "GeoPoint" with geoJSON multi-polygon data that has holes', () => {
             const data: GeoShapeMultiPolygon = {
                 type: GeoShapeType.MultiPolygon,
                 coordinates: [
@@ -422,7 +422,7 @@ describe('Utils', () => {
             expect(variables).toEqual({ points_1: input.location, relation_1: 'within' });
         });
 
-        it('can make a geoPolygon join if field type is set to "geoJSON" with geoJSON multipolygon data that has holes', () => {
+        it('can make a geoPolygon join if field type is set to "geoJSON" with geoJSON multi-polygon data that has holes', () => {
             const data: GeoShapeMultiPolygon = {
                 type: GeoShapeType.MultiPolygon,
                 coordinates: [

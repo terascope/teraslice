@@ -1,20 +1,31 @@
 import 'jest-extended';
-import { TSError, times } from '@terascope/utils';
+import { TSError, times, toString } from '@terascope/utils';
 import { xLuceneFieldType } from '@terascope/types';
 import allTestCases from './cases';
-import { Parser, ASTType } from '../src';
+import {
+    Parser, ASTType, FieldValue, TermLike
+} from '../src';
 
 describe('Parser', () => {
     for (const [key, testCases] of Object.entries(allTestCases)) {
         describe(`when testing ${key.replace('_', ' ')} queries`, () => {
             describe.each(testCases)('given query %s', (query, msg, ast, typeConfig, variables) => {
-                it(`should be able to parse ${msg}`, () => {
-                    const parser = new Parser(query, {
-                        type_config: typeConfig,
-                        variables
+                if (variables) {
+                    it(`should be able to parse ${msg} with variables ${toString(variables)}`, () => {
+                        const parser = new Parser(query, {
+                            type_config: typeConfig,
+                        }).resolveVariables(variables);
+
+                        expect(parser.ast).toMatchObject(ast);
                     });
-                    expect(parser.ast).toMatchObject(ast);
-                });
+                } else {
+                    it(`should be able to parse ${msg}`, () => {
+                        const parser = new Parser(query, {
+                            type_config: typeConfig,
+                        });
+                        expect(parser.ast).toMatchObject(ast);
+                    });
+                }
             });
         });
     }
@@ -64,80 +75,62 @@ describe('Parser', () => {
         });
     });
 
-    describe('when given a invalid function query "location: something(hello: "world")', () => {
-        it('should throw an error', () => {
-            const errMsg = 'Failure to parse xLucene query "location: something(hello:"world")", caused by Error: Could not find an xLucene function with name "something"';
+    describe('when given a invalid scoped query', () => {
+        it('should throw if there are multiple dots', () => {
             expect(() => {
-                new Parser('location: something(hello:"world")');
-            }).toThrowWithMessage(TSError, errMsg);
+                new Parser('foo:@bar..baz');
+            }).toThrow();
         });
-    });
 
-    describe('when given a invalid function query "location:geoBox()", it can still parse syntax but break at validation', () => {
-        it('should throw an error', () => {
-            const errMsg = 'Failure to parse xLucene query "location:geoBox()", caused by Error: Invalid geoBox query, need to specify a "topLeft" parameter';
+        it('should throw an error if it is combined with &', () => {
             expect(() => {
-                new Parser('location:geoBox()');
-            }).toThrowWithMessage(TSError, errMsg);
+                new Parser('foo:$@bar');
+            }).toThrow();
         });
-    });
 
-    describe('when given a invalid function query "location:geoPolygon(points:[["123.43,223.43", "102.3,123.4"], "99.3,154.4" ])", it can still parse array of arrays but break validation', () => {
-        it('should throw an error', () => {
+        it('should throw an error if it is combined with & and @ is escaped', () => {
             expect(() => {
-                new Parser('location:geoPolygon(points:[["123.43,223.43", "102.3,123.4"], "99.3,154.4" ])');
+                new Parser('field:$\\@example');
             }).toThrow();
         });
     });
 
-    describe('when given variables in a query', () => {
-        it('should throw an error if no variables are supplied', () => {
-            const errMsg = /Could not find a variable set with key "bar"/;
-            expect(() => {
-                new Parser('foo:$bar');
-            }).toThrowWithMessage(TSError, errMsg);
+    it('should be to iterate over all of the values', () => {
+        const parser = new Parser([
+            'a:$foo',
+            'b:>=20',
+            'a:($foo @bar)',
+            'geo:geoBox(top_left:" 33.906320, -112.758421", bottom_right:$bottom_right)',
+        ].join(' AND '), {
+            type_config: {
+                a: xLuceneFieldType.Integer,
+                b: xLuceneFieldType.Integer,
+                geo: xLuceneFieldType.GeoPoint,
+            },
         });
 
-        it('should throw an error if a variable value is an object if the field name is not part of a function expression', () => {
-            expect(() => {
-                new Parser('foo:$bar', {
-                    variables: {
-                        bar: { some: 'value' },
-                        other: 'variable'
-                    }
-                });
-            }).toThrow();
-        });
+        const nodes: [FieldValue<any>, TermLike][] = [];
+        parser.forEachFieldValue((value, node) => nodes.push([value, node]));
+        expect(nodes).toMatchSnapshot();
     });
 
-    it('restricted variables will throw if given bad values', () => {
+    test.each([
+        { some: 'data' },
+        Buffer.from('1234'),
+        new Map(),
+        new Set(),
+        new Error(),
+        [1, { other: 'stuff' }, 3]
+    ])('should throw if given invalid variable value %p', (value) => {
         const query = 'foo: $bar';
         const typeConfig = { foo: xLuceneFieldType.String };
-        const errMsg = 'Unsupported type of';
 
-        function test(val: any) {
-            const variables = { bar: val };
+        const variables = { bar: value };
 
-            try {
-                new Parser(query, {
-                    type_config: typeConfig,
-                    variables
-                });
-                throw new Error('this should throw');
-            } catch (err) {
-                expect(err.message).toContain(errMsg);
-            }
-        }
-
-        const testCases: any[] = [
-            { some: 'data' },
-            Buffer.from('1234'),
-            new Map(),
-            new Set(),
-            new Error(),
-            [1, { other: 'stuff' }, 3]
-        ];
-
-        testCases.forEach(test);
+        expect(() => {
+            new Parser(query, {
+                type_config: typeConfig,
+            }).resolveVariables(variables);
+        }).toThrow();
     });
 });

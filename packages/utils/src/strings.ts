@@ -1,4 +1,5 @@
 import { MACAddress } from '@terascope/types';
+import { getTypeOf } from './deps';
 
 /** A simplified implementation of lodash isString */
 export function isString(val: unknown): val is string {
@@ -61,6 +62,32 @@ export function toString(val: unknown): string {
 
     // fall back to this
     return JSON.stringify(val);
+}
+
+/**
+ * Check if a value is a JavaScript primitive value OR
+ * it is object with Symbol.toPrimitive
+*/
+export function isPrimitiveValue(value: unknown): boolean {
+    const type = typeof value;
+    if (type === 'string') return true;
+    if (type === 'boolean') return true;
+    if (type === 'number') return true;
+    if (type === 'bigint') return true;
+    if (type === 'symbol') return true;
+    if (type === 'object' && typeof (value as any)[Symbol.toPrimitive] === 'function') return true;
+    return false;
+}
+
+/**
+ * Convert a JavaScript primitive value to a string.
+ * (Does not covert object like entities unless Symbol.toPrimitive is specified)
+*/
+export function primitiveToString(value: unknown): string {
+    if (!isPrimitiveValue(value)) {
+        throw new Error(`Expected ${value} (${getTypeOf(value)}) to be in a string like format`);
+    }
+    return `${value}`;
 }
 
 /** safely trim an input */

@@ -3,8 +3,9 @@ import isCidr from 'is-cidr';
 import ip6addr from 'ip6addr';
 import { isIPv6, isIP } from 'net';
 import {
-    Term, Range, isInfiniteMin, isInfiniteMax, parseRange
+    isInfiniteMin, isInfiniteMax, ParsedRange
 } from 'xlucene-parser';
+import { isString } from '@terascope/utils';
 import { BooleanCB } from '../interfaces';
 
 const MIN_IPV4_IP = '0.0.0.0';
@@ -13,8 +14,7 @@ const MAX_IPV4_IP = '255.255.255.255';
 const MIN_IPV6_IP = '::';
 const MAX_IPV6_IP = 'ffff.ffff.ffff.ffff.ffff.ffff.ffff.ffff';
 
-function getRangeValues(node: Range) {
-    const rangeQuery = parseRange(node);
+function getRangeValues(rangeQuery: ParsedRange) {
     const incMin = rangeQuery.gte != null;
     const incMax = rangeQuery.lte != null;
     const minValue = rangeQuery.gte || rangeQuery.gt || '*';
@@ -25,24 +25,24 @@ function getRangeValues(node: Range) {
     };
 }
 
-export function ipTerm(node: Term): BooleanCB {
-    const argCidr = isCidr(node.value as string);
+export function ipTerm(value: unknown): BooleanCB {
+    const argCidr = isString(value) ? isCidr(value) : false;
     if (argCidr > 0) {
-        const range = ip6addr.createCIDR(node.value);
+        const range = ip6addr.createCIDR(value);
         return pRangeTerm(range);
     }
 
     return function isIPTerm(ip: string) {
         if (isCidr(ip) > 0) {
             const argRange = ip6addr.createCIDR(ip);
-            return argRange.contains(node.value);
+            return argRange.contains(value);
         }
-        return ip === node.value;
+        return ip === value;
     };
 }
 
-function validateIPRange(node: Range) {
-    const values = getRangeValues(node);
+function validateIPRange(rangeQuery: ParsedRange) {
+    const values = getRangeValues(rangeQuery);
     const { incMin, incMax } = values;
     let { minValue, maxValue } = values;
 
@@ -88,8 +88,8 @@ function pRangeTerm(range: any) {
     };
 }
 
-export function ipRange(node: Range): BooleanCB {
-    const { minValue, maxValue } = validateIPRange(node);
+export function ipRange(rangeQuery: ParsedRange): BooleanCB {
+    const { minValue, maxValue } = validateIPRange(rangeQuery);
     const range = ip6addr.createAddrRange(minValue, maxValue);
     return pRangeTerm(range);
 }

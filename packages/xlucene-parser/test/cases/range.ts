@@ -9,7 +9,10 @@ export default [
         left: {
             operator: 'gte',
             field_type: xLuceneFieldType.Integer,
-            value: 10
+            value: {
+                type: 'value',
+                value: 10
+            }
         }
     }],
     ['count: >=$foo', 'gte ranges with variables', {
@@ -18,7 +21,7 @@ export default [
         left: {
             operator: 'gte',
             field_type: xLuceneFieldType.Integer,
-            value: 10
+            value: { type: 'variable', value: 'foo' }
         }
     }, { count: xLuceneFieldType.Integer }, { foo: 10 }],
     ['count:>10', 'gt ranges', {
@@ -27,7 +30,7 @@ export default [
         left: {
             operator: 'gt',
             field_type: xLuceneFieldType.Integer,
-            value: 10,
+            value: { type: 'value', value: 10, }
         }
     }],
     ['count:<=20.10', 'lte ranges', {
@@ -36,7 +39,7 @@ export default [
         left: {
             operator: 'lte',
             field_type: xLuceneFieldType.Float,
-            value: 20.10
+            value: { type: 'value', value: 20.10 }
         }
     }],
     ['count:<20', 'lt ranges', {
@@ -45,7 +48,7 @@ export default [
         left: {
             operator: 'lt',
             field_type: xLuceneFieldType.Integer,
-            value: 20
+            value: { type: 'value', value: 20 }
         }
     }],
     ['count:[1 TO 5]', 'inclusive ranges with integers', {
@@ -54,12 +57,12 @@ export default [
         left: {
             operator: 'gte',
             field_type: xLuceneFieldType.Integer,
-            value: 1,
+            value: { type: 'value', value: 1, }
         },
         right: {
             operator: 'lte',
             field_type: xLuceneFieldType.Integer,
-            value: 5,
+            value: { type: 'value', value: 5, }
         }
     }],
     ['count:[$foo TO $bar]', 'inclusive ranges with integers with variables', {
@@ -68,12 +71,12 @@ export default [
         left: {
             operator: 'gte',
             field_type: xLuceneFieldType.Integer,
-            value: 1,
+            value: { type: 'variable', value: 'foo', }
         },
         right: {
             operator: 'lte',
             field_type: xLuceneFieldType.Integer,
-            value: 5,
+            value: { type: 'variable', value: 'bar', }
         }
     }, { count: xLuceneFieldType.Integer }, { foo: 1, bar: 5 }],
     ['count:[1.5 TO 5.3]', 'inclusive ranges with floats', {
@@ -82,12 +85,12 @@ export default [
         left: {
             operator: 'gte',
             field_type: xLuceneFieldType.Float,
-            value: 1.5,
+            value: { type: 'value', value: 1.5, }
         },
         right: {
             operator: 'lte',
             field_type: xLuceneFieldType.Float,
-            value: 5.3,
+            value: { type: 'value', value: 5.3, }
         }
     }],
     [
@@ -99,12 +102,12 @@ export default [
             left: {
                 operator: 'gte',
                 field_type: xLuceneFieldType.Integer,
-                value: 1,
+                value: { type: 'value', value: 1 }
             },
             right: {
                 operator: 'lte',
                 field_type: xLuceneFieldType.Integer,
-                value: 5,
+                value: { type: 'value', value: 5 }
             }
         },
         {
@@ -120,12 +123,12 @@ export default [
             left: {
                 operator: 'gte',
                 field_type: xLuceneFieldType.String,
-                value: '1.5',
+                value: { type: 'value', value: '1.5', }
             },
             right: {
                 operator: 'lte',
                 field_type: xLuceneFieldType.String,
-                value: '5.3',
+                value: { type: 'value', value: '5.3', }
             }
         },
         {
@@ -138,12 +141,12 @@ export default [
         left: {
             operator: 'gt',
             field_type: xLuceneFieldType.Integer,
-            value: 2,
+            value: { type: 'value', value: 2, }
         },
         right: {
             operator: 'lte',
             field_type: xLuceneFieldType.Integer,
-            value: 6
+            value: { type: 'value', value: 6 }
         }
     }],
     ['count:{1.5 TO 5.3}', 'exclusive ranges with floats', {
@@ -152,12 +155,12 @@ export default [
         left: {
             operator: 'gt',
             field_type: xLuceneFieldType.Float,
-            value: 1.5,
+            value: { type: 'value', value: 1.5, }
         },
         right: {
             operator: 'lt',
             field_type: xLuceneFieldType.Float,
-            value: 5.3,
+            value: { type: 'value', value: 5.3, }
         }
     }],
     ['val:[alpha TO omega]', 'inclusive range of strings', {
@@ -167,13 +170,13 @@ export default [
             operator: 'gte',
             field_type: xLuceneFieldType.String,
             restricted: true,
-            value: 'alpha',
+            value: { type: 'value', value: 'alpha', }
         },
         right: {
             operator: 'lte',
             field_type: xLuceneFieldType.String,
             restricted: true,
-            value: 'omega',
+            value: { type: 'value', value: 'omega', }
         }
     }],
     ['val:{"alpha" TO "omega"}', 'exclusive range of quoted', {
@@ -183,13 +186,13 @@ export default [
             operator: 'gt',
             field_type: xLuceneFieldType.String,
             quoted: true,
-            value: 'alpha',
+            value: { type: 'value', value: 'alpha', }
         },
         right: {
             operator: 'lt',
             field_type: xLuceneFieldType.String,
             quoted: true,
-            value: 'omega',
+            value: { type: 'value', value: 'omega', }
         }
     }],
     ['val:[2012-01-01 TO 2012-12-31]', 'inclusive date range', {
@@ -199,13 +202,13 @@ export default [
             operator: 'gte',
             field_type: xLuceneFieldType.String,
             restricted: true,
-            value: '2012-01-01',
+            value: { type: 'value', value: '2012-01-01', }
         },
         right: {
             operator: 'lte',
             field_type: xLuceneFieldType.String,
             restricted: true,
-            value: '2012-12-31',
+            value: { type: 'value', value: '2012-12-31', }
         }
     }],
     ['val:[2012-01-01 TO *]', 'right unbounded date range', {
@@ -215,12 +218,12 @@ export default [
             operator: 'gte',
             field_type: xLuceneFieldType.String,
             restricted: true,
-            value: '2012-01-01',
+            value: { type: 'value', value: '2012-01-01', }
         },
         right: {
             operator: 'lte',
             field_type: xLuceneFieldType.Integer,
-            value: Number.POSITIVE_INFINITY,
+            value: { type: 'value', value: Number.POSITIVE_INFINITY, }
         }
     }],
     ['val:[* TO 10}', 'left unbounded range', {
@@ -229,12 +232,12 @@ export default [
         left: {
             operator: 'gte',
             field_type: xLuceneFieldType.Integer,
-            value: Number.NEGATIVE_INFINITY,
+            value: { type: 'value', value: Number.NEGATIVE_INFINITY, }
         },
         right: {
             operator: 'lt',
             field_type: xLuceneFieldType.Integer,
-            value: 10,
+            value: { type: 'value', value: 10, }
         }
     }],
     [
@@ -243,14 +246,14 @@ export default [
             type: ASTType.Range,
             field: 'date',
             left: {
-                field_type: xLuceneFieldType.String,
-                value: '2020-02-10T10:06:06.0',
+                field_type: xLuceneFieldType.Date,
+                value: { type: 'value', value: '2020-02-10T10:06:06.0' },
                 operator: 'gte'
             },
             right: {
                 operator: 'lte',
-                field_type: xLuceneFieldType.String,
-                value: '2020-02-10T10:06:07.199999999999999'
+                field_type: xLuceneFieldType.Date,
+                value: { type: 'value', value: '2020-02-10T10:06:07.199999999999999' }
             }
         },
         { date: xLuceneFieldType.Date }
@@ -262,15 +265,15 @@ export default [
             field: 'ip_range',
             left: {
                 field_type: xLuceneFieldType.IP,
-                value: '1.2.3.0',
+                value: { type: 'value', value: '1.2.3.0' },
                 operator: 'gte'
             },
             right: {
                 operator: 'lte',
                 field_type: xLuceneFieldType.IP,
-                value: '1.2.3.255'
+                value: { type: 'value', value: '1.2.3.255' }
             }
         },
-        { ip_range: xLuceneFieldType.IPRange }
+        { ip_range: xLuceneFieldType.IPRange },
     ],
 ] as TestCase[];

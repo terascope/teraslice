@@ -1,19 +1,17 @@
 import isWithinInterval from 'date-fns/isWithinInterval';
-import toDate from 'date-fns/toDate';
 import isEqual from 'date-fns/isEqual';
-import parseISODate from 'date-fns/parseISO';
 import subMilliseconds from 'date-fns/subMilliseconds';
 import addMilliseconds from 'date-fns/addMilliseconds';
-import { getValidDate, isInteger, isString } from '@terascope/utils';
+import { getValidDate } from '@terascope/utils';
 import {
-    Term, Range, isInfiniteMax, isInfiniteMin, parseRange
+    isInfiniteMax, isInfiniteMin, ParsedRange
 } from 'xlucene-parser';
 import { BooleanCB } from '../interfaces';
 
 // TODO: handle datemath
 
-export function compareTermDates(node: Term):BooleanCB {
-    const nodeTermTime = convertDate(node.value, 0, true);
+export function compareTermDates(value: unknown):BooleanCB {
+    const nodeTermTime = convertDate(value, 0, true);
     return function dateTerm(date: string) {
         const result = convertDate(date, 0, false);
         if (!result) return false;
@@ -21,8 +19,9 @@ export function compareTermDates(node: Term):BooleanCB {
     };
 }
 
-function getRangeValues(node: Range): { start: Date; end: Date } {
-    const rangeQuery = parseRange(node);
+function getRangeValues(
+    rangeQuery: ParsedRange
+): { start: Date; end: Date } {
     let incMin = rangeQuery.gte == null ? 1 : 0;
     let incMax = rangeQuery.lte == null ? -1 : 0;
 
@@ -48,8 +47,10 @@ function getRangeValues(node: Range): { start: Date; end: Date } {
     };
 }
 
-export function dateRange(node: Range): BooleanCB {
-    const interval = getRangeValues(node);
+export function dateRange(
+    rangeQuery: ParsedRange
+): BooleanCB {
+    const interval = getRangeValues(rangeQuery);
     // verify it won't fail
     isWithinInterval(new Date(), interval);
 
@@ -68,11 +69,8 @@ export function dateRange(node: Range): BooleanCB {
 function convertDate(val: any, inclusive: number, throwErr: false): Date|undefined;
 function convertDate(val: any, inclusive: number, throwErr: true): Date;
 function convertDate(val: any, inclusive: number, throwErr: boolean): Date|undefined {
-    const result: any = getValidDate(val);
+    const result = getValidDate(val);
     if (result) return handleInclusive(result, inclusive);
-
-    if (isInteger(val)) return handleInclusive(toDate(val), inclusive);
-    if (isString(val)) return handleInclusive(parseISODate(val), inclusive);
 
     if (throwErr) throw new Error(`Invalid date format ${val}`);
     return undefined;

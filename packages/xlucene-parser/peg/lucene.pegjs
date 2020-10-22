@@ -2,23 +2,21 @@
 {
     const {
         parseGeoPoint,
-        parseGeoDistance,
         coerceTermType,
         parseInferredTermType,
         isInferredTermType,
         propagateDefaultField,
-        parseFunction,
-        getVariable,
-        makeFlow,
-        validateRestrictedVariable,
         logger,
+        getFieldType,
+        throwOnOldGeoUsage,
+        validateScopedChars
     } = makeContext(options.contextArg);
 }
 
 
 /** Control Flow **/
 start
-    = ws* negate:NegationExpression ws* EOF { return negate }
+    = ws* negate:NegationExpression ws* EOF { return negate; }
     / ws* logic:LogicalGroup ws* EOF { return logic; }
     / ws* term:TermExpression ws* EOF { return term; }
     / ws* term:UnquotedTermType ws* EOF { return term; }
@@ -111,22 +109,16 @@ OrConjunction
         if (nodes) {
             return [ [ right, ...nodes ] ];
         }
-        return [right]
+        return [right];
     }
     // Implicit ORs only work with at least one quoted, field/value pair or parens group
-    / left:(ImplicitValue) ws+ right:(ImplicitValue) {
-        // Implicit OR
-        return [left, right]
+    / left:TermGroup ws+ right:TermGroup {
+        return [left, right];
     }
-
-ImplicitValue
-    = NegationExpression / ParensGroup / VariableType / TermExpression
 
 TermGroup
     = NegationExpression / ParensGroup / VariableType / TermExpression
 
-FieldOrQuotedTermGroup
-    = ParensGroup / VariableType / FieldOrQuotedTermExpression
 
 NegationExpression
     = 'NOT' ws+ node:NegatedTermGroup {
@@ -154,6 +146,7 @@ FieldGroup
             ...group,
             type: i.ASTType.FieldGroup,
             field,
+            field_type: getFieldType(field)
         };
         propagateDefaultField(group, field);
         return node;
@@ -166,7 +159,7 @@ BaseTermExpression
             field,
         }
     }
-    / RestrictedVariableExpression
+    / VariableExpression
     / field:FieldName ws* FieldSeparator ws* range:RangeExpression {
         coerceTermType(range.left, field);
         coerceTermType(range.right, field);
@@ -205,29 +198,13 @@ BaseTermExpression
     }
 
 VariableExpression
-    = field:FieldName ws* FieldSeparator ws* VariableSign chars:VariableChar+ {
-        const key = chars.join('');
-        const value = getVariable(key);
-        const node = { value, field, type: i.ASTType.Term };
-        coerceTermType(node, field);
-        return node;
-    }
-
-RestrictedVariableExpression
-    = field:FieldName ws* FieldSeparator ws* VariableSign chars:VariableChar+ {
-        const key = chars.join('');
-        const value = getVariable(key);
-        // created quoted node for each value
-        if (Array.isArray(value)) {
-            // create logical group node
-            const root = {
-                type: i.ASTType.LogicalGroup,
-                flow: makeFlow(field, value, key)
-             };
-             return root;
-        }
-        validateRestrictedVariable(value, key)
-        const node = { value, field, type: i.ASTType.Term };
+    = field:FieldName ws* FieldSeparator ws* variableTerm:VariableType {
+        const node = {
+            type: i.ASTType.Term,
+            field,
+            field_type: getFieldType(field),
+            value: variableTerm.value,
+        };
         coerceTermType(node, field);
         return node;
     }
@@ -266,7 +243,6 @@ FunctionExpression
         return {
             type: i.ASTType.Function,
             name,
-            instance: parseFunction(field, name, params),
             params,
             field,
         };
@@ -279,7 +255,7 @@ FunctionTerm
     }
 
 FunctionParams
-    = param:ListExpression ws* Comma* ws* params:FunctionParams? {
+    = param:TermListExpression ws* Comma* ws* params:FunctionParams? {
          if (params) return [param, ...params]
          return [param]
     }
@@ -292,33 +268,39 @@ FunctionTermExpression
     = VariableExpression
     / TermExpression
 // We are not currectly allowing this to be used across the whole system other than for geo points
-// If we were to use this across the system ListItem would become a grammar "type"
+// If we were to use this across the system TermListItem would become a grammar "type"
 // Im keeping it contained for now until we see how this evolves for general use
 
-ListExpression
-    = field:FieldName ws* FieldSeparator ws* ListStart ws* list:ListItem* ws* ListEnd {
-        const value = list && list.length > 0 ? list : [];
+TermListExpression
+    = field:FieldName ws* FieldSeparator ws* ListStart ws* list:TermListItem* ws* ListEnd {
+        const values = list && list.length > 0 ? list : [];
         return {
+            type: i.ASTType.TermList,
             field,
-            value
+            value: values
         }
     }
 
-ListItem
-    = ws* Comma* item:TermExpression ws* Comma* ws* {
-         return item
+TermListItem
+    = ws* Comma* ws* term:(VariableType/TermListTerm) ws* Comma* ws* {
+        return term.value;
     }
-    /  ws* Comma* ListStart ws* list:ListItem* ws* ListEnd ws* Comma* ws* {
+    /  ws* Comma* ListStart ws* list:TermListItem* ws* ListEnd ws* Comma* ws* {
         // needs to recursive check to see if value is list
-         return list
+        return list
     }
+
+TermListTerm
+    = RegexpType
+    / QuotedStringType
+    / BooleanType
+    / FloatType
+    / IntegerType
+    / RestrictedStringType
 
 OldGeoTermExpression
     = field:FieldName ws* FieldSeparator ws* ParensStart ws* term:OldGeoTermType ws* ParensEnd {
-        return {
-            ...term,
-            field,
-        };
+        throwOnOldGeoUsage(term, field);
     }
 
 ParensStringType
@@ -371,28 +353,28 @@ RightRangeExpression
 OldGeoTermType
     = point:OldGeoPoint ws* distance:OldGeoDistance {
         return {
-            type: i.ASTType.GeoDistance,
+            type: 'geo-distance',
             ...point,
             ...distance
         }
     }
     / distance:OldGeoDistance ws* point:OldGeoPoint {
         return {
-            type: i.ASTType.GeoDistance,
+            type: 'geo-distance',
             ...point,
             ...distance
         }
     }
     / topLeft:OldGeoTopLeft ws* bottomRight:OldGeoBottomRight {
         return {
-            type: i.ASTType.GeoBoundingBox,
+            type: 'geo-bounding-box',
             ...topLeft,
             ...bottomRight
         }
     }
     / bottomRight:OldGeoBottomRight ws* topLeft:OldGeoTopLeft  {
         return {
-            type: i.ASTType.GeoBoundingBox,
+            type: 'geo-bounding-box',
             ...topLeft,
             ...bottomRight
         }
@@ -428,7 +410,10 @@ NegativeInfinityType
         return {
             type: i.ASTType.Term,
             field_type: xLuceneFieldType.Integer,
-            value: Number.NEGATIVE_INFINITY
+            value: {
+                type: 'value',
+                value: Number.NEGATIVE_INFINITY
+            }
         }
     }
 
@@ -437,16 +422,43 @@ PostiveInfinityType
         return {
             type: i.ASTType.Term,
             field_type: xLuceneFieldType.Integer,
-            value: Number.POSITIVE_INFINITY
+            value: {
+                type: 'value',
+                value: Number.POSITIVE_INFINITY
+            }
         }
     }
 
 VariableType
     = VariableSign chars:VariableChar+ {
-        const key = chars.join('');
-        const value = getVariable(key);
-        const node = { value, type: i.ASTType.Term };
-        coerceTermType(node);
+        const value = chars.join('');
+        const node = {
+            type: i.ASTType.Term,
+            value: {
+                type: 'variable',
+                scoped: false,
+                value
+            },
+        };
+
+        return node;
+    }
+    / VariableSign Escape* ScopedVariableSign chars:VariableChar+ {
+        throw new Error('Cannot have a variable char next to a "@"')
+    }
+    / ScopedVariableSign chars:ScopedVariableChar+ {
+       validateScopedChars(chars);
+
+        const value = `@${chars.join('')}`;
+        const node = {
+            type: i.ASTType.Term,
+            value: {
+                type: 'variable',
+                scoped: true,
+                value
+            },
+        };
+
         return node;
     }
 
@@ -455,7 +467,10 @@ FloatType
         return {
             type: i.ASTType.Term,
             field_type: xLuceneFieldType.Float,
-            value
+            value: {
+                type: 'value',
+                value
+            }
         }
     }
 
@@ -464,7 +479,10 @@ IntegerType
         return {
             type: i.ASTType.Term,
             field_type: xLuceneFieldType.Integer,
-            value
+            value: {
+                type: 'value',
+                value
+            }
         }
     }
 
@@ -473,7 +491,10 @@ BooleanType
       return {
         type: i.ASTType.Term,
         field_type: xLuceneFieldType.Boolean,
-        value
+        value: {
+            type: 'value',
+            value
+        }
       }
   }
 
@@ -482,7 +503,10 @@ RegexpType
         return {
             type: i.ASTType.Regexp,
             field_type: xLuceneFieldType.String,
-            value
+            value: {
+                type: 'value',
+                value
+            }
         }
     }
 
@@ -491,7 +515,10 @@ WildcardType
        return {
            type: i.ASTType.Wildcard,
            field_type: xLuceneFieldType.String,
-           value
+           value: {
+                type: 'value',
+                value
+            }
        };
     }
 
@@ -501,18 +528,24 @@ QuotedStringType
             type: i.ASTType.Term,
             field_type: xLuceneFieldType.String,
             quoted: true,
-            value
+            value: {
+                type: 'value',
+                value
+            }
         };
     }
 
 UnquotedStringType
     = value:UnquotedTerm {
-       return {
-           type: i.ASTType.Term,
-           field_type: xLuceneFieldType.String,
-           quoted: false,
-           value
-       };
+        return {
+            type: i.ASTType.Term,
+            field_type: xLuceneFieldType.String,
+            quoted: false,
+            value: {
+                type: 'value',
+                value
+            }
+        };
     }
 
 RestrictedStringType
@@ -522,7 +555,10 @@ RestrictedStringType
            field_type: xLuceneFieldType.String,
            restricted: true,
            quoted: false,
-           value
+           value: {
+                type: 'value',
+                value
+            }
        };
     }
 
@@ -531,12 +567,18 @@ FieldName
 
 OldGeoPoint
     = OldGeoPointKeyword ws* FieldSeparator ws* term:QuotedStringType {
-        return parseGeoPoint(term.value);
+        if (term.value.type !== 'value') {
+            throw new Error('Legacy xLucene geo point does not support variables');
+        }
+        return parseGeoPoint(term.value.value);
     }
 
 OldGeoDistance
     = OldGeoDistanceKeyword ws* FieldSeparator ws* term:OldGeoDistanceType {
-        return parseGeoDistance(term.value);
+        if (term.value.type !== 'value') {
+            throw new Error('Legacy xLucene geo distance does not support variables');
+        }
+        return { distance: term.value.value };
     }
 
 OldGeoDistanceType
@@ -544,15 +586,21 @@ OldGeoDistanceType
 
 OldGeoTopLeft
     = OldGeoTopLeftKeyword ws* FieldSeparator ws* term:QuotedStringType {
+        if (term.value.type !== 'value') {
+            throw new Error('Legacy xLucene geo top left does not support variables');
+        }
          return {
-             top_left: parseGeoPoint(term.value)
+             top_left: parseGeoPoint(term.value.value)
          }
     }
 
 OldGeoBottomRight
     = OldGeoBottomRightKeyword ws* FieldSeparator ws* term:QuotedStringType {
+         if (term.value.type !== 'value') {
+            throw new Error('Legacy xLucene geo bottom right does not support variables');
+        }
          return {
-             bottom_right: parseGeoPoint(term.value)
+             bottom_right: parseGeoPoint(term.value.value)
          }
     }
 
@@ -644,6 +692,9 @@ FieldChar "field"
 VariableChar
   = [_a-zA-Z0-9]
 
+ScopedVariableChar
+  = [_a-zA-Z0-9\.]
+
 FieldSeparator ""
   = ':'
 
@@ -718,6 +769,9 @@ Digit "a character between 0-9"
 VariableSign
     = '$'
 
+ScopedVariableSign
+    = '@'
+
 NumReservedChar
   = " "
   / "]"
@@ -748,6 +802,7 @@ ReservedChar
   / " "
   / ConjunctionOperator
   / NotOperator
+  / ScopedVariableSign
 
 EOF
   = !.

@@ -76,7 +76,7 @@ describe('extraction phase', () => {
             { selectors: ['other:/.*abc.*/ OR _created:>=2018-11-16T15:16:09.076Z'] },
             { selectors: ['some:data'] },
             { selectors: ['hostname:www.example.com'] },
-            { selectors: ['location:(_geo_box_top_left_: "33.906320,  -112.758421" _geo_box_bottom_right_:"32.813646,-111.058902")'] },
+            { selectors: ['location:geoBox(top_left: "33.906320,  -112.758421" bottom_right:"32.813646,-111.058902")'] },
         ];
 
         const resultsArray = [

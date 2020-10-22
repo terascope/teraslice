@@ -1,26 +1,10 @@
-import { getTypeOf, toString } from '@terascope/utils';
+import { primitiveToString } from '@terascope/utils';
 import { WritableData } from '../../core';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 
-function isToStringable(value: unknown): boolean {
-    const type = typeof value;
-    if (type === 'string') return true;
-    if (type === 'boolean') return true;
-    if (type === 'number') return true;
-    if (type === 'bigint') return true;
-    if (type === 'symbol') return true;
-    if (value instanceof Date) return true;
-    return false;
-}
-
 export class StringBuilder extends Builder<string> {
-    static valueFrom(value: unknown): string {
-        if (!isToStringable(value)) {
-            throw new Error(`Expected ${value} (${getTypeOf(value)}) to be in a string like format`);
-        }
-        return toString(value);
-    }
+    static valueFrom = primitiveToString;
 
     constructor(
         data: WritableData<string>,

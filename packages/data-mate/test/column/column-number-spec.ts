@@ -383,7 +383,7 @@ describe('Column (Number Types)', () => {
 
             expect(newCol.toJSON()).toEqual(values.map((value) => {
                 if (value == null) return null;
-                return value.toLocaleString();
+                return `${value}`;
             }));
         });
 

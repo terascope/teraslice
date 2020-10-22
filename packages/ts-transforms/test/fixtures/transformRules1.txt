@@ -9,6 +9,6 @@
 { "selector": "hostname:www.example.com", "source": "pathLat", "regex": "/path/tiles/latitude/(.*?)$", "target": "location.lat", "tag": "geoValidateME" }
 { "selector": "hostname:www.example.com", "source": "pathLon", "regex": "/path/tiles/longitude/(.*?)$", "target": "location.lon", "tag": "geoValidateME" }
 
-{ "selector": "location:(_geo_box_top_left_: \"33.906320,  -112.758421\" _geo_box_bottom_right_:\"32.813646,-111.058902\")", "source": "location", "target": "point", "tag": "geoValidateME" }
+{ "selector": "location:geoBox(top_left: \"33.906320,  -112.758421\" bottom_right:\"32.813646,-111.058902\")", "source": "location", "target": "point", "tag": "geoValidateME" }
 { "follow": "geoValidateME", "validation": "geolocation" }
 # some comment

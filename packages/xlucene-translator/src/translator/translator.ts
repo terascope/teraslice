@@ -30,10 +30,13 @@ export class Translator {
         if (isString(input)) {
             this._parser = new Parser(input, {
                 type_config: this.typeConfig,
-                variables: this.variables
             });
         } else {
             this._parser = input;
+        }
+
+        if (options.variables) {
+            this._parser = this._parser.resolveVariables(options.variables);
         }
 
         if (options.default_geo_field) {
@@ -54,6 +57,7 @@ export class Translator {
             logger,
             type_config: this.typeConfig,
             default_geo_field: this._defaultGeoField,
+            variables: this.variables ?? {},
             geo_sort_point: opts.geo_sort_point,
             geo_sort_order: opts.geo_sort_order || this._defaultGeoSortOrder,
             geo_sort_unit: opts.geo_sort_unit || this._defaultGeoSortUnit,

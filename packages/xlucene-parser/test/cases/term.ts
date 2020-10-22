@@ -13,7 +13,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: null,
-            value: 'bar',
+            value: { type: 'value', value: 'bar', },
         },
     ],
     [
@@ -29,7 +29,7 @@ export default [
                         field_type: xLuceneFieldType.String,
                         quoted: false,
                         field: null,
-                        value: 'foo',
+                        value: { type: 'value', value: 'foo', },
                     }]
                 },
                 {
@@ -39,7 +39,7 @@ export default [
                         field_type: xLuceneFieldType.String,
                         quoted: false,
                         field: null,
-                        value: 'bar',
+                        value: { type: 'value', value: 'bar', },
                     }]
                 }
             ]
@@ -53,7 +53,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: null,
             quoted: true,
-            value: 'foo',
+            value: { type: 'value', value: 'foo', },
         },
     ],
     [
@@ -64,7 +64,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: null,
             quoted: true,
-            value: 'foo',
+            value: { type: 'value', value: 'foo', },
         },
     ],
     [
@@ -75,7 +75,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: null,
             quoted: false,
-            value: '\\"foo\\"',
+            value: { type: 'value', value: '\\"foo\\"', },
         },
     ],
     [
@@ -86,7 +86,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: false,
-            value: '\\"bar\\"',
+            value: { type: 'value', value: '\\"bar\\"', },
         },
     ],
     [
@@ -97,7 +97,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: false,
-            value: '\\"bar',
+            value: { type: 'value', value: '\\"bar', },
         },
         {
             foo: xLuceneFieldType.String
@@ -111,7 +111,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: true,
-            value: '"',
+            value: { type: 'value', value: '"', },
         },
         {
             foo: xLuceneFieldType.String
@@ -125,7 +125,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: false,
-            value: 'bar',
+            value: { type: 'value', value: 'bar', },
         },
         {
             foo: xLuceneFieldType.String
@@ -140,7 +140,7 @@ export default [
             field: 'phone.tokens',
             quoted: false,
             analyzed: true,
-            value: '3848',
+            value: { type: 'value', value: '3848', },
         },
         {
             phone: xLuceneFieldType.String
@@ -154,7 +154,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: false,
-            value: 'bar',
+            value: { type: 'value', value: 'bar', },
         },
     ],
     [
@@ -165,7 +165,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: true,
-            value: 'bar',
+            value: { type: 'value', value: 'bar', },
         },
         {
             foo: xLuceneFieldType.String
@@ -179,7 +179,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: true,
-            value: 'bar',
+            value: { type: 'value', value: 'bar', },
         },
         {
             foo: xLuceneFieldType.String
@@ -192,7 +192,7 @@ export default [
             type: ASTType.Term,
             field_type: xLuceneFieldType.Integer,
             field: 'count',
-            value: 123,
+            value: { type: 'value', value: 123, },
         },
     ],
     [
@@ -203,7 +203,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'count',
             quoted: true,
-            value: '123',
+            value: { type: 'value', value: '123', },
         },
     ],
     [
@@ -213,7 +213,7 @@ export default [
             type: ASTType.Term,
             field_type: xLuceneFieldType.Integer,
             field: 'count',
-            value: 123,
+            value: { type: 'value', value: 123, },
         },
         {
             count: xLuceneFieldType.Integer
@@ -226,7 +226,7 @@ export default [
             type: ASTType.Term,
             field_type: xLuceneFieldType.Integer,
             field: 'count',
-            value: 22,
+            value: { type: 'value', value: 22, },
         },
         {
             count: xLuceneFieldType.Integer
@@ -239,7 +239,7 @@ export default [
             type: ASTType.Term,
             field_type: xLuceneFieldType.Integer,
             field: 'count',
-            value: 22,
+            value: { type: 'value', value: 22, },
         },
         {
             count: xLuceneFieldType.Integer
@@ -253,7 +253,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'count_str',
             quoted: false,
-            value: '123',
+            value: { type: 'value', value: '123', },
         },
         {
             count_str: 'string'
@@ -267,7 +267,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'large_numeric_str',
             quoted: false,
-            value: '4555029426647693529',
+            value: { type: 'value', value: '4555029426647693529', },
         },
         {
             large_numeric_str: 'string'
@@ -280,7 +280,7 @@ export default [
             type: ASTType.Term,
             field_type: xLuceneFieldType.Float,
             field: 'cash',
-            value: 50.5,
+            value: { type: 'value', value: 50.5, },
         },
         {
             cash: xLuceneFieldType.Float
@@ -294,7 +294,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'cash',
             quoted: true,
-            value: '50.50',
+            value: { type: 'value', value: '50.50', },
         },
     ],
     [
@@ -304,7 +304,7 @@ export default [
             type: ASTType.Term,
             field_type: xLuceneFieldType.Float,
             field: 'cash',
-            value: 50.50,
+            value: { type: 'value', value: 50.50, },
         },
         {
             cash: xLuceneFieldType.Float
@@ -317,7 +317,7 @@ export default [
             type: ASTType.Term,
             field_type: xLuceneFieldType.Boolean,
             field: 'bool',
-            value: false,
+            value: { type: 'value', value: false, },
         },
     ],
     [
@@ -327,7 +327,7 @@ export default [
             type: ASTType.Term,
             field_type: xLuceneFieldType.String,
             field: 'bool',
-            value: 'true',
+            value: { type: 'value', value: 'true', },
         },
         {
             bool: xLuceneFieldType.String
@@ -340,7 +340,7 @@ export default [
             type: ASTType.Term,
             field_type: xLuceneFieldType.Boolean,
             field: 'bool',
-            value: false,
+            value: { type: 'value', value: false, },
         },
         {
             bool: xLuceneFieldType.Boolean
@@ -353,7 +353,7 @@ export default [
             type: ASTType.Term,
             field_type: xLuceneFieldType.String,
             field: 'bool',
-            value: 'true',
+            value: { type: 'value', value: 'true', },
         },
     ],
     [
@@ -363,7 +363,7 @@ export default [
             type: ASTType.Term,
             field_type: xLuceneFieldType.String,
             field: 'fo?',
-            value: 'bar',
+            value: { type: 'value', value: 'bar', },
         },
     ],
     [
@@ -374,7 +374,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: true,
-            value: 'ba?',
+            value: { type: 'value', value: 'ba?', },
         },
     ],
     [
@@ -386,7 +386,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: null,
             quoted: false,
-            value: '155 223',
+            value: { type: 'value', value: '155 223', },
         },
     ],
     [
@@ -397,7 +397,7 @@ export default [
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: false,
-            value: 'bar',
+            value: { type: 'value', value: 'bar', },
         },
     ],
     [
@@ -408,7 +408,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: 'id',
-            value: 'some"thing"else',
+            value: { type: 'value', value: 'some"thing"else', },
         },
     ],
     [
@@ -419,7 +419,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'field',
-            value: "valueSomething(abcd70576983)",
+            value: { type: 'value', value: "valueSomething(abcd70576983)", },
         },
     ],
     [
@@ -430,7 +430,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: null,
-            value: "hi(hello)howdy",
+            value: { type: 'value', value: "hi(hello)howdy", },
         },
     ],
     [
@@ -441,7 +441,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'field',
-            value: " hello(123) there",
+            value: { type: 'value', value: " hello(123) there", },
         },
     ],
     [
@@ -452,7 +452,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: null,
-            value: " :(hello)",
+            value: { type: 'value', value: " :(hello)", },
         },
     ],
     [
@@ -463,7 +463,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'example',
-            value: "+ -  ( ) { } [ ] ^ ' \" ? & | / ~ * OR NOT",
+            value: { type: 'value', value: "+ -  ( ) { } [ ] ^ ' \" ? & | / ~ * OR NOT", },
         },
     ],
     [
@@ -474,7 +474,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'example',
-            value: "+ -  ( ) { } [ ] ^ ' \" ? & | / ~ * OR NOT",
+            value: { type: 'value', value: "+ -  ( ) { } [ ] ^ ' \" ? & | / ~ * OR NOT", },
         },
     ],
     [
@@ -485,7 +485,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: 'id',
-            value: "some'other'thing",
+            value: { type: 'value', value: "some'other'thing", },
         },
     ],
     [
@@ -496,7 +496,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: 'id',
-            value: 'some\\\\\\"thing\\\\\\"else',
+            value: { type: 'value', value: 'some\\\\\\"thing\\\\\\"else', },
         },
     ],
     [
@@ -507,7 +507,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'id',
-            value: 'some thing else',
+            value: { type: 'value', value: 'some thing else', },
         },
     ],
     [
@@ -518,7 +518,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'id',
-            value: 'some \\"thing\\" else',
+            value: { type: 'value', value: 'some \\"thing\\" else', },
         },
     ],
     [
@@ -529,7 +529,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'id',
-            value: 'some\\ \\"thing\\" else',
+            value: { type: 'value', value: 'some\\ \\"thing\\" else', },
         },
     ],
     [
@@ -540,7 +540,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'foo',
-            value: '"bar"',
+            value: { type: 'value', value: '"bar"', },
         },
     ],
     [
@@ -551,7 +551,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'foo',
-            value: '"ba\\\'r"',
+            value: { type: 'value', value: '"ba\\\'r"', },
         },
     ],
     [
@@ -562,7 +562,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'foo',
-            value: '"bar"',
+            value: { type: 'value', value: '"bar"', },
         },
     ],
     [
@@ -573,7 +573,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'field',
-            value: `/value\\\\`,
+            value: { type: 'value', value: `/value\\\\`, },
         },
     ],
     [
@@ -584,57 +584,118 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'field',
-            value: `/value\\\\`,
+            value: { type: 'value', value: `/value\\\\`, },
         },
     ],
     [
-        `field:$bar`,
+        `field:$bar_val`,
         'variable with value is a string',
         {
-            value: 'someValue',
+            value: { type: 'variable', value: 'bar_val', },
             field: 'field',
             type: ASTType.Term,
             field_type: xLuceneFieldType.String,
-            quoted: false,
         },
         {
-            field: 'string'
+            field: xLuceneFieldType.String
         },
-        {
-            bar: 'someValue'
-        }
     ],
     [
         `field:$bar`,
         'variable with value is a boolean',
         {
-            value: false,
+            value: { type: 'value', value: false, },
             field: 'field',
             type: ASTType.Term,
             field_type: xLuceneFieldType.Boolean,
         },
         {
-            field: 'boolean'
+            field: xLuceneFieldType.Boolean,
         },
         {
             bar: false
         }
     ],
     [
-        `field:$bar`,
+        `field:$bar2`,
         'variable with value is a number',
         {
-            value: 2345,
+            value: { type: 'variable', value: 'bar2', },
             field: 'field',
             type: ASTType.Term,
             field_type: xLuceneFieldType.Integer,
         },
         {
-            field: 'integer'
+            field: xLuceneFieldType.Integer,
+        },
+    ],
+    [
+        `field:@bar2`,
+        'a scoped variable',
+        {
+            value: { type: 'variable', value: '@bar2', scoped: true },
+            field: 'field',
+            type: ASTType.Term,
+            field_type: xLuceneFieldType.Integer,
         },
         {
-            bar: 2345
+            field: xLuceneFieldType.Integer,
+        },
+    ],
+    [
+        `field:@example.foo`,
+        'a nested scoped variable',
+        {
+            value: { type: 'variable', value: '@example.foo', scoped: true },
+            field: 'field',
+            type: ASTType.Term,
+            field_type: xLuceneFieldType.String,
+        },
+        {
+            field: xLuceneFieldType.String,
+        },
+    ],
+    [
+        `field:@bar_string`,
+        'a scoped variable that gets translated',
+        {
+            value: { type: 'value', value: 'EXAMPLE' },
+            field: 'field',
+            type: ASTType.Term,
+            field_type: xLuceneFieldType.String,
+        },
+        {
+            field: xLuceneFieldType.String,
+        },
+        {
+            '@bar_string': 'EXAMPLE'
         }
+    ],
+    [
+        `field:"@example.foo"`,
+        'wont confuse quoted for scoped variable',
+        {
+            value: { type: 'value', value: '@example.foo' },
+            field: 'field',
+            type: ASTType.Term,
+            field_type: xLuceneFieldType.String,
+        },
+        {
+            field: xLuceneFieldType.String,
+        },
+    ],
+    [
+        `field:\\@example.foo`,
+        'wont confuse escaped value for scoped variable',
+        {
+            value: { type: 'value', value: '\\@example.foo' },
+            field: 'field',
+            type: ASTType.Term,
+            field_type: xLuceneFieldType.String,
+        },
+        {
+            field: xLuceneFieldType.String,
+        },
     ],
     [
         'field:something.com',
@@ -645,7 +706,19 @@ export default [
             quoted: false,
             restricted: true,
             field: 'field',
-            value: 'something.com',
+            value: { type: 'value', value: 'something.com', },
+        },
+    ],
+    [
+        'field:foo@something.com',
+        'can parse an email',
+        {
+            type: ASTType.Term,
+            field_type: xLuceneFieldType.String,
+            quoted: false,
+            restricted: true,
+            field: 'field',
+            value: { type: 'value', value: 'foo@something.com', },
         },
     ],
     [
@@ -656,7 +729,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: 'field',
-            value: 'false.com',
+            value: { type: 'value', value: 'false.com', },
         },
     ],
     [
@@ -667,7 +740,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: 'field.right',
-            value: 'false.com',
+            value: { type: 'value', value: 'false.com', },
         },
     ],
     [
@@ -678,7 +751,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: 'field.right',
-            value: '3.com',
+            value: { type: 'value', value: '3.com', },
         },
     ],
     [
@@ -689,7 +762,7 @@ export default [
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: 'field.right',
-            value: '3.3.com',
+            value: { type: 'value', value: '3.3.com', },
         },
     ],
 ] as TestCase[];

@@ -376,7 +376,7 @@ export function isGeoShapePolygon(input: unknown, _parentContext?: unknown): boo
 }
 
 /**
- * Checks to see if input is a valid geo-json multipolygon or a list of geo-json multipolygons
+ * Checks to see if input is a valid geo-json multi-polygon or a list of geo-json multi-polygons
  * @example
  *
  * const polygon = {
