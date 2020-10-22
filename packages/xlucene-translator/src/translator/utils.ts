@@ -107,14 +107,6 @@ export function translateQuery(
             return buildRangeQuery(node);
         }
 
-        if (p.isGeoBoundingBox(node)) {
-            return buildGeoBoundingBoxQuery(node);
-        }
-
-        if (p.isGeoDistance(node)) {
-            return buildGeoDistanceQuery(node);
-        }
-
         if (p.isFunctionNode(node)) {
             const instance = p.initFunction({ node, variables, type_config: typeConfig });
             const { query, sort: sortQuery } = instance.toElasticsearchQuery(
@@ -145,62 +137,6 @@ export function translateQuery(
 
         logger.trace('built multi-match query', { node, multiMatchQuery });
         return multiMatchQuery;
-    }
-
-    function buildGeoBoundingBoxQuery(node: p.GeoBoundingBox): i.GeoQuery | undefined {
-        if (isMultiMatch(node)) return;
-
-        const field = getTermField(node);
-
-        const geoQuery: i.GeoQuery = {};
-        geoQuery.geo_bounding_box = {};
-        geoQuery.geo_bounding_box[field] = {
-            top_left: node.top_left,
-            bottom_right: node.bottom_right,
-        };
-
-        logger.trace('built geo bounding box query', { node, geoQuery });
-        return geoQuery;
-    }
-
-    function buildGeoDistanceQuery(node: p.GeoDistance): i.GeoQuery | undefined {
-        if (isMultiMatch(node)) return;
-
-        const field = getTermField(node);
-
-        const unit = node.unit || options.geo_sort_unit;
-        const order = options.geo_sort_order;
-
-        const geoQuery: i.GeoQuery = {};
-        geoQuery.geo_distance = {
-            distance: `${node.distance}${unit}`,
-        };
-        geoQuery.geo_distance[field] = {
-            lat: node.lat,
-            lon: node.lon,
-        };
-
-        const geoQuerySort = {
-            _geo_distance: {
-                order,
-                unit,
-                [field]: {
-                    lat: node.lat,
-                    lon: node.lon
-                }
-            }
-        };
-
-        if (!sort) {
-            sort = geoQuerySort;
-        } else if (Array.isArray(sort)) {
-            sort.push(geoQuerySort);
-        } else {
-            sort = [sort, geoQuerySort];
-        }
-
-        logger.trace('built geo distance query', { node, geoQuery });
-        return geoQuery;
     }
 
     function buildRangeQuery(node: p.Range): RangeQueryResults {
@@ -316,7 +252,7 @@ export function translateQuery(
             },
         };
 
-        logger.trace('built regexpr query', { node, regexQuery });
+        logger.trace('built regexp query', { node, regexQuery });
         return regexQuery;
     }
 

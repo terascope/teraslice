@@ -12,7 +12,8 @@ import {
     toNumber,
     toIntegerOrThrow,
     toFloatOrThrow,
-    getTypeOf
+    getTypeOf,
+    isBooleanLike
 } from '@terascope/utils';
 import { Netmask } from 'netmask';
 import { xLuceneFieldType, xLuceneVariables, CoordinateTuple } from '@terascope/types';
@@ -47,14 +48,6 @@ export function isExists(node: unknown): node is i.Exists {
 
 export function isRange(node: unknown): node is i.Range {
     return _getType(node) === i.ASTType.Range;
-}
-
-export function isGeoDistance(node: unknown): node is i.GeoDistance {
-    return _getType(node) === i.ASTType.GeoDistance;
-}
-
-export function isGeoBoundingBox(node: unknown): node is i.GeoBoundingBox {
-    return _getType(node) === i.ASTType.GeoBoundingBox;
 }
 
 export function isFunctionNode(node: unknown): node is i.FunctionNode {
@@ -109,8 +102,6 @@ export const termTypes: i.ASTType[] = [
     i.ASTType.Regexp,
     i.ASTType.Range,
     i.ASTType.Wildcard,
-    i.ASTType.GeoDistance,
-    i.ASTType.GeoBoundingBox,
     i.ASTType.Function,
     i.ASTType.TermList,
 ];
@@ -221,7 +212,12 @@ type CoerceValueFns = Partial<Record<xLuceneFieldType, ((value: any) => any)>>;
 export const coerceValueFns: CoerceValueFns = Object.freeze({
     [xLuceneFieldType.AnalyzedString]: primitiveToString,
     [xLuceneFieldType.String]: primitiveToString,
-    [xLuceneFieldType.Boolean]: toBoolean,
+    [xLuceneFieldType.Boolean](value) {
+        if (!isBooleanLike(value)) {
+            throw new Error(`Expected ${value} (${getTypeOf(value)}) to be in a boolean like format`);
+        }
+        return toBoolean(value);
+    },
     [xLuceneFieldType.Date](value) {
         if (!isPrimitiveValue(value)) {
             throw new Error(`Expected ${value} (${getTypeOf(value)}) to be in a date like format`);
@@ -244,6 +240,12 @@ export const coerceValueFns: CoerceValueFns = Object.freeze({
         return value;
     },
 });
+
+export function makeCoerceFn(fieldType: xLuceneFieldType|undefined): (v: any) => any {
+    if (!fieldType || !(fieldType in coerceValueFns)) return (v) => v;
+    const coerceFn = coerceValueFns[fieldType]!;
+    return coerceFn;
+}
 
 export function createIPRangeFromTerm(node: i.Term, value: string): i.Range {
     const { start, end } = parseIPRange(value);

@@ -359,28 +359,28 @@ RightRangeExpression
 OldGeoTermType
     = point:OldGeoPoint ws* distance:OldGeoDistance {
         return {
-            type: i.ASTType.GeoDistance,
+            type: 'geo-distance',
             ...point,
             ...distance
         }
     }
     / distance:OldGeoDistance ws* point:OldGeoPoint {
         return {
-            type: i.ASTType.GeoDistance,
+            type: 'geo-distance',
             ...point,
             ...distance
         }
     }
     / topLeft:OldGeoTopLeft ws* bottomRight:OldGeoBottomRight {
         return {
-            type: i.ASTType.GeoBoundingBox,
+            type: 'geo-bounding-box',
             ...topLeft,
             ...bottomRight
         }
     }
     / bottomRight:OldGeoBottomRight ws* topLeft:OldGeoTopLeft  {
         return {
-            type: i.ASTType.GeoBoundingBox,
+            type: 'geo-bounding-box',
             ...topLeft,
             ...bottomRight
         }

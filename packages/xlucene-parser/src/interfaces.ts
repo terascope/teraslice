@@ -25,14 +25,12 @@ export interface GroupLikeAST {
     flow: Conjunction[];
 }
 
-export type TermLike = Term|Regexp|Range|Wildcard|GeoBoundingBox|GeoDistance|FunctionNode;
+export type TermLike = Term|Regexp|Range|Wildcard|FunctionNode;
 export type TermLikeType =
     ASTType.Term|
     ASTType.Regexp|
     ASTType.Range|
     ASTType.Wildcard|
-    ASTType.GeoBoundingBox|
-    ASTType.GeoDistance|
     ASTType.Function|
     ASTType.TermList;
 
@@ -50,8 +48,6 @@ export enum ASTType {
     Term = 'term',
     Exists = 'exists',
     Range = 'range',
-    GeoDistance = 'geo-distance',
-    GeoBoundingBox = 'geo-bounding-box',
     Regexp = 'regexp',
     Wildcard = 'wildcard',
     Empty = 'empty',
@@ -167,26 +163,6 @@ export interface RangeNode {
     | t.xLuceneFieldType.Date
     | t.xLuceneFieldType.IP;
     value: FieldValue<number|string>;
-}
-
-export interface GeoDistance extends t.GeoPoint, TermLikeAST {
-    type: ASTType.GeoDistance;
-    field_type: t.xLuceneFieldType.Geo;
-    distance: number;
-    unit: t.GeoDistanceUnit;
-    // we need this type for typescript to
-    // detect the union correctly
-    __geo_distance?: boolean;
-}
-
-export interface GeoBoundingBox extends TermLikeAST {
-    type: ASTType.GeoBoundingBox;
-    field_type: t.xLuceneFieldType.Geo;
-    top_left: t.GeoPoint;
-    bottom_right: t.GeoPoint;
-    // we need this type for typescript to
-    // detect the union correctly
-    __geo_bounding_box?: boolean;
 }
 
 export interface FunctionNode extends TermLikeAST {

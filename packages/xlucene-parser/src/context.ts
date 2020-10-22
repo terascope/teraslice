@@ -1,8 +1,6 @@
 import {
     parseGeoDistance,
     parseGeoPoint,
-    toFloatOrThrow,
-    toIntegerOrThrow,
 } from '@terascope/utils';
 import {
     GeoPoint,
@@ -150,64 +148,35 @@ export function makeContext(arg: i.ContextArg) {
             return;
         }
 
-        if (node.field_type !== fieldType && fieldType === xLuceneFieldType.Boolean) {
-            node.type = i.ASTType.Term;
-            delete node.quoted;
-            delete node.restricted;
-            if (value === 'true') {
-                node.value = { type: 'value', value: true };
+        if (node.field_type !== fieldType) {
+            const coerceFn = utils.makeCoerceFn(fieldType);
+            if (fieldType === xLuceneFieldType.String) {
+                node.quoted ??= false;
+                node.restricted = false;
+            } else {
+                if ('quoted' in node) delete node.quoted;
+                if ('restricted' in node) delete node.restricted;
             }
-            if (value === 'false') {
-                node.value = { type: 'value', value: false };
-            }
-            return;
-        }
-
-        if (node.field_type !== fieldType && fieldType === xLuceneFieldType.Integer) {
-            node.type = i.ASTType.Term;
-            delete node.quoted;
-            delete node.restricted;
             node.value = {
                 type: 'value',
-                value: toIntegerOrThrow(value)
-            };
-            return;
-        }
-
-        if (node.field_type !== fieldType && fieldType === xLuceneFieldType.Float) {
-            node.type = i.ASTType.Term;
-            delete node.quoted;
-            delete node.restricted;
-            node.value = {
-                type: 'value',
-                value: toFloatOrThrow(value),
-            };
-            return;
-        }
-
-        if (node.field_type !== fieldType && fieldType === xLuceneFieldType.String) {
-            node.type = i.ASTType.Term;
-            node.quoted ??= false;
-            node.value = {
-                type: 'value',
-                value: String(value),
+                value: coerceFn(value),
             };
         }
     }
 
     function throwOnOldGeoUsage(
-        term: i.GeoBoundingBox|i.GeoDistance, field: string
+        term: Record<string, any>, field: string
     ): never {
         function formatPoint(point: GeoPoint) {
             return `"${point.lat},${point.lon}"`;
         }
 
-        if (term.type === i.ASTType.GeoBoundingBox) {
+        if (term.type === 'geo-bounding-box') {
             const example = `${field}:geoBox(bottom_right:${formatPoint(term.bottom_right)}, top_left:${formatPoint(term.top_left)})`;
             throw new Error(`Invalid geo bounding box syntax, please use "${example}" syntax instead`);
         }
 
-        const example = `${field}:geoDistance(point:${formatPoint(term)}, distance:${term.distance})`;
+        const example = `${field}:geoDistance(point:${formatPoint(term as any)}, distance:${term.distance})`;
         throw new Error(`Invalid geo distance syntax, please use "${example}" syntax instead`);
     }
 

@@ -1,7 +1,6 @@
 import { xLuceneFieldType, xLuceneTypeConfig, xLuceneVariables } from '@terascope/types';
 import * as p from 'xlucene-parser';
 import { isWildCardString, get } from '@terascope/utils';
-import { geoDistance, geoBoundingBox } from './geo';
 import { compareTermDates, dateRange } from './dates';
 import {
     regexp, wildcard, findWildcardField
@@ -70,18 +69,21 @@ const rangeMapping = {
     }
 };
 
-function rangeFn(node: p.Range): BooleanCB {
+function rangeFn(node: p.Range, variables: xLuceneVariables): BooleanCB {
     const { left, right } = node;
 
     if (!right) {
+        const value = p.getFieldValue(left.value, variables);
         return function singleRangeTerm(data: any) {
-            return rangeMapping[left.operator](data, left.value);
+            return rangeMapping[left.operator](data, value);
         };
     }
 
+    const leftValue = p.getFieldValue(left.value, variables);
+    const rightValue = p.getFieldValue(right.value, variables);
     return function doubleRangeTerm(data: any) {
-        return rangeMapping[left.operator](data, left.value)
-            && rangeMapping[right.operator](data, right.value);
+        return rangeMapping[left.operator](data, leftValue)
+            && rangeMapping[right.operator](data, rightValue);
     };
 }
 
@@ -122,21 +124,13 @@ function walkAst(
 
     if (p.isRange(node)) {
         return logicNode(field, typeFunctions(
-            node, typeConfig, variables, rangeFn(node)
+            node, typeConfig, variables, rangeFn(node, variables)
         ));
     }
 
     if (p.isFunctionNode(node)) {
         const instance = p.initFunction({ node, variables, type_config: typeConfig });
         return logicNode(field, instance.match);
-    }
-
-    if (p.isGeoDistance(node)) {
-        return logicNode(field, geoDistance(node));
-    }
-
-    if (p.isGeoBoundingBox(node)) {
-        return logicNode(field, geoBoundingBox(node));
     }
 
     if (p.isExists(node)) {

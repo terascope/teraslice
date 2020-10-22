@@ -23,7 +23,7 @@ export default [
     ],
     [
         'does not throw when types are not present',
-        '(ipField:{"192.198.0.0" TO "192.198.0.255"] AND date:"2018-10-18T18:15:34.123Z") OR (str:foo* AND location:(_geo_box_top_left_:"33.906320,-112.758421" _geo_box_bottom_right_:"32.813646,-111.058902"))',
+        '(ipField:{"192.198.0.0" TO "192.198.0.255"] AND date:"2018-10-18T18:15:34.123Z") OR (str:foo* AND location:geoBox(top_left:"33.906320,-112.758421" bottom_right:"32.813646,-111.058902"))',
         [
             {},
             {

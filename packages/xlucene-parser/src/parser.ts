@@ -159,7 +159,7 @@ function coerceNodeValue(
     skipAutoFieldGroup?: boolean
 ): i.AnyAST {
     const value = utils.getFieldValue<any>(node.value, variables);
-    const coercingFn = utils.coerceValueFns[node.field_type] ?? ((v: any) => v);
+    const coerceFn = utils.makeCoerceFn(node.field_type);
 
     if (Array.isArray(value)) {
         if (skipAutoFieldGroup) {
@@ -167,7 +167,7 @@ function coerceNodeValue(
                 ...node,
                 value: {
                     type: 'value',
-                    value: value.map(coercingFn) as any
+                    value: value.map(coerceFn) as any
                 }
             };
         }
@@ -182,7 +182,7 @@ function coerceNodeValue(
                     ...node,
                     value: {
                         type: 'value',
-                        value: coercingFn(val)
+                        value: coerceFn(val)
                     }
                 }]
             } as i.Conjunction))
@@ -211,7 +211,7 @@ function coerceNodeValue(
         ...node,
         value: {
             type: 'value',
-            value: coercingFn(value)
+            value: coerceFn(value)
         }
     };
 }
