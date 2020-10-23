@@ -61,7 +61,7 @@ export default class BaseTestHarness<U extends ExecutionContext> {
 
         if (fs.pathExistsSync(externalAssetsPath)) {
             return fs.readdirSync(externalAssetsPath)
-                .filter((items) => fs.lstatSync(items).isDirectory())
+                .filter((item) => fs.lstatSync(path.join(externalAssetsPath, item)).isDirectory())
                 .map((dir) => path.join(externalAssetsPath, dir));
         }
 
