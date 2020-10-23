@@ -18,7 +18,9 @@ export default class DownLoadExternalAsset {
     }
 
     private _assetAlreadyExists(assetInfo: I.AssetInfo): boolean {
-        return fs.pathExistsSync(assetInfo.asset_path);
+        return fs.pathExistsSync(assetInfo.download_path)
+            && fs.readdirSync(assetInfo.download_path)
+                .some((file) => file.includes(assetInfo.repo));
     }
 
     private async _downloadAsset(assetInfo: I.AssetInfo): Promise<string[]> {
@@ -78,7 +80,7 @@ export default class DownLoadExternalAsset {
             repo,
             version,
             download_path: path.join(__dirname, '..', 'test', '.cache', 'downloads'),
-            asset_path: path.join(__dirname, '..', 'test', '.cache', 'assets', account),
+            asset_path: path.join(__dirname, '..', 'test', '.cache', 'assets'),
             build: `node-${this._majorNodeVersion()}-${os.platform()}-${os.arch()}.zip`
         };
     }
