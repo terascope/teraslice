@@ -65,12 +65,9 @@ describe('download-external-asset', () => {
 
     const externalAsset = new DownloadExternalAsset();
 
-    beforeEach(() => {
+    afterEach(() => {
         fs.removeSync(path.join(__dirname, '.cache'));
-    });
-
-    afterAll(() => {
-        fs.removeSync(path.join(__dirname, '.cache'));
+        nock.cleanAll();
     });
 
     it('should download an asset.zip from github and unzip the asset', async () => {
@@ -127,9 +124,7 @@ describe('download-external-asset', () => {
 
         const options = {
             assetDir: [
-                path.join(__dirname, 'fixtures'),
-                path.join(__dirname, 'secondary-asset'),
-                path.join(__dirname, '.cache/assets/jungle')
+                path.join(__dirname, 'fixtures')
             ]
         };
 
@@ -142,7 +137,6 @@ describe('download-external-asset', () => {
                     passthrough_slice: true,
                 },
                 { _op: 'test-processor' },
-                { _op: 'other_processor' },
                 { _op: 'good_processor' }
             ],
         });
