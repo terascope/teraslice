@@ -46,7 +46,7 @@ export default class DownLoadExternalAsset {
     }
 
     private async _unzipAsset(assetInfo: I.AssetInfo, zippedAssetPath: string): Promise<void> {
-        await fs.mkdir(assetInfo.asset_path);
+        await fs.ensureDir(assetInfo.asset_path);
 
         await decompress(zippedAssetPath, assetInfo.asset_path);
     }
@@ -79,7 +79,7 @@ export default class DownLoadExternalAsset {
             version,
             download_path: path.join(__dirname, '..', 'test', '.cache', 'downloads'),
             asset_path: path.join(__dirname, '..', 'test', '.cache', 'assets', account),
-            build: `node-${this._majorNodeVersion()}-${os.platform()}-${os.arch}().zip`
+            build: `node-${this._majorNodeVersion()}-${os.platform()}-${os.arch()}.zip`
         };
     }
 
