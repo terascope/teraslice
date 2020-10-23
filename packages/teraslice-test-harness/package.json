@@ -30,7 +30,9 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/teraslice-op-test-harness": "^1.23.0"
+        "@terascope/fetch-github-release": "^0.7.2",
+        "@terascope/teraslice-op-test-harness": "^1.23.0",
+        "decompress": "^4.2.1"
     },
     "devDependencies": {
         "@terascope/job-components": "^0.42.2"
