@@ -86,7 +86,7 @@ describe('download-external-asset', () => {
         expect(fs.pathExistsSync(path.join(__dirname, '.cache', 'assets', 'jungle', 'asset.json'))).toBe(true);
     });
 
-    it('should download an the correct asset version', async () => {
+    it('should download the correct asset version when specified', async () => {
         gitHub
             .get('/repos/quantum/jungle/releases')
             .reply(200, releasesJson, { 'Content-Type': 'application/json' })

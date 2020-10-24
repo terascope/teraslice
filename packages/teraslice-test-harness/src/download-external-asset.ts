@@ -24,36 +24,36 @@ export default class DownLoadExternalAsset {
     }
 
     private async _downloadAsset(assetInfo: I.AssetInfo): Promise<string[]> {
-        try {
-            await fs.ensureDir(assetInfo.download_path);
-        } catch (err) {
-            throw new TSError(`Error creating ${assetInfo.download_path}: ${err}`);
-        }
+        this._ensureDirExists(assetInfo.download_path);
 
         try {
             const result = downloadRelease(
                 assetInfo.account,
                 assetInfo.repo,
                 assetInfo.download_path,
-                this._getFilterReleaseFunc(assetInfo.version) as any,
-                this._getFilterAssetFunc(assetInfo),
-                true,
-                false
+                this._filterReleaseFunc(assetInfo.version) as any,
+                this._filterAssetFunc(assetInfo),
+                true, // leave zipped
+                false // quiet
             ) as any;
 
             return result;
-        } catch (e) {
-            throw new Error(`Error downloading ${assetInfo.asset_string}: ${e}`);
+        } catch (err) {
+            throw new Error(`Error downloading ${assetInfo.asset_string}: ${err}`);
         }
     }
 
     private async _unzipAsset(assetInfo: I.AssetInfo, zippedAssetPath: string): Promise<void> {
-        await fs.ensureDir(assetInfo.asset_path);
+        await this._ensureDirExists(assetInfo.asset_path);
 
-        await decompress(zippedAssetPath, assetInfo.asset_path);
+        try {
+            await decompress(zippedAssetPath, assetInfo.asset_path);
+        } catch (err) {
+            throw new Error(`Error unzipping asset: ${assetInfo.asset_string}: ${err}`);
+        }
     }
 
-    private _getFilterReleaseFunc(version: string | undefined) {
+    private _filterReleaseFunc(version: string | undefined) {
         if (version) {
             return (release: any) => release.tag_name.includes(version);
         }
@@ -61,12 +61,8 @@ export default class DownLoadExternalAsset {
         return (release: any) => !release.draft;
     }
 
-    private _getFilterAssetFunc(assetInfo: I.AssetInfo) {
+    private _filterAssetFunc(assetInfo: I.AssetInfo) {
         return (asset: any) => asset.name.indexOf(assetInfo.build) > 0;
-    }
-
-    private _majorNodeVersion() {
-        return process.version.split('.')[0].slice(1);
     }
 
     private _getAssetInfo(assetString: string): I.AssetInfo {
@@ -83,6 +79,14 @@ export default class DownLoadExternalAsset {
             asset_path: path.join(__dirname, '..', 'test', '.cache', 'assets'),
             build: `node-${this._majorNodeVersion()}-${os.platform()}-${os.arch()}.zip`
         };
+    }
+
+    private async _ensureDirExists(dirPath: string) {
+        try {
+            await fs.ensureDir(dirPath);
+        } catch (err) {
+            throw new TSError(`Error creating ${dirPath}: ${err}`);
+        }
     }
 
     private _parseVersion(assetString: string): string[] {
@@ -103,5 +107,9 @@ export default class DownLoadExternalAsset {
         }
 
         return accountSplit;
+    }
+
+    private _majorNodeVersion() {
+        return process.version.split('.')[0].slice(1);
     }
 }
