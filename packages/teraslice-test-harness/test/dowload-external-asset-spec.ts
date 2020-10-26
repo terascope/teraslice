@@ -2,6 +2,7 @@ import nock from 'nock';
 import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
+import decompress from 'decompress';
 import { newTestJobConfig, DataEntity } from '@terascope/job-components';
 import { WorkerTestHarness, DownloadExternalAsset } from '../src';
 
@@ -65,9 +66,17 @@ describe('download-external-asset', () => {
 
     const externalAsset = new DownloadExternalAsset();
 
-    afterEach(() => {
-        fs.removeSync(path.join(__dirname, '.cache'));
+    beforeAll(async () => {
+        await fs.remove(path.join(__dirname, '.cache'));
+    });
+
+    afterEach(async () => {
+        await fs.remove(path.join(__dirname, '.cache'));
         nock.cleanAll();
+    });
+
+    afterAll(async () => {
+        await fs.remove(path.join(__dirname, '.cache'));
     });
 
     it('should download an asset.zip from github and unzip the asset', async () => {
@@ -102,13 +111,19 @@ describe('download-external-asset', () => {
         expect(fs.pathExistsSync(path.join(__dirname, '.cache', 'assets', 'jungle', 'asset.json'))).toBe(true);
     });
 
-    it('should not download an asset if asset already exists in the cache', async () => {
+    it('should not download an asset if asset already exists', async () => {
         fs.ensureDirSync(path.join(__dirname, '.cache', 'downloads'));
         fs.copyFileSync(path.join(__dirname, 'fixtures', 'test-asset.zip'), path.join(__dirname, '.cache', 'downloads', `jungle-v1.0.0-${build}.zip`));
 
+        await decompress(
+            path.join(__dirname, '.cache', 'downloads', `jungle-v1.0.0-${build}.zip`),
+            path.join(__dirname, '.cache', 'assets', 'jungle')
+        );
+
         await externalAsset.downloadExternalAsset('quantum/jungle');
 
-        expect(fs.pathExistsSync(path.join(__dirname, '.cache', 'assets', 'jungle'))).toBe(false);
+        expect(fs.pathExistsSync(path.join(__dirname, '.cache', 'downloads', `jungle-v1.0.0-${build}.zip`))).toBe(true);
+        expect(fs.pathExistsSync(path.join(__dirname, '.cache', 'assets', 'jungle', 'asset.json'))).toBe(true);
     });
 
     it('should allow test harness to run with external assets', async () => {

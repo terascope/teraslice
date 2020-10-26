@@ -7,32 +7,51 @@ import downloadRelease from '@terascope/fetch-github-release';
 import * as I from './interfaces';
 
 export default class DownLoadExternalAsset {
+    zipped_path: string;
+    unzipped_path: string;
+    build: string;
+    constructor() {
+        [this.zipped_path, this.unzipped_path] = this._getAssetPaths();
+
+        this.build = `node-${this._majorNodeVersion()}-${os.platform()}-${os.arch()}.zip`;
+    }
     async downloadExternalAsset(assetString: string): Promise<void> {
         const assetInfo = this._getAssetInfo(assetString);
 
-        if (this._assetAlreadyExists(assetInfo)) return;
-
-        const [zippedAssetPath] = await this._downloadAsset(assetInfo);
+        const zippedAssetPath = await this._getZippedAssetPath(assetInfo);
 
         await this._unzipAsset(assetInfo, zippedAssetPath);
     }
 
-    private _assetAlreadyExists(assetInfo: I.AssetInfo): boolean {
-        return fs.pathExistsSync(assetInfo.download_path)
-            && fs.readdirSync(assetInfo.download_path)
-                .some((file) => file.includes(assetInfo.repo));
+    private async _getZippedAssetPath(assetInfo: I.AssetInfo) {
+        if (this._foundZipped(assetInfo) === false) {
+            this._ensureDirExists(this.zipped_path);
+
+            const [zippedAsset] = await this._downloadAssetZip(assetInfo);
+
+            return zippedAsset;
+        }
+
+        return path.join(this.zipped_path, assetInfo.name);
     }
 
-    private async _downloadAsset(assetInfo: I.AssetInfo): Promise<string[]> {
-        this._ensureDirExists(assetInfo.download_path);
+    private _foundZipped(assetInfo: I.AssetInfo): boolean {
+        if (assetInfo.version) {
+            return fs.pathExistsSync(path.join(this.zipped_path, assetInfo.name));
+        }
 
+        return fs.pathExistsSync(this.zipped_path)
+            && fs.readdirSync(this.zipped_path).some((files) => files.includes(assetInfo.name));
+    }
+
+    private async _downloadAssetZip(assetInfo: I.AssetInfo): Promise<string[]> {
         try {
             const result = downloadRelease(
                 assetInfo.account,
                 assetInfo.repo,
-                assetInfo.download_path,
+                this.zipped_path, // where zipped file will be stored
                 this._filterReleaseFunc(assetInfo.version) as any,
-                this._filterAssetFunc(assetInfo),
+                this._filterAssetFunc(),
                 true, // leave zipped
                 false // quiet
             ) as any;
@@ -44,10 +63,14 @@ export default class DownLoadExternalAsset {
     }
 
     private async _unzipAsset(assetInfo: I.AssetInfo, zippedAssetPath: string): Promise<void> {
-        await this._ensureDirExists(assetInfo.asset_path);
+        const unzippedAsset = path.join(this.unzipped_path, assetInfo.repo);
+
+        if (fs.pathExistsSync(path.join(unzippedAsset, 'asset.json'))) return;
+
+        await this._ensureDirExists(unzippedAsset);
 
         try {
-            await decompress(zippedAssetPath, assetInfo.asset_path);
+            await decompress(zippedAssetPath, unzippedAsset);
         } catch (err) {
             throw new Error(`Error unzipping asset: ${assetInfo.asset_string}: ${err}`);
         }
@@ -61,8 +84,8 @@ export default class DownLoadExternalAsset {
         return (release: any) => !release.draft;
     }
 
-    private _filterAssetFunc(assetInfo: I.AssetInfo) {
-        return (asset: any) => asset.name.indexOf(assetInfo.build) > 0;
+    private _filterAssetFunc() {
+        return (asset: any) => asset.name.indexOf(this.build) > 0;
     }
 
     private _getAssetInfo(assetString: string): I.AssetInfo {
@@ -70,15 +93,46 @@ export default class DownLoadExternalAsset {
 
         const [account, repo] = this._parseRepo(accountAndRepo);
 
+        const name = this._getZipName(repo, version);
+
         return {
             asset_string: assetString,
+            name,
             account,
             repo,
-            version,
-            download_path: path.join(__dirname, '..', 'test', '.cache', 'downloads'),
-            asset_path: path.join(__dirname, '..', 'test', '.cache', 'assets'),
-            build: `node-${this._majorNodeVersion()}-${os.platform()}-${os.arch()}.zip`
+            version
         };
+    }
+
+    private _getAssetPaths() {
+        let zippedPath: string | undefined;
+        let unzippedPath: string | undefined;
+
+        // if used in another asset, test dir should be same level as node_modules
+        if (__dirname.includes('node_modules')) {
+            unzippedPath = __dirname.slice(0, __dirname.indexOf('node_modules'));
+
+            if (fs.pathExistsSync(path.join(unzippedPath, 'test'))) {
+                unzippedPath = path.join(unzippedPath, 'test', '.cache');
+            }
+        } else {
+            // if testing teraslice-test-harness
+            unzippedPath = path.join(__dirname, '..', 'test', '.cache');
+        }
+
+        if (zippedPath == null) {
+            zippedPath = path.join(unzippedPath, 'downloads');
+        }
+
+        return [zippedPath, path.join(unzippedPath, 'assets')];
+    }
+
+    private _getZipName(repo: string, version: string | undefined): string {
+        if (version) {
+            return `${repo.split('-')[0]}-${version}-${this.build}`;
+        }
+
+        return repo.split('-')[0];
     }
 
     private async _ensureDirExists(dirPath: string) {
