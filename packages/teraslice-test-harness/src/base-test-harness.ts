@@ -49,35 +49,6 @@ export default class BaseTestHarness<U extends ExecutionContext> {
         this.context.apis.setTestClients(clients);
     }
 
-    /**
-     * Cleanup test code
-    */
-    async shutdown(): Promise<void> {
-        this.events.removeAllListeners();
-    }
-
-    private _getExternalAssets(): string[] {
-        const externalPath = path.resolve(externalAssets(), 'assets');
-
-        if (fs.pathExistsSync(externalPath)) {
-            return fs.readdirSync(externalPath)
-                .filter((item) => fs.lstatSync(path.join(externalPath!, item)).isDirectory())
-                .map((dir) => path.join(externalPath, dir));
-        }
-
-        return [];
-    }
-
-    private _getAssetDirs(assetDir: string | string[] = [process.cwd()]) {
-        const assets = this._getExternalAssets();
-
-        if (Array.isArray(assetDir)) {
-            return resolveAssetDir(assets.concat(assetDir));
-        }
-
-        return resolveAssetDir([...assets, assetDir]);
-    }
-
     protected makeContextConfig(
         job: JobConfig,
         assets: string[] = [process.cwd()]
@@ -93,5 +64,34 @@ export default class BaseTestHarness<U extends ExecutionContext> {
             executionConfig,
             assetIds
         };
+    }
+
+    private _getAssetDirs(assetDir: string | string[] = [process.cwd()]) {
+        const assets = this._getExternalAssets();
+
+        if (Array.isArray(assetDir)) {
+            return resolveAssetDir(assets.concat(assetDir));
+        }
+
+        return resolveAssetDir([...assets, assetDir]);
+    }
+
+    private _getExternalAssets(): string[] {
+        const externalAssetsPath = path.resolve(externalAssets(), 'assets');
+
+        if (fs.pathExistsSync(externalAssetsPath)) {
+            return fs.readdirSync(externalAssetsPath)
+                .filter((item) => fs.lstatSync(path.join(externalAssetsPath, item)).isDirectory())
+                .map((dir) => path.join(externalAssetsPath, dir));
+        }
+
+        return [];
+    }
+
+    /**
+     * Cleanup test code
+    */
+    async shutdown(): Promise<void> {
+        this.events.removeAllListeners();
     }
 }

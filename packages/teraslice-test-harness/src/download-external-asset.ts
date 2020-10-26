@@ -11,13 +11,18 @@ export default class DownLoadExternalAsset {
     zipped_path: string;
     unzipped_path: string;
     build: string;
+
     constructor() {
         this.zipped_path = path.join(externalAssets(), 'downloads');
         this.unzipped_path = path.join(externalAssets(), 'assets');
         this.build = `node-${this._majorNodeVersion()}-${os.platform()}-${os.arch()}.zip`;
     }
+
     async downloadExternalAsset(assetString: string): Promise<void> {
         const assetInfo = this._getAssetInfo(assetString);
+
+        // check if asset is already in test/.cache/assets/asset-repo
+        if (fs.pathExistsSync(path.join(this.unzipped_path, assetInfo.repo, 'asset.json'))) return;
 
         const zippedAssetPath = await this._getZippedAssetPath(assetInfo);
 
@@ -25,7 +30,8 @@ export default class DownLoadExternalAsset {
     }
 
     private async _getZippedAssetPath(assetInfo: I.AssetInfo) {
-        if (this._foundZipped(assetInfo) === false) {
+        // need to download if not in test/.cache/downloads
+        if (this._haveZipped(assetInfo) === false) {
             this._ensureDirExists(this.zipped_path);
 
             const [zippedAsset] = await this._downloadAssetZip(assetInfo);
@@ -36,11 +42,12 @@ export default class DownLoadExternalAsset {
         return path.join(this.zipped_path, assetInfo.name);
     }
 
-    private _foundZipped(assetInfo: I.AssetInfo): boolean {
+    private _haveZipped(assetInfo: I.AssetInfo): boolean {
         if (assetInfo.version) {
             return fs.pathExistsSync(path.join(this.zipped_path, assetInfo.name));
         }
 
+        // if no version specified then check for any asset with the name
         return fs.pathExistsSync(this.zipped_path)
             && fs.readdirSync(this.zipped_path).some((files) => files.includes(assetInfo.name));
     }
@@ -50,7 +57,7 @@ export default class DownLoadExternalAsset {
             const result = downloadRelease(
                 assetInfo.account,
                 assetInfo.repo,
-                this.zipped_path, // where zipped file will be stored
+                this.zipped_path, // dir where zipped file will be stored
                 this._filterReleaseFunc(assetInfo.version) as any,
                 this._filterAssetFunc(),
                 true, // leave zipped
@@ -65,8 +72,6 @@ export default class DownLoadExternalAsset {
 
     private async _unzipAsset(assetInfo: I.AssetInfo, zippedAssetPath: string): Promise<void> {
         const unzippedAsset = path.join(this.unzipped_path, assetInfo.repo);
-
-        if (fs.pathExistsSync(path.join(unzippedAsset, 'asset.json'))) return;
 
         await this._ensureDirExists(unzippedAsset);
 
@@ -94,7 +99,7 @@ export default class DownLoadExternalAsset {
 
         const [account, repo] = this._parseRepo(accountAndRepo);
 
-        const name = this._getZipName(repo, version);
+        const name = this._getAssetFileName(repo, version);
 
         return {
             asset_string: assetString,
@@ -105,7 +110,7 @@ export default class DownLoadExternalAsset {
         };
     }
 
-    private _getZipName(repo: string, version: string | undefined): string {
+    private _getAssetFileName(repo: string, version: string | undefined): string {
         if (version) {
             return `${repo.split('-')[0]}-${version}-${this.build}`;
         }
