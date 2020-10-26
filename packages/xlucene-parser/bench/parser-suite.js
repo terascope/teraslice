@@ -59,12 +59,12 @@ const run = async () => Suite('Parser')
             new Parser(polyQuery, polyConfig);
         }
     })
-    .add('parsing multipolygon geoPolygon queries', {
+    .add('parsing multi-polygon geoPolygon queries', {
         fn() {
             new Parser(multiPolyQuery, multiPolyConfig);
         }
     })
-    .add('parsing large multipolygon geoPolygon queries', {
+    .add('parsing large multi-polygon geoPolygon queries', {
         fn() {
             new Parser(largeMultiPolyQuery, largeMultiPolyConfig);
         }

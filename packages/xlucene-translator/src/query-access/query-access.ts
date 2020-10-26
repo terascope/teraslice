@@ -65,8 +65,8 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      *
      * @returns a restricted xlucene query
      */
-    restrict(q: string, options: i.RestrictOptions = {}): string {
-        return this._restrict(q, options).query;
+    restrict(q: string): string {
+        return this._restrict(q).query;
     }
 
     /**
@@ -74,11 +74,11 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
      *
      * @returns a restricted xlucene query
      */
-    private _restrict(q: string, options: i.RestrictOptions = {}): p.Parser {
+    private _restrict(q: string): p.Parser {
         let parser: p.Parser;
+
         const parserOptions: p.ParserOptions = {
             type_config: this.typeConfig,
-            variables: Object.assign({}, this.variables, options.variables)
         };
 
         try {
@@ -132,7 +132,9 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             }
 
             if (p.isWildcard(node)) {
-                if (this.preventPrefixWildcard && startsWithWildcard(node.value)) {
+                const value = p.getFieldValue(node.value, this.variables);
+
+                if (this.preventPrefixWildcard && startsWithWildcard(value)) {
                     throw new ts.TSError("Wildcard queries of the form 'fieldname:*value' or 'fieldname:?value' in query are restricted", {
                         statusCode: 403,
                         context: {
@@ -182,17 +184,18 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
     ): Promise<es.SearchParams> {
         const {
             params: _params = {},
-            variables = {},
             elasticsearch_version: esVersion = 6,
             ...translateOptions
         } = opts;
+
+        const variables = Object.assign({}, this.variables, opts.variables);
 
         if (_params._source) {
             throw new ts.TSError('Cannot include _source in params, use _sourceInclude or _sourceExclude');
         }
         const params = { ..._params };
 
-        const parser = this._restrict(query, { variables });
+        const parser = this._restrict(query);
 
         await ts.pImmediate();
 
@@ -201,7 +204,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             default_geo_field: this.defaultGeoField,
             default_geo_sort_order: this.defaultGeoSortOrder,
             default_geo_sort_unit: this.defaultGeoSortUnit,
-            variables: parser.variables
+            variables
         });
 
         const translated = translator.toElasticsearchDSL(translateOptions);

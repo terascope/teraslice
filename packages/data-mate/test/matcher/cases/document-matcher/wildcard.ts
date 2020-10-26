@@ -131,17 +131,17 @@ export default [
         ],
     ],
     [
-        'can do basic * wildcard matches with variables',
+        'can not do basic * wildcard matches with variables',
         'key: $key',
         keyData,
         [
-            true,
-            false,
-            true,
             false,
             false,
-            true,
-            true,
+            false,
+            false,
+            false,
+            false,
+            false,
         ],
         { key: xLuceneFieldType.String },
         { key: 'abc*' }

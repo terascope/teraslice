@@ -2,81 +2,6 @@ import { TestCase } from './interfaces';
 
 export default [
     [
-        'location:(_geo_box_top_left_:"34.5234,79.42345" _geo_box_bottom_right_:"54.5234,80.3456")',
-        '.',
-        {
-            query: {
-                constant_score: {
-                    filter: {
-                        geo_bounding_box: {
-                            location: {
-                                top_left: {
-                                    lat: 34.5234,
-                                    lon: 79.42345,
-                                },
-                                bottom_right: {
-                                    lat: 54.5234,
-                                    lon: 80.3456
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            sort: {
-                _geo_distance: {
-                    order: 'desc',
-                    unit: 'feet',
-                    default_loc: {
-                        lat: 32.335518,
-                        lon: -110.773616,
-                    }
-                }
-            }
-        },
-        {
-            default_geo_field: 'default_loc',
-            default_geo_sort_unit: 'km'
-        },
-        {
-            geo_sort_point: {
-                lat: 32.335518,
-                lon: -110.773616
-            },
-            geo_sort_order: 'desc',
-            geo_sort_unit: 'feet'
-        }
-    ],
-    [
-        'location:(_geo_box_top_left_:"10.5234,70.42345" _geo_box_bottom_right_:"50.5234,60.3456")',
-        '.',
-        {
-            query: {
-                constant_score: {
-                    filter: {
-                        geo_bounding_box: {
-                            location: {
-                                top_left: {
-                                    lat: 10.5234,
-                                    lon: 70.42345,
-                                },
-                                bottom_right: {
-                                    lat: 50.5234,
-                                    lon: 60.3456
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        {},
-        {
-            geo_sort_order: 'desc',
-            geo_sort_unit: 'feet'
-        }
-    ],
-    [
         'location:geoBox(top_left:"10.5234,70.42345" bottom_right:"50.5234,60.3456")',
         '.',
         {
@@ -174,7 +99,7 @@ export default [
         }
     ],
     [
-        'loc_a:(_geo_point_:"22.435518,-22.873616" _geo_distance_:22NM) AND loc_b:(_geo_point_:"11.435518,-11.873616" _geo_distance_:11cm)',
+        'loc_a:geoDistance(point:"22.435518,-22.873616" distance:22NM) AND loc_b:geoDistance(point:"11.435518,-11.873616" distance:11cm)',
         '.',
         {
             query: {

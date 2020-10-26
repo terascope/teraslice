@@ -3,7 +3,7 @@ import {
     xLuceneFieldType, xLuceneTypeConfig, GeoShapeType, CoordinateTuple
 } from '@terascope/types';
 import { debugLogger } from '@terascope/utils';
-import { Parser } from '../../src';
+import { Parser, initFunction } from '../../src';
 import { coordinateToXlucene } from '../../src/utils';
 import { FunctionElasticsearchOptions, FunctionNode } from '../../src/interfaces';
 
@@ -23,8 +23,13 @@ describe('geoContainsPoint', () => {
             type_config: typeConfig,
         });
         const {
-            name, type, field, instance
+            name, type, field
         } = ast as FunctionNode;
+        const instance = initFunction({
+            node: ast as FunctionNode,
+            variables: {},
+            type_config: typeConfig
+        });
 
         expect(name).toEqual('geoContainsPoint');
         expect(type).toEqual('function');
@@ -40,11 +45,17 @@ describe('geoContainsPoint', () => {
         const query = 'location:geoContainsPoint(point: $point1)';
         const { ast } = new Parser(query, {
             type_config: typeConfig,
-            variables,
-        });
+        }).resolveVariables(variables);
+
         const {
-            name, type, field, instance
+            name, type, field
         } = ast as FunctionNode;
+
+        const instance = initFunction({
+            node: ast as FunctionNode,
+            variables,
+            type_config: typeConfig
+        });
 
         expect(name).toEqual('geoContainsPoint');
         expect(type).toEqual('function');
@@ -91,10 +102,15 @@ describe('geoContainsPoint', () => {
             ];
 
             const astResults = queries
-                .map((query) => new Parser(query, { type_config: typeConfig, variables }))
-                .map((parser) => (
-                    parser.ast as FunctionNode
-                ).instance.toElasticsearchQuery('location', options));
+                .map((query) => (
+                    new Parser(query, { type_config: typeConfig })
+                        .resolveVariables(variables)
+                ))
+                .map((parser) => initFunction({
+                    node: (parser.ast as FunctionNode),
+                    type_config: typeConfig,
+                    variables,
+                }).toElasticsearchQuery('location', options));
 
             astResults.forEach((ast) => {
                 expect(ast.query).toEqual(results);
@@ -158,7 +174,10 @@ describe('geoContainsPoint', () => {
             const { ast } = new Parser(query, {
                 type_config: typeConfig,
             });
-            const { instance: { match } } = ast as FunctionNode;
+            const { match } = initFunction({
+                node: ast as FunctionNode,
+                type_config: typeConfig,
+            });
 
             expect(match(polygon)).toEqual(true);
             expect(match(nonMatchingPolygon)).toEqual(false);
@@ -170,19 +189,25 @@ describe('geoContainsPoint', () => {
             const { ast } = new Parser(query, {
                 type_config: typeConfig,
             });
-            const { instance: { match } } = ast as FunctionNode;
+            const { match } = initFunction({
+                node: ast as FunctionNode,
+                type_config: typeConfig,
+            });
 
             expect(match(polygonWithHoles)).toEqual(true);
             expect(match(nonMatchingPolygon)).toEqual(false);
         });
 
-        it('point can match against a multipolygon', () => {
+        it('point can match against a multi-polygon', () => {
             const query = `location:geoContainsPoint(point:${coordinateToXlucene(pointInPoly)})`;
 
             const { ast } = new Parser(query, {
                 type_config: typeConfig,
             });
-            const { instance: { match } } = ast as FunctionNode;
+            const { match } = initFunction({
+                node: ast as FunctionNode,
+                type_config: typeConfig,
+            });
 
             expect(match(multiPolygon)).toEqual(true);
         });
@@ -193,7 +218,11 @@ describe('geoContainsPoint', () => {
             const { ast } = new Parser(query, {
                 type_config: typeConfig,
             });
-            const { instance: { match } } = ast as FunctionNode;
+
+            const { match } = initFunction({
+                node: ast as FunctionNode,
+                type_config: typeConfig,
+            });
 
             expect(match(matchingPoint)).toEqual(true);
             expect(match(nonMatchingPoint)).toEqual(false);
@@ -207,9 +236,13 @@ describe('geoContainsPoint', () => {
 
             const { ast } = new Parser(query, {
                 type_config: typeConfig,
-                variables,
+            }).resolveVariables(variables);
+
+            const { match } = initFunction({
+                node: ast as FunctionNode,
+                type_config: typeConfig,
+                variables
             });
-            const { instance: { match } } = ast as FunctionNode;
 
             expect(match(matchingPoint)).toEqual(true);
             expect(match(nonMatchingPoint)).toEqual(false);

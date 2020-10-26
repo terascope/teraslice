@@ -12,7 +12,7 @@ export default [
                 type: ASTType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
-                value: 'Madman',
+                value: { type: 'value', value: 'Madman', },
             },
         },
     ],
@@ -25,7 +25,7 @@ export default [
                 type: ASTType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
-                value: 'Madman',
+                value: { type: 'value', value: 'Madman', },
             },
         },
     ],
@@ -38,7 +38,7 @@ export default [
                 type: ASTType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
-                value: 'Madman',
+                value: { type: 'value', value: 'Madman', },
             },
         },
     ],
@@ -51,11 +51,10 @@ export default [
                 type: ASTType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
-                value: 'Madman',
+                value: { type: 'variable', value: 'foo', },
             },
         },
         { name: xLuceneFieldType.String },
-        { foo: 'Madman' }
     ],
     [
         '(NOT name:$foo)',
@@ -66,11 +65,10 @@ export default [
                 type: ASTType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
-                value: 'Madman',
+                value: { type: 'variable', value: 'foo', },
             },
         },
         { name: xLuceneFieldType.String },
-        { foo: 'Madman' }
     ],
     [
         '!name:$foo',
@@ -81,11 +79,10 @@ export default [
                 type: ASTType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
-                value: 'Madman',
+                value: { type: 'variable', value: 'foo', },
             },
         },
         { name: xLuceneFieldType.String },
-        { foo: 'Madman' }
     ],
     [
         '!(name:$foo)',
@@ -96,11 +93,10 @@ export default [
                 type: ASTType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
-                value: 'Madman',
+                value: { type: 'variable', value: 'foo', },
             },
         },
         { name: xLuceneFieldType.String },
-        { foo: 'Madman' }
     ],
     [
         'foo:bar NOT name:Madman',
@@ -114,7 +110,7 @@ export default [
                         {
                             type: ASTType.Term,
                             field: 'foo',
-                            value: 'bar',
+                            value: { type: 'value', value: 'bar', },
                         },
                         {
                             type: ASTType.Negation,
@@ -122,7 +118,7 @@ export default [
                                 type: ASTType.Term,
                                 field_type: xLuceneFieldType.String,
                                 field: 'name',
-                                value: 'Madman',
+                                value: { type: 'value', value: 'Madman', },
                             },
                         },
                     ],
@@ -142,7 +138,7 @@ export default [
                         {
                             type: ASTType.Term,
                             field: 'foo',
-                            value: 'bar',
+                            value: { type: 'value', value: 'bar', },
                         },
                     ],
                 },
@@ -155,7 +151,7 @@ export default [
                                 type: ASTType.Term,
                                 field_type: xLuceneFieldType.String,
                                 field: 'name',
-                                value: 'Madman',
+                                value: { type: 'value', value: 'Madman', },
                             },
                         },
                     ],
@@ -175,7 +171,7 @@ export default [
                         {
                             type: ASTType.Term,
                             field: 'foo',
-                            value: 'bar',
+                            value: { type: 'value', value: 'bar', },
                         },
                         {
                             type: ASTType.Negation,
@@ -183,7 +179,7 @@ export default [
                                 type: ASTType.Term,
                                 field_type: xLuceneFieldType.String,
                                 field: 'name',
-                                value: 'Madman',
+                                value: { type: 'value', value: 'Madman', },
                             },
                         },
                     ],
@@ -203,7 +199,7 @@ export default [
                         {
                             type: ASTType.Term,
                             field: 'foo',
-                            value: 'bar',
+                            value: { type: 'value', value: 'bar', },
                         },
                     ],
                 },
@@ -216,7 +212,7 @@ export default [
                                 type: ASTType.Term,
                                 field_type: xLuceneFieldType.String,
                                 field: 'name',
-                                value: 'Madman',
+                                value: { type: 'value', value: 'Madman', },
                             },
                         },
                     ],
@@ -236,7 +232,7 @@ export default [
                         {
                             type: ASTType.Term,
                             field: 'foo',
-                            value: 'bar',
+                            value: { type: 'value', value: 'bar', },
                         },
                     ],
                 },
@@ -249,7 +245,7 @@ export default [
                                 type: ASTType.Term,
                                 field_type: xLuceneFieldType.String,
                                 field: 'name',
-                                value: 'Madman',
+                                value: { type: 'value', value: 'Madman', },
                             },
                         },
                     ],
@@ -269,7 +265,7 @@ export default [
                         {
                             type: ASTType.Term,
                             field: 'a',
-                            value: 1,
+                            value: { type: 'value', value: 1, },
                         },
                         {
                             type: ASTType.Negation,
@@ -282,7 +278,7 @@ export default [
                                             {
                                                 type: ASTType.Term,
                                                 field: 'b',
-                                                value: 1,
+                                                value: { type: 'value', value: 1, },
                                             },
                                         ],
                                     },
@@ -292,7 +288,7 @@ export default [
                                             {
                                                 type: ASTType.Term,
                                                 field: 'c',
-                                                value: 1,
+                                                value: { type: 'value', value: 1, },
                                             },
                                         ],
                                     },

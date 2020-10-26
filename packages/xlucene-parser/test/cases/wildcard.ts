@@ -10,17 +10,17 @@ export default [
             type: ASTType.Wildcard,
             field_type: xLuceneFieldType.String,
             field: 'hi',
-            value: 'the?e',
+            value: { type: 'value', value: 'the?e', },
         },
     ],
     [
         'foo: $foo',
         'variable with * wildcard',
         {
-            type: ASTType.Wildcard,
+            type: ASTType.Term,
             field_type: xLuceneFieldType.String,
             field: 'foo',
-            value: 'ba*',
+            value: { type: 'value', value: 'ba*' },
         },
         {
             foo: xLuceneFieldType.String
@@ -36,7 +36,7 @@ export default [
             type: ASTType.Wildcard,
             field_type: xLuceneFieldType.String,
             field: 'hi',
-            value: '?here',
+            value: { type: 'value', value: '?here', },
         },
         {
             hi: xLuceneFieldType.String
@@ -49,7 +49,7 @@ export default [
             type: ASTType.Wildcard,
             field_type: xLuceneFieldType.String,
             field: 'hi',
-            value: 'ther*',
+            value: { type: 'value', value: 'ther*', },
         },
         {
             hi: xLuceneFieldType.String
@@ -62,7 +62,7 @@ export default [
             type: ASTType.Wildcard,
             field_type: xLuceneFieldType.String,
             field: 'hi',
-            value: 'the?*',
+            value: { type: 'value', value: 'the?*', },
         },
         {
             hi: xLuceneFieldType.String
@@ -75,7 +75,7 @@ export default [
             type: ASTType.Wildcard,
             field_type: xLuceneFieldType.String,
             field: 'hi',
-            value: 'th?r*',
+            value: { type: 'value', value: 'th?r*', },
         },
         {
             hi: xLuceneFieldType.String
@@ -87,7 +87,7 @@ export default [
         {
             type: ASTType.Wildcard,
             field: null,
-            value: '*',
+            value: { type: 'value', value: '*', },
         },
     ],
     [
@@ -96,7 +96,7 @@ export default [
         {
             type: ASTType.Wildcard,
             field: null,
-            value: '*',
+            value: { type: 'value', value: '*', },
         },
     ],
     [
@@ -105,7 +105,7 @@ export default [
         {
             type: ASTType.Wildcard,
             field: null,
-            value: '?',
+            value: { type: 'value', value: '?', },
         },
     ],
 ] as TestCase[];

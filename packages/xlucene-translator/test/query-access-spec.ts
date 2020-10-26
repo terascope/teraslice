@@ -203,7 +203,7 @@ describe('QueryAccess', () => {
         });
 
         it('should throw if field is not included with other term', () => {
-            const query = 'hello:world AND bar:foo';
+            const query = 'hello:world AND bar:12';
 
             expect(() => queryAccess.restrict(query)).toThrow();
         });
@@ -246,7 +246,7 @@ describe('QueryAccess', () => {
         });
 
         it('should allow field listed if included', () => {
-            const query = 'bar:foo';
+            const query = 'bar:12';
 
             expect(queryAccess.restrict(query)).toEqual(query);
         });
@@ -611,7 +611,7 @@ describe('QueryAccess', () => {
         });
 
         it('should be able to return a restricted geo query and add the geo sort', async () => {
-            const q = 'foo:(_geo_point_:"33.435518,-111.873616" _geo_distance_:5000yd)';
+            const q = 'foo:geoDistance(point:"33.435518,-111.873616" distance:5000yd)';
             const result = await queryAccess.restrictSearchQuery(q, {
                 geo_sort_order: 'asc'
             });

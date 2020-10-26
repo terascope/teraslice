@@ -3,8 +3,6 @@ import * as t from '@terascope/types';
 
 export interface ParserOptions {
     type_config?: t.xLuceneTypeConfig;
-    logger?: Logger;
-    variables?: t.xLuceneVariables;
 }
 
 export interface ContextArg {
@@ -14,8 +12,8 @@ export interface ContextArg {
 
 export type AST = EmptyAST | LogicalGroup | Term
 | Conjunction | Negation | FieldGroup
-| Exists | Range | GeoDistance
-| GeoBoundingBox | Regexp | Wildcard | FunctionNode;
+| Exists | Range | Regexp | Wildcard
+| FunctionNode | TermList;
 
 export type AnyAST = AST;
 
@@ -27,15 +25,14 @@ export interface GroupLikeAST {
     flow: Conjunction[];
 }
 
-export type TermLike = Term|Regexp|Range|Wildcard|GeoBoundingBox|GeoDistance|FunctionNode;
+export type TermLike = Term|Regexp|Range|Wildcard|FunctionNode|TermList;
 export type TermLikeType =
     ASTType.Term|
     ASTType.Regexp|
     ASTType.Range|
     ASTType.Wildcard|
-    ASTType.GeoBoundingBox|
-    ASTType.GeoDistance|
-    ASTType.Function
+    ASTType.Function|
+    ASTType.TermList;
 
 export interface TermLikeAST {
     type: TermLikeType;
@@ -51,12 +48,11 @@ export enum ASTType {
     Term = 'term',
     Exists = 'exists',
     Range = 'range',
-    GeoDistance = 'geo-distance',
-    GeoBoundingBox = 'geo-bounding-box',
     Regexp = 'regexp',
     Wildcard = 'wildcard',
     Empty = 'empty',
-    Function = 'function'
+    Function = 'function',
+    TermList = 'term-list',
 }
 
 export interface EmptyAST {
@@ -68,30 +64,44 @@ export interface EmptyAST {
 
 export type Field = string|null;
 
+export type FieldValue<T> = {
+    type: 'value';
+    value: T;
+}|{
+    type: 'variable';
+    scoped: boolean;
+    value: string;
+};
+
+export interface TermList extends TermLikeAST {
+    type: ASTType.TermList;
+    value: FieldValue<any>[];
+}
+
 export interface AnyDataType {
     /**
      * The field type here may be the field type specified
      * in the type_config
     */
     field_type: t.xLuceneFieldType;
-    value: string|number|boolean|any;
+    value: FieldValue<string|number|boolean|any>;
 }
 
 export interface NumberDataType {
     field_type: t.xLuceneFieldType.Integer | t.xLuceneFieldType.Float;
-    value: number;
+    value: FieldValue<number>;
 }
 
 export interface StringDataType {
     field_type: t.xLuceneFieldType.String;
-    value: string;
+    value: FieldValue<string>;
     quoted: boolean;
     restricted?: boolean;
 }
 
 export interface BooleanDataType {
     field_type: t.xLuceneFieldType.Boolean;
-    value: boolean;
+    value: FieldValue<boolean>;
 }
 
 export interface LogicalGroup extends GroupLikeAST {
@@ -119,6 +129,7 @@ export interface Negation {
 
 export interface FieldGroup extends GroupLikeAST {
     type: ASTType.FieldGroup;
+    field_type: t.xLuceneFieldType;
     field: string;
     // we need this type for typescript to
     // detect the union correctly
@@ -144,35 +155,25 @@ export interface Range extends TermLikeAST {
     __range?: boolean;
 }
 
-export interface RangeNode extends NumberDataType {
+export interface RangeNode {
     operator: RangeOperator;
-}
-
-export interface GeoDistance extends t.GeoPoint, TermLikeAST {
-    type: ASTType.GeoDistance;
-    field_type: t.xLuceneFieldType.Geo;
-    distance: number;
-    unit: t.GeoDistanceUnit;
-    // we need this type for typescript to
-    // detect the union correctly
-    __geo_distance?: boolean;
-}
-
-export interface GeoBoundingBox extends TermLikeAST {
-    type: ASTType.GeoBoundingBox;
-    field_type: t.xLuceneFieldType.Geo;
-    top_left: t.GeoPoint;
-    bottom_right: t.GeoPoint;
-    // we need this type for typescript to
-    // detect the union correctly
-    __geo_bounding_box?: boolean;
+    field_type: t.xLuceneFieldType.Integer
+    | t.xLuceneFieldType.Float
+    | t.xLuceneFieldType.String
+    | t.xLuceneFieldType.AnalyzedString
+    | t.xLuceneFieldType.Date
+    | t.xLuceneFieldType.IP;
+    value: FieldValue<number|string>;
 }
 
 export interface FunctionNode extends TermLikeAST {
     type: ASTType.Function;
+    /**
+     * The name of the function
+    */
     name: string;
     description?: string;
-    instance: FunctionMethods;
+    params: (Term|TermList)[];
     // we need this type for typescript to
     // detect the union correctly
     __function?: boolean;
@@ -200,18 +201,15 @@ export interface Term extends AnyDataType, TermLikeAST {
 }
 
 export interface FunctionConfig {
-    logger: Logger;
-    typeConfig: t.xLuceneTypeConfig;
+    node: FunctionNode;
+    type_config: t.xLuceneTypeConfig;
+    variables: t.xLuceneVariables;
 }
 
 export interface FunctionDefinition {
     version: string;
     name: string;
-    create: (
-        field: string,
-        params: any,
-        config: FunctionConfig
-    ) => FunctionMethods;
+    create: (config: FunctionConfig) => FunctionMethods;
 }
 
 export interface FunctionMethodsResults {

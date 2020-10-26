@@ -19,5 +19,5 @@ export interface xLuceneTypeConfig {
 }
 
 export interface xLuceneVariables {
-    [key: string]: any;
+    readonly [key: string]: any;
 }

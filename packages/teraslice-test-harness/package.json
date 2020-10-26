@@ -36,10 +36,10 @@
         "fs-extra": "^9.0.1"
     },
     "devDependencies": {
-        "@terascope/job-components": "^0.42.2"
+        "@terascope/job-components": "^0.42.3"
     },
     "peerDependencies": {
-        "@terascope/job-components": "^0.42.2"
+        "@terascope/job-components": "^0.42.3"
     },
     "engines": {
         "node": ">=10.16.0"

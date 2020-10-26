@@ -129,7 +129,7 @@ points === [{ lat: 60, lon: 80 }]
     * [copyField](overview.md#copyField)
 
 ## Note
-all functions take as a second parameter a context? value. Some transforms and validations require the originating document from where the value came from to properly perform its actions. If there is no originating document, then you can simply pass in a empty object. All additonal options for a function are passed into the thrid parameter as an object
+all functions take as a second parameter a context? value. Some transforms and validations require the originating document from where the value came from to properly perform its actions. If there is no originating document, then you can simply pass in a empty object. All additional options for a function are passed into the third parameter as an object
 
 ## Field Validations
 
@@ -223,7 +223,7 @@ FieldValidator.isGeoPoint(['60,80', 'hello']); // false
 
 ### isGeoJSON
 
-FieldValidator.isGeoJSON(input, context?) - Checks to see if input is a valid geo-json geometry, or a list of geo-json geometeries
+FieldValidator.isGeoJSON(input, context?) - Checks to see if input is a valid geo-json geometry, or a list of geo-json geometries
 
 
 ```javascript
@@ -288,7 +288,7 @@ FieldValidator.isGeoShapePolygon(input, context?) - Checks to see if input is a 
 
 ### isGeoShapeMultiPolygon
 
-FieldValidator.isGeoShapeMultiPolygon(input, context?) - Checks to see if input is a valid geo-json multipolygon or a list of geo-json multipolygons
+FieldValidator.isGeoShapeMultiPolygon(input, context?) - Checks to see if input is a valid geo-json multi-polygon or a list of geo-json multi-polygons
 
 
 ```javascript
@@ -342,9 +342,9 @@ FieldValidator.inNumberRange(42, {}, { min: 0, max: 42, inclusive: true }); // t
 ### isEmpty
 isEmpty(input, context, args) - returns true for an empty string, array, or object
 
-args: { ignoreWhitespac?: Boolean }
+args: { ignoreWhitespace?: Boolean }
 
-set ignoreWhitespac to true if you want the value to be trimed
+set ignoreWhitespace to true if you want the value to be trimmed
 
 ```javascript
 FieldValidator.isEmpty(''); // true
@@ -413,7 +413,7 @@ FieldValidator.isAlpha(['validString', 'more']); // true
 
 ### isAlphanumeric
 
-isAlphanumeric(input, context?, args?) - Validates that the input is alphanumeric or a list of alphanumieric values
+isAlphanumeric(input, context?, args?) - Validates that the input is alphanumeric or a list of alphanumeric values
 
 Optional arg: { locale: ANY LOCALE OPTION DEFINED BELOW }, default locale is en-US
 
@@ -515,7 +515,7 @@ FieldValidator.isEmail(['email@example.com', 'ha3ke5@pawnage.com']); // true
 
 ### isFQDN
 
-isFQDN(input, context?, args) - Validate that the input is a valid domain name, or a list of domian names
+isFQDN(input, context?, args) - Validate that the input is a valid domain name, or a list of domain names
 
 args: { require_tld = true, allow_underscores = false, allow_trailing_dot = false }
 
@@ -652,8 +652,8 @@ FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', {}, manyDelimiters); // true
 FieldValidator.isMACAddress(12345); // false
 
 // specified colon and space delimiter only
-const twoDelimeters = { delimiter: ['colon', 'space'] };
-FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', {}, twoDelimeters ); // false,
+const twoDelimiters = { delimiter: ['colon', 'space'] };
+FieldValidator.isMACAddress('00-1f-f3-5b-2b-1f', {}, twoDelimiters ); // false,
 FieldValidator.isMACAddress(['001ff35b2b1f', '00:1f:f3:5b:2b:1f']); // true
 ```
 
@@ -760,7 +760,7 @@ some(input, context, args) - Validates that the function specified returns true 
 args: { fn: String, options: Any }
 
 fn - must be a function name from FieldValidator
-options - any additional parameters neccesary for the fn being envoked
+options - any additional parameters necessary for the fn being evoked
 
 ```javascript
 const mixedArray = ['hello', 3, { some: 'obj' }];
@@ -1305,7 +1305,7 @@ replaceLiteral(input, context, args) - This function replaces the searched value
 
 args - { search: String, replace: String }
 
-search is the word that is to be changed to the value specified with the paramter replace
+search is the word that is to be changed to the value specified with the parameter replace
 
 returns null if input is null/undefined
 
@@ -1324,7 +1324,7 @@ splitString(input, context?, args?) - Converts a string to an array of character
 
 args - { delimiter?: String }
 
-delimter defaults to an empty string
+delimiter defaults to an empty string
 
 returns null if input is null/undefined
 
@@ -1458,7 +1458,7 @@ args: { fn: String, options: Any }
 returns null if input is null/undefined
 
 fn must be a function name from FieldTransform
-options are any additional parameters neccesary for the fn being envoked
+options are any additional parameters necessary for the fn being evoked
 
 ```javascript
  const array = ['hello', 'world', 'goodbye'];
@@ -1589,7 +1589,7 @@ results; // { hello: 'world', other: 'stuff', myCopy: 'stuff' };
 
 ### transformRecord
 
-transformRecord(input, context, args) - Will execaute a jexl expression. Can use data-mate functions inside the jexl expression. You do not need to specify the parent context argument as that is automatically the docuemnt used as to call it.
+transformRecord(input, context, args) - Will execute a jexl expression. Can use data-mate functions inside the jexl expression. You do not need to specify the parent context argument as that is automatically the document used as to call it.
 
 args - { jexlExp: string; field: string }
 
@@ -1675,7 +1675,7 @@ matcher4.match(data7) // false
 
 ### Ranges
 
-You may specify ranges using `< > <= >=` syntax as well as `[]` (inclusive) and `{}` signs. A `*` may be used to signify infinity or -infinity depening where it is used.
+You may specify ranges using `< > <= >=` syntax as well as `[]` (inclusive) and `{}` signs. A `*` may be used to signify infinity or -infinity depending where it is used.
 
 ```js
 const data1 = { age: 8 };
@@ -1812,11 +1812,11 @@ dateTypeMatcher2.match(data7) // false
 
 #### Geo
 
-Has support for geo based queries. It expects all geopoints to be in the `lat,lon` format.
+Has support for geo based queries. It expects all geo points to be in the `lat,lon` format.
 
-There are 3 "geo functions" that are availabe for use:
+There are 3 "geo functions" that are available for use:
 - `geoDistance` which checks if a point is within range
-    - `point` = geopoint,
+    - `point` = geo point,
     - `distance` = distance from point specified
 
         distance may be set to:
@@ -1832,11 +1832,11 @@ There are 3 "geo functions" that are availabe for use:
         - feet (can abbreviate to `ft`)
 
 - `geoBox` runs a geo bounding box query, checks if point is within box
-    - `top_left` geopoint
-    - `bottom_right` geopoint
+    - `top_left` geo point
+    - `bottom_right` geo point
 
 - `geoPolygon` runs a geo polygon query, checks if point is within polygon shape
-    - `points` list of geopoints that make up the polygon
+    - `points` list of geo points that make up the polygon
 
 
 NOTE: since geo syntax is a grammar primitive no types are needed, it can automatically infer it.

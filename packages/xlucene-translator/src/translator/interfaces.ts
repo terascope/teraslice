@@ -16,9 +16,13 @@ export type TranslatorOptions = {
     variables?: xLuceneVariables;
 };
 
+/**
+ * @internal
+*/
 export type UtilsTranslateQueryOptions = {
     logger: Logger;
     type_config: xLuceneTypeConfig;
+    variables: xLuceneVariables;
     default_geo_field?: string;
     geo_sort_point?: GeoPoint;
     geo_sort_order: SortOrder;

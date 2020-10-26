@@ -1,33 +1,34 @@
 import {
-    TSError,
-    getTypeOf,
     parseGeoDistance,
     parseGeoPoint,
-    isRegExpLike,
-    isWildCardString,
 } from '@terascope/utils';
 import {
+    GeoPoint,
     xLuceneFieldType,
-    xLuceneVariables,
     xLuceneTypeConfig,
 } from '@terascope/types';
-import { Netmask } from 'netmask';
 import * as i from './interfaces';
 import * as utils from './utils';
-import xLuceneFunctions from './functions';
 
 const inferredFieldTypes = Object.freeze({
     [xLuceneFieldType.String]: true,
 });
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export default function makeContext(arg: i.ContextArg) {
+export function makeContext(arg: i.ContextArg) {
     let typeConfig: xLuceneTypeConfig;
-    let variables: xLuceneVariables;
     // eslint-disable-next-line
-    ({ typeConfig = {}, variables = {} } = arg);
+    ({ typeConfig = {} } = arg);
     if (!typeConfig) {
         throw new Error('xLucene Parser given invalid context');
+    }
+
+    function validateScopedChars(chars: string[]) {
+        chars.forEach((char, ind) => {
+            if (char === '.' && chars[ind + 1] === '.') {
+                throw new Error(`Invalid scoped variable "@${chars.join('')}", char "." cannot be next to another "." char`);
+            }
+        });
     }
 
     /**
@@ -36,9 +37,19 @@ export default function makeContext(arg: i.ContextArg) {
     function propagateDefaultField(node: i.AnyAST, field: string): void {
         if (!node) return;
 
-        if (utils.isTermType(node) && !node.field) {
-            node.field = field;
-            coerceTermType(node);
+        if (utils.isRange(node)) {
+            node.field ??= field;
+            const fieldType = getFieldType(node.field);
+            if (fieldType) node.field_type = fieldType;
+
+            coerceTermType(node.left, node.field);
+            if (node.right) coerceTermType(node.right, node.field);
+            return;
+        }
+
+        if (utils.isTermType(node)) {
+            node.field ??= field;
+            coerceTermType(node, node.field);
             return;
         }
 
@@ -70,13 +81,6 @@ export default function makeContext(arg: i.ContextArg) {
         return typeConfig[field];
     }
 
-    function getVariable(value: string) {
-        const variable = variables[value];
-        if (variable === undefined) throw new TSError(`Could not find a variable set with key "${value}"`);
-        if (Array.isArray(variable)) return variable.slice();
-        return variable;
-    }
-
     function isInferredTermType(field: string): boolean {
         const fieldType = getFieldType(field);
         if (!fieldType) return false;
@@ -93,46 +97,21 @@ export default function makeContext(arg: i.ContextArg) {
 
         if (fieldType === xLuceneFieldType.String) {
             term.quoted = false;
-            term.value = String(value);
+            term.value = {
+                type: 'value',
+                value: String(value),
+            };
             return term;
         }
 
         utils.logger.warn(`Unsupported field inferred field type ${fieldType} for field ${field}`);
-        term.value = value;
+        term.value = { type: 'value', value };
         return term;
     }
 
-    function parseFunction(field: string, name: string, params: i.Term[]) {
-        const fnType = xLuceneFunctions[name];
-        if (fnType == null) throw new Error(`Could not find an xLucene function with name "${name}"`);
-        // we are delaying instantiation until after parser since this can be called multiple times
-        return () => fnType.create(field, params, {
-            logger: utils.logger, typeConfig
-        });
-    }
-
-    function makeFlow(field: string, values: any[], varName: string) {
-        return values.map((value) => {
-            validateRestrictedVariable(value, varName);
-            const node = { field, type: i.ASTType.Term, value };
-            coerceTermType(node);
-            // this creates an OR statement
-            return {
-                type: i.ASTType.Conjunction,
-                nodes: [node]
-            };
-        });
-    }
-
-    function parseVariableRegex(str: string & RegExp) {
-        if (str.source) return str.source;
-        const results = /\/(.*)\//.exec(str);
-        if (results) return results[1];
-        return str;
-    }
-
-    function coerceTermType(node: any, _field?: string) {
+    function coerceTermType(node: any, _field?: string): void {
         if (!node) return;
+
         const field = node.field || _field;
         if (!field) return;
 
@@ -140,14 +119,6 @@ export default function makeContext(arg: i.ContextArg) {
 
         if (fieldType === xLuceneFieldType.AnalyzedString) {
             node.analyzed = true;
-        }
-
-        if (fieldType === node.field_type) return;
-
-        if (fieldType) {
-            utils.logger.trace(
-                `coercing field "${field}":${node.value} type of ${node.field_type} to ${fieldType}`
-            );
         }
 
         // in the case of analyzed fields we should update the
@@ -161,76 +132,60 @@ export default function makeContext(arg: i.ContextArg) {
             }
         }
 
-        if (fieldType === xLuceneFieldType.IPRange) {
-            node.field_type = fieldType;
-            node.type = i.ASTType.Range;
-            delete node.quoted;
-
-            const { start, end } = getIPRange(node.value);
-
-            node.left = {
-                operator: 'gte',
-                field_type: xLuceneFieldType.IP,
-                value: start,
-            };
-            node.right = {
-                operator: 'lte',
-                field_type: xLuceneFieldType.IP,
-                value: end,
-            };
+        // we only want to coerce raw values with a field type
+        if (fieldType && node.value?.type === 'value') {
+            _coerceTermValue(node, field, fieldType);
         }
 
-        if (fieldType === xLuceneFieldType.Boolean) {
-            node.field_type = fieldType;
-            node.type = i.ASTType.Term;
-            delete node.quoted;
-            delete node.restricted;
-            if (node.value === 'true') {
-                node.value = true;
-            }
-            if (node.value === 'false') {
-                node.value = false;
-            }
+        // update the field type after the coercion
+        if (fieldType) node.field_type = fieldType;
+    }
+
+    function _coerceTermValue(
+        node: any,
+        field: string,
+        fieldType: xLuceneFieldType
+    ): void {
+        const value = node.value.value as any;
+        utils.logger.trace(
+            `coercing field "${field}":${value} type of ${node.field_type} to ${fieldType}`
+        );
+
+        if (node.type === i.ASTType.Term && fieldType === xLuceneFieldType.IPRange) {
+            Object.assign(node, utils.createIPRangeFromTerm(node, value));
             return;
         }
 
-        if (fieldType === xLuceneFieldType.Integer) {
-            if (utils.isRange(node)) {
-                node.type = i.ASTType.Range;
-                node.left.field_type = fieldType;
-                if (node.right) node.right.field_type = fieldType;
+        if (node.field_type !== fieldType) {
+            const coerceFn = utils.makeCoerceFn(fieldType);
+            if (fieldType === xLuceneFieldType.String) {
+                node.quoted ??= false;
+                node.restricted = false;
             } else {
-                delete node.quoted;
-                delete node.restricted;
-                node.field_type = fieldType;
-                node.type = i.ASTType.Term;
-                node.value = parseInt(node.value, 10);
+                if ('quoted' in node) delete node.quoted;
+                if ('restricted' in node) delete node.restricted;
             }
-            return;
+            node.value = {
+                type: 'value',
+                value: coerceFn(value),
+            };
+        }
+    }
+
+    function throwOnOldGeoUsage(
+        term: Record<string, any>, field: string
+    ): never {
+        function formatPoint(point: GeoPoint) {
+            return `"${point.lat},${point.lon}"`;
         }
 
-        if (fieldType === xLuceneFieldType.Float) {
-            node.field_type = fieldType;
-            node.type = i.ASTType.Term;
-            delete node.quoted;
-            delete node.restricted;
-            node.value = parseFloat(node.value);
-            return;
+        if (term.type === 'geo-bounding-box') {
+            const example = `${field}:geoBox(bottom_right:${formatPoint(term.bottom_right)}, top_left:${formatPoint(term.top_left)})`;
+            throw new Error(`Invalid geo bounding box syntax, please use "${example}" syntax instead`);
         }
 
-        if (fieldType === xLuceneFieldType.String) {
-            node.field_type = fieldType;
-            if (isRegExpLike(node.value) || node.type === i.ASTType.Regexp) {
-                node.type = i.ASTType.Regexp;
-                node.value = parseVariableRegex(node.value);
-            } else if (isWildCardString(node.value)) {
-                node.type = i.ASTType.Wildcard;
-            } else {
-                node.quoted = false;
-                node.value = `${node.value}`;
-                node.type = i.ASTType.Term;
-            }
-        }
+        const example = `${field}:geoDistance(point:${formatPoint(term as any)}, distance:${term.distance})`;
+        throw new Error(`Invalid geo distance syntax, please use "${example}" syntax instead`);
     }
 
     return {
@@ -241,34 +196,8 @@ export default function makeContext(arg: i.ContextArg) {
         parseInferredTermType,
         isInferredTermType,
         propagateDefaultField,
-        parseFunction,
-        getVariable,
-        makeFlow,
-        validateRestrictedVariable
+        getFieldType,
+        throwOnOldGeoUsage,
+        validateScopedChars
     };
-}
-
-const variableTypes = Object.freeze({
-    String: true,
-    Number: true,
-    Boolean: true,
-    RegExp: true,
-});
-
-// cannot allow variables that are objects, errors, maps, sets, buffers
-function validateRestrictedVariable(variable: any, varName: string) {
-    const type = getTypeOf(variable);
-    if (!variableTypes[type]) {
-        throw new Error(`Unsupported type of ${type} received for variable $${varName}`);
-    }
-}
-
-function getIPRange(val: string): { start: string, end: string} {
-    try {
-        const block = new Netmask(val);
-        const end = block.broadcast ? block.broadcast : block.last;
-        return { start: block.base, end };
-    } catch (err) {
-        throw new TSError(`Invalid value ${val}, could not convert to ip_range`);
-    }
 }
