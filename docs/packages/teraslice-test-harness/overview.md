@@ -396,6 +396,51 @@ describe('Example Asset (Op)', () => {
 });
 ```
 
+### DownloadExternalAssets
+
+Used to test processors in separate asset bundles.  It downloads a zipped asset bundle to ./test/.cache/downloads and unzips the asset to ./test/.cache/assets.  Assets in the ./test/.cache/assets directory are automatically picked up by the test harness.   Assets must be in a github repo to be downloaded automatically.
+
+**Usage:**
+
+Best way to use this functionality is to add DownloadExternalAssets to a global setup file, ./test/global.setup.js.
+
+global.setup.js example:
+```js
+const { DownloadExternalAsset } = require('teraslice-test-harness');
+
+module.exports = async function getExternalAssets() {
+    const externalAssets = new DownloadExternalAsset();
+
+    await externalAssets.downloadExternalAsset('terascope/elasticsearch-assets@v2.2.0');
+}
+```
+
+DownloadExternalAsset also accepts the asset without the version for example `await externalAssets.downloadExternalAsset('terascope/elasticsearch-assets');`.  This will downloaded the latest release, including pre-releases.  To download multiple assets just specify an asset per line.
+
+```js
+await externalAssets.downloadExternalAsset('terascope/elasticsearch-assets@v2.2.0');
+await externalAssets.downloadExternalAsset('terascope/kafka-assets@v2.8.2');
+```
+
+Make sure `globalSetup: './test/global.setup.js',` is included in the `jest.config.js` file.
+
+Example of `jest.config.js` file with the globalSetup property:
+
+```js
+'use strict';
+
+module.exports = {
+    verbose: true,
+    testEnvironment: 'node',
+    ...
+    globalSetup: './test/global.setup.js',
+};
+
+```
+
+If set up properly the test will start by downloading the asset specified by the global setup file then proceed onto the tests.
+
+
 ## Builtin Operations
 
 Checkout these [docs](../../jobs/builtin-operations.md) for a list of built-in operations.
