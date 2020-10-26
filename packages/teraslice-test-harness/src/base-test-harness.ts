@@ -15,7 +15,7 @@ import {
     JobHarnessOptions,
     ExecutionContext,
 } from './interfaces';
-import { resolveAssetDir } from './utils';
+import { resolveAssetDir, externalAssets } from './utils';
 
 /**
  * A base class for the Slicer and Worker TestHarnesses
@@ -57,12 +57,12 @@ export default class BaseTestHarness<U extends ExecutionContext> {
     }
 
     private _getExternalAssets(): string[] {
-        const externalAssetsPath = path.join(__dirname, '..', 'test', '.cache', 'assets');
+        const externalPath = path.resolve(externalAssets(), 'assets');
 
-        if (fs.pathExistsSync(externalAssetsPath)) {
-            return fs.readdirSync(externalAssetsPath)
-                .filter((item) => fs.lstatSync(path.join(externalAssetsPath, item)).isDirectory())
-                .map((dir) => path.join(externalAssetsPath, dir));
+        if (fs.pathExistsSync(externalPath)) {
+            return fs.readdirSync(externalPath)
+                .filter((item) => fs.lstatSync(path.join(externalPath!, item)).isDirectory())
+                .map((dir) => path.join(externalPath, dir));
         }
 
         return [];

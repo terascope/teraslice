@@ -4,6 +4,7 @@ import os from 'os';
 import decompress from 'decompress';
 import { TSError } from '@terascope/utils';
 import downloadRelease from '@terascope/fetch-github-release';
+import { externalAssets } from './utils';
 import * as I from './interfaces';
 
 export default class DownLoadExternalAsset {
@@ -11,8 +12,8 @@ export default class DownLoadExternalAsset {
     unzipped_path: string;
     build: string;
     constructor() {
-        [this.zipped_path, this.unzipped_path] = this._getAssetPaths();
-
+        this.zipped_path = path.join(externalAssets(), 'downloads');
+        this.unzipped_path = path.join(externalAssets(), 'assets');
         this.build = `node-${this._majorNodeVersion()}-${os.platform()}-${os.arch()}.zip`;
     }
     async downloadExternalAsset(assetString: string): Promise<void> {
@@ -102,29 +103,6 @@ export default class DownLoadExternalAsset {
             repo,
             version
         };
-    }
-
-    private _getAssetPaths() {
-        let zippedPath: string | undefined;
-        let unzippedPath: string | undefined;
-
-        // if used in another asset, test dir should be same level as node_modules
-        if (__dirname.includes('node_modules')) {
-            unzippedPath = __dirname.slice(0, __dirname.indexOf('node_modules'));
-
-            if (fs.pathExistsSync(path.join(unzippedPath, 'test'))) {
-                unzippedPath = path.join(unzippedPath, 'test', '.cache');
-            }
-        } else {
-            // if testing teraslice-test-harness
-            unzippedPath = path.join(__dirname, '..', 'test', '.cache');
-        }
-
-        if (zippedPath == null) {
-            zippedPath = path.join(unzippedPath, 'downloads');
-        }
-
-        return [zippedPath, path.join(unzippedPath, 'assets')];
     }
 
     private _getZipName(repo: string, version: string | undefined): string {

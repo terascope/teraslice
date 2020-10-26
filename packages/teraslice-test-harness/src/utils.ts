@@ -33,3 +33,11 @@ export function isAssetDirRoot(assetDir: string): boolean {
     const assetJson = path.join(assetDir, 'asset', 'asset.json');
     return fs.existsSync(assetJson);
 }
+
+export function externalAssets(): string {
+    if (__dirname.includes('node_modules')) {
+        return path.join(__dirname.slice(0, __dirname.indexOf('node_modules')), 'test', '.cache');
+    }
+
+    return path.join(__dirname, '..', 'test', '.cache');
+}
