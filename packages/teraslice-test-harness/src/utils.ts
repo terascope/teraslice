@@ -1,6 +1,5 @@
 import path from 'path';
 import fs from 'fs-extra';
-import os from 'os';
 
 export function resolveAssetDir(configAssetDirs: string| string[]): string[] {
     const assetDirs = Array.isArray(configAssetDirs) ? configAssetDirs : [configAssetDirs];
@@ -40,5 +39,6 @@ export function externalAssets(): string {
         return path.join(__dirname.slice(0, __dirname.indexOf('node_modules')), 'test', '.cache');
     }
 
+    // needed for testing the test-harness asset itself
     return path.join(__dirname, '..', 'test', '.cache');
 }
