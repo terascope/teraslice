@@ -34,7 +34,8 @@ export function isAssetDirRoot(assetDir: string): boolean {
     return fs.existsSync(assetJson);
 }
 
-export function externalAssets(): string {
+export function getExternalAssetsPath(): string {
+    // looks for asset top level dir to determine path to test dir
     if (__dirname.includes('node_modules')) {
         return path.join(__dirname.slice(0, __dirname.indexOf('node_modules')), 'test', '.cache');
     }

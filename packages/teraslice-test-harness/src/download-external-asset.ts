@@ -4,7 +4,7 @@ import os from 'os';
 import decompress from 'decompress';
 import { TSError } from '@terascope/utils';
 import downloadRelease from '@terascope/fetch-github-release';
-import { externalAssets } from './utils';
+import { getExternalAssetsPath } from './utils';
 import * as I from './interfaces';
 
 export default class DownLoadExternalAsset {
@@ -13,8 +13,8 @@ export default class DownLoadExternalAsset {
     build: string;
 
     constructor() {
-        this.zipped_path = path.join(externalAssets(), 'downloads');
-        this.unzipped_path = path.join(externalAssets(), 'assets');
+        this.zipped_path = path.join(getExternalAssetsPath(), 'downloads');
+        this.unzipped_path = path.join(getExternalAssetsPath(), 'assets');
         this.build = `node-${this._majorNodeVersion()}-${os.platform()}-${os.arch()}.zip`;
     }
 
@@ -39,7 +39,7 @@ export default class DownLoadExternalAsset {
 
     private async _downloadAssetZip(assetInfo: I.AssetInfo): Promise<string[]> {
         try {
-            const result = downloadRelease(
+            const result = await downloadRelease(
                 assetInfo.account,
                 assetInfo.repo,
                 this.zipped_path, // dir where zipped file will be stored
@@ -69,7 +69,7 @@ export default class DownLoadExternalAsset {
 
     private _filterReleaseFunc(version: string | undefined) {
         if (version) {
-            return (release: any) => release.tag_name.includes(version);
+            return (release: any) => release.tag_name === version;
         }
 
         return (release: any) => !release.draft;
