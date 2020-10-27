@@ -30,7 +30,7 @@
     "dependencies": {
         "@terascope/types": "^0.6.1",
         "@terascope/utils": "^0.32.3",
-        "graphql": "^15.3.0",
+        "graphql": "^15.4.0",
         "lodash.defaultsdeep": "^4.6.1",
         "yargs": "^16.1.0"
     },
