@@ -66,17 +66,19 @@ describe('download-external-asset', () => {
 
     const externalAsset = new DownloadExternalAsset();
 
+    const externalPathLocation = path.resolve('./test/.cache');
+
     beforeAll(async () => {
-        await fs.remove(path.join(__dirname, '.cache'));
+        await fs.remove(externalPathLocation);
     });
 
     afterEach(async () => {
-        await fs.remove(path.join(__dirname, '.cache'));
+        await fs.remove(externalPathLocation);
         nock.cleanAll();
     });
 
     afterAll(async () => {
-        await fs.remove(path.join(__dirname, '.cache'));
+        await fs.remove(externalPathLocation);
     });
 
     it('should download an asset.zip from github and unzip the asset', async () => {
@@ -90,9 +92,9 @@ describe('download-external-asset', () => {
 
         await externalAsset.downloadExternalAsset('quantum/jungle');
 
-        expect(fs.pathExistsSync(path.join(__dirname, '.cache', 'downloads', `jungle-v1.0.0-${build}.zip`))).toBe(true);
-        expect(fs.pathExistsSync(path.join(__dirname, '.cache', 'assets', 'jungle'))).toBe(true);
-        expect(fs.pathExistsSync(path.join(__dirname, '.cache', 'assets', 'jungle', 'asset.json'))).toBe(true);
+        expect(fs.pathExistsSync(path.join(externalPathLocation, 'downloads', `jungle-v1.0.0-${build}.zip`))).toBe(true);
+        expect(fs.pathExistsSync(path.join(externalPathLocation, 'assets', 'jungle'))).toBe(true);
+        expect(fs.pathExistsSync(path.join(externalPathLocation, 'assets', 'jungle', 'asset.json'))).toBe(true);
     });
 
     it('should download the correct asset version when specified', async () => {
@@ -106,24 +108,24 @@ describe('download-external-asset', () => {
 
         await externalAsset.downloadExternalAsset('quantum/jungle@v0.2.9');
 
-        expect(fs.pathExistsSync(path.join(__dirname, '.cache', 'downloads', `jungle-0.2.9-${build}.zip`))).toBe(true);
-        expect(fs.pathExistsSync(path.join(__dirname, '.cache', 'assets', 'jungle'))).toBe(true);
-        expect(fs.pathExistsSync(path.join(__dirname, '.cache', 'assets', 'jungle', 'asset.json'))).toBe(true);
+        expect(fs.pathExistsSync(path.join(externalPathLocation, 'downloads', `jungle-0.2.9-${build}.zip`))).toBe(true);
+        expect(fs.pathExistsSync(path.join(externalPathLocation, 'assets', 'jungle'))).toBe(true);
+        expect(fs.pathExistsSync(path.join(externalPathLocation, 'assets', 'jungle', 'asset.json'))).toBe(true);
     });
 
     it('should not download an asset if asset already exists', async () => {
-        fs.ensureDirSync(path.join(__dirname, '.cache', 'downloads'));
-        fs.copyFileSync(path.join(__dirname, 'fixtures', 'test-asset.zip'), path.join(__dirname, '.cache', 'downloads', `jungle-v1.0.0-${build}.zip`));
+        fs.ensureDirSync(path.join(externalPathLocation, 'downloads'));
+        fs.copyFileSync(path.join(__dirname, './fixtures', 'test-asset.zip'), path.join(externalPathLocation, 'downloads', `jungle-v1.0.0-${build}.zip`));
 
         await decompress(
-            path.join(__dirname, '.cache', 'downloads', `jungle-v1.0.0-${build}.zip`),
-            path.join(__dirname, '.cache', 'assets', 'jungle')
+            path.join(externalPathLocation, 'downloads', `jungle-v1.0.0-${build}.zip`),
+            path.join(externalPathLocation, 'assets', 'jungle')
         );
 
         await externalAsset.downloadExternalAsset('quantum/jungle');
 
-        expect(fs.pathExistsSync(path.join(__dirname, '.cache', 'downloads', `jungle-v1.0.0-${build}.zip`))).toBe(true);
-        expect(fs.pathExistsSync(path.join(__dirname, '.cache', 'assets', 'jungle', 'asset.json'))).toBe(true);
+        expect(fs.pathExistsSync(path.join(externalPathLocation, 'downloads', `jungle-v1.0.0-${build}.zip`))).toBe(true);
+        expect(fs.pathExistsSync(path.join(externalPathLocation, 'assets', 'jungle', 'asset.json'))).toBe(true);
     });
 
     it('should allow test harness to run with external assets', async () => {

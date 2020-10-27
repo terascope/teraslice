@@ -4,7 +4,6 @@ import os from 'os';
 import decompress from 'decompress';
 import { TSError } from '@terascope/utils';
 import downloadRelease from '@terascope/fetch-github-release';
-import { getExternalAssetsPath } from './utils';
 import * as I from './interfaces';
 
 export default class DownLoadExternalAsset {
@@ -13,8 +12,8 @@ export default class DownLoadExternalAsset {
     build: string;
 
     constructor() {
-        this.zipped_path = path.join(getExternalAssetsPath(), 'downloads');
-        this.unzipped_path = path.join(getExternalAssetsPath(), 'assets');
+        this.zipped_path = path.join(path.resolve('./test/.cache'), 'downloads');
+        this.unzipped_path = path.join(path.resolve('./test/.cache'), 'assets');
         this.build = `node-${this._majorNodeVersion()}-${os.platform()}-${os.arch()}.zip`;
     }
 
