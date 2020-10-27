@@ -47,7 +47,7 @@
         "got": "^11.7.0",
         "js-yaml": "^3.14.0",
         "node-yaml": "^4.0.0",
-        "prompts": "^2.3.2",
+        "prompts": "^2.4.0",
         "signale": "^1.4.0",
         "teraslice-client-js": "^0.30.3",
         "tmp": "^0.2.0",
