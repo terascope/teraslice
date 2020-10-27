@@ -24,12 +24,12 @@ export default class DownLoadExternalAsset {
         // check if asset is already in test/.cache/assets/asset-repo
         if (fs.pathExistsSync(path.join(this.unzipped_path, assetInfo.repo, 'asset.json'))) return;
 
-        const zippedAssetPath = await this._getZippedAssetPath(assetInfo);
+        const zippedAssetPath = await this._getZippedFile(assetInfo);
 
         await this._unzipAsset(assetInfo, zippedAssetPath);
     }
 
-    private async _getZippedAssetPath(assetInfo: I.AssetInfo) {
+    private async _getZippedFile(assetInfo: I.AssetInfo) {
         // need to download if not in test/.cache/downloads
         if (this._haveZipped(assetInfo) === false) {
             this._ensureDirExists(this.zipped_path);
@@ -39,7 +39,7 @@ export default class DownLoadExternalAsset {
             return zippedAsset;
         }
 
-        return path.join(this.zipped_path, assetInfo.name);
+        return this._zippedFile(assetInfo);
     }
 
     private _haveZipped(assetInfo: I.AssetInfo): boolean {
@@ -50,6 +50,21 @@ export default class DownLoadExternalAsset {
         // if no version specified then check for any asset with the name
         return fs.pathExistsSync(this.zipped_path)
             && fs.readdirSync(this.zipped_path).some((files) => files.includes(assetInfo.name));
+    }
+
+    private _zippedFile(assetInfo: I.AssetInfo): string {
+        if (assetInfo.version) {
+            return path.join(this.zipped_path, assetInfo.name);
+        }
+
+        const zippedFiles = fs.readdirSync(this.zipped_path)
+            .filter((file) => file.includes(assetInfo.name));
+
+        if (zippedFiles.length > 1) {
+            return path.join(this.zipped_path, zippedFiles.sort()[0]);
+        }
+
+        return path.join(this.zipped_path, zippedFiles[0]);
     }
 
     private async _downloadAssetZip(assetInfo: I.AssetInfo): Promise<string[]> {
