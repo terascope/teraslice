@@ -36,7 +36,7 @@
     "dependencies": {
         "@terascope/utils": "^0.32.3",
         "ms": "^2.1.2",
-        "nanoid": "^3.1.12",
+        "nanoid": "^3.1.16",
         "p-event": "^4.2.0",
         "porty": "^3.1.1",
         "socket.io": "^1.7.4",
