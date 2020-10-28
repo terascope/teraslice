@@ -27,3 +27,11 @@ export interface SliceResults {
     slice: Slice;
     data: DataEntity[]
 }
+
+export interface AssetInfo {
+    asset_string: string;
+    name: string;
+    account: string;
+    repo: string;
+    version?: string;
+}

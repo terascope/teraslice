@@ -1,5 +1,5 @@
 import path from 'path';
-import fs from 'fs';
+import fs from 'fs-extra';
 
 export function resolveAssetDir(configAssetDirs: string| string[]): string[] {
     const assetDirs = Array.isArray(configAssetDirs) ? configAssetDirs : [configAssetDirs];

@@ -1,3 +1,5 @@
+import fs from 'fs-extra';
+import path from 'path';
 import {
     ExecutionConfig,
     JobValidator,
@@ -33,8 +35,7 @@ export default class BaseTestHarness<U extends ExecutionContext> {
         });
 
         this.events = this.context.apis.foundation.getSystemEvents();
-
-        const config = this.makeContextConfig(job, options.assetDir);
+        const config = this.makeContextConfig(job, this._getAssetDirs(options.assetDir));
         this.executionContext = makeExecutionContext(config) as U;
     }
 
@@ -48,20 +49,12 @@ export default class BaseTestHarness<U extends ExecutionContext> {
         this.context.apis.setTestClients(clients);
     }
 
-    /**
-     * Cleanup test code
-    */
-    async shutdown(): Promise<void> {
-        this.events.removeAllListeners();
-    }
-
     protected makeContextConfig(
         job: JobConfig,
-        assetDir: string | string[] = [process.cwd()]
+        assets: string[] = [process.cwd()]
     ): ExecutionContextConfig {
         const assetIds = job.assets ? [...job.assets, '.'] : ['.'];
-        const resolvedAssetDir = resolveAssetDir(assetDir);
-        this.context.sysconfig.teraslice.assets_directory = resolvedAssetDir;
+        this.context.sysconfig.teraslice.assets_directory = assets;
         job.assets = assetIds;
 
         const jobValidator = new JobValidator(this.context);
@@ -71,5 +64,34 @@ export default class BaseTestHarness<U extends ExecutionContext> {
             executionConfig,
             assetIds
         };
+    }
+
+    private _getAssetDirs(assetDir: string | string[] = [process.cwd()]) {
+        const assets = this._getExternalAssets();
+
+        if (Array.isArray(assetDir)) {
+            return resolveAssetDir(assets.concat(assetDir));
+        }
+
+        return resolveAssetDir([...assets, assetDir]);
+    }
+
+    private _getExternalAssets(): string[] {
+        const externalAssetsPath = path.resolve('./test/.cache', 'assets');
+
+        if (fs.pathExistsSync(externalAssetsPath)) {
+            return fs.readdirSync(externalAssetsPath)
+                .filter((item) => fs.lstatSync(path.join(externalAssetsPath, item)).isDirectory())
+                .map((dir) => path.join(externalAssetsPath, dir));
+        }
+
+        return [];
+    }
+
+    /**
+     * Cleanup test code
+    */
+    async shutdown(): Promise<void> {
+        this.events.removeAllListeners();
     }
 }
