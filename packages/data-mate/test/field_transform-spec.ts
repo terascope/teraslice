@@ -1,3 +1,4 @@
+import 'jest-extended';
 import { FieldTransform } from '../src';
 
 function encodeBase64(input: any) {
