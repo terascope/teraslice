@@ -43,7 +43,7 @@
         "@types/elasticsearch": "^5.0.35",
         "@types/fs-extra": "^9.0.2",
         "@types/jest": "^26.0.14",
-        "@types/lodash": "^4.14.162",
+        "@types/lodash": "^4.14.164",
         "@types/node": "^14.14.0",
         "@types/uuid": "^8.3.0",
         "eslint": "^7.12.1",
