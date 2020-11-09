@@ -42,7 +42,7 @@ export class ObjectVector<
                     config, emptyData, childConfig
                 );
                 result[field] = (
-                    vector.valueToJSON ? vector.valueToJSON(input[field]) : input[field]
+                    vector.valueToJSON ? vector.valueToJSON(input[field], vector) : input[field]
                 );
             } else {
                 input[field] = null;
