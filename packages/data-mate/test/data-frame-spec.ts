@@ -1,3 +1,4 @@
+import 'jest-extended';
 import 'jest-fixtures';
 import { LATEST_VERSION } from '@terascope/data-types';
 import { FieldType } from '@terascope/types';
@@ -139,6 +140,9 @@ describe('DataFrame', () => {
                 },
                 'info.status': {
                     type: FieldType.Integer,
+                },
+                'info.date': {
+                    type: FieldType.Date,
                 }
             }
         }, [
@@ -146,7 +150,8 @@ describe('DataFrame', () => {
                 config: { foo: 'bar' },
                 info: {
                     message: 'some msg',
-                    status: 403
+                    status: 403,
+                    date: '1999-01-01T00:00:00.000Z'
                 }
             },
             {
@@ -154,7 +159,8 @@ describe('DataFrame', () => {
                 info: {
                     message: 'some other msg',
                     status: 100,
-                    other_value: 'asd'
+                    other_value: 'asd',
+                    date: '2000-01-01T00:00:00.000Z'
                 }
             },
         ]);
@@ -165,7 +171,8 @@ describe('DataFrame', () => {
                 config: { foo: 'bar' },
                 info: {
                     message: 'some msg',
-                    status: 403
+                    status: 403,
+                    date: '1999-01-01T00:00:00.000Z'
                 }
             },
             {
@@ -173,6 +180,7 @@ describe('DataFrame', () => {
                 info: {
                     message: 'some other msg',
                     status: 100,
+                    date: '2000-01-01T00:00:00.000Z'
                 }
             },
         ]);
@@ -191,7 +199,10 @@ describe('DataFrame', () => {
                 },
                 'info.status': {
                     type: FieldType.Integer,
-                }
+                },
+                'info.date': {
+                    type: FieldType.Date,
+                },
             }
         });
     });

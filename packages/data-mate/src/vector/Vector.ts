@@ -115,7 +115,7 @@ export abstract class Vector<T = unknown> {
         }
 
         if (val == null) return val;
-        return this.valueToJSON(val as T);
+        return this.valueToJSON(val as T, this);
     }
 
     /**
