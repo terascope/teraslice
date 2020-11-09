@@ -85,7 +85,7 @@ module.exports = (projectDir) => {
 
     if (isTypescript) {
         config.globals['ts-jest'] = {
-            tsConfig: runInDir ? './tsconfig.json' : `./${workspaceName}/tsconfig.json`,
+            tsconfig: runInDir ? './tsconfig.json' : `./${workspaceName}/tsconfig.json`,
             diagnostics: true,
             pretty: true
         };
