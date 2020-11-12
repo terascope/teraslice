@@ -40,6 +40,7 @@
         "@terascope/utils": "^0.32.3",
         "awesome-phonenumber": "^2.41.0",
         "graphlib": "^2.1.8",
+        "is-ip": "^3.1.0",
         "jexl": "^2.2.2",
         "nanoid": "^3.1.18",
         "valid-url": "^1.0.9",

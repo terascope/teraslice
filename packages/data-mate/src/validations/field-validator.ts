@@ -1,7 +1,6 @@
 import * as ts from '@terascope/utils';
 import ipaddr from 'ipaddr.js';
-import { isIP as checkIP, isIPv6 } from 'net';
-// @ts-expect-error
+import _isIP from 'is-ip';
 import ip6addr from 'ip6addr';
 import validateCidr from 'is-cidr';
 import PhoneValidator from 'awesome-phonenumber';
@@ -440,14 +439,14 @@ export function isGeoShapeMultiPolygon(input: unknown, _parentContext?: unknown)
 
 export function isIP(input: unknown, _parentContext?: unknown): input is string {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(_isIp, input, _parentContext);
+    if (isArray(input)) return _lift(isValidIP, input, _parentContext);
 
-    return _isIp(input);
+    return isValidIP(input);
 }
 
-function _isIp(input: unknown, _parentContext?: unknown) {
+function isValidIP(input: unknown, _parentContext?: unknown) {
     if (!ts.isString(input)) return false;
-    if (checkIP(input) === 0) return false;
+    if (!_isIP(input)) return false;
 
     // needed to check for inputs like - '::192.168.1.18'
     if (input.includes(':') && input.includes('.')) return false;
@@ -580,11 +579,11 @@ function _inIPRange(input: unknown, args: { min?: string; max?: string; cidr?: s
 
     // assign upper/lower bound even if min or max is missing
     let { min, max } = args;
-    if (!min) min = isIPv6(input) ? MIN_IPV6_IP : MIN_IPV4_IP;
-    if (!max) max = isIPv6(input) ? MAX_IPV6_IP : MAX_IPV4_IP;
+    if (!min) min = _isIP.v6(input) ? MIN_IPV6_IP : MIN_IPV4_IP;
+    if (!max) max = _isIP.v6(input) ? MAX_IPV6_IP : MAX_IPV4_IP;
 
     // min and max must be valid ips, same IP type, and min < max
-    if (!isIP(min) || !isIP(max) || isIPv6(min) !== isIPv6(max)
+    if (!isIP(min) || !isIP(max) || _isIP.v6(min) !== _isIP.v6(max)
         || ip6addr.compare(max, min) === -1) {
         return false;
     }

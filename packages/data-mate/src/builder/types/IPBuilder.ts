@@ -1,4 +1,4 @@
-import { isIP as checkIP } from 'net';
+import isIP from 'is-ip';
 import { getTypeOf, isString } from '@terascope/utils';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
@@ -6,7 +6,7 @@ import { WritableData } from '../../core';
 
 function isValidIP(input: unknown): input is string {
     if (!isString(input)) return false;
-    if (checkIP(input) === 0) return false;
+    if (!isIP(input)) return false;
 
     // needed to check for inputs like - '::192.168.1.18'
     if (input.includes(':') && input.includes('.')) return false;

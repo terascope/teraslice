@@ -1108,6 +1108,11 @@
     "@types/through" "*"
     rxjs "^6.4.0"
 
+"@types/ip6addr@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@types/ip6addr/-/ip6addr-0.2.1.tgz#ff495c0fbd2d8d38328a2e355fafd259e3b9a9c9"
+  integrity sha512-O3FPHHgo7FsIPcCACFkV3eMmwfh4u9wUQT6/rEX4ueJTi2MImL/qufynkYjsqSJE5cfxYC539hv6OmgqhEHc3g==
+
 "@types/ip@^1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@types/ip/-/ip-1.1.0.tgz#aec4f5bfd49e4a4c53b590d88c36eb078827a7c0"
@@ -5371,12 +5376,19 @@ into-stream@^3.1.0:
     from2 "^2.1.1"
     p-is-promise "^1.1.0"
 
+ip-bigint@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/ip-bigint/-/ip-bigint-3.0.0.tgz#8abcc180d9bf7d3a45950b7dc85a6371acd80c6c"
+  integrity sha512-M4mjsmk/etDrQ1hs2PiIsbsLGrrY6K5VCwOvBJF1/70BHc10fkiRjYKNOalelRC6SML8xm9Ec0o4wWKEF+DGIw==
+  dependencies:
+    is-ip "3.1.0"
+
 ip-regex@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/ip-regex/-/ip-regex-2.1.0.tgz#fa78bf5d2e6913c911ce9f819ee5146bb6d844e9"
   integrity sha1-+ni/XS5pE8kRzp+BnuUUa7bYROk=
 
-ip-regex@^4.1.0:
+ip-regex@^4.0.0, ip-regex@^4.1.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/ip-regex/-/ip-regex-4.2.0.tgz#a03f5eb661d9a154e3973a03de8b23dd0ad6892e"
   integrity sha512-n5cDDeTWWRwK1EBoWwRti+8nP4NbytBBY0pldmnIkq6Z55KNFmWofh4rl9dPZpj+U/nVq7gweR3ylrvMt4YZ5A==
@@ -5583,6 +5595,13 @@ is-installed-globally@^0.1.0:
   dependencies:
     global-dirs "^0.1.0"
     is-path-inside "^1.0.0"
+
+is-ip@3.1.0, is-ip@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/is-ip/-/is-ip-3.1.0.tgz#2ae5ddfafaf05cb8008a62093cf29734f657c5d8"
+  integrity sha512-35vd5necO7IitFPjd/YBeqwWnyDWbuLH9ZXQdMfDA8TEo7pv5X8yfrvVO3xbJbLUlERCMvf6X0hTUamQxCYJ9Q==
+  dependencies:
+    ip-regex "^4.0.0"
 
 is-natural-number@^4.0.1:
   version "4.0.1"
