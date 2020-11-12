@@ -1,34 +1,18 @@
-import isIP from 'is-ip';
-import { getTypeOf, isString } from '@terascope/utils';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
-import { WritableData } from '../../core';
+import { IPValue, WritableData } from '../../core';
 
-function isValidIP(input: unknown): input is string {
-    if (!isString(input)) return false;
-    if (!isIP(input)) return false;
-
-    // needed to check for inputs like - '::192.168.1.18'
-    if (input.includes(':') && input.includes('.')) return false;
-
-    return true;
-}
-
-export class IPBuilder extends Builder<string> {
-    static valueFrom(value: unknown): string {
-        if (!isValidIP(value)) {
-            throw new TypeError(`Expected ${value} (${getTypeOf(value)}) to be a valid IP`);
-        }
-        return value;
+export class IPBuilder extends Builder<IPValue> {
+    constructor(
+        data: WritableData<IPValue>,
+        options: BuilderOptions
+    ) {
+        super(VectorType.IP, data, options);
     }
 
-    constructor(
-        data: WritableData<string>,
-        options: BuilderOptions<string>
-    ) {
-        super(VectorType.IP, data, {
-            valueFrom: IPBuilder.valueFrom,
-            ...options,
-        });
+    valueFrom(value: unknown): IPValue {
+        if (value instanceof IPValue) return value;
+
+        return IPValue.fromValue(value as any);
     }
 }

@@ -8,13 +8,12 @@ export class BigIntBuilder extends Builder<bigint> {
         return toBigIntOrThrow(value);
     }
 
+    valueFrom = toBigIntOrThrow;
+
     constructor(
         data: WritableData<bigint>,
-        options: BuilderOptions<bigint>
+        options: BuilderOptions
     ) {
-        super(VectorType.BigInt, data, {
-            valueFrom: BigIntBuilder.valueFrom,
-            ...options,
-        });
+        super(VectorType.BigInt, data, options);
     }
 }

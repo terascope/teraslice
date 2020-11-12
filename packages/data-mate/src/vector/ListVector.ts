@@ -8,16 +8,16 @@ export class ListVector<T = unknown> extends Vector<Vector<T>> {
     }
 
     constructor(options: VectorOptions<Vector<T>>) {
-        super(VectorType.List, {
-            valueToJSON: ListVector.valueToJSON,
-            ...options,
-        });
+        super(VectorType.List, options);
         this.sortable = false;
+    }
+
+    valueToJSON(value: Vector<T>): any {
+        return value.toJSON();
     }
 
     fork(data: ReadableData<Vector<T>>): ListVector<T> {
         return new ListVector({
-            valueToJSON: this.valueToJSON,
             config: this.config,
             data,
             childConfig: this.childConfig,

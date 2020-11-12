@@ -1,17 +1,20 @@
 import { Vector, VectorOptions } from '../Vector';
 import { VectorType } from '../interfaces';
-import { ReadableData } from '../../core';
+import { IPValue, ReadableData } from '../../core';
 
-export class IPVector extends Vector<string> {
-    constructor(options: VectorOptions<string>) {
+export class IPVector extends Vector<IPValue> {
+    constructor(options: VectorOptions<IPValue>) {
         super(VectorType.IP, options);
     }
 
-    fork(data: ReadableData<string>): IPVector {
+    fork(data: ReadableData<IPValue>): IPVector {
         return new IPVector({
-            valueToJSON: this.valueToJSON,
             config: this.config,
             data,
         });
+    }
+
+    valueToJSON(value: IPValue): string {
+        return value.ip;
     }
 }

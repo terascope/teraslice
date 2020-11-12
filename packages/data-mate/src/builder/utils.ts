@@ -65,7 +65,7 @@ function _newBuilderForType(
     data: WritableData<any>,
     childConfig?: DataTypeFields,
 ) {
-    const options: BuilderOptions<any> = {
+    const options: BuilderOptions = {
         config, childConfig
     };
     switch (config.type) {

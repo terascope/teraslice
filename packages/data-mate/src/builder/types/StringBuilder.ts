@@ -4,15 +4,12 @@ import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 
 export class StringBuilder extends Builder<string> {
-    static valueFrom = primitiveToString;
+    valueFrom = primitiveToString;
 
     constructor(
         data: WritableData<string>,
-        options: BuilderOptions<string>
+        options: BuilderOptions
     ) {
-        super(VectorType.String, data, {
-            valueFrom: StringBuilder.valueFrom,
-            ...options,
-        });
+        super(VectorType.String, data, options);
     }
 }

@@ -10,39 +10,47 @@ const emptyData = new ReadableData<any>(WritableData.make(0));
 export class ObjectVector<
     T extends Record<string, any> = Record<string, any>
 > extends Vector<T> {
-    static valueToJSON<R extends Record<string, any>>(
-        value: R, thisArg: Vector<any>|undefined
-    ): any {
+    constructor(options: VectorOptions<T>) {
+        super(VectorType.Object, options);
+        this.sortable = false;
+    }
+
+    fork(data: ReadableData<T>): ObjectVector<T> {
+        return new ObjectVector({
+            config: this.config,
+            data,
+            childConfig: this.childConfig,
+        });
+    }
+
+    valueToJSON(value: T): any {
         if (!value || typeof value !== 'object') {
             throw new Error('Invalid input to ObjectVector.valueToJSON');
         }
-        if (!thisArg) {
-            throw new Error('Expected thisArg in ObjectVector.valueToJSON');
-        }
         const val = value as Record<string, any>;
-        if (thisArg.childConfig == null) {
+        if (this.childConfig == null) {
             return { ...val };
         }
 
-        const fields = Object.keys(thisArg.childConfig) as (keyof R)[];
+        const fields = Object.keys(this.childConfig) as (keyof T)[];
         if (!fields.length) {
             return { ...val };
         }
 
-        const input = value as Record<keyof R, unknown>;
-        const result: Partial<R> = {};
+        const input = value as Record<keyof T, unknown>;
+        const result: Partial<T> = {};
 
         for (const field of fields) {
             if (input[field] != null) {
-                const config = thisArg.childConfig[field as string];
+                const config = this.childConfig[field as string];
                 const childConfig = (config.type === FieldType.Object
-                    ? getChildConfig(thisArg.childConfig, field as string)
+                    ? getChildConfig(this.childConfig, field as string)
                     : undefined);
                 const vector = Vector.make<any>(
                     config, emptyData, childConfig
                 );
                 result[field] = (
-                    vector.valueToJSON ? vector.valueToJSON(input[field], vector) : input[field]
+                    vector.valueToJSON ? vector.valueToJSON(input[field]) : input[field]
                 );
             } else {
                 input[field] = null;
@@ -50,22 +58,6 @@ export class ObjectVector<
         }
 
         return result;
-    }
-    constructor(options: VectorOptions<T>) {
-        super(VectorType.Object, {
-            valueToJSON: ObjectVector.valueToJSON,
-            ...options,
-        });
-        this.sortable = false;
-    }
-
-    fork(data: ReadableData<T>): ObjectVector<T> {
-        return new ObjectVector({
-            valueToJSON: this.valueToJSON,
-            config: this.config,
-            data,
-            childConfig: this.childConfig,
-        });
     }
 }
 

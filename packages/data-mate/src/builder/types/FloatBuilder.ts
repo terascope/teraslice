@@ -4,17 +4,12 @@ import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 
 export class FloatBuilder extends Builder<number> {
-    static valueFrom(value: unknown): number {
-        return toFloatOrThrow(value);
-    }
+    valueFrom = toFloatOrThrow;
 
     constructor(
         data: WritableData<number>,
-        options: BuilderOptions<number>
+        options: BuilderOptions
     ) {
-        super(VectorType.Float, data, {
-            valueFrom: FloatBuilder.valueFrom,
-            ...options,
-        });
+        super(VectorType.Float, data, options);
     }
 }

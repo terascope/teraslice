@@ -54,12 +54,6 @@ export abstract class Builder<T = unknown> {
     readonly config: Readonly<DataTypeFieldConfig>;
 
     /**
-     * A function for converting a value to an JSON spec compatible format.
-     * This is specific on the vector type classes via a static method usually.
-    */
-    readonly valueFrom?: ValueFromFn<T>;
-
-    /**
      * When Vector is an object type, this will be the data type fields
      * for the object
     */
@@ -82,16 +76,21 @@ export abstract class Builder<T = unknown> {
         type: VectorType,
         data: WritableData<T>,
         {
-            config, valueFrom, childConfig
-        }: BuilderOptions<T>,
+            config, childConfig
+        }: BuilderOptions,
     ) {
         this.type = type;
         this.config = freezeObject(config);
-        this.valueFrom = valueFrom;
         this.childConfig = childConfig ? freezeObject(childConfig) : undefined;
         this.data = data;
         this.currentIndex = 0;
     }
+
+    /**
+     * A function for converting a value to an JSON spec compatible format.
+     * This is specific on the vector type classes via a static method usually.
+    */
+    abstract valueFrom(value: unknown): T;
 
     /**
      * Set value by index
@@ -99,7 +98,7 @@ export abstract class Builder<T = unknown> {
     set(index: number, value: unknown): Builder<T> {
         if (value == null) return this;
 
-        this.data.set(index, this._valueFrom(value));
+        this.data.set(index, this.valueFrom(value));
         return this;
     }
 
@@ -109,7 +108,7 @@ export abstract class Builder<T = unknown> {
     mset(value: unknown, indices: readonly number[]|TypedArray): Builder<T> {
         if (value == null) return this;
 
-        this.data.mset(this._valueFrom(value), indices);
+        this.data.mset(this.valueFrom(value), indices);
         return this;
     }
 
@@ -134,11 +133,6 @@ export abstract class Builder<T = unknown> {
         this.currentIndex = 0;
         return vector;
     }
-
-    _valueFrom(value: unknown): T|null {
-        if (!this.valueFrom) return value as T;
-        return this.valueFrom(value, this);
-    }
 }
 
 /**
@@ -151,18 +145,14 @@ export function isBuilder<T>(input: unknown): input is Builder<T> {
 /**
  * Coerce a value so it can be stored in the builder
 */
-export type ValueFromFn<T> = (
-    value: unknown,
-    thisArg: Builder<T>,
-) => T;
+export type ValueFromFn<T> = (value: unknown) => T;
 
 /**
  * A list of Builder Options
  */
-export interface BuilderOptions<T> {
+export interface BuilderOptions {
     config: DataTypeFieldConfig|Readonly<DataTypeFieldConfig>;
 
-    valueFrom?: ValueFromFn<T>;
     /**
      * The type config for any nested fields (currently only works for objects)
     */

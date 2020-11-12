@@ -6,19 +6,16 @@ import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 
 export class GeoPointBuilder extends Builder<GeoPoint> {
-    static valueFrom(value: unknown): GeoPoint {
+    constructor(
+        data: WritableData<GeoPoint>,
+        options: BuilderOptions
+    ) {
+        super(VectorType.GeoPoint, data, options);
+    }
+
+    valueFrom(value: unknown): GeoPoint {
         return createObject(
             parseGeoPoint(value as any, true),
         );
-    }
-
-    constructor(
-        data: WritableData<GeoPoint>,
-        options: BuilderOptions<GeoPoint>
-    ) {
-        super(VectorType.GeoPoint, data, {
-            valueFrom: GeoPointBuilder.valueFrom,
-            ...options,
-        });
     }
 }

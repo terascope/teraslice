@@ -32,12 +32,6 @@ export abstract class Vector<T = unknown> {
     readonly config: Readonly<DataTypeFieldConfig>;
 
     /**
-     * A function for converting a value to an JSON spec compatible format.
-     * This is specific on the vector type classes via a static method usually.
-    */
-    readonly valueToJSON?: ValueToJSONFn<T>;
-
-    /**
      * When Vector is an object type, this will be the data type fields
      * for the object
     */
@@ -67,16 +61,21 @@ export abstract class Vector<T = unknown> {
          */
         type: VectorType,
         {
-            data, config, childConfig, valueToJSON,
+            data, config, childConfig,
         }: VectorOptions<T>
     ) {
         this.type = type;
         this.config = config;
-        this.valueToJSON = valueToJSON;
 
         this.data = data;
         this.childConfig = childConfig;
     }
+
+    /**
+     * A function for converting an in-memory representation of
+     * a value to an JSON spec compatible format.
+    */
+    abstract valueToJSON?(value: T): any;
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
         yield* this.data;
@@ -115,7 +114,7 @@ export abstract class Vector<T = unknown> {
         }
 
         if (val == null) return val;
-        return this.valueToJSON(val as T, this);
+        return this.valueToJSON(val as T);
     }
 
     /**
@@ -206,17 +205,11 @@ export function isVector<T>(input: unknown): input is Vector<T> {
 }
 
 /**
- * Serialize a value to a JSON compatible format (so it can be JSON stringified)
-*/
-export type ValueToJSONFn<T> = (value: T, thisArg?: Vector<T>) => any;
-
-/**
  * A list of Vector Options
  */
 export interface VectorOptions<T> {
     data: ReadableData<T>;
     config: Readonly<DataTypeFieldConfig>;
-    valueToJSON?: ValueToJSONFn<T>;
     childConfig?: ReadonlyDataTypeFields;
 }
 

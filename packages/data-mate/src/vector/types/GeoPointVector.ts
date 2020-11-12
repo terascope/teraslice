@@ -4,13 +4,14 @@ import { VectorType } from '../interfaces';
 import { ReadableData } from '../../core';
 
 export class GeoPointVector extends Vector<GeoPoint> {
+    valueToJSON = undefined;
+
     constructor(options: VectorOptions<GeoPoint>) {
         super(VectorType.GeoPoint, options);
     }
 
     fork(data: ReadableData<GeoPoint>): GeoPointVector {
         return new GeoPointVector({
-            valueToJSON: this.valueToJSON,
             config: this.config,
             data,
         });

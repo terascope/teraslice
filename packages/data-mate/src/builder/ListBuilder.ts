@@ -5,24 +5,34 @@ import { Vector, VectorType } from '../vector';
 import { isSameFieldConfig, WritableData } from '../core';
 
 export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
-    static valueFrom(values: unknown, thisArg: ListBuilder<any>): Vector<any> {
-        const config = getValueConfig(thisArg.config);
+    valueConfig: Readonly<DataTypeFieldConfig>;
+    constructor(
+        data: WritableData<Vector<T>>,
+        options: BuilderOptions
+    ) {
+        super(VectorType.List, data, options);
+        this.valueConfig = Object.freeze({
+            ...this.config,
+            array: false,
+        });
+    }
 
+    valueFrom(values: unknown): Vector<any> {
         if (values instanceof Vector) {
-            if (isSameFieldConfig(values.config, config)) return values;
+            if (isSameFieldConfig(values.config, this.valueConfig)) return values;
 
             return copyVectorToBuilder(values, Builder.make(
-                config,
+                this.valueConfig,
                 WritableData.make(values.size),
-                thisArg.childConfig
+                this.childConfig
             ));
         }
 
         const arr = castArray(values);
         const builder = Builder.make(
-            config,
+            this.valueConfig,
             WritableData.make(arr.length),
-            thisArg.childConfig
+            this.childConfig
         );
 
         for (const value of arr) {
@@ -31,27 +41,4 @@ export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
 
         return builder.toVector();
     }
-
-    constructor(
-        data: WritableData<Vector<T>>,
-        options: BuilderOptions<Vector<T>>
-    ) {
-        super(VectorType.List, data, {
-            valueFrom: ListBuilder.valueFrom,
-            ...options,
-        });
-    }
-}
-
-const _cache = new WeakMap<Readonly<DataTypeFieldConfig>, Readonly<DataTypeFieldConfig>>();
-function getValueConfig(baseConfig: Readonly<DataTypeFieldConfig>): Readonly<DataTypeFieldConfig> {
-    const cached = _cache.get(baseConfig);
-    if (cached) return cached;
-
-    const config = Object.freeze({
-        ...baseConfig,
-        array: false,
-    });
-    _cache.set(baseConfig, config);
-    return config;
 }
