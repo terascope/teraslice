@@ -38,7 +38,7 @@ export class ObjectBuilder<
                     input[field], builder
                 ) : builder.valueFrom;
             } else {
-                input[field] = null;
+                result[field] = null as any;
             }
         }
 
