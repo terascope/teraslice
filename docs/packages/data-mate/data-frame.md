@@ -409,6 +409,12 @@ export abstract class Vector {
      * Convert the Vector an array of values (the output is JSON compatible)
     */
     toJSON(): any[];
+
+    /**
+     * Convert the Vector to array of values (the in-memory representation of the data)
+     * @note may not be JSON spec compatible
+    */
+    toArray(): any[];
 }
 ```
 

@@ -184,6 +184,18 @@ export abstract class Vector<T = unknown> {
         }
         return res;
     }
+
+    /**
+     * Convert the Vector to array of values (the in-memory representation of the data)
+     * @note may not be JSON spec compatible
+    */
+    toArray(): Maybe<T>[] {
+        const res: Maybe<T>[] = Array(this.size);
+        for (let i = 0; i < this.size; i++) {
+            res[i] = this.get(i, false) as T;
+        }
+        return res;
+    }
 }
 
 /**
