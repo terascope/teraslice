@@ -137,6 +137,23 @@ export class ReadableData<T> {
 
         return data;
     }
+
+    [Symbol.for('nodejs.util.inspect.custom')](): any {
+        const proxy = {
+            size: this.size,
+            isPrimitive: this.isPrimitive,
+            indices: this.indices,
+            values: this.values
+        };
+
+        // Trick so that node displays the name of the constructor
+        Object.defineProperty(proxy, 'constructor', {
+            value: ReadableData,
+            enumerable: false
+        });
+
+        return proxy;
+    }
 }
 
 function fromValue<T>([value, indices]: [T, WritableDataValue]): ReadableDataValue<T> {

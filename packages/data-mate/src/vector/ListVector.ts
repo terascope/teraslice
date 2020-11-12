@@ -3,10 +3,6 @@ import { VectorType } from './interfaces';
 import { ReadableData } from '../core';
 
 export class ListVector<T = unknown> extends Vector<Vector<T>> {
-    static valueToJSON(value: Vector<any>): any {
-        return value.toJSON();
-    }
-
     constructor(options: VectorOptions<Vector<T>>) {
         super(VectorType.List, options);
         this.sortable = false;

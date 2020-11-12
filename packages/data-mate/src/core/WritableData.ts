@@ -88,6 +88,21 @@ export class WritableData<T> {
         }
         return this;
     }
+
+    [Symbol.for('nodejs.util.inspect.custom')](): any {
+        const proxy = {
+            size: this._size,
+            values: this.values
+        };
+
+        // Trick so that node displays the name of the constructor
+        Object.defineProperty(proxy, 'constructor', {
+            value: WritableData,
+            enumerable: false
+        });
+
+        return proxy;
+    }
 }
 
 function makeLessThanOrEqual(input: number) {

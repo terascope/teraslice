@@ -250,4 +250,22 @@ export class Column<T = unknown, N extends (number|string|symbol) = string> {
     toJSON(): Maybe<JSONValue<T>>[] {
         return this._vector.toJSON();
     }
+
+    [Symbol.for('nodejs.util.inspect.custom')](): any {
+        const proxy = {
+            id: this.id,
+            name: this.name,
+            vector: this._vector,
+            config: this.config,
+            size: this.size,
+        };
+
+        // Trick so that node displays the name of the constructor
+        Object.defineProperty(proxy, 'constructor', {
+            value: Column,
+            enumerable: false
+        });
+
+        return proxy;
+    }
 }

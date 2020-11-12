@@ -53,7 +53,7 @@ export abstract class Vector<T = unknown> {
     */
     sortable = true;
 
-    private __cachedHash?: string|undefined;
+    #cachedHash?: string|undefined;
 
     constructor(
         /**
@@ -82,10 +82,10 @@ export abstract class Vector<T = unknown> {
     }
 
     get [HASH_CODE_SYMBOL](): string {
-        if (this.__cachedHash) return this.__cachedHash;
+        if (this.#cachedHash) return this.#cachedHash;
 
         const hash = createHashCode(this.toJSON());
-        this.__cachedHash = hash;
+        this.#cachedHash = hash;
         return hash;
     }
 
@@ -194,6 +194,26 @@ export abstract class Vector<T = unknown> {
             res[i] = this.get(i, false) as T;
         }
         return res;
+    }
+
+    [Symbol.for('nodejs.util.inspect.custom')](): any {
+        const proxy = {
+            type: this.type,
+            config: this.config,
+            childConfig: this.childConfig,
+            size: this.size,
+            isPrimitive: this.data.isPrimitive,
+            indices: this.data.indices,
+            values: this.data.values
+        };
+
+        // Trick so that node displays the name of the constructor
+        Object.defineProperty(proxy, 'constructor', {
+            value: this.constructor,
+            enumerable: false
+        });
+
+        return proxy;
     }
 }
 

@@ -61,7 +61,7 @@ export class DataFrame<
     readonly metadata: Record<string, any>;
 
     /** cached id for lazy loading the id */
-    private __id?: string;
+    #id?: string;
 
     protected readonly _size: number;
 
@@ -99,7 +99,7 @@ export class DataFrame<
      * The ID will only change if the columns or data change
     */
     get id(): string {
-        if (this.__id) return this.__id;
+        if (this.#id) return this.#id;
 
         const long = this.columns
             .map((col) => `${col.name}(${col.id})`)
@@ -107,7 +107,7 @@ export class DataFrame<
             .join(':');
 
         const id = createHashCode(long) as string;
-        this.__id = id;
+        this.#id = id;
         return id;
     }
 
@@ -419,6 +419,25 @@ export class DataFrame<
     */
     toJSON(): T[] {
         return [...this];
+    }
+
+    [Symbol.for('nodejs.util.inspect.custom')](): any {
+        const proxy = {
+            id: this.id,
+            name: this.name,
+            size: this.size,
+            config: this.config,
+            metadata: this.metadata,
+            columns: this.columns,
+        };
+
+        // Trick so that node displays the name of the constructor
+        Object.defineProperty(proxy, 'constructor', {
+            value: DataFrame,
+            enumerable: false
+        });
+
+        return proxy;
     }
 }
 

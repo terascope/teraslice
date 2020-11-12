@@ -133,6 +133,25 @@ export abstract class Builder<T = unknown> {
         this.currentIndex = 0;
         return vector;
     }
+
+    [Symbol.for('nodejs.util.inspect.custom')](): any {
+        const proxy = {
+            type: this.type,
+            config: this.config,
+            childConfig: this.childConfig,
+            size: this.data.size,
+            currentIndex: this.currentIndex,
+            values: this.data.values
+        };
+
+        // Trick so that node displays the name of the constructor
+        Object.defineProperty(proxy, 'constructor', {
+            value: this.constructor,
+            enumerable: false
+        });
+
+        return proxy;
+    }
 }
 
 /**

@@ -3,6 +3,9 @@ import {
     getTypeOf, isFunction, toString
 } from '@terascope/utils';
 import {
+    DataTypeFields, ReadonlyDataTypeFields
+} from '@terascope/types';
+import {
     FieldArg, TypedArray, TypedArrayConstructor,
     HASH_CODE_SYMBOL, MAX_16BIT_INT, MAX_32BIT_INT, MAX_8BIT_INT,
 } from './interfaces';
@@ -112,4 +115,17 @@ export function createObject<T extends Record<string, any>>(input: T): T {
 function _createObjectHashCode() {
     // @ts-expect-error because this bound
     return getHashCodeFrom(Object.entries(this), false);
+}
+
+export function getObjectDataTypeConfig(
+    config: DataTypeFields|ReadonlyDataTypeFields, baseField: string
+): DataTypeFields {
+    const childConfig: DataTypeFields = {};
+    for (const [field, fieldConfig] of Object.entries(config)) {
+        const withoutBase = field.replace(`${baseField}.`, '');
+        if (withoutBase !== field) {
+            childConfig[withoutBase] = fieldConfig;
+        }
+    }
+    return childConfig;
 }
