@@ -5,14 +5,7 @@ import { ReadableData } from '../../core';
 export class IPRangeVector extends Vector<string> {
     valueToJSON = undefined;
 
-    constructor(options: VectorOptions<string>) {
-        super(VectorType.IPRange, options);
-    }
-
-    fork(data: ReadableData<string>): IPRangeVector {
-        return new IPRangeVector({
-            config: this.config,
-            data,
-        });
+    constructor(data: ReadableData<string>, options: VectorOptions) {
+        super(VectorType.IPRange, data, options);
     }
 }

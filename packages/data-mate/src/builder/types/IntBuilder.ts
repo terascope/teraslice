@@ -18,16 +18,16 @@ export class IntBuilder extends Builder<number> {
         super(VectorType.Int, data, options);
     }
 
-    valueFrom(value: undefined): number {
-        const fieldType = this?.config.type as FieldType|undefined;
+    valueFrom(value: unknown): number {
+        const fieldType = this.config.type as FieldType;
         const int = toIntegerOrThrow(value);
-        if (fieldType && INT_SIZES[fieldType]) {
+        if (INT_SIZES[fieldType]) {
             const { max, min } = INT_SIZES[fieldType];
             if (int > max) {
-                throw new TypeError(`${int} greater than maximum size of ${max} for ${fieldType}`);
+                throw new TypeError(`${fieldType} value of ${int} is greater than maximum size of ${max}`);
             }
             if (int < min) {
-                throw new TypeError(`${int} greater than minimum size of ${min} for ${fieldType}`);
+                throw new TypeError(`${fieldType} value of ${int} is less than minimum size of ${min}`);
             }
         }
         return int;

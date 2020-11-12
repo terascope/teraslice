@@ -28,9 +28,12 @@ export function mapVector<T, R = T>(
     config?: Partial<DataTypeFieldConfig>,
 ): Vector<R> {
     const builder = Builder.make<R>(
-        { ...vector.config, ...config, ...transform.output },
         WritableData.make(vector.size),
-        vector.childConfig
+        {
+            config: { ...vector.config, ...config, ...transform.output },
+            childConfig: vector.childConfig,
+            name: vector.name,
+        },
     );
 
     if (transform.mode === TransformMode.NONE) {
@@ -96,7 +99,9 @@ export function validateFieldTransformArgs<A extends Record<string, any>>(
             throw new Error(`Missing required parameter ${field}`);
         }
 
-        const builder = Builder.make(config, WritableData.make(0));
+        const builder = Builder.make(WritableData.make(0), {
+            config,
+        });
         if (result[field] != null) {
             result[field] = builder.valueFrom(result[field]) as any;
         }
@@ -112,10 +117,9 @@ export function validateFieldTransformType(
 ): void {
     if (!accepts?.length) return;
     // if the type is a List, then we need to give the child type
-    const type = vector.type === VectorType.List ? Vector.make({
-        ...vector.config,
-        array: false,
-    }, emptyData).type : vector.type;
+    const type = vector.type === VectorType.List ? Vector.make(emptyData, {
+        config: { ...vector.config, array: false }
+    }).type : vector.type;
 
     if (!accepts.includes(type)) {
         throw new Error(`Incompatible with field type ${type}, must be ${joinList(accepts)}`);

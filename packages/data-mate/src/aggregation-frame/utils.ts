@@ -14,17 +14,19 @@ export function getBuilderForField(
 ): Builder<any> {
     const data = WritableData.make(length);
     if (!keyAgg && !valueAgg) {
-        return Builder.make(
-            col.config, data, col.vector.childConfig
-        );
+        return Builder.make(data, {
+            config: col.config,
+            childConfig: col.vector.childConfig,
+            name: col.name,
+        });
     }
 
     if (keyAgg && !valueAgg) {
-        return Builder.make<any>(
-            col.config,
-            data,
-            col.vector.childConfig
-        );
+        return Builder.make<any>(data, {
+            config: col.config,
+            childConfig: col.vector.childConfig,
+            name: col.name,
+        });
     }
 
     const currentType = col.config.type as FieldType;
@@ -55,11 +57,15 @@ export function getBuilderForField(
         throw new Error(`Unsupported field type ${currentType} for aggregation ${valueAgg}`);
     }
 
-    return Builder.make<any>({
-        type,
-        array: false,
-        description: col.config.description // FIXME append agg info
-    }, data);
+    return Builder.make<any>(data, {
+        config: {
+            type,
+            array: false,
+            description: col.config.description // FIXME append agg info
+        },
+        childConfig: undefined,
+        name: col.name,
+    });
 }
 
 export function getMaxColumnSize(

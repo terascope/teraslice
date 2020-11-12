@@ -22,17 +22,23 @@ export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
             if (isSameFieldConfig(values.config, this.valueConfig)) return values;
 
             return copyVectorToBuilder(values, Builder.make(
-                this.valueConfig,
                 WritableData.make(values.size),
-                this.childConfig
+                {
+                    childConfig: this.childConfig,
+                    config: this.valueConfig,
+                    name: this.name,
+                }
             ));
         }
 
         const arr = castArray(values);
         const builder = Builder.make(
-            this.valueConfig,
             WritableData.make(arr.length),
-            this.childConfig
+            {
+                childConfig: this.childConfig,
+                config: this.valueConfig,
+                name: this.name,
+            }
         );
 
         for (const value of arr) {

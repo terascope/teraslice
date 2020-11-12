@@ -13,17 +13,9 @@ export class ObjectVector<
 > extends Vector<T> {
     #childFields?: ChildFields<T>;
 
-    constructor(options: VectorOptions<T>) {
-        super(VectorType.Object, options);
+    constructor(data: ReadableData<T>, options: VectorOptions) {
+        super(VectorType.Object, data, options);
         this.sortable = false;
-    }
-
-    fork(data: ReadableData<T>): ObjectVector<T> {
-        return new ObjectVector({
-            config: this.config,
-            data,
-            childConfig: this.childConfig,
-        });
     }
 
     get childFields(): ChildFields<T> {
@@ -34,9 +26,11 @@ export class ObjectVector<
                 const childConfig = (config.type === FieldType.Object
                     ? getObjectDataTypeConfig(this.childConfig!, field as string)
                     : undefined);
-                const vector = Vector.make<any>(
-                    config, emptyData, childConfig
-                );
+                const vector = Vector.make<any>(emptyData, {
+                    config,
+                    childConfig,
+                    name: [this.name, field].filter(Boolean).join('.'),
+                });
                 return [field, vector];
             });
         this.#childFields = childFields;

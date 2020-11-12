@@ -1,5 +1,5 @@
 import {
-    DataTypeFieldConfig, DataTypeFields,
+    DataTypeFieldConfig,
     Maybe, SortOrder,
     ReadonlyDataTypeFields
 } from '@terascope/types';
@@ -14,12 +14,16 @@ export abstract class Vector<T = unknown> {
      * Make an instance of a Vector from a config
     */
     static make<R>(
-        config: Readonly<DataTypeFieldConfig>,
         data: ReadableData<R>,
-        childConfig?: DataTypeFields
+        options: VectorOptions
     ): Vector<R> {
-        throw new Error(`This is overridden in the index file, ${config} ${data} ${childConfig}`);
+        throw new Error(`This is overridden in the index file, ${options} ${data}`);
     }
+
+    /**
+     * The name of field, if specified this will just be used for metadata
+    */
+    readonly name?: string;
 
     /**
      * The type of Vector, this should only be set the specific Vector type classes.
@@ -60,15 +64,14 @@ export abstract class Vector<T = unknown> {
          * This will be set automatically by specific Vector classes
          */
         type: VectorType,
-        {
-            data, config, childConfig,
-        }: VectorOptions<T>
+        data: ReadableData<T>,
+        options: VectorOptions
     ) {
         this.type = type;
-        this.config = config;
-
         this.data = data;
-        this.childConfig = childConfig;
+        this.name = options.name;
+        this.config = options.config;
+        this.childConfig = options.childConfig;
     }
 
     /**
@@ -120,7 +123,14 @@ export abstract class Vector<T = unknown> {
     /**
      * Create a new Vector with the same metadata but with different data
     */
-    abstract fork(data: ReadableData<T>): Vector<T>;
+    fork(data: ReadableData<T>): this {
+        // @ts-expect-error
+        return new this.constructor(data, {
+            childConfig: this.childConfig,
+            config: this.config,
+            name: this.name,
+        });
+    }
 
     /**
      * Create a new Vector with the range of values
@@ -198,6 +208,7 @@ export abstract class Vector<T = unknown> {
 
     [Symbol.for('nodejs.util.inspect.custom')](): any {
         const proxy = {
+            name: this.name,
             type: this.type,
             config: this.config,
             childConfig: this.childConfig,
@@ -227,10 +238,21 @@ export function isVector<T>(input: unknown): input is Vector<T> {
 /**
  * A list of Vector Options
  */
-export interface VectorOptions<T> {
-    data: ReadableData<T>;
-    config: Readonly<DataTypeFieldConfig>;
+export interface VectorOptions {
+    /**
+    * The field config
+    */
+    config: DataTypeFieldConfig|Readonly<DataTypeFieldConfig>;
+
+    /**
+     * The type config for any nested fields (currently only works for objects)
+    */
     childConfig?: ReadonlyDataTypeFields;
+
+    /**
+     * The name of field, if specified this will just be used for metadata
+    */
+    name?: string;
 }
 
 export type JSONValue<T> = T extends Vector<infer U> ? U[] : T;

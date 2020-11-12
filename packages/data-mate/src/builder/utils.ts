@@ -1,6 +1,6 @@
 import { getGroupedFields } from '@terascope/data-types';
 import {
-    DataTypeConfig, DataTypeFieldConfig, DataTypeFields, FieldType
+    DataTypeConfig, DataTypeFields, FieldType
 } from '@terascope/types';
 import { WritableData } from '../core';
 import { Builder, BuilderOptions } from './Builder';
@@ -26,49 +26,40 @@ export function getBuildersForConfig<T extends Record<string, any> = Record<stri
             const nestedField = fullField.replace(`${field}.`, '');
             childConfig[nestedField] = config.fields[fullField];
         });
-        builders.set(field, Builder.make(
-            config.fields[field],
-            WritableData.make(size),
-            childConfig
-        ));
+        builders.set(field, Builder.make(WritableData.make(size), {
+            childConfig,
+            config: config.fields[field],
+            name: field,
+        }));
     }
 
     return builders;
 }
 
 export function _newBuilder<T>(
-    config: DataTypeFieldConfig,
     data: WritableData<any>,
-    childConfig?: DataTypeFields,
+    options: BuilderOptions,
 ): Builder<T> {
-    const fieldType = config.type as FieldType;
+    const fieldType = options.config.type as FieldType;
     if (!(fieldType in FieldType)) {
         throw new Error(`Unsupported field type ${fieldType}`);
     }
 
-    if (config.array) {
-        return new ListBuilder(data, {
-            config, childConfig
-        }) as Builder<any>;
+    if (options.config.array) {
+        return new ListBuilder(data, options) as Builder<any>;
     }
 
-    return _newBuilderForType(
-        config, data, childConfig
-    ) as Builder<T>;
+    return _newBuilderForType(data, options) as Builder<T>;
 }
 
 /**
  * Create primitive builder types, does not deal with array or object type fields
 */
 function _newBuilderForType(
-    config: DataTypeFieldConfig,
     data: WritableData<any>,
-    childConfig?: DataTypeFields,
+    options: BuilderOptions,
 ) {
-    const options: BuilderOptions = {
-        config, childConfig
-    };
-    switch (config.type) {
+    switch (options.config.type) {
         case FieldType.String:
         case FieldType.Text:
         case FieldType.Keyword:

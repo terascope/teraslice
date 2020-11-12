@@ -6,14 +6,7 @@ import { ReadableData } from '../../core';
 export class GeoJSONVector extends Vector<GeoShape> {
     valueToJSON = undefined;
 
-    constructor(options: VectorOptions<GeoShape>) {
-        super(VectorType.GeoJSON, options);
-    }
-
-    fork(data: ReadableData<GeoShape>): GeoJSONVector {
-        return new GeoJSONVector({
-            config: this.config,
-            data,
-        });
+    constructor(data: ReadableData<GeoShape>, options: VectorOptions) {
+        super(VectorType.GeoJSON, data, options);
     }
 }

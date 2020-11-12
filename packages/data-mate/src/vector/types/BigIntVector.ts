@@ -6,14 +6,7 @@ import { ReadableData } from '../../core';
 export class BigIntVector extends Vector<bigint> {
     valueToJSON = bigIntToJSON;
 
-    constructor(options: VectorOptions<bigint>) {
-        super(VectorType.BigInt, options);
-    }
-
-    fork(data: ReadableData<bigint>): BigIntVector {
-        return new BigIntVector({
-            config: this.config,
-            data,
-        });
+    constructor(data: ReadableData<bigint>, options: VectorOptions) {
+        super(VectorType.BigInt, data, options);
     }
 }

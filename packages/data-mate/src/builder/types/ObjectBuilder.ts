@@ -30,11 +30,14 @@ export class ObjectBuilder<
                 const childConfig = (config.type === FieldType.Object
                     ? getObjectDataTypeConfig(this.childConfig!, field as string)
                     : undefined);
-                const builder = Builder.make<any>(
-                    config, emptyData, childConfig
-                );
+                const builder = Builder.make<any>(emptyData, {
+                    config,
+                    childConfig,
+                    name: [this.name, field].filter(Boolean).join('.'),
+                });
                 return [field, builder];
             });
+
         this.#childFields = childFields;
         return childFields;
     }

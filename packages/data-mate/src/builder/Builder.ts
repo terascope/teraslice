@@ -15,13 +15,12 @@ export abstract class Builder<T = unknown> {
      * Make a instance of a Builder from a DataTypeField config
     */
     static make<R = unknown>(
-        config: DataTypeFieldConfig,
         data: WritableData<R>,
-        childConfig?: DataTypeFields,
+        options: BuilderOptions,
     ): Builder<R> {
         throw new Error(
             `This will functionality replaced in the index file
-            ${config} ${length} ${data} ${childConfig}`
+            ${options} ${length} ${data}`
         );
     }
 
@@ -35,9 +34,12 @@ export abstract class Builder<T = unknown> {
     ): Builder<R> {
         const data = vector.data.toWritable(size);
         const builder = Builder.make<R>(
-            vector.config,
             data,
-            vector.childConfig,
+            {
+                childConfig: vector.childConfig,
+                config: vector.config,
+                name: vector.name,
+            },
         );
         builder.currentIndex = vector.data.size;
         return builder;
@@ -65,6 +67,11 @@ export abstract class Builder<T = unknown> {
     readonly data: WritableData<T>;
 
     /**
+     * The name of field, if specified this will just be used for metadata
+    */
+    readonly name?: string;
+
+    /**
      * The current insertion index (used for append)
     */
     currentIndex: number;
@@ -75,13 +82,12 @@ export abstract class Builder<T = unknown> {
          */
         type: VectorType,
         data: WritableData<T>,
-        {
-            config, childConfig
-        }: BuilderOptions,
+        options: BuilderOptions,
     ) {
+        this.name = options.name;
         this.type = type;
-        this.config = freezeObject(config);
-        this.childConfig = childConfig ? freezeObject(childConfig) : undefined;
+        this.config = freezeObject(options.config);
+        this.childConfig = options.childConfig ? freezeObject(options.childConfig) : undefined;
         this.data = data;
         this.currentIndex = 0;
     }
@@ -93,12 +99,29 @@ export abstract class Builder<T = unknown> {
     abstract valueFrom(value: unknown): T;
 
     /**
+     * Print a better error message
+    */
+    private _valueFromWithError(
+        indices: number|readonly number[]|TypedArray,
+        value: unknown
+    ): T {
+        try {
+            return this.valueFrom(value);
+        } catch (err) {
+            if (typeof err?.message === 'string') {
+                err.message += `; column: "${this.name}", row: ${indices}`;
+            }
+            throw err;
+        }
+    }
+
+    /**
      * Set value by index
     */
     set(index: number, value: unknown): Builder<T> {
         if (value == null) return this;
 
-        this.data.set(index, this.valueFrom(value));
+        this.data.set(index, this._valueFromWithError(index, value));
         return this;
     }
 
@@ -108,7 +131,7 @@ export abstract class Builder<T = unknown> {
     mset(value: unknown, indices: readonly number[]|TypedArray): Builder<T> {
         if (value == null) return this;
 
-        this.data.mset(this.valueFrom(value), indices);
+        this.data.mset(this._valueFromWithError(indices, value), indices);
         return this;
     }
 
@@ -124,9 +147,12 @@ export abstract class Builder<T = unknown> {
     */
     toVector(): Vector<T> {
         const vector = Vector.make(
-            this.config,
             new ReadableData(this.data),
-            this.childConfig
+            {
+                childConfig: this.childConfig,
+                config: this.config,
+                name: this.name,
+            }
         );
 
         this.data.reset();
@@ -136,6 +162,7 @@ export abstract class Builder<T = unknown> {
 
     [Symbol.for('nodejs.util.inspect.custom')](): any {
         const proxy = {
+            name: this.name,
             type: this.type,
             config: this.config,
             childConfig: this.childConfig,
@@ -170,12 +197,20 @@ export type ValueFromFn<T> = (value: unknown) => T;
  * A list of Builder Options
  */
 export interface BuilderOptions {
-    config: DataTypeFieldConfig|Readonly<DataTypeFieldConfig>;
-
     /**
      * The type config for any nested fields (currently only works for objects)
     */
     childConfig?: DataTypeFields;
+
+    /**
+     * The field config
+    */
+    config: DataTypeFieldConfig|Readonly<DataTypeFieldConfig>;
+
+    /**
+     * The name of field, if specified this will just be used for metadata
+    */
+    name?: string;
 }
 
 /**

@@ -5,14 +5,7 @@ import { ReadableData } from '../../core';
 export class BooleanVector extends Vector<boolean> {
     valueToJSON = undefined;
 
-    constructor(options: VectorOptions<boolean>) {
-        super(VectorType.Boolean, options);
-    }
-
-    fork(data: ReadableData<boolean>): BooleanVector {
-        return new BooleanVector({
-            config: this.config,
-            data,
-        });
+    constructor(data:ReadableData<boolean>, options: VectorOptions) {
+        super(VectorType.Boolean, data, options);
     }
 }

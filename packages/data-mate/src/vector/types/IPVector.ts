@@ -3,15 +3,8 @@ import { VectorType } from '../interfaces';
 import { IPValue, ReadableData } from '../../core';
 
 export class IPVector extends Vector<IPValue> {
-    constructor(options: VectorOptions<IPValue>) {
-        super(VectorType.IP, options);
-    }
-
-    fork(data: ReadableData<IPValue>): IPVector {
-        return new IPVector({
-            config: this.config,
-            data,
-        });
+    constructor(data: ReadableData<IPValue>, options: VectorOptions) {
+        super(VectorType.IP, data, options);
     }
 
     valueToJSON(value: IPValue): string {

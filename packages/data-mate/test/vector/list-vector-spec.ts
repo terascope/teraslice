@@ -20,9 +20,9 @@ describe('ListVector', () => {
         let vector: Vector<any>;
         let expected: any[];
         beforeAll(() => {
-            const builder = Builder.make(
-                { type, array: true }, WritableData.make(input.length)
-            );
+            const builder = Builder.make(WritableData.make(input.length), {
+                config: { type, array: true },
+            });
             input.forEach((val) => builder.append(val));
 
             vector = builder.toVector();

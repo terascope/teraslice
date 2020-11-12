@@ -15,6 +15,7 @@ import {
 } from './utils';
 import { WritableData } from '../core';
 
+type NameType = (number|string|symbol);
 /**
  * A single column of values with the same data type.
  *
@@ -23,16 +24,21 @@ import { WritableData } from '../core';
  *
  * @todo add pipeline that will do a chain of validators/transformations
 */
-export class Column<T = unknown, N extends (number|string|symbol) = string> {
+export class Column<T = unknown, N extends NameType = string> {
     /**
      * Create a Column from an array of values
     */
-    static fromJSON<R, F extends(number|string|symbol) = string>(
+    static fromJSON<R, F extends NameType = string>(
         name: F,
         config: Readonly<DataTypeFieldConfig>,
         values: Maybe<R>[]|readonly Maybe<R>[] = [],
-        version?: DataTypeVersion): Column<R extends (infer U)[] ? Vector<U> : R, F> {
-        const builder = Builder.make<R>(config, WritableData.make(values.length));
+        version?: DataTypeVersion
+    ): Column<R extends (infer U)[] ? Vector<U> : R, F> {
+        const builder = Builder.make<R>(WritableData.make(values.length), {
+            config,
+            childConfig: undefined,
+            name: name as string,
+        });
 
         values.forEach((val) => builder.append(val));
 
@@ -51,12 +57,12 @@ export class Column<T = unknown, N extends (number|string|symbol) = string> {
     */
     readonly version: DataTypeVersion;
 
-    protected readonly _vector: Vector<T>;
+    readonly vector: Vector<T>;
 
     constructor(vector: Vector<T>, options: ColumnOptions<N>|Readonly<ColumnOptions<N>>) {
+        this.vector = vector;
         this.name = options.name;
         this.version = options.version ?? LATEST_VERSION;
-        this._vector = vector;
     }
 
     /**
@@ -64,7 +70,7 @@ export class Column<T = unknown, N extends (number|string|symbol) = string> {
      * And may not be compatible with the JSON spec.
     */
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
-        yield* this._vector;
+        yield* this.vector;
     }
 
     /**
@@ -72,36 +78,31 @@ export class Column<T = unknown, N extends (number|string|symbol) = string> {
      * The ID should only change if the data vector changes.
     */
     get id(): string {
-        return getVectorId(this._vector);
+        return getVectorId(this.vector);
     }
 
     /**
      * Get the size of the column
     */
     get size(): number {
-        return this._vector.size;
-    }
-
-    /**
-     * Get the underling Vector.
-    */
-    get vector(): Vector<T> {
-        return this._vector;
+        return this.vector.size;
     }
 
     /**
      * Get the Data Type field configuration.
     */
     get config(): Readonly<DataTypeFieldConfig> {
-        return this._vector.config;
+        return this.vector.config;
     }
 
     /**
      * Rename the column
     */
-    rename<K extends(number|string|symbol)>(name: K): Column<T, K> {
-        const col = this.fork(this._vector) as unknown as Column<T, K>;
+    rename<K extends NameType>(name: K): Column<T, K> {
+        const col = this.fork(this.vector.fork(this.vector.data)) as unknown as Column<T, K>;
         col.name = name;
+        // @ts-expect-error
+        col.vector.name = name as string;
         return col;
     }
 
@@ -126,7 +127,7 @@ export class Column<T = unknown, N extends (number|string|symbol) = string> {
     ): Column<R, N> {
         validateFieldTransformType(
             transformConfig.accepts,
-            this._vector
+            this.vector
         );
         validateFieldTransformArgs<A>(
             transformConfig.argument_schema,
@@ -164,7 +165,7 @@ export class Column<T = unknown, N extends (number|string|symbol) = string> {
     ): Column<T, N> {
         validateFieldTransformType(
             validateConfig.accepts,
-            this._vector
+            this.vector
         );
         validateFieldTransformArgs<A>(
             validateConfig.argument_schema,
@@ -199,15 +200,17 @@ export class Column<T = unknown, N extends (number|string|symbol) = string> {
      * Sort the column
     */
     sort(direction?: SortOrder): Column<T, N> {
-        const sortedIndices = this._vector.getSortedIndices(direction);
+        const sortedIndices = this.vector.getSortedIndices(direction);
         const len = sortedIndices.length;
-        const builder = Builder.make<T>(
-            this.config, WritableData.make(len), this.vector.childConfig
-        );
+        const builder = Builder.make<T>(WritableData.make(len), {
+            config: this.vector.config,
+            childConfig: this.vector.childConfig,
+            name: this.name as string,
+        });
 
         for (let i = 0; i < len; i++) {
             const moveTo = sortedIndices[i];
-            const val = this._vector.get(i);
+            const val = this.vector.get(i);
             builder.set(moveTo, val);
         }
 
@@ -218,28 +221,28 @@ export class Column<T = unknown, N extends (number|string|symbol) = string> {
      * Average all of the values in the Column
     */
     avg(): number|bigint {
-        return runVectorAggregation(this._vector, ValueAggregation.avg);
+        return runVectorAggregation(this.vector, ValueAggregation.avg);
     }
 
     /**
      * Sum all of the values in the Column
     */
     sum(): number|bigint {
-        return runVectorAggregation(this._vector, ValueAggregation.sum);
+        return runVectorAggregation(this.vector, ValueAggregation.sum);
     }
 
     /**
      * Find the minimum value in the Column
     */
     min(): number|bigint {
-        return runVectorAggregation(this._vector, ValueAggregation.min);
+        return runVectorAggregation(this.vector, ValueAggregation.min);
     }
 
     /**
      * Find the maximum value in the Column
     */
     max(): number|bigint {
-        return runVectorAggregation(this._vector, ValueAggregation.max);
+        return runVectorAggregation(this.vector, ValueAggregation.max);
     }
 
     /**
@@ -248,14 +251,14 @@ export class Column<T = unknown, N extends (number|string|symbol) = string> {
      * @note probably only useful for debugging
     */
     toJSON(): Maybe<JSONValue<T>>[] {
-        return this._vector.toJSON();
+        return this.vector.toJSON();
     }
 
     [Symbol.for('nodejs.util.inspect.custom')](): any {
         const proxy = {
             id: this.id,
             name: this.name,
-            vector: this._vector,
+            vector: this.vector,
             config: this.config,
             size: this.size,
         };
