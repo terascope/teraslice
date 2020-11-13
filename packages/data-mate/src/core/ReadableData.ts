@@ -45,6 +45,18 @@ export class ReadableData<T> {
     }
 
     /**
+     * Iterate over the null indices the null indices
+    */
+    * nullIndices(): Iterable<number> {
+        // eslint-disable-next-line prefer-destructuring
+        const indices = this.indices;
+        for (let i = 0; i < this.size; i++) {
+            const valIndex = indices[i];
+            if (valIndex === 0) yield i;
+        }
+    }
+
+    /**
      * The index represent the order of the values,
      * the value is the hash of where to find the index
      *

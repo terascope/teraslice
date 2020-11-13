@@ -144,6 +144,14 @@ export function createColumnsWithIndices<T extends Record<string, any>>(
     return columns.map(finish);
 }
 
+export function* indicesFilterIterable(
+    n: number, fn: (index: number) => boolean
+): Iterable<number> {
+    for (let i = 0; i < n; i++) {
+        if (fn(i)) yield i;
+    }
+}
+
 export function makeUniqueRowBuilder<T extends Record<string, any>>(
     builders: Map<keyof T, Builder<any>>,
     buckets: Set<string>,

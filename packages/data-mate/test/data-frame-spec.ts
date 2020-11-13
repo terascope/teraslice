@@ -256,6 +256,16 @@ describe('DataFrame', () => {
                     age: 20,
                     friends: ['Jill']
                 },
+                {
+                    name: 'Jane',
+                    age: null as any,
+                    friends: ['Jill']
+                },
+                {
+                    name: 'Nancy',
+                    age: 10,
+                    friends: null as any
+                },
             ]);
         });
 
@@ -306,6 +316,8 @@ describe('DataFrame', () => {
                     'JILL',
                     'BILLY',
                     'FRANK',
+                    'JANE',
+                    'NANCY'
                 ]);
 
                 expect(resultFrame.size).toEqual(dataFrame.size);
@@ -315,14 +327,14 @@ describe('DataFrame', () => {
 
         describe('->rename', () => {
             it('should be able to rename a column DataFrame', () => {
-                const resultFrame = dataFrame.rename('friends', 'old_friends');
+                const resultFrame = dataFrame.rename('name', 'other_name');
 
                 const names = resultFrame.columns.map(({ name }) => name);
-                expect(names).toEqual(['name', 'age', 'old_friends']);
+                expect(names).toEqual(['other_name', 'age', 'friends']);
 
                 for (const row of resultFrame) {
-                    expect(row).toHaveProperty('old_friends');
-                    expect(row).not.toHaveProperty('friends');
+                    expect(row).toHaveProperty('other_name');
+                    expect(row).not.toHaveProperty('name');
                 }
 
                 expect(resultFrame.size).toEqual(dataFrame.size);
@@ -356,9 +368,8 @@ describe('DataFrame', () => {
                 expect(resultFrame.size).toEqual(1);
                 expect(resultFrame.toJSON()).toEqual([
                     {
-                        name: 'Frank',
-                        age: 20,
-                        friends: ['Jill']
+                        name: 'Nancy',
+                        age: 10,
                     }
                 ]);
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
@@ -403,7 +414,7 @@ describe('DataFrame', () => {
                         friends: ['Jill']
                     },
                 ]);
-                expect(resultFrame.size).toEqual(6);
+                expect(resultFrame.size).toEqual(8);
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
             });
 
@@ -431,7 +442,7 @@ describe('DataFrame', () => {
                         }
                     ] as any[])
                 );
-                expect(resultFrame.size).toEqual(5);
+                expect(resultFrame.size).toEqual(7);
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
             });
         });
@@ -452,9 +463,17 @@ describe('DataFrame', () => {
                         friends: ['Jill']
                     },
                     {
+                        name: 'Jane',
+                        friends: ['Jill']
+                    },
+                    {
                         name: 'Jill',
                         age: 39,
                         friends: ['Frank']
+                    },
+                    {
+                        name: 'Nancy',
+                        age: 10
                     },
                 ]);
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
@@ -465,9 +484,17 @@ describe('DataFrame', () => {
 
                 expect(resultFrame.toJSON()).toEqual([
                     {
+                        name: 'Nancy',
+                        age: 10
+                    },
+                    {
                         name: 'Jill',
                         age: 39,
                         friends: ['Frank']
+                    },
+                    {
+                        name: 'Jane',
+                        friends: ['Jill']
                     },
                     {
                         name: 'Frank',
@@ -487,6 +514,14 @@ describe('DataFrame', () => {
                 const resultFrame = dataFrame.orderBy('age');
 
                 expect(resultFrame.toJSON()).toEqual([
+                    {
+                        name: 'Jane',
+                        friends: ['Jill']
+                    },
+                    {
+                        name: 'Nancy',
+                        age: 10
+                    },
                     {
                         name: 'Frank',
                         age: 20,
@@ -523,6 +558,14 @@ describe('DataFrame', () => {
                     {
                         name: 'Frank',
                         age: 20,
+                        friends: ['Jill']
+                    },
+                    {
+                        name: 'Nancy',
+                        age: 10
+                    },
+                    {
+                        name: 'Jane',
                         friends: ['Jill']
                     },
                 ]);
@@ -594,6 +637,64 @@ describe('DataFrame', () => {
 
             it('should return the same frame using a function if nothing is filtered out', () => {
                 const resultFrame = dataFrame.filterBy(() => true);
+
+                expect(resultFrame.id).toEqual(dataFrame.id);
+            });
+        });
+
+        describe('->require', () => {
+            it('should be able to require a single column', () => {
+                const resultFrame = dataFrame.require('age');
+
+                expect(resultFrame.toJSON()).toEqual([
+                    {
+                        name: 'Jill',
+                        age: 39,
+                        friends: ['Frank']
+                    },
+                    {
+                        name: 'Billy',
+                        age: 47,
+                        friends: ['Jill']
+                    },
+                    {
+                        name: 'Frank',
+                        age: 20,
+                        friends: ['Jill']
+                    },
+                    {
+                        name: 'Nancy',
+                        age: 10,
+                    },
+                ]);
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+
+            it('should be able to require multiple columns', () => {
+                const resultFrame = dataFrame.require('friends', 'age');
+
+                expect(resultFrame.toJSON()).toEqual([
+                    {
+                        name: 'Jill',
+                        age: 39,
+                        friends: ['Frank']
+                    },
+                    {
+                        name: 'Billy',
+                        age: 47,
+                        friends: ['Jill']
+                    },
+                    {
+                        name: 'Frank',
+                        age: 20,
+                        friends: ['Jill']
+                    },
+                ]);
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+
+            it('should return the same frame if all fields exists', () => {
+                const resultFrame = dataFrame.require('name');
 
                 expect(resultFrame.id).toEqual(dataFrame.id);
             });

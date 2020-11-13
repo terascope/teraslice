@@ -110,6 +110,16 @@ export function times<T>(n: number, fn?: (index: number) => T): (T[])|(number[])
     return Array.from({ length: n }, (_, x) => x);
 }
 
+/** Like times but an iterable */
+export function timesIter(n: number): Iterable<number>;
+export function timesIter<T>(n: number, fn: (index: number) => T): Iterable<T>;
+export function* timesIter<T>(n: number, fn?: (index: number) => T): Iterable<number|T> {
+    for (let i = 0; i < n; i++) {
+        if (fn) yield fn(i);
+        yield i;
+    }
+}
+
 /** Map an array faster without sparse array handling */
 export function fastMap<T, U>(arr: T[], fn: (val: T, index: number) => U): U[] {
     const { length } = arr;

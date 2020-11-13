@@ -2,13 +2,13 @@ import {
     DataTypeConfig, ReadonlyDataTypeConfig,
     Maybe, SortOrder
 } from '@terascope/types';
-import { isFunction } from 'lodash';
+import { isFunction } from '@terascope/utils';
 import { Column, KeyAggFn, makeUniqueKeyAgg } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import {
     buildRecords, columnsToBuilderEntries, columnsToDataTypeConfig,
     concatColumnsToColumns, createColumnsWithIndices,
-    distributeRowsToColumns, makeKeyForRow, makeUniqueRowBuilder,
+    distributeRowsToColumns, indicesFilterIterable, makeKeyForRow, makeUniqueRowBuilder,
     processFieldFilter
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
@@ -216,6 +216,32 @@ export class DataFrame<
     */
     sort(fieldArg: FieldArg<keyof T>, direction?: SortOrder): DataFrame<T> {
         return this.orderBy(fieldArg, direction);
+    }
+
+    /**
+     * Require specific columns to exist on every row
+    */
+    require(...fieldArg: FieldArg<keyof T>[]): DataFrame<T> {
+        const fields = getFieldsFromArg(this.fields, fieldArg);
+        const allFieldIndices = [...fields].map(
+            (field) => this.getColumn(field)!.vector.data.indices
+        );
+        const hasRequiredFields = (index: number): boolean => {
+            for (const fieldIndices of allFieldIndices) {
+                // if the value is null
+                if (fieldIndices[index] === 0) return false;
+            }
+            return true;
+        };
+
+        const indices = new Set(indicesFilterIterable(this._size, hasRequiredFields));
+        if (indices.size === this._size) return this;
+
+        return this.fork(createColumnsWithIndices(
+            this.columns,
+            indices,
+            indices.size
+        ));
     }
 
     /**
