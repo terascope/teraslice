@@ -13,7 +13,7 @@ import { runVectorAggregation, ValueAggregation } from './aggregations';
 import {
     getVectorId, mapVector, validateFieldTransformArgs, validateFieldTransformType
 } from './utils';
-import { WritableData } from '../core';
+import { ReadableData, WritableData } from '../core';
 
 type NameType = (number|string|symbol);
 /**
@@ -216,6 +216,19 @@ export class Column<T = unknown, N extends NameType = string> {
         }
 
         return this.fork(builder.toVector());
+    }
+
+    /**
+     * Get the unique values
+     * @todo add tests and more docs
+    */
+    unique(): Column<T, N> {
+        const writable = this.vector.data.toWritable().compact();
+        for (const [, indices] of writable.values) {
+            indices.fill(0, 1, indices.length);
+        }
+        const vector = this.vector.fork(new ReadableData(writable));
+        return this.fork(vector);
     }
 
     /**

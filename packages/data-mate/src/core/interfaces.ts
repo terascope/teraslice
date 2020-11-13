@@ -18,13 +18,13 @@ export type ReadableDataValue<T> = Readonly<{
     /**
      * A list of the value positions
     */
-    i: readonly number[];
+    i: TypedArray;
     /**
      * The non-null value
     */
     v: T;
 }>;
 
-export type WritableDataValue = number[];
+export type WritableDataValue = TypedArray;
 
 export type FieldArg<K extends (string|number|symbol)> = K[]|(readonly K[])|K;

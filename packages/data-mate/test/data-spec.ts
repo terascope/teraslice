@@ -25,14 +25,14 @@ describe('Data', () => {
 
             it('should have the correct values', () => {
                 expect(readable.values).toStrictEqual([
-                    { v: 'a0', i: [0] },
-                    { v: 'a1', i: [1] },
-                    { v: 'a2', i: [2] },
-                    { v: 'a3', i: [3] },
-                    { v: 'a4', i: [4] },
-                    { v: 'a5', i: [5] },
-                    { v: 'a6', i: [6] },
-                    { v: 'a7', i: [7] }
+                    { v: 'a0', i: Uint8Array.of(0) },
+                    { v: 'a1', i: Uint8Array.of(1) },
+                    { v: 'a2', i: Uint8Array.of(2) },
+                    { v: 'a3', i: Uint8Array.of(3) },
+                    { v: 'a4', i: Uint8Array.of(4) },
+                    { v: 'a5', i: Uint8Array.of(5) },
+                    { v: 'a6', i: Uint8Array.of(6) },
+                    { v: 'a7', i: Uint8Array.of(7) }
                 ]);
             });
 
@@ -62,8 +62,8 @@ describe('Data', () => {
             it('should have the correct values', () => {
                 expect(readable.values).toStrictEqual(
                     [
-                        { v: 'a0', i: [0, 2, 4, 6] },
-                        { v: 'a1', i: [1, 3, 5, 7] }
+                        { v: 'a0', i: Uint8Array.of(0, 2, 4, 6) },
+                        { v: 'a1', i: Uint8Array.of(1, 3, 5, 7) }
                     ],
                 );
             });
@@ -99,10 +99,10 @@ describe('Data', () => {
 
             it('should have the correct values', () => {
                 expect(readable.values).toStrictEqual([
-                    { v: 'a0', i: [0] },
-                    { v: 'a2', i: [2] },
-                    { v: 'a4', i: [4] },
-                    { v: 'a6', i: [6] },
+                    { v: 'a0', i: Uint8Array.of(0) },
+                    { v: 'a2', i: Uint8Array.of(2) },
+                    { v: 'a4', i: Uint8Array.of(4) },
+                    { v: 'a6', i: Uint8Array.of(6) },
                 ]);
             });
 
@@ -238,13 +238,13 @@ describe('Data', () => {
 
         it('should have the correct values', () => {
             expect(readable.values).toStrictEqual([
-                { v: { a: 0 }, i: [0] },
-                { v: { a: 1 }, i: [1] },
-                { v: { a: 0 }, i: [2] },
-                { v: { a: 1 }, i: [3] },
-                { v: { a: 1 }, i: [5] },
-                { v: { a: 0 }, i: [6] },
-                { v: { a: 1 }, i: [7] },
+                { v: { a: 0 }, i: Uint8Array.of(0) },
+                { v: { a: 1 }, i: Uint8Array.of(1) },
+                { v: { a: 0 }, i: Uint8Array.of(2) },
+                { v: { a: 1 }, i: Uint8Array.of(3) },
+                { v: { a: 1 }, i: Uint8Array.of(5) },
+                { v: { a: 0 }, i: Uint8Array.of(6) },
+                { v: { a: 1 }, i: Uint8Array.of(7) },
             ]);
         });
 

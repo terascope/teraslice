@@ -29,7 +29,7 @@ export class ReadableData<T> {
     readonly isPrimitive: boolean;
 
     constructor(data: WritableData<T>) {
-        this.values = Array.from(data.values, fromValue);
+        this.values = Array.from(data.values, fromValue(data.size));
         this.size = data.size;
         this.isPrimitive = this.values.length
             ? typeof this.values[0].v !== 'object'
@@ -168,10 +168,13 @@ export class ReadableData<T> {
     }
 }
 
-function fromValue<T>([value, indices]: [T, WritableDataValue]): ReadableDataValue<T> {
-    return {
-        v: value,
-        i: indices,
+function fromValue<T>(size: number) {
+    const PointerArray = getTypedArrayClass(size);
+    return function _fromValue([value, indices]: [T, WritableDataValue]): ReadableDataValue<T> {
+        return {
+            v: value,
+            i: PointerArray.from(indices),
+        };
     };
 }
 
@@ -190,11 +193,13 @@ function generateIndices<T>(values: readonly ReadableDataValue<T>[], size: numbe
 
 function setValIndices(
     indices: TypedArray,
-    valIndices: readonly number[],
+    valIndices: TypedArray,
     valIndex: number
 ): void {
     const len = valIndices.length;
     for (let i = 0; i < len; i++) {
         indices[valIndices[i]] = valIndex;
+        // FIXME use the same bytes
+        // indices.set(valIndices.subarray(valIndex, valIndex + 1), i);
     }
 }

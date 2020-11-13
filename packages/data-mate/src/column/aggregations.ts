@@ -5,7 +5,7 @@ import {
 import {
     Vector, VectorType, getNumericValues
 } from '../vector';
-import { DateValue, getHashCodeFrom } from '../core';
+import { DateValue, getHashCodeFrom, TypedArray } from '../core';
 
 export enum ValueAggregation {
     avg = 'avg',
@@ -16,7 +16,7 @@ export enum ValueAggregation {
 }
 
 export type FieldAgg = {
-    push(value: unknown, index: readonly number[]): void;
+    push(value: unknown, index: TypedArray): void;
     flush(): { value: unknown, index?: number };
 }
 export type MakeValueAgg = (vector: Vector<unknown>) => FieldAgg;

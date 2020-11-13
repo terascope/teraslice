@@ -55,7 +55,7 @@ export function concatColumnsToColumns<T extends Record<string, any>>(
             for (const value of col.vector.data.values) {
                 builder.mset(
                     value.v,
-                    value.i.map((i) => offset + i),
+                    value.i.map((i: number) => offset + i),
                 );
             }
         }

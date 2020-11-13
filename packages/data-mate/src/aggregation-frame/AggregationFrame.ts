@@ -9,7 +9,7 @@ import { isNumberLike } from '../vector';
 import { Builder } from '../builder';
 import { getBuilderForField, getMaxColumnSize } from './utils';
 import {
-    createHashCode, FieldArg, freezeArray, getFieldsFromArg
+    createHashCode, FieldArg, freezeArray, getFieldsFromArg, getTypedArrayClass
 } from '../core';
 import { columnsToDataTypeConfig, makeKeyForRow } from '../data-frame/utils';
 
@@ -566,9 +566,10 @@ export class AggregationFrame<
         bucket: any[]
     ): Promise<void> {
         const len = bucket.length;
+        const PointerArray = getTypedArrayClass(len);
         for (let i = 0; i < len; i++) {
             for (const [field, agg] of fieldAggs) {
-                agg.push(bucket[i][field], [i]);
+                agg.push(bucket[i][field], PointerArray.of(i));
             }
         }
 
