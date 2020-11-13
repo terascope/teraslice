@@ -2,6 +2,7 @@ import {
     DataTypeConfig, ReadonlyDataTypeConfig,
     Maybe, SortOrder
 } from '@terascope/types';
+import { isFunction } from 'lodash';
 import { Column, KeyAggFn, makeUniqueKeyAgg } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import {
@@ -91,6 +92,16 @@ export class DataFrame<
         for (let i = 0; i < this._size; i++) {
             const row = this.getRow(i, true);
             if (row) yield row;
+        }
+    }
+
+    /**
+     * Iterate over each index and row, this returns the internal stored values.
+    */
+    * rows(json?: boolean): IterableIterator<[row: T, index: number]> {
+        for (let i = 0; i < this._size; i++) {
+            const row = this.getRow(i, json);
+            if (row) yield [row, i];
         }
     }
 
@@ -211,8 +222,6 @@ export class DataFrame<
      * Filter the DataFrame by fields, all fields must return true
      * for a given row to returned in the filtered DataType
      *
-     * @todo support filtering rows via a single function
-     *
      * @example
      *
      *     dataFrame.filter({
@@ -224,14 +233,21 @@ export class DataFrame<
      *         }
      *     });
     */
-    filterBy(filters: FilterByFields<T>): DataFrame<T> {
+    filterBy(filters: FilterByFields<T>|FilterByFn<T>, json?: boolean): DataFrame<T> {
+        if (isFunction(filters)) {
+            return this._filterByFn(filters, json ?? false);
+        }
+        return this._filterByFields(filters, json ?? false);
+    }
+
+    private _filterByFields(filters: FilterByFields<T>, json: boolean): DataFrame<T> {
         const indices = new Set<number>();
 
-        for (const [field, filter] of Object.entries(filters)) {
+        Object.entries(filters).forEach(([field, filter]) => {
             processFieldFilter(
-                indices, this.getColumn(field)!, filter
+                indices, this.getColumn(field)!, filter, json
             );
-        }
+        });
 
         if (indices.size === this._size) return this;
         return this.fork(createColumnsWithIndices(
@@ -239,6 +255,19 @@ export class DataFrame<
             indices,
             indices.size
         ));
+    }
+
+    private _filterByFn(fn: FilterByFn<T>, json: boolean): DataFrame<T> {
+        const records: T[] = [];
+        for (const [row, index] of this.rows(json)) {
+            if (fn(row, index)) records.push(row);
+        }
+
+        if (records.length === this._size) return this;
+
+        return this.fork(
+            distributeRowsToColumns(this.config, records)
+        );
     }
 
     /**
@@ -452,3 +481,5 @@ export interface DataFrameOptions {
 export type FilterByFields<T> = Partial<{
     [P in keyof T]: (value: Maybe<T[P]>) => boolean
 }>;
+
+export type FilterByFn<T> = (row: T, index: number) => boolean;

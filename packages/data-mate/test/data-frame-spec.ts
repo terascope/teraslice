@@ -551,7 +551,7 @@ describe('DataFrame', () => {
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
             });
 
-            it('should return the correct column if nothing is filtered out', () => {
+            it('should return the same frame using fields if nothing is filtered out', () => {
                 const resultFrame = dataFrame.filterBy({
                     name: () => true,
                 });
@@ -573,6 +573,29 @@ describe('DataFrame', () => {
                     },
                 ]);
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+
+            it('should be able to filter by using a function', () => {
+                const resultFrame = dataFrame.filterBy((row) => {
+                    if (!row.name?.includes('ill')) return false;
+                    if (row.age != null && row.age <= 40) return false;
+                    return true;
+                });
+
+                expect(resultFrame.toJSON()).toEqual([
+                    {
+                        name: 'Billy',
+                        age: 47,
+                        friends: ['Jill']
+                    },
+                ]);
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+
+            it('should return the same frame using a function if nothing is filtered out', () => {
+                const resultFrame = dataFrame.filterBy(() => true);
+
+                expect(resultFrame.id).toEqual(dataFrame.id);
             });
         });
     });

@@ -107,12 +107,17 @@ export function processFieldFilter(
     indices: Set<number>,
     column: Column<any>,
     filter: (value: any) => boolean,
+    json: boolean
 ): void {
     function add(index: number) { indices.add(index); }
     function remove(index: number) { indices.delete(index); }
+    function getValue(v: any): any {
+        if (!json || !column.vector.valueToJSON) return v;
+        return column.vector.valueToJSON(v);
+    }
     for (const v of column.vector.data.values) {
         v.i.forEach(
-            filter(v.v) ? add : remove
+            filter(getValue(v.v)) ? add : remove
         );
     }
 }
