@@ -17,7 +17,7 @@ export class IPRangeBuilder extends Builder<string> {
         super(VectorType.IPRange, data, options);
     }
 
-    valueFrom(value: unknown): string {
+    _valueFrom(value: unknown): string {
         if (!isValidIPRange(value)) {
             throw new TypeError(`Expected ${value} (${getTypeOf(value)}) to be a valid IP range`);
         }

@@ -17,7 +17,7 @@ export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
         });
     }
 
-    valueFrom(values: unknown): Vector<any> {
+    _valueFrom(values: unknown): Vector<any> {
         if (values instanceof Vector) {
             if (isSameFieldConfig(values.config, this.valueConfig)) return values;
 

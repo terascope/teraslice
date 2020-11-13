@@ -4,7 +4,7 @@ import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 
 export class StringBuilder extends Builder<string> {
-    valueFrom = primitiveToString;
+    _valueFrom = primitiveToString;
 
     constructor(
         data: WritableData<string>,

@@ -11,7 +11,7 @@ export class BooleanBuilder extends Builder<boolean> {
         super(VectorType.Boolean, data, options);
     }
 
-    valueFrom(value: unknown): boolean {
+    _valueFrom(value: unknown): boolean {
         if (!isBooleanLike(value)) {
             throw new TypeError(`Expected ${value} (${getTypeOf(value)}) to be boolean like`);
         }

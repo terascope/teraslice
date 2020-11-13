@@ -10,7 +10,7 @@ export class IPBuilder extends Builder<IPValue> {
         super(VectorType.IP, data, options);
     }
 
-    valueFrom(value: unknown): IPValue {
+    _valueFrom(value: unknown): IPValue {
         if (value instanceof IPValue) return value;
 
         return IPValue.fromValue(value as any);

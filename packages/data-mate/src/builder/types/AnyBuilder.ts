@@ -10,7 +10,7 @@ export class AnyBuilder extends Builder<any> {
         super(VectorType.Any, data, options);
     }
 
-    valueFrom(value: unknown): any {
+    _valueFrom(value: unknown): any {
         return value;
     }
 }

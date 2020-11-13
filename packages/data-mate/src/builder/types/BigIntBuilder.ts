@@ -4,11 +4,7 @@ import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 
 export class BigIntBuilder extends Builder<bigint> {
-    static valueFrom(value: unknown): bigint {
-        return toBigIntOrThrow(value);
-    }
-
-    valueFrom = toBigIntOrThrow;
+    _valueFrom = toBigIntOrThrow;
 
     constructor(
         data: WritableData<bigint>,

@@ -1,6 +1,6 @@
 import { LATEST_VERSION } from '@terascope/data-types';
 import {
-    DataTypeFieldConfig, Maybe, DataTypeVersion, SortOrder
+    DataTypeFieldConfig, Maybe, DataTypeVersion, SortOrder, DataTypeFields
 } from '@terascope/types';
 import { Builder } from '../builder';
 import {
@@ -32,11 +32,12 @@ export class Column<T = unknown, N extends NameType = string> {
         name: F,
         config: Readonly<DataTypeFieldConfig>,
         values: Maybe<R>[]|readonly Maybe<R>[] = [],
-        version?: DataTypeVersion
+        version?: DataTypeVersion,
+        childConfig?: DataTypeFields|Readonly<DataTypeFields>
     ): Column<R extends (infer U)[] ? Vector<U> : R, F> {
         const builder = Builder.make<R>(WritableData.make(values.length), {
+            childConfig,
             config,
-            childConfig: undefined,
             name: name as string,
         });
 

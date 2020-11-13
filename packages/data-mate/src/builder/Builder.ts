@@ -1,4 +1,5 @@
 import { DataTypeFieldConfig, DataTypeFields, Maybe } from '@terascope/types';
+import { TSError, toString, getTypeOf } from '@terascope/utils';
 import {
     freezeObject, ReadableData, WritableData, TypedArray
 } from '../core';
@@ -93,26 +94,44 @@ export abstract class Builder<T = unknown> {
     }
 
     /**
-     * A function for converting a value to an JSON spec compatible format.
-     * This is specific on the vector type classes via a static method usually.
+     * Convert a value to the internal in-memory storage format for the Vector
     */
-    abstract valueFrom(value: unknown): T;
+    abstract _valueFrom(value: unknown): T;
 
     /**
-     * Print a better error message
+     * Convert a value to the internal in-memory storage format for the Vector
     */
-    private _valueFromWithError(
-        indices: number|readonly number[]|TypedArray,
-        value: unknown
+    valueFrom(
+        value: unknown,
+        indices?: number|readonly number[]|TypedArray,
     ): T {
         try {
-            return this.valueFrom(value);
+            return this._valueFrom(value);
         } catch (err) {
-            if (typeof err?.message === 'string') {
-                err.message += `; column: "${this.name}", row: ${indices}`;
-            }
-            throw err;
+            this._throwValueFromError(err, value, indices);
         }
+    }
+
+    private _throwValueFromError(
+        _err: unknown,
+        value: unknown,
+        indices?: number|readonly number[]|TypedArray,
+    ): never {
+        let err = _err as any;
+        if (typeof err?.message !== 'string') {
+            err = new TSError(err);
+        }
+        if (err._added_value_from_context) throw err;
+
+        const colInfo = `field: ${this.name || '<undefined>'}[${indices ?? 0}]`;
+        const valInfo = `value: ${toString(value)}, type_of_value: ${getTypeOf(value)})`;
+        const dataTypeInfo = `field_config: ${toString(this.config)}`;
+        err.message += `; _debug_(${[colInfo, valInfo, dataTypeInfo].join(', ')})`;
+        Object.defineProperty(err, '_added_value_from_context', {
+            enumerable: false,
+            value: true
+        });
+        throw err;
     }
 
     /**
@@ -121,7 +140,7 @@ export abstract class Builder<T = unknown> {
     set(index: number, value: unknown): Builder<T> {
         if (value == null) return this;
 
-        this.data.set(index, this._valueFromWithError(index, value));
+        this.data.set(index, this.valueFrom(value, index));
         return this;
     }
 
@@ -131,7 +150,7 @@ export abstract class Builder<T = unknown> {
     mset(value: unknown, indices: readonly number[]|TypedArray): Builder<T> {
         if (value == null) return this;
 
-        this.data.mset(this._valueFromWithError(indices, value), indices);
+        this.data.mset(this.valueFrom(value, indices), indices);
         return this;
     }
 

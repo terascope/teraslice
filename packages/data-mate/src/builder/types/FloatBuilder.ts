@@ -4,7 +4,7 @@ import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 
 export class FloatBuilder extends Builder<number> {
-    valueFrom = toFloatOrThrow;
+    _valueFrom = toFloatOrThrow;
 
     constructor(
         data: WritableData<number>,

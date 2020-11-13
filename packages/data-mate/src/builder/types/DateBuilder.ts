@@ -13,7 +13,7 @@ export class DateBuilder extends Builder<DateValue> {
         super(VectorType.Date, data, options);
     }
 
-    valueFrom(value: unknown): DateValue {
+    _valueFrom(value: unknown): DateValue {
         // FIXME this should validate the format is correct
         if (value instanceof DateValue) return value;
 

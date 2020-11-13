@@ -15,16 +15,16 @@ export function getBuilderForField(
     const data = WritableData.make(length);
     if (!keyAgg && !valueAgg) {
         return Builder.make(data, {
-            config: col.config,
             childConfig: col.vector.childConfig,
+            config: col.vector.config,
             name: col.name,
         });
     }
 
     if (keyAgg && !valueAgg) {
         return Builder.make<any>(data, {
-            config: col.config,
             childConfig: col.vector.childConfig,
+            config: col.vector.config,
             name: col.name,
         });
     }
@@ -58,12 +58,12 @@ export function getBuilderForField(
     }
 
     return Builder.make<any>(data, {
+        childConfig: undefined,
         config: {
             type,
             array: false,
             description: col.config.description // FIXME append agg info
         },
-        childConfig: undefined,
         name: col.name,
     });
 }

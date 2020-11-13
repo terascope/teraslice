@@ -21,18 +21,24 @@ export class ObjectVector<
     get childFields(): ChildFields<T> {
         if (this.#childFields) return this.#childFields;
 
-        const childFields: ChildFields<T> = Object.entries(this.childConfig ?? {})
+        if (!this.childConfig) {
+            this.#childFields = [];
+            return this.#childFields;
+        }
+        const childFields: ChildFields<T> = Object.entries(this.childConfig)
             .map(([field, config]) => {
                 const childConfig = (config.type === FieldType.Object
-                    ? getObjectDataTypeConfig(this.childConfig!, field as string)
+                    ? getObjectDataTypeConfig(this.childConfig!, field)
                     : undefined);
+
                 const vector = Vector.make<any>(emptyData, {
-                    config,
                     childConfig,
-                    name: [this.name, field].filter(Boolean).join('.'),
+                    config,
+                    name: this._getChildName(field)
                 });
                 return [field, vector];
             });
+
         this.#childFields = childFields;
         return childFields;
     }
@@ -60,5 +66,10 @@ export class ObjectVector<
         }
 
         return result;
+    }
+
+    private _getChildName(field: string) {
+        if (!this.name) return undefined;
+        return `${this.name}.${field}`;
     }
 }

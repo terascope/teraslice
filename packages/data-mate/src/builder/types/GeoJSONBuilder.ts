@@ -19,7 +19,7 @@ export class GeoJSONBuilder extends Builder<GeoShape> {
         super(VectorType.GeoJSON, data, options);
     }
 
-    valueFrom(value: unknown): GeoShape {
+    _valueFrom(value: unknown): GeoShape {
         if (!isGeoJSON(value)) {
             throw new TypeError(`Expected ${toString(value)} (${getTypeOf(value)}) to be a valid GeoJSON shape`);
         }

@@ -18,7 +18,7 @@ export class IntBuilder extends Builder<number> {
         super(VectorType.Int, data, options);
     }
 
-    valueFrom(value: unknown): number {
+    _valueFrom(value: unknown): number {
         const fieldType = this.config.type as FieldType;
         const int = toIntegerOrThrow(value);
         if (INT_SIZES[fieldType]) {

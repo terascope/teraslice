@@ -13,7 +13,7 @@ export class GeoPointBuilder extends Builder<GeoPoint> {
         super(VectorType.GeoPoint, data, options);
     }
 
-    valueFrom(value: unknown): GeoPoint {
+    _valueFrom(value: unknown): GeoPoint {
         return createObject(
             parseGeoPoint(value as any, true),
         );

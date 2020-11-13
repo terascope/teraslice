@@ -63,6 +63,7 @@ const dataTypeConfig = {
     }
 };
 
+const maxInt = (2 ** 31) - 1;
 const numRecords = 1800;
 const year = new Date().getFullYear();
 const records = times(numRecords, () => {
@@ -87,7 +88,7 @@ const records = times(numRecords, () => {
             type: age > 20 ? 'parent' : 'child',
             number_of_friends: random(1, 2000),
             requests: random(0, 20) ? {
-                total: random(10, Number.MAX_SAFE_INTEGER),
+                total: random(10, maxInt),
                 last: chance.date().toISOString()
             } : null
         } : null
