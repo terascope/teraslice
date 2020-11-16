@@ -16,18 +16,3 @@ export function isSameFieldConfig(
 
     return true;
 }
-
-export function freezeObject<T extends Record<string, any>>(
-    input: T
-): T extends Readonly<infer U> ? Readonly<U> : Readonly<T> {
-    if (Object.isFrozen(input)) return input as any;
-    return Object.freeze({ ...input }) as any;
-}
-
-type ArrLike = (any[])|(readonly any[]);
-export function freezeArray<T extends ArrLike>(
-    input: T
-): T extends Readonly<infer U> ? Readonly<U> : Readonly<T> {
-    if (Object.isFrozen(input)) return input as any;
-    return Object.freeze(input.slice()) as any;
-}
