@@ -107,21 +107,26 @@ export abstract class Vector<T = unknown> {
      * @note this is O(1) for non-object types and O(n) + extra hashing logic for larger objects
     */
     countUnique(): number {
-        return this.unique().length;
+        let count = 0;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        for (const v of this.unique()) {
+            count++;
+        }
+        return count;
     }
 
     /**
      * Get the unique values
     */
-    unique(): readonly T[] {
+    * unique(): Iterable<[index: number, value: T]> {
         const results: T[] = [];
         const hashes = new Set<any>();
         const getHash = this.data.isPrimitive ? (v: unknown) => v : getHashCodeFrom;
-        for (const value of this.data.values.values()) {
+        for (const [index, value] of this.data.values) {
             const hash = getHash(value);
             if (!hashes.has(hash)) {
                 hashes.add(hash);
-                results.push(value);
+                yield [index, value];
             }
         }
         return results;

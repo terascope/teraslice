@@ -228,3 +228,12 @@ export function isSame(input: unknown, target: unknown): boolean {
 
     return Object.is(input, target);
 }
+
+/**
+ * Check if a object has property (and not included in the prototype)
+ * Different from has since it doesn't deal with dot notation values.
+*/
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function hasOwn(obj: any, prop: string|symbol|number): boolean {
+    return Object.prototype.hasOwnProperty.call(obj, prop);
+}

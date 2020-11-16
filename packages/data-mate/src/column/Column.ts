@@ -219,13 +219,17 @@ export class Column<T = unknown, N extends NameType = string> {
     }
 
     /**
-     * Get the unique values
-     * @todo FIXME
+     * Get the unique values. This doesn't change the
+     * the size, it just drops the duplicate values.
+     * @example
+     *   [null, 1, 3, 2, 2, null, 1] => [null, 1, 3, 2, null, null, null]
     */
     unique(): Column<T, N> {
-        const writable = this.vector.data.toWritable();
-        const vector = this.vector.fork(new ReadableData(writable));
-        return this.fork(vector);
+        const writable = new WritableData<T>(this.size);
+        for (const [index, value] of this.vector.unique()) {
+            writable.set(index, value);
+        }
+        return this.fork(this.vector.fork(new ReadableData(writable)));
     }
 
     /**

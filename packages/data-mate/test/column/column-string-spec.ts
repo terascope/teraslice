@@ -43,6 +43,19 @@ describe('Column (String Types)', () => {
             expect(col.vector).toBeInstanceOf(Vector);
         });
 
+        it('should be able to get unique with the same length', () => {
+            const newCol = col.unique();
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.size).toBe(col.size);
+            expect(newCol.toJSON()).toEqual([
+                'Batman',
+                'Robin',
+                'Superman',
+                null,
+                'SpiderMan',
+            ]);
+        });
+
         it('should be able to validate using isURL', () => {
             const newCol = col.validate(ColumnValidator.isURL);
             expect(newCol.id).not.toBe(col.id);
