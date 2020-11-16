@@ -1,12 +1,12 @@
-import ObejctType from '../../../src/types/v1/object';
-import { FieldTypeConfig } from '../../../src/interfaces';
+import { DataTypeFieldConfig, FieldType } from '@terascope/types';
+import ObjectType from '../../../src/types/v1/object';
 
 describe('Object V1', () => {
     const field = 'someField';
-    const typeConfig: FieldTypeConfig = { type: 'Object' };
+    const typeConfig: DataTypeFieldConfig = { type: FieldType.Object };
 
     it('can requires a field and proper configs', () => {
-        const type = new ObejctType(field, typeConfig);
+        const type = new ObjectType(field, typeConfig);
         expect(type).toBeDefined();
         expect(type.toESMapping).toBeDefined();
         expect(type.toGraphQL).toBeDefined();
@@ -14,7 +14,7 @@ describe('Object V1', () => {
     });
 
     it('can get proper ES Mappings', () => {
-        const esMapping = new ObejctType(field, typeConfig).toESMapping();
+        const esMapping = new ObjectType(field, typeConfig).toESMapping();
         const results = { mapping: { [field]: { type: 'object' } } };
 
         expect(esMapping).toEqual(results);
@@ -22,14 +22,14 @@ describe('Object V1', () => {
 
     it('can get proper ES Mappings if given an array', () => {
         const newTypeConfig = Object.assign({}, { array: true }, typeConfig);
-        const esMapping = new ObejctType(field, newTypeConfig).toESMapping();
+        const esMapping = new ObjectType(field, newTypeConfig).toESMapping();
         const results = { mapping: { [field]: { type: 'nested' } } };
 
         expect(esMapping).toEqual(results);
     });
 
     it('can get proper ES Mappings when not indexed', () => {
-        const esMapping = new ObejctType(field, {
+        const esMapping = new ObjectType(field, {
             ...typeConfig,
             indexed: false,
         }).toESMapping();
@@ -39,21 +39,21 @@ describe('Object V1', () => {
     });
 
     it('can get proper graphql types', () => {
-        const graphQlTypes = new ObejctType(field, typeConfig).toGraphQL();
+        const graphQlTypes = new ObjectType(field, typeConfig).toGraphQL();
         const results = { type: `${field}: JSONObject`, customTypes: ['scalar JSONObject'] };
 
         expect(graphQlTypes).toEqual(results);
     });
 
     it('can get proper graphql types when given an array', () => {
-        const graphQlTypes = new ObejctType(field, { ...typeConfig, array: true }).toGraphQL();
+        const graphQlTypes = new ObjectType(field, { ...typeConfig, array: true }).toGraphQL();
         const results = { type: `${field}: [JSONObject]`, customTypes: ['scalar JSONObject'] };
 
         expect(graphQlTypes).toEqual(results);
     });
 
     it('can get proper xlucene properties', () => {
-        const xlucene = new ObejctType(field, typeConfig).toXlucene();
+        const xlucene = new ObjectType(field, typeConfig).toXlucene();
         const results = { [field]: 'object' };
 
         expect(xlucene).toEqual(results);

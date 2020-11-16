@@ -1,12 +1,12 @@
-import { xLuceneTypeConfig } from '@terascope/types';
+import { DataTypeFieldConfig, xLuceneTypeConfig } from '@terascope/types';
 import * as ts from '@terascope/utils';
 import {
-    GraphQLType, TypeESMapping, FieldTypeConfig
+    GraphQLType, TypeESMapping
 } from '../interfaces';
 import { formatGQLComment } from '../graphql-helper';
 
 export interface IBaseType {
-    new(field: string, config: FieldTypeConfig): BaseType;
+    new(field: string, config: DataTypeFieldConfig): BaseType;
 }
 
 export type ToGraphQLOptions = {
@@ -18,10 +18,10 @@ export type ToGraphQLOptions = {
 
 export default abstract class BaseType {
     readonly field: string;
-    readonly config: FieldTypeConfig;
+    readonly config: DataTypeFieldConfig;
     readonly version: number;
 
-    constructor(field: string, config: FieldTypeConfig, version = 1) {
+    constructor(field: string, config: DataTypeFieldConfig, version = 1) {
         this.version = version;
         this.field = field;
         this.config = config;

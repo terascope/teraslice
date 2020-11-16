@@ -2,18 +2,20 @@ import * as ts from '@terascope/utils';
 import {
     DataTypeFieldConfig, DataTypeFields, DataTypeVersion, FieldType
 } from '@terascope/types';
+import { getLast, toIntegerOrThrow } from '@terascope/utils';
 import { mapping } from './mapping';
 import {
     GroupedFields
 } from '../interfaces';
 import GroupType, { NestedTypes } from './group-type';
 import BaseType, { IBaseType } from './base-type';
+import TupleType from './tuple-type';
 
 export const LATEST_VERSION: DataTypeVersion = 1;
 
 export function getGroupedFields(fields: DataTypeFields): GroupedFields {
     const groupFields: GroupedFields = {};
-    for (const field of Object.keys(fields)) {
+    for (const field of Object.keys(fields).sort()) {
         const [base] = field.split('.');
         if (!groupFields[base]) groupFields[base] = [];
         if (!groupFields[base].includes(base)) {
@@ -40,8 +42,10 @@ export function getTypes(
 
     for (const [field, group] of Object.entries(groupedFields)) {
         if (group.length > 1) {
-            types[field] = getGroupType({
+            const fn = fields[field].type === FieldType.Tuple ? getTupleType : getGroupType;
+            types[field] = fn({
                 base: field,
+                baseConfig: fields[field],
                 fields: [...group].map((f) => ({
                     field: f,
                     config: fields[f]
@@ -64,8 +68,9 @@ export function getTypes(
         .map((field) => types[field]) as BaseType[];
 }
 
-export type GetGroupTypeArg = {
+type GetGroupTypeArg = {
     base: string;
+    baseConfig: DataTypeFieldConfig;
     fields: { field: string; config?: DataTypeFieldConfig }[];
     version?: DataTypeVersion;
 };
@@ -73,25 +78,35 @@ export type GetGroupTypeArg = {
 function getGroupType({
     base, fields, version = LATEST_VERSION
 }: GetGroupTypeArg): GroupType {
-    const objConfig: DataTypeFieldConfig = {
-        type: FieldType.Object,
-    };
-
     const nestedTypes: NestedTypes = {};
 
     fields.forEach(({ field, config }) => {
-        if (config?.description) {
-            objConfig.description = config.description;
-        }
-
         nestedTypes[field] = getType({
             field,
-            config: config || { ...objConfig },
+            config: config || { type: FieldType.Any },
             version
         });
     });
 
     return new GroupType(base, version, nestedTypes);
+}
+
+function getTupleType({
+    base, baseConfig, fields, version = LATEST_VERSION
+}: GetGroupTypeArg): TupleType {
+    const nestedTypes: BaseType[] = [];
+
+    fields.forEach(({ field, config }) => {
+        if (base === field) return;
+        const index = toIntegerOrThrow(getLast(field.split('.')));
+        nestedTypes[index] = getType({
+            field,
+            config: config || { type: FieldType.Any },
+            version
+        });
+    });
+
+    return new TupleType(base, version, baseConfig, nestedTypes);
 }
 
 export type GetTypeArg = {
