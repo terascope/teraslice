@@ -250,7 +250,7 @@ describe('Vector', () => {
         let vector: Vector<any>;
         let expected: any[];
         beforeAll(() => {
-            const builder = Builder.make(WritableData.make(input.length), {
+            const builder = Builder.make(new WritableData(input.length), {
                 config: { type, array: false },
             });
             input.forEach((val) => builder.append(val));
@@ -287,7 +287,7 @@ describe('Vector', () => {
 
         if (invalid?.length) {
             test.each(invalid)('should NOT be able to parse %p', (val) => {
-                const builder = Builder.make(WritableData.make(invalid.length), {
+                const builder = Builder.make(new WritableData(invalid.length), {
                     config: {
                         type, array: false
                     }

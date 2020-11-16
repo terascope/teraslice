@@ -1,9 +1,8 @@
 import { FieldType } from '@terascope/types';
 import { Vector, VectorOptions } from '../Vector';
 import { VectorType } from '../interfaces';
-import { getObjectDataTypeConfig, ReadableData, WritableData } from '../../core';
+import { getObjectDataTypeConfig, ReadableData } from '../../core';
 
-const emptyData = new ReadableData<any>(WritableData.make(0));
 type ChildFields<T extends Record<string, any>> = readonly (
     [field: (keyof T), vector: Vector<any>]
 )[];
@@ -31,7 +30,7 @@ export class ObjectVector<
                     ? getObjectDataTypeConfig(this.childConfig!, field)
                     : undefined);
 
-                const vector = Vector.make<any>(emptyData, {
+                const vector = Vector.make<any>(ReadableData.emptyData, {
                     childConfig,
                     config,
                     name: this._getChildName(field)

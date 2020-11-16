@@ -35,7 +35,7 @@ export class Column<T = unknown, N extends NameType = string> {
         version?: DataTypeVersion,
         childConfig?: DataTypeFields|Readonly<DataTypeFields>
     ): Column<R extends (infer U)[] ? Vector<U> : R, F> {
-        const builder = Builder.make<R>(WritableData.make(values.length), {
+        const builder = Builder.make<R>(new WritableData(values.length), {
             childConfig,
             config,
             name: name as string,
@@ -203,7 +203,7 @@ export class Column<T = unknown, N extends NameType = string> {
     sort(direction?: SortOrder): Column<T, N> {
         const sortedIndices = this.vector.getSortedIndices(direction);
         const len = sortedIndices.length;
-        const builder = Builder.make<T>(WritableData.make(len), {
+        const builder = Builder.make<T>(new WritableData(len), {
             config: this.vector.config,
             childConfig: this.vector.childConfig,
             name: this.name as string,
@@ -220,13 +220,10 @@ export class Column<T = unknown, N extends NameType = string> {
 
     /**
      * Get the unique values
-     * @todo add tests and more docs
+     * @todo FIXME
     */
     unique(): Column<T, N> {
-        const writable = this.vector.data.toWritable().compact();
-        for (const [, indices] of writable.values) {
-            indices.fill(0, 1, indices.length);
-        }
+        const writable = this.vector.data.toWritable();
         const vector = this.vector.fork(new ReadableData(writable));
         return this.fork(vector);
     }

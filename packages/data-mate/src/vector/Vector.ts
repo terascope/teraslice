@@ -3,7 +3,9 @@ import {
     Maybe, SortOrder,
     ReadonlyDataTypeFields
 } from '@terascope/types';
-import { ReadableData, createHashCode, HASH_CODE_SYMBOL } from '../core';
+import {
+    ReadableData, createHashCode, HASH_CODE_SYMBOL, getHashCodeFrom
+} from '../core';
 import { VectorType } from './interfaces';
 
 /**
@@ -100,10 +102,29 @@ export abstract class Vector<T = unknown> {
     }
 
     /**
-     * Gets the number distinct values in the Vector
+     * Get the count of distinct values.
+     *
+     * @note this is O(1) for non-object types and O(n) + extra hashing logic for larger objects
     */
     countUnique(): number {
-        return this.data.countUnique();
+        return this.unique().length;
+    }
+
+    /**
+     * Get the unique values
+    */
+    unique(): readonly T[] {
+        const results: T[] = [];
+        const hashes = new Set<any>();
+        const getHash = this.data.isPrimitive ? (v: any) => v : getHashCodeFrom;
+        for (const value of this.data.values.values()) {
+            const hash = getHash(value);
+            if (!hashes.has(hash)) {
+                hashes.add(hash);
+                results.push(value);
+            }
+        }
+        return results;
     }
 
     /**
@@ -214,7 +235,6 @@ export abstract class Vector<T = unknown> {
             childConfig: this.childConfig,
             size: this.size,
             isPrimitive: this.data.isPrimitive,
-            indices: this.data.indices,
             values: this.data.values
         };
 

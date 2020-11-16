@@ -11,7 +11,7 @@ import {
     ObjectVector, StringVector, IPVector, IPRangeVector,
 } from './types';
 import { Vector, VectorOptions } from './Vector';
-import { ReadableData, ReadableDataValue } from '../core';
+import { ReadableData } from '../core';
 
 export function _newVector<T>(
     data: ReadableData<any>,
@@ -101,29 +101,19 @@ export function getNumericValues(value: unknown): {
 
     if (value instanceof IntVector || value instanceof FloatVector) {
         return {
-            values: _getAllValues(value.data.values),
+            values: [...value.data.values.values()],
             type: 'number'
         };
     }
 
     if (value instanceof BigIntVector) {
         return {
-            values: _getAllValues(value.data.values),
+            values: [...value.data.values.values()],
             type: 'bigint'
         };
     }
 
     throw new Error(`Unable to get numeric values from ${value} (${getTypeOf(value)})`);
-}
-function _getAllValues(values: readonly Readonly<ReadableDataValue<any>>[]) {
-    const result: any[] = [];
-    for (const value of values) {
-        result.push(..._getValues(value));
-    }
-    return result;
-}
-function _getValues(value: ReadableDataValue<any>) {
-    return Array(value.i.length).fill(value.v);
 }
 
 export function isNumberLike(type: FieldType): boolean {

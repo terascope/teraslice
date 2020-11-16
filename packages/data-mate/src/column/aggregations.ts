@@ -5,7 +5,7 @@ import {
 import {
     Vector, VectorType, getNumericValues
 } from '../vector';
-import { DateValue, getHashCodeFrom, TypedArray } from '../core';
+import { DateValue, getHashCodeFrom } from '../core';
 
 export enum ValueAggregation {
     avg = 'avg',
@@ -16,7 +16,7 @@ export enum ValueAggregation {
 }
 
 export type FieldAgg = {
-    push(value: unknown, index: TypedArray): void;
+    push(value: unknown, index: number): void;
     flush(): { value: unknown, index?: number };
 }
 export type MakeValueAgg = (vector: Vector<unknown>) => FieldAgg;
@@ -31,8 +31,8 @@ export const valueAggMap: Record<ValueAggregation, MakeValueAgg> = {
 
 export function runVectorAggregation<V>(vector: Vector<any>, valueAgg: ValueAggregation): V {
     const agg = valueAggMap[valueAgg](vector);
-    for (const value of vector.data.values) {
-        agg.push(value.v, value.i);
+    for (const [i, v] of vector.data.values) {
+        agg.push(v, i);
     }
     return agg.flush().value as any;
 }
@@ -46,16 +46,6 @@ function add(value: number|bigint, ...values: (number|bigint)[]): number|bigint 
     return values.reduce(_addReducer, value);
 }
 
-function _multiplyReducer(acc: any, curr: any) {
-    if (typeof acc === typeof curr) return acc * curr;
-    if (isBigInt(curr)) return BigInt(acc) * curr;
-    return acc * BigInt(curr);
-}
-
-function multiply(value: number|bigint, ...values: (number|bigint)[]): number|bigint {
-    return values.reduce(_multiplyReducer, value);
-}
-
 function makeSumAgg(vector: Vector<any>): FieldAgg {
     const type = vector.type === VectorType.BigInt ? 'bigint' : 'number';
     let agg: {
@@ -63,10 +53,9 @@ function makeSumAgg(vector: Vector<any>): FieldAgg {
     } = { value: 0 };
 
     return {
-        push(value, indices) {
-            const multiplier = indices.length;
+        push(value) {
             const res = getNumericValues(value);
-            const sum = multiply(multiplier, add(0, ...res.values));
+            const sum = add(0, ...res.values);
             agg.value = add(agg.value, sum);
         },
         flush() {
@@ -89,14 +78,13 @@ function makeAvgAgg(vector: Vector<any>): FieldAgg {
     } = { total: 0 };
 
     return {
-        push(value: unknown, indices) {
-            const multiplier = indices.length;
+        push(value: unknown) {
             const res = getNumericValues(value);
             if (res.values.length) {
-                const sum = multiply(multiplier, add(0, ...res.values));
+                const sum = add(0, ...res.values);
                 agg.value = agg.value != null ? add(sum, agg.value) : sum;
             }
-            agg.total += res.values.length * multiplier;
+            agg.total += res.values.length;
         },
         flush() {
             if (agg.value == null) return { value: undefined };
@@ -118,12 +106,12 @@ function makeMinAgg(): FieldAgg {
     } = { index: -1 };
 
     return {
-        push(value, indices) {
+        push(value, index) {
             const res = getNumericValues(value);
             for (const num of res.values) {
                 if (agg.value == null || num < agg.value) {
                     agg.value = num;
-                    agg.index = indices[0]!;
+                    agg.index = index;
                 }
             }
         },
@@ -142,12 +130,12 @@ function makeMaxAgg(): FieldAgg {
     } = { index: -1 };
 
     return {
-        push(value, indices) {
+        push(value, index) {
             const res = getNumericValues(value);
             for (const num of res.values) {
                 if (agg.value == null || num > agg.value) {
                     agg.value = num;
-                    agg.index = indices[0]!;
+                    agg.index = index;
                 }
             }
         },

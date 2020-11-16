@@ -1,7 +1,7 @@
 import { DataTypeFieldConfig, DataTypeFields, Maybe } from '@terascope/types';
 import { TSError, toString, getTypeOf } from '@terascope/utils';
 import {
-    freezeObject, ReadableData, WritableData, TypedArray
+    freezeObject, ReadableData, WritableData
 } from '../core';
 import {
     Vector, VectorType
@@ -103,7 +103,7 @@ export abstract class Builder<T = unknown> {
     */
     valueFrom(
         value: unknown,
-        indices?: number|readonly number[]|TypedArray,
+        indices?: number|Iterable<number>,
     ): T {
         try {
             return this._valueFrom(value);
@@ -115,7 +115,7 @@ export abstract class Builder<T = unknown> {
     private _throwValueFromError(
         _err: unknown,
         value: unknown,
-        indices?: number|readonly number[]|TypedArray,
+        indices?: number|Iterable<number>,
     ): never {
         let err = _err as any;
         if (typeof err?.message !== 'string') {
@@ -147,10 +147,13 @@ export abstract class Builder<T = unknown> {
     /**
      * Set a single unique value on multiple indices
     */
-    mset(value: unknown, indices: readonly number[]|TypedArray): Builder<T> {
+    mset(value: unknown, indices: Iterable<number>): Builder<T> {
         if (value == null) return this;
 
-        this.data.mset(this.valueFrom(value, indices), indices);
+        const val = this.valueFrom(value, indices);
+        for (const index of indices) {
+            this.data.set(index, val);
+        }
         return this;
     }
 
@@ -239,8 +242,8 @@ export function copyVectorToBuilder<T, R>(
     vector: Vector<T>,
     builder: Builder<R>,
 ): Vector<R> {
-    for (const value of vector.data.values) {
-        builder.mset(value.v, value.i);
+    for (const [i, v] of vector.data.values) {
+        builder.set(i, v);
     }
     return builder.toVector();
 }
@@ -253,8 +256,8 @@ export function transformVectorToBuilder<T, R>(
     builder: Builder<R>,
     transform: (value: T) => Maybe<R>,
 ): Vector<R> {
-    for (const value of vector.data.values) {
-        builder.mset(transform(value.v), value.i);
+    for (const [i, v] of vector.data.values) {
+        builder.set(i, transform(v));
     }
     return builder.toVector();
 }

@@ -22,7 +22,7 @@ export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
             if (isSameFieldConfig(values.config, this.valueConfig)) return values;
 
             return copyVectorToBuilder(values, Builder.make(
-                WritableData.make(values.size),
+                new WritableData(values.size),
                 {
                     childConfig: this.childConfig,
                     config: this.valueConfig,
@@ -33,7 +33,7 @@ export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
 
         const arr = castArray(values);
         const builder = Builder.make(
-            WritableData.make(arr.length),
+            new WritableData(arr.length),
             {
                 childConfig: this.childConfig,
                 config: this.valueConfig,

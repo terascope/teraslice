@@ -223,13 +223,11 @@ export class DataFrame<
     */
     require(...fieldArg: FieldArg<keyof T>[]): DataFrame<T> {
         const fields = getFieldsFromArg(this.fields, fieldArg);
-        const allFieldIndices = [...fields].map(
-            (field) => this.getColumn(field)!.vector.data.indices
-        );
+        const fieldData = [...fields].map((field) => this.getColumn(field)!.vector.data);
         const hasRequiredFields = (index: number): boolean => {
-            for (const fieldIndices of allFieldIndices) {
+            for (const data of fieldData) {
                 // if the value is null
-                if (fieldIndices[index] === 0) return false;
+                if (data.values.has(index)) return false;
             }
             return true;
         };
@@ -330,7 +328,7 @@ export class DataFrame<
         }
 
         return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => {
-            builder.data.resize(buckets.size, true);
+            builder.data.resize(buckets.size);
             return columns.get(name)!.fork(builder.toVector());
         }));
     }

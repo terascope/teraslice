@@ -14,17 +14,19 @@ export type TypedArrayConstructor = Uint8ArrayConstructor
 |Uint32ArrayConstructor
 |Float64ArrayConstructor;
 
-export type ReadableDataValue<T> = Readonly<{
-    /**
-     * A list of the value positions
-    */
-    i: TypedArray;
-    /**
-     * The non-null value
-    */
-    v: T;
-}>;
-
-export type WritableDataValue = TypedArray;
-
 export type FieldArg<K extends (string|number|symbol)> = K[]|(readonly K[])|K;
+
+export interface ReadonlySparseMap<V> extends Iterable<[number, V]> {
+    // Members
+    length: number;
+    size: number;
+
+    has(key: number): boolean;
+    get(key: number): V | undefined;
+    forEach(callback: (value: V, key: number, set: this) => void, scope?: any): void;
+    keys(): IterableIterator<number>;
+    values(): IterableIterator<V>;
+    entries(): IterableIterator<[number, V]>;
+    [Symbol.iterator](): IterableIterator<[number, V]>;
+    inspect(): any;
+}

@@ -5,7 +5,6 @@ import { createObject, getObjectDataTypeConfig, WritableData } from '../../core'
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 
-const emptyData = WritableData.make(0);
 type ChildFields<T extends Record<string, any>> = readonly (
     [field: (keyof T), builder: Builder<any>]
 )[];
@@ -36,7 +35,7 @@ export class ObjectBuilder<
                     ? getObjectDataTypeConfig(this.childConfig!, field)
                     : undefined);
 
-                const builder = Builder.make<any>(emptyData, {
+                const builder = Builder.make<any>(WritableData.emptyData, {
                     childConfig,
                     config,
                     name: this._getChildName(field),

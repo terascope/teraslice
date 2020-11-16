@@ -52,11 +52,8 @@ export function concatColumnsToColumns<T extends Record<string, any>>(
     for (const [field, builder] of builders) {
         const col = columns.find(((c) => c.name === field));
         if (col) {
-            for (const value of col.vector.data.values) {
-                builder.mset(
-                    value.v,
-                    value.i.map((i: number) => offset + i),
-                );
+            for (const [i, v] of col.vector.data.values) {
+                builder.set(i + offset, v);
             }
         }
     }
@@ -109,16 +106,13 @@ export function processFieldFilter(
     filter: (value: any) => boolean,
     json: boolean
 ): void {
-    function add(index: number) { indices.add(index); }
-    function remove(index: number) { indices.delete(index); }
     function getValue(v: any): any {
         if (!json || !column.vector.valueToJSON) return v;
         return column.vector.valueToJSON(v);
     }
-    for (const v of column.vector.data.values) {
-        v.i.forEach(
-            filter(getValue(v.v)) ? add : remove
-        );
+    for (const [i, v] of column.vector.data.values) {
+        if (filter(getValue(v))) indices.add(i);
+        else indices.delete(i);
     }
 }
 

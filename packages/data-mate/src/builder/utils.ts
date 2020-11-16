@@ -26,7 +26,7 @@ export function getBuildersForConfig<T extends Record<string, any> = Record<stri
             const nestedField = fullField.replace(`${field}.`, '');
             childConfig[nestedField] = config.fields[fullField];
         });
-        builders.set(field, Builder.make(WritableData.make(size), {
+        builders.set(field, Builder.make(new WritableData(size), {
             childConfig,
             config: config.fields[field],
             name: field,

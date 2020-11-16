@@ -1,4 +1,4 @@
-import { times } from '@terascope/utils';
+import { isNotNil, times } from '@terascope/utils';
 import 'jest-extended';
 import { ReadableData, WritableData } from '../src/core';
 
@@ -8,7 +8,7 @@ describe('Data', () => {
         let writable: WritableData<string>;
         let readable: ReadableData<string>;
         beforeEach(() => {
-            writable = WritableData.make(size);
+            writable = new WritableData(size);
         });
 
         describe('when the values are all unique', () => {
@@ -18,26 +18,8 @@ describe('Data', () => {
                 readable = new ReadableData(writable);
             });
 
-            it('should have the correct indices', () => {
-                const indices = Uint8Array.of(1, 2, 3, 4, 5, 6, 7, 8);
-                expect(readable.indices).toStrictEqual(indices);
-            });
-
             it('should have the correct values', () => {
-                expect(readable.values).toStrictEqual([
-                    { v: 'a0', i: Uint8Array.of(0) },
-                    { v: 'a1', i: Uint8Array.of(1) },
-                    { v: 'a2', i: Uint8Array.of(2) },
-                    { v: 'a3', i: Uint8Array.of(3) },
-                    { v: 'a4', i: Uint8Array.of(4) },
-                    { v: 'a5', i: Uint8Array.of(5) },
-                    { v: 'a6', i: Uint8Array.of(6) },
-                    { v: 'a7', i: Uint8Array.of(7) }
-                ]);
-            });
-
-            it('should have the correct distinct values', () => {
-                expect(readable.countUnique()).toEqual(size);
+                expect(readable._values).toStrictEqual(values.filter(isNotNil));
             });
 
             it('should be able to get all of the values', () => {
@@ -54,22 +36,8 @@ describe('Data', () => {
                 readable = new ReadableData(writable);
             });
 
-            it('should have the correct indices', () => {
-                const indices = Uint8Array.of(1, 2, 1, 2, 1, 2, 1, 2);
-                expect(readable.indices).toStrictEqual(indices);
-            });
-
             it('should have the correct values', () => {
-                expect(readable.values).toStrictEqual(
-                    [
-                        { v: 'a0', i: Uint8Array.of(0, 2, 4, 6) },
-                        { v: 'a1', i: Uint8Array.of(1, 3, 5, 7) }
-                    ],
-                );
-            });
-
-            it('should have the correct distinct values', () => {
-                expect(readable.countUnique()).toEqual(2);
+                expect(readable._values).toStrictEqual(values.filter(isNotNil));
             });
 
             it('should be able to get all of the values', () => {
@@ -88,26 +56,12 @@ describe('Data', () => {
                 readable = new ReadableData(writable);
             });
 
-            it('should have the correct indices', () => {
-                const indices = Uint8Array.of(1, 0, 2, 0, 3, 0, 4, 0);
-                expect(readable.indices).toStrictEqual(indices);
-            });
-
             it('should be a primitive', () => {
                 expect(readable.isPrimitive).toBeTrue();
             });
 
             it('should have the correct values', () => {
-                expect(readable.values).toStrictEqual([
-                    { v: 'a0', i: Uint8Array.of(0) },
-                    { v: 'a2', i: Uint8Array.of(2) },
-                    { v: 'a4', i: Uint8Array.of(4) },
-                    { v: 'a6', i: Uint8Array.of(6) },
-                ]);
-            });
-
-            it('should have the correct distinct values', () => {
-                expect(readable.countUnique()).toEqual(4);
+                expect(readable._values).toStrictEqual(values.filter(isNotNil));
             });
 
             it('should be able to get all of the values', () => {
@@ -172,17 +126,8 @@ describe('Data', () => {
                 expect(readable.isPrimitive).toBeTrue();
             });
 
-            it('should have the correct indices', () => {
-                const indices = Uint8Array.of(0, 0, 0, 0, 0, 0, 0, 0);
-                expect(readable.indices).toStrictEqual(indices);
-            });
-
             it('should have the correct values', () => {
-                expect(readable.values).toStrictEqual([]);
-            });
-
-            it('should have the correct distinct values', () => {
-                expect(readable.countUnique()).toEqual(0);
+                expect(readable._values).toStrictEqual(values.filter(isNotNil));
             });
 
             it('should be able to get all of the values', () => {
@@ -222,14 +167,9 @@ describe('Data', () => {
         let writable: WritableData<TestObj>;
         let readable: ReadableData<TestObj>;
         beforeEach(() => {
-            writable = WritableData.make(size);
+            writable = new WritableData(size);
             values.forEach((v, i) => writable.set(i, v));
             readable = new ReadableData(writable);
-        });
-
-        it('should have the correct indices', () => {
-            const indices = Uint8Array.of(1, 2, 3, 4, 0, 5, 6, 7);
-            expect(readable.indices).toStrictEqual(indices);
         });
 
         it('should not be a primitive', () => {
@@ -237,19 +177,7 @@ describe('Data', () => {
         });
 
         it('should have the correct values', () => {
-            expect(readable.values).toStrictEqual([
-                { v: { a: 0 }, i: Uint8Array.of(0) },
-                { v: { a: 1 }, i: Uint8Array.of(1) },
-                { v: { a: 0 }, i: Uint8Array.of(2) },
-                { v: { a: 1 }, i: Uint8Array.of(3) },
-                { v: { a: 1 }, i: Uint8Array.of(5) },
-                { v: { a: 0 }, i: Uint8Array.of(6) },
-                { v: { a: 1 }, i: Uint8Array.of(7) },
-            ]);
-        });
-
-        it('should have the correct distinct values', () => {
-            expect(readable.countUnique()).toEqual(2);
+            expect(readable._values).toStrictEqual(values.filter(isNotNil));
         });
 
         it('should be able to get all of the values', () => {
