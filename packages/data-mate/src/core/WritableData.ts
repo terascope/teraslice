@@ -14,9 +14,9 @@ export class WritableData<T> {
     */
     static make<R>(size: number, from: SparseMap<R>|ReadonlySparseMap<R>): WritableData<R> {
         const data = new WritableData<R>(size);
-        const sizeToCopy = Math.min(size, from.size);
-        for (let i = 0; i < sizeToCopy; i++) {
-            data.set(i, from.get(i));
+        for (let i = 0; i < size; i++) {
+            const value = from.get(i);
+            if (value != null) data.set(i, value);
         }
         return data;
     }
@@ -40,6 +40,12 @@ export class WritableData<T> {
      * Set a value for an index
     */
     set(index: number, value: Maybe<T>): this {
+        if (index >= this.size) {
+            throw new Error(
+                `Index of ${index} is out-of-bounds, must be less than ${this.size}`
+            );
+        }
+
         if (value == null) {
             this.values.delete(index);
             return this;
@@ -62,12 +68,7 @@ export class WritableData<T> {
     */
     resize(size: number): WritableData<T> {
         if (size === this.size) return this;
-        const data = new WritableData<T>(size);
-        const sizeToCopy = Math.min(size, this.values.size);
-        for (let i = 0; i < sizeToCopy; i++) {
-            data.set(i, this.values.get(i));
-        }
-        return data;
+        return WritableData.make(size, this.values);
     }
 
     [Symbol.for('nodejs.util.inspect.custom')](): any {

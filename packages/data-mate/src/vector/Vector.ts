@@ -116,7 +116,7 @@ export abstract class Vector<T = unknown> {
     unique(): readonly T[] {
         const results: T[] = [];
         const hashes = new Set<any>();
-        const getHash = this.data.isPrimitive ? (v: any) => v : getHashCodeFrom;
+        const getHash = this.data.isPrimitive ? (v: unknown) => v : getHashCodeFrom;
         for (const value of this.data.values.values()) {
             const hash = getHash(value);
             if (!hashes.has(hash)) {

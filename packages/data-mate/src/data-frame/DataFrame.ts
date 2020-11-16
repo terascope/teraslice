@@ -8,7 +8,7 @@ import { AggregationFrame } from '../aggregation-frame';
 import {
     buildRecords, columnsToBuilderEntries, columnsToDataTypeConfig,
     concatColumnsToColumns, createColumnsWithIndices,
-    distributeRowsToColumns, indicesFilterIterable, makeKeyForRow, makeUniqueRowBuilder,
+    distributeRowsToColumns, makeKeyForRow, makeUniqueRowBuilder,
     processFieldFilter
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
@@ -223,23 +223,17 @@ export class DataFrame<
     */
     require(...fieldArg: FieldArg<keyof T>[]): DataFrame<T> {
         const fields = getFieldsFromArg(this.fields, fieldArg);
-        const fieldData = [...fields].map((field) => this.getColumn(field)!.vector.data);
-        const hasRequiredFields = (index: number): boolean => {
-            for (const data of fieldData) {
-                // if the value is null
-                if (data.values.has(index)) return false;
-            }
-            return true;
-        };
-
-        const indices = new Set(indicesFilterIterable(this._size, hasRequiredFields));
-        if (indices.size === this._size) return this;
-
-        return this.fork(createColumnsWithIndices(
-            this.columns,
-            indices,
-            indices.size
-        ));
+        const hasRequiredFields = [...fields].reduce(
+            (acc, field): FilterByFn<T> => {
+                if (!acc) return (row: T) => row[field] != null;
+                return (row: T, index: number) => {
+                    if (!acc(row, index)) return false;
+                    return row[field] != null;
+                };
+            },
+            undefined as FilterByFn<T>|undefined
+        )!;
+        return this._filterByFn(hasRequiredFields, false);
     }
 
     /**
@@ -328,7 +322,8 @@ export class DataFrame<
         }
 
         return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => {
-            builder.data.resize(buckets.size);
+            // @ts-expect-error data is readonly
+            builder.data = builder.data.resize(buckets.size);
             return columns.get(name)!.fork(builder.toVector());
         }));
     }

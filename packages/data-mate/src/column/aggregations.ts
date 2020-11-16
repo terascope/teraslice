@@ -194,7 +194,7 @@ function makeDateAgg(dateFormat: string): MakeKeyAggFn {
 
 export function makeUniqueKeyAgg(vector: Vector<any>): KeyAggFn {
     return (index) => {
-        const value = vector.get(index);
+        const value = vector.get(index, false);
         if (value == null) {
             return { key: undefined, value: null };
         }
