@@ -3,11 +3,12 @@ import {
     getTypeOf, isFunction, toString
 } from '@terascope/utils';
 import {
-    DataTypeFields, ReadonlyDataTypeFields
+    DataTypeFields, ReadonlyDataTypeFields,
+    TypedArray, TypedArrayConstructor
 } from '@terascope/types';
 import {
-    FieldArg, TypedArray, TypedArrayConstructor,
-    HASH_CODE_SYMBOL, MAX_16BIT_INT, MAX_32BIT_INT, MAX_8BIT_INT,
+    FieldArg, HASH_CODE_SYMBOL,
+    MAX_16BIT_INT, MAX_32BIT_INT, MAX_8BIT_INT,
 } from './interfaces';
 
 export function getFieldsFromArg<
@@ -101,7 +102,23 @@ export function getHashCodeFrom(input: unknown, throwIfNotFound = false): string
     return createHashCode(input);
 }
 
-export function createObject<T extends Record<string, any>>(input: T): T {
+export function createArrayValue<T extends any[]>(input: T): T {
+    Object.defineProperty(input, HASH_CODE_SYMBOL, {
+        value: _createArrayHashCode.bind(input),
+        configurable: false,
+        enumerable: false,
+        writable: false,
+    });
+
+    return Object.freeze(input) as T;
+}
+
+function _createArrayHashCode() {
+    // @ts-expect-error because this bound
+    return getHashCodeFrom(this, false);
+}
+
+export function createObjectValue<T extends Record<string, any>>(input: T): T {
     Object.defineProperty(input, HASH_CODE_SYMBOL, {
         value: _createObjectHashCode.bind(input),
         configurable: false,

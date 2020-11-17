@@ -1354,8 +1354,7 @@ export function exists(input: unknown, _parentContext?: unknown): boolean {
  */
 
 export function isArray(input: unknown, _parentContext?: unknown): input is any[] {
-    if (Array.isArray(input)) return true;
-    return false;
+    return ts.isArrayLike(input);
 }
 
 /**

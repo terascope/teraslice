@@ -1,3 +1,4 @@
+import { isArrayLike } from './arrays';
 import { getTypeOf } from './deps';
 
 let supportsBigInt = true;
@@ -173,7 +174,7 @@ export function parseNumberList(input: unknown): number[] {
 
     if (typeof input === 'string') {
         items = input.split(',');
-    } else if (Array.isArray(input)) {
+    } else if (isArrayLike(input)) {
         items = input;
     } else if (isNumber(input)) {
         return [input];

@@ -1,6 +1,6 @@
 import { FieldType } from '@terascope/types';
 import { getTypeOf, isPlainObject, toString } from '@terascope/utils';
-import { createObject, getObjectDataTypeConfig, WritableData } from '../../core';
+import { createObjectValue, getObjectDataTypeConfig, WritableData } from '../../core';
 
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
@@ -53,7 +53,7 @@ export class ObjectBuilder<
         }
 
         if (!this.childFields.length) {
-            return createObject({ ...value as T });
+            return createObjectValue({ ...value as T });
         }
 
         const input = value as Record<keyof T, unknown>;
@@ -67,7 +67,7 @@ export class ObjectBuilder<
             }
         }
 
-        return createObject(result as T);
+        return createObjectValue(result as T);
     }
 
     private _getChildName(field: string) {

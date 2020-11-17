@@ -13,6 +13,7 @@ import {
     GeoShapeMultiPolygon,
     ESGeoShape
 } from '@terascope/types';
+import { isArrayLike } from './arrays';
 import { isPlainObject, geoHash } from './deps';
 import { trim } from './strings';
 import { parseNumberList, toNumber, isNumber } from './numbers';
@@ -21,7 +22,7 @@ export const geoJSONTypes = Object.keys(GeoShapeType).map((key) => key.toLowerCa
 
 export function isGeoJSON(input: unknown): input is GeoShape|ESGeoShape {
     if (!isPlainObject(input)) return false;
-    if (!Array.isArray((input as any).coordinates)) return false;
+    if (!isArrayLike((input as any).coordinates)) return false;
 
     const type = (input as any).type as unknown;
     if (typeof type !== 'string') return false;
@@ -107,7 +108,7 @@ export function parseGeoPoint(point: GeoPointInput, throwInvalid = true): GeoPoi
                 // do nothing
             }
         }
-    } else if (Array.isArray(point)) {
+    } else if (isArrayLike(point)) {
         // array of points are meant to be lon/lat format
         [lon, lat] = parseNumberList(point);
     } else if (isPlainObject(point)) {

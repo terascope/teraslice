@@ -1,5 +1,7 @@
+import { TypedArray } from '@terascope/types';
 import { Many, ListOfRecursiveArraysOrValues } from './interfaces';
 import { get } from './deps';
+import { isBuffer } from './buffers';
 
 /** A native implementation of lodash flatten */
 export function flatten<T>(val: Many<T[]>): T[] {
@@ -8,7 +10,7 @@ export function flatten<T>(val: Many<T[]>): T[] {
 
 export function flattenDeep<T>(val: ListOfRecursiveArraysOrValues<T>): T[] {
     return val.reduce((a, b): T[] => {
-        if (Array.isArray(b)) {
+        if (isArrayLike(b)) {
             return (a as T[]).concat(flattenDeep(b));
         }
         return (a as T[]).concat(b);
@@ -19,7 +21,7 @@ export function flattenDeep<T>(val: ListOfRecursiveArraysOrValues<T>): T[] {
 export function castArray<T>(input: T|undefined|null|T[]): T[] {
     if (input == null) return [];
     if (input instanceof Set) return [...input];
-    if (Array.isArray(input)) return input;
+    if (isArrayLike(input)) return input;
     return [input];
 }
 
@@ -46,14 +48,14 @@ export function sort<T>(
     compare?: (a: T, b: T) => number
 ): T[] {
     if (arr instanceof Set) return [...arr].sort(compare);
-    if (Array.isArray(arr)) return arr.sort(compare);
+    if (isArrayLike(arr)) return arr.sort(compare);
     return arr;
 }
 
-const numLike = Object.freeze({
+const numLike = {
     bigint: true,
     number: true,
-});
+} as const;
 
 /** Sort by path or function that returns the values to sort with */
 export function sortBy<T, V = any>(
@@ -135,7 +137,7 @@ export function fastMap<T, U>(arr: T[], fn: (val: T, index: number) => U): U[] {
 
 /** Chunk an array into specific sizes */
 export function chunk<T>(dataArray: T[]|Set<T>, size: number): T[][] {
-    if (size < 1) return Array.isArray(dataArray) ? [dataArray] : [[...dataArray]];
+    if (size < 1) return isArrayLike(dataArray) ? [dataArray] : [[...dataArray]];
     const results: T[][] = [];
     let chunked: T[] = [];
 
@@ -154,7 +156,7 @@ export function chunk<T>(dataArray: T[]|Set<T>, size: number): T[][] {
 /** Safely check if an array, object, map, set has a key */
 export function includes(input: unknown, key: string): boolean {
     if (!input) return false;
-    if (Array.isArray(input) || typeof input === 'string') return input.includes(key);
+    if (isArrayLike(input) || typeof input === 'string') return input.includes(key);
     const obj = input as any;
     if (typeof obj.has === 'function') return obj.has(key);
     if (typeof obj === 'object') {
@@ -179,6 +181,24 @@ export function getLast<T>(input: T | T[]): T|undefined {
     return castArray(input).slice(-1)[0];
 }
 
+/**
+ * Check if an input is an array, just Array.isArray
+*/
 export function isArray<T = any[]>(input: unknown): input is T {
     return Array.isArray(input);
+}
+
+/**
+ * Check if an input is an TypedArray instance like: Uint8Array or Uint16Array.
+ * This excludes nodejs Buffers since they aren't really the same.
+*/
+export function isTypedArray<T = TypedArray>(input: unknown): input is T {
+    return ArrayBuffer.isView(input) && !isBuffer(input);
+}
+
+/**
+ * Check if an input is an TypedArray or Array instance
+*/
+export function isArrayLike<T = any[]>(input: unknown): input is T {
+    return isArray(input) || isTypedArray(input);
 }

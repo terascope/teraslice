@@ -18,6 +18,7 @@ export enum VectorType {
     IP = 'IP',
     IPRange = 'IPRange',
     Object = 'Object',
+    Tuple = 'Tuple',
     /**
      * Arbitrary data can be stored with this. Not recommended for use.
     */

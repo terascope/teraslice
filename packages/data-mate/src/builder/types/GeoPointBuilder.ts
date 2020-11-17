@@ -1,6 +1,6 @@
 import { GeoPoint } from '@terascope/types';
 import { parseGeoPoint } from '@terascope/utils';
-import { createObject, WritableData } from '../../core';
+import { createObjectValue, WritableData } from '../../core';
 
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
@@ -14,7 +14,7 @@ export class GeoPointBuilder extends Builder<GeoPoint> {
     }
 
     _valueFrom(value: unknown): GeoPoint {
-        return createObject(
+        return createObjectValue(
             parseGeoPoint(value as any, true),
         );
     }

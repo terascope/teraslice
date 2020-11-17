@@ -2,14 +2,16 @@ import { WithoutNil, FilteredResult } from './interfaces';
 import { isBooleanLike } from './booleans';
 import { get, isPlainObject } from './deps';
 import { DataEntity } from './entities';
+import { isArrayLike } from './arrays';
+import { isBuffer } from './buffers';
 
 /**
  * Similar to is-plain-object but works better when you cloneDeep a DataEntity
 */
 export function isSimpleObject(input: unknown): input is Record<string, unknown> {
     if (input == null) return false;
-    if (Buffer.isBuffer(input)) return false;
-    if (Array.isArray(input)) return false;
+    if (isBuffer(input)) return false;
+    if (isArrayLike(input)) return false;
     if (input instanceof Set) return false;
     if (input instanceof Map) return false;
     return typeof input === 'object';
@@ -209,6 +211,7 @@ export function getField<T, P extends keyof T, V>(
         isSame(true, 'true') === false;
 */
 export function isSame(input: unknown, target: unknown): boolean {
+    if (input === target || Object.is(input, target)) return true;
     if (isObjectEntity(input)) {
         if (isObjectEntity(target)) {
             const sortedInput = sortKeys(input as Record<string, unknown>, { deep: true });
@@ -218,15 +221,15 @@ export function isSame(input: unknown, target: unknown): boolean {
         return false;
     }
 
-    if (Array.isArray(input)) {
-        if (Array.isArray(target)) {
+    if (isArrayLike(input)) {
+        if (isArrayLike(target)) {
             if (input.length !== target.length) return false;
             return input.every((val, index) => isSame(val, target[index]));
         }
         return false;
     }
 
-    return Object.is(input, target);
+    return false;
 }
 
 /**

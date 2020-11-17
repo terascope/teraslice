@@ -1,4 +1,5 @@
 import { MACAddress } from '@terascope/types';
+import { isArrayLike } from './arrays';
 import { getTypeOf } from './deps';
 
 /** A simplified implementation of lodash isString */
@@ -33,7 +34,7 @@ export function toString(val: unknown): string {
         return val.toString();
     }
 
-    if (Array.isArray(val)) {
+    if (isArrayLike(val)) {
         return val.map(toString).join(',');
     }
 
@@ -450,7 +451,7 @@ export function parseList(input: unknown): string[] {
 
     if (isString(input)) {
         strings = input.split(',');
-    } else if (Array.isArray(input)) {
+    } else if (isArrayLike(input)) {
         strings = input.map((val) => {
             if (!val) return '';
             return toString(val);
