@@ -642,6 +642,44 @@ describe('DataFrame', () => {
             });
         });
 
+        describe('->createTupleFrom', () => {
+            it('should be able to to merge all of the columns', () => {
+                const resultFrame = dataFrame.createTupleFrom(dataFrame.fields, 'merged');
+
+                expect(resultFrame.toJSON()).toEqual([
+                    {
+                        name: 'Jill',
+                        age: 39,
+                        friends: ['Frank'],
+                        merged: ['Jill', 39, ['Frank']]
+                    },
+                    {
+                        name: 'Billy',
+                        age: 47,
+                        friends: ['Jill'],
+                        merged: ['Billy', 47, ['Jill']]
+                    },
+                    {
+                        name: 'Frank',
+                        age: 20,
+                        friends: ['Jill'],
+                        merged: ['Frank', 20, ['Jill']]
+                    },
+                    {
+                        name: 'Jane',
+                        friends: ['Jill'],
+                        merged: ['Jane', null, ['Jill']]
+                    },
+                    {
+                        name: 'Nancy',
+                        age: 10,
+                        merged: ['Nancy', 10, null]
+                    },
+                ]);
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+        });
+
         describe('->require', () => {
             it('should be able to require a single column', () => {
                 const resultFrame = dataFrame.require('age');

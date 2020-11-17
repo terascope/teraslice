@@ -1,6 +1,6 @@
 import {
     DataTypeConfig, ReadonlyDataTypeConfig,
-    Maybe, SortOrder
+    Maybe, SortOrder, FieldType, DataTypeFields, DataTypeFieldConfig
 } from '@terascope/types';
 import { isFunction } from '@terascope/utils';
 import { Column, KeyAggFn, makeUniqueKeyAgg } from '../column';
@@ -13,7 +13,7 @@ import {
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
 import {
-    createHashCode, FieldArg, freezeArray, getFieldsFromArg
+    createHashCode, FieldArg, freezeArray, getFieldsFromArg, WritableData
 } from '../core';
 import { getMaxColumnSize } from '../aggregation-frame/utils';
 
@@ -411,6 +411,40 @@ export class DataFrame<
     }
 
     /**
+     * Merge two or more columns into a Tuple
+    */
+    createTupleFrom<R extends string, V = [...unknown[]]>(
+        fields: readonly (keyof T)[],
+        as: R
+    ): DataFrame<T & Record<R, V>> {
+        if (fields.length < 2) {
+            throw new Error('DataFrame.createTupleFrom requires at least two fields');
+        }
+        const columns = fields.map((field) => this.getColumn(field)!);
+        const childConfig: DataTypeFields = {};
+        columns.forEach((col, index) => {
+            childConfig[`${as}.${index}`] = col.config;
+        });
+
+        const config: DataTypeFieldConfig = Object.freeze({ type: FieldType.Tuple });
+        const builder = Builder.make<V>(new WritableData(this.size), {
+            config,
+            childConfig,
+            name: as as string
+        });
+
+        for (let index = 0; index < this.size; index++) {
+            builder.set(index, columns.map((col) => col.vector.get(index, false)));
+        }
+
+        const column = new Column(builder.toVector(), {
+            name: as,
+            version: columns[0].version,
+        });
+        return this.assign([column]);
+    }
+
+    /**
      * Get a column by name
     */
     getColumn<P extends keyof T>(field: P): Column<T[P], P>|undefined {
@@ -442,6 +476,7 @@ export class DataFrame<
                 row[field] = val;
             }
         }
+        Object.entries(row);
 
         return row as T;
     }
