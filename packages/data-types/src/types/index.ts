@@ -17,9 +17,9 @@ export function getGroupedFields(fields: DataTypeFields): GroupedFields {
     const groupFields: GroupedFields = {};
     for (const field of Object.keys(fields)) {
         const [base] = field.split('.');
-        if (!groupFields[base]) groupFields[base] = [];
-        if (!groupFields[base].includes(base)) {
-            groupFields[base].push(base);
+        groupFields[base] ??= [];
+        if (field === base) {
+            groupFields[base].push(field);
         }
         if (!groupFields[base].includes(field)) {
             groupFields[base].push(field);
@@ -38,34 +38,28 @@ export function getTypes(
     groupedFields: GroupedFields,
     version = LATEST_VERSION
 ): BaseType[] {
-    const types: Record<string, GroupType|BaseType> = {};
-
-    for (const [field, group] of Object.entries(groupedFields)) {
-        if (group.length > 1) {
-            const fn = fields[field].type === FieldType.Tuple ? getTupleType : getGroupType;
-            types[field] = fn({
-                base: field,
-                baseConfig: fields[field],
-                fields: [...group].map((f) => ({
-                    field: f,
-                    config: fields[f]
-                })),
-                version
-            });
-        } else {
-            types[field] = getType({
+    return Object.keys(groupedFields)
+        .sort() // make sure sort the fields for deterministic
+        .map((field): BaseType => {
+            const group = groupedFields[field].filter((f) => f !== field);
+            if (group.length >= 1) {
+                const fn = fields[field]?.type === FieldType.Tuple ? getTupleType : getGroupType;
+                return fn({
+                    base: field,
+                    baseConfig: fields[field] ?? { type: FieldType.Object },
+                    fields: group.map((f) => ({
+                        field: f,
+                        config: fields[f]
+                    })),
+                    version
+                });
+            }
+            return getType({
                 field,
                 config: fields[field],
                 version
             });
-        }
-    }
-
-    // make sure sort the fields for deterministic
-    return Object
-        .keys(types)
-        .sort()
-        .map((field) => types[field]) as BaseType[];
+        });
 }
 
 type GetGroupTypeArg = {
@@ -76,9 +70,15 @@ type GetGroupTypeArg = {
 };
 
 function getGroupType({
-    base, fields, version = LATEST_VERSION
+    base, baseConfig, fields, version = LATEST_VERSION
 }: GetGroupTypeArg): GroupType {
-    const nestedTypes: NestedTypes = {};
+    const nestedTypes: NestedTypes = {
+        [base]: getType({
+            field: base,
+            config: baseConfig,
+            version
+        })
+    };
 
     fields.forEach(({ field, config }) => {
         nestedTypes[field] = getType({
@@ -97,7 +97,6 @@ function getTupleType({
     const nestedTypes: BaseType[] = [];
 
     fields.forEach(({ field, config }) => {
-        if (base === field) return;
         const index = toIntegerOrThrow(getLast(field.split('.')));
         nestedTypes[index] = getType({
             field,
