@@ -8,7 +8,7 @@ import { ListVector } from './ListVector';
 import {
     AnyVector, BigIntVector, BooleanVector, DateVector,
     FloatVector, GeoJSONVector, GeoPointVector, IntVector,
-    ObjectVector, StringVector, IPVector, IPRangeVector,
+    ObjectVector, StringVector, IPVector, IPRangeVector, TupleVector,
 } from './types';
 import { Vector, VectorOptions } from './Vector';
 import { ReadableData } from '../core';
@@ -73,6 +73,8 @@ function _newVectorForType(
             return new GeoJSONVector(data, options);
         case FieldType.Object:
             return new ObjectVector(data, options);
+        case FieldType.Tuple:
+            return new TupleVector(data, options);
         default:
             return new AnyVector(data, options);
     }

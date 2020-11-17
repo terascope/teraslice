@@ -43,9 +43,6 @@ export class ObjectVector<
     }
 
     valueToJSON(value: T): any {
-        if (!value || typeof value !== 'object') {
-            throw new Error('Invalid input to ObjectVector.valueToJSON');
-        }
         const val = value as Record<string, any>;
         if (!this.childFields.length) {
             return { ...val };

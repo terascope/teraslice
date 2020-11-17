@@ -1,6 +1,7 @@
 import 'jest-fixtures';
 import { toString, bigIntToJSON, isNotNil } from '@terascope/utils';
 import {
+    DataTypeFields,
     ESGeoShapeMultiPolygon,
     ESGeoShapePoint,
     ESGeoShapePolygon,
@@ -13,6 +14,7 @@ describe('Vector', () => {
     type Case = [
         type: FieldType,
         input: any[],
+        childConfig?: DataTypeFields,
         output?: any[],
         invalid?: any[]
     ];
@@ -26,46 +28,54 @@ describe('Vector', () => {
         [
             FieldType.String,
             ['foo', 'bar', true, 1, 2, null, undefined],
+            undefined,
             ['foo', 'bar', 'true', '1', '2', null, null],
             [{ foo: 'bar' }]
         ],
         [
             FieldType.Float,
             [12.344, '2.01', BigInt(200), 1, 2, null, undefined],
+            undefined,
             [12.344, 2.01, 200, 1, 2, null, null]
         ],
         [
             FieldType.Integer,
             [12.344, '2.01', BigInt(200), 1, 2, null, undefined],
+            undefined,
             [12, 2, 200, 1, 2, null, null],
             [-(2 ** 31) - 1, 2 ** 31 + 1, 'foo']
         ],
         [
             FieldType.Byte,
             [12.344, '2.01', -1, 2, null, undefined],
+            undefined,
             [12, 2, -1, 2, null, null],
             [128, -129, 'bar']
         ],
         [
             FieldType.Short,
             [12.344, '-2.01', 1000, 2, null, undefined],
+            undefined,
             [12, -2, 1000, 2, null, null],
             [32_768, -32_769, 'baz', '++1']
         ],
         [
             FieldType.Long,
             [12.344, '2.01', BigInt(200), 1, null, undefined],
+            undefined,
             [BigInt(12), BigInt(2), BigInt(200), BigInt(1), null, null]
         ],
         [
             FieldType.Boolean,
             ['yes', 'no', true, false, 0, 1, null, undefined],
+            undefined,
             [true, false, true, false, false, true, null, null],
             ['Y E S', 'foo', 23]
         ],
         [
             FieldType.Date,
             [nowDate, nowDate.toISOString(), now, '1941-08-20T07:00:00.000Z', null, undefined],
+            undefined,
             [
                 nowDate.toISOString(),
                 nowDate.toISOString(),
@@ -91,6 +101,7 @@ describe('Vector', () => {
                 null,
                 undefined
             ],
+            undefined,
             [
                 '8.8.8.8',
                 '192.172.1.18',
@@ -115,6 +126,7 @@ describe('Vector', () => {
                 null,
                 undefined
             ],
+            undefined,
             [
                 '1.2.3.4/32',
                 '8.8.0.0/12',
@@ -127,6 +139,7 @@ describe('Vector', () => {
         [
             FieldType.GeoPoint,
             [[90, 60], ['90.123', '60.456'], { lat: '89.002', lon: '20.034990' }, null, undefined],
+            undefined,
             [
                 { lat: 60, lon: 90 },
                 { lat: 60.456, lon: 90.123 },
@@ -169,6 +182,7 @@ describe('Vector', () => {
                 null,
                 undefined
             ],
+            undefined,
         ],
         [
             FieldType.GeoJSON,
@@ -197,6 +211,7 @@ describe('Vector', () => {
                 null,
                 undefined
             ],
+            undefined,
             [
                 {
                     type: GeoShapeType.MultiPolygon,
@@ -232,6 +247,7 @@ describe('Vector', () => {
                 null,
                 undefined
             ],
+            undefined,
             [
                 { foo: 'bar', other: { 1: 2 }, arr: [1, 2, 3] },
                 { field1: null, field2: undefined },
@@ -244,14 +260,48 @@ describe('Vector', () => {
                 'foo',
             ],
         ],
+        [
+            FieldType.Tuple,
+            [
+                [true, 'hi', 3],
+                ['FALSE', 2, 1.1],
+                [null, undefined, null],
+                [null, 'hello', undefined],
+                [],
+                null,
+                undefined
+            ],
+            {
+                0: { type: FieldType.Boolean },
+                1: { type: FieldType.String },
+                2: { type: FieldType.Integer },
+            },
+            [
+                [true, 'hi', 3],
+                [false, '2', 1],
+                [null, null, null],
+                [null, 'hello', null],
+                [null, null, null],
+                null,
+                null
+            ],
+            [
+                [true, 'hi', 'hello', 'extra-arg'],
+                ['not a boolean'],
+                'foo',
+                { hi: true },
+                0
+            ],
+        ],
     ];
 
-    describe.each(testCases)('when field type is %s', (type, input, output, invalid) => {
+    describe.each(testCases)('when field type is %s', (type, input, childConfig, output, invalid) => {
         let vector: Vector<any>;
         let expected: any[];
         beforeAll(() => {
             const builder = Builder.make(new WritableData(input.length), {
                 config: { type, array: false },
+                childConfig,
             });
             input.forEach((val) => builder.append(val));
             vector = builder.toVector();
@@ -273,9 +323,10 @@ describe('Vector', () => {
         });
 
         it('should have the correct distinct values', () => {
-            expect(vector.countUnique()).toBe(new Set(
+            const unique = new Set(
                 expected.filter(isNotNil).map(toString)
-            ).size);
+            );
+            expect(vector.countUnique()).toBe(unique.size);
         });
 
         it('should have the correct field config', () => {
@@ -290,7 +341,8 @@ describe('Vector', () => {
                 const builder = Builder.make(new WritableData(invalid.length), {
                     config: {
                         type, array: false
-                    }
+                    },
+                    childConfig
                 });
                 expect(() => {
                     builder.append(val);

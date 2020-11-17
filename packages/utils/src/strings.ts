@@ -231,7 +231,7 @@ const lowerChars = {
     x: true,
     y: true,
     z: true,
-};
+} as const;
 
 const upperChars = {
     A: true,
@@ -260,7 +260,7 @@ const upperChars = {
     X: true,
     Y: true,
     Z: true,
-};
+} as const;
 
 const numChars = {
     0: true,
@@ -273,19 +273,19 @@ const numChars = {
     7: true,
     8: true,
     9: true,
-};
+} as const;
 
 const sepChars = {
     ' ': true,
     _: true,
     '-': true,
-};
+} as const;
 
 const wordChars = {
     ...lowerChars,
     ...upperChars,
     ...numChars,
-};
+} as const;
 
 /**
  * Split a string and get the word parts

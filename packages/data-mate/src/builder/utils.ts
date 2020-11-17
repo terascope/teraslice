@@ -10,7 +10,7 @@ import {
     DateBuilder, FloatBuilder,
     GeoJSONBuilder, GeoPointBuilder, IntBuilder,
     IPBuilder, IPRangeBuilder,
-    ObjectBuilder, StringBuilder
+    ObjectBuilder, StringBuilder, TupleBuilder
 } from './types';
 
 export function getBuildersForConfig<T extends Record<string, any> = Record<string, unknown>>(
@@ -96,6 +96,8 @@ function _newBuilderForType(
             return new GeoJSONBuilder(data, options);
         case FieldType.Object:
             return new ObjectBuilder(data, options);
+        case FieldType.Tuple:
+            return new TupleBuilder(data, options);
         default:
             return new AnyBuilder(data, options);
     }

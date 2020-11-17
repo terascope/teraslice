@@ -60,14 +60,11 @@ export class ObjectBuilder<
         const result: Partial<T> = {};
 
         for (const [field, builder] of this.childFields) {
-            if (input[field] != null) {
-                result[field] = builder.valueFrom(input[field]);
-            } else {
-                result[field] = null as any;
-            }
+            const fieldValue: any = input[field] != null ? builder.valueFrom(input[field]) : null;
+            Object.defineProperty(result, field, { value: fieldValue, writable: false });
         }
 
-        return createObjectValue(result as T);
+        return createObjectValue(result as T, true);
     }
 
     private _getChildName(field: string) {
