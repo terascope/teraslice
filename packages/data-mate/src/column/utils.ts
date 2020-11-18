@@ -1,11 +1,12 @@
 import { v4 as uuid } from 'uuid';
-import { joinList, toString } from '@terascope/utils';
+import { isArrayLike, joinList, toString } from '@terascope/utils';
 import {
     DataTypeFieldConfig, DataTypeFields, Maybe
 } from '@terascope/types';
 import { Builder, copyVectorToBuilder, transformVectorToBuilder } from '../builder';
 import {
-    Vector, isVector, VectorType
+    ListVector,
+    Vector, VectorType
 } from '../vector';
 import { ColumnTransformFn, TransformMode } from './interfaces';
 import { ReadableData, WritableData } from '../core';
@@ -56,9 +57,9 @@ export function mapVector<T, R = T>(
 }
 
 export function mapVectorEach<T, R = T>(
-    vector: Vector<T>,
+    vector: Vector<T>|ListVector<T>,
     builder: Builder<R>,
-    fn: (value: Maybe<T|Vector<T>>) => Maybe<R|Vector<R>>,
+    fn: (value: Maybe<T|readonly Maybe<T>[]>) => Maybe<R|readonly Maybe<R>[]>,
 ): Vector<R> {
     let i = 0;
     for (const value of vector) {
@@ -68,17 +69,17 @@ export function mapVectorEach<T, R = T>(
 }
 
 export function mapVectorEachValue<T, R = T>(
-    vector: Vector<T>,
+    vector: Vector<T>|ListVector<T>,
     builder: Builder<R>,
     fn: (value: T) => Maybe<R>,
 ): Vector<R> {
-    function _mapValue(value: T|Vector<T>): Maybe<R> {
-        if (!isVector<T>(value)) return fn(value);
-        const values: Maybe<R>[] = [];
-        for (const val of value) {
-            values.push(val != null ? fn(val as any) : null);
+    function _mapValue(value: T|readonly Maybe<T>[]): Maybe<R>|readonly Maybe<R>[] {
+        if (isArrayLike<readonly Maybe<T>[]>(value)) {
+            return value.map((v): Maybe<R> => (
+                v != null ? fn(v) : null
+            ));
         }
-        return values as any;
+        return fn(value as T);
     }
 
     return transformVectorToBuilder(vector, builder, _mapValue);

@@ -4,6 +4,7 @@ import {
     freezeObject, ReadableData, WritableData
 } from '../core';
 import {
+    ListVector,
     Vector, VectorType
 } from '../vector';
 
@@ -239,7 +240,7 @@ export interface BuilderOptions {
  * Copy the values from a Vector to a Builder
 */
 export function copyVectorToBuilder<T, R>(
-    vector: Vector<T>,
+    vector: Vector<T>|ListVector<T>,
     builder: Builder<R>,
 ): Vector<R> {
     for (const [i, v] of vector.data.values) {
@@ -252,9 +253,9 @@ export function copyVectorToBuilder<T, R>(
  * Copy the values from a Vector to a Builder
 */
 export function transformVectorToBuilder<T, R>(
-    vector: Vector<T>,
+    vector: Vector<T>|ListVector<T>,
     builder: Builder<R>,
-    transform: (value: T) => Maybe<R>,
+    transform: (value: T|readonly Maybe<T>[]) => Maybe<R>|readonly Maybe<R>[],
 ): Vector<R> {
     for (const [i, v] of vector.data.values) {
         builder.set(i, transform(v));

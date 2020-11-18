@@ -1,7 +1,7 @@
 import {
     DataTypeFieldConfig, DataTypeFields, DataTypeVersion, Maybe
 } from '@terascope/types';
-import { Vector, VectorType } from '../vector';
+import { ListVector, Vector, VectorType } from '../vector';
 
 /**
  * Column options
@@ -78,11 +78,7 @@ export type ColumnTransformFn<
 > = {
     mode: TransformMode.EACH;
     output?: Partial<DataTypeFieldConfig>;
-    fn: (value: Maybe<T|Vector<T>>) => Maybe<R|Vector<R>>;
-}|{
-    mode: TransformMode.EACH_VALUE;
-    output?: Partial<DataTypeFieldConfig>;
-    fn: (value: Maybe<T>) => Maybe<R>;
+    fn: (value: Maybe<T|readonly Maybe<T>[]>) => Maybe<R|readonly Maybe<R>[]>;
 }|{
     mode: TransformMode.EACH_VALUE;
     output?: Partial<DataTypeFieldConfig>;
@@ -102,7 +98,7 @@ export interface ColumnTransformConfig<
     /**
      * A transform function
     */
-    create: (vector: Vector<T>, args: A) => ColumnTransformFn<T, R>;
+    create: (vector: Vector<T>|ListVector<T>, args: A) => ColumnTransformFn<T, R>;
 
     /**
      * The output column options, this will change the values
@@ -118,10 +114,7 @@ export type ColumnValidateFn<
     T,
 > = {
     mode: TransformMode.EACH;
-    fn: (value: Maybe<T|Vector<T>>) => boolean;
-}|{
-    mode: TransformMode.EACH_VALUE;
-    fn: (value: Maybe<T>) => boolean;
+    fn: (value: Maybe<T|readonly Maybe<T>[]>) => boolean;
 }|{
     mode: TransformMode.EACH_VALUE;
     fn: (value: T) => boolean;

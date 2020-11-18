@@ -1,50 +1,38 @@
 import { castArray } from '@terascope/utils';
-import { DataTypeFieldConfig } from '@terascope/types';
-import { Builder, BuilderOptions, copyVectorToBuilder } from './Builder';
-import { Vector, VectorType } from '../vector';
-import { isSameFieldConfig, WritableData } from '../core';
+import { Maybe } from '@terascope/types';
+import { Builder, BuilderOptions } from './Builder';
+import { VectorType } from '../vector';
+import { createArrayValue, WritableData } from '../core';
+import { BuilderWithCache } from './BuilderWithCache';
 
-export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
-    valueConfig: Readonly<DataTypeFieldConfig>;
+export class ListBuilder<T = unknown> extends BuilderWithCache<readonly Maybe<T>[]> {
+    readonly valueBuilder: Builder<T>;
+    readonly convertValue: (value: unknown) => Maybe<T>;
+
     constructor(
-        data: WritableData<Vector<T>>,
+        data: WritableData<readonly Maybe<T>[]>,
         options: BuilderOptions
     ) {
         super(VectorType.List, data, options);
-        this.valueConfig = Object.freeze({
-            ...this.config,
-            array: false,
-        });
-    }
-
-    _valueFrom(values: unknown): Vector<any> {
-        if (values instanceof Vector) {
-            if (isSameFieldConfig(values.config, this.valueConfig)) return values;
-
-            return copyVectorToBuilder(values, Builder.make(
-                new WritableData(values.size),
-                {
-                    childConfig: this.childConfig,
-                    config: this.valueConfig,
-                    name: this.name,
-                }
-            ));
-        }
-
-        const arr = castArray(values);
-        const builder = Builder.make(
-            new WritableData(arr.length),
+        this.valueBuilder = Builder.make<T>(
+            WritableData.emptyData,
             {
                 childConfig: this.childConfig,
-                config: this.valueConfig,
+                config: {
+                    ...this.config,
+                    array: false,
+                },
                 name: this.name,
             }
         );
+        this.convertValue = (value: unknown): Maybe<T> => (
+            value != null ? this.valueBuilder.valueFrom(value) : null
+        );
+    }
 
-        for (const value of arr) {
-            builder.append(value);
-        }
-
-        return builder.toVector();
+    _valueFrom(values: unknown): readonly Maybe<T>[] {
+        return createArrayValue(
+            castArray(values).map(this.convertValue)
+        );
     }
 }

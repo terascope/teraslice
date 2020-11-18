@@ -2,7 +2,7 @@ import {
     FieldType
 } from '@terascope/types';
 import {
-    isNumber, isBigInt, getTypeOf
+    isNumber, isBigInt, getTypeOf, isArrayLike
 } from '@terascope/utils';
 import { ListVector } from './ListVector';
 import {
@@ -101,17 +101,19 @@ export function getNumericValues(value: unknown): {
         return { values: [value], type: 'bigint' };
     }
 
-    if (value instanceof IntVector || value instanceof FloatVector) {
+    if (isArrayLike(value)) {
+        let type: 'number'|'bigint' = 'number';
+        const values: any[] = [];
+        for (const v of value) {
+            if (v == null) continue;
+            if (type === 'number' && isBigInt(v)) {
+                type = 'bigint';
+            }
+            values.push(v);
+        }
         return {
-            values: [...value.data.values.values()],
-            type: 'number'
-        };
-    }
-
-    if (value instanceof BigIntVector) {
-        return {
-            values: [...value.data.values.values()],
-            type: 'bigint'
+            values,
+            type
         };
     }
 

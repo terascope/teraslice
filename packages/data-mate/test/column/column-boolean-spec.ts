@@ -36,7 +36,6 @@ describe('Column (Boolean Types)', () => {
         });
 
         it('should be able to iterate over the values', () => {
-            expect([...col]).toEqual(values);
             expect(col.toJSON()).toEqual(values);
         });
 
@@ -189,7 +188,6 @@ describe('Column (Boolean Types)', () => {
         });
 
         it('should be able to iterate over the values', () => {
-            expect([...col]).not.toEqual(values);
             expect(col.toJSON()).toEqual(values);
         });
 
