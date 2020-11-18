@@ -1,4 +1,4 @@
-import { MACAddress } from '@terascope/types';
+import { MACDelimiter } from '@terascope/types';
 import { isArrayLike } from './arrays';
 import { getTypeOf } from './deps';
 
@@ -85,6 +85,7 @@ export function isPrimitiveValue(value: unknown): boolean {
  * (Does not covert object like entities unless Symbol.toPrimitive is specified)
 */
 export function primitiveToString(value: unknown): string {
+    if (value == null) return '';
     if (!isPrimitiveValue(value)) {
         throw new Error(`Expected ${value} (${getTypeOf(value)}) to be in a string like format`);
     }
@@ -93,13 +94,20 @@ export function primitiveToString(value: unknown): string {
 
 /** safely trim an input */
 export function trim(input: unknown, char = ' '): string {
-    if (char === ' ') return toString(input).trim();
+    if (char === ' ') return primitiveToString(input).trim();
 
     return trimEnd(trimStart(input, char), char);
 }
 
+/** A functional version of trim */
+export function trimFP(char = ' ') {
+    return function _trim(input: unknown): string {
+        return trim(input, char);
+    };
+}
+
 export function trimStart(input: unknown, char = ' '): string {
-    const str = toString(input);
+    const str = primitiveToString(input);
     if (char === ' ') {
         return str.trimStart();
     }
@@ -117,8 +125,15 @@ export function trimStart(input: unknown, char = ' '): string {
     return str.slice(start);
 }
 
+/** A functional version of trimStart */
+export function trimStartFP(char = ' ') {
+    return function _trimStart(input: unknown): string {
+        return trimStart(input, char);
+    };
+}
+
 export function trimEnd(input: unknown, char = ' '): string {
-    const str = toString(input);
+    const str = primitiveToString(input);
     if (char === ' ') {
         return str.trimEnd();
     }
@@ -134,6 +149,13 @@ export function trimEnd(input: unknown, char = ' '): string {
     }
 
     return str.slice(0, end);
+}
+
+/** A functional version of trimStart */
+export function trimEndFP(char = ' ') {
+    return function _trimEnd(input: unknown): string {
+        return trimEnd(input, char);
+    };
 }
 
 /** safely trim and to lower a input, useful for string comparison */
@@ -199,9 +221,35 @@ export function startsWith(str: string, val: string): boolean {
     return str.startsWith(val);
 }
 
-export function truncate(str: string, len: number): string {
+/** A function version of startsWith */
+export function startsWithFP(val: string) {
+    return function _startsWithFP(str: string): boolean {
+        return startsWith(str, val);
+    };
+}
+
+/**
+ * Truncate a string value, by default it will add an ellipsis (...) if truncated.
+*/
+export function truncate(value: string, len: number, ellipsis = true): string {
+    if (!value) return value;
+    if (!isString(value)) {
+        throw new SyntaxError(`Expected string value to truncate, got ${getTypeOf(value)}`);
+    }
+
+    if (!ellipsis) return value.slice(0, len);
+
     const sliceLen = len - 4 > 0 ? len - 4 : len;
-    return str.length >= len ? `${str.slice(0, sliceLen)} ...` : str;
+    return value.length >= len ? `${value.slice(0, sliceLen)} ...` : value;
+}
+
+/**
+ * A functional version of truncate
+*/
+export function truncateFP(len: number, ellipsis = true) {
+    return function _truncateFP(value: string): string {
+        return truncate(value, len, ellipsis);
+    };
 }
 
 const lowerChars = {
@@ -409,37 +457,45 @@ export function getFirstChar(input: string): string {
     return trim(input).charAt(0);
 }
 
-export function isEmail(input: unknown): boolean {
-    // Email Validation as per RFC2822 standards. Straight from .net helpfiles
-    // eslint-disable-next-line
-    const regex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
-    if (isString(input) && input.toLowerCase().match(regex)) return true;
-
-    return false;
+// Email Validation as per RFC2822 standards. Straight from .net helpfiles
+// eslint-disable-next-line
+const EmailRegex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/i;
+export function isEmail(input: unknown): input is string {
+    if (!isString(input)) return false;
+    return EmailRegex.test(input);
 }
 
-export function isMacAddress(input: unknown, args?: MACAddress): boolean {
+const macAddressDelimiters = {
+    colon: /^([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])$/,
+    space: /^([0-9a-fA-F][0-9a-fA-F]\s){5}([0-9a-fA-F][0-9a-fA-F])$/,
+    dash: /^([0-9a-fA-F][0-9a-fA-F]-){5}([0-9a-fA-F][0-9a-fA-F])$/,
+    dot: /^([0-9a-fA-F]{4}\.){2}([0-9a-fA-F]{4})$/,
+    none: /^([0-9a-fA-F]){12}$/
+} as const;
+
+export function isMacAddress(
+    input: unknown, delimiter?: MACDelimiter|MACDelimiter[]
+): input is string {
     if (!isString(input)) return false;
 
-    const delimiters = {
-        colon: /^([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])$/,
-        space: /^([0-9a-fA-F][0-9a-fA-F]\s){5}([0-9a-fA-F][0-9a-fA-F])$/,
-        dash: /^([0-9a-fA-F][0-9a-fA-F]-){5}([0-9a-fA-F][0-9a-fA-F])$/,
-        dot: /^([0-9a-fA-F]{4}\.){2}([0-9a-fA-F]{4})$/,
-        none: /^([0-9a-fA-F]){12}$/
-    };
-
-    const delimiter = args && args.delimiter ? args.delimiter : 'any';
-
-    if (delimiter === 'any') {
-        return Object.keys(delimiters).some((d) => delimiters[d].test(input));
+    if (!delimiter || delimiter === 'any') {
+        return Object.values(macAddressDelimiters).some((d) => d.test(input));
     }
 
     if (Array.isArray(delimiter)) {
-        return delimiter.some((d) => delimiters[d].test(input));
+        return delimiter.some((d) => macAddressDelimiters[d].test(input));
     }
 
-    return delimiters[delimiter].test(input);
+    return macAddressDelimiters[delimiter].test(input);
+}
+
+/**
+ * A functional version of isMacAddress
+*/
+export function isMacAddressFP(args?: MACDelimiter | MACDelimiter[]) {
+    return function _isMacAddressFP(input: unknown): input is string {
+        return isMacAddress(input, args);
+    };
 }
 
 /**

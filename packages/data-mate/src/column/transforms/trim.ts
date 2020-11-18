@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { trim } from '@terascope/utils';
+import { trimFP } from '@terascope/utils';
 import { VectorType } from '../../vector';
 import { ColumnTransformConfig, TransformMode, TransformType } from '../interfaces';
 
@@ -29,9 +29,7 @@ export const trimConfig: ColumnTransformConfig<string, string, TrimArgs> = {
     create(_vector, { char }) {
         return {
             mode: TransformMode.EACH_VALUE,
-            fn(value: string) {
-                return trim(value, char);
-            }
+            fn: trimFP(char)
         };
     },
     description: 'Trim whitespace, or specific character, from the beginning and end of a string',

@@ -6,7 +6,7 @@ import validateCidr from 'is-cidr';
 import PhoneValidator from 'awesome-phonenumber';
 import validator from 'validator';
 import * as url from 'valid-url';
-import { MACAddress, GeoShapePoint } from '@terascope/types';
+import { GeoShapePoint, MACDelimiter } from '@terascope/types';
 
 import {
     FQDNOptions,
@@ -620,6 +620,10 @@ export function isISDN(input: unknown, _parentContext?: unknown): boolean {
     return phoneNumber.isValid();
 }
 
+interface MACAddressArgs {
+    delimiter?: MACDelimiter | MACDelimiter[];
+}
+
 /**
  * Validates that the input is a MacAddress, or a list of MacAddresses
  *
@@ -642,11 +646,15 @@ export function isISDN(input: unknown, _parentContext?: unknown): boolean {
  * @returns {boolean} boolean
  */
 
-export function isMACAddress(input: unknown, _parentContext?: unknown, args?: MACAddress): boolean {
+export function isMACAddress(
+    input: unknown, _parentContext?: unknown, args?: MACAddressArgs
+): boolean {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(handleArgs(ts.isMacAddress), input, _parentContext, args);
+    if (isArray(input)) {
+        return _lift(ts.isMacAddressFP(args?.delimiter), input, _parentContext);
+    }
 
-    return ts.isMacAddress(input, args);
+    return ts.isMacAddress(input, args?.delimiter);
 }
 
 /**
@@ -673,15 +681,9 @@ export function inNumberRange(
 ): boolean {
     if (ts.isNil(input)) return false;
     if (isArray(input)) {
-        const fn = (data: any) => {
-            if (!isNumber(data)) return false;
-            return ts.inNumberRange(data, args);
-        };
-
-        return _lift(fn, input, _parentContext, args);
+        return _lift(ts.inNumberRangeFP(args), input, _parentContext);
     }
 
-    if (!isNumber(input)) return false;
     return ts.inNumberRange(input, args);
 }
 

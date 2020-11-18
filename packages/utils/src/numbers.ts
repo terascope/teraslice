@@ -193,8 +193,24 @@ export function parseNumberList(input: unknown): number[] {
         .filter(isNumber) as number[];
 }
 
-export function inNumberRange(input: number,
-    args: { min?: number; max?: number; inclusive?: boolean }): boolean {
+export interface InNumberRangeArg {
+    min?: number;
+    max?: number;
+    inclusive?: boolean
+}
+
+/**
+ * Returns true if number is between min or max value provided
+ *
+ *  @example
+ *      inNumberRange(42, { min: 0, max: 100}); // true
+ *      inNumberRange(-42, { min:0 , max: 100 }); // false
+ *      inNumberRange(42, { min: 0, max: 42 }); // false
+ *      inNumberRange(42, { min: 0, max: 42, inclusive: true }) // true
+*/
+export function inNumberRange(input: unknown, args: InNumberRangeArg): input is number {
+    if (!isNumber(input)) return false;
+
     const min = args.min ? args.min : -Infinity;
     const max = args.max ? args.max : Infinity;
 
@@ -203,4 +219,10 @@ export function inNumberRange(input: number,
     }
 
     return (input > min && input < max);
+}
+
+export function inNumberRangeFP(args: InNumberRangeArg) {
+    return function _inNumberRangeFP(input: number): input is number {
+        return inNumberRange(input, args);
+    };
 }

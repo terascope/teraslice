@@ -55,6 +55,13 @@ export function match(regexp: string|RegExp, value: string): string | null {
     return results;
 }
 
+/**
+ * A functional version of match
+*/
+export function matchFP(regexp: string|RegExp): (value: string) => string | null {
+    return match.bind(match, regexp);
+}
+
 export function matchAll(regexp: RegExp|string, value: string): string[]|null {
     if (!isRegExpLike(regexp, false)) return null;
 
@@ -74,6 +81,13 @@ export function matchAll(regexp: RegExp|string, value: string): string[]|null {
 
     if (matches.length === 0) return null;
     return matches;
+}
+
+/**
+ * A functional version of matchAll
+*/
+export function matchAllFP(regexp: string|RegExp): (value: string) => string[]|null {
+    return matchAll.bind(matchAll, regexp);
 }
 
 export function isWildCardString(term: string): boolean {
