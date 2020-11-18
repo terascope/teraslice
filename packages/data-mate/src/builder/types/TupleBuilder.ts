@@ -5,13 +5,13 @@ import {
 import {
     createArrayValue, getObjectDataTypeConfig, WritableData
 } from '../../core';
-
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
+import { BuilderWithCache } from '../BuilderWithCache';
 
 type ChildFields = readonly Builder<any>[];
 
-export class TupleBuilder<T extends [...any] = [...any]> extends Builder<T> {
+export class TupleBuilder<T extends [...any] = [...any]> extends BuilderWithCache<T> {
     #childFields?: ChildFields;
 
     constructor(

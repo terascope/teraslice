@@ -1,9 +1,9 @@
 import { DateValue, WritableData } from '../../core';
-
 import { VectorType } from '../../vector';
-import { Builder, BuilderOptions } from '../Builder';
+import { BuilderOptions } from '../Builder';
+import { BuilderWithCache } from '../BuilderWithCache';
 
-export class DateBuilder extends Builder<DateValue> {
+export class DateBuilder extends BuilderWithCache<DateValue> {
     referenceDate = new Date();
 
     constructor(

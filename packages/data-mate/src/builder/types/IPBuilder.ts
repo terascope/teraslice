@@ -1,8 +1,9 @@
 import { VectorType } from '../../vector';
-import { Builder, BuilderOptions } from '../Builder';
+import { BuilderOptions } from '../Builder';
 import { IPValue, WritableData } from '../../core';
+import { BuilderWithCache } from '../BuilderWithCache';
 
-export class IPBuilder extends Builder<IPValue> {
+export class IPBuilder extends BuilderWithCache<IPValue> {
     constructor(
         data: WritableData<IPValue>,
         options: BuilderOptions

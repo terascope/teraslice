@@ -9,7 +9,7 @@ import { WritableData } from './WritableData';
  * A generic readonly optimized view of data used for Vectors.
 */
 export class ReadableData<T> implements Iterable<Maybe<T>> {
-    static emptyData = new ReadableData(WritableData.emptyData);
+    static emptyData = new ReadableData<any>(WritableData.emptyData);
 
     /**
      * The values to value index lookup table

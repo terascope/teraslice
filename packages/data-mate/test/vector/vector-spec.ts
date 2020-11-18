@@ -300,8 +300,8 @@ describe('Vector', () => {
         let expected: any[];
         beforeAll(() => {
             const builder = Builder.make(new WritableData(input.length), {
-                config: { type, array: false },
                 childConfig,
+                config: { type, array: false },
             });
             input.forEach((val) => builder.append(val));
             vector = builder.toVector();

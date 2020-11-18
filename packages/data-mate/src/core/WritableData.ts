@@ -7,7 +7,7 @@ import { ReadonlySparseMap } from './interfaces';
  * This does not handle updating existing indices, so don't do that.
 */
 export class WritableData<T> {
-    static emptyData = new WritableData(0);
+    static emptyData = new WritableData<any>(0);
 
     /**
      * Create an WritableData with a fixed size

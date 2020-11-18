@@ -1,4 +1,3 @@
-import { LRUMap } from 'mnemonist';
 import isIP from 'is-ip';
 import { parse } from 'ip-bigint';
 import {
@@ -6,8 +5,6 @@ import {
     isString,
 } from '@terascope/utils';
 import { HASH_CODE_SYMBOL } from './interfaces';
-
-const cache = new LRUMap<unknown, IPValue>(100_000);
 
 function isValidIP(input: unknown): input is string {
     if (!isString(input)) return false;
@@ -26,15 +23,10 @@ export class IPValue {
     static fromValue(
         value: unknown,
     ): IPValue {
-        const cached = cache.get(value);
-        if (cached) return cached;
-
         if (!isValidIP(value)) {
             throw new TypeError(`Expected ${value} (${getTypeOf(value)}) to be a valid IP`);
         }
-        const ipValue = new IPValue(value);
-        cache.set(value, ipValue);
-        return ipValue;
+        return new IPValue(value);
     }
 
     /**

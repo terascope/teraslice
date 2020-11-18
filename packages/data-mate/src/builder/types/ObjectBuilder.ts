@@ -4,6 +4,7 @@ import { createObjectValue, getObjectDataTypeConfig, WritableData } from '../../
 
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
+import { BuilderWithCache } from '../BuilderWithCache';
 
 type ChildFields<T extends Record<string, any>> = readonly (
     [field: (keyof T), builder: Builder<any>]
@@ -11,7 +12,7 @@ type ChildFields<T extends Record<string, any>> = readonly (
 
 export class ObjectBuilder<
     T extends Record<string, any> = Record<string, any>
-> extends Builder<T> {
+> extends BuilderWithCache<T> {
     #childFields?: ChildFields<T>;
 
     constructor(

@@ -2,13 +2,10 @@ import {
     getValidDate,
     isValidDateInstance, toInteger
 } from '@terascope/utils';
-import { LRUMap } from 'mnemonist';
 import parseDate from 'date-fns/parse';
 import formatDate from 'date-fns/format';
 import { DateFormat } from '@terascope/types';
 import { HASH_CODE_SYMBOL } from './interfaces';
-
-const cache = new LRUMap<string, DateValue>(100_000);
 
 /**
  * The internal date storage format
@@ -20,26 +17,16 @@ export class DateValue {
     static timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
 
     static fromValueToFormat(value: string, format: string, referenceDate: Date): DateValue {
-        const cacheKey = `${value}:${format}`;
-        const cached = cache.get(cacheKey);
-        if (cached) return cached;
-
         const date = parseDate(value, format, referenceDate);
         if (!isValidDateInstance(date)) {
             throw new Error(`Expected value ${value} to be a date string with format ${format}`);
         }
 
         const timeWithOffset = date.getTime() + DateValue.timezoneOffset;
-        const dateValue = new DateValue(timeWithOffset, value);
-        cache.set(cacheKey, dateValue);
-        return dateValue;
+        return new DateValue(timeWithOffset, value);
     }
 
     static fromValueToEpoch(value: Date|string|number): DateValue {
-        const cacheKey = `${value}:${DateFormat.epoch}`;
-        const cached = cache.get(cacheKey);
-        if (cached) return cached;
-
         const epoch = toInteger(value);
         if (epoch === false || epoch < 0) {
             throw new Error(`Expected value ${value} to be a valid time`);
@@ -50,19 +37,13 @@ export class DateValue {
             throw new Error(`Expected value ${value} to be a valid time`);
         }
 
-        const dateValue = new DateValue(epochMillis, epoch);
-        cache.set(cacheKey, dateValue);
-        return dateValue;
+        return new DateValue(epochMillis, epoch);
     }
 
     static fromValue(
         value: string|number|Date,
         defaultFormat?: DateFormat.iso_8601|DateFormat.epoch_millis
     ): DateValue {
-        const cacheKey = `${value}:${defaultFormat}`;
-        const cached = cache.get(cacheKey);
-        if (cached) return cached;
-
         const date = getValidDate(value as any);
         if (date === false) {
             throw new Error(`Expected value ${value} to be a valid date`);
@@ -74,12 +55,10 @@ export class DateValue {
             || defaultFormat === DateFormat.iso_8601
         );
 
-        const dateValue = new DateValue(
+        return new DateValue(
             date.getTime(),
             storeInISO ? date.toISOString() : undefined
         );
-        cache.set(cacheKey, dateValue);
-        return dateValue;
     }
 
     static fromValueWithFormat(

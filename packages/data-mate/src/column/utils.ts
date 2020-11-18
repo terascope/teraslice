@@ -30,8 +30,8 @@ export function mapVector<T, R = T>(
     const builder = Builder.make<R>(
         new WritableData(vector.size),
         {
-            config: { ...vector.config, ...config, ...transform.output },
             childConfig: vector.childConfig,
+            config: { ...vector.config, ...config, ...transform.output },
             name: vector.name,
         },
     );

@@ -1,9 +1,9 @@
 import { ESGeoShapeType, GeoShape, GeoShapeType } from '@terascope/types';
 import { getTypeOf, isGeoJSON, toString } from '@terascope/utils';
 import { createObjectValue, WritableData } from '../../core';
-
 import { VectorType } from '../../vector';
-import { Builder, BuilderOptions } from '../Builder';
+import { BuilderOptions } from '../Builder';
+import { BuilderWithCache } from '../BuilderWithCache';
 
 const esTypeMap = {
     [ESGeoShapeType.Point]: GeoShapeType.Point,
@@ -11,7 +11,7 @@ const esTypeMap = {
     [ESGeoShapeType.Polygon]: GeoShapeType.Polygon,
 } as const;
 
-export class GeoJSONBuilder extends Builder<GeoShape> {
+export class GeoJSONBuilder extends BuilderWithCache<GeoShape> {
     constructor(
         data: WritableData<GeoShape>,
         options: BuilderOptions

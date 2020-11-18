@@ -204,8 +204,8 @@ export class Column<T = unknown, N extends NameType = string> {
         const sortedIndices = this.vector.getSortedIndices(direction);
         const len = sortedIndices.length;
         const builder = Builder.make<T>(new WritableData(len), {
-            config: this.vector.config,
             childConfig: this.vector.childConfig,
+            config: this.vector.config,
             name: this.name as string,
         });
 

@@ -428,8 +428,8 @@ export class DataFrame<
 
         const config: DataTypeFieldConfig = Object.freeze({ type: FieldType.Tuple });
         const builder = Builder.make<V>(new WritableData(this.size), {
-            config,
             childConfig,
+            config,
             name: as as string
         });
 
