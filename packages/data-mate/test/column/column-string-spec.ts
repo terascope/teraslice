@@ -76,6 +76,22 @@ describe('Column (String Types)', () => {
             ]);
         });
 
+        it('should be able to validate using isUUID', () => {
+            const newCol = Column.fromJSON(col.name, col.config, [
+                '0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B',
+                'BAD-UUID',
+                '6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b',
+                null,
+            ]).validate(ColumnValidator.isUUID);
+
+            expect(newCol.toJSON()).toEqual([
+                '0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B',
+                null,
+                '6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b',
+                null,
+            ]);
+        });
+
         it('should be able to validate using isEmail', () => {
             const newCol = Column.fromJSON(col.name, col.config, [
                 'ha3ke5@pawnage.com',
@@ -91,6 +107,22 @@ describe('Column (String Types)', () => {
                 'user@blah.com/junk.junk?a=<tag value="junk"',
                 'email@example.com',
                 null,
+                null,
+                null,
+            ]);
+        });
+
+        it('should be able to transform using isEqual', () => {
+            const newCol = col.validate(ColumnValidator.isEqual, {
+                value: 'Superman'
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual([
+                null,
+                null,
+                'Superman',
                 null,
                 null,
             ]);
