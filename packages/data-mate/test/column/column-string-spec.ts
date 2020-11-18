@@ -57,9 +57,43 @@ describe('Column (String Types)', () => {
         });
 
         it('should be able to validate using isURL', () => {
-            const newCol = col.validate(ColumnValidator.isURL);
-            expect(newCol.id).not.toBe(col.id);
-            expect(newCol.toJSON()).toEqual(values.map(() => null));
+            const newCol = Column.fromJSON(col.name, col.config, [
+                'https://someurl.cc.ru.ch',
+                'ftp://someurl.bom:8080?some=bar&hi=bob',
+                'http://xn--fsqu00a.xn--3lr804guic',
+                'http://example.com',
+                'BAD-URL',
+                null,
+            ]).validate(ColumnValidator.isURL);
+
+            expect(newCol.toJSON()).toEqual([
+                'https://someurl.cc.ru.ch',
+                'ftp://someurl.bom:8080?some=bar&hi=bob',
+                'http://xn--fsqu00a.xn--3lr804guic',
+                'http://example.com',
+                null,
+                null,
+            ]);
+        });
+
+        it('should be able to validate using isEmail', () => {
+            const newCol = Column.fromJSON(col.name, col.config, [
+                'ha3ke5@pawnage.com',
+                'user@blah.com/junk.junk?a=<tag value="junk"',
+                'email@example.com',
+                'email @ example.com',
+                'example.com',
+                null,
+            ]).validate(ColumnValidator.isEmail);
+
+            expect(newCol.toJSON()).toEqual([
+                'ha3ke5@pawnage.com',
+                'user@blah.com/junk.junk?a=<tag value="junk"',
+                'email@example.com',
+                null,
+                null,
+                null,
+            ]);
         });
 
         it('should be able to transform using toUpperCase', () => {
