@@ -38,7 +38,7 @@ describe('Url', () => {
                 function urlBuild() {
                     url.build('');
                 }
-                expect(urlBuild).toThrow('empty url');
+                expect(urlBuild).toThrow('Empty url');
             });
         });
     });

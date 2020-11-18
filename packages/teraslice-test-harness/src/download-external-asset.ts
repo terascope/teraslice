@@ -62,7 +62,9 @@ export default class DownLoadExternalAsset {
         try {
             await decompress(zippedAssetPath, unzippedAsset);
         } catch (err) {
-            throw new Error(`Error unzipping asset: ${assetInfo.asset_string}: ${err}`);
+            throw new TSError(err, {
+                reason: `Failure to unzip asset: ${assetInfo.asset_string}`
+            });
         }
     }
 
@@ -106,7 +108,9 @@ export default class DownLoadExternalAsset {
         try {
             await fs.ensureDir(dirPath);
         } catch (err) {
-            throw new TSError(`Error creating ${dirPath}: ${err}`);
+            throw new TSError(err, {
+                reason: `Failure creating ${dirPath}`
+            });
         }
     }
 

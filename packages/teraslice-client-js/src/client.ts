@@ -64,7 +64,11 @@ export default class Client {
         data?: any
     ): Promise<T> {
         const errorMsg = validateRequestOptions(endpoint, searchOptions);
-        if (errorMsg) return Promise.reject(new TSError(errorMsg));
+        if (errorMsg) {
+            return Promise.reject(new TSError(errorMsg, {
+                statusCode: 422
+            }));
+        }
 
         let options: RequestOptions;
         if (data != null && method.toLowerCase() !== 'get') {
@@ -165,7 +169,7 @@ function makeErrorFromResponse(response: any): OldErrorOutput {
         message = STATUS_CODES[statusCode],
         code = statusCode
     } = stuff;
-    const error: Partial<OldErrorOutput> = new TSError(message);
+    const error: Partial<OldErrorOutput> = new Error(message);
     error.error = code; // for legacy support
     error.code = code;
     error.statusCode = code;

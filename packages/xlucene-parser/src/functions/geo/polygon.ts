@@ -1,5 +1,6 @@
 import * as utils from '@terascope/utils';
 import * as t from '@terascope/types';
+import { toString } from '@terascope/utils';
 import {
     polyHasPoint,
     makeShape,
@@ -98,7 +99,12 @@ const geoPolygon: i.FunctionDefinition = {
                 if (utils.matchWildcard(node.field, key)) results.push(typeConfig[key]);
             }
             const types = utils.uniq(results);
-            if (types.length > 1) throw new utils.TSError(`Cannot query geoPolygon against different field types ${JSON.stringify(types)}`);
+            if (types.length > 1) {
+                throw new utils.TSError(`Invalid geoPolygon query against different field types: ${toString(types)}`, {
+                    context: { safe: true },
+                    statusCode: 400
+                });
+            }
             [type] = types;
         } else {
             type = typeConfig[node.field];

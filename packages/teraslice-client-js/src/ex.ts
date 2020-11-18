@@ -110,10 +110,14 @@ export default class Ex extends Client {
         requestOptions: RequestOptions = {}
     ): Promise<ChangeWorkerResponse | string> {
         if (action == null || workerNum == null) {
-            throw new TSError('changeWorkers requires action and count');
+            throw new TSError('Change workers requires action and count', {
+                statusCode: 400
+            });
         }
         if (!['add', 'remove', 'total'].includes(action)) {
-            throw new TSError('changeWorkers requires action to be one of add, remove, or total');
+            throw new TSError('Change workers requires action to be one of add, remove, or total', {
+                statusCode: 400
+            });
         }
 
         const query = { [action]: workerNum };
@@ -121,7 +125,7 @@ export default class Ex extends Client {
         const options = this.makeOptions(query, requestOptions);
 
         const response = await this.post(`/ex/${this._exId}/_workers`, null, options);
-        // for backwards compatability
+        // for backwards compatibility
         if (typeof response === 'string') {
             try {
                 return this.parse(response);
@@ -197,10 +201,14 @@ export default class Ex extends Client {
 
 function validateExId(exId?: string) {
     if (!exId) {
-        throw new TSError('Ex requires exId');
+        throw new TSError('Ex requires exId', {
+            statusCode: 400
+        });
     }
     if (!isString(exId)) {
-        throw new TSError('Ex requires exId to be a string');
+        throw new TSError('Ex requires exId to be a string', {
+            statusCode: 400
+        });
     }
 }
 

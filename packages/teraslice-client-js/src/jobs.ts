@@ -18,7 +18,11 @@ export default class Jobs extends Client {
     }
 
     async submit(jobSpec: JobConfig, shouldNotStart?: boolean): Promise<Job> {
-        if (!jobSpec) throw new TSError('submit requires a jobSpec');
+        if (!jobSpec) {
+            throw new TSError('Submit requires a jobSpec', {
+                statusCode: 400
+            });
+        }
         const job: JobIDResponse = await this.post('/jobs', jobSpec, {
             searchParams: { start: !shouldNotStart }
         });

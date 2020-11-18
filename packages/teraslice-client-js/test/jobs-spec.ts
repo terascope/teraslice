@@ -71,7 +71,7 @@ describe('Teraslice Jobs', () => {
                     // @ts-expect-error
                     await jobs.submit();
                 } catch (err) {
-                    expect(err.message).toEqual('submit requires a jobSpec');
+                    expect(err.message).toEqual('Submit requires a jobSpec');
                 }
             });
         });

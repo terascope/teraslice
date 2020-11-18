@@ -64,7 +64,7 @@ export function filterBulkRetries<T>(records: T[], result: i.BulkResponse): T[] 
                     retry.push(records[index]);
                 }
             } else if (errorTypes.includes(type)) {
-                const error = new ts.TSError(`${type}--${item.error.reason}`);
+                const error = new Error(`${type}--${item.error.reason}`);
                 Error.captureStackTrace(error, filterBulkRetries);
                 throw error;
             }

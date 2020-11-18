@@ -47,7 +47,9 @@ export default class GithubAsset {
         try {
             await fs.ensureDir(outDir);
         } catch (err) {
-            throw new TSError(`Error creating ${outDir}: ${err}`);
+            throw new TSError(err, {
+                reason: `Failure creating ${outDir}`
+            });
         }
 
         try {

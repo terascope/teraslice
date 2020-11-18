@@ -476,7 +476,7 @@ describe('Teraslice Ex', () => {
                     // @ts-expect-error
                     await ex.changeWorkers();
                 } catch (err) {
-                    expect(err.message).toEqual('changeWorkers requires action and count');
+                    expect(err.message).toEqual('Change workers requires action and count');
                 }
             });
         });
@@ -489,7 +489,7 @@ describe('Teraslice Ex', () => {
                     // @ts-expect-error
                     await ex.changeWorkers('invalid', 2);
                 } catch (err) {
-                    expect(err.message).toEqual('changeWorkers requires action to be one of add, remove, or total');
+                    expect(err.message).toEqual('Change workers requires action to be one of add, remove, or total');
                 }
             });
         });

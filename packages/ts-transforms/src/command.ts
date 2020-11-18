@@ -82,7 +82,7 @@ function getPipedData(): Promise<string> {
     return new Promise((resolve, reject) => {
         let strResults = '';
         if (process.stdin.isTTY) {
-            reject(new TSError('please pipe an elasticsearch response or provide the data parameter -d with path to data file'));
+            reject(new Error('Please pipe an elasticsearch response or provide the data parameter -d with path to data file'));
             return;
         }
         process.stdin.resume();
@@ -140,14 +140,14 @@ function handleParsedData(
 
     if (Array.isArray(data)) return DataEntity.makeArray(data);
 
-    throw new TSError('no data was received to parse');
+    throw new Error('No data was received to parse');
 }
 
 async function getData(dataFilePath?: string) {
     const rawData = dataFilePath ? await dataFileLoader(dataFilePath) : await getPipedData();
     const parsedData = parseData(rawData);
     if (!parsedData) {
-        throw new TSError('could not get data, please provide a data file or pipe an elasticsearch request');
+        throw new Error('Could not get data, please provide a data file or pipe an elasticsearch request');
     }
 
     return handleParsedData(parsedData);
@@ -164,7 +164,7 @@ function parseLine(str: string) {
             if (ignoreErrors === true) {
                 console.error(errorMsg);
             } else {
-                throw new TSError(errorMsg);
+                throw new Error(errorMsg);
             }
         }
     }

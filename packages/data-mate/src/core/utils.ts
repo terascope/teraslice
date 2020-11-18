@@ -1,6 +1,6 @@
 import { createHash } from 'crypto';
 import {
-    getTypeOf, hasOwn, isFunction, isPrimitiveValue
+    getTypeOf, hasOwn, isFunction, isPrimitiveValue, TSError
 } from '@terascope/utils';
 import {
     DataTypeFields, ReadonlyDataTypeFields,
@@ -16,7 +16,7 @@ export function getFieldsFromArg<
     K extends(number|string|symbol)
 >(fields: readonly K[], arg: FieldArg<K>[]): ReadonlySet<K> {
     if (!Array.isArray(arg)) {
-        throw new Error(`Expected field arg, got ${arg} (${getTypeOf(arg)})`);
+        throw new Error(`Expected field arg to an array, got ${arg} (${getTypeOf(arg)})`);
     }
 
     const result = new Set<K>();
@@ -31,7 +31,9 @@ export function getFieldsFromArg<
     }
 
     if (!result.size) {
-        throw new Error('Expected at least one field');
+        throw new TSError('Expected at least one field', {
+            statusCode: 400
+        });
     }
 
     return result;
@@ -42,7 +44,9 @@ function _makeAddFieldsArg<K extends(number|string|symbol)>(
     result: Set<K>,) {
     return function addFieldArg(field: K): void {
         if (!fields.includes(field)) {
-            throw new Error(`Unknown field ${field}`);
+            throw new TSError(`Unknown field ${field}`, {
+                statusCode: 400
+            });
         }
         result.add(field);
     };

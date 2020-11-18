@@ -1,5 +1,7 @@
 import { FieldType } from '@terascope/types';
-import { getTypeOf, isArrayLike, toString } from '@terascope/utils';
+import {
+    getTypeOf, isArrayLike, toString, TSError
+} from '@terascope/utils';
 import {
     createArrayValue, getObjectDataTypeConfig, WritableData
 } from '../../core';
@@ -17,6 +19,12 @@ export class TupleBuilder<T extends [...any] = [...any]> extends Builder<T> {
         options: BuilderOptions
     ) {
         super(VectorType.Tuple, data, options);
+        if (!this.childConfig || !Object.keys(this.childConfig).length) {
+            throw new TSError(`${FieldType.Tuple} field types require at least one field`, {
+                context: { safe: true },
+                statusCode: 400
+            });
+        }
     }
 
     get childFields(): ChildFields {

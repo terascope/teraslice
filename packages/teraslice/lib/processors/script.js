@@ -85,9 +85,8 @@ function newProcessor(context, opConfig) {
             });
 
             childProcess.on('close', (code) => {
-                if (code > 0) {
-                    reject(new TSError('child process non-zero exit'));
-                }
+                if (code === 0) return;
+                reject(new Error('child process non-zero exit'));
             });
 
             childProcess.on('error', (err) => {

@@ -2,7 +2,6 @@ import * as ts from '@terascope/utils';
 import {
     DataTypeFieldConfig, DataTypeFields, DataTypeVersion, FieldType
 } from '@terascope/types';
-import { getLast, toIntegerOrThrow } from '@terascope/utils';
 import { mapping } from './mapping';
 import {
     GroupedFields
@@ -96,8 +95,15 @@ function getTupleType({
 }: GetGroupTypeArg): TupleType {
     const nestedTypes: BaseType[] = [];
 
+    if (!fields.length) {
+        throw new ts.TSError(`${FieldType.Tuple} field types require at least one field`, {
+            context: { safe: true },
+            statusCode: 400
+        });
+    }
+
     fields.forEach(({ field, config }) => {
-        const index = toIntegerOrThrow(getLast(field.split('.')));
+        const index = ts.toIntegerOrThrow(ts.getLast(field.split('.')));
         nestedTypes[index] = getType({
             field,
             config: config || { type: FieldType.Any },
@@ -119,7 +125,7 @@ export function getType({
 }: GetTypeArg): BaseType {
     const TypeClass = ts.get(mapping, [version, config.type]) as IBaseType;
     if (TypeClass == null) {
-        throw new ts.TSError(`Type "${config.type}" was not found in version v${version}`);
+        throw new Error(`Type "${config.type}" was not found in version v${version}`);
     }
     return new TypeClass(field, config);
 }

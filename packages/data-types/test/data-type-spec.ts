@@ -1,5 +1,4 @@
 import 'jest-extended';
-import { TSError } from '@terascope/utils';
 import { DataTypeConfig, FieldType } from '@terascope/types';
 import {
     DataType, LATEST_VERSION
@@ -13,60 +12,44 @@ describe('DataType', () => {
     });
 
     it('should throw when given no version', () => {
-        expect.hasAssertions();
-        try {
+        expect(() => {
             new DataType({
                 // @ts-expect-error
                 version: null,
                 fields: {},
             });
-        } catch (err) {
-            expect(err).toBeInstanceOf(TSError);
-            expect(err.message).toInclude('Missing version in data type config');
-        }
+        }).toThrowError('Missing version in data type config');
     });
 
     it('should throw when given a unknown version', () => {
-        expect.hasAssertions();
-        try {
+        expect(() => {
             new DataType({
                 // @ts-expect-error
                 version: 999,
                 fields: {},
             });
-        } catch (err) {
-            expect(err).toBeInstanceOf(TSError);
-            expect(err.message).toInclude('Unknown data type version 999');
-        }
+        }).toThrowError('Unknown data type version 999');
     });
 
     it('should throw when missing fields', () => {
-        expect.hasAssertions();
-        try {
+        expect(() => {
             new DataType({
                 version: 1,
                 // @ts-expect-error
                 fields: null,
             });
-        } catch (err) {
-            expect(err).toBeInstanceOf(TSError);
-            expect(err.message).toInclude('Invalid fields was specified in data type config');
-        }
+        }).toThrowError('Invalid fields was specified in data type config');
     });
 
     it('should throw when given invalid field type configs', () => {
-        expect.hasAssertions();
-        try {
+        expect(() => {
             new DataType({
                 version: 1,
                 fields: {
                     blah: true,
                 } as any,
             });
-        } catch (err) {
-            expect(err).toBeInstanceOf(TSError);
-            expect(err.message).toInclude('Invalid type config for field "blah" in data type config');
-        }
+        }).toThrowError('Invalid type config for field "blah" in data type config');
     });
 
     it('should work when given a valid config', () => {

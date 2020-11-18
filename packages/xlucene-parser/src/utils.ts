@@ -119,7 +119,10 @@ export function isGroupLike(node: unknown): node is i.GroupLikeAST {
 
 export function validateVariables(obj: xLuceneVariables): xLuceneVariables {
     if (!isPlainObject(obj)) {
-        throw new TSError('Invalid xLuceneVariables configuration provided, it must be an object');
+        throw new TSError('Invalid xLuceneVariables configuration provided, it must be an object', {
+            context: { safe: true },
+            statusCode: 400
+        });
     }
     return { ...obj };
 }

@@ -67,7 +67,7 @@ function callExpression(exp: string, origin: DataEntity) {
         return jexl.evalSync(exp, origin);
     } catch (err) {
         const errMessage = `Invalid jexl expression: ${exp}, error: ${err.message}`;
-        throw new TSError(errMessage);
+        throw new Error(errMessage);
     }
 }
 

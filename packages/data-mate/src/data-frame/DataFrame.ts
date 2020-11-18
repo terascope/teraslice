@@ -2,7 +2,7 @@ import {
     DataTypeConfig, ReadonlyDataTypeConfig,
     Maybe, SortOrder, FieldType, DataTypeFields, DataTypeFieldConfig
 } from '@terascope/types';
-import { isFunction } from '@terascope/utils';
+import { isFunction, TSError } from '@terascope/utils';
 import { Column, KeyAggFn, makeUniqueKeyAgg } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import {
@@ -36,9 +36,7 @@ export class DataFrame<
         options?: DataFrameOptions
     ): DataFrame<R> {
         const columns = distributeRowsToColumns(config, records);
-        return new DataFrame(columns, {
-            ...options,
-        });
+        return new DataFrame(columns, options);
     }
 
     /**
@@ -184,12 +182,14 @@ export class DataFrame<
     orderBy(fieldArg: FieldArg<keyof T>, direction?: SortOrder): DataFrame<T> {
         const fields = getFieldsFromArg(this.fields, [fieldArg]);
         if (fields.size > 1) {
-            throw new Error('DataFrame.orderBy can only works with one field currently');
+            throw new TSError('Order by only works with one field (currently)', {
+                context: { safe: true },
+                statusCode: 400
+            });
         }
 
         const [field] = fields;
-        const sortColumn = this.getColumn(field);
-        if (!sortColumn) throw new Error(`Unknown column ${field}`);
+        const sortColumn = this.getColumn(field)!;
 
         const sortedIndices = sortColumn.vector.getSortedIndices(direction);
 
@@ -298,11 +298,9 @@ export class DataFrame<
 
         const columns = new Map(this.columns.map((col) => [col.name, col]));
         for (const name of fields) {
-            const column = columns.get(name);
+            const column = columns.get(name)!;
             if (column) {
                 keyAggs.set(column.name, makeUniqueKeyAgg(column.vector));
-            } else {
-                throw new Error(`Unknown column ${name}`);
             }
         }
 
@@ -417,8 +415,10 @@ export class DataFrame<
         fields: readonly (keyof T)[],
         as: R
     ): DataFrame<T & Record<R, V>> {
-        if (fields.length < 2) {
-            throw new Error('DataFrame.createTupleFrom requires at least two fields');
+        if (!fields.length) {
+            throw new TSError('Tuples require at least one field', {
+                statusCode: 400
+            });
         }
         const columns = fields.map((field) => this.getColumn(field)!);
         const childConfig: DataTypeFields = {};

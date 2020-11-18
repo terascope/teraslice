@@ -141,7 +141,7 @@ describe('Teraslice Assets', () => {
                     // @ts-expect-error
                     await assets.getAsset();
                 } catch (err) {
-                    expect(err.message).toEqual('name is required, and must be of type string');
+                    expect(err.message).toEqual('Name is required, and must be of type string');
                 }
             });
         });
@@ -153,7 +153,7 @@ describe('Teraslice Assets', () => {
                     // @ts-expect-error
                     await assets.getAsset(1234);
                 } catch (err) {
-                    expect(err.message).toEqual('name is required, and must be of type string');
+                    expect(err.message).toEqual('Name is required, and must be of type string');
                 }
             });
         });
@@ -194,7 +194,7 @@ describe('Teraslice Assets', () => {
                     // @ts-expect-error
                     await assets.getAsset('someName', { some: 'thing' });
                 } catch (err) {
-                    expect(err.message).toEqual('version if provided must be of type string');
+                    expect(err.message).toEqual('Version if provided must be of type string');
                 }
             });
         });
@@ -243,7 +243,7 @@ describe('Teraslice Assets', () => {
                     // @ts-expect-error
                     await assets.txt(1234);
                 } catch (err) {
-                    expect(err.message).toEqual('name must be of type string');
+                    expect(err.message).toEqual('Name must be of type string');
                 }
             });
         });
@@ -284,7 +284,7 @@ describe('Teraslice Assets', () => {
                     // @ts-expect-error
                     await assets.txt('someName', { some: 'thing' });
                 } catch (err) {
-                    expect(err.message).toEqual('version must be of type string');
+                    expect(err.message).toEqual('Version must be of type string');
                 }
             });
         });

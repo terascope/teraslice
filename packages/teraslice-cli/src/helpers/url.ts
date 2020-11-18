@@ -11,7 +11,7 @@ export default class Url {
     build(inUrl: string): string {
         let outUrl = '';
         if (inUrl === '') {
-            throw new TSError('empty url', { statusCode: 400 });
+            throw new TSError('Empty url', { statusCode: 400 });
         }
         if (inUrl.includes(':')) {
             outUrl = this.check(inUrl) ? inUrl : `http://${inUrl}`;
