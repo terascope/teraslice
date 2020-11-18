@@ -6,7 +6,6 @@ import {
     SliceResult,
     ExecutionStats,
     SlicerCore,
-    TSError,
     SlicerRecoveryData,
     times,
     isPlainObject,
@@ -81,7 +80,7 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
      *
      * If the slicers are done, you should expect a null value for every slicer
      *
-     * @param options an optional object of additional configruation
+     * @param options an optional object of additional configuration
      * @param options.fullResponse if specified the full slice result
      * including the slice_id, slicer_id, slicer_order.
      *

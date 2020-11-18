@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import readline from 'readline';
 import {
-    DataEntity, debugLogger, parseList, AnyObject, get, TSError
+    DataEntity, debugLogger, parseList, AnyObject, get
 } from '@terascope/utils';
 import { PhaseManager } from './index';
 import { PhaseConfig } from './interfaces';

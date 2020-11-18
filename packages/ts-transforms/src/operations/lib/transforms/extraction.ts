@@ -1,5 +1,5 @@
 import {
-    DataEntity, matchAll, get, set, TSError
+    DataEntity, matchAll, get, set
 } from '@terascope/utils';
 import jexl from 'jexl';
 import { ExtractionConfig, InputOutputCardinality } from '../../../interfaces';
