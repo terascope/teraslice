@@ -67,7 +67,7 @@
     },
     "devDependencies": {
         "@terascope/teraslice-op-test-harness": "^1.23.0",
-        "archiver": "^5.0.2",
+        "archiver": "^5.1.0",
         "bufferstreams": "^3.0.0",
         "chance": "^1.1.7",
         "elasticsearch": "^15.4.1",

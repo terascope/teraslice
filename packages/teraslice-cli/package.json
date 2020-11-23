@@ -38,7 +38,7 @@
     "dependencies": {
         "@terascope/fetch-github-release": "^0.7.3",
         "@terascope/utils": "^0.32.3",
-        "archiver": "^5.0.2",
+        "archiver": "^5.1.0",
         "chalk": "^4.1.0",
         "cli-table3": "^0.6.0",
         "easy-table": "^1.1.1",
