@@ -41,7 +41,7 @@
         "awesome-phonenumber": "^2.40.0",
         "graphlib": "^2.1.8",
         "jexl": "^2.2.2",
-        "nanoid": "^3.1.16",
+        "nanoid": "^3.1.18",
         "valid-url": "^1.0.9",
         "validator": "^13.1.1",
         "yargs": "^16.1.1"
