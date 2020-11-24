@@ -1341,7 +1341,7 @@ export function guard(input: unknown, _parentContext?: unknown): boolean {
  */
 
 export function exists(input: unknown, _parentContext?: unknown): boolean {
-    return !ts.isNil(input);
+    return ts.isNotNil(input);
 }
 
 /**

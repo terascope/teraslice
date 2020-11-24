@@ -112,6 +112,46 @@ describe('Column (String Types)', () => {
             ]);
         });
 
+        it('should be able to validate using isAlpha', () => {
+            const newCol = Column.fromJSON(col.name, col.config, [
+                'Example',
+                'example123',
+                'foo bar',
+                'ha3ke5@',
+                'example.com',
+                null,
+            ]).validate(ColumnValidator.isAlpha);
+
+            expect(newCol.toJSON()).toEqual([
+                'Example',
+                null,
+                null,
+                null,
+                null,
+                null,
+            ]);
+        });
+
+        it('should be able to validate using isAlphanumeric', () => {
+            const newCol = Column.fromJSON(col.name, col.config, [
+                'Example',
+                'example123',
+                'foo bar',
+                'ha3ke5@',
+                'example.com',
+                null,
+            ]).validate(ColumnValidator.isAlphanumeric);
+
+            expect(newCol.toJSON()).toEqual([
+                'Example',
+                'example123',
+                null,
+                null,
+                null,
+                null,
+            ]);
+        });
+
         it('should be able to validate using isEqual', () => {
             const newCol = col.validate(ColumnValidator.isEqual, {
                 value: 'Superman'
