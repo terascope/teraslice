@@ -1,4 +1,4 @@
-import { Nil } from './interfaces';
+import { Nil } from '@terascope/types';
 
 export function isNil<T>(input: T|Nil): input is Nil {
     return input == null;
@@ -19,4 +19,12 @@ export function isEmpty<T>(val?: T|null|undefined): val is undefined {
     if (typeof val === 'object') return !Object.keys(_val).length;
 
     return true;
+}
+
+type AnyFn = (...args: any[]) => any;
+/**
+ * Curry a function return the negation of the result
+*/
+export function not<T extends AnyFn>(fn: T): T {
+    return ((...args) => !fn(...args)) as T;
 }
