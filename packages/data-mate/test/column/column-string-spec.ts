@@ -112,7 +112,7 @@ describe('Column (String Types)', () => {
             ]);
         });
 
-        it('should be able to transform using isEqual', () => {
+        it('should be able to validate using isEqual', () => {
             const newCol = col.validate(ColumnValidator.isEqual, {
                 value: 'Superman'
             });
@@ -125,6 +125,22 @@ describe('Column (String Types)', () => {
                 'Superman',
                 null,
                 null,
+            ]);
+        });
+
+        it('should be able to transform using cast(array: true)', () => {
+            const newCol = col.transform(ColumnTransform.cast, {
+                array: true
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual({ ...col.config, array: true });
+            expect(newCol.toJSON()).toEqual([
+                ['Batman'],
+                ['Robin'],
+                ['Superman'],
+                null,
+                ['SpiderMan'],
             ]);
         });
 

@@ -73,6 +73,29 @@ describe('Column (Number Types)', () => {
             }));
         });
 
+        it('should be able to transform using cast(type: "Keyword", array: true, description: "foo")', () => {
+            const newCol = col.transform(ColumnTransform.cast, {
+                type: FieldType.Keyword,
+                array: true,
+                description: 'foo'
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual({
+                ...col.config,
+                type: FieldType.Keyword,
+                array: true,
+                description: 'foo'
+            });
+            expect(newCol.toJSON()).toEqual([
+                ['7'],
+                ['2'],
+                ['6'],
+                null,
+                ['4'],
+            ]);
+        });
+
         it('should be able to transform the column using increment', () => {
             const newCol = col.transform(ColumnTransform.increment);
 

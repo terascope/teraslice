@@ -2,6 +2,7 @@
  * Everything in this file should be alphabetically ordered
  * so we can avoid merge conflicts and it is easier to find things
 */
+import { castConfig } from './cast';
 import { decrementConfig } from './decrement';
 import { formatDateConfig } from './formatDate';
 import { incrementConfig } from './increment';
@@ -17,6 +18,7 @@ import { trimStartConfig } from './trimStart';
 import { truncateConfig } from './truncate';
 
 export const ColumnTransform = Object.freeze({
+    cast: castConfig,
     decrement: decrementConfig,
     formatDate: formatDateConfig,
     increment: incrementConfig,
