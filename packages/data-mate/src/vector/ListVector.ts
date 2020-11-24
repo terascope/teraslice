@@ -1,26 +1,38 @@
+import { Maybe } from '@terascope/types';
 import { Vector, VectorOptions } from './Vector';
 import { VectorType } from './interfaces';
 import { ReadableData } from '../core';
 
-export class ListVector<T = unknown> extends Vector<Vector<T>> {
-    static valueToJSON(value: Vector<any>): any {
-        return value.toJSON();
-    }
+export class ListVector<T = unknown> extends Vector<readonly Maybe<T>[]> {
+    readonly convertValueToJSON: (value: Maybe<T>) => any;
+    #_valueVector?: Vector<T>;
 
-    constructor(options: VectorOptions<Vector<T>>) {
-        super(VectorType.List, {
-            valueToJSON: ListVector.valueToJSON,
-            ...options,
-        });
+    constructor(data: ReadableData<readonly Maybe<T>[]>, options: VectorOptions) {
+        super(VectorType.List, data, options);
         this.sortable = false;
+        this.convertValueToJSON = (value: Maybe<T>): any => {
+            if (value == null || !this.valueVector.valueToJSON) return value;
+            return this.valueVector.valueToJSON(value);
+        };
     }
 
-    fork(data: ReadableData<Vector<T>>): ListVector<T> {
-        return new ListVector({
-            valueToJSON: this.valueToJSON,
-            config: this.config,
-            data,
-            childConfig: this.childConfig,
-        });
+    get valueVector(): Vector<T> {
+        if (this.#_valueVector) return this.#_valueVector;
+        this.#_valueVector = Vector.make<T>(
+            ReadableData.emptyData,
+            {
+                childConfig: this.childConfig,
+                config: {
+                    ...this.config,
+                    array: false,
+                },
+                name: this.name,
+            }
+        );
+        return this.#_valueVector;
+    }
+
+    valueToJSON(values: readonly Maybe<T>[]): any {
+        return values.map(this.convertValueToJSON);
     }
 }

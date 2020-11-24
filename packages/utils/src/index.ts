@@ -11,6 +11,7 @@ export * from './dates';
 export * from './decorators';
 export * from './empty';
 export * from './env';
+export * from './equality';
 export * from './errors';
 export * from './functions';
 export * from './geo';

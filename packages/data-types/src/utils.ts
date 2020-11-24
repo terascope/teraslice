@@ -25,27 +25,27 @@ export function joinStrings(...values: ConcatStrType[]): string {
 
 export function validateDataTypeConfig(config: DataTypeConfig): DataTypeConfig {
     if (!config || ts.isEmpty(config)) {
-        throw new ts.TSError('Missing data type config');
+        throw new Error('Missing data type config');
     }
     if (config.version == null) {
-        throw new ts.TSError('Missing version in data type config');
+        throw new Error('Missing version in data type config');
     }
     const version = ts.toInteger(config.version) as DataTypeVersion | false;
     if (!version || mapping[version] == null) {
-        throw new ts.TSError(`Unknown data type version ${version}`);
+        throw new Error(`Unknown data type version ${version}`);
     }
     if (!config.fields || !ts.isPlainObject(config.fields)) {
-        throw new ts.TSError('Invalid fields was specified in data type config');
+        throw new Error('Invalid fields was specified in data type config');
     }
 
     const fields: DataTypeFields = {};
     for (const [_field, typeDef] of Object.entries(config.fields)) {
         const field = _field ? ts.unescapeString(_field).trim() : '';
         if (!field || !validateField(field)) {
-            throw new ts.TSError(`Invalid field "${field}" in data type config`);
+            throw new Error(`Invalid field "${field}" in data type config`);
         }
         if (!typeDef || !ts.isPlainObject(typeDef) || !typeDef.type) {
-            throw new ts.TSError(`Invalid type config for field "${field}" in data type config`);
+            throw new Error(`Invalid type config for field "${field}" in data type config`);
         }
         fields[field] = typeDef;
     }

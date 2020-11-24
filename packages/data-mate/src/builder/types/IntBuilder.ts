@@ -8,31 +8,28 @@ export const INT_SIZES = {
     [FieldType.Byte]: { min: -128, max: 127 },
     [FieldType.Short]: { min: -32_768, max: 32_767 },
     [FieldType.Integer]: { min: -(2 ** 31), max: (2 ** 31) - 1 },
-};
+} as const;
 
 export class IntBuilder extends Builder<number> {
-    static valueFrom(value: unknown, thisArg?: IntBuilder): number {
-        const fieldType = thisArg?.config.type as FieldType|undefined;
+    constructor(
+        data: WritableData<number>,
+        options: BuilderOptions
+    ) {
+        super(VectorType.Int, data, options);
+    }
+
+    _valueFrom(value: unknown): number {
+        const fieldType = this.config.type as FieldType;
         const int = toIntegerOrThrow(value);
-        if (fieldType && INT_SIZES[fieldType]) {
+        if (INT_SIZES[fieldType]) {
             const { max, min } = INT_SIZES[fieldType];
             if (int > max) {
-                throw new TypeError(`${int} greater than maximum size of ${max} for ${fieldType}`);
+                throw new TypeError(`${fieldType} value of ${int} is greater than maximum size of ${max}`);
             }
             if (int < min) {
-                throw new TypeError(`${int} greater than minimum size of ${min} for ${fieldType}`);
+                throw new TypeError(`${fieldType} value of ${int} is less than minimum size of ${min}`);
             }
         }
         return int;
-    }
-
-    constructor(
-        data: WritableData<number>,
-        options: BuilderOptions<number>
-    ) {
-        super(VectorType.Int, data, {
-            valueFrom: IntBuilder.valueFrom,
-            ...options,
-        });
     }
 }

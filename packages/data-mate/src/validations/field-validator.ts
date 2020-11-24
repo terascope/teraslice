@@ -1,13 +1,12 @@
 import * as ts from '@terascope/utils';
 import ipaddr from 'ipaddr.js';
-import { isIP as checkIP, isIPv6 } from 'net';
-// @ts-expect-error
+import _isIP from 'is-ip';
 import ip6addr from 'ip6addr';
 import validateCidr from 'is-cidr';
 import PhoneValidator from 'awesome-phonenumber';
 import validator from 'validator';
 import * as url from 'valid-url';
-import { MACAddress, GeoShapePoint } from '@terascope/types';
+import { GeoShapePoint, MACDelimiter } from '@terascope/types';
 
 import {
     FQDNOptions,
@@ -440,14 +439,14 @@ export function isGeoShapeMultiPolygon(input: unknown, _parentContext?: unknown)
 
 export function isIP(input: unknown, _parentContext?: unknown): input is string {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(_isIp, input, _parentContext);
+    if (isArray(input)) return _lift(isValidIP, input, _parentContext);
 
-    return _isIp(input);
+    return isValidIP(input);
 }
 
-function _isIp(input: unknown, _parentContext?: unknown) {
+function isValidIP(input: unknown, _parentContext?: unknown) {
     if (!ts.isString(input)) return false;
-    if (checkIP(input) === 0) return false;
+    if (!_isIP(input)) return false;
 
     // needed to check for inputs like - '::192.168.1.18'
     if (input.includes(':') && input.includes('.')) return false;
@@ -580,11 +579,11 @@ function _inIPRange(input: unknown, args: { min?: string; max?: string; cidr?: s
 
     // assign upper/lower bound even if min or max is missing
     let { min, max } = args;
-    if (!min) min = isIPv6(input) ? MIN_IPV6_IP : MIN_IPV4_IP;
-    if (!max) max = isIPv6(input) ? MAX_IPV6_IP : MAX_IPV4_IP;
+    if (!min) min = _isIP.v6(input) ? MIN_IPV6_IP : MIN_IPV4_IP;
+    if (!max) max = _isIP.v6(input) ? MAX_IPV6_IP : MAX_IPV4_IP;
 
     // min and max must be valid ips, same IP type, and min < max
-    if (!isIP(min) || !isIP(max) || isIPv6(min) !== isIPv6(max)
+    if (!isIP(min) || !isIP(max) || _isIP.v6(min) !== _isIP.v6(max)
         || ip6addr.compare(max, min) === -1) {
         return false;
     }
@@ -621,6 +620,10 @@ export function isISDN(input: unknown, _parentContext?: unknown): boolean {
     return phoneNumber.isValid();
 }
 
+interface MACAddressArgs {
+    delimiter?: MACDelimiter | MACDelimiter[];
+}
+
 /**
  * Validates that the input is a MacAddress, or a list of MacAddresses
  *
@@ -643,11 +646,15 @@ export function isISDN(input: unknown, _parentContext?: unknown): boolean {
  * @returns {boolean} boolean
  */
 
-export function isMACAddress(input: unknown, _parentContext?: unknown, args?: MACAddress): boolean {
+export function isMACAddress(
+    input: unknown, _parentContext?: unknown, args?: MACAddressArgs
+): boolean {
     if (ts.isNil(input)) return false;
-    if (isArray(input)) return _lift(handleArgs(ts.isMacAddress), input, _parentContext, args);
+    if (isArray(input)) {
+        return _lift(ts.isMacAddressFP(args?.delimiter), input, _parentContext);
+    }
 
-    return ts.isMacAddress(input, args);
+    return ts.isMacAddress(input, args?.delimiter);
 }
 
 /**
@@ -674,15 +681,9 @@ export function inNumberRange(
 ): boolean {
     if (ts.isNil(input)) return false;
     if (isArray(input)) {
-        const fn = (data: any) => {
-            if (!isNumber(data)) return false;
-            return ts.inNumberRange(data, args);
-        };
-
-        return _lift(fn, input, _parentContext, args);
+        return _lift(ts.inNumberRangeFP(args), input, _parentContext);
     }
 
-    if (!isNumber(input)) return false;
     return ts.inNumberRange(input, args);
 }
 
@@ -1340,7 +1341,7 @@ export function guard(input: unknown, _parentContext?: unknown): boolean {
  */
 
 export function exists(input: unknown, _parentContext?: unknown): boolean {
-    return !ts.isNil(input);
+    return ts.isNotNil(input);
 }
 
 /**
@@ -1355,8 +1356,7 @@ export function exists(input: unknown, _parentContext?: unknown): boolean {
  */
 
 export function isArray(input: unknown, _parentContext?: unknown): input is any[] {
-    if (Array.isArray(input)) return true;
-    return false;
+    return ts.isArrayLike(input);
 }
 
 /**

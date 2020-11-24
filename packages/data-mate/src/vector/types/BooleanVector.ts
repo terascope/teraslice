@@ -3,15 +3,9 @@ import { VectorType } from '../interfaces';
 import { ReadableData } from '../../core';
 
 export class BooleanVector extends Vector<boolean> {
-    constructor(options: VectorOptions<boolean>) {
-        super(VectorType.Boolean, options);
-    }
+    valueToJSON = undefined;
 
-    fork(data: ReadableData<boolean>): BooleanVector {
-        return new BooleanVector({
-            valueToJSON: this.valueToJSON,
-            config: this.config,
-            data,
-        });
+    constructor(data:ReadableData<boolean>, options: VectorOptions) {
+        super(VectorType.Boolean, data, options);
     }
 }

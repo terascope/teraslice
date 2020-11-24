@@ -52,11 +52,8 @@ export function concatColumnsToColumns<T extends Record<string, any>>(
     for (const [field, builder] of builders) {
         const col = columns.find(((c) => c.name === field));
         if (col) {
-            for (const value of col.vector.data.values) {
-                builder.mset(
-                    value.v,
-                    value.i.map((i) => offset + i),
-                );
+            for (const [i, v] of col.vector.data.values) {
+                builder.set(i + offset, v);
             }
         }
     }
@@ -107,13 +104,15 @@ export function processFieldFilter(
     indices: Set<number>,
     column: Column<any>,
     filter: (value: any) => boolean,
+    json: boolean
 ): void {
-    function add(index: number) { indices.add(index); }
-    function remove(index: number) { indices.delete(index); }
-    for (const v of column.vector.data.values) {
-        v.i.forEach(
-            filter(v.v) ? add : remove
-        );
+    function getValue(v: any): any {
+        if (!json || !column.vector.valueToJSON) return v;
+        return column.vector.valueToJSON(v);
+    }
+    for (const [i, v] of column.vector.data.values) {
+        if (filter(getValue(v))) indices.add(i);
+        else indices.delete(i);
     }
 }
 
@@ -137,6 +136,14 @@ export function createColumnsWithIndices<T extends Record<string, any>>(
         return col.fork(builders.get(col.name)!.toVector());
     }
     return columns.map(finish);
+}
+
+export function* indicesFilterIterable(
+    n: number, fn: (index: number) => boolean
+): Iterable<number> {
+    for (let i = 0; i < n; i++) {
+        if (fn(i)) yield i;
+    }
 }
 
 export function makeUniqueRowBuilder<T extends Record<string, any>>(

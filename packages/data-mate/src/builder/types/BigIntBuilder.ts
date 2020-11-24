@@ -4,17 +4,12 @@ import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
 
 export class BigIntBuilder extends Builder<bigint> {
-    static valueFrom(value: unknown): bigint {
-        return toBigIntOrThrow(value);
-    }
+    _valueFrom = toBigIntOrThrow;
 
     constructor(
         data: WritableData<bigint>,
-        options: BuilderOptions<bigint>
+        options: BuilderOptions
     ) {
-        super(VectorType.BigInt, data, {
-            valueFrom: BigIntBuilder.valueFrom,
-            ...options,
-        });
+        super(VectorType.BigInt, data, options);
     }
 }

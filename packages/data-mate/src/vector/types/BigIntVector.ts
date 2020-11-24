@@ -4,22 +4,9 @@ import { VectorType } from '../interfaces';
 import { ReadableData } from '../../core';
 
 export class BigIntVector extends Vector<bigint> {
-    static valueToJSON(value: bigint): any {
-        return bigIntToJSON(value);
-    }
+    valueToJSON = bigIntToJSON;
 
-    constructor(options: VectorOptions<bigint>) {
-        super(VectorType.BigInt, {
-            valueToJSON: BigIntVector.valueToJSON,
-            ...options,
-        });
-    }
-
-    fork(data: ReadableData<bigint>): BigIntVector {
-        return new BigIntVector({
-            valueToJSON: this.valueToJSON,
-            config: this.config,
-            data,
-        });
+    constructor(data: ReadableData<bigint>, options: VectorOptions) {
+        super(VectorType.BigInt, data, options);
     }
 }

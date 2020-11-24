@@ -1,8 +1,10 @@
 import { DataTypeFieldConfig, DataTypeFields, Maybe } from '@terascope/types';
+import { TSError, toString, getTypeOf } from '@terascope/utils';
 import {
-    freezeObject, ReadableData, WritableData, TypedArray
+    freezeObject, ReadableData, WritableData
 } from '../core';
 import {
+    ListVector,
     Vector, VectorType
 } from '../vector';
 
@@ -15,13 +17,12 @@ export abstract class Builder<T = unknown> {
      * Make a instance of a Builder from a DataTypeField config
     */
     static make<R = unknown>(
-        config: DataTypeFieldConfig,
         data: WritableData<R>,
-        childConfig?: DataTypeFields,
+        options: BuilderOptions,
     ): Builder<R> {
         throw new Error(
             `This will functionality replaced in the index file
-            ${config} ${length} ${data} ${childConfig}`
+            ${options} ${length} ${data}`
         );
     }
 
@@ -35,9 +36,12 @@ export abstract class Builder<T = unknown> {
     ): Builder<R> {
         const data = vector.data.toWritable(size);
         const builder = Builder.make<R>(
-            vector.config,
             data,
-            vector.childConfig,
+            {
+                childConfig: vector.childConfig,
+                config: vector.config,
+                name: vector.name,
+            },
         );
         builder.currentIndex = vector.data.size;
         return builder;
@@ -54,12 +58,6 @@ export abstract class Builder<T = unknown> {
     readonly config: Readonly<DataTypeFieldConfig>;
 
     /**
-     * A function for converting a value to an JSON spec compatible format.
-     * This is specific on the vector type classes via a static method usually.
-    */
-    readonly valueFrom?: ValueFromFn<T>;
-
-    /**
      * When Vector is an object type, this will be the data type fields
      * for the object
     */
@@ -69,6 +67,11 @@ export abstract class Builder<T = unknown> {
      * @internal
     */
     readonly data: WritableData<T>;
+
+    /**
+     * The name of field, if specified this will just be used for metadata
+    */
+    readonly name?: string;
 
     /**
      * The current insertion index (used for append)
@@ -81,16 +84,55 @@ export abstract class Builder<T = unknown> {
          */
         type: VectorType,
         data: WritableData<T>,
-        {
-            config, valueFrom, childConfig
-        }: BuilderOptions<T>,
+        options: BuilderOptions,
     ) {
+        this.name = options.name;
         this.type = type;
-        this.config = freezeObject(config);
-        this.valueFrom = valueFrom;
-        this.childConfig = childConfig ? freezeObject(childConfig) : undefined;
+        this.config = freezeObject(options.config);
+        this.childConfig = options.childConfig ? freezeObject(options.childConfig) : undefined;
         this.data = data;
         this.currentIndex = 0;
+    }
+
+    /**
+     * Convert a value to the internal in-memory storage format for the Vector
+    */
+    abstract _valueFrom(value: unknown): T;
+
+    /**
+     * Convert a value to the internal in-memory storage format for the Vector
+    */
+    valueFrom(
+        value: unknown,
+        indices?: number|Iterable<number>,
+    ): T {
+        try {
+            return this._valueFrom(value);
+        } catch (err) {
+            this._throwValueFromError(err, value, indices);
+        }
+    }
+
+    private _throwValueFromError(
+        _err: unknown,
+        value: unknown,
+        indices?: number|Iterable<number>,
+    ): never {
+        let err = _err as any;
+        if (typeof err?.message !== 'string') {
+            err = new TSError(err);
+        }
+        if (err._added_value_from_context) throw err;
+
+        const colInfo = `field: ${this.name || '<undefined>'}[${indices ?? 0}]`;
+        const valInfo = `value: ${toString(value)}, type_of_value: ${getTypeOf(value)})`;
+        const dataTypeInfo = `field_config: ${toString(this.config)}`;
+        err.message += `; _debug_(${[colInfo, valInfo, dataTypeInfo].join(', ')})`;
+        Object.defineProperty(err, '_added_value_from_context', {
+            enumerable: false,
+            value: true
+        });
+        throw err;
     }
 
     /**
@@ -99,17 +141,20 @@ export abstract class Builder<T = unknown> {
     set(index: number, value: unknown): Builder<T> {
         if (value == null) return this;
 
-        this.data.set(index, this._valueFrom(value));
+        this.data.set(index, this.valueFrom(value, index));
         return this;
     }
 
     /**
      * Set a single unique value on multiple indices
     */
-    mset(value: unknown, indices: readonly number[]|TypedArray): Builder<T> {
+    mset(value: unknown, indices: Iterable<number>): Builder<T> {
         if (value == null) return this;
 
-        this.data.mset(this._valueFrom(value), indices);
+        const val = this.valueFrom(value, indices);
+        for (const index of indices) {
+            this.data.set(index, val);
+        }
         return this;
     }
 
@@ -125,9 +170,12 @@ export abstract class Builder<T = unknown> {
     */
     toVector(): Vector<T> {
         const vector = Vector.make(
-            this.config,
             new ReadableData(this.data),
-            this.childConfig
+            {
+                childConfig: this.childConfig,
+                config: this.config,
+                name: this.name,
+            }
         );
 
         this.data.reset();
@@ -135,9 +183,24 @@ export abstract class Builder<T = unknown> {
         return vector;
     }
 
-    _valueFrom(value: unknown): T|null {
-        if (!this.valueFrom) return value as T;
-        return this.valueFrom(value, this);
+    [Symbol.for('nodejs.util.inspect.custom')](): any {
+        const proxy = {
+            name: this.name,
+            type: this.type,
+            config: this.config,
+            childConfig: this.childConfig,
+            size: this.data.size,
+            currentIndex: this.currentIndex,
+            values: this.data.values
+        };
+
+        // Trick so that node displays the name of the constructor
+        Object.defineProperty(proxy, 'constructor', {
+            value: this.constructor,
+            enumerable: false
+        });
+
+        return proxy;
     }
 }
 
@@ -151,33 +214,37 @@ export function isBuilder<T>(input: unknown): input is Builder<T> {
 /**
  * Coerce a value so it can be stored in the builder
 */
-export type ValueFromFn<T> = (
-    value: unknown,
-    thisArg: Builder<T>,
-) => T;
+export type ValueFromFn<T> = (value: unknown) => T;
 
 /**
  * A list of Builder Options
  */
-export interface BuilderOptions<T> {
-    config: DataTypeFieldConfig|Readonly<DataTypeFieldConfig>;
-
-    valueFrom?: ValueFromFn<T>;
+export interface BuilderOptions {
     /**
      * The type config for any nested fields (currently only works for objects)
     */
     childConfig?: DataTypeFields;
+
+    /**
+     * The field config
+    */
+    config: DataTypeFieldConfig|Readonly<DataTypeFieldConfig>;
+
+    /**
+     * The name of field, if specified this will just be used for metadata
+    */
+    name?: string;
 }
 
 /**
  * Copy the values from a Vector to a Builder
 */
 export function copyVectorToBuilder<T, R>(
-    vector: Vector<T>,
+    vector: Vector<T>|ListVector<T>,
     builder: Builder<R>,
 ): Vector<R> {
-    for (const value of vector.data.values) {
-        builder.mset(value.v, value.i);
+    for (const [i, v] of vector.data.values) {
+        builder.set(i, v);
     }
     return builder.toVector();
 }
@@ -186,12 +253,12 @@ export function copyVectorToBuilder<T, R>(
  * Copy the values from a Vector to a Builder
 */
 export function transformVectorToBuilder<T, R>(
-    vector: Vector<T>,
+    vector: Vector<T>|ListVector<T>,
     builder: Builder<R>,
-    transform: (value: T) => Maybe<R>,
+    transform: (value: T|readonly Maybe<T>[]) => Maybe<R>|readonly Maybe<R>[],
 ): Vector<R> {
-    for (const value of vector.data.values) {
-        builder.mset(transform(value.v), value.i);
+    for (const [i, v] of vector.data.values) {
+        builder.set(i, transform(v));
     }
     return builder.toVector();
 }

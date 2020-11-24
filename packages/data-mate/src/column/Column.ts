@@ -1,6 +1,6 @@
 import { LATEST_VERSION } from '@terascope/data-types';
 import {
-    DataTypeFieldConfig, Maybe, DataTypeVersion, SortOrder
+    DataTypeFieldConfig, Maybe, DataTypeVersion, SortOrder, DataTypeFields
 } from '@terascope/types';
 import { Builder } from '../builder';
 import {
@@ -13,8 +13,9 @@ import { runVectorAggregation, ValueAggregation } from './aggregations';
 import {
     getVectorId, mapVector, validateFieldTransformArgs, validateFieldTransformType
 } from './utils';
-import { WritableData } from '../core';
+import { ReadableData, WritableData } from '../core';
 
+type NameType = (number|string|symbol);
 /**
  * A single column of values with the same data type.
  *
@@ -23,16 +24,22 @@ import { WritableData } from '../core';
  *
  * @todo add pipeline that will do a chain of validators/transformations
 */
-export class Column<T = unknown, N extends (number|string|symbol) = string> {
+export class Column<T = unknown, N extends NameType = string> {
     /**
      * Create a Column from an array of values
     */
-    static fromJSON<R, F extends(number|string|symbol) = string>(
+    static fromJSON<R, F extends NameType = string>(
         name: F,
         config: Readonly<DataTypeFieldConfig>,
         values: Maybe<R>[]|readonly Maybe<R>[] = [],
-        version?: DataTypeVersion): Column<R extends (infer U)[] ? Vector<U> : R, F> {
-        const builder = Builder.make<R>(config, WritableData.make(values.length));
+        version?: DataTypeVersion,
+        childConfig?: DataTypeFields|Readonly<DataTypeFields>
+    ): Column<R extends (infer U)[] ? Vector<U> : R, F> {
+        const builder = Builder.make<R>(new WritableData(values.length), {
+            childConfig,
+            config,
+            name: name as string,
+        });
 
         values.forEach((val) => builder.append(val));
 
@@ -51,12 +58,12 @@ export class Column<T = unknown, N extends (number|string|symbol) = string> {
     */
     readonly version: DataTypeVersion;
 
-    protected readonly _vector: Vector<T>;
+    readonly vector: Vector<T>;
 
     constructor(vector: Vector<T>, options: ColumnOptions<N>|Readonly<ColumnOptions<N>>) {
+        this.vector = vector;
         this.name = options.name;
         this.version = options.version ?? LATEST_VERSION;
-        this._vector = vector;
     }
 
     /**
@@ -64,7 +71,7 @@ export class Column<T = unknown, N extends (number|string|symbol) = string> {
      * And may not be compatible with the JSON spec.
     */
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
-        yield* this._vector;
+        yield* this.vector;
     }
 
     /**
@@ -72,36 +79,31 @@ export class Column<T = unknown, N extends (number|string|symbol) = string> {
      * The ID should only change if the data vector changes.
     */
     get id(): string {
-        return getVectorId(this._vector);
+        return getVectorId(this.vector);
     }
 
     /**
      * Get the size of the column
     */
     get size(): number {
-        return this._vector.size;
-    }
-
-    /**
-     * Get the underling Vector.
-    */
-    get vector(): Vector<T> {
-        return this._vector;
+        return this.vector.size;
     }
 
     /**
      * Get the Data Type field configuration.
     */
     get config(): Readonly<DataTypeFieldConfig> {
-        return this._vector.config;
+        return this.vector.config;
     }
 
     /**
      * Rename the column
     */
-    rename<K extends(number|string|symbol)>(name: K): Column<T, K> {
-        const col = this.fork(this._vector) as unknown as Column<T, K>;
+    rename<K extends NameType>(name: K): Column<T, K> {
+        const col = this.fork(this.vector.fork(this.vector.data)) as unknown as Column<T, K>;
         col.name = name;
+        // @ts-expect-error
+        col.vector.name = name as string;
         return col;
     }
 
@@ -126,7 +128,7 @@ export class Column<T = unknown, N extends (number|string|symbol) = string> {
     ): Column<R, N> {
         validateFieldTransformType(
             transformConfig.accepts,
-            this._vector
+            this.vector
         );
         validateFieldTransformArgs<A>(
             transformConfig.argument_schema,
@@ -164,7 +166,7 @@ export class Column<T = unknown, N extends (number|string|symbol) = string> {
     ): Column<T, N> {
         validateFieldTransformType(
             validateConfig.accepts,
-            this._vector
+            this.vector
         );
         validateFieldTransformArgs<A>(
             validateConfig.argument_schema,
@@ -199,15 +201,17 @@ export class Column<T = unknown, N extends (number|string|symbol) = string> {
      * Sort the column
     */
     sort(direction?: SortOrder): Column<T, N> {
-        const sortedIndices = this._vector.getSortedIndices(direction);
+        const sortedIndices = this.vector.getSortedIndices(direction);
         const len = sortedIndices.length;
-        const builder = Builder.make<T>(
-            this.config, WritableData.make(len), this.vector.childConfig
-        );
+        const builder = Builder.make<T>(new WritableData(len), {
+            childConfig: this.vector.childConfig,
+            config: this.vector.config,
+            name: this.name as string,
+        });
 
         for (let i = 0; i < len; i++) {
             const moveTo = sortedIndices[i];
-            const val = this._vector.get(i);
+            const val = this.vector.get(i);
             builder.set(moveTo, val);
         }
 
@@ -215,31 +219,45 @@ export class Column<T = unknown, N extends (number|string|symbol) = string> {
     }
 
     /**
+     * Get the unique values. This doesn't change the
+     * the size, it just drops the duplicate values.
+     * @example
+     *   [null, 1, 3, 2, 2, null, 1] => [null, 1, 3, 2, null, null, null]
+    */
+    unique(): Column<T, N> {
+        const writable = new WritableData<T>(this.size);
+        for (const [index, value] of this.vector.unique()) {
+            writable.set(index, value);
+        }
+        return this.fork(this.vector.fork(new ReadableData(writable)));
+    }
+
+    /**
      * Average all of the values in the Column
     */
     avg(): number|bigint {
-        return runVectorAggregation(this._vector, ValueAggregation.avg);
+        return runVectorAggregation(this.vector, ValueAggregation.avg);
     }
 
     /**
      * Sum all of the values in the Column
     */
     sum(): number|bigint {
-        return runVectorAggregation(this._vector, ValueAggregation.sum);
+        return runVectorAggregation(this.vector, ValueAggregation.sum);
     }
 
     /**
      * Find the minimum value in the Column
     */
     min(): number|bigint {
-        return runVectorAggregation(this._vector, ValueAggregation.min);
+        return runVectorAggregation(this.vector, ValueAggregation.min);
     }
 
     /**
      * Find the maximum value in the Column
     */
     max(): number|bigint {
-        return runVectorAggregation(this._vector, ValueAggregation.max);
+        return runVectorAggregation(this.vector, ValueAggregation.max);
     }
 
     /**
@@ -248,6 +266,24 @@ export class Column<T = unknown, N extends (number|string|symbol) = string> {
      * @note probably only useful for debugging
     */
     toJSON(): Maybe<JSONValue<T>>[] {
-        return this._vector.toJSON();
+        return this.vector.toJSON();
+    }
+
+    [Symbol.for('nodejs.util.inspect.custom')](): any {
+        const proxy = {
+            id: this.id,
+            name: this.name,
+            vector: this.vector,
+            config: this.config,
+            size: this.size,
+        };
+
+        // Trick so that node displays the name of the constructor
+        Object.defineProperty(proxy, 'constructor', {
+            value: Column,
+            enumerable: false
+        });
+
+        return proxy;
     }
 }

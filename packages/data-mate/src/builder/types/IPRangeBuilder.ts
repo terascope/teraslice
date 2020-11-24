@@ -10,20 +10,17 @@ function isValidIPRange(input: unknown): input is string {
 }
 
 export class IPRangeBuilder extends Builder<string> {
-    static valueFrom(value: unknown): string {
+    constructor(
+        data: WritableData<string>,
+        options: BuilderOptions
+    ) {
+        super(VectorType.IPRange, data, options);
+    }
+
+    _valueFrom(value: unknown): string {
         if (!isValidIPRange(value)) {
             throw new TypeError(`Expected ${value} (${getTypeOf(value)}) to be a valid IP range`);
         }
         return value;
-    }
-
-    constructor(
-        data: WritableData<string>,
-        options: BuilderOptions<string>
-    ) {
-        super(VectorType.IPRange, data, {
-            valueFrom: IPRangeBuilder.valueFrom,
-            ...options,
-        });
     }
 }

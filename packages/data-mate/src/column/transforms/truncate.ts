@@ -1,9 +1,10 @@
 import { FieldType } from '@terascope/types';
+import { truncateFP } from '@terascope/utils';
 import { VectorType } from '../../vector';
 import { ColumnTransformConfig, TransformMode, TransformType } from '../interfaces';
 
 type TruncateArgs = {
-    size?: number;
+    size: number;
 };
 
 /**
@@ -21,9 +22,7 @@ export const truncateConfig: ColumnTransformConfig<string, string, TruncateArgs>
     create(_vector, { size }) {
         return {
             mode: TransformMode.EACH_VALUE,
-            fn(value: string) {
-                return value.slice(0, size);
-            }
+            fn: truncateFP(size, false)
         };
     },
     description: 'Constrain a string to specific size',

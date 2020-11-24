@@ -10,3 +10,4 @@ export * from './IPVector';
 export * from './IPRangeVector';
 export * from './ObjectVector';
 export * from './StringVector';
+export * from './TupleVector';

@@ -900,7 +900,7 @@ module.exports = function elasticsearchApi(client = {}, logger, _opConfig) {
             .then((_count) => {
                 if (docCount !== _count) {
                     const errMsg = `reindex error, index: ${migrantIndexName} only has ${_count} docs, expected ${docCount} from index: ${index}`;
-                    return Promise.reject(new TSError(errMsg));
+                    return Promise.reject(new Error(errMsg));
                 }
                 return true;
             })

@@ -1,5 +1,5 @@
 import { FieldType } from '@terascope/types';
-import { trimStart } from '@terascope/utils';
+import { trimStartFP } from '@terascope/utils';
 import { VectorType } from '../../vector';
 import { ColumnTransformConfig, TransformMode, TransformType } from '../interfaces';
 
@@ -29,9 +29,7 @@ export const trimStartConfig: ColumnTransformConfig<string, string, TrimStartArg
     create(_vector, { char }) {
         return {
             mode: TransformMode.EACH_VALUE,
-            fn(value: string) {
-                return trimStart(value, char);
-            }
+            fn: trimStartFP(char)
         };
     },
     description: 'Trim whitespace, or specific character, from the beginning of a string',

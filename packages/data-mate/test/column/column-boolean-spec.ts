@@ -36,7 +36,6 @@ describe('Column (Boolean Types)', () => {
         });
 
         it('should be able to iterate over the values', () => {
-            expect([...col]).toEqual(values);
             expect(col.toJSON()).toEqual(values);
         });
 
@@ -48,6 +47,19 @@ describe('Column (Boolean Types)', () => {
             const newCol = col.validate(ColumnValidator.isBoolean);
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.toJSON()).toEqual(values);
+        });
+
+        it('should be able to get unique with the same length', () => {
+            const newCol = col.unique();
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.size).toBe(col.size);
+            expect(newCol.toJSON()).toEqual([
+                true,
+                false,
+                null,
+                null,
+                null,
+            ]);
         });
 
         it('should be able to transform the column using toString', () => {
@@ -176,7 +188,6 @@ describe('Column (Boolean Types)', () => {
         });
 
         it('should be able to iterate over the values', () => {
-            expect([...col]).not.toEqual(values);
             expect(col.toJSON()).toEqual(values);
         });
 

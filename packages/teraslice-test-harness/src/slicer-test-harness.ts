@@ -6,7 +6,6 @@ import {
     SliceResult,
     ExecutionStats,
     SlicerCore,
-    TSError,
     SlicerRecoveryData,
     times,
     isPlainObject,
@@ -60,8 +59,12 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
         // teraslice checks to see if slicer is recoverable
         // should throw test recoveryData if slicer is not recoverable
         if (recoveryData.length > 0) {
-            if (!this.executionContext.slicer().isRecoverable()) throw new TSError('Slicer is not recoverable, please create the isRecoverable method and return true to enable recovery');
-            if (!recoveryData.every(isPlainObject)) throw new Error('recoveryData is malformed');
+            if (!this.executionContext.slicer().isRecoverable()) {
+                throw new Error('Slicer is not recoverable, please create the isRecoverable method and return true to enable recovery');
+            }
+            if (!recoveryData.every(isPlainObject)) {
+                throw new Error('recoveryData is malformed');
+            }
         }
 
         await this.executionContext.initialize(recoveryData);
@@ -77,7 +80,7 @@ export default class SlicerTestHarness extends BaseTestHarness<SlicerExecutionCo
      *
      * If the slicers are done, you should expect a null value for every slicer
      *
-     * @param options an optional object of additional configruation
+     * @param options an optional object of additional configuration
      * @param options.fullResponse if specified the full slice result
      * including the slice_id, slicer_id, slicer_order.
      *

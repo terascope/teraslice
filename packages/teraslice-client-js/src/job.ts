@@ -51,11 +51,10 @@ export default class Job extends Client {
 
     constructor(config: ClientConfig, jobId: string) {
         super(config);
-        if (!jobId) {
-            throw new TSError('Job requires jobId');
-        }
-        if (!isString(jobId)) {
-            throw new TSError('Job requires jobId to be a string');
+        if (!jobId || !isString(jobId)) {
+            throw new TSError('Job requires jobId to be a string', {
+                statusCode: 400
+            });
         }
         this._jobId = jobId;
         this.slicer = _deprecateSlicerName(this.slicer);
@@ -210,10 +209,14 @@ export default class Job extends Client {
         requestOptions: RequestOptions = {}
     ): Promise<ChangeWorkerResponse | string> {
         if (action == null || workerNum == null) {
-            throw new TSError('changeWorkers requires action and count');
+            throw new TSError('Change workers requires action and count', {
+                statusCode: 400
+            });
         }
         if (!['add', 'remove', 'total'].includes(action)) {
-            throw new TSError('changeWorkers requires action to be one of add, remove, or total');
+            throw new TSError('Change workers requires action to be one of add, remove, or total', {
+                statusCode: 400
+            });
         }
 
         const query = { [action]: workerNum };

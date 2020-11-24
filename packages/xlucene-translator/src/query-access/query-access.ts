@@ -191,7 +191,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
         const variables = Object.assign({}, this.variables, opts.variables);
 
         if (_params._source) {
-            throw new ts.TSError('Cannot include _source in params, use _sourceInclude or _sourceExclude');
+            throw new Error('Cannot include _source in params, use _sourceInclude or _sourceExclude');
         }
         const params = { ..._params };
 

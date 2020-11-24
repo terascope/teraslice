@@ -174,7 +174,7 @@ export class DataType {
         } = args;
 
         if (!typeName) {
-            throw new ts.TSError('No typeName was specified to create the graphql type representing this data structure');
+            throw new Error('No typeName was specified to create the graphql type representing this data structure');
         }
 
         const inputName = useSnakeCase ? `${typeName}_input` : `${typeName}Input`;

@@ -3,15 +3,9 @@ import { VectorType } from '../interfaces';
 import { ReadableData } from '../../core';
 
 export class AnyVector extends Vector<any> {
-    constructor(options: VectorOptions<any>) {
-        super(VectorType.Any, options);
-    }
+    valueToJSON = undefined;
 
-    fork(data: ReadableData<any>): AnyVector {
-        return new AnyVector({
-            valueToJSON: this.valueToJSON,
-            config: this.config,
-            data,
-        });
+    constructor(data: ReadableData<any>, options: VectorOptions) {
+        super(VectorType.Any, data, options);
     }
 }

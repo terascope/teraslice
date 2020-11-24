@@ -1,7 +1,8 @@
 import {
     DataTypeConfig, ReadonlyDataTypeConfig,
-    Maybe, SortOrder
+    Maybe, SortOrder, FieldType, DataTypeFields, DataTypeFieldConfig
 } from '@terascope/types';
+import { isFunction, TSError } from '@terascope/utils';
 import { Column, KeyAggFn, makeUniqueKeyAgg } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import {
@@ -12,7 +13,7 @@ import {
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
 import {
-    createHashCode, FieldArg, freezeArray, getFieldsFromArg
+    createHashCode, FieldArg, freezeArray, getFieldsFromArg, WritableData
 } from '../core';
 import { getMaxColumnSize } from '../aggregation-frame/utils';
 
@@ -35,9 +36,7 @@ export class DataFrame<
         options?: DataFrameOptions
     ): DataFrame<R> {
         const columns = distributeRowsToColumns(config, records);
-        return new DataFrame(columns, {
-            ...options,
-        });
+        return new DataFrame(columns, options);
     }
 
     /**
@@ -61,7 +60,7 @@ export class DataFrame<
     readonly metadata: Record<string, any>;
 
     /** cached id for lazy loading the id */
-    private __id?: string;
+    #id?: string;
 
     protected readonly _size: number;
 
@@ -95,11 +94,21 @@ export class DataFrame<
     }
 
     /**
+     * Iterate over each index and row, this returns the internal stored values.
+    */
+    * rows(json?: boolean): IterableIterator<[row: T, index: number]> {
+        for (let i = 0; i < this._size; i++) {
+            const row = this.getRow(i, json);
+            if (row) yield [row, i];
+        }
+    }
+
+    /**
      * A Unique ID for the DataFrame
      * The ID will only change if the columns or data change
     */
     get id(): string {
-        if (this.__id) return this.__id;
+        if (this.#id) return this.#id;
 
         const long = this.columns
             .map((col) => `${col.name}(${col.id})`)
@@ -107,7 +116,7 @@ export class DataFrame<
             .join(':');
 
         const id = createHashCode(long) as string;
-        this.__id = id;
+        this.#id = id;
         return id;
     }
 
@@ -173,12 +182,14 @@ export class DataFrame<
     orderBy(fieldArg: FieldArg<keyof T>, direction?: SortOrder): DataFrame<T> {
         const fields = getFieldsFromArg(this.fields, [fieldArg]);
         if (fields.size > 1) {
-            throw new Error('DataFrame.orderBy can only works with one field currently');
+            throw new TSError('Order by only works with one field (currently)', {
+                context: { safe: true },
+                statusCode: 400
+            });
         }
 
         const [field] = fields;
-        const sortColumn = this.getColumn(field);
-        if (!sortColumn) throw new Error(`Unknown column ${field}`);
+        const sortColumn = this.getColumn(field)!;
 
         const sortedIndices = sortColumn.vector.getSortedIndices(direction);
 
@@ -208,10 +219,26 @@ export class DataFrame<
     }
 
     /**
+     * Require specific columns to exist on every row
+    */
+    require(...fieldArg: FieldArg<keyof T>[]): DataFrame<T> {
+        const fields = getFieldsFromArg(this.fields, fieldArg);
+        const hasRequiredFields = [...fields].reduce(
+            (acc, field): FilterByFn<T> => {
+                if (!acc) return (row: T) => row[field] != null;
+                return (row: T, index: number) => {
+                    if (!acc(row, index)) return false;
+                    return row[field] != null;
+                };
+            },
+            undefined as FilterByFn<T>|undefined
+        )!;
+        return this._filterByFn(hasRequiredFields, false);
+    }
+
+    /**
      * Filter the DataFrame by fields, all fields must return true
      * for a given row to returned in the filtered DataType
-     *
-     * @todo support filtering rows via a single function
      *
      * @example
      *
@@ -224,14 +251,21 @@ export class DataFrame<
      *         }
      *     });
     */
-    filterBy(filters: FilterByFields<T>): DataFrame<T> {
+    filterBy(filters: FilterByFields<T>|FilterByFn<T>, json?: boolean): DataFrame<T> {
+        if (isFunction(filters)) {
+            return this._filterByFn(filters, json ?? false);
+        }
+        return this._filterByFields(filters, json ?? false);
+    }
+
+    private _filterByFields(filters: FilterByFields<T>, json: boolean): DataFrame<T> {
         const indices = new Set<number>();
 
-        for (const [field, filter] of Object.entries(filters)) {
+        Object.entries(filters).forEach(([field, filter]) => {
             processFieldFilter(
-                indices, this.getColumn(field)!, filter
+                indices, this.getColumn(field)!, filter, json
             );
-        }
+        });
 
         if (indices.size === this._size) return this;
         return this.fork(createColumnsWithIndices(
@@ -239,6 +273,19 @@ export class DataFrame<
             indices,
             indices.size
         ));
+    }
+
+    private _filterByFn(fn: FilterByFn<T>, json: boolean): DataFrame<T> {
+        const records: T[] = [];
+        for (const [row, index] of this.rows(json)) {
+            if (fn(row, index)) records.push(row);
+        }
+
+        if (records.length === this._size) return this;
+
+        return this.fork(
+            distributeRowsToColumns(this.config, records)
+        );
     }
 
     /**
@@ -251,11 +298,9 @@ export class DataFrame<
 
         const columns = new Map(this.columns.map((col) => [col.name, col]));
         for (const name of fields) {
-            const column = columns.get(name);
+            const column = columns.get(name)!;
             if (column) {
                 keyAggs.set(column.name, makeUniqueKeyAgg(column.vector));
-            } else {
-                throw new Error(`Unknown column ${name}`);
             }
         }
 
@@ -275,7 +320,8 @@ export class DataFrame<
         }
 
         return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => {
-            builder.data.resize(buckets.size, true);
+            // @ts-expect-error data is readonly
+            builder.data = builder.data.resize(buckets.size);
             return columns.get(name)!.fork(builder.toVector());
         }));
     }
@@ -363,6 +409,42 @@ export class DataFrame<
     }
 
     /**
+     * Merge two or more columns into a Tuple
+    */
+    createTupleFrom<R extends string, V = [...unknown[]]>(
+        fields: readonly (keyof T)[],
+        as: R
+    ): DataFrame<T & Record<R, V>> {
+        if (!fields.length) {
+            throw new TSError('Tuples require at least one field', {
+                statusCode: 400
+            });
+        }
+        const columns = fields.map((field) => this.getColumn(field)!);
+        const childConfig: DataTypeFields = {};
+        columns.forEach((col, index) => {
+            childConfig[`${as}.${index}`] = col.config;
+        });
+
+        const config: DataTypeFieldConfig = Object.freeze({ type: FieldType.Tuple });
+        const builder = Builder.make<V>(new WritableData(this.size), {
+            childConfig,
+            config,
+            name: as as string
+        });
+
+        for (let index = 0; index < this.size; index++) {
+            builder.set(index, columns.map((col) => col.vector.get(index, false)));
+        }
+
+        const column = new Column(builder.toVector(), {
+            name: as,
+            version: columns[0].version,
+        });
+        return this.assign([column]);
+    }
+
+    /**
      * Get a column by name
     */
     getColumn<P extends keyof T>(field: P): Column<T[P], P>|undefined {
@@ -394,6 +476,7 @@ export class DataFrame<
                 row[field] = val;
             }
         }
+        Object.entries(row);
 
         return row as T;
     }
@@ -420,6 +503,25 @@ export class DataFrame<
     toJSON(): T[] {
         return [...this];
     }
+
+    [Symbol.for('nodejs.util.inspect.custom')](): any {
+        const proxy = {
+            id: this.id,
+            name: this.name,
+            size: this.size,
+            config: this.config,
+            metadata: this.metadata,
+            columns: this.columns,
+        };
+
+        // Trick so that node displays the name of the constructor
+        Object.defineProperty(proxy, 'constructor', {
+            value: DataFrame,
+            enumerable: false
+        });
+
+        return proxy;
+    }
 }
 
 /**
@@ -433,3 +535,5 @@ export interface DataFrameOptions {
 export type FilterByFields<T> = Partial<{
     [P in keyof T]: (value: Maybe<T[P]>) => boolean
 }>;
+
+export type FilterByFn<T> = (row: T, index: number) => boolean;

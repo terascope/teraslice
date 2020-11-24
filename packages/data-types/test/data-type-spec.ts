@@ -1,8 +1,10 @@
 import 'jest-extended';
-import { TSError } from '@terascope/utils';
+import { DataTypeConfig, FieldType } from '@terascope/types';
 import {
-    DataType, DataTypeConfig, LATEST_VERSION
+    DataType, LATEST_VERSION
 } from '../src';
+import TupleType from '../src/types/tuple-type';
+import GroupType from '../src/types/group-type';
 
 describe('DataType', () => {
     it('should not throw when given an empty object', () => {
@@ -10,66 +12,50 @@ describe('DataType', () => {
     });
 
     it('should throw when given no version', () => {
-        expect.hasAssertions();
-        try {
+        expect(() => {
             new DataType({
                 // @ts-expect-error
                 version: null,
                 fields: {},
             });
-        } catch (err) {
-            expect(err).toBeInstanceOf(TSError);
-            expect(err.message).toInclude('Missing version in data type config');
-        }
+        }).toThrowError('Missing version in data type config');
     });
 
     it('should throw when given a unknown version', () => {
-        expect.hasAssertions();
-        try {
+        expect(() => {
             new DataType({
                 // @ts-expect-error
                 version: 999,
                 fields: {},
             });
-        } catch (err) {
-            expect(err).toBeInstanceOf(TSError);
-            expect(err.message).toInclude('Unknown data type version 999');
-        }
+        }).toThrowError('Unknown data type version 999');
     });
 
     it('should throw when missing fields', () => {
-        expect.hasAssertions();
-        try {
+        expect(() => {
             new DataType({
                 version: 1,
                 // @ts-expect-error
                 fields: null,
             });
-        } catch (err) {
-            expect(err).toBeInstanceOf(TSError);
-            expect(err.message).toInclude('Invalid fields was specified in data type config');
-        }
+        }).toThrowError('Invalid fields was specified in data type config');
     });
 
     it('should throw when given invalid field type configs', () => {
-        expect.hasAssertions();
-        try {
+        expect(() => {
             new DataType({
                 version: 1,
                 fields: {
                     blah: true,
                 } as any,
             });
-        } catch (err) {
-            expect(err).toBeInstanceOf(TSError);
-            expect(err.message).toInclude('Invalid type config for field "blah" in data type config');
-        }
+        }).toThrowError('Invalid type config for field "blah" in data type config');
     });
 
     it('should work when given a valid config', () => {
         const typeConfig: DataTypeConfig = {
             version: LATEST_VERSION,
-            fields: { hello: { type: 'Keyword' } },
+            fields: { hello: { type: FieldType.Keyword } },
         };
 
         expect(() => new DataType(typeConfig)).not.toThrow();
@@ -79,7 +65,7 @@ describe('DataType', () => {
         const typeConfig: DataTypeConfig = {
             // @ts-expect-error
             version: `${LATEST_VERSION}`,
-            fields: { hello: { type: 'Keyword' } },
+            fields: { hello: { type: FieldType.Keyword } },
         };
 
         expect(() => new DataType(typeConfig)).not.toThrow();
@@ -88,7 +74,7 @@ describe('DataType', () => {
     it('should persist name, version, fields and description', () => {
         const typeConfig: DataTypeConfig = {
             version: LATEST_VERSION,
-            fields: { hello: { type: 'Keyword' } },
+            fields: { hello: { type: FieldType.Keyword } },
         };
 
         const dataType = new DataType(typeConfig, 'Test', 'hello there');
@@ -105,10 +91,10 @@ describe('DataType', () => {
         const typeConfig: DataTypeConfig = {
             version: LATEST_VERSION,
             fields: {
-                hello: { type: 'Keyword' },
-                foo: { type: 'Object' },
-                'foo.bar': { type: 'Keyword' },
-                'foo.baz': { type: 'Keyword' },
+                hello: { type: FieldType.Keyword },
+                foo: { type: FieldType.Object },
+                'foo.bar': { type: FieldType.Keyword },
+                'foo.baz': { type: FieldType.Keyword },
             },
         };
 
@@ -117,5 +103,29 @@ describe('DataType', () => {
             hello: ['hello'],
             foo: ['foo', 'foo.bar', 'foo.baz']
         });
+        // @ts-expect-error
+        const types = dataType._types;
+        expect(types.find((t) => t.config.type === FieldType.Object)).toBeInstanceOf(GroupType);
+    });
+
+    it('should have correctly with a tuple fields list', () => {
+        const typeConfig: DataTypeConfig = {
+            version: LATEST_VERSION,
+            fields: {
+                hello: { type: FieldType.Keyword },
+                foo: { type: FieldType.Tuple },
+                'foo.0': { type: FieldType.Keyword },
+                'foo.1': { type: FieldType.Integer },
+            },
+        };
+
+        const dataType = new DataType(typeConfig, 'Test', 'hello there');
+        expect(dataType).toHaveProperty('groupedFields', {
+            hello: ['hello'],
+            foo: ['foo', 'foo.0', 'foo.1']
+        });
+        // @ts-expect-error
+        const types = dataType._types;
+        expect(types.find((t) => t.config.type === FieldType.Tuple)).toBeInstanceOf(TupleType);
     });
 });

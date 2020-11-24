@@ -1,67 +1,57 @@
 import { Maybe } from '@terascope/types';
-import { ReadableDataValue, TypedArray, WritableDataValue } from './interfaces';
+import SparseMap from 'mnemonist/sparse-map';
+import { ReadonlySparseMap } from './interfaces';
 
 /**
  * A generic write-only optimized view of data used for Builders.
  * This does not handle updating existing indices, so don't do that.
 */
 export class WritableData<T> {
+    static emptyData = new WritableData<any>(0);
+
     /**
      * Create an WritableData with a fixed size
     */
-    static make<R>(size: number): WritableData<R> {
-        return new WritableData(size, []);
+    static make<R>(size: number, from: SparseMap<R>|ReadonlySparseMap<R>): WritableData<R> {
+        const data = new WritableData<R>(size);
+        for (let i = 0; i < size; i++) {
+            const value = from.get(i);
+            if (value != null) data.set(i, value);
+        }
+        return data;
     }
 
     /**
      * The value to indices Map
     */
-    readonly values: Map<T, WritableDataValue>;
-
-    private _size: number;
-
-    constructor(
-        size: number,
-        from: readonly ReadableDataValue<T>[]
-    ) {
-        this._size = size;
-        this.values = new Map(fromToIterable(from));
-    }
+    readonly values: SparseMap<T>;
 
     /**
      * The total number of values stored
     */
-    get size(): number {
-        return this._size;
+    readonly size: number;
+
+    constructor(size: number) {
+        this.values = new SparseMap(size);
+        this.size = size;
     }
 
     /**
      * Set a value for an index
     */
     set(index: number, value: Maybe<T>): this {
-        if (value == null) return this;
-
-        const existing = this.values.get(value);
-        if (existing) {
-            existing.push(index);
-        } else {
-            this.values.set(value, [index]);
+        if (index >= this.size) {
+            throw new Error(
+                `Index of ${index} is out-of-bounds, must be less than ${this.size}`
+            );
         }
-        return this;
-    }
 
-    /**
-     * Set the same value against multiple indices
-    */
-    mset(value: Maybe<T>, indices: readonly number[]|TypedArray): this {
-        if (value == null) return this;
-
-        const existing = this.values.get(value);
-        if (existing) {
-            existing.push(...indices);
-        } else {
-            this.values.set(value, Array.from(indices));
+        if (value == null) {
+            this.values.delete(index);
+            return this;
         }
+
+        this.values.set(index, value);
         return this;
     }
 
@@ -76,28 +66,23 @@ export class WritableData<T> {
     /**
      * Resize the number of values
     */
-    resize(size: number, skipIndicesCheck = false): this {
-        this._size = size;
-        if (skipIndicesCheck) return this;
-
-        const lt = makeLessThanOrEqual(size);
-        for (const [value, indices] of this.values) {
-            const newIndices = indices.filter(lt);
-            if (!newIndices.length) this.values.delete(value);
-            else this.values.set(value, newIndices);
-        }
-        return this;
+    resize(size: number): WritableData<T> {
+        if (size === this.size) return this;
+        return WritableData.make(size, this.values);
     }
-}
 
-function makeLessThanOrEqual(input: number) {
-    return (num: number) => num <= input;
-}
+    [Symbol.for('nodejs.util.inspect.custom')](): any {
+        const proxy = {
+            size: this.size,
+            values: this.values
+        };
 
-function* fromToIterable<T>(
-    from: readonly ReadableDataValue<T>[],
-): Iterable<[T, WritableDataValue]> {
-    for (const val of from) {
-        if (val.i.length) yield [val.v, val.i.slice()];
+        // Trick so that node displays the name of the constructor
+        Object.defineProperty(proxy, 'constructor', {
+            value: WritableData,
+            enumerable: false
+        });
+
+        return proxy;
     }
 }

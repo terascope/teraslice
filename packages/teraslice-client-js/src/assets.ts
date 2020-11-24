@@ -21,7 +21,9 @@ export default class Assets extends Client {
 
     async upload(data: PostData, query: AssetUploadQuery = {}): Promise<AssetIDResponse> {
         if (isEmpty(data)) {
-            throw new TSError('Asset stream must not be empty');
+            throw new TSError('Asset stream must not be empty', {
+                statusCode: 400
+            });
         }
 
         const results = await this.post('/assets', data, {
@@ -31,7 +33,11 @@ export default class Assets extends Client {
     }
 
     async remove(id: string, searchOptions: SearchOptions = {}): Promise<AssetIDResponse> {
-        if (isEmpty(id)) throw new TSError('Asset delete requires a ID');
+        if (isEmpty(id)) {
+            throw new TSError('Asset delete requires a ID', {
+                statusCode: 400
+            });
+        }
         const results = await this.delete(`/assets/${id}`, searchOptions);
         return this.parse(results);
     }
@@ -46,10 +52,14 @@ export default class Assets extends Client {
 
     async getAsset(name: string, version = '', searchOptions: SearchOptions = {}): Promise<Asset[]> {
         if (!name || !isString(name)) {
-            throw new TSError('name is required, and must be of type string');
+            throw new TSError('Name is required, and must be of type string', {
+                statusCode: 400
+            });
         }
         if (version && !isString(version)) {
-            throw new TSError('version if provided must be of type string');
+            throw new TSError('Version if provided must be of type string', {
+                statusCode: 400
+            });
         }
 
         const pathing = path.join('/assets', name, version);
@@ -62,8 +72,16 @@ export default class Assets extends Client {
         query: TxtSearchParams = {},
         searchOptions: SearchOptions = {}
     ): Promise<string> {
-        if (name && !isString(name)) throw new TSError('name must be of type string');
-        if (version && !isString(version)) throw new TSError('version must be of type string');
+        if (name && !isString(name)) {
+            throw new TSError('Name must be of type string', {
+                statusCode: 400
+            });
+        }
+        if (version && !isString(version)) {
+            throw new TSError('Version must be of type string', {
+                statusCode: 400
+            });
+        }
 
         const options = Object.assign({ responseType: 'text' }, searchOptions, {
             searchParams: query

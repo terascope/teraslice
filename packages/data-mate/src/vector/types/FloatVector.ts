@@ -3,15 +3,9 @@ import { VectorType } from '../interfaces';
 import { ReadableData } from '../../core';
 
 export class FloatVector extends Vector<number> {
-    constructor(options: VectorOptions<number>) {
-        super(VectorType.Float, options);
-    }
+    valueToJSON = undefined;
 
-    fork(data: ReadableData<number>): FloatVector {
-        return new FloatVector({
-            valueToJSON: this.valueToJSON,
-            config: this.config,
-            data,
-        });
+    constructor(data: ReadableData<number>, options: VectorOptions) {
+        super(VectorType.Float, data, options);
     }
 }

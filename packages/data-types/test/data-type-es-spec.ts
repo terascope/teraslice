@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { DataTypeConfig } from '@terascope/types';
+import { DataTypeConfig, FieldType } from '@terascope/types';
 import {
     DataType, LATEST_VERSION
 } from '../src';
@@ -10,11 +10,11 @@ describe('DataType (elasticsearch)', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    hello: { type: 'Text' },
-                    location: { type: 'GeoPoint' },
-                    date: { type: 'Date' },
-                    ip: { type: 'IP' },
-                    someNum: { type: 'Long' },
+                    hello: { type: FieldType.Text },
+                    location: { type: FieldType.GeoPoint },
+                    date: { type: FieldType.Date },
+                    ip: { type: FieldType.IP },
+                    someNum: { type: FieldType.Long },
                 },
             };
 
@@ -29,11 +29,11 @@ describe('DataType (elasticsearch)', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    hello: { type: 'Text' },
-                    location: { type: 'GeoPoint' },
-                    date: { type: 'Date' },
-                    ip: { type: 'IP' },
-                    someNum: { type: 'Long' },
+                    hello: { type: FieldType.Text },
+                    location: { type: FieldType.GeoPoint },
+                    date: { type: FieldType.Date },
+                    ip: { type: FieldType.IP },
+                    someNum: { type: FieldType.Long },
                 },
             };
 
@@ -67,8 +67,8 @@ describe('DataType (elasticsearch)', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    foo: { type: 'String' },
-                    bar: { type: 'String' },
+                    foo: { type: FieldType.String },
+                    bar: { type: FieldType.String },
                 },
             };
 
@@ -92,10 +92,10 @@ describe('DataType (elasticsearch)', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    config: { type: 'Object' },
-                    'config.foo': { type: 'Byte' },
-                    'config.path': { type: 'KeywordPathAnalyzer' },
-                    'config.bar': { type: 'Object', indexed: false },
+                    config: { type: FieldType.Object },
+                    'config.foo': { type: FieldType.Byte },
+                    'config.path': { type: FieldType.KeywordPathAnalyzer },
+                    'config.bar': { type: FieldType.Object, indexed: false },
                 },
             };
 
@@ -145,11 +145,11 @@ describe('DataType (elasticsearch)', () => {
             const typeConfig: DataTypeConfig = {
                 version: LATEST_VERSION,
                 fields: {
-                    hello: { type: 'KeywordTokensCaseInsensitive' },
-                    location: { type: 'GeoPoint' },
-                    date: { type: 'Date' },
-                    ip: { type: 'IP' },
-                    someNum: { type: 'Long' },
+                    hello: { type: FieldType.KeywordTokensCaseInsensitive },
+                    location: { type: FieldType.GeoPoint },
+                    date: { type: FieldType.Date },
+                    ip: { type: FieldType.IP },
+                    someNum: { type: FieldType.Long },
                 },
             };
 

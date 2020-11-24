@@ -1,7 +1,7 @@
 import fs from 'fs';
 import readline from 'readline';
 import { Readable } from 'stream';
-import { TSError, Logger } from '@terascope/utils';
+import { Logger } from '@terascope/utils';
 import { WatcherConfig, OperationConfigInput } from '../interfaces';
 
 export default class RulesLoader {
@@ -11,10 +11,10 @@ export default class RulesLoader {
     }
 
     public async load(): Promise<OperationConfigInput[]> {
-        const { notification_rules: notifcationRules, rules } = this.opConfig;
+        const { notification_rules: notificationRules, rules } = this.opConfig;
 
-        if (notifcationRules) {
-            return this.notificationLoader(notifcationRules);
+        if (notificationRules) {
+            return this.notificationLoader(notificationRules);
         }
 
         if (rules) {
@@ -24,7 +24,7 @@ export default class RulesLoader {
             return ([] as OperationConfigInput[]).concat(...results);
         }
 
-        throw new TSError('rules or notifications must be provided');
+        throw new Error('Rules or notifications must be provided');
     }
 
     private parseConfig(strConfig: string): OperationConfigInput {

@@ -1,5 +1,4 @@
 import 'jest-extended';
-import { TSError } from '@terascope/utils';
 import {
     DataType, DataTypeConfig, LATEST_VERSION, formatSchema
 } from '../src';
@@ -135,12 +134,9 @@ describe('DataType (graphql)', () => {
                 },
             };
 
-            try {
+            expect(() => {
                 new DataType(typeConfig).toGraphQL();
-            } catch (err) {
-                expect(err).toBeInstanceOf(TSError);
-                expect(err.message).toInclude('No typeName was specified to create the graphql type representing this data structure');
-            }
+            }).toThrowError('No typeName was specified to create the graphql type representing this data structure');
         });
     });
 

@@ -1,9 +1,11 @@
 import {
-    DataTypeFieldConfig, DataTypeFields,
+    DataTypeFieldConfig,
     Maybe, SortOrder,
     ReadonlyDataTypeFields
 } from '@terascope/types';
-import { ReadableData, createHashCode, HASH_CODE_SYMBOL } from '../core';
+import {
+    ReadableData, createHashCode, HASH_CODE_SYMBOL, getHashCodeFrom
+} from '../core';
 import { VectorType } from './interfaces';
 
 /**
@@ -14,12 +16,16 @@ export abstract class Vector<T = unknown> {
      * Make an instance of a Vector from a config
     */
     static make<R>(
-        config: Readonly<DataTypeFieldConfig>,
         data: ReadableData<R>,
-        childConfig?: DataTypeFields
+        options: VectorOptions
     ): Vector<R> {
-        throw new Error(`This is overridden in the index file, ${config} ${data} ${childConfig}`);
+        throw new Error(`This is overridden in the index file, ${options} ${data}`);
     }
+
+    /**
+     * The name of field, if specified this will just be used for metadata
+    */
+    readonly name?: string;
 
     /**
      * The type of Vector, this should only be set the specific Vector type classes.
@@ -30,12 +36,6 @@ export abstract class Vector<T = unknown> {
      * The field type configuration
     */
     readonly config: Readonly<DataTypeFieldConfig>;
-
-    /**
-     * A function for converting a value to an JSON spec compatible format.
-     * This is specific on the vector type classes via a static method usually.
-    */
-    readonly valueToJSON?: ValueToJSONFn<T>;
 
     /**
      * When Vector is an object type, this will be the data type fields
@@ -59,34 +59,38 @@ export abstract class Vector<T = unknown> {
     */
     sortable = true;
 
-    private __cachedHash?: string|undefined;
+    #cachedHash?: string|undefined;
 
     constructor(
         /**
          * This will be set automatically by specific Vector classes
          */
         type: VectorType,
-        {
-            data, config, childConfig, valueToJSON,
-        }: VectorOptions<T>
+        data: ReadableData<T>,
+        options: VectorOptions
     ) {
         this.type = type;
-        this.config = config;
-        this.valueToJSON = valueToJSON;
-
         this.data = data;
-        this.childConfig = childConfig;
+        this.name = options.name;
+        this.config = options.config;
+        this.childConfig = options.childConfig;
     }
+
+    /**
+     * A function for converting an in-memory representation of
+     * a value to an JSON spec compatible format.
+    */
+    abstract valueToJSON?(value: T): any;
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
         yield* this.data;
     }
 
     get [HASH_CODE_SYMBOL](): string {
-        if (this.__cachedHash) return this.__cachedHash;
+        if (this.#cachedHash) return this.#cachedHash;
 
         const hash = createHashCode(this.toJSON());
-        this.__cachedHash = hash;
+        this.#cachedHash = hash;
         return hash;
     }
 
@@ -98,10 +102,34 @@ export abstract class Vector<T = unknown> {
     }
 
     /**
-     * Gets the number distinct values in the Vector
+     * Get the count of distinct values.
+     *
+     * @note this is O(1) for non-object types and O(n) + extra hashing logic for larger objects
     */
     countUnique(): number {
-        return this.data.countUnique();
+        let count = 0;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        for (const v of this.unique()) {
+            count++;
+        }
+        return count;
+    }
+
+    /**
+     * Get the unique values
+    */
+    * unique(): Iterable<[index: number, value: T]> {
+        const results: T[] = [];
+        const hashes = new Set<any>();
+        const getHash = this.data.isPrimitive ? (v: unknown) => v : getHashCodeFrom;
+        for (const [index, value] of this.data.values) {
+            const hash = getHash(value);
+            if (!hashes.has(hash)) {
+                hashes.add(hash);
+                yield [index, value];
+            }
+        }
+        return results;
     }
 
     /**
@@ -115,13 +143,20 @@ export abstract class Vector<T = unknown> {
         }
 
         if (val == null) return val;
-        return this.valueToJSON(val as T, this);
+        return this.valueToJSON(val as T);
     }
 
     /**
      * Create a new Vector with the same metadata but with different data
     */
-    abstract fork(data: ReadableData<T>): Vector<T>;
+    fork(data: ReadableData<T>): this {
+        // @ts-expect-error
+        return new this.constructor(data, {
+            childConfig: this.childConfig,
+            config: this.config,
+            name: this.name,
+        });
+    }
 
     /**
      * Create a new Vector with the range of values
@@ -184,6 +219,38 @@ export abstract class Vector<T = unknown> {
         }
         return res;
     }
+
+    /**
+     * Convert the Vector to array of values (the in-memory representation of the data)
+     * @note may not be JSON spec compatible
+    */
+    toArray(): Maybe<T>[] {
+        const res: Maybe<T>[] = Array(this.size);
+        for (let i = 0; i < this.size; i++) {
+            res[i] = this.get(i, false) as T;
+        }
+        return res;
+    }
+
+    [Symbol.for('nodejs.util.inspect.custom')](): any {
+        const proxy = {
+            name: this.name,
+            type: this.type,
+            config: this.config,
+            childConfig: this.childConfig,
+            size: this.size,
+            isPrimitive: this.data.isPrimitive,
+            values: this.data.values
+        };
+
+        // Trick so that node displays the name of the constructor
+        Object.defineProperty(proxy, 'constructor', {
+            value: this.constructor,
+            enumerable: false
+        });
+
+        return proxy;
+    }
 }
 
 /**
@@ -194,18 +261,23 @@ export function isVector<T>(input: unknown): input is Vector<T> {
 }
 
 /**
- * Serialize a value to a JSON compatible format (so it can be JSON stringified)
-*/
-export type ValueToJSONFn<T> = (value: T, thisArg?: Vector<T>) => any;
-
-/**
  * A list of Vector Options
  */
-export interface VectorOptions<T> {
-    data: ReadableData<T>;
-    config: Readonly<DataTypeFieldConfig>;
-    valueToJSON?: ValueToJSONFn<T>;
+export interface VectorOptions {
+    /**
+    * The field config
+    */
+    config: DataTypeFieldConfig|Readonly<DataTypeFieldConfig>;
+
+    /**
+     * The type config for any nested fields (currently only works for objects)
+    */
     childConfig?: ReadonlyDataTypeFields;
+
+    /**
+     * The name of field, if specified this will just be used for metadata
+    */
+    name?: string;
 }
 
 export type JSONValue<T> = T extends Vector<infer U> ? U[] : T;

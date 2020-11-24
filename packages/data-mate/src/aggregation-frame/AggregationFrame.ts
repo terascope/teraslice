@@ -568,7 +568,7 @@ export class AggregationFrame<
         const len = bucket.length;
         for (let i = 0; i < len; i++) {
             for (const [field, agg] of fieldAggs) {
-                agg.push(bucket[i][field], [i]);
+                agg.push(bucket[i][field], i);
             }
         }
 

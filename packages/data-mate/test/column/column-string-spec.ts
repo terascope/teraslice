@@ -43,10 +43,145 @@ describe('Column (String Types)', () => {
             expect(col.vector).toBeInstanceOf(Vector);
         });
 
-        it('should be able to validate using isURL', () => {
-            const newCol = col.validate(ColumnValidator.isURL);
+        it('should be able to get unique with the same length', () => {
+            const newCol = col.unique();
             expect(newCol.id).not.toBe(col.id);
-            expect(newCol.toJSON()).toEqual(values.map(() => null));
+            expect(newCol.size).toBe(col.size);
+            expect(newCol.toJSON()).toEqual([
+                'Batman',
+                'Robin',
+                'Superman',
+                null,
+                'SpiderMan',
+            ]);
+        });
+
+        it('should be able to validate using isURL', () => {
+            const newCol = Column.fromJSON(col.name, col.config, [
+                'https://someurl.cc.ru.ch',
+                'ftp://someurl.bom:8080?some=bar&hi=bob',
+                'http://xn--fsqu00a.xn--3lr804guic',
+                'http://example.com',
+                'BAD-URL',
+                null,
+            ]).validate(ColumnValidator.isURL);
+
+            expect(newCol.toJSON()).toEqual([
+                'https://someurl.cc.ru.ch',
+                'ftp://someurl.bom:8080?some=bar&hi=bob',
+                'http://xn--fsqu00a.xn--3lr804guic',
+                'http://example.com',
+                null,
+                null,
+            ]);
+        });
+
+        it('should be able to validate using isUUID', () => {
+            const newCol = Column.fromJSON(col.name, col.config, [
+                '0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B',
+                'BAD-UUID',
+                '6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b',
+                null,
+            ]).validate(ColumnValidator.isUUID);
+
+            expect(newCol.toJSON()).toEqual([
+                '0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B',
+                null,
+                '6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b',
+                null,
+            ]);
+        });
+
+        it('should be able to validate using isEmail', () => {
+            const newCol = Column.fromJSON(col.name, col.config, [
+                'ha3ke5@pawnage.com',
+                'user@blah.com/junk.junk?a=<tag value="junk"',
+                'email@example.com',
+                'email @ example.com',
+                'example.com',
+                null,
+            ]).validate(ColumnValidator.isEmail);
+
+            expect(newCol.toJSON()).toEqual([
+                'ha3ke5@pawnage.com',
+                'user@blah.com/junk.junk?a=<tag value="junk"',
+                'email@example.com',
+                null,
+                null,
+                null,
+            ]);
+        });
+
+        it('should be able to validate using isAlpha', () => {
+            const newCol = Column.fromJSON(col.name, col.config, [
+                'Example',
+                'example123',
+                'foo bar',
+                'ha3ke5@',
+                'example.com',
+                null,
+            ]).validate(ColumnValidator.isAlpha);
+
+            expect(newCol.toJSON()).toEqual([
+                'Example',
+                null,
+                null,
+                null,
+                null,
+                null,
+            ]);
+        });
+
+        it('should be able to validate using isAlphanumeric', () => {
+            const newCol = Column.fromJSON(col.name, col.config, [
+                'Example',
+                'example123',
+                'foo bar',
+                'ha3ke5@',
+                'example.com',
+                null,
+            ]).validate(ColumnValidator.isAlphanumeric);
+
+            expect(newCol.toJSON()).toEqual([
+                'Example',
+                'example123',
+                null,
+                null,
+                null,
+                null,
+            ]);
+        });
+
+        it('should be able to validate using isEqual', () => {
+            const newCol = col.validate(ColumnValidator.isEqual, {
+                value: 'Superman'
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual(col.config);
+            expect(newCol.toJSON()).toEqual([
+                null,
+                null,
+                'Superman',
+                null,
+                null,
+            ]);
+        });
+
+        it('should be able to transform using cast(array: true)', () => {
+            const newCol = col.transform(ColumnTransform.cast, {
+                array: true
+            });
+
+            expect(newCol.id).not.toBe(col.id);
+            expect(newCol.config).toEqual({ ...col.config, array: true });
+            expect(newCol.toJSON()).toEqual([
+                ['Batman'],
+                ['Robin'],
+                ['Superman'],
+                null,
+                ['SpiderMan'],
+            ]);
         });
 
         it('should be able to transform using toUpperCase', () => {

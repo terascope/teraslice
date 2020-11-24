@@ -1,5 +1,8 @@
 import { Overwrite } from './utility';
 
+/**
+ * The data type of a field
+*/
 export enum FieldType {
     Boolean = 'Boolean',
     Boundary = 'Boundary',
@@ -31,6 +34,10 @@ export enum FieldType {
     String = 'String',
     Number = 'Number',
     Any = 'Any',
+    /**
+     * An ordered-set of values.
+    */
+    Tuple = 'Tuple'
 }
 
 /**

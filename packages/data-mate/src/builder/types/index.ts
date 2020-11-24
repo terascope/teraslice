@@ -10,3 +10,4 @@ export * from './IPBuilder';
 export * from './IPRangeBuilder';
 export * from './ObjectBuilder';
 export * from './StringBuilder';
+export * from './TupleBuilder';

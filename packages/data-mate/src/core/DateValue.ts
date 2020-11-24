@@ -61,6 +61,29 @@ export class DateValue {
         );
     }
 
+    static fromValueWithFormat(
+        value: unknown,
+        format: DateFormat|string,
+        referenceDate: Date
+    ): DateValue {
+        if (format && !(format in DateFormat)) {
+            if (typeof value !== 'string') {
+                throw new Error(`Expected string for formatted date fields, got ${value}`);
+            }
+
+            return DateValue.fromValueToFormat(value, format, referenceDate!);
+        }
+
+        if (format === DateFormat.epoch) {
+            return DateValue.fromValueToEpoch(value as any);
+        }
+
+        return DateValue.fromValue(
+            value as any,
+            format as DateFormat.iso_8601|DateFormat.epoch_millis
+        );
+    }
+
     static reformat(value: DateValue, format: string|DateFormat): DateValue {
         const timeWithAdditionalOffset = value.value + DateValue.timezoneOffset;
         const formatted = formatDate(timeWithAdditionalOffset, format);

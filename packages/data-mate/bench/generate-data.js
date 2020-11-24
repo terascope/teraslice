@@ -1,6 +1,7 @@
 'use strict';
 
 const { times, random } = require('@terascope/utils');
+const { FieldType } = require('@terascope/types');
 const fs = require('fs');
 const path = require('path');
 const Chance = require('chance');
@@ -11,45 +12,58 @@ const dataTypeConfig = {
     version: 1,
     fields: {
         _key: {
-            type: 'Keyword'
+            type: FieldType.Keyword
         },
         name: {
-            type: 'Keyword'
+            type: FieldType.Keyword
         },
         age: {
-            type: 'Short'
+            type: FieldType.Short
         },
         favorite_animal: {
-            type: 'Keyword'
+            type: FieldType.Keyword
         },
         ip: {
-            type: 'IP'
+            type: FieldType.IP
         },
         phones: {
-            type: 'Keyword',
+            type: FieldType.Keyword,
             array: true
         },
         birthday: {
-            type: 'Date'
+            type: FieldType.Date
         },
         address: {
-            type: 'Text'
+            type: FieldType.Text
         },
         alive: {
-            type: 'Boolean'
+            type: FieldType.Boolean
         },
         location: {
-            type: 'GeoPoint'
+            type: FieldType.GeoPoint
         },
         metadata: {
-            type: 'Object'
+            type: FieldType.Object
         },
         'metadata.type': {
-            type: 'Keyword'
+            type: FieldType.Keyword
         },
+        'metadata.number_of_friends': {
+            type: FieldType.Integer
+        },
+        'metadata.requests': {
+            type: FieldType.Object,
+        },
+        'metadata.requests.total': {
+            type: FieldType.Integer,
+        },
+        'metadata.requests.last': {
+            type: FieldType.Date,
+        }
     }
 };
 
+const maxInt = (2 ** 31) - 1;
 const numRecords = 1800;
 const year = new Date().getFullYear();
 const records = times(numRecords, () => {
@@ -71,7 +85,12 @@ const records = times(numRecords, () => {
             lon: chance.longitude(),
         } : null,
         metadata: random(0, 20) ? {
-            type: age > 20 ? 'parent' : 'child'
+            type: age > 20 ? 'parent' : 'child',
+            number_of_friends: random(1, 2000),
+            requests: random(0, 20) ? {
+                total: random(10, maxInt),
+                last: chance.date().toISOString()
+            } : null
         } : null
     };
 });

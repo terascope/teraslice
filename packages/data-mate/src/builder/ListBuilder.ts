@@ -1,57 +1,38 @@
 import { castArray } from '@terascope/utils';
-import { DataTypeFieldConfig } from '@terascope/types';
-import { Builder, BuilderOptions, copyVectorToBuilder } from './Builder';
-import { Vector, VectorType } from '../vector';
-import { isSameFieldConfig, WritableData } from '../core';
+import { Maybe } from '@terascope/types';
+import { Builder, BuilderOptions } from './Builder';
+import { VectorType } from '../vector';
+import { createArrayValue, WritableData } from '../core';
+import { BuilderWithCache } from './BuilderWithCache';
 
-export class ListBuilder<T = unknown> extends Builder<Vector<T>> {
-    static valueFrom(values: unknown, thisArg: ListBuilder<any>): Vector<any> {
-        const config = getValueConfig(thisArg.config);
-
-        if (values instanceof Vector) {
-            if (isSameFieldConfig(values.config, config)) return values;
-
-            return copyVectorToBuilder(values, Builder.make(
-                config,
-                WritableData.make(values.size),
-                thisArg.childConfig
-            ));
-        }
-
-        const arr = castArray(values);
-        const builder = Builder.make(
-            config,
-            WritableData.make(arr.length),
-            thisArg.childConfig
-        );
-
-        for (const value of arr) {
-            builder.append(value);
-        }
-
-        return builder.toVector();
-    }
+export class ListBuilder<T = unknown> extends BuilderWithCache<readonly Maybe<T>[]> {
+    readonly valueBuilder: Builder<T>;
+    readonly convertValue: (value: unknown) => Maybe<T>;
 
     constructor(
-        data: WritableData<Vector<T>>,
-        options: BuilderOptions<Vector<T>>
+        data: WritableData<readonly Maybe<T>[]>,
+        options: BuilderOptions
     ) {
-        super(VectorType.List, data, {
-            valueFrom: ListBuilder.valueFrom,
-            ...options,
-        });
+        super(VectorType.List, data, options);
+        this.valueBuilder = Builder.make<T>(
+            WritableData.emptyData,
+            {
+                childConfig: this.childConfig,
+                config: {
+                    ...this.config,
+                    array: false,
+                },
+                name: this.name,
+            }
+        );
+        this.convertValue = (value: unknown): Maybe<T> => (
+            value != null ? this.valueBuilder.valueFrom(value) : null
+        );
     }
-}
 
-const _cache = new WeakMap<Readonly<DataTypeFieldConfig>, Readonly<DataTypeFieldConfig>>();
-function getValueConfig(baseConfig: Readonly<DataTypeFieldConfig>): Readonly<DataTypeFieldConfig> {
-    const cached = _cache.get(baseConfig);
-    if (cached) return cached;
-
-    const config = Object.freeze({
-        ...baseConfig,
-        array: false,
-    });
-    _cache.set(baseConfig, config);
-    return config;
+    _valueFrom(values: unknown): readonly Maybe<T>[] {
+        return createArrayValue(
+            castArray(values).map(this.convertValue)
+        );
+    }
 }

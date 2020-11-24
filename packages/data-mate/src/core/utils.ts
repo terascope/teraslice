@@ -1,17 +1,22 @@
 import { createHash } from 'crypto';
 import {
-    getTypeOf, isFunction, toString
+    getTypeOf, hasOwn, isFunction, isPrimitiveValue, TSError
 } from '@terascope/utils';
 import {
-    FieldArg, TypedArray, TypedArrayConstructor,
-    HASH_CODE_SYMBOL, MAX_16BIT_INT, MAX_32BIT_INT, MAX_8BIT_INT,
+    DataTypeFields, ReadonlyDataTypeFields,
+    TypedArray, TypedArrayConstructor
+} from '@terascope/types';
+import { isArrayLike } from 'lodash';
+import {
+    FieldArg, HASH_CODE_SYMBOL,
+    MAX_16BIT_INT, MAX_32BIT_INT, MAX_8BIT_INT,
 } from './interfaces';
 
 export function getFieldsFromArg<
     K extends(number|string|symbol)
 >(fields: readonly K[], arg: FieldArg<K>[]): ReadonlySet<K> {
     if (!Array.isArray(arg)) {
-        throw new Error(`Expected field arg, got ${arg} (${getTypeOf(arg)})`);
+        throw new Error(`Expected field arg to an array, got ${arg} (${getTypeOf(arg)})`);
     }
 
     const result = new Set<K>();
@@ -26,7 +31,9 @@ export function getFieldsFromArg<
     }
 
     if (!result.size) {
-        throw new Error('Expected at least one field');
+        throw new TSError('Expected at least one field', {
+            statusCode: 400
+        });
     }
 
     return result;
@@ -37,7 +44,9 @@ function _makeAddFieldsArg<K extends(number|string|symbol)>(
     result: Set<K>,) {
     return function addFieldArg(field: K): void {
         if (!fields.includes(field)) {
-            throw new Error(`Unknown field ${field}`);
+            throw new TSError(`Unknown field ${field}`, {
+                statusCode: 400
+            });
         }
         result.add(field);
     };
@@ -70,37 +79,39 @@ export function md5(value: string|Buffer): string {
     return createHash('md5').update(value).digest('hex');
 }
 
-export function createHashCode(value: unknown): string {
-    if (value == null) return '';
-
-    const str = toString(value);
-
-    if (str.length > 35) {
-        return `0:${md5(str)}`;
+function _mapToString(value: any): string {
+    let hash = '';
+    const isArr = isArrayLike(value);
+    for (const prop in (value as any)) {
+        if (hasOwn(value, prop)) {
+            hash += `,${getHashCodeFrom(isArr ? value : (value as any)[prop])}`;
+        }
     }
-
-    return `1:${str}`;
+    return hash;
 }
 
-export function getHashCodeFrom(input: unknown, throwIfNotFound = false): string {
+export function createHashCode(value: unknown): string {
+    if (value == null) return '~';
+    if (isPrimitiveValue(value)) return `|${value}`;
+
+    const hash = typeof value !== 'object' ? _mapToString(value) : JSON.stringify(value);
+    if (hash.length > 35) return `;${md5(hash)}`;
+    return `:${hash}`;
+}
+
+export function getHashCodeFrom(input: unknown): string {
     if (typeof input === 'object' && input != null && input[HASH_CODE_SYMBOL] != null) {
         if (isFunction(input[HASH_CODE_SYMBOL])) {
             return input[HASH_CODE_SYMBOL]();
         }
         return input[HASH_CODE_SYMBOL];
     }
-
-    if (throwIfNotFound) {
-        throw new Error(
-            `Expected ${toString(input)} (${getTypeOf(input)}) to have ${String(HASH_CODE_SYMBOL)}`
-        );
-    }
     return createHashCode(input);
 }
 
-export function createObject<T extends Record<string, any>>(input: T): T {
+export function createArrayValue<T extends any[]>(input: T): T {
     Object.defineProperty(input, HASH_CODE_SYMBOL, {
-        value: _createObjectHashCode.bind(input),
+        value: _createArrayHashCode.bind(input),
         configurable: false,
         enumerable: false,
         writable: false,
@@ -109,7 +120,52 @@ export function createObject<T extends Record<string, any>>(input: T): T {
     return Object.freeze(input) as T;
 }
 
+function _createArrayHashCode() {
+    // @ts-expect-error because this bound
+    return createHashCode(this, false);
+}
+
+export function createObjectValue<T extends Record<string, any>>(input: T, skipFreeze = false): T {
+    Object.defineProperty(input, HASH_CODE_SYMBOL, {
+        value: _createObjectHashCode.bind(input),
+        configurable: false,
+        enumerable: false,
+        writable: false,
+    });
+
+    if (skipFreeze) return input;
+    return Object.freeze(input) as T;
+}
+
 function _createObjectHashCode() {
     // @ts-expect-error because this bound
-    return getHashCodeFrom(Object.entries(this), false);
+    return createHashCode(Object.entries(this));
+}
+
+export function freezeObject<T extends Record<string, any>>(
+    input: T
+): T extends Readonly<infer U> ? Readonly<U> : Readonly<T> {
+    if (Object.isFrozen(input)) return input as any;
+    return Object.freeze({ ...input }) as any;
+}
+
+type ArrLike = (any[])|(readonly any[]);
+export function freezeArray<T extends ArrLike>(
+    input: T
+): T extends Readonly<infer U> ? Readonly<U> : Readonly<T> {
+    if (Object.isFrozen(input)) return input as any;
+    return Object.freeze(input.slice()) as any;
+}
+
+export function getObjectDataTypeConfig(
+    config: DataTypeFields|ReadonlyDataTypeFields, baseField: string
+): DataTypeFields {
+    const childConfig: DataTypeFields = {};
+    for (const [field, fieldConfig] of Object.entries(config)) {
+        const withoutBase = field.replace(`${baseField}.`, '');
+        if (withoutBase !== field) {
+            childConfig[withoutBase] = fieldConfig;
+        }
+    }
+    return childConfig;
 }

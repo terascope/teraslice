@@ -1,57 +1,75 @@
+import { FieldType } from '@terascope/types';
 import { getTypeOf, isPlainObject, toString } from '@terascope/utils';
-import { createObject, WritableData } from '../../core';
+import { createObjectValue, getObjectDataTypeConfig, WritableData } from '../../core';
 
 import { VectorType } from '../../vector';
-import { Builder, BuilderOptions, ValueFromFn } from '../Builder';
+import { Builder, BuilderOptions } from '../Builder';
+import { BuilderWithCache } from '../BuilderWithCache';
+
+type ChildFields<T extends Record<string, any>> = readonly (
+    [field: (keyof T), builder: Builder<any>]
+)[];
 
 export class ObjectBuilder<
     T extends Record<string, any> = Record<string, any>
-> extends Builder<T> {
-    static valueFrom<
-        R extends Record<string, any> = Record<string, any>
-    >(value: unknown, thisArg?: ObjectBuilder<R>): R {
-        if (!thisArg) {
-            throw new Error('Expected thisArg');
+> extends BuilderWithCache<T> {
+    #childFields?: ChildFields<T>;
+
+    constructor(
+        data: WritableData<T>,
+        options: BuilderOptions
+    ) {
+        super(VectorType.Object, data, options);
+    }
+
+    get childFields(): ChildFields<T> {
+        if (this.#childFields) return this.#childFields;
+
+        if (!this.childConfig) {
+            this.#childFields = [];
+            return this.#childFields;
         }
+
+        const childFields: ChildFields<T> = Object.entries(this.childConfig)
+            .map(([field, config]) => {
+                const childConfig = (config.type === FieldType.Object
+                    ? getObjectDataTypeConfig(this.childConfig!, field)
+                    : undefined);
+
+                const builder = Builder.make<any>(WritableData.emptyData, {
+                    childConfig,
+                    config,
+                    name: this._getChildName(field),
+                });
+                return [field, builder];
+            });
+
+        this.#childFields = childFields;
+        return childFields;
+    }
+
+    _valueFrom(value: unknown): T {
         if (!isPlainObject(value)) {
             throw new TypeError(`Expected ${toString(value)} (${getTypeOf(value)}) to be an object`);
         }
 
-        if (thisArg.childConfig == null) {
-            return createObject({ ...value as R });
+        if (!this.childFields.length) {
+            return createObjectValue({ ...value as T });
         }
 
-        const fields = Object.keys(thisArg.childConfig) as (keyof R)[];
-        if (!fields.length) {
-            return createObject({ ...value as R });
+        const input = value as Record<keyof T, unknown>;
+        const result: Partial<T> = {};
+
+        for (const [field, builder] of this.childFields) {
+            const fieldValue: any = input[field] != null ? builder.valueFrom(input[field]) : null;
+            Object.defineProperty(result, field, { value: fieldValue, writable: false });
         }
 
-        const input = value as Record<keyof R, unknown>;
-        const result: Partial<R> = {};
-
-        for (const field of fields) {
-            if (input[field] != null) {
-                const config = thisArg.childConfig[field as string];
-                // FIXME this could be improved to use the static method
-                const builder = Builder.make<any>(config, WritableData.make(0));
-                result[field] = builder.valueFrom ? builder.valueFrom(
-                    input[field], builder
-                ) : builder.valueFrom;
-            } else {
-                input[field] = null;
-            }
-        }
-
-        return createObject(result as R);
+        return createObjectValue(result as T, true);
     }
 
-    constructor(
-        data: WritableData<T>,
-        options: BuilderOptions<T>
-    ) {
-        super(VectorType.Object, data, {
-            valueFrom: ObjectBuilder.valueFrom as ValueFromFn<T>,
-            ...options,
-        });
+    private _getChildName(field: string) {
+        if (!this.name) return undefined;
+        return `${this.name}.${field}`;
     }
 }

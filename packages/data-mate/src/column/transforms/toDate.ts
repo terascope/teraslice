@@ -27,7 +27,7 @@ export interface ToDateArgs {
  *       // '2020-01-14T20:34:01.034Z' => 1579034041034
  *
  *     toDate({ format: 'MMM do yy' })
- *       // ''Jan 14th 20' => 1579034041034
+ *       // 'Jan 14th 20' => 1579034041034
  *
  *     toDate({ format: 'M/d/yyyy' })
  *       // '1/14/2020' => 1579034041034

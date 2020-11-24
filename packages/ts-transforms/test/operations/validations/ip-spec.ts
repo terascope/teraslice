@@ -1,12 +1,12 @@
 import { DataEntity, cloneDeep } from '@terascope/utils';
-import { Ip } from '../../../src/operations';
+import { Ip as IP } from '../../../src/operations';
 
 describe('ip validation', () => {
     it('can instantiate', () => {
         const opConfig = {
             source: 'someField', target: 'someField', __id: 'someId', follow: 'otherId'
         };
-        expect(() => new Ip(opConfig)).not.toThrow();
+        expect(() => new IP(opConfig)).not.toThrow();
     });
 
     it('can properly throw with bad config values', () => {
@@ -15,20 +15,20 @@ describe('ip validation', () => {
         const badConfig3 = { source: {} };
         const badConfig4 = {};
         // @ts-expect-error
-        expect(() => new Ip(badConfig1)).toThrow();
+        expect(() => new IP(badConfig1)).toThrow();
         // @ts-expect-error
-        expect(() => new Ip(badConfig2)).toThrow();
+        expect(() => new IP(badConfig2)).toThrow();
         // @ts-expect-error
-        expect(() => new Ip(badConfig3)).toThrow();
+        expect(() => new IP(badConfig3)).toThrow();
         // @ts-expect-error
-        expect(() => new Ip(badConfig4)).toThrow();
+        expect(() => new IP(badConfig4)).toThrow();
     });
 
     it('can validate ip fields', () => {
         const opConfig = {
             source: 'ipAddress', target: 'ipAddress', __id: 'someId', follow: 'otherId'
         };
-        const test = new Ip(opConfig);
+        const test = new IP(opConfig);
         const metaData = { selectors: { 'some:query': true } };
 
         const data1 = new DataEntity({ ipAddress: '56.234,95.234' }, metaData);
@@ -79,7 +79,7 @@ describe('ip validation', () => {
         const opConfig = {
             source: 'event.ipAddress', target: 'event.ipAddress', __id: 'someId', follow: 'otherId'
         };
-        const test = new Ip(opConfig);
+        const test = new IP(opConfig);
 
         const data1 = new DataEntity({ event: 'something' });
         const data2 = new DataEntity({ event: {} });
