@@ -10,7 +10,7 @@ export default abstract class BatchProcessor<T = OpConfig> extends ProcessorCore
      * A method called by {@link BatchProcessor#handle}
      * @returns an array of DataEntities
      */
-    abstract async onBatch(batch: DataEntity[]): Promise<DataEntity[]>;
+    abstract onBatch(batch: DataEntity[]): Promise<DataEntity[]>;
 
     async handle(input: DataEntity[]): Promise<DataEntity[]> {
         const output = await this.onBatch(DataEntity.makeArray(input));

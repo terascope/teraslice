@@ -195,7 +195,7 @@ export async function pWhile(fn: PromiseFn, options: PWhileOptions = {}): Promis
     let running = false;
     let interval: any;
 
-    const promise = new Promise((resolve, reject) => {
+    const promise = new Promise<void>((resolve, reject) => {
         interval = setInterval(async () => {
             if (running) return;
             running = true;

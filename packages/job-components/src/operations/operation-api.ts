@@ -13,5 +13,5 @@ export default abstract class OperationAPI<T = APIConfig> extends APICore<T> {
      *           - an instances of a class
      *           - a function
      */
-    abstract async createAPI(...params: any[]): Promise<OpAPI>;
+    abstract createAPI(...params: any[]): Promise<OpAPI>;
 }

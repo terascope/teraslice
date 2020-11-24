@@ -19,7 +19,7 @@ export default abstract class Slicer<T = OpConfig> extends SlicerCore<T> {
      * A method called by {@link Slicer#handle}
      * @returns a Slice, or SliceRequest
      */
-    abstract async slice(): Promise<SlicerResult>;
+    abstract slice(): Promise<SlicerResult>;
 
     slicers(): number {
         return 1;

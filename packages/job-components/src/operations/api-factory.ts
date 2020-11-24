@@ -5,12 +5,12 @@ export default abstract class APIFactory<T, C> extends OperationAPI {
     protected readonly _registry: Map<string, T> = new Map();
     protected readonly _configRegistry: Map<string, C> = new Map();
 
-    abstract async create(name: string, config: Partial<C>): Promise<{
+    abstract create(name: string, config: Partial<C>): Promise<{
         client: T;
         config: C;
     }>;
 
-    abstract async remove(name: string): Promise<void>;
+    abstract remove(name: string): Promise<void>;
 
     async createAPI(): Promise<APIFactoryRegistry<T, C>> {
         const registry = this._registry;

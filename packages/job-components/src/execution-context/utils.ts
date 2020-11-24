@@ -8,7 +8,7 @@ export function getMetric(input: number[], i: number): number {
 }
 
 export function isOperationAPI(api: unknown): api is OperationAPI {
-    return api && typeof api === 'object' && isFunction((api as any).createAPI);
+    return !!(api && typeof api === 'object' && isFunction((api as any).createAPI));
 }
 
 export function getOperationAPIType(api: unknown): OperationAPIType {

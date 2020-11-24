@@ -35,7 +35,7 @@ export class Core extends EventEmitter {
         });
     }
 
-    close() {
+    close(): void {
         this.closed = true;
         this.removeAllListeners();
     }
@@ -61,7 +61,9 @@ export class Core extends EventEmitter {
         return response;
     }
 
-    protected handleResponse(socket: i.SocketEmitter, eventName: string, fn: i.MessageHandler) {
+    protected handleResponse(
+        socket: i.SocketEmitter, eventName: string, fn: i.MessageHandler
+    ): void {
         this.logger.trace(`registering response handler for ${eventName}`);
 
         socket.on(eventName, async (msg: i.Message) => {
@@ -127,7 +129,7 @@ export class Core extends EventEmitter {
     }
 
     // @ts-expect-error
-    emit(eventName: string, msg: i.EventMessage) {
+    emit(eventName: string, msg: i.EventMessage): void {
         super.emit(`${eventName}`, msg);
         if (msg.scope) {
             super.emit(`${eventName}:${msg.scope}`, msg);
