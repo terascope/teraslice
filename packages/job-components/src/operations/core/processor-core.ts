@@ -18,5 +18,5 @@ export default abstract class ProcessorCore<T = OpConfig> extends OperationCore<
      * @param input an array of DataEntities
      * @returns an array of DataEntities
      */
-    abstract async handle(input: DataEntity[], sliceRequest?: SliceRequest): Promise<DataEntity[]>;
+    abstract handle(input: DataEntity[], sliceRequest?: SliceRequest): Promise<DataEntity[]>;
 }

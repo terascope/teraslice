@@ -52,7 +52,7 @@ export default abstract class ParallelSlicer<T = OpConfig> extends SlicerCore<T>
      * Called by {@link ParallelSlicer#handle} for every count of `slicers` in the ExecutionConfig
      * @returns a function which will be called in parallel
      */
-    abstract async newSlicer(id: number): Promise<SlicerFn | undefined>;
+    abstract newSlicer(id: number): Promise<SlicerFn | undefined>;
 
     slicers(): number {
         return this._slicers.length;

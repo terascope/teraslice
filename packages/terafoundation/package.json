@@ -28,7 +28,7 @@
     },
     "dependencies": {
         "@terascope/utils": "^0.33.0",
-        "aws-sdk": "^2.787.0",
+        "aws-sdk": "^2.799.0",
         "bluebird": "^3.7.2",
         "bunyan": "^1.8.14",
         "convict": "^4.4.1",
@@ -45,7 +45,7 @@
         "@types/bunyan": "^1.8.6",
         "@types/elasticsearch": "^5.0.35",
         "@types/js-yaml": "^3.12.2",
-        "@types/mongoose": "^5.7.36",
+        "@types/mongoose": "^5.10.1",
         "@types/redis": "^2.8.25"
     },
     "publishConfig": {

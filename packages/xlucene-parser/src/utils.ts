@@ -63,7 +63,7 @@ export function isWildcard(node: unknown): node is i.Wildcard {
 }
 
 export function isWildcardField(node: unknown): boolean {
-    return node && isWildCardString((node as any).field);
+    return !!(node && isWildCardString((node as any).field));
 }
 
 export function isTerm(node: unknown): node is i.Term {
@@ -75,7 +75,7 @@ export function isEmptyAST(node: unknown): node is i.EmptyAST {
 }
 
 export function isStringDataType(node: unknown): node is i.StringDataType {
-    return node && (node as any).field_type === 'string';
+    return !!(node && (node as any).field_type === 'string');
 }
 
 export const numberDataTypes: xLuceneFieldType[] = [
@@ -83,11 +83,11 @@ export const numberDataTypes: xLuceneFieldType[] = [
 ];
 
 export function isNumberDataType(node: unknown): node is i.NumberDataType {
-    return node && numberDataTypes.includes((node as any).field_type);
+    return !!(node && numberDataTypes.includes((node as any).field_type));
 }
 
 export function isBooleanDataType(node: unknown): node is i.BooleanDataType {
-    return node && (node as any).field_type === 'boolean';
+    return !!(node && (node as any).field_type === 'boolean');
 }
 
 export function getField(node: unknown): string|undefined {
@@ -107,14 +107,14 @@ export const termTypes: readonly i.ASTType[] = [
 ];
 
 export function isTermType(node: unknown): node is i.TermLike {
-    return node && termTypes.includes((node as any).type);
+    return !!(node && termTypes.includes((node as any).type));
 }
 
 /** logical group or field group with flow */
 export const groupTypes: i.ASTType[] = [i.ASTType.LogicalGroup, i.ASTType.FieldGroup];
 
 export function isGroupLike(node: unknown): node is i.GroupLikeAST {
-    return node && groupTypes.includes((node as any).type);
+    return !!(node && groupTypes.includes((node as any).type));
 }
 
 export function validateVariables(obj: xLuceneVariables): xLuceneVariables {

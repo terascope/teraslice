@@ -87,7 +87,7 @@ export default abstract class SlicerCore<T = OpConfig>
      * the ability to handle creating slices.
      * @returns a boolean depending on whether the slicer is done
      */
-    abstract async handle(): Promise<boolean>;
+    abstract handle(): Promise<boolean>;
 
     /**
      * Return the number of registered slicers

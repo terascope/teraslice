@@ -379,7 +379,7 @@ export function isTSError(err: unknown): err is TSError {
 
 /** Check is a elasticsearch error */
 export function isElasticsearchError(err: unknown): err is ElasticsearchError {
-    return err && isFunction((err as any).toJSON);
+    return !!(err && isFunction((err as any).toJSON));
 }
 
 export interface ElasticsearchError extends Error {

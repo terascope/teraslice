@@ -231,7 +231,7 @@ export class WorkerExecutionContext
             const workerShutdown = ts.get(this.context, 'sysconfig.teraslice.shutdown_timeout', 60000);
             const timeoutMs = Math.round(workerShutdown * 0.8);
 
-            await new Promise((resolve) => {
+            await new Promise<void>((resolve) => {
                 const startTime = Date.now();
                 const interval = setInterval(() => {
                     if (!this.processingSlice) {

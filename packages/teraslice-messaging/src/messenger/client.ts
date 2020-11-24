@@ -94,7 +94,7 @@ export class Client extends Core {
         this.serverShutdown = false;
     }
 
-    onServerShutdown(fn: () => void) {
+    onServerShutdown(fn: () => void): void {
         this.on('server:shutdown', () => {
             this.serverShutdown = true;
             try {
@@ -108,7 +108,7 @@ export class Client extends Core {
         });
     }
 
-    async connect() {
+    async connect(): Promise<void> {
         if (this.socket.connected) {
             return;
         }
@@ -131,7 +131,7 @@ export class Client extends Core {
                 try {
                     await this.sendAvailable();
                 } catch (err) {
-                    this.logger.warn(err, 'update availablilty on reconnect error');
+                    this.logger.warn(err, 'update availability on reconnect error');
                 }
             });
         });
@@ -182,7 +182,7 @@ export class Client extends Core {
         }
 
         const startTime = Date.now();
-        await new Promise((resolve, reject) => {
+        await new Promise<void>((resolve, reject) => {
             let timer: any;
             let cleanup: () => void;
 
@@ -211,7 +211,7 @@ export class Client extends Core {
 
             function onConnect() {
                 cleanup();
-                resolve(true);
+                resolve();
             }
 
             this.socket.on('connect_error', onError);
@@ -230,7 +230,7 @@ export class Client extends Core {
         return this._connect(elapsed, attempt + 1);
     }
 
-    async sendAvailable(payload?: i.Payload) {
+    async sendAvailable(payload?: i.Payload): Promise<i.Message|null|undefined> {
         if (this.available) return;
 
         this.available = true;
@@ -239,7 +239,7 @@ export class Client extends Core {
         });
     }
 
-    async sendUnavailable(payload?: i.Payload) {
+    async sendUnavailable(payload?: i.Payload): Promise<i.Message|null|undefined> {
         if (!this.available) return;
 
         this.available = false;
@@ -280,12 +280,12 @@ export class Client extends Core {
         return responseMsg;
     }
 
-    emit(eventName: string, msg: i.ClientEventMessage = { payload: {} }) {
+    emit(eventName: string, msg: i.ClientEventMessage = { payload: {} }): void {
         msg.scope = this.serverName;
         super.emit(`${eventName}`, msg as i.EventMessage);
     }
 
-    isClientReady() {
+    isClientReady(): boolean {
         return !this.serverShutdown && this.ready;
     }
 
@@ -316,8 +316,8 @@ export class Client extends Core {
     }
 
     // For testing purposes
-    forceReconnect() {
-        return new Promise((resolve) => {
+    forceReconnect(): Promise<void> {
+        return new Promise<void>((resolve) => {
             this.socket.io.once('reconnect', () => {
                 resolve();
             });

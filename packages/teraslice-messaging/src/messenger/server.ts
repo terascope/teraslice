@@ -93,7 +93,7 @@ export class Server extends Core {
         this._onConnection = this._onConnection.bind(this);
     }
 
-    async listen() {
+    async listen(): Promise<void> {
         await pRetry(async () => {
             const portAvailable = await porty.test(this.port);
             if (!portAvailable) {
@@ -107,7 +107,7 @@ export class Server extends Core {
             }
         });
 
-        await new Promise((resolve, reject) => {
+        await new Promise<void>((resolve, reject) => {
             this.httpServer.listen(this.port, (err?: Error) => {
                 if (err) {
                     reject(err);
@@ -199,49 +199,49 @@ export class Server extends Core {
         return this.countClientsByState(unavailableStates);
     }
 
-    onClientOnline(fn: (clientId: string) => void) {
+    onClientOnline(fn: (clientId: string) => void): this {
         return this.on(`client:${i.ClientState.Online}`, (msg) => {
             fn(msg.scope);
         });
     }
 
-    onClientAvailable(fn: (clientId: string) => void) {
+    onClientAvailable(fn: (clientId: string) => void): this {
         return this.on(`client:${i.ClientState.Available}`, (msg) => {
             fn(msg.scope);
         });
     }
 
-    onClientUnavailable(fn: (clientId: string) => void) {
+    onClientUnavailable(fn: (clientId: string) => void): this {
         return this.on(`client:${i.ClientState.Unavailable}`, (msg) => {
             fn(msg.scope);
         });
     }
 
-    onClientDisconnect(fn: (clientId: string) => void) {
+    onClientDisconnect(fn: (clientId: string) => void): this {
         return this.on(`client:${i.ClientState.Disconnected}`, (msg) => {
             fn(msg.scope);
         });
     }
 
-    onClientShutdown(fn: (clientId: string) => void) {
+    onClientShutdown(fn: (clientId: string) => void): this {
         return this.on(`client:${i.ClientState.Shutdown}`, (msg) => {
             fn(msg.scope);
         });
     }
 
-    onClientReconnect(fn: (clientId: string) => void) {
+    onClientReconnect(fn: (clientId: string) => void): this {
         return this.on('client:reconnect', (msg) => {
             fn(msg.scope);
         });
     }
 
-    onClientError(fn: (clientId: string) => void) {
+    onClientError(fn: (clientId: string) => void): this {
         return this.on('client:error', (msg) => {
             fn(msg.scope);
         });
     }
 
-    isClientReady(clientId: string) {
+    isClientReady(clientId: string): boolean {
         const clientState = get(this._clients, [clientId, 'state']);
         return onlineStates.includes(clientState);
     }
@@ -250,7 +250,7 @@ export class Server extends Core {
         eventName: string,
         payload?: i.Payload,
         options: i.SendOptions = { volatile: true, response: true }
-    ) {
+    ): Promise<(i.Message|null)[]> {
         const clients = this.filterClientsByState(onlineStates);
         const promises = Object.values(clients)
             .map((client) => this.send(client.clientId, eventName, payload, options));
