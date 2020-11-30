@@ -374,6 +374,13 @@ describe('DataFrame', () => {
                 ]);
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
             });
+
+            it('should be work when called with a number greater than the size of frame', () => {
+                const resultFrame = dataFrame.limit(dataFrame.size + 10);
+
+                expect(resultFrame.size).toEqual(dataFrame.size);
+                expect(resultFrame.id).toEqual(dataFrame.id);
+            });
         });
 
         describe('->concat', () => {

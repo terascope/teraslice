@@ -491,6 +491,9 @@ export class DataFrame<
         } else {
             end = num;
         }
+        if (start == null && end != null && end > this.size) {
+            return this;
+        }
         return this.fork(this.columns.map(
             (col) => col.fork(col.vector.slice(start, end))
         ));
