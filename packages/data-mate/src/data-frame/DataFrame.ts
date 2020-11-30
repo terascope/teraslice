@@ -62,7 +62,7 @@ export class DataFrame<
     /** cached id for lazy loading the id */
     #id?: string;
 
-    protected readonly _size: number;
+    readonly size: number;
 
     constructor(
         columns: Column<any, keyof T>[]|readonly Column<any, keyof T>[],
@@ -80,26 +80,33 @@ export class DataFrame<
                 'All columns for a DataFrame must have the same length'
             );
         }
-        this._size = lengths[0] ?? 0;
+        this.size = lengths[0] ?? 0;
     }
 
     /**
      * Iterate over each row, this returns the JSON compatible values.
     */
     * [Symbol.iterator](): IterableIterator<T> {
-        for (let i = 0; i < this._size; i++) {
-            const row = this.getRow(i, true);
-            if (row) yield row;
-        }
+        yield* this.rows(true);
     }
 
     /**
      * Iterate over each index and row, this returns the internal stored values.
     */
-    * rows(json?: boolean): IterableIterator<[row: T, index: number]> {
-        for (let i = 0; i < this._size; i++) {
+    * entries(json?: boolean): IterableIterator<[index: number, row: T]> {
+        for (let i = 0; i < this.size; i++) {
             const row = this.getRow(i, json);
-            if (row) yield [row, i];
+            if (row) yield [i, row];
+        }
+    }
+
+    /**
+     * Iterate each row
+    */
+    * rows(json?: boolean): IterableIterator<T> {
+        for (let i = 0; i < this.size; i++) {
+            const row = this.getRow(i, json);
+            if (row) yield row;
         }
     }
 
@@ -130,13 +137,6 @@ export class DataFrame<
             name: this.name,
             metadata: this.metadata,
         });
-    }
-
-    /**
-     * Get the number of records in the DataFrame
-    */
-    get size(): number {
-        return this._size;
     }
 
     /**
@@ -267,7 +267,7 @@ export class DataFrame<
             );
         });
 
-        if (indices.size === this._size) return this;
+        if (indices.size === this.size) return this;
         return this.fork(createColumnsWithIndices(
             this.columns,
             indices,
@@ -277,11 +277,11 @@ export class DataFrame<
 
     private _filterByFn(fn: FilterByFn<T>, json: boolean): DataFrame<T> {
         const records: T[] = [];
-        for (const [row, index] of this.rows(json)) {
+        for (const [index, row] of this.entries(json)) {
             if (fn(row, index)) records.push(row);
         }
 
-        if (records.length === this._size) return this;
+        if (records.length === this.size) return this;
 
         return this.fork(
             distributeRowsToColumns(this.config, records)
@@ -312,7 +312,7 @@ export class DataFrame<
             (name, i) => columns.get(name)!.vector.get(i)
         );
 
-        for (let i = 0; i < this._size; i++) {
+        for (let i = 0; i < this.size; i++) {
             const res = makeKeyForRow(keyAggs, i);
             if (res && !buckets.has(res.key)) {
                 rowBuilder(res.row, res.key, i);
@@ -374,7 +374,7 @@ export class DataFrame<
         if (!len) return this;
 
         const builders = new Map<keyof T, Builder>(
-            columnsToBuilderEntries(this.columns, len + this._size)
+            columnsToBuilderEntries(this.columns, len + this.size)
         );
 
         const finish = ([name, builder]: [keyof T, Builder<any>]) => (
@@ -386,7 +386,7 @@ export class DataFrame<
                 concatColumnsToColumns(
                     builders,
                     arg as Column<any, keyof T>[],
-                    this._size,
+                    this.size,
                 ).map(finish)
             );
         }
@@ -463,7 +463,7 @@ export class DataFrame<
      * Get a row by index, if the row has only null values, returns undefined
     */
     getRow(index: number, json = false): T|undefined {
-        if (index > (this._size - 1)) return;
+        if (index > (this.size - 1)) return;
 
         const row: Partial<T> = {};
         for (const col of this.columns) {
@@ -476,7 +476,6 @@ export class DataFrame<
                 row[field] = val;
             }
         }
-        Object.entries(row);
 
         return row as T;
     }
@@ -498,10 +497,17 @@ export class DataFrame<
     }
 
     /**
-     * Convert the DataFrame an array of object (the output is JSON compatible)
+     * Convert the DataFrame an array of objects (the output is JSON compatible)
     */
     toJSON(): T[] {
-        return [...this];
+        return Array.from(this.rows(true));
+    }
+
+    /**
+     * Convert the DataFrame an array of objects (the output may not be JSON compatible)
+    */
+    toArray(): T[] {
+        return Array.from(this.rows(false));
     }
 
     [Symbol.for('nodejs.util.inspect.custom')](): any {
