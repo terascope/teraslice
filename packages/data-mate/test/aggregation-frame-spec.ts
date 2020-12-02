@@ -347,6 +347,24 @@ describe('AggregationFrame', () => {
         });
     });
 
+    describe('->col(gender)->unique()->count(gender)', () => {
+        it('should get the right result when using aggregate()', async () => {
+            const uniqFrame = dataFrame.assign([
+                dataFrame.getColumn('gender')!.unique()
+            ]);
+            const resultFrame = await uniqFrame.aggregate().count('gender').run();
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'Billy',
+                    age: 64,
+                    gender: 2,
+                    scores: [4, 9, 3],
+                    date: '2020-09-15T17:39:11.195Z',
+                },
+            ]);
+        });
+    });
+
     describe('->unique(name)', () => {
         it('should get the right result when using groupBy(gender)', async () => {
             const resultFrame = dataFrame.unique(['name', 'gender']);
