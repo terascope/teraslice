@@ -150,7 +150,8 @@ function makeMaxAgg(): FieldAgg {
 function makeCountAgg(): FieldAgg {
     let count: number|undefined;
     return {
-        push() {
+        push(value) {
+            if (value == null) return;
             if (!count) count = 1;
             else count++;
         },
