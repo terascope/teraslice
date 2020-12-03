@@ -148,16 +148,15 @@ function makeMaxAgg(): FieldAgg {
 }
 
 function makeCountAgg(): FieldAgg {
-    let count: number|undefined;
+    let count = 0;
     return {
         push(value) {
             if (value == null) return;
-            if (!count) count = 1;
-            else count++;
+            count++;
         },
         flush() {
             const result = count;
-            count = undefined;
+            count = 0;
             return { value: result };
         },
     };
