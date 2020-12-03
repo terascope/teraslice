@@ -48,7 +48,7 @@ export class ObjectVector<
             return { ...val };
         }
 
-        const input = value as Record<keyof T, unknown>;
+        const input = value as Readonly<Record<keyof T, unknown>>;
         const result: Partial<T> = {};
 
         for (const [field, vector] of this.childFields) {
@@ -57,7 +57,7 @@ export class ObjectVector<
                     vector.valueToJSON ? vector.valueToJSON(input[field]) : input[field]
                 );
             } else {
-                input[field] = null;
+                result[field] = undefined;
             }
         }
 
