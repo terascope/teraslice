@@ -57,7 +57,7 @@ export class ObjectBuilder<
             return createObjectValue({ ...value as T });
         }
 
-        const input = value as Record<keyof T, unknown>;
+        const input = value as Readonly<Record<keyof T, unknown>>;
         const result: Partial<T> = {};
 
         for (const [field, builder] of this.childFields) {
