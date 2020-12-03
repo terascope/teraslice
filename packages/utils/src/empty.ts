@@ -20,11 +20,3 @@ export function isEmpty<T>(val?: T|null|undefined): val is undefined {
 
     return true;
 }
-
-type AnyFn = (...args: any[]) => any;
-/**
- * Curry a function return the negation of the result
-*/
-export function not<T extends AnyFn>(fn: T): T {
-    return ((...args) => !fn(...args)) as T;
-}
