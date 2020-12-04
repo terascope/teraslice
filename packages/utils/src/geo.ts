@@ -69,22 +69,31 @@ export function getLonAndLat(input: unknown, throwInvalid = true): [number, numb
     let lat: number|string|undefined;
     let lon: number|string|undefined;
 
+    const isObject = isPlainObject(input);
     if (isGeoShapePoint(input as JoinGeoShape)) {
         [lon, lat] = (input as GeoShapePoint).coordinates;
-    } else if (isPlainObject(input)) {
+    } else if (isObject) {
         const obj = (input as any);
         lat = obj.lat || obj.latitude;
         lon = obj.lon || obj.longitude;
     }
 
     if (throwInvalid && (!lat || !lon)) {
+        if (isObject && (isGeoShapePolygon(input as any) || isGeoShapeMultiPolygon(input as any))) {
+            throw new TypeError([
+                `Expected a Point geo shape, received a geo ${(input as any).type} shape,`,
+                'you may need to switch to a polygon compatible operation'
+            ].join(' '));
+        }
         throw new TypeError('Invalid geo point object, it must contain keys lat,lon or latitude/longitude');
     }
 
     lat = toNumber(lat);
     lon = toNumber(lon);
     if (!isNumber(lat) || !isNumber(lon)) {
-        if (throwInvalid) throw new TypeError('Invalid geo point, lat and lon must be numbers');
+        if (throwInvalid) {
+            throw new TypeError('Invalid geo point, lat and lon must be numbers');
+        }
         return null;
     }
 

@@ -13,7 +13,7 @@ import { getFieldValue, logger } from '../../utils';
 const compatMapping = {
     [t.GeoShapeType.Polygon]: t.ESGeoShapeType.Polygon,
     [t.GeoShapeType.MultiPolygon]: t.ESGeoShapeType.MultiPolygon,
-};
+} as const;
 
 interface Holes {
     bool: {
@@ -41,7 +41,7 @@ function validate(
             geoRelationParam.value, variables
         );
         if (!relations.has(geoRelationValue)) {
-            throw new Error(`Invalid relation value "${geoRelationValue}"`);
+            throw new TypeError(`Invalid relation value "${geoRelationValue}"`);
         }
         relation = geoRelationValue;
     } else {
@@ -49,7 +49,7 @@ function validate(
     }
 
     if (geoPointsParam == null) {
-        throw new Error('Invalid geoPolygon query, need to specify a "points" parameter');
+        throw new TypeError('Invalid geoPolygon query, need to specify a "points" parameter');
     }
 
     let polygonShape: t.GeoShape = {
@@ -63,7 +63,7 @@ function validate(
         polygonShape = geoPointsValue;
     } else {
         if (!Array.isArray(geoPointsValue)) {
-            throw new Error('Invalid points parameter, it must either be a geoShape or be an array of geo-points');
+            throw new TypeError('Invalid points parameter, it must either be a geoShape or be an array of geo-points');
         }
 
         const points: t.CoordinateTuple[] = geoPointsValue.map((node) => {

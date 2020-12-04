@@ -8,6 +8,10 @@ import { parse } from './peg-engine';
 import * as i from './interfaces';
 import * as utils from './utils';
 
+const termTypes = new Set(utils.termTypes.filter((type) => (
+    type !== i.ASTType.Range && type !== i.ASTType.Function
+)));
+
 /**
  * Parse a xLucene query
 */
@@ -129,6 +133,72 @@ export class Parser {
 
             cb(node.value, node);
         }, false);
+    }
+
+    forEachTermNode(
+        fieldValidator: (field: string) => void,
+        valueValidator: (fieldValue: i.FieldValue<any>) => void,
+    ): void {
+        function callValidateField(node: i.AnyAST|i.RangeNode) {
+            if ('field' in node && node.field) {
+                fieldValidator(node.field);
+            }
+        }
+
+        function callValidateValue(node: i.AnyAST|i.RangeNode) {
+            if ('value' in node) {
+                if (Array.isArray(node.value)) {
+                    node.value.forEach(valueValidator);
+                } else {
+                    valueValidator(node.value);
+                }
+            }
+        }
+
+        const walkNode = (node: i.AnyAST) => {
+            if (termTypes.has(node.type)) {
+                callValidateField(node);
+                callValidateValue(node);
+                return;
+            }
+
+            if (utils.isRange(node)) {
+                callValidateField(node);
+                callValidateValue(node.left);
+                if (node.right) {
+                    callValidateValue(node.right);
+                }
+                return;
+            }
+
+            if (utils.isFunctionNode(node)) {
+                callValidateField(node);
+                for (const param of node.params) {
+                    callValidateValue(param);
+                }
+                return;
+            }
+
+            if (utils.isNegation(node)) {
+                walkNode(node.node);
+                return;
+            }
+
+            if (utils.isGroupLike(node)) {
+                for (const conj of node.flow) {
+                    walkNode(conj);
+                }
+                return;
+            }
+
+            if (utils.isConjunction(node)) {
+                for (const conj of node.nodes) {
+                    walkNode(conj);
+                }
+            }
+        };
+
+        walkNode(this.ast);
     }
 
     /**

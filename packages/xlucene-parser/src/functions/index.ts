@@ -26,7 +26,7 @@ export function initFunction({ node, variables, type_config }: {
 }): FunctionMethods {
     const fnType = xLuceneFunctions[node.name] as FunctionDefinition|undefined;
     if (fnType == null) {
-        throw new Error(`Could not find an xLucene function with name "${name}"`);
+        throw new TypeError(`Unknown xLucene function "${node.name}"`);
     }
 
     return fnType.create({
