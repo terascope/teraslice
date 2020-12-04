@@ -12,7 +12,9 @@ import * as i from '../../interfaces';
 
 function validate(params: i.Term[], variables: xLuceneVariables) {
     const geoPointParam = params.find((node) => node.field === 'point');
-    if (geoPointParam == null) throw new Error('Invalid geoContainsPoint query, need to specify a "point" parameter');
+    if (geoPointParam == null) {
+        throw new TypeError('Invalid geoContainsPoint query, need to specify a "point" parameter');
+    }
     const pointData = parseGeoPoint(getFieldValue<string>(geoPointParam.value, variables));
 
     return { lat: pointData.lat, lon: pointData.lon };

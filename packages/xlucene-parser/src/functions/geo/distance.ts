@@ -8,8 +8,12 @@ function validate(params: i.Term[], variables: xLuceneVariables) {
     const distanceParam = params.find((node) => node.field === 'distance');
     const geoPointParam = params.find((node) => node.field === 'point');
 
-    if (distanceParam == null) throw new Error('Invalid geoDistance query, need to specify a "distance" parameter');
-    if (geoPointParam == null) throw new Error('Invalid geoDistance query, need to specify a "point" parameter');
+    if (distanceParam == null) {
+        throw new TypeError('Invalid geoDistance query, need to specify a "distance" parameter');
+    }
+    if (geoPointParam == null) {
+        throw new TypeError('Invalid geoDistance query, need to specify a "point" parameter');
+    }
 
     const geoPointValue = getFieldValue<string>(geoPointParam.value, variables);
     const distanceValue = getFieldValue<string>(distanceParam.value, variables);

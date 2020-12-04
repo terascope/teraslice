@@ -8,8 +8,12 @@ function validate(params: i.Term[], variables: xLuceneVariables) {
     const topLeftParam = params.find((node) => node.field === 'top_left');
     const bottomRightParam = params.find((node) => node.field === 'bottom_right');
 
-    if (topLeftParam == null) throw new Error('Invalid geoBox query, need to specify a "topLeft" parameter');
-    if (bottomRightParam == null) throw new Error('Invalid geoBox query, need to specify a "bottomRight" parameter');
+    if (topLeftParam == null) {
+        throw new TypeError('Invalid geoBox query, need to specify a "topLeft" parameter');
+    }
+    if (bottomRightParam == null) {
+        throw new TypeError('Invalid geoBox query, need to specify a "bottomRight" parameter');
+    }
 
     const topLeftValue = getFieldValue<string>(topLeftParam.value, variables);
     const bottomRightValue = getFieldValue<string>(bottomRightParam.value, variables);
