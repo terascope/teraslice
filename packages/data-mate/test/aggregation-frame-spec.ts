@@ -677,7 +677,7 @@ describe('AggregationFrame', () => {
                 .count('name', 'count')
                 .select('name', 'count')
                 .rename('name', 'person')
-                .sort('count', 'asc')
+                .sort('count:asc')
                 .limit(3)
                 .run();
 

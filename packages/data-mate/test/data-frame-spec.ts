@@ -487,7 +487,7 @@ describe('DataFrame', () => {
             });
 
             it('should be able to sort name by desc order', () => {
-                const resultFrame = dataFrame.orderBy('name', 'desc');
+                const resultFrame = dataFrame.orderBy('name:desc');
 
                 expect(resultFrame.toJSON()).toEqual([
                     {
@@ -549,7 +549,7 @@ describe('DataFrame', () => {
             });
 
             it('should be able to sort age by desc order', () => {
-                const resultFrame = dataFrame.orderBy('age', 'desc');
+                const resultFrame = dataFrame.orderBy('age:desc');
 
                 expect(resultFrame.toJSON()).toEqual([
                     {
@@ -561,6 +561,37 @@ describe('DataFrame', () => {
                         name: 'Jill',
                         age: 39,
                         friends: ['Frank']
+                    },
+                    {
+                        name: 'Frank',
+                        age: 20,
+                        friends: ['Jill']
+                    },
+                    {
+                        name: 'Nancy',
+                        age: 10
+                    },
+                    {
+                        name: 'Jane',
+                        friends: ['Jill']
+                    },
+                ]);
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+
+            it('should be able to sort name:desc and age:desc', () => {
+                const resultFrame = dataFrame.orderBy(['name:desc', 'age:desc']);
+
+                expect(resultFrame.toJSON()).toEqual([
+                    {
+                        name: 'Jill',
+                        age: 39,
+                        friends: ['Frank']
+                    },
+                    {
+                        name: 'Billy',
+                        age: 47,
+                        friends: ['Jill']
                     },
                     {
                         name: 'Frank',

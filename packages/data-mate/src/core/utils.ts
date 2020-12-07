@@ -19,14 +19,33 @@ export function getFieldsFromArg<
         throw new Error(`Expected field arg to an array, got ${arg} (${getTypeOf(arg)})`);
     }
 
+    const result = flattenStringArg(arg);
+
+    for (const field of result) {
+        if (!fields.includes(field)) {
+            throw new TSError(`Unknown field ${field}`, {
+                statusCode: 400
+            });
+        }
+    }
+
+    return result;
+}
+
+export function flattenStringArg<
+    K extends(number|string|symbol)
+>(arg: FieldArg<K>[]): ReadonlySet<K> {
+    if (!Array.isArray(arg)) {
+        throw new Error(`Expected field arg to an array, got ${arg} (${getTypeOf(arg)})`);
+    }
+
     const result = new Set<K>();
-    const addFieldArg = _makeAddFieldsArg(fields, result);
 
     for (const fieldArg of arg) {
         if (Array.isArray(fieldArg)) {
-            fieldArg.forEach(addFieldArg);
+            fieldArg.forEach((field) => result.add(field));
         } else {
-            addFieldArg(fieldArg as K);
+            result.add(fieldArg as K);
         }
     }
 
@@ -37,19 +56,6 @@ export function getFieldsFromArg<
     }
 
     return result;
-}
-
-function _makeAddFieldsArg<K extends(number|string|symbol)>(
-    fields: readonly K[],
-    result: Set<K>,) {
-    return function addFieldArg(field: K): void {
-        if (!fields.includes(field)) {
-            throw new TSError(`Unknown field ${field}`, {
-                statusCode: 400
-            });
-        }
-        result.add(field);
-    };
 }
 
 /**

@@ -1,4 +1,4 @@
-import { DataTypeConfig, FieldType, SortOrder } from '@terascope/types';
+import { DataTypeConfig, FieldType } from '@terascope/types';
 import { pImmediate } from '@terascope/utils';
 import {
     Column,
@@ -9,7 +9,7 @@ import { isNumberLike } from '../vector';
 import { Builder } from '../builder';
 import { getBuilderForField, getMaxColumnSize } from './utils';
 import {
-    createHashCode, FieldArg, freezeArray, getFieldsFromArg
+    createHashCode, FieldArg, flattenStringArg, freezeArray, getFieldsFromArg
 } from '../core';
 import { columnsToDataTypeConfig, makeKeyForRow } from '../data-frame/utils';
 
@@ -51,13 +51,7 @@ export class AggregationFrame<
      * The field to sort by
      * @internal
     */
-    protected _sortFields?: readonly (keyof T)[];
-
-    /**
-     * When _sortField is set, this will determine the direction to sort the fields
-     * @internal
-    */
-    protected _sortDirection?: SortOrder;
+    protected _sortFields?: (readonly (keyof T)[])|(readonly string[]);
 
     /**
      * The number of records to limit the result by
@@ -319,14 +313,15 @@ export class AggregationFrame<
      * Order the rows by fields, format of is `field:asc` or `field:desc`.
      * Defaults to `asc` if none specified
     */
-    orderBy(fieldArg: FieldArg<keyof T>, direction?: SortOrder): this {
-        const fields = getFieldsFromArg(this.fields, [fieldArg]);
+    orderBy(...fieldArgs: FieldArg<string>[]): this;
+    orderBy(...fieldArgs: FieldArg<keyof T>[]): this;
+    orderBy(...fieldArgs: (FieldArg<keyof T>[]|FieldArg<string>[])): this {
+        const fields = flattenStringArg(fieldArgs);
         if (fields.size > 1) {
             throw new Error('AggregationFrame.orderBy can only works with one field currently');
         }
 
         this._sortFields = Object.freeze([...fields]);
-        this._sortDirection = direction;
         return this;
     }
 
@@ -335,8 +330,10 @@ export class AggregationFrame<
      *
      * @see orderBy
     */
-    sort(fieldArg: FieldArg<keyof T>, direction?: SortOrder): this {
-        return this.orderBy(fieldArg, direction);
+    sort(...fieldArgs: FieldArg<string>[]): this;
+    sort(...fieldArgs: FieldArg<keyof T>[]): this;
+    sort(...fieldArgs: (FieldArg<keyof T>[]|FieldArg<string>[])): this {
+        return this.orderBy(...fieldArgs);
     }
 
     /**
@@ -390,10 +387,13 @@ export class AggregationFrame<
         }));
 
         this._sortFields = this._sortFields ? Object.freeze(
-            this._sortFields.map((field) => {
+            (this._sortFields as string[]).map((field) => {
                 if (field === name) return renameTo;
+                if (field.startsWith(`${name}:`)) {
+                    return field.replace(`${name}:`, `${renameTo}:`);
+                }
                 return field;
-            })
+            }) as any[]
         ) : this._sortFields;
 
         this._selectFields = this._selectFields ? Object.freeze(
@@ -509,7 +509,6 @@ export class AggregationFrame<
     reset(): this {
         this._limit = undefined;
         this._sortFields = undefined;
-        this._sortDirection = undefined;
         this._selectFields = undefined;
         this._groupByFields = Object.freeze([]);
         this._aggregations.clear();

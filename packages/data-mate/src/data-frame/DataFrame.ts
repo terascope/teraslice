@@ -2,7 +2,7 @@ import {
     DataTypeConfig, ReadonlyDataTypeConfig,
     Maybe, SortOrder, FieldType, DataTypeFields, DataTypeFieldConfig
 } from '@terascope/types';
-import { isFunction, TSError } from '@terascope/utils';
+import { isFunction, trimFP, TSError } from '@terascope/utils';
 import { Column, KeyAggFn, makeUniqueKeyAgg } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import {
@@ -13,9 +13,10 @@ import {
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
 import {
-    createHashCode, FieldArg, freezeArray, getFieldsFromArg, WritableData
+    createHashCode, FieldArg, flattenStringArg, freezeArray, getFieldsFromArg, WritableData
 } from '../core';
 import { getMaxColumnSize } from '../aggregation-frame/utils';
+import { Vector } from '../vector';
 
 /**
  * An immutable columnar table with APIs for data pipelines.
@@ -179,19 +180,28 @@ export class DataFrame<
      * Order the rows by fields, format of is `field:asc` or `field:desc`.
      * Defaults to `asc` if none specified
     */
-    orderBy(fieldArg: FieldArg<keyof T>, direction?: SortOrder): DataFrame<T> {
-        const fields = getFieldsFromArg(this.fields, [fieldArg]);
-        if (fields.size > 1) {
-            throw new TSError('Order by only works with one field (currently)', {
-                context: { safe: true },
-                statusCode: 400
-            });
-        }
+    orderBy(...fieldArgs: FieldArg<string>[]): DataFrame<T>;
+    orderBy(...fieldArgs: FieldArg<keyof T>[]): DataFrame<T>;
+    orderBy(...fieldArgs: (FieldArg<keyof T>[]|FieldArg<string>[])): DataFrame<T> {
+        const fields = flattenStringArg(fieldArgs);
+        const sortBy = [...fields].map(
+            (fieldArg): { field: keyof T; vector: Vector<any>; direction: SortOrder } => {
+                const [field, direction = 'asc'] = `${fieldArg}`.split(':').map(trimFP());
+                if (direction !== 'asc' && direction !== 'desc') {
+                    throw new TSError(
+                        `Expected direction ("${direction}") for orderBy field ("${field}") to be either "asc" or "desc"`,
+                        { context: { safe: true }, statusCode: 400 }
+                    );
+                }
+                return {
+                    field: field as keyof T,
+                    direction: direction as SortOrder,
+                    vector: this.getColumn(field)!.vector,
+                };
+            }
+        );
 
-        const [field] = fields;
-        const sortColumn = this.getColumn(field)!;
-
-        const sortedIndices = sortColumn.vector.getSortedIndices(direction);
+        const sortedIndices = Vector.getSortedIndices(sortBy);
 
         const len = sortedIndices.length;
         const builders = getBuildersForConfig<T>(this.config, len);
@@ -214,8 +224,10 @@ export class DataFrame<
      *
      * @see orderBy
     */
-    sort(fieldArg: FieldArg<keyof T>, direction?: SortOrder): DataFrame<T> {
-        return this.orderBy(fieldArg, direction);
+    sort(...fieldArgs: FieldArg<string>[]): DataFrame<T>;
+    sort(...fieldArgs: FieldArg<keyof T>[]): DataFrame<T>;
+    sort(...fieldArgs: (FieldArg<keyof T>[]|FieldArg<string>[])): DataFrame<T> {
+        return this.orderBy(...fieldArgs);
     }
 
     /**

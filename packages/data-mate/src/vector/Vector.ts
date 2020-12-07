@@ -23,6 +23,40 @@ export abstract class Vector<T = unknown> {
     }
 
     /**
+     * Sort the values in a Vector and return
+     * an array with the updated indices.
+    */
+    static getSortedIndices(
+        sortBy: { vector: Vector<any>; direction: SortOrder }[]
+    ): number[] {
+        const notSortable = sortBy.find(({ vector }) => !vector.sortable);
+        if (notSortable) {
+            throw new Error(`Sorting is not supported for ${notSortable.vector?.constructor.name}`);
+        }
+
+        const len = sortBy.reduce((size, { vector }) => Math.max(size, vector.size), 0);
+        const indices: number[] = Array(len);
+        const original: [number, any[]][] = Array(len);
+
+        for (let i = 0; i < len; i++) {
+            original[i] = [i, sortBy.map(({ vector }) => vector.get(i))];
+        }
+
+        original
+            .sort(([, a], [, b]) => (
+                sortBy.reduce((acc, { vector, direction: d }, i) => {
+                    const res = vector.compare(a[i], b[i]);
+                    return acc + (d === 'asc' ? res : -res);
+                }, 0)
+            ))
+            .forEach(([i], newPosition) => {
+                indices[i] = newPosition;
+            });
+
+        return indices;
+    }
+
+    /**
      * The name of field, if specified this will just be used for metadata
     */
     readonly name?: string;
@@ -165,36 +199,6 @@ export abstract class Vector<T = unknown> {
         return this.fork(
             new ReadableData(this.data.slice(start, end))
         );
-    }
-
-    /**
-     * Sort the values in a Vector and return
-     * an array with the updated indices.
-    */
-    getSortedIndices(direction?: SortOrder): number[] {
-        if (!this.sortable) {
-            throw new Error(`Sorting is not supported for ${this.constructor.name}`);
-        }
-
-        const len = this.size;
-        const indices: number[] = Array(len);
-        const original: [number, Maybe<T>][] = Array(len);
-
-        for (let i = 0; i < len; i++) {
-            original[i] = [i, this.get(i) as Maybe<T>];
-        }
-
-        original
-            .sort(([, a], [, b]) => this.compare(a, b))
-            .forEach(([i], newPosition) => {
-                if (direction === 'desc') {
-                    indices[i] = Math.abs(newPosition - (len - 1));
-                } else {
-                    indices[i] = newPosition;
-                }
-            });
-
-        return indices;
     }
 
     /**
