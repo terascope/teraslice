@@ -7212,10 +7212,10 @@ mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~0.5.1:
   dependencies:
     minimist "^1.2.5"
 
-mnemonist@^0.38.0:
-  version "0.38.0"
-  resolved "https://registry.yarnpkg.com/mnemonist/-/mnemonist-0.38.0.tgz#ea1c32c22f26956dab7a8c5acc56c03b802b9b50"
-  integrity sha512-OrqILDYOEGVFooAbGid3/P9jdjWuZONlGHVyjfZnvg65+ZQ/QM5dOms+yADY/WURd1NFhCqjf/VJGFlnJToLJQ==
+mnemonist@^0.38.1:
+  version "0.38.1"
+  resolved "https://registry.yarnpkg.com/mnemonist/-/mnemonist-0.38.1.tgz#4835f982c18713fc97ddf30756529f57cfa3b635"
+  integrity sha512-I674bCCj9p87Re+gv15ynDrP14XjcmLR7tBO22l3UoxQLniyIXdD9vid2sSxYkyOr0fZwJTA+dXRvrwANgdnyg==
   dependencies:
     obliterator "^1.6.1"
 
