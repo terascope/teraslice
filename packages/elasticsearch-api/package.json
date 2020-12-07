@@ -23,7 +23,7 @@
         "lodash.isequal": "^4.5.0"
     },
     "devDependencies": {
-        "@types/elasticsearch": "^5.0.35"
+        "@types/elasticsearch": "^5.0.37"
     },
     "publishConfig": {
         "access": "public",
