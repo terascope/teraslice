@@ -34,7 +34,7 @@
         "@lerna/query-graph": "^3.18.5",
         "@terascope/utils": "^0.34.1",
         "codecov": "^3.8.1",
-        "execa": "^4.1.0",
+        "execa": "^5.0.0",
         "fs-extra": "^9.0.1",
         "globby": "^11.0.1",
         "got": "^11.8.0",
