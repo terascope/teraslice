@@ -153,7 +153,7 @@ export class DataFrame<
     select<K extends keyof T>(...fieldArg: FieldArg<K>[]): DataFrame<Pick<T, K>> {
         const fields = [...getFieldsFromArg(this.fields, fieldArg)];
         return this.fork(fields.map(
-            (field): Column<any, any> => this.getColumn(field)!
+            (field): Column<any, any> => this.getColumnOrThrow(field)
         ));
     }
 
@@ -196,7 +196,7 @@ export class DataFrame<
                 return {
                     field: field as keyof T,
                     direction: direction as SortOrder,
-                    vector: this.getColumn(field)!.vector,
+                    vector: this.getColumnOrThrow(field).vector,
                 };
             }
         );
@@ -275,7 +275,7 @@ export class DataFrame<
 
         Object.entries(filters).forEach(([field, filter]) => {
             processFieldFilter(
-                indices, this.getColumn(field)!, filter, json
+                indices, this.getColumnOrThrow(field), filter, json
             );
         });
 
@@ -390,7 +390,7 @@ export class DataFrame<
         );
 
         const finish = ([name, builder]: [keyof T, Builder<any>]) => (
-            this.getColumn(name)!.fork(builder.toVector())
+            this.getColumnOrThrow(name).fork(builder.toVector())
         );
 
         if (arg[0] instanceof Column) {
@@ -432,7 +432,7 @@ export class DataFrame<
                 statusCode: 400
             });
         }
-        const columns = fields.map((field) => this.getColumn(field)!);
+        const columns = fields.map((field) => this.getColumnOrThrow(field));
         const childConfig: DataTypeFields = {};
         columns.forEach((col, index) => {
             childConfig[`${as}.${index}`] = col.config;
@@ -462,6 +462,19 @@ export class DataFrame<
     getColumn<P extends keyof T>(field: P): Column<T[P], P>|undefined {
         const index = this.columns.findIndex((col) => col.name === field);
         return this.getColumnAt<P>(index);
+    }
+
+    /**
+     * Get a column by name or throw if not found
+    */
+    getColumnOrThrow<P extends keyof T>(field: P): Column<T[P], P> {
+        const column = this.getColumn(field);
+        if (!column) {
+            throw new Error(`Unknown column ${field} in ${
+                this.name ? ` ${this.name}` : ''
+            } ${this.constructor.name}`);
+        }
+        return column;
     }
 
     /**

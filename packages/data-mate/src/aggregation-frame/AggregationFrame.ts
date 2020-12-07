@@ -361,6 +361,19 @@ export class AggregationFrame<
     }
 
     /**
+     * Get a column by name or throw if not found
+    */
+    getColumnOrThrow<P extends keyof T>(field: P): Column<T[P], P> {
+        const column = this.getColumn(field);
+        if (!column) {
+            throw new Error(`Unknown column ${field} in ${
+                this.name ? ` ${this.name}` : ''
+            } ${this.constructor.name}`);
+        }
+        return column;
+    }
+
+    /**
      * Get a column by index
     */
     getColumnAt<P extends keyof T>(index: number): Column<T[P], P>|undefined {
@@ -497,7 +510,7 @@ export class AggregationFrame<
         await pImmediate();
 
         this.columns = Object.freeze([...builders].map(([name, builder]) => {
-            const column = this.getColumn(name)!;
+            const column = this.getColumnOrThrow(name);
             return column.fork(builder.toVector());
         }));
         return this;

@@ -292,7 +292,7 @@ describe('DataFrame', () => {
         describe('->assign', () => {
             it('should be able to a new frame with the new column', () => {
                 const newCol = dataFrame
-                    .getColumn('name')!
+                    .getColumnOrThrow('name')
                     .transform(ColumnTransform.toUpperCase)
                     .rename('upper_name');
 
@@ -306,13 +306,13 @@ describe('DataFrame', () => {
             });
 
             it('should be able to a new frame with replaced columns', () => {
-                const newCol = dataFrame.getColumn('name')!.transform(ColumnTransform.toUpperCase);
+                const newCol = dataFrame.getColumnOrThrow('name').transform(ColumnTransform.toUpperCase);
                 const resultFrame = dataFrame.assign([newCol]);
 
                 const names = resultFrame.columns.map(({ name }) => name);
                 expect(names).toEqual(['name', 'age', 'friends']);
 
-                expect(resultFrame.getColumn('name')!.toJSON()).toEqual([
+                expect(resultFrame.getColumnOrThrow('name').toJSON()).toEqual([
                     'JILL',
                     'BILLY',
                     'FRANK',
