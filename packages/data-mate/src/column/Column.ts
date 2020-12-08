@@ -201,7 +201,11 @@ export class Column<T = unknown, N extends NameType = string> {
      * Sort the column
     */
     sort(direction?: SortOrder): Column<T, N> {
-        const sortedIndices = this.vector.getSortedIndices(direction);
+        const sortedIndices = Vector.getSortedIndices([{
+            vector: this.vector,
+            direction: direction || 'asc'
+        }]);
+
         const len = sortedIndices.length;
         const builder = Builder.make<T>(new WritableData(len), {
             childConfig: this.vector.childConfig,

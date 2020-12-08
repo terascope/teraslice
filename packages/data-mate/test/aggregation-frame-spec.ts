@@ -350,7 +350,7 @@ describe('AggregationFrame', () => {
     describe('->col(gender)->unique()->count(gender)', () => {
         it('should get the right result when using aggregate()', async () => {
             const uniqFrame = dataFrame.assign([
-                dataFrame.getColumn('gender')!.unique()
+                dataFrame.getColumnOrThrow('gender').unique()
             ]);
             const resultFrame = await uniqFrame.aggregate().count('gender').run();
             expect(resultFrame.toJSON()).toEqual([
@@ -677,7 +677,7 @@ describe('AggregationFrame', () => {
                 .count('name', 'count')
                 .select('name', 'count')
                 .rename('name', 'person')
-                .sort('count', 'asc')
+                .sort('count:asc')
                 .limit(3)
                 .run();
 

@@ -2,7 +2,7 @@ import {
     DataTypeConfig, ReadonlyDataTypeConfig,
     Maybe, SortOrder, FieldType, DataTypeFields, DataTypeFieldConfig
 } from '@terascope/types';
-import { isFunction, TSError } from '@terascope/utils';
+import { isFunction, trimFP, TSError } from '@terascope/utils';
 import { Column, KeyAggFn, makeUniqueKeyAgg } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import {
@@ -13,9 +13,10 @@ import {
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
 import {
-    createHashCode, FieldArg, freezeArray, getFieldsFromArg, WritableData
+    createHashCode, FieldArg, flattenStringArg, freezeArray, getFieldsFromArg, WritableData
 } from '../core';
 import { getMaxColumnSize } from '../aggregation-frame/utils';
+import { Vector } from '../vector';
 
 /**
  * An immutable columnar table with APIs for data pipelines.
@@ -152,7 +153,7 @@ export class DataFrame<
     select<K extends keyof T>(...fieldArg: FieldArg<K>[]): DataFrame<Pick<T, K>> {
         const fields = [...getFieldsFromArg(this.fields, fieldArg)];
         return this.fork(fields.map(
-            (field): Column<any, any> => this.getColumn(field)!
+            (field): Column<any, any> => this.getColumnOrThrow(field)
         ));
     }
 
@@ -179,19 +180,28 @@ export class DataFrame<
      * Order the rows by fields, format of is `field:asc` or `field:desc`.
      * Defaults to `asc` if none specified
     */
-    orderBy(fieldArg: FieldArg<keyof T>, direction?: SortOrder): DataFrame<T> {
-        const fields = getFieldsFromArg(this.fields, [fieldArg]);
-        if (fields.size > 1) {
-            throw new TSError('Order by only works with one field (currently)', {
-                context: { safe: true },
-                statusCode: 400
-            });
-        }
+    orderBy(...fieldArgs: FieldArg<string>[]): DataFrame<T>;
+    orderBy(...fieldArgs: FieldArg<keyof T>[]): DataFrame<T>;
+    orderBy(...fieldArgs: (FieldArg<keyof T>[]|FieldArg<string>[])): DataFrame<T> {
+        const fields = flattenStringArg(fieldArgs);
+        const sortBy = [...fields].map(
+            (fieldArg): { field: keyof T; vector: Vector<any>; direction: SortOrder } => {
+                const [field, direction = 'asc'] = `${fieldArg}`.split(':').map(trimFP());
+                if (direction !== 'asc' && direction !== 'desc') {
+                    throw new TSError(
+                        `Expected direction ("${direction}") for orderBy field ("${field}") to be either "asc" or "desc"`,
+                        { context: { safe: true }, statusCode: 400 }
+                    );
+                }
+                return {
+                    field: field as keyof T,
+                    direction: direction as SortOrder,
+                    vector: this.getColumnOrThrow(field).vector,
+                };
+            }
+        );
 
-        const [field] = fields;
-        const sortColumn = this.getColumn(field)!;
-
-        const sortedIndices = sortColumn.vector.getSortedIndices(direction);
+        const sortedIndices = Vector.getSortedIndices(sortBy);
 
         const len = sortedIndices.length;
         const builders = getBuildersForConfig<T>(this.config, len);
@@ -214,8 +224,10 @@ export class DataFrame<
      *
      * @see orderBy
     */
-    sort(fieldArg: FieldArg<keyof T>, direction?: SortOrder): DataFrame<T> {
-        return this.orderBy(fieldArg, direction);
+    sort(...fieldArgs: FieldArg<string>[]): DataFrame<T>;
+    sort(...fieldArgs: FieldArg<keyof T>[]): DataFrame<T>;
+    sort(...fieldArgs: (FieldArg<keyof T>[]|FieldArg<string>[])): DataFrame<T> {
+        return this.orderBy(...fieldArgs);
     }
 
     /**
@@ -263,7 +275,7 @@ export class DataFrame<
 
         Object.entries(filters).forEach(([field, filter]) => {
             processFieldFilter(
-                indices, this.getColumn(field)!, filter, json
+                indices, this.getColumnOrThrow(field), filter, json
             );
         });
 
@@ -378,7 +390,7 @@ export class DataFrame<
         );
 
         const finish = ([name, builder]: [keyof T, Builder<any>]) => (
-            this.getColumn(name)!.fork(builder.toVector())
+            this.getColumnOrThrow(name).fork(builder.toVector())
         );
 
         if (arg[0] instanceof Column) {
@@ -420,7 +432,7 @@ export class DataFrame<
                 statusCode: 400
             });
         }
-        const columns = fields.map((field) => this.getColumn(field)!);
+        const columns = fields.map((field) => this.getColumnOrThrow(field));
         const childConfig: DataTypeFields = {};
         columns.forEach((col, index) => {
             childConfig[`${as}.${index}`] = col.config;
@@ -450,6 +462,19 @@ export class DataFrame<
     getColumn<P extends keyof T>(field: P): Column<T[P], P>|undefined {
         const index = this.columns.findIndex((col) => col.name === field);
         return this.getColumnAt<P>(index);
+    }
+
+    /**
+     * Get a column by name or throw if not found
+    */
+    getColumnOrThrow<P extends keyof T>(field: P): Column<T[P], P> {
+        const column = this.getColumn(field);
+        if (!column) {
+            throw new Error(`Unknown column ${field} in ${
+                this.name ? ` ${this.name}` : ''
+            } ${this.constructor.name}`);
+        }
+        return column;
     }
 
     /**

@@ -292,7 +292,7 @@ describe('DataFrame', () => {
         describe('->assign', () => {
             it('should be able to a new frame with the new column', () => {
                 const newCol = dataFrame
-                    .getColumn('name')!
+                    .getColumnOrThrow('name')
                     .transform(ColumnTransform.toUpperCase)
                     .rename('upper_name');
 
@@ -306,13 +306,13 @@ describe('DataFrame', () => {
             });
 
             it('should be able to a new frame with replaced columns', () => {
-                const newCol = dataFrame.getColumn('name')!.transform(ColumnTransform.toUpperCase);
+                const newCol = dataFrame.getColumnOrThrow('name').transform(ColumnTransform.toUpperCase);
                 const resultFrame = dataFrame.assign([newCol]);
 
                 const names = resultFrame.columns.map(({ name }) => name);
                 expect(names).toEqual(['name', 'age', 'friends']);
 
-                expect(resultFrame.getColumn('name')!.toJSON()).toEqual([
+                expect(resultFrame.getColumnOrThrow('name').toJSON()).toEqual([
                     'JILL',
                     'BILLY',
                     'FRANK',
@@ -487,7 +487,7 @@ describe('DataFrame', () => {
             });
 
             it('should be able to sort name by desc order', () => {
-                const resultFrame = dataFrame.orderBy('name', 'desc');
+                const resultFrame = dataFrame.orderBy('name:desc');
 
                 expect(resultFrame.toJSON()).toEqual([
                     {
@@ -549,7 +549,7 @@ describe('DataFrame', () => {
             });
 
             it('should be able to sort age by desc order', () => {
-                const resultFrame = dataFrame.orderBy('age', 'desc');
+                const resultFrame = dataFrame.orderBy('age:desc');
 
                 expect(resultFrame.toJSON()).toEqual([
                     {
@@ -561,6 +561,37 @@ describe('DataFrame', () => {
                         name: 'Jill',
                         age: 39,
                         friends: ['Frank']
+                    },
+                    {
+                        name: 'Frank',
+                        age: 20,
+                        friends: ['Jill']
+                    },
+                    {
+                        name: 'Nancy',
+                        age: 10
+                    },
+                    {
+                        name: 'Jane',
+                        friends: ['Jill']
+                    },
+                ]);
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+
+            it('should be able to sort name:desc and age:desc', () => {
+                const resultFrame = dataFrame.orderBy(['name:desc', 'age:desc']);
+
+                expect(resultFrame.toJSON()).toEqual([
+                    {
+                        name: 'Jill',
+                        age: 39,
+                        friends: ['Frank']
+                    },
+                    {
+                        name: 'Billy',
+                        age: 47,
+                        friends: ['Jill']
                     },
                     {
                         name: 'Frank',
