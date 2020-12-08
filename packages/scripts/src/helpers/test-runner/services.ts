@@ -219,7 +219,7 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
         },
         {
             name: `Elasticsearch service (${host})`,
-            timeoutMs: ms('60s'),
+            timeoutMs: ms('120s'),
             enabledJitter: true,
         }
     );
@@ -266,7 +266,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
         },
         {
             name: `MinIO service (${host})`,
-            timeoutMs: ms('60s'),
+            timeoutMs: ms('120s'),
             enabledJitter: true,
         }
     );
