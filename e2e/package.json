@@ -39,7 +39,7 @@
         "nanoid": "^3.1.20",
         "semver": "^7.3.4",
         "signale": "^1.4.0",
-        "uuid": "^8.3.1"
+        "uuid": "^8.3.2"
     },
     "terascope": {
         "testSuite": "e2e"
