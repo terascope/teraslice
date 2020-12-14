@@ -45,7 +45,7 @@
         "@types/bunyan": "^1.8.6",
         "@types/elasticsearch": "^5.0.37",
         "@types/js-yaml": "^3.12.2",
-        "@types/mongoose": "^5.10.2",
+        "@types/mongoose": "^5.10.3",
         "@types/redis": "^2.8.25"
     },
     "publishConfig": {
