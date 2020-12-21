@@ -41,7 +41,7 @@
         "@turf/circle": "^6.0.1",
         "@turf/clean-coords": "^6.0.1",
         "@turf/helpers": "^6.1.4",
-        "awesome-phonenumber": "^2.42.0",
+        "awesome-phonenumber": "^2.43.0",
         "date-fns": "^2.16.1",
         "ip-bigint": "^3.0.0",
         "ip6addr": "^0.2.3",
