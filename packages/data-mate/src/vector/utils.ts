@@ -1,8 +1,9 @@
 import {
+    DataTypeFields,
     FieldType
 } from '@terascope/types';
 import {
-    isNumber, isBigInt, getTypeOf, isArrayLike
+    isNumber, isBigInt, getTypeOf, isArrayLike, TSError
 } from '@terascope/utils';
 import { ListVector } from './ListVector';
 import {
@@ -90,34 +91,34 @@ export function getNumericValues(value: unknown): {
     values: bigint[],
     type: 'bigint'
 } {
-    if (value == null) {
-        return { values: [], type: 'number' };
-    }
+    let type: 'number'|'bigint' = 'number';
+    const values: any[] = [];
+    function processValue(v: unknown): void {
+        if (v == null) return;
 
-    if (isNumber(value)) {
-        return { values: [value], type: 'number' };
-    }
-    if (isBigInt(value)) {
-        return { values: [value], type: 'bigint' };
-    }
-
-    if (isArrayLike(value)) {
-        let type: 'number'|'bigint' = 'number';
-        const values: any[] = [];
-        for (const v of value) {
-            if (v == null) continue;
-            if (type === 'number' && isBigInt(v)) {
-                type = 'bigint';
+        if (isArrayLike(v)) {
+            for (const nested of v) {
+                processValue(nested);
             }
-            values.push(v);
+            return;
         }
-        return {
-            values,
-            type
-        };
-    }
 
-    throw new Error(`Unable to get numeric values from ${value} (${getTypeOf(value)})`);
+        if (!isNumber(v) && !isBigInt(v)) {
+            throw new Error(`Invalid to numeric values in ${v} (${getTypeOf(v)})`);
+        }
+
+        if (type === 'number' && isBigInt(v)) {
+            type = 'bigint';
+        }
+
+        values.push(v);
+    }
+    processValue(value);
+
+    return {
+        values,
+        type
+    };
 }
 
 export function isNumberLike(type: FieldType): boolean {
@@ -137,4 +138,33 @@ export function isIntLike(type: FieldType): boolean {
     if (type === FieldType.Short) return true;
     if (type === FieldType.Integer) return true;
     return false;
+}
+
+export function getCommonTupleType(
+    tupleField: string, childConfig: DataTypeFields|undefined
+): FieldType {
+    let fieldType: FieldType|undefined;
+    for (const config of Object.values(childConfig ?? {})) {
+        const type = config.type as FieldType;
+
+        if (!fieldType || type === fieldType) {
+            fieldType = type;
+        } else if (isIntLike(fieldType) && isIntLike(type)) {
+            fieldType = FieldType.Integer;
+        } else if (isFloatLike(fieldType) && isFloatLike(type)) {
+            fieldType = FieldType.Float;
+        } else {
+            throw new TSError(
+                `Field "${tupleField}" has conflicting field types, ${fieldType} incompatible with ${type}`,
+                { statusCode: 400, context: { safe: true } }
+            );
+        }
+    }
+    if (!fieldType) {
+        throw new TSError(
+            `Field "${tupleField}" has no child fields`,
+            { statusCode: 400, context: { safe: true } }
+        );
+    }
+    return fieldType;
 }

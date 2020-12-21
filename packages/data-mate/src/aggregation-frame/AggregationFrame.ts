@@ -5,7 +5,7 @@ import {
     KeyAggregation, ValueAggregation, valueAggMap,
     FieldAgg, KeyAggFn, keyAggMap, makeUniqueKeyAgg
 } from '../column';
-import { isNumberLike } from '../vector';
+import { getCommonTupleType, isNumberLike } from '../vector';
 import { Builder } from '../builder';
 import { getBuilderForField, getMaxColumnSize } from './utils';
 import {
@@ -128,10 +128,9 @@ export class AggregationFrame<
         field: keyof T,
         as?: A
     ): this|AggregationFrame<WithAlias<T, A, number>> {
-        const { name, type } = this._ensureColumn(field, as);
-        if (!isNumberLike(type)) {
-            throw new Error(`${ValueAggregation.avg} requires a numeric field type`);
-        }
+        const { name } = this._ensureColumn(field, as);
+        this._ensureNumericLike(name, ValueAggregation.avg);
+
         const aggObject = this._aggregations.get(name) ?? { };
         aggObject.value = ValueAggregation.avg;
         this._aggregations.set(name, aggObject);
@@ -154,10 +153,9 @@ export class AggregationFrame<
         field: keyof T,
         as?: A
     ): this|AggregationFrame<WithAlias<T, A, number>> {
-        const { name, type } = this._ensureColumn(field, as);
-        if (!isNumberLike(type)) {
-            throw new Error(`${ValueAggregation.sum} requires a numeric field type`);
-        }
+        const { name } = this._ensureColumn(field, as);
+        this._ensureNumericLike(name, ValueAggregation.sum);
+
         const aggObject = this._aggregations.get(name) ?? { };
         aggObject.value = ValueAggregation.sum;
         this._aggregations.set(name, aggObject);
@@ -180,10 +178,9 @@ export class AggregationFrame<
         field: keyof T,
         as?: A
     ): this|AggregationFrame<WithAlias<T, A, number>> {
-        const { name, type } = this._ensureColumn(field, as);
-        if (!isNumberLike(type)) {
-            throw new Error(`${ValueAggregation.min} requires a numeric field type`);
-        }
+        const { name } = this._ensureColumn(field, as);
+        this._ensureNumericLike(name, ValueAggregation.min);
+
         const aggObject = this._aggregations.get(name) ?? { };
         aggObject.value = ValueAggregation.min;
         this._aggregations.set(name, aggObject);
@@ -206,10 +203,9 @@ export class AggregationFrame<
         field: keyof T,
         as?: A
     ): this|AggregationFrame<WithAlias<T, A, number>> {
-        const { name, type } = this._ensureColumn(field, as);
-        if (!isNumberLike(type)) {
-            throw new Error(`${ValueAggregation.max} requires a numeric field type`);
-        }
+        const { name } = this._ensureColumn(field, as);
+        this._ensureNumericLike(name, ValueAggregation.max);
+
         const aggObject = this._aggregations.get(name) ?? { };
         aggObject.value = ValueAggregation.max;
         this._aggregations.set(name, aggObject);
@@ -461,8 +457,7 @@ export class AggregationFrame<
         name: keyof T,
         type: FieldType
     } {
-        const col = this.getColumn(field);
-        if (!col) throw new Error(`Unknown column named "${field}"`);
+        const col = this.getColumnOrThrow(field);
 
         if (as) {
             const columns: Column<any, keyof T>[] = [];
@@ -484,6 +479,22 @@ export class AggregationFrame<
             name: col.name,
             type: col.config.type as FieldType
         };
+    }
+
+    private _ensureNumericLike(field: keyof T, ctx: string): void {
+        const column = this.getColumnOrThrow(field);
+        let fieldType: FieldType;
+        if (column.config.type === FieldType.Tuple) {
+            fieldType = getCommonTupleType(
+                field as string, column.vector.childConfig
+            );
+        } else {
+            fieldType = column.config.type as FieldType;
+        }
+
+        if (!isNumberLike(fieldType)) {
+            throw new Error(`${ctx} requires a numeric field type`);
+        }
     }
 
     /**
