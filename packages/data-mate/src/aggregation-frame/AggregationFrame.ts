@@ -461,8 +461,7 @@ export class AggregationFrame<
         name: keyof T,
         type: FieldType
     } {
-        const col = this.getColumn(field);
-        if (!col) throw new Error(`Unknown column named "${field}"`);
+        const col = this.getColumnOrThrow(field);
 
         if (as) {
             const columns: Column<any, keyof T>[] = [];
