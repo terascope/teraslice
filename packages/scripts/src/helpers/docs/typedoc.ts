@@ -1,7 +1,9 @@
 import path from 'path';
 import fse from 'fs-extra';
-import { Application } from 'typedoc';
-import { JsxEmit, ModuleKind, ModuleResolutionKind, ScriptTarget } from 'typescript';
+import { Application, TSConfigReader } from 'typedoc';
+import {
+    JsxEmit, ModuleKind, ModuleResolutionKind, ScriptTarget
+} from 'typescript';
 import { PackageInfo } from '../interfaces';
 import { listMdFiles, getName, writeIfChanged } from '../misc';
 import signale from '../signale';
@@ -82,48 +84,52 @@ async function fixDocs(outputDir: string, { displayName }: PackageInfo) {
     await Promise.all(promises);
 }
 
-export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string) {
+app.options.addReader(new TSConfigReader());
+app.bootstrap({
+    theme: 'markdown',
+    exclude: ['test', 'node_modules'],
+    excludePrivate: true,
+    excludeExternals: true,
+    hideGenerator: true,
+    readme: 'none',
+});
+
+export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string): Promise<void> {
     signale.await(`building typedocs for package ${pkgInfo.name}`);
 
     const cwd = process.cwd();
     try {
         process.chdir(pkgInfo.dir);
-        app.bootstrap({
-            name: pkgInfo.name,
-            target: ScriptTarget.ESNext,
-            tsconfig: path.join(pkgInfo.dir, 'tsconfig.json'),
-            // @ts-expect-error
-            platform: 'docusaurus' as any,
-            mode: 'file',
-            theme: 'markdown',
-            exclude: ['test', 'node_modules'],
-            excludePrivate: true,
-            excludeExternals: true,
-            excludeNotExported: true,
-            experimentalDecorators: true,
-            skipLibCheck: true,
-            esModuleInterop: true,
-            ignoreCompilerErrors: true,
-            strict: false,
-            jsx: JsxEmit.React,
-            moduleResolution: ModuleResolutionKind.NodeJs,
-            module: ModuleKind.CommonJS,
-            hideGenerator: true,
-            readme: 'none',
-        })
-        const inputFiles = [...app.expandInputFiles(['src'])];
+
+        app.options.setValue('name', pkgInfo.name);
+        app.options.setValue('tsconfig', path.join(pkgInfo.dir, 'tsconfig.json'));
+
+        if (app.logger.hasErrors()) {
+            signale.error(`found errors typedocs for package ${pkgInfo.name}`);
+            return;
+        }
+        const project = app.convert();
+        if (!project) {
+            signale.error(`invalid typedocs for package ${pkgInfo.name}`);
+            return;
+        }
 
         if (fse.existsSync(outputDir)) {
             await fse.emptyDir(outputDir);
         }
         await fse.ensureDir(outputDir);
-        // Project may not have converted correctly
-        // Rendered docs
-        app.generateDocs(inputFiles, outputDir);
+
+        await app.generateDocs(project, outputDir);
+
+        if (app.logger.hasErrors()) {
+            signale.error(`found errors when generating typedocs for package ${pkgInfo.name}`);
+            return;
+        }
 
         await fixDocs(outputDir, pkgInfo);
-    } finally {
+
         signale.success(`generated docs for package ${pkgInfo.name}`);
+    } finally {
         process.chdir(cwd);
     }
 }
