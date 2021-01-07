@@ -8,7 +8,7 @@ import { PackageInfo } from '../interfaces';
 import { listMdFiles, getName, writeIfChanged } from '../misc';
 import signale from '../signale';
 
-const app = new Application();
+
 
 function isOverview(filePath: string): boolean {
     return path.basename(filePath, '.md') === 'overview';
@@ -25,7 +25,7 @@ async function writeDocFile(filePath: string, { title, sidebarLabel }: { title: 
 
     // fix paths
     contents = contents
-        .replace(/(\]\([\w\.\/]*)index\.md/g, '$1overview.md');
+        .replace(/(\]\([\w\.\/]*)README\.md/g, '$1overview.md');
     // build final content
     contents = `---
 title: ${title}
@@ -53,10 +53,10 @@ function getAPIName(overview: string, outputDir: string, filePath: string) {
 }
 
 async function fixDocs(outputDir: string, { displayName }: PackageInfo) {
-    const overviewFilePath = listMdFiles(outputDir).find((filePath) => path.basename(filePath, '.md') === 'index');
+    const overviewFilePath = listMdFiles(outputDir).find((filePath) => path.basename(filePath, '.md') === 'README');
     if (!overviewFilePath) {
         signale.error(
-            'Error: Package documentation was not generated correctly',
+            'Error: Package documentation was not generated correctly' +
             ", this means the package my not work with the typedoc's version of TypeScript."
         );
         return;
@@ -84,15 +84,7 @@ async function fixDocs(outputDir: string, { displayName }: PackageInfo) {
     await Promise.all(promises);
 }
 
-app.options.addReader(new TSConfigReader());
-app.bootstrap({
-    theme: 'markdown',
-    exclude: ['test', 'node_modules'],
-    excludePrivate: true,
-    excludeExternals: true,
-    hideGenerator: true,
-    readme: 'none',
-});
+
 
 export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string): Promise<void> {
     signale.await(`building typedocs for package ${pkgInfo.name}`);
@@ -100,9 +92,19 @@ export async function generateTSDocs(pkgInfo: PackageInfo, outputDir: string): P
     const cwd = process.cwd();
     try {
         process.chdir(pkgInfo.dir);
-
-        app.options.setValue('name', pkgInfo.name);
-        app.options.setValue('tsconfig', path.join(pkgInfo.dir, 'tsconfig.json'));
+        const app = new Application();
+        app.options.addReader(new TSConfigReader());
+        app.bootstrap({
+            name: pkgInfo.name,
+            tsconfig: path.join(pkgInfo.dir, 'tsconfig.json'),
+            theme: 'markdown',
+            exclude: ['test', 'node_modules'],
+            excludePrivate: true,
+            excludeExternals: true,
+            hideGenerator: true,
+            readme: 'none',
+        });
+        app.options.setValue("entryPoints", app.expandInputFiles(['src']));
 
         if (app.logger.hasErrors()) {
             signale.error(`found errors typedocs for package ${pkgInfo.name}`);
