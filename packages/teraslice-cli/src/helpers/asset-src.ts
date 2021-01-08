@@ -3,7 +3,7 @@ import prettyBytes from 'pretty-bytes';
 import fs from 'fs-extra';
 import path from 'path';
 import tmp from 'tmp';
-import { toInteger, TSError } from '@terascope/utils';
+import { isCI, toInteger, TSError } from '@terascope/utils';
 import { getPackage } from '../helpers/utils';
 import reply from './reply';
 
@@ -77,6 +77,8 @@ export class AssetSrc {
         // make temp dir
         const tmpDir = tmp.dirSync();
 
+        reply.info(`* copying files to the tmp directory "${tmpDir.name}"`);
+
         // copy entire asset dir (srcDir) to tempdir
         await fs.copy(this.srcDir, tmpDir.name);
 
@@ -98,9 +100,9 @@ export class AssetSrc {
                 assetJSON.arch = process.arch;
                 restrictions.push('arch');
             }
-            if (restrictions.length) {
+            if (restrictions.length && !isCI) {
                 reply.info(
-                    `Automatically added ${restrictions.join(', ')} restrictions for the asset`
+                    `[NOTE] Automatically added ${restrictions.join(', ')} restrictions for the asset`
                     + ' Use --dev to temporarily disable this,'
                     + ` or put false for the values ${restrictions.join(', ')} in the asset.json`
                 );
@@ -114,15 +116,23 @@ export class AssetSrc {
         // remove srcDir/asset/node_modules
         await fs.remove(path.join(tmpDir.name, 'asset', 'node_modules'));
 
-        // run yarn --cwd srcDir/asset --prod --silent --no-progress
-        await this._yarnCmd(path.join(tmpDir.name, 'asset'), ['--prod', '--no-progress']);
-
         // run yarn --cwd srcDir --prod --silent --no-progress asset:build
         if (this.packageJson?.scripts && this.packageJson.scripts['asset:build']) {
+            reply.info('* running yarn asset:build');
             await this._yarnCmd(tmpDir.name, ['run', 'asset:build']);
         }
 
+        if (await fs.pathExists(path.join(tmpDir.name, '.yarnclean'))) {
+            reply.info('* running yarn autoclean --force');
+            await this._yarnCmd(tmpDir.name, ['autoclean', '--force']);
+        }
+
+        // run npm --cwd srcDir/asset --prod --silent --no-progress
+        reply.info('* running yarn  --prod --no-progress');
+        await this._yarnCmd(path.join(tmpDir.name, 'asset'), ['--prod', '--no-progress']);
+
         try {
+            reply.info('* zipping the asset bundle');
             // create zipfile
             zipOutput = await AssetSrc.zip(path.join(tmpDir.name, 'asset'), outputFileName);
             // remove temp directory
