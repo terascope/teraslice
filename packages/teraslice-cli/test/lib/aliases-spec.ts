@@ -1,3 +1,4 @@
+import 'jest-extended';
 import path from 'path';
 import fs from 'fs';
 // @ts-expect-error

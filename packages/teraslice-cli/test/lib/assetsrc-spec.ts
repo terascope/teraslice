@@ -1,7 +1,8 @@
+import 'jest-extended';
 import path from 'path';
 import fs from 'fs-extra';
 import tmp from 'tmp';
-import AssetSrc from '../../src/helpers/asset-src';
+import { AssetSrc } from '../../src/helpers/asset-src';
 
 describe('AssetSrc', () => {
     let testAsset: AssetSrc;
@@ -32,15 +33,18 @@ describe('AssetSrc', () => {
     test('build', async () => {
         const r = await testAsset.build();
         expect(r).toInclude('.zip');
-        await fs.remove(r);
+        await fs.remove(r.name);
     });
 
-    test('->zip', async () => {
+    test('#zip', async () => {
         const tmpDir = tmp.dirSync();
-        const outFile = path.join(tmpDir.name, 'out.zip');
-        const zipOutput = await AssetSrc.zip(path.join(__dirname, 'fixtures', 'testAsset', 'asset'), outFile);
-        expect(zipOutput.success).toEqual(outFile);
-        await fs.remove(tmpDir.name);
+        try {
+            const outFile = path.join(tmpDir.name, 'out.zip');
+            const zipOutput = await AssetSrc.zip(path.join(__dirname, '..', 'fixtures', 'testAsset', 'asset'), outFile);
+            expect(zipOutput.name).toEqual(outFile);
+        } finally {
+            await fs.remove(tmpDir.name);
+        }
     });
 });
 

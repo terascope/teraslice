@@ -1,18 +1,18 @@
 import execa from 'execa';
+import prettyBytes from 'pretty-bytes';
 import fs from 'fs-extra';
-import archiver from 'archiver';
 import path from 'path';
 import tmp from 'tmp';
-import { toInteger } from '@terascope/utils';
+import { toInteger, TSError } from '@terascope/utils';
 import { getPackage } from '../helpers/utils';
 import reply from './reply';
 
 interface ZipResults {
-    success: string;
+    name: string;
     bytes: string;
 }
 
-export default class AssetSrc {
+export class AssetSrc {
     /**
      *
      * @param {string} srcDir Path to a valid asset source directory, must
@@ -64,7 +64,7 @@ export default class AssetSrc {
         return execa('yarn', yarnArgs, { cwd: dir });
     }
 
-    async build(): Promise<string> {
+    async build(): Promise<ZipResults> {
         let zipOutput;
         const outputFileName = path.join(this.buildDir, this.zipFileName);
 
@@ -128,38 +128,29 @@ export default class AssetSrc {
             // remove temp directory
             await fs.remove(tmpDir.name);
         } catch (err) {
-            throw new Error(`Error creating asset zipfile: ${err}`);
+            throw new TSError(err, {
+                reason: 'Failure creating asset zipfile'
+            });
         }
-        return zipOutput.success;
+        return zipOutput;
     }
 
     /**
      * zip - Creates properly named zip archive of asset from tmpAssetDir
      * @param {string} tmpAssetDir Path to the temporary asset source directory
      */
-    static zip(tmpAssetDir: string, outputFileName: string): Promise<ZipResults> {
-        const zipMessage = { bytes: '', success: '' };
+    static async zip(tmpAssetDir: string, outputFileName: string): Promise<ZipResults> {
+        if (!await fs.pathExists(tmpAssetDir)) {
+            throw new Error(`Missing asset directory "${tmpAssetDir}"`);
+        }
 
-        return new Promise((resolve, reject) => {
-            const output = fs.createWriteStream(outputFileName);
-            const archive = archiver('zip', {
-                zlib: { level: 9 }
-            });
-
-            output.on('finish', () => {
-                zipMessage.bytes = `${archive.pointer()} total bytes`;
-                zipMessage.success = outputFileName;
-                resolve(zipMessage);
-            });
-
-            archive.on('error', (err: any) => {
-                reject(err);
-            });
-
-            archive.pipe(output);
-            archive
-                .directory(tmpAssetDir, false)
-                .finalize();
+        await execa('zip', ['--symlinks', '-q', '-r', '-9', outputFileName, '.'], {
+            stdio: 'inherit',
+            cwd: tmpAssetDir
         });
+
+        const { size } = await fs.stat(outputFileName);
+
+        return { name: outputFileName, bytes: prettyBytes(size) };
     }
 }
