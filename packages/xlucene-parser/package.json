@@ -54,7 +54,7 @@
     "devDependencies": {
         "@types/netmask": "^1.0.30",
         "pegjs": "^0.10.0",
-        "ts-pegjs": "^0.2.7"
+        "ts-pegjs": "^0.3.0"
     },
     "engines": {
         "node": ">=10.16.0"
