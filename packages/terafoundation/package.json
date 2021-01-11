@@ -30,7 +30,7 @@
         "@terascope/utils": "^0.34.1",
         "aws-sdk": "^2.804.0",
         "bluebird": "^3.7.2",
-        "bunyan": "^1.8.14",
+        "bunyan": "^1.8.15",
         "convict": "^4.4.1",
         "elasticsearch": "^15.4.1",
         "js-yaml": "^3.14.1",
