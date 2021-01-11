@@ -29,4 +29,30 @@ describe('transform', () => {
             })).toBe('foo OR bar AND foo:foo');
         });
     });
+
+    describe('when given a simple escaped expression string', () => {
+        it('should not evaluate the expression with \\$', () => {
+            expect(transform('\\${foo_var}', {
+                variables: {}
+            })).toBe('\\${foo_var}');
+        });
+
+        it('should not evaluate the expression with \\}', () => {
+            expect(transform('${foo_var\\}', {
+                variables: {}
+            })).toBe('${foo_var\\}');
+        });
+
+        it('should not evaluate the expression with \\{', () => {
+            expect(transform('$\\{foo_var}', {
+                variables: {}
+            })).toBe('$\\{foo_var}');
+        });
+
+        it('should not evaluate the expression with escaped everywhere', () => {
+            expect(transform('\\$\\{foo_var\\}', {
+                variables: {}
+            })).toBe('\\$\\{foo_var\\}');
+        });
+    });
 });
