@@ -55,4 +55,12 @@ describe('transform', () => {
             })).toBe('\\$\\{foo_var\\}');
         });
     });
+
+    describe('when given a double escaped expression string', () => {
+        it('should evaluate the expression and return the escape', () => {
+            expect(transform('\\\\${foo_var}', {
+                variables: { foo_var: 'foo' }
+            })).toBe('\\\\foo');
+        });
+    });
 });

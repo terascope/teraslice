@@ -11,14 +11,13 @@ export function transform(input: string, options: Options): string {
     let output = '';
 
     for (let i = 0; i < len; i++) {
-        const prevChar = input[i - 1];
         const char = input[i];
         const nextChar = input[i + 1];
-        if (prevChar !== '\\' && char === '$' && nextChar === '{') {
+        if (char === '$' && nextChar === '{' && !isEscaped(input, i)) {
             let expression = '';
             let terminated = false;
             for (let j = (i + 2); j < len; j++) {
-                if (input[j - 1] !== '\\' && input[j] === '}') {
+                if (input[j] === '}' && !isEscaped(input, j)) {
                     i = j;
                     terminated = true;
                     break;
@@ -39,4 +38,19 @@ export function transform(input: string, options: Options): string {
     }
 
     return output;
+}
+
+function isEscaped(input: string, pos: number): boolean {
+    if (pos === 0) return false;
+    let i = pos;
+    let lastCharEscaped = false;
+    while (i--) {
+        const char = input[i];
+        if (char === '\\') {
+            lastCharEscaped = !lastCharEscaped;
+        } else {
+            return lastCharEscaped;
+        }
+    }
+    return lastCharEscaped;
 }
