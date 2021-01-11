@@ -1,4 +1,4 @@
-import AssetSrc from '../../helpers/asset-src';
+import { AssetSrc } from '../../helpers/asset-src';
 import { CMD } from '../../interfaces';
 import reply from '../../helpers/reply';
 import Config from '../../helpers/config';
@@ -31,7 +31,7 @@ export = {
             const asset = new AssetSrc(cliConfig.args.srcDir, cliConfig.args.dev);
             reply.green('Beginning asset build.');
             const buildResult = await asset.build();
-            reply.green(`Asset created:\n\t${buildResult}`);
+            reply.green(`Asset created:\n\t${buildResult.name} (${buildResult.bytes})`);
         } catch (err) {
             reply.fatal(`Error building asset: ${err}`);
         }
