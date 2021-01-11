@@ -32,14 +32,17 @@ describe('AssetSrc', () => {
 
     test('build', async () => {
         const r = await testAsset.build();
-        expect(r).toInclude('.zip');
-        await fs.remove(r.name);
+        try {
+            expect(r.name).toEndWith('.zip');
+        } finally {
+            await fs.remove(r.name);
+        }
     });
 
     test('#zip', async () => {
         const tmpDir = tmp.dirSync();
+        const outFile = path.join(tmpDir.name, 'out.zip');
         try {
-            const outFile = path.join(tmpDir.name, 'out.zip');
             const zipOutput = await AssetSrc.zip(path.join(__dirname, '..', 'fixtures', 'testAsset', 'asset'), outFile);
             expect(zipOutput.name).toEqual(outFile);
         } finally {
