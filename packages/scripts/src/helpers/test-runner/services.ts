@@ -18,6 +18,8 @@ import signale from '../signale';
 
 const logger = ts.debugLogger('ts-scripts:cmd:test');
 
+const serviceUpTimeout = ms('2m');
+
 const disableXPackSecurity = !config.ELASTICSEARCH_DOCKER_IMAGE.includes('blacktop');
 
 const services: Readonly<Record<Service, Readonly<DockerRunOptions>>> = {
@@ -219,7 +221,7 @@ async function checkElasticsearch(options: TestOptions, startTime: number): Prom
         },
         {
             name: `Elasticsearch service (${host})`,
-            timeoutMs: ms('120s'),
+            timeoutMs: serviceUpTimeout,
             enabledJitter: true,
         }
     );
@@ -266,7 +268,7 @@ async function checkMinio(options: TestOptions, startTime: number): Promise<void
         },
         {
             name: `MinIO service (${host})`,
-            timeoutMs: ms('120s'),
+            timeoutMs: serviceUpTimeout,
             enabledJitter: true,
         }
     );
