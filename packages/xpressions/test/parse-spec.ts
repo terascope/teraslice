@@ -20,7 +20,28 @@ describe('parse', () => {
                 }
             })).toEqual([{
                 type: NodeType.EXPRESSION,
-                value: 'foo_var'
+                value: 'foo_var',
+                variables: [{
+                    scoped: false,
+                    value: 'foo_var'
+                }]
+            }]);
+        });
+    });
+
+    describe('when given scoped variable expression', () => {
+        it('should return the valuated string', () => {
+            expect(parse('${@foo_var}', {
+                variables: {
+                    '@foo_var': 'foo'
+                }
+            })).toEqual([{
+                type: NodeType.EXPRESSION,
+                value: '@foo_var',
+                variables: [{
+                    scoped: true,
+                    value: '@foo_var'
+                }]
             }]);
         });
     });
@@ -34,19 +55,31 @@ describe('parse', () => {
                 }
             })).toEqual([{
                 type: NodeType.EXPRESSION,
-                value: 'foo_var'
+                value: 'foo_var',
+                variables: [{
+                    scoped: false,
+                    value: 'foo_var'
+                }]
             }, {
                 type: NodeType.LITERAL,
-                value: ' OR '
+                value: ' OR ',
             }, {
                 type: NodeType.EXPRESSION,
-                value: 'bar_var'
+                value: 'bar_var',
+                variables: [{
+                    scoped: false,
+                    value: 'bar_var'
+                }]
             }, {
                 type: NodeType.LITERAL,
                 value: ' AND foo:'
             }, {
                 type: NodeType.EXPRESSION,
-                value: 'foo_var'
+                value: 'foo_var',
+                variables: [{
+                    scoped: false,
+                    value: 'foo_var'
+                }]
             }]);
         });
     });
@@ -98,7 +131,11 @@ describe('parse', () => {
                 value: '\\\\'
             }, {
                 type: NodeType.EXPRESSION,
-                value: 'foo_var'
+                value: 'foo_var',
+                variables: [{
+                    scoped: false,
+                    value: 'foo_var'
+                }]
             }]);
         });
     });

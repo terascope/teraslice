@@ -37,9 +37,14 @@ export function parse(input: string, _options: Options): AST {
                 }
             }
             if (terminated) {
+                const variable = expression.trim();
                 ast.push({
                     type: NodeType.EXPRESSION,
                     value: expression,
+                    variables: [{
+                        scoped: variable.startsWith('@'),
+                        value: variable
+                    }]
                 });
             } else {
                 ast.push({

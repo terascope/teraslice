@@ -27,6 +27,12 @@ export function isLiteralNode(node: Node): node is LiteralNode {
 export interface ExpressionNode extends Node {
     readonly type: NodeType.EXPRESSION;
     readonly value: string;
+    readonly variables: readonly Variable[];
+}
+
+export interface Variable {
+    scoped: boolean;
+    value: string;
 }
 
 export function isExpressionNode(node: Node): node is ExpressionNode {
