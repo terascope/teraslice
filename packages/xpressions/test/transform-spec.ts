@@ -10,12 +10,44 @@ describe('transform', () => {
     });
 
     describe('when given single expression string', () => {
-        it('should return the valuated string', () => {
+        it('should return the evaluated string', () => {
             expect(transform('${foo_var}', {
                 variables: {
                     foo_var: 'foo'
                 }
             })).toBe('foo');
+        });
+    });
+
+    describe('when given single expression string with a scoped variable', () => {
+        it('should return the evaluated string', () => {
+            expect(transform('${@foo_var}', {
+                variables: {
+                    '@foo_var': 'foo'
+                }
+            })).toBe('foo');
+        });
+    });
+
+    describe('when given a expression with whitespace', () => {
+        it('should return ignore the whitespace in the expression but any other whitespace', () => {
+            expect(transform(' ${  foo_var  } ', {
+                variables: {
+                    foo_var: 'foo'
+                }
+            })).toBe(' foo ');
+        });
+    });
+
+    describe('when given a expression with an unknown variable', () => {
+        it('should throw an error', () => {
+            expect(() => {
+                transform('${foo_var2}', {
+                    variables: {
+                        foo_var: 'foo'
+                    }
+                });
+            }).toThrow('Invalid expression "foo_var2" given');
         });
     });
 
