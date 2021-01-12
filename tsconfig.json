@@ -41,6 +41,9 @@
             "path": "packages/utils"
         },
         {
+            "path": "packages/xpressions"
+        },
+        {
             "path": "packages/data-types"
         },
         {
