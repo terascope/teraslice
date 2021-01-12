@@ -10,7 +10,7 @@ describe('index', () => {
         expect(index.transform).toBeFunction();
     });
 
-    it('should export validate', () => {
-        expect(index.validate).toBeFunction();
+    it('should export parse', () => {
+        expect(index.parse).toBeFunction();
     });
 });
