@@ -1,7 +1,7 @@
 import 'jest-extended';
 import 'jest-fixtures';
 import { LATEST_VERSION } from '@terascope/data-types';
-import { FieldType } from '@terascope/types';
+import { DataTypeConfig, FieldType } from '@terascope/types';
 import { ColumnTransform, DataFrame } from '../src';
 
 describe('DataFrame', () => {
@@ -472,6 +472,33 @@ describe('DataFrame', () => {
 
                 expect(resultFrame.size).toEqual(dataFrame.size + df1.size + df2.size);
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+
+            it('should be able to concat with ip', () => {
+                const dtConfig: DataTypeConfig = {
+                    version: LATEST_VERSION,
+                    fields: {
+                        ip: {
+                            type: FieldType.IP,
+                        },
+                    }
+                };
+                const dt1 = DataFrame.fromJSON<{ ip: string }>(
+                    dtConfig, [{ ip: '127.0.0.1' }, { ip: '10.0.0.1' }]
+                );
+
+                const dt2 = DataFrame.fromJSON<{ ip: string }>(
+                    dtConfig, [{ ip: '192.168.1.1' }, { ip: '12.30.2.1' }]
+                );
+
+                const resultFrame = dt1.concat(dt2.columns);
+                expect(resultFrame.toJSON()).toEqual([
+                    { ip: '127.0.0.1' },
+                    { ip: '10.0.0.1' },
+                    { ip: '192.168.1.1' },
+                    { ip: '12.30.2.1' }
+                ]);
+                expect(resultFrame.size).toEqual(4);
             });
 
             it('should be able to append columns with different lengths', () => {

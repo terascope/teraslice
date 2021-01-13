@@ -537,25 +537,6 @@ export class DataFrame<
     toArray(): T[] {
         return Array.from(this.rows(false));
     }
-
-    [Symbol.for('nodejs.util.inspect.custom')](): any {
-        const proxy = {
-            id: this.id,
-            name: this.name,
-            size: this.size,
-            config: this.config,
-            metadata: this.metadata,
-            columns: this.columns,
-        };
-
-        // Trick so that node displays the name of the constructor
-        Object.defineProperty(proxy, 'constructor', {
-            value: DataFrame,
-            enumerable: false
-        });
-
-        return proxy;
-    }
 }
 
 /**
