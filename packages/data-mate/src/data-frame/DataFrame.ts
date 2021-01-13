@@ -2,7 +2,11 @@ import {
     DataTypeConfig, ReadonlyDataTypeConfig,
     Maybe, SortOrder, FieldType, DataTypeFields, DataTypeFieldConfig
 } from '@terascope/types';
-import { isFunction, trimFP, TSError } from '@terascope/utils';
+import {
+    DataEntity, TSError,
+    getTypeOf, isFunction,
+    isPlainObject, trimFP
+} from '@terascope/utils';
 import { Column, KeyAggFn, makeUniqueKeyAgg } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import {
@@ -376,10 +380,17 @@ export class DataFrame<
     )): DataFrame<T> {
         if (!arg?.length) return this;
 
+        const isColumns = arg[0] instanceof Column;
         let len: number;
-        if (arg[0] instanceof Column) {
+        if (isColumns) {
             len = getMaxColumnSize(arg as Column[]);
         } else {
+            const valid = DataEntity.isDataEntity(arg[0]) || isPlainObject(arg[0]);
+            if (!valid) {
+                throw new Error(
+                    `Unexpected input given to DataFrame.concat, got ${getTypeOf(arg[0])}`
+                );
+            }
             len = (arg as T[]).length;
         }
 
@@ -393,7 +404,7 @@ export class DataFrame<
             this.getColumnOrThrow(name).fork(builder.toVector())
         );
 
-        if (arg[0] instanceof Column) {
+        if (isColumns) {
             return this.fork(
                 concatColumnsToColumns(
                     builders,
