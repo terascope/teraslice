@@ -60,10 +60,22 @@ export class Column<T = unknown, N extends NameType = string> {
 
     readonly vector: Vector<T>;
 
+    /**
+     * Get the size of the column
+    */
+    readonly size: number;
+
+    /**
+     * Get the Data Type field configuration.
+    */
+    readonly config: Readonly<DataTypeFieldConfig>;
+
     constructor(vector: Vector<T>, options: ColumnOptions<N>|Readonly<ColumnOptions<N>>) {
         this.vector = vector;
         this.name = options.name;
         this.version = options.version ?? LATEST_VERSION;
+        this.size = this.vector.size;
+        this.config = this.vector.config;
     }
 
     /**
@@ -80,20 +92,6 @@ export class Column<T = unknown, N extends NameType = string> {
     */
     get id(): string {
         return getVectorId(this.vector);
-    }
-
-    /**
-     * Get the size of the column
-    */
-    get size(): number {
-        return this.vector.size;
-    }
-
-    /**
-     * Get the Data Type field configuration.
-    */
-    get config(): Readonly<DataTypeFieldConfig> {
-        return this.vector.config;
     }
 
     /**
@@ -271,23 +269,5 @@ export class Column<T = unknown, N extends NameType = string> {
     */
     toJSON(): Maybe<JSONValue<T>>[] {
         return this.vector.toJSON();
-    }
-
-    [Symbol.for('nodejs.util.inspect.custom')](): any {
-        const proxy = {
-            id: this.id,
-            name: this.name,
-            vector: this.vector,
-            config: this.config,
-            size: this.size,
-        };
-
-        // Trick so that node displays the name of the constructor
-        Object.defineProperty(proxy, 'constructor', {
-            value: Column,
-            enumerable: false
-        });
-
-        return proxy;
     }
 }
