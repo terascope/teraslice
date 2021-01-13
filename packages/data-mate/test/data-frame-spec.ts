@@ -225,8 +225,8 @@ describe('DataFrame', () => {
         type Person = { name: string; age: number; friends: string[] }
         let dataFrame: DataFrame<Person>;
 
-        beforeEach(() => {
-            dataFrame = DataFrame.fromJSON<Person>({
+        function createDataFrame(data: Person[]) {
+            return DataFrame.fromJSON<Person>({
                 version: LATEST_VERSION,
                 fields: {
                     name: {
@@ -240,7 +240,11 @@ describe('DataFrame', () => {
                         array: true,
                     }
                 }
-            }, [
+            }, data);
+        }
+
+        beforeEach(() => {
+            dataFrame = createDataFrame([
                 {
                     name: 'Jill',
                     age: 39,
@@ -393,11 +397,80 @@ describe('DataFrame', () => {
 
             it('should be able to append the existing columns', () => {
                 const resultFrame = dataFrame.concat(dataFrame.columns);
-
+                const data = dataFrame.toJSON();
                 expect(resultFrame.toJSON()).toEqual(
-                    dataFrame.toJSON().concat(dataFrame.toJSON())
+                    data.concat(data)
                 );
                 expect(resultFrame.size).toEqual(dataFrame.size * 2);
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+
+            it('should be able append other columns from a similar data frames', () => {
+                const df1 = createDataFrame([
+                    {
+                        name: 'Test1',
+                        age: 23,
+                        friends: ['Frank']
+                    },
+                    {
+                        name: 'Test2',
+                        age: 40,
+                        friends: []
+                    },
+                    {
+                        name: 'Test3',
+                        age: 90,
+                        friends: ['Test1', 'Test2']
+                    },
+                ]);
+
+                const df2 = createDataFrame([
+                    {
+                        name: 'Example1',
+                        age: 79,
+                        friends: ['Frank', 'Test1']
+                    },
+                    {
+                        name: 'Example2',
+                        age: 40,
+                        friends: ['Example1']
+                    },
+                    {
+                        name: 'Example3',
+                        age: 6,
+                        friends: ['Example2']
+                    },
+                    {
+                        name: 'Example4',
+                        age: 7,
+                        friends: ['Example2']
+                    },
+                    {
+                        name: 'Example5',
+                        age: 8,
+                        friends: ['Example2']
+                    },
+                    {
+                        name: 'Example6',
+                        age: 9,
+                        friends: ['Example2']
+                    },
+                    {
+                        name: 'Example7',
+                        age: 10,
+                        friends: ['Example2']
+                    },
+                ]);
+
+                const resultFrame = dataFrame
+                    .concat(df1.columns)
+                    .concat(df2.columns);
+
+                expect(resultFrame.toJSON()).toEqual(
+                    dataFrame.toJSON().concat(df1.toJSON(), df2.toJSON())
+                );
+
+                expect(resultFrame.size).toEqual(dataFrame.size + df1.size + df2.size);
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
             });
 

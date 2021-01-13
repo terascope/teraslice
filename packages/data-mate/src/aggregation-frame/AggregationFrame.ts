@@ -21,8 +21,6 @@ import { columnsToDataTypeConfig, makeKeyForRow } from '../data-frame/utils';
  *  - The operations are added to an instruction set and in one optimized execution.
  *  - All methods in the AggregationFrame will mutate the execution
  *    instructions instead of return a new instance with the applied changes.
- *
- * @todo verify the use of unique
 */
 export class AggregationFrame<
     T extends Record<string, any>
