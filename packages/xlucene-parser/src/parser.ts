@@ -287,7 +287,9 @@ function coerceNodeValue(
     const value = utils.getFieldValue<any>(
         node.value, variables, allowNil
     );
-    const coerceFn = utils.makeCoerceFn(node.field_type);
+    const coerceFn = allowNil && value == null
+        ? () => null
+        : utils.makeCoerceFn(node.field_type);
 
     if (Array.isArray(value)) {
         if (skipAutoFieldGroup) {
