@@ -33,7 +33,7 @@ describe('evaluate', () => {
                         bar_var: 'bar'
                     }
                 });
-            }).toThrow('Invalid expression "unknown" given');
+            }).toThrow('Missing variable "unknown" in expression');
         });
     });
 });

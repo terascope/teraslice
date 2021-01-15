@@ -13,10 +13,13 @@ import {
     toIntegerOrThrow,
     toFloatOrThrow,
     getTypeOf,
-    isBooleanLike
+    isBooleanLike,
+    isNotNil
 } from '@terascope/utils';
 import { Netmask } from 'netmask';
-import { xLuceneFieldType, xLuceneVariables, CoordinateTuple } from '@terascope/types';
+import {
+    xLuceneFieldType, xLuceneVariables, CoordinateTuple, Maybe
+} from '@terascope/types';
 import * as i from './interfaces';
 
 export const logger = debugLogger('xlucene-parser');
@@ -128,36 +131,51 @@ export function validateVariables(obj: xLuceneVariables): xLuceneVariables {
 }
 
 export function getFieldValue<T>(
-    value: i.FieldValue<T>[],
+    value: i.FieldValue<T>,
     variables: xLuceneVariables,
-): T[];
+    allowNil: true
+): Maybe<T>;
 export function getFieldValue<T>(
     value: i.FieldValue<T>,
     variables: xLuceneVariables,
+    allowNil?: boolean
 ): T;
+export function getFieldValue<T>(
+    value: i.FieldValue<T>[],
+    variables: xLuceneVariables,
+    allowNil?: boolean
+): T[];
 export function getFieldValue<T>(
     value: i.FieldValue<T>|i.FieldValue<T>[],
     variables: xLuceneVariables,
-): T|T[] {
+    allowNil?: boolean
+): (T|Maybe<T>)|(T[]) {
     if (Array.isArray(value)) {
-        return value.map((val) => getFieldValue(val, variables)) as T[];
+        return value
+            .map((val) => getFieldValue<any>(val, variables, true))
+            .filter(isNotNil);
     }
+
     if (value.type === 'variable') {
         if (variables[value.value] != null) {
             return variables[value.value] as T;
         }
+        if (allowNil) return null;
+
         if (value.scoped) {
             throw new Error(`Could not find a scoped variable ${value.value}`);
         } else {
             throw new Error(`Could not find a variable $${value.value}`);
         }
     }
+
     if (value.value != null) {
         return value.value;
     }
+    if (allowNil) return null;
 
     // should never get here
-    throw new Error(`Missing value, got ${toString(value)}`);
+    throw new Error(`Missing value in xLucene query, got ${toString(value)}`);
 }
 
 export function isInfiniteValue(input?: number|string): boolean {

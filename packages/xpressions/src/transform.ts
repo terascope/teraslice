@@ -1,6 +1,6 @@
-import { evaluate } from './evaluate';
+import { evaluate, evaluateVariableNode } from './evaluate';
 import {
-    AST, isExpressionNode, isLiteralNode, Options
+    Nodes, isExpressionNode, isLiteralNode, Options, isVariableNode
 } from './interfaces';
 import { parse } from './parse';
 
@@ -9,11 +9,12 @@ import { parse } from './parse';
  *
  * @returns the input with the translated values
 */
-export function transform(input: AST|string, options: Options): string {
-    const ast = typeof input === 'string' ? parse(input, options) : input;
+export function transform(input: Nodes|string, options: Options): string {
+    const ast = typeof input === 'string' ? parse(input) : input;
     return ast.map((node): string => {
         if (isLiteralNode(node)) return node.value;
-        if (isExpressionNode(node)) return evaluate(node.value, options);
+        if (isExpressionNode(node)) return evaluate(node, options);
+        if (isVariableNode(node)) return evaluateVariableNode(node, options);
         throw new Error(`Unexpected expression node type ${node.type}`);
     }).join('');
 }

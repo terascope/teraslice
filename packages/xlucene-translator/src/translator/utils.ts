@@ -160,8 +160,9 @@ export function translateQuery(
         return rangeQuery;
     }
 
-    function buildTermQuery(node: p.Term): TermQueryResults {
-        const value = p.getFieldValue(node.value, variables);
+    function buildTermQuery(node: p.Term): TermQueryResults|undefined {
+        const value = p.getFieldValue(node.value, variables, true);
+        if (value == null) return;
 
         if (isMultiMatch(node)) {
             const query = `${value}`;
@@ -194,8 +195,9 @@ export function translateQuery(
         return termQuery;
     }
 
-    function buildWildcardQuery(node: p.Wildcard): WildCardQueryResults {
-        const value = p.getFieldValue(node.value, variables);
+    function buildWildcardQuery(node: p.Wildcard): WildCardQueryResults|undefined {
+        const value = p.getFieldValue(node.value, variables, true);
+        if (value == null) return;
 
         if (isMultiMatch(node)) {
             const query = `${value}`;
@@ -225,8 +227,10 @@ export function translateQuery(
 
     function buildRegExprQuery(
         node: p.Regexp
-    ): i.RegExprQuery | i.MultiMatchQuery | i.QueryStringQuery {
-        const value = p.getFieldValue(node.value, variables);
+    ): i.RegExprQuery|i.MultiMatchQuery|i.QueryStringQuery|undefined {
+        const value = p.getFieldValue(node.value, variables, true);
+        if (value == null) return;
+
         if (isMultiMatch(node)) {
             const query = `${value}`;
             return buildMultiMatchQuery(node, query);
@@ -267,7 +271,7 @@ export function translateQuery(
         return existsQuery;
     }
 
-    function buildBoolQuery(node: p.GroupLikeAST): i.BoolQuery | undefined {
+    function buildBoolQuery(node: p.GroupLikeAST): i.BoolQuery|undefined {
         const should: i.AnyQuery[] = [];
 
         for (const conj of node.flow) {
@@ -286,12 +290,13 @@ export function translateQuery(
         return boolQuery;
     }
 
-    function buildConjunctionQuery(conj: p.Conjunction): i.BoolQuery {
+    function buildConjunctionQuery(conj: p.Conjunction): i.BoolQuery|undefined {
         const filter: i.AnyQuery[] = [];
         for (const node of conj.nodes) {
             const query = buildAnyQuery(node);
             filter.push(...flattenQuery(query, 'filter'));
         }
+        if (!filter.length) return;
 
         return {
             bool: {

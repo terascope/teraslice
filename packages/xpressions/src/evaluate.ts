@@ -1,14 +1,38 @@
-import { Options } from './interfaces';
+import { hasOwn, TSError } from '@terascope/utils';
+import {
+    ExpressionNode, isVariableNode, Options, VariableNode
+} from './interfaces';
+import { parseExpression } from './parse';
 
 /**
  * Evaluate a single expression
  *
  * @returns the translated expression
 */
-export function evaluate(expression: string, { variables }: Options): string {
-    const expr = String(expression).trim();
-    for (const [key, value] of Object.entries(variables)) {
-        if (expr === key) return value;
+export function evaluate(input: string|ExpressionNode, options: Options): string {
+    const expr = typeof input === 'string' ? parseExpression(input) : input;
+    let output = '';
+    for (const node of expr.nodes) {
+        if (isVariableNode(node)) {
+            output += evaluateVariableNode(node, options);
+        } else {
+            throw new Error(`Unsupported expression "${node.type}" given`);
+        }
     }
-    throw new Error(`Invalid expression "${expression}" given`);
+    return output;
+}
+
+/**
+ * Evaluate a single expression
+ *
+ * @returns the translated expression
+*/
+export function evaluateVariableNode(node: VariableNode, { variables }: Options): string {
+    if (hasOwn(variables, node.value)) {
+        return variables[node.value];
+    }
+    throw new TSError(`Missing variable "${node.value}" in expression`, {
+        statusCode: 400,
+        context: { safe: true }
+    });
 }

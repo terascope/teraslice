@@ -47,7 +47,7 @@ describe('transform', () => {
                         foo_var: 'foo'
                     }
                 });
-            }).toThrow('Invalid expression "foo_var2" given');
+            }).toThrow('Missing variable "foo_var2" in expression');
         });
     });
 
@@ -69,10 +69,12 @@ describe('transform', () => {
             })).toBe('\\${foo_var}');
         });
 
-        it('should not evaluate the expression with \\}', () => {
-            expect(transform('${foo_var\\}', {
-                variables: {}
-            })).toBe('${foo_var\\}');
+        it('should throw when evaluating the expression with \\}', () => {
+            expect(() => {
+                transform('${foo_var\\}', {
+                    variables: {}
+                });
+            }).toThrowError('Expected } for end of expression, found EOL');
         });
 
         it('should not evaluate the expression with \\{', () => {
