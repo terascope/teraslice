@@ -1,5 +1,5 @@
 import {
-    AST, ExpressionNode, LiteralNode, NodeType, Options
+    Nodes, ExpressionNode, LiteralNode, NodeType, VariableNode
 } from './interfaces';
 
 /**
@@ -7,9 +7,9 @@ import {
  *
  * @returns a list of errors
 */
-export function parse(input: string, _options: Options): AST {
+export function parse(input: string): Nodes {
     const len = input.length;
-    const ast: (LiteralNode|ExpressionNode)[] = [];
+    const ast: (LiteralNode|ExpressionNode|VariableNode)[] = [];
     let chunk = '';
     function finishChunk() {
         if (!chunk) return;
@@ -37,14 +37,11 @@ export function parse(input: string, _options: Options): AST {
                 }
             }
             if (terminated) {
-                const variable = expression.trim();
+                const variable = expression.trim().replace(/^\$/, '');
                 ast.push({
-                    type: NodeType.EXPRESSION,
-                    value: expression,
-                    variables: [{
-                        scoped: variable.startsWith('@'),
-                        value: variable
-                    }]
+                    type: NodeType.VARIABLE,
+                    scoped: variable.startsWith('@'),
+                    value: variable,
                 });
             } else {
                 ast.push({

@@ -4,11 +4,12 @@ export interface Options {
     variables: xLuceneVariables
 }
 
-export type AST = readonly Node[];
+export type Nodes = readonly Node[];
 
 export enum NodeType {
     LITERAL = 'LITERAL',
     EXPRESSION = 'EXPRESSION',
+    VARIABLE = 'VARIABLE',
 }
 
 export interface Node {
@@ -27,14 +28,19 @@ export function isLiteralNode(node: Node): node is LiteralNode {
 export interface ExpressionNode extends Node {
     readonly type: NodeType.EXPRESSION;
     readonly value: string;
-    readonly variables: readonly Variable[];
-}
-
-export interface Variable {
-    scoped: boolean;
-    value: string;
+    readonly nodes: Nodes;
 }
 
 export function isExpressionNode(node: Node): node is ExpressionNode {
     return node.type === NodeType.EXPRESSION;
+}
+
+export interface VariableNode extends Node {
+    readonly type: NodeType.VARIABLE;
+    readonly scoped: boolean;
+    readonly value: string;
+}
+
+export function isVariableNode(node: Node): node is VariableNode {
+    return node.type === NodeType.VARIABLE;
 }
