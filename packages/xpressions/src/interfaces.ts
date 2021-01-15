@@ -14,6 +14,10 @@ export enum NodeType {
 
 export interface Node {
     readonly type: NodeType;
+    readonly loc: {
+        readonly start: number;
+        readonly end: number;
+    }
 }
 
 export interface LiteralNode extends Node {
