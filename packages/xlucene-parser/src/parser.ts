@@ -215,7 +215,8 @@ export class Parser {
                 return coerceNodeValue(
                     node,
                     validatedVariables,
-                    parent?.type === i.ASTType.Function
+                    parent?.type === i.ASTType.Function,
+                    parent?.type === i.ASTType.Conjunction
                 );
             }
 
@@ -280,9 +281,12 @@ function coerceTermList(node: i.TermList, variables: xLuceneVariables) {
 function coerceNodeValue(
     node: i.Term|i.Regexp|i.Wildcard,
     variables: xLuceneVariables,
-    skipAutoFieldGroup?: boolean
+    skipAutoFieldGroup?: boolean,
+    allowNil?: boolean
 ): i.AnyAST {
-    const value = utils.getFieldValue<any>(node.value, variables);
+    const value = utils.getFieldValue<any>(
+        node.value, variables, allowNil
+    );
     const coerceFn = utils.makeCoerceFn(node.field_type);
 
     if (Array.isArray(value)) {

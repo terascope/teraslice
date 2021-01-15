@@ -58,6 +58,32 @@ export default [
         ],
     ],
     [
+        'some:$some_null_value OR other:$thing',
+        'query.constant_score.filter.bool.should',
+        [
+            {
+                bool: {
+                    filter: [
+                        {
+                            match: {
+                                other: {
+                                    query: 'something',
+                                    operator: 'and',
+                                },
+                            },
+                        },
+                    ],
+                },
+            },
+        ],
+        {
+            variables: {
+                some_null_value: null,
+                thing: 'something'
+            }
+        }
+    ],
+    [
         'NOT value:awesome AND other:thing',
         'query.constant_score.filter.bool.should[0].bool',
         {
