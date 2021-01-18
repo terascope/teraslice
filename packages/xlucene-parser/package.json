@@ -42,7 +42,7 @@
         "@turf/boolean-equal": "^6.0.1",
         "@turf/boolean-overlap": "^6.0.1",
         "@turf/boolean-point-in-polygon": "^6.0.1",
-        "@turf/boolean-within": "^6.0.1",
+        "@turf/boolean-within": "^6.2.0",
         "@turf/circle": "^6.0.1",
         "@turf/clean-coords": "^6.0.1",
         "@turf/helpers": "^6.1.4",
