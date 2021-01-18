@@ -36,7 +36,7 @@
         "@terascope/types": "^0.7.0",
         "@terascope/utils": "^0.34.1",
         "@turf/bbox": "^6.0.1",
-        "@turf/bbox-polygon": "^6.0.1",
+        "@turf/bbox-polygon": "^6.2.0",
         "@turf/boolean-contains": "^6.0.1",
         "@turf/boolean-disjoint": "^6.0.2",
         "@turf/boolean-equal": "^6.0.1",
