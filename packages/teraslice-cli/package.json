@@ -44,7 +44,7 @@
         "execa": "^5.0.0",
         "fs-extra": "^9.0.1",
         "got": "^11.8.1",
-        "js-yaml": "^3.14.1",
+        "js-yaml": "^4.0.0",
         "node-yaml": "^4.0.0",
         "pretty-bytes": "^5.5.0",
         "prompts": "^2.4.0",
