@@ -44,7 +44,7 @@
         "@turf/boolean-point-in-polygon": "^6.0.1",
         "@turf/boolean-within": "^6.0.1",
         "@turf/circle": "^6.0.1",
-        "@turf/clean-coords": "^6.0.1",
+        "@turf/clean-coords": "^6.2.0",
         "@turf/helpers": "^6.1.4",
         "@turf/invariant": "^6.1.2",
         "@turf/line-to-polygon": "^6.0.1",
