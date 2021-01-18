@@ -45,7 +45,7 @@
         "@turf/boolean-within": "^6.0.1",
         "@turf/circle": "^6.0.1",
         "@turf/clean-coords": "^6.0.1",
-        "@turf/helpers": "^6.1.4",
+        "@turf/helpers": "^6.2.0",
         "@turf/invariant": "^6.1.2",
         "@turf/line-to-polygon": "^6.0.1",
         "@turf/random": "^6.0.2",
