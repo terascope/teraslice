@@ -937,12 +937,12 @@
     "@turf/helpers" "^6.2.0"
     "@turf/invariant" "^6.2.0"
 
-"@turf/random@^6.0.2":
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/@turf/random/-/random-6.0.2.tgz#1f010db47bf01b154ab418795fbb8846e67d7836"
-  integrity sha512-kAJhZ2QZ4kM2ArI0lrFLtq1LCH4ZSjleUlj1izi/405XenjddjrbgtewpZte8IxCSeV4yK46lsDRS1911cF5lg==
+"@turf/random@^6.2.0":
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/@turf/random/-/random-6.2.0.tgz#ac5fb54b2ede9fcae41e5c3a7c5fb03dc175f198"
+  integrity sha512-G7wiRSOt9UJ2HBjy4BQuopV7OlrVFriRPBEJhJ/6eEBtRMLmCYx4fcAOZGaNt9YkT6K9HetwyJp/o9zBKDTEIg==
   dependencies:
-    "@turf/helpers" "6.x"
+    "@turf/helpers" "^6.2.0"
 
 "@types/babel__core@^7.0.0", "@types/babel__core@^7.1.7":
   version "7.1.12"
