@@ -806,13 +806,13 @@
     "@turf/helpers" "6.x"
     "@turf/invariant" "6.x"
 
-"@turf/circle@^6.0.1":
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/@turf/circle/-/circle-6.0.1.tgz#0ab72083373ae3c76b700c17a504ab1b5c0910b9"
-  integrity sha512-pF9XsYtCvY9ZyNqJ3hFYem9VaiGdVNQb0SFq/zzDMwH3iWZPPJQHnnDB/3e8RD1VDtBBov9p5uO2k7otsfezjw==
+"@turf/circle@^6.2.0":
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/@turf/circle/-/circle-6.2.0.tgz#bb0c9d529520aab3a2ef13849e325147416bd289"
+  integrity sha512-PP4ZQew/rO5dxbHs0ZfCgbSKo9HGBzt/vzha17j4HeKHJns6tWkirqgJAY/M17QimqrlWDxZMNoMwYU5mGIwVQ==
   dependencies:
-    "@turf/destination" "6.x"
-    "@turf/helpers" "6.x"
+    "@turf/destination" "^6.2.0"
+    "@turf/helpers" "^6.2.0"
 
 "@turf/clean-coords@6.0.0", "@turf/clean-coords@^6.0.1":
   version "6.0.1"
@@ -822,13 +822,13 @@
     "@turf/helpers" "6.x"
     "@turf/invariant" "6.x"
 
-"@turf/destination@6.x":
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/@turf/destination/-/destination-6.0.1.tgz#5275887fa96ec463f44864a2c17f0b712361794a"
-  integrity sha512-MroK4nRdp7as174miCAugp8Uvorhe6rZ7MJiC9Hb4+hZR7gNFJyVKmkdDDXIoCYs6MJQsx0buI+gsCpKwgww0Q==
+"@turf/destination@6.x", "@turf/destination@^6.2.0":
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/@turf/destination/-/destination-6.2.0.tgz#bbc6f0438431a6076b27392711ae04e56951e561"
+  integrity sha512-cem02dv9TnyTuxmTQaDocvPAFsLSqbuF8IFO7MqoCVhV27HWuwFYec4y3GPlhXHI5KWMejSh2O8uHxS3/NnnJg==
   dependencies:
-    "@turf/helpers" "6.x"
-    "@turf/invariant" "6.x"
+    "@turf/helpers" "^6.2.0"
+    "@turf/invariant" "^6.2.0"
 
 "@turf/distance@6.x":
   version "6.0.1"
