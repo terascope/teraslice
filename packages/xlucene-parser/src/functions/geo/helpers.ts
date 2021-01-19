@@ -47,7 +47,9 @@ export function polyHasPoint<G extends Polygon | MultiPolygon>(polygon: Feature<
 export function makeCircle(point: GeoPoint, distance: number, config?: {
     units?: GeoDistanceUnit;
 }): Feature<Polygon>|undefined {
-    return createCircle(makeCoordinatesFromGeoPoint(point), distance, config);
+    // There is a mismatch between elasticsearch and turf on "inch" naming
+    const units = config?.units === 'inch' ? 'inches' : config?.units;
+    return createCircle(makeCoordinatesFromGeoPoint(point), distance, { units });
 }
 
 export function makeBBox(point1: GeoPoint, point2: GeoPoint): Feature<Polygon, Properties> {
