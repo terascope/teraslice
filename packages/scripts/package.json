@@ -1,7 +1,7 @@
 {
     "name": "@terascope/scripts",
     "displayName": "Scripts",
-    "version": "0.29.4",
+    "version": "0.29.5",
     "description": "A collection of terascope monorepo scripts",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/scripts#readme",
     "bugs": {
@@ -48,7 +48,7 @@
         "signale": "^1.4.0",
         "sort-package-json": "~1.48.0",
         "typedoc": "^0.20.16",
-        "typedoc-plugin-markdown": "^3.3.0",
+        "typedoc-plugin-markdown": "^3.4.1",
         "yargs": "^16.2.0"
     },
     "devDependencies": {

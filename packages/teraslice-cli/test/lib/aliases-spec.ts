@@ -1,8 +1,6 @@
 import 'jest-extended';
 import path from 'path';
 import fs from 'fs';
-// @ts-expect-error
-import yaml from 'node-yaml';
 import { createTempDirSync } from 'jest-fixtures';
 
 import Aliases from '../../src/helpers/aliases';
@@ -29,7 +27,7 @@ describe('Aliases', () => {
         describe('-> add', () => {
             test('should add new alias to file', () => {
                 aliases.add('test1', 'test1.net');
-                const aliasesOutput = yaml.readSync(aliases.aliasesFile);
+                const aliasesOutput = Aliases.readSync(aliases.aliasesFile);
                 expect(fs.existsSync(aliases.aliasesFile)).toBeTruthy();
                 expect(aliasesOutput.clusters.test1.host).toBe('test1.net');
             });
@@ -72,7 +70,7 @@ describe('Aliases', () => {
                 fs.copyFileSync(path.join(__dirname, '../fixtures', 'aliases-test1.yaml'), aliasesFile);
                 aliases = new Aliases(aliasesFile);
                 aliases.remove('test1');
-                const aliasesOutput = yaml.readSync(aliases.aliasesFile);
+                const aliasesOutput = Aliases.readSync(aliases.aliasesFile);
 
                 expect(fs.existsSync(aliases.aliasesFile)).toBeTruthy();
                 expect(aliasesOutput.clusters.test1).toBe(undefined);
@@ -94,7 +92,7 @@ describe('Aliases', () => {
                 fs.copyFileSync(path.join(__dirname, '../fixtures', 'aliases-test1.yaml'), aliasesFile);
                 aliases = new Aliases(aliasesFile);
                 aliases.update('test1', 'http://test1.net:9999');
-                const aliasesOutput = yaml.readSync(aliases.aliasesFile);
+                const aliasesOutput = Aliases.readSync(aliases.aliasesFile);
                 expect(aliasesOutput.clusters.test1.host).toBe('http://test1.net:9999');
             });
 
