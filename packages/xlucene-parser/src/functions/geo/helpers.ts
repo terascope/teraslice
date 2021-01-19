@@ -2,7 +2,6 @@ import bbox from '@turf/bbox';
 import bboxPolygon from '@turf/bbox-polygon';
 // @ts-expect-error
 import equal from '@turf/boolean-equal';
-// @ts-expect-error
 import createCircle from '@turf/circle';
 import pointInPolygon from '@turf/boolean-point-in-polygon';
 // @ts-expect-error
@@ -48,7 +47,7 @@ export function polyHasPoint<G extends Polygon | MultiPolygon>(polygon: Feature<
 }
 
 export function makeCircle(point: GeoPoint, distance: number, config?: {
-    units?: GeoDistanceUnit|string;
+    units?: GeoDistanceUnit;
 }): Feature<Polygon>|undefined {
     return createCircle(makeCoordinatesFromGeoPoint(point), distance, config);
 }
