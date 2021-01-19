@@ -72,7 +72,7 @@ export enum GeoShapeRelation {
     Contains = 'contains'
 }
 
-export type GeoDistanceUnit = 'meters' | 'millimeters' | 'centimeters' | 'kilometers' | 'acres' | 'miles' | 'nauticalmiles' | 'inches' | 'yards' | 'feet' | 'radians' | 'degrees' | 'hectares';
+export type GeoDistanceUnit = 'miles'|'yards'|'feet'|'inches'|'kilometers'|'meters'|'centimeters'|'millimeters'|'nauticalmiles';
 
 export const GEO_DISTANCE_UNITS: { readonly [key: string]: GeoDistanceUnit } = {
     mi: 'miles',
