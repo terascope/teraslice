@@ -55,14 +55,12 @@ export class ReadableData<T> implements Iterable<Maybe<T>> {
      *
      * @param size optionally change the size of the Data
     */
-    toWritable(size = this.size): WritableData<T> {
-        return WritableData.make<T>(size, this.values);
+    toWritable(size?: number): WritableData<T> {
+        return WritableData.make<T>(size ?? this.size, this.values);
     }
 
     /**
      * Create a new Data with the range of values
-     *
-     * @todo this should validate the range
     */
     slice(start = 0, end = this.size): WritableData<T> {
         if (start === 0 && end >= 0) {
