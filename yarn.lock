@@ -754,16 +754,16 @@
     "@turf/invariant" "^6.2.0"
     geojson-equality "0.1.6"
 
-"@turf/boolean-overlap@^6.2.0":
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/@turf/boolean-overlap/-/boolean-overlap-6.2.0.tgz#db7010f8f00a1ba925ca5a580668dae80dc5daa2"
-  integrity sha512-TPfuM+3ZgNScA76D+4e0zlAyZWcTL+eMJger9x1GKmRNoJwQ83cY+IzqIVFDMVNKmF0vEkXBPa+7YMJLsOvx6A==
+"@turf/boolean-overlap@~6.0.1":
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/@turf/boolean-overlap/-/boolean-overlap-6.0.1.tgz#6cd8fc5ae3fbf52ffd31e4cb31d62ef574356c16"
+  integrity sha512-Ud6a75BzNYICVc5/Pf/GJ/3M5XZci6AOGlBNUPvhUrG4nT4NNYeXIpVrx1FB/tAg8EwZZXlhwSO26CTDC13XlA==
   dependencies:
-    "@turf/helpers" "^6.2.0"
-    "@turf/invariant" "^6.2.0"
-    "@turf/line-intersect" "^6.2.0"
-    "@turf/line-overlap" "^6.2.0"
-    "@turf/meta" "^6.2.0"
+    "@turf/helpers" "6.x"
+    "@turf/invariant" "6.x"
+    "@turf/line-intersect" "6.x"
+    "@turf/line-overlap" "6.x"
+    "@turf/meta" "6.x"
     geojson-equality "0.1.6"
 
 "@turf/boolean-point-in-polygon@^6.0.1", "@turf/boolean-point-in-polygon@^6.2.0":
@@ -837,14 +837,14 @@
   resolved "https://registry.yarnpkg.com/@turf/helpers/-/helpers-6.2.0.tgz#dc770ce3b35b230f6a661824f3f87591378e379b"
   integrity sha512-ANcZ0LFpnrza52y3um8KXgbpF1l7qmJXEqY1Bv5RovdQH+kUvMrZsb4SO3q4VH4eQqlsxDLxxXl7hkjjFbDtHg==
 
-"@turf/invariant@^6.2.0":
+"@turf/invariant@6.x", "@turf/invariant@^6.2.0":
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/@turf/invariant/-/invariant-6.2.0.tgz#91c732b7c53e95afdbea944be3316bb8afd6a118"
   integrity sha512-kyhKp3rW1tDe78xFkgq9+zC6dkBJyvEwP4HNNculIXRyN4Xoo7GJECE1wPyujQppj3Lmu63GtE6B68coEZ0Gqw==
   dependencies:
     "@turf/helpers" "^6.2.0"
 
-"@turf/line-intersect@^6.2.0":
+"@turf/line-intersect@6.x", "@turf/line-intersect@^6.2.0":
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/@turf/line-intersect/-/line-intersect-6.2.0.tgz#9117c30e20794349c93bed29d1fc7158a0909a7a"
   integrity sha512-3vZzb0+SReA/FyQPqoTJKHwBFfY1+kDM8r1iQhn6f+bYQ46yt2XbAEOQ9WPcTzZMjQY1EaJ94MWkjUy0uVygxw==
@@ -855,7 +855,7 @@
     "@turf/meta" "^6.2.0"
     geojson-rbush "3.x"
 
-"@turf/line-overlap@^6.2.0":
+"@turf/line-overlap@6.x":
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/@turf/line-overlap/-/line-overlap-6.2.0.tgz#6651f5c0e42456a1f72bdef933e478e4f35ae05c"
   integrity sha512-2FfsUDSU+w8CCJ3ABeqvXHYzWdFquvHvnR4LoR+o+Gthbt56dCJYySFNW7yCNVg/w7UpRbHCiHePwKxOWDWneA==
