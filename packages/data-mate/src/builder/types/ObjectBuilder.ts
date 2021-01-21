@@ -61,8 +61,10 @@ export class ObjectBuilder<
         const result: Partial<T> = {};
 
         for (const [field, builder] of this.childFields) {
-            const fieldValue: any = input[field] != null ? builder.valueFrom(input[field]) : null;
-            Object.defineProperty(result, field, { value: fieldValue, writable: false });
+            if (input[field] != null) {
+                const fieldValue: any = builder.valueFrom(input[field]);
+                Object.defineProperty(result, field, { value: fieldValue, writable: false });
+            }
         }
 
         return createObjectValue(result as T, true);
