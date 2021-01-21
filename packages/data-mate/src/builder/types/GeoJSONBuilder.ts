@@ -24,6 +24,6 @@ export class GeoJSONBuilder extends BuilderWithCache<GeoShape> {
             throw new TypeError(`Expected ${toString(value)} (${getTypeOf(value)}) to be a valid GeoJSON shape`);
         }
         const type = esTypeMap[value.type] ? esTypeMap[value.type] : value.type;
-        return createObjectValue({ ...value, type });
+        return createObjectValue({ ...value, type }, false);
     }
 }

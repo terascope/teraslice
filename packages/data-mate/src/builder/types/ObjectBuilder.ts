@@ -54,7 +54,7 @@ export class ObjectBuilder<
         }
 
         if (!this.childFields.length) {
-            return createObjectValue({ ...value as T });
+            return createObjectValue({ ...value as T }, false);
         }
 
         const input = value as Readonly<Record<keyof T, unknown>>;
