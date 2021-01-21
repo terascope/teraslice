@@ -56,8 +56,6 @@ export class ObjectVector<
                 result[field] = (
                     vector.valueToJSON ? vector.valueToJSON(input[field]) : input[field]
                 );
-            } else {
-                result[field] = undefined;
             }
         }
 
