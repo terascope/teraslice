@@ -283,6 +283,109 @@ describe('DataFrame', () => {
             });
         });
 
+        describe('->deepSelect', () => {
+            type DeepObj = {
+                _key: string;
+                config: {
+                    id: string;
+                    name: string;
+                    owner: {
+                        id: string;
+                        name: string;
+                    }
+                };
+                states: { id: string; name: string }[];
+            }
+            it('should return a selected fields with objects', () => {
+                const dtConfig: DataTypeConfig = {
+                    version: LATEST_VERSION,
+                    fields: {
+                        _key: { type: FieldType.Keyword },
+                        config: {
+                            type: FieldType.Object,
+                        },
+                        'config.id': {
+                            type: FieldType.Keyword,
+                        },
+                        'config.name': {
+                            type: FieldType.Keyword,
+                        },
+                        'config.owner': {
+                            type: FieldType.Object,
+                        },
+                        'config.owner.name': {
+                            type: FieldType.Keyword,
+                        },
+                        'config.owner.id': {
+                            type: FieldType.Keyword,
+                        },
+                        states: {
+                            type: FieldType.Object,
+                            array: true
+                        },
+                        'states.id': {
+                            type: FieldType.Keyword,
+                        },
+                        'states.name': {
+                            type: FieldType.Keyword,
+                        },
+                    }
+                };
+
+                const dt = DataFrame.fromJSON<DeepObj>(
+                    dtConfig, [{
+                        _key: 'id-1',
+                        config: {
+                            id: 'config-2',
+                            name: 'config-1',
+                            owner: {
+                                id: 'config-owner-1',
+                                name: 'config-owner-name-1'
+                            }
+                        },
+                        states: [{ id: 'state-1', name: 'state-1' }, { id: 'state-2', name: 'state-2' }]
+                    }, {
+                        _key: 'id-2',
+                        config: {
+                            id: 'config-2',
+                            name: 'config-2',
+                            owner: {
+                                id: 'config-owner-2',
+                                name: 'config-owner-name-2'
+                            }
+                        },
+                        states: [{ id: 'state-3', name: 'state-3' }, { id: 'state-4', name: 'state-4' }]
+                    }]
+                );
+                const resultFrame = dt.deepSelect([
+                    '_key',
+                    'config.name',
+                    'config.owner.name',
+                    'states.name'
+                ]);
+                expect(resultFrame.toJSON()).toEqual([{
+                    _key: 'id-1',
+                    config: {
+                        name: 'config-1',
+                        owner: {
+                            name: 'config-owner-name-1'
+                        }
+                    },
+                    states: [{ name: 'state-1' }, { name: 'state-2' }]
+                }, {
+                    _key: 'id-2',
+                    config: {
+                        name: 'config-2',
+                        owner: {
+                            name: 'config-owner-name-2'
+                        }
+                    },
+                    states: [{ name: 'state-3' }, { name: 'state-4' }]
+                }]);
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+        });
+
         describe('->selectAt', () => {
             it('should return a new frame with just those columns', () => {
                 const resultFrame = dataFrame.selectAt(1, 2);

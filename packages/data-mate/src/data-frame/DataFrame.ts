@@ -162,6 +162,61 @@ export class DataFrame<
     }
 
     /**
+     * Select fields in a data frame, this will work with nested object
+     * fields and the selection field can also include wildcards which will match
+     * a large selection of string.
+     *
+     * Fields that don't exist in the data frame are safely ignored to make
+     * this function handle more suitable for production environments
+    */
+    deepSelect<R extends T>(
+        fieldSelectors: string[]|readonly string[]
+    ): DataFrame<R> {
+        const columns: Column<any, any>[] = [];
+
+        const existingFieldsConfig = this.config.fields;
+        const existingFields = Object.keys(existingFieldsConfig);
+
+        const matchedFields: Record<string, Set<string>> = {};
+        function matchField(field: string) {
+            return (selector: string): boolean => {
+                if (field === selector) return true;
+                if (field.startsWith(`${selector}.`)) return true;
+                return false;
+            };
+        }
+
+        for (const field of existingFields) {
+            const matches = fieldSelectors.some(matchField(field));
+            if (matches) {
+                const [base] = field.split('.');
+                matchedFields[base] ??= new Set();
+                if (field !== base) {
+                    matchedFields[base].add(
+                        // only store the scoped field
+                        // because it is easier to look
+                        // it up in the childConfig that way
+                        field.replace(`${base}.`, '')
+                    );
+                }
+            }
+        }
+
+        for (const [field, childFields] of Object.entries(matchedFields)) {
+            const col = this.getColumn(field);
+            if (col) {
+                if (childFields.size && col.vector.childConfig) {
+                    columns.push(col.selectSubFields([...childFields]));
+                } else {
+                    columns.push(col);
+                }
+            }
+        }
+
+        return this.fork<R>(columns);
+    }
+
+    /**
      * Get a column, or columns by index, returns a new DataFrame
     */
     selectAt<R extends Record<string, unknown> = T>(...indices: number[]): DataFrame<R> {

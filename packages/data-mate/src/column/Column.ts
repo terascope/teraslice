@@ -1,6 +1,6 @@
 import { LATEST_VERSION } from '@terascope/data-types';
 import {
-    DataTypeFieldConfig, Maybe, DataTypeVersion, SortOrder, DataTypeFields
+    DataTypeFieldConfig, Maybe, DataTypeVersion, SortOrder, DataTypeFields, FieldType
 } from '@terascope/types';
 import { Builder } from '../builder';
 import {
@@ -260,6 +260,57 @@ export class Column<T = unknown, N extends NameType = string> {
     */
     max(): number|bigint {
         return runVectorAggregation(this.vector, ValueAggregation.max);
+    }
+
+    /**
+     * Select the child fields with in a given vector.
+     * This involves recreating the whole column in
+     * most cases.
+    */
+    selectSubFields(fields: string[]): Column<T, N> {
+        if (!this.vector.childConfig) return this;
+        const existingChildFields = Object.keys(this.vector.childConfig).sort();
+        const selectedChildFields = fields.sort();
+
+        if (selectedChildFields.join() === existingChildFields.join()) {
+            // all of the fields are selected so
+            // we don't have to recreate the whole
+            // column
+            return this;
+        }
+
+        const childConfig: DataTypeFields = {};
+        for (const field of selectedChildFields) {
+            if (this.vector.childConfig[field]) {
+                childConfig[field] = this.vector.childConfig[field];
+            }
+
+            // we need to make sure we include
+            // the object types
+            let parentField = '';
+            for (const part of field.split('.')) {
+                const dotPrefix = parentField ? '.' : '';
+                parentField += `${dotPrefix}${part}`;
+
+                if (this.vector.childConfig[parentField]?.type === FieldType.Object) {
+                    childConfig[parentField] = this.vector.childConfig[parentField];
+                }
+            }
+        }
+
+        const builder = Builder.make<T>(
+            new WritableData(this.size),
+            {
+                config: this.config,
+                name: this.name as string,
+                childConfig
+            }
+        );
+
+        for (const value of this.vector) {
+            builder.append(value);
+        }
+        return this.fork(builder.toVector());
     }
 
     /**

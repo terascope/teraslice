@@ -35,7 +35,7 @@ export class ListVector<T = unknown> extends Vector<readonly Maybe<T>[]> {
 
     valueToJSON(values: readonly Maybe<T>[], skipNullFields?: boolean): any {
         const result = values.map(this.convertValueToJSON(skipNullFields));
-        if (!skipNullFields) return false;
+        if (!skipNullFields) return result;
         return result.filter(isNotNil);
     }
 }

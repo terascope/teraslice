@@ -63,7 +63,10 @@ export class ObjectBuilder<
         for (const [field, builder] of this.childFields) {
             if (input[field] != null) {
                 const fieldValue: any = builder.valueFrom(input[field]);
-                Object.defineProperty(result, field, { value: fieldValue, writable: false });
+                Object.defineProperty(result, field, {
+                    value: fieldValue,
+                    writable: false
+                });
             }
         }
 
