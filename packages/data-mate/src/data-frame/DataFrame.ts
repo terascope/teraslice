@@ -98,9 +98,9 @@ export class DataFrame<
     /**
      * Iterate over each index and row, this returns the internal stored values.
     */
-    * entries(json?: boolean): IterableIterator<[index: number, row: T]> {
+    * entries(json?: boolean, skipNullFields?: boolean): IterableIterator<[index: number, row: T]> {
         for (let i = 0; i < this.size; i++) {
-            const row = this.getRow(i, json);
+            const row = this.getRow(i, json, skipNullFields);
             if (row) yield [i, row];
         }
     }
@@ -108,9 +108,9 @@ export class DataFrame<
     /**
      * Iterate each row
     */
-    * rows(json?: boolean): IterableIterator<T> {
+    * rows(json?: boolean, skipNullFields?: boolean): IterableIterator<T> {
         for (let i = 0; i < this.size; i++) {
-            const row = this.getRow(i, json);
+            const row = this.getRow(i, json, skipNullFields);
             if (row) yield row;
         }
     }
@@ -498,19 +498,24 @@ export class DataFrame<
     /**
      * Get a row by index, if the row has only null values, returns undefined
     */
-    getRow(index: number, json = false): T|undefined {
+    getRow(index: number, json = false, skipNullFields?: boolean): T|undefined {
         if (index > (this.size - 1)) return;
 
         const row: Partial<T> = {};
+        let numKeys = 0;
         for (const col of this.columns) {
             const field = col.name as keyof T;
             const val = col.vector.get(
-                index, json
+                index, json, skipNullFields
             ) as Maybe<T[keyof T]>;
 
             if (val != null) {
+                numKeys++;
                 row[field] = val;
             }
+        }
+        if (skipNullFields && !numKeys) {
+            return;
         }
 
         return row as T;
@@ -538,8 +543,8 @@ export class DataFrame<
     /**
      * Convert the DataFrame an array of objects (the output is JSON compatible)
     */
-    toJSON(): T[] {
-        return Array.from(this.rows(true));
+    toJSON(skipNullFields?: boolean): T[] {
+        return Array.from(this.rows(true, skipNullFields));
     }
 
     /**

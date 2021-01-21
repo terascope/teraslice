@@ -114,7 +114,7 @@ export abstract class Vector<T = unknown> {
      * A function for converting an in-memory representation of
      * a value to an JSON spec compatible format.
     */
-    abstract valueToJSON?(value: T): any;
+    abstract valueToJSON?(value: T, skipNullFields?: boolean): any;
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
         yield* this.data;
@@ -169,7 +169,7 @@ export abstract class Vector<T = unknown> {
     /**
      * Get value by index
     */
-    get(index: number, json?: boolean): Maybe<T>|Maybe<JSONValue<T>> {
+    get(index: number, json?: boolean, skipNullFields?: boolean): Maybe<T>|Maybe<JSONValue<T>> {
         const val = this.data.get(index);
 
         if (!json || !this.valueToJSON) {
@@ -177,7 +177,7 @@ export abstract class Vector<T = unknown> {
         }
 
         if (val == null) return val;
-        return this.valueToJSON(val as T);
+        return this.valueToJSON(val as T, skipNullFields);
     }
 
     /**
@@ -216,10 +216,10 @@ export abstract class Vector<T = unknown> {
     /**
      * Convert the Vector an array of values (the output is JSON compatible)
     */
-    toJSON(): Maybe<JSONValue<T>>[] {
+    toJSON(skipNullFields?: boolean): Maybe<JSONValue<T>>[] {
         const res: Maybe<JSONValue<T>>[] = Array(this.size);
         for (let i = 0; i < this.size; i++) {
-            res[i] = this.get(i, true) as JSONValue<T>;
+            res[i] = this.get(i, true, skipNullFields) as JSONValue<T>;
         }
         return res;
     }

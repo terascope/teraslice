@@ -42,7 +42,7 @@ export class ObjectVector<
         return childFields;
     }
 
-    valueToJSON(value: T): any {
+    valueToJSON(value: T, skipNullFields?: boolean): any {
         const val = value as Record<string, any>;
         if (!this.childFields.length) {
             return { ...val };
@@ -50,15 +50,31 @@ export class ObjectVector<
 
         const input = value as Readonly<Record<keyof T, unknown>>;
         const result: Partial<T> = {};
+        let numKeys = 0;
 
         for (const [field, vector] of this.childFields) {
             if (input[field] != null) {
-                result[field] = (
-                    vector.valueToJSON ? vector.valueToJSON(input[field]) : input[field]
+                const fieldValue = (
+                    vector.valueToJSON ? vector.valueToJSON(
+                        input[field], skipNullFields
+                    ) : input[field]
                 );
+                if (skipNullFields && (
+                    fieldValue == null || (
+                        vector.config.type === FieldType.Object && !Object.keys(fieldValue).length
+                    )
+                )) {
+                    // skip the result
+                } else {
+                    numKeys++;
+                    result[field] = fieldValue;
+                }
+            } else if (!skipNullFields) {
+                result[field] = undefined;
             }
         }
 
+        if (skipNullFields && !numKeys) return;
         return result;
     }
 

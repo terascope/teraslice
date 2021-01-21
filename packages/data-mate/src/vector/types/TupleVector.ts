@@ -39,11 +39,11 @@ export class TupleVector<
         return childFields;
     }
 
-    valueToJSON(values: T): any {
+    valueToJSON(values: T, skipNullFields?: boolean): any {
         return this.childFields.map((vector, index) => {
             const value = values[index];
             if (value == null || !vector.valueToJSON) return value;
-            return vector.valueToJSON(value);
+            return vector.valueToJSON(value, skipNullFields);
         });
     }
 

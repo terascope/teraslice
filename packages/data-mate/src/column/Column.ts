@@ -267,7 +267,7 @@ export class Column<T = unknown, N extends NameType = string> {
      *
      * @note probably only useful for debugging
     */
-    toJSON(): Maybe<JSONValue<T>>[] {
-        return this.vector.toJSON();
+    toJSON(skipNullFields?: boolean): Maybe<JSONValue<T>>[] {
+        return this.vector.toJSON(skipNullFields);
     }
 }
