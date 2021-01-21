@@ -5,7 +5,7 @@ import {
 import {
     DataEntity, TSError,
     getTypeOf, isFunction,
-    isPlainObject, trimFP
+    isPlainObject, trimFP, matchWildcard
 } from '@terascope/utils';
 import { Column, KeyAggFn, makeUniqueKeyAgg } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
@@ -182,6 +182,9 @@ export class DataFrame<
             return (selector: string): boolean => {
                 if (field === selector) return true;
                 if (field.startsWith(`${selector}.`)) return true;
+                if (selector.includes('*')) {
+                    return matchWildcard(selector, field);
+                }
                 return false;
             };
         }

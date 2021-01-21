@@ -269,18 +269,9 @@ export class Column<T = unknown, N extends NameType = string> {
     */
     selectSubFields(fields: string[]): Column<T, N> {
         if (!this.vector.childConfig) return this;
-        const existingChildFields = Object.keys(this.vector.childConfig).sort();
-        const selectedChildFields = fields.sort();
-
-        if (selectedChildFields.join() === existingChildFields.join()) {
-            // all of the fields are selected so
-            // we don't have to recreate the whole
-            // column
-            return this;
-        }
 
         const childConfig: DataTypeFields = {};
-        for (const field of selectedChildFields) {
+        for (const field of fields) {
             if (this.vector.childConfig[field]) {
                 childConfig[field] = this.vector.childConfig[field];
             }
@@ -296,6 +287,16 @@ export class Column<T = unknown, N extends NameType = string> {
                     childConfig[parentField] = this.vector.childConfig[parentField];
                 }
             }
+        }
+
+        const existingChildFields = Object.keys(this.vector.childConfig).sort();
+        const selectedChildFields = Object.keys(childConfig).sort();
+
+        if (selectedChildFields.join() === existingChildFields.join()) {
+            // all of the fields are selected so
+            // we don't have to recreate the whole
+            // column
+            return this;
         }
 
         const builder = Builder.make<T>(

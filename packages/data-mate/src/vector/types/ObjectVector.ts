@@ -1,4 +1,5 @@
 import { FieldType } from '@terascope/types';
+import { isNotNil } from '@terascope/utils';
 import { Vector, VectorOptions } from '../Vector';
 import { VectorType } from '../interfaces';
 import { getObjectDataTypeConfig, ReadableData } from '../../core';
@@ -25,7 +26,10 @@ export class ObjectVector<
             return this.#childFields;
         }
         const childFields: ChildFields<T> = Object.entries(this.childConfig)
-            .map(([field, config]) => {
+            .map(([field, config]): [string, Vector<any>]|undefined => {
+                const [base] = field.split('.');
+                if (base !== field && this.childConfig![base]) return;
+
                 const childConfig = (config.type === FieldType.Object
                     ? getObjectDataTypeConfig(this.childConfig!, field)
                     : undefined);
@@ -36,7 +40,8 @@ export class ObjectVector<
                     name: this._getChildName(field)
                 });
                 return [field, vector];
-            });
+            })
+            .filter(isNotNil) as ChildFields<T>;
 
         this.#childFields = childFields;
         return childFields;

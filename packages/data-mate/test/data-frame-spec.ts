@@ -296,47 +296,49 @@ describe('DataFrame', () => {
                 };
                 states: { id: string; name: string }[];
             }
-            it('should return a selected fields with objects', () => {
-                const dtConfig: DataTypeConfig = {
-                    version: LATEST_VERSION,
-                    fields: {
-                        _key: { type: FieldType.Keyword },
-                        config: {
-                            type: FieldType.Object,
-                        },
-                        'config.id': {
-                            type: FieldType.Keyword,
-                        },
-                        'config.name': {
-                            type: FieldType.Keyword,
-                        },
-                        'config.owner': {
-                            type: FieldType.Object,
-                        },
-                        'config.owner.name': {
-                            type: FieldType.Keyword,
-                        },
-                        'config.owner.id': {
-                            type: FieldType.Keyword,
-                        },
-                        states: {
-                            type: FieldType.Object,
-                            array: true
-                        },
-                        'states.id': {
-                            type: FieldType.Keyword,
-                        },
-                        'states.name': {
-                            type: FieldType.Keyword,
-                        },
-                    }
-                };
 
-                const dt = DataFrame.fromJSON<DeepObj>(
+            const dtConfig: DataTypeConfig = {
+                version: LATEST_VERSION,
+                fields: {
+                    _key: { type: FieldType.Keyword },
+                    config: {
+                        type: FieldType.Object,
+                    },
+                    'config.id': {
+                        type: FieldType.Keyword,
+                    },
+                    'config.name': {
+                        type: FieldType.Keyword,
+                    },
+                    'config.owner': {
+                        type: FieldType.Object,
+                    },
+                    'config.owner.name': {
+                        type: FieldType.Keyword,
+                    },
+                    'config.owner.id': {
+                        type: FieldType.Keyword,
+                    },
+                    states: {
+                        type: FieldType.Object,
+                        array: true
+                    },
+                    'states.id': {
+                        type: FieldType.Keyword,
+                    },
+                    'states.name': {
+                        type: FieldType.Keyword,
+                    },
+                }
+            };
+            let dt: DataFrame<DeepObj>;
+
+            beforeAll(() => {
+                dt = DataFrame.fromJSON<DeepObj>(
                     dtConfig, [{
                         _key: 'id-1',
                         config: {
-                            id: 'config-2',
+                            id: 'config-1',
                             name: 'config-1',
                             owner: {
                                 id: 'config-owner-1',
@@ -357,6 +359,9 @@ describe('DataFrame', () => {
                         states: [{ id: 'state-3', name: 'state-3' }, { id: 'state-4', name: 'state-4' }]
                     }]
                 );
+            });
+
+            it('should return the selected fields with dot notated selectors', () => {
                 const resultFrame = dt.deepSelect([
                     '_key',
                     'config.name',
@@ -381,6 +386,65 @@ describe('DataFrame', () => {
                         }
                     },
                     states: [{ name: 'state-3' }, { name: 'state-4' }]
+                }]);
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
+            });
+
+            it('should work when selecting all of the nested fields', () => {
+                const resultFrame = dt.deepSelect([
+                    'config.id',
+                    'config.name',
+                    'config.owner.id',
+                    'config.owner.name',
+                ]);
+                expect(resultFrame.toJSON()).toEqual([{
+                    config: {
+                        id: 'config-1',
+                        name: 'config-1',
+                        owner: {
+                            id: 'config-owner-1',
+                            name: 'config-owner-name-1'
+                        }
+                    },
+                }, {
+                    config: {
+                        id: 'config-2',
+                        name: 'config-2',
+                        owner: {
+                            id: 'config-owner-2',
+                            name: 'config-owner-name-2'
+                        }
+                    },
+                }]);
+                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.getColumnOrThrow('config').id).toEqual(
+                    dt.getColumnOrThrow('config').id
+                );
+            });
+
+            it('should return the selected fields with wildcard selectors', () => {
+                const resultFrame = dt.deepSelect([
+                    '_key',
+                    '*id*',
+                ]);
+                expect(resultFrame.toJSON()).toEqual([{
+                    _key: 'id-1',
+                    config: {
+                        id: 'config-1',
+                        owner: {
+                            id: 'config-owner-1'
+                        }
+                    },
+                    states: [{ id: 'state-1' }, { id: 'state-2' }]
+                }, {
+                    _key: 'id-2',
+                    config: {
+                        id: 'config-2',
+                        owner: {
+                            id: 'config-owner-2'
+                        }
+                    },
+                    states: [{ id: 'state-3' }, { id: 'state-4' }]
                 }]);
                 expect(resultFrame.id).not.toEqual(dataFrame.id);
             });
