@@ -973,12 +973,12 @@ describe('DataFrame', () => {
                     {
                         name: 'Jane',
                         friends: ['Jill'],
-                        merged: ['Jane', null, ['Jill']]
+                        merged: ['Jane', undefined, ['Jill']]
                     },
                     {
                         name: 'Nancy',
                         age: 10,
-                        merged: ['Nancy', 10, null]
+                        merged: ['Nancy', 10, undefined]
                     },
                 ]);
                 expect(resultFrame.id).not.toEqual(dataFrame.id);

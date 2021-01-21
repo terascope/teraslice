@@ -444,7 +444,7 @@ describe('AggregationFrame', () => {
                 },
                 {
                     name: 'Nick',
-                    scores: [1, 1, 10, null],
+                    scores: [1, 1, 10, undefined],
                     date: '2018-01-15T10:39:11.195Z',
                 }
             ]);
@@ -499,7 +499,7 @@ describe('AggregationFrame', () => {
                 },
                 {
                     name: 'Nick',
-                    scores: [1, 1, 10, null],
+                    scores: [1, 1, 10, undefined],
                     date: '2018-01-15T10:39:11.195Z',
                 }
             ]);
@@ -555,7 +555,7 @@ describe('AggregationFrame', () => {
                 },
                 {
                     name: 1,
-                    scores: [1, 1, 10, null],
+                    scores: [1, 1, 10, undefined],
                     date: '2018-01-15T10:39:11.195Z',
                 }
             ]);
@@ -602,7 +602,7 @@ describe('AggregationFrame', () => {
                 {
                     name: 'Nick',
                     count: 1,
-                    scores: [1, 1, 10, null],
+                    scores: [1, 1, 10, undefined],
                     date: '2018-01-15T10:39:11.195Z',
                 }
             ]);
@@ -637,7 +637,7 @@ describe('AggregationFrame', () => {
                 },
                 {
                     name: 1,
-                    scores: [1, 1, 10, null],
+                    scores: [1, 1, 10, undefined],
                     date: '2018-01-15T10:39:11.195Z',
                 }
             ]);
@@ -668,7 +668,7 @@ describe('AggregationFrame', () => {
                 {
                     name: 'Nick',
                     count: 1,
-                    scores: [1, 1, 10, null],
+                    scores: [1, 1, 10, undefined],
                     date: '2018-01-15T10:39:11.195Z',
                 }
             ]);

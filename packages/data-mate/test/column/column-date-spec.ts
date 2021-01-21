@@ -41,7 +41,7 @@ describe('Column (Date Types)', () => {
                 '1941-08-20T07:00:00.000Z',
                 '2020-09-23T00:00:00.000Z',
                 1600875138416,
-                null,
+                undefined,
                 '2019-01-20T12:50:20.000Z'
             ]);
         });
@@ -63,7 +63,7 @@ describe('Column (Date Types)', () => {
                 '1941-08-20T07:00:00.000Z',
                 '2020-09-23T00:00:00.000Z',
                 '2020-09-23T15:32:18.416Z',
-                null,
+                undefined,
                 '2019-01-20T12:50:20.000Z'
             ]);
         });
@@ -84,7 +84,7 @@ describe('Column (Date Types)', () => {
                 '1941-08-20 07:00:00',
                 '2020-09-23 00:00:00',
                 '2020-09-23 15:32:18',
-                null,
+                undefined,
                 '2019-01-20 12:50:20',
             ]);
         });
@@ -96,7 +96,7 @@ describe('Column (Date Types)', () => {
         let col: Column<string>;
         const values: Maybe<string>[] = [
             '2020-09-23',
-            null,
+            undefined,
             '2020-01-20',
         ];
 
@@ -156,7 +156,7 @@ describe('Column (Date Types)', () => {
             });
             expect(newCol.toJSON()).toEqual([
                 '2018-02-02 00:23:01',
-                null,
+                undefined,
                 '2016-12-12 19:23:02',
             ]);
         });
@@ -174,7 +174,7 @@ describe('Column (Date Types)', () => {
         let col: Column<string>;
         const values: Maybe<string>[] = [
             '2018-02-02 00:23:0 -08:00',
-            null,
+            undefined,
             '2016-12-12 19:23:02 +02:00',
         ];
 
@@ -211,7 +211,7 @@ describe('Column (Date Types)', () => {
         let col: Column<number>;
         const values: Maybe<number>[] = [
             1600844405020,
-            null,
+            undefined,
             1579503620931,
         ];
 
@@ -262,7 +262,7 @@ describe('Column (Date Types)', () => {
 
             expect(newCol.toJSON()).toEqual([
                 1600844405020,
-                null,
+                undefined,
                 1579503620931,
             ]);
         });
@@ -301,7 +301,7 @@ describe('Column (Date Types)', () => {
         let col: Column<number>;
         const values: Maybe<number>[] = [
             1600844405,
-            null,
+            undefined,
             1579503621,
         ];
 
@@ -340,7 +340,7 @@ describe('Column (Date Types)', () => {
 
             expect(newCol.toJSON()).toEqual([
                 1600844405,
-                null,
+                undefined,
                 1579503621,
             ]);
         });

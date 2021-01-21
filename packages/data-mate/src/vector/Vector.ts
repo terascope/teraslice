@@ -6,7 +6,7 @@ import {
 import {
     ReadableData, createHashCode, HASH_CODE_SYMBOL, getHashCodeFrom
 } from '../core';
-import { VectorType } from './interfaces';
+import { ValueToJSONOptions, VectorType } from './interfaces';
 
 /**
  * An immutable typed Array class with a constrained API.
@@ -114,7 +114,7 @@ export abstract class Vector<T = unknown> {
      * A function for converting an in-memory representation of
      * a value to an JSON spec compatible format.
     */
-    abstract valueToJSON?(value: T, skipNullFields?: boolean): any;
+    abstract valueToJSON?(value: T, options?: ValueToJSONOptions): any;
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
         yield* this.data;
@@ -169,15 +169,16 @@ export abstract class Vector<T = unknown> {
     /**
      * Get value by index
     */
-    get(index: number, json?: boolean, skipNullFields?: boolean): Maybe<T>|Maybe<JSONValue<T>> {
+    get(index: number, json?: boolean, options?: ValueToJSONOptions): Maybe<T>|Maybe<JSONValue<T>> {
+        const nilValue: any = options?.useNullForUndefined ? null : undefined;
+
         const val = this.data.get(index);
+        if (val == null) return val ?? nilValue;
 
         if (!json || !this.valueToJSON) {
             return val;
         }
-
-        if (val == null) return val;
-        return this.valueToJSON(val as T, skipNullFields);
+        return this.valueToJSON(val as T, options);
     }
 
     /**
@@ -206,8 +207,10 @@ export abstract class Vector<T = unknown> {
      * This can be used for equality or sorted.
     */
     compare(a: Maybe<T>, b: Maybe<T>): -1|0|1 {
-        const aVal = a as any;
-        const bVal = b as any;
+        // we need default undefined to null since
+        // undefined has inconsistent behavior
+        const aVal = a as any ?? null;
+        const bVal = b as any ?? null;
         if (aVal < bVal) return -1;
         if (aVal > bVal) return 1;
         return 0;
@@ -216,10 +219,10 @@ export abstract class Vector<T = unknown> {
     /**
      * Convert the Vector an array of values (the output is JSON compatible)
     */
-    toJSON(skipNullFields?: boolean): Maybe<JSONValue<T>>[] {
+    toJSON(options?: ValueToJSONOptions): Maybe<JSONValue<T>>[] {
         const res: Maybe<JSONValue<T>>[] = Array(this.size);
         for (let i = 0; i < this.size; i++) {
-            res[i] = this.get(i, true, skipNullFields) as JSONValue<T>;
+            res[i] = this.get(i, true, options) as JSONValue<T>;
         }
         return res;
     }

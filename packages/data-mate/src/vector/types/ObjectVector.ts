@@ -1,7 +1,7 @@
 import { FieldType } from '@terascope/types';
 import { isNotNil } from '@terascope/utils';
 import { Vector, VectorOptions } from '../Vector';
-import { VectorType } from '../interfaces';
+import { ValueToJSONOptions, VectorType } from '../interfaces';
 import { getObjectDataTypeConfig, ReadableData } from '../../core';
 
 type ChildFields<T extends Record<string, any>> = readonly (
@@ -47,9 +47,14 @@ export class ObjectVector<
         return childFields;
     }
 
-    valueToJSON(value: T, skipNullFields?: boolean): any {
+    valueToJSON(value: T, options?: ValueToJSONOptions): any {
         const val = value as Record<string, any>;
+        const nilValue: any = options?.useNullForUndefined ? null : undefined;
+
         if (!this.childFields.length) {
+            if (options?.skipEmptyObjects && !Object.keys(val).length) {
+                return nilValue;
+            }
             return { ...val };
         }
 
@@ -61,25 +66,27 @@ export class ObjectVector<
             if (input[field] != null) {
                 const fieldValue = (
                     vector.valueToJSON ? vector.valueToJSON(
-                        input[field], skipNullFields
+                        input[field], options
                     ) : input[field]
                 );
-                if (skipNullFields && (
-                    fieldValue == null || (
-                        vector.config.type === FieldType.Object && !Object.keys(fieldValue).length
-                    )
-                )) {
-                    // skip the result
+                if (options?.skipNullFields && fieldValue == null) {
+                    if (nilValue === null) result[field] = nilValue;
+                } else if (
+                    options?.skipEmptyObjects
+                    && vector.config.type === FieldType.Object
+                    && !Object.keys(fieldValue).length
+                ) {
+                    if (nilValue === null) result[field] = nilValue;
                 } else {
                     numKeys++;
                     result[field] = fieldValue;
                 }
-            } else if (!skipNullFields) {
-                result[field] = undefined;
+            } else if (!options?.skipNullFields && nilValue === null) {
+                result[field] = nilValue;
             }
         }
 
-        if (skipNullFields && !numKeys) return;
+        if (options?.skipEmptyObjects && !numKeys) return nilValue;
         return result;
     }
 

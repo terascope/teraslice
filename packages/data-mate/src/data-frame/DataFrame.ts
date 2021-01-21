@@ -20,7 +20,7 @@ import {
     createHashCode, FieldArg, flattenStringArg, freezeArray, getFieldsFromArg, WritableData
 } from '../core';
 import { getMaxColumnSize } from '../aggregation-frame/utils';
-import { Vector } from '../vector';
+import { ValueToJSONOptions, Vector } from '../vector';
 
 /**
  * An immutable columnar table with APIs for data pipelines.
@@ -98,9 +98,11 @@ export class DataFrame<
     /**
      * Iterate over each index and row, this returns the internal stored values.
     */
-    * entries(json?: boolean, skipNullFields?: boolean): IterableIterator<[index: number, row: T]> {
+    * entries(
+        json?: boolean, options?: ValueToJSONOptions
+    ): IterableIterator<[index: number, row: T]> {
         for (let i = 0; i < this.size; i++) {
-            const row = this.getRow(i, json, skipNullFields);
+            const row = this.getRow(i, json, options);
             if (row) yield [i, row];
         }
     }
@@ -108,9 +110,9 @@ export class DataFrame<
     /**
      * Iterate each row
     */
-    * rows(json?: boolean, skipNullFields?: boolean): IterableIterator<T> {
+    * rows(json?: boolean, options?: ValueToJSONOptions): IterableIterator<T> {
         for (let i = 0; i < this.size; i++) {
-            const row = this.getRow(i, json, skipNullFields);
+            const row = this.getRow(i, json, options);
             if (row) yield row;
         }
     }
@@ -556,24 +558,28 @@ export class DataFrame<
     /**
      * Get a row by index, if the row has only null values, returns undefined
     */
-    getRow(index: number, json = false, skipNullFields?: boolean): T|undefined {
+    getRow(index: number, json = false, options?: ValueToJSONOptions): T|undefined {
         if (index > (this.size - 1)) return;
+        const nilValue: any = options?.useNullForUndefined ? null : undefined;
 
         const row: Partial<T> = {};
         let numKeys = 0;
         for (const col of this.columns) {
             const field = col.name as keyof T;
             const val = col.vector.get(
-                index, json, skipNullFields
+                index, json, options
             ) as Maybe<T[keyof T]>;
 
             if (val != null) {
                 numKeys++;
                 row[field] = val;
+            } else if (nilValue === null) {
+                row[field] = nilValue;
             }
         }
-        if (skipNullFields && !numKeys) {
-            return;
+
+        if (options?.skipEmptyObjects && !numKeys) {
+            return nilValue;
         }
 
         return row as T;
@@ -601,8 +607,8 @@ export class DataFrame<
     /**
      * Convert the DataFrame an array of objects (the output is JSON compatible)
     */
-    toJSON(skipNullFields?: boolean): T[] {
-        return Array.from(this.rows(true, skipNullFields));
+    toJSON(options?: ValueToJSONOptions): T[] {
+        return Array.from(this.rows(true, options));
     }
 
     /**

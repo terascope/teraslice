@@ -59,3 +59,9 @@ export type OldData<T> = Readonly<{
 export type DataValueTuple<T> = readonly [
     indices: readonly number[], value: T|null
 ];
+
+export interface ValueToJSONOptions {
+    skipNullFields?: boolean;
+    useNullForUndefined?: boolean;
+    skipEmptyObjects?: boolean;
+}
