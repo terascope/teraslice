@@ -252,7 +252,7 @@ export function truncateFP(len: number, ellipsis = true) {
     };
 }
 
-const lowerChars = {
+export const LOWER_CASE_CHARS = {
     a: true,
     b: true,
     c: true,
@@ -281,7 +281,7 @@ const lowerChars = {
     z: true,
 } as const;
 
-const upperChars = {
+export const UPPER_CASE_CHARS = {
     A: true,
     B: true,
     C: true,
@@ -310,7 +310,7 @@ const upperChars = {
     Z: true,
 } as const;
 
-const numChars = {
+export const NUM_CHARS = {
     0: true,
     1: true,
     2: true,
@@ -323,16 +323,16 @@ const numChars = {
     9: true,
 } as const;
 
-const sepChars = {
+export const WORD_SEPARATOR_CHARS = {
     ' ': true,
     _: true,
     '-': true,
 } as const;
 
-const wordChars = {
-    ...lowerChars,
-    ...upperChars,
-    ...numChars,
+export const WORD_CHARS = {
+    ...LOWER_CASE_CHARS,
+    ...UPPER_CASE_CHARS,
+    ...NUM_CHARS,
 } as const;
 
 /**
@@ -353,7 +353,7 @@ export function getWordParts(input: string): string[] {
         const nextChar = input.charAt(i + 1);
 
         if (!started && char === '_') {
-            if (nextChar === '_' || wordChars[nextChar]) {
+            if (nextChar === '_' || WORD_CHARS[nextChar]) {
                 word += char;
                 continue;
             }
@@ -361,18 +361,18 @@ export function getWordParts(input: string): string[] {
 
         started = true;
 
-        if (char && wordChars[char]) {
+        if (char && WORD_CHARS[char]) {
             word += char;
         }
 
-        if (sepChars[nextChar]) {
+        if (WORD_SEPARATOR_CHARS[nextChar]) {
             parts.push(word);
             word = '';
         }
 
-        if (upperChars[nextChar]) {
+        if (UPPER_CASE_CHARS[nextChar]) {
             const nextNextChar = input.charAt(i + 2);
-            if (lowerChars[nextNextChar]) {
+            if (LOWER_CASE_CHARS[nextNextChar]) {
                 parts.push(word);
                 word = '';
             }
@@ -432,7 +432,7 @@ export function toSafeString(input: string): string {
 function _replaceFirstWordChar(str: string, fn: (char: string) => string): string {
     let found = false;
     return str.split('').map((s) => {
-        if (!found && wordChars[s]) {
+        if (!found && WORD_CHARS[s]) {
             found = true;
             return fn(s);
         }

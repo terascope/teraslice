@@ -1,3 +1,5 @@
+import { WORD_CHARS } from './strings';
+
 export function isRegExp(input: unknown): input is RegExp {
     if (input == null) return false;
     if (input instanceof RegExp) return true;
@@ -98,18 +100,46 @@ export function isWildCardString(term: string): boolean {
 }
 
 export function wildCardToRegex(term: string): RegExp {
-    const baseRegex = term
-        .replace('.', '\\.{0,1}')
-        .replace(/\*/g, '.*')
-        .replace(/\?/g, '[^\\n\\r\\s]');
-
+    let baseRegex = '';
+    for (let i = 0; i < term.length; i++) {
+        const char = term[i];
+        if (isEscaped(term, i)) {
+            baseRegex += char;
+        } else if (char === '*') {
+            baseRegex += '.*';
+        } else if (char === '?') {
+            baseRegex += '[^\\n\\r\\s]';
+        } else if (char === '.') {
+            baseRegex += '\\.{0,1}';
+        } else if (char === ' ') {
+            baseRegex += '\\s';
+        } else if (WORD_CHARS[char] || char === '\\') {
+            baseRegex += `${char}`;
+        } else {
+            baseRegex += `\\${char}`;
+        }
+    }
     return new RegExp(`^${baseRegex}$`);
+}
+
+function isEscaped(input: string, pos: number): boolean {
+    if (pos === 0) return false;
+    let i = pos;
+    let lastCharEscaped = false;
+    while (i--) {
+        const char = input[i];
+        if (char === '\\') {
+            lastCharEscaped = !lastCharEscaped;
+        } else {
+            return lastCharEscaped;
+        }
+    }
+    return lastCharEscaped;
 }
 
 export function matchWildcard(wildCard: string, value: string): boolean {
     if (typeof wildCard === 'string' && typeof value === 'string') {
-        const regex = wildCardToRegex(wildCard);
-        return value.match(regex) != null;
+        return wildCardToRegex(wildCard).test(value);
     }
     return false;
 }

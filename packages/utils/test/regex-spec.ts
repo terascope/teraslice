@@ -3,6 +3,7 @@ import {
     matchAll,
     match,
     formatRegex,
+    matchWildcard,
 } from '../src/regex';
 
 describe('Regex Utils', () => {
@@ -40,6 +41,23 @@ describe('Regex Utils', () => {
             ['<(\\w+)>.*<(\\d+)>', '<tag1> hello <1234>', ['tag1', '1234']]
         ])('should match all %p to %s', (input: RegExp|string, value: string, expected: any) => {
             expect(matchAll(input, value)).toEqual(expected);
+        });
+    });
+
+    describe('matchWildcard', () => {
+        test.each([
+            ['fo?', 'foo', true],
+            ['fo?', 'food', false],
+            ['fo?', 'fob', true],
+            ['fo*', 'foo', true],
+            ['fo*', 'food', true],
+            ['*\\.__*_value', 'nested.__foo_value', true],
+            ['*\\.__*_value', 'nested.__foo_bar', false],
+            ['*\\.__*_value', 'nested._foo_value', false],
+            ['__*_value', '__foo_bar', false],
+            ['__*_value', '___bar', false],
+        ])('should handle %p to %s', (input: string, value: string, expected: any) => {
+            expect(matchWildcard(input, value)).toEqual(expected);
         });
     });
 });
