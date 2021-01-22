@@ -150,10 +150,11 @@ export abstract class Vector<T = unknown> {
     }
 
     /**
-     * Get the unique values
+     * Get the unique values with the index in a tuple form.
+     * This is useful for reconstructing an Vector
+     * with only the unique values
     */
     * unique(): Iterable<[index: number, value: T]> {
-        const results: T[] = [];
         const hashes = new Set<any>();
         const getHash = this.data.isPrimitive ? (v: unknown) => v : getHashCodeFrom;
         for (const [index, value] of this.data.values) {
@@ -163,7 +164,22 @@ export abstract class Vector<T = unknown> {
                 yield [index, value];
             }
         }
-        return results;
+    }
+
+    /**
+    * Get the unique values, excluding nil values.
+    * Useful for getting a list of unique values.
+    */
+    * uniqueValues(): Iterable<T> {
+        const hashes = new Set<any>();
+        const getHash = this.data.isPrimitive ? (v: unknown) => v : getHashCodeFrom;
+        for (const value of this.data.values.values()) {
+            const hash = getHash(value);
+            if (!hashes.has(hash)) {
+                hashes.add(hash);
+                yield value;
+            }
+        }
     }
 
     /**
