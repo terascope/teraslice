@@ -374,6 +374,13 @@ export class DataFrame<
     }
 
     /**
+     * Alias for unique
+    */
+    distinct(...fieldArg: FieldArg<keyof T>[]): DataFrame<T> {
+        return this.unique(...fieldArg);
+    }
+
+    /**
      * Like unique but will allow passing serialization options
     */
     private _unique(
@@ -431,16 +438,11 @@ export class DataFrame<
         const serializeOptions: SerializeOptions = {
             skipDuplicateObjects: true,
             skipEmptyObjects: true,
+            skipNilValues: true,
+            skipNilObjectValues: true,
         };
 
         return this._unique(this.fields, serializeOptions);
-    }
-
-    /**
-     * Alias for unique
-    */
-    distinct(...fieldArg: FieldArg<keyof T>[]): DataFrame<T> {
-        return this.unique(...fieldArg);
     }
 
     /**

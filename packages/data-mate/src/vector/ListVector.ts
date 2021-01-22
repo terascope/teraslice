@@ -41,19 +41,24 @@ export class ListVector<T = unknown> extends Vector<readonly Maybe<T>[]> {
     valueToJSON(values: readonly Maybe<T>[], options?: SerializeOptions): any {
         let result = values.map(this.convertValueToJSON(options));
         const vectorType = this.valueVector.config.type;
-
-        if (options?.skipDuplicateObjects && vectorType === FieldType.Object) {
-            result = dedupeValues(result);
+        const isObjectType = vectorType === FieldType.Object;
+        // ordering doesn't mater here but I think
+        // might be a tad bit better to remove the
+        // the nil values
+        if (options?.skipNilListValues || (
+            isObjectType && options?.skipNilObjectValues
+        )) {
+            result = result.filter(isNotNil);
         }
 
-        if (options?.skipNilValues) {
-            result = result.filter(isNotNil);
+        if (options?.skipDuplicateObjects && isObjectType) {
+            result = dedupeValues(result);
         }
         return result;
     }
 }
 
-function dedupeValues(result: AnyObject[]) {
+function dedupeValues(result: Maybe<AnyObject>[]) {
     const hashes = new Set<string>();
     return result.filter((value) => {
         const hash = getHashCodeFrom(value);

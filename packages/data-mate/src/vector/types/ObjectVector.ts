@@ -61,6 +61,7 @@ export class ObjectVector<
         const input = value as Readonly<Record<keyof T, unknown>>;
         const result: Partial<T> = {};
         let numKeys = 0;
+        const { skipNilValues, skipEmptyObjects } = options ?? {};
 
         for (const [field, vector] of this.childFields) {
             if (input[field] != null) {
@@ -69,24 +70,22 @@ export class ObjectVector<
                         input[field], options
                     ) : input[field]
                 );
-                if (options?.skipNilValues && fieldValue == null) {
-                    if (nilValue === null) result[field] = nilValue;
-                } else if (
-                    options?.skipEmptyObjects
-                    && vector.config.type === FieldType.Object
-                    && !Object.keys(fieldValue).length
-                ) {
-                    if (nilValue === null) result[field] = nilValue;
+                if (fieldValue == null) {
+                    if (!skipNilValues && nilValue === null) {
+                        result[field] = nilValue;
+                    }
                 } else {
                     numKeys++;
                     result[field] = fieldValue;
                 }
-            } else if (!options?.skipNilValues && nilValue === null) {
+            // set value to nilValue if it exists in the
+            // child config but not the input object
+            } else if (!skipNilValues && nilValue === null) {
                 result[field] = nilValue;
             }
         }
 
-        if (options?.skipEmptyObjects && !numKeys) return nilValue;
+        if (skipEmptyObjects && !numKeys) return nilValue;
         return result;
     }
 

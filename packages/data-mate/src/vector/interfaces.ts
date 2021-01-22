@@ -65,15 +65,28 @@ export type DataValueTuple<T> = readonly [
 */
 export interface SerializeOptions {
     /**
-     * Don't return any values that are null/undefined
-    */
-    skipNilValues?: boolean;
-
-    /**
      * Use a null values in-place of undefined so
      * it can preserved when calling JSON.stringify
     */
     useNullForUndefined?: boolean;
+
+    /**
+     * Don't return any values that are null/undefined.
+     * This does not apply to list or tuples, use skipNilListValues or skipNilObjectValues
+     * instead.
+    */
+    skipNilValues?: boolean;
+
+    /**
+     * Don't return any values that are null/undefined
+    */
+    skipNilListValues?: boolean;
+
+    /**
+     * Don't return any object values in list that are null/undefined.
+     * This will have no change in behavior if skipNilListValues is true
+    */
+    skipNilObjectValues?: boolean;
 
     /**
      * Remove objects with properties

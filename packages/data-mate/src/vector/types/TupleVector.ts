@@ -41,6 +41,7 @@ export class TupleVector<
 
     valueToJSON(values: T, options?: SerializeOptions): any {
         const nilValue: any = options?.useNullForUndefined ? null : undefined;
+
         return this.childFields.map((vector, index) => {
             const value = values[index];
             if (value == null || !vector.valueToJSON) return value ?? nilValue;
