@@ -1,8 +1,8 @@
-import { Maybe } from '@terascope/types';
+import { AnyObject, FieldType, Maybe } from '@terascope/types';
 import { isNotNil } from '@terascope/utils';
 import { Vector, VectorOptions } from './Vector';
 import { SerializeOptions, VectorType } from './interfaces';
-import { ReadableData } from '../core';
+import { getHashCodeFrom, ReadableData } from '../core';
 
 export class ListVector<T = unknown> extends Vector<readonly Maybe<T>[]> {
     readonly convertValueToJSON: (options?: SerializeOptions) => (value: Maybe<T>) => any;
@@ -39,8 +39,27 @@ export class ListVector<T = unknown> extends Vector<readonly Maybe<T>[]> {
     }
 
     valueToJSON(values: readonly Maybe<T>[], options?: SerializeOptions): any {
-        const result = values.map(this.convertValueToJSON(options));
-        if (!options?.skipNilValues) return result;
-        return result.filter(isNotNil);
+        let result = values.map(this.convertValueToJSON(options));
+        const vectorType = this.valueVector.config.type;
+
+        if (options?.skipDuplicateObjects && vectorType === FieldType.Object) {
+            result = dedupeValues(result);
+        }
+
+        if (options?.skipNilValues) {
+            result = result.filter(isNotNil);
+        }
+        return result;
     }
+}
+
+function dedupeValues(result: AnyObject[]) {
+    const hashes = new Set<string>();
+    return result.filter((value) => {
+        const hash = getHashCodeFrom(value);
+        if (hashes.has(hash)) return false;
+
+        hashes.add(hash);
+        return true;
+    });
 }

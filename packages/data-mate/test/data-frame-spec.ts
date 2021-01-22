@@ -475,7 +475,7 @@ describe('DataFrame', () => {
             });
 
             describe('when no options are given and there are duplicate rows to compact', () => {
-                it('should preserve the data from the people frame', () => {
+                it('should compact the data from the people frame', () => {
                     const frame = createPeopleDataFrame([
                         {
                             name: 'Jill',
@@ -509,7 +509,7 @@ describe('DataFrame', () => {
                     ]);
                 });
 
-                it('should preserve the data from the deep obj frame', () => {
+                it('should compact the data from the deep obj frame', () => {
                     const frame = createDeepObjectDataFrame([{
                         _key: 'id-1',
                         config: {

@@ -368,7 +368,18 @@ export class DataFrame<
      * Remove duplicate rows with the same value for select fields
     */
     unique(...fieldArg: FieldArg<keyof T>[]): DataFrame<T> {
-        const fields = getFieldsFromArg(this.fields, fieldArg);
+        return this._unique(
+            getFieldsFromArg(this.fields, fieldArg)
+        );
+    }
+
+    /**
+     * Like unique but will allow passing serialization options
+    */
+    private _unique(
+        fields: Iterable<keyof T>,
+        serializeOptions?: SerializeOptions
+    ): DataFrame<T> {
         const buckets = new Set<string>();
         const keyAggs = new Map<keyof T, KeyAggFn>();
 
@@ -376,7 +387,9 @@ export class DataFrame<
         for (const name of fields) {
             const column = columns.get(name)!;
             if (column) {
-                keyAggs.set(column.name, makeUniqueKeyAgg(column.vector));
+                keyAggs.set(column.name, makeUniqueKeyAgg(
+                    column.vector, serializeOptions
+                ));
             }
         }
 
@@ -385,7 +398,14 @@ export class DataFrame<
         const rowBuilder = makeUniqueRowBuilder(
             builders,
             buckets,
-            (name, i) => columns.get(name)!.vector.get(i)
+            (name, i) => {
+                if (!serializeOptions) {
+                    return columns.get(name)!.vector.get(i);
+                }
+                return columns.get(name)!.vector.get(
+                    i, true, serializeOptions
+                );
+            }
         );
 
         for (let i = 0; i < this.size; i++) {
@@ -400,6 +420,22 @@ export class DataFrame<
             builder.data = builder.data.resize(buckets.size);
             return columns.get(name)!.fork(builder.toVector());
         }));
+    }
+
+    /**
+     * Reduce amount of noise in a DataFrame by
+     * removing the amount of duplicates, including
+     * duplicate objects in lists
+    */
+    compact(): DataFrame<T> {
+        const serializeOptions: SerializeOptions = {
+            useNullForUndefined: true,
+            skipNilValues: true,
+            skipDuplicateObjects: true,
+            skipEmptyObjects: true,
+        };
+
+        return this._unique(this.fields, serializeOptions);
     }
 
     /**
@@ -583,50 +619,6 @@ export class DataFrame<
         }
 
         return row as T;
-    }
-
-    /**
-     * Reduce amount of noise in a DataFrame by
-     * removing the amount of duplicates, including
-     * duplicate objects in lists
-    */
-    compact(): DataFrame<T> {
-        const buckets = new Set<string>();
-        const keyAggs = new Map<keyof T, KeyAggFn>();
-
-        const columns = new Map(this.columns.map((col) => [col.name, col]));
-        for (const name of this.fields) {
-            const column = columns.get(name)!;
-            if (column) {
-                keyAggs.set(column.name, makeUniqueKeyAgg(column.vector));
-            }
-        }
-
-        const builders = getBuildersForConfig<T>(this.config, this.size);
-
-        const rowBuilder = makeUniqueRowBuilder(
-            builders,
-            buckets,
-            (name, i) => columns.get(name)!.vector.get(i, true, {
-                skipEmptyObjects: true,
-                skipNilValues: true,
-                useNullForUndefined: true,
-                skipDuplicateObjects: true,
-            })
-        );
-
-        for (let i = 0; i < this.size; i++) {
-            const res = makeKeyForRow(keyAggs, i);
-            if (res && !buckets.has(res.key)) {
-                rowBuilder(res.row, res.key, i);
-            }
-        }
-
-        return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => {
-            // @ts-expect-error data is readonly
-            builder.data = builder.data.resize(buckets.size);
-            return columns.get(name)!.fork(builder.toVector());
-        }));
     }
 
     /**

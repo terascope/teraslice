@@ -3,7 +3,7 @@ import {
     isBigInt, toBigInt
 } from '@terascope/utils';
 import {
-    Vector, VectorType, getNumericValues
+    Vector, VectorType, getNumericValues, SerializeOptions
 } from '../vector';
 import { DateValue, getHashCodeFrom } from '../core';
 
@@ -192,7 +192,7 @@ function makeDateAgg(dateFormat: string): MakeKeyAggFn {
     };
 }
 
-export function makeUniqueKeyAgg(vector: Vector<any>): KeyAggFn {
+export function makeUniqueKeyAgg(vector: Vector<any>, options?: SerializeOptions): KeyAggFn {
     return (index) => {
         const value = vector.get(index, false);
         if (value == null) {
@@ -201,7 +201,9 @@ export function makeUniqueKeyAgg(vector: Vector<any>): KeyAggFn {
 
         return {
             key: getHashCodeFrom(value),
-            value
+            value: options && vector.valueToJSON
+                ? vector.valueToJSON(value, options)
+                : value
         };
     };
 }
