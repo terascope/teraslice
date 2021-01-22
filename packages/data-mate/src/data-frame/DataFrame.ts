@@ -20,7 +20,7 @@ import {
     createHashCode, FieldArg, flattenStringArg, freezeArray, getFieldsFromArg, WritableData
 } from '../core';
 import { getMaxColumnSize } from '../aggregation-frame/utils';
-import { ValueToJSONOptions, Vector } from '../vector';
+import { SerializeOptions, Vector } from '../vector';
 
 /**
  * An immutable columnar table with APIs for data pipelines.
@@ -99,7 +99,7 @@ export class DataFrame<
      * Iterate over each index and row, this returns the internal stored values.
     */
     * entries(
-        json?: boolean, options?: ValueToJSONOptions
+        json?: boolean, options?: SerializeOptions
     ): IterableIterator<[index: number, row: T]> {
         for (let i = 0; i < this.size; i++) {
             const row = this.getRow(i, json, options);
@@ -110,7 +110,7 @@ export class DataFrame<
     /**
      * Iterate each row
     */
-    * rows(json?: boolean, options?: ValueToJSONOptions): IterableIterator<T> {
+    * rows(json?: boolean, options?: SerializeOptions): IterableIterator<T> {
         for (let i = 0; i < this.size; i++) {
             const row = this.getRow(i, json, options);
             if (row) yield row;
@@ -558,7 +558,7 @@ export class DataFrame<
     /**
      * Get a row by index, if the row has only null values, returns undefined
     */
-    getRow(index: number, json = false, options?: ValueToJSONOptions): T|undefined {
+    getRow(index: number, json = false, options?: SerializeOptions): T|undefined {
         if (index > (this.size - 1)) return;
         const nilValue: any = options?.useNullForUndefined ? null : undefined;
 
@@ -586,12 +586,47 @@ export class DataFrame<
     }
 
     /**
-     * Reduce amount of noise in a DataFrame,
-     * by removing the amount of duplicates and
-     * dropping nil fields
+     * Reduce amount of noise in a DataFrame by
+     * removing the amount of duplicates, including
+     * duplicate objects in lists
     */
     compact(): DataFrame<T> {
-        return this;
+        const buckets = new Set<string>();
+        const keyAggs = new Map<keyof T, KeyAggFn>();
+
+        const columns = new Map(this.columns.map((col) => [col.name, col]));
+        for (const name of this.fields) {
+            const column = columns.get(name)!;
+            if (column) {
+                keyAggs.set(column.name, makeUniqueKeyAgg(column.vector));
+            }
+        }
+
+        const builders = getBuildersForConfig<T>(this.config, this.size);
+
+        const rowBuilder = makeUniqueRowBuilder(
+            builders,
+            buckets,
+            (name, i) => columns.get(name)!.vector.get(i, true, {
+                skipEmptyObjects: true,
+                skipNilValues: true,
+                useNullForUndefined: true,
+                skipDuplicateObjects: true,
+            })
+        );
+
+        for (let i = 0; i < this.size; i++) {
+            const res = makeKeyForRow(keyAggs, i);
+            if (res && !buckets.has(res.key)) {
+                rowBuilder(res.row, res.key, i);
+            }
+        }
+
+        return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => {
+            // @ts-expect-error data is readonly
+            builder.data = builder.data.resize(buckets.size);
+            return columns.get(name)!.fork(builder.toVector());
+        }));
     }
 
     /**
@@ -616,7 +651,7 @@ export class DataFrame<
     /**
      * Convert the DataFrame an array of objects (the output is JSON compatible)
     */
-    toJSON(options?: ValueToJSONOptions): T[] {
+    toJSON(options?: SerializeOptions): T[] {
         return Array.from(this.rows(true, options));
     }
 

@@ -473,6 +473,104 @@ describe('DataFrame', () => {
                     expect(resultFrame.toJSON()).toEqual(deepObjDataFrame.toJSON());
                 });
             });
+
+            describe('when no options are given and there are duplicate rows to compact', () => {
+                it('should preserve the data from the people frame', () => {
+                    const frame = createPeopleDataFrame([
+                        {
+                            name: 'Jill',
+                            age: 39,
+                            friends: ['Frank']
+                        },
+                        {
+                            name: 'Billy',
+                            age: 47,
+                            friends: ['Jill']
+                        },
+                        {
+                            name: 'Jill',
+                            age: 39,
+                            friends: ['Frank']
+                        },
+                    ]);
+
+                    const resultFrame = frame.compact();
+                    expect(resultFrame.toJSON()).toEqual([
+                        {
+                            name: 'Jill',
+                            age: 39,
+                            friends: ['Frank']
+                        },
+                        {
+                            name: 'Billy',
+                            age: 47,
+                            friends: ['Jill']
+                        },
+                    ]);
+                });
+
+                it('should preserve the data from the deep obj frame', () => {
+                    const frame = createDeepObjectDataFrame([{
+                        _key: 'id-1',
+                        config: {
+                            id: 'config-1',
+                            name: 'config-1',
+                            owner: {
+                                id: 'config-owner-1',
+                                name: 'config-owner-name-1'
+                            }
+                        },
+                        states: [{ id: 'state-1', name: 'state-1' }, { id: 'state-2', name: 'state-2' }]
+                    }, {
+                        _key: 'id-1',
+                        config: {
+                            id: 'config-1',
+                            name: 'config-1',
+                            owner: {
+                                id: 'config-owner-1',
+                                name: 'config-owner-name-1'
+                            }
+                        },
+                        states: [{ id: 'state-1', name: 'state-1' }, { id: 'state-2', name: 'state-2' }]
+                    }, {
+                        _key: 'id-2',
+                        config: {
+                            id: 'config-2',
+                            name: 'config-2',
+                            owner: {
+                                id: 'config-owner-2',
+                                name: 'config-owner-name-2'
+                            }
+                        },
+                        states: [{ id: 'state-3', name: 'state-3' }, { id: 'state-3', name: 'state-3' }]
+                    }]);
+
+                    const resultFrame = frame.compact();
+                    expect(resultFrame.toJSON()).toEqual([{
+                        _key: 'id-1',
+                        config: {
+                            id: 'config-1',
+                            name: 'config-1',
+                            owner: {
+                                id: 'config-owner-1',
+                                name: 'config-owner-name-1'
+                            }
+                        },
+                        states: [{ id: 'state-1', name: 'state-1' }, { id: 'state-2', name: 'state-2' }]
+                    }, {
+                        _key: 'id-2',
+                        config: {
+                            id: 'config-2',
+                            name: 'config-2',
+                            owner: {
+                                id: 'config-owner-2',
+                                name: 'config-owner-name-2'
+                            }
+                        },
+                        states: [{ id: 'state-3', name: 'state-3' }]
+                    }]);
+                });
+            });
         });
 
         describe('->assign', () => {

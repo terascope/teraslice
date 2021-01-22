@@ -1,7 +1,7 @@
 import { FieldType } from '@terascope/types';
 import { isNotNil } from '@terascope/utils';
 import { Vector, VectorOptions } from '../Vector';
-import { ValueToJSONOptions, VectorType } from '../interfaces';
+import { SerializeOptions, VectorType } from '../interfaces';
 import { getObjectDataTypeConfig, ReadableData } from '../../core';
 
 type ChildFields<T extends Record<string, any>> = readonly (
@@ -47,7 +47,7 @@ export class ObjectVector<
         return childFields;
     }
 
-    valueToJSON(value: T, options?: ValueToJSONOptions): any {
+    valueToJSON(value: T, options?: SerializeOptions): any {
         const val = value as Record<string, any>;
         const nilValue: any = options?.useNullForUndefined ? null : undefined;
 
@@ -69,7 +69,7 @@ export class ObjectVector<
                         input[field], options
                     ) : input[field]
                 );
-                if (options?.skipNullFields && fieldValue == null) {
+                if (options?.skipNilValues && fieldValue == null) {
                     if (nilValue === null) result[field] = nilValue;
                 } else if (
                     options?.skipEmptyObjects
@@ -81,7 +81,7 @@ export class ObjectVector<
                     numKeys++;
                     result[field] = fieldValue;
                 }
-            } else if (!options?.skipNullFields && nilValue === null) {
+            } else if (!options?.skipNilValues && nilValue === null) {
                 result[field] = nilValue;
             }
         }

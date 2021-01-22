@@ -1,17 +1,17 @@
 import { Maybe } from '@terascope/types';
 import { isNotNil } from '@terascope/utils';
 import { Vector, VectorOptions } from './Vector';
-import { ValueToJSONOptions, VectorType } from './interfaces';
+import { SerializeOptions, VectorType } from './interfaces';
 import { ReadableData } from '../core';
 
 export class ListVector<T = unknown> extends Vector<readonly Maybe<T>[]> {
-    readonly convertValueToJSON: (options?: ValueToJSONOptions) => (value: Maybe<T>) => any;
+    readonly convertValueToJSON: (options?: SerializeOptions) => (value: Maybe<T>) => any;
     #_valueVector?: Vector<T>;
 
     constructor(data: ReadableData<readonly Maybe<T>[]>, options: VectorOptions) {
         super(VectorType.List, data, options);
         this.sortable = false;
-        this.convertValueToJSON = (opts?: ValueToJSONOptions) => {
+        this.convertValueToJSON = (opts?: SerializeOptions) => {
             const nilValue: any = opts?.useNullForUndefined ? null : undefined;
             return (value: Maybe<T>): any => {
                 if (value == null || !this.valueVector.valueToJSON) {
@@ -38,9 +38,9 @@ export class ListVector<T = unknown> extends Vector<readonly Maybe<T>[]> {
         return this.#_valueVector;
     }
 
-    valueToJSON(values: readonly Maybe<T>[], options?: ValueToJSONOptions): any {
+    valueToJSON(values: readonly Maybe<T>[], options?: SerializeOptions): any {
         const result = values.map(this.convertValueToJSON(options));
-        if (!options?.skipNullFields) return result;
+        if (!options?.skipNilValues) return result;
         return result.filter(isNotNil);
     }
 }

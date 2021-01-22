@@ -1,6 +1,6 @@
 import { FieldType } from '@terascope/types';
 import { Vector, VectorOptions } from '../Vector';
-import { ValueToJSONOptions, VectorType } from '../interfaces';
+import { SerializeOptions, VectorType } from '../interfaces';
 import { getObjectDataTypeConfig, ReadableData } from '../../core';
 
 type ChildFields = readonly Vector<any>[];
@@ -39,7 +39,7 @@ export class TupleVector<
         return childFields;
     }
 
-    valueToJSON(values: T, options?: ValueToJSONOptions): any {
+    valueToJSON(values: T, options?: SerializeOptions): any {
         const nilValue: any = options?.useNullForUndefined ? null : undefined;
         return this.childFields.map((vector, index) => {
             const value = values[index];

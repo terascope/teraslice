@@ -60,8 +60,28 @@ export type DataValueTuple<T> = readonly [
     indices: readonly number[], value: T|null
 ];
 
-export interface ValueToJSONOptions {
-    skipNullFields?: boolean;
+/**
+ * Options used for JSON serialization
+*/
+export interface SerializeOptions {
+    /**
+     * Don't return any values that are null/undefined
+    */
+    skipNilValues?: boolean;
+
+    /**
+     * Use a null values in-place of undefined so
+     * it can preserved when calling JSON.stringify
+    */
     useNullForUndefined?: boolean;
+
+    /**
+     * Remove objects with properties
+    */
     skipEmptyObjects?: boolean;
+
+    /**
+     * Remove duplicate objects in a list vector
+    */
+    skipDuplicateObjects?: boolean;
 }

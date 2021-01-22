@@ -4,7 +4,7 @@ import {
 } from '@terascope/types';
 import { Builder } from '../builder';
 import {
-    JSONValue, ValueToJSONOptions, Vector
+    JSONValue, SerializeOptions, Vector
 } from '../vector';
 import {
     ColumnOptions, ColumnTransformConfig, ColumnValidateConfig, TransformMode
@@ -319,7 +319,7 @@ export class Column<T = unknown, N extends NameType = string> {
      *
      * @note probably only useful for debugging
     */
-    toJSON(options?: ValueToJSONOptions): Maybe<JSONValue<T>>[] {
+    toJSON(options?: SerializeOptions): Maybe<JSONValue<T>>[] {
         return this.vector.toJSON(options);
     }
 }
