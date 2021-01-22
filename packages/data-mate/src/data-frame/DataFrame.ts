@@ -586,6 +586,15 @@ export class DataFrame<
     }
 
     /**
+     * Reduce amount of noise in a DataFrame,
+     * by removing the amount of duplicates and
+     * dropping nil fields
+    */
+    compact(): DataFrame<T> {
+        return this;
+    }
+
+    /**
      * Returns a DataFrame with a limited number of rows
     */
     limit(num: number): DataFrame<T> {

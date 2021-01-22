@@ -226,16 +226,16 @@ describe('DataFrame', () => {
         let peopleDataFrame: DataFrame<Person>;
 
         type DeepObj = {
-            _key: string;
-            config: {
-                id: string;
-                name: string;
-                owner: {
-                    id: string;
-                    name: string;
+            _key?: string;
+            config?: {
+                id?: string;
+                name?: string;
+                owner?: {
+                    id?: string;
+                    name?: string;
                 }
             };
-            states: { id: string; name: string }[];
+            states?: { id?: string; name?: string }[];
         }
 
         const deepObjectDTConfig: DataTypeConfig = {
@@ -294,6 +294,10 @@ describe('DataFrame', () => {
             return DataFrame.fromJSON<Person>(peopleDTConfig, data);
         }
 
+        function createDeepObjectDataFrame(data: DeepObj[]) {
+            return DataFrame.fromJSON<DeepObj>(deepObjectDTConfig, data);
+        }
+
         beforeAll(() => {
             peopleDataFrame = createPeopleDataFrame([
                 {
@@ -322,31 +326,29 @@ describe('DataFrame', () => {
                     friends: null as any
                 },
             ]);
-            deepObjDataFrame = DataFrame.fromJSON<DeepObj>(
-                deepObjectDTConfig, [{
-                    _key: 'id-1',
-                    config: {
-                        id: 'config-1',
-                        name: 'config-1',
-                        owner: {
-                            id: 'config-owner-1',
-                            name: 'config-owner-name-1'
-                        }
-                    },
-                    states: [{ id: 'state-1', name: 'state-1' }, { id: 'state-2', name: 'state-2' }]
-                }, {
-                    _key: 'id-2',
-                    config: {
-                        id: 'config-2',
-                        name: 'config-2',
-                        owner: {
-                            id: 'config-owner-2',
-                            name: 'config-owner-name-2'
-                        }
-                    },
-                    states: [{ id: 'state-3', name: 'state-3' }, { id: 'state-4', name: 'state-4' }]
-                }]
-            );
+            deepObjDataFrame = createDeepObjectDataFrame([{
+                _key: 'id-1',
+                config: {
+                    id: 'config-1',
+                    name: 'config-1',
+                    owner: {
+                        id: 'config-owner-1',
+                        name: 'config-owner-name-1'
+                    }
+                },
+                states: [{ id: 'state-1', name: 'state-1' }, { id: 'state-2', name: 'state-2' }]
+            }, {
+                _key: 'id-2',
+                config: {
+                    id: 'config-2',
+                    name: 'config-2',
+                    owner: {
+                        id: 'config-owner-2',
+                        name: 'config-owner-name-2'
+                    }
+                },
+                states: [{ id: 'state-3', name: 'state-3' }, { id: 'state-4', name: 'state-4' }]
+            }]);
         });
 
         describe('->select', () => {
@@ -456,6 +458,20 @@ describe('DataFrame', () => {
                 expect(names).toEqual(['age', 'friends']);
                 expect(resultFrame.size).toEqual(peopleDataFrame.size);
                 expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+            });
+        });
+
+        describe('->compact', () => {
+            describe('when no options are given and there is nothing to compact', () => {
+                it('should preserve the data from the people frame', () => {
+                    const resultFrame = peopleDataFrame.compact();
+                    expect(resultFrame.toJSON()).toEqual(peopleDataFrame.toJSON());
+                });
+
+                it('should preserve the data from the deep obj frame', () => {
+                    const resultFrame = deepObjDataFrame.compact();
+                    expect(resultFrame.toJSON()).toEqual(deepObjDataFrame.toJSON());
+                });
             });
         });
 
