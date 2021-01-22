@@ -543,76 +543,58 @@ describe('DataFrame', () => {
                     }]);
                 });
 
-                describe('when preserveDuplicates is false', () => {
-                    it('should compact the data from the people frame', () => {
-                        const resultFrame = dupePeopleFrame.compact();
-                        expect(resultFrame.toJSON()).toEqual([
-                            {
-                                name: 'Jill',
-                                age: 39,
-                            },
-                            {
-                                name: 'Billy',
-                                age: 47,
-                                friends: ['Jill']
-                            },
-                            {
-                                name: 'Jill',
-                                friends: ['Frank']
-                            }
-                        ]);
-                    });
-
-                    it('should compact the data from the deep obj frame', () => {
-                        const resultFrame = dupeDeepObjFrame.compact();
-
-                        expect(resultFrame.toJSON()).toEqual([{
-                            _key: 'id-1',
-                            config: {
-                                id: 'config-1',
-                                name: 'config-1',
-                                owner: {
-                                    id: 'config-owner-1',
-                                    name: 'config-owner-name-1'
-                                }
-                            },
-                            states: [{ id: 'state-1', name: 'state-1' }, { id: 'state-2', name: 'state-2' }]
-                        }, {
-                            _key: 'id-2',
-                            config: {
-                                id: 'config-2',
-                                name: 'config-2',
-                                owner: {
-                                    id: 'config-owner-2',
-                                    name: 'config-owner-name-2'
-                                }
-                            },
-                            states: [{ id: 'state-3', name: 'state-3' }]
-                        }, {
-                            _key: 'id-2',
-                            config: {
-                                id: 'config-2',
-                                name: 'config-2',
-                            },
-                            states: [{ name: 'state-3' }, { id: 'state-3' }]
-                        }]);
-                    });
+                it('should compact the data from the people frame', () => {
+                    const resultFrame = dupePeopleFrame.compact();
+                    expect(resultFrame.toJSON()).toEqual([
+                        {
+                            name: 'Jill',
+                            age: 39,
+                        },
+                        {
+                            name: 'Billy',
+                            age: 47,
+                            friends: ['Jill']
+                        },
+                        {
+                            name: 'Jill',
+                            friends: ['Frank']
+                        }
+                    ]);
                 });
 
-                describe('when preserveDuplicates is true', () => {
-                    it('should not compact the data from the people frame', () => {
-                        const resultFrame = dupePeopleFrame.compact({
-                            preserveDuplicates: true
-                        });
-                        expect(resultFrame.toJSON()).toEqual(dupePeopleFrame.toJSON());
-                    });
+                it('should compact the data from the deep obj frame', () => {
+                    const resultFrame = dupeDeepObjFrame.compact();
 
-                    it('should not compact the data from the deep obj frame', () => {
-                        const resultFrame = dupeDeepObjFrame.compact({
-                            preserveDuplicates: true
-                        });
-                        expect(resultFrame.toJSON()).toEqual(dupeDeepObjFrame.toJSON());
-                    });
+                    expect(resultFrame.toJSON()).toEqual([{
+                        _key: 'id-1',
+                        config: {
+                            id: 'config-1',
+                            name: 'config-1',
+                            owner: {
+                                id: 'config-owner-1',
+                                name: 'config-owner-name-1'
+                            }
+                        },
+                        states: [{ id: 'state-1', name: 'state-1' }, { id: 'state-2', name: 'state-2' }]
+                    }, {
+                        _key: 'id-2',
+                        config: {
+                            id: 'config-2',
+                            name: 'config-2',
+                            owner: {
+                                id: 'config-owner-2',
+                                name: 'config-owner-name-2'
+                            }
+                        },
+                        states: [{ id: 'state-3', name: 'state-3' }]
+                    }, {
+                        _key: 'id-2',
+                        config: {
+                            id: 'config-2',
+                            name: 'config-2',
+                        },
+                        states: [{ name: 'state-3' }, { id: 'state-3' }]
+                    }]);
                 });
             });
         });

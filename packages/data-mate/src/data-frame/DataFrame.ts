@@ -425,15 +425,9 @@ export class DataFrame<
     /**
      * Reduce amount of noise in a DataFrame by
      * removing the amount of duplicates, including
-     * duplicate objects in lists
+     * duplicate objects in array values
     */
-    compact(options?: {
-        preserveDuplicates?: boolean;
-    }): DataFrame<T> {
-        if (options?.preserveDuplicates) {
-            return this;
-        }
-
+    compact(): DataFrame<T> {
         const serializeOptions: SerializeOptions = {
             skipDuplicateObjects: true,
             skipEmptyObjects: true,
