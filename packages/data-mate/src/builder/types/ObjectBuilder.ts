@@ -1,6 +1,6 @@
 import { FieldType } from '@terascope/types';
 import {
-    getTypeOf, isNotNil, isPlainObject, toString
+    getTypeOf, isNotNil, isPlainObject, sortBy, toString
 } from '@terascope/utils';
 import { createObjectValue, getObjectDataTypeConfig, WritableData } from '../../core';
 
@@ -50,7 +50,7 @@ export class ObjectBuilder<
             })
             .filter(isNotNil) as ChildFields<T>;
 
-        this.#childFields = childFields;
+        this.#childFields = sortBy(childFields as [string, Builder<any>][], '[0]');
         return childFields;
     }
 
@@ -64,13 +64,14 @@ export class ObjectBuilder<
         }
 
         const input = value as Readonly<Record<keyof T, unknown>>;
-        const result: Partial<T> = {};
+        const result: Partial<T> = Object.create(null);
 
         for (const [field, builder] of this.childFields) {
             if (input[field] != null) {
                 const fieldValue: any = builder.valueFrom(input[field]);
                 Object.defineProperty(result, field, {
                     value: fieldValue,
+                    enumerable: true,
                     writable: false
                 });
             }
