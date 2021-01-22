@@ -223,28 +223,79 @@ describe('DataFrame', () => {
 
     describe('when manipulating a DataFrame', () => {
         type Person = { name: string; age: number; friends: string[] }
-        let dataFrame: DataFrame<Person>;
+        let peopleDataFrame: DataFrame<Person>;
 
-        function createDataFrame(data: Person[]) {
-            return DataFrame.fromJSON<Person>({
-                version: LATEST_VERSION,
-                fields: {
-                    name: {
-                        type: FieldType.Keyword,
-                    },
-                    age: {
-                        type: FieldType.Short,
-                    },
-                    friends: {
-                        type: FieldType.Keyword,
-                        array: true,
-                    }
+        type DeepObj = {
+            _key: string;
+            config: {
+                id: string;
+                name: string;
+                owner: {
+                    id: string;
+                    name: string;
                 }
-            }, data);
+            };
+            states: { id: string; name: string }[];
         }
 
-        beforeEach(() => {
-            dataFrame = createDataFrame([
+        const deepObjectDTConfig: DataTypeConfig = {
+            version: LATEST_VERSION,
+            fields: {
+                _key: { type: FieldType.Keyword },
+                config: {
+                    type: FieldType.Object,
+                },
+                'config.id': {
+                    type: FieldType.Keyword,
+                },
+                'config.name': {
+                    type: FieldType.Keyword,
+                },
+                'config.owner': {
+                    type: FieldType.Object,
+                },
+                'config.owner.name': {
+                    type: FieldType.Keyword,
+                },
+                'config.owner.id': {
+                    type: FieldType.Keyword,
+                },
+                states: {
+                    type: FieldType.Object,
+                    array: true
+                },
+                'states.id': {
+                    type: FieldType.Keyword,
+                },
+                'states.name': {
+                    type: FieldType.Keyword,
+                },
+            }
+        };
+        let deepObjDataFrame: DataFrame<DeepObj>;
+
+        const peopleDTConfig: DataTypeConfig = {
+            version: LATEST_VERSION,
+            fields: {
+                name: {
+                    type: FieldType.Keyword,
+                },
+                age: {
+                    type: FieldType.Short,
+                },
+                friends: {
+                    type: FieldType.Keyword,
+                    array: true,
+                }
+            }
+        };
+
+        function createPeopleDataFrame(data: Person[]) {
+            return DataFrame.fromJSON<Person>(peopleDTConfig, data);
+        }
+
+        beforeAll(() => {
+            peopleDataFrame = createPeopleDataFrame([
                 {
                     name: 'Jill',
                     age: 39,
@@ -271,98 +322,46 @@ describe('DataFrame', () => {
                     friends: null as any
                 },
             ]);
+            deepObjDataFrame = DataFrame.fromJSON<DeepObj>(
+                deepObjectDTConfig, [{
+                    _key: 'id-1',
+                    config: {
+                        id: 'config-1',
+                        name: 'config-1',
+                        owner: {
+                            id: 'config-owner-1',
+                            name: 'config-owner-name-1'
+                        }
+                    },
+                    states: [{ id: 'state-1', name: 'state-1' }, { id: 'state-2', name: 'state-2' }]
+                }, {
+                    _key: 'id-2',
+                    config: {
+                        id: 'config-2',
+                        name: 'config-2',
+                        owner: {
+                            id: 'config-owner-2',
+                            name: 'config-owner-name-2'
+                        }
+                    },
+                    states: [{ id: 'state-3', name: 'state-3' }, { id: 'state-4', name: 'state-4' }]
+                }]
+            );
         });
 
         describe('->select', () => {
             it('should return a new frame with just those columns', () => {
-                const resultFrame = dataFrame.select('name', 'age');
+                const resultFrame = peopleDataFrame.select('name', 'age');
                 const names = resultFrame.columns.map(({ name }) => name);
                 expect(names).toEqual(['name', 'age']);
-                expect(resultFrame.size).toEqual(dataFrame.size);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.size).toEqual(peopleDataFrame.size);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
         });
 
         describe('->deepSelect', () => {
-            type DeepObj = {
-                _key: string;
-                config: {
-                    id: string;
-                    name: string;
-                    owner: {
-                        id: string;
-                        name: string;
-                    }
-                };
-                states: { id: string; name: string }[];
-            }
-
-            const dtConfig: DataTypeConfig = {
-                version: LATEST_VERSION,
-                fields: {
-                    _key: { type: FieldType.Keyword },
-                    config: {
-                        type: FieldType.Object,
-                    },
-                    'config.id': {
-                        type: FieldType.Keyword,
-                    },
-                    'config.name': {
-                        type: FieldType.Keyword,
-                    },
-                    'config.owner': {
-                        type: FieldType.Object,
-                    },
-                    'config.owner.name': {
-                        type: FieldType.Keyword,
-                    },
-                    'config.owner.id': {
-                        type: FieldType.Keyword,
-                    },
-                    states: {
-                        type: FieldType.Object,
-                        array: true
-                    },
-                    'states.id': {
-                        type: FieldType.Keyword,
-                    },
-                    'states.name': {
-                        type: FieldType.Keyword,
-                    },
-                }
-            };
-            let dt: DataFrame<DeepObj>;
-
-            beforeAll(() => {
-                dt = DataFrame.fromJSON<DeepObj>(
-                    dtConfig, [{
-                        _key: 'id-1',
-                        config: {
-                            id: 'config-1',
-                            name: 'config-1',
-                            owner: {
-                                id: 'config-owner-1',
-                                name: 'config-owner-name-1'
-                            }
-                        },
-                        states: [{ id: 'state-1', name: 'state-1' }, { id: 'state-2', name: 'state-2' }]
-                    }, {
-                        _key: 'id-2',
-                        config: {
-                            id: 'config-2',
-                            name: 'config-2',
-                            owner: {
-                                id: 'config-owner-2',
-                                name: 'config-owner-name-2'
-                            }
-                        },
-                        states: [{ id: 'state-3', name: 'state-3' }, { id: 'state-4', name: 'state-4' }]
-                    }]
-                );
-            });
-
             it('should return the selected fields with dot notated selectors', () => {
-                const resultFrame = dt.deepSelect([
+                const resultFrame = deepObjDataFrame.deepSelect([
                     '_key',
                     'config.name',
                     'config.owner.name',
@@ -387,11 +386,11 @@ describe('DataFrame', () => {
                     },
                     states: [{ name: 'state-3' }, { name: 'state-4' }]
                 }]);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
 
             it('should work when selecting all of the nested fields', () => {
-                const resultFrame = dt.deepSelect([
+                const resultFrame = deepObjDataFrame.deepSelect([
                     'config.id',
                     'config.name',
                     'config.owner.id',
@@ -416,14 +415,14 @@ describe('DataFrame', () => {
                         }
                     },
                 }]);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
                 expect(resultFrame.getColumnOrThrow('config').id).toEqual(
-                    dt.getColumnOrThrow('config').id
+                    deepObjDataFrame.getColumnOrThrow('config').id
                 );
             });
 
             it('should return the selected fields with wildcard selectors', () => {
-                const resultFrame = dt.deepSelect([
+                const resultFrame = deepObjDataFrame.deepSelect([
                     '_key',
                     '*id*',
                 ]);
@@ -446,39 +445,39 @@ describe('DataFrame', () => {
                     },
                     states: [{ id: 'state-3' }, { id: 'state-4' }]
                 }]);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
         });
 
         describe('->selectAt', () => {
             it('should return a new frame with just those columns', () => {
-                const resultFrame = dataFrame.selectAt(1, 2);
+                const resultFrame = peopleDataFrame.selectAt(1, 2);
                 const names = resultFrame.columns.map(({ name }) => name);
                 expect(names).toEqual(['age', 'friends']);
-                expect(resultFrame.size).toEqual(dataFrame.size);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.size).toEqual(peopleDataFrame.size);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
         });
 
         describe('->assign', () => {
             it('should be able to a new frame with the new column', () => {
-                const newCol = dataFrame
+                const newCol = peopleDataFrame
                     .getColumnOrThrow('name')
                     .transform(ColumnTransform.toUpperCase)
                     .rename('upper_name');
 
-                const resultFrame = dataFrame.assign([newCol]);
+                const resultFrame = peopleDataFrame.assign([newCol]);
 
                 const names = resultFrame.columns.map(({ name }) => name);
                 expect(names).toEqual(['name', 'age', 'friends', 'upper_name']);
 
-                expect(resultFrame.size).toEqual(dataFrame.size);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.size).toEqual(peopleDataFrame.size);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
 
             it('should be able to a new frame with replaced columns', () => {
-                const newCol = dataFrame.getColumnOrThrow('name').transform(ColumnTransform.toUpperCase);
-                const resultFrame = dataFrame.assign([newCol]);
+                const newCol = peopleDataFrame.getColumnOrThrow('name').transform(ColumnTransform.toUpperCase);
+                const resultFrame = peopleDataFrame.assign([newCol]);
 
                 const names = resultFrame.columns.map(({ name }) => name);
                 expect(names).toEqual(['name', 'age', 'friends']);
@@ -491,14 +490,14 @@ describe('DataFrame', () => {
                     'NANCY'
                 ]);
 
-                expect(resultFrame.size).toEqual(dataFrame.size);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.size).toEqual(peopleDataFrame.size);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
         });
 
         describe('->rename', () => {
             it('should be able to rename a column DataFrame', () => {
-                const resultFrame = dataFrame.rename('name', 'other_name');
+                const resultFrame = peopleDataFrame.rename('name', 'other_name');
 
                 const names = resultFrame.columns.map(({ name }) => name);
                 expect(names).toEqual(['other_name', 'age', 'friends']);
@@ -508,14 +507,14 @@ describe('DataFrame', () => {
                     expect(row).not.toHaveProperty('name');
                 }
 
-                expect(resultFrame.size).toEqual(dataFrame.size);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.size).toEqual(peopleDataFrame.size);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
         });
 
         describe('->limit', () => {
             it('should be able to get the first two rows', () => {
-                const resultFrame = dataFrame.limit(2);
+                const resultFrame = peopleDataFrame.limit(2);
 
                 expect(resultFrame.size).toEqual(2);
                 expect(resultFrame.toJSON()).toEqual([
@@ -530,11 +529,11 @@ describe('DataFrame', () => {
                         friends: ['Jill']
                     }
                 ]);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
 
             it('should be able to get the last row', () => {
-                const resultFrame = dataFrame.limit(-1);
+                const resultFrame = peopleDataFrame.limit(-1);
 
                 expect(resultFrame.size).toEqual(1);
                 expect(resultFrame.toJSON()).toEqual([
@@ -543,37 +542,37 @@ describe('DataFrame', () => {
                         age: 10,
                     }
                 ]);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
 
             it('should be work when called with a number greater than the size of frame', () => {
-                const resultFrame = dataFrame.limit(dataFrame.size + 10);
+                const resultFrame = peopleDataFrame.limit(peopleDataFrame.size + 10);
 
-                expect(resultFrame.size).toEqual(dataFrame.size);
-                expect(resultFrame.id).toEqual(dataFrame.id);
+                expect(resultFrame.size).toEqual(peopleDataFrame.size);
+                expect(resultFrame.id).toEqual(peopleDataFrame.id);
             });
         });
 
         describe('->concat', () => {
             it('should return the same data frame if the given an empty array', () => {
-                const resultFrame = dataFrame.concat([]);
+                const resultFrame = peopleDataFrame.concat([]);
 
-                expect(resultFrame.id).toEqual(dataFrame.id);
-                expect(resultFrame.size).toEqual(dataFrame.size);
+                expect(resultFrame.id).toEqual(peopleDataFrame.id);
+                expect(resultFrame.size).toEqual(peopleDataFrame.size);
             });
 
             it('should be able to append the existing columns', () => {
-                const resultFrame = dataFrame.concat(dataFrame.columns);
-                const data = dataFrame.toJSON();
+                const resultFrame = peopleDataFrame.concat(peopleDataFrame.columns);
+                const data = peopleDataFrame.toJSON();
                 expect(resultFrame.toJSON()).toEqual(
                     data.concat(data)
                 );
-                expect(resultFrame.size).toEqual(dataFrame.size * 2);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.size).toEqual(peopleDataFrame.size * 2);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
 
             it('should be able append other columns from a similar data frames', () => {
-                const df1 = createDataFrame([
+                const df1 = createPeopleDataFrame([
                     {
                         name: 'Test1',
                         age: 23,
@@ -591,7 +590,7 @@ describe('DataFrame', () => {
                     },
                 ]);
 
-                const df2 = createDataFrame([
+                const df2 = createPeopleDataFrame([
                     {
                         name: 'Example1',
                         age: 79,
@@ -629,20 +628,20 @@ describe('DataFrame', () => {
                     },
                 ]);
 
-                const resultFrame = dataFrame
+                const resultFrame = peopleDataFrame
                     .concat(df1.columns)
                     .concat(df2.columns);
 
                 expect(resultFrame.toJSON()).toEqual(
-                    dataFrame.toJSON().concat(df1.toJSON(), df2.toJSON())
+                    peopleDataFrame.toJSON().concat(df1.toJSON(), df2.toJSON())
                 );
 
-                expect(resultFrame.size).toEqual(dataFrame.size + df1.size + df2.size);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.size).toEqual(peopleDataFrame.size + df1.size + df2.size);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
 
             it('should be able to concat with ip', () => {
-                const dtConfig: DataTypeConfig = {
+                const ipDTConfig: DataTypeConfig = {
                     version: LATEST_VERSION,
                     fields: {
                         ip: {
@@ -651,11 +650,11 @@ describe('DataFrame', () => {
                     }
                 };
                 const dt1 = DataFrame.fromJSON<{ ip: string }>(
-                    dtConfig, [{ ip: '127.0.0.1' }, { ip: '10.0.0.1' }]
+                    ipDTConfig, [{ ip: '127.0.0.1' }, { ip: '10.0.0.1' }]
                 );
 
                 const dt2 = DataFrame.fromJSON<{ ip: string }>(
-                    dtConfig, [{ ip: '192.168.1.1' }, { ip: '12.30.2.1' }]
+                    ipDTConfig, [{ ip: '192.168.1.1' }, { ip: '12.30.2.1' }]
                 );
 
                 const resultFrame = dt1.concat(dt2.columns);
@@ -669,12 +668,12 @@ describe('DataFrame', () => {
             });
 
             it('should be able to append columns with different lengths', () => {
-                const resultFrame = dataFrame.concat(dataFrame.columns.map((col, i) => (
+                const resultFrame = peopleDataFrame.concat(peopleDataFrame.columns.map((col, i) => (
                     col.fork(col.vector.slice(0, i + 1))
                 )));
 
                 expect(resultFrame.toJSON()).toEqual([
-                    ...dataFrame.toJSON(),
+                    ...peopleDataFrame.toJSON(),
                     {
                         name: 'Jill',
                         age: 39,
@@ -689,11 +688,11 @@ describe('DataFrame', () => {
                     },
                 ]);
                 expect(resultFrame.size).toEqual(8);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
 
             it('should be able to append new rows', () => {
-                const resultFrame = dataFrame.concat([
+                const resultFrame = peopleDataFrame.concat([
                     {
                         name: 'Anna',
                         age: 20,
@@ -705,7 +704,7 @@ describe('DataFrame', () => {
                 ]);
 
                 expect(resultFrame.toJSON()).toEqual(
-                    dataFrame.toJSON().concat([
+                    peopleDataFrame.toJSON().concat([
                         {
                             name: 'Anna',
                             age: 20,
@@ -717,13 +716,13 @@ describe('DataFrame', () => {
                     ] as any[])
                 );
                 expect(resultFrame.size).toEqual(7);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
         });
 
         describe('->orderBy', () => {
             it('should be able to sort name by asc order', () => {
-                const resultFrame = dataFrame.orderBy('name');
+                const resultFrame = peopleDataFrame.orderBy('name');
 
                 expect(resultFrame.toJSON()).toEqual([
                     {
@@ -750,11 +749,11 @@ describe('DataFrame', () => {
                         age: 10
                     },
                 ]);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
 
             it('should be able to sort name by desc order', () => {
-                const resultFrame = dataFrame.orderBy('name:desc');
+                const resultFrame = peopleDataFrame.orderBy('name:desc');
 
                 expect(resultFrame.toJSON()).toEqual([
                     {
@@ -781,11 +780,11 @@ describe('DataFrame', () => {
                         friends: ['Jill']
                     },
                 ]);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
 
             it('should be able to sort age by asc order', () => {
-                const resultFrame = dataFrame.orderBy('age');
+                const resultFrame = peopleDataFrame.orderBy('age');
 
                 expect(resultFrame.toJSON()).toEqual([
                     {
@@ -812,11 +811,11 @@ describe('DataFrame', () => {
                         friends: ['Jill']
                     },
                 ]);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
 
             it('should be able to sort age by desc order', () => {
-                const resultFrame = dataFrame.orderBy('age:desc');
+                const resultFrame = peopleDataFrame.orderBy('age:desc');
 
                 expect(resultFrame.toJSON()).toEqual([
                     {
@@ -843,11 +842,11 @@ describe('DataFrame', () => {
                         friends: ['Jill']
                     },
                 ]);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
 
             it('should be able to sort name:desc and age:desc', () => {
-                const resultFrame = dataFrame.orderBy(['name:desc', 'age:desc']);
+                const resultFrame = peopleDataFrame.orderBy(['name:desc', 'age:desc']);
 
                 expect(resultFrame.toJSON()).toEqual([
                     {
@@ -874,13 +873,13 @@ describe('DataFrame', () => {
                         friends: ['Jill']
                     },
                 ]);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
         });
 
         describe('->filterBy', () => {
             it('should be able to filter by a single column', () => {
-                const resultFrame = dataFrame.filterBy({
+                const resultFrame = peopleDataFrame.filterBy({
                     name: (value) => value?.includes('ill') === true,
                 });
 
@@ -896,19 +895,19 @@ describe('DataFrame', () => {
                         friends: ['Jill']
                     },
                 ]);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
 
             it('should return the same frame using fields if nothing is filtered out', () => {
-                const resultFrame = dataFrame.filterBy({
+                const resultFrame = peopleDataFrame.filterBy({
                     name: () => true,
                 });
 
-                expect(resultFrame.id).toEqual(dataFrame.id);
+                expect(resultFrame.id).toEqual(peopleDataFrame.id);
             });
 
             it('should be able to filter by a multiple columns', () => {
-                const resultFrame = dataFrame.filterBy({
+                const resultFrame = peopleDataFrame.filterBy({
                     name: (value) => value?.includes('ill') === true,
                     age: (value) => value != null && value > 40,
                 });
@@ -920,11 +919,11 @@ describe('DataFrame', () => {
                         friends: ['Jill']
                     },
                 ]);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
 
             it('should be able to filter by using a function', () => {
-                const resultFrame = dataFrame.filterBy((row) => {
+                const resultFrame = peopleDataFrame.filterBy((row) => {
                     if (!row.name?.includes('ill')) return false;
                     if (row.age != null && row.age <= 40) return false;
                     return true;
@@ -937,19 +936,19 @@ describe('DataFrame', () => {
                         friends: ['Jill']
                     },
                 ]);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
 
             it('should return the same frame using a function if nothing is filtered out', () => {
-                const resultFrame = dataFrame.filterBy(() => true);
+                const resultFrame = peopleDataFrame.filterBy(() => true);
 
-                expect(resultFrame.id).toEqual(dataFrame.id);
+                expect(resultFrame.id).toEqual(peopleDataFrame.id);
             });
         });
 
         describe('->createTupleFrom', () => {
             it('should be able to to merge all of the columns', () => {
-                const resultFrame = dataFrame.createTupleFrom(dataFrame.fields, 'merged');
+                const resultFrame = peopleDataFrame.createTupleFrom(peopleDataFrame.fields, 'merged');
 
                 expect(resultFrame.toJSON()).toEqual([
                     {
@@ -981,13 +980,13 @@ describe('DataFrame', () => {
                         merged: ['Nancy', 10, undefined]
                     },
                 ]);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
         });
 
         describe('->require', () => {
             it('should be able to require a single column', () => {
-                const resultFrame = dataFrame.require('age');
+                const resultFrame = peopleDataFrame.require('age');
 
                 expect(resultFrame.toJSON()).toEqual([
                     {
@@ -1010,11 +1009,11 @@ describe('DataFrame', () => {
                         age: 10,
                     },
                 ]);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
 
             it('should be able to require multiple columns', () => {
-                const resultFrame = dataFrame.require('friends', 'age');
+                const resultFrame = peopleDataFrame.require('friends', 'age');
 
                 expect(resultFrame.toJSON()).toEqual([
                     {
@@ -1033,13 +1032,13 @@ describe('DataFrame', () => {
                         friends: ['Jill']
                     },
                 ]);
-                expect(resultFrame.id).not.toEqual(dataFrame.id);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
 
             it('should return the same frame if all fields exists', () => {
-                const resultFrame = dataFrame.require('name');
+                const resultFrame = peopleDataFrame.require('name');
 
-                expect(resultFrame.id).toEqual(dataFrame.id);
+                expect(resultFrame.id).toEqual(peopleDataFrame.id);
             });
         });
     });
