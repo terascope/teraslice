@@ -129,7 +129,7 @@ export class DataFrame<
             .sort()
             .join(':');
 
-        const id = createHashCode(long) as string;
+        const id = createHashCode(long);
         this.#id = id;
         return id;
     }
@@ -427,10 +427,14 @@ export class DataFrame<
      * removing the amount of duplicates, including
      * duplicate objects in lists
     */
-    compact(): DataFrame<T> {
+    compact(options?: {
+        preserveDuplicates?: boolean;
+    }): DataFrame<T> {
+        if (options?.preserveDuplicates) {
+            return this;
+        }
+
         const serializeOptions: SerializeOptions = {
-            useNullForUndefined: true,
-            skipNilValues: true,
             skipDuplicateObjects: true,
             skipEmptyObjects: true,
         };
