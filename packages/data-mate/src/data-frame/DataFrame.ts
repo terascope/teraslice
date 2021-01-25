@@ -5,7 +5,8 @@ import {
 import {
     DataEntity, TSError,
     getTypeOf, isFunction,
-    isPlainObject, trimFP, matchWildcard
+    isPlainObject, trimFP,
+    matchWildcard, isWildCardString
 } from '@terascope/utils';
 import { Column, KeyAggFn, makeUniqueKeyAgg } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
@@ -184,7 +185,7 @@ export class DataFrame<
             return (selector: string): boolean => {
                 if (field === selector) return true;
                 if (field.startsWith(`${selector}.`)) return true;
-                if (selector.includes('*')) {
+                if (isWildCardString(selector)) {
                     return matchWildcard(selector, field);
                 }
                 return false;
@@ -539,6 +540,7 @@ export class DataFrame<
                 statusCode: 400
             });
         }
+
         const columns = fields.map((field) => this.getColumnOrThrow(field));
         const childConfig: DataTypeFields = {};
         columns.forEach((col, index) => {

@@ -93,9 +93,8 @@ export function matchAllFP(regexp: string|RegExp): (value: string) => string[]|n
 }
 
 export function isWildCardString(term: string): boolean {
-    if (typeof term === 'string') {
-        if (term.match('[?+*+]')) return true;
-    }
+    if (typeof term !== 'string') return false;
+    if (term.includes('*') || term.includes('?')) return true;
     return false;
 }
 
@@ -109,8 +108,6 @@ export function wildCardToRegex(term: string): RegExp {
             baseRegex += '.*';
         } else if (char === '?') {
             baseRegex += '[^\\n\\r\\s]';
-        } else if (char === '.') {
-            baseRegex += '\\.{0,1}';
         } else if (char === ' ') {
             baseRegex += '\\s';
         } else if (WORD_CHARS[char] || char === '\\') {
