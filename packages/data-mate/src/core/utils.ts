@@ -5,7 +5,7 @@ import {
     isPrimitiveValue, TSError
 } from '@terascope/utils';
 import {
-    DataTypeFields, ReadonlyDataTypeFields,
+    DataTypeFields, FieldType, ReadonlyDataTypeFields,
     TypedArray, TypedArrayConstructor
 } from '@terascope/types';
 import {
@@ -175,9 +175,20 @@ export function freezeArray<T extends ArrLike>(
     return Object.freeze(input.slice()) as any;
 }
 
-export function getObjectDataTypeConfig(
-    config: DataTypeFields|ReadonlyDataTypeFields, baseField: string
-): DataTypeFields {
+/**
+ * This is used in the Vector and Builder classes
+ * to get the correctly scoped field configurations
+ * since we use dot notation for nested field configurations
+*/
+export function getChildDataTypeConfig(
+    config: DataTypeFields|ReadonlyDataTypeFields,
+    baseField: string,
+    fieldType: FieldType
+): DataTypeFields|undefined {
+    // Tuples are configured like objects except the nested field names
+    // are the positional indexes in the tuple
+    if (fieldType !== FieldType.Object && fieldType !== FieldType.Tuple) return;
+
     const childConfig: DataTypeFields = {};
     for (const [field, fieldConfig] of Object.entries(config)) {
         const withoutBase = field.replace(`${baseField}.`, '');

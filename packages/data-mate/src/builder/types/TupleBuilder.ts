@@ -3,7 +3,7 @@ import {
     getTypeOf, isArrayLike, toString, TSError
 } from '@terascope/utils';
 import {
-    createArrayValue, getObjectDataTypeConfig, WritableData
+    createArrayValue, getChildDataTypeConfig, WritableData
 } from '../../core';
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
@@ -36,17 +36,13 @@ export class TupleBuilder<T extends [...any] = [...any]> extends BuilderWithCach
         }
 
         const childFields: ChildFields = Object.entries(this.childConfig)
-            .map(([field, config], index) => {
-                const childConfig = (config.type === FieldType.Object
-                    ? getObjectDataTypeConfig(this.childConfig!, field)
-                    : undefined);
-
-                return Builder.make<any>(WritableData.emptyData, {
-                    childConfig,
-                    config,
-                    name: this._getChildName(index),
-                });
-            });
+            .map(([field, config], index) => Builder.make<any>(WritableData.emptyData, {
+                childConfig: getChildDataTypeConfig(
+                    this.childConfig!, field, config.type as FieldType
+                ),
+                config,
+                name: this._getChildName(index),
+            }));
 
         this.#childFields = childFields;
         return childFields;

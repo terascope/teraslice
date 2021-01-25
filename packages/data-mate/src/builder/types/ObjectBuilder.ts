@@ -2,7 +2,7 @@ import { FieldType } from '@terascope/types';
 import {
     getTypeOf, isNotNil, isPlainObject, sortBy, toString
 } from '@terascope/utils';
-import { createObjectValue, getObjectDataTypeConfig, WritableData } from '../../core';
+import { createObjectValue, getChildDataTypeConfig, WritableData } from '../../core';
 
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
@@ -37,12 +37,10 @@ export class ObjectBuilder<
                 const [base] = field.split('.');
                 if (base !== field && this.childConfig![base]) return;
 
-                const childConfig = (config.type === FieldType.Object
-                    ? getObjectDataTypeConfig(this.childConfig!, field)
-                    : undefined);
-
                 const builder = Builder.make<any>(WritableData.emptyData, {
-                    childConfig,
+                    childConfig: getChildDataTypeConfig(
+                        this.childConfig!, field, config.type as FieldType
+                    ),
                     config,
                     name: this._getChildName(field),
                 });

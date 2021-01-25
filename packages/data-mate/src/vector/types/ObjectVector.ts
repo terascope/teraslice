@@ -2,7 +2,7 @@ import { FieldType } from '@terascope/types';
 import { isNotNil } from '@terascope/utils';
 import { Vector, VectorOptions } from '../Vector';
 import { SerializeOptions, VectorType } from '../interfaces';
-import { getObjectDataTypeConfig, ReadableData } from '../../core';
+import { getChildDataTypeConfig, ReadableData } from '../../core';
 
 type ChildFields<T extends Record<string, any>> = readonly (
     [field: (keyof T), vector: Vector<any>]
@@ -30,12 +30,10 @@ export class ObjectVector<
                 const [base] = field.split('.');
                 if (base !== field && this.childConfig![base]) return;
 
-                const childConfig = (config.type === FieldType.Object
-                    ? getObjectDataTypeConfig(this.childConfig!, field)
-                    : undefined);
-
                 const vector = Vector.make<any>(ReadableData.emptyData, {
-                    childConfig,
+                    childConfig: getChildDataTypeConfig(
+                        this.childConfig!, field, config.type as FieldType
+                    ),
                     config,
                     name: this._getChildName(field)
                 });

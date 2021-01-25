@@ -1,7 +1,7 @@
 import { FieldType } from '@terascope/types';
 import { Vector, VectorOptions } from '../Vector';
 import { SerializeOptions, VectorType } from '../interfaces';
-import { getObjectDataTypeConfig, ReadableData } from '../../core';
+import { getChildDataTypeConfig, ReadableData } from '../../core';
 
 type ChildFields = readonly Vector<any>[];
 
@@ -23,17 +23,13 @@ export class TupleVector<
             return this.#childFields;
         }
         const childFields: ChildFields = Object.entries(this.childConfig)
-            .map(([field, config], index) => {
-                const childConfig = (config.type === FieldType.Object
-                    ? getObjectDataTypeConfig(this.childConfig!, field)
-                    : undefined);
-
-                return Vector.make<any>(ReadableData.emptyData, {
-                    childConfig,
-                    config,
-                    name: this._getChildName(index)
-                });
-            });
+            .map(([field, config], index) => Vector.make<any>(ReadableData.emptyData, {
+                childConfig: getChildDataTypeConfig(
+                    this.childConfig!, field, config.type as FieldType
+                ),
+                config,
+                name: this._getChildName(index)
+            }));
 
         this.#childFields = childFields;
         return childFields;
