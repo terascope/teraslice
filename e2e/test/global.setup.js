@@ -104,7 +104,7 @@ async function generateTestData() {
     }
 
     try {
-        await Promise.all(misc.EXAMLPE_INDEX_SIZES.map((size) => generate(size)));
+        await Promise.all(misc.EXAMPLE_INDEX_SIZES.map((size) => generate(size)));
         // we need fully active jobs so we can get proper meta data for recovery state tests
         signale.success('Data generation is done', getElapsed(startTime));
     } catch (err) {
