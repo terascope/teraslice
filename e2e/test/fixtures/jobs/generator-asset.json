@@ -3,7 +3,7 @@
     "slicers": 1,
     "lifecycle": "persistent",
     "workers": 2,
-    "assets": ["ex1", "elasticsearch", "standard"],
+    "assets": ["ex1", "standard"],
     "max_retries": 0,
     "analytics": false,
     "operations": [

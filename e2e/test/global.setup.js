@@ -65,7 +65,7 @@ async function generateTestData() {
             name: `Generate: ${indexName}`,
             lifecycle: 'once',
             workers: 1,
-            assets: ['elasticsearch'],
+            assets: ['elasticsearch', 'standard'],
             operations: [
                 {
                     _op: 'data_generator',
