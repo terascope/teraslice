@@ -43,7 +43,7 @@
         "@turf/circle": "^6.3.0",
         "@turf/clean-coords": "^6.2.0",
         "@turf/helpers": "^6.2.0",
-        "@turf/invariant": "^6.2.0",
+        "@turf/invariant": "^6.3.0",
         "@turf/line-to-polygon": "^6.2.0",
         "@turf/random": "^6.2.0",
         "netmask": "^1.0.6"
