@@ -1090,6 +1090,17 @@ describe('DataFrame', () => {
             it('should be able to to merge all of the columns', () => {
                 const resultFrame = peopleDataFrame.createTupleFrom(peopleDataFrame.fields, 'merged');
 
+                expect(resultFrame.config).toEqual({
+                    version: peopleDTConfig.version,
+                    fields: {
+                        ...peopleDTConfig.fields,
+                        merged: { type: FieldType.Tuple },
+                        'merged.0': peopleDTConfig.fields.name,
+                        'merged.1': peopleDTConfig.fields.age,
+                        'merged.2': peopleDTConfig.fields.friends,
+                    }
+                });
+
                 expect(resultFrame.toJSON()).toEqual([
                     {
                         name: 'Jill',

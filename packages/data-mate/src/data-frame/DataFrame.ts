@@ -544,7 +544,7 @@ export class DataFrame<
         const columns = fields.map((field) => this.getColumnOrThrow(field));
         const childConfig: DataTypeFields = {};
         columns.forEach((col, index) => {
-            childConfig[`${as}.${index}`] = col.config;
+            childConfig[index] = col.config;
         });
 
         const config: DataTypeFieldConfig = Object.freeze({ type: FieldType.Tuple });
