@@ -42,7 +42,7 @@
         "cli-table3": "^0.6.0",
         "easy-table": "^1.1.1",
         "execa": "^5.0.0",
-        "fs-extra": "^9.0.1",
+        "fs-extra": "^9.1.0",
         "got": "^11.8.1",
         "js-yaml": "^4.0.0",
         "pretty-bytes": "^5.5.0",
