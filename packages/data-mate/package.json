@@ -29,9 +29,9 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/data-types": "^0.25.1",
+        "@terascope/data-types": "^0.26.0-rc.0",
         "@terascope/types": "^0.7.0",
-        "@terascope/utils": "^0.34.1",
+        "@terascope/utils": "^0.35.0-rc.0",
         "@turf/bbox": "^6.2.0",
         "@turf/bbox-polygon": "^6.3.0",
         "@turf/boolean-point-in-polygon": "^6.2.0",
@@ -50,7 +50,7 @@
         "uuid": "^8.3.2",
         "valid-url": "^1.0.9",
         "validator": "^13.5.2",
-        "xlucene-parser": "^0.31.1"
+        "xlucene-parser": "^0.32.0-rc.0"
     },
     "devDependencies": {
         "@types/ip6addr": "^0.2.1",

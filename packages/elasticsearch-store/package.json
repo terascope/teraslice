@@ -25,12 +25,12 @@
     },
     "dependencies": {
         "@terascope/data-mate": "^0.20.2",
-        "@terascope/data-types": "^0.25.1",
+        "@terascope/data-types": "^0.26.0-rc.0",
         "@terascope/types": "^0.7.0",
-        "@terascope/utils": "^0.34.1",
+        "@terascope/utils": "^0.35.0-rc.0",
         "ajv": "^6.12.6",
         "uuid": "^8.3.2",
-        "xlucene-translator": "^0.15.1"
+        "xlucene-translator": "^0.16.0-rc.0"
     },
     "devDependencies": {
         "@types/uuid": "^8.3.0",
