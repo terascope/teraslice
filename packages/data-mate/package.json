@@ -32,7 +32,7 @@
         "@terascope/data-types": "^0.25.1",
         "@terascope/types": "^0.7.0",
         "@terascope/utils": "^0.34.1",
-        "@turf/bbox": "^6.2.0",
+        "@turf/bbox": "^6.3.0",
         "@turf/bbox-polygon": "^6.2.0",
         "@turf/boolean-point-in-polygon": "^6.2.0",
         "@turf/circle": "^6.3.0",
