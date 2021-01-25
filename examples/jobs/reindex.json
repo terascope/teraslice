@@ -13,13 +13,10 @@
             "preserve_id": true
         },
         {
-            "_op": "elasticsearch_index_selector",
+            "_op": "elasticsearch_bulk",
             "type": "change",
             "index": "example-logs-new",
-            "preserve_id": true
-        },
-        {
-            "_op": "elasticsearch_bulk",
+            "preserve_id": true,
             "size": 10000
         }
     ]

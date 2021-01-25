@@ -32,7 +32,7 @@ The first operation in the [operations](#operations) list, reads from a particul
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------- |
 | `_op`                 | Name of operation, it must reflect the exact name of the file                                                                                                                                                                                                                                                                                                               | `String` | required |
 | `_encoding`           | Used for specifying the data encoding type when using `DataEntity.fromBuffer`. Defaults to `json`.                                                                                                                                                                                                                                                                          | `String` | optional |
-| `_dead_letter_action` | This action will specify what to do when failing to parse or transform a record. ​​​​​The following builtin actions are supported, "throw", "log", or "none". If none of the actions are specified it will try and use a registered [Dead Letter Queue](./dead-letter-queue.md) API under that name. The API must be already be created by a operation before it can used.​       | `String` | required |
+| `_dead_letter_action` | This action will specify what to do when failing to parse or transform a record. ​​​​​The following builtin actions are supported, "throw", "log", or "none". If none of the actions are specified it will try and use a registered [Dead Letter Queue](./dead-letter-queue.md) API under that name. The API must be already be created by a operation before it can used.​ | `String` | required |
 
 ### apis
 
@@ -63,12 +63,9 @@ The first operation in the [operations](#operations) list, reads from a particul
             "some": "configuration"
         },
         {
-            "_op": "elasticsearch_index_selector",
-            "index": "bigdata3",
-            "type": "events"
-        },
-        {
             "_op": "elasticsearch_bulk",
+             "index": "bigdata3",
+            "type": "events",
             "size": 5000
         }
     ]

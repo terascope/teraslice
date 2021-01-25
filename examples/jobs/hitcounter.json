@@ -18,13 +18,10 @@
           "_op": "summarize"
         },
         {
-            "_op": "elasticsearch_index_selector",
-            "type": "change",
-            "index": "hitcounts",
-            "id_field": "_key"
-        },
-        {
           "_op": "elasticsearch_bulk",
+          "type": "change",
+          "index": "hitcounts",
+          "id_field": "_key",
           "size": 10000
         }
     ]

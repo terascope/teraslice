@@ -19,6 +19,10 @@ const bundles = [
     {
         repo: 'kafka-assets',
         name: 'kafka'
+    },
+    {
+        repo: 'standard-assets',
+        name: 'standard'
     }
 ];
 

@@ -3,12 +3,12 @@
     "slicers": 1,
     "lifecycle": "persistent",
     "workers": 2,
-    "assets": ["ex1", "elasticsearch"],
+    "assets": ["ex1", "elasticsearch", "standard"],
     "max_retries": 0,
     "analytics": false,
     "operations": [
         {
-            "_op": "elasticsearch_data_generator",
+            "_op": "data_generator",
             "size": 1000
         },
         {

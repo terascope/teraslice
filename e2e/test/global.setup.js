@@ -68,16 +68,13 @@ async function generateTestData() {
             assets: ['elasticsearch'],
             operations: [
                 {
-                    _op: 'elasticsearch_data_generator',
+                    _op: 'data_generator',
                     size: count
                 },
                 {
-                    _op: 'elasticsearch_index_selector',
-                    index: indexName,
-                    type: 'events'
-                },
-                {
                     _op: 'elasticsearch_bulk',
+                    index: indexName,
+                    type: 'events',
                     size: 1000
                 }
             ]

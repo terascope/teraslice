@@ -14,12 +14,9 @@
             "key_type": "base64url"
         },
         {
-            "_op": "elasticsearch_index_selector",
-            "index": "test-id_reindex-1000",
-            "type": "events"
-        },
-        {
             "_op": "elasticsearch_bulk",
+            "index": "test-id_reindex-1000",
+            "type": "events",
             "size": 200
         }
     ]

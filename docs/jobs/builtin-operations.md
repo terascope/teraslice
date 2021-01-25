@@ -35,10 +35,10 @@ Example Job: `examples/jobs/script/test_script_job.json`
     "name": "ES DataGen test script",
     "lifecycle": "persistent",
     "workers": 1,
-    "assets": ["elasticsearch"],
+    "assets": ["standard"],
     "operations": [
         {
-            "_op": "elasticsearch_data_generator",
+            "_op": "data_generator",
             "size": 100000,
             "stress_test": true
         },

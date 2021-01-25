@@ -56,10 +56,10 @@ operator just like any other operator, as shown below:
     "name": "Update Rate Test",
     "lifecycle": "once",
     "workers": 1,
-    "assets": ["elasticsearch", "example"],
+    "assets": ["elasticsearch", "standard", "example"],
     "operations": [
         {
-            "_op": "elasticsearch_data_generator",
+            "_op": "data_generator",
             "size": 5000
         },
         {
@@ -67,12 +67,9 @@ operator just like any other operator, as shown below:
             "log_level": "debug"
         },
         {
-            "_op": "elasticsearch_index_selector",
-            "index": "update-test-1",
-            "type": "events"
-        },
-        {
             "_op": "elasticsearch_bulk",
+            "index": "update-test-1",
+            "type": "events",
             "size": 5000
         }
     ]
