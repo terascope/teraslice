@@ -46,7 +46,7 @@ function getOlderAsset(assets, assetName) {
 }
 
 function filterRelease(release) {
-    return !release.draft && !release.prerelease;
+    return !release.draft;
 }
 
 function filterAsset(asset) {
