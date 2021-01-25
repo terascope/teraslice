@@ -733,16 +733,16 @@
     "@turf/helpers" "^6.2.0"
     "@turf/invariant" "^6.2.0"
 
-"@turf/boolean-disjoint@^6.2.0":
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/@turf/boolean-disjoint/-/boolean-disjoint-6.2.0.tgz#67f44bd64ece23356092ca58080419a0e1b3a9f5"
-  integrity sha512-UwZ5pGvug+SvgIH4n8rn3qY0uytpr9cnGXRCcOlBO8bQO3JjlQN/mikRxXhE9JzF0V3p5EdDtZ1v2oez4io+KA==
+"@turf/boolean-disjoint@^6.3.0":
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/@turf/boolean-disjoint/-/boolean-disjoint-6.3.0.tgz#4b27fb3c3c9ff23f69fbcc8d2d03665e9f52c20e"
+  integrity sha512-bVAwAJF05QPH0tf+qjR3kUcCyqTgYcCbXSMgXl6LQF6mSGuOutzNq1gCyRLCOdOcZtw4Oh4dqeP3ykwv8kDibw==
   dependencies:
-    "@turf/boolean-point-in-polygon" "^6.2.0"
-    "@turf/helpers" "^6.2.0"
-    "@turf/line-intersect" "^6.2.0"
-    "@turf/meta" "^6.2.0"
-    "@turf/polygon-to-line" "^6.2.0"
+    "@turf/boolean-point-in-polygon" "^6.3.0"
+    "@turf/helpers" "^6.3.0"
+    "@turf/line-intersect" "^6.3.0"
+    "@turf/meta" "^6.3.0"
+    "@turf/polygon-to-line" "^6.3.0"
 
 "@turf/boolean-equal@^6.3.0":
   version "6.3.0"
@@ -766,13 +766,13 @@
     "@turf/meta" "6.x"
     geojson-equality "0.1.6"
 
-"@turf/boolean-point-in-polygon@^6.2.0":
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/@turf/boolean-point-in-polygon/-/boolean-point-in-polygon-6.2.0.tgz#b9f4984535a4d0cb98959ff6e402b82df14f3015"
-  integrity sha512-oYL8nuz+MeIEuJgX8IhnQstLNmqU6cARNd8Wgkn5FgWmMGJn+7j4ajMY/SPAmBUq4il45VO3X03lxftxTCCsog==
+"@turf/boolean-point-in-polygon@^6.2.0", "@turf/boolean-point-in-polygon@^6.3.0":
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/@turf/boolean-point-in-polygon/-/boolean-point-in-polygon-6.3.0.tgz#784952a36c64119e90fbe94650245da62ecd8fc2"
+  integrity sha512-NqFSsoE6OwhDK19IllDQRhEQEkF7UVEOlqH9vgS1fGg4T6NcyKvACJs05c9457tL7QSbV9ZS53f2qiLneFL+qg==
   dependencies:
-    "@turf/helpers" "^6.2.0"
-    "@turf/invariant" "^6.2.0"
+    "@turf/helpers" "^6.3.0"
+    "@turf/invariant" "^6.3.0"
 
 "@turf/boolean-point-on-line@^6.2.0":
   version "6.2.0"
@@ -844,15 +844,15 @@
   dependencies:
     "@turf/helpers" "^6.3.0"
 
-"@turf/line-intersect@6.x", "@turf/line-intersect@^6.2.0":
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/@turf/line-intersect/-/line-intersect-6.2.0.tgz#9117c30e20794349c93bed29d1fc7158a0909a7a"
-  integrity sha512-3vZzb0+SReA/FyQPqoTJKHwBFfY1+kDM8r1iQhn6f+bYQ46yt2XbAEOQ9WPcTzZMjQY1EaJ94MWkjUy0uVygxw==
+"@turf/line-intersect@6.x", "@turf/line-intersect@^6.2.0", "@turf/line-intersect@^6.3.0":
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/@turf/line-intersect/-/line-intersect-6.3.0.tgz#726a50edc66bb7b5e798b052b103fb0da4d1c4f4"
+  integrity sha512-3naxR7XpkPd2vst3Mw6DFry4C9m3o0/f2n/xu5UAyxb88Ie4m2k+1eqkhzMMx/0L+E6iThWpLx7DASM6q6o9ow==
   dependencies:
-    "@turf/helpers" "^6.2.0"
-    "@turf/invariant" "^6.2.0"
-    "@turf/line-segment" "^6.2.0"
-    "@turf/meta" "^6.2.0"
+    "@turf/helpers" "^6.3.0"
+    "@turf/invariant" "^6.3.0"
+    "@turf/line-segment" "^6.3.0"
+    "@turf/meta" "^6.3.0"
     geojson-rbush "3.x"
 
 "@turf/line-overlap@6.x":
@@ -878,6 +878,15 @@
     "@turf/invariant" "^6.2.0"
     "@turf/meta" "^6.2.0"
 
+"@turf/line-segment@^6.3.0":
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/@turf/line-segment/-/line-segment-6.3.0.tgz#b37d6877ee4425ebc12698860e7d355d1bf2ba9b"
+  integrity sha512-M+aDy83V+E7jYWNaf+b+A88yhnMrJhyg/lhAj6mU6UeB2PbruXB2qgSmmVDSE2dIknOvZZuIWNzEzUI07RO2kw==
+  dependencies:
+    "@turf/helpers" "^6.3.0"
+    "@turf/invariant" "^6.3.0"
+    "@turf/meta" "^6.3.0"
+
 "@turf/line-to-polygon@^6.3.0":
   version "6.3.0"
   resolved "https://registry.yarnpkg.com/@turf/line-to-polygon/-/line-to-polygon-6.3.0.tgz#db14f41aead889868f95ac18a1de379089bdf4df"
@@ -888,14 +897,7 @@
     "@turf/helpers" "^6.3.0"
     "@turf/invariant" "^6.3.0"
 
-"@turf/meta@6.x", "@turf/meta@^6.2.0":
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/@turf/meta/-/meta-6.2.0.tgz#a225477fd8b5a4166d98e2e70cc4ed843db0f48d"
-  integrity sha512-8bM69hzRYKNfpZ+cyLxXZLw1IqCxm3cBcyEkVBHROFsQJb1o1Ghv2cd4iCSIuvkc1xSWD+qQvUjYr40XSNsyOQ==
-  dependencies:
-    "@turf/helpers" "^6.2.0"
-
-"@turf/meta@^6.3.0":
+"@turf/meta@6.x", "@turf/meta@^6.2.0", "@turf/meta@^6.3.0":
   version "6.3.0"
   resolved "https://registry.yarnpkg.com/@turf/meta/-/meta-6.3.0.tgz#f3e280ab29641f21e4f99310ce77f9c8394ae394"
   integrity sha512-qBJjaAJS9H3ap0HlGXyF/Bzfl0qkA9suafX/jnDsZvWMfVLt+s+o6twKrXOGk5t7nnNON2NFRC8+czxpu104EQ==
@@ -915,13 +917,13 @@
     "@turf/line-intersect" "^6.2.0"
     "@turf/meta" "^6.2.0"
 
-"@turf/polygon-to-line@^6.2.0":
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/@turf/polygon-to-line/-/polygon-to-line-6.2.0.tgz#fa3975593497c58f8eb7f66ab50a088712c816e6"
-  integrity sha512-l1wt3aBJ2mW0eklFl6E622D6P6bn6JBB6qVMScgdYmn2vHeU5/kQcou2v5hXlLjXw9s6M7pfOjOmZYywWQqMJA==
+"@turf/polygon-to-line@^6.3.0":
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/@turf/polygon-to-line/-/polygon-to-line-6.3.0.tgz#aa3e1a0ea074479e5cb6c5c111a924bb80ec553e"
+  integrity sha512-KFGlQlGOBayBvELz+tip1zCa3eB8xyZePZUZ3I3OnU7mk0FFzJzvLTmPUc7MupgqORT4LkNGmyKSVWaz38NTig==
   dependencies:
-    "@turf/helpers" "^6.2.0"
-    "@turf/invariant" "^6.2.0"
+    "@turf/helpers" "^6.3.0"
+    "@turf/invariant" "^6.3.0"
 
 "@turf/random@^6.2.0":
   version "6.2.0"
