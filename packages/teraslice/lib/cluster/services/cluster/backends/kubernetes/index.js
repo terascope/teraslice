@@ -1,12 +1,13 @@
 'use strict';
 
 const {
-    TSError, logError, get, cloneDeep
+    TSError, logError, get, cloneDeep, pRetry
 } = require('@terascope/utils');
 const { makeLogger } = require('../../../../../workers/helpers/terafoundation');
 const K8sResource = require('./k8sResource');
 const k8sState = require('./k8sState');
 const K8s = require('./k8s');
+const { getRetryConfig } = require('./utils');
 
 /*
  Execution Life Cycle for _status
@@ -115,6 +116,17 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         return execution;
     }
 
+    async function getJobs(selector, objType) {
+        const jobs = await k8s.list(selector, objType);
+        if (jobs.items.length === 1) {
+            return jobs;
+        } if (jobs.items.length === 0) {
+            throw new Error(`Teraslice ${objType} matching the following selector was not found: ${selector}`);
+        } else {
+            throw new Error(`Unexpected number of Teraslice ${objType}s matching the following selector: ${selector}`);
+        }
+    }
+
     /**
      * Creates k8s deployment that executes Teraslice workers for specified
      * Execution.
@@ -127,7 +139,7 @@ module.exports = function kubernetesClusterBackend(context, clusterMasterServer)
         // because they are not on the schema.  So I do this k8s API call
         // instead.
         const selector = `app.kubernetes.io/component=execution_controller,teraslice.terascope.io/jobId=${execution.job_id}`;
-        const jobs = await k8s.list(selector, 'jobs');
+        const jobs = await pRetry(() => getJobs(selector, 'jobs'), getRetryConfig);
         execution.k8sName = jobs.items[0].metadata.name;
         execution.k8sUid = jobs.items[0].metadata.uid;
 
