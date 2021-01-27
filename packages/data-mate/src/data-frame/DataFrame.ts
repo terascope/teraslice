@@ -18,7 +18,9 @@ import {
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
 import {
-    createHashCode, FieldArg, flattenStringArg, freezeArray, getFieldsFromArg, WritableData
+    createHashCode, FieldArg, flattenStringArg,
+    freezeArray, getFieldsFromArg, getHashCodeFrom,
+    WritableData
 } from '../core';
 import { getMaxColumnSize } from '../aggregation-frame/utils';
 import { SerializeOptions, Vector } from '../vector';
@@ -112,9 +114,36 @@ export class DataFrame<
      * Iterate each row
     */
     * rows(json?: boolean, options?: SerializeOptions): IterableIterator<T> {
+        if (options?.skipDuplicateObjects) {
+            yield* this.rowsWithoutDuplicates(json, options);
+            return;
+        }
+
         for (let i = 0; i < this.size; i++) {
             const row = this.getRow(i, json, options);
             if (row) yield row;
+        }
+    }
+
+    /**
+     * This is more expensive and little more complicated.
+     * In the future we pass in json=false to each column and
+     * the call valueToJSON after each generating the hash
+     * to be consistent with hash
+    */
+    private* rowsWithoutDuplicates(
+        json?: boolean, options?: SerializeOptions
+    ): IterableIterator<T> {
+        const hashes = new Set<string>();
+        for (let i = 0; i < this.size; i++) {
+            const row = this.getRow(i, json, options);
+            if (row) {
+                const hash = getHashCodeFrom(row);
+                if (!hashes.has(hash)) {
+                    hashes.add(hash);
+                    yield row;
+                }
+            }
         }
     }
 
@@ -596,7 +625,11 @@ export class DataFrame<
     /**
      * Get a row by index, if the row has only null values, returns undefined
     */
-    getRow(index: number, json = false, options?: SerializeOptions): T|undefined {
+    getRow(
+        index: number,
+        json = false,
+        options?: SerializeOptions,
+    ): T|undefined {
         if (index > (this.size - 1)) return;
         const nilValue: any = options?.useNullForUndefined ? null : undefined;
 
