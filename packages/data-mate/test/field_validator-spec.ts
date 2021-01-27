@@ -257,6 +257,9 @@ describe('field validators', () => {
             expect(FieldValidator.isRoutableIP('192.168.0.1')).toBe(false);
             expect(FieldValidator.isRoutableIP('fc00:db8::1')).toBe(false);
             expect(FieldValidator.isRoutableIP('badIpaddress')).toBe(false);
+            expect(FieldValidator.isRoutableIP('10.1.3.4')).toBe(false);
+            expect(FieldValidator.isRoutableIP('172.28.4.1')).toBe(false);
+            expect(FieldValidator.isRoutableIP('127.0.1.2')).toBe(false);
         });
 
         it('validates an array of values, ignores undefined/null', () => {
@@ -270,6 +273,9 @@ describe('field validators', () => {
             expect(FieldValidator.isNonRoutableIP('10.16.32.210')).toBe(true);
             expect(FieldValidator.isNonRoutableIP('172.18.12.74')).toBe(true);
             expect(FieldValidator.isNonRoutableIP('fc00:db8::1')).toBe(true);
+            expect(FieldValidator.isNonRoutableIP('10.1.3.4')).toBe(true);
+            expect(FieldValidator.isNonRoutableIP('172.28.4.1')).toBe(true);
+            expect(FieldValidator.isNonRoutableIP('127.0.1.2')).toBe(true);
         });
 
         it('should return false for a routable ip address or invalid ip address', () => {
