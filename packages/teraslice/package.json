@@ -37,10 +37,10 @@
         "ms": "^2.1.2"
     },
     "dependencies": {
-        "@terascope/elasticsearch-api": "^2.17.0-rc.0",
-        "@terascope/job-components": "^0.45.0-rc.0",
-        "@terascope/teraslice-messaging": "^0.19.0-rc.0",
-        "@terascope/utils": "^0.35.0-rc.0",
+        "@terascope/elasticsearch-api": "^2.17.0-rc.1",
+        "@terascope/job-components": "^0.45.0-rc.1",
+        "@terascope/teraslice-messaging": "^0.19.0-rc.1",
+        "@terascope/utils": "^0.35.0-rc.1",
         "async-mutex": "^0.2.6",
         "barbe": "^3.0.16",
         "body-parser": "^1.19.0",
@@ -61,7 +61,7 @@
         "semver": "^7.3.4",
         "socket.io": "^1.7.4",
         "socket.io-client": "^1.7.4",
-        "terafoundation": "^0.29.0-rc.0",
+        "terafoundation": "^0.29.0-rc.1",
         "uuid": "^8.3.2"
     },
     "devDependencies": {
