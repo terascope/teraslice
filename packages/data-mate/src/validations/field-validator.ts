@@ -479,8 +479,7 @@ export function isRoutableIP(input: unknown, _parentContext?: unknown): boolean 
 function _isRoutableIP(input: unknown, _parentContext?: unknown): boolean {
     if (!isIP(input)) return false;
 
-    const range = ipaddr.parse(input as any).range();
-    return range !== 'private' && range !== 'uniqueLocal';
+    return _publicIp(input);
 }
 
 /**
@@ -509,8 +508,12 @@ export function isNonRoutableIP(input: unknown, _parentContext?: unknown): boole
 function _isNonRoutableIP(input: unknown, _parentContext?: unknown): boolean {
     if (!isIP(input)) return false;
 
+    return !_publicIp(input);
+}
+
+function _publicIp(input: unknown): boolean {
     const range = ipaddr.parse(input as any).range();
-    return range === 'private' || range === 'uniqueLocal';
+    return range !== 'private' && range !== 'uniqueLocal' && range !== 'loopback';
 }
 
 /**
