@@ -204,9 +204,9 @@ class K8s {
         } if (jobs.items.length === 0) {
             const msg = `Teraslice ${objType} matching the following selector was not found: ${selector} (retriable)`;
             this.logger.warn(msg);
-            throw TSError(msg, { retryable: true });
+            throw new TSError(msg, { retryable: true });
         } else {
-            throw TSError(`Unexpected number of Teraslice ${objType}s matching the following selector: ${selector}`, {
+            throw new TSError(`Unexpected number of Teraslice ${objType}s matching the following selector: ${selector}`, {
                 retryable: true
             });
         }

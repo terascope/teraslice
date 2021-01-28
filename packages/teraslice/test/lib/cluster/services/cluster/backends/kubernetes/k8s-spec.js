@@ -121,13 +121,8 @@ describe('k8s', () => {
                 .query({ labelSelector: 'app=teraslice' })
                 .reply(200, { items: [] });
 
-            try {
-                await k8s.nonEmptyList('app=teraslice', 'jobs');
-            } catch (error) {
-                expect(error).toEqual(
-                    Error('Teraslice jobs matching the following selector was not found: app=teraslice (retriable)')
-                );
-            }
+            await expect(k8s.nonEmptyList('app=teraslice', 'jobs'))
+                .rejects.toThrowError('Teraslice jobs matching the following selector was not found: app=teraslice (retriable)');
         });
     });
 
