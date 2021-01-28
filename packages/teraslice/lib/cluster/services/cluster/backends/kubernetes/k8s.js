@@ -204,7 +204,7 @@ class K8s {
         } if (jobs.items.length === 0) {
             const msg = `Teraslice ${objType} matching the following selector was not found: ${selector} (retriable)`;
             this.logger.warn(msg);
-            throw Error(msg);
+            throw TSError(msg, { retryable: true });
         } else {
             throw Error(`Unexpected number of Teraslice ${objType}s matching the following selector: ${selector}`);
         }
