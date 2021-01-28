@@ -197,6 +197,19 @@ class K8s {
         return response.body;
     }
 
+    async nonEmptyList(selector, objType) {
+        const jobs = await this.list(selector, objType);
+        if (jobs.items.length === 1) {
+            return jobs;
+        } if (jobs.items.length === 0) {
+            const msg = `Teraslice ${objType} matching the following selector was not found: ${selector} (retriable)`;
+            this.logger.warn(msg);
+            throw Error(msg);
+        } else {
+            throw Error(`Unexpected number of Teraslice ${objType}s matching the following selector: ${selector}`);
+        }
+    }
+
     /**
      * posts manifest to k8s
      * @param  {Object} manifest     service manifest
