@@ -3,6 +3,7 @@ import { parse } from 'ip-bigint';
 import {
     getTypeOf,
     isString,
+    primitiveToString,
 } from '@terascope/utils';
 import { HASH_CODE_SYMBOL } from './interfaces';
 
@@ -23,10 +24,11 @@ export class IPValue {
     static fromValue(
         value: unknown,
     ): IPValue {
-        if (!isValidIP(value)) {
+        const ipValue = primitiveToString(value);
+        if (!isValidIP(ipValue)) {
             throw new TypeError(`Expected ${value} (${getTypeOf(value)}) to be a valid IP`);
         }
-        return new IPValue(value);
+        return new IPValue(ipValue);
     }
 
     /**

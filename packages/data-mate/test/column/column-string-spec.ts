@@ -36,7 +36,13 @@ describe('Column (String Types)', () => {
 
         it('should be able to iterate over the values', () => {
             expect([...col]).toEqual(values);
-            expect(col.toJSON()).toEqual(values);
+            expect(col.toJSON()).toEqual([
+                'Batman',
+                'Robin',
+                'Superman',
+                undefined,
+                'SpiderMan',
+            ]);
         });
 
         it('should be able to get the Vector', () => {
@@ -51,7 +57,7 @@ describe('Column (String Types)', () => {
                 'Batman',
                 'Robin',
                 'Superman',
-                null,
+                undefined,
                 'SpiderMan',
             ]);
         });
@@ -63,7 +69,7 @@ describe('Column (String Types)', () => {
                 'http://xn--fsqu00a.xn--3lr804guic',
                 'http://example.com',
                 'BAD-URL',
-                null,
+                undefined,
             ]).validate(ColumnValidator.isURL);
 
             expect(newCol.toJSON()).toEqual([
@@ -71,8 +77,8 @@ describe('Column (String Types)', () => {
                 'ftp://someurl.bom:8080?some=bar&hi=bob',
                 'http://xn--fsqu00a.xn--3lr804guic',
                 'http://example.com',
-                null,
-                null,
+                undefined,
+                undefined,
             ]);
         });
 
@@ -81,14 +87,14 @@ describe('Column (String Types)', () => {
                 '0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B',
                 'BAD-UUID',
                 '6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b',
-                null,
+                undefined,
             ]).validate(ColumnValidator.isUUID);
 
             expect(newCol.toJSON()).toEqual([
                 '0668CF8B-27F8-2F4D-4F2D-763AC7C8F68B',
-                null,
+                undefined,
                 '6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b',
-                null,
+                undefined,
             ]);
         });
 
@@ -106,9 +112,9 @@ describe('Column (String Types)', () => {
                 'ha3ke5@pawnage.com',
                 'user@blah.com/junk.junk?a=<tag value="junk"',
                 'email@example.com',
-                null,
-                null,
-                null,
+                undefined,
+                undefined,
+                undefined,
             ]);
         });
 
@@ -124,11 +130,11 @@ describe('Column (String Types)', () => {
 
             expect(newCol.toJSON()).toEqual([
                 'Example',
-                null,
-                null,
-                null,
-                null,
-                null,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
             ]);
         });
 
@@ -145,10 +151,10 @@ describe('Column (String Types)', () => {
             expect(newCol.toJSON()).toEqual([
                 'Example',
                 'example123',
-                null,
-                null,
-                null,
-                null,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
             ]);
         });
 
@@ -160,11 +166,11 @@ describe('Column (String Types)', () => {
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual(col.config);
             expect(newCol.toJSON()).toEqual([
-                null,
-                null,
+                undefined,
+                undefined,
                 'Superman',
-                null,
-                null,
+                undefined,
+                undefined,
             ]);
         });
 
@@ -179,7 +185,7 @@ describe('Column (String Types)', () => {
                 ['Batman'],
                 ['Robin'],
                 ['Superman'],
-                null,
+                undefined,
                 ['SpiderMan'],
             ]);
         });
@@ -193,7 +199,7 @@ describe('Column (String Types)', () => {
                 'BATMAN',
                 'ROBIN',
                 'SUPERMAN',
-                null,
+                undefined,
                 'SPIDERMAN',
             ]);
         });
@@ -207,7 +213,7 @@ describe('Column (String Types)', () => {
                 'batman',
                 'robin',
                 'superman',
-                null,
+                undefined,
                 'spiderman',
             ]);
         });
@@ -223,7 +229,7 @@ describe('Column (String Types)', () => {
                 'Batma',
                 'Robin',
                 'Super',
-                null,
+                undefined,
                 'Spide',
             ]);
         });

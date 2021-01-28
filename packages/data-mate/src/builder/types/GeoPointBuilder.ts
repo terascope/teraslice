@@ -16,6 +16,7 @@ export class GeoPointBuilder extends BuilderWithCache<GeoPoint> {
     _valueFrom(value: unknown): GeoPoint {
         return createObjectValue(
             parseGeoPoint(value as any, true),
+            false,
         );
     }
 }

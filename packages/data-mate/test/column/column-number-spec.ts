@@ -39,8 +39,8 @@ describe('Column (Number Types)', () => {
         });
 
         it('should be able to sort the values in asc order', () => {
-            expect(col.sort().toJSON()).toEqual([
-                null,
+            expect(col.sort().toJSON()).toStrictEqual([
+                undefined,
                 2,
                 4,
                 6,
@@ -49,12 +49,12 @@ describe('Column (Number Types)', () => {
         });
 
         it('should be able to sort the values in desc order', () => {
-            expect(col.sort('desc').toJSON()).toEqual([
+            expect(col.sort('desc').toJSON()).toStrictEqual([
                 7,
                 6,
                 4,
                 2,
-                null,
+                undefined,
             ]);
         });
 
@@ -68,7 +68,7 @@ describe('Column (Number Types)', () => {
             });
 
             expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return null;
+                if (value == null) return undefined;
                 return `${value}`;
             }));
         });
@@ -91,7 +91,7 @@ describe('Column (Number Types)', () => {
                 ['7'],
                 ['2'],
                 ['6'],
-                null,
+                undefined,
                 ['4'],
             ]);
         });
@@ -103,7 +103,7 @@ describe('Column (Number Types)', () => {
             expect(newCol.config).toEqual(col.config);
 
             expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return null;
+                if (value == null) return undefined;
                 return value + 1;
             }));
         });
@@ -117,7 +117,7 @@ describe('Column (Number Types)', () => {
             expect(newCol.config).toEqual(col.config);
 
             expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return null;
+                if (value == null) return undefined;
                 return parseInt(`${value + 1.5}`, 10);
             }));
         });
@@ -129,7 +129,7 @@ describe('Column (Number Types)', () => {
             expect(newCol.config).toEqual(col.config);
 
             expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return null;
+                if (value == null) return undefined;
                 return value - 1;
             }));
         });
@@ -143,7 +143,7 @@ describe('Column (Number Types)', () => {
             expect(newCol.config).toEqual(col.config);
 
             expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return null;
+                if (value == null) return undefined;
                 return parseInt(`${value - 1.5}`, 10);
             }));
         });
@@ -181,8 +181,8 @@ describe('Column (Number Types)', () => {
         });
 
         it('should be able to sort the values in asc order', () => {
-            expect(col.sort().toJSON()).toEqual([
-                null,
+            expect(col.sort().toJSON()).toStrictEqual([
+                undefined,
                 2.2444233334,
                 4.3333334,
                 6,
@@ -196,7 +196,7 @@ describe('Column (Number Types)', () => {
                 6,
                 4.3333334,
                 2.2444233334,
-                null,
+                undefined,
             ]);
         });
 
@@ -210,7 +210,7 @@ describe('Column (Number Types)', () => {
             });
 
             expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return null;
+                if (value == null) return undefined;
                 return `${value}`;
             }));
         });
@@ -224,7 +224,7 @@ describe('Column (Number Types)', () => {
             expect(newCol.config).toEqual(col.config);
 
             expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return null;
+                if (value == null) return undefined;
                 return value + 1.5;
             }));
         });
@@ -238,7 +238,7 @@ describe('Column (Number Types)', () => {
             expect(newCol.config).toEqual(col.config);
 
             expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return null;
+                if (value == null) return undefined;
                 return value - 1.5;
             }));
         });
@@ -286,10 +286,10 @@ describe('Column (Number Types)', () => {
             });
 
             expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return null;
+                if (value == null) return undefined;
 
                 return value.map((val) => (
-                    val != null ? `${val}` : null
+                    val != null ? `${val}` : undefined
                 ));
             }));
         });
@@ -321,7 +321,7 @@ describe('Column (Number Types)', () => {
 
             expect(newCol.toJSON()).toEqual([
                 [7, 3],
-                [2, null, 4],
+                [2, undefined, 4],
                 [6, 324, 5],
                 [-50],
                 [4, 2, 0],
@@ -376,8 +376,8 @@ describe('Column (Number Types)', () => {
         });
 
         it('should be able to sort the values in asc order', () => {
-            expect(col.sort().toJSON()).toEqual([
-                null,
+            expect(col.sort().toJSON()).toStrictEqual([
+                undefined,
                 bigIntToJSON(BigInt(12) ** multiplier),
                 bigIntToJSON(BigInt(16) ** multiplier),
                 bigIntToJSON(BigInt(19) ** multiplier),
@@ -386,12 +386,12 @@ describe('Column (Number Types)', () => {
         });
 
         it('should be able to sort the values in desc order', () => {
-            expect(col.sort('desc').toJSON()).toEqual([
+            expect(col.sort('desc').toJSON()).toStrictEqual([
                 bigIntToJSON(BigInt(21) ** multiplier),
                 bigIntToJSON(BigInt(19) ** multiplier),
                 bigIntToJSON(BigInt(16) ** multiplier),
                 bigIntToJSON(BigInt(12) ** multiplier),
-                null,
+                undefined,
             ]);
         });
 
@@ -405,7 +405,7 @@ describe('Column (Number Types)', () => {
             });
 
             expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return null;
+                if (value == null) return undefined;
                 return `${value}`;
             }));
         });
@@ -419,7 +419,7 @@ describe('Column (Number Types)', () => {
             expect(newCol.config).toEqual(col.config);
 
             expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return null;
+                if (value == null) return undefined;
                 return bigIntToJSON(value + BigInt(100));
             }));
         });
@@ -433,7 +433,7 @@ describe('Column (Number Types)', () => {
             expect(newCol.config).toEqual(col.config);
 
             expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return null;
+                if (value == null) return undefined;
                 return bigIntToJSON(value - BigInt(100));
             }));
         });

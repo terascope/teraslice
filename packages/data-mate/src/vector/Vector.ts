@@ -6,7 +6,7 @@ import {
 import {
     ReadableData, createHashCode, HASH_CODE_SYMBOL, getHashCodeFrom
 } from '../core';
-import { VectorType } from './interfaces';
+import { SerializeOptions, VectorType } from './interfaces';
 
 /**
  * An immutable typed Array class with a constrained API.
@@ -114,7 +114,7 @@ export abstract class Vector<T = unknown> {
      * A function for converting an in-memory representation of
      * a value to an JSON spec compatible format.
     */
-    abstract valueToJSON?(value: T): any;
+    abstract valueToJSON?(value: T, options?: SerializeOptions): any;
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
         yield* this.data;
@@ -150,10 +150,11 @@ export abstract class Vector<T = unknown> {
     }
 
     /**
-     * Get the unique values
+     * Get the unique values with the index in a tuple form.
+     * This is useful for reconstructing an Vector
+     * with only the unique values
     */
     * unique(): Iterable<[index: number, value: T]> {
-        const results: T[] = [];
         const hashes = new Set<any>();
         const getHash = this.data.isPrimitive ? (v: unknown) => v : getHashCodeFrom;
         for (const [index, value] of this.data.values) {
@@ -163,21 +164,37 @@ export abstract class Vector<T = unknown> {
                 yield [index, value];
             }
         }
-        return results;
+    }
+
+    /**
+    * Get the unique values, excluding nil values.
+    * Useful for getting a list of unique values.
+    */
+    * uniqueValues(): Iterable<T> {
+        const hashes = new Set<any>();
+        const getHash = this.data.isPrimitive ? (v: unknown) => v : getHashCodeFrom;
+        for (const value of this.data.values.values()) {
+            const hash = getHash(value);
+            if (!hashes.has(hash)) {
+                hashes.add(hash);
+                yield value;
+            }
+        }
     }
 
     /**
      * Get value by index
     */
-    get(index: number, json?: boolean): Maybe<T>|Maybe<JSONValue<T>> {
+    get(index: number, json?: boolean, options?: SerializeOptions): Maybe<T>|Maybe<JSONValue<T>> {
+        const nilValue: any = options?.useNullForUndefined ? null : undefined;
+
         const val = this.data.get(index);
+        if (val == null) return val ?? nilValue;
 
         if (!json || !this.valueToJSON) {
             return val;
         }
-
-        if (val == null) return val;
-        return this.valueToJSON(val as T);
+        return this.valueToJSON(val as T, options);
     }
 
     /**
@@ -206,8 +223,10 @@ export abstract class Vector<T = unknown> {
      * This can be used for equality or sorted.
     */
     compare(a: Maybe<T>, b: Maybe<T>): -1|0|1 {
-        const aVal = a as any;
-        const bVal = b as any;
+        // we need default undefined to null since
+        // undefined has inconsistent behavior
+        const aVal = a as any ?? null;
+        const bVal = b as any ?? null;
         if (aVal < bVal) return -1;
         if (aVal > bVal) return 1;
         return 0;
@@ -216,10 +235,10 @@ export abstract class Vector<T = unknown> {
     /**
      * Convert the Vector an array of values (the output is JSON compatible)
     */
-    toJSON(): Maybe<JSONValue<T>>[] {
+    toJSON(options?: SerializeOptions): Maybe<JSONValue<T>>[] {
         const res: Maybe<JSONValue<T>>[] = Array(this.size);
         for (let i = 0; i < this.size; i++) {
-            res[i] = this.get(i, true) as JSONValue<T>;
+            res[i] = this.get(i, true, options) as JSONValue<T>;
         }
         return res;
     }
