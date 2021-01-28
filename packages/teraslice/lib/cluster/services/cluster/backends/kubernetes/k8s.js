@@ -206,7 +206,9 @@ class K8s {
             this.logger.warn(msg);
             throw TSError(msg, { retryable: true });
         } else {
-            throw Error(`Unexpected number of Teraslice ${objType}s matching the following selector: ${selector}`);
+            throw TSError(`Unexpected number of Teraslice ${objType}s matching the following selector: ${selector}`, {
+                retryable: true
+            });
         }
     }
 
