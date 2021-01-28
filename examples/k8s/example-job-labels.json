@@ -18,13 +18,10 @@
             "_op": "example-op"
         },
         {
-            "_op": "elasticsearch_index_selector",
+            "_op": "elasticsearch_bulk",
+            "size": 5000,
             "index": "terak8s-example-data",
             "type": "events"
-        },
-        {
-            "_op": "elasticsearch_bulk",
-            "size": 5000
         }
     ]
 }
