@@ -42,6 +42,7 @@ When adding or removing values it is better to create a new Column.</p>
 <li><a href="/teraslice/docs/packages/data-mate/api/classes/index.column#max">max</a></li>
 <li><a href="/teraslice/docs/packages/data-mate/api/classes/index.column#min">min</a></li>
 <li><a href="/teraslice/docs/packages/data-mate/api/classes/index.column#rename">rename</a></li>
+<li><a href="/teraslice/docs/packages/data-mate/api/classes/index.column#selectsubfields">selectSubFields</a></li>
 <li><a href="/teraslice/docs/packages/data-mate/api/classes/index.column#sort">sort</a></li>
 <li><a href="/teraslice/docs/packages/data-mate/api/classes/index.column#sum">sum</a></li>
 <li><a href="/teraslice/docs/packages/data-mate/api/classes/index.column#tojson">toJSON</a></li>
@@ -74,51 +75,51 @@ When adding or removing values it is better to create a new Column.</p>
 </tbody>
 </table>
 <p><strong>Returns:</strong> <a href="/teraslice/docs/packages/data-mate/api/classes/column_column.column"><em>Column</em></a>&lt;T, N&gt;</p>
-<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/c3938ab/packages/data-mate/src/column/Column.ts#L71">data-mate/src/column/Column.ts:71</a></p>
+<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/1abb219/packages/data-mate/src/column/Column.ts#L71">data-mate/src/column/Column.ts:71</a></p>
 <h2><a class="anchor" aria-hidden="true" id="properties-1"></a><a href="#properties-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Properties</h2>
 <h3><a class="anchor" aria-hidden="true" id="config"></a><a href="#config" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>config</h3>
 <p>• <code>Readonly</code> <strong>config</strong>: <em>Readonly</em>&lt;DataTypeFieldConfig&gt;</p>
 <p>Get the Data Type field configuration.</p>
-<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/c3938ab/packages/data-mate/src/column/Column.ts#L71">data-mate/src/column/Column.ts:71</a></p>
+<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/1abb219/packages/data-mate/src/column/Column.ts#L71">data-mate/src/column/Column.ts:71</a></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="name"></a><a href="#name" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>name</h3>
 <p>• <strong>name</strong>: N</p>
 <p>The field name for the column</p>
-<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/c3938ab/packages/data-mate/src/column/Column.ts#L54">data-mate/src/column/Column.ts:54</a></p>
+<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/1abb219/packages/data-mate/src/column/Column.ts#L54">data-mate/src/column/Column.ts:54</a></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="size"></a><a href="#size" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>size</h3>
 <p>• <code>Readonly</code> <strong>size</strong>: <em>number</em></p>
 <p>Get the size of the column</p>
-<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/c3938ab/packages/data-mate/src/column/Column.ts#L66">data-mate/src/column/Column.ts:66</a></p>
+<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/1abb219/packages/data-mate/src/column/Column.ts#L66">data-mate/src/column/Column.ts:66</a></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="vector"></a><a href="#vector" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>vector</h3>
 <p>• <code>Readonly</code> <strong>vector</strong>: <a href="/teraslice/docs/packages/data-mate/api/classes/vector_vector.vector"><em>Vector</em></a>&lt;T&gt;</p>
-<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/c3938ab/packages/data-mate/src/column/Column.ts#L61">data-mate/src/column/Column.ts:61</a></p>
+<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/1abb219/packages/data-mate/src/column/Column.ts#L61">data-mate/src/column/Column.ts:61</a></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="version"></a><a href="#version" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>version</h3>
 <p>• <code>Readonly</code> <strong>version</strong>: <em>1</em></p>
 <p>The DataType version to use for the field definition</p>
-<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/c3938ab/packages/data-mate/src/column/Column.ts#L59">data-mate/src/column/Column.ts:59</a></p>
+<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/1abb219/packages/data-mate/src/column/Column.ts#L59">data-mate/src/column/Column.ts:59</a></p>
 <h2><a class="anchor" aria-hidden="true" id="accessors-1"></a><a href="#accessors-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Accessors</h2>
 <h3><a class="anchor" aria-hidden="true" id="id"></a><a href="#id" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>id</h3>
 <p>• <strong>id</strong>(): <em>string</em></p>
 <p>A Unique ID for the Column.
 The ID should only change if the data vector changes.</p>
 <p><strong>Returns:</strong> <em>string</em></p>
-<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/c3938ab/packages/data-mate/src/column/Column.ts#L93">data-mate/src/column/Column.ts:93</a></p>
+<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/1abb219/packages/data-mate/src/column/Column.ts#L93">data-mate/src/column/Column.ts:93</a></p>
 <h2><a class="anchor" aria-hidden="true" id="methods-1"></a><a href="#methods-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Methods</h2>
 <h3><a class="anchor" aria-hidden="true" id="symboliterator"></a><a href="#symboliterator" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>[Symbol.iterator]</h3>
 <p>▸ <strong>[Symbol.iterator]</strong>(): <em>IterableIterator</em>&lt;<em>Maybe</em>&lt;T&gt;&gt;</p>
 <p>Iterate over each value, this is returned in the stored value format.
 And may not be compatible with the JSON spec.</p>
 <p><strong>Returns:</strong> <em>IterableIterator</em>&lt;<em>Maybe</em>&lt;T&gt;&gt;</p>
-<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/c3938ab/packages/data-mate/src/column/Column.ts#L85">data-mate/src/column/Column.ts:85</a></p>
+<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/1abb219/packages/data-mate/src/column/Column.ts#L85">data-mate/src/column/Column.ts:85</a></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="avg"></a><a href="#avg" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>avg</h3>
 <p>▸ <strong>avg</strong>(): <em>number</em> | <em>bigint</em></p>
 <p>Average all of the values in the Column</p>
 <p><strong>Returns:</strong> <em>number</em> | <em>bigint</em></p>
-<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/c3938ab/packages/data-mate/src/column/Column.ts#L240">data-mate/src/column/Column.ts:240</a></p>
+<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/1abb219/packages/data-mate/src/column/Column.ts#L240">data-mate/src/column/Column.ts:240</a></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="fork"></a><a href="#fork" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>fork</h3>
 <p>▸ <strong>fork</strong>(<code>vector</code>: <a href="/teraslice/docs/packages/data-mate/api/classes/vector_vector.vector"><em>Vector</em></a>&lt;T&gt;): <a href="/teraslice/docs/packages/data-mate/api/classes/column_column.column"><em>Column</em></a>&lt;T, N&gt;</p>
@@ -133,19 +134,19 @@ And may not be compatible with the JSON spec.</p>
 </tbody>
 </table>
 <p><strong>Returns:</strong> <a href="/teraslice/docs/packages/data-mate/api/classes/column_column.column"><em>Column</em></a>&lt;T, N&gt;</p>
-<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/c3938ab/packages/data-mate/src/column/Column.ts#L111">data-mate/src/column/Column.ts:111</a></p>
+<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/1abb219/packages/data-mate/src/column/Column.ts#L111">data-mate/src/column/Column.ts:111</a></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="max"></a><a href="#max" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>max</h3>
 <p>▸ <strong>max</strong>(): <em>number</em> | <em>bigint</em></p>
 <p>Find the maximum value in the Column</p>
 <p><strong>Returns:</strong> <em>number</em> | <em>bigint</em></p>
-<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/c3938ab/packages/data-mate/src/column/Column.ts#L261">data-mate/src/column/Column.ts:261</a></p>
+<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/1abb219/packages/data-mate/src/column/Column.ts#L261">data-mate/src/column/Column.ts:261</a></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="min"></a><a href="#min" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>min</h3>
 <p>▸ <strong>min</strong>(): <em>number</em> | <em>bigint</em></p>
 <p>Find the minimum value in the Column</p>
 <p><strong>Returns:</strong> <em>number</em> | <em>bigint</em></p>
-<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/c3938ab/packages/data-mate/src/column/Column.ts#L254">data-mate/src/column/Column.ts:254</a></p>
+<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/1abb219/packages/data-mate/src/column/Column.ts#L254">data-mate/src/column/Column.ts:254</a></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="rename"></a><a href="#rename" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>rename</h3>
 <p>▸ <strong>rename</strong>&lt;K&gt;(<code>name</code>: K): <a href="/teraslice/docs/packages/data-mate/api/classes/column_column.column"><em>Column</em></a>&lt;T, K&gt;</p>
@@ -169,12 +170,29 @@ And may not be compatible with the JSON spec.</p>
 </tbody>
 </table>
 <p><strong>Returns:</strong> <a href="/teraslice/docs/packages/data-mate/api/classes/column_column.column"><em>Column</em></a>&lt;T, K&gt;</p>
-<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/c3938ab/packages/data-mate/src/column/Column.ts#L100">data-mate/src/column/Column.ts:100</a></p>
+<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/1abb219/packages/data-mate/src/column/Column.ts#L100">data-mate/src/column/Column.ts:100</a></p>
+<hr>
+<h3><a class="anchor" aria-hidden="true" id="selectsubfields"></a><a href="#selectsubfields" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>selectSubFields</h3>
+<p>▸ <strong>selectSubFields</strong>(<code>fields</code>: <em>string</em>[]): <a href="/teraslice/docs/packages/data-mate/api/classes/column_column.column"><em>Column</em></a>&lt;T, N&gt;</p>
+<p>Select the child fields with in a given vector.
+This involves recreating the whole column in
+most cases.</p>
+<h4><a class="anchor" aria-hidden="true" id="parameters-3"></a><a href="#parameters-3" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Parameters:</h4>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>fields</code></td><td><em>string</em>[]</td></tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong> <a href="/teraslice/docs/packages/data-mate/api/classes/column_column.column"><em>Column</em></a>&lt;T, N&gt;</p>
+<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/1abb219/packages/data-mate/src/column/Column.ts#L270">data-mate/src/column/Column.ts:270</a></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="sort"></a><a href="#sort" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>sort</h3>
 <p>▸ <strong>sort</strong>(<code>direction?</code>: <em>asc</em> | <em>desc</em>): <a href="/teraslice/docs/packages/data-mate/api/classes/column_column.column"><em>Column</em></a>&lt;T, N&gt;</p>
 <p>Sort the column</p>
-<h4><a class="anchor" aria-hidden="true" id="parameters-3"></a><a href="#parameters-3" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Parameters:</h4>
+<h4><a class="anchor" aria-hidden="true" id="parameters-4"></a><a href="#parameters-4" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Parameters:</h4>
 <table>
 <thead>
 <tr><th>Name</th><th>Type</th></tr>
@@ -184,20 +202,29 @@ And may not be compatible with the JSON spec.</p>
 </tbody>
 </table>
 <p><strong>Returns:</strong> <a href="/teraslice/docs/packages/data-mate/api/classes/column_column.column"><em>Column</em></a>&lt;T, N&gt;</p>
-<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/c3938ab/packages/data-mate/src/column/Column.ts#L201">data-mate/src/column/Column.ts:201</a></p>
+<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/1abb219/packages/data-mate/src/column/Column.ts#L201">data-mate/src/column/Column.ts:201</a></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="sum"></a><a href="#sum" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>sum</h3>
 <p>▸ <strong>sum</strong>(): <em>number</em> | <em>bigint</em></p>
 <p>Sum all of the values in the Column</p>
 <p><strong>Returns:</strong> <em>number</em> | <em>bigint</em></p>
-<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/c3938ab/packages/data-mate/src/column/Column.ts#L247">data-mate/src/column/Column.ts:247</a></p>
+<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/1abb219/packages/data-mate/src/column/Column.ts#L247">data-mate/src/column/Column.ts:247</a></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="tojson"></a><a href="#tojson" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>toJSON</h3>
-<p>▸ <strong>toJSON</strong>(): <em>Maybe</em>&lt;<a href="/teraslice/docs/packages/data-mate/api/modules/vector_vector#jsonvalue"><em>JSONValue</em></a>&lt;T&gt;&gt;[]</p>
+<p>▸ <strong>toJSON</strong>(<code>options?</code>: <a href="/teraslice/docs/packages/data-mate/api/interfaces/vector_interfaces.serializeoptions"><em>SerializeOptions</em></a>): <em>Maybe</em>&lt;<a href="/teraslice/docs/packages/data-mate/api/modules/vector_vector#jsonvalue"><em>JSONValue</em></a>&lt;T&gt;&gt;[]</p>
 <p>Convert the Column an array of values (the output is JSON compatible)</p>
 <p><strong><code>note</code></strong> probably only useful for debugging</p>
+<h4><a class="anchor" aria-hidden="true" id="parameters-5"></a><a href="#parameters-5" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Parameters:</h4>
+<table>
+<thead>
+<tr><th>Name</th><th>Type</th></tr>
+</thead>
+<tbody>
+<tr><td><code>options?</code></td><td><a href="/teraslice/docs/packages/data-mate/api/interfaces/vector_interfaces.serializeoptions"><em>SerializeOptions</em></a></td></tr>
+</tbody>
+</table>
 <p><strong>Returns:</strong> <em>Maybe</em>&lt;<a href="/teraslice/docs/packages/data-mate/api/modules/vector_vector#jsonvalue"><em>JSONValue</em></a>&lt;T&gt;&gt;[]</p>
-<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/c3938ab/packages/data-mate/src/column/Column.ts#L270">data-mate/src/column/Column.ts:270</a></p>
+<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/1abb219/packages/data-mate/src/column/Column.ts#L322">data-mate/src/column/Column.ts:322</a></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="transform"></a><a href="#transform" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>transform</h3>
 <p>▸ <strong>transform</strong>&lt;R, A&gt;(<code>transformConfig</code>: <a href="/teraslice/docs/packages/data-mate/api/interfaces/column_interfaces.columntransformconfig"><em>ColumnTransformConfig</em></a>&lt;T, R, A&gt;, <code>args?</code>: A): <a href="/teraslice/docs/packages/data-mate/api/classes/column_column.column"><em>Column</em></a>&lt;R, N&gt;</p>
@@ -213,7 +240,7 @@ And may not be compatible with the JSON spec.</p>
 <tr><td><code>A</code></td><td><em>Record</em>&lt;<em>string</em>, <em>any</em>&gt;</td></tr>
 </tbody>
 </table>
-<h4><a class="anchor" aria-hidden="true" id="parameters-4"></a><a href="#parameters-4" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Parameters:</h4>
+<h4><a class="anchor" aria-hidden="true" id="parameters-6"></a><a href="#parameters-6" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Parameters:</h4>
 <table>
 <thead>
 <tr><th>Name</th><th>Type</th></tr>
@@ -224,7 +251,7 @@ And may not be compatible with the JSON spec.</p>
 </tbody>
 </table>
 <p><strong>Returns:</strong> <a href="/teraslice/docs/packages/data-mate/api/classes/column_column.column"><em>Column</em></a>&lt;R, N&gt;</p>
-<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/c3938ab/packages/data-mate/src/column/Column.ts#L123">data-mate/src/column/Column.ts:123</a></p>
+<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/1abb219/packages/data-mate/src/column/Column.ts#L123">data-mate/src/column/Column.ts:123</a></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="unique"></a><a href="#unique" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>unique</h3>
 <p>▸ <strong>unique</strong>(): <a href="/teraslice/docs/packages/data-mate/api/classes/column_column.column"><em>Column</em></a>&lt;T, N&gt;</p>
@@ -233,7 +260,7 @@ the size, it just drops the duplicate values.</p>
 <p><strong><code>example</code></strong>
 [null, 1, 3, 2, 2, null, 1] =&gt; [null, 1, 3, 2, null, null, null]</p>
 <p><strong>Returns:</strong> <a href="/teraslice/docs/packages/data-mate/api/classes/column_column.column"><em>Column</em></a>&lt;T, N&gt;</p>
-<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/c3938ab/packages/data-mate/src/column/Column.ts#L229">data-mate/src/column/Column.ts:229</a></p>
+<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/1abb219/packages/data-mate/src/column/Column.ts#L229">data-mate/src/column/Column.ts:229</a></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="validate"></a><a href="#validate" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>validate</h3>
 <p>▸ <strong>validate</strong>&lt;A&gt;(<code>validateConfig</code>: <a href="/teraslice/docs/packages/data-mate/api/interfaces/column_interfaces.columnvalidateconfig"><em>ColumnValidateConfig</em></a>&lt;T, A&gt;, <code>args?</code>: A): <a href="/teraslice/docs/packages/data-mate/api/classes/column_column.column"><em>Column</em></a>&lt;T, N&gt;</p>
@@ -249,7 +276,7 @@ then the value is set to null.</p>
 <tr><td><code>A</code></td><td><em>Record</em>&lt;<em>string</em>, <em>any</em>&gt;</td></tr>
 </tbody>
 </table>
-<h4><a class="anchor" aria-hidden="true" id="parameters-5"></a><a href="#parameters-5" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Parameters:</h4>
+<h4><a class="anchor" aria-hidden="true" id="parameters-7"></a><a href="#parameters-7" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Parameters:</h4>
 <table>
 <thead>
 <tr><th>Name</th><th>Type</th></tr>
@@ -260,7 +287,7 @@ then the value is set to null.</p>
 </tbody>
 </table>
 <p><strong>Returns:</strong> <a href="/teraslice/docs/packages/data-mate/api/classes/column_column.column"><em>Column</em></a>&lt;T, N&gt;</p>
-<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/c3938ab/packages/data-mate/src/column/Column.ts#L161">data-mate/src/column/Column.ts:161</a></p>
+<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/1abb219/packages/data-mate/src/column/Column.ts#L161">data-mate/src/column/Column.ts:161</a></p>
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="fromjson"></a><a href="#fromjson" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>fromJSON</h3>
 <p>▸ <code>Static</code><strong>fromJSON</strong>&lt;R, F&gt;(<code>name</code>: F, <code>config</code>: <em>Readonly</em>&lt;DataTypeFieldConfig&gt;, <code>values?</code>: <em>Maybe</em>&lt;R&gt;[] | readonly <em>Maybe</em>&lt;R&gt;[], <code>version?</code>: <em>1</em>, <code>childConfig?</code>: <em>Record</em>&lt;<em>string</em>, DataTypeFieldConfig&gt; | <em>Readonly</em>&lt;<em>Record</em>&lt;<em>string</em>, DataTypeFieldConfig&gt;&gt;): <a href="/teraslice/docs/packages/data-mate/api/classes/column_column.column"><em>Column</em></a>&lt;R <em>extends</em> U[] ? <a href="/teraslice/docs/packages/data-mate/api/classes/vector_vector.vector"><em>Vector</em></a>&lt;U&gt; : R, F&gt;</p>
@@ -275,7 +302,7 @@ then the value is set to null.</p>
 <tr><td><code>F</code></td><td><em>string</em> \</td><td><em>number</em> \</td><td><em>symbol</em></td><td><em>string</em></td></tr>
 </tbody>
 </table>
-<h4><a class="anchor" aria-hidden="true" id="parameters-6"></a><a href="#parameters-6" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Parameters:</h4>
+<h4><a class="anchor" aria-hidden="true" id="parameters-8"></a><a href="#parameters-8" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Parameters:</h4>
 <table>
 <thead>
 <tr><th>Name</th><th>Type</th><th>Default value</th></tr>
@@ -289,8 +316,8 @@ then the value is set to null.</p>
 </tbody>
 </table>
 <p><strong>Returns:</strong> <a href="/teraslice/docs/packages/data-mate/api/classes/column_column.column"><em>Column</em></a>&lt;R <em>extends</em> U[] ? <a href="/teraslice/docs/packages/data-mate/api/classes/vector_vector.vector"><em>Vector</em></a>&lt;U&gt; : R, F&gt;</p>
-<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/c3938ab/packages/data-mate/src/column/Column.ts#L31">data-mate/src/column/Column.ts:31</a></p>
-</span></div></article></div><div class="docs-prevnext"></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#type-parameters">Type parameters</a></li><li><a href="#hierarchy">Hierarchy</a></li><li><a href="#table-of-contents">Table of contents</a><ul class="toc-headings"><li><a href="#constructors">Constructors</a></li><li><a href="#properties">Properties</a></li><li><a href="#accessors">Accessors</a></li><li><a href="#methods">Methods</a></li></ul></li><li><a href="#constructors-1">Constructors</a><ul class="toc-headings"><li><a href="#constructor">constructor</a></li></ul></li><li><a href="#properties-1">Properties</a><ul class="toc-headings"><li><a href="#config">config</a></li><li><a href="#name">name</a></li><li><a href="#size">size</a></li><li><a href="#vector">vector</a></li><li><a href="#version">version</a></li></ul></li><li><a href="#accessors-1">Accessors</a><ul class="toc-headings"><li><a href="#id">id</a></li></ul></li><li><a href="#methods-1">Methods</a><ul class="toc-headings"><li><a href="#symboliterator">[Symbol.iterator]</a></li><li><a href="#avg">avg</a></li><li><a href="#fork">fork</a></li><li><a href="#max">max</a></li><li><a href="#min">min</a></li><li><a href="#rename">rename</a></li><li><a href="#sort">sort</a></li><li><a href="#sum">sum</a></li><li><a href="#tojson">toJSON</a></li><li><a href="#transform">transform</a></li><li><a href="#unique">unique</a></li><li><a href="#validate">validate</a></li><li><a href="#fromjson">fromJSON</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/teraslice/" class="nav-home"></a><div><h5>Docs</h5><a href="/teraslice/docs/en/getting-started.html">Getting Started</a><a href="/teraslice/docs/en/packages.html">Packages</a><a href="/teraslice/docs/en/asset-bundles.html">Asset Bundles</a></div><div><h5>More</h5><a href="/teraslice/blog">Blog</a><a href="https://github.com/terascope/teraslice">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/terascope/teraslice/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><section class="copyright">Copyright © 2021 Terascope, LLC</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+<p>Defined in: <a href="https://github.com/terascope/teraslice/blob/1abb219/packages/data-mate/src/column/Column.ts#L31">data-mate/src/column/Column.ts:31</a></p>
+</span></div></article></div><div class="docs-prevnext"></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#type-parameters">Type parameters</a></li><li><a href="#hierarchy">Hierarchy</a></li><li><a href="#table-of-contents">Table of contents</a><ul class="toc-headings"><li><a href="#constructors">Constructors</a></li><li><a href="#properties">Properties</a></li><li><a href="#accessors">Accessors</a></li><li><a href="#methods">Methods</a></li></ul></li><li><a href="#constructors-1">Constructors</a><ul class="toc-headings"><li><a href="#constructor">constructor</a></li></ul></li><li><a href="#properties-1">Properties</a><ul class="toc-headings"><li><a href="#config">config</a></li><li><a href="#name">name</a></li><li><a href="#size">size</a></li><li><a href="#vector">vector</a></li><li><a href="#version">version</a></li></ul></li><li><a href="#accessors-1">Accessors</a><ul class="toc-headings"><li><a href="#id">id</a></li></ul></li><li><a href="#methods-1">Methods</a><ul class="toc-headings"><li><a href="#symboliterator">[Symbol.iterator]</a></li><li><a href="#avg">avg</a></li><li><a href="#fork">fork</a></li><li><a href="#max">max</a></li><li><a href="#min">min</a></li><li><a href="#rename">rename</a></li><li><a href="#selectsubfields">selectSubFields</a></li><li><a href="#sort">sort</a></li><li><a href="#sum">sum</a></li><li><a href="#tojson">toJSON</a></li><li><a href="#transform">transform</a></li><li><a href="#unique">unique</a></li><li><a href="#validate">validate</a></li><li><a href="#fromjson">fromJSON</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/teraslice/" class="nav-home"></a><div><h5>Docs</h5><a href="/teraslice/docs/en/getting-started.html">Getting Started</a><a href="/teraslice/docs/en/packages.html">Packages</a><a href="/teraslice/docs/en/asset-bundles.html">Asset Bundles</a></div><div><h5>More</h5><a href="/teraslice/blog">Blog</a><a href="https://github.com/terascope/teraslice">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/terascope/teraslice/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><section class="copyright">Copyright © 2021 Terascope, LLC</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;
