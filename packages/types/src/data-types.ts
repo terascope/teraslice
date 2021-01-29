@@ -101,6 +101,11 @@ export enum DateFormat {
     milliseconds = 'epoch_millis',
 }
 
+export enum TimeResolution {
+    MILLISECONDS = 'milliseconds',
+    SECONDS = 'seconds'
+}
+
 /**
  *  The configuration for an individual field
 */
@@ -145,6 +150,18 @@ export interface DataTypeFieldConfig {
      * a type keyword with case insensitive .text fields
     */
     use_fields_hack?: boolean;
+
+    /**
+     * The default date field used primarily for naming
+     * timeseries indices
+    */
+    is_primary_date?: boolean;
+
+    /**
+     * Indicates whether the data has second or millisecond resolutions
+     * used with the `is_primary_date`
+     */
+    time_resolution?: TimeResolution;
 }
 
 /**
