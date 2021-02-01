@@ -925,12 +925,12 @@
     "@turf/helpers" "^6.3.0"
     "@turf/invariant" "^6.3.0"
 
-"@turf/random@^6.2.0":
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/@turf/random/-/random-6.2.0.tgz#ac5fb54b2ede9fcae41e5c3a7c5fb03dc175f198"
-  integrity sha512-G7wiRSOt9UJ2HBjy4BQuopV7OlrVFriRPBEJhJ/6eEBtRMLmCYx4fcAOZGaNt9YkT6K9HetwyJp/o9zBKDTEIg==
+"@turf/random@^6.3.0":
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/@turf/random/-/random-6.3.0.tgz#af47683faaa31344fd8cd1545ba66ba8765e3327"
+  integrity sha512-jSKNqLCOc/xUPoQp8jZLUYTrtID1PNJV7eLXMbJdHdcYwU7d6dTkrdgI08ZU/Nc4qJv1ZAlWO/xEyKGtC1RgrQ==
   dependencies:
-    "@turf/helpers" "^6.2.0"
+    "@turf/helpers" "^6.3.0"
 
 "@types/babel__core@^7.0.0", "@types/babel__core@^7.1.7":
   version "7.1.12"
