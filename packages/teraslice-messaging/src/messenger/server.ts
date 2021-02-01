@@ -305,7 +305,10 @@ export class Server extends Core {
     }
 
     protected getClientMetadataFromSocket(socket: SocketIO.Socket): i.ClientSocketMetadata {
-        return socket.handshake.query;
+        return {
+            clientId: socket.handshake.query.clientId,
+            clientType: socket.handshake.query.clientType,
+        };
     }
 
     private filterClientsByState(states: i.ClientState[]): i.ConnectedClient[] {
