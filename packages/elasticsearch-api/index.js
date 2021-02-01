@@ -1,6 +1,6 @@
 'use strict';
 
-const isEqual = require('lodash.isequal');
+const isEqual = require('lodash/isEqual');
 const Promise = require('bluebird');
 const {
     isTest,

@@ -1,7 +1,7 @@
 'use strict';
 
 const { times, get } = require('@terascope/utils');
-const defaultsDeep = require('lodash.defaultsdeep');
+const defaultsDeep = require('lodash/defaultsDeep');
 const path = require('path');
 const fs = require('fs');
 
