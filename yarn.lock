@@ -2022,10 +2022,10 @@ awesome-phonenumber@^2.43.0:
   resolved "https://registry.yarnpkg.com/awesome-phonenumber/-/awesome-phonenumber-2.44.0.tgz#c974e791d13c1b0c9e60415d71682ff5266c4db1"
   integrity sha512-ixw3fz6mlPsvuczXvs0J6P7E9aeFSM0H5D3RryBCINCkWFE/w0c8/Pe/B11IWQ1Qr3JlYq/aEbqiKs0YiftRzw==
 
-aws-sdk@^2.804.0:
-  version "2.828.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.828.0.tgz#6aa599c3582f219568f41fb287eb65753e4a9234"
-  integrity sha512-JoDujGdncSIF9ka+XFZjop/7G+fNGucwPwYj7OHYMmFIOV5p7YmqomdbVmH/vIzd988YZz8oLOinWc4jM6vvhg==
+aws-sdk@^2.834.0:
+  version "2.834.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.834.0.tgz#1d9f8ed7cf2ed885041142d67e29f45cbb8621b7"
+  integrity sha512-9WRULrn4qAmgXI+tEW/IG5s/6ixJGZqjPOrmJsFZQev7/WRkxAZmJAjcwd4Ifm/jsJbXx2FSwO76gOPEvu2LqA==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
