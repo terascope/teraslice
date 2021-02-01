@@ -1,5 +1,5 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { ASTType } from '../../src';
+import { FunctionNode, LogicalGroup, NodeType } from '../../src';
 import { TestCase } from './interfaces';
 
 export default [
@@ -7,18 +7,18 @@ export default [
         'a:1 AND b:1',
         'a simple AND conjunction',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'a',
                             value: { type: 'value', value: 1, },
                         },
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'b',
                             value: { type: 'value', value: 1, },
                         },
@@ -31,18 +31,18 @@ export default [
         'a:$foo AND b:$bar',
         'a simple AND conjunction with variables',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'a',
                             value: { type: 'variable', value: 'foo', },
                         },
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'b',
                             value: { type: 'variable', value: 'bar', },
                         },
@@ -56,18 +56,18 @@ export default [
         '(a:1 AND b:1)',
         'a simple AND conjunction',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'a',
                             value: { type: 'value', value: 1, },
                         },
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'b',
                             value: { type: 'value', value: 1, },
                         },
@@ -80,18 +80,18 @@ export default [
         'a:1 && b:1',
         'a simple && conjunction',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'a',
                             value: { type: 'value', value: 1, },
                         },
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'b',
                             value: { type: 'value', value: 1, },
                         },
@@ -104,23 +104,23 @@ export default [
         'a:1 OR b:1',
         'a simple OR conjunction',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'a',
                             value: { type: 'value', value: 1, },
                         },
                     ],
                 },
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'b',
                             value: { type: 'value', value: 1, },
                         },
@@ -133,7 +133,7 @@ export default [
         'foo:$bar',
         'variable array substitution',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field: 'foo',
             value: { type: 'variable', value: 'bar', },
         },
@@ -145,35 +145,35 @@ export default [
         'foo:$bar',
         'variable array substitution',
         {
-            type: ASTType.FieldGroup,
+            type: NodeType.FieldGroup,
             field: 'foo',
             field_type: xLuceneFieldType.Integer,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field_type: xLuceneFieldType.Integer,
                             value: { type: 'value', value: 1 },
                         }
                     ]
                 },
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field_type: xLuceneFieldType.Integer,
                             value: { type: 'value', value: 2 },
                         }
                     ]
                 },
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field_type: xLuceneFieldType.Integer,
                             value: { type: 'value', value: 3 },
                         }
@@ -192,23 +192,23 @@ export default [
         '(a:1 OR b:1)',
         'a simple OR conjunction with top-level parens',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'a',
                             value: { type: 'value', value: 1, },
                         },
                     ],
                 },
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'b',
                             value: { type: 'value', value: 1, },
                         },
@@ -221,23 +221,23 @@ export default [
         'foo:"bar" fo?',
         'a implicit OR with wildcard',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'foo',
                             value: { type: 'value', value: 'bar', },
                         },
                     ],
                 },
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Wildcard,
+                            type: NodeType.Wildcard,
                             field: null,
                             value: { type: 'value', value: 'fo?', },
                         },
@@ -250,23 +250,23 @@ export default [
         'a:1 || b:1',
         'a simple || conjunction',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'a',
                             value: { type: 'value', value: 1, },
                         },
                     ],
                 },
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'b',
                             value: { type: 'value', value: 1, },
                         },
@@ -279,33 +279,33 @@ export default [
         'a:1 OR b:1 OR c:1',
         'a chained OR conjunction',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'a',
                             value: { type: 'value', value: 1, },
                         },
                     ],
                 },
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'b',
                             value: { type: 'value', value: 1, },
                         },
                     ],
                 },
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'c',
                             value: { type: 'value', value: 1, },
                         },
@@ -318,23 +318,23 @@ export default [
         'a:1 AND b:1 AND c:1',
         'a double chained AND conjunction',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'a',
                             value: { type: 'value', value: 1, },
                         },
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'b',
                             value: { type: 'value', value: 1, },
                         },
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'c',
                             value: { type: 'value', value: 1, },
                         },
@@ -350,20 +350,20 @@ export default [
             type: 'logical-group',
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field_type: xLuceneFieldType.String,
                             value: { type: 'value', value: 'AqMvPMCS76u0', },
                         },
                     ],
                 },
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field_type: xLuceneFieldType.String,
                             value: { type: 'value', value: 'foo', },
                         },
@@ -376,43 +376,43 @@ export default [
         'a:1 OR b:1 OR c:1 AND d:1 AND e:1',
         'a chained AND/OR conjunctions',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'a',
                             value: { type: 'value', value: 1, },
                         },
                     ],
                 },
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'b',
                             value: { type: 'value', value: 1, },
                         },
                     ],
                 },
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'c',
                             value: { type: 'value', value: 1, },
                         },
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'd',
                             value: { type: 'value', value: 1, },
                         },
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'e',
                             value: { type: 'value', value: 1, },
                         },
@@ -425,13 +425,13 @@ export default [
         'foo "bar"',
         'implicit OR conjunction',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field_type: xLuceneFieldType.String,
                             restricted: true,
                             field: null,
@@ -440,10 +440,10 @@ export default [
                     ],
                 },
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field_type: xLuceneFieldType.String,
                             field: null,
                             quoted: true,
@@ -458,13 +458,13 @@ export default [
         '"foo" bar:baz',
         'implicit OR conjunction',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field_type: xLuceneFieldType.String,
                             field: null,
                             quoted: true,
@@ -473,10 +473,10 @@ export default [
                     ],
                 },
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field_type: xLuceneFieldType.String,
                             field: 'bar',
                             value: { type: 'value', value: 'baz', },
@@ -490,13 +490,13 @@ export default [
         'hi:"foo" hello:"bar"',
         'implicit OR conjunction',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field_type: xLuceneFieldType.String,
                             field: 'hi',
                             quoted: true,
@@ -505,10 +505,10 @@ export default [
                     ],
                 },
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field_type: xLuceneFieldType.String,
                             field: 'hello',
                             quoted: true,
@@ -523,13 +523,13 @@ export default [
         ' foo:   bar baz',
         'field and space between multiple values into a conjunction',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field_type: xLuceneFieldType.String,
                             field: 'foo',
                             quoted: false,
@@ -538,10 +538,10 @@ export default [
                     ],
                 },
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field_type: xLuceneFieldType.String,
                             field: null,
                             quoted: false,
@@ -556,34 +556,34 @@ export default [
         'a:1 AND (b:1 OR c:1) AND d:1',
         'AND/OR conjunction with parens',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'a',
                             value: { type: 'value', value: 1, },
                         },
                         {
-                            type: ASTType.LogicalGroup,
+                            type: NodeType.LogicalGroup,
                             flow: [
                                 {
-                                    type: ASTType.Conjunction,
+                                    type: NodeType.Conjunction,
                                     nodes: [
                                         {
-                                            type: ASTType.Term,
+                                            type: NodeType.Term,
                                             field: 'b',
                                             value: { type: 'value', value: 1, },
                                         },
                                     ],
                                 },
                                 {
-                                    type: ASTType.Conjunction,
+                                    type: NodeType.Conjunction,
                                     nodes: [
                                         {
-                                            type: ASTType.Term,
+                                            type: NodeType.Term,
                                             field: 'c',
                                             value: { type: 'value', value: 1, },
                                         },
@@ -592,7 +592,7 @@ export default [
                             ],
                         },
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'd',
                             value: { type: 'value', value: 1, },
                         },
@@ -605,16 +605,16 @@ export default [
         '(a:1 OR b:1) AND (c:1 OR d:1)',
         'AND/OR conjunction with two parens',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.LogicalGroup,
+                            type: NodeType.LogicalGroup,
                             flow: [
                                 {
-                                    type: ASTType.Conjunction,
+                                    type: NodeType.Conjunction,
                                     nodes: [
                                         {
                                             field_type: xLuceneFieldType.Integer,
@@ -624,7 +624,7 @@ export default [
                                     ],
                                 },
                                 {
-                                    type: ASTType.Conjunction,
+                                    type: NodeType.Conjunction,
                                     nodes: [
                                         {
                                             field_type: xLuceneFieldType.Integer,
@@ -636,10 +636,10 @@ export default [
                             ],
                         },
                         {
-                            type: ASTType.LogicalGroup,
+                            type: NodeType.LogicalGroup,
                             flow: [
                                 {
-                                    type: ASTType.Conjunction,
+                                    type: NodeType.Conjunction,
                                     nodes: [
                                         {
                                             field_type: xLuceneFieldType.Integer,
@@ -649,7 +649,7 @@ export default [
                                     ],
                                 },
                                 {
-                                    type: ASTType.Conjunction,
+                                    type: NodeType.Conjunction,
                                     nodes: [
                                         {
                                             field_type: xLuceneFieldType.Integer,
@@ -669,18 +669,18 @@ export default [
         '(a:1) AND (b:1)',
         'a simple AND with parens conjunction',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'a',
                             value: { type: 'value', value: 1, },
                         },
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'b',
                             value: { type: 'value', value: 1, },
                         },
@@ -693,13 +693,13 @@ export default [
         '((field: value OR field2:value))',
         'double parens expression',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field_type: xLuceneFieldType.String,
                             restricted: true,
                             quoted: false,
@@ -709,10 +709,10 @@ export default [
                     ]
                 },
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field_type: xLuceneFieldType.String,
                             restricted: true,
                             quoted: false,
@@ -728,18 +728,18 @@ export default [
         '((a:1) AND (b:1))',
         'double parens AND with parens conjunction',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'a',
                             value: { type: 'value', value: 1, },
                         },
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'b',
                             value: { type: 'value', value: 1, },
                         },
@@ -752,25 +752,26 @@ export default [
         'a:1 AND location:geoDistance(point:"33.435518,-111.873616" distance:5000m)',
         'a simple AND with geoDistance function',
         {
-            type: 'logical-group',
+
+            type: NodeType.LogicalGroup,
             flow: [
                 {
                     type: 'conjunction',
                     nodes: [
                         {
-                            type: 'term',
+                            type: NodeType.Term,
                             field_type: 'integer',
                             value: { type: 'value', value: 1, },
                             field: 'a'
                         },
                         {
-                            type: 'function',
+                            type: NodeType.Function,
                             field: 'location',
                             name: 'geoDistance'
-                        }
+                        } as FunctionNode
                     ]
                 }
             ]
-        },
+        } as LogicalGroup,
     ],
 ] as TestCase[];

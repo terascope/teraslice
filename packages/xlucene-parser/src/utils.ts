@@ -24,45 +24,45 @@ import * as i from './interfaces';
 
 export const logger = debugLogger('xlucene-parser');
 
-function _getType(node: unknown): i.ASTType|undefined {
+function _getType(node: unknown): i.NodeType|undefined {
     if (!node || typeof node !== 'object') return;
     return (node as any).type || undefined;
 }
 
 export function isLogicalGroup(node: unknown): node is i.LogicalGroup {
-    return _getType(node) === i.ASTType.LogicalGroup;
+    return _getType(node) === i.NodeType.LogicalGroup;
 }
 
 export function isConjunction(node: unknown): node is i.Conjunction {
-    return _getType(node) === i.ASTType.Conjunction;
+    return _getType(node) === i.NodeType.Conjunction;
 }
 
 export function isNegation(node: unknown): node is i.Negation {
-    return _getType(node) === i.ASTType.Negation;
+    return _getType(node) === i.NodeType.Negation;
 }
 
 export function isFieldGroup(node: unknown): node is i.FieldGroup {
-    return _getType(node) === i.ASTType.FieldGroup;
+    return _getType(node) === i.NodeType.FieldGroup;
 }
 
 export function isExists(node: unknown): node is i.Exists {
-    return _getType(node) === i.ASTType.Exists;
+    return _getType(node) === i.NodeType.Exists;
 }
 
 export function isRange(node: unknown): node is i.Range {
-    return _getType(node) === i.ASTType.Range;
+    return _getType(node) === i.NodeType.Range;
 }
 
 export function isFunctionNode(node: unknown): node is i.FunctionNode {
-    return _getType(node) === i.ASTType.Function;
+    return _getType(node) === i.NodeType.Function;
 }
 
 export function isRegexp(node: unknown): node is i.Regexp {
-    return _getType(node) === i.ASTType.Regexp;
+    return _getType(node) === i.NodeType.Regexp;
 }
 
 export function isWildcard(node: unknown): node is i.Wildcard {
-    return _getType(node) === i.ASTType.Wildcard;
+    return _getType(node) === i.NodeType.Wildcard;
 }
 
 export function isWildcardField(node: unknown): boolean {
@@ -70,11 +70,15 @@ export function isWildcardField(node: unknown): boolean {
 }
 
 export function isTerm(node: unknown): node is i.Term {
-    return _getType(node) === i.ASTType.Term;
+    return _getType(node) === i.NodeType.Term;
 }
 
-export function isEmptyAST(node: unknown): node is i.EmptyAST {
-    return isEmpty(node) || (_getType(node) === i.ASTType.Empty);
+export function isTermList(node: unknown): node is i.TermList {
+    return _getType(node) === i.NodeType.TermList;
+}
+
+export function isEmptyNode(node: unknown): node is i.EmptyNode {
+    return isEmpty(node) || (_getType(node) === i.NodeType.Empty);
 }
 
 export function isStringDataType(node: unknown): node is i.StringDataType {
@@ -100,23 +104,23 @@ export function getField(node: unknown): string|undefined {
 }
 
 /** term level queries with field (string|null)  */
-export const termTypes: readonly i.ASTType[] = [
-    i.ASTType.Term,
-    i.ASTType.Regexp,
-    i.ASTType.Range,
-    i.ASTType.Wildcard,
-    i.ASTType.Function,
-    i.ASTType.TermList,
+export const termTypes: readonly i.NodeType[] = [
+    i.NodeType.Term,
+    i.NodeType.Regexp,
+    i.NodeType.Range,
+    i.NodeType.Wildcard,
+    i.NodeType.Function,
+    i.NodeType.TermList,
 ];
 
-export function isTermType(node: unknown): node is i.TermLike {
+export function isTermType(node: unknown): node is i.TermLikeNode {
     return !!(node && termTypes.includes((node as any).type));
 }
 
 /** logical group or field group with flow */
-export const groupTypes: i.ASTType[] = [i.ASTType.LogicalGroup, i.ASTType.FieldGroup];
+export const groupTypes: i.NodeType[] = [i.NodeType.LogicalGroup, i.NodeType.FieldGroup];
 
-export function isGroupLike(node: unknown): node is i.GroupLikeAST {
+export function isGroupLike(node: unknown): node is i.GroupLikeNode {
     return !!(node && groupTypes.includes((node as any).type));
 }
 
@@ -266,7 +270,7 @@ export function createIPRangeFromTerm(node: i.Term, value: string): i.Range {
     const { start, end } = parseIPRange(value);
 
     return {
-        type: i.ASTType.Range,
+        type: i.NodeType.Range,
         field: node.field,
         field_type: node.field_type,
         left: {

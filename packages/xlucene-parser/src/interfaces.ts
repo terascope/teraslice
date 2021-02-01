@@ -10,37 +10,33 @@ export interface ContextArg {
     variables?: t.xLuceneVariables;
 }
 
-export type AST = EmptyAST | LogicalGroup | Term
-| Conjunction | Negation | FieldGroup
-| Exists | Range | Regexp | Wildcard
-| FunctionNode | TermList;
-
-export type AnyAST = AST;
-
 export type GroupLike = FieldGroup|LogicalGroup;
-export type GroupLikeType = ASTType.LogicalGroup|ASTType.FieldGroup;
+export type GroupLikeType = NodeType.LogicalGroup|NodeType.FieldGroup;
 
-export interface GroupLikeAST {
+export interface Node {
+    type: NodeType;
+}
+
+export interface GroupLikeNode extends Node {
     type: GroupLikeType;
     flow: Conjunction[];
 }
 
-export type TermLike = Term|Regexp|Range|Wildcard|FunctionNode|TermList;
 export type TermLikeType =
-    ASTType.Term|
-    ASTType.Regexp|
-    ASTType.Range|
-    ASTType.Wildcard|
-    ASTType.Function|
-    ASTType.TermList;
+    NodeType.Term|
+    NodeType.Regexp|
+    NodeType.Range|
+    NodeType.Wildcard|
+    NodeType.Function|
+    NodeType.TermList;
 
-export interface TermLikeAST {
+export interface TermLikeNode extends Node {
     type: TermLikeType;
     field: Field;
     analyzed?: boolean;
 }
 
-export enum ASTType {
+export enum NodeType {
     LogicalGroup = 'logical-group',
     FieldGroup = 'field-group',
     Conjunction = 'conjunction',
@@ -55,11 +51,8 @@ export enum ASTType {
     TermList = 'term-list',
 }
 
-export interface EmptyAST {
-    type: ASTType.Empty;
-    // we need this type for typescript to
-    // detect the union correctly
-    __empty?: boolean;
+export interface EmptyNode extends Node {
+    type: NodeType.Empty;
 }
 
 export type Field = string|null;
@@ -73,8 +66,8 @@ export type FieldValue<T> = {
     value: string;
 };
 
-export interface TermList extends TermLikeAST {
-    type: ASTType.TermList;
+export interface TermList extends TermLikeNode {
+    type: NodeType.TermList;
     value: FieldValue<any>[];
 }
 
@@ -104,49 +97,34 @@ export interface BooleanDataType {
     value: FieldValue<boolean>;
 }
 
-export interface LogicalGroup extends GroupLikeAST {
-    type: ASTType.LogicalGroup;
-    // we need this type for typescript to
-    // detect the union correctly
-    __logical_group?: boolean;
+export interface LogicalGroup extends GroupLikeNode {
+    type: NodeType.LogicalGroup;
 }
 
-export interface Conjunction {
-    type: ASTType.Conjunction;
-    nodes: AST[];
-    // we need this type for typescript to
-    // detect the union correctly
-    __conjunction?: boolean;
+export interface Conjunction extends Node {
+    type: NodeType.Conjunction;
+    nodes: Node[];
 }
 
-export interface Negation {
-    type: ASTType.Negation;
-    node: AST;
-    // we need this type for typescript to
-    // detect the union correctly
-    __negation?: boolean;
+export interface Negation extends Node {
+    type: NodeType.Negation;
+    node: Node;
 }
 
-export interface FieldGroup extends GroupLikeAST {
-    type: ASTType.FieldGroup;
+export interface FieldGroup extends GroupLikeNode {
+    type: NodeType.FieldGroup;
     field_type: t.xLuceneFieldType;
     field: string;
-    // we need this type for typescript to
-    // detect the union correctly
-    __field_group?: boolean;
 }
 
-export interface Exists {
-    type: ASTType.Exists;
+export interface Exists extends Node {
+    type: NodeType.Exists;
     field: string;
-    // we need this type for typescript to
-    // detect the union correctly
-    __exists?: boolean;
 }
 
 export type RangeOperator = 'gte'|'gt'|'lt'|'lte';
-export interface Range extends TermLikeAST {
-    type: ASTType.Range;
+export interface Range extends TermLikeNode {
+    type: NodeType.Range;
     field_type: t.xLuceneFieldType;
     left: RangeNode;
     right?: RangeNode;
@@ -166,38 +144,26 @@ export interface RangeNode {
     value: FieldValue<number|string>;
 }
 
-export interface FunctionNode extends TermLikeAST {
-    type: ASTType.Function;
+export interface FunctionNode extends TermLikeNode {
+    type: NodeType.Function;
     /**
      * The name of the function
     */
     name: string;
     description?: string;
     params: (Term|TermList)[];
-    // we need this type for typescript to
-    // detect the union correctly
-    __function?: boolean;
 }
 
-export interface Regexp extends StringDataType, TermLikeAST {
-    type: ASTType.Regexp;
-    // we need this type for typescript to
-    // detect the union correctly
-    __regexp?: boolean;
+export interface Regexp extends StringDataType, TermLikeNode {
+    type: NodeType.Regexp;
 }
 
-export interface Wildcard extends StringDataType, TermLikeAST {
-    type: ASTType.Wildcard;
-    // we need this type for typescript to
-    // detect the union correctly
-    __wildcard?: boolean;
+export interface Wildcard extends StringDataType, TermLikeNode {
+    type: NodeType.Wildcard;
 }
 
-export interface Term extends AnyDataType, TermLikeAST {
-    type: ASTType.Term;
-    // we need this type for typescript to
-    // detect the union correctly
-    __term?: boolean;
+export interface Term extends AnyDataType, TermLikeNode {
+    type: NodeType.Term;
 }
 
 export interface FunctionConfig {

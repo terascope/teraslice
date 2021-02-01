@@ -94,7 +94,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             });
         }
 
-        if (p.isEmptyAST(parser.ast)) {
+        if (p.isEmptyNode(parser.ast)) {
             if (!this.allowEmpty) {
                 throw new ts.TSError('Empty queries are restricted', {
                     statusCode: 403,
@@ -107,7 +107,7 @@ export class QueryAccess<T extends ts.AnyObject = ts.AnyObject> {
             return this._addConstraints(parser, parserOptions);
         }
 
-        parser.forTermTypes((node: p.TermLikeAST) => {
+        parser.forTermTypes((node: p.TermLikeNode) => {
             // restrict when a term is specified without a field
             if (!node.field) {
                 if (this.allowImplicitQueries) return;

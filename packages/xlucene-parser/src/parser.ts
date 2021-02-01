@@ -9,27 +9,27 @@ import * as i from './interfaces';
 import * as utils from './utils';
 
 const termTypes = new Set(utils.termTypes.filter((type) => (
-    type !== i.ASTType.Range && type !== i.ASTType.Function
+    type !== i.NodeType.Range && type !== i.NodeType.Function
 )));
 
 /**
  * Parse a xLucene query
 */
 export class Parser {
-    readonly ast: i.AST;
+    readonly ast: i.Node;
     readonly query: string;
     readonly typeConfig: xLuceneTypeConfig;
 
     constructor(
         query: string,
         options: i.ParserOptions = {},
-        _overrideAST?: i.AST
+        _overrideNode?: i.Node
     ) {
         this.query = trim(query || '');
 
         this.typeConfig = { ...options.type_config };
-        if (_overrideAST) {
-            this.ast = _overrideAST;
+        if (_overrideNode) {
+            this.ast = _overrideNode;
             return;
         }
 
@@ -58,10 +58,10 @@ export class Parser {
     /**
      * Recursively Iterate over all or select set of the nodes types
     */
-    forTypes<T extends i.ASTType[]|readonly i.ASTType[]>(
-        types: T, cb: (node: i.AnyAST) => void, skipFunctionParams = false
+    forTypes<T extends i.NodeType[]|readonly i.NodeType[]>(
+        types: T, cb: (node: i.Node) => void, skipFunctionParams = false
     ): void {
-        const walkNode = (node: i.AnyAST) => {
+        const walkNode = (node: i.Node) => {
             if (types.includes(node.type)) {
                 cb(node);
             }
@@ -99,12 +99,12 @@ export class Parser {
      * Iterate over all of the Term-Like nodes.
     */
     forTermTypes(
-        cb: (node: i.TermLike) => void,
+        cb: (node: i.TermLikeNode) => void,
         skipFunctionParams = true
     ): void {
         this.forTypes(
             utils.termTypes,
-            cb as (node: i.AnyAST) => void,
+            cb as (node: i.Node) => void,
             skipFunctionParams
         );
     }
@@ -113,10 +113,10 @@ export class Parser {
      * Iterate over all of the field value from Term-Like nodes,
      * this is useful for validating values and variables.
     */
-    forEachFieldValue(cb: (value: i.FieldValue<any>, node: i.TermLike) => void): void {
+    forEachFieldValue(cb: (value: i.FieldValue<any>, node: i.TermLikeNode) => void): void {
         this.forTermTypes((node) => {
-            if (node.type === i.ASTType.Function) return;
-            if (node.type === i.ASTType.Range) {
+            if (utils.isFunctionNode(node)) return;
+            if (utils.isRange(node)) {
                 cb(node.left.value, node);
                 if (node.right) {
                     cb(node.right.value, node);
@@ -124,14 +124,14 @@ export class Parser {
                 return;
             }
 
-            if (node.type === i.ASTType.TermList) {
+            if (utils.isTermList(node)) {
                 node.value.forEach((value) => {
                     cb(value, node);
                 });
                 return;
             }
 
-            cb(node.value, node);
+            cb((node as i.Term).value, node);
         }, false);
     }
 
@@ -139,13 +139,13 @@ export class Parser {
         fieldValidator: (field: string) => void,
         valueValidator: (fieldValue: i.FieldValue<any>) => void,
     ): void {
-        function callValidateField(node: i.AnyAST|i.RangeNode) {
+        function callValidateField(node: i.TermLikeNode|i.RangeNode) {
             if ('field' in node && node.field) {
                 fieldValidator(node.field);
             }
         }
 
-        function callValidateValue(node: i.AnyAST|i.RangeNode) {
+        function callValidateValue(node: i.Node|i.RangeNode) {
             if ('value' in node) {
                 if (Array.isArray(node.value)) {
                     node.value.forEach(valueValidator);
@@ -155,9 +155,9 @@ export class Parser {
             }
         }
 
-        const walkNode = (node: i.AnyAST) => {
+        const walkNode = (node: i.Node) => {
             if (termTypes.has(node.type)) {
-                callValidateField(node);
+                callValidateField(node as i.TermLikeNode);
                 callValidateValue(node);
                 return;
             }
@@ -207,16 +207,16 @@ export class Parser {
     resolveVariables(variables: xLuceneVariables): Parser {
         const validatedVariables = utils.validateVariables(variables);
 
-        const ast = this.mapAST((node, parent) => {
-            if (node.type === i.ASTType.TermList) {
+        const ast = this.mapNode((node, parent) => {
+            if (utils.isTermList(node)) {
                 return coerceTermList(node, validatedVariables);
             }
             if ('value' in node) {
                 return coerceNodeValue(
                     node,
                     validatedVariables,
-                    parent?.type === i.ASTType.Function,
-                    parent?.type === i.ASTType.Conjunction
+                    parent?.type === i.NodeType.Function,
+                    parent?.type === i.NodeType.Conjunction
                 );
             }
 
@@ -229,10 +229,10 @@ export class Parser {
     }
 
     /**
-     * Map the AST and return a new AST
+     * Map the Node and return a new Node
     */
-    mapAST(fn: (node: i.AnyAST, parent?: i.AnyAST) => i.AnyAST): i.AST {
-        const mapNode = (ogNode: i.AnyAST, parent?: i.AnyAST): i.AnyAST => {
+    mapNode(fn: (node: i.Node, parent?: i.Node) => i.Node): i.Node {
+        const mapNode = (ogNode: i.Node, parent?: i.Node): i.Node => {
             const node = fn({ ...ogNode }, parent);
 
             if (utils.isNegation(node)) {
@@ -240,9 +240,9 @@ export class Parser {
             } else if (utils.isFunctionNode(node)) {
                 node.params = node.params.map((conj) => {
                     const newNode = mapNode(conj, node);
-                    if (newNode.type !== i.ASTType.Term && newNode.type !== i.ASTType.TermList) {
+                    if (!utils.isTerm(newNode) && !utils.isTermList(newNode)) {
                         throw new Error(
-                            `Only a ${i.ASTType.Term} or ${i.ASTType.TermList} node type can be returned, got ${newNode.type}`
+                            `Only a ${i.NodeType.Term} or ${i.NodeType.TermList} node type can be returned, got ${newNode.type}`
                         );
                     }
                     return newNode;
@@ -250,9 +250,9 @@ export class Parser {
             } else if (utils.isGroupLike(node)) {
                 node.flow = node.flow.map((conj) => {
                     const newNode = mapNode(conj, node);
-                    if (newNode.type !== i.ASTType.Conjunction) {
+                    if (!utils.isConjunction(newNode)) {
                         throw new Error(
-                            `Only a ${i.ASTType.Conjunction} node type can be returned, got ${newNode.type}`
+                            `Only a ${i.NodeType.Conjunction} node type can be returned, got ${newNode.type}`
                         );
                     }
                     return newNode;
@@ -283,7 +283,7 @@ function coerceNodeValue(
     variables: xLuceneVariables,
     skipAutoFieldGroup?: boolean,
     allowNil?: boolean
-): i.AnyAST {
+): i.Node {
     const value = utils.getFieldValue<any>(
         node.value, variables, allowNil
     );
@@ -299,30 +299,30 @@ function coerceNodeValue(
                     type: 'value',
                     value: value.map(coerceFn) as any
                 }
-            };
+            } as i.Term;
         }
 
         const fieldGroup: i.FieldGroup = {
-            type: i.ASTType.FieldGroup,
+            type: i.NodeType.FieldGroup,
             field: node.field as string,
             field_type: node.field_type,
             flow: value.map((val: any) => ({
-                type: i.ASTType.Conjunction,
+                type: i.NodeType.Conjunction,
                 nodes: [{
                     ...node,
                     value: {
                         type: 'value',
                         value: coerceFn(val)
                     }
-                }]
+                } as i.Term]
             } as i.Conjunction))
         };
         return fieldGroup;
     }
 
-    if (node.type !== i.ASTType.Regexp && isRegExpLike(value)) {
+    if (node.type !== i.NodeType.Regexp && isRegExpLike(value)) {
         return {
-            type: i.ASTType.Regexp,
+            type: i.NodeType.Regexp,
             field: node.field,
             field_type: node.field_type as xLuceneFieldType.String,
             quoted: false,
@@ -330,7 +330,7 @@ function coerceNodeValue(
                 type: 'value',
                 value: parseVariableRegex(value)
             }
-        };
+        } as i.Regexp;
     }
 
     if (node.field_type === xLuceneFieldType.IPRange) {
@@ -343,7 +343,7 @@ function coerceNodeValue(
             type: 'value',
             value: coerceFn(value)
         }
-    };
+    } as i.Term;
 }
 
 function parseVariableRegex(str: string & RegExp) {

@@ -1,5 +1,5 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { ASTType } from '../../src';
+import { NodeType, Wildcard } from '../../src';
 import { TestCase } from './interfaces';
 
 export default [
@@ -7,7 +7,7 @@ export default [
         'hi:the?e',
         'value with ? wildcard',
         {
-            type: ASTType.Wildcard,
+            type: NodeType.Wildcard,
             field_type: xLuceneFieldType.String,
             field: 'hi',
             value: { type: 'value', value: 'the?e', },
@@ -17,7 +17,7 @@ export default [
         'foo: $foo',
         'variable with * wildcard',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'foo',
             value: { type: 'value', value: 'ba*' },
@@ -33,7 +33,7 @@ export default [
         'hi:?here',
         'value with a prefix wildcard',
         {
-            type: ASTType.Wildcard,
+            type: NodeType.Wildcard,
             field_type: xLuceneFieldType.String,
             field: 'hi',
             value: { type: 'value', value: '?here', },
@@ -46,7 +46,7 @@ export default [
         'hi:ther*',
         'value with a * wildcard',
         {
-            type: ASTType.Wildcard,
+            type: NodeType.Wildcard,
             field_type: xLuceneFieldType.String,
             field: 'hi',
             value: { type: 'value', value: 'ther*', },
@@ -59,7 +59,7 @@ export default [
         'hi:the?*',
         'value with a * and ? wildcard',
         {
-            type: ASTType.Wildcard,
+            type: NodeType.Wildcard,
             field_type: xLuceneFieldType.String,
             field: 'hi',
             value: { type: 'value', value: 'the?*', },
@@ -72,7 +72,7 @@ export default [
         'hi:th?r*',
         'value with a * and ? wildcard',
         {
-            type: ASTType.Wildcard,
+            type: NodeType.Wildcard,
             field_type: xLuceneFieldType.String,
             field: 'hi',
             value: { type: 'value', value: 'th?r*', },
@@ -85,16 +85,16 @@ export default [
         '*',
         'a field-less * query',
         {
-            type: ASTType.Wildcard,
+            type: NodeType.Wildcard,
             field: null,
             value: { type: 'value', value: '*', },
-        },
+        } as Wildcard,
     ],
     [
         '(*)',
         'a parens field-less * query',
         {
-            type: ASTType.Wildcard,
+            type: NodeType.Wildcard,
             field: null,
             value: { type: 'value', value: '*', },
         },
@@ -103,7 +103,7 @@ export default [
         '?',
         'a field-less ? query',
         {
-            type: ASTType.Wildcard,
+            type: NodeType.Wildcard,
             field: null,
             value: { type: 'value', value: '?', },
         },

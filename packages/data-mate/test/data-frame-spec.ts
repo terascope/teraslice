@@ -1223,5 +1223,21 @@ describe('DataFrame', () => {
                 expect(resultFrame.id).toEqual(peopleDataFrame.id);
             });
         });
+
+        describe('->search', () => {
+            it('should be able find all the people by name', () => {
+                const resultFrame = peopleDataFrame.search('name:Jill');
+
+                expect(resultFrame.toJSON()).toEqual([
+                    {
+                        name: 'Jill',
+                        age: 39,
+                        friends: ['Frank'],
+                        merged: ['Jill', 39, ['Frank']]
+                    }
+                ]);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+            });
+        });
     });
 });

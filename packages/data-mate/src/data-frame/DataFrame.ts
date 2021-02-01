@@ -1,6 +1,8 @@
 import {
     DataTypeConfig, ReadonlyDataTypeConfig,
-    Maybe, SortOrder, FieldType, DataTypeFields, DataTypeFieldConfig
+    Maybe, SortOrder, FieldType,
+    DataTypeFields, DataTypeFieldConfig,
+    xLuceneVariables
 } from '@terascope/types';
 import {
     DataEntity, TSError,
@@ -322,6 +324,13 @@ export class DataFrame<
     sort(...fieldArgs: FieldArg<keyof T>[]): DataFrame<T>;
     sort(...fieldArgs: (FieldArg<keyof T>[]|FieldArg<string>[])): DataFrame<T> {
         return this.orderBy(...fieldArgs);
+    }
+
+    /**
+     * Search the DataFrame using an xLucene query
+    */
+    search(_query: string, _variables?: xLuceneVariables): DataFrame<T> {
+        return this;
     }
 
     /**
