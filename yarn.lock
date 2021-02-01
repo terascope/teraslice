@@ -782,16 +782,16 @@
     "@turf/helpers" "^6.3.0"
     "@turf/invariant" "^6.3.0"
 
-"@turf/boolean-within@^6.2.0":
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/@turf/boolean-within/-/boolean-within-6.2.0.tgz#ec6713afd6aee1b4a2ae1dfdc6caf1e696a6f34d"
-  integrity sha512-0b69pOgrvOYfsbB/YfkvUEv6kS41fmrJLhq5ByWiOstCJCvOYbc2nV44fZXQfgPHUy1CmJkm2BnuoH+MLzdHXQ==
+"@turf/boolean-within@^6.3.0":
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/@turf/boolean-within/-/boolean-within-6.3.0.tgz#5187298b4c88283b02b25691dc62b6b07b68dc96"
+  integrity sha512-8XtVbzPp6J+lqZtDWVyIwSyVAVcnuie82ub56JEAhCf9w8FX5Db3qXQ76pFcOyy/woeXLZY/nIR58Q79PusrRw==
   dependencies:
-    "@turf/bbox" "^6.2.0"
-    "@turf/boolean-point-in-polygon" "^6.2.0"
-    "@turf/boolean-point-on-line" "^6.2.0"
-    "@turf/helpers" "^6.2.0"
-    "@turf/invariant" "^6.2.0"
+    "@turf/bbox" "^6.3.0"
+    "@turf/boolean-point-in-polygon" "^6.3.0"
+    "@turf/boolean-point-on-line" "^6.3.0"
+    "@turf/helpers" "^6.3.0"
+    "@turf/invariant" "^6.3.0"
 
 "@turf/circle@^6.3.0":
   version "6.3.0"
