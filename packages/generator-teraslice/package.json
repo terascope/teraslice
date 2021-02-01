@@ -26,11 +26,13 @@
     "dependencies": {
         "@terascope/utils": "^0.35.0",
         "chalk": "^4.1.0",
-        "lodash.defaultsdeep": "^4.6.1",
+        "lodash": "^4.17.20",
         "yeoman-generator": "^4.12.0",
         "yosay": "^2.0.1"
     },
-    "devDependencies": {},
+    "devDependencies": {
+        "@types/lodash": "^4.14.168"
+    },
     "engines": {
         "npm": ">=8.0.0"
     },
