@@ -1,7 +1,7 @@
-import formatDate from 'date-fns/format';
 import {
     isBigInt, toBigInt
 } from '@terascope/utils';
+import { DateFormat } from '@terascope/types';
 import {
     Vector, VectorType, getNumericValues, SerializeOptions
 } from '../vector';
@@ -168,26 +168,53 @@ export enum KeyAggregation {
     monthly = 'monthly',
     yearly = 'yearly'
 }
+
 export type KeyAggFn = (index: number) => {
     key: string|undefined;
     value: unknown;
 };
 export type MakeKeyAggFn = (col: Vector<unknown>) => KeyAggFn;
+
+/**
+ * The starting substring of an ISO string that is specific towards a date interval
+*/
+enum DateAggFrequency {
+    hourly = 13,
+    daily = 10,
+    monthly = 7,
+    yearly = 4
+}
+
 export const keyAggMap: Record<KeyAggregation, MakeKeyAggFn> = {
-    [KeyAggregation.hourly]: makeDateAgg('yyyy:MM:dd:hh'),
-    [KeyAggregation.daily]: makeDateAgg('yyyy:MM:dd'),
-    [KeyAggregation.monthly]: makeDateAgg('yyyy:MM'),
-    [KeyAggregation.yearly]: makeDateAgg('yyyy'),
+    [KeyAggregation.hourly]: makeDateAgg(DateAggFrequency.hourly),
+    [KeyAggregation.daily]: makeDateAgg(DateAggFrequency.daily),
+    [KeyAggregation.monthly]: makeDateAgg(DateAggFrequency.monthly),
+    [KeyAggregation.yearly]: makeDateAgg(DateAggFrequency.yearly),
 };
 
-function makeDateAgg(dateFormat: string): MakeKeyAggFn {
+function makeGetISODateSubstring(storedInISO: boolean, truncateLengthFromISO: number) {
+    return function getISODateSubstring(dateValue: DateValue): string {
+        const iso = storedInISO && typeof dateValue.formatted === 'string'
+            ? dateValue.formatted
+            : new Date(dateValue.value).toISOString();
+
+        return iso.slice(0, truncateLengthFromISO);
+    };
+}
+
+function makeDateAgg(truncateLengthFromISO: number): MakeKeyAggFn {
     return function _makeDateAgg(vector) {
+        const storedInISO = vector.config.format === DateFormat.iso_8601 || !vector.config.format;
+        const getISODateSubstring = makeGetISODateSubstring(
+            storedInISO, truncateLengthFromISO
+        );
+
         return function dateAgg(index) {
             const value = vector.get(index) as DateValue;
             if (value == null) return { key: undefined, value };
 
             return {
-                key: formatDate(value.value, dateFormat),
+                key: getISODateSubstring(value),
                 value,
             };
         };
