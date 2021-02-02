@@ -181,19 +181,21 @@ export const keyAggMap: Record<KeyAggregation, MakeKeyAggFn> = {
 };
 
 function makeDateAgg(dateFormat: string): MakeKeyAggFn {
-    return (vector) => (index) => {
-        const value = vector.get(index) as DateValue;
-        if (value == null) return { key: undefined, value };
+    return function _makeDateAgg(vector) {
+        return function dateAgg(index) {
+            const value = vector.get(index) as DateValue;
+            if (value == null) return { key: undefined, value };
 
-        return {
-            key: formatDate(value.value, dateFormat),
-            value,
+            return {
+                key: formatDate(value.value, dateFormat),
+                value,
+            };
         };
     };
 }
 
 export function makeUniqueKeyAgg(vector: Vector<any>, options?: SerializeOptions): KeyAggFn {
-    return (index) => {
+    return function uniqueKeyAgg(index) {
         const value = vector.get(index, false);
         if (value == null) {
             return { key: undefined, value: null };
