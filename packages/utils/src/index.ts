@@ -14,6 +14,7 @@ export * from './empty';
 export * from './env';
 export * from './equality';
 export * from './errors';
+export * from './event-loop';
 export * from './fp';
 export * from './functions';
 export * from './geo';

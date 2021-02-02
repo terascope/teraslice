@@ -1,5 +1,5 @@
 import { DataTypeConfig, FieldType } from '@terascope/types';
-import { pImmediate } from '@terascope/utils';
+import { EventLoop } from '@terascope/utils';
 import {
     Column,
     KeyAggregation, ValueAggregation, valueAggMap,
@@ -515,8 +515,8 @@ export class AggregationFrame<
 
         for (const bucket of buckets.values()) {
             await this._runBucket(builders, fieldAggs, bucket);
+            await EventLoop.wait();
         }
-        await pImmediate();
 
         this.columns = Object.freeze([...builders].map(([name, builder]) => {
             const column = this.getColumnOrThrow(name);
@@ -563,7 +563,7 @@ export class AggregationFrame<
             buckets.set(res.key, bucket);
         }
 
-        await pImmediate();
+        await EventLoop.wait();
         return buckets;
     }
 
