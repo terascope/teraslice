@@ -81,44 +81,51 @@ function _newVectorForType(
     }
 }
 
+type NumericValuesResult = {
+    readonly values: number[],
+    readonly type: 'number'
+}|{
+    readonly values: bigint[],
+    readonly type: 'bigint'
+};
+
 /**
  * Get all of the numeric values from a value or Vector
 */
-export function getNumericValues(value: unknown): {
-    values: number[],
-    type: 'number'
-}|{
-    values: bigint[],
-    type: 'bigint'
-} {
-    let type: 'number'|'bigint' = 'number';
-    const values: any[] = [];
-    function processValue(v: unknown): void {
-        if (v == null) return;
+export function getNumericValues(value: unknown): NumericValuesResult {
+    return _getNumericValues({
+        type: 'number',
+        values: []
+    }, value);
+}
 
-        if (isArrayLike(v)) {
-            for (const nested of v) {
-                processValue(nested);
-            }
-            return;
+/**
+ * An interval function for doing recursion recursion, made for getNumericValues
+*/
+function _getNumericValues(curr: NumericValuesResult, v: unknown): NumericValuesResult {
+    if (v == null) return curr;
+
+    if (isArrayLike(v)) {
+        let res: NumericValuesResult = curr;
+        for (const nested of v) {
+            res = _getNumericValues(res, nested);
         }
-
-        if (!isNumber(v) && !isBigInt(v)) {
-            throw new Error(`Invalid to numeric values in ${v} (${getTypeOf(v)})`);
-        }
-
-        if (type === 'number' && isBigInt(v)) {
-            type = 'bigint';
-        }
-
-        values.push(v);
+        return res;
     }
-    processValue(value);
+
+    if (!isNumber(v) && !isBigInt(v)) {
+        throw new Error(`Invalid to numeric values in ${v} (${getTypeOf(v)})`);
+    }
+
+    const changesToBigInt = curr.type === 'number' && isBigInt(v);
+
+    // add the typescript hacks so will stop complaining
+    (curr.values as number[]).push(v as number);
 
     return {
-        values,
-        type
-    };
+        type: changesToBigInt ? 'bigint' : curr.type,
+        values: curr.values
+    } as NumericValuesResult;
 }
 
 export function isNumberLike(type: FieldType): boolean {
