@@ -339,11 +339,6 @@ function createResults(list: OperationConfig[]): ValidationResults {
             output.restrictOutput[key as string] = true;
         }
 
-        if (hasMatchRequirements(config)) {
-            const key = config.target || config.source;
-            output.matchRequirements[key as string] = config.selector as string;
-        }
-
         if (isPrimarySelector(config)) {
             currentSelector = config.selector;
             if (!duplicateListing[config.selector as string]) {
@@ -369,6 +364,11 @@ function createResults(list: OperationConfig[]): ValidationResults {
                 if (config.mutate == null) config.mutate = true;
             }
             results.postProcessing[currentSelector as string].push(config as PostProcessConfig);
+        }
+
+        if (hasMatchRequirements(config)) {
+            const key = config.target || config.source;
+            output.matchRequirements[key as string] = config.selector ?? config.__pipeline as string;
         }
     });
 
