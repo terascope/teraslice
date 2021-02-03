@@ -279,11 +279,11 @@ describe('Vector', () => {
             [
                 [true, 'hi', 3],
                 [false, '2', 1],
-                [null, null, null],
-                [null, 'hello', null],
-                [null, null, null],
-                null,
-                null
+                [undefined, undefined, undefined],
+                [undefined, 'hello', undefined],
+                [undefined, undefined, undefined],
+                undefined,
+                undefined
             ],
             [
                 [true, 'hi', 'hello', 'extra-arg'],
@@ -309,7 +309,7 @@ describe('Vector', () => {
                 if (typeof val === 'bigint') {
                     return bigIntToJSON(val);
                 }
-                if (val === undefined && !output) return null;
+                if (val == null) return undefined;
                 return val;
             });
         });

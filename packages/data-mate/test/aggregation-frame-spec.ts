@@ -119,6 +119,21 @@ describe('AggregationFrame', () => {
                 }
             ]);
         });
+
+        it('should get the right result when using tuple', async () => {
+            const grouped = dataFrame.createTupleFrom(['age'], 'age_tuple').aggregate();
+            const resultFrame = await grouped.sum('age_tuple').run();
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'Billy',
+                    age: 64,
+                    age_tuple: 310,
+                    gender: 'M',
+                    scores: [4, 9, 3],
+                    date: '2020-09-15T17:39:11.195Z'
+                }
+            ]);
+        });
     });
 
     describe('->sum(scores)', () => {
@@ -131,6 +146,21 @@ describe('AggregationFrame', () => {
                     age: 64,
                     gender: 'M',
                     scores: 177,
+                    date: '2020-09-15T17:39:11.195Z'
+                }
+            ]);
+        });
+
+        it('should get the right result when using tuple', async () => {
+            const grouped = dataFrame.createTupleFrom(['scores'], 'score_tuple').aggregate();
+            const resultFrame = await grouped.sum('score_tuple').run();
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'Billy',
+                    age: 64,
+                    gender: 'M',
+                    scores: [4, 9, 3],
+                    score_tuple: 177,
                     date: '2020-09-15T17:39:11.195Z'
                 }
             ]);
@@ -414,7 +444,7 @@ describe('AggregationFrame', () => {
                 },
                 {
                     name: 'Nick',
-                    scores: [1, 1, 10, null],
+                    scores: [1, 1, 10, undefined],
                     date: '2018-01-15T10:39:11.195Z',
                 }
             ]);
@@ -469,7 +499,7 @@ describe('AggregationFrame', () => {
                 },
                 {
                     name: 'Nick',
-                    scores: [1, 1, 10, null],
+                    scores: [1, 1, 10, undefined],
                     date: '2018-01-15T10:39:11.195Z',
                 }
             ]);
@@ -525,7 +555,7 @@ describe('AggregationFrame', () => {
                 },
                 {
                     name: 1,
-                    scores: [1, 1, 10, null],
+                    scores: [1, 1, 10, undefined],
                     date: '2018-01-15T10:39:11.195Z',
                 }
             ]);
@@ -572,7 +602,7 @@ describe('AggregationFrame', () => {
                 {
                     name: 'Nick',
                     count: 1,
-                    scores: [1, 1, 10, null],
+                    scores: [1, 1, 10, undefined],
                     date: '2018-01-15T10:39:11.195Z',
                 }
             ]);
@@ -607,7 +637,7 @@ describe('AggregationFrame', () => {
                 },
                 {
                     name: 1,
-                    scores: [1, 1, 10, null],
+                    scores: [1, 1, 10, undefined],
                     date: '2018-01-15T10:39:11.195Z',
                 }
             ]);
@@ -638,7 +668,7 @@ describe('AggregationFrame', () => {
                 {
                     name: 'Nick',
                     count: 1,
-                    scores: [1, 1, 10, null],
+                    scores: [1, 1, 10, undefined],
                     date: '2018-01-15T10:39:11.195Z',
                 }
             ]);

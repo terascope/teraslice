@@ -1,15 +1,15 @@
 import { DataTypeConfig, FieldType } from '@terascope/types';
-import { pImmediate } from '@terascope/utils';
+import { EventLoop } from '@terascope/utils';
 import {
     Column,
     KeyAggregation, ValueAggregation, valueAggMap,
     FieldAgg, KeyAggFn, keyAggMap, makeUniqueKeyAgg
 } from '../column';
-import { isNumberLike } from '../vector';
+import { getCommonTupleType, isNumberLike } from '../vector';
 import { Builder } from '../builder';
 import { getBuilderForField, getMaxColumnSize } from './utils';
 import {
-    createHashCode, FieldArg, flattenStringArg, freezeArray, getFieldsFromArg
+    FieldArg, flattenStringArg, freezeArray, getFieldsFromArg
 } from '../core';
 import { columnsToDataTypeConfig, makeKeyForRow } from '../data-frame/utils';
 
@@ -21,8 +21,6 @@ import { columnsToDataTypeConfig, makeKeyForRow } from '../data-frame/utils';
  *  - The operations are added to an instruction set and in one optimized execution.
  *  - All methods in the AggregationFrame will mutate the execution
  *    instructions instead of return a new instance with the applied changes.
- *
- * @todo verify the use of unique
 */
 export class AggregationFrame<
     T extends Record<string, any>
@@ -128,10 +126,9 @@ export class AggregationFrame<
         field: keyof T,
         as?: A
     ): this|AggregationFrame<WithAlias<T, A, number>> {
-        const { name, type } = this._ensureColumn(field, as);
-        if (!isNumberLike(type)) {
-            throw new Error(`${ValueAggregation.avg} requires a numeric field type`);
-        }
+        const { name } = this._ensureColumn(field, as);
+        this._ensureNumericLike(name, ValueAggregation.avg);
+
         const aggObject = this._aggregations.get(name) ?? { };
         aggObject.value = ValueAggregation.avg;
         this._aggregations.set(name, aggObject);
@@ -154,10 +151,9 @@ export class AggregationFrame<
         field: keyof T,
         as?: A
     ): this|AggregationFrame<WithAlias<T, A, number>> {
-        const { name, type } = this._ensureColumn(field, as);
-        if (!isNumberLike(type)) {
-            throw new Error(`${ValueAggregation.sum} requires a numeric field type`);
-        }
+        const { name } = this._ensureColumn(field, as);
+        this._ensureNumericLike(name, ValueAggregation.sum);
+
         const aggObject = this._aggregations.get(name) ?? { };
         aggObject.value = ValueAggregation.sum;
         this._aggregations.set(name, aggObject);
@@ -180,10 +176,9 @@ export class AggregationFrame<
         field: keyof T,
         as?: A
     ): this|AggregationFrame<WithAlias<T, A, number>> {
-        const { name, type } = this._ensureColumn(field, as);
-        if (!isNumberLike(type)) {
-            throw new Error(`${ValueAggregation.min} requires a numeric field type`);
-        }
+        const { name } = this._ensureColumn(field, as);
+        this._ensureNumericLike(name, ValueAggregation.min);
+
         const aggObject = this._aggregations.get(name) ?? { };
         aggObject.value = ValueAggregation.min;
         this._aggregations.set(name, aggObject);
@@ -206,10 +201,9 @@ export class AggregationFrame<
         field: keyof T,
         as?: A
     ): this|AggregationFrame<WithAlias<T, A, number>> {
-        const { name, type } = this._ensureColumn(field, as);
-        if (!isNumberLike(type)) {
-            throw new Error(`${ValueAggregation.max} requires a numeric field type`);
-        }
+        const { name } = this._ensureColumn(field, as);
+        this._ensureNumericLike(name, ValueAggregation.max);
+
         const aggObject = this._aggregations.get(name) ?? { };
         aggObject.value = ValueAggregation.max;
         this._aggregations.set(name, aggObject);
@@ -461,8 +455,7 @@ export class AggregationFrame<
         name: keyof T,
         type: FieldType
     } {
-        const col = this.getColumn(field);
-        if (!col) throw new Error(`Unknown column named "${field}"`);
+        const col = this.getColumnOrThrow(field);
 
         if (as) {
             const columns: Column<any, keyof T>[] = [];
@@ -486,6 +479,22 @@ export class AggregationFrame<
         };
     }
 
+    private _ensureNumericLike(field: keyof T, ctx: string): void {
+        const column = this.getColumnOrThrow(field);
+        let fieldType: FieldType;
+        if (column.config.type === FieldType.Tuple) {
+            fieldType = getCommonTupleType(
+                field as string, column.vector.childConfig
+            );
+        } else {
+            fieldType = column.config.type as FieldType;
+        }
+
+        if (!isNumberLike(fieldType)) {
+            throw new Error(`${ctx} requires a numeric field type`);
+        }
+    }
+
     /**
      * Execute the aggregations and flatten the grouped data.
      * Assigns the new columns to this.
@@ -506,8 +515,8 @@ export class AggregationFrame<
 
         for (const bucket of buckets.values()) {
             await this._runBucket(builders, fieldAggs, bucket);
+            await EventLoop.wait();
         }
-        await pImmediate();
 
         this.columns = Object.freeze([...builders].map(([name, builder]) => {
             const column = this.getColumnOrThrow(name);
@@ -549,23 +558,23 @@ export class AggregationFrame<
                 res.row[field] = col.vector.get(i);
             }
 
-            const groupKey = createHashCode(res.key) as string;
-            const bucket = buckets.get(groupKey) || [];
+            const bucket = buckets.get(res.key) || [];
             bucket.push(res.row);
-            buckets.set(groupKey, bucket);
+            buckets.set(res.key, bucket);
         }
-        await pImmediate();
+
+        await EventLoop.wait();
         return buckets;
     }
 
     private _generateBuilders(buckets: Map<string, any[]>): Map<keyof T, Builder<any>> {
         const builders = new Map<keyof T, Builder<any>>();
         for (const col of this.columns) {
-            const agg = this._aggregations.get(col.name);
-            const builder = getBuilderForField(
-                col, buckets.size, agg?.key, agg?.value
-            );
             if (!this._selectFields?.length || this._selectFields.includes(col.name)) {
+                const agg = this._aggregations.get(col.name);
+                const builder = getBuilderForField(
+                    col, buckets.size, agg?.key, agg?.value
+                );
                 builders.set(col.name, builder);
             }
         }

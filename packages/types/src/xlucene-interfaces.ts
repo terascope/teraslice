@@ -18,6 +18,9 @@ export interface xLuceneTypeConfig {
     [field: string]: xLuceneFieldType;
 }
 
+/**
+ * xLucene variable definitions
+*/
 export interface xLuceneVariables {
     readonly [key: string]: any;
 }

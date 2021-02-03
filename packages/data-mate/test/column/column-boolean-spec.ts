@@ -36,7 +36,13 @@ describe('Column (Boolean Types)', () => {
         });
 
         it('should be able to iterate over the values', () => {
-            expect(col.toJSON()).toEqual(values);
+            expect(col.toJSON()).toEqual([
+                true,
+                false,
+                true,
+                undefined,
+                false,
+            ]);
         });
 
         it('should be able to get the Vector', () => {
@@ -46,7 +52,13 @@ describe('Column (Boolean Types)', () => {
         it('should be able to validate the values', () => {
             const newCol = col.validate(ColumnValidator.isBoolean);
             expect(newCol.id).not.toBe(col.id);
-            expect(newCol.toJSON()).toEqual(values);
+            expect(newCol.toJSON()).toEqual([
+                true,
+                false,
+                true,
+                undefined,
+                false,
+            ]);
         });
 
         it('should be able to get unique with the same length', () => {
@@ -56,9 +68,9 @@ describe('Column (Boolean Types)', () => {
             expect(newCol.toJSON()).toEqual([
                 true,
                 false,
-                null,
-                null,
-                null,
+                undefined,
+                undefined,
+                undefined,
             ]);
         });
 
@@ -72,7 +84,7 @@ describe('Column (Boolean Types)', () => {
             });
 
             expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return null;
+                if (value == null) return undefined;
                 return `${value}`;
             }));
         });
@@ -111,7 +123,16 @@ describe('Column (Boolean Types)', () => {
 
         it('should be able to iterate over the values', () => {
             expect([...col]).toEqual(values);
-            expect(col.toJSON()).toEqual(values);
+            expect(col.toJSON()).toEqual([
+                'True',
+                'yes',
+                'no',
+                undefined,
+                'NO',
+                'False',
+                'NOT_BOOLEAN',
+                'WHO'
+            ]);
         });
 
         it('should be able to get the Vector', () => {
@@ -122,7 +143,7 @@ describe('Column (Boolean Types)', () => {
             const newCol = col.validate(ColumnValidator.isBoolean);
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.toJSON()).toEqual(
-                values.map(() => null)
+                values.map(() => undefined)
             );
         });
 
@@ -133,11 +154,11 @@ describe('Column (Boolean Types)', () => {
                 'True',
                 'yes',
                 'no',
-                null,
+                undefined,
                 'NO',
                 'False',
-                null,
-                null
+                undefined,
+                undefined
             ]);
         });
 
@@ -150,7 +171,7 @@ describe('Column (Boolean Types)', () => {
                 type: FieldType.Boolean
             });
             expect(newCol.toJSON()).toEqual(values.map((value) => {
-                if (value == null) return null;
+                if (value == null) return undefined;
                 return toBoolean(value);
             }));
         });
@@ -161,7 +182,7 @@ describe('Column (Boolean Types)', () => {
         const values: Maybe<string[]>[] = [
             ['True'],
             [],
-            null,
+            undefined,
             ['NO'],
             ['False'],
             ['NOT_BOOLEAN', 'True'],
@@ -199,13 +220,13 @@ describe('Column (Boolean Types)', () => {
             const newCol = col.validate(ColumnValidator.isBoolean);
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.toJSON()).toEqual([
-                [null],
+                [undefined],
                 [],
-                null,
-                [null],
-                [null],
-                [null, null],
-                [null]
+                undefined,
+                [undefined],
+                [undefined],
+                [undefined, undefined],
+                [undefined]
             ]);
         });
 
@@ -215,11 +236,11 @@ describe('Column (Boolean Types)', () => {
             expect(newCol.toJSON()).toEqual([
                 ['True'],
                 [],
-                null,
+                undefined,
                 ['NO'],
                 ['False'],
-                [null, 'True'],
-                [null]
+                [undefined, 'True'],
+                [undefined]
             ]);
         });
 
@@ -235,7 +256,7 @@ describe('Column (Boolean Types)', () => {
             expect(newCol.toJSON()).toEqual([
                 [true],
                 [],
-                null,
+                undefined,
                 [false],
                 [false],
                 [true, true],

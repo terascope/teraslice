@@ -59,6 +59,9 @@
             "path": "packages/xlucene-parser"
         },
         {
+            "path": "packages/xpressions"
+        },
+        {
             "path": "packages/data-mate"
         },
         {

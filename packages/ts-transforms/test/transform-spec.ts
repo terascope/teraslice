@@ -943,6 +943,23 @@ describe('can transform matches', () => {
         });
     });
 
+    it('can apply other_match_required in post_process extraction rule', async () => {
+        const config: WatcherConfig = {
+            rules: [getPath('transformRules41.txt')],
+        };
+
+        const data = [
+            new DataEntity({ some: 'data', field1: 'field1=12345', field2: 'yo' }),
+            new DataEntity({ some: 'data', field1: 'field1=12345' })
+        ];
+
+        const test = await opTest.init(config);
+        const results = test.run(data);
+
+        expect(results.length).toEqual(1);
+        expect(results[0]).toEqual({ field3: '1234', field2: 'yo' });
+    });
+
     it('can catch all selector extractions for transformRules31', async () => {
         const config: WatcherConfig = {
             rules: [getPath('transformRules31.txt')],

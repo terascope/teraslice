@@ -304,9 +304,10 @@ export async function dockerRun(opt: DockerRunOptions, tag = 'latest', debug?: b
         }
     })();
 
-    const upFor = ms('5s');
+    const upFor = ms('3s');
     await pWhile(() => dockerContainerReady(opt.name, upFor), {
-        timeoutMs: ms('1m')
+        name: `Docker container up for 2m (${opt.name})`,
+        timeoutMs: ms('2m')
     });
 
     if (error) {

@@ -1,7 +1,7 @@
 import path from 'path';
 import pkgUp from 'pkg-up';
 import fse from 'fs-extra';
-import defaultsDeep from 'lodash.defaultsdeep';
+import defaultsDeep from 'lodash/defaultsDeep';
 import { isPlainObject, get, toTitleCase } from '@terascope/utils';
 import sortPackageJson from 'sort-package-json';
 import { PackageInfo, RootPackageInfo, Service } from './interfaces';

@@ -2,6 +2,7 @@ import STATUS_CODES from './status-codes';
 
 export * from './arrays';
 export * from './big-map';
+export * from './big-set';
 export * from './booleans';
 export * from './buffers';
 export * from './collector';
@@ -13,6 +14,7 @@ export * from './empty';
 export * from './env';
 export * from './equality';
 export * from './errors';
+export * from './event-loop';
 export * from './fp';
 export * from './functions';
 export * from './geo';

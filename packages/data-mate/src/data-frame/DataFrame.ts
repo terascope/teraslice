@@ -2,7 +2,12 @@ import {
     DataTypeConfig, ReadonlyDataTypeConfig,
     Maybe, SortOrder, FieldType, DataTypeFields, DataTypeFieldConfig
 } from '@terascope/types';
-import { isFunction, trimFP, TSError } from '@terascope/utils';
+import {
+    DataEntity, TSError,
+    getTypeOf, isFunction,
+    isPlainObject, trimFP,
+    matchWildcard, isWildCardString
+} from '@terascope/utils';
 import { Column, KeyAggFn, makeUniqueKeyAgg } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import {
@@ -13,10 +18,12 @@ import {
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
 import {
-    createHashCode, FieldArg, flattenStringArg, freezeArray, getFieldsFromArg, WritableData
+    createHashCode, FieldArg, flattenStringArg,
+    freezeArray, getFieldsFromArg, getHashCodeFrom,
+    WritableData
 } from '../core';
 import { getMaxColumnSize } from '../aggregation-frame/utils';
-import { Vector } from '../vector';
+import { SerializeOptions, Vector } from '../vector';
 
 /**
  * An immutable columnar table with APIs for data pipelines.
@@ -94,9 +101,11 @@ export class DataFrame<
     /**
      * Iterate over each index and row, this returns the internal stored values.
     */
-    * entries(json?: boolean): IterableIterator<[index: number, row: T]> {
+    * entries(
+        json?: boolean, options?: SerializeOptions
+    ): IterableIterator<[index: number, row: T]> {
         for (let i = 0; i < this.size; i++) {
-            const row = this.getRow(i, json);
+            const row = this.getRow(i, json, options);
             if (row) yield [i, row];
         }
     }
@@ -104,10 +113,37 @@ export class DataFrame<
     /**
      * Iterate each row
     */
-    * rows(json?: boolean): IterableIterator<T> {
+    * rows(json?: boolean, options?: SerializeOptions): IterableIterator<T> {
+        if (options?.skipDuplicateObjects) {
+            yield* this.rowsWithoutDuplicates(json, options);
+            return;
+        }
+
         for (let i = 0; i < this.size; i++) {
-            const row = this.getRow(i, json);
+            const row = this.getRow(i, json, options);
             if (row) yield row;
+        }
+    }
+
+    /**
+     * This is more expensive and little more complicated.
+     * In the future we pass in json=false to each column and
+     * the call valueToJSON after each generating the hash
+     * to be consistent with hash
+    */
+    private* rowsWithoutDuplicates(
+        json?: boolean, options?: SerializeOptions
+    ): IterableIterator<T> {
+        const hashes = new Set<string>();
+        for (let i = 0; i < this.size; i++) {
+            const row = this.getRow(i, json, options);
+            if (row) {
+                const hash = getHashCodeFrom(row);
+                if (!hashes.has(hash)) {
+                    hashes.add(hash);
+                    yield row;
+                }
+            }
         }
     }
 
@@ -123,7 +159,7 @@ export class DataFrame<
             .sort()
             .join(':');
 
-        const id = createHashCode(long) as string;
+        const id = createHashCode(long);
         this.#id = id;
         return id;
     }
@@ -155,6 +191,64 @@ export class DataFrame<
         return this.fork(fields.map(
             (field): Column<any, any> => this.getColumnOrThrow(field)
         ));
+    }
+
+    /**
+     * Select fields in a data frame, this will work with nested object
+     * fields and the selection field can also include wildcards which will match
+     * a large selection of string.
+     *
+     * Fields that don't exist in the data frame are safely ignored to make
+     * this function handle more suitable for production environments
+    */
+    deepSelect<R extends T>(
+        fieldSelectors: string[]|readonly string[]
+    ): DataFrame<R> {
+        const columns: Column<any, any>[] = [];
+
+        const existingFieldsConfig = this.config.fields;
+        const existingFields = Object.keys(existingFieldsConfig);
+
+        const matchedFields: Record<string, Set<string>> = {};
+        function matchField(field: string) {
+            return (selector: string): boolean => {
+                if (field === selector) return true;
+                if (field.startsWith(`${selector}.`)) return true;
+                if (isWildCardString(selector)) {
+                    return matchWildcard(selector, field);
+                }
+                return false;
+            };
+        }
+
+        for (const field of existingFields) {
+            const matches = fieldSelectors.some(matchField(field));
+            if (matches) {
+                const [base] = field.split('.');
+                matchedFields[base] ??= new Set();
+                if (field !== base) {
+                    matchedFields[base].add(
+                        // only store the scoped field
+                        // because it is easier to look
+                        // it up in the childConfig that way
+                        field.replace(`${base}.`, '')
+                    );
+                }
+            }
+        }
+
+        for (const [field, childFields] of Object.entries(matchedFields)) {
+            const col = this.getColumn(field);
+            if (col) {
+                if (childFields.size && col.vector.childConfig) {
+                    columns.push(col.selectSubFields([...childFields]));
+                } else {
+                    columns.push(col);
+                }
+            }
+        }
+
+        return this.fork<R>(columns);
     }
 
     /**
@@ -304,7 +398,25 @@ export class DataFrame<
      * Remove duplicate rows with the same value for select fields
     */
     unique(...fieldArg: FieldArg<keyof T>[]): DataFrame<T> {
-        const fields = getFieldsFromArg(this.fields, fieldArg);
+        return this._unique(
+            getFieldsFromArg(this.fields, fieldArg)
+        );
+    }
+
+    /**
+     * Alias for unique
+    */
+    distinct(...fieldArg: FieldArg<keyof T>[]): DataFrame<T> {
+        return this.unique(...fieldArg);
+    }
+
+    /**
+     * Like unique but will allow passing serialization options
+    */
+    private _unique(
+        fields: Iterable<keyof T>,
+        serializeOptions?: SerializeOptions
+    ): DataFrame<T> {
         const buckets = new Set<string>();
         const keyAggs = new Map<keyof T, KeyAggFn>();
 
@@ -312,7 +424,9 @@ export class DataFrame<
         for (const name of fields) {
             const column = columns.get(name)!;
             if (column) {
-                keyAggs.set(column.name, makeUniqueKeyAgg(column.vector));
+                keyAggs.set(column.name, makeUniqueKeyAgg(
+                    column.vector, serializeOptions
+                ));
             }
         }
 
@@ -321,7 +435,14 @@ export class DataFrame<
         const rowBuilder = makeUniqueRowBuilder(
             builders,
             buckets,
-            (name, i) => columns.get(name)!.vector.get(i)
+            (name, i) => {
+                if (!serializeOptions) {
+                    return columns.get(name)!.vector.get(i);
+                }
+                return columns.get(name)!.vector.get(
+                    i, true, serializeOptions
+                );
+            }
         );
 
         for (let i = 0; i < this.size; i++) {
@@ -339,10 +460,19 @@ export class DataFrame<
     }
 
     /**
-     * Alias for unique
+     * Reduce amount of noise in a DataFrame by
+     * removing the amount of duplicates, including
+     * duplicate objects in array values
     */
-    distinct(...fieldArg: FieldArg<keyof T>[]): DataFrame<T> {
-        return this.unique(...fieldArg);
+    compact(): DataFrame<T> {
+        const serializeOptions: SerializeOptions = {
+            skipDuplicateObjects: true,
+            skipEmptyObjects: true,
+            skipNilValues: true,
+            skipNilObjectValues: true,
+        };
+
+        return this._unique(this.fields, serializeOptions);
     }
 
     /**
@@ -376,10 +506,17 @@ export class DataFrame<
     )): DataFrame<T> {
         if (!arg?.length) return this;
 
+        const isColumns = arg[0] instanceof Column;
         let len: number;
-        if (arg[0] instanceof Column) {
+        if (isColumns) {
             len = getMaxColumnSize(arg as Column[]);
         } else {
+            const valid = DataEntity.isDataEntity(arg[0]) || isPlainObject(arg[0]);
+            if (!valid) {
+                throw new Error(
+                    `Unexpected input given to DataFrame.concat, got ${getTypeOf(arg[0])}`
+                );
+            }
             len = (arg as T[]).length;
         }
 
@@ -393,7 +530,7 @@ export class DataFrame<
             this.getColumnOrThrow(name).fork(builder.toVector())
         );
 
-        if (arg[0] instanceof Column) {
+        if (isColumns) {
             return this.fork(
                 concatColumnsToColumns(
                     builders,
@@ -404,6 +541,51 @@ export class DataFrame<
         }
         return this.fork(
             buildRecords<T>(builders, arg as T[]).map(finish)
+        );
+    }
+
+    /**
+     * Append one or more data frames to the end of this DataFrame.
+     *
+     * **WARNING** This doesn't type check the data since it assumes
+     * all of the config matches in the Data Frame. If you're not
+     * absolutely sure, use DataFrame->concat
+    */
+    appendAll(frames: Iterable<DataFrame<T>>): DataFrame<T> {
+        let { size } = this;
+        for (const frame of frames) {
+            size += frame.size;
+        }
+        // nothing changed
+        if (size === this.size) return this;
+
+        const builders = new Map<keyof T, Builder>(
+            columnsToBuilderEntries(this.columns, size)
+        );
+
+        let currIndex = this.size;
+        for (const frame of frames) {
+            for (const column of frame.columns) {
+                const builder = builders.get(column.name);
+                if (builder) {
+                    for (let i = 0; i < frame.size; i++) {
+                        // this just copies the underlying data
+                        const value = column.vector.data.values.get(i);
+                        if (value != null) {
+                            builder.data.set(currIndex + i, value);
+                        }
+                    }
+                }
+            }
+            currIndex += frame.size;
+        }
+
+        const finish = ([name, builder]: [keyof T, Builder<any>]) => (
+            this.getColumnOrThrow(name).fork(builder.toVector())
+        );
+
+        return this.fork(
+            [...builders].map(finish)
         );
     }
 
@@ -432,10 +614,11 @@ export class DataFrame<
                 statusCode: 400
             });
         }
+
         const columns = fields.map((field) => this.getColumnOrThrow(field));
         const childConfig: DataTypeFields = {};
         columns.forEach((col, index) => {
-            childConfig[`${as}.${index}`] = col.config;
+            childConfig[index] = col.config;
         });
 
         const config: DataTypeFieldConfig = Object.freeze({ type: FieldType.Tuple });
@@ -487,19 +670,32 @@ export class DataFrame<
     /**
      * Get a row by index, if the row has only null values, returns undefined
     */
-    getRow(index: number, json = false): T|undefined {
+    getRow(
+        index: number,
+        json = false,
+        options?: SerializeOptions,
+    ): T|undefined {
         if (index > (this.size - 1)) return;
+        const nilValue: any = options?.useNullForUndefined ? null : undefined;
 
         const row: Partial<T> = {};
+        let numKeys = 0;
         for (const col of this.columns) {
             const field = col.name as keyof T;
             const val = col.vector.get(
-                index, json
+                index, json, options
             ) as Maybe<T[keyof T]>;
 
             if (val != null) {
+                numKeys++;
                 row[field] = val;
+            } else if (nilValue === null) {
+                row[field] = nilValue;
             }
+        }
+
+        if (options?.skipEmptyObjects && !numKeys) {
+            return nilValue;
         }
 
         return row as T;
@@ -527,8 +723,8 @@ export class DataFrame<
     /**
      * Convert the DataFrame an array of objects (the output is JSON compatible)
     */
-    toJSON(): T[] {
-        return Array.from(this.rows(true));
+    toJSON(options?: SerializeOptions): T[] {
+        return Array.from(this.rows(true, options));
     }
 
     /**
@@ -536,25 +732,6 @@ export class DataFrame<
     */
     toArray(): T[] {
         return Array.from(this.rows(false));
-    }
-
-    [Symbol.for('nodejs.util.inspect.custom')](): any {
-        const proxy = {
-            id: this.id,
-            name: this.name,
-            size: this.size,
-            config: this.config,
-            metadata: this.metadata,
-            columns: this.columns,
-        };
-
-        // Trick so that node displays the name of the constructor
-        Object.defineProperty(proxy, 'constructor', {
-            value: DataFrame,
-            enumerable: false
-        });
-
-        return proxy;
     }
 }
 

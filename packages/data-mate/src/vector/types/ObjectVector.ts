@@ -1,7 +1,8 @@
 import { FieldType } from '@terascope/types';
+import { isNotNil } from '@terascope/utils';
 import { Vector, VectorOptions } from '../Vector';
-import { VectorType } from '../interfaces';
-import { getObjectDataTypeConfig, ReadableData } from '../../core';
+import { SerializeOptions, VectorType } from '../interfaces';
+import { getChildDataTypeConfig, ReadableData } from '../../core';
 
 type ChildFields<T extends Record<string, any>> = readonly (
     [field: (keyof T), vector: Vector<any>]
@@ -25,42 +26,64 @@ export class ObjectVector<
             return this.#childFields;
         }
         const childFields: ChildFields<T> = Object.entries(this.childConfig)
-            .map(([field, config]) => {
-                const childConfig = (config.type === FieldType.Object
-                    ? getObjectDataTypeConfig(this.childConfig!, field)
-                    : undefined);
+            .map(([field, config]): [string, Vector<any>]|undefined => {
+                const [base] = field.split('.');
+                if (base !== field && this.childConfig![base]) return;
 
                 const vector = Vector.make<any>(ReadableData.emptyData, {
-                    childConfig,
+                    childConfig: getChildDataTypeConfig(
+                        this.childConfig!, field, config.type as FieldType
+                    ),
                     config,
                     name: this._getChildName(field)
                 });
                 return [field, vector];
-            });
+            })
+            .filter(isNotNil) as ChildFields<T>;
 
         this.#childFields = childFields;
         return childFields;
     }
 
-    valueToJSON(value: T): any {
+    valueToJSON(value: T, options?: SerializeOptions): any {
         const val = value as Record<string, any>;
+        const nilValue: any = options?.useNullForUndefined ? null : undefined;
+
         if (!this.childFields.length) {
+            if (options?.skipEmptyObjects && !Object.keys(val).length) {
+                return nilValue;
+            }
             return { ...val };
         }
 
         const input = value as Readonly<Record<keyof T, unknown>>;
         const result: Partial<T> = {};
+        let numKeys = 0;
+        const { skipNilValues, skipEmptyObjects } = options ?? {};
 
         for (const [field, vector] of this.childFields) {
             if (input[field] != null) {
-                result[field] = (
-                    vector.valueToJSON ? vector.valueToJSON(input[field]) : input[field]
+                const fieldValue = (
+                    vector.valueToJSON ? vector.valueToJSON(
+                        input[field], options
+                    ) : input[field]
                 );
-            } else {
-                result[field] = undefined;
+                if (fieldValue == null) {
+                    if (!skipNilValues && nilValue === null) {
+                        result[field] = nilValue;
+                    }
+                } else {
+                    numKeys++;
+                    result[field] = fieldValue;
+                }
+            // set value to nilValue if it exists in the
+            // child config but not the input object
+            } else if (!skipNilValues && nilValue === null) {
+                result[field] = nilValue;
             }
         }
 
+        if (skipEmptyObjects && !numKeys) return nilValue;
         return result;
     }
 

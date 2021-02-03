@@ -1,11 +1,8 @@
 import bbox from '@turf/bbox';
 import bboxPolygon from '@turf/bbox-polygon';
-// @ts-expect-error
 import equal from '@turf/boolean-equal';
-// @ts-expect-error
 import createCircle from '@turf/circle';
 import pointInPolygon from '@turf/boolean-point-in-polygon';
-// @ts-expect-error
 import within from '@turf/boolean-within';
 import contains from '@turf/boolean-contains';
 import disjoint from '@turf/boolean-disjoint';
@@ -19,9 +16,9 @@ import {
     MultiPolygon,
     Feature,
     Properties,
-    Polygon
+    Polygon,
+    Geometry
 } from '@turf/helpers';
-// @ts-expect-error
 import lineToPolygon from '@turf/line-to-polygon';
 import { getCoords } from '@turf/invariant';
 import {
@@ -48,9 +45,11 @@ export function polyHasPoint<G extends Polygon | MultiPolygon>(polygon: Feature<
 }
 
 export function makeCircle(point: GeoPoint, distance: number, config?: {
-    units?: GeoDistanceUnit|string;
+    units?: GeoDistanceUnit;
 }): Feature<Polygon>|undefined {
-    return createCircle(makeCoordinatesFromGeoPoint(point), distance, config);
+    // There is a mismatch between elasticsearch and turf on "inch" naming
+    const units = config?.units === 'inch' ? 'inches' : config?.units;
+    return createCircle(makeCoordinatesFromGeoPoint(point), distance, { units });
 }
 
 export function makeBBox(point1: GeoPoint, point2: GeoPoint): Feature<Polygon, Properties> {
@@ -63,7 +62,7 @@ export function makeBBox(point1: GeoPoint, point2: GeoPoint): Feature<Polygon, P
     return bboxPolygon(box);
 }
 
-export function pointInGeoShape(searchPoint: unknown) {
+export function pointInGeoShape(searchPoint: Feature<any, Properties>|Geometry) {
     return (fieldData: JoinGeoShape): boolean => {
         let polygon: any;
         if (isGeoShapePoint(fieldData)) {
@@ -105,6 +104,7 @@ export function validateListCoords(coords: CoordinateTuple[]): any[] {
     }
     const line = lineString(coords);
     const polygon = lineToPolygon(line);
+    // @ts-expect-error
     return getCoords(polygon);
 }
 

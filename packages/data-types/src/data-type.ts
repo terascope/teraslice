@@ -7,7 +7,7 @@ import {
     ReadonlyDataTypeFields,
     xLuceneTypeConfig
 } from '@terascope/types';
-import defaultsDeep from 'lodash.defaultsdeep';
+import defaultsDeep from 'lodash/defaultsDeep';
 import { formatSchema, formatGQLComment } from './graphql-helper';
 import * as i from './interfaces';
 import BaseType from './types/base-type';

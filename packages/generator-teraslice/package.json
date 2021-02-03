@@ -1,7 +1,7 @@
 {
     "name": "generator-teraslice",
     "displayName": "Generator Teraslice",
-    "version": "0.14.1",
+    "version": "0.16.1",
     "description": "Generate teraslice related packages and code",
     "keywords": [
         "teraslice",
@@ -24,13 +24,15 @@
         "test:watch": "ts-scripts test --watch . --"
     },
     "dependencies": {
-        "@terascope/utils": "^0.34.1",
+        "@terascope/utils": "^0.36.1",
         "chalk": "^4.1.0",
-        "lodash.defaultsdeep": "^4.6.1",
+        "lodash": "^4.17.20",
         "yeoman-generator": "^4.12.0",
         "yosay": "^2.0.1"
     },
-    "devDependencies": {},
+    "devDependencies": {
+        "@types/lodash": "^4.14.168"
+    },
     "engines": {
         "npm": ">=8.0.0"
     },

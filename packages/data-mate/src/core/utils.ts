@@ -1,12 +1,13 @@
 import { createHash } from 'crypto';
 import {
-    getTypeOf, hasOwn, isFunction, isPrimitiveValue, TSError
+    bigIntToJSON, isArrayLike, toString,
+    getTypeOf, hasOwn, isFunction,
+    isPrimitiveValue, TSError
 } from '@terascope/utils';
 import {
-    DataTypeFields, ReadonlyDataTypeFields,
+    DataTypeFields, FieldType, ReadonlyDataTypeFields,
     TypedArray, TypedArrayConstructor
 } from '@terascope/types';
-import { isArrayLike } from 'lodash';
 import {
     FieldArg, HASH_CODE_SYMBOL,
     MAX_16BIT_INT, MAX_32BIT_INT, MAX_8BIT_INT,
@@ -85,22 +86,33 @@ export function md5(value: string|Buffer): string {
     return createHash('md5').update(value).digest('hex');
 }
 
-function _mapToString(value: any): string {
+function _mapToString(input: any): string {
     let hash = '';
-    const isArr = isArrayLike(value);
-    for (const prop in (value as any)) {
-        if (hasOwn(value, prop)) {
-            hash += `,${getHashCodeFrom(isArr ? value : (value as any)[prop])}`;
+
+    if (isArrayLike(input)) {
+        for (const value of input) {
+            hash += `,${getHashCodeFrom(value)}`;
+        }
+    } else {
+        for (const prop in input) {
+            if (hasOwn(input, prop)) {
+                hash += `,${prop}:${getHashCodeFrom(input[prop])}`;
+            }
         }
     }
+
     return hash;
 }
 
 export function createHashCode(value: unknown): string {
     if (value == null) return '~';
+    if (typeof value === 'bigint') return `|${bigIntToJSON(value)}`;
     if (isPrimitiveValue(value)) return `|${value}`;
 
-    const hash = typeof value !== 'object' ? _mapToString(value) : JSON.stringify(value);
+    const hash = typeof value === 'object'
+        ? _mapToString(value)
+        : toString(value);
+
     if (hash.length > 35) return `;${md5(hash)}`;
     return `:${hash}`;
 }
@@ -163,9 +175,20 @@ export function freezeArray<T extends ArrLike>(
     return Object.freeze(input.slice()) as any;
 }
 
-export function getObjectDataTypeConfig(
-    config: DataTypeFields|ReadonlyDataTypeFields, baseField: string
-): DataTypeFields {
+/**
+ * This is used in the Vector and Builder classes
+ * to get the correctly scoped field configurations
+ * since we use dot notation for nested field configurations
+*/
+export function getChildDataTypeConfig(
+    config: DataTypeFields|ReadonlyDataTypeFields,
+    baseField: string,
+    fieldType: FieldType
+): DataTypeFields|undefined {
+    // Tuples are configured like objects except the nested field names
+    // are the positional indexes in the tuple
+    if (fieldType !== FieldType.Object && fieldType !== FieldType.Tuple) return;
+
     const childConfig: DataTypeFields = {};
     for (const [field, fieldConfig] of Object.entries(config)) {
         const withoutBase = field.replace(`${baseField}.`, '');

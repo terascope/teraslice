@@ -2,10 +2,10 @@
  * This file exports tiny facades over the external packages.
  * The behavior of a dependency can be overridden here
 */
-import has from 'lodash.has';
-import set from 'lodash.set';
-import get from 'lodash.get';
-import unset from 'lodash.unset';
+import has from 'lodash/has';
+import set from 'lodash/set';
+import get from 'lodash/get';
+import unset from 'lodash/unset';
 import { isPlainObject as _isPlainObject } from 'is-plain-object';
 import _clone from 'shallow-clone';
 import kindOf from 'kind-of';

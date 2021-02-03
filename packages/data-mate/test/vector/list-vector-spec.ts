@@ -12,7 +12,7 @@ describe('ListVector', () => {
         [
             FieldType.Any,
             [['foo'], 'bar', [undefined], 2, [null, {}], null, undefined],
-            [['foo'], ['bar'], [null], [2], [null, {}], null, undefined]
+            [['foo'], ['bar'], [undefined], [2], [undefined, {}], undefined, undefined]
         ],
     ];
 
@@ -30,7 +30,7 @@ describe('ListVector', () => {
                 if (typeof val === 'bigint') {
                     return bigIntToJSON(val);
                 }
-                if (val === undefined) return null;
+                if (val == null) return undefined;
                 return val;
             });
         });

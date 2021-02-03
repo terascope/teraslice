@@ -104,6 +104,28 @@ describe('k8s', () => {
         });
     });
 
+    describe('->nonEmptyList', () => {
+        it('can get list with one item', async () => {
+            nock(_url)
+                .get('/apis/batch/v1/namespaces/default/jobs/')
+                .query({ labelSelector: 'app=teraslice' })
+                .reply(200, { items: ['one'] });
+
+            const jobs = await k8s.nonEmptyList('app=teraslice', 'jobs');
+            expect(jobs.items[0]).toEqual('one');
+        });
+
+        it('throws with an empty list', async () => {
+            nock(_url)
+                .get('/apis/batch/v1/namespaces/default/jobs/')
+                .query({ labelSelector: 'app=teraslice' })
+                .reply(200, { items: [] });
+
+            await expect(k8s.nonEmptyList('app=teraslice', 'jobs'))
+                .rejects.toThrowError('Teraslice jobs matching the following selector was not found: app=teraslice (retriable)');
+        });
+    });
+
     describe('->post', () => {
         it('can post a service', async () => {
             nock(_url, { encodedQueryParams: true })

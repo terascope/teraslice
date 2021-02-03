@@ -1,10 +1,10 @@
 import { LATEST_VERSION } from '@terascope/data-types';
 import {
-    DataTypeFieldConfig, Maybe, DataTypeVersion, SortOrder, DataTypeFields
+    DataTypeFieldConfig, Maybe, DataTypeVersion, SortOrder, DataTypeFields, FieldType
 } from '@terascope/types';
 import { Builder } from '../builder';
 import {
-    JSONValue, Vector
+    JSONValue, SerializeOptions, Vector
 } from '../vector';
 import {
     ColumnOptions, ColumnTransformConfig, ColumnValidateConfig, TransformMode
@@ -60,10 +60,22 @@ export class Column<T = unknown, N extends NameType = string> {
 
     readonly vector: Vector<T>;
 
+    /**
+     * Get the size of the column
+    */
+    readonly size: number;
+
+    /**
+     * Get the Data Type field configuration.
+    */
+    readonly config: Readonly<DataTypeFieldConfig>;
+
     constructor(vector: Vector<T>, options: ColumnOptions<N>|Readonly<ColumnOptions<N>>) {
         this.vector = vector;
         this.name = options.name;
         this.version = options.version ?? LATEST_VERSION;
+        this.size = this.vector.size;
+        this.config = this.vector.config;
     }
 
     /**
@@ -80,20 +92,6 @@ export class Column<T = unknown, N extends NameType = string> {
     */
     get id(): string {
         return getVectorId(this.vector);
-    }
-
-    /**
-     * Get the size of the column
-    */
-    get size(): number {
-        return this.vector.size;
-    }
-
-    /**
-     * Get the Data Type field configuration.
-    */
-    get config(): Readonly<DataTypeFieldConfig> {
-        return this.vector.config;
     }
 
     /**
@@ -265,29 +263,63 @@ export class Column<T = unknown, N extends NameType = string> {
     }
 
     /**
+     * Select the child fields with in a given vector.
+     * This involves recreating the whole column in
+     * most cases.
+    */
+    selectSubFields(fields: string[]): Column<T, N> {
+        if (!this.vector.childConfig) return this;
+
+        const childConfig: DataTypeFields = {};
+        for (const field of fields) {
+            if (this.vector.childConfig[field]) {
+                childConfig[field] = this.vector.childConfig[field];
+            }
+
+            // we need to make sure we include
+            // the object types
+            let parentField = '';
+            for (const part of field.split('.')) {
+                const dotPrefix = parentField ? '.' : '';
+                parentField += `${dotPrefix}${part}`;
+
+                if (this.vector.childConfig[parentField]?.type === FieldType.Object) {
+                    childConfig[parentField] = this.vector.childConfig[parentField];
+                }
+            }
+        }
+
+        const existingChildFields = Object.keys(this.vector.childConfig).sort();
+        const selectedChildFields = Object.keys(childConfig).sort();
+
+        if (selectedChildFields.join() === existingChildFields.join()) {
+            // all of the fields are selected so
+            // we don't have to recreate the whole
+            // column
+            return this;
+        }
+
+        const builder = Builder.make<T>(
+            new WritableData(this.size),
+            {
+                config: this.config,
+                name: this.name as string,
+                childConfig
+            }
+        );
+
+        for (const value of this.vector) {
+            builder.append(value);
+        }
+        return this.fork(builder.toVector());
+    }
+
+    /**
      * Convert the Column an array of values (the output is JSON compatible)
      *
      * @note probably only useful for debugging
     */
-    toJSON(): Maybe<JSONValue<T>>[] {
-        return this.vector.toJSON();
-    }
-
-    [Symbol.for('nodejs.util.inspect.custom')](): any {
-        const proxy = {
-            id: this.id,
-            name: this.name,
-            vector: this.vector,
-            config: this.config,
-            size: this.size,
-        };
-
-        // Trick so that node displays the name of the constructor
-        Object.defineProperty(proxy, 'constructor', {
-            value: Column,
-            enumerable: false
-        });
-
-        return proxy;
+    toJSON(options?: SerializeOptions): Maybe<JSONValue<T>>[] {
+        return this.vector.toJSON(options);
     }
 }

@@ -6,7 +6,6 @@ import {
 import { Builder, getBuildersForConfig } from '../builder';
 import { Column, KeyAggFn } from '../column';
 import { createHashCode } from '../core';
-import { ListVector, ObjectVector } from '../vector';
 
 export function buildRecords<T extends Record<string, any>>(
     builders: Map<keyof T, Builder<unknown>>,
@@ -69,11 +68,9 @@ export function columnsToDataTypeConfig<T extends Record<string, unknown>>(
         versions.add(col.version);
         fields[String(col.name)] = col.config;
         // make sure we populate the nested fields
-        if (col.vector instanceof ObjectVector || col.vector instanceof ListVector) {
-            if (col.vector.childConfig) {
-                for (const nestedField of Object.keys(col.vector.childConfig)) {
-                    fields[`${col.name}.${nestedField}`] = col.vector.childConfig[nestedField];
-                }
+        if (col.vector.childConfig) {
+            for (const nestedField of Object.keys(col.vector.childConfig)) {
+                fields[`${col.name}.${nestedField}`] = col.vector.childConfig[nestedField];
             }
         }
     }

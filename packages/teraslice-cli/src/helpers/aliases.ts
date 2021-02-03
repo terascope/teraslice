@@ -1,7 +1,6 @@
 import fs from 'fs';
-import { has } from '@terascope/utils';
-// @ts-expect-error
-import yaml from 'node-yaml';
+import { AnyObject, has } from '@terascope/utils';
+import yaml from 'js-yaml';
 import Display from '../helpers/display';
 
 const display = new Display();
@@ -13,8 +12,18 @@ const defaultConfigData = {
 };
 
 export default class Aliases {
-    config: any;
+    static writeSync(filename: string, obj: AnyObject): void {
+        fs.writeFileSync(filename, yaml.dump(obj), { encoding: 'utf-8' });
+    }
+
+    static readSync(filename: string): AnyObject {
+        const content = fs.readFileSync(filename, { encoding: 'utf-8' });
+        return yaml.load(content) as AnyObject;
+    }
+
+    config: AnyObject;
     aliasesFile: string;
+
     constructor(aliasesFile: string) {
         this.aliasesFile = aliasesFile;
         this.config = this._getConfig();
@@ -24,11 +33,11 @@ export default class Aliases {
         let config;
 
         if (!fs.existsSync(this.aliasesFile)) {
-            yaml.writeSync(this.aliasesFile, defaultConfigData);
+            Aliases.writeSync(this.aliasesFile, defaultConfigData);
         }
 
         try {
-            config = yaml.readSync(this.aliasesFile);
+            config = Aliases.readSync(this.aliasesFile);
         } catch (err) {
             throw new Error(`Failed to load ${this.aliasesFile}: ${err}`);
         }
@@ -45,7 +54,7 @@ export default class Aliases {
             this.config.clusters[newClusterAlias] = {
                 host: newClusterUrl,
             };
-            yaml.writeSync(this.aliasesFile, this.config);
+            Aliases.writeSync(this.aliasesFile, this.config);
         }
     }
 
@@ -67,7 +76,7 @@ export default class Aliases {
     remove(clusterAlias: string): void {
         if (has(this.config.clusters, clusterAlias)) {
             delete this.config.clusters[clusterAlias];
-            yaml.writeSync(this.aliasesFile, this.config);
+            Aliases.writeSync(this.aliasesFile, this.config);
         } else {
             throw new Error(`${clusterAlias} not in aliases list`);
         }
@@ -78,7 +87,7 @@ export default class Aliases {
             this.config.clusters[clusterAlias] = {
                 host: newClusterUrl,
             };
-            yaml.writeSync(this.aliasesFile, this.config);
+            Aliases.writeSync(this.aliasesFile, this.config);
         } else {
             throw new Error(`${clusterAlias} not in aliases list`);
         }

@@ -6,6 +6,8 @@ sidebar_label: Kubernetes Clustering
 Teraslice supports the use of Kubernetes as a cluster manager. The following
 versions of Kuberenetes have been used:
 
+* `1.19.*`
+* `1.18.*`
 * `1.17.*`
 * `1.16.*`
 * `1.13.2`
@@ -374,7 +376,9 @@ cd examples/k8s
 export NAMESPACE=ts-dev1
 export TERASLICE_K8S_IMAGE=teraslice-k8sdev:1
 export TERASLICE_MODE=minikube
-minikube start --memory 4096 --cpus 4
+# Set the version of Kubernetes you want to run
+export KUBERNETES_VERSION=v1.19.7
+minikube start --memory 4096 --cpus 4 --kubernetes-version=${KUBERNETES_VERSION}
 eval $(minikube docker-env)
 make build
 make setup-all

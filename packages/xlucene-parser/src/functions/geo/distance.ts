@@ -73,10 +73,7 @@ const geoDistance: i.FunctionDefinition = {
         }
 
         function matcher() {
-            // There is a mismatch between elasticsearch and turf on "inch" naming
-            const units = paramUnit === 'inch' ? 'inches' : paramUnit;
-            const config = { units };
-            const polygon = makeCircle({ lat, lon }, distance, config);
+            const polygon = makeCircle({ lat, lon }, distance, { units: paramUnit });
             // Nothing matches so return false
             if (polygon == null) return () => false;
             return polyHasPoint(polygon);

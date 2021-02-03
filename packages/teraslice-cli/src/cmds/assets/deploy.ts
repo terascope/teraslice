@@ -4,7 +4,7 @@
 import path from 'path';
 import fs from 'fs-extra';
 import { has, TSError } from '@terascope/utils';
-import AssetSrc from '../../helpers/asset-src';
+import { AssetSrc } from '../../helpers/asset-src';
 import GithubAsset from '../../helpers/github-asset';
 
 import { CMD, GithubAssetConfig } from '../../interfaces';
@@ -62,7 +62,7 @@ export = {
     async handler(argv) {
         const assetJsonPath = path.join('.', 'asset', 'asset.json');
         const assetJsonExists = fs.existsSync(assetJsonPath);
-        let assetPath; // path to completed asset zipfile
+        let assetPath: string; // path to completed asset zipfile
 
         const cliConfig = new Config(argv);
         const terasliceClient = getTerasliceClient(cliConfig);
@@ -75,6 +75,7 @@ export = {
                 assetPath = cliConfig.args.file;
             } else {
                 reply.fatal(`Specified asset file not found: ${cliConfig.args.file}`);
+                return;
             }
         } else if (cliConfig.args.asset) {
             // assetPath from a file downloaded from GitHub (argument)
@@ -103,6 +104,7 @@ export = {
                     });
                 } catch (err) {
                     reply.fatal(`Unable to get cluster information from ${cliConfig.args.clusterAlias}: ${err.stack}`);
+                    return;
                 }
             }
             const asset = new GithubAsset(clusterInfo as GithubAssetConfig);
@@ -111,6 +113,7 @@ export = {
                 assetPath = await asset.download(cliConfig.assetDir, cliConfig.args.quiet);
             } catch (err) {
                 reply.fatal(`Unable to download ${cliConfig.args.asset} asset: ${err.stack}`);
+                return;
             }
         } else if (cliConfig.args.build || assetJsonExists) {
             const asset = new AssetSrc(
@@ -120,8 +123,9 @@ export = {
 
             try {
                 reply.green('Beginning asset build.');
-                assetPath = await asset.build();
-                reply.green(`Asset created:\n\t${assetPath}`);
+                const buildResult = await asset.build();
+                assetPath = buildResult.name;
+                reply.green(`Asset created:\n\t${buildResult.name} (${buildResult.bytes})`);
             } catch (err) {
                 reply.fatal(new TSError(err, {
                     reason: 'Failure to build asset'
@@ -160,7 +164,9 @@ export = {
                 + 'an asset name or use -f /path/to/asset.zip.  Call with -h for\n'
                 + 'details.'
             );
+            return;
         }
+
         if (!cliConfig.args.skipUpload) {
             let assetZip: Buffer;
 

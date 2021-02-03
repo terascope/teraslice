@@ -3,7 +3,7 @@ import { Builder } from '../builder';
 import { Column, ValueAggregation, KeyAggregation } from '../column';
 import { WritableData } from '../core';
 import {
-    isNumberLike, isFloatLike
+    isNumberLike, isFloatLike, getCommonTupleType
 } from '../vector';
 
 export function getBuilderForField(
@@ -29,7 +29,12 @@ export function getBuilderForField(
         });
     }
 
-    const currentType = col.config.type as FieldType;
+    let currentType = col.config.type as FieldType;
+    if (currentType === FieldType.Tuple) {
+        currentType = getCommonTupleType(
+            col.name, col.vector.childConfig
+        );
+    }
     let type: FieldType|undefined;
     if (valueAgg === ValueAggregation.avg) {
         if (currentType === FieldType.Long) {

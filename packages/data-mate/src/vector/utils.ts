@@ -1,8 +1,9 @@
 import {
+    DataTypeFields,
     FieldType
 } from '@terascope/types';
 import {
-    isNumber, isBigInt, getTypeOf, isArrayLike
+    isNumber, isBigInt, getTypeOf, isArrayLike, TSError
 } from '@terascope/utils';
 import { ListVector } from './ListVector';
 import {
@@ -80,44 +81,51 @@ function _newVectorForType(
     }
 }
 
+type NumericValuesResult = {
+    readonly values: number[],
+    readonly type: 'number'
+}|{
+    readonly values: bigint[],
+    readonly type: 'bigint'
+};
+
 /**
  * Get all of the numeric values from a value or Vector
 */
-export function getNumericValues(value: unknown): {
-    values: number[],
-    type: 'number'
-}|{
-    values: bigint[],
-    type: 'bigint'
-} {
-    if (value == null) {
-        return { values: [], type: 'number' };
-    }
+export function getNumericValues(value: unknown): NumericValuesResult {
+    return _getNumericValues({
+        type: 'number',
+        values: []
+    }, value);
+}
 
-    if (isNumber(value)) {
-        return { values: [value], type: 'number' };
-    }
-    if (isBigInt(value)) {
-        return { values: [value], type: 'bigint' };
-    }
+/**
+ * An interval function for doing recursion recursion, made for getNumericValues
+*/
+function _getNumericValues(curr: NumericValuesResult, v: unknown): NumericValuesResult {
+    if (v == null) return curr;
 
-    if (isArrayLike(value)) {
-        let type: 'number'|'bigint' = 'number';
-        const values: any[] = [];
-        for (const v of value) {
-            if (v == null) continue;
-            if (type === 'number' && isBigInt(v)) {
-                type = 'bigint';
-            }
-            values.push(v);
+    if (isArrayLike(v)) {
+        let res: NumericValuesResult = curr;
+        for (const nested of v) {
+            res = _getNumericValues(res, nested);
         }
-        return {
-            values,
-            type
-        };
+        return res;
     }
 
-    throw new Error(`Unable to get numeric values from ${value} (${getTypeOf(value)})`);
+    if (!isNumber(v) && !isBigInt(v)) {
+        throw new Error(`Invalid to numeric values in ${v} (${getTypeOf(v)})`);
+    }
+
+    const changesToBigInt = curr.type === 'number' && isBigInt(v);
+
+    // add the typescript hacks so will stop complaining
+    (curr.values as number[]).push(v as number);
+
+    return {
+        type: changesToBigInt ? 'bigint' : curr.type,
+        values: curr.values
+    } as NumericValuesResult;
 }
 
 export function isNumberLike(type: FieldType): boolean {
@@ -137,4 +145,33 @@ export function isIntLike(type: FieldType): boolean {
     if (type === FieldType.Short) return true;
     if (type === FieldType.Integer) return true;
     return false;
+}
+
+export function getCommonTupleType(
+    tupleField: string, childConfig: DataTypeFields|undefined
+): FieldType {
+    let fieldType: FieldType|undefined;
+    for (const config of Object.values(childConfig ?? {})) {
+        const type = config.type as FieldType;
+
+        if (!fieldType || type === fieldType) {
+            fieldType = type;
+        } else if (isIntLike(fieldType) && isIntLike(type)) {
+            fieldType = FieldType.Integer;
+        } else if (isFloatLike(fieldType) && isFloatLike(type)) {
+            fieldType = FieldType.Float;
+        } else {
+            throw new TSError(
+                `Field "${tupleField}" has conflicting field types, ${fieldType} incompatible with ${type}`,
+                { statusCode: 400, context: { safe: true } }
+            );
+        }
+    }
+    if (!fieldType) {
+        throw new TSError(
+            `Field "${tupleField}" has no child fields`,
+            { statusCode: 400, context: { safe: true } }
+        );
+    }
+    return fieldType;
 }

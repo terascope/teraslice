@@ -1,7 +1,7 @@
 {
     "name": "xlucene-parser",
     "displayName": "xLucene Parser",
-    "version": "0.30.1",
+    "version": "0.33.1",
     "description": "Flexible Lucene-like evaluator and language parser",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-parser#readme",
     "repository": {
@@ -29,32 +29,29 @@
         "test:debug": "ts-scripts test --debug . --",
         "test:watch": "ts-scripts test --watch . --"
     },
-    "resolutions": {
-        "@turf/clean-coords": "^6.0.1"
-    },
     "dependencies": {
-        "@terascope/types": "^0.7.0",
-        "@terascope/utils": "^0.34.1",
-        "@turf/bbox": "^6.0.1",
-        "@turf/bbox-polygon": "^6.0.1",
-        "@turf/boolean-contains": "^6.0.1",
-        "@turf/boolean-disjoint": "^6.0.2",
-        "@turf/boolean-equal": "^6.0.1",
-        "@turf/boolean-overlap": "^6.0.1",
-        "@turf/boolean-point-in-polygon": "^6.0.1",
-        "@turf/boolean-within": "^6.0.1",
-        "@turf/circle": "^6.0.1",
-        "@turf/clean-coords": "^6.0.1",
-        "@turf/helpers": "^6.1.4",
-        "@turf/invariant": "^6.1.2",
-        "@turf/line-to-polygon": "^6.0.1",
-        "@turf/random": "^6.0.2",
+        "@terascope/types": "^0.7.1",
+        "@terascope/utils": "^0.36.1",
+        "@turf/bbox": "^6.2.0",
+        "@turf/bbox-polygon": "^6.3.0",
+        "@turf/boolean-contains": "^6.3.0",
+        "@turf/boolean-disjoint": "^6.3.0",
+        "@turf/boolean-equal": "^6.3.0",
+        "@turf/boolean-overlap": "~6.0.1",
+        "@turf/boolean-point-in-polygon": "^6.2.0",
+        "@turf/boolean-within": "^6.2.0",
+        "@turf/circle": "^6.3.0",
+        "@turf/clean-coords": "^6.2.0",
+        "@turf/helpers": "^6.2.0",
+        "@turf/invariant": "^6.2.0",
+        "@turf/line-to-polygon": "^6.3.0",
+        "@turf/random": "^6.3.0",
         "netmask": "^1.0.6"
     },
     "devDependencies": {
         "@types/netmask": "^1.0.30",
         "pegjs": "^0.10.0",
-        "ts-pegjs": "^0.2.7"
+        "ts-pegjs": "^0.3.0"
     },
     "engines": {
         "node": ">=10.16.0"

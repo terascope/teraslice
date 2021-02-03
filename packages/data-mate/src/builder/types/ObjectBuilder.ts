@@ -1,6 +1,8 @@
 import { FieldType } from '@terascope/types';
-import { getTypeOf, isPlainObject, toString } from '@terascope/utils';
-import { createObjectValue, getObjectDataTypeConfig, WritableData } from '../../core';
+import {
+    getTypeOf, isNotNil, isPlainObject, sortBy, toString
+} from '@terascope/utils';
+import { createObjectValue, getChildDataTypeConfig, WritableData } from '../../core';
 
 import { VectorType } from '../../vector';
 import { Builder, BuilderOptions } from '../Builder';
@@ -31,20 +33,22 @@ export class ObjectBuilder<
         }
 
         const childFields: ChildFields<T> = Object.entries(this.childConfig)
-            .map(([field, config]) => {
-                const childConfig = (config.type === FieldType.Object
-                    ? getObjectDataTypeConfig(this.childConfig!, field)
-                    : undefined);
+            .map(([field, config]): [string, Builder<any>]|undefined => {
+                const [base] = field.split('.');
+                if (base !== field && this.childConfig![base]) return;
 
                 const builder = Builder.make<any>(WritableData.emptyData, {
-                    childConfig,
+                    childConfig: getChildDataTypeConfig(
+                        this.childConfig!, field, config.type as FieldType
+                    ),
                     config,
                     name: this._getChildName(field),
                 });
                 return [field, builder];
-            });
+            })
+            .filter(isNotNil) as ChildFields<T>;
 
-        this.#childFields = childFields;
+        this.#childFields = sortBy(childFields as [string, Builder<any>][], '[0]');
         return childFields;
     }
 
@@ -54,15 +58,21 @@ export class ObjectBuilder<
         }
 
         if (!this.childFields.length) {
-            return createObjectValue({ ...value as T });
+            return createObjectValue({ ...value as T }, false);
         }
 
         const input = value as Readonly<Record<keyof T, unknown>>;
-        const result: Partial<T> = {};
+        const result: Partial<T> = Object.create(null);
 
         for (const [field, builder] of this.childFields) {
-            const fieldValue: any = input[field] != null ? builder.valueFrom(input[field]) : null;
-            Object.defineProperty(result, field, { value: fieldValue, writable: false });
+            if (input[field] != null) {
+                const fieldValue: any = builder.valueFrom(input[field]);
+                Object.defineProperty(result, field, {
+                    value: fieldValue,
+                    enumerable: true,
+                    writable: false
+                });
+            }
         }
 
         return createObjectValue(result as T, true);

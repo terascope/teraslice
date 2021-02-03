@@ -217,9 +217,9 @@ const geoPolygon: i.FunctionDefinition = {
 
         function polyToGeoShapeMatcher() {
             const polygon = makeShape(polygonShape);
+            // Nothing matches so return false
             if (polygon == null) return () => false;
-            const fn = polyHasShape(polygon, relation);
-            return fn;
+            return polyHasShape(polygon, relation);
         }
 
         return {
