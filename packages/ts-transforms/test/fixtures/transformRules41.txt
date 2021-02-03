@@ -1,0 +1,3 @@
+{"selector":"some:data", "source": "field2", "target": "field2", "output": true }
+{"selector":"some:data", "source": "field1", "start": "field1=", "end": "EOP", "target": "field1", "tag": "field1", "output":false }
+{ "follow": "field1", "post_process":"extraction", "regex": "[0-9]{4}", "target_field": "field3", "output": true, "other_match_required": "true" }
