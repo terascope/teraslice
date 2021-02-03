@@ -17,6 +17,7 @@ import { isArrayLike } from './arrays';
 import { isPlainObject, geoHash } from './deps';
 import { trim } from './strings';
 import { parseNumberList, toNumber, isNumber } from './numbers';
+import { isNil } from './empty';
 
 export const geoJSONTypes = Object.keys(GeoShapeType).map((key) => key.toLowerCase());
 
@@ -74,11 +75,11 @@ export function getLonAndLat(input: unknown, throwInvalid = true): [number, numb
         [lon, lat] = (input as GeoShapePoint).coordinates;
     } else if (isObject) {
         const obj = (input as any);
-        lat = obj.lat || obj.latitude;
-        lon = obj.lon || obj.longitude;
+        lat = obj.lat ?? obj.latitude;
+        lon = obj.lon ?? obj.longitude;
     }
 
-    if (throwInvalid && (!lat || !lon)) {
+    if (throwInvalid && (isNil(lat) || isNil(lon))) {
         if (isObject && (isGeoShapePolygon(input as any) || isGeoShapeMultiPolygon(input as any))) {
             throw new TypeError([
                 `Expected a Point geo shape, received a geo ${(input as any).type} shape,`,

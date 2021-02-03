@@ -48,6 +48,11 @@ describe('geo utils', () => {
                     coordinates: [-15, 39.23]
                 },
                 { lon: -15, lat: 39.23 }
+            ],
+            [
+                'parse an edge case geo point',
+                { lat: -90, lon: 0 },
+                { lon: 0, lat: -90 }
             ]
         ];
 
