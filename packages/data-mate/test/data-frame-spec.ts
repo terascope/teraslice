@@ -1017,6 +1017,37 @@ describe('DataFrame', () => {
             });
         });
 
+        describe('->appendAll', () => {
+            it('should throw if given an empty array', () => {
+                const resultFrame = peopleDataFrame.appendAll([]);
+
+                expect(resultFrame.id).toEqual(peopleDataFrame.id);
+                expect(resultFrame.size).toEqual(peopleDataFrame.size);
+            });
+
+            it('should be able to append itself once', () => {
+                const resultFrame = peopleDataFrame.appendAll([peopleDataFrame]);
+                const data = peopleDataFrame.toJSON();
+                expect(resultFrame.toJSON()).toEqual(
+                    data.concat(data)
+                );
+                expect(resultFrame.size).toEqual(peopleDataFrame.size * 2);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+            });
+
+            it('should be able to append itself three times', () => {
+                const resultFrame = peopleDataFrame.appendAll([
+                    peopleDataFrame, peopleDataFrame, peopleDataFrame
+                ]);
+                const data = peopleDataFrame.toJSON();
+                expect(resultFrame.toJSON()).toEqual(
+                    data.concat(data, data, data)
+                );
+                expect(resultFrame.size).toEqual(peopleDataFrame.size * 4);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+            });
+        });
+
         describe('->filterBy', () => {
             it('should be able to filter by a single column', () => {
                 const resultFrame = peopleDataFrame.filterBy({
