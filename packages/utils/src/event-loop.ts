@@ -4,9 +4,17 @@ import { pDelay } from './promises';
 
 let _eventLoop: EventLoop|undefined;
 
+/**
+ * A simple class for detecting when the event loop is blocked.
+ * The recommend use is to call `EventLoop.init(logger)` and then
+ * `await EventLoop.wait()` where you want to slow down potentially
+ * long running synchronous code
+*/
 export class EventLoop {
     /**
      * Adds a setTimeout if the event loop is blocked
+     * and will the delay will get slower the longer the event loop
+     * is block (with an upper limit)
     */
     static wait(): Promise<void>|void {
         if (!_eventLoop) {
@@ -28,6 +36,10 @@ export class EventLoop {
         return pDelay(delay);
     }
 
+    /**
+     * Creates or replaces an instead of a global
+     * EvenLoop
+    */
     static init(logger: Logger): EventLoop {
         if (_eventLoop) {
             // there is no need to create multiple
@@ -55,7 +67,7 @@ export class EventLoop {
             this.checkedInDiff = now - this.checkedIn;
             this.checkedIn = now;
             if (this.blocked) {
-                logger.debug(`* EVENT LOOP IS PROBABLY BLOCKED (${this.checkedInDiff}ms diff) *`);
+                this.logger.debug(`* EVENT LOOP IS PROBABLY BLOCKED (${this.checkedInDiff}ms diff) *`);
             }
         }, this.heartbeat);
 
