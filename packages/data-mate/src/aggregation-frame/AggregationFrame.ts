@@ -1,5 +1,5 @@
 import { DataTypeConfig, FieldType } from '@terascope/types';
-import { pImmediate } from '@terascope/utils';
+import { EventLoop } from '@terascope/utils';
 import {
     Column,
     KeyAggregation, ValueAggregation, valueAggMap,
@@ -9,7 +9,7 @@ import { getCommonTupleType, isNumberLike } from '../vector';
 import { Builder } from '../builder';
 import { getBuilderForField, getMaxColumnSize } from './utils';
 import {
-    createHashCode, FieldArg, flattenStringArg, freezeArray, getFieldsFromArg
+    FieldArg, flattenStringArg, freezeArray, getFieldsFromArg
 } from '../core';
 import { columnsToDataTypeConfig, makeKeyForRow } from '../data-frame/utils';
 
@@ -515,8 +515,8 @@ export class AggregationFrame<
 
         for (const bucket of buckets.values()) {
             await this._runBucket(builders, fieldAggs, bucket);
+            await EventLoop.wait();
         }
-        await pImmediate();
 
         this.columns = Object.freeze([...builders].map(([name, builder]) => {
             const column = this.getColumnOrThrow(name);
@@ -558,23 +558,23 @@ export class AggregationFrame<
                 res.row[field] = col.vector.get(i);
             }
 
-            const groupKey = createHashCode(res.key) as string;
-            const bucket = buckets.get(groupKey) || [];
+            const bucket = buckets.get(res.key) || [];
             bucket.push(res.row);
-            buckets.set(groupKey, bucket);
+            buckets.set(res.key, bucket);
         }
-        await pImmediate();
+
+        await EventLoop.wait();
         return buckets;
     }
 
     private _generateBuilders(buckets: Map<string, any[]>): Map<keyof T, Builder<any>> {
         const builders = new Map<keyof T, Builder<any>>();
         for (const col of this.columns) {
-            const agg = this._aggregations.get(col.name);
-            const builder = getBuilderForField(
-                col, buckets.size, agg?.key, agg?.value
-            );
             if (!this._selectFields?.length || this._selectFields.includes(col.name)) {
+                const agg = this._aggregations.get(col.name);
+                const builder = getBuilderForField(
+                    col, buckets.size, agg?.key, agg?.value
+                );
                 builders.set(col.name, builder);
             }
         }

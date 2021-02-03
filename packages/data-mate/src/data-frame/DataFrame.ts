@@ -545,6 +545,51 @@ export class DataFrame<
     }
 
     /**
+     * Append one or more data frames to the end of this DataFrame.
+     *
+     * **WARNING** This doesn't type check the data since it assumes
+     * all of the config matches in the Data Frame. If you're not
+     * absolutely sure, use DataFrame->concat
+    */
+    appendAll(frames: Iterable<DataFrame<T>>): DataFrame<T> {
+        let { size } = this;
+        for (const frame of frames) {
+            size += frame.size;
+        }
+        // nothing changed
+        if (size === this.size) return this;
+
+        const builders = new Map<keyof T, Builder>(
+            columnsToBuilderEntries(this.columns, size)
+        );
+
+        let currIndex = this.size;
+        for (const frame of frames) {
+            for (const column of frame.columns) {
+                const builder = builders.get(column.name);
+                if (builder) {
+                    for (let i = 0; i < frame.size; i++) {
+                        // this just copies the underlying data
+                        const value = column.vector.data.values.get(i);
+                        if (value != null) {
+                            builder.data.set(currIndex + i, value);
+                        }
+                    }
+                }
+            }
+            currIndex += frame.size;
+        }
+
+        const finish = ([name, builder]: [keyof T, Builder<any>]) => (
+            this.getColumnOrThrow(name).fork(builder.toVector())
+        );
+
+        return this.fork(
+            [...builders].map(finish)
+        );
+    }
+
+    /**
      * Rename an existing column
     */
     rename<K extends keyof T, R extends string>(
