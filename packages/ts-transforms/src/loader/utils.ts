@@ -367,8 +367,8 @@ function createResults(list: OperationConfig[]): ValidationResults {
         }
 
         if (hasMatchRequirements(config)) {
-            const key = config.target || config.source;
-            output.matchRequirements[key as string] = config.selector ?? config.__pipeline as string;
+            const key = config.target || config.source as string;
+            output.matchRequirements[key] = config.selector ?? config.__pipeline as string;
         }
     });
 
