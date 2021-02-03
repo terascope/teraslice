@@ -26,6 +26,7 @@ import {
 } from '../core';
 import { getMaxColumnSize } from '../aggregation-frame/utils';
 import { SerializeOptions, Vector } from '../vector';
+import { buildSearchMatcherForQuery } from './search-utils';
 
 /**
  * An immutable columnar table with APIs for data pipelines.
@@ -329,8 +330,9 @@ export class DataFrame<
     /**
      * Search the DataFrame using an xLucene query
     */
-    search(_query: string, _variables?: xLuceneVariables): DataFrame<T> {
-        return this;
+    search(query: string, variables?: xLuceneVariables): DataFrame<T> {
+        const matcher = buildSearchMatcherForQuery(this, query, variables);
+        return this.filterBy(matcher);
     }
 
     /**

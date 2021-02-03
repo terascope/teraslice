@@ -10,10 +10,9 @@ import { ipTerm, ipRange } from './ip';
 
 export default function buildLogicFn(
     parser: p.Parser,
-    typeConfig: xLuceneTypeConfig = {},
     variables: xLuceneVariables = {}
 ): BooleanCB {
-    return walkAst(parser.ast, typeConfig, variables);
+    return walkAst(parser.ast, parser.typeConfig, variables);
 }
 
 function makeGetFn(field?: string) {

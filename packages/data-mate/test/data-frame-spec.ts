@@ -1233,10 +1233,50 @@ describe('DataFrame', () => {
                         name: 'Jill',
                         age: 39,
                         friends: ['Frank'],
-                        merged: ['Jill', 39, ['Frank']]
                     }
                 ]);
                 expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+            });
+
+            it('should find a value in the friends list', () => {
+                const resultFrame = peopleDataFrame.search('friends:Frank');
+
+                expect(resultFrame.toJSON()).toEqual([
+                    {
+                        name: 'Jill',
+                        age: 39,
+                        friends: ['Frank'],
+                    }
+                ]);
+            });
+
+            it('should return nothing if the value cannot be found', () => {
+                const resultFrame = peopleDataFrame.search('friends:Missing');
+
+                expect(resultFrame.size).toBe(0);
+            });
+
+            it('should be able to match the age using a range', () => {
+                const resultFrame = peopleDataFrame
+                    .search('age:>30')
+                    .select('name', 'age');
+
+                expect(resultFrame.toJSON()).toEqual([
+                    { name: 'Jill', age: 39 },
+                    { name: 'Billy', age: 47 },
+                ]);
+            });
+
+            it('should be able to match using a complicated conjunction', () => {
+                const resultFrame = peopleDataFrame
+                    .search('age:>30 OR (name:Nancy AND age:<30)')
+                    .select('name', 'age');
+
+                expect(resultFrame.toJSON()).toEqual([
+                    { name: 'Jill', age: 39 },
+                    { name: 'Billy', age: 47 },
+                    { name: 'Nancy', age: 10 }
+                ]);
             });
         });
     });
