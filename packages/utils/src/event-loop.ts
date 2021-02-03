@@ -71,8 +71,11 @@ export class EventLoop {
             }
         }, this.heartbeat);
 
-        // don't keep the process open
-        this.interval.unref();
+        // this is only available in the node environment
+        if (typeof this.interval.unref === 'function') {
+            // don't keep the process open
+            this.interval.unref();
+        }
     }
 
     get blocked(): boolean {
