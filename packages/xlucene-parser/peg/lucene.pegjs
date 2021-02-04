@@ -23,7 +23,7 @@ start
     / ws* group:ParensGroup ws* EOF { return group; }
     / ws* EOF {
         return {
-            type: i.ASTType.Empty,
+            type: i.NodeType.Empty,
         }
     }
 
@@ -34,7 +34,7 @@ LogicalGroup
     // then you can stop early.
    = !ConjunctionOperator conjunctions:Conjunction+ {
         return {
-            type: i.ASTType.LogicalGroup,
+            type: i.NodeType.LogicalGroup,
             flow: [].concat(...conjunctions)
         };
     }
@@ -51,7 +51,7 @@ Conjunction
     // group all AND nodes together
     = nodes:AndConjunctionStart+ {
         return [{
-            type: i.ASTType.Conjunction,
+            type: i.NodeType.Conjunction,
             nodes: [].concat(...nodes),
         }]
     }
@@ -70,7 +70,7 @@ Conjunction
         return nodes.reduce((prev: any, current: any) => {
             current.forEach((node: any) => {
                 prev.push({
-                    type: i.ASTType.Conjunction,
+                    type: i.NodeType.Conjunction,
                     nodes: Array.isArray(node) ? node : [node]
                 })
             });
@@ -123,13 +123,13 @@ TermGroup
 NegationExpression
     = 'NOT' ws+ node:NegatedTermGroup {
         return {
-            type: i.ASTType.Negation,
+            type: i.NodeType.Negation,
             node
         }
     }
     / '!' ws* node:NegatedTermGroup {
         return {
-            type: i.ASTType.Negation,
+            type: i.NodeType.Negation,
             node
         }
     }
@@ -144,7 +144,7 @@ FieldGroup
     = field:FieldName ws* FieldSeparator ws* group:ParensGroup {
         const node = {
             ...group,
-            type: i.ASTType.FieldGroup,
+            type: i.NodeType.FieldGroup,
             field,
             field_type: getFieldType(field)
         };
@@ -155,7 +155,7 @@ FieldGroup
 BaseTermExpression
     = ExistsKeyword ws* FieldSeparator ws* field:FieldName {
         return {
-            type: i.ASTType.Exists,
+            type: i.NodeType.Exists,
             field,
         }
     }
@@ -200,7 +200,7 @@ BaseTermExpression
 VariableExpression
     = field:FieldName ws* FieldSeparator ws* variableTerm:VariableType {
         const node = {
-            type: i.ASTType.Term,
+            type: i.NodeType.Term,
             field,
             field_type: getFieldType(field),
             value: variableTerm.value,
@@ -241,7 +241,7 @@ FunctionExpression
         const { name, params } = term;
 
         return {
-            type: i.ASTType.Function,
+            type: i.NodeType.Function,
             name,
             params,
             field,
@@ -275,7 +275,7 @@ TermListExpression
     = field:FieldName ws* FieldSeparator ws* ListStart ws* list:TermListItem* ws* ListEnd {
         const values = list && list.length > 0 ? list : [];
         return {
-            type: i.ASTType.TermList,
+            type: i.NodeType.TermList,
             field,
             value: values
         }
@@ -319,14 +319,14 @@ UnquotedTermType
 RangeExpression
     = left:LeftRangeExpression ws+ RangeJoinOperator ws+ right:RightRangeExpression {
         return {
-            type: i.ASTType.Range,
+            type: i.NodeType.Range,
             left,
             right,
         }
     }
     / operator:RangeOperator value:TermType {
         return {
-            type: i.ASTType.Range,
+            type: i.NodeType.Range,
             left: {
                 operator,
                 ...value,
@@ -408,7 +408,7 @@ TermType
 NegativeInfinityType
     = '*' {
         return {
-            type: i.ASTType.Term,
+            type: i.NodeType.Term,
             field_type: xLuceneFieldType.Integer,
             value: {
                 type: 'value',
@@ -420,7 +420,7 @@ NegativeInfinityType
 PostiveInfinityType
     = '*' {
         return {
-            type: i.ASTType.Term,
+            type: i.NodeType.Term,
             field_type: xLuceneFieldType.Integer,
             value: {
                 type: 'value',
@@ -433,7 +433,7 @@ VariableType
     = VariableSign chars:VariableChar+ {
         const value = chars.join('');
         const node = {
-            type: i.ASTType.Term,
+            type: i.NodeType.Term,
             value: {
                 type: 'variable',
                 scoped: false,
@@ -451,7 +451,7 @@ VariableType
 
         const value = `@${chars.join('')}`;
         const node = {
-            type: i.ASTType.Term,
+            type: i.NodeType.Term,
             value: {
                 type: 'variable',
                 scoped: true,
@@ -465,7 +465,7 @@ VariableType
 FloatType
     = value:Float {
         return {
-            type: i.ASTType.Term,
+            type: i.NodeType.Term,
             field_type: xLuceneFieldType.Float,
             value: {
                 type: 'value',
@@ -477,7 +477,7 @@ FloatType
 IntegerType
     = value:Integer {
         return {
-            type: i.ASTType.Term,
+            type: i.NodeType.Term,
             field_type: xLuceneFieldType.Integer,
             value: {
                 type: 'value',
@@ -489,7 +489,7 @@ IntegerType
 BooleanType
   = value:Boolean &(EOF / ws+ / ParensEnd / ']') {
       return {
-        type: i.ASTType.Term,
+        type: i.NodeType.Term,
         field_type: xLuceneFieldType.Boolean,
         value: {
             type: 'value',
@@ -501,7 +501,7 @@ BooleanType
 RegexpType
     = value:Regex {
         return {
-            type: i.ASTType.Regexp,
+            type: i.NodeType.Regexp,
             field_type: xLuceneFieldType.String,
             value: {
                 type: 'value',
@@ -513,7 +513,7 @@ RegexpType
 WildcardType
   = value:Wildcard {
        return {
-           type: i.ASTType.Wildcard,
+           type: i.NodeType.Wildcard,
            field_type: xLuceneFieldType.String,
            value: {
                 type: 'value',
@@ -525,7 +525,7 @@ WildcardType
 QuotedStringType
     = value:QuotedTerm {
         return {
-            type: i.ASTType.Term,
+            type: i.NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: true,
             value: {
@@ -538,7 +538,7 @@ QuotedStringType
 UnquotedStringType
     = value:UnquotedTerm {
         return {
-            type: i.ASTType.Term,
+            type: i.NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: false,
             value: {
@@ -551,7 +551,7 @@ UnquotedStringType
 RestrictedStringType
     = value:RestrictedString {
        return {
-           type: i.ASTType.Term,
+           type: i.NodeType.Term,
            field_type: xLuceneFieldType.String,
            restricted: true,
            quoted: false,

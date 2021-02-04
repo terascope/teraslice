@@ -1,6 +1,8 @@
 import {
     DataTypeConfig, ReadonlyDataTypeConfig,
-    Maybe, SortOrder, FieldType, DataTypeFields, DataTypeFieldConfig
+    Maybe, SortOrder, FieldType,
+    DataTypeFields, DataTypeFieldConfig,
+    xLuceneVariables
 } from '@terascope/types';
 import {
     DataEntity, TSError,
@@ -24,6 +26,7 @@ import {
 } from '../core';
 import { getMaxColumnSize } from '../aggregation-frame/utils';
 import { SerializeOptions, Vector } from '../vector';
+import { buildSearchMatcherForQuery } from './search-utils';
 
 /**
  * An immutable columnar table with APIs for data pipelines.
@@ -322,6 +325,14 @@ export class DataFrame<
     sort(...fieldArgs: FieldArg<keyof T>[]): DataFrame<T>;
     sort(...fieldArgs: (FieldArg<keyof T>[]|FieldArg<string>[])): DataFrame<T> {
         return this.orderBy(...fieldArgs);
+    }
+
+    /**
+     * Search the DataFrame using an xLucene query
+    */
+    search(query: string, variables?: xLuceneVariables): DataFrame<T> {
+        const matcher = buildSearchMatcherForQuery(this, query, variables);
+        return this.filterBy(matcher);
     }
 
     /**

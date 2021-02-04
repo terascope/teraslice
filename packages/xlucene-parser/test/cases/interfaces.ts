@@ -1,6 +1,6 @@
 import { xLuceneVariables, xLuceneTypeConfig } from '@terascope/types';
 
-import { AST } from '../../src';
+import { Node } from '../../src';
 
 export type TestCase = [
     // when give query %s
@@ -8,7 +8,7 @@ export type TestCase = [
     // it should be able to parse %s
     string,
     // toMatchObject(%j)
-    AST,
+    Partial<Node>,
     // Type config to pass in
     xLuceneTypeConfig?,
     xLuceneVariables?

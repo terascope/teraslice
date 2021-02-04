@@ -1,7 +1,7 @@
 /* eslint-disable quotes */
 import { xLuceneFieldType } from '@terascope/types';
 import { escapeString } from '@terascope/utils';
-import { ASTType } from '../../src';
+import { NodeType, Term } from '../../src';
 import { TestCase } from './interfaces';
 
 export default [
@@ -9,23 +9,23 @@ export default [
         'bar',
         'an unquoted string',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: null,
             value: { type: 'value', value: 'bar', },
-        },
+        } as Term,
     ],
     [
         'foo bar',
         'an unquoted/un-grouped string',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [{
-                        type: ASTType.Term,
+                        type: NodeType.Term,
                         field_type: xLuceneFieldType.String,
                         quoted: false,
                         field: null,
@@ -33,9 +33,9 @@ export default [
                     }]
                 },
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [{
-                        type: ASTType.Term,
+                        type: NodeType.Term,
                         field_type: xLuceneFieldType.String,
                         quoted: false,
                         field: null,
@@ -49,7 +49,7 @@ export default [
         '"foo"',
         'a quoted string',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: null,
             quoted: true,
@@ -60,7 +60,7 @@ export default [
         "'foo'",
         'a quoted string',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: null,
             quoted: true,
@@ -71,7 +71,7 @@ export default [
         '\\"foo\\"',
         'an escaped quoted string',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: null,
             quoted: false,
@@ -82,7 +82,7 @@ export default [
         'foo:\\"bar\\"',
         'field with escaped quoted string',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: false,
@@ -93,7 +93,7 @@ export default [
         'foo:\\"bar',
         'field with one escaped quoted string',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: false,
@@ -107,7 +107,7 @@ export default [
         'foo:"\\""',
         'field with using a quoted escaped quote',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: true,
@@ -121,7 +121,7 @@ export default [
         'foo:bar',
         'field with string value',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: false,
@@ -135,7 +135,7 @@ export default [
         'phone.tokens:3848',
         'an analyzed field',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'phone.tokens',
             quoted: false,
@@ -150,7 +150,7 @@ export default [
         'foo:   bar',
         'field with space between string value',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: false,
@@ -161,7 +161,7 @@ export default [
         'foo:"bar"',
         'field with quoted string value',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: true,
@@ -175,7 +175,7 @@ export default [
         "foo:'bar'",
         'field with single quoted string value',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: true,
@@ -189,7 +189,7 @@ export default [
         'count:123',
         'field with no type and unquoted integer value',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.Integer,
             field: 'count',
             value: { type: 'value', value: 123, },
@@ -199,7 +199,7 @@ export default [
         'count:"123"',
         'field with no type and quoted integer value',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'count',
             quoted: true,
@@ -210,7 +210,7 @@ export default [
         'count:"123"',
         'field with integer type and quoted integer value',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.Integer,
             field: 'count',
             value: { type: 'value', value: 123, },
@@ -223,7 +223,7 @@ export default [
         'count:"22.5"',
         'field with integer type and quoted float value',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.Integer,
             field: 'count',
             value: { type: 'value', value: 22, },
@@ -236,7 +236,7 @@ export default [
         'count:22.5',
         'field with integer type and unquoted float value',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.Integer,
             field: 'count',
             value: { type: 'value', value: 22, },
@@ -249,7 +249,7 @@ export default [
         'count_str:123',
         'field with unquoted string type that is numeric',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'count_str',
             quoted: false,
@@ -263,7 +263,7 @@ export default [
         'large_numeric_str:4555029426647693529',
         'field with unquoted string type that is large numeric value',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'large_numeric_str',
             quoted: false,
@@ -277,7 +277,7 @@ export default [
         'cash:50.50',
         'field with float value',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.Float,
             field: 'cash',
             value: { type: 'value', value: 50.5, },
@@ -290,7 +290,7 @@ export default [
         'cash:"50.50"',
         'field no type and quoted float value',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'cash',
             quoted: true,
@@ -301,7 +301,7 @@ export default [
         'cash:"50.50"',
         'field with float type and quoted float value',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.Float,
             field: 'cash',
             value: { type: 'value', value: 50.50, },
@@ -314,7 +314,7 @@ export default [
         'bool:false',
         'field with bool false',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.Boolean,
             field: 'bool',
             value: { type: 'value', value: false, },
@@ -324,7 +324,7 @@ export default [
         'bool:true',
         'field type of string with bool',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'bool',
             value: { type: 'value', value: 'true', },
@@ -337,7 +337,7 @@ export default [
         'bool:"false"',
         'field type of boolean with string "false"',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.Boolean,
             field: 'bool',
             value: { type: 'value', value: false, },
@@ -350,7 +350,7 @@ export default [
         'bool:"true"',
         'field with no type with a quoted boolean',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'bool',
             value: { type: 'value', value: 'true', },
@@ -360,7 +360,7 @@ export default [
         'fo?:bar',
         'field name with wildcard',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'fo?',
             value: { type: 'value', value: 'bar', },
@@ -370,7 +370,7 @@ export default [
         'foo:"ba?"',
         'field with q quoted wildcard',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: true,
@@ -382,7 +382,7 @@ export default [
         '(155 223)',
         'a parens unquoted string',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: null,
             quoted: false,
@@ -393,7 +393,7 @@ export default [
         '(foo:bar)',
         'a field value with parens',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             field: 'foo',
             quoted: false,
@@ -404,7 +404,7 @@ export default [
         'id:some"thing"else',
         'an inner double quoted string string',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: 'id',
@@ -415,7 +415,7 @@ export default [
         'field:"valueSomething(abcd70576983)"',
         'a double quoted value with unescaped parens',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'field',
@@ -426,7 +426,7 @@ export default [
         '"hi(hello)howdy"',
         'a field-less double quoted value with unescaped parens',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: null,
@@ -437,7 +437,7 @@ export default [
         "field:' hello(123) there'",
         'a single quoted value with unescaped parens',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'field',
@@ -448,7 +448,7 @@ export default [
         "' :(hello)'",
         'a field-less single quoted value with unescaped parens',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: null,
@@ -459,7 +459,7 @@ export default [
         "example: '+ -  ( ) { } [ ] ^ \\' \" ? & | / ~ * OR NOT'",
         'a single quoted value with all of the reserved characters',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'example',
@@ -470,7 +470,7 @@ export default [
         'example: "+ -  ( ) { } [ ] ^ \' \\" ? & | / ~ * OR NOT" ',
         'a double quoted value with all of the reserved characters',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'example',
@@ -481,7 +481,7 @@ export default [
         "id:some'other'thing",
         'an inner single quoted string string',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: 'id',
@@ -492,7 +492,7 @@ export default [
         `id:${escapeString('some\\"thing\\"else')}`,
         'an unquoted string with qoutes inside',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: 'id',
@@ -503,7 +503,7 @@ export default [
         'id:"some thing else"',
         'a quoted multiword string with spaces',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'id',
@@ -514,7 +514,7 @@ export default [
         `id:"${escapeString('some \\"thing\\" else')}"`,
         'a double quoted value with escaped double qoutes',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'id',
@@ -525,7 +525,7 @@ export default [
         `id:'${escapeString('some\\ \\"thing\\" else')}'`,
         'a single quoted value with escaped double qoutes and spaces',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'id',
@@ -536,7 +536,7 @@ export default [
         "foo:'\"bar\"'",
         'double quoted escaped value at start and end',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'foo',
@@ -547,7 +547,7 @@ export default [
         `foo:'${escapeString(`"ba\\'r"`)}'`,
         'value with single quotes at the start, middle and end',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'foo',
@@ -558,7 +558,7 @@ export default [
         'foo:"\\"bar\\""',
         'double quoted escaped value at start and end',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'foo',
@@ -569,7 +569,7 @@ export default [
         `field:'${escapeString('/value\\\\')}'`,
         'single quoted value with ending double escape',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'field',
@@ -580,7 +580,7 @@ export default [
         `field:"${escapeString('/value\\\\')}"`,
         'double quoted value with ending double escape',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: true,
             field: 'field',
@@ -593,7 +593,7 @@ export default [
         {
             value: { type: 'variable', value: 'bar_val', },
             field: 'field',
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
         },
         {
@@ -606,7 +606,7 @@ export default [
         {
             value: { type: 'value', value: false, },
             field: 'field',
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.Boolean,
         },
         {
@@ -622,7 +622,7 @@ export default [
         {
             value: { type: 'variable', value: 'bar2', },
             field: 'field',
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.Integer,
         },
         {
@@ -635,7 +635,7 @@ export default [
         {
             value: { type: 'variable', value: '@bar2', scoped: true },
             field: 'field',
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.Integer,
         },
         {
@@ -648,7 +648,7 @@ export default [
         {
             value: { type: 'variable', value: '@example.foo', scoped: true },
             field: 'field',
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
         },
         {
@@ -661,7 +661,7 @@ export default [
         {
             value: { type: 'value', value: 'EXAMPLE' },
             field: 'field',
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
         },
         {
@@ -677,7 +677,7 @@ export default [
         {
             value: { type: 'value', value: '@example.foo' },
             field: 'field',
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
         },
         {
@@ -690,7 +690,7 @@ export default [
         {
             value: { type: 'value', value: '\\@example.foo' },
             field: 'field',
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
         },
         {
@@ -701,7 +701,7 @@ export default [
         'field:something.com',
         'can parse string values with dots',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: false,
             restricted: true,
@@ -713,7 +713,7 @@ export default [
         'field:foo@something.com',
         'can parse an email',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: false,
             restricted: true,
@@ -725,7 +725,7 @@ export default [
         'field:false.com',
         'can parse string values that have true/false in them',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: 'field',
@@ -736,7 +736,7 @@ export default [
         'field.right:false.com',
         'can parse string values that have true/false in them with fields that have dots',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: 'field.right',
@@ -747,7 +747,7 @@ export default [
         'field.right:3.com',
         'can parse string values that have integers in them',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: 'field.right',
@@ -758,7 +758,7 @@ export default [
         'field.right:3.3.com',
         'can parse string values that have floats in them',
         {
-            type: ASTType.Term,
+            type: NodeType.Term,
             field_type: xLuceneFieldType.String,
             quoted: false,
             field: 'field.right',

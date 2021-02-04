@@ -10,10 +10,9 @@ import { ipTerm, ipRange } from './ip';
 
 export default function buildLogicFn(
     parser: p.Parser,
-    typeConfig: xLuceneTypeConfig = {},
     variables: xLuceneVariables = {}
 ): BooleanCB {
-    return walkAst(parser.ast, typeConfig, variables);
+    return walkAst(parser.ast, parser.typeConfig, variables);
 }
 
 function makeGetFn(field?: string) {
@@ -96,11 +95,11 @@ function isFalse() {
 }
 
 function walkAst(
-    node: p.AnyAST,
+    node: p.Node,
     typeConfig: xLuceneTypeConfig,
     variables: xLuceneVariables,
 ): BooleanCB {
-    if (p.isEmptyAST(node)) {
+    if (p.isEmptyNode(node)) {
         return isFalse;
     }
 
@@ -206,7 +205,7 @@ function makeConjunctionFn(
 }
 
 function makeGroupFn(
-    node: p.GroupLikeAST,
+    node: p.GroupLikeNode,
     typeConfig: xLuceneTypeConfig,
     variables: xLuceneVariables,
 ) {

@@ -1,10 +1,10 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { ASTType } from '../../src';
+import { NodeType, Range } from '../../src';
 import { TestCase } from './interfaces';
 
 export default [
     ['count: >=10', 'gte ranges', {
-        type: ASTType.Range,
+        type: NodeType.Range,
         field: 'count',
         left: {
             operator: 'gte',
@@ -16,7 +16,7 @@ export default [
         }
     }],
     ['count: >=$foo', 'gte ranges with variables', {
-        type: ASTType.Range,
+        type: NodeType.Range,
         field: 'count',
         left: {
             operator: 'gte',
@@ -25,7 +25,7 @@ export default [
         }
     }, { count: xLuceneFieldType.Integer }, { foo: 10 }],
     ['count:>10', 'gt ranges', {
-        type: ASTType.Range,
+        type: NodeType.Range,
         field: 'count',
         left: {
             operator: 'gt',
@@ -34,7 +34,7 @@ export default [
         }
     }],
     ['count:<=20.10', 'lte ranges', {
-        type: ASTType.Range,
+        type: NodeType.Range,
         field: 'count',
         left: {
             operator: 'lte',
@@ -43,7 +43,7 @@ export default [
         }
     }],
     ['count:<20', 'lt ranges', {
-        type: ASTType.Range,
+        type: NodeType.Range,
         field: 'count',
         left: {
             operator: 'lt',
@@ -52,7 +52,7 @@ export default [
         }
     }],
     ['count:[1 TO 5]', 'inclusive ranges with integers', {
-        type: ASTType.Range,
+        type: NodeType.Range,
         field: 'count',
         left: {
             operator: 'gte',
@@ -66,7 +66,7 @@ export default [
         }
     }],
     ['count:[$foo TO $bar]', 'inclusive ranges with integers with variables', {
-        type: ASTType.Range,
+        type: NodeType.Range,
         field: 'count',
         left: {
             operator: 'gte',
@@ -80,7 +80,7 @@ export default [
         }
     }, { count: xLuceneFieldType.Integer }, { foo: 1, bar: 5 }],
     ['count:[1.5 TO 5.3]', 'inclusive ranges with floats', {
-        type: ASTType.Range,
+        type: NodeType.Range,
         field: 'count',
         left: {
             operator: 'gte',
@@ -97,7 +97,7 @@ export default [
         'count:[1.5 TO 5.3]',
         'inclusive ranges with floats but with a type of integer',
         {
-            type: ASTType.Range,
+            type: NodeType.Range,
             field: 'count',
             left: {
                 operator: 'gte',
@@ -118,7 +118,7 @@ export default [
         'count:[1.5 TO 5.3]',
         'inclusive ranges with floats but with a type of string',
         {
-            type: ASTType.Range,
+            type: NodeType.Range,
             field: 'count',
             left: {
                 operator: 'gte',
@@ -136,7 +136,7 @@ export default [
         }
     ],
     ['count:{2 TO 6]', 'exclusive and inclusive ranges with integers', {
-        type: ASTType.Range,
+        type: NodeType.Range,
         field: 'count',
         left: {
             operator: 'gt',
@@ -150,7 +150,7 @@ export default [
         }
     }],
     ['count:{1.5 TO 5.3}', 'exclusive ranges with floats', {
-        type: ASTType.Range,
+        type: NodeType.Range,
         field: 'count',
         left: {
             operator: 'gt',
@@ -164,7 +164,7 @@ export default [
         }
     }],
     ['val:[alpha TO omega]', 'inclusive range of strings', {
-        type: ASTType.Range,
+        type: NodeType.Range,
         field: 'val',
         left: {
             operator: 'gte',
@@ -180,7 +180,7 @@ export default [
         }
     }],
     ['val:{"alpha" TO "omega"}', 'exclusive range of quoted', {
-        type: ASTType.Range,
+        type: NodeType.Range,
         field: 'val',
         left: {
             operator: 'gt',
@@ -196,7 +196,7 @@ export default [
         }
     }],
     ['val:[2012-01-01 TO 2012-12-31]', 'inclusive date range', {
-        type: ASTType.Range,
+        type: NodeType.Range,
         field: 'val',
         left: {
             operator: 'gte',
@@ -212,7 +212,7 @@ export default [
         }
     }],
     ['val:[2012-01-01 TO *]', 'right unbounded date range', {
-        type: ASTType.Range,
+        type: NodeType.Range,
         field: 'val',
         left: {
             operator: 'gte',
@@ -227,7 +227,7 @@ export default [
         }
     }],
     ['val:[* TO 10}', 'left unbounded range', {
-        type: ASTType.Range,
+        type: NodeType.Range,
         field: 'val',
         left: {
             operator: 'gte',
@@ -243,7 +243,7 @@ export default [
     [
         'date:[2020-02-10T10:06:06.0 TO 2020-02-10T10:06:07.199999999999999]',
         'left unbounded range', {
-            type: ASTType.Range,
+            type: NodeType.Range,
             field: 'date',
             left: {
                 field_type: xLuceneFieldType.Date,
@@ -261,7 +261,7 @@ export default [
     [
         'ip_range:"1.2.3.0/24"',
         'ip range', {
-            type: ASTType.Range,
+            type: NodeType.Range,
             field: 'ip_range',
             left: {
                 field_type: xLuceneFieldType.IP,
@@ -273,7 +273,7 @@ export default [
                 field_type: xLuceneFieldType.IP,
                 value: { type: 'value', value: '1.2.3.255' }
             }
-        },
+        } as Range,
         { ip_range: xLuceneFieldType.IPRange },
     ],
 ] as TestCase[];

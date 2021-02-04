@@ -1,8 +1,8 @@
-import { ASTType } from '../../src';
+import { NodeType } from '../../src';
 import { TestCase } from './interfaces';
 
 export default [
     ['', 'an empty query', {
-        type: ASTType.Empty,
+        type: NodeType.Empty,
     }],
 ] as TestCase[];

@@ -34,7 +34,7 @@ export function makeContext(arg: i.ContextArg) {
     /**
     * Propagate the default field on a field group expression
     */
-    function propagateDefaultField(node: i.AnyAST, field: string): void {
+    function propagateDefaultField(node: i.Node, field: string): void {
         if (!node) return;
 
         if (utils.isRange(node)) {
@@ -88,10 +88,10 @@ export function makeContext(arg: i.ContextArg) {
     }
 
     // parse an inferred field type
-    function parseInferredTermType(field: string, value: any): i.TermLikeAST {
+    function parseInferredTermType(field: string, value: any): i.TermLikeNode {
         const fieldType = getFieldType(field);
         const term: any = {
-            type: i.ASTType.Term,
+            type: i.NodeType.Term,
             field_type: fieldType,
         };
 
@@ -151,7 +151,7 @@ export function makeContext(arg: i.ContextArg) {
             `coercing field "${field}":${value} type of ${node.field_type} to ${fieldType}`
         );
 
-        if (node.type === i.ASTType.Term && fieldType === xLuceneFieldType.IPRange) {
+        if (node.type === i.NodeType.Term && fieldType === xLuceneFieldType.IPRange) {
             Object.assign(node, utils.createIPRangeFromTerm(node, value));
             return;
         }

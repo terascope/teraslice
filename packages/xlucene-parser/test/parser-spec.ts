@@ -3,7 +3,7 @@ import { TSError, times, toString } from '@terascope/utils';
 import { xLuceneFieldType } from '@terascope/types';
 import allTestCases from './cases';
 import {
-    Parser, ASTType, FieldValue, TermLike
+    Parser, NodeType, FieldValue, TermLikeNode
 } from '../src';
 
 describe('Parser', () => {
@@ -38,7 +38,7 @@ describe('Parser', () => {
                 const partThree = times(500, (n) => `c:${n}`).join(') OR (');
                 const parser = new Parser(`(${partOne}) AND ${partTwo} OR (${partThree})`);
                 expect(parser.ast).toMatchObject({
-                    type: ASTType.LogicalGroup,
+                    type: NodeType.LogicalGroup,
                 });
             });
         });
@@ -109,7 +109,7 @@ describe('Parser', () => {
             },
         });
 
-        const nodes: [FieldValue<any>, TermLike][] = [];
+        const nodes: [FieldValue<any>, TermLikeNode][] = [];
         parser.forEachFieldValue((value, node) => nodes.push([value, node]));
         expect(nodes).toMatchSnapshot();
     });

@@ -31,7 +31,7 @@ export function translateQuery(
     const { logger, type_config: typeConfig, variables } = options;
     let sort: i.AnyQuerySort|i.AnyQuerySort[]|undefined;
 
-    function buildAnyQuery(node: p.AST): i.AnyQuery | undefined {
+    function buildAnyQuery(node: p.Node): i.AnyQuery | undefined {
         // if no field and is wildcard
         if (
             p.isWildcard(node)
@@ -72,7 +72,7 @@ export function translateQuery(
         logger.error(error);
     }
 
-    function buildTermLevelQuery(node: p.TermLikeAST): i.AnyQuery | i.BoolQuery | undefined {
+    function buildTermLevelQuery(node: p.TermLikeNode): i.AnyQuery | i.BoolQuery | undefined {
         if (p.isWildcardField(node)) {
             if (isEmpty(typeConfig)) {
                 throw new Error(
@@ -128,7 +128,7 @@ export function translateQuery(
         }
     }
 
-    function buildMultiMatchQuery(node: p.TermLikeAST, query: string): i.MultiMatchQuery {
+    function buildMultiMatchQuery(node: p.TermLikeNode, query: string): i.MultiMatchQuery {
         const multiMatchQuery: i.MultiMatchQuery = {
             multi_match: {
                 query,
@@ -271,7 +271,7 @@ export function translateQuery(
         return existsQuery;
     }
 
-    function buildBoolQuery(node: p.GroupLikeAST): i.BoolQuery|undefined {
+    function buildBoolQuery(node: p.GroupLikeNode): i.BoolQuery|undefined {
         const should: i.AnyQuery[] = [];
 
         for (const conj of node.flow) {
@@ -319,7 +319,7 @@ export function translateQuery(
     }
 
     let topLevelQuery: i.MatchAllQuery|i.ConstantScoreQuery;
-    if (p.isEmptyAST(parser.ast)) {
+    if (p.isEmptyNode(parser.ast)) {
         topLevelQuery = {
             match_all: {},
         };
@@ -350,11 +350,11 @@ export function translateQuery(
     };
 }
 
-export function isMultiMatch(node: p.TermLikeAST): boolean {
+export function isMultiMatch(node: p.TermLikeNode): boolean {
     return !node.field || node.field === '*';
 }
 
-export function getTermField(node: p.TermLikeAST): string {
+export function getTermField(node: p.TermLikeNode): string {
     return node.field!;
 }
 

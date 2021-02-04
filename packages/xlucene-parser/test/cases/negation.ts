@@ -1,5 +1,7 @@
 import { xLuceneFieldType } from '@terascope/types';
-import { ASTType } from '../../src';
+import {
+    LogicalGroup, Negation, NodeType, Term
+} from '../../src';
 import { TestCase } from './interfaces';
 
 export default [
@@ -7,9 +9,9 @@ export default [
         'NOT name:Madman',
         'negate a single field/value',
         {
-            type: ASTType.Negation,
+            type: NodeType.Negation,
             node: {
-                type: ASTType.Term,
+                type: NodeType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
                 value: { type: 'value', value: 'Madman', },
@@ -20,9 +22,9 @@ export default [
         '(NOT name:Madman)',
         'negate with parens and a single field/value',
         {
-            type: ASTType.Negation,
+            type: NodeType.Negation,
             node: {
-                type: ASTType.Term,
+                type: NodeType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
                 value: { type: 'value', value: 'Madman', },
@@ -33,9 +35,9 @@ export default [
         '!name:Madman',
         'negate a single field/value',
         {
-            type: ASTType.Negation,
+            type: NodeType.Negation,
             node: {
-                type: ASTType.Term,
+                type: NodeType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
                 value: { type: 'value', value: 'Madman', },
@@ -46,9 +48,9 @@ export default [
         'NOT name:$foo',
         'negate a single field/value with variables',
         {
-            type: ASTType.Negation,
+            type: NodeType.Negation,
             node: {
-                type: ASTType.Term,
+                type: NodeType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
                 value: { type: 'variable', value: 'foo', },
@@ -60,9 +62,9 @@ export default [
         '(NOT name:$foo)',
         'negate with parens and a single field/value with variables',
         {
-            type: ASTType.Negation,
+            type: NodeType.Negation,
             node: {
-                type: ASTType.Term,
+                type: NodeType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
                 value: { type: 'variable', value: 'foo', },
@@ -74,9 +76,9 @@ export default [
         '!name:$foo',
         'negate a single field/value with variables',
         {
-            type: ASTType.Negation,
+            type: NodeType.Negation,
             node: {
-                type: ASTType.Term,
+                type: NodeType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
                 value: { type: 'variable', value: 'foo', },
@@ -88,9 +90,9 @@ export default [
         '!(name:$foo)',
         'parens negate a single field/value with variables',
         {
-            type: ASTType.Negation,
+            type: NodeType.Negation,
             node: {
-                type: ASTType.Term,
+                type: NodeType.Term,
                 field_type: xLuceneFieldType.String,
                 field: 'name',
                 value: { type: 'variable', value: 'foo', },
@@ -102,20 +104,20 @@ export default [
         'foo:bar NOT name:Madman',
         'simple NOT conjunction',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'foo',
                             value: { type: 'value', value: 'bar', },
                         },
                         {
-                            type: ASTType.Negation,
+                            type: NodeType.Negation,
                             node: {
-                                type: ASTType.Term,
+                                type: NodeType.Term,
                                 field_type: xLuceneFieldType.String,
                                 field: 'name',
                                 value: { type: 'value', value: 'Madman', },
@@ -130,25 +132,25 @@ export default [
         'foo:bar ! name:Madman',
         'an implicit OR with ! negation',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'foo',
                             value: { type: 'value', value: 'bar', },
                         },
                     ],
                 },
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Negation,
+                            type: NodeType.Negation,
                             node: {
-                                type: ASTType.Term,
+                                type: NodeType.Term,
                                 field_type: xLuceneFieldType.String,
                                 field: 'name',
                                 value: { type: 'value', value: 'Madman', },
@@ -163,20 +165,20 @@ export default [
         'foo:bar AND NOT name:Madman',
         'simple AND NOT conjunction',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'foo',
                             value: { type: 'value', value: 'bar', },
                         },
                         {
-                            type: ASTType.Negation,
+                            type: NodeType.Negation,
                             node: {
-                                type: ASTType.Term,
+                                type: NodeType.Term,
                                 field_type: xLuceneFieldType.String,
                                 field: 'name',
                                 value: { type: 'value', value: 'Madman', },
@@ -191,25 +193,25 @@ export default [
         'foo:bar OR NOT name:Madman',
         'simple OR NOT conjunction',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'foo',
                             value: { type: 'value', value: 'bar', },
                         },
                     ],
                 },
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Negation,
+                            type: NodeType.Negation,
                             node: {
-                                type: ASTType.Term,
+                                type: NodeType.Term,
                                 field_type: xLuceneFieldType.String,
                                 field: 'name',
                                 value: { type: 'value', value: 'Madman', },
@@ -224,25 +226,25 @@ export default [
         'foo:bar OR !name:Madman',
         'simple OR ! conjunction',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'foo',
                             value: { type: 'value', value: 'bar', },
                         },
                     ],
                 },
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Negation,
+                            type: NodeType.Negation,
                             node: {
-                                type: ASTType.Term,
+                                type: NodeType.Term,
                                 field_type: xLuceneFieldType.String,
                                 field: 'name',
                                 value: { type: 'value', value: 'Madman', },
@@ -257,47 +259,47 @@ export default [
         'a:1 AND !(b:1 OR c:1)',
         'a parens negation conjunction',
         {
-            type: ASTType.LogicalGroup,
+            type: NodeType.LogicalGroup,
             flow: [
                 {
-                    type: ASTType.Conjunction,
+                    type: NodeType.Conjunction,
                     nodes: [
                         {
-                            type: ASTType.Term,
+                            type: NodeType.Term,
                             field: 'a',
                             value: { type: 'value', value: 1, },
                         },
                         {
-                            type: ASTType.Negation,
+                            type: NodeType.Negation,
                             node: {
-                                type: ASTType.LogicalGroup,
+                                type: NodeType.LogicalGroup,
                                 flow: [
                                     {
-                                        type: ASTType.Conjunction,
+                                        type: NodeType.Conjunction,
                                         nodes: [
                                             {
-                                                type: ASTType.Term,
+                                                type: NodeType.Term,
                                                 field: 'b',
                                                 value: { type: 'value', value: 1, },
-                                            },
+                                            } as Term,
                                         ],
                                     },
                                     {
-                                        type: ASTType.Conjunction,
+                                        type: NodeType.Conjunction,
                                         nodes: [
                                             {
-                                                type: ASTType.Term,
+                                                type: NodeType.Term,
                                                 field: 'c',
                                                 value: { type: 'value', value: 1, },
-                                            },
+                                            } as Term,
                                         ],
                                     },
                                 ],
-                            },
-                        },
+                            } as LogicalGroup,
+                        } as Negation,
                     ],
                 },
             ],
-        },
+        } as LogicalGroup,
     ],
 ] as TestCase[];
