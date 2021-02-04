@@ -1,7 +1,9 @@
 import 'jest-extended';
 import 'jest-fixtures';
 import { LATEST_VERSION } from '@terascope/data-types';
-import { DataTypeConfig, FieldType } from '@terascope/types';
+import {
+    DataTypeConfig, FieldType, GeoShape, GeoShapeType,
+} from '@terascope/types';
 import { ColumnTransform, DataFrame } from '../src';
 
 describe('DataFrame', () => {
@@ -1293,6 +1295,8 @@ describe('DataFrame', () => {
                 type Special = {
                     ip?: string;
                     date?: string;
+                    location?: string;
+                    geometry?: GeoShape;
                 };
 
                 const specialDTConfig: DataTypeConfig = {
@@ -1300,15 +1304,34 @@ describe('DataFrame', () => {
                     fields: {
                         ip: { type: FieldType.IP },
                         date: { type: FieldType.Date },
+                        location: { type: FieldType.GeoPoint },
+                        geometry: { type: FieldType.GeoJSON },
                     }
                 };
                 let specialDataFrame: DataFrame<Special>;
 
                 beforeAll(() => {
                     specialDataFrame = DataFrame.fromJSON<Special>(specialDTConfig, [
-                        { ip: '127.0.0.1', date: '2000-01-04T00:00:00.000Z' },
-                        { ip: '10.0.0.2', date: '2002-01-02T00:00:00.000Z' },
-                        { ip: '192.198.0.1', date: '1999-12-01T00:00:00.000Z' },
+                        {
+                            ip: '127.0.0.1',
+                            date: '2000-01-04T00:00:00.000Z',
+                            location: '22.435967,-150.867710'
+                        },
+                        {
+                            ip: '10.0.0.2',
+                            date: '2002-01-02T00:00:00.000Z',
+                            geometry: {
+                                type: GeoShapeType.Polygon,
+                                coordinates: [
+                                    [[140.43, 70.43], [123.4, 81.3], [154.4, 89.3], [140.43, 70.43]]
+                                ]
+                            }
+                        },
+                        {
+                            ip: '192.198.0.1',
+                            date: '1999-12-01T00:00:00.000Z',
+                            location: '33.435967, -111.867710'
+                        },
                     ]);
                 });
 
@@ -1349,6 +1372,33 @@ describe('DataFrame', () => {
 
                     expect(resultFrame.toJSON()).toEqual([
                         { date: '2002-01-02T00:00:00.000Z' },
+                    ]);
+                });
+
+                it('should be able to match using a geo point', () => {
+                    const resultFrame = specialDataFrame
+                        .search('location:geoDistance(point:"33.435518,-111.873616" distance:5000m)')
+                        .select('location');
+
+                    expect(resultFrame.toJSON()).toEqual([
+                        { location: { lat: 33.435967, lon: -111.867710 } },
+                    ]);
+                });
+
+                it('should be able to match using a geo json', () => {
+                    const resultFrame = specialDataFrame
+                        .search('geometry:geoPolygon(points:["70.43,140.43", "81.3,123.4", "89.3,154.4"])')
+                        .select('geometry');
+
+                    expect(resultFrame.toJSON()).toEqual([
+                        {
+                            geometry: {
+                                type: GeoShapeType.Polygon,
+                                coordinates: [
+                                    [[140.43, 70.43], [123.4, 81.3], [154.4, 89.3], [140.43, 70.43]]
+                                ]
+                            }
+                        },
                     ]);
                 });
             });
