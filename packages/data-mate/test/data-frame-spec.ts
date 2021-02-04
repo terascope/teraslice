@@ -1291,6 +1291,16 @@ describe('DataFrame', () => {
                 ]);
             });
 
+            it('should work with nested objects', () => {
+                const resultFrame = deepObjDataFrame
+                    .search('config.owner.id:config-owner-1')
+                    .select('_key');
+
+                expect(resultFrame.toJSON()).toEqual([
+                    { _key: 'id-1' }
+                ]);
+            });
+
             describe('when matching special data types', () => {
                 type Special = {
                     ip?: string;
