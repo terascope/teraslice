@@ -6,7 +6,6 @@ import pointInPolygon from '@turf/boolean-point-in-polygon';
 import within from '@turf/boolean-within';
 import contains from '@turf/boolean-contains';
 import disjoint from '@turf/boolean-disjoint';
-// @ts-expect-error
 import intersect from '@turf/boolean-overlap';
 import {
     lineString,

@@ -1,3 +1,4 @@
+import 'jest-extended';
 import nock from 'nock';
 import fs from 'fs-extra';
 import os from 'os';
@@ -68,17 +69,13 @@ describe('download-external-asset', () => {
 
     const externalPathLocation = path.resolve('./test/.cache');
 
-    beforeAll(async () => {
+    beforeEach(async () => {
         await fs.remove(externalPathLocation);
     });
 
     afterEach(async () => {
         await fs.remove(externalPathLocation);
         nock.cleanAll();
-    });
-
-    afterAll(async () => {
-        await fs.remove(externalPathLocation);
     });
 
     it('should download an asset.zip from github and unzip the asset', async () => {

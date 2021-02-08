@@ -1,7 +1,7 @@
 {
     "name": "xlucene-parser",
     "displayName": "xLucene Parser",
-    "version": "0.34.0",
+    "version": "0.34.1",
     "description": "Flexible Lucene-like evaluator and language parser",
     "homepage": "https://github.com/terascope/teraslice/tree/master/packages/xlucene-parser#readme",
     "repository": {
@@ -37,7 +37,7 @@
         "@turf/boolean-contains": "^6.3.0",
         "@turf/boolean-disjoint": "^6.3.0",
         "@turf/boolean-equal": "^6.3.0",
-        "@turf/boolean-overlap": "~6.0.1",
+        "@turf/boolean-overlap": "^6.3.0",
         "@turf/boolean-point-in-polygon": "^6.2.0",
         "@turf/boolean-within": "^6.2.0",
         "@turf/circle": "^6.3.0",
