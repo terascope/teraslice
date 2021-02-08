@@ -1,3 +1,4 @@
+import 'jest-extended';
 import nock from 'nock';
 import fs from 'fs-extra';
 import os from 'os';
