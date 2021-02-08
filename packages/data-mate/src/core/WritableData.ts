@@ -1,3 +1,4 @@
+import { getTypeOf, isInteger } from '@terascope/utils';
 import { Maybe } from '@terascope/types';
 import SparseMap from 'mnemonist/sparse-map';
 import { ReadonlySparseMap } from './interfaces';
@@ -32,6 +33,10 @@ export class WritableData<T> {
     readonly size: number;
 
     constructor(size: number) {
+        if (!isInteger(size)) {
+            throw new Error(`Invalid size given to WritableData, got ${size} (${getTypeOf(size)})`);
+        }
+
         this.values = new SparseMap(size);
         this.size = size;
     }
@@ -41,7 +46,7 @@ export class WritableData<T> {
     */
     set(index: number, value: Maybe<T>): this {
         if (index >= this.size) {
-            throw new Error(
+            throw new RangeError(
                 `Index of ${index} is out-of-bounds, must be less than ${this.size}`
             );
         }

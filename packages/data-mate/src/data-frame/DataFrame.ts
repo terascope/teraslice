@@ -8,7 +8,7 @@ import {
     DataEntity, TSError,
     getTypeOf, isFunction,
     isPlainObject, trimFP,
-    matchWildcard, isWildCardString
+    matchWildcard, isWildCardString, isInteger
 } from '@terascope/utils';
 import { Column, KeyAggFn, makeUniqueKeyAgg } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
@@ -92,6 +92,10 @@ export class DataFrame<
             );
         }
         this.size = lengths[0] ?? 0;
+
+        if (!isInteger(this.size)) {
+            throw new Error(`Invalid size given to DataFrame, got ${this.size} (${getTypeOf(this.size)})`);
+        }
     }
 
     /**
