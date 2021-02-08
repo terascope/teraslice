@@ -1,4 +1,5 @@
 import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
 import * as es from 'elasticsearch';
 import * as ts from '@terascope/utils';
 import { IndexConfig, IndexSchema, DataSchema } from '../interfaces';
@@ -43,7 +44,6 @@ export function makeDataValidator(
     } = dataSchema;
     const ajv = new Ajv({
         useDefaults: true,
-        format: allFormatters ? 'full' : 'fast',
         allErrors: true,
         coerceTypes: true,
         logger: {
@@ -52,6 +52,9 @@ export function makeDataValidator(
             error: logger.warn,
         },
     });
+    if (allFormatters) {
+        addFormats(ajv);
+    }
     const validate = ajv.compile(schema);
 
     return (input: any, critical: boolean) => {
