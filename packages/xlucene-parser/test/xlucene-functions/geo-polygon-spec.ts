@@ -510,7 +510,7 @@ describe('geoPolygon', () => {
                 type: GeoShapeType.Polygon,
                 coordinates: [[[-10, -10], [-10, -50], [-50, -50], [-50, -10], [-10, -10]]]
             };
-            const intersetPoints = {
+            const intersectPoints = {
                 type: GeoShapeType.Polygon,
                 coordinates: [[[0, 0], [0, 15], [15, 15], [15, 0], [0, 0]]]
             };
@@ -566,7 +566,7 @@ describe('geoPolygon', () => {
                 expect(match(withinPoints)).toEqual(true);
                 expect(match(containPoints)).toEqual(false);
                 expect(match(disjointPoints)).toEqual(false);
-                expect(match(intersetPoints)).toEqual(false);
+                expect(match(intersectPoints)).toEqual(false);
             });
 
             it('poly v poly relations set to within', () => {
@@ -584,7 +584,7 @@ describe('geoPolygon', () => {
                 expect(match(withinPoints)).toEqual(true);
                 expect(match(containPoints)).toEqual(false);
                 expect(match(disjointPoints)).toEqual(false);
-                expect(match(intersetPoints)).toEqual(false);
+                expect(match(intersectPoints)).toEqual(false);
             });
 
             it('poly v poly relations set to contains', () => {
@@ -602,7 +602,7 @@ describe('geoPolygon', () => {
                 expect(match(withinPoints)).toEqual(false);
                 expect(match(containPoints)).toEqual(true);
                 expect(match(disjointPoints)).toEqual(false);
-                expect(match(intersetPoints)).toEqual(false);
+                expect(match(intersectPoints)).toEqual(false);
             });
 
             it('poly v poly relations set to intersets', () => {
@@ -620,7 +620,7 @@ describe('geoPolygon', () => {
                 expect(match(withinPoints)).toEqual(false);
                 expect(match(containPoints)).toEqual(false);
                 expect(match(disjointPoints)).toEqual(false);
-                expect(match(intersetPoints)).toEqual(true);
+                expect(match(intersectPoints)).toEqual(true);
             });
 
             it('poly v poly relations set to disjoint', () => {
@@ -638,7 +638,7 @@ describe('geoPolygon', () => {
                 expect(match(withinPoints)).toEqual(false);
                 expect(match(containPoints)).toEqual(false);
                 expect(match(disjointPoints)).toEqual(true);
-                expect(match(intersetPoints)).toEqual(false);
+                expect(match(intersectPoints)).toEqual(false);
             });
 
             it('poly v geo_shape point with default relation (within)', () => {
@@ -747,7 +747,7 @@ describe('geoPolygon', () => {
                     variables: {}
                 });
 
-                expect(match(multiPolygon)).toEqual(false);
+                expect(match(multiPolygon)).toEqual(true);
             });
 
             it('poly v multi-polygon with disjoint relation', () => {
@@ -807,7 +807,7 @@ describe('geoPolygon', () => {
                     variables: {}
                 });
 
-                expect(match(multiPolygonWithHoles)).toEqual(false);
+                expect(match(multiPolygonWithHoles)).toEqual(true);
             });
 
             it('poly v multi-polygon with holes and disjoint relation', () => {
