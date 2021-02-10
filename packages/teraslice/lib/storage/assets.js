@@ -230,7 +230,7 @@ module.exports = async function assetsStore(context) {
         const assets = await findAssetsToAutoload(autoloadDir);
         if (!assets || !assets.length) return;
 
-        const promises = assets.map(async (asset) => {
+        for (const asset of assets) {
             logger.info(`autoloading asset ${asset}...`);
             const assetPath = path.join(autoloadDir, asset);
             try {
@@ -247,9 +247,7 @@ module.exports = async function assetsStore(context) {
                     throw err;
                 }
             }
-        });
-
-        await Promise.all(promises);
+        }
 
         logger.info('done autoloading assets');
     }

@@ -128,8 +128,8 @@ describe('Asset Utils', () => {
             ['foo', 'latest', 'node_version or platform mismatch'],
             ['foo', '2.0.1', 'platform mismatch'],
             ['foo', '~2.0.0', 'node_version or platform mismatch'],
-            ['foo', '3.*', null],
-            ['foo', '0.1.*', null],
+            ['foo', '3.*', ''],
+            ['foo', '0.1.*', ''],
         ])('should return the correct result for %s:%s', (name, version, result) => {
             const reason = getInCompatibilityReason(findSimilarAssets(assets, name, version));
             expect(reason).toEqual(result);
