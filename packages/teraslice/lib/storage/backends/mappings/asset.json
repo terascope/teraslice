@@ -7,8 +7,7 @@
             "dynamic": false,
             "properties": {
                 "blob": {
-                    "type": "keyword",
-                    "index": false,
+                    "type": "binary",
                     "doc_values": false
                 },
                 "name": {
