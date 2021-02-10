@@ -4,7 +4,7 @@ const path = require('path');
 const fse = require('fs-extra');
 const crypto = require('crypto');
 const {
-    TSError, pDelay, uniq, isString, toString, filterObject
+    TSError, uniq, isString, toString, filterObject
 } = require('@terascope/utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 const { makeLogger } = require('../workers/helpers/terafoundation');
@@ -230,9 +230,7 @@ module.exports = async function assetsStore(context) {
         const assets = await findAssetsToAutoload(autoloadDir);
         if (!assets || !assets.length) return;
 
-        const promises = assets.map(async (asset, i) => {
-            await pDelay(i * 100);
-
+        for (const asset of assets) {
             logger.info(`autoloading asset ${asset}...`);
             const assetPath = path.join(autoloadDir, asset);
             try {
@@ -249,10 +247,7 @@ module.exports = async function assetsStore(context) {
                     throw err;
                 }
             }
-        });
-
-        await Promise.all(promises);
-
+        }
         logger.info('done autoloading assets');
     }
 
