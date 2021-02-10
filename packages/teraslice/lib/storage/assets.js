@@ -234,7 +234,7 @@ module.exports = async function assetsStore(context) {
             logger.info(`autoloading asset ${asset}...`);
             const assetPath = path.join(autoloadDir, asset);
             try {
-                const result = await save(await fse.readFile(assetPath), true);
+                const result = await save(await fse.readFile(assetPath), false);
                 if (result.created) {
                     logger.debug(`autoloaded asset ${asset}`);
                 } else {
