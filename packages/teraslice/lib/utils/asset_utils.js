@@ -23,8 +23,8 @@ function findSimilarAssets(records, name, version) {
     return assets;
 }
 
-function getInCompatiblityReason(assets, prefix) {
-    if (!assets || !assets.length) return null;
+function getInCompatibilityReason(assets, prefix) {
+    if (!assets || !assets.length) return '';
 
     const reasons = [];
 
@@ -40,7 +40,7 @@ function getInCompatiblityReason(assets, prefix) {
         }
     });
 
-    if (!reasons.length) return null;
+    if (!reasons.length) return '';
 
     return `${prefix ? `${trim(prefix)} ` : ''}${joinList(reasons, ',', 'or')} mismatch`;
 }
@@ -107,7 +107,7 @@ function toVersionQuery(_version) {
 
 module.exports = {
     findSimilarAssets,
-    getInCompatiblityReason,
+    getInCompatibilityReason,
     getMajorVersion,
     findMatchingAsset,
     toSemverRange,

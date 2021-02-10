@@ -3,7 +3,7 @@
 const {
     toSemverRange, findMatchingAsset,
     getMajorVersion, toVersionQuery,
-    findSimilarAssets, getInCompatiblityReason,
+    findSimilarAssets, getInCompatibilityReason,
 } = require('../../lib/utils/asset_utils');
 
 describe('Asset Utils', () => {
@@ -123,7 +123,7 @@ describe('Asset Utils', () => {
         });
     });
 
-    describe('->getInCompatiblityReason/->findSimilarAssets', () => {
+    describe('->getInCompatibilityReason/->findSimilarAssets', () => {
         test.each([
             ['foo', 'latest', 'node_version or platform mismatch'],
             ['foo', '2.0.1', 'platform mismatch'],
@@ -131,7 +131,7 @@ describe('Asset Utils', () => {
             ['foo', '3.*', null],
             ['foo', '0.1.*', null],
         ])('should return the correct result for %s:%s', (name, version, result) => {
-            const reason = getInCompatiblityReason(findSimilarAssets(assets, name, version));
+            const reason = getInCompatibilityReason(findSimilarAssets(assets, name, version));
             expect(reason).toEqual(result);
         });
     });
