@@ -128,8 +128,14 @@ export class AssetSrc {
         }
 
         // run npm --cwd srcDir/asset --prod --silent --no-progress
-        reply.info('* running yarn  --prod --no-progress');
+        reply.info('* running yarn --prod --no-progress');
         await this._yarnCmd(path.join(tmpDir.name, 'asset'), ['--prod', '--no-progress']);
+
+        // run yarn --cwd srcDir --prod --silent --no-progress asset:post-build
+        if (this.packageJson?.scripts && this.packageJson.scripts['asset:post-build']) {
+            reply.info('* running yarn asset:post-build');
+            await this._yarnCmd(tmpDir.name, ['run', 'asset:post-build']);
+        }
 
         try {
             reply.info('* zipping the asset bundle');
@@ -154,7 +160,7 @@ export class AssetSrc {
             throw new Error(`Missing asset directory "${tmpAssetDir}"`);
         }
 
-        await execa('zip', ['--symlinks', '-q', '-r', '-9', outputFileName, '.'], {
+        await execa('zip', ['-q', '-r', '-9', outputFileName, '.'], {
             stdio: 'inherit',
             cwd: tmpAssetDir
         });
