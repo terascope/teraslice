@@ -19,6 +19,10 @@ const bundles = [
     {
         repo: 'kafka-assets',
         name: 'kafka'
+    },
+    {
+        repo: 'standard-assets',
+        name: 'standard'
     }
 ];
 
@@ -42,7 +46,7 @@ function getOlderAsset(assets, assetName) {
 }
 
 function filterRelease(release) {
-    return !release.draft && !release.prerelease;
+    return !release.draft;
 }
 
 function filterAsset(asset) {

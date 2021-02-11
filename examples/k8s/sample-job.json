@@ -2,9 +2,10 @@
     "name": "gen-tenk-noop",
     "lifecycle": "persistent",
     "workers": 1,
+    "assets": ["standard"],
     "operations": [
         {
-            "_op": "elasticsearch_data_generator",
+            "_op": "data_generator",
             "json_schema": "",
             "size": 10000,
             "start": "",

@@ -27,18 +27,16 @@ var job = {
   "name": "Data Generator",
   "lifecycle": "once",
   "workers": 1,
+  "assets": ["standard", "elasticsearch"],
   "operations": [
     {
-      "_op": "elasticsearch_data_generator",
+      "_op": "data_generator",
       "size": 1
     },
     {
-      "_op": "elasticsearch_index_selector",
-      "index": "client-test-logs",
-      "type": "events"
-    },
-    {
       "_op": "elasticsearch_bulk",
+      "index": "client-test-logs",
+      "type": "events",
       "size": 50
     }
   ]

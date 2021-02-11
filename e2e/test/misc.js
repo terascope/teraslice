@@ -28,7 +28,7 @@ const CONFIG_PATH = path.join(BASE_PATH, '.config');
 const ASSETS_PATH = path.join(BASE_PATH, '.assets');
 const SPEC_INDEX_PREFIX = `${TEST_INDEX_PREFIX}spec`;
 const EXAMPLE_INDEX_PREFIX = `${TEST_INDEX_PREFIX}example`;
-const EXAMLPE_INDEX_SIZES = [100, 1000];
+const EXAMPLE_INDEX_SIZES = [100, 1000];
 
 // the uniq cluster name
 const CLUSTER_NAME = newId(`${TEST_INDEX_PREFIX}teracluster`, true, 2);
@@ -38,7 +38,7 @@ const DEFAULT_WORKERS = 2;
 // The teraslice-master + the number of teraslice-worker instances (see the docker-compose.yml)
 const DEFAULT_NODES = DEFAULT_WORKERS + 1;
 // The number of workers per number (see the process-master.yaml and process-worker.yaml)
-const WORKERS_PER_NODE = 12;
+const WORKERS_PER_NODE = 8;
 
 const compose = new Compose('docker-compose.yml');
 const signale = require('./signale');
@@ -76,7 +76,7 @@ function newSpecIndex(name) {
 }
 
 function getExampleIndex(size) {
-    if (!EXAMLPE_INDEX_SIZES.includes(size)) {
+    if (!EXAMPLE_INDEX_SIZES.includes(size)) {
         throw new Error(`No example index with ${size}`);
     }
 
@@ -187,7 +187,7 @@ module.exports = {
     globalTeardown,
     newSpecIndex,
     resetLogs,
-    EXAMLPE_INDEX_SIZES,
+    EXAMPLE_INDEX_SIZES,
     EXAMPLE_INDEX_PREFIX,
     SPEC_INDEX_PREFIX,
     ELASTICSEARCH_HOST,

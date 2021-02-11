@@ -29,7 +29,7 @@ describe('assets', () => {
         const result = await teraslice.assets.upload(fileStream, { blocking: true });
         // NOTE: In this case, the asset is referenced by the ID
         // assigned by teraslice and not it's name.
-        jobSpec.assets = [result._id, 'elasticsearch'];
+        jobSpec.assets = [result._id, 'standard', 'elasticsearch'];
 
         const ex = await submitAndStart(jobSpec);
 
@@ -116,7 +116,7 @@ describe('assets', () => {
 
     it('can directly ask for the new asset to be used', async () => {
         const jobSpec = misc.newJob('generator-asset');
-        jobSpec.assets = ['ex1:0.1.1', 'elasticsearch'];
+        jobSpec.assets = ['ex1:0.1.1', 'standard', 'elasticsearch'];
         const { workers } = jobSpec;
 
         const assetResponse = await teraslice.assets.getAsset('ex1', '0.1.1');

@@ -65,19 +65,16 @@ async function generateTestData() {
             name: `Generate: ${indexName}`,
             lifecycle: 'once',
             workers: 1,
-            assets: ['elasticsearch'],
+            assets: ['elasticsearch', 'standard'],
             operations: [
                 {
-                    _op: 'elasticsearch_data_generator',
+                    _op: 'data_generator',
                     size: count
                 },
                 {
-                    _op: 'elasticsearch_index_selector',
-                    index: indexName,
-                    type: 'events'
-                },
-                {
                     _op: 'elasticsearch_bulk',
+                    index: indexName,
+                    type: 'events',
                     size: 1000
                 }
             ]
@@ -107,7 +104,7 @@ async function generateTestData() {
     }
 
     try {
-        await Promise.all(misc.EXAMLPE_INDEX_SIZES.map((size) => generate(size)));
+        await Promise.all(misc.EXAMPLE_INDEX_SIZES.map((size) => generate(size)));
         // we need fully active jobs so we can get proper meta data for recovery state tests
         signale.success('Data generation is done', getElapsed(startTime));
     } catch (err) {

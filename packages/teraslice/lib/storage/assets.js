@@ -4,14 +4,14 @@ const path = require('path');
 const fse = require('fs-extra');
 const crypto = require('crypto');
 const {
-    TSError, pDelay, uniq, isString, toString, filterObject
+    TSError, uniq, isString, toString, filterObject
 } = require('@terascope/utils');
 const elasticsearchBackend = require('./backends/elasticsearch_store');
 const { makeLogger } = require('../workers/helpers/terafoundation');
 const { saveAsset } = require('../utils/file_utils');
 const {
     findMatchingAsset, findSimilarAssets,
-    toVersionQuery, getInCompatiblityReason
+    toVersionQuery, getInCompatibilityReason
 } = require('../utils/asset_utils');
 
 // Module to manager job states in Elasticsearch.
@@ -71,7 +71,7 @@ module.exports = async function assetsStore(context) {
         id, data, esData, blocking
     }) {
         const startTime = Date.now();
-        const metaData = await saveAsset(logger, assetsPath, id, data, _metaIsUnqiue);
+        const metaData = await saveAsset(logger, assetsPath, id, data, _metaIsUnique);
 
         const assetRecord = Object.assign({
             blob: esData,
@@ -148,7 +148,7 @@ module.exports = async function assetsStore(context) {
 
         const found = findMatchingAsset(assets, name, version);
         if (!found) {
-            const reason = getInCompatiblityReason(findSimilarAssets(assets, name, version), ', due to a potential');
+            const reason = getInCompatibilityReason(findSimilarAssets(assets, name, version), ', due to a potential');
             throw new TSError(`No asset found for "${assetIdentifier}"${reason}`, {
                 statusCode: 404
             });
@@ -160,7 +160,7 @@ module.exports = async function assetsStore(context) {
         return Promise.all(uniq(assetsArray).map(_getAssetId));
     }
 
-    async function _metaIsUnqiue(meta) {
+    async function _metaIsUnique(meta) {
         const includes = ['name', 'version', 'node_version', 'platform', 'arch'];
 
         const query = Object.entries(filterObject(meta, { includes }))
@@ -230,13 +230,11 @@ module.exports = async function assetsStore(context) {
         const assets = await findAssetsToAutoload(autoloadDir);
         if (!assets || !assets.length) return;
 
-        const promises = assets.map(async (asset, i) => {
-            await pDelay(i * 100);
-
+        for (const asset of assets) {
             logger.info(`autoloading asset ${asset}...`);
             const assetPath = path.join(autoloadDir, asset);
             try {
-                const result = await save(await fse.readFile(assetPath));
+                const result = await save(await fse.readFile(assetPath), true);
                 if (result.created) {
                     logger.debug(`autoloaded asset ${asset}`);
                 } else {
@@ -249,9 +247,7 @@ module.exports = async function assetsStore(context) {
                     throw err;
                 }
             }
-        });
-
-        await Promise.all(promises);
+        }
 
         logger.info('done autoloading assets');
     }

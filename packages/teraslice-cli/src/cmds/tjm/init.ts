@@ -22,21 +22,19 @@ export = {
             name: 'data-generator',
             lifecycle: 'persistent',
             workers: 3,
+            assets: ['elasticsearch', 'standard'],
             operations: [
                 {
-                    _op: 'elasticsearch_data_generator',
+                    _op: 'data_generator',
                     size: 5000
-                },
-                {
-                    _op: 'elasticsearch_index_selector',
-                    index: 'example-logs',
-                    type: 'events'
                 },
                 {
                     _op: 'elasticsearch_bulk',
                     size: 5000,
-                    connection: 'default'
-                }]
+                    index: 'example-logs',
+                    type: 'events'
+                }
+            ]
         };
         job.validateJob();
         job.overwrite();

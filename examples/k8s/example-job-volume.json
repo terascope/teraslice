@@ -4,7 +4,8 @@
     "workers": 2,
     "assets": [
         "example",
-        "elasticsearch"
+        "elasticsearch",
+        "standard"
     ],
     "volumes": [
         {
@@ -14,7 +15,7 @@
     ],
     "operations": [
         {
-            "_op": "elasticsearch_data_generator",
+            "_op": "data_generator",
             "size": 5000000
         },
         {
@@ -22,9 +23,9 @@
         },
         {
             "_op": "elasticsearch_bulk",
-            "size": 5000,
             "index": "terak8s-example-data",
-            "type": "events"
+            "type": "events",
+            "size": 5000
         }
     ]
 }

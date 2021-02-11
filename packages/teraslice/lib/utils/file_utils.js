@@ -4,9 +4,12 @@ const fs = require('fs');
 const path = require('path');
 const fse = require('fs-extra');
 const semver = require('semver');
+const { Mutex } = require('async-mutex');
 const { TSError } = require('@terascope/utils');
 const decompress = require('decompress');
 const { getMajorVersion } = require('./asset_utils');
+
+const mutex = new Mutex();
 
 function existsSync(filename) {
     try {
@@ -72,7 +75,7 @@ async function verifyAssetJSON(id, newPath) {
     }
 }
 
-async function saveAsset(logger, assetsPath, id, binaryData, metaCheck) {
+async function _saveAsset(logger, assetsPath, id, binaryData, metaCheck) {
     const newPath = path.join(assetsPath, id);
 
     try {
@@ -99,6 +102,12 @@ async function saveAsset(logger, assetsPath, id, binaryData, metaCheck) {
         await deleteDir(newPath);
         throw err;
     }
+}
+
+async function saveAsset(logger, assetsPath, id, binaryData, metaCheck) {
+    return mutex.runExclusive(() => _saveAsset(
+        logger, assetsPath, id, binaryData, metaCheck
+    ));
 }
 
 module.exports = {

@@ -4,11 +4,11 @@
   "lifecycle": "persistent",
   "workers": 3,
   "analytics": false,
-  "assets": ["elasticsearch"],
+  "assets": ["standard"],
   "max_retries": 0,
   "operations": [
     {
-      "_op": "elasticsearch_data_generator",
+      "_op": "data_generator",
       "size": 1000,
       "stress_test": false
     },

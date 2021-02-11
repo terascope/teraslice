@@ -14,13 +14,10 @@
             "size": 500
         },
         {
-            "_op": "elasticsearch_index_selector",
+            "_op": "elasticsearch_bulk",
             "index": "multisend-1000",
             "preserve_id": true,
-            "type": "change"
-        },
-        {
-            "_op": "elasticsearch_bulk",
+            "type": "change",
             "multisend_index_append": false,
             "size": 100,
             "multisend": true,
