@@ -72,7 +72,9 @@ jobs:
       node_js: '12.20'
       # run only on pull-requests and cron
       if: branch = master AND type IN (pull_request, cron) AND fork = false
-      script: yarn --silent --cwd e2e test
+      script:
+        - export SERVICE_HEAP_OPTS="-Xms768m -Xmx768m"
+        - yarn --silent --cwd e2e test
 
     - stage: "Releases"
       name: 'Publish prerelease packages and docker image'
