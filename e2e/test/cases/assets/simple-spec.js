@@ -29,7 +29,7 @@ describe('assets', () => {
         const result = await teraslice.assets.upload(fileStream, { blocking: true });
         // NOTE: In this case, the asset is referenced by the ID
         // assigned by teraslice and not it's name.
-        jobSpec.assets = [result._id, 'elasticsearch'];
+        jobSpec.assets = [result._id, 'standard', 'elasticsearch'];
 
         const ex = await submitAndStart(jobSpec);
 
