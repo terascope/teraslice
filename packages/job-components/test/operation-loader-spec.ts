@@ -20,6 +20,9 @@ describe('OperationLoader', () => {
     const terasliceOpPath = path.join(__dirname, '../../teraslice/lib');
     const processorPath = path.join(__dirname, '..', 'examples', 'asset', 'example-filter-op');
     const context = new TestContext('teraslice-op-loader');
+    const v2AssetName = 'asset-v2';
+    const fixturePath = path.join(__dirname, 'fixtures');
+    const v2AssetPath = path.join(fixturePath, v2AssetName);
 
     beforeAll(async () => {
         await fse.copySync(processorPath, path.join(assetPath, 'example-filter-op'));
@@ -67,7 +70,7 @@ describe('OperationLoader', () => {
         const opLoader = new OperationLoader({
             terasliceOpPath,
         });
-        const op = opLoader.load(path.join(__dirname, 'fixtures', 'test-op')) as LegacyProcessor;
+        const op = opLoader.load(path.join(v2AssetPath, 'test-op')) as LegacyProcessor;
 
         expect(op).toBeDefined();
         expect(op).toBeObject();
@@ -76,7 +79,7 @@ describe('OperationLoader', () => {
         expect(op.newProcessor).toBeFunction();
         expect(op.schema).toBeFunction();
 
-        const reader = opLoader.load(path.join(__dirname, 'fixtures', 'test-reader')) as LegacyReader;
+        const reader = opLoader.load(path.join(v2AssetPath, 'test-reader')) as LegacyReader;
 
         expect(reader).toBeDefined();
         expect(reader).toBeObject();
@@ -139,14 +142,14 @@ describe('OperationLoader', () => {
 
         const opLoader = new OperationLoader({
             terasliceOpPath,
-            assetPath: path.join(__dirname),
+            assetPath: fixturePath,
         });
 
         expect(() => {
             opLoader.loadProcessor('fail');
         }).toThrowError('Unable to find module for operation: fail');
 
-        const op = opLoader.loadProcessor('example-op', ['fixtures']);
+        const op = opLoader.loadProcessor('example-op', [v2AssetName]);
 
         expect(op.Processor).not.toBeNil();
         expect(() => {
@@ -174,14 +177,14 @@ describe('OperationLoader', () => {
 
         const opLoader = new OperationLoader({
             terasliceOpPath,
-            assetPath: [tmpDir, path.join(__dirname)],
+            assetPath: [tmpDir, fixturePath],
         });
 
         expect(() => {
             opLoader.loadProcessor('fail');
         }).toThrowError('Unable to find module for operation: fail');
 
-        const op = opLoader.loadProcessor('example-op', ['fixtures']);
+        const op = opLoader.loadProcessor('example-op', [v2AssetName]);
 
         expect(op.Processor).not.toBeNil();
         expect(() => {
@@ -209,10 +212,10 @@ describe('OperationLoader', () => {
 
         const opLoader = new OperationLoader({
             terasliceOpPath,
-            assetPath: path.join(__dirname),
+            assetPath: fixturePath,
         });
 
-        const op = opLoader.loadProcessor('test-op', ['fixtures']);
+        const op = opLoader.loadProcessor('test-op', [v2AssetName]);
 
         expect(op.Processor).not.toBeNil();
         expect(() => {
@@ -237,14 +240,14 @@ describe('OperationLoader', () => {
 
         const opLoader = new OperationLoader({
             terasliceOpPath,
-            assetPath: path.join(__dirname),
+            assetPath: fixturePath
         });
 
         expect(() => {
             opLoader.loadReader('fail');
         }).toThrowError('Unable to find module for operation: fail');
 
-        const op = opLoader.loadReader('example-reader', ['fixtures']);
+        const op = opLoader.loadReader('example-reader', [v2AssetName]);
 
         expect(op.Slicer).not.toBeNil();
         expect(() => {
@@ -278,10 +281,10 @@ describe('OperationLoader', () => {
 
         const opLoader = new OperationLoader({
             terasliceOpPath,
-            assetPath: path.join(__dirname),
+            assetPath: fixturePath,
         });
 
-        const op = opLoader.loadReader('test-reader', ['fixtures']);
+        const op = opLoader.loadReader('test-reader', [v2AssetName]);
 
         expect(op.Slicer).not.toBeNil();
         expect(() => {
@@ -306,10 +309,10 @@ describe('OperationLoader', () => {
 
         const opLoader = new OperationLoader({
             terasliceOpPath,
-            assetPath: path.join(__dirname),
+            assetPath: fixturePath,
         });
 
-        const op = opLoader.loadAPI('example-api', ['fixtures']);
+        const op = opLoader.loadAPI('example-api', [v2AssetName]);
 
         expect(op.API).not.toBeNil();
         expect(() => {
@@ -322,10 +325,10 @@ describe('OperationLoader', () => {
 
         const opLoader = new OperationLoader({
             terasliceOpPath,
-            assetPath: [tmpDir, path.join(__dirname)],
+            assetPath: [tmpDir, fixturePath],
         });
 
-        const op = opLoader.loadAPI('example-api', ['fixtures']);
+        const op = opLoader.loadAPI('example-api', [v2AssetName]);
 
         expect(op.API).not.toBeNil();
         expect(() => {
@@ -338,10 +341,10 @@ describe('OperationLoader', () => {
 
         const opLoader = new OperationLoader({
             terasliceOpPath,
-            assetPath: path.join(__dirname),
+            assetPath: fixturePath,
         });
 
-        const op = opLoader.loadAPI('example-api:hello', ['fixtures']);
+        const op = opLoader.loadAPI('example-api:hello', [v2AssetName]);
 
         expect(op.API).not.toBeNil();
         expect(() => {
@@ -353,10 +356,10 @@ describe('OperationLoader', () => {
         const exConfig = newTestExecutionConfig();
         const opLoader = new OperationLoader({
             terasliceOpPath,
-            assetPath: path.join(__dirname),
+            assetPath: fixturePath,
         });
 
-        const op = opLoader.loadAPI('example-observer', ['fixtures']);
+        const op = opLoader.loadAPI('example-observer', [v2AssetName]);
 
         expect(op.API).not.toBeNil();
         expect(() => {
@@ -368,37 +371,37 @@ describe('OperationLoader', () => {
     it('should fail if given an api without the required files', () => {
         const opLoader = new OperationLoader({
             terasliceOpPath,
-            assetPath: path.join(__dirname),
+            assetPath: fixturePath,
         });
 
         expect(() => {
-            opLoader.loadAPI('empty-api', ['fixtures']);
+            opLoader.loadAPI('empty-api', [v2AssetName]);
         }).toThrowError(/requires at least an api\.js or observer\.js/);
     });
 
     it('should fail if given an api with both an observer and api', () => {
         const opLoader = new OperationLoader({
             terasliceOpPath,
-            assetPath: path.join(__dirname),
+            assetPath: fixturePath,
         });
 
         expect(() => {
-            opLoader.loadAPI('invalid-api-observer', ['fixtures']);
+            opLoader.loadAPI('invalid-api-observer', [v2AssetName]);
         }).toThrowError(/required only one api\.js or observer\.js/);
     });
 
     it('should fail if fetching a file with a . or _', () => {
         const opLoader = new OperationLoader({
             terasliceOpPath,
-            assetPath: path.join(__dirname),
+            assetPath: fixturePath,
         });
 
         expect(() => {
-            opLoader.loadProcessor('.dot-private-op', ['fixtures']);
+            opLoader.loadProcessor('.dot-private-op', [v2AssetName]);
         }).toThrowError();
 
         expect(() => {
-            opLoader.loadProcessor('_underscore-private-op', ['fixtures']);
+            opLoader.loadProcessor('_underscore-private-op', [v2AssetName]);
         }).toThrowError();
     });
 });
