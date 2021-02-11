@@ -93,10 +93,10 @@ operator just like any other operator, as shown below:</p>
     <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Update Rate Test"</span>,
     <span class="hljs-attr">"lifecycle"</span>: <span class="hljs-string">"once"</span>,
     <span class="hljs-attr">"workers"</span>: <span class="hljs-number">1</span>,
-    <span class="hljs-attr">"assets"</span>: [<span class="hljs-string">"elasticsearch"</span>, <span class="hljs-string">"example"</span>],
+    <span class="hljs-attr">"assets"</span>: [<span class="hljs-string">"elasticsearch"</span>, <span class="hljs-string">"standard"</span>, <span class="hljs-string">"example"</span>],
     <span class="hljs-attr">"operations"</span>: [
         {
-            <span class="hljs-attr">"_op"</span>: <span class="hljs-string">"elasticsearch_data_generator"</span>,
+            <span class="hljs-attr">"_op"</span>: <span class="hljs-string">"data_generator"</span>,
             <span class="hljs-attr">"size"</span>: <span class="hljs-number">5000</span>
         },
         {
@@ -104,12 +104,9 @@ operator just like any other operator, as shown below:</p>
             <span class="hljs-attr">"log_level"</span>: <span class="hljs-string">"debug"</span>
         },
         {
-            <span class="hljs-attr">"_op"</span>: <span class="hljs-string">"elasticsearch_index_selector"</span>,
-            <span class="hljs-attr">"index"</span>: <span class="hljs-string">"update-test-1"</span>,
-            <span class="hljs-attr">"type"</span>: <span class="hljs-string">"events"</span>
-        },
-        {
             <span class="hljs-attr">"_op"</span>: <span class="hljs-string">"elasticsearch_bulk"</span>,
+            <span class="hljs-attr">"index"</span>: <span class="hljs-string">"update-test-1"</span>,
+            <span class="hljs-attr">"type"</span>: <span class="hljs-string">"events"</span>,
             <span class="hljs-attr">"size"</span>: <span class="hljs-number">5000</span>
         }
     ]

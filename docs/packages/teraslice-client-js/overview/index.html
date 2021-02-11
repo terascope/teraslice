@@ -74,18 +74,16 @@ npm install --save teraslice-client-js
   <span class="hljs-string">"name"</span>: <span class="hljs-string">"Data Generator"</span>,
   <span class="hljs-string">"lifecycle"</span>: <span class="hljs-string">"once"</span>,
   <span class="hljs-string">"workers"</span>: <span class="hljs-number">1</span>,
+  <span class="hljs-string">"assets"</span>: [<span class="hljs-string">"standard"</span>, <span class="hljs-string">"elasticsearch"</span>],
   <span class="hljs-string">"operations"</span>: [
     {
-      <span class="hljs-string">"_op"</span>: <span class="hljs-string">"elasticsearch_data_generator"</span>,
+      <span class="hljs-string">"_op"</span>: <span class="hljs-string">"data_generator"</span>,
       <span class="hljs-string">"size"</span>: <span class="hljs-number">1</span>
     },
     {
-      <span class="hljs-string">"_op"</span>: <span class="hljs-string">"elasticsearch_index_selector"</span>,
-      <span class="hljs-string">"index"</span>: <span class="hljs-string">"client-test-logs"</span>,
-      <span class="hljs-string">"type"</span>: <span class="hljs-string">"events"</span>
-    },
-    {
       <span class="hljs-string">"_op"</span>: <span class="hljs-string">"elasticsearch_bulk"</span>,
+      <span class="hljs-string">"index"</span>: <span class="hljs-string">"client-test-logs"</span>,
+      <span class="hljs-string">"type"</span>: <span class="hljs-string">"events"</span>,
       <span class="hljs-string">"size"</span>: <span class="hljs-number">50</span>
     }
   ]
