@@ -78,6 +78,11 @@ export interface SerializeOptions {
     skipNilValues?: boolean;
 
     /**
+     * Don't return any empty List or Tuple values
+    */
+    skipEmptyArrays?: boolean;
+
+    /**
      * Don't return any values that are null/undefined
     */
     skipNilListValues?: boolean;
