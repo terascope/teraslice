@@ -38,11 +38,18 @@ export class TupleVector<
     valueToJSON(values: T, options?: SerializeOptions): any {
         const nilValue: any = options?.useNullForUndefined ? null : undefined;
 
-        return this.childFields.map((vector, index) => {
+        let nonNilValues = 0;
+        const result = this.childFields.map((vector, index) => {
             const value = values[index];
             if (value == null || !vector.valueToJSON) return value ?? nilValue;
+            nonNilValues++;
             return vector.valueToJSON(value, options);
         });
+
+        if (options?.skipEmptyArrays && !nonNilValues) {
+            return nilValue;
+        }
+        return result;
     }
 
     private _getChildName(index: number) {

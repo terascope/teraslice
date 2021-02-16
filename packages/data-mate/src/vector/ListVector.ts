@@ -54,6 +54,9 @@ export class ListVector<T = unknown> extends Vector<readonly Maybe<T>[]> {
         if (options?.skipDuplicateObjects && isObjectType) {
             result = dedupeValues(result);
         }
+        if (options?.skipEmptyArrays && !result.length) {
+            return options?.useNullForUndefined ? null : undefined;
+        }
         return result;
     }
 }
