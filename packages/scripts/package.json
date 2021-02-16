@@ -31,7 +31,7 @@
         "typescript": "~3.9.7"
     },
     "dependencies": {
-        "@lerna/query-graph": "^3.18.5",
+        "@lerna/query-graph": "^4.0.0",
         "@terascope/utils": "^0.36.2",
         "codecov": "^3.8.1",
         "execa": "^5.0.0",
