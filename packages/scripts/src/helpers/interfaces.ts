@@ -45,6 +45,11 @@ export type PackageConfig = {
     linkToMain?: boolean;
 };
 
+export enum Hook {
+    AFTER_RELEASE_BUMP = 'AFTER_RELEASE_BUMP',
+    AFTER_SYNC = 'AFTER_SYNC',
+}
+
 export type RootPackageInfo = {
     version: string;
     dir: string;
@@ -73,6 +78,11 @@ export type RootPackageInfo = {
         npm: {
             registry: string;
         };
+        /**
+         * The path to the javascript file to be called after
+         * the hook is registered
+        */
+        hook_file?: string;
     };
     resolutions: {
         [pattern: string]: string;

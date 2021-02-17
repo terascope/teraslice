@@ -4,6 +4,8 @@ import { SyncOptions } from './interfaces';
 import { getRootInfo } from '../misc';
 import * as utils from './utils';
 import { generateTSConfig } from './configs';
+import { executeHook } from '../hooks';
+import { Hook } from '../interfaces';
 
 export async function syncAll(options: SyncOptions): Promise<void> {
     await utils.verifyCommitted(options);
@@ -24,4 +26,6 @@ export async function syncAll(options: SyncOptions): Promise<void> {
     await generateTSConfig(pkgInfos, !options.quiet);
 
     await utils.verify(files, options);
+
+    await executeHook(Hook.AFTER_SYNC, rootInfo.version);
 }
