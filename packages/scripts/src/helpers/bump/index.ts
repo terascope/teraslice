@@ -1,10 +1,11 @@
 import { BumpPackageOptions } from './interfaces';
 import { listPackages, isMainPackage, updatePkgJSON } from '../packages';
-import { PackageInfo } from '../interfaces';
+import { Hook, PackageInfo } from '../interfaces';
 import { getRootInfo } from '../misc';
 import * as utils from './utils';
 import signale from '../signale';
 import { syncVersions } from '../sync/utils';
+import { executeHook } from '../hooks';
 
 export async function bumpPackages(options: BumpPackageOptions): Promise<void> {
     const rootInfo = getRootInfo();
@@ -20,16 +21,17 @@ export async function bumpPackages(options: BumpPackageOptions): Promise<void> {
     const bumpedMain = mainInfo ? packagesToBump[mainInfo.name] : false;
 
     if (bumpedMain) {
+        await executeHook(Hook.AFTER_RELEASE_BUMP, mainInfo!.version);
         signale.note(`IMPORTANT: make sure create release of v${mainInfo!.version} after merging`);
     }
 
     syncVersions(_packages, rootInfo);
 
     for (const pkgInfo of packages) {
-        updatePkgJSON(pkgInfo);
+        await updatePkgJSON(pkgInfo);
     }
 
-    updatePkgJSON(rootInfo);
+    await updatePkgJSON(rootInfo);
 
     signale.success(`
 

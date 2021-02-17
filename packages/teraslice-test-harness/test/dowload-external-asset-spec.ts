@@ -71,6 +71,7 @@ describe('download-external-asset', () => {
 
     beforeEach(async () => {
         await fs.remove(externalPathLocation);
+        await fs.ensureDir(externalPathLocation);
     });
 
     afterEach(async () => {

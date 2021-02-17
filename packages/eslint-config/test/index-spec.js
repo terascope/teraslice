@@ -26,7 +26,7 @@ describe('ESLint Config Index', () => {
     it('should export a list overrides with typescript and react support', () => {
         expect(Index).toHaveProperty('overrides');
         expect(Index.overrides).toBeArray();
-        expect(Index.overrides[0]).toMatchObject({
+        expect(Index.overrides[1]).toMatchObject({
             files: ['*.jsx', '*.tsx'],
             extends: ['plugin:@typescript-eslint/recommended', 'plugin:react-hooks/recommended', 'airbnb'],
             parser: '@typescript-eslint/parser',
@@ -46,7 +46,7 @@ describe('ESLint Config Index', () => {
             },
         });
 
-        expect(Index.overrides[1]).toMatchObject({
+        expect(Index.overrides[2]).toMatchObject({
             files: ['*.ts'],
             extends: ['plugin:@typescript-eslint/recommended', 'airbnb-base'],
             plugins: ['@typescript-eslint'],

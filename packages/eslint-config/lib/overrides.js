@@ -14,6 +14,23 @@ const overrides = [];
 if (hasTypescript) {
     overrides.push(
         {
+            files: ['*.mjs'],
+            extends: ['airbnb-base'],
+            parserOptions: {
+                ecmaVersion: 8,
+                sourceType: 'module',
+                ecmaFeatures: {
+                    modules: true,
+                },
+            },
+            env: {
+                node: true,
+                jasmine: true,
+                jest: true,
+            },
+            rules: rules.javascript,
+        },
+        {
             // overrides just for react files
             files: ['*.jsx', '*.tsx'],
             extends: ['plugin:@typescript-eslint/recommended', 'plugin:react-hooks/recommended', 'airbnb'],
