@@ -55,6 +55,44 @@ describe('DataFrame', () => {
         expect(resultFrame.id).toEqual(dataFrame.id);
     });
 
+    it('should throw a readable error when calling getColumnOrThrow', () => {
+        const dataFrame = DataFrame.fromJSON({
+            version: LATEST_VERSION,
+            fields: {
+                name: {
+                    type: FieldType.Keyword,
+                }
+            }
+        }, [
+            {
+                name: 'Billy'
+            }
+        ]);
+        expect(() => {
+            dataFrame.getColumnOrThrow('unknown' as any);
+        }).toThrowError('Unknown column unknown in DataFrame');
+    });
+
+    it('should throw a readable error when calling getColumnOrThrow and the data frame is named', () => {
+        const dataFrame = DataFrame.fromJSON({
+            version: LATEST_VERSION,
+            fields: {
+                name: {
+                    type: FieldType.Keyword,
+                }
+            }
+        }, [
+            {
+                name: 'Billy'
+            }
+        ], {
+            name: 'example'
+        });
+        expect(() => {
+            dataFrame.getColumnOrThrow('unknown' as any);
+        }).toThrowError('Unknown column unknown in example DataFrame');
+    });
+
     it('should handle a single column with null/undefined values', () => {
         const dataFrame = DataFrame.fromJSON({
             version: LATEST_VERSION,
