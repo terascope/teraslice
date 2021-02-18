@@ -566,11 +566,19 @@ export class DataFrame<
      * all of the config matches in the Data Frame. If you're not
      * absolutely sure, use DataFrame->concat
     */
-    appendAll(frames: Iterable<DataFrame<T>>): DataFrame<T> {
+    appendAll(frames: Iterable<DataFrame<T>>, limit?: number): DataFrame<T> {
         let { size } = this;
         for (const frame of frames) {
+            if (limit != null && size >= limit) {
+                break;
+            }
             size += frame.size;
         }
+
+        if (limit != null && size > limit) {
+            size = limit;
+        }
+
         // nothing changed
         if (size === this.size) return this;
 
@@ -580,18 +588,26 @@ export class DataFrame<
 
         let currIndex = this.size;
         for (const frame of frames) {
+            // no need to process more frames
+            if (currIndex > size) break;
+
             for (const column of frame.columns) {
                 const builder = builders.get(column.name);
                 if (builder) {
                     for (let i = 0; i < frame.size; i++) {
                         // this just copies the underlying data
                         const value = column.vector.data.values.get(i);
+                        const valueIndex = currIndex + i;
+                        // don't exceed the limit size
+                        if ((valueIndex + 1) > size) break;
+
                         if (value != null) {
-                            builder.data.set(currIndex + i, value);
+                            builder.data.set(valueIndex, value);
                         }
                     }
                 }
             }
+
             currIndex += frame.size;
         }
 
@@ -668,7 +684,7 @@ export class DataFrame<
     getColumnOrThrow<P extends keyof T>(field: P): Column<T[P], P> {
         const column = this.getColumn(field);
         if (!column) {
-            throw new Error(`Unknown column ${field} in ${
+            throw new Error(`Unknown column ${field} in${
                 this.name ? ` ${this.name}` : ''
             } ${this.constructor.name}`);
         }

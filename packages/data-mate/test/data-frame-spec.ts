@@ -55,6 +55,44 @@ describe('DataFrame', () => {
         expect(resultFrame.id).toEqual(dataFrame.id);
     });
 
+    it('should throw a readable error when calling getColumnOrThrow', () => {
+        const dataFrame = DataFrame.fromJSON({
+            version: LATEST_VERSION,
+            fields: {
+                name: {
+                    type: FieldType.Keyword,
+                }
+            }
+        }, [
+            {
+                name: 'Billy'
+            }
+        ]);
+        expect(() => {
+            dataFrame.getColumnOrThrow('unknown' as any);
+        }).toThrowError('Unknown column unknown in DataFrame');
+    });
+
+    it('should throw a readable error when calling getColumnOrThrow and the data frame is named', () => {
+        const dataFrame = DataFrame.fromJSON({
+            version: LATEST_VERSION,
+            fields: {
+                name: {
+                    type: FieldType.Keyword,
+                }
+            }
+        }, [
+            {
+                name: 'Billy'
+            }
+        ], {
+            name: 'example'
+        });
+        expect(() => {
+            dataFrame.getColumnOrThrow('unknown' as any);
+        }).toThrowError('Unknown column unknown in example DataFrame');
+    });
+
     it('should handle a single column with null/undefined values', () => {
         const dataFrame = DataFrame.fromJSON({
             version: LATEST_VERSION,
@@ -1046,6 +1084,72 @@ describe('DataFrame', () => {
                     data.concat(data, data, data)
                 );
                 expect(resultFrame.size).toEqual(peopleDataFrame.size * 4);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+            });
+
+            it('should be able to append itself four times but limit itself', () => {
+                const limitSize = Math.round(peopleDataFrame.size * 3.5);
+
+                const resultFrame = peopleDataFrame.appendAll([
+                    peopleDataFrame, peopleDataFrame, peopleDataFrame, peopleDataFrame
+                ], limitSize);
+
+                const data = peopleDataFrame.toJSON();
+                expect(resultFrame.toJSON()).toEqual(
+                    data.concat(data, data, data).slice(0, limitSize)
+                );
+                expect(resultFrame.size).toEqual(limitSize);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+            });
+
+            it('should be able to append itself two times and ignore a limit greater than provided size', () => {
+                const limitSize = peopleDataFrame.size * 4;
+
+                const resultFrame = peopleDataFrame.appendAll([
+                    peopleDataFrame, peopleDataFrame
+                ], limitSize);
+
+                expect(resultFrame.size).toEqual(peopleDataFrame.size * 3);
+
+                const data = peopleDataFrame.toJSON();
+                expect(resultFrame.toJSON()).toEqual(
+                    data.concat(data, data)
+                );
+
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+            });
+
+            it('should be able to append itself and limit itself to the original size', () => {
+                const limitSize = peopleDataFrame.size;
+
+                const resultFrame = peopleDataFrame.appendAll([
+                    peopleDataFrame
+                ], limitSize);
+
+                expect(resultFrame.id).toEqual(peopleDataFrame.id);
+            });
+
+            it('should be able to append itself but limit itself to 0', () => {
+                const limitSize = 0;
+
+                const resultFrame = peopleDataFrame.appendAll([
+                    peopleDataFrame
+                ], limitSize);
+
+                expect(resultFrame.toJSON()).toEqual([]);
+                expect(resultFrame.size).toEqual(limitSize);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+            });
+
+            it('should be able to append itself but limit itself to 1', () => {
+                const limitSize = 1;
+
+                const resultFrame = peopleDataFrame.appendAll([
+                    peopleDataFrame
+                ], limitSize);
+
+                expect(resultFrame.toJSON()).toEqual(peopleDataFrame.limit(1).toJSON());
+                expect(resultFrame.size).toEqual(limitSize);
                 expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
         });

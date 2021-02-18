@@ -360,7 +360,7 @@ export class AggregationFrame<
     getColumnOrThrow<P extends keyof T>(field: P): Column<T[P], P> {
         const column = this.getColumn(field);
         if (!column) {
-            throw new Error(`Unknown column ${field} in ${
+            throw new Error(`Unknown column ${field} in${
                 this.name ? ` ${this.name}` : ''
             } ${this.constructor.name}`);
         }
