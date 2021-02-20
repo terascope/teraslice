@@ -1,3 +1,9 @@
+# NOTES:
+# * This makefile has been switched to us yq v4, which has a syntax change.  If
+#   you are seeing yq related errors, it may be that you are using yq v3.  There
+#   are probably better ways to do this than with yq at this point, maybe
+#   kustomize.
+
 .DEFAULT_GOAL := help
 .PHONY: help build build-and-push start stop show destroy destroy-all logs logs-master logs-slicer logs-worker teraslice-master setup setup-all rebuild elasticsearch deelasticsearch namespace delete-namespace role delete-role binding delete-binding auth deauth showauth
 SHELL := bash
@@ -61,7 +67,8 @@ logs-worker: ## show logs for k8s teraslice workers
 master-start: ## start teraslice master in k8s or locally
 ifeq ($(TERASLICE_MODE),minikube)
 	# Deploy master to Kubernetes
-	yq w masterDeployment.yaml spec.template.spec.containers[0].image $(TERASLICE_K8S_IMAGE) | kubectl create --namespace $(NAMESPACE) -f -
+	yq eval "select(documentIndex == 0) | .spec.template.spec.containers[0].image = \"$(TERASLICE_K8S_IMAGE)\"" masterDeployment.yaml | kubectl create --namespace $(NAMESPACE) -f -
+	yq eval "select(documentIndex == 1)" masterDeployment.yaml | kubectl create --namespace $(NAMESPACE) -f -
 else
 	# Run Master Locally
 	./run-ts-master.sh
@@ -102,19 +109,19 @@ deelasticsearch: elasticsearchDeployment.yaml ## delete elasticsearch from k8s
 	kubectl delete --namespace $(NAMESPACE) -f ./elasticsearchDeployment.yaml
 
 namespace: ns.yaml ## create namespace
-	yq w ns.yaml metadata.name $(NAMESPACE) | kubectl create -f -
+	yq eval ".metadata.name = \"$(NAMESPACE)\"" ns.yaml | kubectl create -f -
 
 delete-namespace:
-	kubectl delete namespace $(NAMESPACE)
+	kubectl delete namespace $(NAMESPACE) || echo "* it is okay..."
 
 role: role.yaml ## create role with specified NAMESPACE
-	yq w role.yaml metadata.namespace $(NAMESPACE) | yq w - metadata.name teraslice-all-$(NAMESPACE) | kubectl create -f -
+	yq eval ".metadata.namespace = \"$(NAMESPACE)\"" role.yaml | yq eval ".metadata.name = \"teraslice-all-$(NAMESPACE)\"" - | kubectl create -f -
 
 delete-role:
-	kubectl delete --namespace $(NAMESPACE) roles teraslice-all-$(NAMESPACE)
+	kubectl delete --namespace $(NAMESPACE) roles teraslice-all-$(NAMESPACE) || echo "* it is okay..."
 
 binding: roleBinding.yaml ## bind NAMESPACE default service acount to teraslice-all-NAMESPACE role
-	yq w roleBinding.yaml metadata.namespace $(NAMESPACE) | yq w - metadata.name teraslice-all-$(NAMESPACE) | yq w - subjects[0].namespace $(NAMESPACE) | yq w - roleRef.name teraslice-all-$(NAMESPACE) | kubectl create -f - || true
+	yq eval ".metadata.namespace = \"$(NAMESPACE)\"" roleBinding.yaml | yq eval ".metadata.name = \"teraslice-all-$(NAMESPACE)\"" - | yq eval ".subjects[0].namespace = \"$(NAMESPACE)\"" - | yq eval ".roleRef.name = \"teraslice-all-$(NAMESPACE)\"" - | kubectl create -f - || true
 
 delete-binding:
 	kubectl delete --namespace $(NAMESPACE) roleBindings teraslice-all-$(NAMESPACE)
@@ -129,22 +136,22 @@ showauth: ## Show roles and roleBindings
 
 configs: ## create the configmaps
 ifeq ($(TERASLICE_MODE),minikube)
-	yq w teraslice-worker.yaml.tpl teraslice.kubernetes_image $(TERASLICE_K8S_IMAGE) | yq w - teraslice.kubernetes_namespace $(NAMESPACE) > teraslice.yaml
+	yq eval ".teraslice.kubernetes_image = \"$(TERASLICE_K8S_IMAGE)\"" teraslice-worker.yaml.tpl | yq eval ".teraslice.kubernetes_namespace = \"$(NAMESPACE)\"" - > teraslice.yaml
 	kubectl create --namespace $(NAMESPACE) configmap teraslice-worker --from-file=teraslice.yaml || echo "* it is okay..."
 	rm teraslice.yaml
-	yq w teraslice-master.yaml.tpl teraslice.kubernetes_image $(TERASLICE_K8S_IMAGE) | yq w - teraslice.kubernetes_namespace $(NAMESPACE) > teraslice.yaml
+	yq eval ".teraslice.kubernetes_image = \"$(TERASLICE_K8S_IMAGE)\"" teraslice-master.yaml.tpl | yq eval ".teraslice.kubernetes_namespace = \"$(NAMESPACE)\"" - > teraslice.yaml
 	kubectl create --namespace $(NAMESPACE) configmap teraslice-master --from-file=teraslice.yaml
 	rm teraslice.yaml
 else
 	# This adds the minikube vm's host machines IP where the master runs in the
 	# hybrid case
-	yq w teraslice-worker.yaml.tpl teraslice.kubernetes_image $(TERASLICE_K8S_IMAGE) | yq w - teraslice.master_hostname $(HOST_IP) | yq w - teraslice.kubernetes_namespace $(NAMESPACE) > teraslice.yaml
+	yq eval ".teraslice.kubernetes_image = \"$(TERASLICE_K8S_IMAGE)\"" teraslice-worker.yaml.tpl | yq eval ".teraslice.master_hostname = \"$(HOST_IP)\"" - | yq eval ".teraslice.kubernetes_namespace = \"$(NAMESPACE)\"" - > teraslice.yaml
 	kubectl create --namespace $(NAMESPACE) configmap teraslice-worker --from-file=teraslice.yaml || echo "* it is okay..."
 	rm teraslice.yaml
 	# FIXME: Figure out where to clean this up
 	# Note that the ES Port Here is 30200 because that is the port the service
 	# NodePort gets exposed on
-	yq w teraslice-master.yaml.tpl terafoundation.connectors.elasticsearch.default.host[0] $(shell minikube ip):30200 | yq w - teraslice.kubernetes_image $(TERASLICE_K8S_IMAGE) | yq w - teraslice.assets_directory /tmp/assets > teraslice-master-local.yaml
+	yq eval ".terafoundation.connectors.elasticsearch.default.host[0] = \"$(shell minikube ip):30200\"" teraslice-master.yaml.tpl | yq eval ".teraslice.kubernetes_image = \"$(TERASLICE_K8S_IMAGE)\"" - | yq eval ".teraslice.assets_directory = \"/tmp/assets\"" - > teraslice-master-local.yaml
 endif
 
 build: ## builds docker images
