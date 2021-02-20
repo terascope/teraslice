@@ -115,6 +115,18 @@ Jobs so that they can be targetted to specific parts of your k8s infrastructure.
 Support for Kubernetes based clustering adds additional properties to a
 Teraslice job definition.  These are outlined below.
 
+### Ephemeral Storage
+
+If your Teraslice job uses a processor that needs temporary local storage that
+persists in the Kubernets Pod across container restarts, you can set the
+Teraslice Job Property `ephemeral_storage` to `true` on your job as shown
+below.  This will create an [`emptyDir`](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir)
+style Ephemeral Volume accessible in your pod at the path `/scratch`.
+
+```json
+    "ephemeral_storage": true
+```
+
 ### Labels
 
 Key value pairs added into a job's `labels` array, as shown below, will result
