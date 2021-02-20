@@ -232,6 +232,12 @@ export function jobSchema(context: Context): convict.Schema<any> {
             format: 'Number',
         };
 
+        schemas.ephemeral_storage = {
+            doc: 'Add ephemeral storage volume to worker and execution controller pods',
+            default: false,
+            format: Boolean
+        };
+
         schemas.memory = {
             doc: 'memory, in bytes, to reserve per teraslice worker in kubernetes',
             default: undefined,

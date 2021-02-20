@@ -7,6 +7,7 @@
         "elasticsearch",
         "standard"
     ],
+    "ephemeral_storage": true,
     "operations": [
         {
             "_op": "data_generator",
