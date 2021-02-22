@@ -386,6 +386,21 @@ module.exports = function executionService(context, { clusterMasterServer }) {
         // listen for an execution finished events
         clusterMasterServer.onExecutionFinished(finishExecution);
 
+        // sometimes in development an execution gets stuck in stopping
+        // status since the process gets force killed in before it
+        // can be updated to stopped.
+        const stopping = await exStore.search('_status:stopping');
+        for (const execution of stopping) {
+            const updatedAt = new Date(execution._updated).getTime();
+            const updatedWithTimeout = updatedAt + context.sysconfig.teraslice.shutdown_timeout;
+            // Since we don't want to break executions that actually are "stopping"
+            // we need to verify that the job has exceeded the shutdown timeout
+            if (Date.now() > updatedWithTimeout) {
+                logger.info(`stopping stuck executing ${execution._status} execution: ${execution.ex_id}`);
+                await exStore.setStatus(execution.ex_id, 'stopped');
+            }
+        }
+
         const pending = await exStore.search('_status:pending', null, 10000, '_created:asc');
         for (const execution of pending) {
             logger.info(`enqueuing ${execution._status} execution: ${execution.ex_id}`);
