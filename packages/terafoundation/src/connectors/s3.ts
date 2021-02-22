@@ -1,7 +1,7 @@
 import fs from 'fs';
 import https from 'https';
 import { Logger } from '@terascope/utils';
-import { defer, promisifyAll } from 'bluebird';
+import { promisifyAll } from 'bluebird';
 
 function create(customConfig: Record<string, any>, logger: Logger): {
     client: any;
@@ -10,17 +10,12 @@ function create(customConfig: Record<string, any>, logger: Logger): {
 
     logger.info(`Using S3 endpoint: ${customConfig.endpoint}`);
 
-    customConfig.defer = function _defer() {
-        return defer();
-    };
-
     // https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/node-registering-certs.html
     // Instead of updating the client, we can just update the config before creating the client
     if (customConfig.sslEnabled) {
         if (customConfig.certLocation.length === 0) {
             throw new Error(
-                `Must provide a certificate for S3 endpoint ${customConfig.endpoint} since SSL is`
-                + 'enabled!'
+                `Must provide a certificate for S3 endpoint ${customConfig.endpoint} since SSL is enabled`
             );
         }
         // Assumes all certs needed are in a single bundle
