@@ -367,7 +367,7 @@ describe('k8sResource', () => {
                 .toEqual(
                     [
                         { mountPath: '/app/config', name: 'config' },
-                        { name: 'scratch-volume', mountPath: '/scratch' }
+                        { name: 'ephemeral-volume', mountPath: '/ephemeral0' }
                     ]
                 );
         });

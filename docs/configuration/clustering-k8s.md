@@ -92,17 +92,17 @@ it's just kind of nice to have.
 The table below shows the Teraslice Master configuration settings added to
 support k8s based Teraslice deployments.
 
-|        Configuration           |                                                                        Description                                                                         |  Type  |  Notes   |
-| :----------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------: | :----: | :------: |
-|         assets_volume          |                               Name of kubernetes volume to be shared across all pods, where Teraslice assets will be stored                                | String | optional |
-|    cpu_execution_controller    |                                       CPU resources to use for Execution Controller request and limit values                                               | Number | optional |
-|  execution_controller_targets  |                                 array of `{"key": "rack", "value": "alpha"}` targets for execution controllers                                             | String | optional |
-|        kubernetes_image        |                                                     Name of docker image, default: `teraslice:k8sdev`                                                      | String | optional |
-|  kubernetes_image_pull_secret  |                                                    Secret used to pull docker images from private repo                                                     | String | optional |
-|   kubernetes_config_map_name   | Name of the configmap used by worker and execution_controller containers for config.  If this is not provided, the default will be `<CLUSTER_NAME>-worker` | String | optional |
-|      kubernetes_namespace      |                                       Kubernetes Namespace that Teraslice will run in, default namespace: 'default'                                        | String | optional |
+|         Configuration          |                                                                        Description                                                                         |  Type   |  Notes   |
+| :----------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----: | :------: |
+|         assets_volume          |                               Name of kubernetes volume to be shared across all pods, where Teraslice assets will be stored                                | String  | optional |
+|    cpu_execution_controller    |                                           CPU resources to use for Execution Controller request and limit values                                           | Number  | optional |
+|  execution_controller_targets  |                                       array of `{"key": "rack", "value": "alpha"}` targets for execution controllers                                       | String  | optional |
+|        kubernetes_image        |                                                     Name of docker image, default: `teraslice:k8sdev`                                                      | String  | optional |
+|  kubernetes_image_pull_secret  |                                                    Secret used to pull docker images from private repo                                                     | String  | optional |
+|   kubernetes_config_map_name   | Name of the configmap used by worker and execution_controller containers for config.  If this is not provided, the default will be `<CLUSTER_NAME>-worker` | String  | optional |
+|      kubernetes_namespace      |                                       Kubernetes Namespace that Teraslice will run in, default namespace: 'default'                                        | String  | optional |
 | kubernetes_worker_antiaffinity |                                   If `true`, pod antiaffinity will be enabled for Teraslice workers, `false` by default                                    | Boolean | optional |
-|   memory_execution_controller  |                                       Memory resources to use for Execution Controller request and limit values                                            | Number | optional |
+|  memory_execution_controller   |                                         Memory resources to use for Execution Controller request and limit values                                          | Number  | optional |
 
 Note that the `assets_volume` should also be mounted to your Teraslice master pod.
 
@@ -121,7 +121,7 @@ If your Teraslice job uses a processor that needs temporary local storage that
 persists in the Kubernets Pod across container restarts, you can set the
 Teraslice Job Property `ephemeral_storage` to `true` on your job as shown
 below.  This will create an [`emptyDir`](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir)
-style Ephemeral Volume accessible in your pod at the path `/scratch`.
+style Ephemeral Volume accessible in your pod at the path `/ephemeral0`.
 
 ```json
     "ephemeral_storage": true

@@ -170,11 +170,11 @@ class K8sResource {
     _setEphemeralStorage() {
         if (this.execution.ephemeral_storage) {
             this.resource.spec.template.spec.containers[0].volumeMounts.push({
-                name: 'scratch-volume',
-                mountPath: '/scratch'
+                name: 'ephemeral-volume',
+                mountPath: '/ephemeral0'
             });
             this.resource.spec.template.spec.volumes.push({
-                name: 'scratch-volume',
+                name: 'ephemeral-volume',
                 emptyDir: {}
             });
         }
