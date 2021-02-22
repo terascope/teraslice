@@ -231,6 +231,11 @@ const schema = {
         default: 0.5,
         format: 'Number'
     },
+    ephemeral_storage: {
+        doc: 'Add ephemeral storage volume to worker and execution controller pods',
+        default: false,
+        format: Boolean
+    },
     memory: {
         doc: 'memory, in bytes, to reserve per teraslice worker in kubernetes',
         default: undefined,

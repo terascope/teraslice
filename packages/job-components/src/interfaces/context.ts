@@ -27,6 +27,8 @@ export interface TerasliceConfig {
     cpu?: number;
     /** This will only be available in the context of k8s */
     cpu_execution_controller?: number|0.5;
+    /** This will only be available in the context of k8s */
+    ephemeral_storage?: boolean|false;
     execution_controller_targets?: ExecutionControllerTargets[];
     hostname: string;
     index_rollover_frequency: IndexRolloverFrequency;

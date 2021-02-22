@@ -50,6 +50,7 @@ class K8sResource {
         this._setVolumes();
         this._setAssetsVolume();
         this._setImagePullSecret();
+        this._setEphemeralStorage();
 
         if (resourceName === 'worker') {
             this._setAntiAffinity();
@@ -162,6 +163,19 @@ class K8sResource {
             _.forEach(this.terasliceConfig.execution_controller_targets, (target) => {
                 this._setTargetRequired(target);
                 this._setTargetAccepted(target);
+            });
+        }
+    }
+
+    _setEphemeralStorage() {
+        if (this.execution.ephemeral_storage) {
+            this.resource.spec.template.spec.containers[0].volumeMounts.push({
+                name: 'ephemeral-volume',
+                mountPath: '/ephemeral0'
+            });
+            this.resource.spec.template.spec.volumes.push({
+                name: 'ephemeral-volume',
+                emptyDir: {}
             });
         }
     }

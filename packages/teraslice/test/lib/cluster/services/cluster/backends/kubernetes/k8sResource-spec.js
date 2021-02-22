@@ -355,6 +355,33 @@ describe('k8sResource', () => {
                   limits:
                     cpu: 1`));
         });
+
+        it('has scratch volume when ephemeral_storage is set true on execution', () => {
+            execution.ephemeral_storage = true;
+
+            const kr = new K8sResource(
+                'deployments', 'worker', terasliceConfig, execution
+            );
+
+            expect(kr.resource.spec.template.spec.containers[0].volumeMounts)
+                .toEqual(
+                    [
+                        { mountPath: '/app/config', name: 'config' },
+                        { name: 'ephemeral-volume', mountPath: '/ephemeral0' }
+                    ]
+                );
+        });
+
+        it('does not have scratch volume when ephemeral_storage is set false on execution', () => {
+            execution.ephemeral_storage = false;
+
+            const kr = new K8sResource(
+                'deployments', 'worker', terasliceConfig, execution
+            );
+
+            expect(kr.resource.spec.template.spec.containers[0].volumeMounts)
+                .toEqual([{ mountPath: '/app/config', name: 'config' }]);
+        });
     });
 
     describe('worker deployments with targets', () => {
