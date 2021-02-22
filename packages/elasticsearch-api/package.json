@@ -20,7 +20,7 @@
     "dependencies": {
         "@terascope/utils": "^0.36.2",
         "bluebird": "^3.7.2",
-        "lodash": "^4.17.20"
+        "lodash": "^4.17.21"
     },
     "devDependencies": {
         "@types/elasticsearch": "^5.0.37",

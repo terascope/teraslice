@@ -26,7 +26,7 @@
     "dependencies": {
         "@terascope/utils": "^0.36.2",
         "chalk": "^4.1.0",
-        "lodash": "^4.17.20",
+        "lodash": "^4.17.21",
         "yeoman-generator": "^4.13.0",
         "yosay": "^2.0.1"
     },
