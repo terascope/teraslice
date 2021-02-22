@@ -1,7 +1,7 @@
 {
     "name": "teraslice",
     "displayName": "Teraslice",
-    "version": "0.73.0",
+    "version": "0.73.1",
     "description": "Distributed computing platform for processing JSON data",
     "homepage": "https://github.com/terascope/teraslice#readme",
     "bugs": {
@@ -61,7 +61,7 @@
         "semver": "^7.3.4",
         "socket.io": "^1.7.4",
         "socket.io-client": "^1.7.4",
-        "terafoundation": "^0.30.2",
+        "terafoundation": "^0.30.3",
         "uuid": "^8.3.2"
     },
     "devDependencies": {
