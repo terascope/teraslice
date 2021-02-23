@@ -105,6 +105,8 @@ describe('tjm-util stop function', () => {
     });
 
     it('should throw an error if the status is not stopped', async () => {
+        expect.hasAssertions();
+
         job.id = 'testJobId';
         job.name = 'testJobName';
         job.clusterUrl = 'testCluster';
@@ -115,16 +117,16 @@ describe('tjm-util stop function', () => {
         try {
             await tjmUtil.stop();
         } catch (e) {
-            expect(e.message).toBe('Could not stop testJobName on testCluster');
+            expect(e.message).toBe('Could not stop job testJobName on testCluster, current job status is running');
         }
     });
 
-    it('should wait for job to stop if status is stopping', async () => {
+    it('should stop the job again if status is stopping', async () => {
         job.id = 'testJobId';
         job.name = 'testJobName';
         job.clusterUrl = 'testCluster';
         statusResponse = 'stopping';
-        waitStatus = 'stopped';
+        stopResponse = { status: 'stopped' };
 
         const tjmUtil = new TjmUtil(client, job);
         const response = await tjmUtil.stop();

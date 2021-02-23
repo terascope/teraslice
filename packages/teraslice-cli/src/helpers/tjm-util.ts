@@ -1,9 +1,9 @@
-import { TerasliceClient, ExecutionStatus } from 'teraslice-client-js';
+import { TerasliceClient } from 'teraslice-client-js';
 import reply from '../helpers/reply';
 
 export default class TjmUtil {
     client: TerasliceClient;
-    job: any;
+    job: Record<string, any>;
 
     constructor(client: TerasliceClient, job: Record<string, any>) {
         this.client = client;
@@ -59,26 +59,24 @@ export default class TjmUtil {
 
         try {
             const status = await this.client.jobs.wrap(this.job.id).status();
-
-            if (status === 'stopping') {
-                reply.green(`job: ${this.job.name} is stopping, wait for job to stop`);
-                await this.client.jobs.wrap(this.job.id).waitForStatus(ExecutionStatus.stopped);
-                reply.green(`Stopped job ${this.job.name} on ${this.job.clusterUrl}`);
+            if (status === 'stopped') {
+                reply.info(`> job: ${this.job.name}, job id: ${this.job.id}, is already stopped running on cluster: ${this.job.clusterUrl}`);
                 return;
             }
 
             if (terminalStatuses.includes(status)) {
-                reply.green(`job: ${this.job.name}, job id: ${this.job.id}, is not running.  Current status is ${status} on cluster: ${this.job.clusterUrl}`);
-            } else {
-                reply.green(`attempting to stop job: ${this.job.name}, job id: ${this.job.id}, on cluster ${this.job.clusterUrl}`);
-                const response = await this.client.jobs.wrap(this.job.id).stop();
-                const jobStatus = response.status;
+                reply.info(`> job: ${this.job.name}, job id: ${this.job.id}, is not running. Current status is ${status} on cluster: ${this.job.clusterUrl}`);
+                return;
+            }
 
-                if (jobStatus !== 'stopped') {
-                    reply.fatal(`Could not stop ${this.job.name} on ${this.job.clusterUrl}`);
-                }
+            reply.green(`attempting to stop job: ${this.job.name}, job id: ${this.job.id}, on cluster ${this.job.clusterUrl}`);
+            const response = await this.client.jobs.wrap(this.job.id).stop();
+            const jobStatus = response.status;
 
+            if (jobStatus === 'stopped') {
                 reply.green(`Stopped job ${this.job.name} on ${this.job.clusterUrl}`);
+            } else {
+                reply.fatal(`Could not stop job ${this.job.name} on ${this.job.clusterUrl}, current job status is ${jobStatus}`);
             }
         } catch (e) {
             reply.fatal(e);

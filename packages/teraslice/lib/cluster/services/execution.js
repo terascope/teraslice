@@ -14,6 +14,7 @@ const {
     includes,
     cloneDeep,
 } = require('@terascope/utils');
+const { setInterval } = require('timers');
 const { makeLogger } = require('../../workers/helpers/terafoundation');
 
 /**
@@ -41,6 +42,7 @@ module.exports = function executionService(context, { clusterMasterServer }) {
     let stateStore;
     let clusterService;
     let allocateInterval;
+    let reapInterval;
 
     function enqueue(ex) {
         const size = pendingExecutionQueue.size();
@@ -87,7 +89,9 @@ module.exports = function executionService(context, { clusterMasterServer }) {
         logger.info('shutting down');
 
         clearInterval(allocateInterval);
+        clearInterval(reapInterval);
         allocateInterval = null;
+        reapInterval = null;
 
         const query = exStore.getLivingStatuses().map((str) => `_status:${str}`).join(' OR ');
         const executions = await exStore.search(query);
@@ -369,6 +373,29 @@ module.exports = function executionService(context, { clusterMasterServer }) {
         };
     }
 
+    async function reapExecutions() {
+        // make sure to capture the error avoid throwing an
+        // unhandled rejection
+        try {
+            // sometimes in development an execution gets stuck in stopping
+            // status since the process gets force killed in before it
+            // can be updated to stopped.
+            const stopping = await exStore.search('_status:stopping');
+            for (const execution of stopping) {
+                const updatedAt = new Date(execution._updated).getTime();
+                const updatedWithTimeout = updatedAt + context.sysconfig.teraslice.shutdown_timeout;
+                // Since we don't want to break executions that actually are "stopping"
+                // we need to verify that the job has exceeded the shutdown timeout
+                if (Date.now() > updatedWithTimeout) {
+                    logger.info(`stopping stuck executing ${execution._status} execution: ${execution.ex_id}`);
+                    await exStore.setStatus(execution.ex_id, 'stopped');
+                }
+            }
+        } catch (err) {
+            logger.error(err, 'failure reaping executions');
+        }
+    }
+
     async function initialize() {
         exStore = context.stores.execution;
         stateStore = context.stores.state;
@@ -386,6 +413,10 @@ module.exports = function executionService(context, { clusterMasterServer }) {
         // listen for an execution finished events
         clusterMasterServer.onExecutionFinished(finishExecution);
 
+        // lets call this before calling it
+        // in the background
+        await reapExecutions();
+
         const pending = await exStore.search('_status:pending', null, 10000, '_created:asc');
         for (const execution of pending) {
             logger.info(`enqueuing ${execution._status} execution: ${execution.ex_id}`);
@@ -401,6 +432,10 @@ module.exports = function executionService(context, { clusterMasterServer }) {
         }
 
         allocateInterval = setInterval(_executionAllocator(), 1000);
+        reapInterval = setInterval(
+            reapExecutions,
+            context.sysconfig.teraslice.shutdown_timeout || 30000
+        );
     }
 
     return {
