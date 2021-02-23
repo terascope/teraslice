@@ -46,7 +46,7 @@
         "pkg-up": "^3.1.0",
         "semver": "^7.3.4",
         "signale": "^1.4.0",
-        "sort-package-json": "~1.48.1",
+        "sort-package-json": "~1.49.0",
         "typedoc": "^0.20.27",
         "typedoc-plugin-markdown": "^3.5.0",
         "yargs": "^16.2.0"
