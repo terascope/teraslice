@@ -240,7 +240,14 @@ class ExecutionController {
             this.slicerAnalytics = makeSliceAnalytics(this.context, this.executionContext);
         }
 
-        await this.scheduler.initialize();
+        // This initializes user code, need to throw terminal error
+        // so it can be surfaced
+        try {
+            await this.scheduler.initialize();
+        } catch (err) {
+            await this._terminalError(err);
+            throw err;
+        }
 
         this.logger.info(`execution: ${this.exId} initialized execution_controller`);
 
@@ -248,6 +255,8 @@ class ExecutionController {
     }
 
     async run() {
+        if (!this.isInitialized) return;
+
         this._startWorkConnectWatchDog();
 
         this.executionAnalytics.start();
