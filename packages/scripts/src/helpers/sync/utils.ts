@@ -179,18 +179,20 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
         }
     }
 
-    for (const pkgInfo of packages) {
+    function updateDepVersions() {
+        for (const pkgInfo of packages) {
+            for (const key of Object.values(DepKey)) {
+                forDeps(pkgInfo, key);
+            }
+        }
         for (const key of Object.values(DepKey)) {
-            forDeps(pkgInfo, key);
+            forDeps(rootInfo, key);
         }
     }
 
+    updateDepVersions();
     // go through it again to get the version updated everywhere
-    for (const pkgInfo of packages) {
-        for (const key of Object.values(DepKey)) {
-            forDeps(pkgInfo, key);
-        }
-    }
+    updateDepVersions();
 
     if (mainVersion && mainVersion !== rootInfo.version) {
         rootInfo.version = mainVersion;
