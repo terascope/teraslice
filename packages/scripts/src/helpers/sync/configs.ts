@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { isString } from '@terascope/utils';
 import { getRootInfo, writeIfChanged } from '../misc';
 import { PackageInfo } from '../interfaces';
 
@@ -38,7 +39,12 @@ export async function generateTSConfig(
             sourceMap: true,
             // https://www.typescriptlang.org/tsconfig#disableReferencedProjectLoad
             disableReferencedProjectLoad: true,
-            typeRoots: ['./types', './node_modules/@types'],
+            typeRoots: [
+                fs.existsSync(path.join(rootInfo.dir, './types'))
+                    ? './types'
+                    : undefined,
+                './node_modules/@types'
+            ].filter(isString),
             paths: {
                 '*': ['*', './types/*']
             }

@@ -50,8 +50,10 @@ function _resolveWorkspaces(workspaces: string[], rootDir: string) {
         );
 }
 
-export function listPackages(): i.PackageInfo[] {
-    if (_packages && _packages.length) return _packages.slice();
+export function listPackages(
+    ignoreCache?: boolean
+): i.PackageInfo[] {
+    if (!ignoreCache && _packages && _packages.length) return _packages.slice();
 
     const rootPkg = misc.getRootInfo();
     if (!rootPkg.workspaces) return [];
