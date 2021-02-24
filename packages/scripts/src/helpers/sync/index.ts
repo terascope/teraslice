@@ -27,5 +27,5 @@ export async function syncAll(options: SyncOptions): Promise<void> {
 
     await utils.verify(files, options);
 
-    await executeHook(Hook.AFTER_SYNC, rootInfo.version);
+    await executeHook(Hook.AFTER_SYNC, options.quiet === true, rootInfo.version);
 }

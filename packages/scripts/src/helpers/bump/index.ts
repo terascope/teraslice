@@ -21,7 +21,7 @@ export async function bumpPackages(options: BumpPackageOptions): Promise<void> {
     const bumpedMain = mainInfo ? packagesToBump[mainInfo.name] : false;
 
     if (bumpedMain) {
-        await executeHook(Hook.AFTER_RELEASE_BUMP, mainInfo!.version);
+        await executeHook(Hook.AFTER_RELEASE_BUMP, false, mainInfo!.version);
         signale.note(`IMPORTANT: make sure create release of v${mainInfo!.version} after merging`);
     }
 
