@@ -7,7 +7,7 @@ import signale from './signale';
  * If the terascope.hook_file is set in the root package.json
  * the call with the hook and any required arguments
 */
-export async function executeHook(hook: Hook, ...args: any[]): Promise<void> {
+export async function executeHook(hook: Hook, quiet: boolean, ...args: any[]): Promise<void> {
     const { terascope: { hook_file } } = getRootInfo();
     if (!hook_file) return;
 
@@ -16,6 +16,8 @@ export async function executeHook(hook: Hook, ...args: any[]): Promise<void> {
         hookFile = hookFile.default;
     }
 
-    signale.info(`Executing ${hook} hook`);
+    if (!quiet) {
+        signale.info(`Executing ${hook} hook`);
+    }
     await hookFile(hook, ...args);
 }
