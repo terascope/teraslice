@@ -45,6 +45,9 @@ ${formatList(changed)}
     }
 }
 
+/**
+ * Verify the files haven't changed
+*/
 export async function verify(files: string[], options: SyncOptions): Promise<void> {
     if (options.quiet && !options.verify) return;
 
@@ -94,7 +97,7 @@ export async function syncPackage(
     files.push(...getFiles(pkgInfo));
 }
 
-export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo): PackageInfo[] {
+export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo): void {
     const externalVersions: Record<string, VersionVal> = {};
     const internalVersions: Record<string, VersionVal> = {};
 
@@ -201,8 +204,6 @@ export function syncVersions(packages: PackageInfo[], rootInfo: RootPackageInfo)
     for (const key of Object.values(DepKey)) {
         forDeps(rootInfo, key);
     }
-
-    return packages;
 }
 
 function getVersion(input: string, strict: false): VersionVal;
