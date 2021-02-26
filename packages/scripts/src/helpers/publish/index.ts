@@ -145,9 +145,12 @@ async function publishToDocker(options: PublishOptions) {
         signale.info(`[DRY RUN] - skipping publish of docker images ${imagesToPush.join(', ')}`);
     } else {
         signale.info(`publishing docker images ${imagesToPush.join(', ')}`);
-        await Promise.all(concat(
+        await pMap(concat(
             imagesToPush,
             devImage,
-        ).map(dockerPush));
+        ), dockerPush, {
+            concurrency: 1,
+            stopOnError: false,
+        });
     }
 }
