@@ -37,6 +37,7 @@ async function publishToNPM(options: PublishOptions) {
     }
     const result = await pMap(listPackages(), (pkgInfo) => npmPublish(pkgInfo, options), {
         concurrency: 3,
+        stopOnError: false,
     });
 
     const bumped = result.filter(isString);
