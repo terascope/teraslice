@@ -9,6 +9,7 @@ interface Options {
     type: PublishType;
     action?: PublishAction;
     'dry-run': boolean;
+    'publish-outdated-packages': boolean;
 }
 
 const cmd: CommandModule<GlobalCMDOptions, Options> = {
@@ -28,6 +29,11 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
                 description: "For testing purposes, don't pushing or publishing",
                 type: 'boolean',
                 default: !isCI,
+            })
+            .option('publish-outdated-packages', {
+                description: 'Publish packages that may have newer versions',
+                type: 'boolean',
+                default: false,
             })
             .option('type', {
                 alias: 't',
@@ -50,6 +56,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         return publish(argv.action!, {
             type: argv.type,
             dryRun: argv['dry-run'],
+            publishOutdatedPackages: argv['publish-outdated-packages'],
         });
     },
 };
