@@ -1,15 +1,15 @@
 import { ReleaseType } from 'semver';
 import { PackageInfo } from '../interfaces';
 
-export type BumpPackageOptions = {
+export interface BumpPackageOptions {
     release: ReleaseType;
     packages: PackageInfo[];
     deps: boolean;
     preId?: string;
-    noReset?: boolean;
-};
+    skipReset?: boolean;
+}
 
-export type BumpPkgInfo = {
+export interface BumpPkgInfo {
     from: string;
     to: string;
     main: boolean;

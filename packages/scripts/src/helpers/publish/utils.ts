@@ -11,7 +11,11 @@ import signale from '../signale';
 import { getRemotePackageVersion, getPublishTag, isMainPackage } from '../packages';
 import { getDevDockerImage } from '../misc';
 
-export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType): Promise<boolean> {
+export async function shouldNPMPublish(
+    pkgInfo: PackageInfo,
+    type?: PublishType,
+    publishOutdatedPackages?: boolean
+): Promise<boolean> {
     if (pkgInfo.private) return false;
 
     const remote = await getRemotePackageVersion(pkgInfo);
@@ -20,7 +24,9 @@ export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType)
     const isPrelease = getPublishTag(local) === 'prerelease';
     const options: semver.Options = { includePrerelease: true };
 
-    if (semver.gt(local, remote, options) || isPrelease) {
+    if (semver.eq(local, remote, options)) return false;
+
+    if (isPrelease || publishOutdatedPackages || semver.gt(local, remote, options)) {
         if (type === PublishType.Tag) {
             if (isMain) {
                 signale.info(`* publishing main package ${pkgInfo.name}@${remote}->${local}`);
@@ -53,10 +59,6 @@ export async function shouldNPMPublish(pkgInfo: PackageInfo, type?: PublishType)
 
         signale.info(`* publishing package ${pkgInfo.name}@${remote}->${local}`);
         return true;
-    }
-
-    if (semver.eq(local, remote, options)) {
-        return false;
     }
 
     signale.warn(`* local version of ${pkgInfo.name}@v${local} is behind, expected v${remote}`);

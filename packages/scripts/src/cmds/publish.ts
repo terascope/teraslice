@@ -5,11 +5,12 @@ import { PublishAction, PublishType } from '../helpers/publish/interfaces';
 import { publish } from '../helpers/publish';
 import { syncAll } from '../helpers/sync';
 
-type Options = {
+interface Options {
     type: PublishType;
     action?: PublishAction;
     'dry-run': boolean;
-};
+    'publish-outdated-packages': boolean;
+}
 
 const cmd: CommandModule<GlobalCMDOptions, Options> = {
     command: 'publish <action>',
@@ -23,10 +24,16 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .example('$0 publish', '-t tag npm')
             .example('$0 publish', '-t latest npm')
             .example('$0 publish', '--dry-run npm')
+            .example('$0 publish', '--skip-reset npm')
             .option('dry-run', {
                 description: "For testing purposes, don't pushing or publishing",
                 type: 'boolean',
                 default: !isCI,
+            })
+            .option('publish-outdated-packages', {
+                description: 'Publish packages that may have newer versions',
+                type: 'boolean',
+                default: false,
             })
             .option('type', {
                 alias: 't',
@@ -49,6 +56,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
         return publish(argv.action!, {
             type: argv.type,
             dryRun: argv['dry-run'],
+            publishOutdatedPackages: argv['publish-outdated-packages'],
         });
     },
 };

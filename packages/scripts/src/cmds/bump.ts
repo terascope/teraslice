@@ -25,6 +25,11 @@ const cmd: CommandModule = {
                 default: 'rc',
                 description: 'Specify the prerelease identifier, defaults to RC',
             })
+            .option('skip-reset', {
+                description: 'Skip resetting the packages to latest from NPM',
+                type: 'boolean',
+                default: false,
+            })
             .option('deps', {
                 alias: 'd',
                 description: "Bump the child dependencies recursively, (ignores the monorepo's main package)",
@@ -73,6 +78,7 @@ const cmd: CommandModule = {
             preId: argv['prerelease-id'] as string | undefined,
             release,
             deps: Boolean(argv.deps),
+            skipReset: Boolean(argv['skip-reset']),
         });
     },
 };

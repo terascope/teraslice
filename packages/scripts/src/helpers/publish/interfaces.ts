@@ -11,7 +11,11 @@ export enum PublishAction {
     NPM = 'npm',
 }
 
-export type PublishOptions = {
+export interface PublishOptions {
     type: PublishType;
     dryRun: boolean;
-};
+    /**
+     * Publish packages that may have newer versions
+    */
+    publishOutdatedPackages?: boolean;
+}
