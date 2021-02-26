@@ -68,7 +68,7 @@ describe('Bump Utils', () => {
             const options: BumpPackageOptions = {
                 release: 'minor',
                 deps: true,
-                noReset: true,
+                skipReset: true,
                 packages: [cloneDeep(pkgUtil1!)]
             };
             let result: Record<string, BumpPkgInfo>;
@@ -175,7 +175,7 @@ describe('Bump Utils', () => {
             const options: BumpPackageOptions = {
                 release: 'patch',
                 deps: false,
-                noReset: true,
+                skipReset: true,
                 packages: [cloneDeep(pkgUtil1!)]
             };
             let result: Record<string, BumpPkgInfo>;
@@ -276,7 +276,7 @@ describe('Bump Utils', () => {
             release: 'preminor',
             preId: 'rc',
             deps: true,
-            noReset: true,
+            skipReset: true,
             packages: [cloneDeep(pkgMain!), cloneDeep(pkgDep2!)]
         };
         let result: Record<string, BumpPkgInfo>;

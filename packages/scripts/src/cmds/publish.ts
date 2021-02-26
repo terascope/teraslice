@@ -5,11 +5,11 @@ import { PublishAction, PublishType } from '../helpers/publish/interfaces';
 import { publish } from '../helpers/publish';
 import { syncAll } from '../helpers/sync';
 
-type Options = {
+interface Options {
     type: PublishType;
     action?: PublishAction;
     'dry-run': boolean;
-};
+}
 
 const cmd: CommandModule<GlobalCMDOptions, Options> = {
     command: 'publish <action>',
@@ -23,6 +23,7 @@ const cmd: CommandModule<GlobalCMDOptions, Options> = {
             .example('$0 publish', '-t tag npm')
             .example('$0 publish', '-t latest npm')
             .example('$0 publish', '--dry-run npm')
+            .example('$0 publish', '--skip-reset npm')
             .option('dry-run', {
                 description: "For testing purposes, don't pushing or publishing",
                 type: 'boolean',

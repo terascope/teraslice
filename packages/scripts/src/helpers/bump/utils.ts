@@ -81,7 +81,7 @@ export async function getPackagesToBump(
     }
 
     async function _resetVersion(pkgInfo: PackageInfo) {
-        if (options.noReset) return;
+        if (options.skipReset) return;
         if (get(pkgInfo, 'terascope.root', false)) return;
         if (
             pkgInfo.private

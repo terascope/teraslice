@@ -11,7 +11,7 @@ export enum PublishAction {
     NPM = 'npm',
 }
 
-export type PublishOptions = {
+export interface PublishOptions {
     type: PublishType;
     dryRun: boolean;
-};
+}
