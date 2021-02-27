@@ -245,7 +245,7 @@ describe('field validators', () => {
         });
     });
 
-    describe('isRoutableIP', () => {
+    fdescribe('isRoutableIP', () => {
         it('should return true for a routable ip address', () => {
             // public ips
             expect(FieldValidator.isRoutableIP('8.8.8.8')).toBe(true);
@@ -800,7 +800,7 @@ describe('field validators', () => {
         });
     });
 
-    describe('isBase64', () => {
+    fdescribe('isBase64', () => {
         it('should return true for base64 strings', () => {
             expect(FieldValidator.isBase64('ZWFzdXJlLg==')).toBe(true);
             expect(FieldValidator.isBase64('YW55IGNhcm5hbCBwbGVhc3Vy')).toBe(true);
@@ -808,6 +808,7 @@ describe('field validators', () => {
 
         it('should return false for non-base64 strings', () => {
             expect(FieldValidator.isBase64('thisisjustastring')).toBe(false);
+            expect(FieldValidator.isBase64('manufacturerUrl7')).toBe(false);
             expect(FieldValidator.isBase64(true)).toBe(false);
             expect(FieldValidator.isBase64([])).toBe(false);
             expect(FieldValidator.isBase64(123345)).toBe(false);

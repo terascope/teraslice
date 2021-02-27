@@ -963,11 +963,32 @@ export function isBase64(input: unknown, _parentContext?: unknown): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
-        const fn = (data: any) => ts.isString(data) && validator.isBase64(data);
+        const fn = (data: any) => _validBase64(data);
         return _lift(fn, input, _parentContext);
     }
 
-    return ts.isString(input) && validator.isBase64(input);
+    return _validBase64(input);
+}
+
+function _validBase64(input: unknown): boolean {
+    if (!ts.isString(input)) return false;
+
+    const len = input.length;
+
+    const notBase64 = /[^A-Z0-9+/=]/i;
+
+    if (len % 4 !== 0 || notBase64.test(input)) {
+        return false;
+    }
+    const decode = Buffer.from(input, 'base64').toString('utf8');
+    const encode = Buffer.from(decode, 'utf8').toString('base64');
+
+    const firstPaddingChar = input.indexOf('=');
+
+    if (input !== encode) return false;
+
+    return firstPaddingChar === -1 || firstPaddingChar === len - 1
+        || (firstPaddingChar === len - 2 && input[len - 1] === '=');
 }
 
 /**
