@@ -4,7 +4,10 @@ import {
     isString,
     uniq,
     parseError,
-    castArray
+    castArray,
+    get,
+    has,
+    withoutNil
 } from '@terascope/utils';
 import { LegacyOperation } from './interfaces';
 import {
@@ -20,6 +23,7 @@ import {
 } from './operations';
 import { readerShim, processorShim } from './operations/shims';
 
+const ASSET_KEYWORD = 'ASSETS';
 export interface LoaderOptions {
     /** Path to teraslice lib directory */
     terasliceOpPath?: string;
@@ -32,6 +36,105 @@ interface ValidLoaderOptions {
     terasliceOpPath?: string;
     /** Path to where the assets are stored */
     assetPath: string[]
+}
+
+export enum AssetVersionType {
+    /** This represents legacy operations */
+    V1 = 'V1',
+    /** This represents operations that are in the format
+     * of ASSET_NAME/OP_NAME/OPERATION_TYPE
+     *
+     * @example
+     *   some-asset/myOP/processor.js
+     *   some-asset/myOP/schema.js
+     */
+    V2 = 'V2',
+    /** This represents operations that live in the index file
+     * of the asset name, and returns an object with the 'ASSETS'
+     * key which lists all operations and api available
+     * @example
+     *   some-asset/index.ts
+     *
+     *  export default {
+        *   // A list of the operations provided by this asset bundle
+            * ASSETS: {
+                // The key here would be the current file name
+                some-processor-name: {
+                    Processor: ProcessorExampleBatcher,
+                    Schema: ProcessorSchema,
+                },
+                 some-reader-name: {
+                    Fetcher: ExampleFetcher,
+                    Slicer: ExampleSlicer,
+                    Schema: ReaderSchema,
+                },
+                 some-api-name: {
+                    API: ExampleAPI,
+                    Schema: SchemaAPI,
+                },
+            },
+        };
+
+     */
+    V3 = 'V3'
+}
+
+export enum OPMetadataType {
+    asset = 'asset',
+    /** is located in node_modules */
+    module = 'module',
+    /** is located in builtin dir */
+    builtin = 'builtin',
+    /** is located natively in teraslice */
+    'teraslice' = 'teraslice'
+}
+
+export const V3TypeDict = {
+    processor: 'Processor',
+    schema: 'Schema',
+    fetcher: 'Fetcher',
+    slicer: 'Slicer',
+    api: 'API',
+    observer: 'Observer'
+};
+
+interface BaseMetadata {
+    version: AssetVersionType
+}
+export interface ModuleType extends BaseMetadata {
+    type: OPMetadataType.module
+}
+
+export interface BuiltinType extends BaseMetadata {
+    type: OPMetadataType.builtin
+}
+
+export interface TerasliceOpType extends BaseMetadata {
+    type: OPMetadataType.teraslice
+}
+
+export interface AssetOpType extends BaseMetadata {
+    type: OPMetadataType.asset,
+}
+
+export type OperationMetadata = ModuleType | BuiltinType | TerasliceOpType | AssetOpType
+
+export function isVersion3(input: OperationMetadata): input is AssetOpType {
+    return input && input.version === AssetVersionType.V3;
+}
+interface FindOperationResults {
+    codePath: string | null;
+    metadata: OperationMetadata | null
+}
+
+interface OperationResults {
+    codePath: string;
+    metadata: OperationMetadata
+}
+
+function _getV3Operation(dirPath: string): Record<string, any>|undefined {
+    const asset = require(dirPath);
+    return get(asset, ASSET_KEYWORD) ?? get(asset, `default.${ASSET_KEYWORD}`);
 }
 
 export class OperationLoader {
@@ -52,8 +155,53 @@ export class OperationLoader {
         };
     }
 
-    find(name: string, assetIds?: string[]): string | null {
+    getV3Operation<T>(dirPath: string, opName: string, type: string, shouldThrow = true): T {
+        const repository = _getV3Operation(dirPath);
+        const operation = get(repository ?? {}, opName);
+
+        if (!operation && shouldThrow) {
+            throw new Error(`Could not find operation ${opName}`);
+        }
+        const repoType = V3TypeDict[type];
+        const opType = operation[repoType];
+
+        if (!opType && shouldThrow) {
+            throw new Error(`Operation ${opName}, does not have ${repoType} registered`);
+        }
+
+        return opType;
+    }
+
+    isV3Operation(dirPath: string, name: string):boolean {
+        try {
+            const repository = _getV3Operation(dirPath);
+            return has(repository, name);
+        } catch (_err) {
+            return false;
+        }
+    }
+
+    getOperationVersion({
+        codePath,
+        name
+    }: { codePath: string|null, name: string}): AssetVersionType|null {
+        if (!codePath) return null;
+
+        if (this.isV3Operation(codePath, name)) {
+            return AssetVersionType.V3;
+        }
+
+        if (this.isLegacyProcessor(codePath) || this.isLegacyReader(codePath)) {
+            return AssetVersionType.V1;
+        }
+
+        return AssetVersionType.V2;
+    }
+
+    find(name: string, assetIds?: string[]): FindOperationResults {
         let filePath: string | null = null;
+        let type: OPMetadataType;
+
         const findCodeFn = this.findCode(name);
 
         const findCodeByConvention = (basePath?: string, subfolders?: string[]) => {
@@ -61,43 +209,58 @@ export class OperationLoader {
             if (!fs.existsSync(basePath)) return;
             if (!subfolders || !subfolders.length) return;
 
-            subfolders.forEach((folder: string) => {
+            for (const folder of subfolders) {
                 const folderPath = path.join(basePath, folder);
+                // we check for v3 version of asset
+                if (this.isV3Operation(folderPath, name)) {
+                    filePath = folderPath;
+                }
+
                 if (!filePath && fs.existsSync(folderPath)) {
                     filePath = findCodeFn(folderPath);
                 }
-            });
+            }
         };
 
         for (const assetPath of this.options.assetPath) {
+            type = OPMetadataType.asset;
             findCodeByConvention(assetPath, assetIds);
             if (filePath) break;
         }
 
         if (!filePath) {
+            type = OPMetadataType.builtin;
             findCodeByConvention(this.getBuiltinDir(), ['.']);
         }
 
         if (!filePath) {
+            type = OPMetadataType.teraslice;
             findCodeByConvention(this.options.terasliceOpPath, ['readers', 'processors']);
         }
 
         if (!filePath) {
+            type = OPMetadataType.module;
             filePath = this.resolvePath(name);
         }
 
-        return filePath;
+        const version = this.getOperationVersion({ codePath: filePath, name });
+
+        const metadata: OperationMetadata = withoutNil({ type: type!, version: version! });
+
+        return { codePath: filePath, metadata };
     }
 
     /**
      * Load any LegacyOperation
-     * DEPRECATED to accommadate for new Job APIs,
+     * DEPRECATED to accommodate for new Job APIs,
      * use loadReader, or loadProcessor
      */
     load(name: string, assetIds?: string[]): LegacyOperation {
-        const codePath = this.findOrThrow(name, assetIds);
-
+        const { codePath, metadata } = this.findOrThrow(name, assetIds);
         try {
+            if (isVersion3(metadata)) {
+                throw new Error('Cannot use legacy operations with v3 operations');
+            }
             return this.require(codePath);
         } catch (err) {
             throw new Error(`Failure loading module: ${name}, error: ${parseError(err, true)}`);
@@ -105,9 +268,9 @@ export class OperationLoader {
     }
 
     loadProcessor(name: string, assetIds?: string[]): ProcessorModule {
-        const codePath = this.findOrThrow(name, assetIds);
+        const { codePath, metadata: { version } } = this.findOrThrow(name, assetIds);
 
-        if (this.isLegacyProcessor(codePath)) {
+        if (version === AssetVersionType.V1) {
             return this.shimLegacyProcessor(name, codePath);
         }
 
@@ -116,19 +279,19 @@ export class OperationLoader {
         let API: OperationAPIConstructor | undefined;
 
         try {
-            Processor = this.require(codePath, 'processor');
+            Processor = this.require(codePath, 'processor', { name, version });
         } catch (err) {
             throw new Error(`Failure loading processor from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         try {
-            Schema = this.require(codePath, 'schema');
+            Schema = this.require(codePath, 'schema', { name, version });
         } catch (err) {
             throw new Error(`Failure loading schema from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         try {
-            API = this.require(codePath, 'api');
+            API = this.require(codePath, 'api', { name, version });
         } catch (err) {
             // do nothing
         }
@@ -143,9 +306,9 @@ export class OperationLoader {
     }
 
     loadReader(name: string, assetIds?: string[]): ReaderModule {
-        const codePath = this.findOrThrow(name, assetIds);
+        const { codePath, metadata: { version } } = this.findOrThrow(name, assetIds);
 
-        if (this.isLegacyReader(codePath)) {
+        if (version === AssetVersionType.V1) {
             return this.shimLegacyReader(name, codePath);
         }
 
@@ -155,25 +318,25 @@ export class OperationLoader {
         let API: OperationAPIConstructor | undefined;
 
         try {
-            Slicer = this.require(codePath, 'slicer');
+            Slicer = this.require(codePath, 'slicer', { name, version });
         } catch (err) {
             throw new Error(`Failure loading slicer from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         try {
-            Fetcher = this.require(codePath, 'fetcher');
+            Fetcher = this.require(codePath, 'fetcher', { name, version });
         } catch (err) {
             throw new Error(`Failure loading fetcher from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         try {
-            Schema = this.require(codePath, 'schema');
+            Schema = this.require(codePath, 'schema', { name, version });
         } catch (err) {
             throw new Error(`Failure loading schema from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         try {
-            API = this.require(codePath, 'api');
+            API = this.require(codePath, 'api', { name, version });
         } catch (err) {
             // do nothing
         }
@@ -191,12 +354,12 @@ export class OperationLoader {
 
     loadAPI(name: string, assetIds?: string[]): APIModule {
         const [apiName] = name.split(':');
-        const codePath = this.findOrThrow(apiName, assetIds);
+        const { codePath, metadata: { version } } = this.findOrThrow(name, assetIds);
 
         let API: OperationAPIConstructor | undefined;
 
         try {
-            API = this.require(codePath, 'api');
+            API = this.require(codePath, 'api', { name, version });
         } catch (err) {
             // do nothing
         }
@@ -204,7 +367,7 @@ export class OperationLoader {
         let Observer: ObserverConstructor | undefined;
 
         try {
-            Observer = this.require(codePath, 'observer');
+            Observer = this.require(codePath, 'observer', { name, version });
         } catch (err) {
             // do nothing
         }
@@ -212,7 +375,7 @@ export class OperationLoader {
         let Schema: SchemaConstructor | undefined;
 
         try {
-            Schema = this.require(codePath, 'schema');
+            Schema = this.require(codePath, 'schema', { name, version });
         } catch (err) {
             throw new Error(`Failure loading schema from module: ${apiName}, error: ${parseError(err, true)}`);
         }
@@ -234,15 +397,19 @@ export class OperationLoader {
         };
     }
 
-    private findOrThrow(name: string, assetIds?: string[]): string {
+    private findOrThrow(name: string, assetIds?: string[]): OperationResults {
         this.verifyOpName(name);
 
-        const codePath = this.find(name, assetIds);
-        if (!codePath) {
+        const results = this.find(name, assetIds);
+        if (!results.codePath) {
             throw new Error(`Unable to find module for operation: ${name}`);
         }
 
-        return codePath;
+        if (!results.metadata) {
+            throw new Error(`Unable to gather metadata for operation: ${name}`);
+        }
+
+        return results as OperationResults;
     }
 
     private isLegacyReader(codePath: string): boolean {
@@ -278,23 +445,40 @@ export class OperationLoader {
         return filePaths.some((filePath) => fs.existsSync(filePath));
     }
 
-    private require<T>(dir: string, name?: string): T {
-        const filePaths = name
+    private require<T>(
+        dir: string,
+        type?: string,
+        { version, name }: { version?: AssetVersionType, name?: string } = {}
+    ): T {
+        const filePaths = type
             ? this.availableExtensions.map((ext) => path.format({
                 dir,
-                name,
+                name: type,
                 ext,
             }))
             : [dir];
 
         let err: Error | undefined;
 
-        for (const filePath of filePaths) {
+        if (version && version === AssetVersionType.V3) {
+            console.log('should not be here')
+            if (!type) throw new Error('Must provide a operation type if using a version parameter');
+            if (!name) throw new Error('Must provide a operation name if using a version parameter');
+
             try {
-                const mod = require(filePath);
-                return mod.default || mod;
+                return this.getV3Operation(dir, name, type, true);
             } catch (_err) {
                 err = _err;
+            }
+        } else {
+            for (const filePath of filePaths) {
+                try {
+                    console.log({ filePath })
+                    const mod = require(filePath);
+                    return mod.default || mod;
+                } catch (_err) {
+                    err = _err;
+                }
             }
         }
 

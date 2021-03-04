@@ -230,7 +230,7 @@ describe('OperationLoader', () => {
         expect(op.API).toBeNil();
     });
 
-    it('should load the new reader', () => {
+    fit('should load the new reader', () => {
         const exConfig = newTestExecutionConfig();
         const opConfig = {
             _op: 'example-reader',
@@ -248,7 +248,7 @@ describe('OperationLoader', () => {
         }).toThrowError('Unable to find module for operation: fail');
 
         const op = opLoader.loadReader('example-reader', [v2AssetName]);
-
+         console.log({ op , terasliceOpPath})
         expect(op.Slicer).not.toBeNil();
         expect(() => {
             new op.Slicer(context as WorkerContext, opConfig, exConfig);
@@ -403,5 +403,59 @@ describe('OperationLoader', () => {
         expect(() => {
             opLoader.loadProcessor('_underscore-private-op', [v2AssetName]);
         }).toThrowError();
+    });
+
+    describe('loading v3 asset', () => {
+        const v3AssetName = 'asset-v3';
+        const processor = 'v3_processor';
+        const api = 'v3_api';
+        const reader = 'v3_reader';
+
+        it('should find processors using new format', () => {
+            const opLoader = new OperationLoader({
+                terasliceOpPath,
+                assetPath: fixturePath,
+            });
+
+            const results = opLoader.loadProcessor(processor, [v3AssetName]);
+
+            expect(results).toHaveProperty('Processor');
+            expect(results).toHaveProperty('Schema');
+
+            expect(results.Processor).not.toBeNil();
+            expect(results.Schema).not.toBeNil();
+        });
+
+        it('should find readers using new format', () => {
+            const opLoader = new OperationLoader({
+                terasliceOpPath,
+                assetPath: fixturePath,
+            });
+
+            const results = opLoader.loadReader(reader, [v3AssetName]);
+
+            expect(results).toHaveProperty('Slicer');
+            expect(results).toHaveProperty('Fetcher');
+            expect(results).toHaveProperty('Schema');
+
+            expect(results.Slicer).not.toBeNil();
+            expect(results.Fetcher).not.toBeNil();
+            expect(results.Schema).not.toBeNil();
+        });
+
+        it('should find apis using new format', () => {
+            const opLoader = new OperationLoader({
+                terasliceOpPath,
+                assetPath: fixturePath,
+            });
+
+            const results = opLoader.loadAPI(api, [v3AssetName]);
+
+            expect(results).toHaveProperty('API');
+            expect(results).toHaveProperty('Schema');
+
+            expect(results.API).not.toBeNil();
+            expect(results.Schema).not.toBeNil();
+        });
     });
 });

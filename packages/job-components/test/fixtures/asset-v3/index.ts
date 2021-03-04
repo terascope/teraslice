@@ -6,16 +6,16 @@ export default {
     /** A list of the operations provided by this asset bundle */
     ASSETS: {
         /** The key here would be the current file name */
-        my_processor: {
+        v3_processor: {
             Processor: AssetProcessorExampleBatch,
             Schema: AssetProcessorSchema,
         },
-        my_reader: {
+        v3_reader: {
             Fetcher: AssetExampleFetcher,
             Slicer: AssetExampleSlicer,
             Schema: AssetReaderSchema,
         },
-        my_api: {
+        v3_api: {
             API: AssetExampleAPI,
             Schema: AssetSchemaAPI,
         },
