@@ -971,24 +971,18 @@ export function isBase64(input: unknown, _parentContext?: unknown): boolean {
 }
 
 function _validBase64(input: unknown): boolean {
-    if (!ts.isString(input)) return false;
+    if (ts.isString(input)) {
+        const validatorValid = validator.isBase64(input);
 
-    const len = input.length;
+        if (validatorValid) {
+            const decode = Buffer.from(input, 'base64').toString('utf8');
+            const encode = Buffer.from(decode, 'utf8').toString('base64');
 
-    const notBase64 = /[^A-Z0-9+/=]/i;
-
-    if (len % 4 !== 0 || notBase64.test(input)) {
-        return false;
+            return input === encode;
+        }
     }
-    const decode = Buffer.from(input, 'base64').toString('utf8');
-    const encode = Buffer.from(decode, 'utf8').toString('base64');
 
-    const firstPaddingChar = input.indexOf('=');
-
-    if (input !== encode) return false;
-
-    return firstPaddingChar === -1 || firstPaddingChar === len - 1
-        || (firstPaddingChar === len - 2 && input[len - 1] === '=');
+    return false;
 }
 
 /**

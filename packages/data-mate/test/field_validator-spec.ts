@@ -83,7 +83,6 @@ describe('field validators', () => {
     describe('isEmail', () => {
         const list = [
             'ha3ke5@pawnage.com',
-            'ha3ke5@pawnage.com',
             'user@blah@blah.com',
             'junk user@blah.com',
             'user@blah.com/junk.morejunk',
@@ -245,7 +244,7 @@ describe('field validators', () => {
         });
     });
 
-    fdescribe('isRoutableIP', () => {
+    describe('isRoutableIP', () => {
         it('should return true for a routable ip address', () => {
             // public ips
             expect(FieldValidator.isRoutableIP('8.8.8.8')).toBe(true);
@@ -503,6 +502,9 @@ describe('field validators', () => {
             expect(FieldValidator.inNumberRange(-12, {}, { min: -10, max: 45 })).toBe(false);
             expect(FieldValidator.inNumberRange(0, {}, { max: -45 })).toBe(false);
             expect(FieldValidator.inNumberRange(0, {}, { min: 45 })).toBe(false);
+            expect(FieldValidator.inNumberRange(45, {}, { min: 45 })).toBe(false);
+            expect(FieldValidator.inNumberRange(0, {}, { min: 0 })).toBe(false);
+            expect(FieldValidator.inNumberRange(-10, {}, { min: 0, max: 100 })).toBe(false);
         });
 
         it('validates an array of values, ignores undefined/null', () => {
@@ -510,6 +512,12 @@ describe('field validators', () => {
                 [0, 25, 33, 23, undefined],
                 [0, 25, 33, 23, undefined],
                 { min: 0, max: 45 }
+            )).toBe(false);
+
+            expect(FieldValidator.inNumberRange(
+                [0, 25, 33, 23, undefined],
+                [0, 25, 33, 23, undefined],
+                { min: 0, max: 45, inclusive: true }
             )).toBe(true);
         });
     });
@@ -800,7 +808,7 @@ describe('field validators', () => {
         });
     });
 
-    fdescribe('isBase64', () => {
+    describe('isBase64', () => {
         it('should return true for base64 strings', () => {
             expect(FieldValidator.isBase64('ZWFzdXJlLg==')).toBe(true);
             expect(FieldValidator.isBase64('YW55IGNhcm5hbCBwbGVhc3Vy')).toBe(true);
