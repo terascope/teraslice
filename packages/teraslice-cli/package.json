@@ -43,7 +43,7 @@
         "easy-table": "^1.1.1",
         "execa": "^5.0.0",
         "fs-extra": "^9.1.0",
-        "got": "^11.8.1",
+        "got": "^11.8.2",
         "js-yaml": "^4.0.0",
         "pretty-bytes": "^5.6.0",
         "prompts": "^2.4.0",
@@ -69,7 +69,7 @@
         "@types/yeoman-generator": "^4.11.3",
         "decompress": "^4.2.1",
         "jest-fixtures": "^0.6.0",
-        "nock": "^13.0.7",
+        "nock": "^13.0.9",
         "yeoman-assert": "^3.1.1",
         "yeoman-test": "^2.7.0"
     },
