@@ -198,9 +198,13 @@ export class OperationLoader {
         return AssetVersionType.V2;
     }
 
-    isLegacyOperation(codePath: string) {
-        const results = this.require(codePath);
-        return ['newReader', 'newSlicer', 'newProcessor'].some((key) => has(results, key));
+    isLegacyOperation(codePath: string): boolean {
+        try {
+            const results = this.require(codePath);
+            return ['newReader', 'newSlicer', 'newProcessor'].some((key) => has(results, key));
+        } catch (_err) {
+            return false;
+        }
     }
 
     find(name: string, assetIds?: string[]): FindOperationResults {
@@ -249,7 +253,6 @@ export class OperationLoader {
         }
 
         const version = this.getOperationVersion({ codePath: filePath, name });
-        console.log({ version, type: type!, filePath });
         const metadata: OperationMetadata = withoutNil({ type: type!, version: version! });
 
         return { codePath: filePath, metadata };
@@ -314,7 +317,6 @@ export class OperationLoader {
         const { codePath, metadata: { version } } = this.findOrThrow(name, assetIds);
 
         if (version === AssetVersionType.V1) {
-            console.log('am i shiming?');
             return this.shimLegacyReader(name, codePath);
         }
 
@@ -341,7 +343,6 @@ export class OperationLoader {
             throw new Error(`Failure loading schema from module: ${name}, error: ${parseError(err, true)}`);
         }
 
-        console.log('at reader', { codePath, name, version });
         try {
             API = this.require(codePath, 'api', { name, version });
         } catch (err) {
@@ -361,7 +362,7 @@ export class OperationLoader {
 
     loadAPI(name: string, assetIds?: string[]): APIModule {
         const [apiName] = name.split(':');
-        const { codePath, metadata: { version } } = this.findOrThrow(name, assetIds);
+        const { codePath, metadata: { version } } = this.findOrThrow(apiName, assetIds);
 
         let API: OperationAPIConstructor | undefined;
 
@@ -469,7 +470,6 @@ export class OperationLoader {
         let err: Error | undefined;
 
         if (version && version === AssetVersionType.V3) {
-            console.log('should not be here');
             if (!type) throw new Error('Must provide a operation type if using a version parameter');
             if (!name) throw new Error('Must provide a operation name if using a version parameter');
 
@@ -479,10 +479,8 @@ export class OperationLoader {
                 err = _err;
             }
         } else {
-            console.log({ filePaths, type, name });
             for (const filePath of filePaths) {
                 try {
-                    console.log({ filePath });
                     const mod = require(filePath);
                     return mod.default || mod;
                 } catch (_err) {
