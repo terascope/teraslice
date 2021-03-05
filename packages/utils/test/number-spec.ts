@@ -158,8 +158,8 @@ describe('Numbers', () => {
 
     describe('inNumberRange', () => {
         test.each([
-            [10, { min: 0, max: 20}, true],
-            [0, { min: 0, max: 20}, false],
+            [10, { min: 0, max: 20 }, true],
+            [0, { min: 0, max: 20 }, false],
             [0, { min: 0, max: 20, inclusive: true }, true],
             [5, { min: -10, max: 0, inclusive: true }, false],
             [5, { min: -10, max: 5, inclusive: true }, true],
