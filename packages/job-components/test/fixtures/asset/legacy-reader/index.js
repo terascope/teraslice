@@ -1,6 +1,6 @@
 'use strict';
 
-function newSlicer(_context, _opConfig) {
+function newSlicer() {
     return function slicer() {
         return { id: Math.random() };
     };
