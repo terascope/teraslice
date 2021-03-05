@@ -15,7 +15,7 @@ describe('registerApis', () => {
     context.sysconfig.teraslice.assets_directory = [assetDir];
     const jobConfig = newTestJobConfig();
 
-    jobConfig.assets = ['asset-v2'];
+    jobConfig.assets = ['asset'];
 
     jobConfig.operations.push({
         _op: 'hello',
@@ -63,8 +63,8 @@ describe('registerApis', () => {
         const { getPath } = context.apis.assets;
 
         it('should return the given operation', () => {
-            const assetPath = path.join(__dirname, 'fixtures', 'asset-v2');
-            return expect(getPath('asset-v2')).resolves.toEqual(assetPath);
+            const assetPath = path.join(__dirname, 'fixtures', 'asset');
+            return expect(getPath('asset')).resolves.toEqual(assetPath);
         });
 
         it('should throw an error if asset is not found', () => expect(getPath('unknown')).rejects.toThrowError('Unable to find asset "unknown"'));
