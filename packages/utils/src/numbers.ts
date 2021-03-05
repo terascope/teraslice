@@ -211,8 +211,8 @@ export interface InNumberRangeArg {
 export function inNumberRange(input: unknown, args: InNumberRangeArg): input is number {
     if (!isNumber(input)) return false;
 
-    const min = args.min ? args.min : -Infinity;
-    const max = args.max ? args.max : Infinity;
+    const min = args.min == null ? -Infinity : args.min;
+    const max = args.max == null ? Infinity : args.max;
 
     if (args.inclusive) {
         return (input >= min && input <= max);

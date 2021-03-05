@@ -963,11 +963,26 @@ export function isBase64(input: unknown, _parentContext?: unknown): boolean {
     if (ts.isNil(input)) return false;
 
     if (isArray(input)) {
-        const fn = (data: any) => ts.isString(data) && validator.isBase64(data);
+        const fn = (data: any) => _validBase64(data);
         return _lift(fn, input, _parentContext);
     }
 
-    return ts.isString(input) && validator.isBase64(input);
+    return _validBase64(input);
+}
+
+function _validBase64(input: unknown): boolean {
+    if (ts.isString(input)) {
+        const validatorValid = validator.isBase64(input);
+
+        if (validatorValid) {
+            const decode = Buffer.from(input, 'base64').toString('utf8');
+            const encode = Buffer.from(decode, 'utf8').toString('base64');
+
+            return input === encode;
+        }
+    }
+
+    return false;
 }
 
 /**

@@ -83,7 +83,6 @@ describe('field validators', () => {
     describe('isEmail', () => {
         const list = [
             'ha3ke5@pawnage.com',
-            'ha3ke5@pawnage.com',
             'user@blah@blah.com',
             'junk user@blah.com',
             'user@blah.com/junk.morejunk',
@@ -503,6 +502,9 @@ describe('field validators', () => {
             expect(FieldValidator.inNumberRange(-12, {}, { min: -10, max: 45 })).toBe(false);
             expect(FieldValidator.inNumberRange(0, {}, { max: -45 })).toBe(false);
             expect(FieldValidator.inNumberRange(0, {}, { min: 45 })).toBe(false);
+            expect(FieldValidator.inNumberRange(45, {}, { min: 45 })).toBe(false);
+            expect(FieldValidator.inNumberRange(0, {}, { min: 0 })).toBe(false);
+            expect(FieldValidator.inNumberRange(-10, {}, { min: 0, max: 100 })).toBe(false);
         });
 
         it('validates an array of values, ignores undefined/null', () => {
@@ -510,6 +512,12 @@ describe('field validators', () => {
                 [0, 25, 33, 23, undefined],
                 [0, 25, 33, 23, undefined],
                 { min: 0, max: 45 }
+            )).toBe(false);
+
+            expect(FieldValidator.inNumberRange(
+                [0, 25, 33, 23, undefined],
+                [0, 25, 33, 23, undefined],
+                { min: 0, max: 45, inclusive: true }
             )).toBe(true);
         });
     });
@@ -808,6 +816,7 @@ describe('field validators', () => {
 
         it('should return false for non-base64 strings', () => {
             expect(FieldValidator.isBase64('thisisjustastring')).toBe(false);
+            expect(FieldValidator.isBase64('manufacturerUrl7')).toBe(false);
             expect(FieldValidator.isBase64(true)).toBe(false);
             expect(FieldValidator.isBase64([])).toBe(false);
             expect(FieldValidator.isBase64(123345)).toBe(false);
