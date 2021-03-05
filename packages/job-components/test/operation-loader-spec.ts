@@ -230,6 +230,45 @@ describe('OperationLoader', () => {
         expect(op.API).toBeNil();
     });
 
+    it('should load an legacy reader', () => {
+        const exConfig = newTestExecutionConfig();
+        const opConfig = {
+            _op: 'example-reader',
+        };
+
+        exConfig.operations.push(opConfig);
+
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: fixturePath
+        });
+
+        const op = opLoader.loadReader('legacy-reader', [asset]);
+
+        expect(op).toHaveProperty('Slicer');
+        expect(op).toHaveProperty('Fetcher');
+        expect(op).toHaveProperty('Schema');
+    });
+
+    it('should load an legacy processor', () => {
+        const exConfig = newTestExecutionConfig();
+        const opConfig = {
+            _op: 'example-reader',
+        };
+
+        exConfig.operations.push(opConfig);
+
+        const opLoader = new OperationLoader({
+            terasliceOpPath,
+            assetPath: fixturePath
+        });
+
+        const op = opLoader.loadProcessor('legacy-op', [asset]);
+
+        expect(op).toHaveProperty('Processor');
+        expect(op).toHaveProperty('Schema');
+    });
+
     it('should load the new reader', () => {
         const exConfig = newTestExecutionConfig();
         const opConfig = {
