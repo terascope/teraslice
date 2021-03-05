@@ -132,7 +132,7 @@ interface OperationResults {
     metadata: OperationMetadata
 }
 
-function _getV3Operation(dirPath: string): Record<string, any>|undefined {
+function _getBundledRepository(dirPath: string): Record<string, any>|undefined {
     const asset = require(dirPath);
     return get(asset, ASSET_KEYWORD) ?? get(asset, `default.${ASSET_KEYWORD}`);
 }
@@ -155,8 +155,10 @@ export class OperationLoader {
         };
     }
 
-    getV3Operation<T>(dirPath: string, opName: string, type: string, shouldThrow = true): T {
-        const repository = _getV3Operation(dirPath);
+    private _getBundledOperation<T>(
+        dirPath: string, opName: string, type: string, shouldThrow = true
+    ): T {
+        const repository = _getBundledRepository(dirPath);
         const operation = get(repository ?? {}, opName);
 
         if (!operation && shouldThrow) {
@@ -172,22 +174,22 @@ export class OperationLoader {
         return opType;
     }
 
-    isV3Operation(dirPath: string, name: string):boolean {
+    private isBundledOperation(dirPath: string, name: string):boolean {
         try {
-            const repository = _getV3Operation(dirPath);
+            const repository = _getBundledRepository(dirPath);
             return has(repository, name);
         } catch (_err) {
             return false;
         }
     }
 
-    getOperationVersion({
+    private getOperationVersion({
         codePath,
         name
     }: { codePath: string|null, name: string}): AssetVersionType|null {
         if (!codePath) return null;
 
-        if (this.isV3Operation(codePath, name)) {
+        if (this.isBundledOperation(codePath, name)) {
             return AssetVersionType.V3;
         }
 
@@ -198,7 +200,7 @@ export class OperationLoader {
         return AssetVersionType.V2;
     }
 
-    isLegacyOperation(codePath: string): boolean {
+    private isLegacyOperation(codePath: string): boolean {
         try {
             const results = this.require(codePath);
             return ['newReader', 'newSlicer', 'newProcessor'].some((key) => has(results, key));
@@ -221,7 +223,7 @@ export class OperationLoader {
             for (const folder of subfolders) {
                 const folderPath = path.join(basePath, folder);
                 // we check for v3 version of asset
-                if (this.isV3Operation(folderPath, name)) {
+                if (this.isBundledOperation(folderPath, name)) {
                     filePath = folderPath;
                 }
 
@@ -421,20 +423,12 @@ export class OperationLoader {
         return results as OperationResults;
     }
 
-    private isLegacyReader(codePath: string): boolean {
-        return !this.fileExists(codePath, 'fetcher') && !this.fileExists(codePath, 'slicer');
-    }
-
     private shimLegacyReader(name: string, codePath: string): ReaderModule {
         try {
             return readerShim(this.require(codePath));
         } catch (err) {
             throw new Error(`Failure loading reader: ${name}, error: ${parseError(err, true)}`);
         }
-    }
-
-    private isLegacyProcessor(codePath: string): boolean {
-        return !this.fileExists(codePath, 'processor');
     }
 
     private shimLegacyProcessor(name: string, codePath: string): ProcessorModule {
@@ -474,7 +468,7 @@ export class OperationLoader {
             if (!name) throw new Error('Must provide a operation name if using a version parameter');
 
             try {
-                return this.getV3Operation(dir, name, type, true);
+                return this._getBundledOperation(dir, name, type, true);
             } catch (_err) {
                 err = _err;
             }

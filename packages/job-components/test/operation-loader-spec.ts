@@ -444,7 +444,7 @@ describe('OperationLoader', () => {
         }).toThrowError();
     });
 
-    describe('loading v3 asset', () => {
+    describe('loading bundled asset', () => {
         const bundleAsset = 'bundled-asset';
         const processor = 'v3_processor';
         const api = 'v3_api';
