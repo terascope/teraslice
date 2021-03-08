@@ -28,7 +28,8 @@ import {
     OperationLocationType,
     OpTypeToRepositoryKey,
     OperationResults,
-    FindOperationResults
+    FindOperationResults,
+    OperationTypeName
 } from './interfaces';
 
 export class OperationLoader {
@@ -170,19 +171,19 @@ export class OperationLoader {
         let API: OperationAPIConstructor | undefined;
 
         try {
-            Processor = this.require(path, 'processor', { name, bundle_type });
+            Processor = this.require(path, OperationTypeName.processor, { name, bundle_type });
         } catch (err) {
             throw new Error(`Failure loading processor from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         try {
-            Schema = this.require(path, 'schema', { name, bundle_type });
+            Schema = this.require(path, OperationTypeName.schema, { name, bundle_type });
         } catch (err) {
             throw new Error(`Failure loading schema from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         try {
-            API = this.require(path, 'api', { name, bundle_type });
+            API = this.require(path, OperationTypeName.api, { name, bundle_type });
         } catch (err) {
             // do nothing
         }
@@ -209,25 +210,25 @@ export class OperationLoader {
         let API: OperationAPIConstructor | undefined;
 
         try {
-            Slicer = this.require(path, 'slicer', { name, bundle_type });
+            Slicer = this.require(path, OperationTypeName.slicer, { name, bundle_type });
         } catch (err) {
             throw new Error(`Failure loading slicer from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         try {
-            Fetcher = this.require(path, 'fetcher', { name, bundle_type });
+            Fetcher = this.require(path, OperationTypeName.fetcher, { name, bundle_type });
         } catch (err) {
             throw new Error(`Failure loading fetcher from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         try {
-            Schema = this.require(path, 'schema', { name, bundle_type });
+            Schema = this.require(path, OperationTypeName.schema, { name, bundle_type });
         } catch (err) {
             throw new Error(`Failure loading schema from module: ${name}, error: ${parseError(err, true)}`);
         }
 
         try {
-            API = this.require(path, 'api', { name, bundle_type });
+            API = this.require(path, OperationTypeName.api, { name, bundle_type });
         } catch (err) {
             // do nothing
         }
@@ -250,7 +251,7 @@ export class OperationLoader {
         let API: OperationAPIConstructor | undefined;
 
         try {
-            API = this.require(path, 'api', { name, bundle_type });
+            API = this.require(path, OperationTypeName.api, { name, bundle_type });
         } catch (err) {
             // do nothing
         }
@@ -258,7 +259,7 @@ export class OperationLoader {
         let Observer: ObserverConstructor | undefined;
 
         try {
-            Observer = this.require(path, 'observer', { name, bundle_type });
+            Observer = this.require(path, OperationTypeName.observer, { name, bundle_type });
         } catch (err) {
             // do nothing
         }
@@ -266,7 +267,7 @@ export class OperationLoader {
         let Schema: SchemaConstructor | undefined;
 
         try {
-            Schema = this.require(path, 'schema', { name, bundle_type });
+            Schema = this.require(path, OperationTypeName.schema, { name, bundle_type });
         } catch (err) {
             throw new Error(`Failure loading schema from module: ${apiName}, error: ${parseError(err, true)}`);
         }
@@ -326,7 +327,7 @@ export class OperationLoader {
 
     private require<T>(
         dir: string,
-        type?: string,
+        type?: OperationTypeName,
         { bundle_type, name }: { bundle_type?: AssetBundleType, name?: string } = {}
     ): T {
         const filePaths = type

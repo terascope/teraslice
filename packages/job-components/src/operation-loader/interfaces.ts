@@ -1,5 +1,13 @@
-export const ASSET_KEYWORD = 'ASSETS';
+import {
+    APIConstructor,
+    SlicerConstructor,
+    ProcessorConstructor,
+    FetcherConstructor,
+    ObserverConstructor,
+    SchemaConstructor
+} from '../operations/interfaces';
 
+export const ASSET_KEYWORD = 'ASSETS';
 export interface LoaderOptions {
     /** Path to teraslice lib directory */
     terasliceOpPath?: string;
@@ -65,42 +73,51 @@ export enum OperationLocationType {
     'teraslice' = 'teraslice'
 }
 
-export enum RepositoryKey {
-    processor = 'Processor',
-    schema = 'Schema',
-    fetcher = 'Fetcher',
-    slicer = 'Slicer',
-    api = 'API',
-    observer = 'Observer'
+export enum OperationTypeName {
+    processor = 'processor',
+    schema = 'schema',
+    fetcher = 'fetcher',
+    slicer = 'slicer',
+    api = 'api',
+    observer = 'observer'
 }
 
-export interface ProcessorOperation {
-    Processor: RepositoryKey.processor,
-    Schema: RepositoryKey.schema,
-    API?: RepositoryKey.api
+export const AssetRepositoryKey = {
+    [OperationTypeName.processor]: 'Processor',
+    [OperationTypeName.schema]: 'Schema',
+    [OperationTypeName.fetcher]: 'Fetcher',
+    [OperationTypeName.slicer]: 'Slicer',
+    [OperationTypeName.api]: 'API',
+    [OperationTypeName.observer]: 'Observer'
+} as const;
+
+export interface BundledProcessorOperation {
+    [AssetRepositoryKey.processor]: ProcessorConstructor,
+    [AssetRepositoryKey.schema]: SchemaConstructor,
+    [AssetRepositoryKey.api]?: APIConstructor,
 }
 
-export interface ReaderOperation {
-    Fetcher: RepositoryKey.fetcher,
-    Slicer: RepositoryKey.slicer,
-    Schema: RepositoryKey.schema,
-    API?: RepositoryKey.api
+export interface BundledReaderOperation {
+    [AssetRepositoryKey.fetcher]: FetcherConstructor,
+    [AssetRepositoryKey.slicer]: SlicerConstructor,
+    [AssetRepositoryKey.schema]: SchemaConstructor,
+    [OperationTypeName.api]?: APIConstructor
 }
 
-export interface APIOperation {
-    API: RepositoryKey.api
-    Schema: RepositoryKey.schema,
+export interface BundledAPIOperation {
+    [OperationTypeName.api]: APIConstructor
+    [AssetRepositoryKey.schema]:SchemaConstructor,
 }
 
-export interface ObserverOperation {
-    Observer?: RepositoryKey.observer
-    Schema: RepositoryKey.schema,
+export interface BundledObserverOperation {
+    [AssetRepositoryKey.observer]: ObserverConstructor
+    [AssetRepositoryKey.schema]: SchemaConstructor,
 }
 
-export type RepositoryOperation = ProcessorOperation
-| ReaderOperation
-| APIOperation
-| ObserverOperation
+export type RepositoryOperation = BundledProcessorOperation
+| BundledReaderOperation
+| BundledAPIOperation
+| BundledObserverOperation
 
 export interface AssetRepository {
     [ASSET_KEYWORD]: {
@@ -112,12 +129,12 @@ export interface AssetRepository {
  * the key listed in the asset bundle
  */
 export const OpTypeToRepositoryKey = {
-    processor: RepositoryKey.processor,
-    schema: RepositoryKey.schema,
-    fetcher: RepositoryKey.fetcher,
-    slicer: RepositoryKey.slicer,
-    api: RepositoryKey.api,
-    observer: RepositoryKey.observer
+    processor: AssetRepositoryKey.processor,
+    schema: AssetRepositoryKey.schema,
+    fetcher: AssetRepositoryKey.fetcher,
+    slicer: AssetRepositoryKey.slicer,
+    api: AssetRepositoryKey.api,
+    observer: AssetRepositoryKey.observer
 };
 
 export interface OperationResults {
