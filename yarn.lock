@@ -5406,10 +5406,10 @@ into-stream@^3.1.0:
     from2 "^2.1.1"
     p-is-promise "^1.1.0"
 
-ip-bigint@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/ip-bigint/-/ip-bigint-3.0.0.tgz#8abcc180d9bf7d3a45950b7dc85a6371acd80c6c"
-  integrity sha512-M4mjsmk/etDrQ1hs2PiIsbsLGrrY6K5VCwOvBJF1/70BHc10fkiRjYKNOalelRC6SML8xm9Ec0o4wWKEF+DGIw==
+ip-bigint@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/ip-bigint/-/ip-bigint-3.0.3.tgz#d9ecbf1d4894ccc965f93e5b7f4ac86d0c6e9d0c"
+  integrity sha512-hGCBH8QGndQsezHSJ+YYcl+L3DcvnSjYdHYuF801DO1pS5rzRlc95VplAFkgk7XaJBpkJQnHPQQBlVjGsj+uJg==
   dependencies:
     is-ip "3.1.0"
 
