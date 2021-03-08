@@ -87,7 +87,7 @@ export enum OperationLocationType {
     'teraslice' = 'teraslice'
 }
 
-export const V3TypeDict = {
+export const OpTypeToRepositoryKey = {
     processor: 'Processor',
     schema: 'Schema',
     fetcher: 'Fetcher',
@@ -143,7 +143,7 @@ export class OperationLoader {
         if (!operation && shouldThrow) {
             throw new Error(`Could not find operation ${opName}`);
         }
-        const repoType = V3TypeDict[type];
+        const repoType = OpTypeToRepositoryKey[type];
         const opType = operation[repoType];
 
         if (!opType && shouldThrow) {
