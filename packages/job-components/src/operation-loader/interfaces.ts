@@ -101,11 +101,11 @@ export interface BundledReaderOperation {
     [AssetRepositoryKey.fetcher]: FetcherConstructor,
     [AssetRepositoryKey.slicer]: SlicerConstructor,
     [AssetRepositoryKey.schema]: SchemaConstructor,
-    [OperationTypeName.api]?: APIConstructor
+    [AssetRepositoryKey.api]?: APIConstructor
 }
 
 export interface BundledAPIOperation {
-    [OperationTypeName.api]: APIConstructor
+    [AssetRepositoryKey.api]: APIConstructor
     [AssetRepositoryKey.schema]:SchemaConstructor,
 }
 

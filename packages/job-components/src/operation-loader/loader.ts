@@ -56,7 +56,7 @@ export class OperationLoader {
     }
 
     private _getBundledOperation<T>(
-        dirPath: string, opName: string, type: string, shouldThrow = true
+        dirPath: string, opName: string, type: OperationTypeName, shouldThrow = true
     ): T {
         const repository = this._getBundledRepository(dirPath);
         const operation = get(repository ?? {}, opName);
