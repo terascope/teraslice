@@ -442,7 +442,7 @@ export class OperationLoader {
 
     private getBuiltinDir() {
         if (this.availableExtensions.includes('.ts')) {
-            return pathModule.join(__dirname, 'builtin');
+            return pathModule.join(__dirname, '../builtin');
         }
         return pathModule.join(__dirname, '..', '..', 'dist', 'src', 'builtin');
     }
