@@ -95,33 +95,13 @@ export const V3TypeDict = {
     api: 'API',
     observer: 'Observer'
 };
-
-interface BaseMetadata {
-    bundle_type: AssetBundleType
-}
-export interface ModuleType extends BaseMetadata {
-    location: OperationLocationType.module
-}
-
-export interface BuiltinType extends BaseMetadata {
-    location: OperationLocationType.builtin
-}
-
-export interface TerasliceOpType extends BaseMetadata {
-    location: OperationLocationType.teraslice
-}
-
-export interface AssetOpType extends BaseMetadata {
-    location: OperationLocationType.asset,
-}
-
-interface OperationResults {
+export interface OperationResults {
     path: string;
     location: OperationLocationType;
     bundle_type: AssetBundleType
 }
 
-interface FindOperationResults {
+export interface FindOperationResults {
     path: string|null;
     location: OperationLocationType|null;
     bundle_type: AssetBundleType|null
@@ -208,7 +188,7 @@ export class OperationLoader {
         }
     }
 
-    find(name: string, assetIds?: string[]): Partial<FindOperationResults> {
+    find(name: string, assetIds?: string[]): FindOperationResults {
         let filePath: string | null = null;
         let location: OperationLocationType | null = null;
 
