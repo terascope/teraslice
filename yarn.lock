@@ -1001,10 +1001,10 @@
   resolved "https://registry.yarnpkg.com/@types/caseless/-/caseless-0.12.2.tgz#f65d3d6389e01eeb458bd54dc8f52b95a9463bc8"
   integrity sha512-6ckxMjBBD8URvjB6J3NcnuAn5Pkl7t3TizAg+xdlzzQGSPSmBcXf8KoIH0ua/i+tio+ZRUHEXp0HEmvaR4kt0w==
 
-"@types/convict@^5.2.2":
-  version "5.2.2"
-  resolved "https://registry.yarnpkg.com/@types/convict/-/convict-5.2.2.tgz#f2eee6bc0da2d925abe3c949264d32be836e02b1"
-  integrity sha512-yz26pc2bwg8YyYz/X5s/MJsUy40n54vxDdQCRENtqGfKdrmpPqXdOV8LDuHqTA0acoFxybLsJ5hc9ZYK6amDCw==
+"@types/convict@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@types/convict/-/convict-6.0.0.tgz#dc41e60688d1d2a67b4bf49d833f0952418a229f"
+  integrity sha512-gsnncleqmOLAljYkiiMT42RkApclPwNK3a2Eak/zWLA3tTRZievNpJ6AJt/2oV5joc68bYgdL/Iz25iHJ0utlA==
   dependencies:
     "@types/node" "*"
 
