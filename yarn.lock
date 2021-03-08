@@ -2019,10 +2019,10 @@ auto-bind@^4.0.0:
   resolved "https://registry.yarnpkg.com/auto-bind/-/auto-bind-4.0.0.tgz#e3589fc6c2da8f7ca43ba9f84fa52a744fc997fb"
   integrity sha512-Hdw8qdNiqdJ8LqT0iK0sVzkFbzg6fhnQqqfWhBDxcHZvU75+B+ayzTy8x+k5Ix0Y92XOhOUlx74ps+bA6BeYMQ==
 
-awesome-phonenumber@^2.46.0:
-  version "2.46.0"
-  resolved "https://registry.yarnpkg.com/awesome-phonenumber/-/awesome-phonenumber-2.46.0.tgz#46d0f3bb943dba396fc6857258d1bd33684185c3"
-  integrity sha512-uwh3nqE9JHWoFmdG6rMa69EfoFR+YHs2E/Vom6WLJ93o/+WEr6RBk3USOu5Z3Wz2VkxOrW9rkWfLX+ENPDTOrQ==
+awesome-phonenumber@^2.47.0:
+  version "2.47.0"
+  resolved "https://registry.yarnpkg.com/awesome-phonenumber/-/awesome-phonenumber-2.47.0.tgz#c3fabf3deec43d51bd685afed106e4ae6e087b15"
+  integrity sha512-WVranN3TOb1RixNz6A65NlM/il8Poq0Jnebz2nJkSYVf9GuWIgYD8sHBGUQqZPLEesxrAZUwfHzYsgzTytgGaA==
 
 aws-sdk@^2.843.0:
   version "2.846.0"
