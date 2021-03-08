@@ -73,7 +73,7 @@
         "got": "^11.8.2",
         "jest-fixtures": "^0.6.0",
         "js-yaml": "^4.0.0",
-        "nock": "^13.0.9"
+        "nock": "^13.0.11"
     },
     "publishConfig": {
         "access": "public",
