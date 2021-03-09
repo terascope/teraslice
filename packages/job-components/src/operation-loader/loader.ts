@@ -295,7 +295,7 @@ export class OperationLoader {
         const results = this.find(name, assetIds);
 
         if (!results.path) {
-            throw new Error(`Unable to find module for operation: ${name}`);
+            throw new Error(`Unable to find module for operation: ${name}, ${this.getBuiltinDir()}`);
         }
 
         if (!results.location) {
