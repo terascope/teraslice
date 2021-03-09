@@ -295,7 +295,7 @@ export class OperationLoader {
         const results = this.find(name, assetIds);
 
         if (!results.path) {
-            throw new Error(`Unable to find module for operation: ${name}, ${this.getBuiltinDir()}`);
+            throw new Error(`Unable to find module for operation: ${name}`);
         }
 
         if (!results.location) {
@@ -444,7 +444,7 @@ export class OperationLoader {
         if (this.availableExtensions.includes('.ts')) {
             return pathModule.join(__dirname, '../builtin');
         }
-        return pathModule.join(__dirname, '..', '..', 'dist', 'src', 'builtin');
+        return pathModule.join(__dirname, '..', '..', '..', 'dist', 'src', 'builtin');
     }
 
     private validateOptions(options: LoaderOptions): ValidLoaderOptions {
