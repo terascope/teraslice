@@ -11,10 +11,11 @@ import {
 
 describe('registerApis', () => {
     const context = new TestContext('teraslice-operations');
-    context.sysconfig.teraslice.assets_directory = [__dirname];
+    const assetDir = path.join(__dirname, 'fixtures');
+    context.sysconfig.teraslice.assets_directory = [assetDir];
     const jobConfig = newTestJobConfig();
 
-    jobConfig.assets = ['fixtures'];
+    jobConfig.assets = ['asset'];
 
     jobConfig.operations.push({
         _op: 'hello',
@@ -62,8 +63,8 @@ describe('registerApis', () => {
         const { getPath } = context.apis.assets;
 
         it('should return the given operation', () => {
-            const assetPath = path.join(__dirname, 'fixtures');
-            return expect(getPath('fixtures')).resolves.toEqual(assetPath);
+            const assetPath = path.join(__dirname, 'fixtures', 'asset');
+            return expect(getPath('asset')).resolves.toEqual(assetPath);
         });
 
         it('should throw an error if asset is not found', () => expect(getPath('unknown')).rejects.toThrowError('Unable to find asset "unknown"'));

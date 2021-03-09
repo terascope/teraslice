@@ -2,7 +2,7 @@ import 'jest-extended'; // require for type definitions
 import {
     ExecutionContextAPI, newTestExecutionConfig, TestContext, APIFactoryRegistry, AnyObject
 } from '../../src';
-import FactoryAPITest from '../fixtures/api-factory/api';
+import FactoryAPITest from '../fixtures/asset/api-factory/api';
 
 type API = APIFactoryRegistry<AnyObject, AnyObject>;
 

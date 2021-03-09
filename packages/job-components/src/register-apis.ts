@@ -24,7 +24,7 @@ export async function getAssetPath(
     name: string
 ): Promise<string> {
     if (assetDirs.length === 0) {
-        throw new Error('No asset_directroy has been configured, cannot get asset path');
+        throw new Error('No asset_directory has been configured, cannot get asset path');
     }
 
     const assetIds = assets || [];
