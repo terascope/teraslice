@@ -14,7 +14,7 @@
     "npm-watch": "^0.7.0"
   },
   "dependencies": {
-    "docusaurus": "^1.14.6"
+    "docusaurus": "^1.14.7"
   },
   "watch": {
     "start": {
