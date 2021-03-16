@@ -50,6 +50,7 @@ export async function generateTSConfig(
             }
         },
         include: [],
+        exclude: ['**/node_modules', '**/.*/'],
         // these project references should be ordered by dependents first
         references
     };
