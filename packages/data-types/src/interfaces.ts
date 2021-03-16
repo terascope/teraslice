@@ -77,7 +77,7 @@ export type DataTypeMapping = { [key in AvailableVersion]: ActualType };
 */
 export type TypeConfigFields = DataTypeFields;
 
-export { DataTypeConfig };
+export type { DataTypeConfig };
 
 export interface GraphQLType {
     type: string;

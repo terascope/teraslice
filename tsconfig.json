@@ -17,6 +17,7 @@
         "declaration": true,
         "declarationMap": true,
         "sourceMap": true,
+        "isolatedModules": true,
         "disableReferencedProjectLoad": true,
         "typeRoots": [
             "./types",
@@ -30,6 +31,10 @@
         }
     },
     "include": [],
+    "exclude": [
+        "**/node_modules",
+        "**/.*/"
+    ],
     "references": [
         {
             "path": "packages/docker-compose-js"

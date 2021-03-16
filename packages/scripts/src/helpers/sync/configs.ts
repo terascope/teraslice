@@ -37,6 +37,7 @@ export async function generateTSConfig(
             declaration: true,
             declarationMap: true,
             sourceMap: true,
+            isolatedModules: true,
             // https://www.typescriptlang.org/tsconfig#disableReferencedProjectLoad
             disableReferencedProjectLoad: true,
             typeRoots: [
@@ -50,6 +51,7 @@ export async function generateTSConfig(
             }
         },
         include: [],
+        exclude: ['**/node_modules', '**/.*/'],
         // these project references should be ordered by dependents first
         references
     };
