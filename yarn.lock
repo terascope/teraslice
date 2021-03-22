@@ -7428,10 +7428,10 @@ neo-async@^2.6.0:
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.2.tgz#b4aafb93e3aeb2d8174ca53cf163ab7d7308305f"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
 
-netmask@^1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/netmask/-/netmask-1.0.6.tgz#20297e89d86f6f6400f250d9f4f6b4c1945fcd35"
-  integrity sha1-ICl+idhvb2QA8lDZ9Pa0wZRfzTU=
+netmask@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/netmask/-/netmask-2.0.0.tgz#9de0ef120bae60f315c5d90c9289ac53790e708d"
+  integrity sha512-jwI5BiAalI743VK1tWnNGxFc/5JqFtez/jn7ILwgK1xTCevXDAOQw9ith0J0zS2I7g2jY0a3yk5RdstHUawJFg==
 
 nice-try@^1.0.4:
   version "1.0.5"
