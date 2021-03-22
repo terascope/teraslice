@@ -1,9 +1,18 @@
 import 'jest-extended';
-import { get } from '@terascope/utils';
-
+import { isNotNil, withoutNil } from '@terascope/utils';
 import {
-    isBooleanConfig, fieldFunctionAdapter, FunctionDefinitionType, ProcessMode
+    isBooleanConfig, functionAdapter, FunctionDefinitionType, ProcessMode
 } from '../../src';
+
+interface ColumnTests {
+    column: any[],
+    result: any[]
+}
+
+interface RowsTests {
+    rows: Record<string, unknown>[]
+    result: Record<string, unknown>[]
+}
 
 describe('isBooleanConfig', () => {
     it('has proper configuration', () => {
@@ -21,25 +30,98 @@ describe('isBooleanConfig', () => {
         const field = 'test_field';
 
         it('should return a function to execute', () => {
-            const fn = fieldFunctionAdapter(isBooleanConfig, field);
-            expect(fn).toBeFunction();
+            const api = functionAdapter(isBooleanConfig);
+            expect(api).toBeDefined();
+            expect(api).toHaveProperty('rows');
+            expect(api).toHaveProperty('column');
+            expect(api.column).toBeFunction();
+            expect(api.rows).toBeFunction();
         });
 
-        it('can check individual values', () => {
-            
+        const columnTests: ColumnTests[] = [
+            {
+                column: [true, false],
+                result: [true, false]
+            },
+            {
+                column: ['true', 'false'],
+                result: [null, null]
+            },
+            {
+                column: [null, undefined],
+                result: [null, null]
+            },
+            {
+                column: [true, 'false', 'blah', 'true'],
+                result: [true, null, null, null]
+            }
+        ];
+
+        const rowTests: RowsTests[] = [
+            {
+                rows: [
+                    { [field]: true },
+                    { [field]: false }
+                ],
+                result: [
+                    { [field]: true },
+                    { [field]: false }
+                ]
+            },
+            {
+                rows: [
+                    { [field]: 'true', some: 'other' },
+                    { [field]: 'false', some: 'other' }
+                ],
+                result: [
+                    { [field]: null, some: 'other' },
+                    { [field]: null, some: 'other' }
+                ]
+            },
+            {
+                rows: [
+                    { [field]: null },
+                    { [field]: undefined }
+                ],
+                result: [
+                    { [field]: null },
+                    { [field]: null }
+                ]
+            },
+            {
+                rows: [
+                    { [field]: 'blah', other: 'stuff' },
+                    { [field]: false }
+                ],
+                result: [
+                    { [field]: null, other: 'stuff' },
+                    { [field]: false }
+                ]
+            }
+        ];
+
+        describe.each(columnTests)('when running columns', ({ column, result }) => {
+            it(`should validate ${JSON.stringify(column)} with preserveNull set to true`, () => {
+                const api = functionAdapter(isBooleanConfig, { preserveNulls: true });
+                expect(api.column(column)).toEqual(result);
+            });
+
+            it(`should validate ${JSON.stringify(column)} with preserveNull set to false`, () => {
+                const api = functionAdapter(isBooleanConfig, { preserveNulls: false });
+                expect(api.column(column)).toEqual(result.filter(isNotNil));
+            });
         });
 
-        it('can check values', () => {
-            const fn = fieldFunctionAdapter(isBooleanConfig, field);
-            const data = [
-                { [field]: true },
-                { [field]: false },
-                { [field]: undefined },
-                { [field]: 'true' }
-            ];
+        describe.each(rowTests)('when running rows', ({ rows, result }) => {
+            it(`should validate ${JSON.stringify(rows)} with preserveNull set to true`, () => {
+                const api = functionAdapter(isBooleanConfig, { field, preserveNulls: true });
+                expect(api.rows(rows)).toEqual(result);
+            });
 
-            const results = fn(data);
-            expect(results).toEqual([true, true, false, false]);
+            it(`should validate ${JSON.stringify(rows)} with preserveNull set to false`, () => {
+                const api = functionAdapter(isBooleanConfig, { field, preserveNulls: false });
+                expect(api.rows(rows)).toEqual(result.map((obj) => withoutNil(obj)));
+            });
         });
     });
 });
