@@ -1,11 +1,10 @@
 import { Vector, VectorOptions } from '../Vector';
-import { VectorType } from '../interfaces';
-import { ReadableData } from '../../core';
+import { VectorType, DataBuckets } from '../interfaces';
 
 export class BooleanVector extends Vector<boolean> {
     valueToJSON = undefined;
 
-    constructor(data:ReadableData<boolean>, options: VectorOptions) {
+    constructor(data:DataBuckets<boolean>, options: VectorOptions) {
         super(VectorType.Boolean, data, options);
     }
 }

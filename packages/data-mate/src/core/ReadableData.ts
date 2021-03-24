@@ -56,25 +56,29 @@ export class ReadableData<T> implements Iterable<Maybe<T>> {
      * @param size optionally change the size of the Data
     */
     toWritable(size?: number): WritableData<T> {
-        return WritableData.make<T>(size ?? this.size, this.values);
+        return WritableData.make<T>(
+            size ?? this.size,
+            this.values.get.bind(this.values)
+        );
     }
 
     /**
      * Create a new Data with the range of values
     */
     slice(start = 0, end = this.size): WritableData<T> {
+        // this is the simple case
         if (start === 0 && end >= 0) {
             return this.toWritable(end);
         }
 
         const startIndex = start < 0 ? this.size + start : start;
         if (startIndex < 0 || startIndex > this.size) {
-            throw new Error(`Starting offset of ${start} is out-of-bounds`);
+            throw new RangeError(`Starting offset of ${start} is out-of-bounds`);
         }
 
         const endIndex = end < 0 ? this.size + end : end;
         if (endIndex < 0 || endIndex > this.size) {
-            throw new Error(`Ending offset of ${end} is out-of-bounds`);
+            throw new RangeError(`Ending offset of ${end} is out-of-bounds`);
         }
 
         const data = new WritableData<T>(endIndex - startIndex);
@@ -86,22 +90,6 @@ export class ReadableData<T> implements Iterable<Maybe<T>> {
         }
 
         return data;
-    }
-
-    [Symbol.for('nodejs.util.inspect.custom')](): any {
-        const proxy = {
-            size: this.size,
-            isPrimitive: this.isPrimitive,
-            values: this.values
-        };
-
-        // Trick so that node displays the name of the constructor
-        Object.defineProperty(proxy, 'constructor', {
-            value: ReadableData,
-            enumerable: false
-        });
-
-        return proxy;
     }
 
     /**

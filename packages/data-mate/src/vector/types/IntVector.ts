@@ -1,11 +1,10 @@
 import { Vector, VectorOptions } from '../Vector';
-import { VectorType } from '../interfaces';
-import { ReadableData } from '../../core';
+import { VectorType, DataBuckets } from '../interfaces';
 
 export class IntVector extends Vector<number> {
     valueToJSON = undefined;
 
-    constructor(data: ReadableData<number>, options: VectorOptions) {
+    constructor(data: DataBuckets<number>, options: VectorOptions) {
         super(VectorType.Int, data, options);
     }
 }

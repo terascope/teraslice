@@ -21,8 +21,6 @@ type NameType = (number|string|symbol);
  *
  * Changing the values is safe as long the length doesn't change.
  * When adding or removing values it is better to create a new Column.
- *
- * @todo add pipeline that will do a chain of validators/transformations
 */
 export class Column<T = unknown, N extends NameType = string> {
     /**
@@ -61,11 +59,6 @@ export class Column<T = unknown, N extends NameType = string> {
     readonly vector: Vector<T>;
 
     /**
-     * Get the size of the column
-    */
-    readonly size: number;
-
-    /**
      * Get the Data Type field configuration.
     */
     readonly config: Readonly<DataTypeFieldConfig>;
@@ -74,7 +67,6 @@ export class Column<T = unknown, N extends NameType = string> {
         this.vector = vector;
         this.name = options.name;
         this.version = options.version ?? LATEST_VERSION;
-        this.size = this.vector.size;
         this.config = this.vector.config;
     }
 
@@ -84,6 +76,13 @@ export class Column<T = unknown, N extends NameType = string> {
     */
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
         yield* this.vector;
+    }
+
+    /**
+     * Returns the size of the column
+    */
+    get size(): number {
+        return this.vector.size;
     }
 
     /**
@@ -231,7 +230,9 @@ export class Column<T = unknown, N extends NameType = string> {
         for (const [index, value] of this.vector.unique()) {
             writable.set(index, value);
         }
-        return this.fork(this.vector.fork(new ReadableData(writable)));
+        return this.fork(this.vector.fork([
+            new ReadableData(writable)
+        ]));
     }
 
     /**

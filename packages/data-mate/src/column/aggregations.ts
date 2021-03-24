@@ -31,13 +31,13 @@ export const valueAggMap: Record<ValueAggregation, MakeValueAgg> = {
 
 export function runVectorAggregation<V>(vector: Vector<any>, valueAgg: ValueAggregation): V {
     const agg = valueAggMap[valueAgg](vector);
-    for (const [i, v] of vector.data.values) {
+    for (const [i, v] of vector.values()) {
         agg.push(v, i);
     }
     return agg.flush().value as any;
 }
 
-function _addReducer(acc: any, curr: any) {
+function _addReducer(acc: any, curr: any): bigint {
     if (typeof acc === typeof curr) return acc + curr;
     if (isBigInt(curr)) return BigInt(acc) + curr;
     return acc + BigInt(curr);

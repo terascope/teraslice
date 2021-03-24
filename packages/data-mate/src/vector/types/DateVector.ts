@@ -1,9 +1,9 @@
 import { Vector, VectorOptions } from '../Vector';
-import { VectorType } from '../interfaces';
-import { DateValue, ReadableData } from '../../core';
+import { VectorType, DataBuckets } from '../interfaces';
+import { DateValue } from '../../core';
 
 export class DateVector extends Vector<DateValue> {
-    constructor(data: ReadableData<DateValue>, options: VectorOptions) {
+    constructor(data: DataBuckets<DateValue>, options: VectorOptions) {
         super(VectorType.Date, data, options);
     }
 

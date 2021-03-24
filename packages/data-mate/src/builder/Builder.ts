@@ -34,7 +34,7 @@ export abstract class Builder<T = unknown> {
         vector: Vector<R>,
         size: number,
     ): Builder<R> {
-        const data = vector.data.toWritable(size);
+        const data = vector.toWritable(size);
         const builder = Builder.make<R>(
             data,
             {
@@ -43,7 +43,7 @@ export abstract class Builder<T = unknown> {
                 name: vector.name,
             },
         );
-        builder.currentIndex = vector.data.size;
+        builder.currentIndex = vector.size;
         return builder;
     }
 
@@ -170,7 +170,7 @@ export abstract class Builder<T = unknown> {
     */
     toVector(): Vector<T> {
         const vector = Vector.make(
-            new ReadableData(this.data),
+            [new ReadableData(this.data)],
             {
                 childConfig: this.childConfig,
                 config: this.config,
@@ -243,7 +243,7 @@ export function copyVectorToBuilder<T, R>(
     vector: Vector<T>|ListVector<T>,
     builder: Builder<R>,
 ): Vector<R> {
-    for (const [i, v] of vector.data.values) {
+    for (const [i, v] of vector.values()) {
         builder.set(i, v);
     }
     return builder.toVector();
@@ -257,7 +257,7 @@ export function transformVectorToBuilder<T, R>(
     builder: Builder<R>,
     transform: (value: T|readonly Maybe<T>[]) => Maybe<R>|readonly Maybe<R>[],
 ): Vector<R> {
-    for (const [i, v] of vector.data.values) {
+    for (const [i, v] of vector.values()) {
         builder.set(i, transform(v));
     }
     return builder.toVector();

@@ -1,14 +1,14 @@
 import { AnyObject, FieldType, Maybe } from '@terascope/types';
 import { isNotNil } from '@terascope/utils';
 import { Vector, VectorOptions } from './Vector';
-import { SerializeOptions, VectorType } from './interfaces';
-import { getHashCodeFrom, ReadableData } from '../core';
+import { DataBuckets, SerializeOptions, VectorType } from './interfaces';
+import { getHashCodeFrom } from '../core';
 
 export class ListVector<T = unknown> extends Vector<readonly Maybe<T>[]> {
     readonly convertValueToJSON: (options?: SerializeOptions) => (value: Maybe<T>) => any;
     #_valueVector?: Vector<T>;
 
-    constructor(data: ReadableData<readonly Maybe<T>[]>, options: VectorOptions) {
+    constructor(data: DataBuckets<readonly Maybe<T>[]>, options: VectorOptions) {
         super(VectorType.List, data, options);
         this.sortable = false;
         this.convertValueToJSON = (opts?: SerializeOptions) => {
@@ -25,7 +25,7 @@ export class ListVector<T = unknown> extends Vector<readonly Maybe<T>[]> {
     get valueVector(): Vector<T> {
         if (this.#_valueVector) return this.#_valueVector;
         this.#_valueVector = Vector.make<T>(
-            ReadableData.emptyData,
+            [],
             {
                 childConfig: this.childConfig,
                 config: {
@@ -61,7 +61,7 @@ export class ListVector<T = unknown> extends Vector<readonly Maybe<T>[]> {
     }
 }
 
-function dedupeValues(result: Maybe<AnyObject>[]) {
+function dedupeValues(result: Maybe<AnyObject>[]): Maybe<AnyObject>[] {
     const hashes = new Set<string>();
     return result.filter((value) => {
         const hash = getHashCodeFrom(value);

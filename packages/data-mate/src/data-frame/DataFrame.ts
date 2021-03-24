@@ -541,7 +541,7 @@ export class DataFrame<
             columnsToBuilderEntries(this.columns, len + this.size)
         );
 
-        const finish = ([name, builder]: [keyof T, Builder<any>]) => (
+        const finish = ([name, builder]: [keyof T, Builder<any>]): Column<T[keyof T], keyof T> => (
             this.getColumnOrThrow(name).fork(builder.toVector())
         );
 
@@ -568,6 +568,7 @@ export class DataFrame<
     */
     appendAll(frames: Iterable<DataFrame<T>>, limit?: number): DataFrame<T> {
         let { size } = this;
+
         for (const frame of frames) {
             if (limit != null && size >= limit) {
                 break;
@@ -581,43 +582,35 @@ export class DataFrame<
 
         // nothing changed
         if (size === this.size) return this;
-
-        const builders = new Map<keyof T, Builder>(
-            columnsToBuilderEntries(this.columns, size)
-        );
+        if (size < this.size || this.size === 0) {
+            return this.limit(size);
+        }
 
         let currIndex = this.size;
+        const columns = this.columns.slice();
         for (const frame of frames) {
+            const remaining = size - currIndex;
             // no need to process more frames
-            if (currIndex > size) break;
+            if (remaining <= 0) break;
 
             for (const column of frame.columns) {
-                const builder = builders.get(column.name);
-                if (builder) {
-                    for (let i = 0; i < frame.size; i++) {
-                        // this just copies the underlying data
-                        const value = column.vector.data.values.get(i);
-                        const valueIndex = currIndex + i;
-                        // don't exceed the limit size
-                        if ((valueIndex + 1) > size) break;
-
-                        if (value != null) {
-                            builder.data.set(valueIndex, value);
-                        }
+                const existingIndex = columns.findIndex((c) => c.name === column.name);
+                if (existingIndex !== -1) {
+                    let { vector } = column;
+                    if (remaining < vector.size) {
+                        vector = vector.slice(0, remaining);
                     }
+
+                    const existingColumn = columns[existingIndex];
+                    vector = existingColumn.vector.append(vector.data);
+                    columns[existingIndex] = existingColumn.fork(vector);
                 }
             }
 
             currIndex += frame.size;
         }
 
-        const finish = ([name, builder]: [keyof T, Builder<any>]) => (
-            this.getColumnOrThrow(name).fork(builder.toVector())
-        );
-
-        return this.fork(
-            [...builders].map(finish)
-        );
+        return this.fork(columns);
     }
 
     /**

@@ -1,3 +1,7 @@
+import { ReadableData } from '../core';
+
+export type DataBuckets<T> = ReadableData<T>[]|readonly ReadableData<T>[];
+
 /**
  * The Vector Type, this will change how the data is stored and read
 */
