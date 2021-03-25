@@ -510,11 +510,13 @@ export class AggregationFrame<
             fieldAggs, keyAggs, otherCols
         } = this._aggregationBuilders();
 
-        const buckets = await this._generateBuckets(keyAggs, otherCols);
+        const buckets = this._generateBuckets(keyAggs, otherCols);
         const builders = this._generateBuilders(buckets);
+        await EventLoop.wait();
 
         for (const bucket of buckets.values()) {
-            await this._runBucket(builders, fieldAggs, bucket);
+            this._processBucketData(fieldAggs, bucket);
+            await this._buildBucket(builders, fieldAggs, otherCols, bucket);
             await EventLoop.wait();
         }
 
@@ -537,10 +539,10 @@ export class AggregationFrame<
         return this;
     }
 
-    private async _generateBuckets(
+    private _generateBuckets(
         keyAggs: Map<keyof T, KeyAggFn>,
-        otherCols: Map<keyof T, Column<any, keyof T>>
-    ): Promise<Map<string, any[]>> {
+        otherCols: Map<keyof T, Column<any, keyof T>>,
+    ): Map<string, any[]> {
         const buckets = new Map<string, any[]>();
 
         const count = this.size;
@@ -558,12 +560,14 @@ export class AggregationFrame<
                 res.row[field] = col.vector.get(i);
             }
 
-            const bucket = buckets.get(res.key) || [];
-            bucket.push(res.row);
-            buckets.set(res.key, bucket);
+            const bucket = buckets.get(res.key);
+            if (bucket) {
+                bucket.push(res.row);
+            } else {
+                buckets.set(res.key, [res.row]);
+            }
         }
 
-        await EventLoop.wait();
         return buckets;
     }
 
@@ -581,18 +585,24 @@ export class AggregationFrame<
         return builders;
     }
 
-    private async _runBucket(
-        builders: Map<keyof T, Builder<any>>,
+    private _processBucketData(
         fieldAggs: Map<keyof T, FieldAgg>,
         bucket: any[]
-    ): Promise<void> {
+    ): void {
         const len = bucket.length;
         for (let i = 0; i < len; i++) {
             for (const [field, agg] of fieldAggs) {
                 agg.push(bucket[i][field], i);
             }
         }
+    }
 
+    private async _buildBucket(
+        builders: Map<keyof T, Builder<any>>,
+        fieldAggs: Map<keyof T, FieldAgg>,
+        otherCols: Map<keyof T, Column<any, keyof T>>,
+        bucket: any[]
+    ): Promise<void> {
         let useIndex = 0;
         const remainingFields: (keyof T)[] = [];
         for (const [field, builder] of builders) {
@@ -613,7 +623,11 @@ export class AggregationFrame<
         }
     }
 
-    private _aggregationBuilders() {
+    private _aggregationBuilders(): {
+        fieldAggs: Map<keyof T, FieldAgg>;
+        keyAggs: Map<keyof T, KeyAggFn>;
+        otherCols: Map<keyof T, Column<any, keyof T>>;
+    } {
         const fieldAggs = new Map<keyof T, FieldAgg>();
         const keyAggs = new Map<keyof T, KeyAggFn>();
         const otherCols = new Map<keyof T, Column<any, keyof T>>();

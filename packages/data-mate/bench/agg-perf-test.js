@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 'use strict';
 
 const { pDelay } = require('@terascope/utils');
@@ -9,7 +11,7 @@ async function readData() {
     console.time('readData');
     try {
         return await new Promise((resolve, reject) => {
-            fs.readFile(path.join(__dirname, 'fixtures/data.json'), (err, buf) => {
+            fs.readFile(path.join(__dirname, 'fixtures/.local.data.json'), (err, buf) => {
                 if (err) reject(err);
                 else resolve(JSON.parse(buf));
             });
@@ -27,19 +29,23 @@ async function setup({ config, data }) {
             .select('_key', 'birthday', 'age', 'ip');
 
         await pDelay(0);
-        return frame;
+        return frame.appendAll(
+            Array.from({ length: 100 }, () => frame),
+            100000000
+        );
     } finally {
         console.timeEnd('setup');
     }
 }
 
-async function aggregate(dataFrame) {
+async function aggregate(frame) {
+    console.log(`ready with ${frame.size} records`);
     console.time('aggregate');
     try {
-        return await dataFrame
+        return await frame
             .aggregate()
             .avg('age')
-            .yearly('birthday')
+            .monthly('birthday')
             .run();
     } finally {
         console.timeEnd('aggregate');
@@ -51,8 +57,7 @@ Promise.resolve()
     .then(setup)
     .then(aggregate)
     .then(async (dataFrame) => {
-        // eslint-disable-next-line no-console
-        console.log(dataFrame.toJSON());
+        console.dir(dataFrame.toJSON());
         await pDelay(5000);
         process.exit(0);
     }, (err) => {
