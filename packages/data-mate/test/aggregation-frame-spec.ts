@@ -120,6 +120,23 @@ describe('AggregationFrame', () => {
             ]);
         });
 
+        it('should get the right result when not using groupBy', async () => {
+            const resultFrame = await dataFrame
+                .aggregate()
+                .sum('age')
+                .run();
+
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'Billy',
+                    age: 310,
+                    gender: 'M',
+                    scores: [4, 9, 3],
+                    date: '2020-09-15T17:39:11.195Z'
+                }
+            ]);
+        });
+
         it('should get the right result when using tuple', async () => {
             const grouped = dataFrame.createTupleFrom(['age'], 'age_tuple').aggregate();
             const resultFrame = await grouped.sum('age_tuple').run();

@@ -176,6 +176,8 @@ export function makeKeyForRow<T extends Record<string, any>>(
         row[field] = res.value as any;
     }
 
+    // this ensures that without a key aggregation
+    // we create a global bucket
     if (!valueKey && keyAggs.size) return;
 
     const groupKey = createHashCode(valueKey);

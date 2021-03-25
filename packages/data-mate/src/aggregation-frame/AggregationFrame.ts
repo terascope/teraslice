@@ -1,5 +1,5 @@
 import { DataTypeConfig, FieldType } from '@terascope/types';
-import { EventLoop } from '@terascope/utils';
+import { EventLoop, BigMap } from '@terascope/utils';
 import {
     Column,
     KeyAggregation, ValueAggregation, valueAggMap,
@@ -506,19 +506,16 @@ export class AggregationFrame<
             throw new Error('No aggregations specified to run');
         }
 
-        const {
-            fieldAggMakers, keyAggs
-        } = this._aggregationBuilders();
-
-        const buckets = this._generateBuckets(keyAggs, fieldAggMakers);
+        const buckets = this._generateBuckets(
+            this._aggregationBuilders()
+        );
         const builders = this._generateBuilders(buckets.size);
         await EventLoop.wait();
 
         for (const bucket of buckets.values()) {
             this._buildBucket(builders, bucket);
+            await EventLoop.wait();
         }
-
-        await EventLoop.wait();
 
         this.columns = Object.freeze([...builders].map(([name, builder]) => {
             const column = this.getColumnOrThrow(name);
@@ -540,32 +537,15 @@ export class AggregationFrame<
     }
 
     private _generateBuckets(
-        keyAggs: Map<keyof T, KeyAggFn>,
-        fieldAggMakers: Map<keyof T, FieldAggMaker>,
-    ): Map<string, Bucket<T>> {
-        const buckets = new Map<string, Bucket<T>>();
+        { keyAggs, fieldAggMakers }: AggBuilders<T>
+    ): BigMap<string, Bucket<T>> {
+        const buckets = new BigMap<string, Bucket<T>>();
+        const getFieldAggs = makeGetFieldAggs(buckets);
 
         for (let i = 0; i < this.size; i++) {
             const res = makeKeyForRow(keyAggs, i);
-            if (!res) continue;
-
-            const fieldAggRes = buckets.get(res.key);
-            let fieldAggs: Record<keyof T, FieldAgg>;
-
-            if (!fieldAggRes) {
-                fieldAggs = {} as Record<keyof T, FieldAgg>;
-                buckets.set(res.key, [fieldAggs, i]);
-            } else {
-                [fieldAggs] = fieldAggRes;
-            }
-
-            for (const [field, [makeAgg, vector]] of fieldAggMakers) {
-                let agg = fieldAggs[field];
-                if (!agg) {
-                    agg = makeAgg();
-                    fieldAggs[field] = agg;
-                }
-                agg.push(vector.get(i), i);
+            if (res && fieldAggMakers.size) {
+                fieldAggMakers.forEach(makeProcessFieldAgg(getFieldAggs(res.key, i), i));
             }
         }
 
@@ -592,8 +572,9 @@ export class AggregationFrame<
     ): void {
         let useIndex = startIndex;
         const remainingFields: (keyof T)[] = [];
+
         for (const [field, builder] of builders) {
-            const agg = fieldAggs[field];
+            const agg = fieldAggs.get(field);
             if (agg != null) {
                 const res = agg.flush();
                 if (res.index != null && res.index > useIndex) {
@@ -611,23 +592,16 @@ export class AggregationFrame<
         }
     }
 
-    private _aggregationBuilders(): {
-        fieldAggMakers: Map<keyof T, FieldAggMaker>;
-        keyAggs: Map<keyof T, KeyAggFn>;
-        otherCols: Map<keyof T, Column<any, keyof T>>;
-    } {
+    private _aggregationBuilders(): AggBuilders<T> {
         const fieldAggMakers = new Map<keyof T, FieldAggMaker>();
         const keyAggs = new Map<keyof T, KeyAggFn>();
-        const otherCols = new Map<keyof T, Column<any, keyof T>>();
 
         for (const col of this.columns) {
             const agg = this._aggregations.get(col.name);
-            let addToOther = true;
 
             const isInGroupBy = this._groupByFields.includes(col.name);
             if (isInGroupBy) {
                 keyAggs.set(col.name, makeUniqueKeyAgg(col.vector));
-                addToOther = false;
             }
 
             if (agg) {
@@ -641,17 +615,12 @@ export class AggregationFrame<
                         );
                     }
                     keyAggs.set(col.name, keyAggMap[agg.key](col.vector));
-                    addToOther = false;
                 }
-            }
-
-            if (addToOther) {
-                otherCols.set(col.name, col);
             }
         }
 
         return {
-            fieldAggMakers, keyAggs, otherCols
+            fieldAggMakers, keyAggs
         };
     }
 }
@@ -667,8 +636,13 @@ type WithAlias<T extends Record<string, unknown>, A extends string, V> = {
 type FieldAggMaker = [fieldAgg: () => FieldAgg, vector: Vector<any>];
 
 type Bucket<T extends Record<string, unknown>> = [
-    fieldAggs: Record<keyof T, FieldAgg>, startIndex: number
+    fieldAggs: Map<keyof T, FieldAgg>, startIndex: number
 ];
+
+interface AggBuilders<T extends Record<string, any>> {
+    fieldAggMakers: Map<keyof T, FieldAggMaker>;
+    keyAggs: Map<keyof T, KeyAggFn>;
+}
 
 /**
  * AggregationFrame options
@@ -683,4 +657,31 @@ function curryFieldAgg(
     vector: Vector<any>
 ): FieldAggMaker {
     return [() => valueAggMap[valueAgg](vector), vector];
+}
+
+function makeGetFieldAggs<T extends Record<string, any>>(buckets: BigMap<string, Bucket<T>>) {
+    return function getFieldAggs(key: string, index: number): Map<keyof T, FieldAgg> {
+        const fieldAggRes = buckets.get(key);
+        let fieldAggs: Map<keyof T, FieldAgg>;
+
+        if (!fieldAggRes) {
+            fieldAggs = new Map();
+            buckets.set(key, [fieldAggs, index]);
+            return fieldAggs;
+        }
+        return fieldAggRes[0];
+    };
+}
+
+function makeProcessFieldAgg<T extends Record<string, any>>(
+    fieldAggs: Map<keyof T, FieldAgg>, index: number
+) {
+    return function processFieldAgg(maker: FieldAggMaker, field: keyof T) {
+        let agg = fieldAggs.get(field);
+        if (!agg) {
+            agg = maker[0]();
+            fieldAggs.set(field, agg);
+        }
+        agg.push(maker[1].get(index), index);
+    };
 }
