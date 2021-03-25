@@ -448,9 +448,6 @@ function isValidIP(input: unknown, _parentContext?: unknown) {
     if (!ts.isString(input)) return false;
     if (!_isIP(input)) return false;
 
-    // needed to check for inputs like - '::192.168.1.18'
-    if (input.includes(':') && input.includes('.')) return false;
-
     return true;
 }
 
@@ -511,9 +508,68 @@ function _isNonRoutableIP(input: unknown, _parentContext?: unknown): boolean {
     return !_publicIp(input);
 }
 
-function _publicIp(input: unknown): boolean {
-    const range = ipaddr.parse(input as any).range();
-    return range !== 'private' && range !== 'uniqueLocal' && range !== 'loopback';
+function _publicIp(input: string): boolean {
+    const parsedIp = _parseIpAddress(input);
+
+    const ipRangeName = parsedIp.range();
+
+    if (_inPrivateIPRange(ipRangeName) || _inRestrictedIPRange(parsedIp)) return false;
+
+    return true;
+}
+
+function _parseIpAddress(input: string) {
+    const ipv4Regex = /\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}\b/;
+
+    const parsed = ipaddr.parse(input);
+
+    // if ipv6 mapped v4 then need to return the parsed ipv4 address
+    if (parsed.kind() === 'ipv6') {
+        const ipv4 = input.match(ipv4Regex);
+
+        if (ipv4 != null && Array.isArray(ipv4)) {
+            return ipaddr.parse(ipv4[0]);
+        }
+    }
+
+    return parsed;
+}
+
+function _inPrivateIPRange(ipRange: string) {
+    return [
+        'private',
+        'uniqueLocal',
+        'loopback',
+        'unspecified',
+        'carrierGradeNat',
+        'linkLocal',
+        'reserved',
+        'rfc6052',
+        'teredo',
+        '6to4',
+        'broadcast'
+    ].includes(ipRange);
+}
+
+function _inRestrictedIPRange(parsedIp: ipaddr.IPv4 | ipaddr.IPv6) {
+    const ipv4RestrictedRanges = [
+        '192.31.196.0/24',
+        '192.52.193.0/24',
+        '192.175.48.0/24',
+        '198.18.0.0/15',
+        '224.0.0.0/8'
+    ];
+
+    const ipv6RestrictedRanges = [
+        '64:ff9b:1::/48',
+        '100::/64',
+        '2001::/23',
+        '2620:4f:8000::/48'
+    ];
+
+    const rangesToCheck = parsedIp.kind() === 'ipv4' ? ipv4RestrictedRanges : ipv6RestrictedRanges;
+
+    return rangesToCheck.some((ipRange) => parsedIp.match(ipaddr.parseCIDR(ipRange)));
 }
 
 /**
