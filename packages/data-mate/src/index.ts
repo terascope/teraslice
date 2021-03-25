@@ -34,9 +34,9 @@ AggregationFrame.prototype.run = async function run() {
         dataFrame = dataFrame.orderBy(
             aggFrame._sortFields,
         );
-        if (aggFrame._limit != null) {
-            dataFrame = dataFrame.limit(aggFrame._limit);
-        }
+    }
+    if (aggFrame._limit != null) {
+        dataFrame = dataFrame.limit(aggFrame._limit);
     }
 
     this.reset();

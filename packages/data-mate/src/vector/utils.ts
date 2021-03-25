@@ -12,10 +12,10 @@ import {
     ObjectVector, StringVector, IPVector, IPRangeVector, TupleVector,
 } from './types';
 import { Vector, VectorOptions } from './Vector';
-import { ReadableData } from '../core';
+import { DataBuckets } from './interfaces';
 
 export function _newVector<T>(
-    data: ReadableData<any>,
+    data: DataBuckets<any>,
     options: VectorOptions
 ): Vector<T> {
     const fieldType = options.config.type as FieldType;
@@ -34,9 +34,9 @@ export function _newVector<T>(
  * Create primitive vector types, does not deal with array or object type fields
 */
 function _newVectorForType(
-    data: ReadableData<any>,
+    data: DataBuckets<any>,
     options: VectorOptions
-) {
+): Vector<any> {
     switch (options.config.type as FieldType) {
         case FieldType.String:
         case FieldType.Text:

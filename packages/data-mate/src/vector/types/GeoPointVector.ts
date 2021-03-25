@@ -1,12 +1,11 @@
 import { GeoPoint } from '@terascope/types';
 import { Vector, VectorOptions } from '../Vector';
-import { VectorType } from '../interfaces';
-import { ReadableData } from '../../core';
+import { VectorType, DataBuckets } from '../interfaces';
 
 export class GeoPointVector extends Vector<GeoPoint> {
     valueToJSON = undefined;
 
-    constructor(data: ReadableData<GeoPoint>, options: VectorOptions) {
+    constructor(data: DataBuckets<GeoPoint>, options: VectorOptions) {
         super(VectorType.GeoPoint, data, options);
     }
 }

@@ -1,9 +1,9 @@
 import { Vector, VectorOptions } from '../Vector';
-import { VectorType } from '../interfaces';
-import { IPValue, ReadableData } from '../../core';
+import { VectorType, DataBuckets } from '../interfaces';
+import { IPValue } from '../../core';
 
 export class IPVector extends Vector<IPValue> {
-    constructor(data: ReadableData<IPValue>, options: VectorOptions) {
+    constructor(data: DataBuckets<IPValue>, options: VectorOptions) {
         super(VectorType.IP, data, options);
     }
 

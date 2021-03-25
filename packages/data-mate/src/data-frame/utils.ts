@@ -20,7 +20,9 @@ export function buildRecords<T extends Record<string, any>>(
     return _builders;
 }
 
-function _buildersAppend<T extends Record<string, any>>(builders: [keyof T, Builder<any>][]) {
+function _buildersAppend<T extends Record<string, any>>(
+    builders: [keyof T, Builder<any>][]
+): (record: T) => void {
     const len = builders.length;
     return function __buildersAppend(record: T) {
         for (let i = 0; i < len; i++) {
@@ -51,7 +53,7 @@ export function concatColumnsToColumns<T extends Record<string, any>>(
     for (const [field, builder] of builders) {
         const col = columns.find(((c) => c.name === field));
         if (col) {
-            for (const [i, v] of col.vector.data.values) {
+            for (const [i, v] of col.vector.values()) {
                 builder.set(i + offset, v);
             }
         }
@@ -107,7 +109,7 @@ export function processFieldFilter(
         if (!json || !column.vector.valueToJSON) return v;
         return column.vector.valueToJSON(v);
     }
-    for (const [i, v] of column.vector.data.values) {
+    for (const [i, v] of column.vector.values()) {
         if (filter(getValue(v))) indices.add(i);
         else indices.delete(i);
     }
@@ -129,7 +131,7 @@ export function createColumnsWithIndices<T extends Record<string, any>>(
         }
     }
 
-    function finish(col: Column<any, keyof T>) {
+    function finish(col: Column<any, keyof T>): Column<any, keyof T> {
         return col.fork(builders.get(col.name)!.toVector());
     }
     return columns.map(finish);
@@ -174,6 +176,8 @@ export function makeKeyForRow<T extends Record<string, any>>(
         row[field] = res.value as any;
     }
 
+    // this ensures that without a key aggregation
+    // we create a global bucket
     if (!valueKey && keyAggs.size) return;
 
     const groupKey = createHashCode(valueKey);

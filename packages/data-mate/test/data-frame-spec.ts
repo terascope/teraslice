@@ -1058,7 +1058,7 @@ describe('DataFrame', () => {
         });
 
         describe('->appendAll', () => {
-            it('should throw if given an empty array', () => {
+            it('should not doing anything if given an empty array', () => {
                 const resultFrame = peopleDataFrame.appendAll([]);
 
                 expect(resultFrame.id).toEqual(peopleDataFrame.id);
@@ -1080,10 +1080,10 @@ describe('DataFrame', () => {
                     peopleDataFrame, peopleDataFrame, peopleDataFrame
                 ]);
                 const data = peopleDataFrame.toJSON();
+                expect(resultFrame.size).toEqual(peopleDataFrame.size * 4);
                 expect(resultFrame.toJSON()).toEqual(
                     data.concat(data, data, data)
                 );
-                expect(resultFrame.size).toEqual(peopleDataFrame.size * 4);
                 expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
 
