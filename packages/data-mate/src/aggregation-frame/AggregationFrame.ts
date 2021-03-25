@@ -545,7 +545,9 @@ export class AggregationFrame<
         for (let i = 0; i < this.size; i++) {
             const res = makeKeyForRow(keyAggs, i);
             if (res && fieldAggMakers.size) {
-                fieldAggMakers.forEach(makeProcessFieldAgg(getFieldAggs(res.key, i), i));
+                fieldAggMakers.forEach(
+                    makeProcessFieldAgg(getFieldAggs(res.key, i), i)
+                );
             }
         }
 
