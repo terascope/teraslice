@@ -1058,7 +1058,7 @@ describe('DataFrame', () => {
         });
 
         describe('->appendAll', () => {
-            it('should throw if given an empty array', () => {
+            it('should not doing anything if given an empty array', () => {
                 const resultFrame = peopleDataFrame.appendAll([]);
 
                 expect(resultFrame.id).toEqual(peopleDataFrame.id);

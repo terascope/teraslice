@@ -744,4 +744,28 @@ describe('AggregationFrame', () => {
             ]);
         });
     });
+
+    it('should get the right result when using groupBy(gender) without a field agg', async () => {
+        const resultFrame = await dataFrame
+            .aggregate()
+            .groupBy(['gender'])
+            .run();
+
+        expect(resultFrame.toJSON()).toEqual([
+            {
+                name: 'Billy',
+                age: 64,
+                gender: 'M',
+                scores: [4, 9, 3],
+                date: '2020-09-15T17:39:11.195Z'
+            },
+            {
+                name: 'Jill',
+                age: 40,
+                gender: 'F',
+                scores: [2, 2, 2],
+                date: '2020-09-15T15:39:11.195Z'
+            }
+        ]);
+    });
 });
