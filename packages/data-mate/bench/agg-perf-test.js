@@ -11,7 +11,7 @@ async function readData() {
     console.time('readData');
     try {
         return await new Promise((resolve, reject) => {
-            fs.readFile(path.join(__dirname, 'fixtures/.local.data.json'), (err, buf) => {
+            fs.readFile(path.join(__dirname, 'fixtures/data.json'), (err, buf) => {
                 if (err) reject(err);
                 else resolve(JSON.parse(buf));
             });
