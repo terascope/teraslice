@@ -465,7 +465,7 @@ function isValidIP(input: unknown, _parentContext?: unknown) {
  *
  * @param {*} input
  * @returns {boolean} boolean
- * 
+ *
  * see:
  *  https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml
  *  https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml
@@ -496,10 +496,10 @@ function _isRoutableIP(input: unknown, _parentContext?: unknown): boolean {
  * FieldValidator.isNonRoutableIP('8.8.8.8'); // false
  * FieldValidator.isNonRoutableIP('2001:db8::1'); // false
  * FieldValidator.isNonRoutableIP(['10.16.32.210', '192.168.0.1']); // true
- * 
+ *
  * @param {*} input
  * @returns { boolean } boolean
- * 
+ *
  * see:
  *  https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml
  *  https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml
@@ -524,7 +524,7 @@ function _privateIP(input: string): boolean {
 
     const ipRangeName = parsedIp.range();
 
-    return _inPrivateIPRange(ipRangeName) || _inRestrictedIPRange(parsedIp)
+    return _inPrivateIPRange(ipRangeName) || _inRestrictedIPRange(parsedIp);
 }
 
 function _parseIpAddress(input: string) {

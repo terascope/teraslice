@@ -365,7 +365,6 @@ describe('field validators', () => {
             expect(FieldValidator.isNonRoutableIP('2001:3:ffff:ffff:ffff:ffff:ffff:ffff')).toBe(true);
             expect(FieldValidator.isNonRoutableIP('192.88.99.1')).toBe(true);
             expect(FieldValidator.isNonRoutableIP('2001:2::')).toBe(true);
-
         });
 
         it('should return false for a routable ip address or invalid ip address', () => {
