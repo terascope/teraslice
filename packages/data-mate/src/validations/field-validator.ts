@@ -459,11 +459,17 @@ function isValidIP(input: unknown, _parentContext?: unknown) {
  * FieldValidator.isRoutableIP('8.8.8.8'); // true
  * FieldValidator.isRoutableIP('2001:db8::1'); // true
  * FieldValidator.isRoutableIP('172.194.0.1'); // true
+ * FieldValidator.isRoutableIP('100.127.255.250'); // false
  * FieldValidator.isRoutableIP('192.168.0.1'); // false
  * FieldValidator.isRoutableIP(['172.194.0.1', '8.8.8.8']); // true
  *
  * @param {*} input
  * @returns {boolean} boolean
+ * 
+ * see:
+ *  https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml
+ *  https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml
+ *  for ip range details
  */
 
 export function isRoutableIP(input: unknown, _parentContext?: unknown): boolean {
@@ -476,7 +482,7 @@ export function isRoutableIP(input: unknown, _parentContext?: unknown): boolean 
 function _isRoutableIP(input: unknown, _parentContext?: unknown): boolean {
     if (!isIP(input)) return false;
 
-    return _publicIp(input);
+    return !_privateIP(input);
 }
 
 /**
@@ -490,9 +496,14 @@ function _isRoutableIP(input: unknown, _parentContext?: unknown): boolean {
  * FieldValidator.isNonRoutableIP('8.8.8.8'); // false
  * FieldValidator.isNonRoutableIP('2001:db8::1'); // false
  * FieldValidator.isNonRoutableIP(['10.16.32.210', '192.168.0.1']); // true
- *
+ * 
  * @param {*} input
  * @returns { boolean } boolean
+ * 
+ * see:
+ *  https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml
+ *  https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml
+ *  for ip range details
  */
 
 export function isNonRoutableIP(input: unknown, _parentContext?: unknown): boolean {
@@ -505,17 +516,15 @@ export function isNonRoutableIP(input: unknown, _parentContext?: unknown): boole
 function _isNonRoutableIP(input: unknown, _parentContext?: unknown): boolean {
     if (!isIP(input)) return false;
 
-    return !_publicIp(input);
+    return _privateIP(input);
 }
 
-function _publicIp(input: string): boolean {
+function _privateIP(input: string): boolean {
     const parsedIp = _parseIpAddress(input);
 
     const ipRangeName = parsedIp.range();
 
-    if (_inPrivateIPRange(ipRangeName) || _inRestrictedIPRange(parsedIp)) return false;
-
-    return true;
+    return _inPrivateIPRange(ipRangeName) || _inRestrictedIPRange(parsedIp)
 }
 
 function _parseIpAddress(input: string) {
