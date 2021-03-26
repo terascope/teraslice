@@ -1,7 +1,6 @@
 import { getTypeOf, isInteger } from '@terascope/utils';
 import { Maybe } from '@terascope/types';
 import SparseMap from 'mnemonist/sparse-map';
-import { ReadonlySparseMap } from './interfaces';
 
 /**
  * A generic write-only optimized view of data used for Builders.
@@ -13,10 +12,13 @@ export class WritableData<T> {
     /**
      * Create an WritableData with a fixed size
     */
-    static make<R>(size: number, from: SparseMap<R>|ReadonlySparseMap<R>): WritableData<R> {
+    static make<R>(
+        size: number,
+        getValue: (index: number) => Maybe<R>
+    ): WritableData<R> {
         const data = new WritableData<R>(size);
         for (let i = 0; i < size; i++) {
-            const value = from.get(i);
+            const value = getValue(i);
             if (value != null) data.set(i, value);
         }
         return data;
@@ -73,21 +75,9 @@ export class WritableData<T> {
     */
     resize(size: number): WritableData<T> {
         if (size === this.size) return this;
-        return WritableData.make(size, this.values);
-    }
-
-    [Symbol.for('nodejs.util.inspect.custom')](): any {
-        const proxy = {
-            size: this.size,
-            values: this.values
-        };
-
-        // Trick so that node displays the name of the constructor
-        Object.defineProperty(proxy, 'constructor', {
-            value: WritableData,
-            enumerable: false
-        });
-
-        return proxy;
+        return WritableData.make(
+            size,
+            this.values.get.bind(this.values)
+        );
     }
 }

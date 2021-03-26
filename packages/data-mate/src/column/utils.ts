@@ -9,7 +9,7 @@ import {
     Vector, VectorType
 } from '../vector';
 import { ColumnTransformFn, TransformMode } from './interfaces';
-import { ReadableData, WritableData } from '../core';
+import { WritableData } from '../core';
 
 const _vectorIds = new WeakMap<Vector<any>, string>();
 export function getVectorId(vector: Vector<any>): string {
@@ -116,7 +116,7 @@ export function validateFieldTransformType(
 ): void {
     if (!accepts?.length) return;
     // if the type is a List, then we need to give the child type
-    const type = vector.type === VectorType.List ? Vector.make(ReadableData.emptyData, {
+    const type = vector.type === VectorType.List ? Vector.make([], {
         config: { ...vector.config, array: false }
     }).type : vector.type;
 

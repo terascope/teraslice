@@ -138,7 +138,7 @@ export function createArrayValue<T extends any[]>(input: T): T {
     return Object.freeze(input) as T;
 }
 
-function _createArrayHashCode() {
+function _createArrayHashCode(): string {
     // @ts-expect-error because this bound
     return createHashCode(this, false);
 }
@@ -155,7 +155,7 @@ export function createObjectValue<T extends Record<string, any>>(input: T, skipF
     return Object.freeze(input) as T;
 }
 
-function _createObjectHashCode() {
+function _createObjectHashCode(): string {
     // @ts-expect-error because this bound
     return createHashCode(Object.entries(this));
 }

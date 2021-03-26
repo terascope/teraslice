@@ -1,8 +1,8 @@
 import { FieldType } from '@terascope/types';
 import { isNotNil } from '@terascope/utils';
 import { Vector, VectorOptions } from '../Vector';
-import { SerializeOptions, VectorType } from '../interfaces';
-import { getChildDataTypeConfig, ReadableData } from '../../core';
+import { SerializeOptions, VectorType, DataBuckets } from '../interfaces';
+import { getChildDataTypeConfig } from '../../core';
 
 type ChildFields<T extends Record<string, any>> = readonly (
     [field: (keyof T), vector: Vector<any>]
@@ -13,7 +13,7 @@ export class ObjectVector<
 > extends Vector<T> {
     #childFields?: ChildFields<T>;
 
-    constructor(data: ReadableData<T>, options: VectorOptions) {
+    constructor(data: DataBuckets<T>, options: VectorOptions) {
         super(VectorType.Object, data, options);
         this.sortable = false;
     }
@@ -30,7 +30,7 @@ export class ObjectVector<
                 const [base] = field.split('.');
                 if (base !== field && this.childConfig![base]) return;
 
-                const vector = Vector.make<any>(ReadableData.emptyData, {
+                const vector = Vector.make<any>([], {
                     childConfig: getChildDataTypeConfig(
                         this.childConfig!, field, config.type as FieldType
                     ),
@@ -87,7 +87,7 @@ export class ObjectVector<
         return result;
     }
 
-    private _getChildName(field: string) {
+    private _getChildName(field: string): string|undefined {
         if (!this.name) return undefined;
         return `${this.name}.${field}`;
     }

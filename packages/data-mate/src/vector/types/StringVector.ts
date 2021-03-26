@@ -1,11 +1,10 @@
 import { Vector, VectorOptions } from '../Vector';
-import { VectorType } from '../interfaces';
-import { ReadableData } from '../../core';
+import { VectorType, DataBuckets } from '../interfaces';
 
 export class StringVector extends Vector<string> {
     valueToJSON = undefined;
 
-    constructor(data: ReadableData<string>, options: VectorOptions) {
+    constructor(data: DataBuckets<string>, options: VectorOptions) {
         super(VectorType.String, data, options);
     }
 }

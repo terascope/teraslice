@@ -1,7 +1,7 @@
 import { FieldType } from '@terascope/types';
 import { Vector, VectorOptions } from '../Vector';
-import { SerializeOptions, VectorType } from '../interfaces';
-import { getChildDataTypeConfig, ReadableData } from '../../core';
+import { SerializeOptions, VectorType, DataBuckets } from '../interfaces';
+import { getChildDataTypeConfig } from '../../core';
 
 type ChildFields = readonly Vector<any>[];
 
@@ -10,7 +10,7 @@ export class TupleVector<
 > extends Vector<T> {
     #childFields?: ChildFields;
 
-    constructor(data: ReadableData<T>, options: VectorOptions) {
+    constructor(data: DataBuckets<T>, options: VectorOptions) {
         super(VectorType.Tuple, data, options);
         this.sortable = false;
     }
@@ -23,7 +23,7 @@ export class TupleVector<
             return this.#childFields;
         }
         const childFields: ChildFields = Object.entries(this.childConfig)
-            .map(([field, config], index) => Vector.make<any>(ReadableData.emptyData, {
+            .map(([field, config], index) => Vector.make<any>([], {
                 childConfig: getChildDataTypeConfig(
                     this.childConfig!, field, config.type as FieldType
                 ),
@@ -52,7 +52,7 @@ export class TupleVector<
         return result;
     }
 
-    private _getChildName(index: number) {
+    private _getChildName(index: number): string|undefined {
         if (!this.name) return undefined;
         return `${this.name}.${index}`;
     }

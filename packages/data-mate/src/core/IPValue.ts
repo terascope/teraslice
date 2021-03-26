@@ -9,12 +9,7 @@ import { HASH_CODE_SYMBOL } from './interfaces';
 
 function isValidIP(input: unknown): input is string {
     if (!isString(input)) return false;
-    if (!isIP(input)) return false;
-
-    // needed to check for inputs like - '::192.168.1.18'
-    if (input.includes(':') && input.includes('.')) return false;
-
-    return true;
+    return isIP(input);
 }
 
 /**

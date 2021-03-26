@@ -1,3 +1,4 @@
+import { toHumanTime } from './dates';
 import { debugLogger } from './logger';
 import { Logger } from './logger-interface';
 import { pDelay } from './promises';
@@ -53,7 +54,7 @@ export class EventLoop {
 
     checkedInDiff: number;
 
-    private readonly heartbeat = 500;
+    private readonly heartbeat = 1000;
 
     private checkedIn: number;
     private interval: NodeJS.Timeout;
@@ -67,7 +68,7 @@ export class EventLoop {
             this.checkedInDiff = now - this.checkedIn;
             this.checkedIn = now;
             if (this.blocked) {
-                this.logger.debug(`* EVENT LOOP IS PROBABLY BLOCKED (${this.checkedInDiff}ms diff) *`);
+                this.logger.debug(`* EVENT LOOP IS PROBABLY BLOCKED (${toHumanTime(this.checkedInDiff)} diff) *`);
             }
         }, this.heartbeat);
 
@@ -79,7 +80,7 @@ export class EventLoop {
     }
 
     get blocked(): boolean {
-        return this.checkedInDiff > (this.heartbeat * 2);
+        return this.checkedInDiff > (this.heartbeat * 4);
     }
 
     /**

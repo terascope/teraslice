@@ -1,4 +1,4 @@
-import 'jest-fixtures';
+import 'jest-extended';
 import { toString, bigIntToJSON, isNotNil } from '@terascope/utils';
 import {
     DataTypeFields,
@@ -8,7 +8,9 @@ import {
     ESGeoShapeType,
     FieldType, GeoShapeMultiPolygon, GeoShapePoint, GeoShapePolygon, GeoShapeType
 } from '@terascope/types';
-import { Builder, Vector, WritableData } from '../../src';
+import {
+    Builder, ReadableData, Vector, WritableData
+} from '../../src';
 
 describe('Vector', () => {
     type Case = [
@@ -336,6 +338,66 @@ describe('Vector', () => {
             });
         });
 
+        describe('when appended to itself', () => {
+            let appended: Vector<any>;
+            let newData: ReadableData<any>;
+
+            beforeAll(() => {
+                newData = new ReadableData(vector.data[0].toWritable());
+                appended = vector.append(newData);
+            });
+
+            it('should be have doubled in size', () => {
+                expect(appended.size).toEqual(expected.length * 2);
+            });
+
+            it('should be able to find the first half of the data', () => {
+                const found = appended.findDataWithIndex(1);
+                if (found == null) {
+                    expect(found).not.toBeNil();
+                    return;
+                }
+
+                // this can't use toBe because jest throw cannot serialize bigint errors
+                expect(found[0] === vector.data[0]).toBeTrue();
+                expect(found[1]).toBe(1);
+            });
+
+            it('should be able to find the second half of the data', () => {
+                const found = appended.findDataWithIndex(vector.size);
+                if (found == null) {
+                    expect(found).not.toBeNil();
+                    return;
+                }
+
+                // this can't use toBe because jest throw cannot serialize bigint errors
+                expect(found[0] === newData).toBeTrue();
+                expect(found[1]).toBe(0);
+            });
+
+            it('should be able return double the output', () => {
+                expect(appended.toJSON()).toEqual(
+                    expected.concat(expected)
+                );
+            });
+
+            it('should be able to slice the results to 1', () => {
+                expect(appended.slice(0, 1).size).toBe(1);
+            });
+
+            it('should be able to slice the results to the last item', () => {
+                expect(appended.slice(-1).size).toBe(1);
+            });
+
+            it('should be able to slice the first half', () => {
+                expect(appended.slice(vector.size).size).toBe(vector.size);
+            });
+
+            it('should be able to slice the second half', () => {
+                expect(appended.slice(0, vector.size).size).toBe(vector.size);
+            });
+        });
+
         if (invalid?.length) {
             test.each(invalid)('should NOT be able to parse %p', (val) => {
                 const builder = Builder.make(new WritableData(invalid.length), {
@@ -357,7 +419,7 @@ describe('Vector', () => {
         it('should be immutable', () => {
             expect(() => {
                 // @ts-expect-error
-                vector.data.values = '10';
+                vector.data[0].values = '10';
             }).toThrow();
         });
     });
