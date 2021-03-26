@@ -1,9 +1,12 @@
 import 'jest-extended';
-import { isEmpty, isNotNil, withoutNil } from '@terascope/utils';
 import {
-    isBooleanConfig, functionAdapter, FunctionDefinitionType, ProcessMode
+    isEmpty, isNotNil, withoutNil
+} from '@terascope/utils';
+import {
+    functionConfigRepository, functionAdapter, FunctionDefinitionType, ProcessMode
 } from '../../src';
 
+const isBooleanConfig = functionConfigRepository.isBoolean;
 interface ColumnTests {
     column: any[],
     result: any[]
@@ -24,6 +27,16 @@ describe('isBooleanConfig', () => {
         expect(isBooleanConfig).toHaveProperty('accepts', []);
         expect(isBooleanConfig).toHaveProperty('create');
         expect(isBooleanConfig.create).toBeFunction();
+    });
+
+    it('can validate values', () => {
+        const values = [true, false, 'true', null, 1, 0, [true, false], { some: 'thing' }];
+        const expected = [true, true, false, false, false, false, false, false];
+        const isBoolean = isBooleanConfig.create();
+
+        values.forEach((val, ind) => {
+            expect(isBoolean(val)).toEqual(expected[ind]);
+        });
     });
 
     describe('when paired with fieldFunctionAdapter', () => {
@@ -122,6 +135,16 @@ describe('isBooleanConfig', () => {
             });
         });
 
+        describe('when given bad data or incorrectly configured api while executing columns', () => {
+            it('should throw if input is not an array', () => {
+                const api = functionAdapter(isBooleanConfig, { field });
+
+                expect(() => api.column({} as Array<any>)).toThrowError('Invalid input, expected an array of values');
+                expect(() => api.column('hello' as unknown as Array<any>)).toThrowError('Invalid input, expected an array of values');
+                expect(() => api.column(null as unknown as Array<any>)).toThrowError('Invalid input, expected an array of values');
+            });
+        });
+
         describe.each(rowTests)('when running rows', ({ rows, result }) => {
             it(`should validate ${JSON.stringify(rows)} with preserveNull set to true`, () => {
                 const api = functionAdapter(isBooleanConfig, { field, preserveNulls: true });
@@ -153,5 +176,34 @@ describe('isBooleanConfig', () => {
                 expect(api.rows(rows)).toEqual(results);
             });
         });
+
+        describe('when given bad data or incorrectly configured api while executing rows', () => {
+            it('should throw if field is not supplied', () => {
+                const api = functionAdapter(isBooleanConfig);
+                const correctApi = functionAdapter(isBooleanConfig, { field });
+
+                expect(() => api.rows([{ [field]: 'data' }])).toThrowError('Must provide a field option when running a row');
+                expect(() => correctApi.rows([{ [field]: 'data' }])).not.toThrowError();
+            });
+
+            it('should throw if input is not an array', () => {
+                const api = functionAdapter(isBooleanConfig, { field });
+
+                expect(() => api.rows({} as Array<any>)).toThrowError('Invalid input, expected an array of objects');
+                expect(() => api.rows('hello' as unknown as Array<any>)).toThrowError('Invalid input, expected an array of objects');
+                expect(() => api.rows(null as unknown as Array<any>)).toThrowError('Invalid input, expected an array of objects');
+            });
+
+            it('should throw if input is mixed data', () => {
+                const api = functionAdapter(isBooleanConfig, { field });
+                const data = [{ [field]: true }, 'hello'] as Record<string, unknown>[];
+                const data2 = [{ [field]: true }, null] as Record<string, unknown>[];
+
+                expect(() => api.rows(data)).toThrowError('Invalid record "hello", expected an array of simple objects or data-entities');
+                expect(() => api.rows(data2)).toThrowError('Invalid record null, expected an array of simple objects or data-entities');
+            });
+        });
     });
+
+    // TODO: put data-mate function adapter tests here
 });

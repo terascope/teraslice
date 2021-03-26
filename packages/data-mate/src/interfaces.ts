@@ -79,7 +79,7 @@ export interface FieldValidateConfig<
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode,
     create: (
-        args: T,
+        args?: T,
         inputConfig?: DataTypeFieldAndChildren,
         outputConfig?: DataTypeFieldAndChildren,
     ) => (value: unknown) => boolean
@@ -90,7 +90,7 @@ export interface FieldTransformConfig<
 > extends FunctionDefinitionConfig<T> {
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode,
-    output_type: (
+    output_type?: (
         inputConfig: DataTypeFieldAndChildren,
         args?: T
     ) => DataTypeFieldAndChildren,
@@ -143,11 +143,12 @@ export interface DataTypeFieldAndChildren {
     child_config?: DataTypeFields
 }
 // Make a separate one for record level adapters
-export type FieldFunctionDefinitions = FieldValidateConfig | FieldTransformConfig;
+export type FunctionDefinitions = FieldValidateConfig<Record<string, unknown>>
+| FieldTransformConfig<Record<string, unknown>>
 
 // TODO: verify this type
 export interface FunctionConfigRepository {
-    [key: string]: FunctionDefinitionConfig<Record<string, unknown>>;
+    [key: string]: FunctionDefinitions;
 }
 
 export function isFieldValidation(

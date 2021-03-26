@@ -3,11 +3,12 @@ import {
     get,
     set,
     isNotNil,
+    cloneDeep
 } from '@terascope/utils';
 import { DataTypeFieldConfig } from '@terascope/types';
 import { isNil, unset } from 'lodash';
 import {
-    FieldFunctionDefinitions,
+    FunctionDefinitions,
     FieldValidateConfig,
     FieldTransformConfig,
     isFieldValidation
@@ -64,29 +65,32 @@ function fieldValidationRowExecution(
         const results = [];
 
         for (const record of input) {
+            // TODO: check for dataEntities here, clone metadata
+            const clone = cloneDeep(record);
+
             if (!isObjectEntity(record)) {
                 throw new Error(`Invalid record ${JSON.stringify(record)}, expected an array of simple objects or data-entities`);
             }
-            const value = get(record, field);
+            const value = get(clone, field);
             const isValid = fn(value);
             // if it fails validation and we keep null
             if (!isValid && preserveNulls) {
-                set(record, field, null);
-                results.push(record);
+                set(clone, field, null);
+                results.push(clone);
             } else if (!isValid) {
                 // remove key, check if empty record
-                unset(record, field);
+                unset(clone, field);
                 // if we preserve empty objects, we don't need to check anything
                 if (preserveEmptyObjects) {
-                    results.push(record);
+                    results.push(clone);
                 } else {
-                    const hasKeys = Object.keys(record).length !== 0;
+                    const hasKeys = Object.keys(clone).length !== 0;
                     if (hasKeys) {
-                        results.push(record);
+                        results.push(clone);
                     }
                 }
             } else {
-                results.push(record);
+                results.push(clone);
             }
         }
 
@@ -94,6 +98,7 @@ function fieldValidationRowExecution(
     };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function transformColumnExecution(fn: (input: unknown) => unknown, preserveNulls: boolean) {
     return function _column(input: unknown[]) {
         if (!Array.isArray(input)) {
@@ -123,7 +128,7 @@ export function functionAdapter(
 ): FieldFunctionAdapterOperation
 export function functionAdapter(
     /** The field validation or transform function definition */
-    fnDef: FieldFunctionDefinitions,
+    fnDef: FunctionDefinitions,
     options: Options = {}
 ): any {
     const {
