@@ -20,6 +20,7 @@ interface Options {
     args?: Record<string, unknown>,
     inputConfig?: DataTypeFieldConfig
     preserveNulls?: boolean;
+    preserveEmptyObjects?: boolean;
 }
 
 interface RecordFunctionAdapterOperation {
@@ -53,12 +54,9 @@ function fieldValidationColumnExecution(fn: (input: unknown) => unknown, preserv
 function fieldValidationRowExecution(
     fn: (input: unknown) => unknown,
     preserveNulls: boolean,
+    preserveEmptyObjects: boolean,
     field?: string
 ): (input: unknown[]) => unknown[] {
-    if (!isString(field)) {
-        throw new Error(`Invalid parameter field, it must be a string, received ${getTypeOf(field)}`);
-    }
-
     return function _fieldValidationRowExecution(input: unknown[]): unknown[] {
         if (isNil(field)) throw new Error('Must provide a field option when running a row');
         if (!Array.isArray(input)) {
@@ -70,13 +68,22 @@ function fieldValidationRowExecution(
         for (const record of input) {
             const value = get(record, field);
             const isValid = fn(value);
-
-            if (!fn(value) && preserveNulls) {
+            // if it fails validation and we keep null
+            if (!isValid && preserveNulls) {
                 set(record, field, null);
                 results.push(record);
             } else if (!isValid) {
+                // remove key, check if empty record
                 unset(record, field);
-                results.push(record);
+                // if we preserve empty objects, we don't need to check anything
+                if (preserveEmptyObjects) {
+                    results.push(record);
+                } else {
+                    const hasKeys = Object.keys(record).length !== 0;
+                    if (hasKeys) {
+                        results.push(record);
+                    }
+                }
             } else {
                 results.push(record);
             }
@@ -118,13 +125,20 @@ export function functionAdapter(
     fnDef: FieldFunctionDefinitions,
     options: Options = {}
 ): any {
-    const { args, field, preserveNulls = true } = options;
+    const {
+        args,
+        field,
+        preserveNulls = true,
+        preserveEmptyObjects = true,
+    } = options;
     const fn = fnDef.create(args ?? {});
     // call validateArgs
 
     if (isFieldValidation(fnDef)) {
         return {
-            rows: fieldValidationRowExecution(fn, preserveNulls, field),
+            rows: fieldValidationRowExecution(
+                fn, preserveNulls, preserveEmptyObjects, field
+            ),
             column: fieldValidationColumnExecution(fn, preserveNulls)
 
         };

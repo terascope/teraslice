@@ -1,5 +1,5 @@
 import 'jest-extended';
-import { isNotNil, withoutNil } from '@terascope/utils';
+import { isEmpty, isNotNil, withoutNil } from '@terascope/utils';
 import {
     isBooleanConfig, functionAdapter, FunctionDefinitionType, ProcessMode
 } from '../../src';
@@ -97,6 +97,16 @@ describe('isBooleanConfig', () => {
                     { [field]: null, other: 'stuff' },
                     { [field]: false }
                 ]
+            },
+            {
+                rows: [
+                    { other: 'stuff' },
+                    {}
+                ],
+                result: [
+                    { [field]: null, other: 'stuff' },
+                    { [field]: null }
+                ]
             }
         ];
 
@@ -120,7 +130,27 @@ describe('isBooleanConfig', () => {
 
             it(`should validate ${JSON.stringify(rows)} with preserveNull set to false`, () => {
                 const api = functionAdapter(isBooleanConfig, { field, preserveNulls: false });
-                expect(api.rows(rows)).toEqual(result.map((obj) => withoutNil(obj)));
+                const results = result.map((obj) => withoutNil(obj));
+                expect(api.rows(rows)).toEqual(results);
+            });
+
+            it(`should validate ${JSON.stringify(rows)} with preserveNull set to false and preserveEmptyObjects set to false`, () => {
+                const api = functionAdapter(
+                    isBooleanConfig,
+                    { field, preserveNulls: false, preserveEmptyObjects: false }
+                );
+                const results = result.reduce<Record<string, unknown>[]>(
+                    (accum, curr) => {
+                        const obj = withoutNil(curr);
+                        if (!isEmpty(obj)) {
+                            accum.push(obj);
+                        }
+
+                        return accum;
+                    },
+                    []
+                );
+                expect(api.rows(rows)).toEqual(results);
             });
         });
     });

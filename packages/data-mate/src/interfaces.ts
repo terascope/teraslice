@@ -145,6 +145,11 @@ export interface DataTypeFieldAndChildren {
 // Make a separate one for record level adapters
 export type FieldFunctionDefinitions = FieldValidateConfig | FieldTransformConfig;
 
+// TODO: verify this type
+export interface FunctionConfigRepository {
+    [key: string]: FunctionDefinitionConfig<Record<string, unknown>>;
+}
+
 export function isFieldValidation(
     input: FunctionDefinitionConfig<Record<string, unknown>>
 ): input is FieldValidateConfig {
