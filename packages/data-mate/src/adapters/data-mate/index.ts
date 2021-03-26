@@ -1,3 +1,3 @@
-export function dataMateFunctionAdapter() {
+export function dataMateFunctionAdapter(): void {
     throw new Error('not implemented yet');
 }

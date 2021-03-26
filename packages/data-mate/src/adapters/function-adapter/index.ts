@@ -3,8 +3,6 @@ import {
     get,
     set,
     isNotNil,
-    getTypeOf,
-    isString
 } from '@terascope/utils';
 import { DataTypeFieldConfig } from '@terascope/types';
 import { isNil, unset } from 'lodash';
@@ -13,7 +11,7 @@ import {
     FieldValidateConfig,
     FieldTransformConfig,
     isFieldValidation
-} from '../interfaces';
+} from '../../interfaces';
 
 interface Options {
     field?: string,
