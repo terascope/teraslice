@@ -1,5 +1,6 @@
 import 'jest-extended';
 import {
+    cloneDeep, DataEntity,
     isEmpty, isNotNil, withoutNil
 } from '@terascope/utils';
 import {
@@ -41,6 +42,7 @@ describe('isBooleanConfig', () => {
 
     describe('when paired with fieldFunctionAdapter', () => {
         const field = 'test_field';
+        const time = new Date();
 
         it('should return a function to execute', () => {
             const api = functionAdapter(isBooleanConfig);
@@ -120,10 +122,30 @@ describe('isBooleanConfig', () => {
                     { [field]: null, other: 'stuff' },
                     { [field]: null }
                 ]
+            },
+            {
+                rows: [
+                    new DataEntity({ [field]: true }, { time }),
+                    new DataEntity({ hello: true }, { time })
+
+                ],
+                result: [
+                    new DataEntity({ [field]: true }, { time }),
+                    new DataEntity({ [field]: null, hello: true }, { time })
+                ]
             }
         ];
 
         describe.each(columnTests)('when running columns', ({ column, result }) => {
+            it('should not mutate input', () => {
+                const api = functionAdapter(isBooleanConfig, { preserveNulls: true });
+                const clonedInput = cloneDeep(column);
+
+                api.column(column);
+
+                expect(column).toEqual(clonedInput);
+            });
+
             it(`should validate ${JSON.stringify(column)} with preserveNull set to true`, () => {
                 const api = functionAdapter(isBooleanConfig, { preserveNulls: true });
                 expect(api.column(column)).toEqual(result);
@@ -146,6 +168,27 @@ describe('isBooleanConfig', () => {
         });
 
         describe.each(rowTests)('when running rows', ({ rows, result }) => {
+            it('should not mutate record inputs', () => {
+                const api = functionAdapter(isBooleanConfig, { field, preserveNulls: true });
+                const isDataEntityArray = DataEntity.isDataEntityArray(rows);
+                const clonedInput = isDataEntityArray
+                    ? rows.map((obj) => DataEntity.fork(obj as DataEntity))
+                    : cloneDeep(rows);
+
+                api.rows(rows);
+
+                if (isDataEntityArray) {
+                    if (rows.length === 0) throw new Error('Should have not have mutated data');
+                    rows.forEach((record, ind) => {
+                        expect(record).toMatchObject(clonedInput[ind]);
+                        // @ts-expect-error
+                        expect(record.getMetadata('time')).toEqual(clonedInput[ind].getMetadata('time'));
+                    });
+                } else {
+                    expect(rows).toEqual(clonedInput);
+                }
+            });
+
             it(`should validate ${JSON.stringify(rows)} with preserveNull set to true`, () => {
                 const api = functionAdapter(isBooleanConfig, { field, preserveNulls: true });
                 expect(api.rows(rows)).toEqual(result);
@@ -204,6 +247,4 @@ describe('isBooleanConfig', () => {
             });
         });
     });
-
-    // TODO: put data-mate function adapter tests here
 });

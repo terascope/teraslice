@@ -65,7 +65,6 @@ function fieldValidationRowExecution(
         const results = [];
 
         for (const record of input) {
-            // TODO: check for dataEntities here, clone metadata
             const clone = cloneDeep(record);
 
             if (!isObjectEntity(record)) {
