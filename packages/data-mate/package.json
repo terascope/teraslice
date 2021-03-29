@@ -53,7 +53,7 @@
         "xlucene-parser": "^0.34.4"
     },
     "devDependencies": {
-        "@types/ip6addr": "^0.2.1",
+        "@types/ip6addr": "^0.2.2",
         "@types/uuid": "^8.3.0",
         "benchmark": "^2.1.4"
     },
