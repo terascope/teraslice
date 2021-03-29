@@ -215,7 +215,6 @@ export function functionAdapter(
     throw new Error('not implemented yet');
 }
 
-
 // RecordValidation preserveNull true
 // === [{ someField: true }, null]
 
