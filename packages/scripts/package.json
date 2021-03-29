@@ -47,7 +47,7 @@
         "semver": "^7.3.4",
         "signale": "^1.4.0",
         "sort-package-json": "~1.49.0",
-        "typedoc": "^0.20.33",
+        "typedoc": "^0.20.34",
         "typedoc-plugin-markdown": "^3.6.0",
         "yargs": "^16.2.0"
     },
