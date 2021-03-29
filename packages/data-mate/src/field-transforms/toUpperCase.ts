@@ -9,7 +9,7 @@ import {
 
 function _toUpperCase(input: unknown): string {
     if (!isString(input)) {
-        throw new Error(`Invalid input ${input}, expected string got ${getTypeOf(input)}`);
+        throw new Error(`Invalid input ${JSON.stringify(input)}, expected string got ${getTypeOf(input)}`);
     }
     return input.toUpperCase();
 }

@@ -95,7 +95,7 @@ export interface FieldTransformConfig<
         args?: T
     ) => DataTypeFieldAndChildren,
     create: (
-        args: T,
+        args?: T,
         inputConfig?: DataTypeFieldAndChildren,
         outputConfig?: DataTypeFieldAndChildren,
     ) => (value: unknown) => unknown

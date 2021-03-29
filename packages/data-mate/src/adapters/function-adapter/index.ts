@@ -11,7 +11,8 @@ import {
     FunctionDefinitions,
     FieldValidateConfig,
     FieldTransformConfig,
-    isFieldValidation
+    isFieldValidation,
+    isFieldTransform
 } from '../../interfaces';
 
 interface Options {
@@ -70,6 +71,7 @@ function fieldValidationRowExecution(
             if (!isObjectEntity(record)) {
                 throw new Error(`Invalid record ${JSON.stringify(record)}, expected an array of simple objects or data-entities`);
             }
+
             const value = get(clone, field);
             const isValid = fn(value);
             // if it fails validation and we keep null
@@ -97,7 +99,54 @@ function fieldValidationRowExecution(
     };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function fieldTransformRowExecution(
+    fn: (input: unknown) => unknown,
+    preserveNulls: boolean,
+    preserveEmptyObjects: boolean,
+    field?: string
+): (input: unknown[]) => unknown[] {
+    return function _fieldValidationRowExecution(input: unknown[]): unknown[] {
+        if (isNil(field)) throw new Error('Must provide a field option when running a row');
+        if (!Array.isArray(input)) {
+            throw new Error('Invalid input, expected an array of objects');
+        }
+
+        const results = [];
+
+        for (const record of input) {
+            const clone = cloneDeep(record);
+
+            if (!isObjectEntity(record)) {
+                throw new Error(`Invalid record ${JSON.stringify(record)}, expected an array of simple objects or data-entities`);
+            }
+
+            const value = get(clone, field);
+
+            try {
+                const data = fn(value);
+                set(clone, field, data);
+            } catch (_err) {
+                if (preserveNulls) {
+                    set(clone, field, null);
+                } else {
+                    unset(clone, field);
+                }
+            }
+
+            if (preserveEmptyObjects) {
+                results.push(clone);
+            } else {
+                const hasKeys = Object.keys(clone).length !== 0;
+                if (hasKeys) {
+                    results.push(clone);
+                }
+            }
+        }
+
+        return results;
+    };
+}
+
 function transformColumnExecution(fn: (input: unknown) => unknown, preserveNulls: boolean) {
     return function _column(input: unknown[]) {
         if (!Array.isArray(input)) {
@@ -107,7 +156,11 @@ function transformColumnExecution(fn: (input: unknown) => unknown, preserveNulls
 
         for (const value of input) {
             if (isNotNil(value)) {
-                results.push(fn(value));
+                try {
+                    results.push(fn(value));
+                } catch (_err) {
+                    if (preserveNulls) results.push(null);
+                }
             } else if (preserveNulls) {
                 results.push(null);
             }
@@ -149,25 +202,19 @@ export function functionAdapter(
         };
     }
 
+    if (isFieldTransform(fnDef)) {
+        return {
+            rows: fieldTransformRowExecution(
+                fn, preserveNulls, preserveEmptyObjects, field
+            ),
+            column: transformColumnExecution(fn, preserveNulls)
+
+        };
+    }
+
     throw new Error('not implemented yet');
 }
 
-// column
-// isBoolean([ true, null,  false, 'blah']) === [true, null, false, null]
-
-// column preserveNull false
-// isBoolean([ true, null,  false, 'blah']) === [true, false]
-
-// // row
-// isBoolean([
-//     { someField: true },
-//     { otherField: true, someField: 'blah' }
-//     ])
-
-// === [{ someField: true }, { otherField: true, someField: null }]
-
-// Field validation preserveNull false
-// === [{ someField: true },  { otherField: true }]
 
 // RecordValidation preserveNull true
 // === [{ someField: true }, null]
