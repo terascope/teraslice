@@ -1122,10 +1122,10 @@
     "@types/through" "*"
     rxjs "^6.4.0"
 
-"@types/ip6addr@^0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@types/ip6addr/-/ip6addr-0.2.1.tgz#ff495c0fbd2d8d38328a2e355fafd259e3b9a9c9"
-  integrity sha512-O3FPHHgo7FsIPcCACFkV3eMmwfh4u9wUQT6/rEX4ueJTi2MImL/qufynkYjsqSJE5cfxYC539hv6OmgqhEHc3g==
+"@types/ip6addr@^0.2.2":
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/@types/ip6addr/-/ip6addr-0.2.2.tgz#4cd98f661a90eb3347b47e3985b433b412887e5c"
+  integrity sha512-IiHL+BhMR4Kla7V2jTV5/y8zGO81Y9rHtZbCSS8lu6z+KkTeib4WKqi/aBKgRctD9XtXPhnuKoMTg4j/dzmPTA==
 
 "@types/ip@^1.1.0":
   version "1.1.0"
