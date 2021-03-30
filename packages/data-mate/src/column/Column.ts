@@ -268,7 +268,7 @@ export class Column<T = unknown, N extends NameType = string> {
      * This involves recreating the whole column in
      * most cases.
     */
-    selectSubFields(fields: string[]): Column<T, N> {
+    selectSubFields(fields: Iterable<string>): Column<T, N> {
         if (!this.vector.childConfig) return this;
 
         const childConfig: DataTypeFields = {};

@@ -302,7 +302,8 @@ describe('DataFrame', () => {
                 },
                 states: {
                     type: FieldType.Object,
-                    array: true
+                    array: true,
+                    _allow_empty: true
                 },
                 'states.id': {
                     type: FieldType.Keyword,
@@ -330,11 +331,11 @@ describe('DataFrame', () => {
             }
         };
 
-        function createPeopleDataFrame(data: Person[]) {
+        function createPeopleDataFrame(data: Person[]): DataFrame<Person> {
             return DataFrame.fromJSON<Person>(peopleDTConfig, data);
         }
 
-        function createDeepObjectDataFrame(data: DeepObj[]) {
+        function createDeepObjectDataFrame(data: DeepObj[]): DataFrame<DeepObj> {
             return DataFrame.fromJSON<DeepObj>(deepObjectDTConfig, data);
         }
 
@@ -431,6 +432,37 @@ describe('DataFrame', () => {
                 expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
 
+            it('should return the selected parent objects', () => {
+                const resultFrame = deepObjDataFrame.deepSelect([
+                    '_key',
+                    'config.name',
+                    'config.owner',
+                    'states'
+                ]);
+                expect(resultFrame.toJSON()).toEqual([{
+                    _key: 'id-1',
+                    config: {
+                        name: 'config-1',
+                        owner: {
+                            id: 'config-owner-1',
+                            name: 'config-owner-name-1'
+                        }
+                    },
+                    states: [{}, {}]
+                }, {
+                    _key: 'id-2',
+                    config: {
+                        name: 'config-2',
+                        owner: {
+                            id: 'config-owner-2',
+                            name: 'config-owner-name-2'
+                        }
+                    },
+                    states: [{}, {}]
+                }]);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+            });
+
             it('should work when selecting all of the nested fields', () => {
                 const resultFrame = deepObjDataFrame.deepSelect([
                     'config.id',
@@ -461,33 +493,6 @@ describe('DataFrame', () => {
                 expect(resultFrame.getColumnOrThrow('config').id).toEqual(
                     deepObjDataFrame.getColumnOrThrow('config').id
                 );
-            });
-
-            it('should return the selected fields with wildcard selectors', () => {
-                const resultFrame = deepObjDataFrame.deepSelect([
-                    '_key',
-                    '*id*',
-                ]);
-                expect(resultFrame.toJSON()).toEqual([{
-                    _key: 'id-1',
-                    config: {
-                        id: 'config-1',
-                        owner: {
-                            id: 'config-owner-1'
-                        }
-                    },
-                    states: [{ id: 'state-1' }, { id: 'state-2' }]
-                }, {
-                    _key: 'id-2',
-                    config: {
-                        id: 'config-2',
-                        owner: {
-                            id: 'config-owner-2'
-                        }
-                    },
-                    states: [{ id: 'state-3' }, { id: 'state-4' }]
-                }]);
-                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
         });
 
@@ -689,6 +694,31 @@ describe('DataFrame', () => {
 
                 expect(resultFrame.size).toEqual(peopleDataFrame.size);
                 expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+            });
+        });
+
+        describe('->removeEmptyRows', () => {
+            it('should be able remove the empty rows', () => {
+                const frame = createPeopleDataFrame([
+                    { } as Partial<Person> as Person,
+                    { name: 'Jill', age: 39 },
+                    { friends: [] } as Partial<Person> as Person,
+                    { name: null as any } as Partial<Person> as Person,
+                ]);
+                const resultFrame = frame.removeEmptyRows();
+
+                expect(resultFrame.size).toEqual(2);
+                expect(resultFrame.toJSON()).toEqual([
+                    { name: 'Jill', age: 39 },
+                    { friends: [] }
+                ]);
+                expect(resultFrame.id).not.toEqual(frame.id);
+            });
+
+            it('should be able return the data frame if non exist', () => {
+                const resultFrame = peopleDataFrame.removeEmptyRows();
+
+                expect(resultFrame.id).toEqual(peopleDataFrame.id);
             });
         });
 

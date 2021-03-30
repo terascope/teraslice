@@ -239,6 +239,15 @@ export abstract class Vector<T = unknown> {
     }
 
     /**
+     * Returns true if the value for that index is not nil
+    */
+    has(index: number): boolean {
+        const found = this.findDataWithIndex(index);
+        if (!found) return false;
+        return found[0].values.has(found[1]);
+    }
+
+    /**
      * Find the Data bucket that holds the value for that
      * bucket
      * @returns the data found and the index of the relative index of value

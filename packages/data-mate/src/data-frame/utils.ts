@@ -186,3 +186,13 @@ export function makeKeyForRow<T extends Record<string, any>>(
         key: groupKey,
     };
 }
+
+/**
+ * Verify the a column has null fields in a
+*/
+export function isEmptyRow(columns: readonly Column<any, any>[], row: number): boolean {
+    for (const col of columns) {
+        if (col.vector.has(row)) return false;
+    }
+    return true;
+}

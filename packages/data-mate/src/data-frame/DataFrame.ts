@@ -8,14 +8,14 @@ import {
     DataEntity, TSError,
     getTypeOf, isFunction,
     isPlainObject, trimFP,
-    matchWildcard, isWildCardString, isInteger
+    isInteger
 } from '@terascope/utils';
 import { Column, KeyAggFn, makeUniqueKeyAgg } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import {
     buildRecords, columnsToBuilderEntries, columnsToDataTypeConfig,
     concatColumnsToColumns, createColumnsWithIndices,
-    distributeRowsToColumns, makeKeyForRow, makeUniqueRowBuilder,
+    distributeRowsToColumns, isEmptyRow, makeKeyForRow, makeUniqueRowBuilder,
     processFieldFilter
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
@@ -202,14 +202,13 @@ export class DataFrame<
 
     /**
      * Select fields in a data frame, this will work with nested object
-     * fields and the selection field can also include wildcards which will match
-     * a large selection of string.
+     * fields.
      *
      * Fields that don't exist in the data frame are safely ignored to make
      * this function handle more suitable for production environments
     */
     deepSelect<R extends T>(
-        fieldSelectors: string[]|readonly string[]
+        fieldSelectors: string[]|readonly string[],
     ): DataFrame<R> {
         const columns: Column<any, any>[] = [];
 
@@ -217,19 +216,17 @@ export class DataFrame<
         const existingFields = Object.keys(existingFieldsConfig);
 
         const matchedFields: Record<string, Set<string>> = {};
-        function matchField(field: string) {
-            return (selector: string): boolean => {
-                if (field === selector) return true;
-                if (field.startsWith(`${selector}.`)) return true;
-                if (isWildCardString(selector)) {
-                    return matchWildcard(selector, field);
-                }
-                return false;
-            };
-        }
 
         for (const field of existingFields) {
-            const matches = fieldSelectors.some(matchField(field));
+            const matches = fieldSelectors.some((selector) => {
+                if (field === selector) return true;
+                if (field.startsWith(`${selector}.`)) {
+                    const baseConfig = existingFieldsConfig[selector];
+                    if (!baseConfig?._allow_empty) return true;
+                }
+                return false;
+            });
+
             if (matches) {
                 const [base] = field.split('.');
                 matchedFields[base] ??= new Set();
@@ -247,11 +244,9 @@ export class DataFrame<
         for (const [field, childFields] of Object.entries(matchedFields)) {
             const col = this.getColumn(field);
             if (col) {
-                if (childFields.size && col.vector.childConfig) {
-                    columns.push(col.selectSubFields([...childFields]));
-                } else {
-                    columns.push(col);
-                }
+                columns.push(col.selectSubFields(
+                    childFields,
+                ));
             }
         }
 
@@ -410,6 +405,37 @@ export class DataFrame<
     }
 
     /**
+     * Remove the empty rows from the data frame,
+     * this is optimization that won't require moving
+     * around as much memory
+    */
+    removeEmptyRows(): DataFrame<T> {
+        const len = this.size;
+        let returning = len;
+        const builders = getBuildersForConfig<T>(this.config, len);
+        const columns = new Map(this.columns.map((col) => [col.name, col]));
+
+        for (let i = 0; i < len; i++) {
+            if (isEmptyRow(this.columns, i)) {
+                returning--;
+            } else {
+                for (const [name, builder] of builders) {
+                    builder.append(columns.get(name)!.vector.get(i));
+                }
+            }
+        }
+
+        if (returning === this.size) return this;
+
+        return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => {
+        // @ts-expect-error data is readonly
+            builder.data = builder.data
+                .resize(returning);
+            return columns.get(name)!.fork(builder.toVector());
+        }));
+    }
+
+    /**
      * Remove duplicate rows with the same value for select fields
     */
     unique(...fieldArg: FieldArg<keyof T>[]): DataFrame<T> {
@@ -469,7 +495,8 @@ export class DataFrame<
 
         return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => {
             // @ts-expect-error data is readonly
-            builder.data = builder.data.resize(buckets.size);
+            builder.data = builder.data
+                .resize(buckets.size);
             return columns.get(name)!.fork(builder.toVector());
         }));
     }

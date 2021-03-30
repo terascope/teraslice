@@ -44,6 +44,7 @@ export class ObjectBuilder<
                     config,
                     name: this._getChildName(field),
                 });
+
                 return [field, builder];
             })
             .filter(isNotNil) as ChildFields<T>;
@@ -57,7 +58,7 @@ export class ObjectBuilder<
             throw new TypeError(`Expected ${toString(value)} (${getTypeOf(value)}) to be an object`);
         }
 
-        if (!this.childFields.length) {
+        if (!this.childFields.length && !this.config._allow_empty) {
             return createObjectValue({ ...value as T }, false);
         }
 
@@ -78,7 +79,7 @@ export class ObjectBuilder<
         return createObjectValue(result as T, true);
     }
 
-    private _getChildName(field: string) {
+    private _getChildName(field: string): string|undefined {
         if (!this.name) return undefined;
         return `${this.name}.${field}`;
     }
