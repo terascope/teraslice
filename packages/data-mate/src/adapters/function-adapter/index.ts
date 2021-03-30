@@ -3,10 +3,11 @@ import {
     get,
     set,
     isNotNil,
-    cloneDeep
+    cloneDeep,
+    isNil,
+    unset
 } from '@terascope/utils';
 import { DataTypeFieldConfig } from '@terascope/types';
-import { isNil, unset } from 'lodash';
 import {
     FunctionDefinitions,
     FieldValidateConfig,
@@ -14,10 +15,11 @@ import {
     isFieldValidation,
     isFieldTransform
 } from '../../interfaces';
+import { validateFunctionArgs } from '../argument-validator';
 
-interface Options {
+export interface FunctionAdapterOptions<T extends Record<string, any>> {
     field?: string,
-    args?: Record<string, unknown>,
+    args?: T,
     inputConfig?: DataTypeFieldConfig
     preserveNulls?: boolean;
     preserveEmptyObjects?: boolean;
@@ -170,18 +172,18 @@ function transformColumnExecution(fn: (input: unknown) => unknown, preserveNulls
     };
 }
 
-export function functionAdapter(
-    fnDef: FieldValidateConfig,
-    options?: Options
+export function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
+    fnDef: FieldValidateConfig<T>,
+    options?: FunctionAdapterOptions<T>
 ): FieldFunctionAdapterOperation
-export function functionAdapter(
-    fnDef: FieldTransformConfig,
-    options?: Options
+export function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
+    fnDef: FieldTransformConfig<T>,
+    options?: FunctionAdapterOptions<T>
 ): FieldFunctionAdapterOperation
-export function functionAdapter(
+export function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
     /** The field validation or transform function definition */
     fnDef: FunctionDefinitions,
-    options: Options = {}
+    options: FunctionAdapterOptions<T> = {}
 ): any {
     const {
         args,
@@ -189,6 +191,8 @@ export function functionAdapter(
         preserveNulls = true,
         preserveEmptyObjects = true,
     } = options;
+
+    validateFunctionArgs(fnDef, args);
     const fn = fnDef.create(args ?? {});
     // call validateArgs
 

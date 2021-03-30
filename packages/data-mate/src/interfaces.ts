@@ -79,7 +79,7 @@ export interface FieldValidateConfig<
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode,
     create: (
-        args?: T,
+        args: T,
         inputConfig?: DataTypeFieldAndChildren,
         outputConfig?: DataTypeFieldAndChildren,
     ) => (value: unknown) => boolean

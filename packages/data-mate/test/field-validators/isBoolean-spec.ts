@@ -25,7 +25,7 @@ describe('isBooleanConfig', () => {
     it('can validate values', () => {
         const values = [true, false, 'true', null, 1, 0, [true, false], { some: 'thing' }];
         const expected = [true, true, false, false, false, false, false, false];
-        const isBoolean = isBooleanConfig.create();
+        const isBoolean = isBooleanConfig.create({});
 
         values.forEach((val, ind) => {
             expect(isBoolean(val)).toEqual(expected[ind]);
