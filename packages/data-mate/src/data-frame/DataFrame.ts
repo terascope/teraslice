@@ -208,7 +208,7 @@ export class DataFrame<
      * this function handle more suitable for production environments
     */
     deepSelect<R extends T>(
-        fieldSelectors: string[]|readonly string[]
+        fieldSelectors: string[]|readonly string[],
     ): DataFrame<R> {
         const columns: Column<any, any>[] = [];
 
@@ -216,12 +216,17 @@ export class DataFrame<
         const existingFields = Object.keys(existingFieldsConfig);
 
         const matchedFields: Record<string, Set<string>> = {};
-        function matchField(field: string) {
-            return (selector: string): boolean => field === selector;
-        }
 
         for (const field of existingFields) {
-            const matches = fieldSelectors.some(matchField(field));
+            const matches = fieldSelectors.some((selector) => {
+                if (field === selector) return true;
+                if (field.startsWith(`${selector}.`)) {
+                    const baseConfig = existingFieldsConfig[selector];
+                    if (!baseConfig?._allow_empty) return true;
+                }
+                return false;
+            });
+
             if (matches) {
                 const [base] = field.split('.');
                 matchedFields[base] ??= new Set();
@@ -239,11 +244,9 @@ export class DataFrame<
         for (const [field, childFields] of Object.entries(matchedFields)) {
             const col = this.getColumn(field);
             if (col) {
-                if (childFields.size && col.vector.childConfig) {
-                    columns.push(col.selectSubFields([...childFields]));
-                } else {
-                    columns.push(col);
-                }
+                columns.push(col.selectSubFields(
+                    childFields,
+                ));
             }
         }
 
