@@ -302,7 +302,8 @@ describe('DataFrame', () => {
                 },
                 states: {
                     type: FieldType.Object,
-                    array: true
+                    array: true,
+                    _allow_empty: true
                 },
                 'states.id': {
                     type: FieldType.Keyword,
@@ -427,6 +428,37 @@ describe('DataFrame', () => {
                         }
                     },
                     states: [{ name: 'state-3' }, { name: 'state-4' }]
+                }]);
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+            });
+
+            it('should return the selected parent objects', () => {
+                const resultFrame = deepObjDataFrame.deepSelect([
+                    '_key',
+                    'config.name',
+                    'config.owner',
+                    'states'
+                ]);
+                expect(resultFrame.toJSON()).toEqual([{
+                    _key: 'id-1',
+                    config: {
+                        name: 'config-1',
+                        owner: {
+                            id: 'config-owner-1',
+                            name: 'config-owner-name-1'
+                        }
+                    },
+                    states: [{}, {}]
+                }, {
+                    _key: 'id-2',
+                    config: {
+                        name: 'config-2',
+                        owner: {
+                            id: 'config-owner-2',
+                            name: 'config-owner-name-2'
+                        }
+                    },
+                    states: [{}, {}]
                 }]);
                 expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
