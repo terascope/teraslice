@@ -15,7 +15,7 @@ import { AggregationFrame } from '../aggregation-frame';
 import {
     buildRecords, columnsToBuilderEntries, columnsToDataTypeConfig,
     concatColumnsToColumns, createColumnsWithIndices,
-    distributeRowsToColumns, makeKeyForRow, makeUniqueRowBuilder,
+    distributeRowsToColumns, isEmptyRow, makeKeyForRow, makeUniqueRowBuilder,
     processFieldFilter
 } from './utils';
 import { Builder, getBuildersForConfig } from '../builder';
@@ -405,6 +405,37 @@ export class DataFrame<
     }
 
     /**
+     * Remove the empty rows from the data frame,
+     * this is optimization that won't require moving
+     * around as much memory
+    */
+    removeEmptyRows(): DataFrame<T> {
+        const len = this.size;
+        let returning = len;
+        const builders = getBuildersForConfig<T>(this.config, len);
+        const columns = new Map(this.columns.map((col) => [col.name, col]));
+
+        for (let i = 0; i < len; i++) {
+            if (isEmptyRow(this.columns, i)) {
+                returning--;
+            } else {
+                for (const [name, builder] of builders) {
+                    builder.append(columns.get(name)!.vector.get(i));
+                }
+            }
+        }
+
+        if (returning === this.size) return this;
+
+        return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => {
+        // @ts-expect-error data is readonly
+            builder.data = builder.data
+                .resize(returning);
+            return columns.get(name)!.fork(builder.toVector());
+        }));
+    }
+
+    /**
      * Remove duplicate rows with the same value for select fields
     */
     unique(...fieldArg: FieldArg<keyof T>[]): DataFrame<T> {
@@ -464,7 +495,8 @@ export class DataFrame<
 
         return this.fork([...builders].map(([name, builder]: [keyof T, Builder<any>]) => {
             // @ts-expect-error data is readonly
-            builder.data = builder.data.resize(buckets.size);
+            builder.data = builder.data
+                .resize(buckets.size);
             return columns.get(name)!.fork(builder.toVector());
         }));
     }
