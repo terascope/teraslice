@@ -665,6 +665,31 @@ describe('DataFrame', () => {
             });
         });
 
+        describe('->removeEmptyRows', () => {
+            it('should be able remove the empty rows', () => {
+                const frame = createPeopleDataFrame([
+                    { } as Partial<Person> as Person,
+                    { name: 'Jill', age: 39 },
+                    { friends: [] } as Partial<Person> as Person,
+                    { name: null as any } as Partial<Person> as Person,
+                ]);
+                const resultFrame = frame.removeEmptyRows();
+
+                expect(resultFrame.size).toEqual(2);
+                expect(resultFrame.toJSON()).toEqual([
+                    { name: 'Jill', age: 39 },
+                    { friends: [] }
+                ]);
+                expect(resultFrame.id).not.toEqual(frame.id);
+            });
+
+            it('should be able return the data frame if non exist', () => {
+                const resultFrame = peopleDataFrame.removeEmptyRows();
+
+                expect(resultFrame.id).toEqual(peopleDataFrame.id);
+            });
+        });
+
         describe('->limit', () => {
             it('should be able to get the first two rows', () => {
                 const resultFrame = peopleDataFrame.limit(2);
