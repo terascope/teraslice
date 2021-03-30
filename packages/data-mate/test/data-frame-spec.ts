@@ -330,11 +330,11 @@ describe('DataFrame', () => {
             }
         };
 
-        function createPeopleDataFrame(data: Person[]) {
+        function createPeopleDataFrame(data: Person[]): DataFrame<Person> {
             return DataFrame.fromJSON<Person>(peopleDTConfig, data);
         }
 
-        function createDeepObjectDataFrame(data: DeepObj[]) {
+        function createDeepObjectDataFrame(data: DeepObj[]): DataFrame<DeepObj> {
             return DataFrame.fromJSON<DeepObj>(deepObjectDTConfig, data);
         }
 
@@ -461,33 +461,6 @@ describe('DataFrame', () => {
                 expect(resultFrame.getColumnOrThrow('config').id).toEqual(
                     deepObjDataFrame.getColumnOrThrow('config').id
                 );
-            });
-
-            it('should return the selected fields with wildcard selectors', () => {
-                const resultFrame = deepObjDataFrame.deepSelect([
-                    '_key',
-                    '*id*',
-                ]);
-                expect(resultFrame.toJSON()).toEqual([{
-                    _key: 'id-1',
-                    config: {
-                        id: 'config-1',
-                        owner: {
-                            id: 'config-owner-1'
-                        }
-                    },
-                    states: [{ id: 'state-1' }, { id: 'state-2' }]
-                }, {
-                    _key: 'id-2',
-                    config: {
-                        id: 'config-2',
-                        owner: {
-                            id: 'config-owner-2'
-                        }
-                    },
-                    states: [{ id: 'state-3' }, { id: 'state-4' }]
-                }]);
-                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
             });
         });
 

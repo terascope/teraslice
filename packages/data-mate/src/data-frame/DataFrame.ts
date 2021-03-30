@@ -8,7 +8,7 @@ import {
     DataEntity, TSError,
     getTypeOf, isFunction,
     isPlainObject, trimFP,
-    matchWildcard, isWildCardString, isInteger
+    isInteger
 } from '@terascope/utils';
 import { Column, KeyAggFn, makeUniqueKeyAgg } from '../column';
 import { AggregationFrame } from '../aggregation-frame';
@@ -202,8 +202,7 @@ export class DataFrame<
 
     /**
      * Select fields in a data frame, this will work with nested object
-     * fields and the selection field can also include wildcards which will match
-     * a large selection of string.
+     * fields.
      *
      * Fields that don't exist in the data frame are safely ignored to make
      * this function handle more suitable for production environments
@@ -218,14 +217,7 @@ export class DataFrame<
 
         const matchedFields: Record<string, Set<string>> = {};
         function matchField(field: string) {
-            return (selector: string): boolean => {
-                if (field === selector) return true;
-                if (field.startsWith(`${selector}.`)) return true;
-                if (isWildCardString(selector)) {
-                    return matchWildcard(selector, field);
-                }
-                return false;
-            };
+            return (selector: string): boolean => field === selector;
         }
 
         for (const field of existingFields) {
