@@ -1,6 +1,6 @@
 import 'jest-extended';
 import { GeoPoint, GeoPointInput, GeoShapeType } from '@terascope/types';
-import { parseGeoPoint } from '../src/geo';
+import { isGeoPoint, parseGeoPoint } from '../src/geo';
 
 describe('geo utils', () => {
     describe('->parseGeoPoint', () => {
@@ -58,6 +58,64 @@ describe('geo utils', () => {
 
         test.each(testCases)('should %s', (_msg, input, output) => {
             expect(parseGeoPoint(input, false)).toEqual(output);
+        });
+    });
+
+    describe('->isGeoPoint', () => {
+        type Case = [msg: string, input: GeoPointInput, output: boolean];
+        const testCases: Case[] = [
+            [
+                'parse a geo point in array',
+                [30.00123, 12.233],
+                true
+            ],
+            [
+                'not parse a geo point an invalid array',
+                [30.00123] as any,
+                false
+            ],
+            [
+                'parse a geo point in a string',
+                '30.00123,-12.233',
+                true
+            ],
+            [
+                'not parse a geo point an invalid string',
+                '30.00123',
+                false
+            ],
+            [
+                'parse a geo point in an object',
+                { latitude: 30.00123, longitude: -12.233 },
+                true
+            ],
+            [
+                'parse a geo point in an object with abbreviated keys',
+                { lat: 30.00123, lon: -12.233 },
+                true
+            ],
+            [
+                'not parse a geo point in an invalid object',
+                { invalid: 30.00123, lon: -12.233 } as any,
+                false
+            ],
+            [
+                'parse a valid geo point shape',
+                {
+                    type: GeoShapeType.Point,
+                    coordinates: [-15, 39.23]
+                },
+                true
+            ],
+            [
+                'parse an edge case geo point',
+                { lat: -90, lon: 0 },
+                true
+            ]
+        ];
+
+        test.each(testCases)('should %s', (_msg, input, output) => {
+            expect(isGeoPoint(input)).toEqual(output);
         });
     });
 });

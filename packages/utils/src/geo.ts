@@ -139,3 +139,7 @@ export function parseGeoPoint(point: GeoPointInput, throwInvalid = true): GeoPoi
     }
     return null;
 }
+
+export function isGeoPoint(input: unknown): boolean {
+    return parseGeoPoint(input as GeoPointInput, false) != null;
+}
