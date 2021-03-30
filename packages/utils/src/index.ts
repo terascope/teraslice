@@ -27,4 +27,5 @@ export * from './promises';
 export * from './regex';
 export * from './queue';
 export * from './strings';
+export * from './ip';
 export { STATUS_CODES };
