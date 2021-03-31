@@ -11,10 +11,26 @@ import {
     toSnakeCase,
     toKebabCase,
     parseList,
-    joinList
+    joinList,
+    isString
 } from '../src/strings';
 
 describe('String Utils', () => {
+    describe('isString', () => {
+        test.each([
+            ['hello there', true],
+            ['123', true],
+            [true, false],
+            [123, false],
+            [['not a string'], false],
+            [{ foo: 'bar' }, false],
+            [undefined, false],
+            [null, false],
+        ])('should convert %s to be %s', (input: any, expected: any) => {
+            expect(isString(input)).toEqual(expected);
+        });
+    });
+
     describe('toSafeString', () => {
         test.each([
             ['hello-there', 'hello-there'],
