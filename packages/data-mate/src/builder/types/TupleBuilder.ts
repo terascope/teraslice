@@ -63,7 +63,7 @@ export class TupleBuilder<T extends [...any] = [...any]> extends BuilderWithCach
         })) as T;
     }
 
-    private _getChildName(index: number) {
+    private _getChildName(index: number): string|undefined {
         if (!this.name) return undefined;
         return `${this.name}.${index}`;
     }

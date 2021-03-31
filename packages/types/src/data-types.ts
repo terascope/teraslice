@@ -162,6 +162,8 @@ export interface DataTypeFieldConfig {
      * used with the `is_primary_date`
      */
     time_resolution?: TimeResolution;
+
+    [extra: string]: unknown;
 }
 
 /**
