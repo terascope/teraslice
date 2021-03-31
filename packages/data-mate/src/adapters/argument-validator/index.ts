@@ -8,10 +8,9 @@ import {
     isGeoPoint,
     isObjectEntity,
     isIP,
-    joinList, getTypeOf, isEmpty
+    joinList, getTypeOf, isEmpty,
 } from '@terascope/utils';
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
-import { forEach } from 'lodash';
 import {
     FunctionDefinitions,
 } from '../../interfaces';
@@ -69,7 +68,7 @@ function isNumberTuple(input: unknown): boolean {
 
 function isEmptyLike(input: unknown): boolean {
     // if it nil, or [], {}, booleans are fine
-    return isNil(input) || (!isBoolean(input) && isEmpty(input));
+    return isNil(input) || (!isBoolean(input) && !isNumber(input) && isEmpty(input));
 }
 
 export function validateFunctionArgs(fnDef: FunctionDefinitions, args?: Record<string, any>): void {
