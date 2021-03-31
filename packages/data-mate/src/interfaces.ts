@@ -113,14 +113,14 @@ export interface RecordTransformConfig<
         args: T,
         inputConfig?: DataTypeFieldAndChildren,
         outputConfig?: DataTypeFieldAndChildren,
-    ) => (value: Record<string, unknown>[]) => Record<string, unknown>[]
+    ) => (value: Record<string, unknown>) => Record<string, unknown>
 }
 
 export interface RecordValidationConfig<
     T extends Record<string, any> = Record<string, unknown>
 > extends FunctionDefinitionConfig<T> {
     type: FunctionDefinitionType.RECORD_VALIDATION,
-    output_type: (
+    output_type?: (
         inputConfig: DataTypeFieldAndChildren,
         args?: T
     ) => DataTypeFieldAndChildren,
@@ -128,7 +128,7 @@ export interface RecordValidationConfig<
         args: T,
         inputConfig?: DataTypeFieldAndChildren,
         outputConfig?: DataTypeFieldAndChildren,
-    ) => (value: Record<string, unknown>[]) => boolean[]
+    ) => (value: Record<string, unknown>) => boolean
 }
 
 export interface OutputType<T> {
@@ -145,6 +145,8 @@ export interface DataTypeFieldAndChildren {
 // Make a separate one for record level adapters
 export type FunctionDefinitions = FieldValidateConfig<Record<string, unknown>>
 | FieldTransformConfig<Record<string, unknown>>
+| RecordValidationConfig<Record<string, unknown>>
+| RecordTransformConfig<Record<string, unknown>>
 
 // TODO: verify this type
 export interface FunctionConfigRepository {
@@ -167,4 +169,16 @@ export function isFieldOperation(
     input: FunctionDefinitionConfig<Record<string, unknown>>
 ): boolean {
     return isFieldValidation(input) || isFieldTransform(input);
+}
+
+export function isRecordTransform(
+    input: FunctionDefinitionConfig<Record<string, unknown>>
+): input is RecordTransformConfig {
+    return input && input.type === FunctionDefinitionType.RECORD_TRANSFORM;
+}
+
+export function isRecordValidation(
+    input: FunctionDefinitionConfig<Record<string, unknown>>
+): input is RecordValidationConfig {
+    return input && input.type === FunctionDefinitionType.RECORD_VALIDATION;
 }

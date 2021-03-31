@@ -167,7 +167,7 @@ describe('toUpperCaseConfig', () => {
                 const results = result.reduce<Record<string, unknown>[]>(
                     (accum, curr) => {
                         const obj = withoutNil(curr);
-                        if (!isEmpty(obj)) {
+                        if (obj && !isEmpty(obj)) {
                             accum.push(obj);
                         }
 

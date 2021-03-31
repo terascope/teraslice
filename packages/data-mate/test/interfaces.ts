@@ -5,5 +5,5 @@ export interface ColumnTests {
 
 export interface RowsTests {
     rows: Record<string, unknown>[]
-    result: Record<string, unknown>[]
+    result: (Record<string, unknown> | null)[]
 }
