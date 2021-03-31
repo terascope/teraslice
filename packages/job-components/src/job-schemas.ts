@@ -238,6 +238,26 @@ export function jobSchema(context: Context): convict.Schema<any> {
             format: Boolean
         };
 
+        schemas.external_port = {
+            doc: '',
+            default: [],
+            format(arr) {
+                // TODO: What should we really do to validate this?  It can be
+                // omitted, an empty array, or an array with numbers.  It can't
+                // contain anything other than numbers.  Processors should be able
+                // to have reserved ports.  That is, if a job has port X but a
+                // processor requirs port X this code should throw an error.
+                // We should check to see that the user doesn't specify 45680,
+                // since that is reserved by Teraslice.
+                if (arr != null) {
+                    if (!Array.isArray(arr)) {
+                        throw new Error('external_ports is required to be an array');
+                    // FIXME: improve input and error handling
+                    }
+                }
+            }
+        };
+
         schemas.memory = {
             doc: 'memory, in bytes, to reserve per teraslice worker in kubernetes',
             default: undefined,

@@ -106,6 +106,8 @@ export interface ValidatedJobConfig {
     /** This will only be available in the context of k8s */
     ephemeral_storage?: boolean;
     /** This will only be available in the context of k8s */
+    exposed_ports?: number[];
+    /** This will only be available in the context of k8s */
     memory?: number;
     /** This will only be available in the context of k8s */
     memory_execution_controller?: number;
