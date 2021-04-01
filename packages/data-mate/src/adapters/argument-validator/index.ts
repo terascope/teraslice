@@ -90,7 +90,7 @@ export function validateFunctionArgs(fnDef: FunctionDefinitions, args?: Record<s
         const config = args ?? {};
 
         for (const [field, typeConfig] of Object.entries(fnDef.argument_schema)) {
-            if (Object.hasOwnProperty.call(args, field)) {
+            if (Object.hasOwnProperty.call(config, field)) {
                 const typeValidator = getType(typeConfig);
                 // if its an array of values, check each one
                 if (typeConfig.array) {

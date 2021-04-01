@@ -16,7 +16,8 @@ import {
     isFieldTransform,
     RecordValidationConfig,
     RecordTransformConfig,
-    isRecordValidation
+    isRecordValidation,
+    ProcessMode
 } from '../../interfaces';
 import { validateFunctionArgs } from '../argument-validator';
 
@@ -34,6 +35,19 @@ interface RecordFunctionAdapterOperation {
 
 interface FieldFunctionAdapterOperation extends RecordFunctionAdapterOperation {
     column(values: unknown[]): unknown[];
+}
+
+// TODO: see if we can fix the types here
+function wholeFieldValidationColumnExecution(
+    fn: (input: unknown) => unknown,
+) {
+    return function _fieldValidationColumnExecution(input: unknown | unknown[]) {
+        if (fn(input)) {
+            return input;
+        }
+
+        return null;
+    };
 }
 
 // TODO: see if we can fix the types here
@@ -238,6 +252,16 @@ export function functionAdapter<T extends Record<string, any> = Record<string, u
     if (isFieldValidation(fnDef)) {
         // creating fn here ensures better typing of what fn is
         const fn = fnDef.create(args ?? {});
+
+        if (fnDef.process_mode === ProcessMode.FULL_VALUES) {
+            return {
+                rows: fieldValidationRowExecution(
+                    fn, preserveNulls, preserveEmptyObjects, field
+                ),
+                column: wholeFieldValidationColumnExecution(fn)
+            };
+        }
+
         return {
             rows: fieldValidationRowExecution(
                 fn, preserveNulls, preserveEmptyObjects, field
