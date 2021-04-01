@@ -560,25 +560,25 @@ function _inPrivateIPRange(ipRange: string) {
     ].includes(ipRange);
 }
 
+const ipv4RestrictedRanges = [
+    ipaddr.parseCIDR('192.31.196.0/24'),
+    ipaddr.parseCIDR('192.52.193.0/24'),
+    ipaddr.parseCIDR('192.175.48.0/24'),
+    ipaddr.parseCIDR('198.18.0.0/15'),
+    ipaddr.parseCIDR('224.0.0.0/8')
+];
+
+const ipv6RestrictedRanges = [
+    ipaddr.parseCIDR('64:ff9b:1::/48'),
+    ipaddr.parseCIDR('100::/64'),
+    ipaddr.parseCIDR('2001::/23'),
+    ipaddr.parseCIDR('2620:4f:8000::/48')
+];
+
 function _inRestrictedIPRange(parsedIp: ipaddr.IPv4 | ipaddr.IPv6) {
-    const ipv4RestrictedRanges = [
-        '192.31.196.0/24',
-        '192.52.193.0/24',
-        '192.175.48.0/24',
-        '198.18.0.0/15',
-        '224.0.0.0/8'
-    ];
-
-    const ipv6RestrictedRanges = [
-        '64:ff9b:1::/48',
-        '100::/64',
-        '2001::/23',
-        '2620:4f:8000::/48'
-    ];
-
     const rangesToCheck = parsedIp.kind() === 'ipv4' ? ipv4RestrictedRanges : ipv6RestrictedRanges;
 
-    return rangesToCheck.some((ipRange) => parsedIp.match(ipaddr.parseCIDR(ipRange)));
+    return rangesToCheck.some((ipRange) => parsedIp.match(ipRange));
 }
 
 /**
