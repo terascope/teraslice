@@ -10,7 +10,7 @@ import {
 const logger = debugLogger('utils:promises');
 
 /** promisified setTimeout */
-export function pDelay<T = undefined>(delay = 1, arg?: T): Promise<T> {
+export function pDelay<T = undefined>(delay = 0, arg?: T): Promise<T> {
     return new Promise<T>((resolve) => {
         setTimeout(resolve, delay, arg);
     });
@@ -19,7 +19,13 @@ export function pDelay<T = undefined>(delay = 1, arg?: T): Promise<T> {
 /** promisified setImmediate */
 export function pImmediate<T = undefined>(arg?: T): Promise<T> {
     return new Promise<T>((resolve) => {
-        setImmediate(resolve, arg);
+        if (typeof process?.nextTick === 'function') {
+            process.nextTick(resolve, arg);
+        } else if (typeof setImmediate === 'function') {
+            setImmediate(resolve, arg);
+        } else {
+            setTimeout(resolve, 0, arg);
+        }
     });
 }
 
