@@ -316,14 +316,14 @@ describe('ExecutionController', () => {
                 });
 
                 it('should resolve when shutdown passes', async () => {
-                    setImmediate(() => {
+                    setTimeout(() => {
                         exController.events.emit('worker:shutdown:complete');
                     });
                     await expect(exController.shutdown()).resolves.toBeNil();
                 });
 
                 it('should reject when shutdown fails', async () => {
-                    setImmediate(() => {
+                    setTimeout(() => {
                         exController.events.emit('worker:shutdown:complete', new Error('Uh oh'));
                     });
                     await expect(exController.shutdown()).rejects.toThrowError('Uh oh');

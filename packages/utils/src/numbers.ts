@@ -4,11 +4,9 @@ import { getTypeOf } from './deps';
 let supportsBigInt = true;
 try {
     if (typeof globalThis.BigInt === 'undefined') {
-        console.warn('BigInt isn\'t supported in this environment');
         supportsBigInt = false;
     }
 } catch (err) {
-    console.warn('BigInt isn\'t supported in this environment');
     supportsBigInt = false;
 }
 
