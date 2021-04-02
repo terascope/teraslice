@@ -102,7 +102,7 @@ export class Client extends Core {
             } catch (err) {
                 this.logger.error(err);
             }
-            setTimeout(() => {
+            process.nextTick(() => {
                 this.socket.close();
             });
         });
