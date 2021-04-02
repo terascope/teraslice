@@ -16,12 +16,30 @@ export function pDelay<T = undefined>(delay = 0, arg?: T): Promise<T> {
     });
 }
 
-/** promisified setImmediate */
+let supportsSetImmediate = false;
+try {
+    if (typeof globalThis.setImmediate === 'function') {
+        supportsSetImmediate = true;
+    }
+} catch (err) {
+    supportsSetImmediate = false;
+}
+
+let supportsNextTick = false;
+try {
+    if (typeof globalThis.process.nextTick === 'function') {
+        supportsNextTick = true;
+    }
+} catch (err) {
+    supportsNextTick = false;
+}
+
+/** promisified process.nextTick,setImmediate or setTimeout depending on your environment */
 export function pImmediate<T = undefined>(arg?: T): Promise<T> {
     return new Promise<T>((resolve) => {
-        if (typeof process?.nextTick === 'function') {
+        if (supportsNextTick) {
             process.nextTick(resolve, arg);
-        } else if (typeof setImmediate === 'function') {
+        } else if (supportsSetImmediate) {
             setImmediate(resolve, arg);
         } else {
             setTimeout(resolve, 0, arg);
