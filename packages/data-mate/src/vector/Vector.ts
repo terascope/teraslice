@@ -1,12 +1,16 @@
 import {
     DataTypeFieldConfig,
     Maybe, SortOrder,
-    ReadonlyDataTypeFields
+    ReadonlyDataTypeFields,
+    TypedArray
 } from '@terascope/types';
+import SparseMap from 'mnemonist/sparse-map';
 import {
     ReadableData, createHashCode, HASH_CODE_SYMBOL, getHashCodeFrom, freezeArray, WritableData
 } from '../core';
-import { DataBuckets, SerializeOptions, VectorType } from './interfaces';
+import {
+    DataBuckets, SerializeOptions, VectorType, VectorJSON
+} from './interfaces';
 
 /**
  * An immutable typed Array class with a constrained API.
@@ -20,6 +24,33 @@ export abstract class Vector<T = unknown> {
         options: VectorOptions
     ): Vector<R> {
         throw new Error(`This is overridden in the index file, ${options} ${data}`);
+    }
+
+    /**
+     * Make an instance of a Vector from a serialize json config
+    */
+    static deserialize<R>(
+        config: VectorJSON
+    ): Vector<R> {
+        const data: DataBuckets<R> = config.data.map((bucket) => {
+            const sparseMap = new SparseMap<R>(config.size);
+
+            const dense = (sparseMap as any).dense as TypedArray;
+            dense.set(bucket.dense, 0);
+
+            const sparse = (sparseMap as any).sparse as TypedArray;
+            sparse.set(bucket.sparse, 0);
+
+            (sparseMap as any).size = bucket.size;
+            (sparseMap as any).vals = bucket.vals;
+
+            return new ReadableData(sparseMap);
+        });
+
+        return Vector.make(data, {
+            config: config.config,
+            childConfig: config.childConfig,
+        });
     }
 
     /**
@@ -352,6 +383,20 @@ export abstract class Vector<T = unknown> {
             res[i] = this.get(i, false) as T;
         }
         return res;
+    }
+
+    /**
+     * Convert to an optimized serialize format
+    */
+    serialize(): VectorJSON {
+        return {
+            size: this.size,
+            config: this.config,
+            childConfig: this.childConfig,
+            data: this.data.map((d): any => ({
+                ...d.values
+            }))
+        };
     }
 
     /**

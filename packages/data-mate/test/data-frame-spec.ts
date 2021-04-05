@@ -1556,5 +1556,17 @@ describe('DataFrame', () => {
                 });
             });
         });
+
+        describe('->serialize', () => {
+            it('should be able to serialize and deserialize', () => {
+                const output = peopleDataFrame.serialize();
+                expect(output).toMatchSnapshot();
+
+                const frame = DataFrame.deserialize(output);
+                expect(frame.toJSON()).toEqual(peopleDataFrame.toJSON());
+                expect(frame.size).toEqual(peopleDataFrame.size);
+                // expect(frame.id).toEqual(peopleDataFrame.id);
+            });
+        });
     });
 });

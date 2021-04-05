@@ -2,7 +2,7 @@ import {
     DataTypeConfig, ReadonlyDataTypeConfig,
     Maybe, SortOrder, FieldType,
     DataTypeFields, DataTypeFieldConfig,
-    xLuceneVariables
+    xLuceneVariables,
 } from '@terascope/types';
 import {
     DataEntity, TSError,
@@ -27,6 +27,7 @@ import {
 import { getMaxColumnSize } from '../aggregation-frame/utils';
 import { SerializeOptions, Vector } from '../vector';
 import { buildSearchMatcherForQuery } from './search-utils';
+import { DataFrameJSON } from './interfaces';
 
 /**
  * An immutable columnar table with APIs for data pipelines.
@@ -63,6 +64,18 @@ export class DataFrame<
         return new DataFrame(columns, options);
     }
 
+    static deserialize<
+        R extends Record<string, unknown> = Record<string, any>,
+    >(config: DataFrameJSON): DataFrame<R> {
+        const columns: Column<any, keyof R>[] = config.columns.map((columnConfig) => (
+            Column.deserialize(columnConfig)
+        ));
+        return new DataFrame<R>(columns, {
+            name: config.name,
+            metadata: config.metadata
+        });
+    }
+
     /**
      * The name of the Frame
     */
@@ -83,10 +96,13 @@ export class DataFrame<
     */
     readonly metadata: Record<string, any>;
 
+    /**
+     * Size of the DataFrame
+    */
+    readonly size: number;
+
     /** cached id for lazy loading the id */
     #id?: string;
-
-    readonly size: number;
 
     constructor(
         columns: Column<any, keyof T>[]|readonly Column<any, keyof T>[],
@@ -796,6 +812,19 @@ export class DataFrame<
     */
     toArray(): T[] {
         return Array.from(this.rows(false));
+    }
+
+    /**
+     * Convert the DataFrame into an optimized serialized format,
+     * including the metadata
+    */
+    serialize(): DataFrameJSON {
+        return {
+            name: this.name,
+            size: this.size,
+            metadata: { ...this.metadata },
+            columns: this.columns.map((col) => col.serialize())
+        };
     }
 }
 

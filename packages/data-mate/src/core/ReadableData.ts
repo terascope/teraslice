@@ -30,10 +30,17 @@ export class ReadableData<T> implements Iterable<Maybe<T>> {
     */
     readonly isPrimitive: boolean;
 
-    constructor(data: WritableData<T>) {
-        this.values = Object.freeze(data.values) as any;
-        this.size = data.size;
-        this.isPrimitive = isPrimitive(data.values);
+    constructor(data: WritableData<T>|SparseMap<T>) {
+        if (data instanceof WritableData) {
+            this.values = Object.freeze(data.values) as any;
+            this.size = data.size;
+            this.isPrimitive = isPrimitive(data.values);
+        } else {
+            this.values = Object.freeze(data) as any;
+            this.size = data.length;
+            this.isPrimitive = isPrimitive(data);
+        }
+
         Object.freeze(this);
     }
 

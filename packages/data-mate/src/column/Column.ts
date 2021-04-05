@@ -7,6 +7,7 @@ import {
     JSONValue, SerializeOptions, Vector
 } from '../vector';
 import {
+    ColumnJSON,
     ColumnOptions, ColumnTransformConfig, ColumnValidateConfig, TransformMode
 } from './interfaces';
 import { runVectorAggregation, ValueAggregation } from './aggregations';
@@ -43,6 +44,19 @@ export class Column<T = unknown, N extends NameType = string> {
 
         return new Column<any, F>(builder.toVector(), {
             name, version
+        });
+    }
+
+    /**
+     * Create a Column from the custom serialized format
+    */
+    static deserialize<R, F extends NameType = string>(
+        config: ColumnJSON
+    ): Column<R extends (infer U)[] ? Vector<U> : R, F> {
+        const vector = Vector.deserialize(config);
+
+        return new Column<any, F>(vector, {
+            name: config.name as F, version: config.version
         });
     }
 
@@ -322,5 +336,13 @@ export class Column<T = unknown, N extends NameType = string> {
     */
     toJSON(options?: SerializeOptions): Maybe<JSONValue<T>>[] {
         return this.vector.toJSON(options);
+    }
+
+    serialize(): ColumnJSON {
+        return {
+            ...this.vector.serialize(),
+            name: `${this.name}`,
+            version: this.version,
+        };
     }
 }

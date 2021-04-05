@@ -1,0 +1,128 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DataFrame when manipulating a DataFrame ->serialize should be able to serialize and deserialize 1`] = `
+Object {
+  "columns": Array [
+    Object {
+      "childConfig": Object {},
+      "config": Object {
+        "type": "Keyword",
+      },
+      "data": Array [
+        Object {
+          "dense": Uint8Array [
+            0,
+            1,
+            2,
+            3,
+            4,
+          ],
+          "length": 5,
+          "size": 5,
+          "sparse": Uint8Array [
+            0,
+            1,
+            2,
+            3,
+            4,
+          ],
+          "vals": Array [
+            "Jill",
+            "Billy",
+            "Frank",
+            "Jane",
+            "Nancy",
+          ],
+        },
+      ],
+      "name": "name",
+      "size": 5,
+      "version": 1,
+    },
+    Object {
+      "childConfig": Object {},
+      "config": Object {
+        "type": "Short",
+      },
+      "data": Array [
+        Object {
+          "dense": Uint8Array [
+            0,
+            1,
+            2,
+            4,
+            0,
+          ],
+          "length": 5,
+          "size": 4,
+          "sparse": Uint8Array [
+            0,
+            1,
+            2,
+            0,
+            3,
+          ],
+          "vals": Array [
+            39,
+            47,
+            20,
+            10,
+            undefined,
+          ],
+        },
+      ],
+      "name": "age",
+      "size": 5,
+      "version": 1,
+    },
+    Object {
+      "childConfig": Object {},
+      "config": Object {
+        "array": true,
+        "type": "Keyword",
+      },
+      "data": Array [
+        Object {
+          "dense": Uint8Array [
+            0,
+            1,
+            2,
+            3,
+            0,
+          ],
+          "length": 5,
+          "size": 4,
+          "sparse": Uint8Array [
+            0,
+            1,
+            2,
+            3,
+            0,
+          ],
+          "vals": Array [
+            Array [
+              "Frank",
+            ],
+            Array [
+              "Jill",
+            ],
+            Array [
+              "Jill",
+            ],
+            Array [
+              "Jill",
+            ],
+            undefined,
+          ],
+        },
+      ],
+      "name": "friends",
+      "size": 5,
+      "version": 1,
+    },
+  ],
+  "metadata": Object {},
+  "name": undefined,
+  "size": 5,
+}
+`;

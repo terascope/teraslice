@@ -1,7 +1,9 @@
 import {
-    DataTypeFieldConfig, DataTypeFields, DataTypeVersion, Maybe
+    DataTypeFieldConfig, DataTypeFields, DataTypeVersion, Maybe,
 } from '@terascope/types';
-import { ListVector, Vector, VectorType } from '../vector';
+import {
+    ListVector, Vector, VectorJSON, VectorType
+} from '../vector';
 
 /**
  * Column options
@@ -132,4 +134,12 @@ export interface ColumnValidateConfig<
      * Creates a validator function
     */
     create: (vector: Vector<T>, args: A) => ColumnValidateFn<T>;
+}
+
+export interface ColumnJSON extends VectorJSON {
+    readonly name: string;
+    /**
+     * DataFrame version
+    */
+    readonly version?: DataTypeVersion;
 }
