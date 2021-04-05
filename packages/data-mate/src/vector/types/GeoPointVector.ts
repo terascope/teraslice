@@ -4,6 +4,7 @@ import { VectorType, DataBuckets } from '../interfaces';
 
 export class GeoPointVector extends Vector<GeoPoint> {
     valueToJSON = undefined;
+    getComparableValue = undefined;
 
     constructor(data: DataBuckets<GeoPoint>, options: VectorOptions) {
         super(VectorType.GeoPoint, data, options);

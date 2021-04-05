@@ -5,6 +5,7 @@ import {
     TypedArray
 } from '@terascope/types';
 import SparseMap from 'mnemonist/sparse-map';
+import { isPrimitiveValue } from '@terascope/utils';
 import {
     ReadableData, createHashCode, HASH_CODE_SYMBOL, getHashCodeFrom, freezeArray, WritableData
 } from '../core';
@@ -150,6 +151,12 @@ export abstract class Vector<T = unknown> {
      * a value to an JSON spec compatible format.
     */
     abstract valueToJSON?(value: T, options?: SerializeOptions): any;
+
+    /**
+     * A function for converting an in-memory representation of
+     * a value to an JSON spec compatible format.
+    */
+    abstract getComparableValue?(value: T): any;
 
     * [Symbol.iterator](): IterableIterator<Maybe<T>> {
         for (const data of this.data) {
@@ -355,11 +362,24 @@ export abstract class Vector<T = unknown> {
     compare(a: Maybe<T>, b: Maybe<T>): -1|0|1 {
         // we need default undefined to null since
         // undefined has inconsistent behavior
-        const aVal = a as any ?? null;
-        const bVal = b as any ?? null;
+        const aVal = this._getComparableValue(a);
+        const bVal = this._getComparableValue(b);
         if (aVal < bVal) return -1;
         if (aVal > bVal) return 1;
         return 0;
+    }
+
+    private _getComparableValue(value: Maybe<T>): any {
+        if (value == null) return null;
+        if (this.getComparableValue) {
+            return this.getComparableValue(value);
+        }
+
+        if (isPrimitiveValue(value)) {
+            return value;
+        }
+
+        throw new Error('Unable to convert value to number for comparison');
     }
 
     /**

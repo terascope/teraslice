@@ -3,6 +3,8 @@ import { VectorType, DataBuckets } from '../interfaces';
 import { DateValue } from '../../core';
 
 export class DateVector extends Vector<DateValue> {
+    getComparableValue = undefined;
+
     constructor(data: DataBuckets<DateValue>, options: VectorOptions) {
         super(VectorType.Date, data, options);
     }

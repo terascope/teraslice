@@ -5,6 +5,8 @@ import { DataBuckets, SerializeOptions, VectorType } from './interfaces';
 import { getHashCodeFrom } from '../core';
 
 export class ListVector<T = unknown> extends Vector<readonly Maybe<T>[]> {
+    getComparableValue = undefined;
+
     readonly convertValueToJSON: (options?: SerializeOptions) => (value: Maybe<T>) => any;
     #_valueVector?: Vector<T>;
 
