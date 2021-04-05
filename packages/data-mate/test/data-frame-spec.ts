@@ -7,8 +7,17 @@ import {
 import { ColumnTransform, DataFrame } from '../src';
 
 describe('DataFrame', () => {
-    it('should be able to create an empty table', () => {
+    it('should be able to create an empty table using DataFrame#fromJSON', () => {
         const dataFrame = DataFrame.fromJSON({ version: LATEST_VERSION, fields: {} }, []);
+        expect(dataFrame).toBeInstanceOf(DataFrame);
+        expect(dataFrame.columns).toBeArrayOfSize(0);
+        expect(dataFrame.size).toEqual(0);
+        expect(dataFrame.toJSON()).toEqual([]);
+        expect(dataFrame.id).toBeString();
+    });
+
+    it('should be able to create an empty table using DataFrame#empty', () => {
+        const dataFrame = DataFrame.empty({ version: LATEST_VERSION, fields: {} });
         expect(dataFrame).toBeInstanceOf(DataFrame);
         expect(dataFrame.columns).toBeArrayOfSize(0);
         expect(dataFrame.size).toEqual(0);

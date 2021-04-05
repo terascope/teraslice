@@ -51,6 +51,19 @@ export class DataFrame<
     }
 
     /**
+     * Create an empty DataFrame
+    */
+    static empty<
+        R extends Record<string, unknown> = Record<string, any>,
+    >(
+        config: DataTypeConfig|ReadonlyDataTypeConfig,
+        options?: DataFrameOptions
+    ): DataFrame<R> {
+        const columns = distributeRowsToColumns<R>(config, []);
+        return new DataFrame(columns, options);
+    }
+
+    /**
      * The name of the Frame
     */
     name?: string;
