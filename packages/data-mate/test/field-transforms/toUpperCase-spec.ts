@@ -3,9 +3,10 @@ import {
     cloneDeep, DataEntity,
     isEmpty, isNotNil, withoutNil
 } from '@terascope/utils';
-import { FieldType } from '@terascope/types';
+import { FieldType, Maybe } from '@terascope/types';
 import {
-    functionConfigRepository, functionAdapter, FunctionDefinitionType, ProcessMode
+    functionConfigRepository, functionAdapter, FunctionDefinitionType,
+    ProcessMode, Column, dateFrameAdapter
 } from '../../src';
 import { ColumnTests, RowsTests } from '../interfaces';
 
@@ -204,6 +205,37 @@ describe('toUpperCaseConfig', () => {
                 expect(() => api.rows(data)).toThrowError('Invalid record "hello", expected an array of simple objects or data-entities');
                 expect(() => api.rows(data2)).toThrowError('Invalid record null, expected an array of simple objects or data-entities');
             });
+        });
+    });
+
+    describe('when paired with dateFrameAdapter', () => {
+        let col: Column<string>;
+        const values: Maybe<string>[] = [
+            'other_things',
+            'Stuff',
+            'hello',
+            null,
+            'SpiderMan',
+        ];
+        const field = 'someField';
+
+        beforeEach(() => {
+            col = Column.fromJSON<string>(field, {
+                type: FieldType.String
+            }, values);
+        });
+
+        it('should be able to transform using toUpperCase', () => {
+            const transformer = dateFrameAdapter(toUpperCaseConfig);
+            const newCol = col.transform(transformer);
+
+            expect(newCol.toJSON()).toEqual([
+                'OTHER_THINGS',
+                'STUFF',
+                'HELLO',
+                undefined,
+                'SPIDERMAN',
+            ]);
         });
     });
 });

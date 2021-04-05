@@ -167,7 +167,7 @@ export function isFieldTransform(
 
 export function isFieldOperation(
     input: FunctionDefinitionConfig<Record<string, unknown>>
-): boolean {
+): input is (FieldValidateConfig | FieldValidateConfig) {
     return isFieldValidation(input) || isFieldTransform(input);
 }
 
