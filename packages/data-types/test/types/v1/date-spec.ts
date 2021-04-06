@@ -39,7 +39,7 @@ describe('Date V1', () => {
         const esMapping = new DateType(field, typeConfig).toESMapping();
         expect(esMapping).toEqual({
             mapping: {
-                [field]: { type: 'date', format: DateFormat.epoch_millis }
+                [field]: { type: 'date', format: DateFormat.epoch }
             }
         });
     });
@@ -65,7 +65,7 @@ describe('Date V1', () => {
         const esMapping = new DateType(field, typeConfig).toESMapping();
         expect(esMapping).toEqual({
             mapping: {
-                [field]: { type: 'date' }
+                [field]: { type: 'date', format: DateFormat.epoch }
             }
         });
     });

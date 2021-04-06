@@ -11,6 +11,8 @@ export default class DateType extends BaseType {
 
         if (this.config.format && (
             !(this.config.format in DateFormat)
+            || this.config.format === DateFormat.epoch
+            || this.config.format === DateFormat.seconds
             || this.config.format === DateFormat.epoch_millis
             || this.config.format === DateFormat.milliseconds
         )
