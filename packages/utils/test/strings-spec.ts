@@ -12,7 +12,8 @@ import {
     toKebabCase,
     parseList,
     joinList,
-    isString
+    isString,
+    isEmail
 } from '../src/strings';
 
 describe('String Utils', () => {
@@ -167,6 +168,24 @@ describe('String Utils', () => {
             [[1, 2, 3, true, false, Symbol('bar')], '1, 2, 3, true, false and Symbol(bar)'],
         ])('should parse %j to be %j', (input, expected) => {
             expect(joinList(input)).toEqual(expected);
+        });
+    });
+
+    describe('isEmail', () => {
+        test.each([
+            ['string@gmail.com', true],
+            ['non.us.email@thing.com.uk', true],
+            ['Abc@def@example.com', true],
+            ['cal+henderson@iamcalx.com', true],
+            ['customer/department=shipping@example.com', true],
+            ['user@blah.com/junk.junk?a=<tag value="junk"', false],
+            ['Abc\@def  @  example.com', false],
+            ['bad email address', false],
+            [undefined, false],
+            [12345, false],
+            [true, false]
+        ])('should validate email addresses', (input, expected) => {
+            expect(isEmail(input)).toEqual(expected);
         });
     });
 });

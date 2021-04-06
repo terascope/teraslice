@@ -24,11 +24,13 @@ describe('isHashConfig', () => {
 
     it('can validate values', () => {
         const args = { algo: 'sha256' };
+
         const values = [
             '85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33',
             '98fc121ea4c749f2b06e4a768b92ef1c740625a0',
             'true',
             null, 1, 0, [true, false], { some: 'thing' }];
+
         const expected = [true, false, false, false, false, false, false, false];
         const isBoolean = isHashConfig.create(args);
 
