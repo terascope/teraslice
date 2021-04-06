@@ -1567,33 +1567,36 @@ describe('DataFrame', () => {
         });
 
         describe('->serialize/->deserialize', () => {
-            it('should be able to serialize and deserialize the peopleFrame', () => {
-                const output = peopleDataFrame.serialize();
-                expect(output).toMatchSnapshot();
+            it('should be able to serialize and deserialize the peopleFrame', async () => {
+                expect(
+                    Array.from(peopleDataFrame.serialize()).join('\n')
+                ).toMatchSnapshot();
 
-                const frame = DataFrame.deserialize(output);
+                const frame = await DataFrame.deserialize(peopleDataFrame.serialize());
                 expect(frame.toJSON()).toEqual(peopleDataFrame.toJSON());
                 expect(frame.toArray()).toEqual(peopleDataFrame.toArray());
                 expect(frame.size).toEqual(peopleDataFrame.size);
                 // expect(frame.id).toEqual(peopleDataFrame.id);
             });
 
-            it('should be able to serialize and deserialize the deepObjDataFrame', () => {
-                const output = deepObjDataFrame.serialize();
-                expect(output).toMatchSnapshot();
+            it('should be able to serialize and deserialize the deepObjDataFrame', async () => {
+                expect(
+                    Array.from(deepObjDataFrame.serialize()).join('\n')
+                ).toMatchSnapshot();
 
-                const frame = DataFrame.deserialize(output);
+                const frame = await DataFrame.deserialize(deepObjDataFrame.serialize());
                 expect(frame.toJSON()).toEqual(deepObjDataFrame.toJSON());
                 expect(frame.toArray()).toEqual(deepObjDataFrame.toArray());
                 expect(frame.size).toEqual(deepObjDataFrame.size);
                 // expect(frame.id).toEqual(deepObjDataFrame.id);
             });
 
-            it('should be able to serialize and deserialize the specialDataFrame', () => {
-                const output = specialDataFrame.serialize();
-                expect(output).toMatchSnapshot();
+            it('should be able to serialize and deserialize the specialDataFrame', async () => {
+                expect(
+                    Array.from(specialDataFrame.serialize()).join('\n')
+                ).toMatchSnapshot();
 
-                const frame = DataFrame.deserialize(output);
+                const frame = await DataFrame.deserialize(specialDataFrame.serialize());
                 expect(frame.toJSON()).toEqual(specialDataFrame.toJSON());
                 expect(frame.toArray()).toEqual(specialDataFrame.toArray());
                 expect(frame.size).toEqual(specialDataFrame.size);

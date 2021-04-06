@@ -7,7 +7,7 @@ import {
     SerializeOptions, Vector
 } from '../vector';
 import {
-    ColumnJSON,
+    ColumnConfig,
     ColumnOptions, ColumnTransformConfig, ColumnValidateConfig, TransformMode
 } from './interfaces';
 import { runVectorAggregation, ValueAggregation } from './aggregations';
@@ -51,9 +51,11 @@ export class Column<T = unknown, N extends NameType = string> {
      * Create a Column from the custom serialized format
     */
     static deserialize<R, F extends NameType = string>(
-        config: ColumnJSON
-    ): Column<R extends (infer U)[] ? Vector<U> : R, F> {
-        return new Column<any, F>(Builder.deserialize(config), {
+        columnConfig: Buffer|string
+    ): Column<R, F> {
+        const config = JSON.parse(columnConfig as string) as ColumnConfig<R>;
+        const vector = vectorFromColumnJSON<R>(config);
+        return new Column<any, F>(vector, {
             name: config.name as F,
             version: config.version
         });
@@ -337,11 +339,32 @@ export class Column<T = unknown, N extends NameType = string> {
         return this.vector.toJSON(options);
     }
 
-    serialize(): ColumnJSON<T> {
-        return {
-            ...this.vector.serialize(),
+    serialize(): Buffer|string {
+        const column: ColumnConfig<T> = {
             name: `${this.name}`,
+            size: this.size,
             version: this.version,
+            config: this.vector.config,
+            childConfig: this.vector.childConfig,
+            values: this.vector.toJSON(),
         };
+        return JSON.stringify(column);
     }
+}
+
+function vectorFromColumnJSON<T>(
+    config: ColumnConfig<T>
+): Vector<T> {
+    const builder = Builder.make<T>(
+        new WritableData(config.size),
+        {
+            childConfig: config.childConfig,
+            config: config.config,
+            name: config.name,
+        }
+    );
+    for (const value of config.values) {
+        builder.append(value);
+    }
+    return builder.toVector();
 }

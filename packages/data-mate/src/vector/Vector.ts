@@ -8,7 +8,7 @@ import {
     ReadableData, createHashCode, HASH_CODE_SYMBOL, getHashCodeFrom, freezeArray, WritableData
 } from '../core';
 import {
-    DataBuckets, SerializeOptions, VectorType, VectorJSON
+    DataBuckets, SerializeOptions, VectorType
 } from './interfaces';
 
 /**
@@ -374,18 +374,6 @@ export abstract class Vector<T = unknown> {
             res[i] = this.get(i, false) as T;
         }
         return res;
-    }
-
-    /**
-     * Convert to an optimized serialize format
-    */
-    serialize(): VectorJSON<T> {
-        return {
-            size: this.size,
-            config: this.config,
-            childConfig: this.childConfig,
-            data: this.toJSON(),
-        };
     }
 
     /**

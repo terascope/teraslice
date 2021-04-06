@@ -1,4 +1,3 @@
-import { DataTypeFieldConfig, ReadonlyDataTypeFields, Maybe } from '@terascope/types';
 import { ReadableData } from '../core';
 
 export type DataBuckets<T> = ReadableData<T>[]|readonly ReadableData<T>[];
@@ -107,16 +106,4 @@ export interface SerializeOptions {
      * Remove duplicate objects in a list vector
     */
     skipDuplicateObjects?: boolean;
-}
-
-export interface VectorJSON<T> {
-    /**
-     * Optionally define the name of the vector,
-     * useful for debugging
-    */
-    readonly name?: string;
-    readonly size: number;
-    readonly config: Readonly<DataTypeFieldConfig>;
-    readonly childConfig?: ReadonlyDataTypeFields;
-    readonly data: readonly Maybe<T>[];
 }

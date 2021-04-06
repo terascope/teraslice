@@ -10,7 +10,9 @@ import {
     isPlainObject, trimFP,
     isInteger
 } from '@terascope/utils';
-import { Column, KeyAggFn, makeUniqueKeyAgg } from '../column';
+import {
+    Column, KeyAggFn, makeUniqueKeyAgg
+} from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import {
     buildRecords, columnsToBuilderEntries, columnsToDataTypeConfig,
@@ -27,7 +29,7 @@ import {
 import { getMaxColumnSize } from '../aggregation-frame/utils';
 import { SerializeOptions, Vector } from '../vector';
 import { buildSearchMatcherForQuery } from './search-utils';
-import { DataFrameJSON } from './interfaces';
+import { DataFrameConfig } from './interfaces';
 
 /**
  * An immutable columnar table with APIs for data pipelines.
@@ -64,12 +66,27 @@ export class DataFrame<
         return new DataFrame(columns, options);
     }
 
-    static deserialize<
+    static async deserialize<
         R extends Record<string, unknown> = Record<string, any>,
-    >(config: DataFrameJSON): DataFrame<R> {
-        return new DataFrame<R>(config.columns.map(Column.deserialize), {
-            name: config.name,
-            metadata: config.metadata
+    >(data: Iterable<Buffer|string>|AsyncIterable<Buffer|string>): Promise<DataFrame<R>> {
+        let index = -1;
+
+        let metadata: Record<string, unknown>|undefined;
+        let name: string|undefined;
+        const columns: Column<any, keyof R>[] = [];
+
+        for await (const row of data) {
+            index++;
+            if (index === 0) {
+                ({ metadata, name } = JSON.parse(row as string) as DataFrameConfig);
+            } else {
+                columns.push(Column.deserialize(row));
+            }
+        }
+
+        return new DataFrame<R>(columns, {
+            name,
+            metadata
         });
     }
 
@@ -815,13 +832,18 @@ export class DataFrame<
      * Convert the DataFrame into an optimized serialized format,
      * including the metadata
     */
-    serialize(): DataFrameJSON {
-        return {
+    * serialize(): Iterable<Buffer|string> {
+        const dataFrameConfig: DataFrameConfig = {
             name: this.name,
             size: this.size,
-            metadata: { ...this.metadata },
-            columns: this.columns.map((col) => col.serialize())
+            metadata: this.metadata,
+            config: this.config
         };
+        yield JSON.stringify(dataFrameConfig);
+
+        for (const column of this.columns) {
+            yield column.serialize();
+        }
     }
 }
 

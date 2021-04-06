@@ -1,8 +1,8 @@
 import {
-    DataTypeFieldConfig, DataTypeFields, DataTypeVersion, Maybe,
+    DataTypeFieldConfig, DataTypeFields, DataTypeVersion, Maybe, ReadonlyDataTypeFields,
 } from '@terascope/types';
 import {
-    ListVector, Vector, VectorJSON, VectorType
+    ListVector, Vector, VectorType
 } from '../vector';
 
 /**
@@ -136,10 +136,37 @@ export interface ColumnValidateConfig<
     create: (vector: Vector<T>, args: A) => ColumnValidateFn<T>;
 }
 
-export interface ColumnJSON<T = any> extends VectorJSON<T> {
+/**
+ * The metadata used when serializing a column
+*/
+export interface ColumnConfig<T> {
+    /**
+     * The name of the column
+    */
     readonly name: string;
+
     /**
      * DataFrame version
     */
     readonly version?: DataTypeVersion;
+
+    /**
+     * The size of the column
+    */
+    readonly size: number;
+
+    /**
+     * The field type configuration for the column
+    */
+    readonly config: Readonly<DataTypeFieldConfig>;
+
+    /**
+     * The child field configuration for Object and Tuple types
+    */
+    readonly childConfig?: ReadonlyDataTypeFields;
+
+    /**
+     * The values associated to the column
+    */
+    readonly values: readonly Maybe<T>[];
 }

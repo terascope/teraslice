@@ -4,8 +4,7 @@ import {
     freezeObject, ReadableData, WritableData
 } from '../core';
 import {
-    ListVector,
-    Vector, VectorJSON, VectorType
+    ListVector, Vector, VectorType
 } from '../vector';
 
 /**
@@ -45,24 +44,6 @@ export abstract class Builder<T = unknown> {
         );
         builder.currentIndex = vector.size;
         return builder;
-    }
-
-    /**
-     * Deserialize the a Vector
-    */
-    static deserialize<R>(config: VectorJSON<R>): Vector<R> {
-        const builder = Builder.make<R>(
-            new WritableData(config.size),
-            {
-                childConfig: config.childConfig,
-                config: config.config,
-                name: config.name,
-            }
-        );
-        for (let i = 0; i < config.size; i++) {
-            builder.set(i, config.data[i]);
-        }
-        return builder.toVector();
     }
 
     /**
