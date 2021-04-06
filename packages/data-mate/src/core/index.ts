@@ -1,5 +1,5 @@
 export * from './config';
-export * from './DateValue';
+export * from './date-utils';
 export * from './interfaces';
 export * from './ReadableData';
 export * from './utils';
