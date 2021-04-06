@@ -44,21 +44,6 @@ export const toDateConfig: ColumnTransformConfig<any, string|number, ToDateArgs>
     create(vector, { format }) {
         const referenceDate = new Date();
 
-        if (format && !(format in DateFormat)
-                && vector.type !== VectorType.String && vector.type !== VectorType.Any) {
-            return {
-                mode: TransformMode.EACH_VALUE,
-                output: { format },
-                fn(value) {
-                    const parsed = parseDateValue(
-                        value, format, referenceDate
-                    );
-
-                    return formatDateValue(parsed, format);
-                }
-            };
-        }
-
         return {
             mode: TransformMode.EACH_VALUE,
             output: { format },

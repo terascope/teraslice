@@ -1,5 +1,8 @@
-import 'jest-fixtures';
+import 'jest-extended';
+import { getValidDate } from '@terascope/utils';
 import { DateFormat, FieldType, Maybe } from '@terascope/types';
+import formatDate from 'date-fns/format';
+import parseDate from 'date-fns/parse';
 import {
     Column, ColumnTransform, Vector
 } from '../../src';
@@ -69,24 +72,23 @@ describe('Column (Date Types)', () => {
         });
 
         it('should be able to transform using formatDate(format: "yyyy-MM-dd HH:mm:ss")', () => {
+            const format = 'yyyy-MM-dd HH:mm:ss';
             const newCol = col.transform(ColumnTransform.formatDate, {
-                format: 'yyyy-MM-dd HH:mm:ss'
+                format
             });
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
                 ...col.config,
-                format: 'yyyy-MM-dd HH:mm:ss',
+                format,
                 type: FieldType.Date
             });
-            expect(newCol.toJSON()).toEqual([
-                '2020-09-23 14:54:21',
-                '1941-08-20 07:00:00',
-                '2020-09-23 00:00:00',
-                '2020-09-23 15:32:18',
-                undefined,
-                '2019-01-20 12:50:20',
-            ]);
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
+                if (value == null) return undefined;
+                const date = getValidDate(value);
+                if (date === false) return undefined;
+                return formatDate(date.getTime() - (date.getTimezoneOffset() * 60_000), format);
+            }));
         });
 
         test.todo('should NOT able to transform without using formatDate()');
@@ -185,17 +187,23 @@ describe('Column (Date Types)', () => {
         });
 
         it('should be able to transform using toDate', () => {
+            const format = 'yyyy-MM-dd HH:mm:ss xxx';
             const newCol = col.transform(ColumnTransform.toDate, {
-                format: 'yyyy-MM-dd HH:mm:ss xxx'
+                format
             });
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
                 ...col.config,
-                format: 'yyyy-MM-dd HH:mm:ss xxx',
+                format,
                 type: FieldType.Date
             });
-            expect(newCol.toJSON()).toEqual(values);
+            const referenceDate = new Date();
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
+                if (value == null) return undefined;
+                const date = parseDate(value, format, referenceDate);
+                return formatDate(date, format);
+            }));
         });
 
         it('should fail to transform toDate using an invalid format', () => {

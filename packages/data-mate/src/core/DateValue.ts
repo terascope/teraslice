@@ -24,7 +24,9 @@ export function parseCustomDateFormat(
         throw new Error(`Expected value ${value} to be a date string with format ${format}`);
     }
 
-    return date.getTime() + timezoneOffset;
+    // need subtract the date offset here to
+    // in order to deal with UTC time
+    return date.getTime() + (date.getTimezoneOffset() * 60_000);
 }
 
 /**
@@ -71,7 +73,9 @@ export function formatDateValue(
     }
 
     if (format && !(format in DateFormat)) {
-        return formatDate(value + timezoneOffset, format);
+        // need subtract our offset here to
+        // in order to deal with UTC time
+        return formatDate(value - timezoneOffset, format);
     }
 
     return new Date(value).toISOString();
