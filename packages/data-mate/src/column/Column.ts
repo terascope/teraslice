@@ -53,10 +53,9 @@ export class Column<T = unknown, N extends NameType = string> {
     static deserialize<R, F extends NameType = string>(
         config: ColumnJSON
     ): Column<R extends (infer U)[] ? Vector<U> : R, F> {
-        const vector = Builder.deserialize(config);
-
-        return new Column<any, F>(vector, {
-            name: config.name as F, version: config.version
+        return new Column<any, F>(Builder.deserialize(config), {
+            name: config.name as F,
+            version: config.version
         });
     }
 
