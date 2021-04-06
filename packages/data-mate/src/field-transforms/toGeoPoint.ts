@@ -37,6 +37,9 @@ export const toGeoPointConfig: FieldTransformConfig = {
     accepts: [
         FieldType.String,
         FieldType.Object,
+        FieldType.GeoPoint,
+        FieldType.Number,
+        FieldType.Float
     ],
     // TODO: fix this
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
@@ -45,7 +48,7 @@ export const toGeoPointConfig: FieldTransformConfig = {
         return {
             field_config: {
                 ...field_config,
-                type: FieldType.String
+                type: FieldType.GeoPoint
             },
         };
     }

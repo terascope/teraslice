@@ -30,6 +30,7 @@ function getType(
         case FieldType.KeywordPathAnalyzer:
         case FieldType.Domain:
         case FieldType.Hostname:
+        case FieldType.NgramTokens:
             return isString;
         case FieldType.IP:
             return isIP;
@@ -49,6 +50,7 @@ function getType(
             return isNumber;
         case FieldType.Geo:
         case FieldType.GeoPoint:
+        case FieldType.Boundary:
             return isGeoPoint;
         case FieldType.GeoJSON:
             return isGeoJSON;

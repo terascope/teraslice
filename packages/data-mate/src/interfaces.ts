@@ -120,10 +120,6 @@ export interface RecordValidationConfig<
     T extends Record<string, any> = Record<string, unknown>
 > extends FunctionDefinitionConfig<T> {
     type: FunctionDefinitionType.RECORD_VALIDATION,
-    output_type?: (
-        inputConfig: DataTypeFieldAndChildren,
-        args?: T
-    ) => DataTypeFieldAndChildren,
     create: (
         args: T,
         inputConfig?: DataTypeFieldAndChildren,
@@ -181,4 +177,10 @@ export function isRecordValidation(
     input: FunctionDefinitionConfig<Record<string, unknown>>
 ): input is RecordValidationConfig {
     return input && input.type === FunctionDefinitionType.RECORD_VALIDATION;
+}
+
+export function isTransformOperation(
+    input: FunctionDefinitionConfig<Record<string, unknown>>
+): input is (RecordTransformConfig | FieldTransformConfig) {
+    return isFieldTransform(input) || isRecordValidation(input);
 }

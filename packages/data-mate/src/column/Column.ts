@@ -32,7 +32,7 @@ export class Column<T = unknown, N extends NameType = string> {
         values: Maybe<R>[]|readonly Maybe<R>[] = [],
         version?: DataTypeVersion,
         childConfig?: DataTypeFields|Readonly<DataTypeFields>
-    ): Column<R extends (infer U)[] ? Vector<U> : R, F> {
+    ): Column<R, F> {
         const builder = Builder.make<R>(new WritableData(values.length), {
             childConfig,
             config,
