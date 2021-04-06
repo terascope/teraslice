@@ -178,7 +178,7 @@ describe('Column (Boolean Types)', () => {
     });
 
     describe('when field type is Keyword and is an array', () => {
-        let col: Column<Vector<string>>;
+        let col: Column<string[]>;
         const values: Maybe<string[]>[] = [
             ['True'],
             [],
