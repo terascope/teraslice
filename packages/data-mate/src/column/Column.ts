@@ -54,6 +54,7 @@ export class Column<T = unknown, N extends NameType = string> {
         columnConfig: Buffer|string
     ): Column<R, F> {
         const config = JSON.parse(columnConfig as string) as ColumnConfig<R>;
+
         const vector = vectorFromColumnJSON<R>(config);
         return new Column<any, F>(vector, {
             name: config.name as F,
@@ -339,7 +340,7 @@ export class Column<T = unknown, N extends NameType = string> {
         return this.vector.toJSON(options);
     }
 
-    serialize(): Buffer|string {
+    serialize(): string {
         const column: ColumnConfig<T> = {
             name: `${this.name}`,
             size: this.size,

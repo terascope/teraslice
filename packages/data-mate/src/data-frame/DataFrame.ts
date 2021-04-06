@@ -66,6 +66,11 @@ export class DataFrame<
         return new DataFrame(columns, options);
     }
 
+    /**
+     * Create a DataFrame from a serialized format,
+     * the first row is data frame metadata,
+     * all of the subsequent rows are columns
+    */
     static async deserialize<
         R extends Record<string, unknown> = Record<string, any>,
     >(data: Iterable<Buffer|string>|AsyncIterable<Buffer|string>): Promise<DataFrame<R>> {
@@ -832,7 +837,7 @@ export class DataFrame<
      * Convert the DataFrame into an optimized serialized format,
      * including the metadata
     */
-    * serialize(): Iterable<Buffer|string> {
+    * serialize(): Iterable<string> {
         const dataFrameConfig: DataFrameConfig = {
             name: this.name,
             size: this.size,
