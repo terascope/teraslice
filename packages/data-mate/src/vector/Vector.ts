@@ -2,9 +2,7 @@ import {
     DataTypeFieldConfig,
     Maybe, SortOrder,
     ReadonlyDataTypeFields,
-    TypedArray
 } from '@terascope/types';
-import SparseMap from 'mnemonist/sparse-map';
 import { isPrimitiveValue } from '@terascope/utils';
 import {
     ReadableData, createHashCode, HASH_CODE_SYMBOL, getHashCodeFrom, freezeArray, WritableData
@@ -25,33 +23,6 @@ export abstract class Vector<T = unknown> {
         options: VectorOptions
     ): Vector<R> {
         throw new Error(`This is overridden in the index file, ${options} ${data}`);
-    }
-
-    /**
-     * Make an instance of a Vector from a serialize json config
-    */
-    static deserialize<R>(
-        config: VectorJSON
-    ): Vector<R> {
-        const data: DataBuckets<R> = config.data.map((bucket) => {
-            const sparseMap = new SparseMap<R>(config.size);
-
-            const dense = (sparseMap as any).dense as TypedArray;
-            dense.set(bucket.dense, 0);
-
-            const sparse = (sparseMap as any).sparse as TypedArray;
-            sparse.set(bucket.sparse, 0);
-
-            (sparseMap as any).size = bucket.size;
-            (sparseMap as any).vals = bucket.vals;
-
-            return new ReadableData(sparseMap);
-        });
-
-        return Vector.make(data, {
-            config: config.config,
-            childConfig: config.childConfig,
-        });
     }
 
     /**
@@ -261,7 +232,7 @@ export abstract class Vector<T = unknown> {
     /**
      * Get value by index
     */
-    get(index: number, json?: boolean, options?: SerializeOptions): Maybe<T>|Maybe<JSONValue<T>> {
+    get(index: number, json?: boolean, options?: SerializeOptions): Maybe<T> {
         const nilValue: any = options?.useNullForUndefined ? null : undefined;
 
         const found = this.findDataWithIndex(index);
@@ -385,10 +356,10 @@ export abstract class Vector<T = unknown> {
     /**
      * Convert the Vector an array of values (the output is JSON compatible)
     */
-    toJSON(options?: SerializeOptions): Maybe<JSONValue<T>>[] {
-        const res: Maybe<JSONValue<T>>[] = Array(this.size);
+    toJSON(options?: SerializeOptions): Maybe<T>[] {
+        const res: Maybe<T>[] = Array(this.size);
         for (let i = 0; i < this.size; i++) {
-            res[i] = this.get(i, true, options) as JSONValue<T>;
+            res[i] = this.get(i, true, options);
         }
         return res;
     }
@@ -408,14 +379,12 @@ export abstract class Vector<T = unknown> {
     /**
      * Convert to an optimized serialize format
     */
-    serialize(): VectorJSON {
+    serialize(): VectorJSON<T> {
         return {
             size: this.size,
             config: this.config,
             childConfig: this.childConfig,
-            data: this.data.map((d): any => ({
-                ...d.values
-            }))
+            data: this.toJSON(),
         };
     }
 
@@ -458,6 +427,3 @@ export interface VectorOptions {
     */
     name?: string;
 }
-
-export type JSONValue<T> = T extends Vector<infer U> ? U[] : T;
-export type MaybeJSONValue<T> = Maybe<T>|Maybe<JSONValue<T>>;

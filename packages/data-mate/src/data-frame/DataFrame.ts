@@ -67,10 +67,7 @@ export class DataFrame<
     static deserialize<
         R extends Record<string, unknown> = Record<string, any>,
     >(config: DataFrameJSON): DataFrame<R> {
-        const columns: Column<any, keyof R>[] = config.columns.map((columnConfig) => (
-            Column.deserialize(columnConfig)
-        ));
-        return new DataFrame<R>(columns, {
+        return new DataFrame<R>(config.columns.map(Column.deserialize), {
             name: config.name,
             metadata: config.metadata
         });

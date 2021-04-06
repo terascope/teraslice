@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`DataFrame when manipulating a DataFrame ->serialize should be able to serialize and deserialize 1`] = `
+exports[`DataFrame when manipulating a DataFrame ->serialize/->deserialize should be able to serialize and deserialize the deepObjDataFrame 1`] = `
 Object {
   "columns": Array [
     Object {
@@ -9,31 +9,117 @@ Object {
         "type": "Keyword",
       },
       "data": Array [
-        Object {
-          "dense": Uint8Array [
-            0,
-            1,
-            2,
-            3,
-            4,
-          ],
-          "length": 5,
-          "size": 5,
-          "sparse": Uint8Array [
-            0,
-            1,
-            2,
-            3,
-            4,
-          ],
-          "vals": Array [
-            "Jill",
-            "Billy",
-            "Frank",
-            "Jane",
-            "Nancy",
-          ],
+        "id-1",
+        "id-2",
+      ],
+      "name": "_key",
+      "size": 2,
+      "version": 1,
+    },
+    Object {
+      "childConfig": Object {
+        "id": Object {
+          "type": "Keyword",
         },
+        "name": Object {
+          "type": "Keyword",
+        },
+        "owner": Object {
+          "type": "Object",
+        },
+        "owner.id": Object {
+          "type": "Keyword",
+        },
+        "owner.name": Object {
+          "type": "Keyword",
+        },
+      },
+      "config": Object {
+        "type": "Object",
+      },
+      "data": Array [
+        Object {
+          "id": "config-1",
+          "name": "config-1",
+          "owner": Object {
+            "id": "config-owner-1",
+            "name": "config-owner-name-1",
+          },
+        },
+        Object {
+          "id": "config-2",
+          "name": "config-2",
+          "owner": Object {
+            "id": "config-owner-2",
+            "name": "config-owner-name-2",
+          },
+        },
+      ],
+      "name": "config",
+      "size": 2,
+      "version": 1,
+    },
+    Object {
+      "childConfig": Object {
+        "id": Object {
+          "type": "Keyword",
+        },
+        "name": Object {
+          "type": "Keyword",
+        },
+      },
+      "config": Object {
+        "_allow_empty": true,
+        "array": true,
+        "type": "Object",
+      },
+      "data": Array [
+        Array [
+          Object {
+            "id": "state-1",
+            "name": "state-1",
+          },
+          Object {
+            "id": "state-2",
+            "name": "state-2",
+          },
+        ],
+        Array [
+          Object {
+            "id": "state-3",
+            "name": "state-3",
+          },
+          Object {
+            "id": "state-4",
+            "name": "state-4",
+          },
+        ],
+      ],
+      "name": "states",
+      "size": 2,
+      "version": 1,
+    },
+  ],
+  "metadata": Object {},
+  "name": undefined,
+  "size": 2,
+}
+`;
+
+exports[`DataFrame when manipulating a DataFrame ->serialize/->deserialize should be able to serialize and deserialize the peopleFrame 1`] = `
+Object {
+  "columns": Array [
+    Object {
+      "childConfig": Object {},
+      "config": Object {
+        "type": "Keyword",
+      },
+      "data": Array [
+        "Jill",
+        "Billy",
+        "Frank",
+        "Jane",
+        "Nancy",
       ],
       "name": "name",
       "size": 5,
@@ -45,31 +131,11 @@ Object {
         "type": "Short",
       },
       "data": Array [
-        Object {
-          "dense": Uint8Array [
-            0,
-            1,
-            2,
-            4,
-            0,
-          ],
-          "length": 5,
-          "size": 4,
-          "sparse": Uint8Array [
-            0,
-            1,
-            2,
-            0,
-            3,
-          ],
-          "vals": Array [
-            39,
-            47,
-            20,
-            10,
-            undefined,
-          ],
-        },
+        39,
+        47,
+        20,
+        undefined,
+        10,
       ],
       "name": "age",
       "size": 5,
@@ -82,39 +148,19 @@ Object {
         "type": "Keyword",
       },
       "data": Array [
-        Object {
-          "dense": Uint8Array [
-            0,
-            1,
-            2,
-            3,
-            0,
-          ],
-          "length": 5,
-          "size": 4,
-          "sparse": Uint8Array [
-            0,
-            1,
-            2,
-            3,
-            0,
-          ],
-          "vals": Array [
-            Array [
-              "Frank",
-            ],
-            Array [
-              "Jill",
-            ],
-            Array [
-              "Jill",
-            ],
-            Array [
-              "Jill",
-            ],
-            undefined,
-          ],
-        },
+        Array [
+          "Frank",
+        ],
+        Array [
+          "Jill",
+        ],
+        Array [
+          "Jill",
+        ],
+        Array [
+          "Jill",
+        ],
+        undefined,
       ],
       "name": "friends",
       "size": 5,
@@ -124,5 +170,113 @@ Object {
   "metadata": Object {},
   "name": undefined,
   "size": 5,
+}
+`;
+
+exports[`DataFrame when manipulating a DataFrame ->serialize/->deserialize should be able to serialize and deserialize the specialDataFrame 1`] = `
+Object {
+  "columns": Array [
+    Object {
+      "childConfig": Object {},
+      "config": Object {
+        "type": "IP",
+      },
+      "data": Array [
+        "127.0.0.1",
+        "10.0.0.2",
+        "192.198.0.1",
+      ],
+      "name": "ip",
+      "size": 3,
+      "version": 1,
+    },
+    Object {
+      "childConfig": Object {},
+      "config": Object {
+        "type": "Long",
+      },
+      "data": Array [
+        10,
+        undefined,
+        "9007199254741001",
+      ],
+      "name": "long",
+      "size": 3,
+      "version": 1,
+    },
+    Object {
+      "childConfig": Object {},
+      "config": Object {
+        "type": "Date",
+      },
+      "data": Array [
+        "2000-01-04T00:00:00.000Z",
+        "2002-01-02T00:00:00.000Z",
+        "1999-12-01T00:00:00.000Z",
+      ],
+      "name": "date",
+      "size": 3,
+      "version": 1,
+    },
+    Object {
+      "childConfig": Object {},
+      "config": Object {
+        "type": "GeoPoint",
+      },
+      "data": Array [
+        Object {
+          "lat": 22.435967,
+          "lon": -150.86771,
+        },
+        undefined,
+        Object {
+          "lat": 33.435967,
+          "lon": -111.86771,
+        },
+      ],
+      "name": "location",
+      "size": 3,
+      "version": 1,
+    },
+    Object {
+      "childConfig": Object {},
+      "config": Object {
+        "type": "GeoJSON",
+      },
+      "data": Array [
+        undefined,
+        Object {
+          "coordinates": Array [
+            Array [
+              Array [
+                140.43,
+                70.43,
+              ],
+              Array [
+                123.4,
+                81.3,
+              ],
+              Array [
+                154.4,
+                89.3,
+              ],
+              Array [
+                140.43,
+                70.43,
+              ],
+            ],
+          ],
+          "type": "Polygon",
+        },
+        undefined,
+      ],
+      "name": "geometry",
+      "size": 3,
+      "version": 1,
+    },
+  ],
+  "metadata": Object {},
+  "name": undefined,
+  "size": 3,
 }
 `;

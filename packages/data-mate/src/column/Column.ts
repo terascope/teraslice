@@ -4,7 +4,7 @@ import {
 } from '@terascope/types';
 import { Builder } from '../builder';
 import {
-    JSONValue, SerializeOptions, Vector
+    SerializeOptions, Vector
 } from '../vector';
 import {
     ColumnJSON,
@@ -33,7 +33,7 @@ export class Column<T = unknown, N extends NameType = string> {
         values: Maybe<R>[]|readonly Maybe<R>[] = [],
         version?: DataTypeVersion,
         childConfig?: DataTypeFields|Readonly<DataTypeFields>
-    ): Column<R extends (infer U)[] ? Vector<U> : R, F> {
+    ): Column<R, F> {
         const builder = Builder.make<R>(new WritableData(values.length), {
             childConfig,
             config,
@@ -53,7 +53,7 @@ export class Column<T = unknown, N extends NameType = string> {
     static deserialize<R, F extends NameType = string>(
         config: ColumnJSON
     ): Column<R extends (infer U)[] ? Vector<U> : R, F> {
-        const vector = Vector.deserialize(config);
+        const vector = Builder.deserialize(config);
 
         return new Column<any, F>(vector, {
             name: config.name as F, version: config.version
@@ -334,11 +334,11 @@ export class Column<T = unknown, N extends NameType = string> {
      *
      * @note probably only useful for debugging
     */
-    toJSON(options?: SerializeOptions): Maybe<JSONValue<T>>[] {
+    toJSON(options?: SerializeOptions): Maybe<T>[] {
         return this.vector.toJSON(options);
     }
 
-    serialize(): ColumnJSON {
+    serialize(): ColumnJSON<T> {
         return {
             ...this.vector.serialize(),
             name: `${this.name}`,

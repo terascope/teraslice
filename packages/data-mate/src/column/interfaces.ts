@@ -136,7 +136,7 @@ export interface ColumnValidateConfig<
     create: (vector: Vector<T>, args: A) => ColumnValidateFn<T>;
 }
 
-export interface ColumnJSON extends VectorJSON {
+export interface ColumnJSON<T = any> extends VectorJSON<T> {
     readonly name: string;
     /**
      * DataFrame version

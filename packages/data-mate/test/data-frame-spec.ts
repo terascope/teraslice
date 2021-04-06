@@ -339,6 +339,25 @@ describe('DataFrame', () => {
                 }
             }
         };
+        type Special = {
+            ip?: string;
+            long?: bigint|number;
+            date?: string;
+            location?: string;
+            geometry?: GeoShape;
+        };
+
+        const specialDTConfig: DataTypeConfig = {
+            version: LATEST_VERSION,
+            fields: {
+                ip: { type: FieldType.IP },
+                long: { type: FieldType.Long },
+                date: { type: FieldType.Date },
+                location: { type: FieldType.GeoPoint },
+                geometry: { type: FieldType.GeoJSON },
+            }
+        };
+        let specialDataFrame: DataFrame<Special>;
 
         function createPeopleDataFrame(data: Person[]): DataFrame<Person> {
             return DataFrame.fromJSON<Person>(peopleDTConfig, data);
@@ -399,6 +418,31 @@ describe('DataFrame', () => {
                 },
                 states: [{ id: 'state-3', name: 'state-3' }, { id: 'state-4', name: 'state-4' }]
             }]);
+
+            specialDataFrame = DataFrame.fromJSON<Special>(specialDTConfig, [
+                {
+                    ip: '127.0.0.1',
+                    date: '2000-01-04T00:00:00.000Z',
+                    long: BigInt(10),
+                    location: '22.435967,-150.867710'
+                },
+                {
+                    ip: '10.0.0.2',
+                    date: '2002-01-02T00:00:00.000Z',
+                    geometry: {
+                        type: GeoShapeType.Polygon,
+                        coordinates: [
+                            [[140.43, 70.43], [123.4, 81.3], [154.4, 89.3], [140.43, 70.43]]
+                        ]
+                    }
+                },
+                {
+                    ip: '192.198.0.1',
+                    long: BigInt(Number.MAX_SAFE_INTEGER) + BigInt(10),
+                    date: '1999-12-01T00:00:00.000Z',
+                    location: '33.435967, -111.867710'
+                },
+            ]);
         });
 
         describe('->select', () => {
@@ -1444,128 +1488,116 @@ describe('DataFrame', () => {
                 ]);
             });
 
-            describe('when matching special data types', () => {
-                type Special = {
-                    ip?: string;
-                    date?: string;
-                    location?: string;
-                    geometry?: GeoShape;
-                };
+            it('should be able to match using a IP values', () => {
+                const resultFrame = specialDataFrame
+                    .search('ip:127.0.0.1')
+                    .select('ip');
 
-                const specialDTConfig: DataTypeConfig = {
-                    version: LATEST_VERSION,
-                    fields: {
-                        ip: { type: FieldType.IP },
-                        date: { type: FieldType.Date },
-                        location: { type: FieldType.GeoPoint },
-                        geometry: { type: FieldType.GeoJSON },
-                    }
-                };
-                let specialDataFrame: DataFrame<Special>;
+                expect(resultFrame.toJSON()).toEqual([
+                    { ip: '127.0.0.1' },
+                ]);
+            });
 
-                beforeAll(() => {
-                    specialDataFrame = DataFrame.fromJSON<Special>(specialDTConfig, [
-                        {
-                            ip: '127.0.0.1',
-                            date: '2000-01-04T00:00:00.000Z',
-                            location: '22.435967,-150.867710'
-                        },
-                        {
-                            ip: '10.0.0.2',
-                            date: '2002-01-02T00:00:00.000Z',
-                            geometry: {
-                                type: GeoShapeType.Polygon,
-                                coordinates: [
-                                    [[140.43, 70.43], [123.4, 81.3], [154.4, 89.3], [140.43, 70.43]]
-                                ]
-                            }
-                        },
-                        {
-                            ip: '192.198.0.1',
-                            date: '1999-12-01T00:00:00.000Z',
-                            location: '33.435967, -111.867710'
-                        },
-                    ]);
-                });
+            it('should be able to match using a bigint values', () => {
+                const resultFrame = specialDataFrame
+                    .search('long:10')
+                    .select('long');
 
-                it('should be able to match using a IP values', () => {
-                    const resultFrame = specialDataFrame
-                        .search('ip:127.0.0.1')
-                        .select('ip');
+                expect(resultFrame.toJSON()).toEqual([
+                    { long: 10 },
+                ]);
+            });
 
-                    expect(resultFrame.toJSON()).toEqual([
-                        { ip: '127.0.0.1' },
-                    ]);
-                });
+            it('should be able to match using a IP range', () => {
+                const resultFrame = specialDataFrame
+                    .search('ip:"192.198.0.0/24"')
+                    .select('ip');
 
-                it('should be able to match using a IP range', () => {
-                    const resultFrame = specialDataFrame
-                        .search('ip:"192.198.0.0/24"')
-                        .select('ip');
+                expect(resultFrame.toJSON()).toEqual([
+                    { ip: '192.198.0.1' },
+                ]);
+            });
 
-                    expect(resultFrame.toJSON()).toEqual([
-                        { ip: '192.198.0.1' },
-                    ]);
-                });
+            it('should be able to match using a date values', () => {
+                const resultFrame = specialDataFrame
+                    .search('date:"2000-01-04T00:00:00.000Z"')
+                    .select('date');
 
-                it('should be able to match using a date values', () => {
-                    const resultFrame = specialDataFrame
-                        .search('date:"2000-01-04T00:00:00.000Z"')
-                        .select('date');
+                expect(resultFrame.toJSON()).toEqual([
+                    { date: '2000-01-04T00:00:00.000Z' },
+                ]);
+            });
 
-                    expect(resultFrame.toJSON()).toEqual([
-                        { date: '2000-01-04T00:00:00.000Z' },
-                    ]);
-                });
+            it('should be able to match using a date range', () => {
+                const resultFrame = specialDataFrame
+                    .search('date:[2001-01-01T00:00:00.000Z TO 2005-01-01T00:00:00.000Z]')
+                    .select('date');
 
-                it('should be able to match using a date range', () => {
-                    const resultFrame = specialDataFrame
-                        .search('date:[2001-01-01T00:00:00.000Z TO 2005-01-01T00:00:00.000Z]')
-                        .select('date');
+                expect(resultFrame.toJSON()).toEqual([
+                    { date: '2002-01-02T00:00:00.000Z' },
+                ]);
+            });
 
-                    expect(resultFrame.toJSON()).toEqual([
-                        { date: '2002-01-02T00:00:00.000Z' },
-                    ]);
-                });
+            it('should be able to match using a geo point', () => {
+                const resultFrame = specialDataFrame
+                    .search('location:geoDistance(point:"33.435518,-111.873616" distance:5000m)')
+                    .select('location');
 
-                it('should be able to match using a geo point', () => {
-                    const resultFrame = specialDataFrame
-                        .search('location:geoDistance(point:"33.435518,-111.873616" distance:5000m)')
-                        .select('location');
+                expect(resultFrame.toJSON()).toEqual([
+                    { location: { lat: 33.435967, lon: -111.867710 } },
+                ]);
+            });
 
-                    expect(resultFrame.toJSON()).toEqual([
-                        { location: { lat: 33.435967, lon: -111.867710 } },
-                    ]);
-                });
+            it('should be able to match using a geo json', () => {
+                const resultFrame = specialDataFrame
+                    .search('geometry:geoPolygon(points:["70.43,140.43", "81.3,123.4", "89.3,154.4"])')
+                    .select('geometry');
 
-                it('should be able to match using a geo json', () => {
-                    const resultFrame = specialDataFrame
-                        .search('geometry:geoPolygon(points:["70.43,140.43", "81.3,123.4", "89.3,154.4"])')
-                        .select('geometry');
-
-                    expect(resultFrame.toJSON()).toEqual([
-                        {
-                            geometry: {
-                                type: GeoShapeType.Polygon,
-                                coordinates: [
-                                    [[140.43, 70.43], [123.4, 81.3], [154.4, 89.3], [140.43, 70.43]]
-                                ]
-                            }
-                        },
-                    ]);
-                });
+                expect(resultFrame.toJSON()).toEqual([
+                    {
+                        geometry: {
+                            type: GeoShapeType.Polygon,
+                            coordinates: [
+                                [[140.43, 70.43], [123.4, 81.3], [154.4, 89.3], [140.43, 70.43]]
+                            ]
+                        }
+                    },
+                ]);
             });
         });
 
-        describe('->serialize', () => {
-            it('should be able to serialize and deserialize', () => {
+        describe('->serialize/->deserialize', () => {
+            it('should be able to serialize and deserialize the peopleFrame', () => {
                 const output = peopleDataFrame.serialize();
                 expect(output).toMatchSnapshot();
 
                 const frame = DataFrame.deserialize(output);
                 expect(frame.toJSON()).toEqual(peopleDataFrame.toJSON());
+                expect(frame.toArray()).toEqual(peopleDataFrame.toArray());
                 expect(frame.size).toEqual(peopleDataFrame.size);
                 // expect(frame.id).toEqual(peopleDataFrame.id);
+            });
+
+            it('should be able to serialize and deserialize the deepObjDataFrame', () => {
+                const output = deepObjDataFrame.serialize();
+                expect(output).toMatchSnapshot();
+
+                const frame = DataFrame.deserialize(output);
+                expect(frame.toJSON()).toEqual(deepObjDataFrame.toJSON());
+                expect(frame.toArray()).toEqual(deepObjDataFrame.toArray());
+                expect(frame.size).toEqual(deepObjDataFrame.size);
+                // expect(frame.id).toEqual(deepObjDataFrame.id);
+            });
+
+            it('should be able to serialize and deserialize the specialDataFrame', () => {
+                const output = specialDataFrame.serialize();
+                expect(output).toMatchSnapshot();
+
+                const frame = DataFrame.deserialize(output);
+                expect(frame.toJSON()).toEqual(specialDataFrame.toJSON());
+                expect(frame.toArray()).toEqual(specialDataFrame.toArray());
+                expect(frame.size).toEqual(specialDataFrame.size);
+                // expect(frame.id).toEqual(specialDataFrame.id);
             });
         });
     });
