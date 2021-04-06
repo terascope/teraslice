@@ -150,10 +150,22 @@ describe('Numbers', () => {
             expect(serialize(toBigInt(input))).toEqual(serialize(expected));
         });
 
-        function serialize(input: unknown) {
+        function serialize(input: unknown): string|number|false {
             if (!isBigInt(input)) return false;
             return bigIntToJSON(input);
         }
+    });
+
+    describe('bigIntToJSON', () => {
+        it('should correctly convert a large bigint', () => {
+            const actual = bigIntToJSON(BigInt(Number.MAX_SAFE_INTEGER) + BigInt(2));
+            expect(actual).toEqual('9007199254740992');
+        });
+
+        it('should correctly convert a larger bigint', () => {
+            const actual = bigIntToJSON(BigInt(Number.MAX_SAFE_INTEGER) + BigInt(10));
+            expect(actual).toEqual('9007199254741000');
+        });
     });
 
     describe('inNumberRange', () => {

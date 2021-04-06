@@ -71,9 +71,11 @@ const _maxBigInt: bigint = supportsBigInt
 */
 export function bigIntToJSON(int: bigint): string|number {
     if (typeof int === 'number') return int;
-    const str = int.toString(10);
-    if (int <= _maxBigInt) return parseInt(str, 10);
-    return str;
+    if (int <= _maxBigInt) {
+        return parseInt(int.toString(10), 10);
+    }
+    // for some reason bigints ending being +1
+    return (int - BigInt(1)).toString(10);
 }
 
 /**
