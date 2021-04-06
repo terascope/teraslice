@@ -5,16 +5,15 @@ import {
     primitiveToString,
 } from '@terascope/utils';
 import { VectorType } from '../../vector';
-import { BuilderOptions } from '../Builder';
+import { Builder, BuilderOptions } from '../Builder';
 import { WritableData } from '../../core';
-import { BuilderWithCache } from '../BuilderWithCache';
 
 function isValidIP(input: unknown): input is string {
     if (!isString(input)) return false;
     return isIP(input);
 }
 
-export class IPBuilder extends BuilderWithCache<string> {
+export class IPBuilder extends Builder<string> {
     constructor(
         data: WritableData<string>,
         options: BuilderOptions

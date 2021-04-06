@@ -1,5 +1,5 @@
 import { DateFormat, FieldType } from '@terascope/types';
-import { DateValue } from '../../core';
+import { formatDateValue, parseDateValue } from '../../core';
 import { VectorType } from '../../vector';
 import {
     ColumnTransformConfig, TransformMode, TransformType
@@ -39,49 +39,34 @@ export interface ToDateArgs {
  *       // 1579034041034 => 1579034041034
  *
  */
-export const toDateConfig: ColumnTransformConfig<any, DateValue, ToDateArgs> = {
+export const toDateConfig: ColumnTransformConfig<any, string|number, ToDateArgs> = {
     type: TransformType.TRANSFORM,
-    create(vector, args) {
-        const { format } = args;
-        if (format && !(format in DateFormat)) {
-            if (vector.type !== VectorType.String && vector.type !== VectorType.Any) {
-                throw new Error(
-                    'Expected string values when using toDate({ format })'
-                );
-            }
+    create(vector, { format }) {
+        const referenceDate = new Date();
 
-            const referenceDate = new Date();
+        if (format && !(format in DateFormat)
+                && vector.type !== VectorType.String && vector.type !== VectorType.Any) {
             return {
                 mode: TransformMode.EACH_VALUE,
                 output: { format },
-                fn(value: string): DateValue {
-                    return DateValue.fromValueToFormat(
+                fn(value) {
+                    const parsed = parseDateValue(
                         value, format, referenceDate
                     );
+
+                    return formatDateValue(parsed, format);
                 }
             };
         }
 
-        if (format === DateFormat.epoch) {
-            return {
-                mode: TransformMode.EACH_VALUE,
-                output: { format },
-                fn: DateValue.fromValueToEpoch
-            };
-        }
-
-        const defaultFormat = vector.type === VectorType.String
-            ? DateFormat.iso_8601
-            : DateFormat.epoch_millis;
-
         return {
             mode: TransformMode.EACH_VALUE,
-            output: { format: defaultFormat },
-            fn(value: string|number): DateValue {
-                return DateValue.fromValue(
-                    value,
-                    defaultFormat
+            output: { format },
+            fn(value) {
+                const parsed = parseDateValue(
+                    value, format, referenceDate
                 );
+                return formatDateValue(parsed, format);
             }
         };
     },

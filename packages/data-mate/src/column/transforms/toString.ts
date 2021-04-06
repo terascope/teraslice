@@ -1,4 +1,4 @@
-import { FieldType } from '@terascope/types';
+import { DateFormat, FieldType } from '@terascope/types';
 import { VectorType } from '../../vector';
 import { ColumnTransformConfig, TransformMode, TransformType } from '../interfaces';
 
@@ -16,7 +16,21 @@ import { ColumnTransformConfig, TransformMode, TransformType } from '../interfac
  */
 export const toStringConfig: ColumnTransformConfig<any, string> = {
     type: TransformType.TRANSFORM,
-    create() {
+    create(vector) {
+        if (vector.type === VectorType.Date) {
+            return {
+                mode: TransformMode.EACH_VALUE,
+                fn(value) {
+                    if (typeof value === 'string') return value;
+                    if (vector.config.format === DateFormat.epoch
+                        || vector.config.format === DateFormat.seconds) {
+                        return new Date(Math.floor(value * 1000)).toISOString();
+                    }
+                    return new Date(value).toISOString();
+                }
+            };
+        }
+
         return {
             mode: TransformMode.NONE,
         };
