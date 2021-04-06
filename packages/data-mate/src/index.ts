@@ -6,10 +6,12 @@ import { FieldTransform, RecordTransform } from './transforms';
 import { AggregationFrame } from './aggregation-frame/AggregationFrame';
 import { fieldValidationRepository } from './field-validators';
 import { fieldTransformsRepository } from './field-transforms';
+import { recordValidationRepository } from './record-validators';
 
 export const functionConfigRepository = {
     ...fieldValidationRepository,
-    ...fieldTransformsRepository
+    ...fieldTransformsRepository,
+    ...recordValidationRepository
 } as const;
 
 FieldTransform.repository.extract = extractConfig;

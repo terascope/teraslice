@@ -2,10 +2,14 @@ import { isBooleanConfig } from './isBoolean';
 import { isHashConfig } from './isHash';
 import { isStringConfig } from './isString'; 
 import { isEmailConfig } from './isEmail';
+import { isEmptyConfig } from './isEmpty';
+import { isLengthConfig } from './isLength';
 
 export const fieldValidationRepository = {
     isBoolean: isBooleanConfig,
     isHash: isHashConfig,
     isString: isStringConfig,
-    isEmail: isEmailConfig
+    isEmail: isEmailConfig,
+    isEmpty: isEmptyConfig,
+    isLength: isLengthConfig
 } as const;

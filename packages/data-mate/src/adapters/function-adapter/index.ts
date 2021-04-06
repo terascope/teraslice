@@ -13,7 +13,11 @@ import {
     FieldValidateConfig,
     FieldTransformConfig,
     isFieldValidation,
-    isFieldTransform
+    isFieldTransform,
+    RecordValidationConfig,
+    RecordTransformConfig,
+    isRecordValidation,
+    ProcessMode
 } from '../../interfaces';
 import { validateFunctionArgs } from '../argument-validator';
 
@@ -34,12 +38,25 @@ interface FieldFunctionAdapterOperation extends RecordFunctionAdapterOperation {
 }
 
 // TODO: see if we can fix the types here
+function wholeFieldValidationColumnExecution(
+    fn: (input: unknown) => unknown,
+) {
+    return function _fieldValidationColumnExecution(input: unknown | unknown[]) {
+        if (fn(input)) {
+            return input;
+        }
+
+        return null;
+    };
+}
+
+// TODO: see if we can fix the types here
 function fieldValidationColumnExecution(fn: (input: unknown) => unknown, preserveNulls: boolean) {
     return function _fieldValidationColumnExecution(input: unknown[]) {
         if (!Array.isArray(input)) {
             throw new Error('Invalid input, expected an array of values');
         }
-        const results = [];
+        const results: (boolean | null)[] = [];
 
         for (const value of input) {
             if (isNotNil(value) && fn(value)) {
@@ -172,6 +189,36 @@ function transformColumnExecution(fn: (input: unknown) => unknown, preserveNulls
     };
 }
 
+function recordValidationExecution(
+    fn: (input: Record<string, unknown>) => boolean,
+    preserveNulls: boolean
+) {
+    return function _row(input: Record<string, unknown>[]) {
+        if (!Array.isArray(input)) {
+            throw new Error('Invalid input, expected an array of objects');
+        }
+
+        const results: (Record<string, unknown>|null)[] = [];
+
+        for (const record of input) {
+            if (!isObjectEntity(record)) {
+                throw new Error(`Invalid record ${JSON.stringify(record)}, expected an array of simple objects or data-entities`);
+            }
+
+            const clone = cloneDeep(record);
+
+            // TODO: how much error handling should be here vs the function
+            if (fn(clone)) {
+                results.push(clone);
+            } else if (preserveNulls) {
+                results.push(null);
+            }
+        }
+
+        return results;
+    };
+}
+
 export function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
     fnDef: FieldValidateConfig<T>,
     options?: FunctionAdapterOptions<T>
@@ -180,6 +227,14 @@ export function functionAdapter<T extends Record<string, any> = Record<string, u
     fnDef: FieldTransformConfig<T>,
     options?: FunctionAdapterOptions<T>
 ): FieldFunctionAdapterOperation
+export function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
+    fnDef: RecordValidationConfig<T>,
+    options?: FunctionAdapterOptions<T>
+): RecordFunctionAdapterOperation
+export function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
+    fnDef: RecordTransformConfig<T>,
+    options?: FunctionAdapterOptions<T>
+): RecordFunctionAdapterOperation
 export function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
     /** The field validation or transform function definition */
     fnDef: FunctionDefinitions,
@@ -193,10 +248,20 @@ export function functionAdapter<T extends Record<string, any> = Record<string, u
     } = options;
 
     validateFunctionArgs(fnDef, args);
-    const fn = fnDef.create(args ?? {});
-    // call validateArgs
 
     if (isFieldValidation(fnDef)) {
+        // creating fn here ensures better typing of what fn is
+        const fn = fnDef.create(args ?? {});
+
+        if (fnDef.process_mode === ProcessMode.FULL_VALUES) {
+            return {
+                rows: fieldValidationRowExecution(
+                    fn, preserveNulls, preserveEmptyObjects, field
+                ),
+                column: wholeFieldValidationColumnExecution(fn)
+            };
+        }
+
         return {
             rows: fieldValidationRowExecution(
                 fn, preserveNulls, preserveEmptyObjects, field
@@ -207,16 +272,24 @@ export function functionAdapter<T extends Record<string, any> = Record<string, u
     }
 
     if (isFieldTransform(fnDef)) {
+        const fn = fnDef.create(args ?? {});
         return {
             rows: fieldTransformRowExecution(
-                fn, preserveNulls, preserveEmptyObjects, field
+                fn as any, preserveNulls, preserveEmptyObjects, field
             ),
-            column: transformColumnExecution(fn, preserveNulls)
+            column: transformColumnExecution(fn as any, preserveNulls)
 
         };
     }
 
-    throw new Error('not implemented yet');
+    if (isRecordValidation(fnDef)) {
+        const fn = fnDef.create(args ?? {});
+        return {
+            rows: recordValidationExecution(fn, preserveNulls)
+        };
+    }
+
+    throw new Error(`Function definition ${JSON.stringify(fnDef, null, 4)} is not currently supported`);
 }
 
 // RecordValidation preserveNull true

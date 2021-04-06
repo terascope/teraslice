@@ -54,13 +54,19 @@ describe('isHashConfig', () => {
         });
 
         it('should throw if required field is not given', () => {
-            expect(() => functionAdapter(isHashConfig, { args: { stuff: 'hello ' } } as any)).toThrowError('Invalid arguments, requires algo to be set to a non-null value');
+            expect(() => functionAdapter(isHashConfig, { args: { stuff: 'hello ' } } as any)).toThrowError('Invalid arguments, requires algo to be set to a non-empty value');
         });
 
         it('should throw if args are wrong type', () => {
             expect(
                 () => functionAdapter(isHashConfig, { args: { algo: 1234 } } as any)
-            ).toThrowError('Invalid argument value set at key algo, expected Number to be compatible with String');
+            ).toThrowError('Invalid argument value set at key algo, expected Number to be compatible with type String');
+        });
+
+        it('should throw if args are empty string', () => {
+            expect(
+                () => functionAdapter(isHashConfig, { args: { algo: '' } } as any)
+            ).toThrowError('Invalid arguments, requires algo to be set to a non-empty value');
         });
 
         it('should be able to call the fnDef validate_arguments', () => {
