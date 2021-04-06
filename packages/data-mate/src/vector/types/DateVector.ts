@@ -37,6 +37,8 @@ export class DateVector extends Vector<string|number> {
             return date.toISOString();
         }
 
+        // we know it is an iso 8601 date here
+        if (typeof value === 'string') return value;
         return makeISODate(value);
     }
 }
