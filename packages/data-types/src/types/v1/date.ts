@@ -11,10 +11,21 @@ export default class DateType extends BaseType {
 
         if (this.config.format && (
             !(this.config.format in DateFormat)
+            || this.config.format === DateFormat.epoch
+            || this.config.format === DateFormat.seconds
             || this.config.format === DateFormat.epoch_millis
+            || this.config.format === DateFormat.milliseconds
         )
         ) {
             format = this.config.format as string;
+        }
+
+        // es only supports epoch and epoch_millis
+        if (format === DateFormat.milliseconds) {
+            format = DateFormat.epoch_millis;
+        }
+        if (format === DateFormat.seconds) {
+            format = DateFormat.epoch;
         }
 
         return {

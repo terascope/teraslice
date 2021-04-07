@@ -34,12 +34,12 @@ describe('Date V1', () => {
     it('can get proper ES Mappings if format is set to epoch_millis', () => {
         const typeConfig: DataTypeFieldConfig = {
             type: FieldType.Date,
-            format: DateFormat.epoch_millis as string
+            format: DateFormat.seconds as string
         };
         const esMapping = new DateType(field, typeConfig).toESMapping();
         expect(esMapping).toEqual({
             mapping: {
-                [field]: { type: 'date', format: DateFormat.epoch_millis }
+                [field]: { type: 'date', format: DateFormat.epoch }
             }
         });
     });
@@ -65,7 +65,7 @@ describe('Date V1', () => {
         const esMapping = new DateType(field, typeConfig).toESMapping();
         expect(esMapping).toEqual({
             mapping: {
-                [field]: { type: 'date' }
+                [field]: { type: 'date', format: DateFormat.epoch }
             }
         });
     });

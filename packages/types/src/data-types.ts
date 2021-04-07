@@ -97,8 +97,8 @@ export enum DateFormat {
     iso_8601 = 'iso_8601',
     epoch_millis = 'epoch_millis',
     epoch = 'epoch',
-    seconds = 'epoch',
-    milliseconds = 'epoch_millis',
+    seconds = 'seconds',
+    milliseconds = 'milliseconds',
 }
 
 export enum TimeResolution {

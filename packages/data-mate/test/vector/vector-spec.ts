@@ -81,7 +81,7 @@ describe('Vector', () => {
             [
                 nowDate.toISOString(),
                 nowDate.toISOString(),
-                now,
+                nowDate.toISOString(),
                 '1941-08-20T07:00:00.000Z',
                 null,
                 null

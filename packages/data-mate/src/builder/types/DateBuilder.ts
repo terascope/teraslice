@@ -1,30 +1,35 @@
-import { DateValue, WritableData } from '../../core';
+import {
+    getTypeOf, isNumber, isString, isValidDateInstance, makeISODate
+} from '@terascope/utils';
+import { DateFormat } from '@terascope/types';
+import { WritableData } from '../../core';
 import { VectorType } from '../../vector';
-import { BuilderOptions } from '../Builder';
-import { BuilderWithCache } from '../BuilderWithCache';
+import { Builder, BuilderOptions } from '../Builder';
 
-export class DateBuilder extends BuilderWithCache<DateValue> {
-    referenceDate = new Date();
-
+export class DateBuilder extends Builder<number|string> {
     constructor(
-        data: WritableData<DateValue>,
+        data: WritableData<number>,
         options: BuilderOptions
     ) {
         super(VectorType.Date, data, options);
     }
 
-    _valueFrom(value: unknown): DateValue {
-        // FIXME this should validate the format is correct
-        if (value instanceof DateValue) return value;
+    _valueFrom(value: unknown): number|string {
+        if (value instanceof Date) {
+            if (isValidDateInstance(value)) return value.toISOString();
 
-        if (this.config.format) {
-            return DateValue.fromValueWithFormat(
-                value,
-                this.config.format,
-                this.referenceDate
-            );
+            throw new TypeError(`Expected ${value} (${getTypeOf(value)}) to be a valid date instance`);
         }
 
-        return DateValue.fromValue(value as any);
+        if (!isString(value) && !isNumber(value)) {
+            throw new TypeError(`Expected ${value} (${getTypeOf(value)}) to be a valid date`);
+        }
+
+        // ensure we stored the iso 8601 format where possible
+        if (this.config.format === DateFormat.iso_8601 || !this.config.format) {
+            return makeISODate(value);
+        }
+
+        return value;
     }
 }

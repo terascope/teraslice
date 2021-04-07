@@ -4,9 +4,10 @@ import {
 } from '@terascope/types';
 import { Builder } from '../builder';
 import {
-    JSONValue, SerializeOptions, Vector
+    SerializeOptions, Vector
 } from '../vector';
 import {
+    ColumnConfig,
     ColumnOptions, ColumnTransformConfig, ColumnValidateConfig, TransformMode
 } from './interfaces';
 import { runVectorAggregation, ValueAggregation } from './aggregations';
@@ -32,7 +33,7 @@ export class Column<T = unknown, N extends NameType = string> {
         values: Maybe<R>[]|readonly Maybe<R>[] = [],
         version?: DataTypeVersion,
         childConfig?: DataTypeFields|Readonly<DataTypeFields>
-    ): Column<R extends (infer U)[] ? Vector<U> : R, F> {
+    ): Column<R, F> {
         const builder = Builder.make<R>(new WritableData(values.length), {
             childConfig,
             config,
@@ -43,6 +44,21 @@ export class Column<T = unknown, N extends NameType = string> {
 
         return new Column<any, F>(builder.toVector(), {
             name, version
+        });
+    }
+
+    /**
+     * Create a Column from the custom serialized format
+    */
+    static deserialize<R, F extends NameType = string>(
+        columnConfig: Buffer|string
+    ): Column<R, F> {
+        const config = JSON.parse(columnConfig as string) as ColumnConfig<R>;
+
+        const vector = vectorFromColumnJSON<R>(config);
+        return new Column<any, F>(vector, {
+            name: config.name as F,
+            version: config.version
         });
     }
 
@@ -320,7 +336,36 @@ export class Column<T = unknown, N extends NameType = string> {
      *
      * @note probably only useful for debugging
     */
-    toJSON(options?: SerializeOptions): Maybe<JSONValue<T>>[] {
+    toJSON(options?: SerializeOptions): Maybe<T>[] {
         return this.vector.toJSON(options);
     }
+
+    serialize(): string {
+        const column: ColumnConfig<T> = {
+            name: `${this.name}`,
+            size: this.size,
+            version: this.version,
+            config: this.vector.config,
+            childConfig: this.vector.childConfig,
+            values: this.vector.toJSON(),
+        };
+        return JSON.stringify(column);
+    }
+}
+
+function vectorFromColumnJSON<T>(
+    config: ColumnConfig<T>
+): Vector<T> {
+    const builder = Builder.make<T>(
+        new WritableData(config.size),
+        {
+            childConfig: config.childConfig,
+            config: config.config,
+            name: config.name,
+        }
+    );
+    for (const value of config.values) {
+        builder.append(value);
+    }
+    return builder.toVector();
 }
