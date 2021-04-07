@@ -146,6 +146,9 @@ describe('Numbers', () => {
             [{ }, false],
             [[], false],
             [[1], false],
+            [`${Number.MAX_SAFE_INTEGER - 2}`, BigInt(Number.MAX_SAFE_INTEGER) - BigInt(2)],
+            [`${Number.MAX_SAFE_INTEGER + 2}`, BigInt(Number.MAX_SAFE_INTEGER) + BigInt(2)],
+            [`${Number.MAX_SAFE_INTEGER + 10}`, BigInt(Number.MAX_SAFE_INTEGER) + BigInt(10)],
         ])('should convert %p to be %p', (input, expected) => {
             expect(serialize(toBigInt(input))).toEqual(serialize(expected));
         });
@@ -157,14 +160,19 @@ describe('Numbers', () => {
     });
 
     describe('bigIntToJSON', () => {
+        it('should correctly convert a smaller bigint', () => {
+            const actual = bigIntToJSON(BigInt(Number.MAX_SAFE_INTEGER) - BigInt(2));
+            expect(actual).toEqual(Number.MAX_SAFE_INTEGER - 2);
+        });
+
         it('should correctly convert a large bigint', () => {
             const actual = bigIntToJSON(BigInt(Number.MAX_SAFE_INTEGER) + BigInt(2));
-            expect(actual).toEqual('9007199254740992');
+            expect(actual).toEqual(`${Number.MAX_SAFE_INTEGER + 2}`);
         });
 
         it('should correctly convert a larger bigint', () => {
             const actual = bigIntToJSON(BigInt(Number.MAX_SAFE_INTEGER) + BigInt(10));
-            expect(actual).toEqual('9007199254741000');
+            expect(actual).toEqual(`${Number.MAX_SAFE_INTEGER + 10}`);
         });
     });
 
