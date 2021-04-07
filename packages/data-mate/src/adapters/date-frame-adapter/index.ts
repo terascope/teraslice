@@ -1,10 +1,19 @@
 import { FieldType, DataTypeFieldConfig } from '@terascope/types';
-import { ColumnTransformConfig } from '../../column';
+import { isNil } from 'lodash';
+import { Column, ColumnTransformConfig } from '../../column';
+import { DataFrame } from '../../data-frame';
 import {
-    FieldValidateConfig, ColumnValidateConfig, TransformType, TransformMode,
-    VectorType, FunctionDefinitions, isFieldOperation, isTransformOperation
-} from '../../index';
-import { FieldTransformConfig, isFieldValidation, ProcessMode } from '../../interfaces';
+    FieldTransformConfig, isFieldTransform, isFieldValidation, ProcessMode,
+    FieldValidateConfig, FunctionDefinitions, isFieldOperation
+} from '../../interfaces';
+
+import {
+    ColumnValidateConfig, TransformType, TransformMode,
+} from '../../column/interfaces';
+
+import {
+    VectorType,
+} from '../../vector/interfaces';
 
 // @TODO: fix this
 
@@ -46,7 +55,16 @@ function getVectorType(input: FieldType[]): VectorType[] {
 
 export interface DateFrameAdapterOptions<T extends Record<string, any>> {
     args?: T,
-    inputConfig?: DataTypeFieldConfig
+    inputConfig?: DataTypeFieldConfig,
+    field?: string;
+}
+
+export interface ColumnAdapterFn {
+    column: (input: Column<any>) => Column<any>;
+}
+
+export interface FrameAdapterFn extends ColumnAdapterFn {
+    frame: (input: DataFrame) => DataFrame
 }
 
 function getMode(fnDef: FunctionDefinitions): TransformMode {
@@ -60,27 +78,19 @@ function getMode(fnDef: FunctionDefinitions): TransformMode {
     return TransformMode.EACH;
 }
 
-export function dateFrameAdapter<T extends Record<string, any> = Record<string, unknown>>(
-    fnDef: FieldValidateConfig<T>,
-    options?: DateFrameAdapterOptions<T>
-): ColumnValidateConfig<any, T>
-export function dateFrameAdapter<T extends Record<string, any> = Record<string, unknown>>(
-    fnDef: FieldTransformConfig<T>,
-    options?: DateFrameAdapterOptions<T>
-): ColumnTransformConfig<any, T>
-export function dateFrameAdapter<T extends Record<string, any> = Record<string, unknown>>(
-    fnDef: FunctionDefinitions,
-    options: DateFrameAdapterOptions<T> = {}
-):any {
+function makeValidationOperation<T>(
+    fnDef: FieldValidateConfig,
+    options: DateFrameAdapterOptions<T>
+): ColumnValidateConfig<any, T> {
     const { args } = options;
     const fn = fnDef.create(args ?? {});
     const { description, accepts: _accepts, argument_schema = {} } = fnDef;
     const accepts = getVectorType(_accepts);
-    accepts.push(VectorType.List);
-    const mode = getMode(fnDef);
-    const type = isFieldValidation(fnDef) ? TransformType.VALIDATE : TransformType.TRANSFORM;
 
-    const operation = {
+    const mode = getMode(fnDef);
+    const type = TransformType.VALIDATE;
+
+    return {
         type,
         create() {
             return {
@@ -92,13 +102,103 @@ export function dateFrameAdapter<T extends Record<string, any> = Record<string, 
         accepts,
         argument_schema,
     };
+}
 
-    if (isTransformOperation(fnDef)) {
+function makeTransformOperation<T>(
+    fnDef: FieldTransformConfig,
+    options: DateFrameAdapterOptions<T>
+): ColumnTransformConfig<any, T> {
+    const { args } = options;
+    const fn = fnDef.create(args ?? {});
+    const { description, accepts: _accepts, argument_schema = {} } = fnDef;
+    const accepts = getVectorType(_accepts);
+
+    const mode = getMode(fnDef);
+    const type = TransformType.TRANSFORM;
+
+    // @ts-expect-error
+    const { field_config: output } = fnDef.output_type(
+        { field_config: { type: FieldType.String } }
+    );
+
+    return {
+        type,
         // @ts-expect-error
-        const { field_config } = fnDef.output_type({ field_config: { type: FieldType.String } });
+        create() {
+            return {
+                mode,
+                fn
+            };
+        },
+        description,
+        accepts,
+        argument_schema,
+        output
+    };
+}
+
+function validateColumn<T>(config: ColumnValidateConfig<any, T>) {
+    return function _validateColumn(column: Column<any>): Column<any> {
+        return column.validate<T>(config);
+    };
+}
+
+function transformColumn<T>(config: ColumnTransformConfig<any, T>) {
+    return function _transformColumn(column: Column): Column {
         // @ts-expect-error
-        operation.output = field_config;
+        return column.transform<any, T>(config);
+    };
+}
+
+function validateFrame<T>(config: ColumnValidateConfig<any, T>, field?: string) {
+    return function _validateFrame(frame: DataFrame): DataFrame {
+        if (isNil(field)) throw new Error('Must provide a field option when running a DataFrame');
+        const col = frame.getColumnOrThrow(field);
+        const validCol = col.validate(config);
+
+        return frame.assign([validCol]);
+    };
+}
+
+function transformFrame<T>(config: ColumnTransformConfig<any, T>, field?: string) {
+    return function _transformFrame(frame: DataFrame): DataFrame {
+        if (isNil(field)) throw new Error('Must provide a field option when running a DataFrame');
+        const col = frame.getColumnOrThrow(field);
+        const validCol = col.transform(config);
+
+        return frame.assign([validCol]);
+    };
+}
+
+export function dateFrameAdapter<T extends Record<string, any> = Record<string, unknown>>(
+    fnDef: FieldValidateConfig<T>,
+    options?: DateFrameAdapterOptions<T>
+): FrameAdapterFn
+export function dateFrameAdapter<T extends Record<string, any> = Record<string, unknown>>(
+    fnDef: FieldTransformConfig<T>,
+    options?: DateFrameAdapterOptions<T>
+): FrameAdapterFn
+export function dateFrameAdapter<T extends Record<string, any> = Record<string, unknown>>(
+    fnDef: FunctionDefinitions,
+    options: DateFrameAdapterOptions<T> = {}
+): FrameAdapterFn {
+    const { field } = options;
+
+    if (isFieldValidation(fnDef)) {
+        const operation = makeValidationOperation(fnDef, options);
+        return {
+            column: validateColumn<T>(operation),
+            frame: validateFrame<T>(operation, field)
+        };
     }
 
-    return operation;
+    if (isFieldTransform(fnDef)) {
+        const operation = makeTransformOperation(fnDef, options);
+        return {
+            column: transformColumn<T>(operation),
+            frame: transformFrame<T>(operation, field)
+        };
+    }
+
+    throw new Error('Function definition is not supported');
 }

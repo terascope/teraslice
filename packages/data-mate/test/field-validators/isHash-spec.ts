@@ -95,8 +95,8 @@ describe('isHashConfig', () => {
         });
 
         it('should be able to validate using isHash', () => {
-            const validator = dateFrameAdapter(isHashConfig, { args: { algo } });
-            const newCol = col.validate(validator);
+            const api = dateFrameAdapter(isHashConfig, { args: { algo } });
+            const newCol = api.column(col);
 
             expect(newCol.toJSON()).toEqual([
                 '85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33',

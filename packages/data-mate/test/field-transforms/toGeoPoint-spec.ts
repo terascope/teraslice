@@ -218,15 +218,15 @@ describe('toGeoPointConfig', () => {
         });
 
         it('should be able to transform using toGeoPoint', () => {
-            const transformer = dateFrameAdapter(toGeoPointConfig);
+            const api = dateFrameAdapter(toGeoPointConfig);
 
-            const geoStringResults = stringCol.transform(transformer);
+            const geoStringResults = api.column(stringCol);
 
             expect(geoStringResults.toJSON()).toEqual([
                 { lon: 40, lat: 60 },
             ]);
 
-            const geoObjectResults = objCol.transform(transformer);
+            const geoObjectResults = api.column(objCol);
 
             expect(geoObjectResults.toJSON()).toEqual([
                 { lon: 60, lat: 40 },

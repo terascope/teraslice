@@ -226,8 +226,8 @@ describe('toUpperCaseConfig', () => {
         });
 
         it('should be able to transform using toUpperCase', () => {
-            const transformer = dateFrameAdapter(toUpperCaseConfig);
-            const newCol = col.transform(transformer);
+            const api = dateFrameAdapter(toUpperCaseConfig);
+            const newCol = api.column(col);
 
             expect(newCol.toJSON()).toEqual([
                 'OTHER_THINGS',
