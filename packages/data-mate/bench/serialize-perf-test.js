@@ -95,19 +95,19 @@ async function deserializeStream(iterator) {
 async function runTest(times) {
     let start;
     return Promise.resolve()
-        .then(() => start = Date.now())
+        .then(() => { start = Date.now(); })
         .then(readFile('data.json'))
         .then(fromJSON)
         .then(() => times.set('row', Date.now() - start))
         .then(() => pDelay(100))
-        .then(() => start = Date.now())
+        .then(() => { start = Date.now(); })
         .then(readFile('data.dfjson'))
         .then(deserialize)
         .then(() => times.set('column', Date.now() - start))
-        .then(() => start = Date.now())
+        .then(() => { start = Date.now(); })
         .then(readFileStream('data.dfjson'))
         .then(deserializeStream)
-        .then(() => times.set('column stream', Date.now() - start))
+        .then(() => times.set('column stream', Date.now() - start));
 }
 
 (async function runTests() {
@@ -130,4 +130,4 @@ async function runTest(times) {
     min: ${toHumanTime(min)}
     max: ${toHumanTime(max)}`);
     }
-})();
+}());
