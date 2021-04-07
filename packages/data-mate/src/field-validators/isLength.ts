@@ -53,7 +53,7 @@ export const isLengthConfig: FieldValidateConfig<LengthArgs> = {
         }
     }
 };
-
+// TODO: might need to change how array is handled
 function isLength(
     input: unknown, { size, min = -Infinity, max = Infinity }: LengthArgs
 ): boolean {

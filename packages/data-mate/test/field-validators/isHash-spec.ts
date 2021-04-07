@@ -1,7 +1,9 @@
 import 'jest-extended';
-import { FieldType } from '@terascope/types';
+import { FieldType, Maybe } from '@terascope/types';
 import {
-    functionConfigRepository, functionAdapter, FunctionDefinitionType, ProcessMode
+    functionConfigRepository, functionAdapter,
+    FunctionDefinitionType, ProcessMode,
+    dateFrameAdapter, Column
 } from '../../src';
 
 const isHashConfig = functionConfigRepository.isHash;
@@ -73,6 +75,38 @@ describe('isHashConfig', () => {
             expect(
                 () => functionAdapter(isHashConfig, { args: { algo: 'hello' } } as any)
             ).toThrowError('Invalid algorithm hello, must be set to one of md4, md5, sha1, sha256, sha384, sha512, ripemd128, ripemd160, tiger128, tiger160, tiger192, crc32 and crc32b');
+        });
+    });
+
+    describe('when paired with dateFrameAdapter', () => {
+        let col: Column<string>;
+        const values: Maybe<string>[] = [
+            '85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33',
+            '6201b3d18157e00963fcf008c1e',
+            '98fc121easdfasdfasdfads749f2b06e4a768b92ef1c740625a0',
+            null,
+            'SpiderMan',
+        ];
+        const field = 'someField';
+        const algo = 'sha256';
+
+        beforeEach(() => {
+            col = Column.fromJSON<string>(field, {
+                type: FieldType.String
+            }, values);
+        });
+
+        it('should be able to validate using isHash', () => {
+            const validator = dateFrameAdapter(isHashConfig, { args: { algo } });
+            const newCol = col.validate(validator);
+
+            expect(newCol.toJSON()).toEqual([
+                '85031b6f407e7f25cf826193338f7a4c2dc8c8b5130f5ca2c69a66d9f5107e33',
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+            ]);
         });
     });
 });

@@ -2,7 +2,7 @@ import 'jest-fixtures';
 import { FieldType, Maybe } from '@terascope/types';
 import { bigIntToJSON } from '@terascope/utils';
 import {
-    Column, ColumnTransform, Vector
+    Column, ColumnTransform
 } from '../../src';
 
 describe('Column (Number Types)', () => {
@@ -245,7 +245,7 @@ describe('Column (Number Types)', () => {
     });
 
     describe(`when field type is an array of ${FieldType.Short}`, () => {
-        let col: Column<Vector<number>>;
+        let col: Column<number[]>;
         const values: Maybe<Maybe<number>[]>[] = [
             [7, 3],
             [2, null, 4],

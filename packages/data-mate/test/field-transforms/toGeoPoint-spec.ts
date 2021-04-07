@@ -1,46 +1,50 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import 'jest-extended';
 import {
     cloneDeep, DataEntity,
-    isEmpty, isNotNil, withoutNil
+    isEmpty, isNotNil, withoutNil,
 } from '@terascope/utils';
-import { FieldType, Maybe } from '@terascope/types';
+import {
+    FieldType, Maybe, GeoPointInput, GeoPoint
+} from '@terascope/types';
 import {
     functionConfigRepository, functionAdapter, FunctionDefinitionType,
     ProcessMode, Column, dateFrameAdapter
 } from '../../src';
 import { ColumnTests, RowsTests } from '../interfaces';
 
-const toUpperCaseConfig = functionConfigRepository.toUpperCase;
+const toGeoPointConfig = functionConfigRepository.toGeoPoint;
 
-describe('toUpperCaseConfig', () => {
+describe('toGeoPointConfig', () => {
     it('has proper configuration', () => {
-        expect(toUpperCaseConfig).toBeDefined();
-        expect(toUpperCaseConfig).toHaveProperty('name', 'toUpperCase');
-        expect(toUpperCaseConfig).toHaveProperty('type', FunctionDefinitionType.FIELD_TRANSFORM);
-        expect(toUpperCaseConfig).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
-        expect(toUpperCaseConfig).toHaveProperty('description');
-        expect(toUpperCaseConfig).toHaveProperty('accepts', [FieldType.String]);
-        expect(toUpperCaseConfig).toHaveProperty('create');
-        expect(toUpperCaseConfig.create).toBeFunction();
+        expect(toGeoPointConfig).toBeDefined();
+        expect(toGeoPointConfig).toHaveProperty('name', 'toGeoPoint');
+        expect(toGeoPointConfig).toHaveProperty('type', FunctionDefinitionType.FIELD_TRANSFORM);
+        expect(toGeoPointConfig).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
+        expect(toGeoPointConfig).toHaveProperty('description');
+        expect(toGeoPointConfig).toHaveProperty('accepts', [
+            FieldType.String,
+            FieldType.Object,
+            FieldType.GeoPoint,
+            FieldType.Number,
+            FieldType.Float
+        ]);
+        expect(toGeoPointConfig).toHaveProperty('create');
+        expect(toGeoPointConfig.create).toBeFunction();
     });
 
     it('can transform values', () => {
-        const values = ['hello', 'billy', 'hey'];
-        const expected = ['HELLO', 'BILLY', 'HEY'];
-        const toUpperCase = toUpperCaseConfig.create();
+        const values = ['60, 40', { latitude: 40, longitude: 60 }, [50, 60]];
+        const expected = [
+            { lon: 40, lat: 60 },
+            { lon: 60, lat: 40 },
+            { lon: 50, lat: 60 }
+        ];
+        const toGeoPoint = toGeoPointConfig.create();
 
         values.forEach((val, ind) => {
-            expect(toUpperCase(val)).toEqual(expected[ind]);
+            expect(toGeoPoint(val)).toEqual(expected[ind]);
         });
-    });
-
-    it('will throw if not given a string input', () => {
-        const toUpperCase = toUpperCaseConfig.create();
-
-        expect(() => toUpperCase(3)).toThrowError('Invalid input 3, expected string got Number');
-        expect(() => toUpperCase({})).toThrowError('Invalid input {}, expected string got Object');
-        expect(() => toUpperCase(null)).toThrowError('Invalid input null, expected string got null');
-        expect(() => toUpperCase(undefined)).toThrowError('Invalid input undefined, expected string got undefined');
     });
 
     describe('when paired with fieldFunctionAdapter', () => {
@@ -48,7 +52,7 @@ describe('toUpperCaseConfig', () => {
         const time = new Date();
 
         it('should return a function to execute', () => {
-            const api = functionAdapter(toUpperCaseConfig);
+            const api = functionAdapter(toGeoPointConfig);
             expect(api).toBeDefined();
             expect(api).toHaveProperty('rows');
             expect(api).toHaveProperty('column');
@@ -58,24 +62,24 @@ describe('toUpperCaseConfig', () => {
 
         const columnTests: ColumnTests[] = [
             {
-                column: [true, 'false', 'blah', 'true', null, undefined, 1234],
-                result: [null, 'FALSE', 'BLAH', 'TRUE', null, null, null]
+                column: ['60,40', 'false', 'blah', null, undefined, 1234],
+                result: [{ lon: 40, lat: 60 }, null, null, null, null, null]
             }
         ];
 
         const rowTests: RowsTests[] = [
             {
                 rows: [
-                    { [field]: 'hello', some: 'other' },
-                    { [field]: 'dave' },
+                    { [field]: { latitude: 40, longitude: 60 }, some: 'other' },
+                    { [field]: '40, 60' },
                     { some: 'other' },
                     { [field]: null },
                     { [field]: undefined },
                     {}
                 ],
                 result: [
-                    { [field]: 'HELLO', some: 'other' },
-                    { [field]: 'DAVE' },
+                    { [field]: { lat: 40, lon: 60 }, some: 'other' },
+                    { [field]: { lat: 40, lon: 60 } },
                     { some: 'other', [field]: null },
                     { [field]: null },
                     { [field]: null },
@@ -85,12 +89,12 @@ describe('toUpperCaseConfig', () => {
 
             {
                 rows: [
-                    new DataEntity({ [field]: 'billy' }, { time }),
+                    new DataEntity({ [field]: '40, 60' }, { time }),
                     new DataEntity({ hello: 'bob' }, { time })
 
                 ],
                 result: [
-                    new DataEntity({ [field]: 'BILLY' }, { time }),
+                    new DataEntity({ [field]: { lat: 40, lon: 60 } }, { time }),
                     new DataEntity({ [field]: null, hello: 'bob' }, { time })
                 ]
             }
@@ -98,7 +102,7 @@ describe('toUpperCaseConfig', () => {
 
         describe.each(columnTests)('when running columns', ({ column, result }) => {
             it('should not mutate input', () => {
-                const api = functionAdapter(toUpperCaseConfig, { preserveNulls: true });
+                const api = functionAdapter(toGeoPointConfig, { preserveNulls: true });
                 const clonedInput = cloneDeep(column);
 
                 api.column(column);
@@ -107,19 +111,19 @@ describe('toUpperCaseConfig', () => {
             });
 
             it(`should validate ${JSON.stringify(column)} with preserveNull set to true`, () => {
-                const api = functionAdapter(toUpperCaseConfig, { preserveNulls: true });
+                const api = functionAdapter(toGeoPointConfig, { preserveNulls: true });
                 expect(api.column(column)).toEqual(result);
             });
 
             it(`should validate ${JSON.stringify(column)} with preserveNull set to false`, () => {
-                const api = functionAdapter(toUpperCaseConfig, { preserveNulls: false });
+                const api = functionAdapter(toGeoPointConfig, { preserveNulls: false });
                 expect(api.column(column)).toEqual(result.filter(isNotNil));
             });
         });
 
         describe('when given bad data or incorrectly configured api while executing columns', () => {
             it('should throw if input is not an array', () => {
-                const api = functionAdapter(toUpperCaseConfig, { field });
+                const api = functionAdapter(toGeoPointConfig, { field });
 
                 expect(() => api.column({} as Array<any>)).toThrowError('Invalid input, expected an array of values');
                 expect(() => api.column('hello' as unknown as Array<any>)).toThrowError('Invalid input, expected an array of values');
@@ -129,7 +133,7 @@ describe('toUpperCaseConfig', () => {
 
         describe.each(rowTests)('when running rows', ({ rows, result }) => {
             it('should not mutate record inputs', () => {
-                const api = functionAdapter(toUpperCaseConfig, { field, preserveNulls: true });
+                const api = functionAdapter(toGeoPointConfig, { field, preserveNulls: true });
                 const isDataEntityArray = DataEntity.isDataEntityArray(rows);
                 const clonedInput = isDataEntityArray
                     ? rows.map((obj) => DataEntity.fork(obj as DataEntity))
@@ -150,19 +154,19 @@ describe('toUpperCaseConfig', () => {
             });
 
             it(`should validate ${JSON.stringify(rows)} with preserveNull set to true`, () => {
-                const api = functionAdapter(toUpperCaseConfig, { field, preserveNulls: true });
+                const api = functionAdapter(toGeoPointConfig, { field, preserveNulls: true });
                 expect(api.rows(rows)).toEqual(result);
             });
 
             it(`should validate ${JSON.stringify(rows)} with preserveNull set to false`, () => {
-                const api = functionAdapter(toUpperCaseConfig, { field, preserveNulls: false });
+                const api = functionAdapter(toGeoPointConfig, { field, preserveNulls: false });
                 const results = result.map((obj) => withoutNil(obj));
                 expect(api.rows(rows)).toEqual(results);
             });
 
             it(`should validate ${JSON.stringify(rows)} with preserveNull set to false and preserveEmptyObjects set to false`, () => {
                 const api = functionAdapter(
-                    toUpperCaseConfig,
+                    toGeoPointConfig,
                     { field, preserveNulls: false, preserveEmptyObjects: false }
                 );
                 const results = result.reduce<Record<string, unknown>[]>(
@@ -179,63 +183,62 @@ describe('toUpperCaseConfig', () => {
                 expect(api.rows(rows)).toEqual(results);
             });
         });
-
-        describe('when given bad data or incorrectly configured api while executing rows', () => {
-            it('should throw if field is not supplied', () => {
-                const api = functionAdapter(toUpperCaseConfig);
-                const correctApi = functionAdapter(toUpperCaseConfig, { field });
-
-                expect(() => api.rows([{ [field]: 'data' }])).toThrowError('Must provide a field option when running a row');
-                expect(() => correctApi.rows([{ [field]: 'data' }])).not.toThrowError();
-            });
-
-            it('should throw if input is not an array', () => {
-                const api = functionAdapter(toUpperCaseConfig, { field });
-
-                expect(() => api.rows({} as Array<any>)).toThrowError('Invalid input, expected an array of objects');
-                expect(() => api.rows('hello' as unknown as Array<any>)).toThrowError('Invalid input, expected an array of objects');
-                expect(() => api.rows(null as unknown as Array<any>)).toThrowError('Invalid input, expected an array of objects');
-            });
-
-            it('should throw if input is mixed data', () => {
-                const api = functionAdapter(toUpperCaseConfig, { field });
-                const data = [{ [field]: true }, 'hello'] as Record<string, unknown>[];
-                const data2 = [{ [field]: true }, null] as Record<string, unknown>[];
-
-                expect(() => api.rows(data)).toThrowError('Invalid record "hello", expected an array of simple objects or data-entities');
-                expect(() => api.rows(data2)).toThrowError('Invalid record null, expected an array of simple objects or data-entities');
-            });
-        });
     });
 
     describe('when paired with dateFrameAdapter', () => {
-        let col: Column<string>;
-        const values: Maybe<string>[] = [
-            'other_things',
-            'Stuff',
-            'hello',
-            null,
-            'SpiderMan',
+        let stringCol: Column<string>;
+        let objCol: Column<GeoPointInput>;
+        let tupleCol: Column<number[]>;
+
+        const stringValues: Maybe<string>[] = [
+            '60, 40',
+        ];
+        const objectValues: Maybe<GeoPointInput>[] = [
+            { latitude: 40, longitude: 60 },
+        ];
+        const tupleValues: Maybe<number[]>[] = [
+            [50, 60],
         ];
         const field = 'someField';
 
         beforeEach(() => {
-            col = Column.fromJSON<string>(field, {
+            stringCol = Column.fromJSON<string>(field, {
                 type: FieldType.String
-            }, values);
+            }, stringValues);
+
+            objCol = Column.fromJSON<GeoPointInput>(field, {
+                type: FieldType.Object
+            }, objectValues);
+
+            // @TODO: need more discussion on this
+            // tupleCol = Column.fromJSON<number[]>(field, {
+            //     type: FieldType.Number,
+            //     array: true
+            // }, tupleValues);
         });
 
-        it('should be able to transform using toUpperCase', () => {
-            const transformer = dateFrameAdapter(toUpperCaseConfig);
-            const newCol = col.transform(transformer);
+        it('should be able to transform using toGeoPoint', () => {
+            const transformer = dateFrameAdapter(toGeoPointConfig);
 
-            expect(newCol.toJSON()).toEqual([
-                'OTHER_THINGS',
-                'STUFF',
-                'HELLO',
-                undefined,
-                'SPIDERMAN',
+            const geoStringResults = stringCol.transform(transformer);
+
+            expect(geoStringResults.toJSON()).toEqual([
+                { lon: 40, lat: 60 },
             ]);
+
+            const geoObjectResults = objCol.transform(transformer);
+
+            expect(geoObjectResults.toJSON()).toEqual([
+                { lon: 60, lat: 40 },
+            ]);
+
+            // @TODO: need more discussion on this
+
+            // const geoTupleResults = tupleCol.transform(transformer);
+
+            // expect(geoTupleResults.toJSON()).toEqual([
+            //     { lon: 50, lat: 60 },
+            // ]);
         });
     });
 });

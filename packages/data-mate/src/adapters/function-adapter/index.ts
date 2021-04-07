@@ -219,6 +219,7 @@ function recordValidationExecution(
     };
 }
 
+// @TODO: fix any type
 export function functionAdapter<T extends Record<string, any> = Record<string, unknown>>(
     fnDef: FieldValidateConfig<T>,
     options?: FunctionAdapterOptions<T>
