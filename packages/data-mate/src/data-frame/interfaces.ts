@@ -8,7 +8,7 @@ export type DataFrameFormatVersion = 1;
 /**
  * The metadata used when serializing a DataFrame
 */
-export interface DataFrameConfig {
+export interface DataFrameHeaderConfig {
     /**
      * The serialized format version, if any breaking
      * changes are required for the json structure, this

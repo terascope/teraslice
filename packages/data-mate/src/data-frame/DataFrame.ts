@@ -29,7 +29,7 @@ import {
 import { getMaxColumnSize } from '../aggregation-frame/utils';
 import { SerializeOptions, Vector } from '../vector';
 import { buildSearchMatcherForQuery } from './search-utils';
-import { DataFrameConfig } from './interfaces';
+import { DataFrameHeaderConfig } from './interfaces';
 
 /**
  * An immutable columnar table with APIs for data pipelines.
@@ -83,7 +83,7 @@ export class DataFrame<
         for await (const row of data) {
             index++;
             if (index === 0) {
-                ({ metadata, name } = JSON.parse(row as string) as DataFrameConfig);
+                ({ metadata, name } = JSON.parse(row as string) as DataFrameHeaderConfig);
             } else {
                 columns.push(Column.deserialize(row));
             }
@@ -838,7 +838,7 @@ export class DataFrame<
      * including the metadata
     */
     * serialize(): Iterable<string> {
-        const dataFrameConfig: DataFrameConfig = {
+        const dataFrameConfig: DataFrameHeaderConfig = {
             v: 1,
             name: this.name,
             size: this.size,
