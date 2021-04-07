@@ -5,14 +5,14 @@ import { FieldValidateConfig, ProcessMode, FunctionDefinitionType } from '../int
  * Validates that input is a string
  *
  * @example
- * FieldValidator.isString('this is a string'); // true
- * FieldValidator.isString('12345'); // true
- * FieldValidator.isString(true); // false
- * FieldValidator.isString(['hello', 'world']); // false
- * FieldValidator.isString({ hello: 'there' }); // false
- * FieldValidator.isString(12345); // false
- * FieldValidator.isString(undefined); // false
- * FieldValidator.isString(null); // false
+ * isString('this is a string'); // true
+ * isString('12345'); // true
+ * isString(true); // false
+ * isString(['hello', 'world']); // false
+ * isString({ hello: 'there' }); // false
+ * isString(12345); // false
+ * isString(undefined); // false
+ * isString(null); // false
  *
  * @param {*} input
  * @returns {boolean} boolean

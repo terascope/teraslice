@@ -13,7 +13,8 @@ import {
     parseList,
     joinList,
     isString,
-    isEmail
+    isEmail,
+    isMacAddress
 } from '../src/strings';
 
 describe('String Utils', () => {
@@ -186,6 +187,48 @@ describe('String Utils', () => {
             [true, false]
         ])('should validate email addresses', (input, expected) => {
             expect(isEmail(input)).toEqual(expected);
+        });
+    });
+
+    describe('isMacAddress', () => {
+        test.each([
+            ['00:1f:f3:5b:2b:1f'],
+            ['00-1f-f3-5b-2b-1f'],
+            ['001f.f35b.2b1f'],
+            ['00 1f f3 5b 2b 1f'],
+            ['001ff35b2b1f']
+        ])('should return true for valid mac address', (input) => {
+            expect(isMacAddress(input)).toEqual(true);
+        });
+
+        test.each([
+            ['00:1:f:5b:2b:1f'],
+            ['00.1f.f3.5b.2b.1f'],
+            ['00-1Z-fG-5b-2b-1322f'],
+            ['23423423'],
+            ['00_1Z_fG_5b_2b_13'],
+            [1233456],
+            [{}],
+            [true]
+        ])('should return false for invalid mac address', (input) => {
+            expect(isMacAddress(input)).toEqual(false);
+        });
+
+        test.each([
+            ['001ff35b2b1f', 'any', true],
+            ['00:1f:f3:5b:2b:1f', 'colon', true],
+            ['00-1f-f3-5b-2b-1f', 'dash', true],
+            ['00 1f f3 5b 2b 1f', 'space', true],
+            ['001f.f35b.2b1f', 'dot', true],
+            ['001ff35b2b1f', 'none', true],
+            ['00:1f:f3:5b:2b:1f', ['dash', 'colon'], true],
+            ['00:1f:f3:5b:2b:1f', 'dash', false],
+            ['00 1f f3 5b 2b 1f', 'colon', false],
+            ['001ff35b2b1f', 'colon', false],
+            ['001ff35b2b1f', ['dash', 'colon'], false]
+
+        ])('should validate based on delimiter', (input, delimiter: any, expected) => {
+            expect(isMacAddress(input, delimiter)).toEqual(expected);
         });
     });
 });

@@ -32,10 +32,10 @@ describe('isHashConfig', () => {
             null, 1, 0, [true, false], { some: 'thing' }];
 
         const expected = [true, false, false, false, false, false, false, false];
-        const isBoolean = isHashConfig.create(args);
+        const isHash = isHashConfig.create(args);
 
         values.forEach((val, ind) => {
-            expect(isBoolean(val)).toEqual(expected[ind]);
+            expect(isHash(val)).toEqual(expected[ind]);
         });
     });
 

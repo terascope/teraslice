@@ -459,7 +459,7 @@ export function getFirstChar(input: string): string {
 
 // http://www.regular-expressions.info/email.html
 // not an exhaustive email regex, which is impossible, but will catch obvious errors
-// is more lenient then less in most cases
+// is more lenient in most cases
 const EmailRegex = /^[A-Z0-9._%+-@]{1,64}@(?:[A-Z0-9-]{1,63}\.){1,8}[A-Z]{2,63}$/i;
 export function isEmail(input: unknown): input is string {
     return isString(input) && EmailRegex.test(input);
