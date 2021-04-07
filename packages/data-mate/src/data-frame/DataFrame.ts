@@ -30,6 +30,7 @@ import { getMaxColumnSize } from '../aggregation-frame/utils';
 import { SerializeOptions, Vector } from '../vector';
 import { buildSearchMatcherForQuery } from './search-utils';
 import { DataFrameHeaderConfig } from './interfaces';
+import { convertMetadataFromJSON, convertMetadataToJSON } from './metadata-utils';
 
 /**
  * An immutable columnar table with APIs for data pipelines.
@@ -84,6 +85,7 @@ export class DataFrame<
             index++;
             if (index === 0) {
                 ({ metadata, name } = JSON.parse(row as string) as DataFrameHeaderConfig);
+                metadata = convertMetadataFromJSON(metadata ?? {});
             } else {
                 columns.push(Column.deserialize(row));
             }
@@ -263,7 +265,7 @@ export class DataFrame<
         const existingFieldsConfig = this.config.fields;
         const existingFields = Object.keys(existingFieldsConfig);
 
-        const matchedFields: Record<string, Set<string>> = {};
+        const matchedFields: Record<string, Set<string>> = Object.create(null);
 
         for (const field of existingFields) {
             const matches = fieldSelectors.some((selector) => {
@@ -715,7 +717,7 @@ export class DataFrame<
         }
 
         const columns = fields.map((field) => this.getColumnOrThrow(field));
-        const childConfig: DataTypeFields = {};
+        const childConfig: DataTypeFields = Object.create(null);
         columns.forEach((col, index) => {
             childConfig[index] = col.config;
         });
@@ -777,7 +779,7 @@ export class DataFrame<
         if (index > (this.size - 1)) return;
         const nilValue: any = options?.useNullForUndefined ? null : undefined;
 
-        const row: Partial<T> = {};
+        const row: Partial<T> = Object.create(null);
         let numKeys = 0;
         for (const col of this.columns) {
             const field = col.name as keyof T;
@@ -842,7 +844,7 @@ export class DataFrame<
             v: 1,
             name: this.name,
             size: this.size,
-            metadata: this.metadata,
+            metadata: convertMetadataToJSON(this.metadata),
             config: this.config
         };
         yield JSON.stringify(dataFrameConfig);

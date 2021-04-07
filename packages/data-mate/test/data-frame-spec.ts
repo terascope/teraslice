@@ -4,6 +4,7 @@ import { LATEST_VERSION } from '@terascope/data-types';
 import {
     DataTypeConfig, FieldType, GeoShape, GeoShapeType,
 } from '@terascope/types';
+import { bigIntToJSON, cloneDeep, isBigInt } from '@terascope/utils';
 import { ColumnTransform, DataFrame } from '../src';
 
 describe('DataFrame', () => {
@@ -444,7 +445,14 @@ describe('DataFrame', () => {
                 },
             ], {
                 name: 'special',
-                metadata: { foo: 'bar' }
+                metadata: {
+                    foo: 'bar',
+                    long: BigInt(1),
+                    nested: {
+                        long: BigInt(1),
+                        arr: [BigInt(10), 1, '1']
+                    }
+                }
             });
         });
 
@@ -1617,7 +1625,29 @@ describe('DataFrame', () => {
                 });
 
                 it('should match original metadata', () => {
-                    expect(frame.metadata).toEqual(inputFrame.metadata);
+                    const actual = cloneDeep(frame.metadata);
+                    if (isBigInt(actual.long)) {
+                        actual.long = bigIntToJSON(actual.long);
+                    }
+                    if (isBigInt(actual.nested?.long)) {
+                        actual.nested.long = bigIntToJSON(actual.nested.long);
+                    }
+                    if (Array.isArray(actual.nested?.arr)) {
+                        actual.nested.arr = actual.nested.arr.map(bigIntToJSON);
+                    }
+
+                    const expected = cloneDeep(inputFrame.metadata);
+                    if (isBigInt(expected.long)) {
+                        expected.long = bigIntToJSON(expected.long);
+                    }
+                    if (isBigInt(expected.nested?.long)) {
+                        expected.nested.long = bigIntToJSON(expected.nested.long);
+                    }
+                    if (Array.isArray(expected.nested?.arr)) {
+                        expected.nested.arr = expected.nested.arr.map(bigIntToJSON);
+                    }
+
+                    expect(actual).toEqual(expected);
                 });
 
                 it('should match original config', () => {
