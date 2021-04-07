@@ -11,10 +11,28 @@ import {
     toSnakeCase,
     toKebabCase,
     parseList,
-    joinList
+    joinList,
+    isString,
+    isEmail,
+    isMacAddress
 } from '../src/strings';
 
 describe('String Utils', () => {
+    describe('isString', () => {
+        test.each([
+            ['hello there', true],
+            ['123', true],
+            [true, false],
+            [123, false],
+            [['not a string'], false],
+            [{ foo: 'bar' }, false],
+            [undefined, false],
+            [null, false],
+        ])('should convert %s to be %s', (input: any, expected: any) => {
+            expect(isString(input)).toEqual(expected);
+        });
+    });
+
     describe('toSafeString', () => {
         test.each([
             ['hello-there', 'hello-there'],
@@ -151,6 +169,66 @@ describe('String Utils', () => {
             [[1, 2, 3, true, false, Symbol('bar')], '1, 2, 3, true, false and Symbol(bar)'],
         ])('should parse %j to be %j', (input, expected) => {
             expect(joinList(input)).toEqual(expected);
+        });
+    });
+
+    describe('isEmail', () => {
+        test.each([
+            ['string@gmail.com', true],
+            ['non.us.email@thing.com.uk', true],
+            ['Abc@def@example.com', true],
+            ['cal+henderson@iamcalx.com', true],
+            ['customer/department=shipping@example.com', true],
+            ['user@blah.com/junk.junk?a=<tag value="junk"', false],
+            ['Abc\@def  @  example.com', false],
+            ['bad email address', false],
+            [undefined, false],
+            [12345, false],
+            [true, false]
+        ])('should validate email addresses', (input, expected) => {
+            expect(isEmail(input)).toEqual(expected);
+        });
+    });
+
+    describe('isMacAddress', () => {
+        test.each([
+            ['00:1f:f3:5b:2b:1f'],
+            ['00-1f-f3-5b-2b-1f'],
+            ['001f.f35b.2b1f'],
+            ['00 1f f3 5b 2b 1f'],
+            ['001ff35b2b1f']
+        ])('should return true for valid mac address', (input) => {
+            expect(isMacAddress(input)).toEqual(true);
+        });
+
+        test.each([
+            ['00:1:f:5b:2b:1f'],
+            ['00.1f.f3.5b.2b.1f'],
+            ['00-1Z-fG-5b-2b-1322f'],
+            ['23423423'],
+            ['00_1Z_fG_5b_2b_13'],
+            [1233456],
+            [{}],
+            [true]
+        ])('should return false for invalid mac address', (input) => {
+            expect(isMacAddress(input)).toEqual(false);
+        });
+
+        test.each([
+            ['001ff35b2b1f', 'any', true],
+            ['00:1f:f3:5b:2b:1f', 'colon', true],
+            ['00-1f-f3-5b-2b-1f', 'dash', true],
+            ['00 1f f3 5b 2b 1f', 'space', true],
+            ['001f.f35b.2b1f', 'dot', true],
+            ['001ff35b2b1f', 'none', true],
+            ['00:1f:f3:5b:2b:1f', ['dash', 'colon'], true],
+            ['00:1f:f3:5b:2b:1f', 'dash', false],
+            ['00 1f f3 5b 2b 1f', 'colon', false],
+            ['001ff35b2b1f', 'colon', false],
+            ['001ff35b2b1f', ['dash', 'colon'], false]
+
+        ])('should validate based on delimiter', (input, delimiter: any, expected) => {
+            expect(isMacAddress(input, delimiter)).toEqual(expected);
         });
     });
 });

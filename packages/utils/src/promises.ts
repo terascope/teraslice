@@ -10,16 +10,40 @@ import {
 const logger = debugLogger('utils:promises');
 
 /** promisified setTimeout */
-export function pDelay<T = undefined>(delay = 1, arg?: T): Promise<T> {
+export function pDelay<T = undefined>(delay = 0, arg?: T): Promise<T> {
     return new Promise<T>((resolve) => {
         setTimeout(resolve, delay, arg);
     });
 }
 
-/** promisified setImmediate */
+let supportsSetImmediate = false;
+try {
+    if (typeof globalThis.setImmediate === 'function') {
+        supportsSetImmediate = true;
+    }
+} catch (err) {
+    supportsSetImmediate = false;
+}
+
+let supportsNextTick = false;
+try {
+    if (typeof globalThis.process.nextTick === 'function') {
+        supportsNextTick = true;
+    }
+} catch (err) {
+    supportsNextTick = false;
+}
+
+/** promisified process.nextTick,setImmediate or setTimeout depending on your environment */
 export function pImmediate<T = undefined>(arg?: T): Promise<T> {
     return new Promise<T>((resolve) => {
-        setImmediate(resolve, arg);
+        if (supportsNextTick) {
+            process.nextTick(resolve, arg);
+        } else if (supportsSetImmediate) {
+            setImmediate(resolve, arg);
+        } else {
+            setTimeout(resolve, 0, arg);
+        }
     });
 }
 
