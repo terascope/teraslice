@@ -7,17 +7,13 @@ module.exports = Object.assign({}, jsRules, {
     // typescript preferences
     '@typescript-eslint/no-object-literal-type-assertion': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
-    // we should enable this in the future
-    '@typescript-eslint/explicit-function-return-type': ['warn', {
-        allowExpressions: true,
-        allowHigherOrderFunctions: true,
-        allowTypedFunctionExpressions: true,
-        allowConciseArrowFunctionExpressionsStartingWithVoid: true,
-    }],
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/explicit-member-accessibility': 'off',
     '@typescript-eslint/no-empty-function': 'off',
+    // this is often better turned off, even though types are good
+    // it is a little more strict than it should be
+    '@typescript-eslint/explicit-function-return-type': 'off',
 
     // we SHOULD really make this an error but we've become dependent on it
     '@typescript-eslint/ban-ts-comment': ['warn', {
