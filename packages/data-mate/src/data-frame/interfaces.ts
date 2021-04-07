@@ -1,9 +1,21 @@
 import { DataTypeConfig } from '@terascope/types';
 
 /**
+ * The serialized format version
+*/
+export type DataFrameFormatVersion = 1;
+
+/**
  * The metadata used when serializing a DataFrame
 */
 export interface DataFrameConfig {
+    /**
+     * The serialized format version, if any breaking
+     * changes are required for the json structure, this
+     * number should be increased
+    */
+    readonly v: DataFrameFormatVersion;
+
     /**
      * The optional name associated to a DataFrame
     */

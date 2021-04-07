@@ -839,6 +839,7 @@ export class DataFrame<
     */
     * serialize(): Iterable<string> {
         const dataFrameConfig: DataFrameConfig = {
+            v: 1,
             name: this.name,
             size: this.size,
             metadata: this.metadata,
