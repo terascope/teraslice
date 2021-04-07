@@ -20,10 +20,11 @@ export function getBuildersForConfig<T extends Record<string, any> = Record<stri
     const groupedFieldEntries = Object.entries(getGroupedFields(config.fields));
 
     for (const [field, nested] of groupedFieldEntries) {
-        const childConfig: DataTypeFields = {};
+        let childConfig: DataTypeFields|undefined;
         nested.forEach((fullField) => {
             if (fullField === field) return;
             const nestedField = fullField.replace(`${field}.`, '');
+            childConfig ??= {};
             childConfig[nestedField] = config.fields[fullField];
         });
         builders.set(field, Builder.make(new WritableData(size), {

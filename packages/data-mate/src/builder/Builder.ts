@@ -88,7 +88,9 @@ export abstract class Builder<T = unknown> {
         this.name = options.name;
         this.type = type;
         this.config = freezeObject(options.config);
-        this.childConfig = options.childConfig ? freezeObject(options.childConfig) : undefined;
+        this.childConfig = options.childConfig
+            ? freezeObject(options.childConfig)
+            : undefined;
         this.data = data;
         this.currentIndex = 0;
     }
@@ -180,26 +182,6 @@ export abstract class Builder<T = unknown> {
         this.data.reset();
         this.currentIndex = 0;
         return vector;
-    }
-
-    [Symbol.for('nodejs.util.inspect.custom')](): any {
-        const proxy = {
-            name: this.name,
-            type: this.type,
-            config: this.config,
-            childConfig: this.childConfig,
-            size: this.data.size,
-            currentIndex: this.currentIndex,
-            values: this.data.values
-        };
-
-        // Trick so that node displays the name of the constructor
-        Object.defineProperty(proxy, 'constructor', {
-            value: this.constructor,
-            enumerable: false
-        });
-
-        return proxy;
     }
 }
 

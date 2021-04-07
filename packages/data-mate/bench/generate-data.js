@@ -4,7 +4,12 @@ const { times, random } = require('@terascope/utils');
 const { FieldType } = require('@terascope/types');
 const fs = require('fs');
 const path = require('path');
+const shuffle = require('lodash/shuffle');
 const Chance = require('chance');
+const util = require('util');
+const stream = require('stream');
+const { once } = require('events');
+const { DataFrame } = require('./src');
 
 const chance = new Chance();
 
@@ -64,9 +69,9 @@ const dataTypeConfig = {
 };
 
 const maxInt = (2 ** 31) - 1;
-const numRecords = 1800;
+const numRecords = 1000; // this will be doubled
 const year = new Date().getFullYear();
-const records = times(numRecords, () => {
+let records = times(numRecords, () => {
     const age = chance.age();
     return {
         _key: chance.guid({ version: 4 }),
@@ -96,8 +101,7 @@ const records = times(numRecords, () => {
 });
 
 // add some duplicates
-records.splice(500, 0, ...records.slice(100, 200));
-records.splice(1300, 0, ...records.slice(500, 600));
+records = shuffle(records.concat(records));
 
 function randArrSize(fn, arg) {
     return times(random(0, 5), () => randNull(fn, arg));
@@ -117,7 +121,38 @@ console.dir({
     maxArrayLength: 1,
     depth: 5
 });
-fs.writeFileSync(path.join(__dirname, 'fixtures/data.json'), JSON.stringify({
-    config: dataTypeConfig,
-    data: records
-}));
+(async function writeRow() {
+    console.time('write row');
+    await new Promise((resolve, reject) => {
+        const data = JSON.stringify({
+            config: dataTypeConfig,
+            data: records
+        });
+        fs.writeFile(path.join(__dirname, 'fixtures/data.json'), data, (err) => {
+            if (err) reject();
+            else resolve();
+        });
+    });
+    console.timeEnd('write row');
+}());
+
+const finished = util.promisify(stream.finished);
+
+(async function writeColumnStream() {
+    const frame = DataFrame.fromJSON(dataTypeConfig, records);
+
+    const writable = fs.createWriteStream(
+        path.join(__dirname, 'fixtures/data.dfjson'),
+        { encoding: 'utf8' }
+    );
+    console.time('write column stream');
+    for await (const chunk of frame.serialize()) {
+        if (!writable.write(`${chunk}\n`)) { // (B)
+            // Handle back pressure
+            await once(writable, 'drain');
+        }
+    }
+    writable.end();
+    await finished(writable);
+    console.timeEnd('write column stream');
+}());
