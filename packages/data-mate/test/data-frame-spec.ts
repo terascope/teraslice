@@ -442,7 +442,10 @@ describe('DataFrame', () => {
                     date: '1999-12-01T00:00:00.000Z',
                     location: '33.435967, -111.867710'
                 },
-            ]);
+            ], {
+                name: 'special',
+                metadata: { foo: 'bar' }
+            });
         });
 
         describe('->select', () => {
@@ -1567,40 +1570,59 @@ describe('DataFrame', () => {
         });
 
         describe('->serialize/->deserialize', () => {
-            it('should be able to serialize and deserialize the peopleFrame', async () => {
-                expect(
-                    Array.from(peopleDataFrame.serialize()).join('\n')
-                ).toMatchSnapshot();
+            describe.each([
+                'peopleDataFrame',
+                'deepObjDataFrame',
+                'specialDataFrame',
+            ])('when given the %s data frame', (frameKey) => {
+                let inputFrame: DataFrame<any>;
+                let frame: DataFrame<Record<string, any>>;
 
-                const frame = await DataFrame.deserialize(peopleDataFrame.serialize());
-                expect(frame.toJSON()).toEqual(peopleDataFrame.toJSON());
-                expect(frame.toArray()).toEqual(peopleDataFrame.toArray());
-                expect(frame.size).toEqual(peopleDataFrame.size);
-                // expect(frame.id).toEqual(peopleDataFrame.id);
-            });
+                beforeAll(async () => {
+                    if (frameKey === 'peopleDataFrame') {
+                        inputFrame = peopleDataFrame;
+                    } else if (frameKey === 'deepObjDataFrame') {
+                        inputFrame = deepObjDataFrame;
+                    } else if (frameKey === 'specialDataFrame') {
+                        inputFrame = specialDataFrame;
+                    } else {
+                        throw new Error(`Unknown test DataFrame "${frameKey}"`);
+                    }
 
-            it('should be able to serialize and deserialize the deepObjDataFrame', async () => {
-                expect(
-                    Array.from(deepObjDataFrame.serialize()).join('\n')
-                ).toMatchSnapshot();
+                    frame = await DataFrame.deserialize(
+                        inputFrame.serialize()
+                    );
+                });
 
-                const frame = await DataFrame.deserialize(deepObjDataFrame.serialize());
-                expect(frame.toJSON()).toEqual(deepObjDataFrame.toJSON());
-                expect(frame.toArray()).toEqual(deepObjDataFrame.toArray());
-                expect(frame.size).toEqual(deepObjDataFrame.size);
-                // expect(frame.id).toEqual(deepObjDataFrame.id);
-            });
+                it('should match the serialize to the correct output', () => {
+                    expect(
+                        Array.from(inputFrame.serialize()).join('\n')
+                    ).toMatchSnapshot();
+                });
 
-            it('should be able to serialize and deserialize the specialDataFrame', async () => {
-                expect(
-                    Array.from(specialDataFrame.serialize()).join('\n')
-                ).toMatchSnapshot();
+                it('should match original output of toJSON', () => {
+                    expect(frame.toJSON()).toEqual(inputFrame.toJSON());
+                });
 
-                const frame = await DataFrame.deserialize(specialDataFrame.serialize());
-                expect(frame.toJSON()).toEqual(specialDataFrame.toJSON());
-                expect(frame.toArray()).toEqual(specialDataFrame.toArray());
-                expect(frame.size).toEqual(specialDataFrame.size);
-                // expect(frame.id).toEqual(specialDataFrame.id);
+                it('should match original output of toArray', () => {
+                    expect(frame.toArray()).toEqual(inputFrame.toArray());
+                });
+
+                it('should match original size', () => {
+                    expect(frame.size).toEqual(inputFrame.size);
+                });
+
+                it('should match original name', () => {
+                    expect(frame.name).toEqual(inputFrame.name);
+                });
+
+                it('should match original metadata', () => {
+                    expect(frame.metadata).toEqual(inputFrame.metadata);
+                });
+
+                it('should match original config', () => {
+                    expect(frame.config).toEqual(inputFrame.config);
+                });
             });
         });
     });
