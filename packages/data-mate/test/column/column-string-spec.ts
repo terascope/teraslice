@@ -110,7 +110,7 @@ describe('Column (String Types)', () => {
 
             expect(newCol.toJSON()).toEqual([
                 'ha3ke5@pawnage.com',
-                'user@blah.com/junk.junk?a=<tag value="junk"',
+                undefined,
                 'email@example.com',
                 undefined,
                 undefined,

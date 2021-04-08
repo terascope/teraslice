@@ -90,6 +90,15 @@ describe('field validators', () => {
             'user@blah.com/junk.junk?a=<tag value="junk"'
         ];
 
+        const expectedResults = [
+            true,
+            true,
+            false,
+            false,
+            false,
+            false
+        ];
+
         it('should check if a value is an email', () => {
             expect(FieldValidator.isEmail(undefined)).toEqual(false);
             expect(FieldValidator.isEmail(['asdf'])).toEqual(false);
@@ -98,11 +107,11 @@ describe('field validators', () => {
             expect(FieldValidator.isEmail('hello')).toEqual(false);
 
             const results = list.map(FieldValidator.isEmail);
-            expect(results.every((val) => val === true)).toEqual(true);
+            expect(results).toEqual(expectedResults);
         });
 
         it('validates an array of values, ignores undefined/null', () => {
-            const newList = list.slice();
+            const newList = list.slice(0, 2);
 
             newList.push(null as any);
 
