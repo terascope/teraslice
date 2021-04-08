@@ -5,9 +5,9 @@ import {
     isBoolean,
     isValidDate,
     isGeoJSON,
-    // isGeoPoint,
+    isGeoPoint,
     isObjectEntity,
-    // isIP,
+    isIP,
     joinList, getTypeOf, isEmpty,
 } from '@terascope/utils';
 import { DataTypeFieldConfig, FieldType } from '@terascope/types';
@@ -32,10 +32,10 @@ function getType(
         case FieldType.Hostname:
         case FieldType.NgramTokens:
             return isString;
-        // case FieldType.IP:
-        //     return isIP;
-        // case FieldType.IPRange:
-        //     return isIP;
+        case FieldType.IP:
+            return isIP;
+        case FieldType.IPRange:
+            return isIP;
         case FieldType.Date:
             return isValidDate;
         case FieldType.Boolean:
