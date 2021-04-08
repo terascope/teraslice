@@ -77,7 +77,7 @@ async function fromJSON(buf) {
 async function deserialize(buf) {
     console.time('deserialize');
     try {
-        return await DataFrame.deserializeIterator(buf.split('\n').filter((s) => s.length));
+        return await DataFrame.deserialize(buf);
     } finally {
         console.timeEnd('deserialize');
     }
