@@ -105,14 +105,14 @@ describe('Worker', () => {
 
             server.onSliceSuccess((workerId, _msg) => {
                 sliceSuccess = _msg;
-                setImmediate(() => {
+                setTimeout(() => {
                     shutdownPromise = server.shutdown();
                 });
             });
 
             server.onSliceFailure((workerId, _msg) => {
                 sliceFailure = _msg;
-                setImmediate(() => {
+                setTimeout(() => {
                     shutdownPromise = server.shutdown();
                 });
             });
@@ -399,14 +399,14 @@ describe('Worker', () => {
                 });
 
                 it('should resolve when shutdown passes', async () => {
-                    setImmediate(() => {
+                    setTimeout(() => {
                         worker.events.emit('worker:shutdown:complete');
                     });
                     await expect(worker.shutdown()).resolves.toBeNil();
                 });
 
                 it('should reject when shutdown fails', async () => {
-                    setImmediate(() => {
+                    setTimeout(() => {
                         worker.events.emit('worker:shutdown:complete', new Error('Uh oh'));
                     });
                     await expect(worker.shutdown()).rejects.toThrowError('Uh oh');

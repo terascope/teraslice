@@ -17,7 +17,7 @@ if (hasTypescript) {
             files: ['*.mjs'],
             extends: ['airbnb-base'],
             parserOptions: {
-                ecmaVersion: 8,
+                ecmaVersion: 9,
                 sourceType: 'module',
                 ecmaFeatures: {
                     modules: true,
@@ -43,7 +43,7 @@ if (hasTypescript) {
                 browser: true,
             },
             parserOptions: {
-                ecmaVersion: 8,
+                ecmaVersion: 9,
                 sourceType: 'module',
                 ecmaFeatures: {
                     modules: true,
@@ -60,7 +60,7 @@ if (hasTypescript) {
             plugins: ['@typescript-eslint'],
             parser: '@typescript-eslint/parser',
             parserOptions: {
-                ecmaVersion: 8,
+                ecmaVersion: 9,
                 sourceType: 'module',
                 ecmaFeatures: {
                     modules: true,
