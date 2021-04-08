@@ -11,6 +11,8 @@ type ChildFields<T extends Record<string, any>> = readonly (
 export class ObjectVector<
     T extends Record<string, any> = Record<string, any>
 > extends Vector<T> {
+    getComparableValue = undefined;
+
     #childFields?: ChildFields<T>;
 
     constructor(data: DataBuckets<T>, options: VectorOptions) {

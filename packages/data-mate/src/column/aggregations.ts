@@ -1,11 +1,11 @@
 import {
     isBigInt, toBigInt
 } from '@terascope/utils';
-import { DateFormat } from '@terascope/types';
+import { Maybe } from '@terascope/types';
 import {
-    Vector, VectorType, getNumericValues, SerializeOptions
+    Vector, VectorType, getNumericValues, SerializeOptions, DateVector
 } from '../vector';
-import { DateValue, getHashCodeFrom } from '../core';
+import { getHashCodeFrom } from '../core';
 
 export enum ValueAggregation {
     avg = 'avg',
@@ -192,29 +192,16 @@ export const keyAggMap: Record<KeyAggregation, MakeKeyAggFn> = {
     [KeyAggregation.yearly]: makeDateAgg(DateAggFrequency.yearly),
 };
 
-function makeGetISODateSubstring(storedInISO: boolean, truncateLengthFromISO: number) {
-    return function getISODateSubstring(dateValue: DateValue): string {
-        const iso = storedInISO && typeof dateValue.formatted === 'string'
-            ? dateValue.formatted
-            : new Date(dateValue.value).toISOString();
-
-        return iso.slice(0, truncateLengthFromISO);
-    };
-}
-
 function makeDateAgg(truncateLengthFromISO: number): MakeKeyAggFn {
     return function _makeDateAgg(vector) {
-        const storedInISO = vector.config.format === DateFormat.iso_8601 || !vector.config.format;
-        const getISODateSubstring = makeGetISODateSubstring(
-            storedInISO, truncateLengthFromISO
-        );
-
         return function dateAgg(index) {
-            const value = vector.get(index) as DateValue;
+            const value = vector.get(index) as Maybe<string|number>;
             if (value == null) return { key: undefined, value };
 
             return {
-                key: getISODateSubstring(value),
+                key: (vector as DateVector)
+                    .valueToISOString(value)
+                    .slice(0, truncateLengthFromISO),
                 value,
             };
         };

@@ -70,17 +70,17 @@ export function getLonAndLat(input: unknown, throwInvalid = true): [number, numb
     let lat: number|string|undefined;
     let lon: number|string|undefined;
 
-    const isObject = isPlainObject(input);
     if (isGeoShapePoint(input as JoinGeoShape)) {
         [lon, lat] = (input as GeoShapePoint).coordinates;
-    } else if (isObject) {
+    } else if (isPlainObject(input)) {
         const obj = (input as any);
         lat = obj.lat ?? obj.latitude;
         lon = obj.lon ?? obj.longitude;
     }
 
     if (throwInvalid && (isNil(lat) || isNil(lon))) {
-        if (isObject && (isGeoShapePolygon(input as any) || isGeoShapeMultiPolygon(input as any))) {
+        if (isPlainObject(input)
+            && (isGeoShapePolygon(input as any) || isGeoShapeMultiPolygon(input as any))) {
             throw new TypeError([
                 `Expected a Point geo shape, received a geo ${(input as any).type} shape,`,
                 'you may need to switch to a polygon compatible operation'
@@ -109,11 +109,11 @@ export function parseGeoPoint(point: GeoPointInput, throwInvalid = true): GeoPoi
     let lon: number | undefined;
 
     if (typeof point === 'string') {
-        if (point.match(',')) {
+        if (point.includes(',')) {
             [lat, lon] = parseNumberList(point);
         } else {
             try {
-                [lat, lon] = Object.values(geoHash.decode(point));
+                ({ lat, lon } = geoHash.decode(point));
             } catch (err) {
                 // do nothing
             }

@@ -4,6 +4,7 @@ import { VectorType, DataBuckets } from '../interfaces';
 
 export class BigIntVector extends Vector<bigint> {
     valueToJSON = bigIntToJSON;
+    getComparableValue = undefined;
 
     constructor(data: DataBuckets<bigint>, options: VectorOptions) {
         super(VectorType.BigInt, data, options);

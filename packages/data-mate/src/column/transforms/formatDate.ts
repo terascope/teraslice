@@ -1,5 +1,5 @@
 import { DateFormat, FieldType } from '@terascope/types';
-import { DateValue } from '../../core';
+import { formatDateValue, parseDateValue } from '../../core';
 import { VectorType } from '../../vector';
 import {
     ColumnTransformConfig, TransformMode, TransformType
@@ -28,16 +28,22 @@ export interface FormatDateArgs {
  *     formatDate({ format: 'yyyy-MM-dd' })
  *       // 1579034041034 => '2020-01-14'
  */
-export const formatDateConfig: ColumnTransformConfig<DateValue, DateValue, FormatDateArgs> = {
+export const formatDateConfig: ColumnTransformConfig<
+string|number, string|number, FormatDateArgs
+> = {
     type: TransformType.TRANSFORM,
-    create(_vector, args) {
+    create(vector, args) {
         const { format } = args;
 
+        const referenceDate = new Date();
         return {
             mode: TransformMode.EACH_VALUE,
             output: { format },
-            fn(value: DateValue): DateValue {
-                return DateValue.reformat(value, format);
+            fn(value) {
+                const parsed = parseDateValue(
+                    value, vector.config.format, referenceDate
+                );
+                return formatDateValue(parsed, format);
             }
         };
     },
