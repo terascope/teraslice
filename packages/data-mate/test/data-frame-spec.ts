@@ -1577,6 +1577,85 @@ describe('DataFrame', () => {
             });
         });
 
+        describe('->serializeIterator/->deserializeIterator', () => {
+            describe.each([
+                'peopleDataFrame',
+                'deepObjDataFrame',
+                'specialDataFrame',
+            ])('when given the %s data frame', (frameKey) => {
+                let inputFrame: DataFrame<any>;
+                let frame: DataFrame<Record<string, any>>;
+
+                beforeAll(async () => {
+                    if (frameKey === 'peopleDataFrame') {
+                        inputFrame = peopleDataFrame;
+                    } else if (frameKey === 'deepObjDataFrame') {
+                        inputFrame = deepObjDataFrame;
+                    } else if (frameKey === 'specialDataFrame') {
+                        inputFrame = specialDataFrame;
+                    } else {
+                        throw new Error(`Unknown test DataFrame "${frameKey}"`);
+                    }
+
+                    frame = await DataFrame.deserializeIterator(
+                        inputFrame.serializeIterator()
+                    );
+                });
+
+                it('should match the serialize to the correct output', () => {
+                    expect(
+                        Array.from(inputFrame.serializeIterator()).join('\n')
+                    ).toMatchSnapshot();
+                });
+
+                it('should match original output of toJSON', () => {
+                    expect(frame.toJSON()).toEqual(inputFrame.toJSON());
+                });
+
+                it('should match original output of toArray', () => {
+                    expect(frame.toArray()).toEqual(inputFrame.toArray());
+                });
+
+                it('should match original size', () => {
+                    expect(frame.size).toEqual(inputFrame.size);
+                });
+
+                it('should match original name', () => {
+                    expect(frame.name).toEqual(inputFrame.name);
+                });
+
+                it('should match original metadata', () => {
+                    const actual = cloneDeep(frame.metadata);
+                    if (isBigInt(actual.long)) {
+                        actual.long = bigIntToJSON(actual.long);
+                    }
+                    if (isBigInt(actual.nested?.long)) {
+                        actual.nested.long = bigIntToJSON(actual.nested.long);
+                    }
+                    if (Array.isArray(actual.nested?.arr)) {
+                        actual.nested.arr = actual.nested.arr.map(bigIntToJSON);
+                    }
+
+                    const expected = cloneDeep(inputFrame.metadata);
+                    if (isBigInt(expected.long)) {
+                        expected.long = bigIntToJSON(expected.long);
+                    }
+                    if (isBigInt(expected.nested?.long)) {
+                        expected.nested.long = bigIntToJSON(expected.nested.long);
+                    }
+                    if (Array.isArray(expected.nested?.arr)) {
+                        expected.nested.arr = expected.nested.arr.map(bigIntToJSON);
+                    }
+
+                    expect(actual).toEqual(expected);
+                });
+
+                it('should match original config', () => {
+                    expect(frame.config).toEqual(inputFrame.config);
+                });
+            });
+        });
+
         describe('->serialize/->deserialize', () => {
             describe.each([
                 'peopleDataFrame',
@@ -1604,7 +1683,7 @@ describe('DataFrame', () => {
 
                 it('should match the serialize to the correct output', () => {
                     expect(
-                        Array.from(inputFrame.serialize()).join('\n')
+                        inputFrame.serialize()
                     ).toMatchSnapshot();
                 });
 

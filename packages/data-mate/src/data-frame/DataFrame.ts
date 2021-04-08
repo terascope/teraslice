@@ -70,9 +70,11 @@ export class DataFrame<
     /**
      * Create a DataFrame from a serialized format,
      * the first row is data frame metadata,
-     * all of the subsequent rows are columns
+     * all of the subsequent rows are serialized columns.
+     *
+     * When using this method, the input should be split by a new line.
     */
-    static async deserialize<
+    static async deserializeIterator<
         R extends Record<string, unknown> = Record<string, any>,
     >(data: Iterable<Buffer|string>|AsyncIterable<Buffer|string>): Promise<DataFrame<R>> {
         let index = -1;
@@ -82,6 +84,9 @@ export class DataFrame<
         const columns: Column<any, keyof R>[] = [];
 
         for await (const row of data) {
+            // ensure empty rows don't get passed along
+            if (!row.length || row.toString() === '\n') continue;
+
             index++;
             if (index === 0) {
                 ({ metadata, name } = JSON.parse(row as string) as DataFrameHeaderConfig);
@@ -95,6 +100,27 @@ export class DataFrame<
             name,
             metadata
         });
+    }
+
+    /**
+     * Create a DataFrame from a serialized format,
+     * the first row is data frame metadata,
+     * all of the subsequent rows are serialized columns.
+     * The rows should be joined with a newline.
+     *
+     * When using this method, the whole serialized file should be
+     * passed in.
+     *
+     * For a more advanced steam like processing, see {@see DataFrame.deserializeIterator}
+     * Using that method may be required for deserializing a buffer or string
+     * greater than 1GB.
+    */
+    static async deserialize<
+        R extends Record<string, unknown> = Record<string, any>,
+    >(data: Buffer|string): Promise<DataFrame<R>> {
+        return DataFrame.deserializeIterator(
+            data.toString('utf8').split('\n')
+        );
     }
 
     /**
@@ -836,10 +862,13 @@ export class DataFrame<
     }
 
     /**
-     * Convert the DataFrame into an optimized serialized format,
-     * including the metadata
+     * Converts the DataFrame into an optimized serialized format,
+     * including the metadata. This returns an iterator and requires
+     * external code to join yield chunks with a new line.
+     *
+     * There is 1GB limit per column using this method
     */
-    * serialize(): Iterable<string> {
+    * serializeIterator(): Iterable<string> {
         const dataFrameConfig: DataFrameHeaderConfig = {
             v: 1,
             name: this.name,
@@ -852,6 +881,18 @@ export class DataFrame<
         for (const column of this.columns) {
             yield column.serialize();
         }
+    }
+
+    /**
+     * Converts the DataFrame into an optimized serialized format,
+     * including the metadata. This returns a string that includes
+     * the data frame header and all of columns joined with a new line.
+     *
+     * There is 1GB limit for the whole data frame using this method,
+     * to achieve a 1GB limit per column, use {@see serializeIterator}
+    */
+    serialize(): string {
+        return Array.from(this.serializeIterator()).join('\n');
     }
 }
 
