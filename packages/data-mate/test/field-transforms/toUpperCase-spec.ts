@@ -3,10 +3,11 @@ import {
     cloneDeep, DataEntity,
     isEmpty, isNotNil, withoutNil
 } from '@terascope/utils';
-import { FieldType, Maybe } from '@terascope/types';
+import { LATEST_VERSION } from '@terascope/data-types';
+import { DataTypeConfig, FieldType, Maybe } from '@terascope/types';
 import {
     functionConfigRepository, functionAdapter, FunctionDefinitionType,
-    ProcessMode, Column, dateFrameAdapter
+    ProcessMode, Column, dateFrameAdapter, DataFrame, VectorType
 } from '../../src';
 import { ColumnTests, RowsTests } from '../interfaces';
 
@@ -210,6 +211,7 @@ describe('toUpperCaseConfig', () => {
 
     describe('when paired with dateFrameAdapter', () => {
         let col: Column<string>;
+
         const values: Maybe<string>[] = [
             'other_things',
             'Stuff',
@@ -219,13 +221,27 @@ describe('toUpperCaseConfig', () => {
         ];
         const field = 'someField';
 
+        const frameTestConfig: DataTypeConfig = {
+            version: LATEST_VERSION,
+            fields: {
+                [field]: {
+                    type: FieldType.String
+                },
+                num: {
+                    type: FieldType.Number
+                }
+            }
+        };
+
+        const frameData = values.map((str, ind) => ({ [field]: str as string, num: ind }));
+
         beforeEach(() => {
             col = Column.fromJSON<string>(field, {
                 type: FieldType.String
             }, values);
         });
 
-        it('should be able to transform using toUpperCase', () => {
+        it('should be able to transform a column using toUpperCase', () => {
             const api = dateFrameAdapter(toUpperCaseConfig);
             const newCol = api.column(col);
 
@@ -236,6 +252,27 @@ describe('toUpperCaseConfig', () => {
                 undefined,
                 'SPIDERMAN',
             ]);
+        });
+
+        it('should be able to transform a dataFrame using toUpperCase', () => {
+            const frame = DataFrame.fromJSON(frameTestConfig, frameData);
+
+            const api = dateFrameAdapter(toUpperCaseConfig, { field });
+            const newFrame = api.frame(frame);
+
+            expect(newFrame.toJSON()).toEqual([
+                { [field]: 'OTHER_THINGS', num: 0 },
+                { [field]: 'STUFF', num: 1 },
+                { [field]: 'HELLO', num: 2 },
+                { num: 3 },
+                { [field]: 'SPIDERMAN', num: 4 },
+            ]);
+
+            const [type] = newFrame.columns
+                .filter((column) => column.name === field)
+                .map((column) => column.vector.type);
+
+            expect(type).toEqual(VectorType.String);
         });
     });
 });

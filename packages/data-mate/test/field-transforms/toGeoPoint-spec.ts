@@ -20,7 +20,7 @@ describe('toGeoPointConfig', () => {
         expect(toGeoPointConfig).toBeDefined();
         expect(toGeoPointConfig).toHaveProperty('name', 'toGeoPoint');
         expect(toGeoPointConfig).toHaveProperty('type', FunctionDefinitionType.FIELD_TRANSFORM);
-        expect(toGeoPointConfig).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
+        expect(toGeoPointConfig).toHaveProperty('process_mode', ProcessMode.FULL_VALUES);
         expect(toGeoPointConfig).toHaveProperty('description');
         expect(toGeoPointConfig).toHaveProperty('accepts', [
             FieldType.String,
@@ -161,6 +161,7 @@ describe('toGeoPointConfig', () => {
             it(`should validate ${JSON.stringify(rows)} with preserveNull set to false`, () => {
                 const api = functionAdapter(toGeoPointConfig, { field, preserveNulls: false });
                 const results = result.map((obj) => withoutNil(obj));
+
                 expect(api.rows(rows)).toEqual(results);
             });
 
@@ -210,11 +211,10 @@ describe('toGeoPointConfig', () => {
                 type: FieldType.Object
             }, objectValues);
 
-            // @TODO: need more discussion on this
-            // tupleCol = Column.fromJSON<number[]>(field, {
-            //     type: FieldType.Number,
-            //     array: true
-            // }, tupleValues);
+            tupleCol = Column.fromJSON<number[]>(field, {
+                type: FieldType.Number,
+                array: true
+            }, tupleValues);
         });
 
         it('should be able to transform using toGeoPoint', () => {
@@ -232,13 +232,11 @@ describe('toGeoPointConfig', () => {
                 { lon: 60, lat: 40 },
             ]);
 
-            // @TODO: need more discussion on this
+            const geoTupleResults = api.column(tupleCol);
 
-            // const geoTupleResults = tupleCol.transform(transformer);
-
-            // expect(geoTupleResults.toJSON()).toEqual([
-            //     { lon: 50, lat: 60 },
-            // ]);
+            expect(geoTupleResults.toJSON()).toEqual([
+                { lon: 50, lat: 60 },
+            ]);
         });
     });
 });

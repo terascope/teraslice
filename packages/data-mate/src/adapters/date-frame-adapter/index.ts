@@ -64,7 +64,9 @@ export interface ColumnAdapterFn {
 }
 
 export interface FrameAdapterFn extends ColumnAdapterFn {
-    frame: (input: DataFrame) => DataFrame
+    frame<T extends Record<string, unknown> = Record<string, any>> (
+        input: DataFrame<T>
+    ): DataFrame<Record<string, unknown>>
 }
 
 function getMode(fnDef: FunctionDefinitions): TransformMode {
@@ -151,7 +153,9 @@ function transformColumn<T>(config: ColumnTransformConfig<any, T>) {
 }
 
 function validateFrame<T>(config: ColumnValidateConfig<any, T>, field?: string) {
-    return function _validateFrame(frame: DataFrame): DataFrame {
+    return function _validateFrame(
+        frame: DataFrame<Record<string, unknown>>
+    ): DataFrame<Record<string, unknown>> {
         if (isNil(field)) throw new Error('Must provide a field option when running a DataFrame');
         const col = frame.getColumnOrThrow(field);
         const validCol = col.validate(config);
@@ -161,7 +165,9 @@ function validateFrame<T>(config: ColumnValidateConfig<any, T>, field?: string) 
 }
 
 function transformFrame<T>(config: ColumnTransformConfig<any, T>, field?: string) {
-    return function _transformFrame(frame: DataFrame): DataFrame {
+    return function _transformFrame(
+        frame: DataFrame<Record<string, unknown>>
+    ): DataFrame<Record<string, unknown>> {
         if (isNil(field)) throw new Error('Must provide a field option when running a DataFrame');
         const col = frame.getColumnOrThrow(field);
         const validCol = col.transform(config);
@@ -189,7 +195,7 @@ export function dateFrameAdapter<T extends Record<string, any> = Record<string, 
         return {
             column: validateColumn<T>(operation),
             frame: validateFrame<T>(operation, field)
-        };
+        } as FrameAdapterFn;
     }
 
     if (isFieldTransform(fnDef)) {
@@ -197,8 +203,8 @@ export function dateFrameAdapter<T extends Record<string, any> = Record<string, 
         return {
             column: transformColumn<T>(operation),
             frame: transformFrame<T>(operation, field)
-        };
+        } as FrameAdapterFn;
     }
 
-    throw new Error('Function definition is not supported');
+    throw new Error(`Function definition ${JSON.stringify(fnDef)} is not supported`);
 }

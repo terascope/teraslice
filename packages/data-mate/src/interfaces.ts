@@ -1,6 +1,6 @@
 import { FieldTypeConfig, AvailableType } from '@terascope/data-types';
 import { AnyObject } from '@terascope/utils';
-import { DataTypeFieldConfig, FieldType, DataTypeFields } from 'packages/types/dist/src';
+import { DataTypeFieldConfig, FieldType, DataTypeFields } from '@terascope/types';
 
 export type ArgSchema = Config & { description?: string };
 

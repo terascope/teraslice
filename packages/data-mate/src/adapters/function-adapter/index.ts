@@ -143,7 +143,16 @@ function fieldTransformRowExecution(
 
             try {
                 const data = fn(value);
-                set(clone, field, data);
+
+                if (isNil(data)) {
+                    if (preserveNulls) {
+                        set(clone, field, null);
+                    } else {
+                        unset(clone, field);
+                    }
+                } else {
+                    set(clone, field, data);
+                }
             } catch (_err) {
                 if (preserveNulls) {
                     set(clone, field, null);
@@ -156,6 +165,7 @@ function fieldTransformRowExecution(
                 results.push(clone);
             } else {
                 const hasKeys = Object.keys(clone).length !== 0;
+
                 if (hasKeys) {
                     results.push(clone);
                 }
