@@ -146,7 +146,7 @@ const finished = util.promisify(stream.finished);
         { encoding: 'utf8' }
     );
     console.time('write column stream');
-    for await (const chunk of frame.serialize()) {
+    for await (const chunk of frame.serializeIterator()) {
         if (!writable.write(`${chunk}\n`)) { // (B)
             // Handle back pressure
             await once(writable, 'drain');
