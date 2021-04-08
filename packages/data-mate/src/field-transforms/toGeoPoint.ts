@@ -9,17 +9,19 @@ import {
 
 /**
  * Converts the value into a geo-point
- * if given an array it will convert everything in the array excluding null/undefined values
+ * if given an array it will convert everything in the array
  *
  * @example
  *
- * fieldTransform.toGeoPoint('60, 40'); // { lon: 40, lat: 60 };
- * fieldTransform.toGeoPoint([40, 60]); // { lon: 40, lat: 60 };
- * fieldTransform.toGeoPoint({ lat: 40, lon: 60 }); // { lon: 60, lat: 40 };
- * fieldTransform.toGeoPoint({ latitude: 40, longitude: 60 }); // { lon: 60, lat: 40 }
+ *      const toGeoPoint = toGeoPointConfig.create();
  *
- * const results = FieldTransform.toGeoPoint(['60, 40', null, [50, 60]]);
- * results === [{ lon: 40, lat: 60 },{ lon: 50, lat: 60 }];
+ *      toGeoPoint('60, 40'); // { lon: 40, lat: 60 };
+ *      toGeoPoint([40, 60]); // { lon: 40, lat: 60 };
+ *      toGeoPoint({ lat: 40, lon: 60 }); // { lon: 60, lat: 40 };
+ *      toGeoPoint({ latitude: 40, longitude: 60 }); // { lon: 60, lat: 40 }
+ *
+ *      const results = toGeoPoint(['60, 40', null, [50, 60]]);
+ *      results === [{ lon: 40, lat: 60 }, null { lon: 50, lat: 60 }];
  *
  * @param {*} input
  * @returns {{ lat: number, lon: number } | { lat: number, lon: number }[] | null }
@@ -53,7 +55,7 @@ export const toGeoPointConfig: FieldTransformConfig = {
         FieldType.Number,
         FieldType.Float
     ],
-    // TODO: fix this
+
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;
         const array = arrayType(field_config);

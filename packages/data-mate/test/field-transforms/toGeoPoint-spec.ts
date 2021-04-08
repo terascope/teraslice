@@ -34,9 +34,10 @@ describe('toGeoPointConfig', () => {
     });
 
     it('can transform values', () => {
-        const values = ['60, 40', { latitude: 40, longitude: 60 }, [50, 60]];
+        const values = ['60, 40', null, { latitude: 40, longitude: 60 }, [50, 60]];
         const expected = [
             { lon: 40, lat: 60 },
+            null,
             { lon: 60, lat: 40 },
             { lon: 50, lat: 60 }
         ];
