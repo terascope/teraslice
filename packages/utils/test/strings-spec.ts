@@ -14,7 +14,8 @@ import {
     joinList,
     isString,
     isEmail,
-    isMacAddress
+    isMacAddress,
+    isURL
 } from '../src/strings';
 
 describe('String Utils', () => {
@@ -180,7 +181,7 @@ describe('String Utils', () => {
             ['cal+henderson@iamcalx.com', true],
             ['customer/department=shipping@example.com', true],
             ['user@blah.com/junk.junk?a=<tag value="junk"', false],
-            ['Abc\@def  @  example.com', false],
+            ['Abc@def  @  example.com', false],
             ['bad email address', false],
             [undefined, false],
             [12345, false],
@@ -229,6 +230,34 @@ describe('String Utils', () => {
 
         ])('should validate based on delimiter', (input, delimiter: any, expected) => {
             expect(isMacAddress(input, delimiter)).toEqual(expected);
+        });
+    });
+
+    describe('isUrl', () => {
+        test.each([
+            ['http://someurl.com'],
+            ['http://someurl.com.uk'],
+            ['https://someurl.cc.ru.ch'],
+            ['ftp://someurl.bom:8080?some=bar&hi=bob'],
+            ['http://xn--fsqu00a.xn--3lr804guic'],
+            ['http://example.com/hello%20world'],
+            ['bob.com'],
+        ])('should return true for valid urls', (input) => {
+            expect(isURL(input)).toEqual(true);
+        });
+
+        test.each([
+            ['somerandomstring'],
+            [null],
+            [true],
+            ['isthis_valid_uri.com'],
+            ['http://sthis valid uri.com'],
+            ['htp://validuri.com'],
+            ['hello://validuri.com'],
+            [{ url: 'http:thisisaurl.com' }],
+            [12345],
+        ])('should return false for invalid urls', (input) => {
+            expect(isURL(input)).toEqual(false);
         });
     });
 });

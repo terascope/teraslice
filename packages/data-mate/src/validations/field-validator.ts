@@ -810,7 +810,6 @@ export function isInteger(input: unknown, _parentContext?: unknown): boolean {
  * FieldValidator.isString(17.343); // false
  *
  * @param {*} input
- * @returns {boolean} boolean
  */
 
 export function isString(input: unknown, _parentContext?: unknown): input is string {

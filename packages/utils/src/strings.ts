@@ -1,3 +1,4 @@
+import validator from 'validator';
 import { MACDelimiter } from '@terascope/types';
 import { isArrayLike } from './arrays';
 import { getTypeOf } from './deps';
@@ -496,6 +497,10 @@ export function isMacAddressFP(args?: MACDelimiter | MACDelimiter[]) {
     return function _isMacAddressFP(input: unknown): input is string {
         return isMacAddress(input, args);
     };
+}
+
+export function isURL(input: unknown): boolean {
+    return isString(input) && validator.isURL(input);
 }
 
 /**

@@ -21,13 +21,13 @@ import { FieldValidateConfig, ProcessMode, FunctionDefinitionType } from '../int
  * @returns {boolean} boolean
  */
 
- export interface IsMacArgs {
+export interface IsMacArgs {
     delimiter?: string | string[];
 }
 
 const delimiterOptions = ['space', 'colon', 'dash', 'dot', 'none', 'any'];
 
-export const isMACAddress: FieldValidateConfig<IsMacArgs> = {
+export const isMACAddressConfig: FieldValidateConfig<IsMacArgs> = {
     name: 'isMacAddress',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
@@ -48,10 +48,9 @@ export const isMACAddress: FieldValidateConfig<IsMacArgs> = {
         let delimiterValues: string[];
 
         if (!delimiter) return;
-    
+
         if (delimiter && !Array.isArray(delimiter)) delimiterValues = [delimiter];
         else delimiterValues = delimiter as string[];
-
 
         delimiterValues.forEach((value) => {
             if (!delimiterOptions.includes(value)) {
