@@ -5,7 +5,7 @@ import { isEmailConfig } from './isEmail';
 import { isEmptyConfig } from './isEmpty';
 import { isLengthConfig } from './isLength';
 import { isMACAddressConfig } from './isMacAddress';
-import { isURLConfig } from './isURL';
+import { isUrlConfig } from './isUrl';
 
 export const fieldValidationRepository = {
     isBoolean: isBooleanConfig,
@@ -15,6 +15,6 @@ export const fieldValidationRepository = {
     isEmpty: isEmptyConfig,
     isLength: isLengthConfig,
     isMacAddress: isMACAddressConfig,
-    isURL: isURLConfig
+    isUrl: isUrlConfig
 
 } as const;

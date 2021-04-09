@@ -1,4 +1,4 @@
-import { isURL } from '@terascope/utils';
+import { isUrl } from '@terascope/utils';
 import { FieldValidateConfig, ProcessMode, FunctionDefinitionType } from '../interfaces';
 
 /**
@@ -18,13 +18,11 @@ import { FieldValidateConfig, ProcessMode, FunctionDefinitionType } from '../int
  * @returns {boolean} boolean
  */
 
-export const isURLConfig: FieldValidateConfig = {
-    name: 'isURL',
+export const isUrlConfig: FieldValidateConfig = {
+    name: 'isUrl',
     type: FunctionDefinitionType.FIELD_VALIDATION,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
     description: 'Checks to see if input is a string',
-    create() {
-        return isURL;
-    },
+    create() { return isUrl; },
     accepts: [],
 };
