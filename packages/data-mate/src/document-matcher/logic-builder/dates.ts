@@ -7,7 +7,6 @@ import {
     isInfiniteMax, isInfiniteMin, ParsedRange
 } from 'xlucene-parser';
 import { BooleanCB } from '../interfaces';
-import { DateValue } from '../../core';
 
 // TODO: handle datemath
 
@@ -55,7 +54,7 @@ export function dateRange(
     // verify it won't fail
     isWithinInterval(new Date(), interval);
 
-    return function dateRangeTerm(date: DateValue|string): boolean {
+    return function dateRangeTerm(date: string): boolean {
         const result = convertDate(date, 0, false);
         if (!result) return false;
 
@@ -70,8 +69,6 @@ export function dateRange(
 function convertDate(val: unknown, inclusive: number, throwErr: false): Date|undefined;
 function convertDate(val: unknown, inclusive: number, throwErr: true): Date;
 function convertDate(val: unknown, inclusive: number, throwErr: boolean): Date|undefined {
-    if (val instanceof DateValue) return new Date(val.value);
-
     const result = getValidDate(val as any);
     if (result) return handleInclusive(result, inclusive);
 

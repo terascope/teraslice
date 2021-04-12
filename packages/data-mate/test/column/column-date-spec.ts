@@ -1,12 +1,15 @@
-import 'jest-fixtures';
+import 'jest-extended';
+import { getValidDate } from '@terascope/utils';
 import { DateFormat, FieldType, Maybe } from '@terascope/types';
+import formatDate from 'date-fns/format';
+import parseDate from 'date-fns/parse';
 import {
-    Column, ColumnTransform, DateValue, Vector
+    Column, ColumnTransform, Vector
 } from '../../src';
 
 describe('Column (Date Types)', () => {
     describe('when field type is Date', () => {
-        let col: Column<DateValue>;
+        let col: Column<string|number>;
         const values: Maybe<any>[] = [
             '2020-09-23T14:54:21.020Z',
             '1941-08-20T07:00:00.000Z',
@@ -17,7 +20,7 @@ describe('Column (Date Types)', () => {
         ];
 
         beforeEach(() => {
-            col = Column.fromJSON<DateValue>('date', {
+            col = Column.fromJSON<string|number>('date', {
                 type: FieldType.Date,
             }, values);
         });
@@ -40,7 +43,7 @@ describe('Column (Date Types)', () => {
                 '2020-09-23T14:54:21.020Z',
                 '1941-08-20T07:00:00.000Z',
                 '2020-09-23T00:00:00.000Z',
-                1600875138416,
+                '2020-09-23T15:32:18.416Z',
                 undefined,
                 '2019-01-20T12:50:20.000Z'
             ]);
@@ -69,24 +72,23 @@ describe('Column (Date Types)', () => {
         });
 
         it('should be able to transform using formatDate(format: "yyyy-MM-dd HH:mm:ss")', () => {
+            const format = 'yyyy-MM-dd HH:mm:ss';
             const newCol = col.transform(ColumnTransform.formatDate, {
-                format: 'yyyy-MM-dd HH:mm:ss'
+                format
             });
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
                 ...col.config,
-                format: 'yyyy-MM-dd HH:mm:ss',
+                format,
                 type: FieldType.Date
             });
-            expect(newCol.toJSON()).toEqual([
-                '2020-09-23 14:54:21',
-                '1941-08-20 07:00:00',
-                '2020-09-23 00:00:00',
-                '2020-09-23 15:32:18',
-                undefined,
-                '2019-01-20 12:50:20',
-            ]);
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
+                if (value == null) return undefined;
+                const date = getValidDate(value);
+                if (date === false) return undefined;
+                return formatDate(date.getTime() - (date.getTimezoneOffset() * 60_000), format);
+            }));
         });
 
         test.todo('should NOT able to transform without using formatDate()');
@@ -185,17 +187,23 @@ describe('Column (Date Types)', () => {
         });
 
         it('should be able to transform using toDate', () => {
+            const format = 'yyyy-MM-dd HH:mm:ss xxx';
             const newCol = col.transform(ColumnTransform.toDate, {
-                format: 'yyyy-MM-dd HH:mm:ss xxx'
+                format
             });
 
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
                 ...col.config,
-                format: 'yyyy-MM-dd HH:mm:ss xxx',
+                format,
                 type: FieldType.Date
             });
-            expect(newCol.toJSON()).toEqual(values);
+            const referenceDate = new Date();
+            expect(newCol.toJSON()).toEqual(values.map((value) => {
+                if (value == null) return undefined;
+                const date = parseDate(value, format, referenceDate);
+                return formatDate(date, format);
+            }));
         });
 
         it('should fail to transform toDate using an invalid format', () => {
@@ -227,10 +235,13 @@ describe('Column (Date Types)', () => {
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
                 ...col.config,
-                format: DateFormat.epoch_millis,
                 type: FieldType.Date
             });
-            expect(newCol.toJSON()).toEqual(values);
+            expect(newCol.toJSON()).toEqual([
+                '2020-09-23T07:00:05.020Z',
+                undefined,
+                '2020-01-20T07:00:20.931Z'
+            ]);
         });
 
         it('should be able to transform using toDate(format: "milliseconds")', () => {
@@ -241,7 +252,7 @@ describe('Column (Date Types)', () => {
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
                 ...col.config,
-                format: DateFormat.epoch_millis,
+                format: DateFormat.milliseconds,
                 type: FieldType.Date
             });
             expect(newCol.toJSON()).toEqual(values);
@@ -252,10 +263,10 @@ describe('Column (Date Types)', () => {
                 col.transform(ColumnTransform.toDate, {
                     format: 'M/d/yyyy'
                 });
-            }).toThrowError('Expected string values when using toDate({ format })');
+            }).toThrowError('Expected string for formatted date fields');
         });
 
-        it('should return invalid dates when transform toDate(format: "seconds")', () => {
+        it('should return valid dates when transform toDate(format: "seconds")', () => {
             const newCol = col.transform(ColumnTransform.toDate, {
                 format: DateFormat.seconds
             });
@@ -319,7 +330,7 @@ describe('Column (Date Types)', () => {
             expect(newCol.id).not.toBe(col.id);
             expect(newCol.config).toEqual({
                 ...col.config,
-                format: DateFormat.epoch,
+                format: DateFormat.seconds,
                 type: FieldType.Date
             });
             expect(newCol.toJSON()).toEqual(values);
@@ -330,7 +341,7 @@ describe('Column (Date Types)', () => {
                 col.transform(ColumnTransform.toDate, {
                     format: 'M/d/yyyy'
                 });
-            }).toThrowError('Expected string values when using toDate({ format })');
+            }).toThrowError('Expected string for formatted date fields');
         });
 
         it('should return invalid dates when transform toDate(format: "milliseconds")', () => {

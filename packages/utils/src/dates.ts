@@ -27,8 +27,7 @@ export function getValidDate(val: Date|number|string|null|undefined): Date | fal
         return val;
     }
 
-    if (typeof val === 'number'
-        && (val <= 0 || !Number.isSafeInteger(val))) {
+    if (typeof val === 'number' && (!Number.isSafeInteger(val))) {
         return false;
     }
 

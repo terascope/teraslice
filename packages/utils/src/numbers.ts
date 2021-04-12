@@ -4,11 +4,9 @@ import { getTypeOf } from './deps';
 let supportsBigInt = true;
 try {
     if (typeof globalThis.BigInt === 'undefined') {
-        console.warn('BigInt isn\'t supported in this environment');
         supportsBigInt = false;
     }
 } catch (err) {
-    console.warn('BigInt isn\'t supported in this environment');
     supportsBigInt = false;
 }
 
@@ -46,6 +44,10 @@ export function toBigInt(input: unknown): bigint|false {
     }
 }
 
+const _maxBigInt: bigint = supportsBigInt
+    ? BigInt(Number.MAX_SAFE_INTEGER)
+    : (Number.MAX_SAFE_INTEGER as any);
+
 /** Convert any input to a bigint */
 export function toBigIntOrThrow(input: unknown): bigint {
     if (isBigInt(input)) return input;
@@ -53,29 +55,42 @@ export function toBigIntOrThrow(input: unknown): bigint {
         throw new Error('BigInt isn\'t supported in this environment');
     }
 
-    if (Number.isSafeInteger(input)) {
-        return BigInt(input);
+    if (
+        typeof input === 'number' && input < Number.MAX_SAFE_INTEGER
+    ) {
+        return BigInt(Math.trunc(input));
     }
 
     if (!isNumberLike(input)) {
         throw new TypeError(`Expected ${input} (${getTypeOf(input)}) to be parsable to a BigInt`);
     }
 
-    return BigInt(Number.parseInt(input as any, 10));
-}
+    let big: bigint;
+    if (typeof input === 'string' && input.includes('.')) {
+        big = BigInt(Number.parseInt(input, 10));
+    } else {
+        big = BigInt(input);
+    }
 
-const _maxBigInt: bigint = supportsBigInt
-    ? BigInt(Number.MAX_SAFE_INTEGER)
-    : (Number.MAX_SAFE_INTEGER as any);
+    // for some reason the number
+    // is incorrect when given a number
+    // greater than the max safe integer
+    if (big > _maxBigInt) {
+        return big + BigInt(1);
+    }
+    return big;
+}
 
 /**
  * Convert a BigInt to either a number of a string
 */
 export function bigIntToJSON(int: bigint): string|number {
     if (typeof int === 'number') return int;
-    const str = int.toLocaleString('en-US').replace(/,/g, '');
-    if (int < _maxBigInt) return parseInt(str, 10);
-    return str;
+    if (int <= _maxBigInt) {
+        return Number.parseInt(int.toString(10), 10);
+    }
+    // for some reason bigints ending being +1
+    return (int - BigInt(1)).toString(10);
 }
 
 /**

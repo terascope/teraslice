@@ -1,13 +1,15 @@
+import { parse } from 'ip-bigint';
 import { Vector, VectorOptions } from '../Vector';
 import { VectorType, DataBuckets } from '../interfaces';
-import { IPValue } from '../../core';
 
-export class IPVector extends Vector<IPValue> {
-    constructor(data: DataBuckets<IPValue>, options: VectorOptions) {
+export class IPVector extends Vector<string> {
+    valueToJSON = undefined;
+
+    constructor(data: DataBuckets<string>, options: VectorOptions) {
         super(VectorType.IP, data, options);
     }
 
-    valueToJSON(value: IPValue): string {
-        return value.ip;
+    getComparableValue(value: string): any {
+        return parse(value).number;
     }
 }

@@ -15,23 +15,23 @@ export default function buildLogicFn(
     return walkAst(parser.ast, parser.typeConfig, variables);
 }
 
-function makeGetFn(field?: string) {
-    if (!field) return (obj: any) => Object.values(obj);
-    if (field.includes('.')) return (obj: any) => get(obj, field);
+function makeGetFn(field?: string): (data: any) => unknown {
+    if (!field) return (obj) => Object.values(obj);
+    if (field.includes('.')) return (obj) => get(obj, field);
 
-    return function getProp(obj: any) {
+    return function getProp(obj) {
         return obj[field];
     };
 }
 
-function logicNode(field: string|undefined, cb: BooleanCB) {
+function logicNode(field: string|undefined, cb: BooleanCB): BooleanCB {
     if (field && isWildCardString(field)) {
         return findWildcardField(field, cb);
     }
     const getFn = makeGetFn(field);
     const getAnyData = makeSomeFn(cb);
 
-    return function _logicNode(obj: any) {
+    return function _logicNode(obj) {
         const data = getFn(obj);
 
         if (Array.isArray(data)) {
@@ -86,11 +86,11 @@ function rangeFn(node: p.Range, variables: xLuceneVariables): BooleanCB {
     };
 }
 
-function valueExists(value: any) {
+function valueExists(value: any): boolean {
     return value != null;
 }
 
-function isFalse() {
+function isFalse(): boolean {
     return false;
 }
 
@@ -163,7 +163,7 @@ function typeFunctions(
     typeConfig: xLuceneTypeConfig,
     variables: xLuceneVariables,
     defaultCb: BooleanCB
-) {
+): BooleanCB {
     if (node.field == null) return defaultCb;
 
     const type: xLuceneFieldType = typeConfig[node.field];
@@ -191,6 +191,12 @@ function typeFunctions(
 
 function makeIsValue(value: any) {
     return function isValue(data: any) {
+        if (typeof value === 'bigint' && typeof data === 'number') {
+            return value === BigInt(data);
+        }
+        if (typeof value === 'number' && typeof data === 'bigint') {
+            return BigInt(value) === data;
+        }
         return data === value;
     };
 }
@@ -199,7 +205,7 @@ function makeConjunctionFn(
     conjunction: p.Conjunction,
     typeConfig: xLuceneTypeConfig,
     variables: xLuceneVariables
-) {
+): BooleanCB {
     const fns = conjunction.nodes.map((node) => walkAst(node, typeConfig, variables));
     return makeAllPassFn(fns);
 }
@@ -208,14 +214,14 @@ function makeGroupFn(
     node: p.GroupLikeNode,
     typeConfig: xLuceneTypeConfig,
     variables: xLuceneVariables,
-) {
+): BooleanCB {
     const fns = node.flow.map((conjunction) => makeConjunctionFn(
         conjunction, typeConfig, variables
     ));
     return makeAnyPassFn(fns);
 }
 
-function makeAnyPassFn(fns: BooleanCB[]) {
+function makeAnyPassFn(fns: BooleanCB[]): BooleanCB {
     const len = fns.length;
     return function anyPassFn(data: any) {
         for (let i = 0; i < len; i++) {
@@ -225,7 +231,7 @@ function makeAnyPassFn(fns: BooleanCB[]) {
     };
 }
 
-function makeAllPassFn(fns: BooleanCB[]) {
+function makeAllPassFn(fns: BooleanCB[]): BooleanCB {
     const len = fns.length;
 
     return function allPassFn(data: any) {

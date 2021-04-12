@@ -18,6 +18,8 @@ module.exports = {
     'no-param-reassign': ['error', { props: false }],
     'no-use-before-define': ['error', { functions: false }],
     'import/no-dynamic-require': 'off',
+    // this is just annoying and doesn't help much
+    'no-useless-return': 'off',
     'global-require': 'off',
     strict: ['error', 'global'],
     'prefer-promise-reject-errors': 'warn',

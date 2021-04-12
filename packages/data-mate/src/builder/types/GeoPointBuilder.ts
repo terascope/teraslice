@@ -1,11 +1,11 @@
-import { GeoPoint } from '@terascope/types';
+import { GeoPoint, GeoPointInput } from '@terascope/types';
 import { parseGeoPoint } from '@terascope/utils';
-import { createObjectValue, WritableData } from '../../core';
+import { WritableData } from '../../core';
 import { VectorType } from '../../vector';
-import { BuilderOptions } from '../Builder';
-import { BuilderWithCache } from '../BuilderWithCache';
+import { Builder, BuilderOptions } from '../Builder';
 
-export class GeoPointBuilder extends BuilderWithCache<GeoPoint> {
+const weakSet = new WeakSet();
+export class GeoPointBuilder extends Builder<GeoPoint> {
     constructor(
         data: WritableData<GeoPoint>,
         options: BuilderOptions
@@ -14,9 +14,13 @@ export class GeoPointBuilder extends BuilderWithCache<GeoPoint> {
     }
 
     _valueFrom(value: unknown): GeoPoint {
-        return createObjectValue(
-            parseGeoPoint(value as any, true),
-            false,
+        if (typeof value === 'object' && value != null && weakSet.has(value)) {
+            return value as GeoPoint;
+        }
+        const result = Object.freeze(
+            parseGeoPoint(value as GeoPointInput, true)
         );
+        weakSet.add(result);
+        return result;
     }
 }

@@ -8,6 +8,8 @@ type ChildFields = readonly Vector<any>[];
 export class TupleVector<
     T extends [...any] = [...any]
 > extends Vector<T> {
+    getComparableValue = undefined;
+
     #childFields?: ChildFields;
 
     constructor(data: DataBuckets<T>, options: VectorOptions) {

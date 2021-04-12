@@ -343,7 +343,7 @@ describe('DataEntity', () => {
 
                 it('should throw if setting an invalid unix time', () => {
                     expect(() => {
-                        dataEntity[setMethod](-10);
+                        dataEntity[setMethod](Number.NaN);
                     }).toThrowError('Invalid date format');
                 });
 

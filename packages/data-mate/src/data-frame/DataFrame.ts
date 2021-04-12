@@ -2,7 +2,7 @@ import {
     DataTypeConfig, ReadonlyDataTypeConfig,
     Maybe, SortOrder, FieldType,
     DataTypeFields, DataTypeFieldConfig,
-    xLuceneVariables
+    xLuceneVariables,
 } from '@terascope/types';
 import {
     DataEntity, TSError,
@@ -10,7 +10,9 @@ import {
     isPlainObject, trimFP,
     isInteger
 } from '@terascope/utils';
-import { Column, KeyAggFn, makeUniqueKeyAgg } from '../column';
+import {
+    Column, KeyAggFn, makeUniqueKeyAgg
+} from '../column';
 import { AggregationFrame } from '../aggregation-frame';
 import {
     buildRecords, columnsToBuilderEntries, columnsToDataTypeConfig,
@@ -27,6 +29,8 @@ import {
 import { getMaxColumnSize } from '../aggregation-frame/utils';
 import { SerializeOptions, Vector } from '../vector';
 import { buildSearchMatcherForQuery } from './search-utils';
+import { DataFrameHeaderConfig } from './interfaces';
+import { convertMetadataFromJSON, convertMetadataToJSON } from './metadata-utils';
 
 /**
  * An immutable columnar table with APIs for data pipelines.
@@ -51,6 +55,75 @@ export class DataFrame<
     }
 
     /**
+     * Create an empty DataFrame
+    */
+    static empty<
+        R extends Record<string, unknown> = Record<string, any>,
+    >(
+        config: DataTypeConfig|ReadonlyDataTypeConfig,
+        options?: DataFrameOptions
+    ): DataFrame<R> {
+        const columns = distributeRowsToColumns<R>(config, []);
+        return new DataFrame(columns, options);
+    }
+
+    /**
+     * Create a DataFrame from a serialized format,
+     * the first row is data frame metadata,
+     * all of the subsequent rows are serialized columns.
+     *
+     * When using this method, the input should be split by a new line.
+    */
+    static async deserializeIterator<
+        R extends Record<string, unknown> = Record<string, any>,
+    >(data: Iterable<Buffer|string>|AsyncIterable<Buffer|string>): Promise<DataFrame<R>> {
+        let index = -1;
+
+        let metadata: Record<string, unknown>|undefined;
+        let name: string|undefined;
+        const columns: Column<any, keyof R>[] = [];
+
+        for await (const row of data) {
+            // ensure empty rows don't get passed along
+            if (!row.length || row.toString() === '\n') continue;
+
+            index++;
+            if (index === 0) {
+                ({ metadata, name } = JSON.parse(row as string) as DataFrameHeaderConfig);
+                metadata = convertMetadataFromJSON(metadata ?? {});
+            } else {
+                columns.push(Column.deserialize(row));
+            }
+        }
+
+        return new DataFrame<R>(columns, {
+            name,
+            metadata
+        });
+    }
+
+    /**
+     * Create a DataFrame from a serialized format,
+     * the first row is data frame metadata,
+     * all of the subsequent rows are serialized columns.
+     * The rows should be joined with a newline.
+     *
+     * When using this method, the whole serialized file should be
+     * passed in.
+     *
+     * For a more advanced steam like processing, see {@see DataFrame.deserializeIterator}
+     * Using that method may be required for deserializing a buffer or string
+     * greater than 1GB.
+    */
+    static async deserialize<
+        R extends Record<string, unknown> = Record<string, any>,
+    >(data: Buffer|string): Promise<DataFrame<R>> {
+        return DataFrame.deserializeIterator(
+            data.toString('utf8').split('\n')
+        );
+    }
+
+    /**
      * The name of the Frame
     */
     name?: string;
@@ -70,10 +143,13 @@ export class DataFrame<
     */
     readonly metadata: Record<string, any>;
 
+    /**
+     * Size of the DataFrame
+    */
+    readonly size: number;
+
     /** cached id for lazy loading the id */
     #id?: string;
-
-    readonly size: number;
 
     constructor(
         columns: Column<any, keyof T>[]|readonly Column<any, keyof T>[],
@@ -215,7 +291,7 @@ export class DataFrame<
         const existingFieldsConfig = this.config.fields;
         const existingFields = Object.keys(existingFieldsConfig);
 
-        const matchedFields: Record<string, Set<string>> = {};
+        const matchedFields: Record<string, Set<string>> = Object.create(null);
 
         for (const field of existingFields) {
             const matches = fieldSelectors.some((selector) => {
@@ -667,7 +743,7 @@ export class DataFrame<
         }
 
         const columns = fields.map((field) => this.getColumnOrThrow(field));
-        const childConfig: DataTypeFields = {};
+        const childConfig: DataTypeFields = Object.create(null);
         columns.forEach((col, index) => {
             childConfig[index] = col.config;
         });
@@ -729,7 +805,7 @@ export class DataFrame<
         if (index > (this.size - 1)) return;
         const nilValue: any = options?.useNullForUndefined ? null : undefined;
 
-        const row: Partial<T> = {};
+        const row: Partial<T> = Object.create(null);
         let numKeys = 0;
         for (const col of this.columns) {
             const field = col.name as keyof T;
@@ -783,6 +859,40 @@ export class DataFrame<
     */
     toArray(): T[] {
         return Array.from(this.rows(false));
+    }
+
+    /**
+     * Converts the DataFrame into an optimized serialized format,
+     * including the metadata. This returns an iterator and requires
+     * external code to join yield chunks with a new line.
+     *
+     * There is 1GB limit per column using this method
+    */
+    * serializeIterator(): Iterable<string> {
+        const dataFrameConfig: DataFrameHeaderConfig = {
+            v: 1,
+            name: this.name,
+            size: this.size,
+            metadata: convertMetadataToJSON(this.metadata),
+            config: this.config
+        };
+        yield JSON.stringify(dataFrameConfig);
+
+        for (const column of this.columns) {
+            yield column.serialize();
+        }
+    }
+
+    /**
+     * Converts the DataFrame into an optimized serialized format,
+     * including the metadata. This returns a string that includes
+     * the data frame header and all of columns joined with a new line.
+     *
+     * There is 1GB limit for the whole data frame using this method,
+     * to achieve a 1GB limit per column, use {@see serializeIterator}
+    */
+    serialize(): string {
+        return Array.from(this.serializeIterator()).join('\n');
     }
 }
 
