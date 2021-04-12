@@ -15,6 +15,11 @@ import { Context } from './interfaces';
 const cpuCount = os.cpus().length;
 const workers = cpuCount < 5 ? cpuCount : 5;
 
+/**
+ * This schema is for a Teraslice Job definition.
+ * @param context Teraslice context object
+ * @returns Complete convict schema for the Teraslice Job
+ */
 export function jobSchema(context: Context): convict.Schema<any> {
     const schemas: convict.Schema<any> = {
         active: {
@@ -238,21 +243,21 @@ export function jobSchema(context: Context): convict.Schema<any> {
             format: Boolean
         };
 
-        schemas.external_port = {
-            doc: '',
-            default: [],
+        schemas.external_ports = {
+            doc: 'A numerical array of ports that should be exposed as external ports on the pods',
+            default: undefined,
             format(arr) {
                 // TODO: What should we really do to validate this?  It can be
                 // omitted, an empty array, or an array with numbers.  It can't
                 // contain anything other than numbers.  Processors should be able
                 // to have reserved ports.  That is, if a job has port X but a
-                // processor requirs port X this code should throw an error.
-                // We should check to see that the user doesn't specify 45680,
-                // since that is reserved by Teraslice.
+                // processor requires port X this code should throw an error.
                 if (arr != null) {
                     if (!Array.isArray(arr)) {
                         throw new Error('external_ports is required to be an array');
-                    // FIXME: improve input and error handling
+                    }
+                    if (arr.includes(45680)) {
+                        throw new Error('Port 45680 cannot be included as an external_port, it is reserved by Teraslice.');
                     }
                 }
             }
@@ -301,6 +306,9 @@ export function jobSchema(context: Context): convict.Schema<any> {
 
 export const makeJobSchema = jobSchema;
 
+/**
+ * This is the schema for a Teraslice Operation.
+ */
 export const opSchema: convict.Schema<any> = {
     _op: {
         default: '',
@@ -327,6 +335,9 @@ export const opSchema: convict.Schema<any> = {
     },
 };
 
+/**
+ * This is the schema for a Teraslice API.
+ */
 export const apiSchema: convict.Schema<any> = {
     _name: {
         default: '',

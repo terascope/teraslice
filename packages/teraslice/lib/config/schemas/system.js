@@ -8,6 +8,10 @@ const {
 
 const workerCount = require('os').cpus().length;
 
+/**
+ * This schema object is for the Teraslice configuration settings coming from
+ * its configuration file.
+ */
 const schema = {
     api_response_timeout: {
         doc: 'HTTP response timeout for the Teraslice API server',
@@ -235,23 +239,6 @@ const schema = {
         doc: 'Add ephemeral storage volume to worker and execution controller pods',
         default: false,
         format: Boolean
-    },
-    external_ports: {
-        doc: '',
-        default: [],
-        format(arr) {
-            // TODO: What should we really do to validate this?  It can be
-            // omitted, an empty array, or an array with numbers.  It can't
-            // contain anything other than numbers.  Processors should be able
-            // to have reserved ports.  That is, if a job has port X but a
-            // processor requirs port X this code should throw an error.
-            if (arr != null) {
-                if (!Array.isArray(arr)) {
-                    throw new Error('external_ports is required to be an array');
-                    // FIXME: improve input and error handling
-                }
-            }
-        }
     },
     memory: {
         doc: 'memory, in bytes, to reserve per teraslice worker in kubernetes',
