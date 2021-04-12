@@ -257,7 +257,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
                         throw new Error('external_ports is required to be an array');
                     }
                     if (arr.includes(45680)) {
-                        throw new Error('Port 45680 cannot be included as an external_port, it is reserved by Teraslice.');
+                        throw new Error('Port 45680 cannot be included in external_ports, it is reserved by Teraslice.');
                     }
                 }
             }
