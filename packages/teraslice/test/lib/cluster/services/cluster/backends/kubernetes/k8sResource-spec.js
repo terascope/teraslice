@@ -657,6 +657,72 @@ describe('k8sResource', () => {
         });
     });
 
+    describe('teraslice job with one valid external_ports set', () => {
+        it('generates k8s worker deployment with containerPort on container', () => {
+            execution.external_ports = [9090];
+            const kr = new K8sResource(
+                'deployments', 'worker', terasliceConfig, execution
+            );
+
+            // eslint-disable-next-line no-console
+            // console.log(yaml.dump(kr.resource.spec.template.spec.containers[0].ports));
+            expect(kr.resource.spec.template.spec.containers[0].ports)
+                .toEqual([
+                    { containerPort: 45680 },
+                    { containerPort: 9090 }
+                ]);
+        });
+
+        it('generates k8s execution controller job with containerPort on container', () => {
+            execution.external_ports = [9090];
+            const kr = new K8sResource(
+                'jobs', 'execution_controller', terasliceConfig, execution
+            );
+
+            // eslint-disable-next-line no-console
+            // console.log(yaml.dump(kr.resource.spec.template.spec.containers[0].ports));
+            expect(kr.resource.spec.template.spec.containers[0].ports)
+                .toEqual([
+                    { containerPort: 45680 },
+                    { containerPort: 9090 }
+                ]);
+        });
+    });
+
+    describe('teraslice job with two valid external_ports set', () => {
+        it('generates k8s worker deployment with containerPort on container', () => {
+            execution.external_ports = [9090, 9091];
+            const kr = new K8sResource(
+                'deployments', 'worker', terasliceConfig, execution
+            );
+
+            // eslint-disable-next-line no-console
+            // console.log(yaml.dump(kr.resource.spec.template.spec.containers[0].ports));
+            expect(kr.resource.spec.template.spec.containers[0].ports)
+                .toEqual([
+                    { containerPort: 45680 },
+                    { containerPort: 9090 },
+                    { containerPort: 9091 }
+                ]);
+        });
+
+        it('generates k8s execution controller job with containerPort on container', () => {
+            execution.external_ports = [9090, 9091];
+            const kr = new K8sResource(
+                'jobs', 'execution_controller', terasliceConfig, execution
+            );
+
+            // eslint-disable-next-line no-console
+            // console.log(yaml.dump(kr.resource.spec.template.spec.containers[0].ports));
+            expect(kr.resource.spec.template.spec.containers[0].ports)
+                .toEqual([
+                    { containerPort: 45680 },
+                    { containerPort: 9090 },
+                    { containerPort: 9091 }
+                ]);
+        });
+    });
+
     describe('execution_controller job', () => {
         it('has valid resource object.', () => {
             const kr = new K8sResource(
