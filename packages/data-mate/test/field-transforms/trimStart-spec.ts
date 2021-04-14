@@ -33,10 +33,10 @@ describe('trimStartConfig', () => {
             '',
             ''
         ];
-        const toGeoPoint = trimStartConfig.create();
+        const trimStart = trimStartConfig.create();
 
         values.forEach((val, ind) => {
-            expect(toGeoPoint(val)).toEqual(expected[ind]);
+            expect(trimStart(val)).toEqual(expected[ind]);
         });
     });
 

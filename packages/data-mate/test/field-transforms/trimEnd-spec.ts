@@ -34,10 +34,10 @@ describe('trimEndConfig', () => {
             '',
             ''
         ];
-        const toGeoPoint = trimEndConfig.create();
+        const trimEnd = trimEndConfig.create();
 
         values.forEach((val, ind) => {
-            expect(toGeoPoint(val)).toEqual(expected[ind]);
+            expect(trimEnd(val)).toEqual(expected[ind]);
         });
     });
 
