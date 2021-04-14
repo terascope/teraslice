@@ -168,17 +168,27 @@ export function makeKeyForRow<T extends Record<string, any>>(
     keyAggs: Map<keyof T, KeyAggFn>,
     index: number
 ): { row: Partial<T>; key: string }|undefined {
-    const row: Partial<T> = {};
+    const row: Partial<T> = Object.create(null);
+
     let valueKey = '';
+    let keyIndex = 0;
+    let hasValues = false;
+
     for (const [field, getKey] of keyAggs) {
         const res = getKey(index);
-        if (res.key) valueKey += res.key;
+        valueKey += keyIndex;
+        if (res.key) {
+            hasValues = true;
+            valueKey += res.key;
+        }
+
         row[field] = res.value as any;
+        keyIndex++;
     }
 
     // this ensures that without a key aggregation
     // we create a global bucket
-    if (!valueKey && keyAggs.size) return;
+    if (!hasValues && keyAggs.size) return;
 
     const groupKey = createHashCode(valueKey);
     return {
