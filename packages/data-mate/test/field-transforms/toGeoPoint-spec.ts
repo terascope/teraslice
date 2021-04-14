@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import 'jest-extended';
 import {
     cloneDeep, DataEntity,
     isEmpty, isNotNil, withoutNil,
 } from '@terascope/utils';
 import {
-    FieldType, Maybe, GeoPointInput, GeoPoint
+    FieldType, Maybe, GeoPointInput
 } from '@terascope/types';
 import {
     functionConfigRepository, functionAdapter, FunctionDefinitionType,

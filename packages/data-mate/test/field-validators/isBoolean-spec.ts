@@ -125,7 +125,33 @@ describe('isBooleanConfig', () => {
                     new DataEntity({ [field]: true }, { time }),
                     new DataEntity({ [field]: null, hello: true }, { time })
                 ]
-            }
+            },
+            {
+                rows: [
+                    {
+                        [field]: [true, null, false, 'other']
+                    },
+                    {
+                        [field]: ['other']
+                    },
+                    {
+                        some: 'stuff',
+                        [field]: ['other']
+                    }
+                ],
+                result: [
+                    {
+                        [field]: [true, null, false, null]
+                    },
+                    {
+                        [field]: [null]
+                    },
+                    {
+                        some: 'stuff',
+                        [field]: [null]
+                    },
+                ]
+            },
         ];
 
         describe.each(columnTests)('when running columns', ({ column, result }) => {
@@ -188,7 +214,20 @@ describe('isBooleanConfig', () => {
 
             it(`should validate ${JSON.stringify(rows)} with preserveNull set to false`, () => {
                 const api = functionAdapter(isBooleanConfig, { field, preserveNulls: false });
-                const results = result.map((obj) => withoutNil(obj));
+                const results = result.map((obj) => {
+                    if (obj && Array.isArray(obj[field])) {
+                        // @ts-expect-error
+                        const filtered = obj[field].filter(isNotNil);
+
+                        if (filtered.length > 0) {
+                            obj[field] = filtered;
+                        } else {
+                            obj[field] = null;
+                        }
+                    }
+                    return withoutNil(obj);
+                });
+
                 expect(api.rows(rows)).toEqual(results);
             });
 
@@ -200,8 +239,22 @@ describe('isBooleanConfig', () => {
                 const results = result.reduce<Record<string, unknown>[]>(
                     (accum, curr) => {
                         const obj = withoutNil(curr);
-                        if (obj && !isEmpty(obj)) {
-                            accum.push(obj);
+
+                        if (obj) {
+                            if (Array.isArray(obj[field])) {
+                                // @ts-expect-error
+                                const filtered = obj[field].filter(isNotNil);
+
+                                if (filtered.length > 0) {
+                                    obj[field] = filtered;
+                                } else {
+                                    obj[field] = null;
+                                }
+                            }
+
+                            if (!isEmpty(withoutNil(obj))) {
+                                accum.push(obj);
+                            }
                         }
 
                         return accum;

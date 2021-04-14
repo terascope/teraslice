@@ -1,0 +1,178 @@
+import {
+    isObjectEntity,
+    get,
+    set,
+    isNotNil,
+    cloneDeep,
+    isNil,
+    unset
+} from '@terascope/utils';
+
+export function fieldValidationColumnExecution(
+    fn: (input: unknown) => unknown,
+    preserveNulls: boolean
+) {
+    return function _fieldValidationColumnExecution(
+        input: unknown[]
+    ): (unknown|null)[] {
+        if (!Array.isArray(input)) {
+            throw new Error('Invalid input, expected an array of values');
+        }
+        const results: (boolean | null)[] = [];
+
+        for (const value of input) {
+            if (isNotNil(value) && fn(value)) {
+                results.push(value);
+            } else if (preserveNulls) {
+                results.push(null);
+            }
+        }
+
+        return results;
+    };
+}
+
+export function wholeFieldValidationColumnExecution(
+    fn: (input: unknown) => unknown,
+) {
+    return function _fieldValidationColumnExecution(
+        input: unknown | null | unknown[]
+    ): unknown | unknown[] {
+        if (fn(input)) {
+            return input;
+        }
+
+        return null;
+    };
+}
+
+export function wholeFieldValidationRowExecution(
+    fn: (input: unknown) => unknown,
+    preserveNulls: boolean,
+    preserveEmptyObjects: boolean,
+    field?: string
+): (input: unknown[]) => unknown[] {
+    return function _wholeFieldValidationRowExecution(
+        input: unknown[]
+    ): unknown[] {
+        if (isNil(field)) throw new Error('Must provide a field option when running a row');
+        if (!Array.isArray(input)) {
+            throw new Error('Invalid input, expected an array of objects');
+        }
+
+        const results = [];
+
+        for (const record of input) {
+            const clone = cloneDeep(record);
+
+            if (!isObjectEntity(record)) {
+                throw new Error(`Invalid record ${JSON.stringify(record)}, expected an array of simple objects or data-entities`);
+            }
+
+            const value = get(clone, field);
+            const isValid = fn(value);
+            // if it fails validation and we keep null
+            if (!isValid && preserveNulls) {
+                set(clone, field, null);
+                results.push(clone);
+            } else if (!isValid) {
+                // remove key, check if empty record
+                unset(clone, field);
+                // if we preserve empty objects, we don't need to check anything
+                if (preserveEmptyObjects) {
+                    results.push(clone);
+                } else {
+                    const hasKeys = Object.keys(clone).length !== 0;
+                    if (hasKeys) {
+                        results.push(clone);
+                    }
+                }
+            } else {
+                results.push(clone);
+            }
+        }
+
+        return results;
+    };
+}
+
+export function fieldValidationRowExecution(
+    fn: (input: unknown) => unknown,
+    preserveNulls: boolean,
+    preserveEmptyObjects: boolean,
+    field?: string
+): (input: unknown[]) => unknown[] {
+    return function _wholeFieldValidationRowExecution(
+        input: unknown[]
+    ): unknown[] {
+        if (isNil(field)) throw new Error('Must provide a field option when running a row');
+        if (!Array.isArray(input)) {
+            throw new Error('Invalid input, expected an array of objects');
+        }
+
+        const results = [];
+
+        for (const record of input) {
+            const clone = cloneDeep(record);
+
+            if (!isObjectEntity(record)) {
+                throw new Error(`Invalid record ${JSON.stringify(record)}, expected an array of simple objects or data-entities`);
+            }
+
+            const value = get(clone, field);
+
+            if (Array.isArray(value)) {
+                const fieldList: unknown[] = [];
+
+                for (const item of value) {
+                    const isValid = fn(item);
+
+                    if (isValid) {
+                        fieldList.push(item);
+                    } else if (preserveNulls) {
+                        fieldList.push(null);
+                    }
+                }
+                // we have results in list or we don't care if its an empty list here
+                if (fieldList.length > 0) {
+                    set(clone, field, fieldList);
+                    results.push(clone);
+                } else {
+                    unset(clone, field);
+
+                    if (preserveEmptyObjects) {
+                        results.push(clone);
+                    } else {
+                        const hasKeys = Object.keys(clone).length !== 0;
+                        if (hasKeys) {
+                            results.push(clone);
+                        }
+                    }
+                }
+            } else {
+                const isValid = fn(value);
+                // if it fails validation and we keep null
+                if (!isValid && preserveNulls) {
+                    set(clone, field, null);
+                    results.push(clone);
+                } else if (!isValid) {
+                    // remove key, check if empty record
+                    unset(clone, field);
+                    // if we preserve empty objects, we don't need to check anything
+                    if (preserveEmptyObjects) {
+                        results.push(clone);
+                    } else {
+                        const hasKeys = Object.keys(clone).length !== 0;
+                        if (hasKeys) {
+                            results.push(clone);
+                        }
+                    }
+                } else {
+                    results.push(clone);
+                }
+            }
+        }
+
+        return results;
+    };
+}
