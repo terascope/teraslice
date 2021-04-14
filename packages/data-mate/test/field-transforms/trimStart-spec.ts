@@ -9,12 +9,12 @@ import {
     ProcessMode, Column, dateFrameAdapter, DataFrame, VectorType
 } from '../../src';
 
-const trimConfig = functionConfigRepository.trim;
+const trimConfig = functionConfigRepository.trimStart;
 
-describe('trimConfig', () => {
+describe('trimStartConfig', () => {
     it('has proper configuration', () => {
         expect(trimConfig).toBeDefined();
-        expect(trimConfig).toHaveProperty('name', 'trim');
+        expect(trimConfig).toHaveProperty('name', 'trimStart');
         expect(trimConfig).toHaveProperty('type', FunctionDefinitionType.FIELD_TRANSFORM);
         expect(trimConfig).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
         expect(trimConfig).toHaveProperty('description');
@@ -25,12 +25,12 @@ describe('trimConfig', () => {
         expect(trimConfig.create).toBeFunction();
     });
 
-    it('can trim whitespace', () => {
+    it('can trim whitespace from start of string', () => {
         const values = [' hello ', '   left', 'right   ', '    ', null];
         const expected = [
-            'hello',
+            'hello ',
             'left',
-            'right',
+            'right   ',
             '',
             ''
         ];
@@ -75,8 +75,8 @@ describe('trimConfig', () => {
             const newCol = api.column(col);
 
             expect(newCol.toJSON()).toEqual([
-                'other_things',
-                'Stuff',
+                'other_things         ',
+                'Stuff        ',
                 'hello',
                 undefined,
                 'Spider Man',
@@ -90,8 +90,8 @@ describe('trimConfig', () => {
             const newFrame = api.frame(frame);
 
             expect(newFrame.toJSON()).toEqual([
-                { [field]: 'other_things', num: 0 },
-                { [field]: 'Stuff', num: 1 },
+                { [field]: 'other_things         ', num: 0 },
+                { [field]: 'Stuff        ', num: 1 },
                 { [field]: 'hello', num: 2 },
                 { num: 3 },
                 { [field]: 'Spider Man', num: 4 },
