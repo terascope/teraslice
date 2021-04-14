@@ -1,4 +1,9 @@
 import validator from 'validator';
+import {
+    trim as lTrim,
+    trimEnd as lTrimEnd,
+    trimStart as lTrimStart
+} from 'lodash';
 import { MACDelimiter } from '@terascope/types';
 import { isArrayLike, includes } from './arrays';
 import { getTypeOf } from './deps';
@@ -93,70 +98,17 @@ export function primitiveToString(value: unknown): string {
     return `${value}`;
 }
 
-/** safely trim an input */
-export function trim(input: unknown, char = ' '): string {
-    if (char === ' ') return primitiveToString(input).trim();
-
-    return trimEnd(trimStart(input, char), char);
+/** safely trims whitespace from an input */
+export function trim(input: unknown): string {
+    return lTrim(primitiveToString(input));
 }
 
-/** A functional version of trim */
-export function trimFP(char = ' ') {
-    return function _trim(input: unknown): string {
-        return trim(input, char);
-    };
+export function trimStart(input: unknown): string {
+    return lTrimStart(primitiveToString(input));
 }
 
-export function trimStart(input: unknown, char = ' '): string {
-    const str = primitiveToString(input);
-    if (char === ' ') {
-        return str.trimStart();
-    }
-
-    let start = str.indexOf(char);
-    if (start === -1 || start > (str.length / 2)) return str;
-
-    for (start; start < str.length;) {
-        if (str.slice(start, start + char.length) !== char) {
-            break;
-        }
-        start += char.length;
-    }
-
-    return str.slice(start);
-}
-
-/** A functional version of trimStart */
-export function trimStartFP(char = ' ') {
-    return function _trimStart(input: unknown): string {
-        return trimStart(input, char);
-    };
-}
-
-export function trimEnd(input: unknown, char = ' '): string {
-    const str = primitiveToString(input);
-    if (char === ' ') {
-        return str.trimEnd();
-    }
-
-    let end = str.lastIndexOf(char);
-    if (end === -1 || end < (str.length / 2)) return str;
-
-    for (end; end >= 0;) {
-        if (str.slice(end - char.length, end) !== char) {
-            break;
-        }
-        end -= char.length;
-    }
-
-    return str.slice(0, end);
-}
-
-/** A functional version of trimStart */
-export function trimEndFP(char = ' ') {
-    return function _trimEnd(input: unknown): string {
-        return trimEnd(input, char);
-    };
+export function trimEnd(input: unknown): string {
+    return lTrimEnd(primitiveToString(input));
 }
 
 /** safely trim and to lower a input, useful for string comparison */
