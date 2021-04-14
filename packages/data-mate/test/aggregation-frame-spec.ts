@@ -1,6 +1,6 @@
 import 'jest-fixtures';
 import { LATEST_VERSION } from '@terascope/data-types';
-import { FieldType } from '@terascope/types';
+import { FieldType, Maybe } from '@terascope/types';
 import { DataFrame } from '../src';
 
 describe('AggregationFrame', () => {
@@ -13,7 +13,7 @@ describe('AggregationFrame', () => {
     };
     let dataFrame: DataFrame<Person>;
 
-    beforeEach(() => {
+    beforeAll(() => {
         dataFrame = DataFrame.fromJSON<Person>({
             version: LATEST_VERSION,
             fields: {
@@ -767,5 +767,74 @@ describe('AggregationFrame', () => {
                 date: '2020-09-15T15:39:11.195Z'
             }
         ]);
+    });
+
+    describe('when there are duplicate values across the groupBy fields', () => {
+        type Person2 = {
+            name: Maybe<string>;
+            gender: Maybe<'F'|'M'>;
+            age: Maybe<number>;
+            friends: Maybe<number>;
+        };
+        let dataFrame2: DataFrame<Person2>;
+
+        beforeAll(() => {
+            dataFrame2 = DataFrame.fromJSON<Person2>({
+                version: LATEST_VERSION,
+                fields: {
+                    name: {
+                        type: FieldType.Keyword,
+                    },
+                    gender: {
+                        type: FieldType.Keyword,
+                    },
+                    age: {
+                        type: FieldType.Short,
+                    },
+                    friends: {
+                        type: FieldType.Short,
+                    },
+                }
+            }, [
+                {
+                    name: 'Anne',
+                    age: null,
+                    friends: 20,
+                    gender: 'F',
+                },
+                {
+                    name: 'Bill',
+                    age: 20,
+                    friends: null,
+                    gender: 'M',
+                },
+                {
+                    name: 'Nick',
+                    age: null,
+                    friends: null,
+                    gender: null,
+                },
+            ]);
+        });
+
+        it('should create the correct results', async () => {
+            const resultFrame = await dataFrame2
+                .aggregate()
+                .groupBy('age', 'friends')
+                .run();
+
+            expect(resultFrame.toJSON()).toEqual([
+                {
+                    name: 'Anne',
+                    friends: 20,
+                    gender: 'F',
+                },
+                {
+                    name: 'Bill',
+                    age: 20,
+                    gender: 'M',
+                }
+            ]);
+        });
     });
 });
