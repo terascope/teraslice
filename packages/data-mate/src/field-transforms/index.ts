@@ -4,6 +4,7 @@ import { toGeoPointConfig } from './toGeoPoint';
 import { encodeHexConfig } from './encodeHex';
 import { trimConfig } from './trim';
 import { trimStartConfig } from './trimStart';
+import { trimEndConfig } from './trimEnd';
 
 export const fieldTransformsRepository = {
     toUpperCase: toUpperCaseConfig,
@@ -11,5 +12,6 @@ export const fieldTransformsRepository = {
     toGeoPoint: toGeoPointConfig,
     encodeHex: encodeHexConfig,
     trim: trimConfig,
-    trimStart: trimStartConfig
+    trimStart: trimStartConfig,
+    trimEnd: trimEndConfig
 };

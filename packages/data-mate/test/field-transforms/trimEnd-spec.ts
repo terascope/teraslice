@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import 'jest-extended';
 import {
     FieldType, Maybe, DataTypeConfig
@@ -8,32 +9,32 @@ import {
     ProcessMode, Column, dateFrameAdapter, DataFrame, VectorType
 } from '../../src';
 
-const trimConfig = functionConfigRepository.trim;
+const trimEndConfig = functionConfigRepository.trimEnd;
 
-describe('trimConfig', () => {
+describe('trimEndConfig', () => {
     it('has proper configuration', () => {
-        expect(trimConfig).toBeDefined();
-        expect(trimConfig).toHaveProperty('name', 'trim');
-        expect(trimConfig).toHaveProperty('type', FunctionDefinitionType.FIELD_TRANSFORM);
-        expect(trimConfig).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
-        expect(trimConfig).toHaveProperty('description');
-        expect(trimConfig).toHaveProperty('accepts', [
+        expect(trimEndConfig).toBeDefined();
+        expect(trimEndConfig).toHaveProperty('name', 'trimEnd');
+        expect(trimEndConfig).toHaveProperty('type', FunctionDefinitionType.FIELD_TRANSFORM);
+        expect(trimEndConfig).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
+        expect(trimEndConfig).toHaveProperty('description');
+        expect(trimEndConfig).toHaveProperty('accepts', [
             FieldType.String,
         ]);
-        expect(trimConfig).toHaveProperty('create');
-        expect(trimConfig.create).toBeFunction();
+        expect(trimEndConfig).toHaveProperty('create');
+        expect(trimEndConfig.create).toBeFunction();
     });
 
-    it('can trim whitespace', () => {
+    it('can trim whitespace from start of string', () => {
         const values = [' hello ', '   left', 'right   ', '    ', null];
         const expected = [
-            'hello',
-            'left',
+            ' hello',
+            '   left',
             'right',
             '',
             ''
         ];
-        const toGeoPoint = trimConfig.create();
+        const toGeoPoint = trimEndConfig.create();
 
         values.forEach((val, ind) => {
             expect(toGeoPoint(val)).toEqual(expected[ind]);
@@ -70,13 +71,13 @@ describe('trimConfig', () => {
             col = Column.fromJSON<string>(field, {
                 type: FieldType.String
             }, values);
-            const api = dateFrameAdapter(trimConfig);
+            const api = dateFrameAdapter(trimEndConfig);
             const newCol = api.column(col);
 
             expect(newCol.toJSON()).toEqual([
-                'other_things',
+                '   other_things',
                 'Stuff',
-                'hello',
+                '      hello',
                 undefined,
                 'Spider Man',
             ]);
@@ -85,13 +86,13 @@ describe('trimConfig', () => {
         it('should be able to transform a dataFrame using trim', () => {
             const frame = DataFrame.fromJSON(frameTestConfig, frameData);
 
-            const api = dateFrameAdapter(trimConfig, { field });
+            const api = dateFrameAdapter(trimEndConfig, { field });
             const newFrame = api.frame(frame);
 
             expect(newFrame.toJSON()).toEqual([
-                { [field]: 'other_things', num: 0 },
+                { [field]: '   other_things', num: 0 },
                 { [field]: 'Stuff', num: 1 },
-                { [field]: 'hello', num: 2 },
+                { [field]: '      hello', num: 2 },
                 { num: 3 },
                 { [field]: 'Spider Man', num: 4 },
             ]);
