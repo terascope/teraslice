@@ -1,6 +1,6 @@
 import validator from 'validator';
 import { MACDelimiter } from '@terascope/types';
-import { isArrayLike } from './arrays';
+import { isArrayLike, includes } from './arrays';
 import { getTypeOf } from './deps';
 
 /** A simplified implementation of lodash isString */
@@ -501,6 +501,14 @@ export function isMacAddressFP(args?: MACDelimiter | MACDelimiter[]) {
 
 export function isUrl(input: unknown): boolean {
     return isString(input) && validator.isURL(input);
+}
+
+export function isUUID(input: unknown): boolean {
+    return isString(input) && validator.isUUID(input);
+}
+
+export function contains(input: unknown, substring: string): boolean {
+    return isString(input) && includes(input, substring);
 }
 
 /**
