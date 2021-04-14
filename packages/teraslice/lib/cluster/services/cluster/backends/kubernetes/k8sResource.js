@@ -51,6 +51,7 @@ class K8sResource {
         this._setAssetsVolume();
         this._setImagePullSecret();
         this._setEphemeralStorage();
+        this._setExternalPorts();
 
         if (resourceName === 'worker') {
             this._setAntiAffinity();
@@ -176,6 +177,15 @@ class K8sResource {
             this.resource.spec.template.spec.volumes.push({
                 name: 'ephemeral-volume',
                 emptyDir: {}
+            });
+        }
+    }
+
+    _setExternalPorts() {
+        if (this.execution.external_ports) {
+            _.forEach(this.execution.external_ports, (port) => {
+                this.resource.spec.template.spec.containers[0].ports
+                    .push({ containerPort: port });
             });
         }
     }

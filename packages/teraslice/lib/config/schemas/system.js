@@ -8,6 +8,10 @@ const {
 
 const workerCount = require('os').cpus().length;
 
+/**
+ * This schema object is for the Teraslice configuration settings coming from
+ * its configuration file.
+ */
 const schema = {
     api_response_timeout: {
         doc: 'HTTP response timeout for the Teraslice API server',
