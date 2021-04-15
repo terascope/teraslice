@@ -1,4 +1,5 @@
 import { toUpperCaseConfig } from './toUpperCase';
+import { toLowerCaseConfig } from './toLowerCase';
 import { toBooleanConfig } from './toBoolean';
 import { toGeoPointConfig } from './toGeoPoint';
 import { encodeHexConfig } from './encodeHex';
@@ -9,6 +10,7 @@ import { decodeHexConfig } from './decodeHex';
 
 export const fieldTransformsRepository = {
     toUpperCase: toUpperCaseConfig,
+    toLowerCase: toLowerCaseConfig,
     toBoolean: toBooleanConfig,
     toGeoPoint: toGeoPointConfig,
     encodeHex: encodeHexConfig,
