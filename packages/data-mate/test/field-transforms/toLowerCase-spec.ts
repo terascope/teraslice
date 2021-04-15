@@ -30,11 +30,11 @@ describe('toLowerCaseConfig', () => {
     });
 
     it('will throw if not given a string input', () => {
-        const toUpperCase = toLowerCaseConfig.create();
+        const toLowerCase = toLowerCaseConfig.create();
 
-        expect(() => toUpperCase(3)).toThrowError('Invalid input 3, expected string got Number');
-        expect(() => toUpperCase({})).toThrowError('Invalid input {}, expected string got Object');
-        expect(() => toUpperCase(null)).toThrowError('Invalid input null, expected string got null');
-        expect(() => toUpperCase(undefined)).toThrowError('Invalid input undefined, expected string got undefined');
+        expect(() => toLowerCase(3)).toThrowError('Invalid input 3, expected string got Number');
+        expect(() => toLowerCase({})).toThrowError('Invalid input {}, expected string got Object');
+        expect(() => toLowerCase(null)).toThrowError('Invalid input null, expected string got null');
+        expect(() => toLowerCase(undefined)).toThrowError('Invalid input undefined, expected string got undefined');
     });
 });

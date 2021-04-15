@@ -292,7 +292,7 @@ export const WORD_CHARS = {
 */
 export function getWordParts(input: string): string[] {
     if (!isString(input)) {
-        throw new Error(`Expected string, got "${input}"`);
+        throw new Error(`Expected string, got ${getTypeOf(input)}`);
     }
 
     const parts: string[] = [];
@@ -335,16 +335,16 @@ export function getWordParts(input: string): string[] {
 }
 
 export function toCamelCase(input: string): string {
-    return firstToLower(getWordParts(input).map((str, i) => {
-        if (i === 0) return str;
-        return firstToUpper(str);
-    }).join(''));
+    return getWordParts(input).map((str, i) => {
+        if (i === 0) return str.toLowerCase();
+        return firstToUpper(str.toLowerCase());
+    }).join('');
 }
 
 export function toPascalCase(input: string): string {
     return firstToUpper(getWordParts(input).map((str, i) => {
-        if (i === 0) return str;
-        return firstToUpper(str);
+        if (i === 0) return str.toLowerCase();
+        return firstToUpper(str.toLowerCase());
     }).join(''));
 }
 
@@ -357,7 +357,7 @@ export function toSnakeCase(input: string): string {
 }
 
 export function toTitleCase(input: string): string {
-    return firstToUpper(getWordParts(input).map((str) => firstToUpper(str)).join(' '));
+    return firstToUpper(getWordParts(input).map((str) => firstToUpper(str.toLowerCase())).join(' '));
 }
 
 /**
