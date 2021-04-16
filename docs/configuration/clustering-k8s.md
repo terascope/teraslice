@@ -127,6 +127,35 @@ style Ephemeral Volume accessible in your pod at the path `/ephemeral0`.
     "ephemeral_storage": true
 ```
 
+### External Ports
+
+If for some reason you need to expose ports on your Teraslice workers in
+Kubernetes, you can do so with the `external_ports` job property.  You can
+provide either a simple number (that matches the port) or you can specify an
+object with `name` (a string) and `port` (a number) properties.
+
+```json
+    "external_ports": [
+        9090,
+        {"name": "metrics", "port": 3333}
+    ]
+```
+
+A job containing the `external_ports` shown above would result in the following
+Kubernetes snippet:
+
+```yaml
+    ports:
+    - containerPort: 9090
+      protocol: TCP
+    - containerPort: 3333
+      name: metrics
+      protocol: TCP
+```
+
+The reason this was added was to expose a Prometheus exporter on Teraslice
+worker pods.
+
 ### Labels
 
 Key value pairs added into a job's `labels` array, as shown below, will result
