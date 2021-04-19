@@ -6,14 +6,9 @@ import { Builder } from '../builder';
 import {
     SerializeOptions, Vector
 } from '../vector';
-import {
-    ColumnConfig,
-    ColumnOptions, ColumnTransformConfig, ColumnValidateConfig, TransformMode
-} from './interfaces';
+import { ColumnConfig, ColumnOptions } from './interfaces';
 import { runVectorAggregation, ValueAggregation } from './aggregations';
-import {
-    getVectorId, mapVector, validateFieldTransformArgs, validateFieldTransformType
-} from './utils';
+import { getVectorId } from './utils';
 import { ReadableData, WritableData } from '../core';
 
 type NameType = (number|string|symbol);
