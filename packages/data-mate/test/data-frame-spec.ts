@@ -2,10 +2,11 @@ import 'jest-extended';
 import 'jest-fixtures';
 import { LATEST_VERSION } from '@terascope/data-types';
 import {
-    DataTypeConfig, FieldType, GeoShape, GeoShapeType,
+    DataTypeConfig, FieldType, GeoShape,
+    GeoShapeType, DataTypeFieldConfig
 } from '@terascope/types';
 import { bigIntToJSON, cloneDeep, isBigInt } from '@terascope/utils';
-import { ColumnTransform, DataFrame } from '../src';
+import { Column, DataFrame } from '../src';
 
 describe('DataFrame', () => {
     it('should be able to create an empty table using DataFrame#fromJSON', () => {
@@ -710,10 +711,18 @@ describe('DataFrame', () => {
 
         describe('->assign', () => {
             it('should be able to a new frame with the new column', () => {
-                const newCol = peopleDataFrame
+                const newColName = 'upper_name';
+
+                const colValues = peopleDataFrame
                     .getColumnOrThrow('name')
-                    .transform(ColumnTransform.toUpperCase)
-                    .rename('upper_name');
+                    .toJSON();
+
+                const config: DataTypeFieldConfig = { type: FieldType.String };
+                const newCol = Column.fromJSON(
+                    newColName,
+                    config,
+                    colValues.map((str) => str?.toUpperCase())
+                );
 
                 const resultFrame = peopleDataFrame.assign([newCol]);
 
@@ -725,7 +734,16 @@ describe('DataFrame', () => {
             });
 
             it('should be able to a new frame with replaced columns', () => {
-                const newCol = peopleDataFrame.getColumnOrThrow('name').transform(ColumnTransform.toUpperCase);
+                const colValues = peopleDataFrame
+                    .getColumnOrThrow('name')
+                    .toJSON();
+
+                const config: DataTypeFieldConfig = { type: FieldType.String };
+                const newCol = Column.fromJSON(
+                    'name',
+                    config,
+                    colValues.map((str) => str?.toUpperCase())
+                );
                 const resultFrame = peopleDataFrame.assign([newCol]);
 
                 const names = resultFrame.columns.map(({ name }) => name);
