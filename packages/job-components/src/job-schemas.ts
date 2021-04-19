@@ -255,7 +255,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
                 // processor requires port X this code should throw an error.
                 if (arr != null) {
                     if (!Array.isArray(arr)) {
-                        throw new Error('external_ports is required to be an array of numbers or objects like {name: \'foo\', port: 45}.');
+                        throw new Error('external_ports is required to be an array of numbers or objects like {name: \'myJob\', port: 9000}.');
                     }
                     for (const portValue of arr) {
                         if (isNumber(portValue)) {
@@ -272,7 +272,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
                                     throw new Error(`value for key "${key}" must be not empty`);
                                 }
                                 // eslint-disable-next-line no-prototype-builtins
-                                if (portValue.property.hasOwnProperty('name') && portValue.hasOwnProperty('port')) {
+                                if (portValue.hasOwnProperty('name') && portValue.hasOwnProperty('port')) {
                                     if (!isNumber(portValue.port)) {
                                         throw new Error('The port set on an external_ports object must be a number.');
                                     }
@@ -280,11 +280,11 @@ export function jobSchema(context: Context): convict.Schema<any> {
                                         throw new Error('The name set on an external ports object must be a non empty string.');
                                     }
                                 } else {
-                                    throw new Error('An external_ports entry must be an object like {name: \'foo\', port: 45} or a number.');
+                                    throw new Error('An external_ports entry must be an object like {name: \'myJob\', port: 9000} or a number.');
                                 }
                             });
                         } else {
-                            throw new Error('An external_ports entry must be a number or an object like {name: \'foo\', port: 45}.');
+                            throw new Error('An external_ports entry must be a number or an object like {name: \'myJob\', port: 9000}.');
                         }
                     }
                 }
