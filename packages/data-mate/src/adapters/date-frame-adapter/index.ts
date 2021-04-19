@@ -11,7 +11,7 @@ import {
 } from '../../interfaces';
 
 import {
-    ColumnValidateConfig, TransformMode, ColumnTransformFn
+    TransformMode, ColumnTransformFn
 } from '../../column/interfaces';
 
 import {
@@ -136,9 +136,60 @@ function transformColumnData(
     );
 }
 
-function validateColumn<T>(config: ColumnValidateConfig<any, T>) {
+function validateColumnData(
+    column: Column,
+    validationConfig: FieldValidateConfig,
+    args?: Record<string, unknown>
+): Column {
+    validateFieldTransformType(
+        getVectorType(validationConfig.accepts),
+        column.vector
+    );
+    const mode = getMode(validationConfig);
+    const output = column.config;
+
+    const options: ColumnOptions = {
+        name: column.name,
+        version: column.version,
+    };
+
+    const validatorFn = validationConfig.create(
+        { ...args }
+    );
+
+    const columnValidationConfig: ColumnTransformFn<unknown, unknown> = {
+        mode,
+        output,
+        fn: validatorFn
+    };
+
+    const transform = mode !== TransformMode.NONE ? ({
+        ...columnValidationConfig,
+        fn(value: any): any {
+            if (validatorFn(value)) {
+                return value;
+            }
+            return null;
+        }
+    }) : columnValidationConfig;
+
+    // TODO: consider if we should move mapVector logic here
+    return new Column(
+        mapVector(
+            column.vector,
+            transform,
+            output,
+        ),
+        options
+    );
+}
+
+function validateColumn(
+    config: FieldValidateConfig,
+    args?: Record<string, unknown>,
+) {
     return function _validateColumn(column: Column<any>): Column<any> {
-        return column.validate<T>(config);
+        return validateColumnData(column, config, args);
     };
 }
 
@@ -148,13 +199,17 @@ function transformColumn(config: FieldTransformConfig, args?: Record<string, unk
     };
 }
 
-function validateFrame<T>(config: ColumnValidateConfig<any, T>, field?: string) {
+function validateFrame(
+    fnDef: FieldValidateConfig,
+    args?: Record<string, unknown>,
+    field?: string
+) {
     return function _validateFrame(
         frame: DataFrame<Record<string, unknown>>
     ): DataFrame<Record<string, unknown>> {
         if (isNil(field)) throw new Error('Must provide a field option when running a DataFrame');
         const col = frame.getColumnOrThrow(field);
-        const validCol = col.validate(config);
+        const validCol = validateColumnData(col, fnDef, args);
 
         return frame.assign([validCol]);
     };
@@ -194,8 +249,8 @@ export function dateFrameAdapter<T extends Record<string, any> = Record<string, 
 
     if (isFieldValidation(fnDef)) {
         return {
-            column: validateColumn<T>(operation),
-            frame: validateFrame<T>(operation, field)
+            column: validateColumn(fnDef, args),
+            frame: validateFrame(fnDef, args, field)
         } as FrameAdapterFn;
     }
 
