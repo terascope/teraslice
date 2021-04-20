@@ -272,7 +272,6 @@ export function jobSchema(context: Context): convict.Schema<any> {
                                 if (val == null || val === '') {
                                     throw new Error(`value for key "${key}" must be not empty`);
                                 }
-                                // eslint-disable-next-line no-prototype-builtins
                                 if (hasOwn(portValue, 'name') && hasOwn(portValue, 'port')) {
                                     if (!isNumber(portValue.port)) {
                                         throw new Error('The port set on an external_ports object must be a number.');
