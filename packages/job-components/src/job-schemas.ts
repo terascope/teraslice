@@ -6,6 +6,7 @@ import {
     flatten,
     getField,
     getTypeOf,
+    hasOwn,
     isNotNil,
     isNumber,
     isPlainObject,
@@ -272,7 +273,7 @@ export function jobSchema(context: Context): convict.Schema<any> {
                                     throw new Error(`value for key "${key}" must be not empty`);
                                 }
                                 // eslint-disable-next-line no-prototype-builtins
-                                if (portValue.hasOwnProperty('name') && portValue.hasOwnProperty('port')) {
+                                if (hasOwn(portValue, 'name') && hasOwn(portValue, 'port')) {
                                     if (!isNumber(portValue.port)) {
                                         throw new Error('The port set on an external_ports object must be a number.');
                                     }
