@@ -691,7 +691,10 @@ describe('k8sResource', () => {
 
     describe('teraslice job with two valid external_ports set', () => {
         it('generates k8s worker deployment with containerPort on container', () => {
-            execution.external_ports = [9090, 9091];
+            execution.external_ports = [
+                9090,
+                { name: 'metrics', port: 9091 }
+            ];
             const kr = new K8sResource(
                 'deployments', 'worker', terasliceConfig, execution
             );
@@ -702,7 +705,7 @@ describe('k8sResource', () => {
                 .toEqual([
                     { containerPort: 45680 },
                     { containerPort: 9090 },
-                    { containerPort: 9091 }
+                    { name: 'metrics', containerPort: 9091 }
                 ]);
         });
 
