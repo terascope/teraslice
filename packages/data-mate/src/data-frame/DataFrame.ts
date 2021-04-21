@@ -7,7 +7,7 @@ import {
 import {
     DataEntity, TSError,
     getTypeOf, isFunction,
-    isPlainObject, trim,
+    isPlainObject, trimFP,
     isInteger
 } from '@terascope/utils';
 import {
@@ -358,7 +358,7 @@ export class DataFrame<
         const fields = flattenStringArg(fieldArgs);
         const sortBy = [...fields].map(
             (fieldArg): { field: keyof T; vector: Vector<any>; direction: SortOrder } => {
-                const [field, direction = 'asc'] = `${fieldArg}`.split(':').map(trim);
+                const [field, direction = 'asc'] = `${fieldArg}`.split(':').map(trimFP());
                 if (direction !== 'asc' && direction !== 'desc') {
                     throw new TSError(
                         `Expected direction ("${direction}") for orderBy field ("${field}") to be either "asc" or "desc"`,
