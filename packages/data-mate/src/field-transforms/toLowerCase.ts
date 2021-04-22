@@ -1,4 +1,4 @@
-import { toBoolean } from '@terascope/utils';
+import { getTypeOf, isString } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -7,19 +7,23 @@ import {
     DataTypeFieldAndChildren
 } from '../interfaces';
 
-export const toBooleanConfig: FieldTransformConfig = {
-    name: 'toBoolean',
+function _toLowerCase(input: unknown): string {
+    if (!isString(input)) {
+        throw new Error(`Invalid input ${JSON.stringify(input)}, expected string got ${getTypeOf(input)}`);
+    }
+    return input.toLowerCase();
+}
+
+export const toLowerCaseConfig: FieldTransformConfig = {
+    name: 'toLowerCase',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
-    description: 'Converts a truthy or falsy value to boolean',
+    description: 'Converts a string to lower case characters',
     create() {
-        return toBoolean;
+        return _toLowerCase;
     },
-    accepts: [
-        FieldType.Boolean,
-        FieldType.Number,
-        FieldType.String,
-    ],
+    accepts: [FieldType.String],
+    // TODO: fix this
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;
 

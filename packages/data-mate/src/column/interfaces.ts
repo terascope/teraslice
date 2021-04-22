@@ -1,9 +1,6 @@
 import {
-    DataTypeFieldConfig, DataTypeFields, DataTypeVersion, Maybe, ReadonlyDataTypeFields,
+    DataTypeFieldConfig, DataTypeVersion, Maybe, ReadonlyDataTypeFields,
 } from '@terascope/types';
-import {
-    ListVector, Vector, VectorType
-} from '../vector';
 
 /**
  * Column options
@@ -41,36 +38,6 @@ export enum TransformType {
     VALIDATE = 'VALIDATE',
 }
 
-export interface BaseTransformConfig {
-    /**
-     * The type of transformation
-    */
-    type: TransformType;
-
-    /**
-     * Description of the transformation
-    */
-    description: string;
-
-    /**
-     * The argument type config, used for validation
-    */
-    argument_schema: DataTypeFields;
-
-    /**
-     * A list of required args
-    */
-    required_args?: string[];
-
-    /**
-     * The types of Vectors this can work with.
-     * You don't have to specify VectorType.LIST (this is automatic)
-     *
-     * If none is specified, it will work with any Vector type
-    */
-    accepts: VectorType[];
-}
-
 /**
  * A created transformation function
 */
@@ -90,25 +57,6 @@ export type ColumnTransformFn<
     output?: Partial<DataTypeFieldConfig>;
 };
 
-export interface ColumnTransformConfig<
-    T,
-    R = T,
-    A extends Record<string, any> = Record<string, unknown>,
-> extends BaseTransformConfig {
-    type: TransformType.TRANSFORM;
-
-    /**
-     * A transform function
-    */
-    create: (vector: Vector<T>|ListVector<T>, args: A) => ColumnTransformFn<T, R>;
-
-    /**
-     * The output column options, this will change the values
-     * If none specified the output data type will stay the same
-    */
-    output?: DataTypeFieldConfig;
-}
-
 /**
  * A created validation function
 */
@@ -123,18 +71,6 @@ export type ColumnValidateFn<
 }|{
     mode: TransformMode.NONE;
 };
-
-export interface ColumnValidateConfig<
-    T,
-    A extends Record<string, any> = Record<string, unknown>,
-> extends BaseTransformConfig {
-    type: TransformType.VALIDATE;
-
-    /**
-     * Creates a validator function
-    */
-    create: (vector: Vector<T>, args: A) => ColumnValidateFn<T>;
-}
 
 /**
  * The metadata used when serializing a column

@@ -1,4 +1,4 @@
-import { toBoolean } from '@terascope/utils';
+import { toKebabCase } from '@terascope/utils';
 import { FieldType } from '@terascope/types';
 import {
     FieldTransformConfig,
@@ -7,19 +7,16 @@ import {
     DataTypeFieldAndChildren
 } from '../interfaces';
 
-export const toBooleanConfig: FieldTransformConfig = {
-    name: 'toBoolean',
+export const toKebabCaseConfig: FieldTransformConfig = {
+    name: 'toKebabCase',
     type: FunctionDefinitionType.FIELD_TRANSFORM,
     process_mode: ProcessMode.INDIVIDUAL_VALUES,
-    description: 'Converts a truthy or falsy value to boolean',
+    description: 'Converts a string to kebab case characters',
     create() {
-        return toBoolean;
+        // toKebabCase handles cases input is not string
+        return (input: unknown) => toKebabCase(input as string);
     },
-    accepts: [
-        FieldType.Boolean,
-        FieldType.Number,
-        FieldType.String,
-    ],
+    accepts: [FieldType.String],
     output_type(inputConfig: DataTypeFieldAndChildren): DataTypeFieldAndChildren {
         const { field_config } = inputConfig;
 
