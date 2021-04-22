@@ -265,6 +265,7 @@ describe('String Utils', () => {
             [12345],
         ])('should return false for invalid urls', (input) => {
             expect(isUrl(input)).toEqual(false);
+        });
     });
 
     describe('isUUID', () => {
@@ -307,6 +308,7 @@ describe('String Utils', () => {
             [12345, '123']
         ])('should return false if input is not a string or does not contain substring', (input, substr) => {
             expect(contains(input, substr)).toEqual(false);
+        });
     });
 
     describe('trim', () => {
