@@ -106,7 +106,7 @@ export interface ValidatedJobConfig {
     /** This will only be available in the context of k8s */
     ephemeral_storage?: boolean;
     /** This will only be available in the context of k8s */
-    exposed_ports?: number[];
+    external_ports?: (number|ExternalPort)[];
     /** This will only be available in the context of k8s */
     memory?: number;
     /** This will only be available in the context of k8s */
@@ -120,6 +120,11 @@ export interface ValidatedJobConfig {
 export interface Targets {
     key: string;
     value: string;
+}
+
+export interface ExternalPort {
+    name: string;
+    containerPort: number
 }
 
 export interface Volume {
