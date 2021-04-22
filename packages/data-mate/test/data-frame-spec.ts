@@ -1159,6 +1159,15 @@ describe('DataFrame', () => {
                 expect(resultFrame.size).toEqual(peopleDataFrame.size);
             });
 
+            it('should be able to append to an empty frame', () => {
+                const empty = DataFrame.empty<Person>(peopleDTConfig);
+                const resultFrame = empty.appendAll([peopleDataFrame]);
+
+                expect(resultFrame.toJSON()).toEqual(peopleDataFrame.toJSON());
+                expect(resultFrame.id).not.toEqual(peopleDataFrame.id);
+                expect(resultFrame.size).toEqual(peopleDataFrame.size);
+            });
+
             it('should be able to append itself once', () => {
                 const resultFrame = peopleDataFrame.appendAll([peopleDataFrame]);
                 const data = peopleDataFrame.toJSON();

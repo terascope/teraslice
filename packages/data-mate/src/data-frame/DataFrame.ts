@@ -685,7 +685,7 @@ export class DataFrame<
 
         // nothing changed
         if (size === this.size) return this;
-        if (size < this.size || this.size === 0) {
+        if (size < this.size || size === 0) {
             return this.limit(size);
         }
 
