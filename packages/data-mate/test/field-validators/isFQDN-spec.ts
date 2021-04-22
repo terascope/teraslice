@@ -5,10 +5,10 @@ import {
 
 const isFQDNConfig = functionConfigRepository.isFQDN;
 
-describe('isFQDNConfig', () => {
+describe('isFQDN', () => {
     it('has proper configuration', () => {
         expect(isFQDNConfig).toBeDefined();
-        expect(isFQDNConfig).toHaveProperty('name', 'isBase64');
+        expect(isFQDNConfig).toHaveProperty('name', 'isFQDN');
         expect(isFQDNConfig).toHaveProperty('type', FunctionDefinitionType.FIELD_VALIDATION);
         expect(isFQDNConfig).toHaveProperty('process_mode', ProcessMode.INDIVIDUAL_VALUES);
         expect(isFQDNConfig).toHaveProperty('description');
@@ -18,20 +18,23 @@ describe('isFQDNConfig', () => {
     });
 
     it('can validate values', () => {
-        const isBase64 = isFQDNConfig.create({});
+        const isFQDN = isFQDNConfig.create({});
 
         [
-            ['ZnJpZW5kbHlOYW1lNw==', true],
-            ['bW9kZWxVUkwx', true],
-            ['manufacturerUrl7', false],
+            ['example.com', true],
+            ['international-example.com.br', true],
+            ['some.other.domain.uk', true],
+            ['1234.com', true],
+            ['no_underscores.com', false],
             ['undefined', false],
             [true, false],
             [12345, false],
             [undefined, false],
-            ['randomstring', false],
+            ['**.bad.domain.com', false],
+            ['example.0', false],
             [{}, false]
         ].forEach(([input, expected]) => {
-            expect(isBase64(input)).toEqual(expected);
+            expect(isFQDN(input)).toEqual(expected);
         });
     });
 

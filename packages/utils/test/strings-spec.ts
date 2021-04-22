@@ -18,6 +18,7 @@ import {
     isUrl,
     isUUID,
     isBase64,
+    isFQDN,
     contains,
     trim,
     trimStart,
@@ -310,6 +311,30 @@ describe('String Utils', () => {
             [{}],
         ])('should return false for non base64 inputs', (input) => {
             expect(isBase64(input)).toEqual(false);
+        });
+    });
+
+    describe('isFQDN', () => {
+        test.each([
+            ['example.com'],
+            ['international-example.com.br'],
+            ['some.other.domain.uk'],
+            ['1234.com']
+        ])('should return true for valid domains', (input) => {
+            expect(isFQDN(input)).toEqual(true);
+        });
+
+        test.each([
+            ['no_underscores.com'],
+            ['undefined'],
+            [true],
+            [12345],
+            [undefined],
+            ['**.bad.domain.com'],
+            ['example.0'],
+            [{}],
+        ])('should return false for non base64 inputs', (input) => {
+            expect(isFQDN(input)).toEqual(false);
         });
     });
 

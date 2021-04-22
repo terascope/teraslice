@@ -6,8 +6,21 @@ import { FieldValidateConfig, ProcessMode, FunctionDefinitionType } from '../int
  * Validates input equals the value
  *
  * @example
- * contains('hello', 'hello') // true
- * contains('hello', 'foo') // false
+ *
+ * equals('thisisastring', 'thisisastring') // true
+ * equals(['an', 'array', 'of', 'values'], ['an', 'array', 'of', 'values']) // true
+ * equals({ foo: 'bar' }, { foo: 'bar' }) // true
+ * equals({ foo: 'bar', deep: { value: 'kitty' } }, { foo: 'bar', deep: { value: 'kitty' } }) // true
+ * equals(true, true) //, true
+ * equals(undefined, undefined) //, true
+ * equals(12345, 12345) //, true
+ * equals('thisisastring', 'somethingelse') // false
+ * equals(1234, 12345) //, false
+ * equals(false, true) //, false
+ * equals(null, undefined) //, false
+ * equals({ foo: 'bar'}, { foo: 'bin' }) // false
+ * equals({ deep: { value: 'kitty' } }, { deep: { value: 'lion' } }) // false
+ * equals([ 1, 2, 3, 4], [1, 2, 3] ) // false
  *
  * @param {*} input
  * @param {{ value: string }} { value }

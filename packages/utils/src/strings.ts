@@ -496,6 +496,10 @@ export function isBase64(input: unknown): boolean {
     return false;
 }
 
+export function isFQDN(input: unknown): boolean {
+    return isString(input) && validator.isFQDN(input);
+}
+
 /**
  * Maps an array of strings and and trims the result, or
  * parses a comma separated list and trims the result
