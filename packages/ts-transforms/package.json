@@ -44,7 +44,7 @@
         "jexl": "^2.2.2",
         "nanoid": "^3.1.21",
         "valid-url": "^1.0.9",
-        "validator": "^13.5.2",
+        "validator": "^13.6.0",
         "yargs": "^16.2.0"
     },
     "devDependencies": {
