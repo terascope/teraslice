@@ -6,7 +6,7 @@ import {
 
 const containsConfig = functionConfigRepository.contains;
 
-describe('isHashConfig', () => {
+describe('containsConfig', () => {
     it('has proper configuration', () => {
         expect(containsConfig).toBeDefined();
         expect(containsConfig).toHaveProperty('name', 'includes');

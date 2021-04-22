@@ -17,6 +17,7 @@ import {
     isMacAddress,
     isUrl,
     isUUID,
+    isBase64,
     contains,
     trim,
     trimStart,
@@ -288,6 +289,27 @@ describe('String Utils', () => {
             [{}],
         ])('should return false for non UUIDs', (input) => {
             expect(isUUID(input)).toEqual(false);
+        });
+    });
+
+    describe('isBase64', () => {
+        test.each([
+            ['ZnJpZW5kbHlOYW1lNw=='],
+            ['bW9kZWxVUkwx'],
+        ])('should return true for valid base64 strings', (input) => {
+            expect(isBase64(input)).toEqual(true);
+        });
+
+        test.each([
+            ['manufacturerUrl7'],
+            ['undefined'],
+            [true],
+            [12345],
+            [undefined],
+            ['randomstring'],
+            [{}],
+        ])('should return false for non base64 inputs', (input) => {
+            expect(isBase64(input)).toEqual(false);
         });
     });
 

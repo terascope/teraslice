@@ -7,7 +7,9 @@ import { isLengthConfig } from './isLength';
 import { isMACAddressConfig } from './isMacAddress';
 import { isUrlConfig } from './isUrl';
 import { isUUIDConfig } from './isUUID';
+import { isBase64Config } from './isBase64';
 import { containsConfig } from './contains';
+import { equalsConfig } from './equals';
 
 export const fieldValidationRepository = {
     isBoolean: isBooleanConfig,
@@ -19,5 +21,7 @@ export const fieldValidationRepository = {
     isMacAddress: isMACAddressConfig,
     isUrl: isUrlConfig,
     isUUID: isUUIDConfig,
-    contains: containsConfig
+    isBase64: isBase64Config,
+    contains: containsConfig,
+    equals: equalsConfig
 } as const;

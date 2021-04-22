@@ -481,6 +481,21 @@ export function contains(input: unknown, substring: string): boolean {
     return isString(input) && includes(input, substring);
 }
 
+export function isBase64(input: unknown): boolean {
+    if (!isString(input)) return false;
+
+    const validatorValid = validator.isBase64(input);
+
+    if (validatorValid) {
+        const decode = Buffer.from(input, 'base64').toString('utf8');
+        const encode = Buffer.from(decode, 'utf8').toString('base64');
+
+        return input === encode;
+    }
+
+    return false;
+}
+
 /**
  * Maps an array of strings and and trims the result, or
  * parses a comma separated list and trims the result
